@@ -118,7 +118,16 @@ if(isset($_POST['wpaicg_chat_shortcode_options']) && is_array($_POST['wpaicg_cha
 
     update_option('wpaicg_chat_shortcode_options',$wpaicg_chat_shortcode_options);
 
-    $stream_nav_option = isset($_POST['wpaicg_stream_nav_option']) ? '1' : '0';
+    // Check the model and adjust the 'stream' option if necessary
+    $o1_models = \WPAICG\WPAICG_Util::get_instance()->o1_models;
+
+    if (isset($posted_options['model']) && array_key_exists($posted_options['model'], $o1_models)) {
+        // Set stream to false if model is o1-mini or o1-preview
+        $stream_nav_option = '0';
+    } else {
+        // Set stream based on the form submission
+        $stream_nav_option = isset($_POST['wpaicg_stream_nav_option']) ? '1' : '0';
+    }
     update_option('wpaicg_shortcode_stream', $stream_nav_option);
 
     // Retrieve and sanitize the 'vectordb' option
@@ -162,7 +171,7 @@ $default_setting = array(
     'placeholder' => __('Type a message','gpt3-ai-content-generator'),
     'welcome' => __('Hello, how can I help you today?','gpt3-ai-content-generator'),
     'remember_conversation' => 'yes',
-    'conversation_cut' => 10,
+    'conversation_cut' => 100,
     'content_aware' => 'yes',
     'embedding' =>  false,
     'embedding_type' =>  false,
@@ -824,46 +833,51 @@ $selected_language = isset($wpaicg_settings['language']) ? $wpaicg_settings['lan
             <section id="knowledge" class="tab-content" style="display: none;">
                 <h3 style="margin-top: -1em;"><?php echo esc_html__('Knowledge','gpt3-ai-content-generator')?></h3>
                 <div class="nice-form-group" style="display: flex;justify-content: space-between;margin-top: -1em;">
-                    <div class="nice-form-group">
-                        <label><?php echo esc_html__('Content Aware','gpt3-ai-content-generator')?></label>
-                        <!-- Hidden input to ensure 'no' is submitted if checkbox is unchecked -->
-                        <input type="hidden" value="no" name="wpaicg_chat_shortcode_options[content_aware]">
-                        <!-- Checkbox input, only submits 'yes' when checked -->
-                        <input 
-                            <?php echo $wpaicg_settings['content_aware'] == 'yes' ? 'checked' : '' ?> 
-                            value="yes" 
-                            type="checkbox" 
-                            style="border-color: #10b981; margin-top: 4px;" 
-                            class="switch" 
-                            id="wpaicg_chat_content_aware" 
-                            name="wpaicg_chat_shortcode_options[content_aware]">
-                    </div>
-                    <div class="nice-form-group">
-                        <label><?php echo esc_html__('User Aware','gpt3-ai-content-generator')?></label>
-                        <!-- Hidden input to ensure 'no' is submitted if checkbox is unchecked -->
-                        <input type="hidden" value="no" name="wpaicg_chat_shortcode_options[user_aware]">
-                        <input 
-                            <?php echo $wpaicg_settings['user_aware'] == 'yes' ? 'checked' : '' ?> 
-                            value="yes" 
-                            type="checkbox" 
-                            style="border-color: #10b981; margin-top: 4px;" 
-                            class="switch" 
-                            name="wpaicg_chat_shortcode_options[user_aware]">
-                    </div>
-                    <div class="nice-form-group">
-                        <label><?php echo esc_html__('Memory','gpt3-ai-content-generator')?></label>
-                        <!-- Hidden input to ensure 'no' is submitted if checkbox is unchecked -->
-                        <input type="hidden" value="no" name="wpaicg_chat_shortcode_options[remember_conversation]">
-                        <!-- Checkbox input, only submits 'yes' when checked -->
-                        <input 
-                            <?php echo $wpaicg_settings['remember_conversation'] == 'yes' ? 'checked' : '' ?> 
-                            value="yes" 
-                            type="checkbox" 
-                            style="border-color: #10b981; margin-top: 4px;" 
-                            class="switch" 
-                            id="wpaicgchat_remember_conversation" 
-                            name="wpaicg_chat_shortcode_options[remember_conversation]">
-                    </div>
+                    <fieldset class="nice-form-group">
+                        <legend><?php echo esc_html__('Awareness & Memory', 'gpt3-ai-content-generator'); ?></legend>
+                        <div class="nice-form-group">
+                            <input type="hidden" value="no" name="wpaicg_chat_shortcode_options[content_aware]">
+                            <input 
+                                <?php echo $wpaicg_settings['content_aware'] == 'yes' ? 'checked' : '' ?> 
+                                value="yes" 
+                                type="checkbox" 
+                                id="wpaicg_chat_content_aware" 
+                                name="wpaicg_chat_shortcode_options[content_aware]">
+                            <label for="wpaicg_chat_content_aware"><?php echo esc_html__('Content Aware','gpt3-ai-content-generator')?></label>
+                        </div>
+                        
+                        <div class="nice-form-group">
+                            <input type="hidden" value="no" name="wpaicg_chat_shortcode_options[user_aware]">
+                            <input 
+                                <?php echo $wpaicg_settings['user_aware'] == 'yes' ? 'checked' : '' ?> 
+                                value="yes" 
+                                type="checkbox" 
+                                id="wpaicg_chat_user_aware" 
+                                name="wpaicg_chat_shortcode_options[user_aware]">
+                            <label for="wpaicg_chat_user_aware"><?php echo esc_html__('User Aware','gpt3-ai-content-generator')?></label>
+                        </div>
+                        
+                        <div class="nice-form-group">
+                            <input type="hidden" value="no" name="wpaicg_chat_shortcode_options[remember_conversation]">
+                            <input 
+                                <?php echo $wpaicg_settings['remember_conversation'] == 'yes' ? 'checked' : '' ?> 
+                                value="yes" 
+                                type="checkbox" 
+                                id="wpaicg_chat_remember_conversation" 
+                                name="wpaicg_chat_shortcode_options[remember_conversation]">
+                            <label for="wpaicg_chat_remember_conversation"><?php echo esc_html__('Memory','gpt3-ai-content-generator')?></label>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="nice-form-group">
+                    <label style="display: flex; align-items: center;">
+                        <?php echo esc_html__('Memory Limit', 'gpt3-ai-content-generator') ?>
+                        <a href="https://docs.aipower.org/docs/ChatGPT/advanced-setup/context#memory-limit" target="_blank" style="text-decoration: none; margin-left: 5px;">
+                            <span class="dashicons dashicons-editor-help"></span>
+                        </a>
+                    </label>
+                    <input id="wpaicg_memory_limit" name="wpaicg_chat_shortcode_options[conversation_cut]" type="range" step="1" min="3" max="500" value="<?php echo isset($wpaicg_settings['conversation_cut']) ? esc_attr($wpaicg_settings['conversation_cut']) : 3; ?>" oninput="this.nextElementSibling.value = this.value">
+                    <output><?php echo isset($wpaicg_settings['conversation_cut']) ? esc_attr($wpaicg_settings['conversation_cut']) : 3; ?></output>
                 </div>
                 <fieldset class="nice-form-group">
                 <legend><?php echo esc_html__('Data Source', 'gpt3-ai-content-generator'); ?></legend>
@@ -1054,16 +1068,6 @@ $selected_language = isset($wpaicg_settings['language']) ? $wpaicg_settings['lan
                         <select <?php echo empty($wpaicg_settings['embedding']) || $wpaicg_settings['content_aware'] == 'no' ? ' disabled':''?> name="wpaicg_chat_shortcode_options[embedding_type]" id="wpaicg_chat_embedding_type" class="<?php echo !$wpaicg_settings['embedding'] && $wpaicg_settings['content_aware'] == 'yes' ? 'asdisabled' : ''?>">
                             <option <?php echo $wpaicg_settings['embedding_type'] ? ' selected':'';?> value="openai"><?php echo esc_html__('Conversational','gpt3-ai-content-generator')?></option>
                             <option <?php echo empty($wpaicg_settings['embedding_type']) ? ' selected':''?> value=""><?php echo esc_html__('Non-Conversational','gpt3-ai-content-generator')?></option>
-                        </select>
-                    </div>
-                    <div class="nice-form-group">
-                        <label><?php echo esc_html__('Memory Limit','gpt3-ai-content-generator')?></label>
-                        <select name="wpaicg_chat_shortcode_options[conversation_cut]">
-                            <?php
-                            for($i=3;$i<=50;$i++){
-                                echo '<option'.($wpaicg_settings['conversation_cut'] == $i ? ' selected':'').' value="'.esc_html($i).'">'.esc_html($i).'</option>';
-                            }
-                            ?>
                         </select>
                     </div>
                     <div class="nice-form-group">

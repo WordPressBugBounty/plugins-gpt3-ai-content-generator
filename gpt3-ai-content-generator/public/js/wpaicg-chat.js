@@ -1107,6 +1107,11 @@ function wpaicgChatInit() {
         function updateChatHistory(message, sender, wpaicg_randomnum) {
             let chatHistoryKey = 'wpaicg_chat_history_' + chatbot_identity + '_' + clientID;
             let chatHistory = localStorage.getItem(chatHistoryKey);
+            // get data-memory-limit, default is 10
+            let memory_limit = chat.getAttribute('data-memory-limit');
+            if (memory_limit === null || memory_limit === undefined) {
+                memory_limit = 100;
+            }
             chatHistory = chatHistory ? JSON.parse(chatHistory) : [];
         
             // Format and add the new message
@@ -1117,17 +1122,9 @@ function wpaicgChatInit() {
                 text: formattedMessage,
             });
         
-            // Keep only the last 10 messages if there are more than 5
-            if (chatHistory.length > 10) {
-                chatHistory = chatHistory.slice(-10);
-            }
-        
-            // Calculate total character count
-            let totalCharCount = chatHistory.reduce((total, msg) => total + msg.length, 0);
-        
-            // Clear chat history if total character count exceeds 20000
-            if (totalCharCount > 20000) {
-                chatHistory = [];
+            // Keep only the last 'memory_limit' messages if there are more than 'memory_limit'
+            if (chatHistory.length > memory_limit) {
+                chatHistory = chatHistory.slice(-memory_limit);
             }
         
             localStorage.setItem(chatHistoryKey, JSON.stringify(chatHistory));
@@ -1415,9 +1412,6 @@ function wpaicgChatInit() {
         const chatId = `wpaicg-chat-message-${Math.floor(Math.random() * 100000) + 1}`;
         const cleanedChatId = chatId.replace('wpaicg-chat-message-', ''); // Clean the chatId by removing the prefix
         wpaicgData.append('chat_id', cleanedChatId);
-        const queryString = new URLSearchParams(wpaicgData).toString();
-
-        const eventSource = new EventSource(`${wpaicgParams.ajax_url}?${queryString}`);
 
         const emptyClipboardSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${fontColor}" class="bi bi-copy" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
@@ -1447,17 +1441,19 @@ function wpaicgChatInit() {
 
         // Buffer to accumulate chunks
         let buffer = '';
-    
+        let completeAIResponse = '';
+        let dataQueue = [];
+        let isProcessing = false;
+
         function processBuffer() {
             // Call the unified processMarkdown function for stream mode
             processMarkdown(buffer, true, chatId);
         }
-    
+
         function updateChatHistory(message, sender, chatId) {
             const key = `wpaicg_chat_history_${chatbot_identity}_${clientID}`;
             const history = JSON.parse(localStorage.getItem(key) || '[]');
             
-            // Remove the 'wpaicg-chat-message-' prefix from the chatId
             const simpleChatId = chatId.replace('wpaicg-chat-message-', '');
         
             history.push({
@@ -1467,11 +1463,7 @@ function wpaicgChatInit() {
         
             localStorage.setItem(key, JSON.stringify(history));
         }
-    
-        let dataQueue = [];
-        let isProcessing = false;
-        let completeAIResponse = '';
-        
+
         function typeWriter(text, i, elementId, callback) {
             toggleBlinkingCursor(false);
             if (i < text.length) {
@@ -1495,11 +1487,11 @@ function wpaicgChatInit() {
                 scrollToBottom();
             }
         }
-    
+
         function scrollToBottom() {
             wpaicg_messages_box.scrollTop = wpaicg_messages_box.scrollHeight;
         }
-    
+
         function processQueue() {
             if (dataQueue.length && !isProcessing) {
                 isProcessing = true;
@@ -1512,7 +1504,7 @@ function wpaicgChatInit() {
                 toggleBlinkingCursor(false);
             }
         }
-    
+
         function toggleBlinkingCursor(isVisible) {
             const cursorElement = jQuery(`#${chatId} .blinking-cursor`);
             if (isVisible) {
@@ -1523,55 +1515,145 @@ function wpaicgChatInit() {
                 cursorElement.remove();
             }
         }
-            
-        eventSource.onopen = () => {
+
+        // Fetch POST request for streaming
+        fetch(wpaicgParams.ajax_url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(wpaicgData).toString(),
+        })
+        .then(response => response.body)
+        .then(async (reader) => {
+            const decoder = new TextDecoder();
+            const stream = reader.getReader();
+
             toggleBlinkingCursor(true);
-            wpaicg_messages_box.innerHTML += messageHtml;
-        };
-    
-        eventSource.onmessage = e => {
             wpaicg_ai_thinking.style.display = 'none';
-        
-            const resultData = JSON.parse(e.data);
-        
-            if (e.data === "[DONE]" || resultData.choices?.[0]?.finish_reason === "stop" || resultData.choices?.[0]?.finish_reason === "length" || resultData.choices?.[0]?.finish_details?.type === "stop") {
-                eventSource.close();
-                toggleBlinkingCursor(false);
-                updateChatHistory(completeAIResponse, 'ai', chatId);
-                return;
+            wpaicg_messages_box.innerHTML += messageHtml;
+
+            let partial = '';
+
+            while (true) {
+                const { done, value } = await stream.read();
+                if (done) {
+                    toggleBlinkingCursor(false);
+                    wpaicg_ai_thinking.style.display = 'none';
+                    updateChatHistory(completeAIResponse, 'ai', chatId);
+                    break;
+                }
+
+                partial += decoder.decode(value); // Append chunk
+
+                // Split the partial data by lines
+                const lines = partial.split('\n');
+
+                for (let i = 0; i < lines.length - 1; i++) {
+                    let line = lines[i];
+                    if (line.trim() === '' || !line.startsWith('data: ')) {
+                        continue;
+                    }
+
+                    // Remove 'data: ' prefix
+                    line = line.slice(6);
+
+                    // Handle [DONE] signal
+                    if (line === "[DONE]") {
+                        toggleBlinkingCursor(false);
+                        wpaicg_ai_thinking.style.display = 'none';
+                        scrollToBottom();
+                        updateChatHistory(completeAIResponse, 'ai', chatId);
+                        return;
+                    }
+
+                    // Try to parse the remaining JSON data
+                    try {
+                        const resultData = JSON.parse(line);
+
+                        if (resultData.tokenLimitReached || resultData.messageFlagged || resultData.pineconeError || resultData.ipBanned || resultData.modflag) {
+                            document.getElementById(chatId).innerHTML = `<span class="wpaicg-chat-message">${resultData.msg}</span>`;
+                            wpaicg_ai_thinking.style.display = 'none';
+                            toggleBlinkingCursor(false);
+                            scrollToBottom();
+                            return;
+                        }
+
+                        if (resultData.error) {
+                            dataQueue.push(resultData.error.message);
+                        } else {
+                            const content = resultData.choices?.[0]?.delta?.content || resultData.choices?.[0]?.text || '';
+                            buffer += content;
+                            processBuffer();
+                            completeAIResponse += content;
+                        }
+
+                        processQueue();
+                        scrollToBottom();
+                    } catch (err) {
+                        console.error('Error parsing JSON:', err, line);
+                    }
+                }
+
+                partial = lines[lines.length - 1]; // Keep last partial line
             }
-        
-            if (resultData.tokenLimitReached || resultData.messageFlagged || resultData.pineconeError || resultData.ipBanned || resultData.modflag) {
-                document.getElementById(chatId).innerHTML = `<span class="wpaicg-chat-message">${resultData.msg}</span>`;
-                wpaicg_ai_thinking.style.display = 'none';
-                eventSource.close();
-                toggleBlinkingCursor(false);
-                scrollToBottom();
-                return;
+
+            // Process any remaining partial data after the loop ends
+            if (partial.trim() !== '') {
+                const lines = partial.split('\n');
+                for (let line of lines) {
+                    if (line.trim() === '' || !line.startsWith('data: ')) {
+                        continue;
+                    }
+
+                    // Remove 'data: ' prefix
+                    line = line.slice(6);
+
+                    // Handle [DONE] signal
+                    if (line === "[DONE]") {
+                        toggleBlinkingCursor(false);
+                        updateChatHistory(completeAIResponse, 'ai', chatId);
+                        return;
+                    }
+
+                    // Try to parse the remaining JSON data
+                    try {
+                        const resultData = JSON.parse(line);
+
+                        if (resultData.tokenLimitReached || resultData.messageFlagged || resultData.pineconeError || resultData.ipBanned || resultData.modflag) {
+                            document.getElementById(chatId).innerHTML = `<span class="wpaicg-chat-message">${resultData.msg}</span>`;
+                            wpaicg_ai_thinking.style.display = 'none';
+                            toggleBlinkingCursor(false);
+                            scrollToBottom();
+                            return;
+                        }
+
+                        if (resultData.error) {
+                            dataQueue.push(resultData.error.message);
+                        } else {
+                            const content = resultData.choices?.[0]?.delta?.content || resultData.choices?.[0]?.text || '';
+                            buffer += content;
+                            processBuffer();
+                            completeAIResponse += content;
+                        }
+
+                        processQueue();
+                        scrollToBottom();
+                    } catch (err) {
+                        console.error('Error parsing JSON after stream end:', err, line);
+                    }
+                }
             }
-        
-            if (resultData.error) {
-                dataQueue.push(resultData.error.message);
-            } else {
-                const content = resultData.choices?.[0]?.delta?.content || resultData.choices?.[0]?.text || '';
-                buffer += content;
-                processBuffer();
-                completeAIResponse += content;
-            }
-        
-            processQueue();
-            scrollToBottom();
-        };
+        })
+        .catch(error => {
+            console.log("Fetch failed:", error);
+            toggleBlinkingCursor(false);
+            wpaicg_ai_thinking.style.display = 'none';
+        });
 
         // Setup button listeners for the copy and feedback buttons
         setupButtonListeners(copyEnabled, feedbackEnabled, class_ai_item, emptyClipboardSVG, checkedClipboardSVG, thumbsUpSVG, thumbsDownSVG, showFeedbackModal, aiBg, fontColor, usrBg, chat, wpaicg_nonce, chatbot_identity);
-    
-        eventSource.onerror = error => {
-            console.log("EventSource failed:", error);
-            toggleBlinkingCursor(false);
-            wpaicg_ai_thinking.style.display = 'none';
-            eventSource.close();
-        };
+
     }
 
     function processMarkdown(inputText, isStream = false, chatId = null) {

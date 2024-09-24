@@ -910,175 +910,181 @@ if($totalPage > 1){
         $('#wpaicg_export_btn').click(function(e) {
             e.preventDefault();
             var nonce = $(this).data('nonce');
+
             $.post(ajaxurl, {
                 action: 'wpaicg_export_logs',
-                nonce: nonce // Corrected the placement of nonce here
+                nonce: nonce
             }, function(response) {
-                // Redirect to the provided URL
-                window.location.href = response;
+                if (response.success) {
+                    // Directly reload the page without showing any success message
+                    location.reload();
+                } else {
+                    // Display error message if there is an error
+                    $('<div class="notice notice-error is-dismissible"><p>' + response.data + '</p></div>').insertBefore('.wrap');
+                }
             });
         });
 
         $('.wpaicg-log-messages').click(function () {
-    var wpaicg_messages = $(this).attr('data-messages');
-    if (wpaicg_messages !== '') {
-        wpaicg_messages = JSON.parse(wpaicg_messages);
-        var html = '';
-        $('.wpaicg_modal_title').html('<?php echo esc_html__('View Chat Log', 'gpt3-ai-content-generator')?>');
+            var wpaicg_messages = $(this).attr('data-messages');
+            if (wpaicg_messages !== '') {
+                wpaicg_messages = JSON.parse(wpaicg_messages);
+                var html = '';
+                $('.wpaicg_modal_title').html('<?php echo esc_html__('View Chat Log', 'gpt3-ai-content-generator')?>');
 
-        var conversationContainer = ''; // Container for each conversation
-        var currentConversation = ''; // Tracks current conversation
-        var lastUserFeedback = null; // To store feedback from user messages
+                var conversationContainer = ''; // Container for each conversation
+                var currentConversation = ''; // Tracks current conversation
+                var lastUserFeedback = null; // To store feedback from user messages
 
-        $.each(wpaicg_messages, function (idx, item) {
-            // Open a new conversation container for each user message
-            if (item.type === 'user') {
+                $.each(wpaicg_messages, function (idx, item) {
+                    // Open a new conversation container for each user message
+                    if (item.type === 'user') {
+                        if (currentConversation !== '') {
+                            html += currentConversation + '</div>'; // Close previous conversation
+                        }
+                        currentConversation = '<div class="wpaicg-conversation" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">'; // Start a new container
+                        
+                        // Store feedback from the user message for the next AI response
+                        if (item.userfeedback && item.userfeedback.length > 0) {
+                            lastUserFeedback = item.userfeedback[0]; // Get the feedback for the next AI message
+                        } else {
+                            lastUserFeedback = null; // Reset if no feedback
+                        }
+                    }
+
+                    // Add user/AI message content
+                    currentConversation += '<div class="wpaicg_message" style="margin-bottom: 10px;">';
+
+                    // Determine whether the message is from AI or User
+                    if (item.type === 'ai') {
+                        currentConversation += '<strong><?php echo esc_html__('AI', 'gpt3-ai-content-generator')?>:</strong>&nbsp;';
+                    } else {
+                        currentConversation += '<strong><?php echo esc_html__('User', 'gpt3-ai-content-generator')?>:</strong>&nbsp;';
+                    }
+
+                    // Sanitize and format the message
+                    let html_Entities = htmlEntities(item.message);
+                    html_Entities = html_Entities.replace(/\\/g, '');
+                    currentConversation += html_Entities.replace(/```([\s\S]*?)```/g, '<code>$1</code>');
+
+                    // If this is an AI message, display the last user feedback (if any)
+                    if (item.type === 'ai' && lastUserFeedback) {
+                        let feedbackIcon = lastUserFeedback.type === 'up' ? '<span class="dashicons dashicons-thumbs-up"></span>' : '<span class="dashicons dashicons-thumbs-down"></span>';
+                        let feedbackColor = lastUserFeedback.type === 'up' ? 'green' : 'red';
+
+                        // Display feedback label, icon, and details (if any)
+                        currentConversation += '<div style="margin-top: 5px; font-size: smaller; display: flex; align-items: center;">';
+                        currentConversation += '<strong>User Feedback:</strong>&nbsp;'; // Add the label
+                        currentConversation += '<span style="color: ' + feedbackColor + '; margin-right: 5px;">' + feedbackIcon + '</span>';
+
+                        // Display additional feedback details if present
+                        if (lastUserFeedback.details) {
+                            currentConversation += '<span style="color: #555;">' + lastUserFeedback.details + '</span>';
+                        }
+
+                        currentConversation += '</div>';
+
+                        // Reset feedback after it's displayed
+                        lastUserFeedback = null;
+                    }
+
+                    // Start a single line div for both "Revise Answer" and "Show Details"
+                    currentConversation += '<div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between;">';
+
+                    // Calculate and display Confidence Score with categories
+                    if (item.matches && item.matches.length > 0) {
+                        let topScore = Math.max.apply(Math, item.matches.map(function (match) { return parseFloat(match.score); }));
+                        let confidencePercentage = Math.round(topScore * 100);
+                        let confidenceText = '';
+                        let confidenceColor = '';
+                        let textColor = 'white'; // Default text color
+
+                        if (confidencePercentage >= 98) {
+                            confidenceText = 'Absolutely Certain! 💯';
+                            confidenceColor = 'darkgreen';
+                        } else if (confidencePercentage >= 90) {
+                            confidenceText = 'Highly Confident! 👍';
+                            confidenceColor = 'green';
+                        } else if (confidencePercentage >= 80) {
+                            confidenceText = 'Strong Match! ✔️';
+                            confidenceColor = '#32a852'; // Green variant for better visibility
+                        } else if (confidencePercentage >= 70) {
+                            confidenceText = 'Good Match 😊';
+                            confidenceColor = '#b3b300'; // Dark yellow for better contrast
+                        } else if (confidencePercentage >= 50) {
+                            confidenceText = 'Needs Improvement ⚠️';
+                            confidenceColor = 'orange';
+                        } else if (confidencePercentage >= 30) {
+                            confidenceText = 'Uncertain 🤔';
+                            confidenceColor = 'orangered';
+                        } else if (confidencePercentage >= 10) {
+                            confidenceText = 'Poor Match 🚩';
+                            confidenceColor = 'red';
+                        } else {
+                            confidenceText = 'Highly Unreliable ❌';
+                            confidenceColor = 'darkred';
+                        }
+
+                        currentConversation += '<span style="background-color: ' + confidenceColor + '; color: ' + textColor + '; padding: 2px 5px; border-radius: 4px;font-size:smaller">';
+                        currentConversation += 'Confidence Score: ' + confidencePercentage + '% ' + confidenceText;
+                        currentConversation += '</span>';
+                    }
+
+                    // Add the "Revise Answer" and "Show Details" links on the right
+                    currentConversation += '<div>';
+
+                    // Always display "Revise Answer" for AI messages
+                    if (item.type === 'ai') {
+                        currentConversation += '<span class="dashicons dashicons-edit"></span>';
+                        currentConversation += '<a href="javascript:void(0);" class="wpaicg-revise-answer-link" data-message-idx="' + idx + '" style="margin-right: 15px;">';
+                        currentConversation += 'Revise Answer';
+                        currentConversation += '</a>';
+                    }
+
+                    // Display "Show Details" if item.request is defined
+                    if (typeof item.request !== "undefined" && typeof item.request === 'object') {
+                        currentConversation += '<span class="dashicons dashicons-info"></span>';
+                        currentConversation += '<a href="javascript:void(0);" class="show_message_request">';
+                        currentConversation += 'Details';
+                        currentConversation += '</a>';
+                    }
+
+                    currentConversation += '</div>'; // Close the right-aligned div
+
+                    currentConversation += '</div>'; // Close the entire row div
+
+                    // Add hidden textarea and save button for revision if it's an AI message
+                    if (item.type === 'ai') {
+                        currentConversation += '<div id="revise-answer-container-' + idx + '" class="revise-answer-container" style="display:none; margin-top: 10px;">';
+                        currentConversation += '<h4>What would be the best answer for this question?</h4>';
+                        currentConversation += '<textarea id="revise-answer-text-' + idx + '" rows="10" style="width:100%;"></textarea>';
+                        currentConversation += '<button class="button button-primary save-revise-answer" data-message-idx="' + idx + '" data-log-id="' + $(this).data('log-id') + '">Save</button>';
+                        currentConversation += '<div class="revise-answer-message" style="margin-top: 10px; color: #0073aa;"></div>';
+                        currentConversation += '</div>';
+                    }
+
+                    // Add the details request content if item.request is defined
+                    if (typeof item.request !== "undefined" && typeof item.request === 'object') {
+                        currentConversation += '<div class="wpaicg_request" style="display: none;padding: 10px;background: #e9e9e9;border-radius: 4px;"><pre style="white-space: pre-wrap">' + wpaicgReplaceStr(JSON.stringify(item.request, undefined, 4)) + '</pre></div>';
+                    }
+
+                    // Display flagged status if flagged
+                    if (typeof item.flag !== "undefined" && item.flag !== '' && item.flag !== false) {
+                        currentConversation += '<span style="display: inline-block;font-size: 12px;font-weight: bold;background: #b71a1a;padding: 1px 5px;border-radius: 3px;color: #fff;margin-left: 5px;"><?php echo esc_html__('Flagged as', 'gpt3-ai-content-generator')?> ' + item.flag + '<span>';
+                    }
+
+                    currentConversation += '</div>'; // Closing the main message div
+                });
+
                 if (currentConversation !== '') {
-                    html += currentConversation + '</div>'; // Close previous conversation
-                }
-                currentConversation = '<div class="wpaicg-conversation" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">'; // Start a new container
-                
-                // Store feedback from the user message for the next AI response
-                if (item.userfeedback && item.userfeedback.length > 0) {
-                    lastUserFeedback = item.userfeedback[0]; // Get the feedback for the next AI message
-                } else {
-                    lastUserFeedback = null; // Reset if no feedback
-                }
-            }
-
-            // Add user/AI message content
-            currentConversation += '<div class="wpaicg_message" style="margin-bottom: 10px;">';
-
-            // Determine whether the message is from AI or User
-            if (item.type === 'ai') {
-                currentConversation += '<strong><?php echo esc_html__('AI', 'gpt3-ai-content-generator')?>:</strong>&nbsp;';
-            } else {
-                currentConversation += '<strong><?php echo esc_html__('User', 'gpt3-ai-content-generator')?>:</strong>&nbsp;';
-            }
-
-            // Sanitize and format the message
-            let html_Entities = htmlEntities(item.message);
-            html_Entities = html_Entities.replace(/\\/g, '');
-            currentConversation += html_Entities.replace(/```([\s\S]*?)```/g, '<code>$1</code>');
-
-            // If this is an AI message, display the last user feedback (if any)
-            if (item.type === 'ai' && lastUserFeedback) {
-                let feedbackIcon = lastUserFeedback.type === 'up' ? '<span class="dashicons dashicons-thumbs-up"></span>' : '<span class="dashicons dashicons-thumbs-down"></span>';
-                let feedbackColor = lastUserFeedback.type === 'up' ? 'green' : 'red';
-
-                // Display feedback label, icon, and details (if any)
-                currentConversation += '<div style="margin-top: 5px; font-size: smaller; display: flex; align-items: center;">';
-                currentConversation += '<strong>User Feedback:</strong>&nbsp;'; // Add the label
-                currentConversation += '<span style="color: ' + feedbackColor + '; margin-right: 5px;">' + feedbackIcon + '</span>';
-
-                // Display additional feedback details if present
-                if (lastUserFeedback.details) {
-                    currentConversation += '<span style="color: #555;">' + lastUserFeedback.details + '</span>';
+                    html += currentConversation + '</div>'; // Close last conversation container
                 }
 
-                currentConversation += '</div>';
-
-                // Reset feedback after it's displayed
-                lastUserFeedback = null;
+                $('.wpaicg_modal_content').html(html);
+                $('.wpaicg-overlay').show();
+                $('.wpaicg_modal').show();
             }
-
-            // Start a single line div for both "Revise Answer" and "Show Details"
-            currentConversation += '<div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between;">';
-
-            // Calculate and display Confidence Score with categories
-            if (item.matches && item.matches.length > 0) {
-                let topScore = Math.max.apply(Math, item.matches.map(function (match) { return parseFloat(match.score); }));
-                let confidencePercentage = Math.round(topScore * 100);
-                let confidenceText = '';
-                let confidenceColor = '';
-                let textColor = 'white'; // Default text color
-
-                if (confidencePercentage >= 98) {
-                    confidenceText = 'Absolutely Certain! 💯';
-                    confidenceColor = 'darkgreen';
-                } else if (confidencePercentage >= 90) {
-                    confidenceText = 'Highly Confident! 👍';
-                    confidenceColor = 'green';
-                } else if (confidencePercentage >= 80) {
-                    confidenceText = 'Strong Match! ✔️';
-                    confidenceColor = '#32a852'; // Green variant for better visibility
-                } else if (confidencePercentage >= 70) {
-                    confidenceText = 'Good Match 😊';
-                    confidenceColor = '#b3b300'; // Dark yellow for better contrast
-                } else if (confidencePercentage >= 50) {
-                    confidenceText = 'Needs Improvement ⚠️';
-                    confidenceColor = 'orange';
-                } else if (confidencePercentage >= 30) {
-                    confidenceText = 'Uncertain 🤔';
-                    confidenceColor = 'orangered';
-                } else if (confidencePercentage >= 10) {
-                    confidenceText = 'Poor Match 🚩';
-                    confidenceColor = 'red';
-                } else {
-                    confidenceText = 'Highly Unreliable ❌';
-                    confidenceColor = 'darkred';
-                }
-
-                currentConversation += '<span style="background-color: ' + confidenceColor + '; color: ' + textColor + '; padding: 2px 5px; border-radius: 4px;font-size:smaller">';
-                currentConversation += 'Confidence Score: ' + confidencePercentage + '% ' + confidenceText;
-                currentConversation += '</span>';
-            }
-
-            // Add the "Revise Answer" and "Show Details" links on the right
-            currentConversation += '<div>';
-
-            // Always display "Revise Answer" for AI messages
-            if (item.type === 'ai') {
-                currentConversation += '<span class="dashicons dashicons-edit"></span>';
-                currentConversation += '<a href="javascript:void(0);" class="wpaicg-revise-answer-link" data-message-idx="' + idx + '" style="margin-right: 15px;">';
-                currentConversation += 'Revise Answer';
-                currentConversation += '</a>';
-            }
-
-            // Display "Show Details" if item.request is defined
-            if (typeof item.request !== "undefined" && typeof item.request === 'object') {
-                currentConversation += '<span class="dashicons dashicons-info"></span>';
-                currentConversation += '<a href="javascript:void(0);" class="show_message_request">';
-                currentConversation += 'Details';
-                currentConversation += '</a>';
-            }
-
-            currentConversation += '</div>'; // Close the right-aligned div
-
-            currentConversation += '</div>'; // Close the entire row div
-
-            // Add hidden textarea and save button for revision if it's an AI message
-            if (item.type === 'ai') {
-                currentConversation += '<div id="revise-answer-container-' + idx + '" class="revise-answer-container" style="display:none; margin-top: 10px;">';
-                currentConversation += '<h4>What would be the best answer for this question?</h4>';
-                currentConversation += '<textarea id="revise-answer-text-' + idx + '" rows="10" style="width:100%;"></textarea>';
-                currentConversation += '<button class="button button-primary save-revise-answer" data-message-idx="' + idx + '" data-log-id="' + $(this).data('log-id') + '">Save</button>';
-                currentConversation += '<div class="revise-answer-message" style="margin-top: 10px; color: #0073aa;"></div>';
-                currentConversation += '</div>';
-            }
-
-            // Add the details request content if item.request is defined
-            if (typeof item.request !== "undefined" && typeof item.request === 'object') {
-                currentConversation += '<div class="wpaicg_request" style="display: none;padding: 10px;background: #e9e9e9;border-radius: 4px;"><pre style="white-space: pre-wrap">' + wpaicgReplaceStr(JSON.stringify(item.request, undefined, 4)) + '</pre></div>';
-            }
-
-            // Display flagged status if flagged
-            if (typeof item.flag !== "undefined" && item.flag !== '' && item.flag !== false) {
-                currentConversation += '<span style="display: inline-block;font-size: 12px;font-weight: bold;background: #b71a1a;padding: 1px 5px;border-radius: 3px;color: #fff;margin-left: 5px;"><?php echo esc_html__('Flagged as', 'gpt3-ai-content-generator')?> ' + item.flag + '<span>';
-            }
-
-            currentConversation += '</div>'; // Closing the main message div
         });
-
-        if (currentConversation !== '') {
-            html += currentConversation + '</div>'; // Close last conversation container
-        }
-
-        $('.wpaicg_modal_content').html(html);
-        $('.wpaicg-overlay').show();
-        $('.wpaicg_modal').show();
-    }
-});
 
 
         // Handle the click event for the "Revise answer" link

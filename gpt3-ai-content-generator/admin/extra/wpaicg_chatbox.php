@@ -60,7 +60,7 @@ $default_setting = array(
     'placeholder' => esc_html__('Type a message','gpt3-ai-content-generator'),
     'welcome' => esc_html__('Hello, how can I help you today?','gpt3-ai-content-generator'),
     'remember_conversation' => 'yes',
-    'conversation_cut' => 10,
+    'conversation_cut' => 100,
     'content_aware' => 'yes',
     'embedding' =>  false,
     'embedding_type' =>  false,
@@ -182,6 +182,7 @@ $wpaicg_google_api_key = get_option('wpaicg_google_api_key', '');
 $wpaicg_input_font_color = isset($wpaicg_settings['input_font_color']) && !empty($wpaicg_settings['input_font_color']) ? $wpaicg_settings['input_font_color'] : '#495057';
 $wpaicg_footer_color = isset($wpaicg_settings['footer_color']) && !empty($wpaicg_settings['footer_color']) ? $wpaicg_settings['footer_color'] : '#ffffff';
 $wpaicg_autoload_chat_conversations = get_option('wpaicg_autoload_chat_conversations', 0);
+$wpaicg_conversation_cut = isset($wpaicg_settings['conversation_cut']) && !empty($wpaicg_settings['conversation_cut']) ? $wpaicg_settings['conversation_cut'] : 100;
 
 ?>
 <style>
@@ -829,6 +830,7 @@ if($wpaicg_chat_fullscreen || $wpaicg_chat_download_btn || $wpaicg_chat_clear_bt
      data-feedback_success = "<?php echo esc_html($wpaicg_chat_feedback_success)?>"
      data-user-voice-control = "<?php echo esc_html($wpaicg_chat_audio_btn)?>"
      data-voice-muted-by-default="<?php echo esc_html($wpaicg_voice_muted_by_default); ?>"
+     data-memory-limit = "<?php echo esc_html($wpaicg_conversation_cut)?>"
      data-type="shortcode"
 >
 <?php if($wpaicg_has_action_bar): ?>

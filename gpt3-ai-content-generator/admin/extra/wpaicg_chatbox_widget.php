@@ -11,6 +11,7 @@ $wpaicg_stream_nav_setting = get_option('wpaicg_widget_stream', '0'); // Default
 $wpaicg_conversation_starters_widget_json = get_option('wpaicg_conversation_starters_widget', '');
 $wpaicg_conversation_starters_widget = !empty($wpaicg_conversation_starters_widget_json) ? json_decode($wpaicg_conversation_starters_widget_json, true) : [];
 $wpaicg_autoload_chat_conversations = get_option('wpaicg_autoload_chat_conversations', 0);
+$wpaicg_conversation_cut = get_option('wpaicg_conversation_cut', 100);
 /*Check Custom Widget For Page Post*/
 $current_context_ID = get_the_ID();
 $wpaicg_bot_id = 0;
@@ -33,8 +34,8 @@ if($wpaicg_bot_content && isset($wpaicg_bot_content->post_id)){
         $wpaicg_ai_name = isset($wpaicg_chat_widget['ai_name']) && !empty($wpaicg_chat_widget['ai_name']) ? $wpaicg_chat_widget['ai_name'] : $wpaicg_ai_name;
         $wpaicg_ai_thinking = isset($wpaicg_chat_widget['ai_thinking']) && !empty($wpaicg_chat_widget['ai_thinking']) ? $wpaicg_chat_widget['ai_thinking'] : $wpaicg_ai_thinking;
         $wpaicg_stream_nav_setting = isset($wpaicg_chat_widget['openai_stream_nav']) && !empty($wpaicg_chat_widget['openai_stream_nav']) ? $wpaicg_chat_widget['openai_stream_nav'] : '0';
+        $wpaicg_conversation_cut = isset($wpaicg_chat_widget['conversation_cut']) && !empty($wpaicg_chat_widget['conversation_cut']) ? $wpaicg_chat_widget['conversation_cut'] : '100';
         
-
         // Adapt conversation starters for widget if they exist and are an array
         $wpaicg_conversation_starters_widget = isset($wpaicg_chat_widget['conversation_starters']) && is_array($wpaicg_chat_widget['conversation_starters']) ? $wpaicg_chat_widget['conversation_starters'] : [];
         $adapted_conversation_starters_widget = [];
@@ -814,6 +815,7 @@ border-radius: 10px;
      data-feedback_success = "<?php echo esc_html($wpaicg_chat_feedback_success)?>"
      data-user-voice-control = "<?php echo esc_html($wpaicg_chat_audio_btn)?>"
      data-voice-muted-by-default="<?php echo esc_html($wpaicg_voice_muted_by_default); ?>"
+     data-memory-limit = "<?php echo esc_html($wpaicg_conversation_cut)?>"
      data-type="widget"
 >
     <?php

@@ -886,6 +886,12 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             'gpt-3.5-turbo-instruct' => 'GPT-3.5 Turbo Instruct'
         ];
 
+        // New list for o1-mini and o1-preview models
+        public $o1_models = [
+            'o1-preview' => 'O1 Preview',
+            'o1-mini' => 'O1 Mini',
+        ];
+
         public $model_pricing = [
             'gpt-4' => 0.06,
             'gpt-4o' => 0.015,

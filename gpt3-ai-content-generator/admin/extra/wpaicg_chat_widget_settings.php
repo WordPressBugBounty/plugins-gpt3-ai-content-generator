@@ -6,7 +6,20 @@ $message = false;
 if ( isset( $_POST['wpaicg_submit'] ) ) {
     check_admin_referer('wpaicg_chat_widget_save');
 
-    $stream_nav_option = isset($_POST['wpaicg_stream_nav_option']) ? '1' : '0';
+    // Retrieve the model from the form submission
+    $model_to_check = isset($_POST['wpaicg_chat_model']) ? sanitize_text_field($_POST['wpaicg_chat_model']) : '';
+
+    // Get the list of o1-mini and o1-preview models from the Util class
+    $o1_models = \WPAICG\WPAICG_Util::get_instance()->o1_models;
+
+    // Check if the model is o1-mini or o1-preview and set the stream accordingly
+    if (isset($model_to_check) && array_key_exists($model_to_check, $o1_models)) {
+        // Set stream to false if model is o1-mini or o1-preview
+        $stream_nav_option = '0';
+    } else {
+        // Set stream based on the form submission
+        $stream_nav_option = isset($_POST['wpaicg_stream_nav_option']) ? '1' : '0';
+    }
     update_option('wpaicg_widget_stream', $stream_nav_option);
 
     $wpaicg_chat_vectordb = isset($_POST['wpaicg_chat_vectordb']) ? sanitize_text_field($_POST['wpaicg_chat_vectordb']) : 'pinecone';
@@ -225,7 +238,7 @@ $wpaicg_pinecone_environment = get_option('wpaicg_pinecone_environment','');
 $wpaicg_save_logs = isset($wpaicg_chat_widget['save_logs']) && !empty($wpaicg_chat_widget['save_logs']) ? $wpaicg_chat_widget['save_logs'] : false;
 $wpaicg_log_notice = isset($wpaicg_chat_widget['log_notice']) && !empty($wpaicg_chat_widget['log_notice']) ? $wpaicg_chat_widget['log_notice'] : false;
 $wpaicg_log_notice_message = isset($wpaicg_chat_widget['log_notice_message']) && !empty($wpaicg_chat_widget['log_notice_message']) ? $wpaicg_chat_widget['log_notice_message'] : esc_html__('Please note that your conversations will be recorded.','gpt3-ai-content-generator');
-$wpaicg_conversation_cut = get_option('wpaicg_conversation_cut',10);
+$wpaicg_conversation_cut = get_option('wpaicg_conversation_cut',100);
 $wpaicg_chat_embedding = get_option('wpaicg_chat_embedding',false);
 $wpaicg_chat_addition = get_option('wpaicg_chat_addition',false);
 $wpaicg_chat_addition_text = get_option('wpaicg_chat_addition_text',false);
@@ -995,46 +1008,52 @@ $profession_options = \WPAICG\WPAICG_Util::get_instance()->chat_profession_optio
             <section id="knowledge" class="tab-content" style="display: none;">
                 <h3 style="margin-top: -1em;"><?php echo esc_html__('Knowledge','gpt3-ai-content-generator')?></h3>
                 <div class="nice-form-group" style="display: flex; justify-content: space-between; margin-top: -1em;">
+                <fieldset class="nice-form-group">
+                    <legend><?php echo esc_html__('Awareness & Memory', 'gpt3-ai-content-generator'); ?></legend>
+
                     <div class="nice-form-group">
-                        <label for="wpaicg_chat_content_aware"><?php echo esc_html__('Content Aware','gpt3-ai-content-generator')?></label>
-                        <!-- Hidden input to ensure 'no' is submitted if checkbox is unchecked -->
                         <input type="hidden" value="no" name="wpaicg_chat_widget[content_aware]">
                         <input 
                             <?php echo $wpaicg_chat_content_aware == 'yes' ? 'checked' : '' ?>
                             value="yes" 
                             type="checkbox"
-                            style="border-color: #10b981; margin-top: 4px;" 
-                            class="switch" 
                             id="wpaicg_chat_content_aware" 
                             name="wpaicg_chat_widget[content_aware]">
+                        <label for="wpaicg_chat_content_aware"><?php echo esc_html__('Content Aware','gpt3-ai-content-generator')?></label>
                     </div>
+                    
                     <div class="nice-form-group">
-                        <label for="wpaicg_user_aware"><?php echo esc_html__('User Aware','gpt3-ai-content-generator')?></label>
-                        <!-- Hidden input to ensure 'no' is submitted if checkbox is unchecked -->
                         <input type="hidden" value="no" name="wpaicg_chat_widget[user_aware]">
                         <input 
                             <?php echo $wpaicg_user_aware == 'yes' ? 'checked' : '' ?>
                             value="yes" 
                             type="checkbox"
-                            style="border-color: #10b981; margin-top: 4px;" 
-                            class="switch" 
                             id="wpaicg_user_aware" 
                             name="wpaicg_chat_widget[user_aware]">
+                        <label for="wpaicg_user_aware"><?php echo esc_html__('User Aware','gpt3-ai-content-generator')?></label>
                     </div>
+                    
                     <div class="nice-form-group">
-                        <label for="wpaicg_chat_remember_conversation"><?php echo esc_html__('Memory','gpt3-ai-content-generator')?></label>
-                        <!-- Hidden input to ensure 'no' is submitted if checkbox is unchecked -->
                         <input type="hidden" value="no" name="wpaicg_chat_widget[remember_conversation]">
-                        <!-- Checkbox input, only submits 'yes' when checked -->
                         <input 
                             <?php echo $wpaicg_chat_remember_conversation == 'yes' ? 'checked' : '' ?>
                             value="yes" 
                             type="checkbox"
-                            style="border-color: #10b981; margin-top: 4px;" 
-                            class="switch" 
                             id="wpaicg_chat_remember_conversation" 
                             name="wpaicg_chat_widget[remember_conversation]">
+                        <label for="wpaicg_chat_remember_conversation"><?php echo esc_html__('Memory','gpt3-ai-content-generator')?></label>
                     </div>
+                </fieldset>
+                </div>
+                <div class="nice-form-group">
+                    <label style="display: flex; align-items: center;">
+                        <?php echo esc_html__('Memory Limit', 'gpt3-ai-content-generator') ?>
+                        <a href="https://docs.aipower.org/docs/ChatGPT/advanced-setup/context#memory-limit" target="_blank" style="text-decoration: none; margin-left: 5px;">
+                            <span class="dashicons dashicons-editor-help"></span>
+                        </a>
+                    </label>
+                    <input id="wpaicg_memory_limit" name="wpaicg_conversation_cut" type="range" step="1" min="3" max="500" value="<?php echo isset($wpaicg_conversation_cut) ? esc_attr($wpaicg_conversation_cut) : 3; ?>" oninput="this.nextElementSibling.value = this.value">
+                    <output><?php echo isset($wpaicg_conversation_cut) ? esc_attr($wpaicg_conversation_cut) : 3; ?></output>
                 </div>
                 <fieldset class="nice-form-group">
                 <legend><?php echo esc_html__('Data Source', 'gpt3-ai-content-generator'); ?></legend>
@@ -1207,16 +1226,6 @@ $profession_options = \WPAICG\WPAICG_Util::get_instance()->chat_profession_optio
                         <select <?php echo empty($wpaicg_chat_embedding) || $wpaicg_chat_content_aware == 'no' ? ' disabled':''?> name="wpaicg_chat_embedding_type" id="wpaicg_chat_embedding_type" class="<?php echo !$wpaicg_chat_embedding && $wpaicg_chat_content_aware == 'yes' ? 'asdisabled' : ''?>">
                             <option <?php echo $wpaicg_chat_embedding_type ? ' selected':'';?> value="openai"><?php echo esc_html__('Conversational','gpt3-ai-content-generator')?></option>
                             <option <?php echo empty($wpaicg_chat_embedding_type) ? ' selected':''?> value=""><?php echo esc_html__('Non-Conversational','gpt3-ai-content-generator')?></option>
-                        </select>
-                    </div>
-                    <div class="nice-form-group">
-                        <label><?php echo esc_html__('Memory Limit','gpt3-ai-content-generator')?></label>
-                        <select name="wpaicg_conversation_cut">
-                            <?php
-                            for($i=3;$i<=50;$i++){
-                                echo '<option'.($wpaicg_conversation_cut == $i ? ' selected':'').' value="'.esc_html($i).'">'.esc_html($i).'</option>';
-                            }
-                            ?>
                         </select>
                     </div>
                     <div class="nice-form-group">

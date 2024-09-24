@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 1.8.79\n"
+"Project-Id-Version: AI Power: Complete AI Pack 1.8.80\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-09-22T10:24:49+00:00\n"
+"POT-Creation-Date: 2024-09-24T13:33:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -53,8 +53,8 @@ msgstr ""
 #: admin/extra/wpaicg_assistants.php:89
 #: admin/extra/wpaicg_assistants.php:153
 #: admin/extra/wpaicg_chatbots.php:997
-#: admin/extra/wpaicg_chat_widget_settings.php:750
-#: admin/extra/wpaicg_chat_widget_settings.php:760
+#: admin/extra/wpaicg_chat_widget_settings.php:763
+#: admin/extra/wpaicg_chat_widget_settings.php:773
 msgid "Instructions"
 msgstr ""
 
@@ -67,21 +67,21 @@ msgstr ""
 #: admin/extra/wpaicg_chatbots.php:1064
 #: admin/extra/wpaicg_chatbots.php:1121
 #: admin/extra/wpaicg_chatbots.php:1209
-#: admin/extra/wpaicg_chatbots.php:1771
+#: admin/extra/wpaicg_chatbots.php:1779
 #: admin/extra/wpaicg_chatlog.php:688
-#: admin/extra/wpaicg_chat_shortcode.php:436
-#: admin/extra/wpaicg_chat_shortcode.php:474
-#: admin/extra/wpaicg_chat_shortcode.php:535
-#: admin/extra/wpaicg_chat_shortcode.php:1182
-#: admin/extra/wpaicg_chat_shortcode.php:1265
-#: admin/extra/wpaicg_chat_shortcode.php:1397
-#: admin/extra/wpaicg_chat_widget_settings.php:626
-#: admin/extra/wpaicg_chat_widget_settings.php:659
-#: admin/extra/wpaicg_chat_widget_settings.php:700
-#: admin/extra/wpaicg_chat_widget_settings.php:1329
-#: admin/extra/wpaicg_chat_widget_settings.php:1409
-#: admin/extra/wpaicg_chat_widget_settings.php:1542
-#: admin/extra/wpaicg_chat_widget_settings.php:1558
+#: admin/extra/wpaicg_chat_shortcode.php:445
+#: admin/extra/wpaicg_chat_shortcode.php:483
+#: admin/extra/wpaicg_chat_shortcode.php:544
+#: admin/extra/wpaicg_chat_shortcode.php:1186
+#: admin/extra/wpaicg_chat_shortcode.php:1269
+#: admin/extra/wpaicg_chat_shortcode.php:1401
+#: admin/extra/wpaicg_chat_widget_settings.php:639
+#: admin/extra/wpaicg_chat_widget_settings.php:672
+#: admin/extra/wpaicg_chat_widget_settings.php:713
+#: admin/extra/wpaicg_chat_widget_settings.php:1338
+#: admin/extra/wpaicg_chat_widget_settings.php:1418
+#: admin/extra/wpaicg_chat_widget_settings.php:1551
+#: admin/extra/wpaicg_chat_widget_settings.php:1567
 #: admin/extra/wpaicg_image_generator.php:512
 #: admin/extra/wpaicg_single.php:452
 #: admin/extra/wpaicg_single.php:1130
@@ -109,7 +109,7 @@ msgid "Create"
 msgstr ""
 
 #: admin/extra/wpaicg_assistants.php:150
-#: admin/extra/wpaicg_chatbots.php:1766
+#: admin/extra/wpaicg_chatbots.php:1774
 #: admin/extra/wpaicg_single.php:1089
 msgid "Name"
 msgstr ""
@@ -145,7 +145,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_assistants.php:157
 #: admin/extra/wpaicg_bulk_queue.php:162
-#: admin/extra/wpaicg_chatbots.php:1773
+#: admin/extra/wpaicg_chatbots.php:1781
 #: admin/extra/wpaicg_chatlog.php:585
 #: admin/views/audio/logs.php:59
 #: admin/views/embeddings/entries.php:79
@@ -165,7 +165,7 @@ msgid "N/A"
 msgstr ""
 
 #: admin/extra/wpaicg_assistants.php:199
-#: admin/extra/wpaicg_chatbots.php:1857
+#: admin/extra/wpaicg_chatbots.php:1865
 #: admin/extra/wpaicg_form_index.php:972
 #: admin/extra/wpaicg_promptbase_index.php:876
 msgid "Edit"
@@ -180,27 +180,27 @@ msgstr ""
 #: admin/extra/wpaicg_chatbots.php:1079
 #: admin/extra/wpaicg_chatbots.php:1234
 #: admin/extra/wpaicg_chatbots.php:1323
-#: admin/extra/wpaicg_chatbots.php:1559
-#: admin/extra/wpaicg_chatbots.php:1585
-#: admin/extra/wpaicg_chatbots.php:1638
-#: admin/extra/wpaicg_chatbots.php:3381
+#: admin/extra/wpaicg_chatbots.php:1567
+#: admin/extra/wpaicg_chatbots.php:1593
+#: admin/extra/wpaicg_chatbots.php:1646
+#: admin/extra/wpaicg_chatbots.php:3416
 #: admin/extra/wpaicg_chat_settings.php:399
-#: admin/extra/wpaicg_chat_shortcode.php:693
-#: admin/extra/wpaicg_chat_shortcode.php:811
-#: admin/extra/wpaicg_chat_shortcode.php:1105
-#: admin/extra/wpaicg_chat_shortcode.php:1288
-#: admin/extra/wpaicg_chat_shortcode.php:1349
-#: admin/extra/wpaicg_chat_shortcode.php:1409
-#: admin/extra/wpaicg_chat_shortcode.php:1627
-#: admin/extra/wpaicg_chat_shortcode.php:2066
-#: admin/extra/wpaicg_chat_widget_settings.php:803
-#: admin/extra/wpaicg_chat_widget_settings.php:982
-#: admin/extra/wpaicg_chat_widget_settings.php:1258
-#: admin/extra/wpaicg_chat_widget_settings.php:1431
-#: admin/extra/wpaicg_chat_widget_settings.php:1492
-#: admin/extra/wpaicg_chat_widget_settings.php:1571
-#: admin/extra/wpaicg_chat_widget_settings.php:1784
-#: admin/extra/wpaicg_chat_widget_settings.php:2127
+#: admin/extra/wpaicg_chat_shortcode.php:702
+#: admin/extra/wpaicg_chat_shortcode.php:820
+#: admin/extra/wpaicg_chat_shortcode.php:1109
+#: admin/extra/wpaicg_chat_shortcode.php:1292
+#: admin/extra/wpaicg_chat_shortcode.php:1353
+#: admin/extra/wpaicg_chat_shortcode.php:1413
+#: admin/extra/wpaicg_chat_shortcode.php:1631
+#: admin/extra/wpaicg_chat_shortcode.php:2070
+#: admin/extra/wpaicg_chat_widget_settings.php:816
+#: admin/extra/wpaicg_chat_widget_settings.php:995
+#: admin/extra/wpaicg_chat_widget_settings.php:1267
+#: admin/extra/wpaicg_chat_widget_settings.php:1440
+#: admin/extra/wpaicg_chat_widget_settings.php:1501
+#: admin/extra/wpaicg_chat_widget_settings.php:1580
+#: admin/extra/wpaicg_chat_widget_settings.php:1793
+#: admin/extra/wpaicg_chat_widget_settings.php:2136
 #: admin/extra/wpaicg_form_index.php:793
 #: admin/extra/wpaicg_form_settings.php:107
 #: admin/extra/wpaicg_form_settings.php:133
@@ -245,7 +245,7 @@ msgid "Save"
 msgstr ""
 
 #: admin/extra/wpaicg_assistants.php:207
-#: admin/extra/wpaicg_chatbots.php:1858
+#: admin/extra/wpaicg_chatbots.php:1866
 #: admin/extra/wpaicg_form_index.php:811
 #: admin/extra/wpaicg_form_index.php:973
 #: admin/extra/wpaicg_promptbase_index.php:723
@@ -296,9 +296,9 @@ msgid "Settings"
 msgstr ""
 
 #: admin/extra/wpaicg_bulk.php:73
-#: admin/extra/wpaicg_chatbots.php:1353
-#: admin/extra/wpaicg_chat_shortcode.php:869
-#: admin/extra/wpaicg_chat_widget_settings.php:1040
+#: admin/extra/wpaicg_chatbots.php:1371
+#: admin/extra/wpaicg_chat_shortcode.php:883
+#: admin/extra/wpaicg_chat_widget_settings.php:1059
 #: admin/views/embeddings/index.php:272
 msgid "Data Source"
 msgstr ""
@@ -498,21 +498,21 @@ msgid "Publish"
 msgstr ""
 
 #: admin/extra/wpaicg_bulk.php:210
-#: admin/extra/wpaicg_chatbots.php:1757
-#: admin/extra/wpaicg_chat_shortcode.php:697
-#: admin/extra/wpaicg_chat_shortcode.php:815
-#: admin/extra/wpaicg_chat_shortcode.php:1109
-#: admin/extra/wpaicg_chat_shortcode.php:1292
-#: admin/extra/wpaicg_chat_shortcode.php:1353
-#: admin/extra/wpaicg_chat_shortcode.php:1413
-#: admin/extra/wpaicg_chat_shortcode.php:1631
-#: admin/extra/wpaicg_chat_widget_settings.php:807
-#: admin/extra/wpaicg_chat_widget_settings.php:986
-#: admin/extra/wpaicg_chat_widget_settings.php:1262
-#: admin/extra/wpaicg_chat_widget_settings.php:1435
-#: admin/extra/wpaicg_chat_widget_settings.php:1496
-#: admin/extra/wpaicg_chat_widget_settings.php:1575
-#: admin/extra/wpaicg_chat_widget_settings.php:1788
+#: admin/extra/wpaicg_chatbots.php:1765
+#: admin/extra/wpaicg_chat_shortcode.php:706
+#: admin/extra/wpaicg_chat_shortcode.php:824
+#: admin/extra/wpaicg_chat_shortcode.php:1113
+#: admin/extra/wpaicg_chat_shortcode.php:1296
+#: admin/extra/wpaicg_chat_shortcode.php:1357
+#: admin/extra/wpaicg_chat_shortcode.php:1417
+#: admin/extra/wpaicg_chat_shortcode.php:1635
+#: admin/extra/wpaicg_chat_widget_settings.php:820
+#: admin/extra/wpaicg_chat_widget_settings.php:999
+#: admin/extra/wpaicg_chat_widget_settings.php:1271
+#: admin/extra/wpaicg_chat_widget_settings.php:1444
+#: admin/extra/wpaicg_chat_widget_settings.php:1505
+#: admin/extra/wpaicg_chat_widget_settings.php:1584
+#: admin/extra/wpaicg_chat_widget_settings.php:1797
 #: admin/extra/wpaicg_form_index.php:810
 #: admin/extra/wpaicg_promptbase_index.php:722
 msgid "Import"
@@ -550,8 +550,8 @@ msgstr ""
 #: admin/views/finetune/manual.php:596
 #: admin/views/scripts.php:740
 #: classes/wpaicg_audio.php:89
-#: classes/wpaicg_chat.php:478
-#: classes/wpaicg_chat.php:667
+#: classes/wpaicg_chat.php:486
+#: classes/wpaicg_chat.php:675
 #: classes/wpaicg_content.php:718
 #: classes/wpaicg_content.php:795
 #: classes/wpaicg_content.php:886
@@ -652,11 +652,11 @@ msgstr ""
 
 #: admin/extra/wpaicg_bulk_queue.php:241
 #: admin/extra/wpaicg_chatbots.php:1253
-#: admin/extra/wpaicg_chatbots.php:1712
-#: admin/extra/wpaicg_chatbox.php:937
-#: admin/extra/wpaicg_chatbox_widget.php:934
-#: admin/extra/wpaicg_chat_shortcode.php:724
-#: admin/extra/wpaicg_chat_widget_settings.php:880
+#: admin/extra/wpaicg_chatbots.php:1720
+#: admin/extra/wpaicg_chatbox.php:939
+#: admin/extra/wpaicg_chatbox_widget.php:936
+#: admin/extra/wpaicg_chat_shortcode.php:733
+#: admin/extra/wpaicg_chat_widget_settings.php:893
 #: admin/extra/wpaicg_form_index.php:772
 #: admin/extra/wpaicg_form_index.php:949
 #: admin/extra/wpaicg_form_index.php:1015
@@ -705,10 +705,10 @@ msgstr ""
 #: classes/wpaicg_chat.php:160
 #: classes/wpaicg_chat.php:241
 #: classes/wpaicg_chat.php:436
-#: classes/wpaicg_chat.php:484
-#: classes/wpaicg_chat.php:597
-#: classes/wpaicg_chat.php:649
-#: classes/wpaicg_chat.php:673
+#: classes/wpaicg_chat.php:492
+#: classes/wpaicg_chat.php:605
+#: classes/wpaicg_chat.php:657
+#: classes/wpaicg_chat.php:681
 #: classes/wpaicg_comment.php:100
 #: classes/wpaicg_content.php:352
 #: classes/wpaicg_content.php:426
@@ -840,9 +840,9 @@ msgstr ""
 
 #: admin/extra/wpaicg_bulk_setting.php:87
 #: admin/extra/wpaicg_bulk_setting.php:96
-#: admin/extra/wpaicg_chat_shortcode.php:1043
-#: admin/extra/wpaicg_chat_widget_settings.php:1196
-#: admin/extra/wpaicg_chat_widget_settings.php:1538
+#: admin/extra/wpaicg_chat_shortcode.php:1057
+#: admin/extra/wpaicg_chat_widget_settings.php:1215
+#: admin/extra/wpaicg_chat_widget_settings.php:1547
 #: admin/extra/wpaicg_single.php:607
 #: admin/extra/wpaicg_single.php:967
 #: admin/views/embeddings/settings.php:279
@@ -885,20 +885,20 @@ msgid "Make sure %s is included in your prompt."
 msgstr ""
 
 #: admin/extra/wpaicg_bulk_setting.php:126
-#: admin/extra/wpaicg_chat_shortcode.php:701
-#: admin/extra/wpaicg_chat_shortcode.php:819
-#: admin/extra/wpaicg_chat_shortcode.php:1113
-#: admin/extra/wpaicg_chat_shortcode.php:1296
-#: admin/extra/wpaicg_chat_shortcode.php:1357
-#: admin/extra/wpaicg_chat_shortcode.php:1417
-#: admin/extra/wpaicg_chat_shortcode.php:1635
-#: admin/extra/wpaicg_chat_widget_settings.php:811
-#: admin/extra/wpaicg_chat_widget_settings.php:990
-#: admin/extra/wpaicg_chat_widget_settings.php:1266
-#: admin/extra/wpaicg_chat_widget_settings.php:1439
-#: admin/extra/wpaicg_chat_widget_settings.php:1500
-#: admin/extra/wpaicg_chat_widget_settings.php:1579
-#: admin/extra/wpaicg_chat_widget_settings.php:1792
+#: admin/extra/wpaicg_chat_shortcode.php:710
+#: admin/extra/wpaicg_chat_shortcode.php:828
+#: admin/extra/wpaicg_chat_shortcode.php:1117
+#: admin/extra/wpaicg_chat_shortcode.php:1300
+#: admin/extra/wpaicg_chat_shortcode.php:1361
+#: admin/extra/wpaicg_chat_shortcode.php:1421
+#: admin/extra/wpaicg_chat_shortcode.php:1639
+#: admin/extra/wpaicg_chat_widget_settings.php:824
+#: admin/extra/wpaicg_chat_widget_settings.php:1003
+#: admin/extra/wpaicg_chat_widget_settings.php:1275
+#: admin/extra/wpaicg_chat_widget_settings.php:1448
+#: admin/extra/wpaicg_chat_widget_settings.php:1509
+#: admin/extra/wpaicg_chat_widget_settings.php:1588
+#: admin/extra/wpaicg_chat_widget_settings.php:1801
 #: admin/extra/wpaicg_single.php:1060
 #: admin/views/metabox.php:1230
 #: admin/views/settings/index.php:1507
@@ -913,20 +913,20 @@ msgstr ""
 #: admin/extra/wpaicg_chatbots.php:52
 #: admin/extra/wpaicg_chatbox.php:82
 #: admin/extra/wpaicg_chatbox.php:140
-#: admin/extra/wpaicg_chatbox_widget.php:82
-#: admin/extra/wpaicg_chat_shortcode.php:187
-#: admin/extra/wpaicg_chat_shortcode.php:264
-#: admin/extra/wpaicg_chat_widget_settings.php:227
+#: admin/extra/wpaicg_chatbox_widget.php:83
+#: admin/extra/wpaicg_chat_shortcode.php:196
+#: admin/extra/wpaicg_chat_shortcode.php:273
+#: admin/extra/wpaicg_chat_widget_settings.php:240
 msgid "Please note that your conversations will be recorded."
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:69
-#: admin/extra/wpaicg_chatbots.php:3305
-#: admin/extra/wpaicg_chat_shortcode.php:212
-#: admin/extra/wpaicg_chat_shortcode.php:270
-#: admin/extra/wpaicg_chat_widget_settings.php:244
-#: classes/wpaicg_chat.php:771
-#: classes/wpaicg_chat.php:834
+#: admin/extra/wpaicg_chatbots.php:3340
+#: admin/extra/wpaicg_chat_shortcode.php:221
+#: admin/extra/wpaicg_chat_shortcode.php:279
+#: admin/extra/wpaicg_chat_widget_settings.php:257
+#: classes/wpaicg_chat.php:779
+#: classes/wpaicg_chat.php:842
 #: classes/wpaicg_playground.php:281
 msgid "You have reached your token limit."
 msgstr ""
@@ -969,7 +969,7 @@ msgid "Example: 1,2,3"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:581
-#: admin/extra/wpaicg_chat_widget_settings.php:846
+#: admin/extra/wpaicg_chat_widget_settings.php:859
 msgid "Position"
 msgstr ""
 
@@ -990,8 +990,8 @@ msgstr ""
 #: admin/extra/wpaicg_chatbots.php:1077
 #: admin/extra/wpaicg_chatbots.php:1232
 #: admin/extra/wpaicg_chatbots.php:1321
-#: admin/extra/wpaicg_chatbots.php:1557
-#: admin/extra/wpaicg_chatbots.php:1583
+#: admin/extra/wpaicg_chatbots.php:1565
+#: admin/extra/wpaicg_chatbots.php:1591
 #: admin/views/help/article.php:17
 #: admin/views/help/article.php:371
 #: admin/views/help/assistant.php:14
@@ -1009,8 +1009,8 @@ msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:597
 #: admin/extra/wpaicg_chatbots.php:1238
-#: admin/extra/wpaicg_chat_shortcode.php:707
-#: admin/extra/wpaicg_chat_widget_settings.php:817
+#: admin/extra/wpaicg_chat_shortcode.php:716
+#: admin/extra/wpaicg_chat_widget_settings.php:830
 msgid "Interface"
 msgstr ""
 
@@ -1020,9 +1020,9 @@ msgstr ""
 #: admin/extra/wpaicg_chatbots.php:1076
 #: admin/extra/wpaicg_chatbots.php:1231
 #: admin/extra/wpaicg_chatbots.php:1320
-#: admin/extra/wpaicg_chatbots.php:1556
-#: admin/extra/wpaicg_chatbots.php:1582
-#: admin/extra/wpaicg_chatbots.php:1636
+#: admin/extra/wpaicg_chatbots.php:1564
+#: admin/extra/wpaicg_chatbots.php:1590
+#: admin/extra/wpaicg_chatbots.php:1644
 #: admin/views/help/article.php:370
 #: admin/views/help/article.php:386
 #: admin/views/help/assistant.php:41
@@ -1039,155 +1039,155 @@ msgid "Previous"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:609
-#: admin/extra/wpaicg_chat_shortcode.php:1424
-#: admin/extra/wpaicg_chat_widget_settings.php:1585
+#: admin/extra/wpaicg_chat_shortcode.php:1428
+#: admin/extra/wpaicg_chat_widget_settings.php:1594
 msgid "Themes"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:615
 #: admin/extra/wpaicg_chatbots.php:812
 #: admin/extra/wpaicg_chatbots.php:831
-#: admin/extra/wpaicg_chatbots.php:1376
-#: admin/extra/wpaicg_chat_shortcode.php:753
-#: admin/extra/wpaicg_chat_shortcode.php:901
-#: admin/extra/wpaicg_chat_shortcode.php:1430
-#: admin/extra/wpaicg_chat_widget_settings.php:825
-#: admin/extra/wpaicg_chat_widget_settings.php:917
-#: admin/extra/wpaicg_chat_widget_settings.php:1061
-#: admin/extra/wpaicg_chat_widget_settings.php:1591
+#: admin/extra/wpaicg_chatbots.php:1394
+#: admin/extra/wpaicg_chat_shortcode.php:762
+#: admin/extra/wpaicg_chat_shortcode.php:915
+#: admin/extra/wpaicg_chat_shortcode.php:1434
+#: admin/extra/wpaicg_chat_widget_settings.php:838
+#: admin/extra/wpaicg_chat_widget_settings.php:930
+#: admin/extra/wpaicg_chat_widget_settings.php:1080
+#: admin/extra/wpaicg_chat_widget_settings.php:1600
 #: classes/wpaicg_google_speech.php:87
 msgid "Default"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:619
-#: admin/extra/wpaicg_chat_shortcode.php:1434
-#: admin/extra/wpaicg_chat_widget_settings.php:1595
+#: admin/extra/wpaicg_chat_shortcode.php:1438
+#: admin/extra/wpaicg_chat_widget_settings.php:1604
 msgid "Night"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:623
-#: admin/extra/wpaicg_chat_shortcode.php:1438
-#: admin/extra/wpaicg_chat_widget_settings.php:1599
+#: admin/extra/wpaicg_chat_shortcode.php:1442
+#: admin/extra/wpaicg_chat_widget_settings.php:1608
 msgid "Sun"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:627
-#: admin/extra/wpaicg_chat_shortcode.php:1442
-#: admin/extra/wpaicg_chat_widget_settings.php:1603
+#: admin/extra/wpaicg_chat_shortcode.php:1446
+#: admin/extra/wpaicg_chat_widget_settings.php:1612
 msgid "Forest"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:631
-#: admin/extra/wpaicg_chat_shortcode.php:1446
-#: admin/extra/wpaicg_chat_widget_settings.php:1607
+#: admin/extra/wpaicg_chat_shortcode.php:1450
+#: admin/extra/wpaicg_chat_widget_settings.php:1616
 msgid "Ocean"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:638
-#: admin/extra/wpaicg_chat_shortcode.php:1453
-#: admin/extra/wpaicg_chat_widget_settings.php:1614
+#: admin/extra/wpaicg_chat_shortcode.php:1457
+#: admin/extra/wpaicg_chat_widget_settings.php:1623
 msgid "Space"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:642
-#: admin/extra/wpaicg_chat_shortcode.php:1457
-#: admin/extra/wpaicg_chat_widget_settings.php:1618
+#: admin/extra/wpaicg_chat_shortcode.php:1461
+#: admin/extra/wpaicg_chat_widget_settings.php:1627
 msgid "Desert"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:646
-#: admin/extra/wpaicg_chat_shortcode.php:1461
-#: admin/extra/wpaicg_chat_widget_settings.php:1622
+#: admin/extra/wpaicg_chat_shortcode.php:1465
+#: admin/extra/wpaicg_chat_widget_settings.php:1631
 msgid "Winter"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:650
-#: admin/extra/wpaicg_chat_shortcode.php:1465
-#: admin/extra/wpaicg_chat_widget_settings.php:1626
+#: admin/extra/wpaicg_chat_shortcode.php:1469
+#: admin/extra/wpaicg_chat_widget_settings.php:1635
 msgid "City"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:654
-#: admin/extra/wpaicg_chat_shortcode.php:1469
-#: admin/extra/wpaicg_chat_widget_settings.php:1630
+#: admin/extra/wpaicg_chat_shortcode.php:1473
+#: admin/extra/wpaicg_chat_widget_settings.php:1639
 msgid "Mountain"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:661
-#: admin/extra/wpaicg_chat_shortcode.php:1476
-#: admin/extra/wpaicg_chat_widget_settings.php:1637
+#: admin/extra/wpaicg_chat_shortcode.php:1480
+#: admin/extra/wpaicg_chat_widget_settings.php:1646
 msgid "Glade"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:665
-#: admin/extra/wpaicg_chat_shortcode.php:1480
-#: admin/extra/wpaicg_chat_widget_settings.php:1641
+#: admin/extra/wpaicg_chat_shortcode.php:1484
+#: admin/extra/wpaicg_chat_widget_settings.php:1650
 msgid "Dusk"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:669
-#: admin/extra/wpaicg_chat_shortcode.php:1484
-#: admin/extra/wpaicg_chat_widget_settings.php:1645
+#: admin/extra/wpaicg_chat_shortcode.php:1488
+#: admin/extra/wpaicg_chat_widget_settings.php:1654
 msgid "Dawn"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:673
-#: admin/extra/wpaicg_chat_shortcode.php:1488
-#: admin/extra/wpaicg_chat_widget_settings.php:1649
+#: admin/extra/wpaicg_chat_shortcode.php:1492
+#: admin/extra/wpaicg_chat_widget_settings.php:1658
 msgid "Mist"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:677
-#: admin/extra/wpaicg_chat_shortcode.php:1492
-#: admin/extra/wpaicg_chat_widget_settings.php:1653
+#: admin/extra/wpaicg_chat_shortcode.php:1496
+#: admin/extra/wpaicg_chat_widget_settings.php:1662
 msgid "Veil"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:684
-#: admin/extra/wpaicg_chat_shortcode.php:1499
-#: admin/extra/wpaicg_chat_widget_settings.php:1660
+#: admin/extra/wpaicg_chat_shortcode.php:1503
+#: admin/extra/wpaicg_chat_widget_settings.php:1669
 msgid "Peak"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:688
-#: admin/extra/wpaicg_chat_shortcode.php:1503
-#: admin/extra/wpaicg_chat_widget_settings.php:1664
+#: admin/extra/wpaicg_chat_shortcode.php:1507
+#: admin/extra/wpaicg_chat_widget_settings.php:1673
 msgid "Vale"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:692
-#: admin/extra/wpaicg_chat_shortcode.php:1507
-#: admin/extra/wpaicg_chat_widget_settings.php:1668
+#: admin/extra/wpaicg_chat_shortcode.php:1511
+#: admin/extra/wpaicg_chat_widget_settings.php:1677
 msgid "Cove"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:696
-#: admin/extra/wpaicg_chat_shortcode.php:1511
-#: admin/extra/wpaicg_chat_widget_settings.php:1672
+#: admin/extra/wpaicg_chat_shortcode.php:1515
+#: admin/extra/wpaicg_chat_widget_settings.php:1681
 msgid "Rift"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:700
-#: admin/extra/wpaicg_chat_shortcode.php:1515
-#: admin/extra/wpaicg_chat_widget_settings.php:1676
+#: admin/extra/wpaicg_chat_shortcode.php:1519
+#: admin/extra/wpaicg_chat_widget_settings.php:1685
 msgid "Isle"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:704
-#: admin/extra/wpaicg_chat_shortcode.php:1519
-#: admin/extra/wpaicg_chat_widget_settings.php:1680
+#: admin/extra/wpaicg_chat_shortcode.php:1523
+#: admin/extra/wpaicg_chat_widget_settings.php:1689
 msgid "Chat Window"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:708
 #: admin/extra/wpaicg_chatbots.php:750
 #: admin/extra/wpaicg_chatbots.php:786
-#: admin/extra/wpaicg_chat_shortcode.php:1523
-#: admin/extra/wpaicg_chat_shortcode.php:1567
-#: admin/extra/wpaicg_chat_shortcode.php:1609
-#: admin/extra/wpaicg_chat_widget_settings.php:1684
-#: admin/extra/wpaicg_chat_widget_settings.php:1728
-#: admin/extra/wpaicg_chat_widget_settings.php:1766
+#: admin/extra/wpaicg_chat_shortcode.php:1527
+#: admin/extra/wpaicg_chat_shortcode.php:1571
+#: admin/extra/wpaicg_chat_shortcode.php:1613
+#: admin/extra/wpaicg_chat_widget_settings.php:1693
+#: admin/extra/wpaicg_chat_widget_settings.php:1737
+#: admin/extra/wpaicg_chat_widget_settings.php:1775
 msgid "Box"
 msgstr ""
 
@@ -1195,41 +1195,41 @@ msgstr ""
 #: admin/extra/wpaicg_chatbots.php:736
 #: admin/extra/wpaicg_chatbots.php:754
 #: admin/extra/wpaicg_chatbots.php:790
-#: admin/extra/wpaicg_chat_shortcode.php:1527
-#: admin/extra/wpaicg_chat_shortcode.php:1539
-#: admin/extra/wpaicg_chat_shortcode.php:1571
-#: admin/extra/wpaicg_chat_shortcode.php:1613
-#: admin/extra/wpaicg_chat_widget_settings.php:1688
-#: admin/extra/wpaicg_chat_widget_settings.php:1700
-#: admin/extra/wpaicg_chat_widget_settings.php:1732
-#: admin/extra/wpaicg_chat_widget_settings.php:1770
+#: admin/extra/wpaicg_chat_shortcode.php:1531
+#: admin/extra/wpaicg_chat_shortcode.php:1543
+#: admin/extra/wpaicg_chat_shortcode.php:1575
+#: admin/extra/wpaicg_chat_shortcode.php:1617
+#: admin/extra/wpaicg_chat_widget_settings.php:1697
+#: admin/extra/wpaicg_chat_widget_settings.php:1709
+#: admin/extra/wpaicg_chat_widget_settings.php:1741
+#: admin/extra/wpaicg_chat_widget_settings.php:1779
 msgid "Font"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:716
-#: admin/extra/wpaicg_chatbots.php:1689
+#: admin/extra/wpaicg_chatbots.php:1697
 #: admin/extra/wpaicg_chatbox.php:57
-#: admin/extra/wpaicg_chatbox_widget.php:56
+#: admin/extra/wpaicg_chatbox_widget.php:57
 #: admin/extra/wpaicg_chatlog.php:567
-#: admin/extra/wpaicg_chatlog.php:954
-#: admin/extra/wpaicg_chat_shortcode.php:1531
-#: admin/extra/wpaicg_chat_widget_settings.php:1692
-#: classes/wpaicg_chat.php:807
+#: admin/extra/wpaicg_chatlog.php:960
+#: admin/extra/wpaicg_chat_shortcode.php:1535
+#: admin/extra/wpaicg_chat_widget_settings.php:1701
+#: classes/wpaicg_chat.php:815
 msgid "AI"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:720
 #: admin/extra/wpaicg_chatlog.php:565
-#: admin/extra/wpaicg_chatlog.php:956
-#: admin/extra/wpaicg_chat_shortcode.php:1535
-#: admin/extra/wpaicg_chat_widget_settings.php:1696
+#: admin/extra/wpaicg_chatlog.php:962
+#: admin/extra/wpaicg_chat_shortcode.php:1539
+#: admin/extra/wpaicg_chat_widget_settings.php:1705
 #: admin/views/finetune/manual.php:170
 msgid "User"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:724
-#: admin/extra/wpaicg_chat_shortcode.php:1555
-#: admin/extra/wpaicg_chat_widget_settings.php:1716
+#: admin/extra/wpaicg_chat_shortcode.php:1559
+#: admin/extra/wpaicg_chat_widget_settings.php:1725
 #: admin/extra/wpaicg_image_generator.php:589
 #: admin/views/settings/index.php:2369
 msgid "Width"
@@ -1237,10 +1237,10 @@ msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:728
 #: admin/extra/wpaicg_chatbots.php:774
-#: admin/extra/wpaicg_chat_shortcode.php:1559
-#: admin/extra/wpaicg_chat_shortcode.php:1593
-#: admin/extra/wpaicg_chat_widget_settings.php:1720
-#: admin/extra/wpaicg_chat_widget_settings.php:1754
+#: admin/extra/wpaicg_chat_shortcode.php:1563
+#: admin/extra/wpaicg_chat_shortcode.php:1597
+#: admin/extra/wpaicg_chat_widget_settings.php:1729
+#: admin/extra/wpaicg_chat_widget_settings.php:1763
 #: admin/extra/wpaicg_image_generator.php:599
 #: admin/views/settings/index.php:2375
 msgid "Height"
@@ -1248,40 +1248,40 @@ msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:732
 #: admin/extra/wpaicg_chatbots.php:778
-#: admin/extra/wpaicg_chat_shortcode.php:1549
-#: admin/extra/wpaicg_chat_shortcode.php:1597
-#: admin/extra/wpaicg_chat_widget_settings.php:1710
-#: admin/extra/wpaicg_chat_widget_settings.php:1758
+#: admin/extra/wpaicg_chat_shortcode.php:1553
+#: admin/extra/wpaicg_chat_shortcode.php:1601
+#: admin/extra/wpaicg_chat_widget_settings.php:1719
+#: admin/extra/wpaicg_chat_widget_settings.php:1767
 msgid "Radius"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:747
-#: admin/extra/wpaicg_chat_shortcode.php:1564
-#: admin/extra/wpaicg_chat_widget_settings.php:1725
+#: admin/extra/wpaicg_chat_shortcode.php:1568
+#: admin/extra/wpaicg_chat_widget_settings.php:1734
 msgid "Text Field"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:758
-#: admin/extra/wpaicg_chat_shortcode.php:1575
-#: admin/extra/wpaicg_chat_widget_settings.php:1736
+#: admin/extra/wpaicg_chat_shortcode.php:1579
+#: admin/extra/wpaicg_chat_widget_settings.php:1745
 msgid "Border"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:762
-#: admin/extra/wpaicg_chat_shortcode.php:1579
-#: admin/extra/wpaicg_chat_widget_settings.php:1740
+#: admin/extra/wpaicg_chat_shortcode.php:1583
+#: admin/extra/wpaicg_chat_widget_settings.php:1749
 msgid "Button"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:766
-#: admin/extra/wpaicg_chat_shortcode.php:1583
-#: admin/extra/wpaicg_chat_widget_settings.php:1744
+#: admin/extra/wpaicg_chat_shortcode.php:1587
+#: admin/extra/wpaicg_chat_widget_settings.php:1753
 msgid "Mic"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:770
-#: admin/extra/wpaicg_chat_shortcode.php:1587
-#: admin/extra/wpaicg_chat_widget_settings.php:1748
+#: admin/extra/wpaicg_chat_shortcode.php:1591
+#: admin/extra/wpaicg_chat_widget_settings.php:1757
 #: admin/extra/wpaicg_form_index.php:570
 #: admin/extra/wpaicg_form_index.php:776
 #: admin/extra/wpaicg_form_index.php:950
@@ -1307,20 +1307,20 @@ msgid "Stop"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:783
-#: admin/extra/wpaicg_chat_shortcode.php:1606
-#: admin/extra/wpaicg_chat_widget_settings.php:1763
+#: admin/extra/wpaicg_chat_shortcode.php:1610
+#: admin/extra/wpaicg_chat_widget_settings.php:1772
 msgid "Header / Footer"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:794
-#: admin/extra/wpaicg_chat_shortcode.php:1617
-#: admin/extra/wpaicg_chat_widget_settings.php:1774
+#: admin/extra/wpaicg_chat_shortcode.php:1621
+#: admin/extra/wpaicg_chat_widget_settings.php:1783
 msgid "Icons"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:798
-#: admin/extra/wpaicg_chat_shortcode.php:1621
-#: admin/extra/wpaicg_chat_widget_settings.php:1778
+#: admin/extra/wpaicg_chat_shortcode.php:1625
+#: admin/extra/wpaicg_chat_widget_settings.php:1787
 msgid "Wait"
 msgstr ""
 
@@ -1334,9 +1334,9 @@ msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:820
 #: admin/extra/wpaicg_chatbots.php:839
-#: admin/extra/wpaicg_chat_shortcode.php:765
-#: admin/extra/wpaicg_chat_widget_settings.php:841
-#: admin/extra/wpaicg_chat_widget_settings.php:931
+#: admin/extra/wpaicg_chat_shortcode.php:774
+#: admin/extra/wpaicg_chat_widget_settings.php:854
+#: admin/extra/wpaicg_chat_widget_settings.php:944
 msgid "Custom"
 msgstr ""
 
@@ -1353,53 +1353,53 @@ msgid "in seconds. eg. 5"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:860
-#: admin/extra/wpaicg_chat_widget_settings.php:582
+#: admin/extra/wpaicg_chat_widget_settings.php:595
 msgid "AI Settings"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:863
-#: admin/extra/wpaicg_chat_shortcode.php:402
-#: admin/extra/wpaicg_chat_widget_settings.php:598
+#: admin/extra/wpaicg_chat_shortcode.php:411
+#: admin/extra/wpaicg_chat_widget_settings.php:611
 #: lib/views/chat/embeddings.php:58
 msgid "AI Provider"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:865
 #: admin/extra/wpaicg_chatbots.php:1107
-#: admin/extra/wpaicg_chat_shortcode.php:408
-#: admin/extra/wpaicg_chat_shortcode.php:1168
-#: admin/extra/wpaicg_chat_widget_settings.php:600
-#: admin/extra/wpaicg_chat_widget_settings.php:1321
+#: admin/extra/wpaicg_chat_shortcode.php:417
+#: admin/extra/wpaicg_chat_shortcode.php:1172
+#: admin/extra/wpaicg_chat_widget_settings.php:613
+#: admin/extra/wpaicg_chat_widget_settings.php:1330
 #: admin/extra/wpaicg_single.php:1293
 msgid "OpenAI"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:866
 #: admin/extra/wpaicg_chatbots.php:1109
-#: admin/extra/wpaicg_chat_shortcode.php:409
-#: admin/extra/wpaicg_chat_shortcode.php:1169
-#: admin/extra/wpaicg_chat_widget_settings.php:601
-#: admin/extra/wpaicg_chat_widget_settings.php:1322
+#: admin/extra/wpaicg_chat_shortcode.php:418
+#: admin/extra/wpaicg_chat_shortcode.php:1173
+#: admin/extra/wpaicg_chat_widget_settings.php:614
+#: admin/extra/wpaicg_chat_widget_settings.php:1331
 #: admin/extra/wpaicg_single.php:1294
 msgid "Google"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:867
-#: admin/extra/wpaicg_chat_shortcode.php:410
-#: admin/extra/wpaicg_chat_widget_settings.php:602
+#: admin/extra/wpaicg_chat_shortcode.php:419
+#: admin/extra/wpaicg_chat_widget_settings.php:615
 #: admin/extra/wpaicg_single.php:1295
 msgid "OpenRouter"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:868
-#: admin/extra/wpaicg_chat_shortcode.php:411
-#: admin/extra/wpaicg_chat_widget_settings.php:603
+#: admin/extra/wpaicg_chat_shortcode.php:420
+#: admin/extra/wpaicg_chat_widget_settings.php:616
 msgid "Microsoft"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:982
-#: admin/extra/wpaicg_chat_shortcode.php:571
-#: admin/extra/wpaicg_chat_widget_settings.php:730
+#: admin/extra/wpaicg_chat_shortcode.php:580
+#: admin/extra/wpaicg_chat_widget_settings.php:743
 #: admin/extra/wpaicg_form_index.php:415
 #: admin/views/settings/index.php:1353
 msgid "Options"
@@ -1408,14 +1408,14 @@ msgstr ""
 #: admin/extra/wpaicg_chatbots.php:985
 #: admin/extra/wpaicg_chat_settings.php:185
 #: admin/extra/wpaicg_chat_settings.php:213
-#: admin/extra/wpaicg_chat_shortcode.php:575
-#: admin/extra/wpaicg_chat_widget_settings.php:733
+#: admin/extra/wpaicg_chat_shortcode.php:584
+#: admin/extra/wpaicg_chat_widget_settings.php:746
 msgid "Internet Browsing"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:989
-#: admin/extra/wpaicg_chat_shortcode.php:585
-#: admin/extra/wpaicg_chat_widget_settings.php:737
+#: admin/extra/wpaicg_chat_shortcode.php:594
+#: admin/extra/wpaicg_chat_widget_settings.php:750
 msgid "Streaming"
 msgstr ""
 
@@ -1424,8 +1424,8 @@ msgid "Image Upload (GPT-4 Vision and GPT-4o Only)"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1006
-#: admin/extra/wpaicg_chat_shortcode.php:624
-#: admin/extra/wpaicg_chat_widget_settings.php:762
+#: admin/extra/wpaicg_chat_shortcode.php:633
+#: admin/extra/wpaicg_chat_widget_settings.php:775
 #: admin/views/help/chatgpt.php:29
 #: lib/views/twitter/index.php:80
 #: lib/views/twitter/index.php:121
@@ -1433,16 +1433,16 @@ msgid "Select Template"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1015
-#: admin/extra/wpaicg_chat_widget_settings.php:771
+#: admin/extra/wpaicg_chat_widget_settings.php:784
 msgid "You are a helpful AI Assistant. Please be friendly."
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1019
-#: admin/extra/wpaicg_chatbots.php:2025
-#: admin/extra/wpaicg_chat_shortcode.php:637
-#: admin/extra/wpaicg_chat_shortcode.php:2949
-#: admin/extra/wpaicg_chat_widget_settings.php:775
-#: admin/extra/wpaicg_chat_widget_settings.php:3089
+#: admin/extra/wpaicg_chatbots.php:2043
+#: admin/extra/wpaicg_chat_shortcode.php:646
+#: admin/extra/wpaicg_chat_shortcode.php:2953
+#: admin/extra/wpaicg_chat_widget_settings.php:788
+#: admin/extra/wpaicg_chat_widget_settings.php:3098
 msgid "Show Advanced Parameters"
 msgstr ""
 
@@ -1451,8 +1451,8 @@ msgid "Max Token"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1027
-#: admin/extra/wpaicg_chat_shortcode.php:641
-#: admin/extra/wpaicg_chat_widget_settings.php:778
+#: admin/extra/wpaicg_chat_shortcode.php:650
+#: admin/extra/wpaicg_chat_widget_settings.php:791
 #: admin/extra/wpaicg_form_index.php:550
 #: admin/extra/wpaicg_form_index.php:1101
 #: admin/extra/wpaicg_promptbase_index.php:468
@@ -1463,8 +1463,8 @@ msgid "Temperature"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1031
-#: admin/extra/wpaicg_chat_shortcode.php:659
-#: admin/extra/wpaicg_chat_widget_settings.php:786
+#: admin/extra/wpaicg_chat_shortcode.php:668
+#: admin/extra/wpaicg_chat_widget_settings.php:799
 #: admin/extra/wpaicg_comparison_tool.php:221
 #: admin/extra/wpaicg_form_index.php:554
 #: admin/extra/wpaicg_form_index.php:1102
@@ -1496,36 +1496,36 @@ msgid "PP"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1060
-#: admin/extra/wpaicg_chat_shortcode.php:1042
-#: admin/extra/wpaicg_chat_widget_settings.php:1195
-#: admin/extra/wpaicg_chat_widget_settings.php:1537
+#: admin/extra/wpaicg_chat_shortcode.php:1056
+#: admin/extra/wpaicg_chat_widget_settings.php:1214
+#: admin/extra/wpaicg_chat_widget_settings.php:1546
 msgid "Enable"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1071
-#: admin/extra/wpaicg_chatbots.php:1617
-#: admin/extra/wpaicg_chat_shortcode.php:1344
-#: admin/extra/wpaicg_chat_shortcode.php:1404
-#: admin/extra/wpaicg_chat_widget_settings.php:1487
-#: admin/extra/wpaicg_chat_widget_settings.php:1549
-#: admin/extra/wpaicg_chat_widget_settings.php:1565
+#: admin/extra/wpaicg_chatbots.php:1625
+#: admin/extra/wpaicg_chat_shortcode.php:1348
+#: admin/extra/wpaicg_chat_shortcode.php:1408
+#: admin/extra/wpaicg_chat_widget_settings.php:1496
+#: admin/extra/wpaicg_chat_widget_settings.php:1558
+#: admin/extra/wpaicg_chat_widget_settings.php:1574
 msgid "Notice"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1072
-#: admin/extra/wpaicg_chatbots.php:3222
-#: admin/extra/wpaicg_chat_shortcode.php:215
-#: admin/extra/wpaicg_chat_widget_settings.php:1550
-#: admin/extra/wpaicg_chat_widget_settings.php:1566
-#: classes/wpaicg_chat.php:790
-#: classes/wpaicg_chat.php:838
+#: admin/extra/wpaicg_chatbots.php:3257
+#: admin/extra/wpaicg_chat_shortcode.php:224
+#: admin/extra/wpaicg_chat_widget_settings.php:1559
+#: admin/extra/wpaicg_chat_widget_settings.php:1575
+#: classes/wpaicg_chat.php:798
+#: classes/wpaicg_chat.php:846
 #: lib/modules/wpaicg_chat_pro.php:29
 msgid "Your message has been flagged as potentially harmful or inappropriate. Please ensure that your messages are respectful and do not contain language or content that could be offensive or harmful to others. Thank you for your cooperation."
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1086
-#: admin/extra/wpaicg_chat_shortcode.php:1119
-#: admin/extra/wpaicg_chat_widget_settings.php:1272
+#: admin/extra/wpaicg_chat_shortcode.php:1123
+#: admin/extra/wpaicg_chat_widget_settings.php:1281
 msgid "Speech"
 msgstr ""
 
@@ -1538,21 +1538,21 @@ msgid "Enable Text to Speech"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1098
-#: admin/extra/wpaicg_chat_shortcode.php:1149
-#: admin/extra/wpaicg_chat_widget_settings.php:1303
+#: admin/extra/wpaicg_chat_shortcode.php:1153
+#: admin/extra/wpaicg_chat_widget_settings.php:1312
 msgid "Allow users to switch voice on/off"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1102
-#: admin/extra/wpaicg_chat_shortcode.php:1155
-#: admin/extra/wpaicg_chat_widget_settings.php:1309
+#: admin/extra/wpaicg_chat_shortcode.php:1159
+#: admin/extra/wpaicg_chat_widget_settings.php:1318
 msgid "Muted by default"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1105
 #: admin/extra/wpaicg_chatlog.php:688
-#: admin/extra/wpaicg_chat_shortcode.php:1166
-#: admin/extra/wpaicg_chat_widget_settings.php:1319
+#: admin/extra/wpaicg_chat_shortcode.php:1170
+#: admin/extra/wpaicg_chat_widget_settings.php:1328
 #: admin/extra/wpaicg_single.php:1121
 #: admin/views/embeddings/index.php:376
 #: admin/views/settings/index.php:964
@@ -1560,46 +1560,46 @@ msgid "Provider"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1108
-#: admin/extra/wpaicg_chat_shortcode.php:1170
-#: admin/extra/wpaicg_chat_widget_settings.php:1323
+#: admin/extra/wpaicg_chat_shortcode.php:1174
+#: admin/extra/wpaicg_chat_widget_settings.php:1332
 msgid "ElevenLabs"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1129
 #: admin/extra/wpaicg_chatbots.php:1174
 #: admin/extra/wpaicg_chatbots.php:1219
-#: admin/extra/wpaicg_chat_shortcode.php:1190
-#: admin/extra/wpaicg_chat_shortcode.php:1236
-#: admin/extra/wpaicg_chat_shortcode.php:1276
-#: admin/extra/wpaicg_chat_widget_settings.php:1337
-#: admin/extra/wpaicg_chat_widget_settings.php:1382
-#: admin/extra/wpaicg_chat_widget_settings.php:1419
+#: admin/extra/wpaicg_chat_shortcode.php:1194
+#: admin/extra/wpaicg_chat_shortcode.php:1240
+#: admin/extra/wpaicg_chat_shortcode.php:1280
+#: admin/extra/wpaicg_chat_widget_settings.php:1346
+#: admin/extra/wpaicg_chat_widget_settings.php:1391
+#: admin/extra/wpaicg_chat_widget_settings.php:1428
 msgid "Voice"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1140
-#: admin/extra/wpaicg_chat_shortcode.php:1201
-#: admin/extra/wpaicg_chat_widget_settings.php:1348
+#: admin/extra/wpaicg_chat_shortcode.php:1205
+#: admin/extra/wpaicg_chat_widget_settings.php:1357
 #: admin/views/audio/logs.php:56
 msgid "Format"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1149
 #: admin/extra/wpaicg_chatbots.php:1190
-#: admin/extra/wpaicg_chat_shortcode.php:1210
-#: admin/extra/wpaicg_chat_shortcode.php:1251
-#: admin/extra/wpaicg_chat_widget_settings.php:1357
-#: admin/extra/wpaicg_chat_widget_settings.php:1397
+#: admin/extra/wpaicg_chat_shortcode.php:1214
+#: admin/extra/wpaicg_chat_shortcode.php:1255
+#: admin/extra/wpaicg_chat_widget_settings.php:1366
+#: admin/extra/wpaicg_chat_widget_settings.php:1406
 msgid "Speed"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1164
-#: admin/extra/wpaicg_chatbots.php:1519
+#: admin/extra/wpaicg_chatbots.php:1527
 #: admin/extra/wpaicg_chat_settings.php:233
-#: admin/extra/wpaicg_chat_shortcode.php:1070
-#: admin/extra/wpaicg_chat_shortcode.php:1226
-#: admin/extra/wpaicg_chat_widget_settings.php:1223
-#: admin/extra/wpaicg_chat_widget_settings.php:1372
+#: admin/extra/wpaicg_chat_shortcode.php:1074
+#: admin/extra/wpaicg_chat_shortcode.php:1230
+#: admin/extra/wpaicg_chat_widget_settings.php:1232
+#: admin/extra/wpaicg_chat_widget_settings.php:1381
 #: admin/extra/wpaicg_single.php:529
 #: admin/extra/wpaicg_single.php:873
 #: admin/views/help/article.php:22
@@ -1612,26 +1612,26 @@ msgid "Language"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1180
-#: admin/extra/wpaicg_chat_shortcode.php:1241
-#: admin/extra/wpaicg_chat_widget_settings.php:1387
+#: admin/extra/wpaicg_chat_shortcode.php:1245
+#: admin/extra/wpaicg_chat_widget_settings.php:1396
 msgid "Device"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1194
-#: admin/extra/wpaicg_chat_shortcode.php:1255
-#: admin/extra/wpaicg_chat_widget_settings.php:1401
+#: admin/extra/wpaicg_chat_shortcode.php:1259
+#: admin/extra/wpaicg_chat_widget_settings.php:1410
 msgid "Pitch"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1243
-#: admin/extra/wpaicg_chat_shortcode.php:712
-#: admin/extra/wpaicg_chat_widget_settings.php:868
+#: admin/extra/wpaicg_chat_shortcode.php:721
+#: admin/extra/wpaicg_chat_widget_settings.php:881
 msgid "Fullscreen"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1248
-#: admin/extra/wpaicg_chat_shortcode.php:718
-#: admin/extra/wpaicg_chat_widget_settings.php:874
+#: admin/extra/wpaicg_chat_shortcode.php:727
+#: admin/extra/wpaicg_chat_widget_settings.php:887
 #: admin/extra/wpaicg_form_index.php:735
 #: admin/extra/wpaicg_form_index.php:784
 #: admin/extra/wpaicg_form_index.php:952
@@ -1647,8 +1647,8 @@ msgid "Download"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1258
-#: admin/extra/wpaicg_chat_shortcode.php:730
-#: admin/extra/wpaicg_chat_widget_settings.php:886
+#: admin/extra/wpaicg_chat_shortcode.php:739
+#: admin/extra/wpaicg_chat_widget_settings.php:899
 #: admin/extra/wpaicg_form_index.php:742
 #: admin/extra/wpaicg_form_index.php:788
 #: admin/extra/wpaicg_form_index.php:954
@@ -1666,14 +1666,14 @@ msgstr ""
 #: admin/extra/wpaicg_chatbots.php:1305
 #: admin/extra/wpaicg_chatbox.php:104
 #: admin/extra/wpaicg_chatbox.php:154
-#: admin/extra/wpaicg_chatbox_widget.php:94
+#: admin/extra/wpaicg_chatbox_widget.php:95
 #: admin/extra/wpaicg_chatlog.php:569
-#: admin/extra/wpaicg_chat_shortcode.php:226
-#: admin/extra/wpaicg_chat_shortcode.php:736
-#: admin/extra/wpaicg_chat_shortcode.php:799
-#: admin/extra/wpaicg_chat_widget_settings.php:252
-#: admin/extra/wpaicg_chat_widget_settings.php:892
-#: admin/extra/wpaicg_chat_widget_settings.php:968
+#: admin/extra/wpaicg_chat_shortcode.php:235
+#: admin/extra/wpaicg_chat_shortcode.php:745
+#: admin/extra/wpaicg_chat_shortcode.php:808
+#: admin/extra/wpaicg_chat_widget_settings.php:265
+#: admin/extra/wpaicg_chat_widget_settings.php:905
+#: admin/extra/wpaicg_chat_widget_settings.php:981
 #: admin/extra/wpaicg_form_index.php:749
 #: admin/extra/wpaicg_form_log.php:255
 #: admin/extra/wpaicg_promptbase_index.php:661
@@ -1682,71 +1682,71 @@ msgid "Feedback"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1268
-#: admin/extra/wpaicg_chat_widget_settings.php:898
+#: admin/extra/wpaicg_chat_widget_settings.php:911
 #: admin/extra/wpaicg_form_shortcode.php:760
 #: admin/extra/wpaicg_prompt_shortcode.php:653
 msgid "Close"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1275
-#: admin/extra/wpaicg_chat_shortcode.php:787
-#: admin/extra/wpaicg_chat_widget_settings.php:954
+#: admin/extra/wpaicg_chat_shortcode.php:796
+#: admin/extra/wpaicg_chat_widget_settings.php:967
 msgid "Welcome Message"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1276
-#: admin/extra/wpaicg_chatbots.php:1690
+#: admin/extra/wpaicg_chatbots.php:1698
 #: admin/extra/wpaicg_chatbox.php:61
-#: admin/extra/wpaicg_chat_shortcode.php:163
-#: admin/extra/wpaicg_chat_widget_settings.php:955
-#: classes/wpaicg_chat.php:811
+#: admin/extra/wpaicg_chat_shortcode.php:172
+#: admin/extra/wpaicg_chat_widget_settings.php:968
+#: classes/wpaicg_chat.php:819
 msgid "Hello, how can I help you today?"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1279
-#: admin/extra/wpaicg_chat_shortcode.php:771
-#: admin/extra/wpaicg_chat_widget_settings.php:938
+#: admin/extra/wpaicg_chat_shortcode.php:780
+#: admin/extra/wpaicg_chat_widget_settings.php:951
 msgid "AI Name"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1283
-#: admin/extra/wpaicg_chat_shortcode.php:775
-#: admin/extra/wpaicg_chat_widget_settings.php:942
+#: admin/extra/wpaicg_chat_shortcode.php:784
+#: admin/extra/wpaicg_chat_widget_settings.php:955
 msgid "User Name"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1284
 #: admin/extra/wpaicg_chatbox.php:58
-#: admin/extra/wpaicg_chatbox_widget.php:58
-#: admin/extra/wpaicg_chat_shortcode.php:160
-#: admin/extra/wpaicg_chat_widget_settings.php:943
-#: classes/wpaicg_chat.php:808
+#: admin/extra/wpaicg_chatbox_widget.php:59
+#: admin/extra/wpaicg_chat_shortcode.php:169
+#: admin/extra/wpaicg_chat_widget_settings.php:956
+#: classes/wpaicg_chat.php:816
 msgid "You"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1287
-#: admin/extra/wpaicg_chat_shortcode.php:779
-#: admin/extra/wpaicg_chat_widget_settings.php:946
+#: admin/extra/wpaicg_chat_shortcode.php:788
+#: admin/extra/wpaicg_chat_widget_settings.php:959
 msgid "Response Wait Message"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1288
 #: admin/extra/wpaicg_chatbox.php:59
-#: admin/extra/wpaicg_chat_shortcode.php:161
-#: admin/extra/wpaicg_chat_widget_settings.php:947
-#: classes/wpaicg_chat.php:809
+#: admin/extra/wpaicg_chat_shortcode.php:170
+#: admin/extra/wpaicg_chat_widget_settings.php:960
+#: classes/wpaicg_chat.php:817
 msgid "Gathering thoughts"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1291
-#: admin/extra/wpaicg_chat_shortcode.php:783
-#: admin/extra/wpaicg_chat_widget_settings.php:950
+#: admin/extra/wpaicg_chat_shortcode.php:792
+#: admin/extra/wpaicg_chat_widget_settings.php:963
 #: admin/views/settings/index.php:2351
 msgid "Placeholder"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1292
-#: admin/extra/wpaicg_chatbots.php:1697
+#: admin/extra/wpaicg_chatbots.php:1705
 msgid "Type message.."
 msgstr ""
 
@@ -1755,37 +1755,37 @@ msgid "No Answer Message"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1299
-#: admin/extra/wpaicg_chat_shortcode.php:794
-#: admin/extra/wpaicg_chat_widget_settings.php:962
+#: admin/extra/wpaicg_chat_shortcode.php:803
+#: admin/extra/wpaicg_chat_widget_settings.php:975
 msgid "Footer Note"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1300
-#: admin/extra/wpaicg_chat_shortcode.php:795
-#: admin/extra/wpaicg_chat_widget_settings.php:963
+#: admin/extra/wpaicg_chat_shortcode.php:804
+#: admin/extra/wpaicg_chat_widget_settings.php:976
 msgid "Powered by ..."
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1304
-#: admin/extra/wpaicg_chat_shortcode.php:798
-#: admin/extra/wpaicg_chat_widget_settings.php:967
+#: admin/extra/wpaicg_chat_shortcode.php:807
+#: admin/extra/wpaicg_chat_widget_settings.php:980
 msgid "Feedback Title"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1309
-#: admin/extra/wpaicg_chat_shortcode.php:802
-#: admin/extra/wpaicg_chat_widget_settings.php:972
+#: admin/extra/wpaicg_chat_shortcode.php:811
+#: admin/extra/wpaicg_chat_widget_settings.php:985
 msgid "Feedback Message"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1310
 #: admin/extra/wpaicg_chatbox.php:105
 #: admin/extra/wpaicg_chatbox.php:155
-#: admin/extra/wpaicg_chatbox_widget.php:95
-#: admin/extra/wpaicg_chat_shortcode.php:227
-#: admin/extra/wpaicg_chat_shortcode.php:803
-#: admin/extra/wpaicg_chat_widget_settings.php:253
-#: admin/extra/wpaicg_chat_widget_settings.php:973
+#: admin/extra/wpaicg_chatbox_widget.php:96
+#: admin/extra/wpaicg_chat_shortcode.php:236
+#: admin/extra/wpaicg_chat_shortcode.php:812
+#: admin/extra/wpaicg_chat_widget_settings.php:266
+#: admin/extra/wpaicg_chat_widget_settings.php:986
 msgid "Please provide details: (optional)"
 msgstr ""
 
@@ -1796,23 +1796,23 @@ msgstr ""
 #: admin/extra/wpaicg_chatbots.php:1315
 #: admin/extra/wpaicg_chatbox.php:106
 #: admin/extra/wpaicg_chatbox.php:156
-#: admin/extra/wpaicg_chatbox_widget.php:96
-#: admin/extra/wpaicg_chat_shortcode.php:228
-#: admin/extra/wpaicg_chat_shortcode.php:807
-#: admin/extra/wpaicg_chat_widget_settings.php:254
-#: admin/extra/wpaicg_chat_widget_settings.php:978
+#: admin/extra/wpaicg_chatbox_widget.php:97
+#: admin/extra/wpaicg_chat_shortcode.php:237
+#: admin/extra/wpaicg_chat_shortcode.php:816
+#: admin/extra/wpaicg_chat_widget_settings.php:267
+#: admin/extra/wpaicg_chat_widget_settings.php:991
 msgid "Thank you for your feedback!"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1328
-#: admin/extra/wpaicg_chat_shortcode.php:825
-#: admin/extra/wpaicg_chat_widget_settings.php:996
+#: admin/extra/wpaicg_chat_shortcode.php:834
+#: admin/extra/wpaicg_chat_widget_settings.php:1009
 msgid "Knowledge"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1331
-#: admin/extra/wpaicg_chat_shortcode.php:828
-#: admin/extra/wpaicg_chat_widget_settings.php:999
+#: admin/extra/wpaicg_chat_shortcode.php:846
+#: admin/extra/wpaicg_chat_widget_settings.php:1022
 msgid "Content Aware"
 msgstr ""
 
@@ -1873,141 +1873,141 @@ msgid "No"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1338
-#: admin/extra/wpaicg_chat_shortcode.php:842
-#: admin/extra/wpaicg_chat_widget_settings.php:1012
+#: admin/extra/wpaicg_chat_shortcode.php:857
+#: admin/extra/wpaicg_chat_widget_settings.php:1033
 msgid "User Aware"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbots.php:1345
-#: admin/extra/wpaicg_chat_shortcode.php:854
-#: admin/extra/wpaicg_chat_widget_settings.php:1025
+#: admin/extra/wpaicg_chat_shortcode.php:868
+#: admin/extra/wpaicg_chat_widget_settings.php:1044
 msgid "Memory"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1356
+#: admin/extra/wpaicg_chatbots.php:1354
+#: admin/extra/wpaicg_chat_shortcode.php:874
+#: admin/extra/wpaicg_chat_widget_settings.php:1050
+msgid "Memory Limit"
+msgstr ""
+
+#: admin/extra/wpaicg_chatbots.php:1374
 msgid "Use Excerpt"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1360
+#: admin/extra/wpaicg_chatbots.php:1378
 #: admin/extra/wpaicg_form_index.php:585
 #: admin/extra/wpaicg_promptbase_index.php:497
 msgid "Use Embeddings"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1366
-#: admin/extra/wpaicg_chat_shortcode.php:883
-#: admin/extra/wpaicg_chat_widget_settings.php:1052
+#: admin/extra/wpaicg_chatbots.php:1384
+#: admin/extra/wpaicg_chat_shortcode.php:897
+#: admin/extra/wpaicg_chat_widget_settings.php:1071
 #: admin/extra/wpaicg_form_index.php:593
 #: admin/extra/wpaicg_promptbase_index.php:505
 #: lib/views/chat/embeddings.php:60
 msgid "Vector DB"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1368
-#: admin/extra/wpaicg_chat_shortcode.php:889
-#: admin/extra/wpaicg_chat_widget_settings.php:1054
+#: admin/extra/wpaicg_chatbots.php:1386
+#: admin/extra/wpaicg_chat_shortcode.php:903
+#: admin/extra/wpaicg_chat_widget_settings.php:1073
 #: admin/extra/wpaicg_form_index.php:597
 #: admin/extra/wpaicg_promptbase_index.php:509
 msgid "Pinecone"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1369
-#: admin/extra/wpaicg_chat_shortcode.php:890
-#: admin/extra/wpaicg_chat_widget_settings.php:1055
+#: admin/extra/wpaicg_chatbots.php:1387
+#: admin/extra/wpaicg_chat_shortcode.php:904
+#: admin/extra/wpaicg_chat_widget_settings.php:1074
 #: admin/extra/wpaicg_form_index.php:596
 #: admin/extra/wpaicg_promptbase_index.php:508
 msgid "Qdrant"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1374
-#: admin/extra/wpaicg_chat_shortcode.php:895
-#: admin/extra/wpaicg_chat_widget_settings.php:1059
+#: admin/extra/wpaicg_chatbots.php:1392
+#: admin/extra/wpaicg_chat_shortcode.php:909
+#: admin/extra/wpaicg_chat_widget_settings.php:1078
 #: admin/extra/wpaicg_form_index.php:609
 #: admin/views/embeddings/index.php:413
 msgid "Index"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1386
-#: admin/extra/wpaicg_chat_shortcode.php:911
-#: admin/extra/wpaicg_chat_widget_settings.php:1073
+#: admin/extra/wpaicg_chatbots.php:1404
+#: admin/extra/wpaicg_chat_shortcode.php:925
+#: admin/extra/wpaicg_chat_widget_settings.php:1092
 #: admin/extra/wpaicg_form_index.php:602
 msgid "Collection"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1405
-#: admin/extra/wpaicg_chat_shortcode.php:937
-#: admin/extra/wpaicg_chat_widget_settings.php:1094
+#: admin/extra/wpaicg_chatbots.php:1423
+#: admin/extra/wpaicg_chat_shortcode.php:951
+#: admin/extra/wpaicg_chat_widget_settings.php:1113
 #: admin/extra/wpaicg_form_index.php:616
 #: admin/extra/wpaicg_promptbase_index.php:528
 msgid "Limit"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1417
-#: admin/extra/wpaicg_chat_shortcode.php:954
-#: admin/extra/wpaicg_chat_widget_settings.php:1106
+#: admin/extra/wpaicg_chatbots.php:1435
+#: admin/extra/wpaicg_chat_shortcode.php:968
+#: admin/extra/wpaicg_chat_widget_settings.php:1125
 msgid "Confidence Score Threshold"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1428
-#: admin/extra/wpaicg_chat_shortcode.php:972
-#: admin/extra/wpaicg_chat_widget_settings.php:1125
+#: admin/extra/wpaicg_chatbots.php:1446
+#: admin/extra/wpaicg_chat_shortcode.php:986
+#: admin/extra/wpaicg_chat_widget_settings.php:1144
 msgid "Use Default Embedding"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1431
+#: admin/extra/wpaicg_chatbots.php:1449
 msgid "Embedding model"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1450
-#: admin/extra/wpaicg_chat_shortcode.php:996
-#: admin/extra/wpaicg_chat_widget_settings.php:1149
+#: admin/extra/wpaicg_chatbots.php:1468
+#: admin/extra/wpaicg_chat_shortcode.php:1010
+#: admin/extra/wpaicg_chat_widget_settings.php:1168
 msgid "Conversation Starters"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1454
+#: admin/extra/wpaicg_chatbots.php:1472
 msgid "Edit Conversation Starters"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1460
-#: admin/extra/wpaicg_chat_shortcode.php:1016
-#: admin/extra/wpaicg_chat_widget_settings.php:1169
+#: admin/extra/wpaicg_chatbots.php:1478
+#: admin/extra/wpaicg_chat_shortcode.php:1030
+#: admin/extra/wpaicg_chat_widget_settings.php:1188
 msgid "Enable PDF Upload"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1469
+#: admin/extra/wpaicg_chatbots.php:1487
 msgid "Enable PDF Upload (Pro Plan)"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1475
-#: admin/extra/wpaicg_chatbots.php:2040
-#: admin/extra/wpaicg_chat_shortcode.php:1050
-#: admin/extra/wpaicg_chat_shortcode.php:2963
-#: admin/extra/wpaicg_chat_widget_settings.php:1202
-#: admin/extra/wpaicg_chat_widget_settings.php:3123
+#: admin/extra/wpaicg_chatbots.php:1493
+#: admin/extra/wpaicg_chatbots.php:2058
+#: admin/extra/wpaicg_chat_shortcode.php:1064
+#: admin/extra/wpaicg_chat_shortcode.php:2967
+#: admin/extra/wpaicg_chat_widget_settings.php:1221
+#: admin/extra/wpaicg_chat_widget_settings.php:3132
 msgid "Show Additional Options"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1479
-#: admin/extra/wpaicg_chat_shortcode.php:1060
-#: admin/extra/wpaicg_chat_widget_settings.php:1213
-msgid "Memory Limit"
-msgstr ""
-
-#: admin/extra/wpaicg_chatbots.php:1490
-#: admin/extra/wpaicg_chatbots.php:1506
-#: admin/extra/wpaicg_chat_shortcode.php:1019
-#: admin/extra/wpaicg_chat_widget_settings.php:1172
+#: admin/extra/wpaicg_chatbots.php:1498
+#: admin/extra/wpaicg_chatbots.php:1514
+#: admin/extra/wpaicg_chat_shortcode.php:1033
+#: admin/extra/wpaicg_chat_widget_settings.php:1191
 msgid "PDF Page Limit"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1501
-#: admin/extra/wpaicg_chatbots.php:1512
-#: admin/extra/wpaicg_chat_shortcode.php:1034
-#: admin/extra/wpaicg_chat_widget_settings.php:1187
+#: admin/extra/wpaicg_chatbots.php:1509
+#: admin/extra/wpaicg_chatbots.php:1520
+#: admin/extra/wpaicg_chat_shortcode.php:1048
+#: admin/extra/wpaicg_chat_widget_settings.php:1206
 msgid "PDF Icon"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1508
+#: admin/extra/wpaicg_chatbots.php:1516
 #: admin/views/metabox.php:314
 #: admin/views/metabox.php:336
 #: admin/views/metabox.php:356
@@ -2015,9 +2015,9 @@ msgstr ""
 msgid "Available in Pro"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1528
-#: admin/extra/wpaicg_chat_shortcode.php:1081
-#: admin/extra/wpaicg_chat_widget_settings.php:1234
+#: admin/extra/wpaicg_chatbots.php:1536
+#: admin/extra/wpaicg_chat_shortcode.php:1085
+#: admin/extra/wpaicg_chat_widget_settings.php:1243
 #: admin/extra/wpaicg_single.php:549
 #: admin/views/help/article.php:287
 #: admin/views/help/autogpt.php:287
@@ -2025,35 +2025,35 @@ msgstr ""
 msgid "Tone"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1537
+#: admin/extra/wpaicg_chatbots.php:1545
 msgid "Profession"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1546
-#: admin/extra/wpaicg_chat_shortcode.php:1053
-#: admin/extra/wpaicg_chat_widget_settings.php:1206
+#: admin/extra/wpaicg_chatbots.php:1554
+#: admin/extra/wpaicg_chat_shortcode.php:1067
+#: admin/extra/wpaicg_chat_widget_settings.php:1225
 msgid "Embedding Type"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1548
-#: admin/extra/wpaicg_chat_shortcode.php:1055
-#: admin/extra/wpaicg_chat_widget_settings.php:1208
+#: admin/extra/wpaicg_chatbots.php:1556
+#: admin/extra/wpaicg_chat_shortcode.php:1069
+#: admin/extra/wpaicg_chat_widget_settings.php:1227
 #: admin/views/help/article.php:306
 #: admin/views/help/autogpt.php:306
 #: admin/views/metabox.php:601
 msgid "Conversational"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1549
-#: admin/extra/wpaicg_chat_shortcode.php:1056
-#: admin/extra/wpaicg_chat_widget_settings.php:1209
+#: admin/extra/wpaicg_chatbots.php:1557
+#: admin/extra/wpaicg_chat_shortcode.php:1070
+#: admin/extra/wpaicg_chat_widget_settings.php:1228
 msgid "Non-Conversational"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1563
+#: admin/extra/wpaicg_chatbots.php:1571
 #: admin/extra/wpaicg_chatmode.php:31
-#: admin/extra/wpaicg_chat_shortcode.php:1365
-#: admin/extra/wpaicg_chat_widget_settings.php:1508
+#: admin/extra/wpaicg_chat_shortcode.php:1369
+#: admin/extra/wpaicg_chat_widget_settings.php:1517
 #: admin/extra/wpaicg_forms.php:28
 #: admin/extra/wpaicg_image_generator.php:343
 #: admin/extra/wpaicg_promptbase.php:28
@@ -2063,155 +2063,155 @@ msgstr ""
 msgid "Logs"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1565
-#: admin/extra/wpaicg_chat_shortcode.php:1368
-#: admin/extra/wpaicg_chat_widget_settings.php:1511
+#: admin/extra/wpaicg_chatbots.php:1573
+#: admin/extra/wpaicg_chat_shortcode.php:1372
+#: admin/extra/wpaicg_chat_widget_settings.php:1520
 msgid "Save Chat Logs"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1569
+#: admin/extra/wpaicg_chatbots.php:1577
 msgid "Save Prompt"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1573
-#: admin/extra/wpaicg_chat_shortcode.php:1376
-#: admin/extra/wpaicg_chat_widget_settings.php:1519
+#: admin/extra/wpaicg_chatbots.php:1581
+#: admin/extra/wpaicg_chat_shortcode.php:1380
+#: admin/extra/wpaicg_chat_widget_settings.php:1528
 msgid "Display Notice"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1577
-#: admin/extra/wpaicg_chat_shortcode.php:1380
-#: admin/extra/wpaicg_chat_widget_settings.php:1523
+#: admin/extra/wpaicg_chatbots.php:1585
+#: admin/extra/wpaicg_chat_shortcode.php:1384
+#: admin/extra/wpaicg_chat_widget_settings.php:1532
 msgid "Notice Text"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1589
+#: admin/extra/wpaicg_chatbots.php:1597
 #: admin/extra/wpaicg_form_settings.php:26
 #: admin/extra/wpaicg_promptbase_settings.php:24
 msgid "Token Management"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1591
+#: admin/extra/wpaicg_chatbots.php:1599
 #: admin/extra/wpaicg_form_settings.php:31
 #: admin/extra/wpaicg_image_generator_settings.php:56
 #: admin/extra/wpaicg_promptbase_settings.php:31
 msgid "Limit Registered User"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1595
-#: admin/extra/wpaicg_chatbots.php:1613
+#: admin/extra/wpaicg_chatbots.php:1603
+#: admin/extra/wpaicg_chatbots.php:1621
 msgid "Token Limit"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1599
+#: admin/extra/wpaicg_chatbots.php:1607
 msgid "Role based limit"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1606
+#: admin/extra/wpaicg_chatbots.php:1614
 msgid "Set Limit"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1609
+#: admin/extra/wpaicg_chatbots.php:1617
 #: admin/extra/wpaicg_form_settings.php:57
 #: admin/extra/wpaicg_image_generator_settings.php:82
 #: admin/extra/wpaicg_promptbase_settings.php:57
 msgid "Limit Non-Registered User"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1621
+#: admin/extra/wpaicg_chatbots.php:1629
 msgid "Reset Limit"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1623
-#: admin/extra/wpaicg_chat_shortcode.php:1332
-#: admin/extra/wpaicg_chat_widget_settings.php:1475
+#: admin/extra/wpaicg_chatbots.php:1631
+#: admin/extra/wpaicg_chat_shortcode.php:1336
+#: admin/extra/wpaicg_chat_widget_settings.php:1484
 #: admin/extra/wpaicg_form_settings.php:79
 #: admin/extra/wpaicg_image_generator_settings.php:102
 #: admin/extra/wpaicg_promptbase_settings.php:79
 msgid "Never"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1624
-#: admin/extra/wpaicg_chat_shortcode.php:1333
-#: admin/extra/wpaicg_chat_widget_settings.php:1476
+#: admin/extra/wpaicg_chatbots.php:1632
+#: admin/extra/wpaicg_chat_shortcode.php:1337
+#: admin/extra/wpaicg_chat_widget_settings.php:1485
 #: admin/extra/wpaicg_form_settings.php:80
 #: admin/extra/wpaicg_image_generator_settings.php:103
 #: admin/extra/wpaicg_promptbase_settings.php:80
 msgid "1 Day"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1625
-#: admin/extra/wpaicg_chat_shortcode.php:1334
-#: admin/extra/wpaicg_chat_widget_settings.php:1477
+#: admin/extra/wpaicg_chatbots.php:1633
+#: admin/extra/wpaicg_chat_shortcode.php:1338
+#: admin/extra/wpaicg_chat_widget_settings.php:1486
 #: admin/extra/wpaicg_form_settings.php:81
 #: admin/extra/wpaicg_image_generator_settings.php:104
 #: admin/extra/wpaicg_promptbase_settings.php:81
 msgid "3 Days"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1626
-#: admin/extra/wpaicg_chat_shortcode.php:1335
-#: admin/extra/wpaicg_chat_widget_settings.php:1478
+#: admin/extra/wpaicg_chatbots.php:1634
+#: admin/extra/wpaicg_chat_shortcode.php:1339
+#: admin/extra/wpaicg_chat_widget_settings.php:1487
 #: admin/extra/wpaicg_form_settings.php:82
 #: admin/extra/wpaicg_image_generator_settings.php:105
 #: admin/extra/wpaicg_promptbase_settings.php:82
 msgid "1 Week"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1627
-#: admin/extra/wpaicg_chat_shortcode.php:1336
-#: admin/extra/wpaicg_chat_widget_settings.php:1479
+#: admin/extra/wpaicg_chatbots.php:1635
+#: admin/extra/wpaicg_chat_shortcode.php:1340
+#: admin/extra/wpaicg_chat_widget_settings.php:1488
 #: admin/extra/wpaicg_form_settings.php:83
 #: admin/extra/wpaicg_image_generator_settings.php:106
 #: admin/extra/wpaicg_promptbase_settings.php:83
 msgid "2 Weeks"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1628
-#: admin/extra/wpaicg_chat_shortcode.php:1337
-#: admin/extra/wpaicg_chat_widget_settings.php:1480
+#: admin/extra/wpaicg_chatbots.php:1636
+#: admin/extra/wpaicg_chat_shortcode.php:1341
+#: admin/extra/wpaicg_chat_widget_settings.php:1489
 #: admin/extra/wpaicg_form_settings.php:84
 #: admin/extra/wpaicg_image_generator_settings.php:107
 #: admin/extra/wpaicg_promptbase_settings.php:84
 msgid "1 Month"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1629
-#: admin/extra/wpaicg_chat_shortcode.php:1338
-#: admin/extra/wpaicg_chat_widget_settings.php:1481
+#: admin/extra/wpaicg_chatbots.php:1637
+#: admin/extra/wpaicg_chat_shortcode.php:1342
+#: admin/extra/wpaicg_chat_widget_settings.php:1490
 #: admin/extra/wpaicg_form_settings.php:85
 #: admin/extra/wpaicg_image_generator_settings.php:108
 #: admin/extra/wpaicg_promptbase_settings.php:85
 msgid "2 Months"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1630
-#: admin/extra/wpaicg_chat_shortcode.php:1339
-#: admin/extra/wpaicg_chat_widget_settings.php:1482
+#: admin/extra/wpaicg_chatbots.php:1638
+#: admin/extra/wpaicg_chat_shortcode.php:1343
+#: admin/extra/wpaicg_chat_widget_settings.php:1491
 #: admin/extra/wpaicg_form_settings.php:86
 #: admin/extra/wpaicg_image_generator_settings.php:109
 #: admin/extra/wpaicg_promptbase_settings.php:86
 msgid "3 Months"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1631
-#: admin/extra/wpaicg_chat_shortcode.php:1340
-#: admin/extra/wpaicg_chat_widget_settings.php:1483
+#: admin/extra/wpaicg_chatbots.php:1639
+#: admin/extra/wpaicg_chat_shortcode.php:1344
+#: admin/extra/wpaicg_chat_widget_settings.php:1492
 #: admin/extra/wpaicg_form_settings.php:87
 #: admin/extra/wpaicg_image_generator_settings.php:110
 #: admin/extra/wpaicg_promptbase_settings.php:87
 msgid "6 Months"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1730
+#: admin/extra/wpaicg_chatbots.php:1738
 msgid "Congratulations! Your chatbot has been saved successfully!"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1752
+#: admin/extra/wpaicg_chatbots.php:1760
 msgid "Search Bot"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1753
+#: admin/extra/wpaicg_chatbots.php:1761
 #: admin/extra/wpaicg_chatlog.php:544
 #: admin/extra/wpaicg_form_log.php:71
 #: admin/extra/wpaicg_image_generator_log.php:42
@@ -2220,33 +2220,33 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1755
+#: admin/extra/wpaicg_chatbots.php:1763
 #: admin/extra/wpaicg_chatlog.php:551
-#: admin/extra/wpaicg_chat_shortcode.php:695
-#: admin/extra/wpaicg_chat_shortcode.php:813
-#: admin/extra/wpaicg_chat_shortcode.php:1107
-#: admin/extra/wpaicg_chat_shortcode.php:1290
-#: admin/extra/wpaicg_chat_shortcode.php:1351
-#: admin/extra/wpaicg_chat_shortcode.php:1411
-#: admin/extra/wpaicg_chat_shortcode.php:1629
-#: admin/extra/wpaicg_chat_widget_settings.php:805
-#: admin/extra/wpaicg_chat_widget_settings.php:984
-#: admin/extra/wpaicg_chat_widget_settings.php:1260
-#: admin/extra/wpaicg_chat_widget_settings.php:1433
-#: admin/extra/wpaicg_chat_widget_settings.php:1494
-#: admin/extra/wpaicg_chat_widget_settings.php:1573
-#: admin/extra/wpaicg_chat_widget_settings.php:1786
+#: admin/extra/wpaicg_chat_shortcode.php:704
+#: admin/extra/wpaicg_chat_shortcode.php:822
+#: admin/extra/wpaicg_chat_shortcode.php:1111
+#: admin/extra/wpaicg_chat_shortcode.php:1294
+#: admin/extra/wpaicg_chat_shortcode.php:1355
+#: admin/extra/wpaicg_chat_shortcode.php:1415
+#: admin/extra/wpaicg_chat_shortcode.php:1633
+#: admin/extra/wpaicg_chat_widget_settings.php:818
+#: admin/extra/wpaicg_chat_widget_settings.php:997
+#: admin/extra/wpaicg_chat_widget_settings.php:1269
+#: admin/extra/wpaicg_chat_widget_settings.php:1442
+#: admin/extra/wpaicg_chat_widget_settings.php:1503
+#: admin/extra/wpaicg_chat_widget_settings.php:1582
+#: admin/extra/wpaicg_chat_widget_settings.php:1795
 #: admin/extra/wpaicg_form_index.php:809
 #: admin/extra/wpaicg_promptbase_index.php:721
 msgid "Export"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1760
-#: admin/extra/wpaicg_chatbots.php:2789
+#: admin/extra/wpaicg_chatbots.php:1768
+#: admin/extra/wpaicg_chatbots.php:2813
 msgid "Create New Bot"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1767
+#: admin/extra/wpaicg_chatbots.php:1775
 #: admin/extra/wpaicg_chatlog.php:571
 #: admin/extra/wpaicg_form_index.php:385
 #: admin/extra/wpaicg_image_generator.php:550
@@ -2257,24 +2257,24 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1768
+#: admin/extra/wpaicg_chatbots.php:1776
 msgid "ID / Shortcode"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1769
+#: admin/extra/wpaicg_chatbots.php:1777
 #: admin/views/finetune/files.php:79
 msgid "Created"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1770
+#: admin/extra/wpaicg_chatbots.php:1778
 msgid "Updated"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1772
+#: admin/extra/wpaicg_chatbots.php:1780
 msgid "Context"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:1858
+#: admin/extra/wpaicg_chatbots.php:1866
 #: admin/extra/wpaicg_form_index.php:1441
 #: admin/extra/wpaicg_promptbase_index.php:1156
 #: admin/extra/wpaicg_single.php:1806
@@ -2286,98 +2286,98 @@ msgstr ""
 msgid "Are you sure?"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:2022
-#: admin/extra/wpaicg_chat_shortcode.php:2946
-#: admin/extra/wpaicg_chat_widget_settings.php:3086
+#: admin/extra/wpaicg_chatbots.php:2040
+#: admin/extra/wpaicg_chat_shortcode.php:2950
+#: admin/extra/wpaicg_chat_widget_settings.php:3095
 msgid "Hide Advanced Parameters"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:2037
-#: admin/extra/wpaicg_chat_shortcode.php:2960
-#: admin/extra/wpaicg_chat_widget_settings.php:3120
+#: admin/extra/wpaicg_chatbots.php:2055
+#: admin/extra/wpaicg_chat_shortcode.php:2964
+#: admin/extra/wpaicg_chat_widget_settings.php:3129
 msgid "Hide Additional Options"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:2854
-#: admin/extra/wpaicg_chatbots.php:2875
-#: admin/extra/wpaicg_chat_shortcode.php:2858
-#: admin/extra/wpaicg_chat_widget_settings.php:2780
-#: admin/extra/wpaicg_chat_widget_settings.php:2800
+#: admin/extra/wpaicg_chatbots.php:2878
+#: admin/extra/wpaicg_chatbots.php:2899
+#: admin/extra/wpaicg_chat_shortcode.php:2862
+#: admin/extra/wpaicg_chat_widget_settings.php:2789
+#: admin/extra/wpaicg_chat_widget_settings.php:2809
 msgid "Insert image"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:2859
-#: admin/extra/wpaicg_chatbots.php:2880
-#: admin/extra/wpaicg_chat_shortcode.php:2863
-#: admin/extra/wpaicg_chat_widget_settings.php:2785
-#: admin/extra/wpaicg_chat_widget_settings.php:2805
+#: admin/extra/wpaicg_chatbots.php:2883
+#: admin/extra/wpaicg_chatbots.php:2904
+#: admin/extra/wpaicg_chat_shortcode.php:2867
+#: admin/extra/wpaicg_chat_widget_settings.php:2794
+#: admin/extra/wpaicg_chat_widget_settings.php:2814
 msgid "Use this image"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:2919
+#: admin/extra/wpaicg_chatbots.php:2943
 msgid "Please enter a name for your awesome chat bot"
 msgstr ""
 
 #. translators: 1: minimum speed, 2: maximum speed
-#: admin/extra/wpaicg_chatbots.php:2928
-#: admin/extra/wpaicg_chat_shortcode.php:1992
-#: admin/extra/wpaicg_chat_widget_settings.php:2077
+#: admin/extra/wpaicg_chatbots.php:2952
+#: admin/extra/wpaicg_chat_shortcode.php:1996
+#: admin/extra/wpaicg_chat_widget_settings.php:2086
 msgid "Please enter valid voice speed value between %1$s and %2$s"
 msgstr ""
 
 #. translators: 1: minimum pitch, 2: maximum pitch
-#: admin/extra/wpaicg_chatbots.php:2932
-#: admin/extra/wpaicg_chat_shortcode.php:1996
-#: admin/extra/wpaicg_chat_widget_settings.php:2081
+#: admin/extra/wpaicg_chatbots.php:2956
+#: admin/extra/wpaicg_chat_shortcode.php:2000
+#: admin/extra/wpaicg_chat_widget_settings.php:2090
 msgid "Please enter valid voice pitch value between %1$s and %2$s"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:2935
-#: admin/extra/wpaicg_chat_shortcode.php:1999
-#: admin/extra/wpaicg_chat_widget_settings.php:2084
+#: admin/extra/wpaicg_chatbots.php:2959
+#: admin/extra/wpaicg_chat_shortcode.php:2003
+#: admin/extra/wpaicg_chat_widget_settings.php:2093
 msgid "Please select voice name"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:2967
+#: admin/extra/wpaicg_chatbots.php:2991
 msgid "Edit Bot"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:3379
-#: admin/extra/wpaicg_chat_widget_settings.php:2125
+#: admin/extra/wpaicg_chatbots.php:3414
+#: admin/extra/wpaicg_chat_widget_settings.php:2134
 msgid "Empty for no-limit"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:3382
-#: admin/extra/wpaicg_chat_shortcode.php:2067
-#: admin/extra/wpaicg_chat_widget_settings.php:2128
+#: admin/extra/wpaicg_chatbots.php:3417
+#: admin/extra/wpaicg_chat_shortcode.php:2071
+#: admin/extra/wpaicg_chat_widget_settings.php:2137
 msgid "Role Limit"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:3604
-#: admin/extra/wpaicg_chat_shortcode.php:1882
-#: admin/extra/wpaicg_chat_widget_settings.php:1912
+#: admin/extra/wpaicg_chatbots.php:3639
+#: admin/extra/wpaicg_chat_shortcode.php:1886
+#: admin/extra/wpaicg_chat_widget_settings.php:1921
 msgid "Download Exported Settings"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:3605
-#: admin/extra/wpaicg_chat_shortcode.php:1883
-#: admin/extra/wpaicg_chat_widget_settings.php:1913
+#: admin/extra/wpaicg_chatbots.php:3640
+#: admin/extra/wpaicg_chat_shortcode.php:1887
+#: admin/extra/wpaicg_chat_widget_settings.php:1922
 #: admin/extra/wpaicg_form_index.php:1161
 #: admin/extra/wpaicg_promptbase_index.php:1058
 msgid "Export successful."
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:3607
-#: admin/extra/wpaicg_chat_shortcode.php:1886
-#: admin/extra/wpaicg_chat_widget_settings.php:1916
+#: admin/extra/wpaicg_chatbots.php:3642
+#: admin/extra/wpaicg_chat_shortcode.php:1890
+#: admin/extra/wpaicg_chat_widget_settings.php:1925
 #: admin/extra/wpaicg_form_index.php:1163
 #: admin/extra/wpaicg_promptbase_index.php:1060
 msgid "Export failed:"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbots.php:3612
-#: admin/extra/wpaicg_chat_shortcode.php:1891
-#: admin/extra/wpaicg_chat_widget_settings.php:1921
+#: admin/extra/wpaicg_chatbots.php:3647
+#: admin/extra/wpaicg_chat_shortcode.php:1895
+#: admin/extra/wpaicg_chat_widget_settings.php:1930
 #: admin/extra/wpaicg_form_index.php:1168
 #: admin/extra/wpaicg_form_index.php:1232
 #: admin/extra/wpaicg_promptbase_index.php:1065
@@ -2386,14 +2386,14 @@ msgid "An error occurred:"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbox.php:60
-#: admin/extra/wpaicg_chatbox_widget.php:59
-#: admin/extra/wpaicg_chat_shortcode.php:162
-#: admin/extra/wpaicg_chat_widget_settings.php:951
-#: classes/wpaicg_chat.php:810
+#: admin/extra/wpaicg_chatbox_widget.php:60
+#: admin/extra/wpaicg_chat_shortcode.php:171
+#: admin/extra/wpaicg_chat_widget_settings.php:964
+#: classes/wpaicg_chat.php:818
 msgid "Type a message"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox_widget.php:57
+#: admin/extra/wpaicg_chatbox_widget.php:58
 msgid "AI thinking"
 msgstr ""
 
@@ -2500,9 +2500,9 @@ msgid "IP"
 msgstr ""
 
 #: admin/extra/wpaicg_chatlog.php:581
-#: admin/extra/wpaicg_chat_shortcode.php:1388
-#: admin/extra/wpaicg_chat_widget_settings.php:1534
-#: admin/extra/wpaicg_chat_widget_settings.php:1555
+#: admin/extra/wpaicg_chat_shortcode.php:1392
+#: admin/extra/wpaicg_chat_widget_settings.php:1543
+#: admin/extra/wpaicg_chat_widget_settings.php:1564
 msgid "Moderation"
 msgstr ""
 
@@ -2526,11 +2526,11 @@ msgstr ""
 msgid "Passed"
 msgstr ""
 
-#: admin/extra/wpaicg_chatlog.php:927
+#: admin/extra/wpaicg_chatlog.php:933
 msgid "View Chat Log"
 msgstr ""
 
-#: admin/extra/wpaicg_chatlog.php:1067
+#: admin/extra/wpaicg_chatlog.php:1073
 msgid "Flagged as"
 msgstr ""
 
@@ -2558,8 +2558,8 @@ msgstr ""
 
 #: admin/extra/wpaicg_chat_settings.php:186
 #: admin/extra/wpaicg_chat_settings.php:257
-#: admin/extra/wpaicg_chat_shortcode.php:1143
-#: admin/extra/wpaicg_chat_widget_settings.php:1297
+#: admin/extra/wpaicg_chat_shortcode.php:1147
+#: admin/extra/wpaicg_chat_widget_settings.php:1306
 msgid "Text to Speech"
 msgstr ""
 
@@ -2651,8 +2651,8 @@ msgid "Empty Log Table"
 msgstr ""
 
 #: admin/extra/wpaicg_chat_settings.php:286
-#: admin/extra/wpaicg_chat_shortcode.php:1363
-#: admin/extra/wpaicg_chat_widget_settings.php:1506
+#: admin/extra/wpaicg_chat_shortcode.php:1367
+#: admin/extra/wpaicg_chat_widget_settings.php:1515
 msgid "Security"
 msgstr ""
 
@@ -2759,37 +2759,37 @@ msgstr ""
 msgid "Models synced successfully!"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:397
+#: admin/extra/wpaicg_chat_shortcode.php:406
 msgid "General Settings"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:499
-#: admin/extra/wpaicg_chat_widget_settings.php:679
+#: admin/extra/wpaicg_chat_shortcode.php:508
+#: admin/extra/wpaicg_chat_widget_settings.php:692
 #: admin/views/settings/index.php:1097
 msgid "Deployment"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:504
-#: admin/extra/wpaicg_chat_widget_settings.php:680
+#: admin/extra/wpaicg_chat_shortcode.php:513
+#: admin/extra/wpaicg_chat_widget_settings.php:693
 msgid "Enter Azure Deployment"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:594
-#: admin/extra/wpaicg_chat_widget_settings.php:741
+#: admin/extra/wpaicg_chat_shortcode.php:603
+#: admin/extra/wpaicg_chat_widget_settings.php:754
 msgid "Image Upload"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:606
-#: admin/extra/wpaicg_chat_shortcode.php:621
+#: admin/extra/wpaicg_chat_shortcode.php:615
+#: admin/extra/wpaicg_chat_shortcode.php:630
 msgid "Custom Instructions"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:633
+#: admin/extra/wpaicg_chat_shortcode.php:642
 msgid "You are a helpful AI Assistant. Please be friendly. Today's date is [date]."
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:650
-#: admin/extra/wpaicg_chat_widget_settings.php:782
+#: admin/extra/wpaicg_chat_shortcode.php:659
+#: admin/extra/wpaicg_chat_widget_settings.php:795
 #: admin/extra/wpaicg_comparison_tool.php:220
 #: admin/extra/wpaicg_form_index.php:546
 #: admin/extra/wpaicg_form_index.php:1100
@@ -2798,8 +2798,8 @@ msgstr ""
 msgid "Max Tokens"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:673
-#: admin/extra/wpaicg_chat_widget_settings.php:793
+#: admin/extra/wpaicg_chat_shortcode.php:682
+#: admin/extra/wpaicg_chat_widget_settings.php:806
 #: admin/extra/wpaicg_form_index.php:1104
 #: admin/extra/wpaicg_promptbase_index.php:480
 #: admin/extra/wpaicg_promptbase_index.php:1007
@@ -2808,8 +2808,8 @@ msgstr ""
 msgid "Frequency Penalty"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:683
-#: admin/extra/wpaicg_chat_widget_settings.php:797
+#: admin/extra/wpaicg_chat_shortcode.php:692
+#: admin/extra/wpaicg_chat_widget_settings.php:810
 #: admin/extra/wpaicg_form_index.php:1105
 #: admin/extra/wpaicg_promptbase_index.php:484
 #: admin/extra/wpaicg_promptbase_index.php:1008
@@ -2818,136 +2818,141 @@ msgstr ""
 msgid "Presence Penalty"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:742
-#: admin/extra/wpaicg_chat_widget_settings.php:904
+#: admin/extra/wpaicg_chat_shortcode.php:751
+#: admin/extra/wpaicg_chat_widget_settings.php:917
 msgid "Avatar (40x40)"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:806
-#: admin/extra/wpaicg_chat_widget_settings.php:977
+#: admin/extra/wpaicg_chat_shortcode.php:815
+#: admin/extra/wpaicg_chat_widget_settings.php:990
 msgid "Feedback Success Message"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:872
-#: admin/extra/wpaicg_chat_widget_settings.php:1043
+#: admin/extra/wpaicg_chat_shortcode.php:837
+#: admin/extra/wpaicg_chat_widget_settings.php:1012
+msgid "Awareness & Memory"
+msgstr ""
+
+#: admin/extra/wpaicg_chat_shortcode.php:886
+#: admin/extra/wpaicg_chat_widget_settings.php:1062
 #: admin/extra/wpaicg_single.php:306
 #: lib/views/builder/custom_post_type.php:28
 msgid "Excerpt"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:876
-#: admin/extra/wpaicg_chat_widget_settings.php:1047
+#: admin/extra/wpaicg_chat_shortcode.php:890
+#: admin/extra/wpaicg_chat_widget_settings.php:1066
 #: admin/extra/wpaicg_form_index.php:432
 #: admin/extra/wpaicg_promptbase_index.php:350
 msgid "Embeddings"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:976
-#: admin/extra/wpaicg_chat_widget_settings.php:1129
+#: admin/extra/wpaicg_chat_shortcode.php:990
+#: admin/extra/wpaicg_chat_widget_settings.php:1148
 msgid "Embedding models"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1030
-#: admin/extra/wpaicg_chat_widget_settings.php:1183
+#: admin/extra/wpaicg_chat_shortcode.php:1044
+#: admin/extra/wpaicg_chat_widget_settings.php:1202
 msgid "PDF Upload Confirmation Message"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1039
-#: admin/extra/wpaicg_chat_widget_settings.php:1192
+#: admin/extra/wpaicg_chat_shortcode.php:1053
+#: admin/extra/wpaicg_chat_widget_settings.php:1211
 #: admin/views/embeddings/index.php:275
 msgid "PDF Upload"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1092
-#: admin/extra/wpaicg_chat_widget_settings.php:1245
+#: admin/extra/wpaicg_chat_shortcode.php:1096
+#: admin/extra/wpaicg_chat_widget_settings.php:1254
 msgid "Act As"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1126
-#: admin/extra/wpaicg_chat_shortcode.php:1133
-#: admin/extra/wpaicg_chat_widget_settings.php:1279
-#: admin/extra/wpaicg_chat_widget_settings.php:1287
+#: admin/extra/wpaicg_chat_shortcode.php:1130
+#: admin/extra/wpaicg_chat_shortcode.php:1137
+#: admin/extra/wpaicg_chat_widget_settings.php:1288
+#: admin/extra/wpaicg_chat_widget_settings.php:1296
 msgid "Speech to Text"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1136
+#: admin/extra/wpaicg_chat_shortcode.php:1140
 msgid "Speech to Text is not available in Azure or Google. If you want to use it, change your provider to OpenAI under Settings - AI Engine."
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1184
-#: admin/extra/wpaicg_chat_widget_settings.php:1331
+#: admin/extra/wpaicg_chat_shortcode.php:1188
+#: admin/extra/wpaicg_chat_widget_settings.php:1340
 msgid "tts-1 (Fastest)"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1185
-#: admin/extra/wpaicg_chat_widget_settings.php:1332
+#: admin/extra/wpaicg_chat_shortcode.php:1189
+#: admin/extra/wpaicg_chat_widget_settings.php:1341
 msgid "tts-1-hd (Highest Quality)"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1192
-#: admin/extra/wpaicg_chat_widget_settings.php:1339
+#: admin/extra/wpaicg_chat_shortcode.php:1196
+#: admin/extra/wpaicg_chat_widget_settings.php:1348
 msgid "alloy"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1193
-#: admin/extra/wpaicg_chat_widget_settings.php:1340
+#: admin/extra/wpaicg_chat_shortcode.php:1197
+#: admin/extra/wpaicg_chat_widget_settings.php:1349
 msgid "echo"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1194
-#: admin/extra/wpaicg_chat_widget_settings.php:1341
+#: admin/extra/wpaicg_chat_shortcode.php:1198
+#: admin/extra/wpaicg_chat_widget_settings.php:1350
 msgid "fable"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1195
-#: admin/extra/wpaicg_chat_widget_settings.php:1342
+#: admin/extra/wpaicg_chat_shortcode.php:1199
+#: admin/extra/wpaicg_chat_widget_settings.php:1351
 msgid "nova"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1196
-#: admin/extra/wpaicg_chat_widget_settings.php:1343
+#: admin/extra/wpaicg_chat_shortcode.php:1200
+#: admin/extra/wpaicg_chat_widget_settings.php:1352
 msgid "onyx"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1197
-#: admin/extra/wpaicg_chat_widget_settings.php:1344
+#: admin/extra/wpaicg_chat_shortcode.php:1201
+#: admin/extra/wpaicg_chat_widget_settings.php:1353
 msgid "shimmer"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1203
-#: admin/extra/wpaicg_chat_widget_settings.php:1350
+#: admin/extra/wpaicg_chat_shortcode.php:1207
+#: admin/extra/wpaicg_chat_widget_settings.php:1359
 msgid "mp3"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1204
-#: admin/extra/wpaicg_chat_widget_settings.php:1351
+#: admin/extra/wpaicg_chat_shortcode.php:1208
+#: admin/extra/wpaicg_chat_widget_settings.php:1360
 msgid "opus"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1205
-#: admin/extra/wpaicg_chat_widget_settings.php:1352
+#: admin/extra/wpaicg_chat_shortcode.php:1209
+#: admin/extra/wpaicg_chat_widget_settings.php:1361
 msgid "aac"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1206
-#: admin/extra/wpaicg_chat_widget_settings.php:1353
+#: admin/extra/wpaicg_chat_shortcode.php:1210
+#: admin/extra/wpaicg_chat_widget_settings.php:1362
 msgid "flac"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1302
-#: admin/extra/wpaicg_chat_widget_settings.php:1445
+#: admin/extra/wpaicg_chat_shortcode.php:1306
+#: admin/extra/wpaicg_chat_widget_settings.php:1454
 msgid "Quotas"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1305
-#: admin/extra/wpaicg_chat_widget_settings.php:1448
+#: admin/extra/wpaicg_chat_shortcode.php:1309
+#: admin/extra/wpaicg_chat_widget_settings.php:1457
 msgid "Limit Registered Users"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1308
-#: admin/extra/wpaicg_chat_shortcode.php:1326
-#: admin/extra/wpaicg_chat_widget_settings.php:1451
-#: admin/extra/wpaicg_chat_widget_settings.php:1469
+#: admin/extra/wpaicg_chat_shortcode.php:1312
+#: admin/extra/wpaicg_chat_shortcode.php:1330
+#: admin/extra/wpaicg_chat_widget_settings.php:1460
+#: admin/extra/wpaicg_chat_widget_settings.php:1478
 #: admin/extra/wpaicg_form_settings.php:37
 #: admin/extra/wpaicg_form_settings.php:61
 #: admin/extra/wpaicg_promptbase_settings.php:37
@@ -2955,59 +2960,59 @@ msgstr ""
 msgid "Token Allocation"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1312
-#: admin/extra/wpaicg_chat_widget_settings.php:1455
+#: admin/extra/wpaicg_chat_shortcode.php:1316
+#: admin/extra/wpaicg_chat_widget_settings.php:1464
 #: admin/extra/wpaicg_form_settings.php:45
 #: admin/extra/wpaicg_promptbase_settings.php:45
 msgid "Token Allocation by Role"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1319
-#: admin/extra/wpaicg_chat_widget_settings.php:1462
+#: admin/extra/wpaicg_chat_shortcode.php:1323
+#: admin/extra/wpaicg_chat_widget_settings.php:1471
 msgid "Configure Role Allocations"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1323
-#: admin/extra/wpaicg_chat_widget_settings.php:1466
+#: admin/extra/wpaicg_chat_shortcode.php:1327
+#: admin/extra/wpaicg_chat_widget_settings.php:1475
 msgid "Limit Non-Registered Users"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1330
-#: admin/extra/wpaicg_chat_widget_settings.php:1473
+#: admin/extra/wpaicg_chat_shortcode.php:1334
+#: admin/extra/wpaicg_chat_widget_settings.php:1482
 msgid "Reset Interval"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1372
-#: admin/extra/wpaicg_chat_widget_settings.php:1515
+#: admin/extra/wpaicg_chat_shortcode.php:1376
+#: admin/extra/wpaicg_chat_widget_settings.php:1524
 msgid "Save Prompt Details"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1388
+#: admin/extra/wpaicg_chat_shortcode.php:1392
 msgid "Moderation (Available in Pro)"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1393
+#: admin/extra/wpaicg_chat_shortcode.php:1397
 msgid "Moderation is available for OpenAI only. If you want to use the moderation tool, please change your provider to OpenAI under Settings - AI Engine tab."
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1602
+#: admin/extra/wpaicg_chat_shortcode.php:1606
 msgid "Enable Send"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_shortcode.php:1796
-#: admin/extra/wpaicg_chat_widget_settings.php:1825
+#: admin/extra/wpaicg_chat_shortcode.php:1800
+#: admin/extra/wpaicg_chat_widget_settings.php:1834
 msgid "Are you sure you want to reset the settings?"
 msgstr ""
 
 #. translators: 1: minimum temperature, 2: maximum temperature
-#: admin/extra/wpaicg_chat_widget_settings.php:41
+#: admin/extra/wpaicg_chat_widget_settings.php:54
 #: admin/extra/wpaicg_comparison_tool.php:383
 #: admin/extra/wpaicg_single.php:2140
 msgid "Please enter a valid temperature value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max_tokens, 2: maximum max_tokens
-#: admin/extra/wpaicg_chat_widget_settings.php:46
+#: admin/extra/wpaicg_chat_widget_settings.php:59
 #: admin/extra/wpaicg_comparison_tool.php:403
 #: admin/extra/wpaicg_comparison_tool.php:408
 #: admin/extra/wpaicg_comparison_tool.php:413
@@ -3017,62 +3022,62 @@ msgid "Please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum top_p, 2: maximum top_p
-#: admin/extra/wpaicg_chat_widget_settings.php:51
+#: admin/extra/wpaicg_chat_widget_settings.php:64
 msgid "For the widget, please enter a valid top p value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum best of value, 2: maximum best of value
-#: admin/extra/wpaicg_chat_widget_settings.php:56
+#: admin/extra/wpaicg_chat_widget_settings.php:69
 msgid "Please enter a valid best of value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum frequency_penalty, 2: maximum frequency_penalty
-#: admin/extra/wpaicg_chat_widget_settings.php:61
+#: admin/extra/wpaicg_chat_widget_settings.php:74
 msgid "For the widget, please enter a valid frequency penalty value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum presence_penalty, 2: maximum presence_penalty
-#: admin/extra/wpaicg_chat_widget_settings.php:66
+#: admin/extra/wpaicg_chat_widget_settings.php:79
 msgid "For the widget, please enter a valid presence penalty value between %1$d and %2$d."
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:162
+#: admin/extra/wpaicg_chat_widget_settings.php:175
 msgid "Setting saved successfully"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:593
+#: admin/extra/wpaicg_chat_widget_settings.php:606
 msgid "Enable Widget"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:820
+#: admin/extra/wpaicg_chat_widget_settings.php:833
 msgid "Widget (75x75)"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:849
+#: admin/extra/wpaicg_chat_widget_settings.php:862
 msgid "Left"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:853
+#: admin/extra/wpaicg_chat_widget_settings.php:866
 msgid "Right"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:858
+#: admin/extra/wpaicg_chat_widget_settings.php:871
 msgid "Delay"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:859
+#: admin/extra/wpaicg_chat_widget_settings.php:872
 msgid "5"
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:1290
+#: admin/extra/wpaicg_chat_widget_settings.php:1299
 msgid "Speech to Text is available with OpenAI only. If you want to use it, change your provider to OpenAI under Settings - AI Engine."
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:1529
+#: admin/extra/wpaicg_chat_widget_settings.php:1538
 msgid "Moderation is available in OpenAI only. If you want to use the moderation tool, please change your model to OpenAI under Settings - AI Engine tab."
 msgstr ""
 
-#: admin/extra/wpaicg_chat_widget_settings.php:1807
+#: admin/extra/wpaicg_chat_widget_settings.php:1816
 msgid "The widget is not active. Once enabled and saved, the preview will be shown here."
 msgstr ""
 
@@ -7253,7 +7258,7 @@ msgstr ""
 
 #: classes/wpaicg_audio.php:91
 #: classes/wpaicg_audio.php:262
-#: classes/wpaicg_chat.php:480
+#: classes/wpaicg_chat.php:488
 #: classes/wpaicg_comment.php:95
 #: classes/wpaicg_content.php:720
 #: classes/wpaicg_content.php:798
@@ -7376,54 +7381,66 @@ msgstr ""
 msgid "Failed to export settings."
 msgstr ""
 
-#: classes/wpaicg_chat.php:577
-#: classes/wpaicg_chat.php:578
+#: classes/wpaicg_chat.php:453
+msgid "The uploads folder at %s is not writable. Please check folder permissions."
+msgstr ""
+
+#: classes/wpaicg_chat.php:473
+msgid "Failed to write logs to file."
+msgstr ""
+
+#: classes/wpaicg_chat.php:480
+msgid "Logs have been exported successfully."
+msgstr ""
+
+#: classes/wpaicg_chat.php:585
+#: classes/wpaicg_chat.php:586
 msgid "Chat Bot"
 msgstr ""
 
-#: classes/wpaicg_chat.php:755
+#: classes/wpaicg_chat.php:763
 msgid "Unable to initialize the AI instance. Please make sure the API key is valid."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1712
+#: classes/wpaicg_chat.php:1720
 msgid "It appears that nothing was inputted."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1845
+#: classes/wpaicg_chat.php:1853
 msgid "Accepted audio and video formats: MP3, MP4, MPEG, M4A, WAV, and WEBM."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1849
+#: classes/wpaicg_chat.php:1857
 msgid "Maximum audio file size: 25MB."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2176
-#: classes/wpaicg_chat.php:2191
+#: classes/wpaicg_chat.php:2184
+#: classes/wpaicg_chat.php:2199
 msgid "You are not allowed to access this feature."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2216
-#: classes/wpaicg_chat.php:2230
+#: classes/wpaicg_chat.php:2224
+#: classes/wpaicg_chat.php:2238
 msgid "Your message contains prohibited words. Please modify your message and try again."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2388
+#: classes/wpaicg_chat.php:2396
 msgid "No results from Pinecone."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2396
+#: classes/wpaicg_chat.php:2404
 msgid "Something wrong with Pinecone setup. Check your Pinecone settings."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2522
+#: classes/wpaicg_chat.php:2530
 msgid "No results from Qdrant."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2523
+#: classes/wpaicg_chat.php:2531
 msgid "Response from Qdrant: "
 msgstr ""
 
-#: classes/wpaicg_chat.php:2547
+#: classes/wpaicg_chat.php:2555
 msgid "Something wrong with Qdrant setup3. Check your Qdrant settings."
 msgstr ""
 

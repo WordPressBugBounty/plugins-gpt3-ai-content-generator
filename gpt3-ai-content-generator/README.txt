@@ -4,7 +4,7 @@ Tags: chatgpt, gpt, ai, openai, chatbot
 Requires at least: 5.0.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.8.79
+Stable tag: 1.8.80
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -14,7 +14,7 @@ ChatGPT, Content Writer, Auto Content Writer, ChatBot, Product Writer, Image Gen
 
 AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's GPT-4 and GPT-3.5, along with Claude, Gemini, Azure, Mistral, LLaMA, Yi Chat, and Alpaca.
 
-It uses GPT-3.5, GPT-4,  GPT-4o, GPT-4o-mini, GPT-4 Vision, Gemini 1.5 Flash, Anthropic (Claude 3 Sonnet, Opus etc.) and more to generate content, images, and forms with customizable options. It includes AI training, Chat widget, WooCommerce integration, Embeddings and more.
+It uses o1-mini, o1-preview, GPT-3.5, GPT-4,  GPT-4o, GPT-4o-mini, GPT-4 Vision, Gemini 1.5 Flash, Anthropic (Claude 3 Sonnet, Opus etc.) and more to generate content, images, and forms with customizable options. It includes AI training, Chat widget, WooCommerce integration, Embeddings and more.
 
 Please read documentation here: [https://docs.aipower.org/](https://docs.aipower.org/)
 
@@ -151,6 +151,15 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.8.80 =
+
+- Improved memory management for the chatbot, allowing higher memory limits for longer conversation history.
+- Fixed an issue where the bot occasionally failed to remember previous conversations.
+- Now we are sending user queries via form submission instead of the URL, removing URL length limitations in the chat bot while using streaming.
+- Fixed encoding issues for non-Latin languages like Ukrainian and Russian.
+- Export logs now verify proper permissions for the uploads folder.
+- Improved handling of the o1 model by bypassing unsupported parameters such as top_p, frequency and presence penalties, and streaming. Check o1 models limitations [here](https://docs.aipower.org/docs/ai-engine/openai/gpt-models#o1-models-beta).
 
 = 1.8.79 =
 

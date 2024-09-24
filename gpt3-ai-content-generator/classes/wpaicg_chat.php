@@ -430,46 +430,54 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
 
         function wpaicg_export_logs_callback() {
             global $wpdb, $wp_filesystem;
-
-            // Verify the nonce wpaicg_export_logs_nonce
+        
+            // Verify the nonce
             if ( ! isset($_REQUEST['nonce']) || ! wp_verify_nonce($_REQUEST['nonce'], 'wpaicg_export_logs_nonce') ) {
-                die(esc_html__('Nonce verification failed','gpt3-ai-content-generator'));
+                wp_send_json_error(esc_html__('Nonce verification failed', 'gpt3-ai-content-generator'));
             }
-
+        
             // Ensure only admins can execute this function
             if ( ! current_user_can('manage_options') ) {
-                wp_die(__('You do not have sufficient permissions to access this page.'));
+                wp_send_json_error(__('You do not have sufficient permissions to access this page.'));
             }
-
+        
             // Include the WP_Filesystem class and initialize it
             if ( ! function_exists('WP_Filesystem') ) {
                 require_once(ABSPATH . 'wp-admin/includes/file.php');
             }
             WP_Filesystem();
-            
+        
+            // Check if the uploads folder is writable
+            $upload_dir = wp_upload_dir();
+            if ( ! is_writable( $upload_dir['basedir'] ) ) {
+                wp_send_json_error(sprintf(__('The uploads folder at %s is not writable. Please check folder permissions.', 'gpt3-ai-content-generator'), $upload_dir['basedir']));
+            }
+        
+            // Fetch the logs
             $logs_query = "SELECT `data` FROM " . $wpdb->prefix . "wpaicg_chatlogs";
             $logs = $wpdb->get_results($logs_query, ARRAY_A);
         
+            // Prepare log content
             $content = '';
             foreach ($logs as $log) {
                 $content .= $log['data'] . "\n\n";
             }
         
-            $upload_dir = wp_upload_dir();
-
+            // Define file paths and names
             $file_name = 'wpaicg_chat_logs_' . wp_rand() . '.txt';
             $file_path = $upload_dir['basedir'] . '/' . $file_name;
             $file_url = $upload_dir['baseurl'] . '/' . $file_name;
         
-            // Use WP_Filesystem to write the content to the file
-            $wp_filesystem->put_contents($file_path, $content);
-
-            // Set the transient to the file URL
+            // Write content to file
+            if ( ! $wp_filesystem->put_contents($file_path, $content) ) {
+                wp_send_json_error(__('Failed to write logs to file.', 'gpt3-ai-content-generator'));
+            }
+        
+            // Set the transient to store the file URL
             set_transient('wpaicg_logs_exported_url', $file_url, 10); // This will expire in 10 seconds
-
-            // Redirect after deletion to prevent form resubmission and to load fresh data
-            wp_redirect(admin_url('admin.php?page=wpaicg_chatgpt&action=logs'));
-            wp_die();
+        
+            // Send success response to the frontend
+            wp_send_json_success(__('Logs have been exported successfully.', 'gpt3-ai-content-generator'));
         }
 
         public function wpaicg_update_chatbot()
@@ -1204,7 +1212,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 if (!$wpaicg_chat_log_check) {
                     $wpdb->insert($wpdb->prefix . 'wpaicg_chatlogs', array(
                         'log_session' => $wpaicg_unique_chat,
-                        'data' => json_encode(array()),
+                        'data' => json_encode(array(), JSON_UNESCAPED_UNICODE),
                         'page_title' => $wpaicg_current_context_title,
                         'source' => $wpaicg_chat_source,
                         'created_at' => current_time('timestamp')
@@ -1234,7 +1242,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 // Save the log data back to the database
                 $wpdb->update(
                     $wpdb->prefix . 'wpaicg_chatlogs',
-                    array('data' => json_encode($wpaicg_chat_log_data)),
+                    array('data' => json_encode($wpaicg_chat_log_data, JSON_UNESCAPED_UNICODE)),
                     array('id' => $wpaicg_chat_log_id)
                 );
                 
@@ -1253,7 +1261,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 }
                 
                 // Save the cleaned history back to the database if needed
-                $_REQUEST['wpaicg_chat_history'] = json_encode($cleaned_chat_history);
+                $_REQUEST['wpaicg_chat_history'] = json_encode($cleaned_chat_history, JSON_UNESCAPED_UNICODE);
             }
             /*End Check Log*/
 
@@ -2252,7 +2260,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             if($wpaicg_log_id){
                 $wpaicg_log_data[] = array('message' => $message, 'type' => $type, 'date' => time(), 'token' => $tokens, 'flag' => $flag, 'request' => $request,'matches' => $matches);
                 $wpdb->update($wpdb->prefix.'wpaicg_chatlogs', array(
-                    'data' => json_encode($wpaicg_log_data),
+                    'data' => json_encode($wpaicg_log_data,JSON_UNESCAPED_UNICODE),
                     'created_at' => current_time('timestamp')
                 ), array(
                     'id' => $wpaicg_log_id

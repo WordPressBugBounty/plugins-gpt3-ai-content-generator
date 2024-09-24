@@ -644,6 +644,42 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
             return $this->sendRequest($url, 'GET');
         }
 
+        private function handleO1Models(array $opts): array
+        {
+            // Get the o1 models list from the Util class
+            $o1_models = \WPAICG\WPAICG_Util::get_instance()->o1_models;
+        
+            // If the model is in the o1 models list, adjust the parameters
+            if (isset($opts['model']) && array_key_exists($opts['model'], $o1_models)) {
+                // Use 'max_completion_tokens' instead of 'max_tokens'
+                if (array_key_exists('max_tokens', $opts)) {
+                    $opts['max_completion_tokens'] = $opts['max_tokens'];
+                    unset($opts['max_tokens']);
+                }
+        
+                // Set 'top_p' to the default value of 1 if it's not set correctly
+                if (isset($opts['top_p']) && $opts['top_p'] != 1) {
+                    $opts['top_p'] = 1;
+                }
+        
+                // Set 'presence_penalty' to the default value of 0 if it's not set correctly
+                if (isset($opts['presence_penalty']) && $opts['presence_penalty'] != 0) {
+                    $opts['presence_penalty'] = 0;
+                }
+        
+                // Set 'frequency_penalty' to the default value of 0 if it's not set correctly
+                if (isset($opts['frequency_penalty']) && $opts['frequency_penalty'] != 0) {
+                    $opts['frequency_penalty'] = 0;
+                }
+                // Set 'temperature' to the default value of 1 if it's not set correctly
+                if (isset($opts['temperature']) && $opts['temperature'] != 1) {
+                    $opts['temperature'] = 1;
+                }
+            }
+        
+            return $opts;
+        }
+
         /**
          * @param string $url
          * @param string $method
@@ -652,6 +688,9 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
          */
         private function sendRequest(string $url, string $method, array $opts = [])
         {
+            // Handle model-specific adjustments (like for o1-mini)
+            $opts = $this->handleO1Models($opts);
+
             $post_fields = json_encode($opts);
             // Check if the request is for text-to-speech
             if (array_key_exists('tts', $opts)) {

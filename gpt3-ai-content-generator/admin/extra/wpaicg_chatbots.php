@@ -50,7 +50,7 @@ $wpaicg_pinecone_environment = get_option('wpaicg_pinecone_environment','');
 $wpaicg_save_logs = false;
 $wpaicg_log_notice = false;
 $wpaicg_log_notice_message = __('Please note that your conversations will be recorded.','gpt3-ai-content-generator');
-$wpaicg_conversation_cut = 10;
+$wpaicg_conversation_cut = 100;
 $wpaicg_chat_embedding = false;
 $wpaicg_chat_addition = false;
 $wpaicg_chat_addition_text = false;
@@ -1349,6 +1349,24 @@ $conversation_starters = [];
                             </select>
                         </div>
                     </div>
+                    <div class="nice-form-group" style="padding-right: 5px;">
+                        <label>
+                            <?php echo esc_html__('Memory Limit', 'gpt3-ai-content-generator') ?>
+                        </label>
+                        <input 
+                            id="wpaicg_chatbot_memory_limit" 
+                            name="bot[conversation_cut]" 
+                            type="range" 
+                            step="1" 
+                            min="3" 
+                            max="500" 
+                            style="width: 42%;"
+                            value="<?php echo isset($bot['conversation_cut']) ? esc_attr($bot['conversation_cut']) : 100; ?>" 
+                            oninput="this.nextElementSibling.value = this.value">
+                        <output style="font-size: 10px;">
+                            <?php echo isset($bot['conversation_cut']) ? esc_attr($bot['conversation_cut']) : 100; ?>
+                        </output>
+                    </div>
                     <fieldset class="nice-form-group" style="margin-top: 1em;">
                     <legend><?php echo esc_html__('Data Source', 'gpt3-ai-content-generator'); ?></legend>
                         <div class="nice-form-group">
@@ -1475,16 +1493,6 @@ $conversation_starters = [];
                     <a href="#" class="wpaicg-additional-settings-link"><?php echo esc_html__('Show Additional Options','gpt3-ai-content-generator'); ?></a>
                     <div class="wpaicg-additional-settings" style="display: none;">
                         <div class="nice-form-group" style="display: flex;">
-                            <div class="nice-form-group" style="padding-right: 5px;">
-                                <label style="font-size: 10px;"><?php echo esc_html__('Memory Limit','gpt3-ai-content-generator')?></label>
-                                <select style="width: 80px;font-size: 10px;" name="bot[conversation_cut]" class="wpaicg_chatbot_conversation_cut">
-                                    <?php
-                                    for($i=3;$i<=50;$i++){
-                                        echo '<option'.(10 == $i ? ' selected':'').' value="'.esc_html($i).'">'.esc_html($i).'</option>';
-                                    }
-                                    ?>
-                                </select>
-                            </div>
                             <?php if(\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                             <div class="nice-form-group" style="padding-right: 5px;">
                                 <label style="font-size: 10px;"><?php echo esc_html__('PDF Page Limit','gpt3-ai-content-generator')?></label>
@@ -1940,6 +1948,16 @@ $wpaicg_bots = new WP_Query($args);
                     $('.wpaicg_chatbot_image_enable').prop('checked', false);
                     $('.wpaicg_chatbot_image_enable').attr('disabled', 'disabled');
                 }
+            }
+
+            let selectedModeltoCheck = $(this).val();
+
+            // if model is o1-mini or o1-preview then disable streaming checkbox and set it to false
+            if (selectedModeltoCheck === 'o1-mini' || selectedModeltoCheck === 'o1-preview') {
+                $('.wpaicg_chatbot_openai_stream_nav').prop('checked', false);
+                $('.wpaicg_chatbot_openai_stream_nav').attr('disabled', 'disabled');
+            } else {
+                $('.wpaicg_chatbot_openai_stream_nav').removeAttr('disabled');
             }
         });
 
@@ -2746,6 +2764,12 @@ $wpaicg_bots = new WP_Query($args);
                 $('.wpaicg_chatbot_image_enable').attr('disabled', 'disabled');
             }
 
+            // if selected model is o1-mini or o1-preview then disable and set to false streaming.
+            if (selectedModel === 'o1-mini' || selectedModel === 'o1-preview') {
+                $('.wpaicg_chatbot_openai_stream_nav').prop('checked', false);
+                $('.wpaicg_chatbot_openai_stream_nav').attr('disabled', 'disabled');
+            }
+
             wpaicgChatShortcodeSize();
 
         }
@@ -3000,6 +3024,17 @@ $wpaicg_bots = new WP_Query($args);
 
                 // Update the output value to reflect the confidence score
                 confidenceScoreOutput.text(fields.confidence_score);
+            }
+            // Update memory_limit value to wpaicg_chatbot_memory_limit
+            if (fields.conversation_cut) {
+                let memoryLimitInput = modalContent.find('#wpaicg_chatbot_memory_limit');
+                let memoryLimitOutput = memoryLimitInput.next('output');
+
+                // Set the value for the range input
+                memoryLimitInput.val(fields.conversation_cut);
+
+                // Update the output value to reflect the memory limit
+                memoryLimitOutput.text(fields.conversation_cut);
             }
 
             // Set initial visibility of the dropdown based on the checkbox
