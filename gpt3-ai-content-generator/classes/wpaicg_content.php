@@ -47,7 +47,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
             // Register cron hooks and schedule them
             add_filter('cron_schedules', array($this, 'wpaicg_custom_cron_schedules'));
             $this->wpaicg_register_cron_hooks();
-            $this->wpaicg_schedule_cron_jobs();
         }
 
         public function wpaicg_custom_cron_schedules($schedules) {
