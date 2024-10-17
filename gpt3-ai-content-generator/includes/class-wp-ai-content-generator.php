@@ -163,8 +163,6 @@ class Wp_Ai_Content_Generator {
 		$this->loader->add_action( 'wp_ajax_wpaicg_set_post_content_', $plugin_admin , 'wpaicg_set_post_content_' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'wpaicg_options_page' );
 		$this->loader->add_action( 'admin_footer', $plugin_admin, 'wpaicg_load_db_vaule_js' );
-		$this->loader->add_action( 'admin_menu', $plugin_admin, 'wpaicg_help_menu' );
-
 	}
 
 	/**

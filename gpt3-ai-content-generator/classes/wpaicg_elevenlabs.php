@@ -66,7 +66,7 @@ if(!class_exists('\\WPAICG\\WPAICG_ElevenLabs')) {
                 $wpaicg_result['message'] = esc_html__('You do not have permission for this action.','gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
-            if ( ! wp_verify_nonce( $_POST['nonce'], 'wpaicg_sync_voices' ) ) {
+            if ( ! wp_verify_nonce( $_POST['nonce'], 'wpaicg_save_ai_engine_nonce' ) ) {
                 $result['message'] = esc_html__('Nonce verification failed','gpt3-ai-content-generator');
             }
             else{
@@ -115,7 +115,7 @@ if(!class_exists('\\WPAICG\\WPAICG_ElevenLabs')) {
                 $wpaicg_result['message'] = esc_html__('You do not have permission for this action.','gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
-            if ( ! wp_verify_nonce( $_POST['nonce'], 'wpaicg_sync_models' ) ) {
+            if ( ! wp_verify_nonce( $_POST['nonce'], 'wpaicg_save_ai_engine_nonce' ) ) {
                 $result['message'] = esc_html__('Nonce verification failed','gpt3-ai-content-generator');
             }
             else{

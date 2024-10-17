@@ -18,7 +18,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
 
         public function __construct()
         {
-            add_action( 'admin_menu', array( $this, 'wpaicg_menu' ) );
             add_shortcode( 'wpaicg_chatgpt', [ $this, 'wpaicg_chatbox' ] );
             add_shortcode( 'wpaicg_chatgpt_widget', [ $this, 'wpaicg_chatbox_widget' ] );
             add_action( 'wp_ajax_wpaicg_update_chatbot', array( $this, 'wpaicg_update_chatbot' ) );
@@ -578,23 +577,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             }
         }
 
-        public function wpaicg_menu()
-        {
-            add_submenu_page(
-                'wpaicg',
-                esc_html__('Chat Bot','gpt3-ai-content-generator'),
-                esc_html__('Chat Bot','gpt3-ai-content-generator'),
-                'wpaicg_chatgpt',
-                'wpaicg_chatgpt',
-                array( $this, 'wpaicg_chatmode' ),
-                1
-            );
-        }
 
-        public function wpaicg_chatmode()
-        {
-            include WPAICG_PLUGIN_DIR . 'admin/extra/wpaicg_chatmode.php';
-        }
 
         function wpaicg_handle_delete_logs() {
     

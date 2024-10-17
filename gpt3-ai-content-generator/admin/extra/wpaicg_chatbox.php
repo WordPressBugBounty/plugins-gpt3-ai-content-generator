@@ -301,6 +301,14 @@ $wpaicg_conversation_cut = isset($wpaicg_settings['conversation_cut']) && !empty
         padding: 0;
         list-style: none;
     }
+    .log_notification {
+        background: <?php echo esc_html($wpaicg_settings['bgcolor'])?>;
+        color: <?php echo esc_html($wpaicg_settings['fontcolor'])?>;
+        font-size: 11px;
+        font-style: italic;
+        padding: 10px;
+        border-radius: 5px;
+    }
 
     .wpaicg-chat-shortcode-footer {
         color: <?php echo esc_html($wpaicg_settings['footer_font_color'])?>;
@@ -877,7 +885,7 @@ if($wpaicg_chat_fullscreen || $wpaicg_chat_download_btn || $wpaicg_chat_clear_bt
         <?php
         if($wpaicg_save_logs && $wpaicg_log_notice && !empty($wpaicg_log_notice_message)):
             ?>
-            <li style="background: #ccf5e1; padding: 10px;border-radius: unset;font-size: 11px;font-style: italic;">
+            <li class="log_notification">
                 <p>
                 <span class="wpaicg-chat-message">
                     <?php echo esc_html(str_replace("\\",'',$wpaicg_log_notice_message))?>

@@ -16,7 +16,7 @@ if(!class_exists('\\WPAICG\\WPAICG_OpenRouterMethod')) {
 
         public function __construct()
         {
-            add_action('wp_ajax_wpaicg_sync_openrouter_models', array($this, 'fetch_openrouter_models'));
+            add_action('wp_ajax_aipower_sync_openrouter_models', array($this, 'aipower_fetch_openrouter_models'));
             add_action('wp_ajax_wpaicg_check_openrouter_limits', array($this, 'wpaicg_check_openrouter_limits'));
         }
 
@@ -51,12 +51,11 @@ if(!class_exists('\\WPAICG\\WPAICG_OpenRouterMethod')) {
                 wp_send_json_error('Unable to retrieve limits.');
             }
         }
-        
 
-        public function fetch_openrouter_models() {
-            if (!wp_verify_nonce($_POST['nonce'], 'wpaicg_sync_openrouter_models')) {
-                wp_send_json_error('Nonce verification failed');
-                return; // Stop execution if nonce verification fails
+        public function aipower_fetch_openrouter_models() {
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
+                wp_send_json_error(array('message' => esc_html__('Nonce verification failed', 'gpt3-ai-content-generator')));
+                return;
             }
         
             $response = wp_remote_request('https://openrouter.ai/api/v1/models');
@@ -77,40 +76,75 @@ if(!class_exists('\\WPAICG\\WPAICG_OpenRouterMethod')) {
                 unset($model['description']);
                 return $model;
             }, $models['data']);
+
+            // if wpaicg_openrouter_default_model is empty or not exist, set anthropic/claude-3.5-sonnet as default model
+            if (get_option('wpaicg_openrouter_default_model', '') === '') {
+                update_option('wpaicg_openrouter_default_model', 'anthropic/claude-3.5-sonnet');
+            }
+        
+            // Retrieve the current default model
+            $default_model = get_option('wpaicg_openrouter_default_model', 'anthropic/claude-3.5-sonnet');
         
             // Attempt to update the option with new models excluding the description field
             $update_result = update_option('wpaicg_openrouter_model_list', $filtered_models);
         
             if ($update_result) {
-                wp_send_json_success('Model list updated successfully');
-                return;
-            }
+                // Group models by provider for the dropdown
+                $grouped_models = [];
+                foreach ($filtered_models as $model) {
+                    $provider = explode('/', $model['id'])[0]; // Extract provider name from ID
+                    if (!isset($grouped_models[$provider])) {
+                        $grouped_models[$provider] = [];
+                    }
+                    $grouped_models[$provider][] = $model;
+                }
         
-            // If the initial update fails, remove non-alphanumeric characters (except some common characters) and try again.
-            function remove_non_alphanumeric_except_common($text) {
-                return preg_replace('/[^a-zA-Z0-9:\/\-\(\)\. ]/', '', $text);
-            }
+                // Sort providers alphabetically
+                ksort($grouped_models);
         
-            // Remove non-alphanumeric characters (except some common characters) from the relevant fields
-            $filtered_models = array_map(function($model) {
-                $model['id'] = remove_non_alphanumeric_except_common($model['id']);
-                $model['name'] = remove_non_alphanumeric_except_common($model['name']);
-                return $model;
-            }, $filtered_models);
-        
-            // Attempt to update the option again after removing non-alphanumeric characters
-            $update_result = update_option('wpaicg_openrouter_model_list', $filtered_models);
-        
-            if ($update_result) {
-                wp_send_json_success('Model list updated successfully');
+                // Return success with the grouped models and the default model for the frontend
+                wp_send_json_success([
+                    'models' => $grouped_models,
+                    'default_model' => $default_model
+                ]);
             } else {
-                wp_send_json_error('Failed to update model list in the database');
+                // If the update failed, try removing non-alphanumeric characters (except some common characters) and try again
+                function remove_non_alphanumeric_except_common($text) {
+                    return preg_replace('/[^a-zA-Z0-9:\/\-\(\)\. ]/', '', $text);
+                }
+        
+                // Remove non-alphanumeric characters from relevant fields
+                $filtered_models = array_map(function($model) {
+                    $model['id'] = remove_non_alphanumeric_except_common($model['id']);
+                    $model['name'] = remove_non_alphanumeric_except_common($model['name']);
+                    return $model;
+                }, $filtered_models);
+        
+                // Attempt to update the option again
+                $update_result = update_option('wpaicg_openrouter_model_list', $filtered_models);
+        
+                if ($update_result) {
+                    // Group models by provider again
+                    $grouped_models = [];
+                    foreach ($filtered_models as $model) {
+                        $provider = explode('/', $model['id'])[0];
+                        if (!isset($grouped_models[$provider])) {
+                            $grouped_models[$provider] = [];
+                        }
+                        $grouped_models[$provider][] = $model;
+                    }
+        
+                    ksort($grouped_models);
+        
+                    wp_send_json_success([
+                        'models' => $grouped_models,
+                        'default_model' => $default_model
+                    ]);
+                } else {
+                    wp_send_json_error('Failed to update model list in the database');
+                }
             }
         }
-        
-        
-        
-        
     }
 
     WPAICG_OpenRouterMethod::get_instance();

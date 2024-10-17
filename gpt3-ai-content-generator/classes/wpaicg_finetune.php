@@ -48,6 +48,48 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
                 $mime_types['jsonl'] = 'application/octet-stream';
                 return $mime_types;
             });
+            add_action('wp_ajax_aipower_fetch_openai_models', [$this, 'aipower_fetch_openai_models']);
+            add_action('wp_ajax_aipower_sync_google_models', [$this, 'aipower_sync_google_models']);
+        }
+
+        // Function to sync Google models
+        public function aipower_sync_google_models()
+        {
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(array('message' => esc_html__('You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
+                wp_send_json_error(array('message' => esc_html__('Nonce verification failed', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            $api_key = get_option('wpaicg_google_model_api_key');
+            if (empty($api_key)) {
+                wp_send_json_error(array('message' => esc_html__('Google API key is not configured. Please enter your Google API key first.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            $google_ai = WPAICG_Google::get_instance();
+            $model_list = $google_ai->listModels(); // Fetch the models using your existing logic
+
+            if (is_wp_error($model_list)) {
+                wp_send_json_error(array('message' => $model_list->get_error_message()));
+                return;
+            }
+
+            if (isset($model_list['error'])) {
+                wp_send_json_error(array('message' => $model_list['error']['message']));
+                return;
+            }
+
+            update_option('wpaicg_google_model_list', $model_list); // Save the fetched models
+            // if wpaicg_google_default_model options not exist or empty then set it to gemini-pro
+            if (!get_option('wpaicg_google_default_model')) {
+                update_option('wpaicg_google_default_model', 'gemini-pro');
+            }
+            wp_send_json_success(array('message' => esc_html__('Google models synced successfully.', 'gpt3-ai-content-generator'), 'models' => $model_list));
         }
 
         public function wpaicg_fetch_google_models()
@@ -919,6 +961,66 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
             wp_send_json($wpaicg_result);
         }
 
+        public function aipower_fetch_openai_models() {
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
+                wp_send_json_error(array('message' => esc_html__('Nonce verification failed', 'gpt3-ai-content-generator')));
+                return;
+            }
+        
+            // Fetch the models from OpenAI
+            $gpt4_models = \WPAICG\WPAICG_Util::get_instance()->openai_gpt4_models;
+            $gpt35_models = \WPAICG\WPAICG_Util::get_instance()->openai_gpt35_models;
+        
+            // Call the API to list fine-tuned models
+            $result = WPAICG_OpenAI::get_instance()->openai()->listFineTunes();
+            $result = json_decode($result);
+        
+            $custom_models = array();
+        
+            if (isset($result->error)) {
+                // Handle the error
+                wp_send_json_error(array('message' => $result->error->message));
+                return;
+            } else {
+                if (isset($result->data) && is_array($result->data) && count($result->data)) {
+                    foreach ($result->data as $item) {
+                        if ($item->status == 'succeeded' && !empty($item->fine_tuned_model)) {
+                            $custom_models[] = $item->fine_tuned_model;
+                        }
+                    }
+                }
+            }
+        
+            // Update the 'wpaicg_custom_models' option in the database
+            update_option('wpaicg_custom_models', $custom_models);
+
+            // Check if 'wpaicg_ai_model' option exists and has a value
+            $ai_model_option = get_option('wpaicg_ai_model', '');
+
+            if (empty($ai_model_option)) {
+                // If the option does not exist or is empty, update it with 'gpt-3.5-turbo'
+                update_option('wpaicg_ai_model', 'gpt-3.5-turbo');
+            }
+
+        
+            // Retrieve custom models from the updated option
+            $custom_models_serialized = get_option('wpaicg_custom_models', '');
+            $custom_models = maybe_unserialize($custom_models_serialized);
+        
+            // Check for errors and format the response
+            if (is_wp_error($gpt35_models) || is_wp_error($gpt4_models)) {
+                wp_send_json_error('Failed to fetch models from OpenAI');
+                return;
+            }
+        
+            // Return success with the OpenAI models
+            wp_send_json_success([
+                'gpt35_models'   => $gpt35_models,
+                'gpt4_models'    => $gpt4_models,
+                'custom_models'  => $custom_models
+            ]);
+        }
+        
         public function wpaicg_finetunes()
         {
             global $wpdb;

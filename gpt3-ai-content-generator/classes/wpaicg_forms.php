@@ -397,15 +397,24 @@ if(!class_exists('\\WPAICG\\WPAICG_Forms')) {
 
         public function wpaicg_menu()
         {
-            add_submenu_page(
-                'wpaicg',
-                esc_html__('AI Forms','gpt3-ai-content-generator'),
-                esc_html__('AI Forms','gpt3-ai-content-generator'),
-                'wpaicg_forms',
-                'wpaicg_forms',
-                array( $this, 'wpaicg_forms' ),
-                5
-            );
+            $module_settings = get_option('wpaicg_module_settings');
+            if ($module_settings === false) {
+                $module_settings = array_map(function() { return true; }, \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules);
+            }
+        
+            $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
+        
+            if (isset($module_settings['ai_forms']) && $module_settings['ai_forms']) {
+                add_submenu_page(
+                    'wpaicg',
+                    esc_html__($modules['ai_forms']['title'], 'gpt3-ai-content-generator'),
+                    esc_html__($modules['ai_forms']['title'], 'gpt3-ai-content-generator'),
+                    $modules['ai_forms']['capability'],
+                    $modules['ai_forms']['menu_slug'],
+                    array($this, $modules['ai_forms']['callback']),
+                    $modules['ai_forms']['position']
+                );
+            }
         }
 
         public function wpaicg_form_shortcode($atts)

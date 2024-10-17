@@ -176,6 +176,14 @@ $wpaicg_openai_voice_speed = isset($wpaicg_chat_widget['openai_voice_speed']) &&
         opacity: 1;
         visibility: visible;
     }
+    .log_notification {
+        background: <?php echo esc_html($wpaicg_chat_bgcolor)?>;
+        color: <?php echo esc_html($wpaicg_chat_fontcolor)?>;
+        font-size: 11px;
+        font-style: italic;
+        padding: 10px;
+        border-radius: 5px;
+    }
 
     .wpaicg-copy-button img,
     .wpaicg-thumbs-up-button img,
@@ -878,7 +886,7 @@ border-radius: 10px;
             <?php
             if($wpaicg_save_logs && $wpaicg_log_notice && !empty($wpaicg_log_notice_message)):
                 ?>
-                <li style="background: #ccf5e1; padding: 10px;border-radius: unset;font-size: 11px;font-style: italic;">
+                <li style="log_notification">
                     <p>
                     <span class="wpaicg-chat-message">
                         <?php echo esc_html(str_replace("\\",'',$wpaicg_log_notice_message))?>

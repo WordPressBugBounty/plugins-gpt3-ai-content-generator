@@ -45,9 +45,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Image')) {
                 wp_send_json($result);
             }
         
-            if (!wp_verify_nonce($_POST['nonce'], 'wpaicg-ajax-nonce')) {
-                $result['msg'] = esc_html__('Nonce verification failed', 'gpt3-ai-content-generator');
-                wp_send_json($result);
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
+                wp_send_json_error(array('message' => esc_html__('Nonce verification failed', 'gpt3-ai-content-generator')));
+                return;
             }
         
             $api_key = get_option('wpaicg_sd_api_key');
@@ -65,12 +65,20 @@ if(!class_exists('\\WPAICG\\WPAICG_Image')) {
             }
         
             $body = wp_remote_retrieve_body($response);
-            $data = json_decode($body);
+            $data = json_decode($body, true); // Decode the response body as an associative array
         
-            if (isset($data->models)) {
+            // Check if there's an error response from the API
+            if (isset($data['status']) && $data['status'] !== 200) {
+                // If an error is present, display the actual error message from the API
+                $error_msg = isset($data['detail']) ? $data['detail'] : esc_html__('An error occurred', 'gpt3-ai-content-generator');
+                $result['msg'] = esc_html__('API Error: ', 'gpt3-ai-content-generator') . $error_msg;
+                wp_send_json($result);
+            }
+        
+            if (isset($data['models'])) {
                 // Sort models by run_count descending
-                usort($data->models, function($a, $b) {
-                    return $b->run_count - $a->run_count;
+                usort($data['models'], function($a, $b) {
+                    return $b['run_count'] - $a['run_count'];
                 });
         
                 // Function to format numbers into human-readable format
@@ -85,17 +93,17 @@ if(!class_exists('\\WPAICG\\WPAICG_Image')) {
         
                 // Group by owner and store latest version
                 $grouped_models = array();
-                foreach ($data->models as $model) {
-                    $owner = $model->owner ?? 'Unknown';
-                    $model_name = $model->name ?? '';
-                    $model_version = $model->latest_version->id ?? '';
+                foreach ($data['models'] as $model) {
+                    $owner = $model['owner'] ?? 'Unknown';
+                    $model_name = $model['name'] ?? '';
+                    $model_version = $model['latest_version']['id'] ?? '';
                     $schema_details = $this->get_replicate_model_schema($owner, $model_name, $model_version, $api_key);
         
                     $grouped_models[$owner][] = array(
                         'name' => $model_name,
                         'owner' => $owner,
-                        'url' => $model->url ?? '',
-                        'run_count' => format_run_count($model->run_count ?? 0),
+                        'url' => $model['url'] ?? '',
+                        'run_count' => format_run_count($model['run_count'] ?? 0),
                         'latest_version' => $model_version,
                         'schema' => $schema_details // Add schema details to the model data
                     );
@@ -329,15 +337,23 @@ if(!class_exists('\\WPAICG\\WPAICG_Image')) {
 
         public function wpaicg_menu()
         {
-            add_submenu_page(
-                'wpaicg',
-                esc_html__('Image Generator','gpt3-ai-content-generator'),
-                esc_html__('Image Generator','gpt3-ai-content-generator'),
-                'wpaicg_image_generator',
-                'wpaicg_image_generator',
-                array( $this, 'wpaicg_image_generator' ),
-                7
-            );
+            $module_settings = get_option('wpaicg_module_settings');
+            if ($module_settings === false) {
+                $module_settings = array_map(function() { return true; }, \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules);
+            }
+        
+            $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
+            if (isset($module_settings['image_generator']) && $module_settings['image_generator']) {
+                add_submenu_page(
+                    'wpaicg',
+                    esc_html__($modules['image_generator']['title'], 'gpt3-ai-content-generator'),
+                    esc_html__($modules['image_generator']['title'], 'gpt3-ai-content-generator'),
+                    $modules['image_generator']['capability'],
+                    $modules['image_generator']['menu_slug'],
+                    array($this, $modules['image_generator']['callback']),
+                    $modules['image_generator']['position']
+                );
+            }
         }
 
         public function wpaicg_admin_footer()

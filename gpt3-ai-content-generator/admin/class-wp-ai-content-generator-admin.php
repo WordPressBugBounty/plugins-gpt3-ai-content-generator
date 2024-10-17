@@ -73,21 +73,40 @@ class Wp_Ai_Content_Generator_Admin
                 $this->version,
                 'all'
             );
-            // wpaicg or wpaicg_single_content_beta or wpaicg_bulk_content or wpaicg_embeddings
-            if (isset($_GET['page']) && $_GET['page'] == 'wpaicg' || isset($_GET['page']) && $_GET['page'] == 'wpaicg_single_content' || isset($_GET['page']) && $_GET['page'] == 'wpaicg_bulk_content' || isset($_GET['page']) && $_GET['page'] == 'wpaicg_embeddings') {
+            // Check for wpaicg_single_content_beta, wpaicg_bulk_content, or wpaicg_embeddings
+            if (isset($_GET['page']) && ($_GET['page'] == 'wpaicg_single_content' || $_GET['page'] == 'wpaicg_bulk_content' || $_GET['page'] == 'wpaicg_embeddings')) {
                 wp_enqueue_style(
                     'clean-formfull',
-                    plugin_dir_url( __FILE__ ) . 'css/clean_extra.css',
+                    plugin_dir_url(__FILE__) . 'css/clean_extra.css',
                     array(),
                     $this->version,
                     'all'
                 );
             }
+
             //or wpaicg_single_content_beta or wpaicg_bulk_content or wpaicg_embeddings
             if (isset($_GET['page']) && $_GET['page'] == 'wpaicg_chatgpt' || isset($_GET['page']) && $_GET['page'] == 'wpaicg' || isset($_GET['page']) && $_GET['page'] == 'wpaicg_single_content' || isset($_GET['page']) && $_GET['page'] == 'wpaicg_bulk_content' || isset($_GET['page']) && $_GET['page'] == 'wpaicg_embeddings') {
                 wp_enqueue_style(
                     'clean-form',
                     plugin_dir_url( __FILE__ ) . 'css/clean.css',
+                    array(),
+                    $this->version,
+                    'all'
+                );
+            }
+        }
+        if (strpos($screen->id, 'wpaicg') !== false) {
+            if (isset($_GET['page']) && $_GET['page'] == 'wpaicg') {
+                wp_enqueue_style(
+                    'wpaicg-dashboard',
+                    plugin_dir_url(__FILE__) . 'css/dashboard.css',
+                    array(),
+                    $this->version,
+                    'all'
+                );
+                wp_enqueue_style(
+                    'wpaicg-chatbot',
+                    plugin_dir_url(__FILE__) . 'css/chatbot.css',
                     array(),
                     $this->version,
                     'all'
@@ -115,8 +134,21 @@ class Wp_Ai_Content_Generator_Admin
             plugin_dir_url( __FILE__ ) . 'js/wp-ai-content-generator-admin.js',
             array( 'jquery' ),
             $this->version,
-            false
+            true
         );
+        // enqueue dashboard js
+        $screen = get_current_screen();
+        if(strpos($screen->id, 'wpaicg') !== false) {
+            if (isset($_GET['page']) && $_GET['page'] == 'wpaicg') {
+                wp_enqueue_script(
+                    'wpaicg-chatbot',
+                    plugin_dir_url(__FILE__) . 'js/chatbot.js',
+                    array( 'jquery' ),
+                    $this->version,
+                    false
+                );
+            }
+        }
         wp_enqueue_script( 'jquery' );
         wp_enqueue_script( 'jquery-ui-sortable' );
         wp_enqueue_script( 'jquery-ui-tabs' );
@@ -131,55 +163,34 @@ class Wp_Ai_Content_Generator_Admin
 
     public function wpaicg_options_page()
     {
-        if(in_array('administrator', (array)wp_get_current_user()->roles)) {
+        if (in_array('administrator', (array)wp_get_current_user()->roles)) {
             add_menu_page(
                 __('AI Power', 'wp-ai-content-generator'),
                 'AI Power',
                 'manage_options',
                 'wpaicg',
-                array($this, 'wpaicg_api_settings'),
+                array($this, 'wpaicg_dashboard_page'),  // Redirect to dashboard
                 WPAICG_PLUGIN_URL . 'public/images/icon.png',
                 6
             );
-        }
-        else {
+        } else {
             add_menu_page(
                 __('AI Power', 'wp-ai-content-generator'),
                 'AI Power',
                 'wpaicg_settings',
                 'wpaicg',
-                array($this, 'wpaicg_api_settings'),
+                array($this, 'wpaicg_dashboard_page'),  // Redirect to dashboard
                 WPAICG_PLUGIN_URL . 'public/images/icon.png',
                 6
             );
         }
     }
-
-    public function wpaicg_help_menu()
+    
+    
+    public function wpaicg_dashboard_page()
     {
+        include WPAICG_PLUGIN_DIR . 'admin/views/settings/dashboard.php';
     }
-
-    public function wpaicg_api_settings()
-    {
-        include WPAICG_PLUGIN_DIR.'admin/views/settings/index.php';
-    }
-
-    // public static function add_wp_ai_metabox()
-    // {
-    //     $screens = [ 'post', 'page', 'wporg_cpt' ];
-    //     if(current_user_can('wpaicg_meta_box')) {
-    //         foreach ($screens as $screen) {
-    //             add_meta_box(
-    //                 'wpaicg_preview',
-    //                 __('GPT-3 AI Content Writer & Generator', 'wwu-api'),
-    //                 [self::class, 'html'],
-    //                 $screen,
-    //                 'advanced',
-    //                 'default'
-    //             );
-    //         }
-    //     }
-    // }
 
     public function wpaicg_set_post_content_()
     {

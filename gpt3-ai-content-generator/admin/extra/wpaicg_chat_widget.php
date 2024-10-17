@@ -42,7 +42,7 @@ if($wpaicg_chat_status == 'active'):
         <?php echo do_shortcode('[wpaicg_chatgpt_widget]'); ?>
     </div>
     <div class="wpaicg_toggle" id="wpaicg_toggle_<?php echo esc_html($randomWidgetID)?>">
-        <img src="<?php echo esc_html($wpaicg_chat_icon_url)?>" />
+        <img src="<?php echo esc_html($wpaicg_chat_icon_url)?>" alt="Chat Icon" />
     </div>
 </div>
 <?php

@@ -838,33 +838,44 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
 
         public function wpaicg_content_menu()
         {
-            add_submenu_page(
-                'wpaicg',
-                esc_html__('Content Writer','gpt3-ai-content-generator'),
-                esc_html__('Content Writer','gpt3-ai-content-generator'),
-                'wpaicg_single_content',
-                'wpaicg_single_content',
-                array( $this, 'wpaicg_single_content' ),
-                2
-            );
-            add_submenu_page(
-                'wpaicg',
-                esc_html__('AutoGPT','gpt3-ai-content-generator'),
-                esc_html__('AutoGPT','gpt3-ai-content-generator'),
-                'wpaicg_bulk_content',
-                'wpaicg_bulk_content',
-                array( $this, 'wpaicg_bulk_content' ),
-                3
-            );
-            add_submenu_page(
-                'edit.php',
-                esc_html__('Generate New Post','gpt3-ai-content-generator'),
-                esc_html__('Generate New Post','gpt3-ai-content-generator'),
-                'wpaicg_single_content',
-                'wpaicg_single_content',
-                array( $this, 'wpaicg_single_content' )
-            );
-
+            $module_settings = get_option('wpaicg_module_settings');
+            if ($module_settings === false) {
+                $module_settings = array_map(function() { return true; }, \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules);
+            }
+        
+            $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
+            if (isset($module_settings['content_writer']) && $module_settings['content_writer']) {
+                add_submenu_page(
+                    'wpaicg',
+                    esc_html__($modules['content_writer']['title'], 'gpt3-ai-content-generator'),
+                    esc_html__($modules['content_writer']['title'], 'gpt3-ai-content-generator'),
+                    $modules['content_writer']['capability'],
+                    $modules['content_writer']['menu_slug'],
+                    array($this, $modules['content_writer']['callback']),
+                    $modules['content_writer']['position']
+                );
+                // Add the 'Generate New Post' submenu only if Content Writer is enabled
+                add_submenu_page(
+                    'edit.php', // Attach to the 'Posts' admin menu
+                    esc_html__('Generate New Post', 'gpt3-ai-content-generator'),
+                    esc_html__('Generate New Post', 'gpt3-ai-content-generator'),
+                    $modules['content_writer']['capability'],
+                    $modules['content_writer']['menu_slug'],
+                    array($this, $modules['content_writer']['callback'])
+                );
+            }
+            if (isset($module_settings['autogpt']) && $module_settings['autogpt']) {
+                add_submenu_page(
+                    'wpaicg',
+                    esc_html__($modules['autogpt']['title'], 'gpt3-ai-content-generator'),
+                    esc_html__($modules['autogpt']['title'], 'gpt3-ai-content-generator'),
+                    $modules['autogpt']['capability'],
+                    $modules['autogpt']['menu_slug'],
+                    array($this, $modules['autogpt']['callback']),
+                    $modules['autogpt']['position']
+                );
+            }
+        
         }
 
         public function wpaicg_single_content()

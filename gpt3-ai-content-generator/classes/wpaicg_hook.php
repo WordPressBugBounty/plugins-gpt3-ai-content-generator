@@ -766,7 +766,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
             global  $submenu ;
             if(isset($submenu['wpaicg'])) {
                 if ($submenu['wpaicg'][0][2] == 'wpaicg') {
-                    $submenu['wpaicg'][0][0] = 'Settings';
+                    $submenu['wpaicg'][0][0] = 'Dashboard';
                 }
             }
         }

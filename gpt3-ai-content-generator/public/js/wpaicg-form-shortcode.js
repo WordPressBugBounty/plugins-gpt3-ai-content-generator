@@ -542,23 +542,19 @@ var wpaicgPlayGround = {
         }
         return basicEditor;
     },
-    setContent: function (type, form_id, value) {
-        // Always replace &nbsp; with a space first
-        value = value.replace(/&nbsp;/g, ' ');
-    
-        if (type === 'textarea') {
+    setContent: function (type,form_id,value){
+        if(type === 'textarea') {
+            // Check if the output is for a textarea and convert &nbsp; back to a space
+            value = value.replace(/&nbsp;/g, ' ');
             if (this.editor(form_id)) {
-                // For non-logged-in users (plain textarea), just set the value without modifying spaces further
-                document.getElementById('wpaicg-prompt-result-' + form_id).value = value;
+                document.getElementById('wpaicg-prompt-result-'+form_id).value = value;
             } else {
-                // For logged-in users (TinyMCE), apply the &nbsp; transformation to preserve spaces
-                value = value.replace(/ /g, '&nbsp;');
-                var editor = tinyMCE.get('wpaicg-prompt-result-' + form_id);
+                var editor = tinyMCE.get('wpaicg-prompt-result-'+form_id);
                 editor.setContent(value);
             }
-        } else {
-            // For inline display, preserve spaces using &nbsp;
-            document.getElementById('wpaicg-prompt-result-' + form_id).innerHTML = value.replace(/ /g, '&nbsp;');
+        }
+        else{
+            document.getElementById('wpaicg-prompt-result-'+form_id).innerHTML = value;
         }
     },
     getContent: function (type,form_id){

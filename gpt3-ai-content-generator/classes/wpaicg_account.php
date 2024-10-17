@@ -128,30 +128,39 @@ if(!class_exists('\\WPAICG\\WPAICG_Account')) {
 
         public function wpaicg_menu()
         {
-            if(in_array('administrator', (array)wp_get_current_user()->roles)) {
-                add_submenu_page(
-                    'wpaicg',
-                    __('AI Account', 'gpt3-ai-content-generator'),
-                    __('AI Account', 'gpt3-ai-content-generator'),
-                    'manage_options',
-                    'wpaicg_myai_account',
-                    array($this, 'my_account_page'),
-                    11
-                );
+            // Retrieve module settings
+            $module_settings = get_option('wpaicg_module_settings');
+            if ($module_settings === false) {
+                $module_settings = array_map(function() { return true; }, \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules);
             }
-            else{
-                add_submenu_page(
-                    'wpaicg',
-                    __('AI Account', 'gpt3-ai-content-generator'),
-                    __('AI Account', 'gpt3-ai-content-generator'),
-                    'wpaicg_myai_account',
-                    'wpaicg_myai_account',
-                    array($this, 'my_account_page'),
-                    11
-                );
+        
+            // Check if the 'ai_account' module is enabled
+            if (isset($module_settings['ai_account']) && $module_settings['ai_account']) {
+                // Check user role: administrator or other users
+                if (in_array('administrator', (array) wp_get_current_user()->roles)) {
+                    add_submenu_page(
+                        'wpaicg',
+                        __('User Credits', 'gpt3-ai-content-generator'),
+                        __('User Credits', 'gpt3-ai-content-generator'),
+                        'manage_options',
+                        'wpaicg_myai_account',
+                        array($this, 'my_account_page'),
+                        11
+                    );
+                } else {
+                    add_submenu_page(
+                        'wpaicg',
+                        __('User Credits', 'gpt3-ai-content-generator'),
+                        __('User Credits', 'gpt3-ai-content-generator'),
+                        'wpaicg_myai_account',
+                        'wpaicg_myai_account',
+                        array($this, 'my_account_page'),
+                        11
+                    );
+                }
             }
         }
-
+        
         public function my_account_page()
         {
             echo do_shortcode('[wpaicg_my_account]');

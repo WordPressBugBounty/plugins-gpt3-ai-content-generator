@@ -67,16 +67,30 @@ if(!class_exists('\\WPAICG\\WPAICG_Audio')) {
 
         public function wpaicg_menu()
         {
-            add_submenu_page(
-                'wpaicg',
-                esc_html__('Audio Converter','gpt3-ai-content-generator'),
-                esc_html__('Audio Converter','gpt3-ai-content-generator'),
-                'wpaicg_audio',
-                'wpaicg_audio',
-                array( $this, 'wpaicg_audio' ),
-                9
-            );
+            $module_settings = get_option('wpaicg_module_settings');
+            if ($module_settings === false) {
+                $module_settings = array_map(function() { return true; }, \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules);
+            }
+
+            // Check if the audio_converter module is enabled
+            if (isset($module_settings['audio_converter']) && $module_settings['audio_converter']) {
+                $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
+
+                // Only add the submenu if the module is enabled
+                if (isset($modules['audio_converter'])) {
+                    add_submenu_page(
+                        'wpaicg',
+                        esc_html__($modules['audio_converter']['title'], 'gpt3-ai-content-generator'),
+                        esc_html__($modules['audio_converter']['title'], 'gpt3-ai-content-generator'),
+                        $modules['audio_converter']['capability'],
+                        $modules['audio_converter']['menu_slug'],
+                        array($this, $modules['audio_converter']['callback']),
+                        $modules['audio_converter']['position']
+                    );
+                }
+            }
         }
+
 
         public function wpaicg_audio()
         {

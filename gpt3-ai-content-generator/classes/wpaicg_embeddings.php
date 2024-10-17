@@ -1255,15 +1255,23 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
 
         public function wpaicg_menu()
         {
-            add_submenu_page(
-                'wpaicg',
-                esc_html__('AI Training','gpt3-ai-content-generator'),
-                esc_html__('AI Training','gpt3-ai-content-generator'),
-                'wpaicg_embeddings',
-                'wpaicg_embeddings',
-                array( $this, 'wpaicg_main' ),
-                4
-            );
+            $module_settings = get_option('wpaicg_module_settings');
+            if ($module_settings === false) {
+                $module_settings = array_map(function() { return true; }, \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules);
+            }
+        
+            $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
+            if (isset($module_settings['training']) && $module_settings['training']) {
+                add_submenu_page(
+                    'wpaicg',
+                    esc_html__($modules['training']['title'], 'gpt3-ai-content-generator'),
+                    esc_html__($modules['training']['title'], 'gpt3-ai-content-generator'),
+                    $modules['training']['capability'],
+                    $modules['training']['menu_slug'],
+                    array($this, $modules['training']['callback']),
+                    $modules['training']['position']
+                );
+            }
         }
 
         public function wpaicg_main()

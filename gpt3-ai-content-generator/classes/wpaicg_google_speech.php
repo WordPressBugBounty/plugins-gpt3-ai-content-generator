@@ -99,7 +99,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Google_Speech')) {
         public function wpaicg_sync_google_voices()
         {
             $result = array('status' => 'error', 'msg' => __('Missing Google API Key','gpt3-ai-content-generator'));
-            if ( !wp_verify_nonce( sanitize_text_field($_REQUEST['nonce']), 'wpaicg_sync_google_voices' ) ) {
+            if ( !wp_verify_nonce( sanitize_text_field($_REQUEST['nonce']), 'wpaicg_save_ai_engine_nonce' ) ) {
                 $result['msg'] = esc_html__('Nonce verification failed','gpt3-ai-content-generator');
                 wp_send_json($result);
                 exit;

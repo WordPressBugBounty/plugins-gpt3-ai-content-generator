@@ -172,11 +172,6 @@ function wpaicgChatShortcodeSize() {
                 chatWidth = resolveDimension(chatWidth, parentWidth);
                 chatHeight = resolveDimension(chatHeight, wpaicgWindowHeight);
 
-                var chatPreviewBot = chatShortcode.closest('.wpaicg-bot-preview');
-                if (chatPreviewBot && chatPreviewBot.offsetWidth < chatWidth) {
-                    chatWidth = chatPreviewBot.offsetWidth;
-                }
-
                 chatShortcode.style.width = chatWidth + 'px';
                 chatShortcode.style.maxWidth = chatWidth + 'px';
                 chatShortcode.style.height = chatHeight + 'px';
@@ -255,7 +250,6 @@ function wpaicgChatBoxSize() {
     var wpaicgWindowWidth = window.innerWidth;
     var wpaicgWindowHeight = window.innerHeight;
     var chatWidgets = document.getElementsByClassName('wpaicg_chat_widget_content');
-    var chatPreviewBox = document.getElementsByClassName('wpaicg-chatbox-preview-box');
 
     if (chatWidgets.length) {
         for (var i = 0; i < chatWidgets.length; i++) {
@@ -267,11 +261,6 @@ function wpaicgChatBoxSize() {
             var chatboxBar = chatbox.getElementsByClassName('wpaicg-chatbox-action-bar');
             var textHeight = parseFloat(chatbox.getAttribute('data-text_height'));
 
-            // Adjust dimensions for the preview box if present
-            if (chatPreviewBox.length && chatPreviewBox[0].offsetWidth) {
-                wpaicgWindowWidth = chatPreviewBox[0].offsetWidth;
-            }
-
             // Calculate dimensions dynamically
             chatWidth = resolveDimension(chatWidth, wpaicgWindowWidth);
             chatHeight = resolveDimension(chatHeight, wpaicgWindowHeight);
@@ -280,10 +269,6 @@ function wpaicgChatBoxSize() {
             chatbox.style.height = chatHeight + 'px';
             chatWidget.style.width = chatWidth + 'px';
             chatWidget.style.height = chatHeight + 'px';
-
-            if (chatPreviewBox.length) {
-                chatPreviewBox[0].style.height = (chatHeight + 125) + 'px'; // Adjusting preview box height
-            }
 
             // Adjusting heights for content and message areas
             var actionBarHeight = chatboxBar.length ? 40 : 0; // Assuming action bar height is 40
@@ -589,10 +574,6 @@ function wpaicgChatInit() {
                 wpaicgChatShortcode.style.left = 0;
                 wpaicgChatShortcode.style.zIndex = 999999999;
                 wpaicgChatShortcode.classList.add('wpaicg-fullscreened');
-                const demoContent = document.querySelector('.demo-page-fixed-content');
-                if (demoContent) {
-                    demoContent.style.position = 'static'; // Temporarily adjust position
-                }
             }
             wpaicgChatShortcodeSize();
 
@@ -627,10 +608,6 @@ function wpaicgChatInit() {
                 wpaicgWidgetContent.style.bottom = 0;
                 wpaicgWidgetContent.style.left = 0;
                 wpaicgWidgetContent.classList.add('wpaicg-fullscreened');
-                const demoContent = document.querySelector('.demo-page-fixed-content');
-                if (demoContent) {
-                    demoContent.style.position = 'static'; // Temporarily adjust position
-                }
             }
             wpaicgChatBoxSize();
         }
@@ -1716,13 +1693,11 @@ function wpaicgChatInit() {
     function wpaicgWriteMessage(wpaicg_messages_box,wpaicg_message,wpaicg_randomnum,wpaicg_response_text, wpaicg_typewriter_effect, wpaicg_typewriter_speed){
         wpaicg_messages_box.insertAdjacentHTML('beforeend', wpaicg_message);
         var wpaicg_current_message = document.getElementById('wpaicg-chat-message-' + wpaicg_randomnum);
-        console.log('wpaicg_current_message', wpaicg_current_message);
     
         // Ensure the current message is found
         if (wpaicg_current_message) {
             // Get the next sibling element, which should be the audio element
             var nextElement = wpaicg_current_message.closest('li').nextElementSibling;
-            console.log('nextElement', nextElement);
             
             // Check if the next element is an audio tag and play it if found
             if (nextElement && nextElement.tagName.toLowerCase() === 'audio') {

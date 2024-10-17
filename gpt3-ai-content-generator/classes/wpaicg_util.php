@@ -262,6 +262,167 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             }
         }
 
+        // Public function to retrieve default values based on bot type
+        public static function get_default_values($bot_type = 'custom') {
+            // Define common default values
+            $default_values = array(
+                "ai_avatar_id" => "",
+                "bgcolor" => "#343A40",
+                "fontcolor" => "#E8E8E8",
+                "ai_bg_color" => "#495057",
+                "user_bg_color" => "#6C757D",
+                "width" => "100%",
+                "height" => "50%",
+                "chat_rounded" => "8",
+                "fontsize" => "13",
+                "bg_text_field" => "#495057",
+                "input_font_color" => "#F8F9FA",
+                "border_text_field" => "#6C757D",
+                "send_color" => "#F8F9FA",
+                "mic_color" => "#F8F9FA",
+                "stop_color" => "#F8F9FA",
+                "text_height" => "60",
+                "text_rounded" => "8",
+                'send_button_enabled' => '1',
+                "footer_color" => "#495057",
+                "footer_font_color" => "#FFFFFF",
+                "bar_color" => "#FFFFFF",
+                "thinking_color" => "#CED4DA",
+                "ai_avatar" => "default",
+                "provider" => "OpenAI",
+                "model" => "gpt-3.5-turbo",
+                "chat_addition" => "1",
+                "chat_addition_text" => "You are a helpful AI Assistant. Please be friendly. Today's date is [date].",
+                'internet_browsing' => '0',
+                "max_tokens" => "1500",
+                "temperature" => "0",
+                "audio_enable" => "0",
+                "top_p" => "0",
+                "best_of" => "1",
+                "frequency_penalty" => "0",
+                "presence_penalty" => "0",
+                "moderation_model" =>  "text-moderation-latest",
+                "moderation_notice" =>  "Your message has been flagged as potentially harmful or inappropriate. Please ensure that your messages are respectful and do not contain language or content that could be offensive or harmful to others. Thank you for your cooperation.",
+                "image_enable" => "0",
+                'fullscreen' => '1',
+                'clear_btn' => '1',
+                'download_btn' => '1',
+                'copy_btn' => '1',
+                'feedback_btn' => '1',
+                "welcome" => "Hello, how can I help you today?",
+                "ai_name" => "AI",
+                "you" => "User",
+                "ai_thinking" => "Gathering thoughts",
+                "placeholder" => "Type your message here...",
+                "no_answer" => "",
+                "feedback_title" => "Feedback",
+                "feedback_message" => "Please provide details: (optional)",
+                "feedback_success" => "Thank you for your feedback!",
+                "content_aware" => "yes",
+                "user_aware" => "yes",
+                "remember_conversation" => "yes",
+                "vectordb" => "pinecone",
+                "embedding_index" => "",
+                "conversation_cut" => "100",
+                "confidence_score" => "20",
+                "embedding" => "0",
+                "use_default_embedding" => "1",
+                "embedding_model" => "text-embedding-ada-002",
+                "embedding_provider" => "",
+                "embedding_top" => "1",
+                "embedding_type" => "openai",
+                "language" => "en",
+                "tone" => "friendly",
+                "profession" => "none",
+                "chat_to_speech" => "0",
+                "voice_service" => "openai",
+                "audio_btn" => "0",
+                "muted_by_default" => "0",
+                "openai_model" => "tts-1",
+                "openai_voice" => "alloy",
+                "openai_output_format" => "mp3",
+                "openai_voice_speed" => "1",
+                "elevenlabs_model" => "",
+                "elevenlabs_voice" => "",
+                "voice_language" => "en-US",
+                "voice_name" => "en-US-Wavenet-A",
+                "voice_device" => "",
+                "voice_speed" => "1",
+                "save_logs" =>  "1",
+                "log_request" =>  "1",
+                "log_notice_message" => "Please note that your conversations will be recorded.",
+                "limited_message" => "You have reached your token limit.",
+                "reset_limit" => "0",
+                "footer_text" => "Powered by AI",
+            );
+
+            // Add or modify defaults based on bot type
+            switch ($bot_type) {
+                case 'shortcode':
+                    // Fetch conversation starters from another option table
+                    $conversation_starters = get_option('wpaicg_conversation_starters', false);
+
+                    // If conversation starters don't exist, create them with default values in the specified format
+                    if ($conversation_starters === false) {
+
+                        // [{"index":0,"text":"hi"},{"index":1,"text":"how"}]
+                        $conversation_starters = json_encode(array(
+                            array("index" => 0, "text" => "What’s today’s date?"),
+                            array("index" => 1, "text" => "Can you tell me a joke?"),
+                            array("index" => 2, "text" => "What’s something fun I can do today?"),
+                        ));
+
+                        // Save the conversation starters
+                        update_option('wpaicg_conversation_starters', $conversation_starters);
+                    }
+
+                    // if wpaicg_shortcode_stream is not set, set it to 1
+                    if (get_option('wpaicg_shortcode_stream', false) === false) {
+                        update_option('wpaicg_shortcode_stream', 1);
+                    }
+
+                    $default_values = array_merge($default_values, array(
+                        // Add or modify shortcode defaults
+                    ));
+                    break;
+
+                case 'widget':
+                    $default_values = array_merge($default_values, array(
+                        "position" => "left",
+                        "width" => "300px",
+                        "height" => "50%",
+                        "status" => '',
+                        "pages" => '',
+                        "delay_time" => '',
+                        "icon" => '',
+                        "icon_url" => '',
+                        'close_btn' => '1',
+                    ));
+                    break;
+
+                case 'custom':
+                    $default_values = array_merge($default_values, array(
+                        "icon_url" => "",
+                        "ai_avatar_id" => "",
+                        "id" => "custom_bot_id",
+                        "type" => "custom",
+                        "pages" => "",
+                        "chat_rounded" => "8",
+                        "fontsize" => "13",
+                        "bg_text_field" => "#ffffff",
+                        "input_font_color" => "#495057",
+                        "border_text_field" => "#cccccc",
+                    ));
+                    break;
+
+                default:
+                    // You can return a basic default if no matching type is found
+                    break;
+            }
+
+            return $default_values;
+        }
+
         public $search_languages = [
             '' => 'Global',
             'lang_ar' => 'Arabic',
@@ -297,7 +458,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             'lang_sr' => 'Serbian',
             'lang_sv' => 'Swedish',
             'lang_tr' => 'Turkish',
-            'lang_zh-CN' => 'Chinese (Simplified)',
+            'lang_zh-CN' => 'Chinese (Standard)',
             'lang_zh-TW' => 'Chinese (Traditional)'
         ];
         
@@ -556,7 +717,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             'an' => 'Armenian',
             'bs' => 'Bosnian',
             'bg' => 'Bulgarian',
-            'zh' => 'Chinese (Simplified)',
+            'zh' => 'Chinese (Standard)',
             'zt' => 'Chinese (Traditional)',
             'hr' => 'Croatian',
             'cs' => 'Czech',
@@ -793,6 +954,107 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             '1024x1024' => 'Big (1024x1024)',
             '1792x1024' => 'Wide (1792x1024)',
             '1024x1792' => 'Tall (1024x1792)',
+        ];
+
+        // Define available modules here
+        public $wpaicg_modules = [
+            'chat_bot' => [
+                'title' => 'Chatbot',
+                'menu_slug' => '', // No menu, so this is empty
+                'capability' => '',
+                'callback' => '', // No callback needed for the menu
+                'position' => null, // No position as it doesn't appear in the menu
+                'href' => '', // No href needed if it doesn't appear in the top nav
+                'icon' => '', // No icon needed if it doesn't appear in the top nav
+            ],
+            'content_writer' => [
+                'title' => 'Content Writer',
+                'menu_slug' => 'wpaicg_single_content',
+                'capability' => 'wpaicg_single_content',
+                'callback' => 'wpaicg_single_content',
+                'position' => 5,
+                'href' => 'wpaicg_single_content',
+                'icon'  => '<svg class="aipower-icon" viewBox="0 0 512 512">
+                                <path d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z"/>
+                            </svg>',
+            ],
+            'autogpt' => [
+                'title' => 'AutoGPT',
+                'menu_slug' => 'wpaicg_bulk_content',
+                'capability' => 'wpaicg_bulk_content',
+                'callback' => 'wpaicg_bulk_content',
+                'position' => 6,
+                'href' => 'wpaicg_bulk_content',
+                'icon'  => '<svg class="aipower-icon" viewBox="0 0 448 512">
+                                <path d="M349.4 44.6c5.9-13.7 1.5-29.7-10.6-38.5s-28.6-8-39.9 1.8l-256 224c-10 8.8-13.6 22.9-8.9 35.3S50.7 288 64 288l111.5 0L98.6 467.4c-5.9 13.7-1.5 29.7 10.6 38.5s28.6 8 39.9-1.8l256-224c10-8.8 13.6-22.9 8.9-35.3s-16.6-20.7-30-20.7l-111.5 0L349.4 44.6z"/>
+                            </svg>',
+            ],
+            'ai_forms' => [
+                'title' => 'AI Forms',
+                'menu_slug' => 'wpaicg_forms',
+                'capability' => 'wpaicg_forms',
+                'callback' => 'wpaicg_forms',
+                'position' => 7,
+                'href' => 'wpaicg_forms',
+                'icon'  => '<svg class="aipower-icon" viewBox="0 0 576 512">
+                                <path d="M234.7 42.7L197 56.8c-3 1.1-5 4-5 7.2s2 6.1 5 7.2l37.7 14.1L248.8 123c1.1 3 4 5 7.2 5s6.1-2 7.2-5l14.1-37.7L315 71.2c3-1.1 5-4 5-7.2s-2-6.1-5-7.2L277.3 42.7 263.2 5c-1.1-3-4-5-7.2-5s-6.1 2-7.2 5L234.7 42.7zM46.1 395.4c-18.7 18.7-18.7 49.1 0 67.9l34.6 34.6c18.7 18.7 49.1 18.7 67.9 0L529.9 116.5c18.7-18.7 18.7-49.1 0-67.9L495.3 14.1c-18.7-18.7-49.1-18.7-67.9 0L46.1 395.4zM484.6 82.6l-105 105-23.3-23.3 105-105 23.3 23.3zM7.5 117.2C3 118.9 0 123.2 0 128s3 9.1 7.5 10.8L64 160l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L128 160l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L128 96 106.8 39.5C105.1 35 100.8 32 96 32s-9.1 3-10.8 7.5L64 96 7.5 117.2zm352 256c-4.5 1.7-7.5 6-7.5 10.8s3 9.1 7.5 10.8L416 416l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L480 416l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L480 352l-21.2-56.5c-1.7-4.5-6-7.5-10.8-7.5s-9.1 3-10.8 7.5L416 352l-56.5 21.2z"/>
+                            </svg>',
+            ],
+            'promptbase' => [
+                'title' => 'PromptBase',
+                'menu_slug' => 'wpaicg_promptbase',
+                'capability' => 'wpaicg_promptbase',
+                'callback' => 'wpaicg_promptbase',
+                'position' => 8,
+                'href' => 'wpaicg_promptbase',
+                'icon'  => '<svg class="aipower-icon" viewBox="0 0 512 512">
+                                <path d="M96 96c0-35.3 28.7-64 64-64l288 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L80 480c-44.2 0-80-35.8-80-80L0 128c0-17.7 14.3-32 32-32s32 14.3 32 32l0 272c0 8.8 7.2 16 16 16s16-7.2 16-16L96 96zm64 24l0 80c0 13.3 10.7 24 24 24l112 0c13.3 0 24-10.7 24-24l0-80c0-13.3-10.7-24-24-24L184 96c-13.3 0-24 10.7-24 24zm208-8c0 8.8 7.2 16 16 16l48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16l48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0c-8.8 0-16 7.2-16 16zM160 304c0 8.8 7.2 16 16 16l256 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-256 0c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16l256 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-256 0c-8.8 0-16 7.2-16 16z"/>
+                            </svg>',
+            ],
+            'image_generator' => [
+                'title' => 'Image Generator',
+                'menu_slug' => 'wpaicg_image_generator',
+                'capability' => 'wpaicg_image_generator',
+                'callback' => 'wpaicg_image_generator',
+                'position' => 9,
+                'href' => 'wpaicg_image_generator',
+                'icon'  => '<svg class="aipower-icon" viewBox="0 0 512 512">
+                                <path d="M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6l96 0 32 0 208 0c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/>
+                            </svg>',
+            ],
+            'training' => [
+                'title' => 'Training',
+                'menu_slug' => 'wpaicg_embeddings',
+                'capability' => 'wpaicg_embeddings',
+                'callback' => 'wpaicg_main',
+                'position' => 10,
+                'href' => 'wpaicg_embeddings',
+                'icon'  => '<svg class="aipower-icon" viewBox="0 0 640 512">
+                                <path d="M320 0c17.7 0 32 14.3 32 32l0 64 120 0c39.8 0 72 32.2 72 72l0 272c0 39.8-32.2 72-72 72l-304 0c-39.8 0-72-32.2-72-72l0-272c0-39.8 32.2-72 72-72l120 0 0-64c0-17.7 14.3-32 32-32zM208 384c-8.8 0-16 7.2-16 16s7.2 16 16 16l32 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-32 0zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l32 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-32 0zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l32 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-32 0zM264 256a40 40 0 1 0 -80 0 40 40 0 1 0 80 0zm152 40a40 40 0 1 0 0-80 40 40 0 1 0 0 80zM48 224l16 0 0 192-16 0c-26.5 0-48-21.5-48-48l0-96c0-26.5 21.5-48 48-48zm544 0c26.5 0 48 21.5 48 48l0 96c0 26.5-21.5 48-48 48l-16 0 0-192 16 0z"/>
+                            </svg>',
+            ],
+            'ai_account' => [
+                'title' => 'User Credits',
+                'menu_slug' => 'wpaicg_myai_account',
+                'capability' => 'wpaicg_myai_account',
+                'callback' => 'wpaicg_myai_account',
+                'position' => 11,
+                'href' => 'wpaicg_myai_account',
+                'icon'  => '<svg class="aipower-icon" viewBox="0 0 512 512">
+                                <path d="M512 80c0 18-14.3 34.6-38.4 48c-29.1 16.1-72.5 27.5-122.3 30.9c-3.7-1.8-7.4-3.5-11.3-5C300.6 137.4 248.2 128 192 128c-8.3 0-16.4 .2-24.5 .6l-1.1-.6C142.3 114.6 128 98 128 80c0-44.2 86-80 192-80S512 35.8 512 80zM160.7 161.1c10.2-.7 20.7-1.1 31.3-1.1c62.2 0 117.4 12.3 152.5 31.4C369.3 204.9 384 221.7 384 240c0 4-.7 7.9-2.1 11.7c-4.6 13.2-17 25.3-35 35.5c0 0 0 0 0 0c-.1 .1-.3 .1-.4 .2c0 0 0 0 0 0s0 0 0 0c-.3 .2-.6 .3-.9 .5c-35 19.4-90.8 32-153.6 32c-59.6 0-112.9-11.3-148.2-29.1c-1.9-.9-3.7-1.9-5.5-2.9C14.3 274.6 0 258 0 240c0-34.8 53.4-64.5 128-75.4c10.5-1.5 21.4-2.7 32.7-3.5zM416 240c0-21.9-10.6-39.9-24.1-53.4c28.3-4.4 54.2-11.4 76.2-20.5c16.3-6.8 31.5-15.2 43.9-25.5l0 35.4c0 19.3-16.5 37.1-43.8 50.9c-14.6 7.4-32.4 13.7-52.4 18.5c.1-1.8 .2-3.5 .2-5.3zm-32 96c0 18-14.3 34.6-38.4 48c-1.8 1-3.6 1.9-5.5 2.9C304.9 404.7 251.6 416 192 416c-62.8 0-118.6-12.6-153.6-32C14.3 370.6 0 354 0 336l0-35.4c12.5 10.3 27.6 18.7 43.9 25.5C83.4 342.6 135.8 352 192 352s108.6-9.4 148.1-25.9c7.8-3.2 15.3-6.9 22.4-10.9c6.1-3.4 11.8-7.2 17.2-11.2c1.5-1.1 2.9-2.3 4.3-3.4l0 3.4 0 5.7 0 26.3zm32 0l0-32 0-25.9c19-4.2 36.5-9.5 52.1-16c16.3-6.8 31.5-15.2 43.9-25.5l0 35.4c0 10.5-5 21-14.9 30.9c-16.3 16.3-45 29.7-81.3 38.4c.1-1.7 .2-3.5 .2-5.3zM192 448c56.2 0 108.6-9.4 148.1-25.9c16.3-6.8 31.5-15.2 43.9-25.5l0 35.4c0 44.2-86 80-192 80S0 476.2 0 432l0-35.4c12.5 10.3 27.6 18.7 43.9 25.5C83.4 438.6 135.8 448 192 448z"/>
+                            </svg>',
+            ],
+            'audio_converter' => [
+                'title' => 'Audio Converter',
+                'menu_slug' => 'wpaicg_audio',
+                'capability' => 'wpaicg_audio',
+                'callback' => 'wpaicg_audio',
+                'position' => 12,
+                'href' => 'wpaicg_audio',
+                'icon'  => '<svg class="aipower-icon" viewBox="0 0 512 512">
+                                <path d="M499.1 6.3c8.1 6 12.9 15.6 12.9 25.7l0 72 0 264c0 44.2-43 80-96 80s-96-35.8-96-80s43-80 96-80c11.2 0 22 1.6 32 4.6L448 147 192 223.8 192 432c0 44.2-43 80-96 80s-96-35.8-96-80s43-80 96-80c11.2 0 22 1.6 32 4.6L128 200l0-72c0-14.1 9.3-26.6 22.8-30.7l320-96c9.7-2.9 20.2-1.1 28.3 5z"/>
+                            </svg>',
+            ]
         ];
 
         public $wpaicg_image_styles = [

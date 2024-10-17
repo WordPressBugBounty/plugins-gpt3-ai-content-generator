@@ -26,13 +26,14 @@ require_once __DIR__.'/classes/wpaicg_search.php';
 require_once __DIR__.'/classes/wpaicg_template.php';
 require_once __DIR__.'/classes/wpaicg_editor.php';
 require_once __DIR__.'/classes/wpaicg_elevenlabs.php';
-require_once __DIR__.'/classes/wpaicg_help.php';
 require_once __DIR__.'/classes/wpaicg_google_speech.php';
 require_once __DIR__.'/classes/wpaicg_openai_speech.php';
 require_once __DIR__.'/classes/wpaicg_troubleshoot.php';
 require_once __DIR__.'/classes/wpaicg_assistants.php';
 require_once __DIR__.'/classes/wpaicg_qdrant.php';
 require_once __DIR__.'/classes/wpaicg_openroutermethod.php';
+require_once __DIR__.'/classes/wpaicg_dashboard.php';
+require_once __DIR__.'/classes/wpaicg_logs.php';
 if(\WPAICG\wpaicg_util_core()->wpaicg_is_pro()){
     if(file_exists(__DIR__.'/lib/wpaicg__premium_only.php')){
         require_once __DIR__.'/lib/wpaicg__premium_only.php';
