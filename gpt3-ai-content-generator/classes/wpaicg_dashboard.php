@@ -126,6 +126,10 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     $bot_data['proffesion'] = $bot_data['profession'];
                     unset($bot_data['profession']);
                 }
+
+                // set the default value for type field to 'shortcode'
+                $bot_data['type'] = 'shortcode'; 
+
                 wp_send_json_success(array('bot_data' => $bot_data, 'type' => 'shortcode'));
                 return;
             }
@@ -137,6 +141,9 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
 
                 // Retrieve conversation starters
                 $bot_data['conversation_starters'] = $this->get_conversation_starters($bot_id);
+
+                // set the default value for type field to 'widget'
+                $bot_data['type'] = 'widget';
 
                 
                 // get the model from wpaicg_chat_model and add it to bot_data

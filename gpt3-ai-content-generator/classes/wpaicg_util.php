@@ -265,6 +265,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
         // Public function to retrieve default values based on bot type
         public static function get_default_values($bot_type = 'custom') {
             // Define common default values
+            $default_icon_path = WPAICG_PLUGIN_URL . 'admin/images/chatbot.png';
             $default_values = array(
                 "ai_avatar_id" => "",
                 "bgcolor" => "#343A40",
@@ -394,8 +395,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                         "status" => '',
                         "pages" => '',
                         "delay_time" => '',
-                        "icon" => '',
-                        "icon_url" => '',
+                        "icon" => 'default',
+                        "icon_url" => $default_icon_path,
                         'close_btn' => '1',
                     ));
                     break;

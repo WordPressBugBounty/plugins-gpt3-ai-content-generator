@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 1.8.82\n"
+"Project-Id-Version: AI Power: Complete AI Pack 1.8.83\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-10-17T14:35:35+00:00\n"
+"POT-Creation-Date: 2024-10-18T06:58:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -67,11 +67,7 @@ msgstr ""
 #: admin/views/settings/ai.php:209
 #: admin/views/settings/chat-general-settings.php:30
 #: admin/views/settings/image_settings.php:390
-#: admin/views/settings/index.php:988
-#: admin/views/settings/index.php:1048
-#: admin/views/settings/index.php:1124
-#: admin/views/settings/index.php:2194
-#: classes/wpaicg_dashboard.php:2087
+#: classes/wpaicg_dashboard.php:2094
 #: lib/views/chat/embeddings.php:59
 msgid "Model"
 msgstr ""
@@ -91,7 +87,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_assistants.php:150
 #: admin/extra/wpaicg_single.php:1089
-#: classes/wpaicg_dashboard.php:2085
+#: classes/wpaicg_dashboard.php:2092
 msgid "Name"
 msgstr ""
 
@@ -118,9 +114,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_assistants.php:155
 #: admin/views/settings/dashboard.php:70
-#: admin/views/settings/index.php:941
-#: admin/views/settings/index.php:2309
-#: classes/wpaicg_dashboard.php:2086
+#: classes/wpaicg_dashboard.php:2093
 msgid "Tools"
 msgstr ""
 
@@ -144,12 +138,12 @@ msgstr ""
 #: admin/extra/wpaicg_assistants.php:189
 #: admin/extra/wpaicg_assistants.php:194
 #: admin/views/embeddings/index.php:414
-#: classes/wpaicg_dashboard.php:2018
-#: classes/wpaicg_dashboard.php:2019
-#: classes/wpaicg_dashboard.php:2033
-#: classes/wpaicg_dashboard.php:2051
-#: classes/wpaicg_dashboard.php:2187
-#: classes/wpaicg_dashboard.php:2188
+#: classes/wpaicg_dashboard.php:2025
+#: classes/wpaicg_dashboard.php:2026
+#: classes/wpaicg_dashboard.php:2040
+#: classes/wpaicg_dashboard.php:2058
+#: classes/wpaicg_dashboard.php:2194
+#: classes/wpaicg_dashboard.php:2195
 msgid "N/A"
 msgstr ""
 
@@ -175,13 +169,6 @@ msgstr ""
 #: admin/views/embeddings/settings.php:290
 #: admin/views/finetune/manual.php:189
 #: admin/views/roles/index.php:186
-#: admin/views/settings/index.php:1272
-#: admin/views/settings/index.php:1512
-#: admin/views/settings/index.php:1647
-#: admin/views/settings/index.php:1881
-#: admin/views/settings/index.php:2240
-#: admin/views/settings/index.php:2294
-#: admin/views/settings/index.php:2421
 #: admin/views/woocommerce/wpaicg-meta-box.php:91
 #: classes/wpaicg_hook.php:56
 #: classes/wpaicg_hook.php:122
@@ -429,9 +416,6 @@ msgstr ""
 #: admin/views/settings/image_settings.php:157
 #: admin/views/settings/image_settings.php:340
 #: admin/views/settings/image_settings.php:351
-#: admin/views/settings/index.php:646
-#: admin/views/settings/index.php:2085
-#: admin/views/settings/index.php:2096
 msgid "None"
 msgstr ""
 
@@ -664,19 +648,19 @@ msgstr ""
 #: classes/wpaicg_content.php:1038
 #: classes/wpaicg_content.php:1122
 #: classes/wpaicg_content.php:1747
-#: classes/wpaicg_dashboard.php:1816
-#: classes/wpaicg_dashboard.php:1843
-#: classes/wpaicg_dashboard.php:1989
-#: classes/wpaicg_dashboard.php:2307
-#: classes/wpaicg_dashboard.php:2341
-#: classes/wpaicg_dashboard.php:2413
-#: classes/wpaicg_dashboard.php:2443
-#: classes/wpaicg_dashboard.php:2496
-#: classes/wpaicg_dashboard.php:2521
-#: classes/wpaicg_dashboard.php:2547
-#: classes/wpaicg_dashboard.php:2572
-#: classes/wpaicg_dashboard.php:2623
-#: classes/wpaicg_dashboard.php:2646
+#: classes/wpaicg_dashboard.php:1823
+#: classes/wpaicg_dashboard.php:1850
+#: classes/wpaicg_dashboard.php:1996
+#: classes/wpaicg_dashboard.php:2314
+#: classes/wpaicg_dashboard.php:2348
+#: classes/wpaicg_dashboard.php:2420
+#: classes/wpaicg_dashboard.php:2450
+#: classes/wpaicg_dashboard.php:2503
+#: classes/wpaicg_dashboard.php:2528
+#: classes/wpaicg_dashboard.php:2554
+#: classes/wpaicg_dashboard.php:2579
+#: classes/wpaicg_dashboard.php:2630
+#: classes/wpaicg_dashboard.php:2653
 #: classes/wpaicg_editor.php:130
 #: classes/wpaicg_elevenlabs.php:70
 #: classes/wpaicg_elevenlabs.php:119
@@ -810,17 +794,6 @@ msgstr ""
 #: admin/views/settings/chatbots.php:502
 #: admin/views/settings/content_settings.php:119
 #: admin/views/settings/content_settings.php:130
-#: admin/views/settings/index.php:1451
-#: admin/views/settings/index.php:1467
-#: admin/views/settings/index.php:1569
-#: admin/views/settings/index.php:1583
-#: admin/views/settings/index.php:1597
-#: admin/views/settings/index.php:1611
-#: admin/views/settings/index.php:1625
-#: admin/views/settings/index.php:1639
-#: admin/views/settings/index.php:1704
-#: admin/views/settings/index.php:1718
-#: admin/views/settings/index.php:1732
 #: admin/views/settings/seo_settings.php:74
 #: admin/views/settings/seo_settings.php:86
 #: admin/views/settings/seo_settings.php:98
@@ -861,7 +834,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1060
 #: admin/views/metabox.php:1230
 #: admin/views/settings/content_settings.php:364
-#: admin/views/settings/index.php:1507
 msgid "Reset"
 msgstr ""
 
@@ -1013,7 +985,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1220
 #: admin/views/settings/ai.php:333
 #: admin/views/settings/chatbots.php:163
-#: admin/views/settings/index.php:1219
 msgid "Top P"
 msgstr ""
 
@@ -1114,8 +1085,6 @@ msgstr ""
 #: admin/views/finetune/events.php:20
 #: admin/views/settings/image_settings.php:175
 #: admin/views/settings/image_settings.php:460
-#: admin/views/settings/index.php:1942
-#: admin/views/settings/index.php:2140
 msgid "Type"
 msgstr ""
 
@@ -1175,7 +1144,6 @@ msgid "Cols"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:415
-#: admin/views/settings/index.php:1353
 msgid "Options"
 msgstr ""
 
@@ -1190,8 +1158,6 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:430
 #: admin/extra/wpaicg_promptbase_index.php:349
-#: admin/views/settings/index.php:883
-#: admin/views/settings/index.php:958
 msgid "AI Engine"
 msgstr ""
 
@@ -1214,7 +1180,6 @@ msgstr ""
 #: admin/views/metabox.php:432
 #: admin/views/settings/chatbots.php:83
 #: admin/views/settings/image_settings.php:184
-#: admin/views/settings/index.php:1951
 #: classes/wpaicg_image.php:441
 #: classes/wpaicg_image.php:555
 msgid "Style"
@@ -1248,7 +1213,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1218
 #: admin/views/settings/ai.php:315
 #: admin/views/settings/chatbots.php:145
-#: admin/views/settings/index.php:1198
 msgid "Temperature"
 msgstr ""
 
@@ -1453,8 +1417,6 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:670
 #: admin/extra/wpaicg_promptbase_index.php:582
-#: admin/views/settings/index.php:2364
-#: admin/views/settings/index.php:2410
 msgid "Background Color"
 msgstr ""
 
@@ -1665,7 +1627,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1221
 #: admin/views/settings/ai.php:321
 #: admin/views/settings/chatbots.php:151
-#: admin/views/settings/index.php:1205
 msgid "Frequency Penalty"
 msgstr ""
 
@@ -1675,7 +1636,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1222
 #: admin/views/settings/ai.php:327
 #: admin/views/settings/chatbots.php:157
-#: admin/views/settings/index.php:1212
 msgid "Presence Penalty"
 msgstr ""
 
@@ -1919,8 +1879,8 @@ msgstr ""
 #: admin/extra/wpaicg_form_settings.php:7
 #: classes/wpaicg_dashboard.php:43
 #: classes/wpaicg_dashboard.php:85
-#: classes/wpaicg_dashboard.php:312
-#: classes/wpaicg_dashboard.php:1787
+#: classes/wpaicg_dashboard.php:319
+#: classes/wpaicg_dashboard.php:1794
 #: classes/wpaicg_logs.php:45
 #: classes/wpaicg_logs.php:645
 #: classes/wpaicg_logs.php:889
@@ -1930,8 +1890,8 @@ msgstr ""
 #: admin/extra/wpaicg_form_settings.php:23
 #: admin/extra/wpaicg_image_generator_settings.php:45
 #: admin/extra/wpaicg_promptbase_settings.php:19
-#: classes/wpaicg_dashboard.php:2394
-#: classes/wpaicg_dashboard.php:2398
+#: classes/wpaicg_dashboard.php:2401
+#: classes/wpaicg_dashboard.php:2405
 msgid "Settings updated successfully."
 msgstr ""
 
@@ -2150,8 +2110,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:677
 #: admin/extra/wpaicg_single.php:690
 #: admin/views/settings/image_settings.php:56
-#: admin/views/settings/index.php:652
-#: admin/views/settings/index.php:1925
 msgid "Replicate"
 msgstr ""
 
@@ -2163,7 +2121,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:745
 #: admin/views/metabox.php:771
 #: admin/views/settings/image_settings.php:197
-#: admin/views/settings/index.php:1964
 msgid "Artist"
 msgstr ""
 
@@ -2171,7 +2128,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:755
 #: admin/views/metabox.php:782
 #: admin/views/settings/image_settings.php:210
-#: admin/views/settings/index.php:1976
 msgid "Photography"
 msgstr ""
 
@@ -2179,7 +2135,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:765
 #: admin/views/metabox.php:792
 #: admin/views/settings/image_settings.php:223
-#: admin/views/settings/index.php:1988
 #: classes/wpaicg_custom_prompt.php:234
 #: classes/wpaicg_generator.php:1142
 #: classes/wpaicg_generator.php:1263
@@ -2192,7 +2147,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:775
 #: admin/views/metabox.php:802
 #: admin/views/settings/image_settings.php:236
-#: admin/views/settings/index.php:2000
 #: classes/wpaicg_custom_prompt.php:235
 #: classes/wpaicg_generator.php:1143
 #: classes/wpaicg_generator.php:1264
@@ -2205,7 +2159,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:785
 #: admin/views/metabox.php:812
 #: admin/views/settings/image_settings.php:249
-#: admin/views/settings/index.php:2012
 msgid "Camera"
 msgstr ""
 
@@ -2213,7 +2166,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:795
 #: admin/views/metabox.php:822
 #: admin/views/settings/image_settings.php:262
-#: admin/views/settings/index.php:2024
 #: classes/wpaicg_custom_prompt.php:230
 #: classes/wpaicg_generator.php:1138
 #: classes/wpaicg_generator.php:1259
@@ -2226,7 +2178,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:805
 #: admin/views/metabox.php:832
 #: admin/views/settings/image_settings.php:275
-#: admin/views/settings/index.php:2036
 #: classes/wpaicg_custom_prompt.php:231
 #: classes/wpaicg_generator.php:1139
 #: classes/wpaicg_generator.php:1260
@@ -2239,7 +2190,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:815
 #: admin/views/metabox.php:842
 #: admin/views/settings/image_settings.php:288
-#: admin/views/settings/index.php:2048
 #: classes/wpaicg_custom_prompt.php:232
 #: classes/wpaicg_generator.php:1140
 #: classes/wpaicg_generator.php:1261
@@ -2252,7 +2202,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:825
 #: admin/views/metabox.php:852
 #: admin/views/settings/image_settings.php:301
-#: admin/views/settings/index.php:2060
 #: classes/wpaicg_custom_prompt.php:233
 #: classes/wpaicg_generator.php:1141
 #: classes/wpaicg_generator.php:1262
@@ -2268,8 +2217,6 @@ msgstr ""
 #: admin/views/metabox.php:897
 #: admin/views/settings/image_settings.php:163
 #: admin/views/settings/image_settings.php:349
-#: admin/views/settings/index.php:1932
-#: admin/views/settings/index.php:2094
 msgid "Size"
 msgstr ""
 
@@ -2288,7 +2235,6 @@ msgstr ""
 #: admin/extra/wpaicg_image_generator.php:589
 #: admin/views/settings/chat-style-settings.php:53
 #: admin/views/settings/extra_tools.php:161
-#: admin/views/settings/index.php:2369
 msgid "Width"
 msgstr ""
 
@@ -2296,7 +2242,6 @@ msgstr ""
 #: admin/views/settings/chat-style-settings.php:58
 #: admin/views/settings/chat-style-settings.php:87
 #: admin/views/settings/extra_tools.php:165
-#: admin/views/settings/index.php:2375
 msgid "Height"
 msgstr ""
 
@@ -2370,8 +2315,8 @@ msgstr ""
 
 #: admin/extra/wpaicg_image_generator_log.php:55
 #: admin/views/settings/chat-general-settings.php:279
-#: classes/wpaicg_dashboard.php:2098
-#: classes/wpaicg_dashboard.php:2190
+#: classes/wpaicg_dashboard.php:2105
+#: classes/wpaicg_dashboard.php:2197
 msgid "Shortcode"
 msgstr ""
 
@@ -2526,8 +2471,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:169
 #: admin/extra/wpaicg_single.php:589
 #: admin/views/metabox.php:1243
-#: admin/views/settings/index.php:904
-#: admin/views/settings/index.php:1528
 msgid "SEO"
 msgstr ""
 
@@ -2536,8 +2479,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:595
 #: admin/views/metabox.php:1189
 #: admin/views/metabox.php:1250
-#: admin/views/settings/index.php:1532
-#: admin/views/settings/index.php:1692
 #: admin/views/woocommerce/wpaicg-meta-box.php:66
 msgid "Meta Description"
 msgstr ""
@@ -2546,7 +2487,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:581
 #: admin/views/metabox.php:381
 #: admin/views/metabox.php:1276
-#: admin/views/settings/index.php:1437
 msgid "Outline Editor"
 msgstr ""
 
@@ -2702,8 +2642,6 @@ msgstr ""
 #: admin/views/settings/chatbots.php:325
 #: admin/views/settings/content_settings.php:155
 #: admin/views/settings/image_settings.php:448
-#: admin/views/settings/index.php:1295
-#: admin/views/settings/index.php:2128
 msgid "Language"
 msgstr ""
 
@@ -2715,19 +2653,16 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:561
 #: admin/views/settings/content_settings.php:191
-#: admin/views/settings/index.php:1327
 msgid "Headings"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:565
-#: admin/views/settings/index.php:1331
 msgid "Number of Headings"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:570
 #: admin/views/metabox.php:403
 #: admin/views/settings/content_settings.php:203
-#: admin/views/settings/index.php:1339
 msgid "Heading Tag"
 msgstr ""
 
@@ -2735,8 +2670,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:606
 #: admin/views/settings/content_settings.php:115
 #: admin/views/settings/content_settings.php:118
-#: admin/views/settings/index.php:1459
-#: admin/views/settings/index.php:1465
 msgid "Bold Keywords"
 msgstr ""
 
@@ -2767,8 +2700,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:648
 #: admin/extra/wpaicg_single.php:668
 #: admin/views/settings/image_settings.php:87
-#: admin/views/settings/index.php:912
-#: admin/views/settings/index.php:1894
 msgid "Image"
 msgstr ""
 
@@ -2777,7 +2708,6 @@ msgstr ""
 #: admin/views/settings/image_settings.php:52
 #: admin/views/settings/image_settings.php:143
 #: admin/views/settings/image_settings.php:154
-#: admin/views/settings/index.php:648
 msgid "DALL-E 3"
 msgstr ""
 
@@ -2786,7 +2716,6 @@ msgstr ""
 #: admin/views/settings/image_settings.php:51
 #: admin/views/settings/image_settings.php:144
 #: admin/views/settings/image_settings.php:155
-#: admin/views/settings/index.php:647
 msgid "DALL-E 3 HD"
 msgstr ""
 
@@ -2795,7 +2724,6 @@ msgstr ""
 #: admin/views/settings/image_settings.php:53
 #: admin/views/settings/image_settings.php:145
 #: admin/views/settings/image_settings.php:156
-#: admin/views/settings/index.php:649
 msgid "DALL-E 2"
 msgstr ""
 
@@ -2806,8 +2734,6 @@ msgstr ""
 #: admin/views/metabox.php:686
 #: admin/views/metabox.php:881
 #: admin/views/settings/image_settings.php:54
-#: admin/views/settings/index.php:650
-#: admin/views/settings/index.php:1917
 msgid "Pexels"
 msgstr ""
 
@@ -2818,8 +2744,6 @@ msgstr ""
 #: admin/views/metabox.php:687
 #: admin/views/metabox.php:920
 #: admin/views/settings/image_settings.php:55
-#: admin/views/settings/index.php:651
-#: admin/views/settings/index.php:1921
 msgid "Pixabay"
 msgstr ""
 
@@ -2846,50 +2770,42 @@ msgstr ""
 #: admin/views/metabox.php:941
 #: admin/views/settings/image_settings.php:338
 #: admin/views/settings/image_settings.php:471
-#: admin/views/settings/index.php:2083
-#: admin/views/settings/index.php:2151
 msgid "Orientation"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:844
 #: admin/views/metabox.php:888
 #: admin/views/settings/image_settings.php:341
-#: admin/views/settings/index.php:2086
 msgid "Landscape"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:845
 #: admin/views/metabox.php:889
 #: admin/views/settings/image_settings.php:342
-#: admin/views/settings/index.php:2087
 msgid "Portrait"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:846
 #: admin/views/metabox.php:890
 #: admin/views/settings/image_settings.php:343
-#: admin/views/settings/index.php:2088
 msgid "Square"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:853
 #: admin/views/metabox.php:900
 #: admin/views/settings/image_settings.php:352
-#: admin/views/settings/index.php:2097
 msgid "Large"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:854
 #: admin/views/metabox.php:901
 #: admin/views/settings/image_settings.php:353
-#: admin/views/settings/index.php:2098
 msgid "Medium"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:855
 #: admin/views/metabox.php:902
 #: admin/views/settings/image_settings.php:354
-#: admin/views/settings/index.php:2099
 msgid "Small"
 msgstr ""
 
@@ -2897,8 +2813,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:908
 #: admin/views/settings/image_settings.php:360
 #: admin/views/settings/image_settings.php:490
-#: admin/views/settings/index.php:2105
-#: admin/views/settings/index.php:2170
 msgid "Use Keyword"
 msgstr ""
 
@@ -2909,7 +2823,6 @@ msgstr ""
 #: admin/views/metabox.php:911
 #: admin/views/metabox.php:961
 #: admin/views/metabox.php:1217
-#: admin/views/settings/index.php:1490
 msgid "Custom Prompt"
 msgstr ""
 
@@ -2918,7 +2831,6 @@ msgstr ""
 #: admin/views/metabox.php:912
 #: admin/views/metabox.php:962
 #: admin/views/metabox.php:1226
-#: admin/views/settings/index.php:1504
 msgid "Ensure %s is included in your prompt."
 msgstr ""
 
@@ -2937,64 +2849,54 @@ msgstr ""
 #: admin/views/metabox.php:943
 #: admin/views/settings/image_settings.php:462
 #: admin/views/settings/image_settings.php:473
-#: admin/views/settings/index.php:2142
-#: admin/views/settings/index.php:2153
 msgid "All"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:886
 #: admin/views/metabox.php:935
 #: admin/views/settings/image_settings.php:463
-#: admin/views/settings/index.php:2143
 msgid "Photo"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:887
 #: admin/views/metabox.php:936
 #: admin/views/settings/image_settings.php:464
-#: admin/views/settings/index.php:2144
 msgid "Illustration"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:888
 #: admin/views/metabox.php:937
 #: admin/views/settings/image_settings.php:465
-#: admin/views/settings/index.php:2145
 msgid "Vector"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:895
 #: admin/views/metabox.php:944
 #: admin/views/settings/image_settings.php:474
-#: admin/views/settings/index.php:2154
 msgid "Horizontal"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:896
 #: admin/views/metabox.php:945
 #: admin/views/settings/image_settings.php:475
-#: admin/views/settings/index.php:2155
 msgid "Vertical"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:900
 #: admin/views/metabox.php:949
 #: admin/views/settings/image_settings.php:481
-#: admin/views/settings/index.php:2161
 msgid "Order"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:902
 #: admin/views/metabox.php:951
 #: admin/views/settings/image_settings.php:483
-#: admin/views/settings/index.php:2163
 msgid "Popular"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:903
 #: admin/views/metabox.php:952
 #: admin/views/settings/image_settings.php:484
-#: admin/views/settings/index.php:2164
 msgid "Latest"
 msgstr ""
 
@@ -3004,42 +2906,34 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:927
 #: admin/extra/wpaicg_single.php:955
-#: admin/views/settings/index.php:1357
 #: classes/wpaicg_generator.php:242
 msgid "Table of Contents"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:932
-#: admin/views/settings/index.php:1432
 msgid "Tagline"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:937
-#: admin/views/settings/index.php:1383
 msgid "Introduction"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:942
 #: admin/views/metabox.php:1024
-#: admin/views/settings/index.php:1390
 msgid "Hide Introduction Title"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:946
-#: admin/views/settings/index.php:1408
 msgid "Conclusion"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:951
 #: admin/views/metabox.php:1092
-#: admin/views/settings/index.php:1415
 msgid "Hide Conclusion Title"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:960
 #: admin/extra/wpaicg_single.php:966
-#: admin/views/settings/index.php:1443
-#: admin/views/settings/index.php:1449
 msgid "Q & A"
 msgstr ""
 
@@ -3060,7 +2954,6 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:1006
 #: admin/views/metabox.php:1162
-#: admin/views/settings/index.php:1363
 msgid "ToC Title"
 msgstr ""
 
@@ -3080,14 +2973,12 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1030
 #: admin/views/metabox.php:1143
 #: admin/views/settings/content_settings.php:49
-#: admin/views/settings/index.php:1479
 msgid "Beginning"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1031
 #: admin/views/metabox.php:1146
 #: admin/views/settings/content_settings.php:50
-#: admin/views/settings/index.php:1483
 msgid "End"
 msgstr ""
 
@@ -3107,18 +2998,15 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1121
 #: admin/views/embeddings/index.php:376
 #: admin/views/settings/chat-general-settings.php:13
-#: admin/views/settings/index.php:964
 msgid "Provider"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1174
 #: admin/views/settings/ai.php:234
-#: admin/views/settings/index.php:1066
 msgid "Gemini Pro"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1219
-#: admin/views/settings/index.php:1182
 msgid "Maximum Length"
 msgstr ""
 
@@ -4141,7 +4029,6 @@ msgstr ""
 
 #: admin/views/metabox.php:569
 #: admin/views/settings/image_settings.php:177
-#: admin/views/settings/index.php:1944
 msgid "Vivid"
 msgstr ""
 
@@ -4280,13 +4167,11 @@ msgstr ""
 
 #: admin/views/metabox.php:666
 #: admin/views/settings/image_settings.php:141
-#: admin/views/settings/index.php:1898
 msgid "Image Source"
 msgstr ""
 
 #: admin/views/metabox.php:679
 #: admin/views/settings/image_settings.php:152
-#: admin/views/settings/index.php:1905
 msgid "Featured Image Source"
 msgstr ""
 
@@ -4397,7 +4282,6 @@ msgid "(Use comma to seperate tags)"
 msgstr ""
 
 #: admin/views/metabox.php:1222
-#: admin/views/settings/index.php:1500
 msgid "Make sure to include %s in your prompt. You can also incorporate %s and %s to further customize your prompt."
 msgstr ""
 
@@ -4556,7 +4440,6 @@ msgid "[Read more]"
 msgstr ""
 
 #: admin/views/search/shortcode.php:4
-#: admin/views/settings/index.php:803
 msgid "Search anything.."
 msgstr ""
 
@@ -4577,7 +4460,6 @@ msgstr ""
 
 #: admin/views/settings/ai.php:93
 #: admin/views/settings/ai.php:346
-#: admin/views/settings/index.php:1175
 msgid "Safety Settings"
 msgstr ""
 
@@ -4599,9 +4481,6 @@ msgstr ""
 #: admin/views/settings/chat-common-settings.php:87
 #: admin/views/settings/chat-common-settings.php:105
 #: admin/views/settings/chat-common-settings.php:144
-#: admin/views/settings/index.php:2078
-#: admin/views/settings/index.php:2123
-#: admin/views/settings/index.php:2188
 msgid "Get API Key"
 msgstr ""
 
@@ -4633,12 +4512,10 @@ msgid "Syncs the latest models from Google"
 msgstr ""
 
 #: admin/views/settings/ai.php:255
-#: admin/views/settings/index.php:1089
 msgid "Endpoint"
 msgstr ""
 
 #: admin/views/settings/ai.php:263
-#: admin/views/settings/index.php:1097
 msgid "Deployment"
 msgstr ""
 
@@ -5004,7 +4881,6 @@ msgstr ""
 
 #: admin/views/settings/chat-interface-settings.php:75
 #: admin/views/settings/extra_tools.php:136
-#: admin/views/settings/index.php:2351
 msgid "Placeholder"
 msgstr ""
 
@@ -5057,8 +4933,6 @@ msgstr ""
 #: admin/views/settings/chat-style-settings.php:72
 #: admin/views/settings/extra_tools.php:149
 #: admin/views/settings/extra_tools.php:189
-#: admin/views/settings/index.php:2356
-#: admin/views/settings/index.php:2406
 msgid "Font Color"
 msgstr ""
 
@@ -5073,8 +4947,6 @@ msgstr ""
 #: admin/views/settings/chat-style-settings.php:29
 #: admin/views/settings/extra_tools.php:141
 #: admin/views/settings/extra_tools.php:181
-#: admin/views/settings/index.php:2339
-#: admin/views/settings/index.php:2395
 msgid "Font Size"
 msgstr ""
 
@@ -5538,8 +5410,6 @@ msgid "An error occurred while blocking the IP."
 msgstr ""
 
 #: admin/views/settings/content_settings.php:56
-#: admin/views/settings/index.php:893
-#: admin/views/settings/index.php:1287
 msgid "Content Writer"
 msgstr ""
 
@@ -5578,19 +5448,16 @@ msgid "Generate Q & A"
 msgstr ""
 
 #: admin/views/settings/content_settings.php:136
-#: admin/views/settings/index.php:1743
 #: admin/views/settings/woocommerce.php:111
 #: admin/views/settings/woocommerce_settings.php:97
 msgid "Use Custom Prompt"
 msgstr ""
 
 #: admin/views/settings/content_settings.php:167
-#: admin/views/settings/index.php:1306
 msgid "Writing Style"
 msgstr ""
 
 #: admin/views/settings/content_settings.php:179
-#: admin/views/settings/index.php:1317
 msgid "Writing Tone"
 msgstr ""
 
@@ -5654,23 +5521,18 @@ msgid "Additional Tools"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:68
-#: admin/views/settings/index.php:931
-#: admin/views/settings/index.php:2255
 msgid "AI Assistant"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:76
-#: admin/views/settings/index.php:2314
 msgid "Comment Replier"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:84
-#: admin/views/settings/index.php:2318
 msgid "Semantic Search"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:92
-#: admin/views/settings/index.php:1867
 #: admin/views/settings/woocommerce.php:239
 msgid "Token Sale"
 msgstr ""
@@ -5680,7 +5542,6 @@ msgid "Custom Prompt for Comment Replier"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:110
-#: admin/views/settings/index.php:2325
 msgid "Prompt for Comment Replier "
 msgstr ""
 
@@ -5705,12 +5566,10 @@ msgid "Search Box"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:153
-#: admin/views/settings/index.php:2360
 msgid "Border Color"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:170
-#: admin/views/settings/index.php:2380
 msgid "Search Results"
 msgstr ""
 
@@ -5719,7 +5578,6 @@ msgid "Nr. of Results"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:197
-#: admin/views/settings/index.php:2414
 msgid "Progress Color"
 msgstr ""
 
@@ -5728,7 +5586,6 @@ msgid "Settings for Token Sale"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:214
-#: admin/views/settings/index.php:1868
 msgid "Automatically credit tokens to the user's account based on the order status."
 msgstr ""
 
@@ -5737,7 +5594,6 @@ msgid "Order Status"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:218
-#: admin/views/settings/index.php:1871
 #: admin/views/settings/woocommerce.php:246
 #: classes/wpaicg_content.php:380
 #: classes/wpaicg_content.php:454
@@ -5745,7 +5601,6 @@ msgid "Completed"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:221
-#: admin/views/settings/index.php:1875
 #: admin/views/settings/woocommerce.php:247
 msgid "Processing"
 msgstr ""
@@ -5767,7 +5622,6 @@ msgid "It is compatible with both Gutenberg and Classic Editor."
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:241
-#: admin/views/settings/index.php:2258
 msgid "Use the form below to add, modify, or remove menus as needed."
 msgstr ""
 
@@ -5776,12 +5630,10 @@ msgid "Select a Menu"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:265
-#: admin/views/settings/index.php:2276
 msgid "Menu Name"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:269
-#: admin/views/settings/index.php:2280
 msgid "Menu Prompt"
 msgstr ""
 
@@ -5790,17 +5642,14 @@ msgid "Ensure to include [text] in your prompt."
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:277
-#: admin/views/settings/index.php:2286
 msgid "Content Position"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:279
-#: admin/views/settings/index.php:2288
 msgid "Below"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:280
-#: admin/views/settings/index.php:2289
 msgid "Above"
 msgstr ""
 
@@ -5818,7 +5667,6 @@ msgid "DALL-E Settings"
 msgstr ""
 
 #: admin/views/settings/image_settings.php:178
-#: admin/views/settings/index.php:1945
 msgid "Natural"
 msgstr ""
 
@@ -5841,7 +5689,6 @@ msgid "Sync Replicate Models"
 msgstr ""
 
 #: admin/views/settings/image_settings.php:418
-#: admin/views/settings/index.php:2232
 msgid "Version"
 msgstr ""
 
@@ -5849,189 +5696,52 @@ msgstr ""
 msgid "Pixabay Settings"
 msgstr ""
 
-#: admin/views/settings/index.php:526
 #: admin/views/settings/seo_settings.php:18
 msgid "Update Yoast Meta"
 msgstr ""
 
-#: admin/views/settings/index.php:531
 #: admin/views/settings/seo_settings.php:23
 msgid "Update All In One SEO Meta"
 msgstr ""
 
-#: admin/views/settings/index.php:536
 #: admin/views/settings/seo_settings.php:28
 msgid "Update Rank Math Meta"
 msgstr ""
 
-#: admin/views/settings/index.php:541
 #: admin/views/settings/seo_settings.php:33
 msgid "Update The SEO Framework Meta"
 msgstr ""
 
-#: admin/views/settings/index.php:626
-#: admin/views/settings/woocommerce.php:97
-#: admin/views/settings/woocommerce_settings.php:13
-#: classes/wpaicg_woocommerce.php:113
-#: classes/wpaicg_woocommerce.php:1125
-msgid "Compose an SEO-optimized title in English for the following product: %s. Ensure it is engaging, concise, and includes relevant keywords to maximize its visibility on search engines."
-msgstr ""
-
-#: admin/views/settings/index.php:627
-#: admin/views/settings/woocommerce.php:98
-#: admin/views/settings/woocommerce_settings.php:14
-#: classes/wpaicg_woocommerce.php:114
-#: classes/wpaicg_woocommerce.php:1131
-msgid "Provide a compelling and concise summary in English for the following product: %s, highlighting its key features, benefits, and unique selling points."
-msgstr ""
-
-#: admin/views/settings/index.php:628
-#: admin/views/settings/woocommerce.php:99
-#: admin/views/settings/woocommerce_settings.php:15
-#: classes/wpaicg_woocommerce.php:115
-#: classes/wpaicg_woocommerce.php:1134
-msgid "Craft a comprehensive and engaging product description in English for: %s. Include specific details, features, and benefits, as well as the value it offers to the customer, thereby creating a compelling narrative around the product."
-msgstr ""
-
-#: admin/views/settings/index.php:629
-#: admin/views/settings/woocommerce.php:100
-#: admin/views/settings/woocommerce_settings.php:16
-#: classes/wpaicg_woocommerce.php:117
-#: classes/wpaicg_woocommerce.php:1137
-msgid "Propose a set of relevant keywords in English for the following product: %s. The keywords should be directly related to the product, enhancing its discoverability. Please present these keywords in a comma-separated format, avoiding the use of symbols such as -, #, etc."
-msgstr ""
-
-#: admin/views/settings/index.php:630
-#: admin/views/settings/woocommerce.php:101
-#: admin/views/settings/woocommerce_settings.php:17
-#: classes/wpaicg_woocommerce.php:116
-#: classes/wpaicg_woocommerce.php:1128
-msgid "Craft a compelling and concise meta description in English for: %s. Aim to highlight its key features and benefits within a limit of 155 characters, while incorporating relevant keywords for SEO effectiveness."
-msgstr ""
-
-#: admin/views/settings/index.php:631
-#: admin/views/settings/index.php:2978
-#: admin/views/settings/woocommerce.php:102
-#: admin/views/settings/woocommerce.php:389
-#: admin/views/settings/woocommerce_settings.php:18
-#: classes/wpaicg_woocommerce.php:120
-msgid "Identify the primary keyword for the following product: %s. Please respond in English. No additional comments, just the keyword."
-msgstr ""
-
-#: admin/views/settings/index.php:864
-msgid "Settings saved successfully."
-msgstr ""
-
-#: admin/views/settings/index.php:866
-msgid "Settings reset successfully."
-msgstr ""
-
-#: admin/views/settings/index.php:921
-#: admin/views/settings/index.php:1661
-#: admin/views/settings/woocommerce_settings.php:40
-msgid "WooCommerce"
-msgstr ""
-
-#: admin/views/settings/index.php:980
-#: admin/views/settings/index.php:1040
-#: admin/views/settings/index.php:1081
-#: admin/views/settings/index.php:1116
-#: admin/views/settings/index.php:2076
-#: admin/views/settings/index.php:2121
-#: admin/views/settings/index.php:2186
-msgid "Api Key"
-msgstr ""
-
-#: admin/views/settings/index.php:982
-#: admin/views/settings/index.php:1042
-#: admin/views/settings/index.php:1083
-#: admin/views/settings/index.php:1118
-msgid "Get Your Api Key"
-msgstr ""
-
-#: admin/views/settings/index.php:1105
-msgid "  Embeddings"
-msgstr ""
-
-#: admin/views/settings/index.php:1171
-msgid "Advance Settings"
-msgstr ""
-
-#: admin/views/settings/index.php:1191
-msgid "Rate Limit Buffer (in seconds)"
-msgstr ""
-
-#: admin/views/settings/index.php:1226
-msgid "Best of"
-msgstr ""
-
-#: admin/views/settings/index.php:1289
-msgid "This tab allows you to set and save default values for both Express Mode and Auto Content Writer. Changes made here will be applied to both modules."
-msgstr ""
-
-#: admin/views/settings/index.php:1290
-msgid "Language, Style and Tone"
-msgstr ""
-
-#: admin/views/settings/index.php:1370
-msgid "ToC Tag"
-msgstr ""
-
-#: admin/views/settings/index.php:1395
-msgid "Introduction Tag"
-msgstr ""
-
-#: admin/views/settings/index.php:1420
-msgid "Conclusion Tag"
-msgstr ""
-
-#: admin/views/settings/index.php:1476
-msgid "Call to Action Position"
-msgstr ""
-
-#: admin/views/settings/index.php:1535
-#: admin/views/settings/seo_settings.php:43
-#: admin/views/settings/woocommerce_settings.php:62
-msgid "Generate Meta Description"
-msgstr ""
-
-#: admin/views/settings/index.php:1540
-msgid "Include Meta in the Header"
-msgstr ""
-
-#: admin/views/settings/index.php:1559
-#: admin/views/settings/index.php:1689
 #: admin/views/settings/seo_settings.php:38
 #: admin/views/settings/woocommerce.php:30
 #: admin/views/woocommerce/wpaicg-meta-box.php:45
 msgid "SEO Optimization"
 msgstr ""
 
-#: admin/views/settings/index.php:1563
-#: admin/views/settings/index.php:1567
+#: admin/views/settings/seo_settings.php:43
+#: admin/views/settings/woocommerce_settings.php:62
+msgid "Generate Meta Description"
+msgstr ""
+
+#: admin/views/settings/seo_settings.php:49
+msgid "Add Meta Tag to Head"
+msgstr ""
+
 #: admin/views/settings/seo_settings.php:70
 #: admin/views/settings/seo_settings.php:73
 msgid "Shorten URL"
 msgstr ""
 
-#: admin/views/settings/index.php:1577
-#: admin/views/settings/index.php:1581
 #: admin/views/settings/seo_settings.php:82
 #: admin/views/settings/seo_settings.php:85
 msgid "Generate Title from Keywords"
 msgstr ""
 
-#: admin/views/settings/index.php:1591
-#: admin/views/settings/index.php:1595
 #: admin/views/settings/seo_settings.php:94
 #: admin/views/settings/seo_settings.php:97
 msgid "Include Original Title in the Prompt"
 msgstr ""
 
-#: admin/views/settings/index.php:1605
-#: admin/views/settings/index.php:1609
-#: admin/views/settings/index.php:1726
-#: admin/views/settings/index.php:1730
 #: admin/views/settings/seo_settings.php:106
 #: admin/views/settings/seo_settings.php:109
 #: admin/views/settings/woocommerce_settings.php:87
@@ -6039,320 +5749,22 @@ msgstr ""
 msgid "Enforce Focus Keyword in URL"
 msgstr ""
 
-#: admin/views/settings/index.php:1619
-#: admin/views/settings/index.php:1623
 #: admin/views/settings/seo_settings.php:118
 #: admin/views/settings/seo_settings.php:121
 msgid "Use Sentiment in Title"
 msgstr ""
 
-#: admin/views/settings/index.php:1633
-#: admin/views/settings/index.php:1637
 #: admin/views/settings/seo_settings.php:130
 #: admin/views/settings/seo_settings.php:133
 msgid "Use Power Word in Title"
 msgstr ""
 
-#: admin/views/settings/index.php:1665
-#: admin/views/settings/woocommerce.php:5
-msgid "Product Writer"
-msgstr ""
-
-#: admin/views/settings/index.php:1668
-#: admin/views/woocommerce/wpaicg-meta-box.php:62
-msgid "Product Title"
-msgstr ""
-
-#: admin/views/settings/index.php:1673
-msgid "Full Product Description"
-msgstr ""
-
-#: admin/views/settings/index.php:1678
-msgid "Short Product Description"
-msgstr ""
-
-#: admin/views/settings/index.php:1683
-#: admin/views/woocommerce/wpaicg-meta-box.php:82
-msgid "Product Tags"
-msgstr ""
-
-#: admin/views/settings/index.php:1698
-#: admin/views/settings/index.php:1702
-#: admin/views/settings/woocommerce_settings.php:67
-#: admin/views/settings/woocommerce_settings.php:70
-msgid "Shorten Product URL"
-msgstr ""
-
-#: admin/views/settings/index.php:1712
-#: admin/views/settings/index.php:1716
-#: admin/views/settings/woocommerce_settings.php:77
-#: admin/views/settings/woocommerce_settings.php:80
-msgid "Generate Focus Keyword"
-msgstr ""
-
-#: admin/views/settings/index.php:1740
-#: admin/views/settings/woocommerce.php:94
-msgid "Prompt Design"
-msgstr ""
-
-#: admin/views/settings/index.php:1750
-#: admin/views/settings/woocommerce.php:119
-msgid "You can use these shortcodes in your custom prompts:"
-msgstr ""
-
-#: admin/views/settings/index.php:1765
-msgid "Title Prompt Template"
-msgstr ""
-
-#: admin/views/settings/index.php:1777
-#: admin/views/settings/woocommerce.php:149
-#: admin/views/settings/woocommerce_settings.php:116
-msgid "Title Prompt"
-msgstr ""
-
-#: admin/views/settings/index.php:1782
-msgid "Short Description Prompt Template"
-msgstr ""
-
-#: admin/views/settings/index.php:1794
-#: admin/views/settings/woocommerce_settings.php:135
-msgid "Short Description Prompt"
-msgstr ""
-
-#: admin/views/settings/index.php:1799
-msgid "Description Prompt Template"
-msgstr ""
-
-#: admin/views/settings/index.php:1810
-msgid "Description Prompt"
-msgstr ""
-
-#: admin/views/settings/index.php:1815
-msgid "Meta Description Prompt Template"
-msgstr ""
-
-#: admin/views/settings/index.php:1826
-#: admin/views/settings/woocommerce_settings.php:173
-msgid "Meta Description Prompt"
-msgstr ""
-
-#: admin/views/settings/index.php:1831
-msgid "Tag Prompt Template"
-msgstr ""
-
-#: admin/views/settings/index.php:1842
-msgid "Tag Prompt"
-msgstr ""
-
-#: admin/views/settings/index.php:1849
-msgid "Focus Keyword Prompt Template"
-msgstr ""
-
-#: admin/views/settings/index.php:1860
-#: admin/views/settings/woocommerce_settings.php:211
-msgid "Focus Keyword Prompt"
-msgstr ""
-
-#: admin/views/settings/index.php:1913
-msgid "Dall-E"
-msgstr ""
-
-#: admin/views/settings/index.php:2107
-#: admin/views/settings/index.php:2172
-msgid "When enabled, AI picks the main keyword from the title to find relevant images."
-msgstr ""
-
-#: admin/views/settings/index.php:2233
-msgid "Leave blank for default"
-msgstr ""
-
-#: admin/views/settings/index.php:2257
-msgid "AI Assistant is a feature that allows you to add a button to the WordPress editor that will help you to create content. It is compatible with both Gutenberg and Classic Editor."
-msgstr ""
-
-#: admin/views/settings/index.php:2262
-msgid "Menu"
-msgstr ""
-
-#: admin/views/settings/index.php:2271
-msgid "Add Item"
-msgstr ""
-
-#: admin/views/settings/index.php:2272
-msgid "Delete Item"
-msgstr ""
-
-#: admin/views/settings/index.php:2327
-msgid "Ensure %s and %s and %s and %s and %s is included in your prompt."
-msgstr ""
-
-#: admin/views/settings/index.php:2335
-msgid "Copy the following code and paste it in your page or post where you want to show the search box: %s"
-msgstr ""
-
-#: admin/views/settings/index.php:2336
-msgid "Search Box Style"
-msgstr ""
-
-#: admin/views/settings/index.php:2383
-msgid "Number of Results"
-msgstr ""
-
-#: admin/views/settings/index.php:2625
-msgid "Please fill in all the mandatory fields for Azure."
-msgstr ""
-
-#: admin/views/settings/index.php:2851
-#: admin/views/settings/woocommerce.php:262
-msgid "Create an SEO-friendly and eye-catching title for the product: %s. The title should emphasize its key features. Use the following for context: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2852
-#: admin/views/settings/woocommerce.php:263
-msgid "Devise a captivating and SEO-optimized title for the following product: %s that highlights its unique selling points. Use these details for reference: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2853
-#: admin/views/settings/woocommerce.php:264
-msgid "Craft a product title for %s that is not only SEO-optimized but also engages the customer and informs them why this is the product they’ve been looking for. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
-msgstr ""
-
-#: admin/views/settings/index.php:2854
-#: admin/views/settings/woocommerce.php:265
-msgid "Construct an SEO-optimized title for the product: %s that is rich in keywords relevant to the product. Use the following for additional context: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2855
-#: admin/views/settings/woocommerce.php:266
-msgid "Generate a concise yet comprehensive title for the product: %s that covers all the essential points customers are interested in. Make sure to utilize Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for a better context."
-msgstr ""
-
-#: admin/views/settings/index.php:2884
-#: admin/views/settings/woocommerce.php:295
-msgid "Craft an extensive and captivating narrative around the product: %s. Dive deep into its key features, benefits, and value proposition. Use its Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories] to enrich the narrative."
-msgstr ""
-
-#: admin/views/settings/index.php:2885
-#: admin/views/settings/woocommerce.php:296
-msgid "Develop a comprehensive and detailed description for the product: %s that serves as a complete guide for the customer, detailing its functionality, features, and use-cases. Make sure to incorporate its Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2886
-#: admin/views/settings/woocommerce.php:297
-msgid "Write a compelling product description for %s that evokes an emotional connection, inspiring the customer to visualize themselves using the product. Leverage its Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories] to add depth and context."
-msgstr ""
-
-#: admin/views/settings/index.php:2887
-#: admin/views/settings/woocommerce.php:298
-msgid "Construct an in-depth description for the product: %s that focuses on its unique selling propositions. Distinguish it from competitors and highlight what makes it a must-have. Use Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories] for a more detailed context."
-msgstr ""
-
-#: admin/views/settings/index.php:2888
-#: admin/views/settings/woocommerce.php:299
-msgid "Compose an SEO-optimized, yet customer-centric, description for the product: %s. Include relevant keywords naturally, and focus on answering any questions a customer might have about the product. Utilize Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories] for richer context."
-msgstr ""
-
-#: admin/views/settings/index.php:2908
-#: admin/views/settings/woocommerce.php:319
-msgid "Compose a short description for the product: %s that succinctly highlights its key features and benefits. Use the following attributes and description for context: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2909
-#: admin/views/settings/woocommerce.php:320
-msgid "Write a short description for the product: %s that clearly outlines how it solves a specific problem for the customer. Reference these details for a better understanding: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2910
-#: admin/views/settings/woocommerce.php:321
-msgid "Craft a compelling short description for the product: %s that emphasizes what sets it apart from competitors. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
-msgstr ""
-
-#: admin/views/settings/index.php:2911
-#: admin/views/settings/woocommerce.php:322
-msgid "Create an emotive short description for the product: %s that aims to establish an emotional connection with potential buyers. Use the following for context: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2912
-#: admin/views/settings/woocommerce.php:323
-msgid "Devise an SEO-optimized short description for the product: %s, incorporating relevant keywords without sacrificing readability. Use these details for reference: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2932
-#: admin/views/settings/woocommerce.php:343
-msgid "Craft a meta description for the product: %s that succinctly highlights its key features and benefits. Aim to stay within 155 characters. Use Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description] and Product Categories: [current_categories] for context."
-msgstr ""
-
-#: admin/views/settings/index.php:2933
-#: admin/views/settings/woocommerce.php:344
-msgid "Compose a compelling 155-character meta description for the product: %s that illustrates how it solves a specific problem for the customer. Reference these details: Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description], Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2934
-#: admin/views/settings/woocommerce.php:345
-msgid "Write a meta description for the product: %s that emotionally engages the potential customer, inspiring them to click and learn more. Limit to 155 characters. Use Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description] and Product Categories: [current_categories] for added depth."
-msgstr ""
-
-#: admin/views/settings/index.php:2935
-#: admin/views/settings/woocommerce.php:346
-msgid "Create an SEO-optimized meta description for the product: %s that is rich in keywords, yet readable and engaging. Keep it under 155 characters. Refer to these details: Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description], Product Categories: [current_categories]."
-msgstr ""
-
-#: admin/views/settings/index.php:2936
-#: admin/views/settings/woocommerce.php:347
-msgid "Devise a straightforward, 155-character meta description for the product: %s that provides just the facts, appealing to a no-nonsense customer base. Use Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description] and Product Categories: [current_categories] for context."
-msgstr ""
-
-#: admin/views/settings/index.php:2955
-#: admin/views/settings/woocommerce.php:366
-msgid "Generate a set of highly relevant and SEO-optimized tags for the product: %s. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
-msgstr ""
-
-#: admin/views/settings/index.php:2956
-#: admin/views/settings/woocommerce.php:367
-msgid "Create a list of tags for the product: %s that will increase its discoverability. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
-msgstr ""
-
-#: admin/views/settings/index.php:2957
-#: admin/views/settings/woocommerce.php:368
-msgid "Craft a set of tags for the product: %s that describe its features and benefits. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
-msgstr ""
-
-#: admin/views/settings/index.php:2958
-#: admin/views/settings/woocommerce.php:369
-msgid "Compile a group of keywords as tags for the product: %s that encompass its functionality and use-cases. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
-msgstr ""
-
-#: admin/views/settings/index.php:2959
-#: admin/views/settings/woocommerce.php:370
-msgid "Develop an SEO-optimized list of tags for the product: %s, focusing on high-search-volume keywords. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
-msgstr ""
-
-#: admin/views/settings/index.php:2979
-#: admin/views/settings/woocommerce.php:390
-msgid "Generate SEO-optimized and high-volume focus keywords in English for the following product: %s. Keywords should be the main terms you aim to rank for. Avoid using symbols like -, #, etc. Results must be comma-separated."
-msgstr ""
-
-#: admin/views/settings/index.php:2980
-#: admin/views/settings/woocommerce.php:391
-msgid "Generate niche-specific and unique focus keywords in English for the product: %s. Keywords should closely align with the product unique features or niche. Avoid using symbols like -, #, etc. Results must be comma-separated."
-msgstr ""
-
-#: admin/views/settings/index.php:2981
-#: admin/views/settings/woocommerce.php:392
-msgid "Generate trending or seasonally relevant focus keywords in English for the following product: %s. Ensure they directly relate to the product and its features. Avoid using symbols like -, #, etc. Results must be comma-separated."
-msgstr ""
-
-#: admin/views/settings/index.php:2982
-#: admin/views/settings/woocommerce.php:393
-msgid "Generate focus keywords in English for the product: %s. Keywords should fill a gap or seize an opportunity that competitors might have missed but are still highly relevant to the product. Avoid using symbols like -, #, etc. Results must be comma-separated."
-msgstr ""
-
-#: admin/views/settings/seo_settings.php:49
-msgid "Add Meta Tag to Head"
-msgstr ""
-
 #: admin/views/settings/settings.php:7
 msgid "You can configure the settings for the content writer and other tools here."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:5
+msgid "Product Writer"
 msgstr ""
 
 #: admin/views/settings/woocommerce.php:7
@@ -6392,6 +5804,61 @@ msgstr ""
 msgid "Enforce focus keyword in URL"
 msgstr ""
 
+#: admin/views/settings/woocommerce.php:94
+msgid "Prompt Design"
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:97
+#: admin/views/settings/woocommerce_settings.php:13
+#: classes/wpaicg_woocommerce.php:113
+#: classes/wpaicg_woocommerce.php:1125
+msgid "Compose an SEO-optimized title in English for the following product: %s. Ensure it is engaging, concise, and includes relevant keywords to maximize its visibility on search engines."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:98
+#: admin/views/settings/woocommerce_settings.php:14
+#: classes/wpaicg_woocommerce.php:114
+#: classes/wpaicg_woocommerce.php:1131
+msgid "Provide a compelling and concise summary in English for the following product: %s, highlighting its key features, benefits, and unique selling points."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:99
+#: admin/views/settings/woocommerce_settings.php:15
+#: classes/wpaicg_woocommerce.php:115
+#: classes/wpaicg_woocommerce.php:1134
+msgid "Craft a comprehensive and engaging product description in English for: %s. Include specific details, features, and benefits, as well as the value it offers to the customer, thereby creating a compelling narrative around the product."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:100
+#: admin/views/settings/woocommerce_settings.php:16
+#: classes/wpaicg_woocommerce.php:117
+#: classes/wpaicg_woocommerce.php:1137
+msgid "Propose a set of relevant keywords in English for the following product: %s. The keywords should be directly related to the product, enhancing its discoverability. Please present these keywords in a comma-separated format, avoiding the use of symbols such as -, #, etc."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:101
+#: admin/views/settings/woocommerce_settings.php:17
+#: classes/wpaicg_woocommerce.php:116
+#: classes/wpaicg_woocommerce.php:1128
+msgid "Craft a compelling and concise meta description in English for: %s. Aim to highlight its key features and benefits within a limit of 155 characters, while incorporating relevant keywords for SEO effectiveness."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:102
+#: admin/views/settings/woocommerce.php:389
+#: admin/views/settings/woocommerce_settings.php:18
+#: classes/wpaicg_woocommerce.php:120
+msgid "Identify the primary keyword for the following product: %s. Please respond in English. No additional comments, just the keyword."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:119
+msgid "You can use these shortcodes in your custom prompts:"
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:149
+#: admin/views/settings/woocommerce_settings.php:116
+msgid "Title Prompt"
+msgstr ""
+
 #: admin/views/settings/woocommerce.php:166
 msgid "Short description prompt"
 msgstr ""
@@ -6416,6 +5883,126 @@ msgstr ""
 msgid "Add tokens to user account if order status is"
 msgstr ""
 
+#: admin/views/settings/woocommerce.php:262
+msgid "Create an SEO-friendly and eye-catching title for the product: %s. The title should emphasize its key features. Use the following for context: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:263
+msgid "Devise a captivating and SEO-optimized title for the following product: %s that highlights its unique selling points. Use these details for reference: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:264
+msgid "Craft a product title for %s that is not only SEO-optimized but also engages the customer and informs them why this is the product they’ve been looking for. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:265
+msgid "Construct an SEO-optimized title for the product: %s that is rich in keywords relevant to the product. Use the following for additional context: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:266
+msgid "Generate a concise yet comprehensive title for the product: %s that covers all the essential points customers are interested in. Make sure to utilize Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for a better context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:295
+msgid "Craft an extensive and captivating narrative around the product: %s. Dive deep into its key features, benefits, and value proposition. Use its Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories] to enrich the narrative."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:296
+msgid "Develop a comprehensive and detailed description for the product: %s that serves as a complete guide for the customer, detailing its functionality, features, and use-cases. Make sure to incorporate its Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:297
+msgid "Write a compelling product description for %s that evokes an emotional connection, inspiring the customer to visualize themselves using the product. Leverage its Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories] to add depth and context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:298
+msgid "Construct an in-depth description for the product: %s that focuses on its unique selling propositions. Distinguish it from competitors and highlight what makes it a must-have. Use Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories] for a more detailed context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:299
+msgid "Compose an SEO-optimized, yet customer-centric, description for the product: %s. Include relevant keywords naturally, and focus on answering any questions a customer might have about the product. Utilize Attributes: [current_attributes], Short Description: [current_short_description] and Product Categories: [current_categories] for richer context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:319
+msgid "Compose a short description for the product: %s that succinctly highlights its key features and benefits. Use the following attributes and description for context: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:320
+msgid "Write a short description for the product: %s that clearly outlines how it solves a specific problem for the customer. Reference these details for a better understanding: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:321
+msgid "Craft a compelling short description for the product: %s that emphasizes what sets it apart from competitors. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:322
+msgid "Create an emotive short description for the product: %s that aims to establish an emotional connection with potential buyers. Use the following for context: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:323
+msgid "Devise an SEO-optimized short description for the product: %s, incorporating relevant keywords without sacrificing readability. Use these details for reference: Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description], Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:343
+msgid "Craft a meta description for the product: %s that succinctly highlights its key features and benefits. Aim to stay within 155 characters. Use Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description] and Product Categories: [current_categories] for context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:344
+msgid "Compose a compelling 155-character meta description for the product: %s that illustrates how it solves a specific problem for the customer. Reference these details: Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description], Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:345
+msgid "Write a meta description for the product: %s that emotionally engages the potential customer, inspiring them to click and learn more. Limit to 155 characters. Use Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description] and Product Categories: [current_categories] for added depth."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:346
+msgid "Create an SEO-optimized meta description for the product: %s that is rich in keywords, yet readable and engaging. Keep it under 155 characters. Refer to these details: Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description], Product Categories: [current_categories]."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:347
+msgid "Devise a straightforward, 155-character meta description for the product: %s that provides just the facts, appealing to a no-nonsense customer base. Use Attributes: [current_attributes], Full Description: [current_full_description], Short Description: [current_short_description] and Product Categories: [current_categories] for context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:366
+msgid "Generate a set of highly relevant and SEO-optimized tags for the product: %s. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:367
+msgid "Create a list of tags for the product: %s that will increase its discoverability. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:368
+msgid "Craft a set of tags for the product: %s that describe its features and benefits. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:369
+msgid "Compile a group of keywords as tags for the product: %s that encompass its functionality and use-cases. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:370
+msgid "Develop an SEO-optimized list of tags for the product: %s, focusing on high-search-volume keywords. Use Attributes: [current_attributes], Short Description: [current_short_description], Full Description: [current_full_description] and Product Categories: [current_categories] for context."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:390
+msgid "Generate SEO-optimized and high-volume focus keywords in English for the following product: %s. Keywords should be the main terms you aim to rank for. Avoid using symbols like -, #, etc. Results must be comma-separated."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:391
+msgid "Generate niche-specific and unique focus keywords in English for the product: %s. Keywords should closely align with the product unique features or niche. Avoid using symbols like -, #, etc. Results must be comma-separated."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:392
+msgid "Generate trending or seasonally relevant focus keywords in English for the following product: %s. Ensure they directly relate to the product and its features. Avoid using symbols like -, #, etc. Results must be comma-separated."
+msgstr ""
+
+#: admin/views/settings/woocommerce.php:393
+msgid "Generate focus keywords in English for the product: %s. Keywords should fill a gap or seize an opportunity that competitors might have missed but are still highly relevant to the product. Avoid using symbols like -, #, etc. Results must be comma-separated."
+msgstr ""
+
+#: admin/views/settings/woocommerce_settings.php:40
+msgid "WooCommerce"
+msgstr ""
+
 #: admin/views/settings/woocommerce_settings.php:45
 msgid "Generate Product Title"
 msgstr ""
@@ -6430,6 +6017,16 @@ msgstr ""
 
 #: admin/views/settings/woocommerce_settings.php:57
 msgid "Generate Product Tags"
+msgstr ""
+
+#: admin/views/settings/woocommerce_settings.php:67
+#: admin/views/settings/woocommerce_settings.php:70
+msgid "Shorten Product URL"
+msgstr ""
+
+#: admin/views/settings/woocommerce_settings.php:77
+#: admin/views/settings/woocommerce_settings.php:80
+msgid "Generate Focus Keyword"
 msgstr ""
 
 #: admin/views/settings/woocommerce_settings.php:110
@@ -6463,6 +6060,10 @@ msgstr ""
 
 #: admin/views/settings/woocommerce_settings.php:125
 msgid "Concise Yet Comprehensive"
+msgstr ""
+
+#: admin/views/settings/woocommerce_settings.php:135
+msgid "Short Description Prompt"
 msgstr ""
 
 #: admin/views/settings/woocommerce_settings.php:140
@@ -6509,6 +6110,10 @@ msgstr ""
 msgid "Concise and Direct"
 msgstr ""
 
+#: admin/views/settings/woocommerce_settings.php:173
+msgid "Meta Description Prompt"
+msgstr ""
+
 #: admin/views/settings/woocommerce_settings.php:178
 msgid "Focused on Key Features and Benefits"
 msgstr ""
@@ -6553,6 +6158,10 @@ msgstr ""
 msgid "SEO-Optimized High-Search-Volume Keywords"
 msgstr ""
 
+#: admin/views/settings/woocommerce_settings.php:211
+msgid "Focus Keyword Prompt"
+msgstr ""
+
 #: admin/views/settings/woocommerce_settings.php:221
 msgid "Generate Single Keyword"
 msgstr ""
@@ -6585,6 +6194,10 @@ msgstr ""
 msgid "Write a meta description"
 msgstr ""
 
+#: admin/views/woocommerce/wpaicg-meta-box.php:62
+msgid "Product Title"
+msgstr ""
+
 #: admin/views/woocommerce/wpaicg-meta-box.php:70
 #: classes/wpaicg_embeddings.php:1036
 msgid "Product Short Description"
@@ -6593,6 +6206,10 @@ msgstr ""
 #: admin/views/woocommerce/wpaicg-meta-box.php:76
 #: classes/wpaicg_embeddings.php:1034
 msgid "Product Description"
+msgstr ""
+
+#: admin/views/woocommerce/wpaicg-meta-box.php:82
+msgid "Product Tags"
 msgstr ""
 
 #: admin/views/woocommerce/wpaicg-meta-box.php:87
@@ -6922,8 +6539,8 @@ msgstr ""
 
 #: classes/wpaicg_dashboard.php:49
 #: classes/wpaicg_dashboard.php:91
-#: classes/wpaicg_dashboard.php:318
-#: classes/wpaicg_dashboard.php:1793
+#: classes/wpaicg_dashboard.php:325
+#: classes/wpaicg_dashboard.php:1800
 msgid "Insufficient permissions."
 msgstr ""
 
@@ -6943,144 +6560,144 @@ msgstr ""
 msgid "Shortcode bot data not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:184
+#: classes/wpaicg_dashboard.php:191
 msgid "Widget bot data not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:197
-#: classes/wpaicg_dashboard.php:1056
-#: classes/wpaicg_dashboard.php:1410
-#: classes/wpaicg_dashboard.php:1484
-#: classes/wpaicg_dashboard.php:1899
+#: classes/wpaicg_dashboard.php:204
+#: classes/wpaicg_dashboard.php:1063
+#: classes/wpaicg_dashboard.php:1417
+#: classes/wpaicg_dashboard.php:1491
+#: classes/wpaicg_dashboard.php:1906
 msgid "Bot not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:216
-#: classes/wpaicg_dashboard.php:1062
-#: classes/wpaicg_dashboard.php:1416
-#: classes/wpaicg_dashboard.php:1490
-#: classes/wpaicg_dashboard.php:1906
+#: classes/wpaicg_dashboard.php:223
+#: classes/wpaicg_dashboard.php:1069
+#: classes/wpaicg_dashboard.php:1423
+#: classes/wpaicg_dashboard.php:1497
+#: classes/wpaicg_dashboard.php:1913
 msgid "Invalid bot data format."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:305
-#: classes/wpaicg_dashboard.php:1049
+#: classes/wpaicg_dashboard.php:312
+#: classes/wpaicg_dashboard.php:1056
 msgid "Invalid Bot ID."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:328
+#: classes/wpaicg_dashboard.php:335
 msgid "Field name is missing."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:848
+#: classes/wpaicg_dashboard.php:855
 msgid "Field definition not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:918
+#: classes/wpaicg_dashboard.php:925
 msgid "Failed to create bot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1037
+#: classes/wpaicg_dashboard.php:1044
 msgid "Bot created successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1070
-#: classes/wpaicg_dashboard.php:1289
-#: classes/wpaicg_dashboard.php:1343
+#: classes/wpaicg_dashboard.php:1077
+#: classes/wpaicg_dashboard.php:1296
+#: classes/wpaicg_dashboard.php:1350
 msgid "Invalid value provided."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1111
+#: classes/wpaicg_dashboard.php:1118
 msgid "Failed to update post title."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1191
+#: classes/wpaicg_dashboard.php:1198
 msgid "Icon ID is required when using a custom icon."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1197
-#: classes/wpaicg_dashboard.php:1801
+#: classes/wpaicg_dashboard.php:1204
+#: classes/wpaicg_dashboard.php:1808
 msgid "Invalid attachment ID or not an image."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1215
+#: classes/wpaicg_dashboard.php:1222
 msgid "AI Avatar ID is required when using a custom avatar."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1221
+#: classes/wpaicg_dashboard.php:1228
 msgid "Invalid AI Avatar ID or not an image."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1244
+#: classes/wpaicg_dashboard.php:1251
 msgid "Invalid voice_language format."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1256
-#: classes/wpaicg_dashboard.php:1313
-#: classes/wpaicg_dashboard.php:1434
-#: classes/wpaicg_dashboard.php:1574
+#: classes/wpaicg_dashboard.php:1263
+#: classes/wpaicg_dashboard.php:1320
+#: classes/wpaicg_dashboard.php:1441
+#: classes/wpaicg_dashboard.php:1581
 msgid "Bot updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1267
-#: classes/wpaicg_dashboard.php:1327
+#: classes/wpaicg_dashboard.php:1274
+#: classes/wpaicg_dashboard.php:1334
 msgid "Invalid Bot ID for option type."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1276
+#: classes/wpaicg_dashboard.php:1283
 msgid "Bot name is not editable for default bots."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1281
-#: classes/wpaicg_dashboard.php:1335
+#: classes/wpaicg_dashboard.php:1288
+#: classes/wpaicg_dashboard.php:1342
 msgid "Bot data not found in options."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1361
-#: classes/wpaicg_dashboard.php:2483
+#: classes/wpaicg_dashboard.php:1368
+#: classes/wpaicg_dashboard.php:2490
 msgid "Setting updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1366
+#: classes/wpaicg_dashboard.php:1373
 msgid "Field mapping not defined."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1430
+#: classes/wpaicg_dashboard.php:1437
 msgid "Invalid Bot ID for conversation starters."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1549
+#: classes/wpaicg_dashboard.php:1556
 msgid "Invalid provider."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1553
+#: classes/wpaicg_dashboard.php:1560
 msgid "Provider not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1563
+#: classes/wpaicg_dashboard.php:1570
 msgid "Invalid field for widget bot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1570
+#: classes/wpaicg_dashboard.php:1577
 msgid "Invalid Bot ID for field."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1810
+#: classes/wpaicg_dashboard.php:1817
 msgid "Failed to retrieve attachment URL."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1821
-#: classes/wpaicg_dashboard.php:1984
-#: classes/wpaicg_dashboard.php:2312
-#: classes/wpaicg_dashboard.php:2336
-#: classes/wpaicg_dashboard.php:2408
-#: classes/wpaicg_dashboard.php:2438
-#: classes/wpaicg_dashboard.php:2491
-#: classes/wpaicg_dashboard.php:2516
-#: classes/wpaicg_dashboard.php:2542
-#: classes/wpaicg_dashboard.php:2567
-#: classes/wpaicg_dashboard.php:2618
-#: classes/wpaicg_dashboard.php:2641
+#: classes/wpaicg_dashboard.php:1828
+#: classes/wpaicg_dashboard.php:1991
+#: classes/wpaicg_dashboard.php:2319
+#: classes/wpaicg_dashboard.php:2343
+#: classes/wpaicg_dashboard.php:2415
+#: classes/wpaicg_dashboard.php:2445
+#: classes/wpaicg_dashboard.php:2498
+#: classes/wpaicg_dashboard.php:2523
+#: classes/wpaicg_dashboard.php:2549
+#: classes/wpaicg_dashboard.php:2574
+#: classes/wpaicg_dashboard.php:2625
+#: classes/wpaicg_dashboard.php:2648
 #: classes/wpaicg_finetune.php:59
 #: classes/wpaicg_logs.php:39
 #: classes/wpaicg_logs.php:376
@@ -7099,183 +6716,183 @@ msgstr ""
 msgid "You do not have sufficient permissions to perform this action."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1833
+#: classes/wpaicg_dashboard.php:1840
 msgid "Failed to delete the chatbot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1836
+#: classes/wpaicg_dashboard.php:1843
 msgid "Invalid chatbot ID."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1886
-#: classes/wpaicg_dashboard.php:1939
+#: classes/wpaicg_dashboard.php:1893
+#: classes/wpaicg_dashboard.php:1946
 msgid "Chatbot Toggle"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1947
+#: classes/wpaicg_dashboard.php:1954
 msgid "Invalid bot type."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1953
+#: classes/wpaicg_dashboard.php:1960
 msgid "Invalid request parameters."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2088
+#: classes/wpaicg_dashboard.php:2095
 #: classes/wpaicg_logs.php:227
 #: lib/modules/wpaicg_user_pdfs.php:86
 msgid "Actions"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2102
-#: classes/wpaicg_dashboard.php:2138
-#: classes/wpaicg_dashboard.php:2199
+#: classes/wpaicg_dashboard.php:2109
+#: classes/wpaicg_dashboard.php:2145
+#: classes/wpaicg_dashboard.php:2206
 msgid "Streaming Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2106
-#: classes/wpaicg_dashboard.php:2142
-#: classes/wpaicg_dashboard.php:2203
+#: classes/wpaicg_dashboard.php:2113
+#: classes/wpaicg_dashboard.php:2149
+#: classes/wpaicg_dashboard.php:2210
 msgid "Image Upload Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2110
-#: classes/wpaicg_dashboard.php:2146
-#: classes/wpaicg_dashboard.php:2207
+#: classes/wpaicg_dashboard.php:2117
+#: classes/wpaicg_dashboard.php:2153
+#: classes/wpaicg_dashboard.php:2214
 msgid "Vector DB Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2114
-#: classes/wpaicg_dashboard.php:2150
-#: classes/wpaicg_dashboard.php:2211
+#: classes/wpaicg_dashboard.php:2121
+#: classes/wpaicg_dashboard.php:2157
+#: classes/wpaicg_dashboard.php:2218
 msgid "Internet Browsing Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2119
-#: classes/wpaicg_dashboard.php:2155
-#: classes/wpaicg_dashboard.php:2216
+#: classes/wpaicg_dashboard.php:2126
+#: classes/wpaicg_dashboard.php:2162
+#: classes/wpaicg_dashboard.php:2223
 msgid "Audio Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2125
-#: classes/wpaicg_dashboard.php:2126
+#: classes/wpaicg_dashboard.php:2132
+#: classes/wpaicg_dashboard.php:2133
 msgid "Default Shortcode"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2125
+#: classes/wpaicg_dashboard.php:2132
 msgid "Preview Shortcode"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2126
+#: classes/wpaicg_dashboard.php:2133
 msgid "Edit Shortcode"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2134
+#: classes/wpaicg_dashboard.php:2141
 msgid "Site-wide Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2158
-#: classes/wpaicg_dashboard.php:2220
+#: classes/wpaicg_dashboard.php:2165
+#: classes/wpaicg_dashboard.php:2227
 msgid "PDF Upload Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2164
-#: classes/wpaicg_dashboard.php:2165
+#: classes/wpaicg_dashboard.php:2171
+#: classes/wpaicg_dashboard.php:2172
 msgid "Default Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2164
+#: classes/wpaicg_dashboard.php:2171
 msgid "Preview Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2165
+#: classes/wpaicg_dashboard.php:2172
 msgid "Edit Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2173
+#: classes/wpaicg_dashboard.php:2180
 msgid "Toggle Widget Status"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2228
+#: classes/wpaicg_dashboard.php:2235
 msgid "Preview Bot"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2231
+#: classes/wpaicg_dashboard.php:2238
 msgid "Edit Bot"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2234
+#: classes/wpaicg_dashboard.php:2241
 msgid "Delete Bot"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2297
+#: classes/wpaicg_dashboard.php:2304
 msgid "No chatbots found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2330
+#: classes/wpaicg_dashboard.php:2337
 msgid "All chatbots deleted successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2363
+#: classes/wpaicg_dashboard.php:2370
 msgid "Custom image setting updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2374
+#: classes/wpaicg_dashboard.php:2381
 msgid "Editor button menus updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2376
+#: classes/wpaicg_dashboard.php:2383
 msgid "Invalid data for editor button menus."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2401
-#: classes/wpaicg_dashboard.php:2431
-#: classes/wpaicg_dashboard.php:2485
-#: classes/wpaicg_dashboard.php:2508
-#: classes/wpaicg_dashboard.php:2533
-#: classes/wpaicg_dashboard.php:2559
-#: classes/wpaicg_dashboard.php:2610
-#: classes/wpaicg_dashboard.php:2633
-#: classes/wpaicg_dashboard.php:2658
+#: classes/wpaicg_dashboard.php:2408
+#: classes/wpaicg_dashboard.php:2438
+#: classes/wpaicg_dashboard.php:2492
+#: classes/wpaicg_dashboard.php:2515
+#: classes/wpaicg_dashboard.php:2540
+#: classes/wpaicg_dashboard.php:2566
+#: classes/wpaicg_dashboard.php:2617
+#: classes/wpaicg_dashboard.php:2640
+#: classes/wpaicg_dashboard.php:2665
 msgid "Invalid request."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2429
+#: classes/wpaicg_dashboard.php:2436
 msgid "Google safety settings updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2476
+#: classes/wpaicg_dashboard.php:2483
 msgid "Failed to update the setting."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2479
+#: classes/wpaicg_dashboard.php:2486
 msgid "Invalid setting."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2506
+#: classes/wpaicg_dashboard.php:2513
 msgid "Azure settings updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2531
+#: classes/wpaicg_dashboard.php:2538
 msgid "Google model updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2557
+#: classes/wpaicg_dashboard.php:2564
 msgid "AI engine updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2605
+#: classes/wpaicg_dashboard.php:2612
 msgid "API key updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2607
+#: classes/wpaicg_dashboard.php:2614
 msgid "Failed to update the API key."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2631
+#: classes/wpaicg_dashboard.php:2638
 msgid "OpenAI model updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2656
+#: classes/wpaicg_dashboard.php:2663
 msgid "OpenRouter model updated successfully."
 msgstr ""
 

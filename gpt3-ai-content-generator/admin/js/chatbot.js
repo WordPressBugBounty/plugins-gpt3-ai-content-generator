@@ -2481,6 +2481,25 @@ jQuery(document).ready(function ($) {
                         }
                         updateConversationStartersSwitch(); // Update the switch based on starters
                     }
+
+                    // **NEW CODE START: Handle "type" field based on botType**
+                    const typeFieldConfig = fieldConfigurations.find(f => f.name === 'type');
+                    if (typeFieldConfig) {
+                        const $typeFieldContainer = $(typeFieldConfig.selector).closest('.aipower-form-group');
+
+                        if (botType === 'shortcode') {
+                            // 1. Hide the "type" field completely
+                            $typeFieldContainer.hide();
+                        } else if (botType === 'widget') {
+                            // 2. Show the "type" field and disable its inputs
+                            $typeFieldContainer.show();
+                            $(typeFieldConfig.selector).prop('disabled', true);
+                        } else {
+                            // For any other botType, ensure the "type" field is visible and enabled
+                            $typeFieldContainer.show();
+                            $(typeFieldConfig.selector).prop('disabled', false);
+                        }
+                    }
                     
                     // Update dependencies and visibility
                     updateFieldDependencies(field);

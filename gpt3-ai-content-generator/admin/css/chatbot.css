@@ -575,17 +575,13 @@ input:checked + .aipower-slider:before {
     max-width: 150px; /* Set maximum width for the label */
 }
 .wpaicg_chat_widget {
-    position: fixed;
-    z-index: 9999;
+    position: relative;
 }
 
 .wpaicg_chat_widget .wpaicg_toggle {
     cursor: pointer;
     display: inline-block;
     margin-top: 10px;
-    position: fixed !important;
-    bottom: 180px !important;
-    z-index: 9999 !important;
 }
 
 .wpaicg_chat_widget .wpaicg_toggle img {
