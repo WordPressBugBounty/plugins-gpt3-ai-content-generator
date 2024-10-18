@@ -2,6 +2,15 @@
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 global $wpdb;
 
+// Define the table name
+$table_name = $wpdb->prefix . 'wpaicg';
+
+// Check if the table exists and has any data
+if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") !== $table_name || $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}") == 0) {
+    // Initialize the table
+    \WPAICG\WPAICG_Dashboard::get_instance()->aipower_initialize_settings_table();
+}
+
 // Retrieve the modules from the utility class
 $available_modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
 

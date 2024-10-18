@@ -388,6 +388,38 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                     break;
 
                 case 'widget':
+                    // Define an array of options with default values
+                    $options = [
+                        'wpaicg_widget_stream' => 1,
+                        'wpaicg_chat_addition' => 1,
+                        'ai_name' => 'AI',
+                        'wpaicg_chat_addition' => 1,
+                        'wpaicg_chat_addition_text' => 'You are a helpful AI Assistant. Please be friendly. Today\'s date is [date].',
+                        '_wpaicg_chatbox_welcome_message' => 'Hello, how can I help you today?',
+                        '_wpaicg_chatbox_ai_name' => 'AI',
+                        'wpaicg_chat_temperature' => 0,
+                        'wpaicg_chat_max_tokens' => 1500,
+                        'wpaicg_chat_presence_penalty' => 0,
+                        'wpaicg_chat_language' => 'en',
+                        'wpaicg_chat_vectordb' => 'pinecone',
+                        'wpaicg_chat_embedding' => 0,
+                        'wpaicg_chat_embedding_type' => 'openai',
+                        'wpaicg_chat_embedding_top' => 1,
+                        'wpaicg_widget_qdrant_collection' => '',
+                        'wpaicg_conversation_cut' => 100,
+                        '_wpaicg_ai_thinking' => 'Gathering thoughts..',
+                        '_wpaicg_typing_placeholder' => 'Type your message here...',
+                        'wpaicg_chat_top_p' => 0,
+                        // Add more options as needed
+                    ];
+
+                    // Loop through each option and set it if it's not already set
+                    foreach ($options as $option_name => $default_value) {
+                        if (get_option($option_name, false) === false) {
+                            update_option($option_name, $default_value);
+                        }
+                    }
+
                     $default_values = array_merge($default_values, array(
                         "position" => "left",
                         "width" => "300px",

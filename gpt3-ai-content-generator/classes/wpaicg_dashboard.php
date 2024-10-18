@@ -313,7 +313,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
         }
 
         public function aipower_save_field() {
-        
+
             // Verify nonce
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
                 wp_send_json_error(array('message' => esc_html__('Nonce verification failed.', 'gpt3-ai-content-generator')));
@@ -883,6 +883,16 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'ai_thinking',
                     'placeholder',
                     'top_p',
+                    'openai_stream_nav',
+                    'ai_name',
+                    'chat_addition',
+                    'chat_addition_text',
+                    'welcome',
+                    'temperature',
+                    'max_tokens',
+                    'presence_penalty',
+                    'language',
+                    'model',
                     // Add other fields specific to bot_id -1 here
                 ],
                 // Add other bot_ids and their fields as needed
@@ -2699,6 +2709,106 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 'module_settings' => $module_settings, // Return the updated module settings
             ));
         }
+
+        /**
+         * Initializes the wpaicg table and inserts default settings if necessary.
+         */
+        public function aipower_initialize_settings_table() {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'wpaicg';
+            $charset_collate = $wpdb->get_charset_collate();
+
+            // Check if the table exists
+            if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) !== $table_name ) {
+                // Table does not exist, create it
+                $this->create_wpaicg_table($table_name, $charset_collate);
+            } else {
+                // Table exists, check if it's empty
+                $existing = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
+
+                if ( $existing == 0 ) {
+                    // Table exists but is empty, drop and recreate it
+                    $wpdb->query("DROP TABLE IF EXISTS {$table_name}");
+                    $this->create_wpaicg_table($table_name, $charset_collate);
+                }
+            }
+        }
+
+        /**
+         * Creates the wpaicg table with default structure and inserts default values.
+         */
+        private function create_wpaicg_table($table_name, $charset_collate) {
+            global $wpdb;
+
+            // Create the table
+            $sql = "CREATE TABLE {$table_name} (
+                ID mediumint(11) NOT NULL AUTO_INCREMENT,
+                name text NOT NULL,
+                temperature float NOT NULL,
+                max_tokens float NOT NULL,
+                top_p float NOT NULL,
+                best_of float NOT NULL,
+                frequency_penalty float NOT NULL,
+                presence_penalty float NOT NULL,
+                img_size text NOT NULL,
+                api_key text NOT NULL,
+                wpai_language VARCHAR(255) NOT NULL,
+                wpai_add_img BOOLEAN NOT NULL,
+                wpai_add_intro BOOLEAN NOT NULL,
+                wpai_add_conclusion BOOLEAN NOT NULL,
+                wpai_add_tagline BOOLEAN NOT NULL,
+                wpai_add_faq BOOLEAN NOT NULL,
+                wpai_add_keywords_bold BOOLEAN NOT NULL,
+                wpai_number_of_heading INT NOT NULL,
+                wpai_modify_headings BOOLEAN NOT NULL,
+                wpai_heading_tag VARCHAR(10) NOT NULL,
+                wpai_writing_style VARCHAR(255) NOT NULL,
+                wpai_writing_tone VARCHAR(255) NOT NULL,
+                wpai_target_url VARCHAR(255) NOT NULL,
+                wpai_target_url_cta VARCHAR(255) NOT NULL,
+                wpai_cta_pos VARCHAR(255) NOT NULL,
+                added_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+                modified_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+                PRIMARY KEY  (ID)
+            ) {$charset_collate};";
+
+            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+            dbDelta( $sql );
+
+            // Insert default settings
+            $defaultData = [
+                'name'                   => 'wpaicg_settings',
+                'temperature'            => '1',
+                'max_tokens'             => '1500',
+                'top_p'                  => '0.01',
+                'best_of'                => '1',
+                'frequency_penalty'      => '0.01',
+                'presence_penalty'       => '0.01',
+                'img_size'               => '1024x1024',
+                'api_key'                => 'sk..',
+                'wpai_language'          => 'en',
+                'wpai_add_img'           => 1,
+                'wpai_add_intro'         => 'false',
+                'wpai_add_conclusion'    => 'false',
+                'wpai_add_tagline'       => 'false',
+                'wpai_add_faq'           => 'false',
+                'wpai_add_keywords_bold' => 'false',
+                'wpai_number_of_heading' => 3,
+                'wpai_modify_headings'   => 'false',
+                'wpai_heading_tag'       => 'h1',
+                'wpai_writing_style'     => 'infor',
+                'wpai_writing_tone'      => 'formal',
+                'wpai_cta_pos'           => 'beg',
+                'added_date'             => current_time( 'mysql' ),
+                'modified_date'          => current_time( 'mysql' ),
+            ];
+
+            if ( $wpdb->insert( $table_name, $defaultData ) === false ) {
+                error_log( 'wpaicg: Failed to insert default settings.' );
+            }
+        }
+
+
     }
     WPAICG_Dashboard::get_instance();
 }
