@@ -274,7 +274,7 @@ jQuery(document).ready(function($) {
     });
 
     // Handle Pagination
-    $(document).on('click', '.aipower-page-btn', function() {
+    $(document).on('click', '.aipower-log-page-btn', function() {
         const page = $(this).data('page');
         const searchTerm = $searchInput.val();
 

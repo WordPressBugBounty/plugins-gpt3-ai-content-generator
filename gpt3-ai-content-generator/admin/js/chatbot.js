@@ -8,6 +8,7 @@ jQuery(document).ready(function ($) {
     const $chatboxContainer = $('#aipower-chatbox-container');
     const $chatbotTableContainer = $('#aipower-chatbot-table-container');
     const $deleteModal = $('#aipower-delete-modal');
+    const $duplicateModal = $('#aipower-duplicate-modal');
     const $nonce = $('#ai-engine-nonce').val();
 
     // -------------------- UI FEEDBACK: Spinner and Message Display Functions --------------------
@@ -2344,6 +2345,31 @@ jQuery(document).ready(function ($) {
         $deleteModal.fadeIn(); // Show the confirmation modal
     });
 
+    // Toggle the custom tools menu display when the tools icon is clicked
+    $(document).on('click', '#aipower-custom-tools-icon', function (e) {
+        e.preventDefault();
+        var $menu = $(this).next('.aipower-custom-tools-menu'); // Use .next() to select the adjacent menu
+
+        // Hide any other open menus
+        $('.aipower-custom-tools-menu').not($menu).hide();
+
+        // Toggle the visibility of the current menu
+        $menu.toggle();
+
+        // Position the menu relative to the icon
+        $menu.css({
+            top: $(this).position().top + $(this).outerHeight(), // Align below the icon
+            left: $(this).position().left // Align to the left of the icon
+        });
+    });
+
+    // Close the custom tools menu when clicking outside of it
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('#aipower-custom-tools-icon, .aipower-custom-tools-menu').length) {
+            $('.aipower-custom-tools-menu').hide(); // Hide the menu if clicked outside
+        }
+    });
+
     // Close modal when 'Cancel' is clicked
     $('#aipower-cancel-delete-btn, .aipower-close').on('click', function () {
         chatbotToDelete = null; // Reset chatbot ID
@@ -2379,6 +2405,110 @@ jQuery(document).ready(function ($) {
         });
     });
 
+    // -------------------- Duplicate Confirmation Modal Handling --------------------
+    let chatbotToDuplicate = null;
+
+    // Show duplicate confirmation modal when duplicate button is clicked
+    $(document).on('click', '.aipower-duplicate-icon', function (e) {
+        e.preventDefault();
+        chatbotToDuplicate = $(this).data('id'); // Store chatbot ID to duplicate
+        $duplicateModal.fadeIn(); // Show the duplication confirmation modal
+    });
+
+    // Close the duplicate modal when 'Cancel' is clicked
+    $('#aipower-cancel-duplicate-btn, #aipower-duplicate-modal .aipower-close').on('click', function () {
+        chatbotToDuplicate = null; // Reset chatbot ID
+        $duplicateModal.fadeOut(); // Hide modal
+    });
+
+    // Handle chatbot duplication
+    $('#aipower-confirm-duplicate-btn').on('click', function (e) {
+        e.preventDefault();
+        if (!chatbotToDuplicate) return;
+
+        UI.showSpinner();
+        $duplicateModal.fadeOut();
+
+        const data = {
+            action: 'aipower_duplicate_chatbot',
+            chatbot_id: chatbotToDuplicate,
+            _wpnonce: $nonce
+        };
+
+        ajaxPost(data, (response) => {
+            if (response.success) {
+                refreshPaginationState(response.data.new_bot_id); // Update pagination after duplicating a bot
+                UI.showMessage('success', 'Chatbot duplicated successfully.', true);
+            } else {
+                UI.showMessage('error', response.data.message || 'Failed to duplicate chatbot.');
+            }
+            UI.hideSpinner();
+        }
+        , (errorMsg) => {
+            UI.showMessage('error', errorMsg);
+            UI.hideSpinner();
+        }
+        );
+    });
+
+    // --------------------  Export Single Chatbot Handling --------------------
+    // Variable to store the chatbot ID to export
+    var chatbotToExport = null;
+    
+    $('.aipower-export-icon').on('click', function(e) {
+        e.preventDefault();
+        var botId = $(this).data('id');
+        chatbotToExport = botId;
+    
+        // Show modal confirmation
+        $('#aipower-export-modal').fadeIn();
+    });
+    
+    // Close Export Modal
+    $('#aipower-export-modal .aipower-close, #aipower-cancel-export-btn').on('click', function () {
+        chatbotToExport = null; // Reset chatbot ID
+        $('#aipower-export-modal').fadeOut(); // Hide modal
+    });
+    
+    // Confirm Export Single Bot
+    $('#aipower-confirm-export-btn').on('click', function (e) {
+        e.preventDefault();
+        if (!chatbotToExport) return;
+    
+        UI.showSpinner();
+        $('#aipower-export-modal').fadeOut();
+    
+        const data = {
+            action: 'aipower_export_bots',
+            export_type: 'single',
+            bot_id: chatbotToExport,
+            _wpnonce: $('#ai-engine-nonce').val()
+        };
+    
+        ajaxPost(data, function(response) {
+            if (response.success) {
+                // Trigger download
+                var downloadLink = document.createElement('a');
+                downloadLink.href = response.data.file_url;
+                downloadLink.download = response.data.filename;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+    
+                // Show success message
+                UI.showMessage('success', 'Chatbot exported successfully.', true);
+            } else {
+                // Show error message
+                UI.showMessage('error', response.data.message || 'Failed to export chatbot.');
+            }
+            UI.hideSpinner();
+        }, function(errorMsg) {
+            // Show error message
+            UI.showMessage('error', errorMsg || 'An error occurred while exporting the chatbot.');
+            UI.hideSpinner();
+        });
+    });
+    
     /**
      * Loads and displays a custom attachment (icon/avatar) preview.
      *
@@ -2494,6 +2624,8 @@ jQuery(document).ready(function ($) {
                             // 2. Show the "type" field and disable its inputs
                             $typeFieldContainer.show();
                             $(typeFieldConfig.selector).prop('disabled', true);
+                            // disable pages field #aipower-page-post-id
+                            $('#aipower-page-post-id').prop('disabled', true);
                         } else {
                             // For any other botType, ensure the "type" field is visible and enabled
                             $typeFieldContainer.show();
@@ -2626,8 +2758,13 @@ jQuery(document).ready(function ($) {
     const $toolsIcon = $('#aipower-tools-icon');
     const $toolsMenu = $('#aipower-tools-menu');
     const $deleteAllBtn = $('#aipower-delete-all-btn');
+    const $exportAllBtn = $('#aipower-export-all-btn');
+    const $importBtn = $('#aipower-import-btn');
     const $confirmation = $('#aipower-confirmation');
     const $confirmYes = $('#aipower-confirm-yes');
+
+    // Variable to track the current action ('delete_all' or 'export_all')
+    let currentAction = null;
 
     // Show/hide tools menu and hide confirmation when icon is clicked
     $toolsIcon.on('click', function () {
@@ -2646,37 +2783,139 @@ jQuery(document).ready(function ($) {
     // Handle delete all action (show inline confirmation)
     $deleteAllBtn.on('click', function () {
         $toolsMenu.hide(); // Hide the menu
+        currentAction = 'delete_all';
         $confirmation.show(); // Show the confirmation
     });
 
-    // Confirm deletion when "Yes" is clicked
+    // Handle export all action (show inline confirmation)
+    $exportAllBtn.on('click', function () {
+        $toolsMenu.hide(); // Hide the menu
+        currentAction = 'export_all';
+        $confirmation.show(); // Show the confirmation
+    });
+
+    // Handle import action (trigger file input)
+    $importBtn.on('click', function () {
+        $toolsMenu.hide(); // Hide the menu
+        $('#aipower-import-file-input').click(); // Trigger the hidden file input
+    });
+
+    // Confirm action when "Yes" is clicked both for Delete All and Export All
     $confirmYes.on('click', function () {
+        if (currentAction === 'delete_all') {
+            // -------------------- Handle Delete All --------------------
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'aipower_delete_all_bots',
+                    _wpnonce: $('#ai-engine-nonce').val()
+                },
+                beforeSend: function () {
+                    UI.showSpinner(); // Show spinner during deletion
+                },
+                success: function (response) {
+                    if (response.success) {
+                        UI.showMessage('success', 'All bots deleted successfully except default ones.', true);
+                        refreshChatbotTable(); // Reload the chatbot table without page refresh
+                        // Reset the bot creation form
+                        resetBotCreationForm();
+                    } else {
+                        UI.showMessage('error', response.data.message || 'Failed to delete all bots.');
+                    }
+                },
+                error: function () {
+                    UI.showMessage('error', 'Failed to connect to the server. Please try again.');
+                },
+                complete: function () {
+                    UI.hideSpinner(); // Hide spinner after completion
+                    $confirmation.hide(); // Hide the confirmation text
+                    currentAction = null; // Reset the action
+                }
+            });
+        } else if (currentAction === 'export_all') {
+            // -------------------- Handle Export All --------------------
+            var data = {
+                action: 'aipower_export_bots',
+                export_type: 'all',
+                _wpnonce: $('#ai-engine-nonce').val()
+            };
+    
+            UI.showSpinner(); // Show spinner during export
+    
+            ajaxPost(data, function(response) {
+                if (response.success) {
+                    // Trigger download
+                    var downloadLink = document.createElement('a');
+                    downloadLink.href = response.data.file_url;
+                    downloadLink.download = response.data.filename;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+    
+                    // Show success message
+                    UI.showMessage('success', 'All chatbots exported successfully.', true);
+                } else {
+                    // Show error message
+                    UI.showMessage('error', response.data.message || 'Failed to export chatbots.');
+                }
+                // Hide spinner and confirmation
+                UI.hideSpinner();
+                $confirmation.hide();
+                currentAction = null; // Reset the action
+            }, function(errorMsg) {
+                // Show error message
+                UI.showMessage('error', errorMsg || 'An error occurred while exporting chatbots.');
+                // Hide spinner and confirmation
+                UI.hideSpinner();
+                $confirmation.hide();
+                currentAction = null; // Reset the action
+            });
+        }
+    });
+
+    // -------------------- Import All Chatbots Handling --------------------
+    $('#aipower-import-file-input').on('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+    
+        // Validate file type
+        if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+            UI.showMessage('error', 'Please upload a valid JSON file.');
+            return;
+        }
+    
+        // Prepare FormData
+        var formData = new FormData();
+        formData.append('action', 'aipower_import_bots');
+        formData.append('import_file', file);
+        formData.append('_wpnonce', $('#ai-engine-nonce').val());
+    
+        // Show spinner
+        UI.showSpinner();
+    
+        // Perform AJAX upload
         $.ajax({
             url: ajaxurl,
             type: 'POST',
-            data: {
-                action: 'aipower_delete_all_bots',
-                _wpnonce: $('#ai-engine-nonce').val()
-            },
-            beforeSend: function () {
-                UI.showSpinner(); // Show spinner during deletion
-            },
-            success: function (response) {
+            data: formData,
+            contentType: false, // Important for file upload
+            processData: false, // Important for file upload
+            success: function(response) {
                 if (response.success) {
-                    UI.showMessage('success', 'All bots deleted successfully except default ones.', true);
+                    UI.showMessage('success', 'Chatbots imported successfully.', true);
                     refreshChatbotTable(); // Reload the chatbot table without page refresh
-                    // Reset the bot creation form
-                    resetBotCreationForm();
                 } else {
-                    UI.showMessage('error', response.data.message || 'Failed to delete all bots.');
+                    UI.showMessage('error', response.data.message || 'Failed to import chatbots.');
                 }
             },
-            error: function () {
-                UI.showMessage('error', 'Failed to connect to the server. Please try again.');
+            error: function() {
+                UI.showMessage('error', 'An error occurred while importing chatbots.');
             },
-            complete: function () {
-                UI.hideSpinner(); // Hide spinner after completion
-                $confirmation.hide(); // Hide the confirmation text
+            complete: function() {
+                UI.hideSpinner();
+                // Reset the file input
+                $('#aipower-import-file-input').val('');
             }
         });
     });

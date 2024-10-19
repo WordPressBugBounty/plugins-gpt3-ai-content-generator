@@ -62,9 +62,11 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 <!-- Hidden menu for actions -->
                 <div id="aipower-tools-menu" class="aipower-tools-menu">
                     <div id="aipower-delete-all-btn" class="aipower-tools-action aipower-delete-all"><?php echo esc_html__('Delete All Bots', 'gpt3-ai-content-generator'); ?></div>
-                    <div id="aipower-export-all-btn" class="aipower-tools-action"><?php echo esc_html__('Export', 'gpt3-ai-content-generator'); ?></div>
+                    <div id="aipower-export-all-btn" class="aipower-tools-action"><?php echo esc_html__('Export All Bots', 'gpt3-ai-content-generator'); ?></div>
                     <div id="aipower-import-btn" class="aipower-tools-action"><?php echo esc_html__('Import', 'gpt3-ai-content-generator'); ?></div>
                 </div>
+                <!-- Hidden File Input for Importing Chatbots -->
+                <input type="file" id="aipower-import-file-input" accept=".json" style="display:none;" />
             </div>
         </div>
 
@@ -110,6 +112,20 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
     </div>
 </div>
 
+<!-- Export Single Modal -->
+<div id="aipower-export-modal" class="aipower-modal" style="display:none;">
+    <div class="aipower-modal-content">
+        <div class="aipower-modal-header">
+            <h2><?php echo esc_html__('Export Chatbot', 'gpt3-ai-content-generator'); ?></h2>
+            <span class="aipower-close">&times;</span>
+        </div>
+        <div class="aipower-modal-body">
+            <p><?php echo esc_html__('Are you sure you want to export this chatbot?', 'gpt3-ai-content-generator'); ?></p>
+            <button id="aipower-confirm-export-btn" class="button button-primary"><?php echo esc_html__('Yes, Export', 'gpt3-ai-content-generator'); ?></button>
+            <button id="aipower-cancel-export-btn" class="button"><?php echo esc_html__('Cancel', 'gpt3-ai-content-generator'); ?></button>
+        </div>
+    </div>
+</div>
 <!-- Delete Modal -->
 <div id="aipower-delete-modal" class="aipower-modal" style="display:none;">
     <div class="aipower-modal-content">
@@ -121,6 +137,20 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
             <p><?php echo esc_html__('Are you sure you want to delete this chatbot?', 'gpt3-ai-content-generator'); ?></p>
             <button id="aipower-confirm-delete-btn" class="button button-primary"><?php echo esc_html__('Yes, Delete', 'gpt3-ai-content-generator'); ?></button>
             <button id="aipower-cancel-delete-btn" class="button"><?php echo esc_html__('Cancel', 'gpt3-ai-content-generator'); ?></button>
+        </div>
+    </div>
+</div>
+<!-- Duplicate Modal -->
+<div id="aipower-duplicate-modal" class="aipower-modal" style="display:none;">
+    <div class="aipower-modal-content">
+        <div class="aipower-modal-header">
+            <h2><?php echo esc_html__('Duplicate Chatbot', 'gpt3-ai-content-generator'); ?></h2>
+            <span class="aipower-close">&times;</span>
+        </div>
+        <div class="aipower-modal-body">
+            <p><?php echo esc_html__('Are you sure you want to duplicate this chatbot?', 'gpt3-ai-content-generator'); ?></p>
+            <button id="aipower-confirm-duplicate-btn" class="button button-primary"><?php echo esc_html__('Yes, Duplicate', 'gpt3-ai-content-generator'); ?></button>
+            <button id="aipower-cancel-duplicate-btn" class="button"><?php echo esc_html__('Cancel', 'gpt3-ai-content-generator'); ?></button>
         </div>
     </div>
 </div>

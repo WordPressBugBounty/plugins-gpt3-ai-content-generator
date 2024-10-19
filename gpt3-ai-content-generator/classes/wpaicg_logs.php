@@ -310,7 +310,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                     // Show pagination only if there are multiple pages of logs
                     if ($total_pages > 1) {
                         ?>
-                        <div class="aipower-pagination">
+                        <div class="aipower-log-pagination">
                             <?php
                             $range = 2; // Number of pages to show around the current page
                             $first_last = 2; // Always show the first and last two pages
@@ -318,12 +318,12 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                             if ($total_pages <= ($first_last * 2 + $range)) {
                                 // If the total pages are small, display all pages
                                 for ($i = 1; $i <= $total_pages; $i++) {
-                                    echo '<button class="aipower-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
+                                    echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
                                 }
                             } else {
                                 // Display the first set of pages
                                 for ($i = 1; $i <= $first_last; $i++) {
-                                    echo '<button class="aipower-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
+                                    echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
                                 }
 
                                 // Display ellipsis if needed
@@ -338,7 +338,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                 // Display the middle pages
                                 for ($i = $start; $i <= $end; $i++) {
                                     if ($i > $first_last && $i <= $total_pages - $first_last) {
-                                        echo '<button class="aipower-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
+                                        echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
                                     }
                                 }
 
@@ -350,7 +350,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                 // Display the last set of pages
                                 for ($i = $total_pages - $first_last + 1; $i <= $total_pages; $i++) {
                                     if ($i > $end) {
-                                        echo '<button class="aipower-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
+                                        echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
                                     }
                                 }
                             }

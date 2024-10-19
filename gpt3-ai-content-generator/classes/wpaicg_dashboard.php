@@ -35,7 +35,269 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
             add_action('wp_ajax_aipower_update_module_settings', array($this, 'aipower_update_module_settings'));
             add_action('wp_ajax_aipower_get_attachment_url', array($this, 'aipower_get_attachment_url'));
             add_action('wp_ajax_aipower_toggle_default_widget_status', array($this, 'aipower_toggle_default_widget_status'));
+            add_action('wp_ajax_aipower_duplicate_chatbot', array($this, 'aipower_duplicate_chatbot'));
+            add_action('wp_ajax_aipower_export_bots', array($this, 'aipower_export_bots'));
+            add_action('wp_ajax_aipower_import_bots', array($this, 'aipower_import_bots'));
         }
+
+        /**
+         * Handle AJAX Request to Import Bots from JSON
+         */
+        public function aipower_import_bots() {
+            // Verify nonce
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
+                wp_send_json_error(array('message' => __('Nonce verification failed.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Check user capabilities
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(array('message' => __('You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Check if a file is uploaded
+            if (!isset($_FILES['import_file']) || $_FILES['import_file']['error'] !== UPLOAD_ERR_OK) {
+                wp_send_json_error(array('message' => __('Failed to upload file. Please try again.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            $file = $_FILES['import_file'];
+
+            // Validate file extension json
+            $file_info = pathinfo($file['name']);
+            if (!isset($file_info['extension']) || strtolower($file_info['extension']) !== 'json') {
+                wp_send_json_error(array('message' => __('Invalid file format. Please upload a JSON file.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Optional: Enforce a maximum file size (e.g., 2MB)
+            $max_file_size = 2 * 1024 * 1024; // 2MB in bytes
+            if ($file['size'] > $max_file_size) {
+                wp_send_json_error(array('message' => __('File size exceeds the maximum limit of 2MB.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Read file contents
+            $json_content = file_get_contents($file['tmp_name']);
+            if ($json_content === false) {
+                wp_send_json_error(array('message' => __('Failed to read the uploaded file.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Decode JSON
+            $data = json_decode($json_content, true);
+            if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+                wp_send_json_error(array('message' => __('Invalid JSON format: ' . json_last_error_msg(), 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Handle if data is a single object, wrap it in an array
+            if (isset($data['Name']) && isset($data['Content'])) {
+                $data = array($data);
+            }
+
+            // Ensure data is an array
+            if (!is_array($data)) {
+                wp_send_json_error(array('message' => __('Invalid data structure in JSON file. Expected an array of chatbots.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Initialize counters
+            $imported = 0;
+            $skipped = 0;
+            $errors = array();
+
+            // Loop through each chatbot data
+            foreach ($data as $index => $chatbot) {
+                // Validate required fields
+                if (!isset($chatbot['Name']) || !isset($chatbot['Content'])) {
+                    $skipped++;
+                    $errors[] = sprintf(__('Chatbot at index %d is missing required fields.', 'gpt3-ai-content-generator'), $index);
+                    continue; // Skip invalid entries
+                }
+
+                // Validate that 'Content' is an array
+                if (!is_array($chatbot['Content'])) {
+                    $skipped++;
+                    $errors[] = sprintf(__('Chatbot "%s" has invalid "Content" format.', 'gpt3-ai-content-generator'), $chatbot['Name']);
+                    continue; // Skip invalid entries
+                }
+
+                // Check if a chatbot with the same name already exists (optional)
+                $existing_bot = get_page_by_title($chatbot['Name'], OBJECT, 'wpaicg_chatbot');
+                if ($existing_bot) {
+                    $skipped++;
+                    $errors[] = sprintf(__('Chatbot "%s" already exists and was skipped.', 'gpt3-ai-content-generator'), $chatbot['Name']);
+                    continue; // Skip duplicates
+                }
+
+                // Prepare post data
+                $post_data = array(
+                    'post_title'   => sanitize_text_field($chatbot['Name']),
+                    'post_content' => wp_slash(json_encode($chatbot['Content'], JSON_UNESCAPED_UNICODE)), // Store content as JSON
+                    'post_status'  => 'publish',
+                    'post_type'    => 'wpaicg_chatbot',
+                );
+
+                // Insert the post
+                $post_id = wp_insert_post($post_data, true);
+
+                if (is_wp_error($post_id)) {
+                    $skipped++;
+                    $errors[] = sprintf(__('Failed to import chatbot: %s', 'gpt3-ai-content-generator'), $chatbot['Name']);
+                    continue;
+                }
+
+                // Optionally, add post meta if needed
+                // Example: update_post_meta($post_id, '_aipower_chatbot_data', $chatbot['Content']);
+
+                $imported++;
+            }
+
+            // Prepare response message
+            $message = sprintf(__('Imported %d chatbot(s).', 'gpt3-ai-content-generator'), $imported);
+            if ($skipped > 0) {
+                $message .= ' ' . sprintf(__('Skipped %d chatbot(s) due to duplicates or invalid data.', 'gpt3-ai-content-generator'), $skipped);
+            }
+            if (!empty($errors)) {
+                $message .= ' ' . implode(' ', $errors);
+            }
+
+            wp_send_json_success(array('message' => $message));
+        }
+        
+        /**
+         * Handle AJAX Request to Export Bots to JSON
+         */
+        public function aipower_export_bots() {
+            // Verify nonce
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
+                wp_send_json_error(array('message' => __('Nonce verification failed.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Check user capabilities
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(array('message' => __('You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Determine export type
+            $export_type = isset($_POST['export_type']) ? sanitize_text_field($_POST['export_type']) : '';
+
+            // Initialize data array
+            $data = array();
+
+            if ($export_type === 'all') {
+                // Export All Bots
+                $bots_args = array(
+                    'post_type'      => 'wpaicg_chatbot',
+                    'posts_per_page' => -1,
+                    'post_status'    => 'publish',
+                );
+                $bots_query = new \WP_Query($bots_args);
+
+                if ($bots_query->have_posts()) {
+                    while ($bots_query->have_posts()) {
+                        $bots_query->the_post();
+                        $bot_id = get_the_ID();
+                        $bot_title = get_the_title();
+                        $bot_content = json_decode(get_the_content(), true);
+
+                        // Ensure 'Name' and 'Content' fields are present
+                        if (empty($bot_title) || !is_array($bot_content)) {
+                            continue; // Skip bots missing required fields
+                        }
+
+                        $data[] = array(
+                            'ID'       => $bot_id,
+                            'Name'     => $bot_title,
+                            'Content'  => $bot_content,
+                            'Date'     => get_the_date('c'), // ISO 8601 format
+                            'Modified' => get_the_modified_date('c'), // ISO 8601 format
+                        );
+                    }
+                    wp_reset_postdata();
+                } else {
+                    wp_send_json_error(array('message' => __('No chatbots found to export.', 'gpt3-ai-content-generator')));
+                    return;
+                }
+            } elseif ($export_type === 'single') {
+                // Export Single Bot
+                $bot_id = isset($_POST['bot_id']) ? intval($_POST['bot_id']) : 0;
+                if ($bot_id <= 0) {
+                    wp_send_json_error(array('message' => __('Invalid chatbot ID.', 'gpt3-ai-content-generator')));
+                    return;
+                }
+
+                $bot = get_post($bot_id);
+                if (!$bot || $bot->post_type !== 'wpaicg_chatbot') {
+                    wp_send_json_error(array('message' => __('Chatbot not found.', 'gpt3-ai-content-generator')));
+                    return;
+                }
+
+                $bot_title = $bot->post_title;
+                $bot_content = json_decode($bot->post_content, true);
+
+                // Ensure 'Name' and 'Content' fields are present
+                if (empty($bot_title) || !is_array($bot_content)) {
+                    wp_send_json_error(array('message' => __('Chatbot data is incomplete.', 'gpt3-ai-content-generator')));
+                    return;
+                }
+
+                $data[] = array(
+                    'ID'       => $bot_id,
+                    'Name'     => $bot_title,
+                    'Content'  => $bot_content,
+                    'Date'     => get_the_date('c', $bot_id), // ISO 8601 format
+                    'Modified' => get_the_modified_date('c', $bot_id), // ISO 8601 format
+                );
+            } else {
+                wp_send_json_error(array('message' => __('Invalid export type.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Encode data to JSON
+            $json_data = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            if ($json_data === false) {
+                wp_send_json_error(array('message' => __('Failed to encode data to JSON.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Check uploads directory
+            $upload_dir = wp_upload_dir();
+            if (!is_writable($upload_dir['basedir'])) {
+                wp_send_json_error(array('message' => __('The uploads folder is not writable. Please check folder permissions.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Generate filename
+            if ($export_type === 'all') {
+                $filename = 'aipower_all_chatbots_' . current_time('Ymd_His') . '.json';
+            } else { // single
+                $bot_slug = sanitize_title($bot->post_title);
+                $filename = 'aipower_chatbot_' . $bot_slug . '_' . current_time('Ymd_His') . '.json';
+            }
+
+            $file_path = trailingslashit($upload_dir['basedir']) . $filename;
+
+            // Save JSON data to file
+            $file_saved = file_put_contents($file_path, $json_data);
+            if ($file_saved === false) {
+                wp_send_json_error(array('message' => __('Failed to create JSON file.', 'gpt3-ai-content-generator')));
+                return;
+            }
+
+            // Generate file URL
+            $file_url = trailingslashit($upload_dir['baseurl']) . $filename;
+
+            wp_send_json_success(array(
+                'file_url' => esc_url($file_url),
+                'filename' => esc_html($filename),
+            ));
+        }
+
 
         public function aipower_toggle_default_widget_status() {
             // Verify nonce
@@ -1712,17 +1974,25 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
         
         /**
          * Truncate text to a specified maximum length and append ellipsis if necessary.
+         * Also, decode HTML entities to prevent issues with special characters.
          *
          * @param string $text The text to truncate.
          * @param int    $max_length The maximum allowed length.
          * @return string Truncated text with ellipsis if it exceeds max_length.
          */
         public static function truncate_text($text, $max_length = 20) {
+            // Decode HTML entities before truncating
+            $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+            
+            // Truncate if the text exceeds the max length
             if (mb_strlen($text) > $max_length) {
-                return mb_substr($text, 0, $max_length) . '...';
+                return esc_html(mb_substr($text, 0, $max_length) . '...');
             }
-            return $text;
+            
+            // Return the text safely escaped
+            return esc_html($text);
         }
+
 
         /**
          * Validation function for max_tokens
@@ -2033,8 +2303,13 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
             }
             // Extract provider and model, with fallback to 'N/A' if not set
             $default_shortcode_provider = isset($default_shortcode_data['provider']) ? esc_html($default_shortcode_data['provider']) : esc_html__('N/A', 'gpt3-ai-content-generator');
-            $default_shortcode_model = isset($default_shortcode_data['model']) ? esc_html($default_shortcode_data['model']) : esc_html__('N/A', 'gpt3-ai-content-generator');
-        
+
+            if ($default_shortcode_provider === 'Google') {
+                $default_shortcode_model = get_option('wpaicg_shortcode_google_model', esc_html__('N/A', 'gpt3-ai-content-generator'));
+            } else {
+                $default_shortcode_model = isset($default_shortcode_data['model']) ? esc_html($default_shortcode_data['model']) : esc_html__('N/A', 'gpt3-ai-content-generator');
+            }
+            
             // Retrieve the default widget data from the options table
             $default_widget_serialized = get_option('wpaicg_chat_widget');
             if ($default_widget_serialized === false) {
@@ -2247,8 +2522,24 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                                         <!-- Edit Button with Title -->
                                         <span class="dashicons dashicons-edit aipower-edit-icon" data-id="<?php echo esc_attr(get_the_ID()); ?>" data-name="<?php echo esc_attr($bot_name); ?>" data-bot-type="<?php echo esc_attr($aipower_bot_type); ?>" title="<?php echo esc_attr__('Edit Bot', 'gpt3-ai-content-generator'); ?>"></span>
 
-                                        <!-- Delete Button with Title -->
-                                        <span class="dashicons dashicons-trash aipower-delete-icon" data-id="<?php echo esc_attr(get_the_ID()); ?>" data-bot-type="<?php echo esc_attr($aipower_bot_type); ?>" title="<?php echo esc_attr__('Delete Bot', 'gpt3-ai-content-generator'); ?>"></span>
+                                        <!-- Tools icon and menu section -->
+                                        <span class="dashicons dashicons-menu" id="aipower-custom-tools-icon"></span>
+                                        <div class="aipower-custom-tools-menu">
+                                            <!-- Delete Button with Title -->
+                                            <span class="dashicons dashicons-trash aipower-delete-icon" data-id="<?php echo esc_attr(get_the_ID()); ?>" data-bot-type="<?php echo esc_attr($aipower_bot_type); ?>" title="<?php echo esc_attr__('Delete', 'gpt3-ai-content-generator'); ?>"></span>
+                                            <!-- Future icons can be added here -->
+                                            <span class="dashicons dashicons-admin-page aipower-duplicate-icon" 
+                                                data-id="<?php echo esc_attr(get_the_ID()); ?>" 
+                                                data-bot-type="<?php echo esc_attr($aipower_bot_type); ?>" 
+                                                title="<?php echo esc_attr__('Duplicate', 'gpt3-ai-content-generator'); ?>">
+                                            </span>
+                                            <span class="dashicons dashicons-download aipower-export-icon" 
+                                                id="aipower-export-icon-<?php echo esc_attr(get_the_ID()); ?>" 
+                                                data-id="<?php echo esc_attr(get_the_ID()); ?>" 
+                                                data-bot-type="<?php echo esc_attr($aipower_bot_type); ?>" 
+                                                title="<?php echo esc_attr__('Export', 'gpt3-ai-content-generator'); ?>">
+                                            </span>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -2807,8 +3098,88 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 error_log( 'wpaicg: Failed to insert default settings.' );
             }
         }
-
-
+        public function aipower_duplicate_chatbot() {
+            // Verify nonce
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
+                wp_send_json_error(array('message' => esc_html__('Nonce verification failed', 'gpt3-ai-content-generator')));
+                return;
+            }
+        
+            // Check user permissions
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(array('message' => esc_html__('You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator')));
+                return;
+            }
+        
+            // Retrieve the chatbot ID
+            if (!isset($_POST['chatbot_id']) || !is_numeric($_POST['chatbot_id'])) {
+                wp_send_json_error(array('message' => esc_html__('Invalid chatbot ID.', 'gpt3-ai-content-generator')));
+                return;
+            }
+        
+            $chatbot_id = intval($_POST['chatbot_id']);
+        
+            // Get the original chatbot post
+            $original_chatbot = get_post($chatbot_id);
+            if (!$original_chatbot || $original_chatbot->post_type !== 'wpaicg_chatbot') {
+                wp_send_json_error(array('message' => esc_html__('Chatbot not found.', 'gpt3-ai-content-generator')));
+                return;
+            }
+        
+            // Get the original title and content
+            $original_title = $original_chatbot->post_title;
+            $original_content = $original_chatbot->post_content;
+        
+            // Decode the post_content JSON
+            $chatbot_data = json_decode($original_content, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                wp_send_json_error(array('message' => esc_html__('Invalid chatbot data.', 'gpt3-ai-content-generator')));
+                return;
+            }
+        
+            // Append ' - Duplicated' to the title and name
+            $new_title = $original_title . ' - ' . esc_html__('Duplicated', 'gpt3-ai-content-generator');
+            $chatbot_data['name'] = $new_title;
+        
+            // Re-encode the post_content JSON
+            $new_content = wp_json_encode($chatbot_data);
+            if ($new_content === false) {
+                wp_send_json_error(array('message' => esc_html__('Failed to encode chatbot data.', 'gpt3-ai-content-generator')));
+                return;
+            }
+        
+            // Create the duplicated chatbot
+            $new_chatbot = array(
+                'post_title'   => $new_title,
+                'post_content' => $new_content,
+                'post_status'  => 'publish', // You can set this to 'draft' if preferred
+                'post_type'    => 'wpaicg_chatbot',
+            );
+        
+            $new_chatbot_id = wp_insert_post($new_chatbot);
+        
+            if (is_wp_error($new_chatbot_id)) {
+                wp_send_json_error(array('message' => esc_html__('Failed to duplicate chatbot.', 'gpt3-ai-content-generator')));
+                return;
+            }
+        
+            // Optionally, copy meta fields if your chatbots have additional metadata
+            // Example:
+            // $meta_keys = get_post_meta($chatbot_id);
+            // foreach ($meta_keys as $key => $values) {
+            //     foreach ($values as $value) {
+            //         update_post_meta($new_chatbot_id, $key, $value);
+            //     }
+            // }
+        
+            // Respond with success
+            wp_send_json_success(array(
+                'message' => esc_html__('Chatbot duplicated successfully.', 'gpt3-ai-content-generator'),
+                'new_chatbot_id' => $new_chatbot_id
+            ));
+        }
+        
+        
     }
     WPAICG_Dashboard::get_instance();
 }

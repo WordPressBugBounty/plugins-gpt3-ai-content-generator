@@ -382,6 +382,11 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                         update_option('wpaicg_shortcode_stream', 1);
                     }
 
+                    // if wpaicg_shortcode_google_model not exist set it to gemini-pro
+                    if (get_option('wpaicg_shortcode_google_model', false) === false) {
+                        update_option('wpaicg_shortcode_google_model', 'gemini-pro');
+                    }
+
                     $default_values = array_merge($default_values, array(
                         // Add or modify shortcode defaults
                     ));

@@ -97,7 +97,7 @@
 }
 
 /* Compact pagination text */
-.aipower-page-btn, .aipower-pdfs-page-btn {
+.aipower-page-btn, .aipower-pdfs-page-btn, .aipower-log-page-btn {
     padding: 0; /* No padding */
     margin: 0 5px; /* Space between numbers */
     background-color: transparent; /* No background color */
@@ -117,7 +117,12 @@
     cursor: not-allowed;
 }
 
-.aipower-pagination, .aipower-pdfs-pagination {
+.aipower-log-page-btn[disabled] {
+    color: #cccccc; /* Disabled state color */
+    cursor: not-allowed;
+}
+
+.aipower-pagination, .aipower-pdfs-pagination, .aipower-log-pagination {
     margin-top: 10px; /* Reduced margin */
 }
 
@@ -295,6 +300,31 @@
 .aipower-tools-action:hover {
     text-decoration: underline;
     color: #005bb5;
+}
+.aipower-custom-tools-menu {
+    display: none; /* Hidden initially */
+    position: absolute; /* Make it independent of the flow */
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 5px;
+    z-index: 1000;
+    white-space: nowrap; /* Prevent menu from wrapping */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.aipower-custom-tools-menu .dashicons {
+    display: block;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.aipower-custom-tools-menu .dashicons:hover {
+    color: #ff0000; /* Change color on hover, adjust as needed */
+}
+
+#aipower-custom-tools-icon {
+    cursor: pointer;
+    position: relative; /* Make the icon the reference point for absolute positioning */
 }
 
 /* Delete All specific styling */

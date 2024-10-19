@@ -1594,6 +1594,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 if ($stream_nav_setting == 1) {
                     $isChatEndpoint = ($apiFunction === 'chat');
                     $complete = $this->processChunkedData($accumulatedData, $wpaicg_chatgpt_messages, $wpaicg_ai_model, $isChatEndpoint);
+
+                    // Terminate the function to prevent sending additional JSON
+                    exit;
                 } else {
                     if (is_string($complete)) {
                         $complete = json_decode($complete);
