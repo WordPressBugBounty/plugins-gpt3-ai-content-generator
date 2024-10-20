@@ -119,6 +119,38 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
         </div>
     </div>
 </div>
+<!-- Token Details Modal -->
+<div id="aipower-token-details-modal" class="aipower-modal" style="display: none;">
+    <div class="aipower-modal-content aipower-token-details-modal">
+        <div class="aipower-modal-header">
+            <h2><?php echo esc_html__('Token Usage Details', 'gpt3-ai-content-generator'); ?></h2>
+            <span class="aipower-close">&times;</span>
+        </div>
+        <div class="aipower-modal-body">
+            <table class="aipower-token-details-table">
+                <thead>
+                    <tr>
+                        <th><?php echo esc_html__('#', 'gpt3-ai-content-generator'); ?></th>
+                        <th><?php echo esc_html__('Model', 'gpt3-ai-content-generator'); ?></th>
+                        <th><?php echo esc_html__('Token', 'gpt3-ai-content-generator'); ?></th>
+                        <th><?php echo esc_html__('Cost', 'gpt3-ai-content-generator'); ?></th> <!-- New Cost Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic Content Will Be Injected Here -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" style="text-align: right;"><strong><?php echo esc_html__('Total', 'gpt3-ai-content-generator'); ?></strong></td>
+                        <td id="aipower-total-tokens">0</td>
+                        <td id="aipower-total-cost">$0.0000</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
 
 <!-- Include JavaScript -->
 <script type="text/javascript">
@@ -800,6 +832,88 @@ jQuery(document).ready(function($) {
     // **d. Prevent Clicks Inside the Confirmation Prompt from Propagating**
     $(document).on('click', '#aipower-block-ip-confirmation', function(event) {
         event.stopPropagation();
+    });
+
+    // Function to open the Token Details modal with populated data
+    function openTokenDetailsModal(details) {
+        // Reference to the modal's tbody and tfoot
+        const $modalBody = $('#aipower-token-details-modal .aipower-token-details-table tbody');
+        const $modalFooterTokens = $('#aipower-total-tokens');
+        const $modalFooterCost = $('#aipower-total-cost');
+        
+        // Clear any existing content
+        $modalBody.empty();
+        $modalFooterTokens.text('0');
+        $modalFooterCost.text('$0.0000');
+
+        let totalTokens = 0;
+        let totalCost = 0;
+
+        if (details.length === 0) {
+            $modalBody.append('<tr><td colspan="4"><?php echo esc_js(__('No AI messages to display.', 'gpt3-ai-content-generator')); ?></td></tr>');
+        } else {
+            // Iterate through the details and append rows
+            details.forEach(function(detail) {
+                // Only include entries with a valid model and token count
+                if (detail.model !== 'N/A' && detail.token > 0) {
+                    // Parse the cost to float for accurate summation
+                    const costFloat = parseFloat(detail.cost);
+                    const costFormatted = `$${costFloat.toFixed(8)}`;
+                    
+                    // Accumulate totals
+                    totalTokens += detail.token;
+                    totalCost += costFloat;
+
+                    const row = `
+                        <tr>
+                            <td>${detail.number}</td>
+                            <td>${detail.model}</td>
+                            <td>${detail.token}</td>
+                            <td>${costFormatted}</td> <!-- Display Cost -->
+                        </tr>
+                    `;
+                    $modalBody.append(row);
+                }
+            });
+
+            // If no valid entries were added, display a message
+            if ($modalBody.children().length === 0) {
+                $modalBody.append('<tr><td colspan="4"><?php echo esc_js(__('No AI messages with token data.', 'gpt3-ai-content-generator')); ?></td></tr>');
+            }
+        }
+
+        // Update totals in the footer
+        $modalFooterTokens.text(totalTokens);
+        $modalFooterCost.text(`$${totalCost.toFixed(4)}`);
+
+        // Show the modal
+        $('#aipower-token-details-modal').fadeIn();
+    }
+
+    // Event handler for closing the modal when the close button is clicked
+    $('#aipower-token-details-modal .aipower-close').on('click', function() {
+        $('#aipower-token-details-modal').fadeOut();
+    });
+
+    // Event handler for clicking outside the modal content to close the modal
+    $(window).on('click', function(event) {
+        if ($(event.target).is('#aipower-token-details-modal')) {
+            $('#aipower-token-details-modal').fadeOut();
+        }
+    });
+
+    // Handle Click on Info Icon to Show Token Details
+    $(document).on('click', '.aipower-log-info-icon', function() {
+        const detailsJson = $(this).attr('data-details');
+        if (detailsJson) {
+            try {
+                const details = JSON.parse(detailsJson);
+                openTokenDetailsModal(details);
+            } catch (e) {
+                console.error('Invalid JSON data for token details:', e);
+                UI.showMessage('error', 'Failed to load token details.', true);
+            }
+        }
     });
 
 });

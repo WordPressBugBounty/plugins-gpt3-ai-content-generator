@@ -675,6 +675,11 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
                 if (isset($opts['temperature']) && $opts['temperature'] != 1) {
                     $opts['temperature'] = 1;
                 }
+
+                // remove stop if exists
+                if (isset($opts['stop'])) {
+                    unset($opts['stop']);
+                }
             }
         
             return $opts;

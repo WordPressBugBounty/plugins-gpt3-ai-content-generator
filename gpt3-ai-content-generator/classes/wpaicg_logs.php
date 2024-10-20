@@ -213,17 +213,16 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                 ?>
                 <div id="aipower-logs-table-container">
                     <table class="aipower-logs-table">
-                        <!-- Define column widths -->
                         <colgroup>
-                            <col style="width: 10%;"> <!-- ID -->
-                            <col style="width: 65%;"> <!-- Message -->
-                            <col style="width: 15%;"> <!-- Actions -->
+                            <col style="width: 45%;">
+                            <col style="width: 10%;">
+                            <col style="width: 15%;">
                         </colgroup>
 
                         <thead>
                             <tr>
-                                <th><?php echo esc_html__('ID', 'gpt3-ai-content-generator'); ?></th>
                                 <th><?php echo esc_html__('Message', 'gpt3-ai-content-generator'); ?></th>
+                                <th><?php echo esc_html__('Token', 'gpt3-ai-content-generator'); ?></th>
                                 <th><?php echo esc_html__('Actions', 'gpt3-ai-content-generator'); ?></th>
                             </tr>
                         </thead>
@@ -252,6 +251,66 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                         }
                                     }
                                 }
+                                // Retrieve the pricing table
+                                $pricing = \WPAICG\WPAICG_Util::get_instance()->model_pricing;
+                                // Calculate total tokens from AI messages and prepare detailed message data
+                                $total_tokens = 0; // Initialize total tokens
+                                $message_details = array(); // Initialize array to hold message details
+                                $message_number = 1; // Initialize message counter
+
+                                if (is_array($data)) {
+                                    foreach ($data as $message) {
+                                        // Sum tokens from AI messages
+                                        if (isset($message['type']) && $message['type'] === 'ai' && isset($message['token'])) {
+                                            $total_tokens += intval($message['token']);
+                                        }
+                                
+                                        // Collect detailed message data only for AI messages
+                                        if (isset($message['type']) && $message['type'] === 'ai') {
+                                            $model = isset($message['request']['model']) ? sanitize_text_field($message['request']['model']) : 'N/A';
+                                            $token = isset($message['token']) ? intval($message['token']) : 0;
+                                            
+                                            // Calculate cost
+                                            if (isset($pricing[$model])) {
+                                                $cost = ($token / 1000) * $pricing[$model];
+                                            } else {
+                                                // Handle unknown models gracefully
+                                                $cost = 0;
+                                            }
+                                            
+                                            // Format cost to 4 decimal places for precision
+                                            $cost = number_format($cost, 8);
+                                            
+                                            $message_details[] = array(
+                                                'number' => $message_number,
+                                                'model'  => $model,
+                                                'token'  => $token,
+                                                'cost'   => $cost
+                                            );
+                                
+                                            $message_number++;
+                                        }
+                                    }
+                                }
+
+                                // Encode the message details as JSON for data attribute
+                                $encoded_message_details = esc_attr(json_encode($message_details));
+                                if (is_array($data)) {
+                                    foreach ($data as $message) {
+                                        if (isset($message['type']) && $message['type'] === 'user') {
+                                            $user_message_count++;
+                                            
+                                            // Check if 'userfeedback' exists and is an array
+                                            if (isset($message['userfeedback']) && is_array($message['userfeedback'])) {
+                                                $feedback_count += count($message['userfeedback']);
+                                            }
+                                        }
+                                        // Sum tokens from AI messages
+                                        if (isset($message['type']) && $message['type'] === 'ai' && isset($message['token'])) {
+                                            $total_tokens += intval($message['token']);
+                                        }
+                                    }
+                                }
                                 // Initialize flag variables
                                 $has_flagged = false;
                                 $flag_reasons = array();
@@ -266,7 +325,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                 }
                                 ?>
                                 <tr>
-                                    <td><?php echo esc_html($log->id); ?></td>
                                     <td class="aipower-clickable-message" data-id="<?php echo esc_attr($log->id); ?>">
                                         <?php if ($latest_conversation['user']) : ?>
                                             <strong><?php echo esc_html($latest_conversation['user']); ?></strong>
@@ -291,6 +349,13 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                             ?>
                                         </div>
                                     </td>
+                                    <td>
+                                        <div class="aipower-token-cell">
+                                            <?php echo esc_html($total_tokens); ?>
+                                            <span class="dashicons dashicons-info aipower-log-info-icon" data-details='<?php echo $encoded_message_details; ?>' title="<?php echo esc_attr__('View Token Details', 'gpt3-ai-content-generator'); ?>"></span>
+                                        </div>
+                                    </td>
+
                                     <td style="position: relative;">
                                         <span class="dashicons dashicons-trash aipower-delete-log-icon" data-id="<?php echo esc_attr($log->id); ?>" title="<?php echo esc_attr__('Delete Log', 'gpt3-ai-content-generator'); ?>"></span>
                                         <!-- Inline confirmation prompt for single delete -->
