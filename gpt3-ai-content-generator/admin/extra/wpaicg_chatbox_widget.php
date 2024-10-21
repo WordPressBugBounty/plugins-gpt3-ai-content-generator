@@ -132,6 +132,17 @@ $wpaicg_openai_voice = isset($wpaicg_chat_widget['openai_voice']) && !empty($wpa
 $wpaicg_openai_output_format = isset($wpaicg_chat_widget['openai_output_format']) && !empty($wpaicg_chat_widget['openai_output_format']) ? $wpaicg_chat_widget['openai_output_format'] : 'mp3';
 $wpaicg_openai_voice_speed = isset($wpaicg_chat_widget['openai_voice_speed']) && !empty($wpaicg_chat_widget['openai_voice_speed']) ? $wpaicg_chat_widget['openai_voice_speed'] : '1.0';
 
+// Lead Collection Settings
+$wpaicg_lead_collection = isset($wpaicg_chat_widget['lead_collection']) && !empty($wpaicg_chat_widget['lead_collection']) ? $wpaicg_chat_widget['lead_collection'] : 0;
+error_log('wpaicg_lead_collection: '.$wpaicg_lead_collection);
+$wpaicg_lead_title = isset($wpaicg_chat_widget['lead_title']) && !empty($wpaicg_chat_widget['lead_title']) ? $wpaicg_chat_widget['lead_title'] : 'Let us know how to contact you';
+$wpaicg_lead_name = isset($wpaicg_chat_widget['lead_name']) && !empty($wpaicg_chat_widget['lead_name']) ? $wpaicg_chat_widget['lead_name'] : 'Name';
+$wpaicg_enable_lead_name = isset($wpaicg_chat_widget['enable_lead_name']) && !empty($wpaicg_chat_widget['enable_lead_name']) ? $wpaicg_chat_widget['enable_lead_name'] : 0;
+$wpaicg_lead_email = isset($wpaicg_chat_widget['lead_email']) && !empty($wpaicg_chat_widget['lead_email']) ? $wpaicg_chat_widget['lead_email'] : 'Email';
+$wpaicg_enable_lead_email = isset($wpaicg_chat_widget['enable_lead_email']) && !empty($wpaicg_chat_widget['enable_lead_email']) ? $wpaicg_chat_widget['enable_lead_email'] : 0;
+$wpaicg_lead_phone = isset($wpaicg_chat_widget['lead_phone']) && !empty($wpaicg_chat_widget['lead_phone']) ? $wpaicg_chat_widget['lead_phone'] : 'Phone';
+$wpaicg_enable_lead_phone = isset($wpaicg_chat_widget['enable_lead_phone']) && !empty($wpaicg_chat_widget['enable_lead_phone']) ? $wpaicg_chat_widget['enable_lead_phone'] : 0;
+
 ?>
 <style>
     .wpaicg-icon-container {
@@ -824,6 +835,17 @@ border-radius: 10px;
      data-user-voice-control = "<?php echo esc_html($wpaicg_chat_audio_btn)?>"
      data-voice-muted-by-default="<?php echo esc_html($wpaicg_voice_muted_by_default); ?>"
      data-memory-limit = "<?php echo esc_html($wpaicg_conversation_cut)?>"
+     data-lead-collection = "<?php echo esc_html($wpaicg_lead_collection)?>"
+     data-lead-title = "<?php echo esc_html($wpaicg_lead_title)?>"
+     data-lead-name = "<?php echo esc_html($wpaicg_lead_name)?>"
+     data-enable-lead-name = "<?php echo esc_html($wpaicg_enable_lead_name)?>"
+     data-lead-email = "<?php echo esc_html($wpaicg_lead_email)?>"
+     data-enable-lead-email = "<?php echo esc_html($wpaicg_enable_lead_email)?>"
+     data-lead-phone = "<?php echo esc_html($wpaicg_lead_phone)?>"
+     data-enable-lead-phone = "<?php echo esc_html($wpaicg_enable_lead_phone)?>"
+     data-bg_text_field = "<?php echo esc_html($wpaicg_bg_text_field)?>"
+     data-bg_text_field_font_color = "<?php echo esc_html($wpaicg_input_font_color)?>"
+     data-bg_text_field_border_color = "<?php echo esc_html($wpaicg_border_text_field)?>"
      data-type="widget"
 >
     <?php

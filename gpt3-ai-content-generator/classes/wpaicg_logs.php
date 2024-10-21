@@ -238,17 +238,24 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                 // Decode the log data to count user messages
                                 $data = json_decode($log->data, true);
                                 $user_message_count = 0;
+                                $lead_count = 0; // Initialize lead count
                                 $feedback_count = 0; // Initialize feedback count
                                 if (is_array($data)) {
                                     foreach ($data as $message) {
                                         if (isset($message['type']) && $message['type'] === 'user') {
                                             $user_message_count++;
-                                            
-                                            // Check if 'userfeedback' exists and is an array
+                                
+                                            // Check for user feedback
                                             if (isset($message['userfeedback']) && is_array($message['userfeedback'])) {
                                                 $feedback_count += count($message['userfeedback']);
                                             }
+                                
+                                            // **New code to count leads**
+                                            if (isset($message['lead_data']) && is_array($message['lead_data'])) {
+                                                $lead_count++;
+                                            }
                                         }
+                                        // Existing code...
                                     }
                                 }
                                 // Retrieve the pricing table
@@ -332,6 +339,15 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                         <?php if ($latest_conversation['ai']) : ?>
                                             <?php echo esc_html($latest_conversation['ai']); ?>
                                         <?php endif; ?>
+                                        <!-- **New Badges Section** -->
+                                        <div class="aipower-message-badges">
+                                            <?php if ($feedback_count > 0): ?>
+                                                <span class="aipower-badge aipower-feedback-badge" title="<?php echo esc_attr__('Has Feedback', 'gpt3-ai-content-generator'); ?>"><?php echo esc_html__('Feedback', 'gpt3-ai-content-generator'); ?></span>
+                                            <?php endif; ?>
+                                            <?php if ($lead_count > 0): ?>
+                                                <span class="aipower-badge aipower-lead-badge" title="<?php echo esc_attr__('Has Lead', 'gpt3-ai-content-generator'); ?>"><?php echo esc_html__('Lead', 'gpt3-ai-content-generator'); ?></span>
+                                            <?php endif; ?>
+                                        </div>
                                         <div class="aipower-timing">
                                             <?php 
                                             echo esc_html($time_diff) . ', ' . esc_html($user_message_count) . ' ' . esc_html__('messages', 'gpt3-ai-content-generator'); 
@@ -339,6 +355,11 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                             // Conditionally display feedback count if greater than zero
                                             if ($feedback_count > 0) {
                                                 echo ', ' . esc_html($feedback_count) . ' ' . esc_html__('feedback', 'gpt3-ai-content-generator');
+                                            }
+
+                                            // **New code to display lead count**
+                                            if ($lead_count > 0) {
+                                                echo ', ' . esc_html($lead_count) . ' ' . esc_html__('leads', 'gpt3-ai-content-generator');
                                             }
                                             
                                             // Conditionally display flag icon if there are flagged messages
@@ -575,6 +596,24 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                     </p>
                                     <p><em><?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), intval($message['date']))); ?></em></p>
                                 </div>
+
+                                <?php
+                                // **Add this block to display lead details**
+                                if (isset($message['lead_data']) && is_array($message['lead_data'])) {
+                                    echo '<div class="aipower-lead-details">';
+                                    echo '<h4>' . esc_html__('Lead Details', 'gpt3-ai-content-generator') . '</h4>';
+                                    if (!empty($message['lead_data']['name'])) {
+                                        echo '<p><strong>' . esc_html__('Name:', 'gpt3-ai-content-generator') . '</strong> ' . esc_html($message['lead_data']['name']) . '</p>';
+                                    }
+                                    if (!empty($message['lead_data']['email'])) {
+                                        echo '<p><strong>' . esc_html__('Email:', 'gpt3-ai-content-generator') . '</strong> ' . esc_html($message['lead_data']['email']) . '</p>';
+                                    }
+                                    if (!empty($message['lead_data']['phone'])) {
+                                        echo '<p><strong>' . esc_html__('Phone:', 'gpt3-ai-content-generator') . '</strong> ' . esc_html($message['lead_data']['phone']) . '</p>';
+                                    }
+                                    echo '</div>';
+                                }
+                                ?>
 
                                 <?php
                                 // Check if there is a next message

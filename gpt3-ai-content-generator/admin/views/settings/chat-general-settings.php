@@ -270,6 +270,27 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 </div>
 
 <div class="aipower-form-group aipower-grouped-fields-bot">
+    <!-- 3rd Switch Group -->
+    <div class="aipower-new-switch-container">
+        <!-- Lead Collection Switch -->
+        <div class="aipower-form-group  aipower-lead-container">
+            <div class="aipower-switch-container">
+                <label class="aipower-switch-label" for="aipower-lead-collection"><?php echo esc_html__('Lead Collection', 'gpt3-ai-content-generator'); ?></label>
+                <div class="aipower-switch-icon-group">
+                    <label class="aipower-switch">
+                        <input type="checkbox" id="aipower-lead-collection" name="aipower-lead-collection">
+                        <span class="aipower-slider"></span>
+                    </label>
+                    <!-- Lead Settings Icon -->
+                    <span id="aipower-bot-leads-settings-icon" class="aipower-settings-icon" title="<?php echo esc_attr__('Lead Collection Settings', 'gpt3-ai-content-generator'); ?>">
+                        <span class="dashicons dashicons-admin-generic"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="aipower-form-group aipower-grouped-fields-bot">
     <!-- Bot Type Radio Buttons -->
     <div class="aipower-form-group" style="max-width: 20%;min-width: 100px;">
         <label><?php echo esc_html__('Bot Type', 'gpt3-ai-content-generator'); ?></label>

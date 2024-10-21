@@ -755,7 +755,6 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
     </div>
 </div>
 
-
 <!-- Modal Role Based Limit for Chatbot -->
 <div id="bot-role-limits-modal" class="aipower-modal" style="display: none;">
     <div class="aipower-modal-content" style="width: 24%;">
@@ -773,6 +772,79 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                     <input type="number" min="0" name="role_limit[<?php echo esc_attr($role_key); ?>]" id="role-limit-<?php echo esc_attr($role_key); ?>" class="role-limit-input" data-role="<?php echo esc_attr($role_key); ?>" />
                 </div>
             <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+<!-- Modal Lead Collection Settings for Chatbot -->
+<div id="bot-leads-settings-modal" class="aipower-modal" style="display: none;">
+    <div class="aipower-modal-content">
+        <div class="aipower-modal-header">
+            <h2><?php echo esc_html__('Lead Collection Settings', 'gpt3-ai-content-generator'); ?></h2>
+            <span class="aipower-close">&times;</span>
+        </div>
+        <div class="aipower-modal-body">
+            <p><?php echo esc_html__('When enabled, the collection form will appear after the first AI response.', 'gpt3-ai-content-generator'); ?></p>
+            <p><?php echo esc_html__('The form will only be shown once, unless the user clicks the "Clear" button to reset the chat.', 'gpt3-ai-content-generator'); ?></p>
+            <p><?php echo esc_html__('You can view the collected leads in the "Logs" tab.', 'gpt3-ai-content-generator'); ?></p>
+            <h3><?php echo esc_html__('Configuration', 'gpt3-ai-content-generator'); ?></h3>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Lead Title Customization -->
+                <div class="aipower-form-group">
+                    <label for="aipower-bot-lead-title"><?php echo esc_html__('Title', 'gpt3-ai-content-generator'); ?></label>
+                    <input type="text" id="aipower-bot-lead-title" value="Let us know how to contact you" />
+                </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Lead Name Customization -->
+                <div class="aipower-form-group">
+                    <label for="aipower-bot-lead-name"><?php echo esc_html__('Name', 'gpt3-ai-content-generator'); ?></label>
+                    <input type="text" id="aipower-bot-lead-name" value="Name" />
+                </div>
+                <!-- Enable Lead Name -->
+                <div class="aipower-form-group">
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch-label" for="aipower-enable-lead-name"><?php echo esc_html__('Name', 'gpt3-ai-content-generator'); ?></label>
+                        <label class="aipower-switch">
+                            <input type="checkbox" id="aipower-enable-lead-name" name="aipower-enable-lead-name">
+                            <span class="aipower-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Lead Email Customization -->
+                <div class="aipower-form-group">
+                    <label for="aipower-bot-lead-email"><?php echo esc_html__('Email', 'gpt3-ai-content-generator'); ?></label>
+                    <input type="text" id="aipower-bot-lead-email" value="Email" />
+                </div>
+                <!-- Enable Lead Email -->
+                <div class="aipower-form-group">
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch-label" for="aipower-enable-lead-email"><?php echo esc_html__('Email', 'gpt3-ai-content-generator'); ?></label>
+                        <label class="aipower-switch">
+                            <input type="checkbox" id="aipower-enable-lead-email" name="aipower-enable-lead-email">
+                            <span class="aipower-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Lead Phone Customization -->
+                <div class="aipower-form-group">
+                    <label for="aipower-bot-lead-phone"><?php echo esc_html__('Phone', 'gpt3-ai-content-generator'); ?></label>
+                    <input type="text" id="aipower-bot-lead-phone" value="Phone" />
+                </div>
+                <!-- Enable Lead Phone -->
+                <div class="aipower-form-group">
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch-label" for="aipower-enable-lead-phone"><?php echo esc_html__('Phone', 'gpt3-ai-content-generator'); ?></label>
+                        <label class="aipower-switch">
+                            <input type="checkbox" id="aipower-enable-lead-phone" name="aipower-enable-lead-phone">
+                            <span class="aipower-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

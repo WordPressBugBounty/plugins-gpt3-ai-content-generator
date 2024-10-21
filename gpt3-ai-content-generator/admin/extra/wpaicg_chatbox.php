@@ -122,7 +122,15 @@ $default_setting = array(
     'openai_model' => 'tts-1',
     'openai_voice' => 'alloy',
     'openai_output_format' => 'mp3',
-    'openai_voice_speed' => '1.0'
+    'openai_voice_speed' => '1.0',
+    "lead_collection" => "0",
+    "lead_title" => "Let us know how to contact you",
+    "lead_name" => "Name",
+    "enable_lead_name" => "1",
+    "lead_email" => "Email",
+    "enable_lead_email" => "1",
+    "lead_phone" => "Phone",
+    "enable_lead_phone" => "1",
 );
 $wpaicg_settings = shortcode_atts($default_setting, $wpaicg_chat_shortcode_options);
 $wpaicg_ai_thinking = $wpaicg_settings['ai_thinking'];
@@ -183,6 +191,21 @@ $wpaicg_input_font_color = isset($wpaicg_settings['input_font_color']) && !empty
 $wpaicg_footer_color = isset($wpaicg_settings['footer_color']) && !empty($wpaicg_settings['footer_color']) ? $wpaicg_settings['footer_color'] : '#ffffff';
 $wpaicg_autoload_chat_conversations = get_option('wpaicg_autoload_chat_conversations', 0);
 $wpaicg_conversation_cut = isset($wpaicg_settings['conversation_cut']) && !empty($wpaicg_settings['conversation_cut']) ? $wpaicg_settings['conversation_cut'] : 100;
+
+// Lead Collection Settings
+$wpaicg_lead_collection = isset($wpaicg_settings['lead_collection']) && !empty($wpaicg_settings['lead_collection']) ? $wpaicg_settings['lead_collection'] : 0;
+$wpaicg_lead_title = isset($wpaicg_settings['lead_title']) && !empty($wpaicg_settings['lead_title']) ? $wpaicg_settings['lead_title'] : 'Let us know how to contact you';
+$wpaicg_lead_name = isset($wpaicg_settings['lead_name']) && !empty($wpaicg_settings['lead_name']) ? $wpaicg_settings['lead_name'] : 'Name';
+$wpaicg_enable_lead_name = isset($wpaicg_settings['enable_lead_name']) && !empty($wpaicg_settings['enable_lead_name']) ? $wpaicg_settings['enable_lead_name'] : 0;
+$wpaicg_lead_email = isset($wpaicg_settings['lead_email']) && !empty($wpaicg_settings['lead_email']) ? $wpaicg_settings['lead_email'] : 'Email';
+$wpaicg_enable_lead_email = isset($wpaicg_settings['enable_lead_email']) && !empty($wpaicg_settings['enable_lead_email']) ? $wpaicg_settings['enable_lead_email'] : 0;
+$wpaicg_lead_phone = isset($wpaicg_settings['lead_phone']) && !empty($wpaicg_settings['lead_phone']) ? $wpaicg_settings['lead_phone'] : 'Phone';
+$wpaicg_enable_lead_phone = isset($wpaicg_settings['enable_lead_phone']) && !empty($wpaicg_settings['enable_lead_phone']) ? $wpaicg_settings['enable_lead_phone'] : 0;
+// bg_text_field
+$wpaicg_bg_text_field = isset($wpaicg_settings['bg_text_field']) && !empty($wpaicg_settings['bg_text_field']) ? $wpaicg_settings['bg_text_field'] : '#ffffff';
+// border_text_field
+$wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !empty($wpaicg_settings['border_text_field']) ? $wpaicg_settings['border_text_field'] : '#ced4da';
+
 
 ?>
 <style>
@@ -839,6 +862,17 @@ if($wpaicg_chat_fullscreen || $wpaicg_chat_download_btn || $wpaicg_chat_clear_bt
      data-user-voice-control = "<?php echo esc_html($wpaicg_chat_audio_btn)?>"
      data-voice-muted-by-default="<?php echo esc_html($wpaicg_voice_muted_by_default); ?>"
      data-memory-limit = "<?php echo esc_html($wpaicg_conversation_cut)?>"
+     data-lead-collection = "<?php echo esc_html($wpaicg_lead_collection)?>"
+     data-lead-title = "<?php echo esc_html($wpaicg_lead_title)?>"
+     data-lead-name = "<?php echo esc_html($wpaicg_lead_name)?>"
+     data-enable-lead-name = "<?php echo esc_html($wpaicg_enable_lead_name)?>"
+     data-lead-email = "<?php echo esc_html($wpaicg_lead_email)?>"
+     data-enable-lead-email = "<?php echo esc_html($wpaicg_enable_lead_email)?>"
+     data-lead-phone = "<?php echo esc_html($wpaicg_lead_phone)?>"
+     data-enable-lead-phone = "<?php echo esc_html($wpaicg_enable_lead_phone)?>"
+     data-bg_text_field = "<?php echo esc_html($wpaicg_bg_text_field)?>"
+     data-bg_text_field_font_color = "<?php echo esc_html($wpaicg_input_font_color)?>"
+     data-bg_text_field_border_color = "<?php echo esc_html($wpaicg_border_text_field)?>"
      data-type="shortcode"
 >
 <?php if($wpaicg_has_action_bar): ?>

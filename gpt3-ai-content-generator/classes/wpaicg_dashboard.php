@@ -1094,6 +1094,46 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'sanitize_callback' => 'sanitize_text_field',
                     'type' => 'post_content' // Stored in post_content JSON
                 ),
+                'lead_collection' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_checkbox',
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
+                'lead_title' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_text_field',
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
+                'enable_lead_name' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_checkbox',
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
+                'lead_name' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_text_field',
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
+                'enable_lead_email' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_checkbox',
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
+                'lead_email' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_text_field',
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
+                'enable_lead_phone' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_checkbox',
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
+                'lead_phone' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_text_field',
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
                 'bgcolor' => $color_field_template,
                 'fontcolor' => $color_field_template,
                 'pdf_color' => $color_field_template,
@@ -1211,7 +1251,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     "fontcolor" => "#E8E8E8",
                     "ai_bg_color" => "#495057",
                     "user_bg_color" => "#6C757D",
-                    "width" => "100%",
+                    "width" => "60%",
                     "height" => "50%",
                     "chat_rounded" => "8",
                     "fontsize" => "13",
@@ -1262,6 +1302,14 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     "feedback_title" => "Feedback",
                     "feedback_message" => "Please provide details: (optional)",
                     "feedback_success" => "Thank you for your feedback!",
+                    "lead_collection" => "0",
+                    "lead_title" => "Let us know how to contact you",
+                    "lead_name" => "Name",
+                    "enable_lead_name" => "1",
+                    "lead_email" => "Email",
+                    "enable_lead_email" => "1",
+                    "lead_phone" => "Phone",
+                    "enable_lead_phone" => "1",
                     "content_aware" => "yes",
                     "user_aware" => "yes",
                     "remember_conversation" => "yes",

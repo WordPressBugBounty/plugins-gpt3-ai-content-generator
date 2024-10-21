@@ -31,6 +31,33 @@ if ($module_settings === false) {
 
 // Retrieve the OpenAI API key from the wpaicg_settings table
 $settings_row = $wpdb->get_row("SELECT * FROM " . esc_sql($wpdb->prefix . 'wpaicg') . " WHERE id = 1", ARRAY_A);
+
+$new_default_fields = [
+    'lead_collection'    => '0',
+    'lead_title'         => 'Let us know how to contact you',
+    'enable_lead_name'   => '1',
+    'lead_name'          => 'Name',
+    'enable_lead_email'  => '1',
+    'lead_email'         => 'Email',
+    'enable_lead_phone'  => '1',
+    'lead_phone'         => 'Phone',
+];
+
+function update_chat_options($option_name, $new_fields) {
+    if (get_option($option_name)) {
+        $options = get_option($option_name);
+        foreach ($new_fields as $key => $value) {
+            if (!isset($options[$key])) {
+                $options[$key] = $value;
+            }
+        }
+        update_option($option_name, $options);
+    }
+}
+
+update_chat_options('wpaicg_chat_shortcode_options', $new_default_fields);
+update_chat_options('wpaicg_chat_widget', $new_default_fields);
+
 ?>
 <div class="aipower-dashboard-container">
     <!-- Top Navigation -->

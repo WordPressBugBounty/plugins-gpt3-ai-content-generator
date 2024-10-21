@@ -334,6 +334,288 @@ function wpaicgChatInit() {
             });
         });
     }
+
+    function maybeShowLeadForm(chat, chatId) {
+        // Helper function to interpret truthy values
+        function isTruthy(value) {
+            if (value === null || value === undefined) return false;
+            return value === '1' || value.toLowerCase() === 'true';
+        }
+
+        // Get the necessary data attributes
+        let leadCollectionEnabled = isTruthy(chat.getAttribute('data-lead-collection'));
+        if (!leadCollectionEnabled) {
+            return;
+        }
+
+        // Check if form has already been shown
+        let leadFormShown = localStorage.getItem('wpaicg_lead_form_shown');
+        if (leadFormShown === '1') {
+            return;
+        }
+
+        // Get the enable fields
+        let enableLeadName = isTruthy(chat.getAttribute('data-enable-lead-name'));
+        let enableLeadEmail = isTruthy(chat.getAttribute('data-enable-lead-email'));
+        let enableLeadPhone = isTruthy(chat.getAttribute('data-enable-lead-phone'));
+
+        // Check if at least one field is enabled
+        if (!(enableLeadName || enableLeadEmail || enableLeadPhone)) {
+            return;
+        }
+    
+        // Get other data attributes
+        let leadTitle = chat.getAttribute('data-lead-title') || 'Contact Information';
+        let leadNameLabel = chat.getAttribute('data-lead-name') || 'Name';
+        let leadEmailLabel = chat.getAttribute('data-lead-email') || 'Email';
+        let leadPhoneLabel = chat.getAttribute('data-lead-phone') || 'Phone';
+        let wpaicg_nonce = chat.getAttribute('data-nonce');
+        let aiBg = chat.getAttribute('data-ai-bg-color');
+        let fontSize = chat.getAttribute('data-fontsize');
+        let fontColor = chat.getAttribute('data-color');
+        let text_field_bgcolor = chat.getAttribute('data-bg_text_field');
+        let text_field_font_color = chat.getAttribute('data-bg_text_field_font_color');
+        let text_field_border_color = chat.getAttribute('data-bg_text_field_border_color');
+    
+        // Now, construct the form in JavaScript
+        // Define the form HTML within a chat message
+        let formHtml = `
+        <li class="wpaicg-lead-form-message" style="background-color:${aiBg};font-size:${fontSize}px;color:${fontColor}">
+            <div class="wpaicg-lead-form-container">
+                <button class="wpaicg-lead-form-close" style="float:right;">&times;</button>
+                <h2>${leadTitle}</h2>
+                <form>
+        `;
+    
+        if (enableLeadName) {
+            formHtml += `
+                <div class="wpaicg-lead-form-field">
+                    <label>${leadNameLabel}</label>
+                    <input type="text" name="lead_name"/>
+                </div>
+            `;
+        }
+    
+        if (enableLeadEmail) {
+            formHtml += `
+                <div class="wpaicg-lead-form-field">
+                    <label>${leadEmailLabel}</label>
+                    <input type="email" name="lead_email" />
+                </div>
+            `;
+        }
+    
+        if (enableLeadPhone) {
+            formHtml += `
+                <div class="wpaicg-lead-form-field">
+                    <label>${leadPhoneLabel}</label>
+                    <input type="tel" name="lead_phone"/>
+                </div>
+            `;
+        }
+    
+        // Add error message container
+        formHtml += `
+                <div class="wpaicg-lead-form-error" style="color: red; display: none;"></div>
+        `;
+    
+        formHtml += `
+                    <div class="svg-submit-button-container">
+                        <button type="submit" class="svg-submit-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${fontColor} aria-hidden="true" width="24" height="24"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"></path></svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </li>
+        `;
+    
+        // Append the form after the last AI message
+        let messagesList = chat.querySelector('.wpaicg-chatbox-messages') || chat.querySelector('.wpaicg-chat-shortcode-messages');
+        if (messagesList) {
+            messagesList.insertAdjacentHTML('beforeend', formHtml);
+        }
+    
+        // Add CSS styles
+        let styles = `
+        .wpaicg-lead-form-message {
+            list-style: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+    
+        .wpaicg-lead-form-container {
+            display: block;
+        }
+    
+        .wpaicg-lead-form-container h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: ${fontColor};
+            padding-right: 40px;
+        }
+    
+        .wpaicg-lead-form-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: ${fontColor};
+        }
+    
+        .wpaicg-lead-form-field {
+            margin-bottom: 15px;
+        }
+    
+        .wpaicg-lead-form-field label {
+            display: block;
+            margin-bottom: 5px;
+        }
+    
+        .wpaicg-lead-form-field input {
+            color: ${text_field_font_color};
+            background-color: ${text_field_bgcolor};
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid ${text_field_border_color};
+        }
+    
+        .svg-submit-button {
+            background-color: ${aiBg};
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            outline: none;
+        }
+
+        .svg-submit-button svg {
+            fill: ${fontColor}; /* Dynamic color */
+            transition: fill 0.3s ease;
+        }
+
+        /* Spinner inside button */
+        .wpaicg-lead-spinner {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wpaicg-lead-spinner .dot {
+            font-size: 16px;
+            color: ${fontColor};
+            animation: jump 1s infinite;
+            margin: 0 2px;
+        }
+
+        /* Align submit button to the right */
+        .svg-submit-button-container {
+            text-align: right; /* This aligns the button to the right */
+        }
+
+        @keyframes jump {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        `;
+    
+        // Create a style element and append to the head
+        let styleSheet = document.createElement("style");
+        styleSheet.innerText = styles;
+        document.head.appendChild(styleSheet);
+    
+        // Add event listeners for form submission and close button
+        let formMessage = messagesList.querySelector('.wpaicg-lead-form-message');
+        let closeButton = formMessage.querySelector('.wpaicg-lead-form-close');
+        let form = formMessage.querySelector('form');
+        let errorDiv = form.querySelector('.wpaicg-lead-form-error');
+    
+        closeButton.addEventListener('click', function() {
+            // Hide the form
+            formMessage.remove();
+            // Set that form has been shown
+            localStorage.setItem('wpaicg_lead_form_shown', '1');
+        });
+    
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Validate that at least one field is filled
+            let nameInput = form.querySelector('input[name="lead_name"]');
+            let emailInput = form.querySelector('input[name="lead_email"]');
+            let phoneInput = form.querySelector('input[name="lead_phone"]');
+
+            let nameValue = nameInput ? nameInput.value.trim() : '';
+            let emailValue = emailInput ? emailInput.value.trim() : '';
+            let phoneValue = phoneInput ? phoneInput.value.trim() : '';
+
+            // If all fields are empty, display an error message and stop submission
+            if (!nameValue && !emailValue && !phoneValue) {
+                errorDiv.textContent = 'Please fill in at least one field.';
+                errorDiv.style.display = 'block';
+                return; // Stop form submission
+            } else {
+                errorDiv.textContent = '';
+                errorDiv.style.display = 'none';
+            }
+
+            // Get the submit button
+            let submitButton = form.querySelector('.svg-submit-button');
+
+            // Replace the button content with the spinner (jumping dots)
+            submitButton.innerHTML = `
+                <div class="wpaicg-lead-spinner">
+                    <span class="dot">•</span>
+                    <span class="dot">•</span>
+                    <span class="dot">•</span>
+                </div>
+            `;
+            submitButton.disabled = true; // Disable the button while submitting
+    
+            // Collect the data
+            let formData = new FormData(form);
+            formData.append('action', 'wpaicg_submit_lead');
+            formData.append('_wpnonce', wpaicg_nonce);
+            // Include chatId
+            formData.append('chatId', chatId);
+    
+            // Send the data via AJAX
+            fetch(wpaicgParams.ajax_url, {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+            .then(data => {
+                formMessage.remove();
+
+                // Mark form as shown
+                localStorage.setItem('wpaicg_lead_form_shown', '1');
+            }).catch(error => {
+                console.error('Error submitting lead form:', error);
+                formMessage.remove();
+                localStorage.setItem('wpaicg_lead_form_shown', '1');
+            }).finally(() => {
+                // Restore original SVG icon in the button and re-enable it
+                submitButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="${fontColor}" class="bi bi-send" viewBox="0 0 16 16">
+                        <path d="M15.5 0.5a.5.5 0 0 0-.854-.353L.646 14.646a.5.5 0 0 0 .708.708L15.5 0.854A.5.5 0 0 0 15.5 0.5z"/>
+                        <path d="M6.646 15.646l8-8a.5.5 0 0 0-.708-.708l-8 8a.5.5 0 1 0 .708.708z"/>
+                        <path d="M4.5 3.5a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1h-6z"/>
+                    </svg>
+                `;
+                submitButton.disabled = false;
+            });
+        });
+    }
     
     setupConversationStarters();
 
@@ -456,6 +738,9 @@ function wpaicgChatInit() {
         if (chatBox) {
             chatBox.innerHTML = ''; // Clear the chat box visually
         }
+
+        // delete wpaicg_lead_form_shown if exists
+        localStorage.removeItem('wpaicg_lead_form_shown');
     }
 
     // Call this function once your DOM is fully loaded or at the end of your script
@@ -899,6 +1184,13 @@ function wpaicgChatInit() {
     
     function wpaicgSendChatMessage(chat, typing, type, blob) {
         hideConversationStarters();
+        // Remove the lead form if it exists
+        var leadFormMessage = chat.querySelector('.wpaicg-lead-form-message');
+        if (leadFormMessage) {
+            leadFormMessage.remove();
+            // Optionally, set 'wpaicg_lead_form_shown' to '1' so it doesn't show again
+            localStorage.setItem('wpaicg_lead_form_shown', '1');
+        }
         let botIdAudio = chat.getAttribute('data-bot-id') || '0';
         let chatTypeAudio = chat.getAttribute('data-type') || 'shortcode';
         let audioKey = `audio_${chatTypeAudio}_${botIdAudio}`; // Use the new key for audio state
@@ -1376,6 +1668,13 @@ function wpaicgChatInit() {
     }
 
     function handleStreaming(wpaicgData, wpaicg_messages_box, wpaicg_box_typing, wpaicg_ai_thinking, class_ai_item, chat, chatbot_identity, clientID, wpaicg_use_avatar, wpaicg_ai_avatar,wpaicg_nonce) {
+        // Remove the lead form if it exists
+        var leadFormMessage = chat.querySelector('.wpaicg-lead-form-message');
+        if (leadFormMessage) {
+            leadFormMessage.remove();
+            // Optionally, set 'wpaicg_lead_form_shown' to '1' so it doesn't show again
+            localStorage.setItem('wpaicg_lead_form_shown', '1');
+        }
         const aiName = wpaicg_use_avatar ? `<img src="${wpaicg_ai_avatar}" height="40" width="40">` : `${chat.getAttribute('data-ai-name')}:`;
         const fontSize = chat.getAttribute('data-fontsize');
         const aiBg = chat.getAttribute('data-ai-bg-color');
@@ -1541,6 +1840,11 @@ function wpaicgChatInit() {
                         wpaicg_ai_thinking.style.display = 'none';
                         scrollToBottom();
                         updateChatHistory(completeAIResponse, 'ai', chatId);
+                        if (!localStorage.getItem('wpaicg_lead_form_shown')) {
+                            maybeShowLeadForm(chat, chatId);
+                            // scroll to the bottom of the chatbox
+                            scrollToBottom();
+                        }
                         return;
                     }
 
@@ -1691,6 +1995,7 @@ function wpaicgChatInit() {
     }
     
     function wpaicgWriteMessage(wpaicg_messages_box,wpaicg_message,wpaicg_randomnum,wpaicg_response_text, wpaicg_typewriter_effect, wpaicg_typewriter_speed){
+        var chatContainerforLead = wpaicg_messages_box.closest('.wpaicg-chat-shortcode') || wpaicg_messages_box.closest('.wpaicg-chatbox');
         wpaicg_messages_box.insertAdjacentHTML('beforeend', wpaicg_message);
         var wpaicg_current_message = document.getElementById('wpaicg-chat-message-' + wpaicg_randomnum);
     
@@ -1732,6 +2037,11 @@ function wpaicgChatInit() {
         } else {
             wpaicg_current_message.innerHTML = formattedText;
             // Scroll to the latest message if needed
+            scrollToAdjust(wpaicg_messages_box);
+        }
+        if (!localStorage.getItem('wpaicg_lead_form_shown')) {
+            maybeShowLeadForm(chatContainerforLead, 'wpaicg-chat-message-' + wpaicg_randomnum);
+            // scroll to the bottom of the chatbox
             scrollToAdjust(wpaicg_messages_box);
         }
     }

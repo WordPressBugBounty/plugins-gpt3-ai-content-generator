@@ -272,7 +272,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                 "fontcolor" => "#E8E8E8",
                 "ai_bg_color" => "#495057",
                 "user_bg_color" => "#6C757D",
-                "width" => "100%",
+                "width" => "60%",
                 "height" => "50%",
                 "chat_rounded" => "8",
                 "fontsize" => "13",
@@ -355,6 +355,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                 "limited_message" => "You have reached your token limit.",
                 "reset_limit" => "0",
                 "footer_text" => "Powered by AI",
+                "lead_collection" => "0",
+                "lead_title" => "Let us know how to contact you",
+                "lead_name" => "Name",
+                "enable_lead_name" => "1",
+                "lead_email" => "Email",
+                "enable_lead_email" => "1",
+                "lead_phone" => "Phone",
+                "enable_lead_phone" => "1",
             );
 
             // Add or modify defaults based on bot type

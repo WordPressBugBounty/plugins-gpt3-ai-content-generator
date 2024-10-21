@@ -30,8 +30,106 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             add_action( 'wpaicg_remove_chat_tokens_limited', array( $this, 'wpaicg_remove_chat_tokens' ) );
             add_action( 'wp_ajax_wpaicg_submit_feedback', array( $this, 'wpaicg_submit_feedback' ) );
             add_action( 'wp_ajax_nopriv_wpaicg_submit_feedback', array( $this, 'wpaicg_submit_feedback' ) );
+            add_action('wp_ajax_wpaicg_submit_lead', array($this, 'wpaicg_submit_lead'));
+            add_action('wp_ajax_nopriv_wpaicg_submit_lead', array($this, 'wpaicg_submit_lead'));
         }
 
+        public function wpaicg_submit_lead() {
+            global $wpdb;
+        
+            // Nonce verification
+            $wpaicg_nonce = sanitize_text_field($_REQUEST['_wpnonce']);
+            if (!wp_verify_nonce($wpaicg_nonce, 'wpaicg-chatbox')) {
+                wp_send_json_error('Nonce verification failed.');
+                exit;
+            }
+        
+            // Sanitize and retrieve data from the request
+            $lead_name = isset($_POST['lead_name']) ? sanitize_text_field($_POST['lead_name']) : '';
+            $lead_email = isset($_POST['lead_email']) ? sanitize_email($_POST['lead_email']) : '';
+            $lead_phone = isset($_POST['lead_phone']) ? sanitize_text_field($_POST['lead_phone']) : '';
+            $chatId = isset($_POST['chatId']) ? sanitize_text_field($_POST['chatId']) : '';
+            // remove wpaicg-chat-message-73714 the text from the chatId
+            $chatId = str_replace('wpaicg-chat-message-', '', $chatId);
+        
+            // Ensure at least one field is provided
+            if (empty($lead_name) && empty($lead_email) && empty($lead_phone)) {
+                wp_send_json_error('No lead data provided.');
+                exit;
+            }
+        
+            if (empty($chatId)) {
+                wp_send_json_error('Chat ID is missing.');
+                exit;
+            }
+        
+            // Retrieve the specific chat log entry that matches the chatId
+            $log_entry = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT id, data FROM {$wpdb->prefix}wpaicg_chatlogs WHERE data LIKE %s",
+                    '%' . $wpdb->esc_like($chatId) . '%'
+                ),
+                ARRAY_A
+            );
+        
+            if ($log_entry) {
+                $log_data = json_decode($log_entry['data'], true);
+        
+                // Iterate over the log data to find the entry with the matching chatId
+                foreach ($log_data as &$entry) {
+                    if (isset($entry['chatId']) && (string)$entry['chatId'] === (string)$chatId) {
+                        // Check if lead_data already exists
+                        if (!isset($entry['lead_data']) || !is_array($entry['lead_data'])) {
+                            $entry['lead_data'] = [];
+                        }
+        
+                        // Add or update the lead data
+                        $entry['lead_data'] = array(
+                            'name'  => $lead_name,
+                            'email' => $lead_email,
+                            'phone' => $lead_phone,
+                        );
+        
+                        // Update the database with the new log data
+                        $wpdb->update(
+                            $wpdb->prefix . 'wpaicg_chatlogs',
+                            array('data' => json_encode($log_data)),
+                            array('id' => $log_entry['id']),
+                            array('%s'),
+                            array('%d')
+                        );
+        
+                        wp_send_json_success('Lead data submitted successfully.');
+                        return;
+                    }
+                }
+        
+                // If not found, append a new entry to log_data
+                $log_data[] = array(
+                    'lead_data' => array(
+                        'name'  => $lead_name,
+                        'email' => $lead_email,
+                        'phone' => $lead_phone,
+                    ),
+                    'chatId' => $chatId,
+                );
+        
+                // Update the database with the new log data
+                $wpdb->update(
+                    $wpdb->prefix . 'wpaicg_chatlogs',
+                    array('data' => json_encode($log_data)),
+                    array('id' => $log_entry['id']),
+                    array('%s'),
+                    array('%d')
+                );
+        
+                wp_send_json_success('Lead data submitted successfully.');
+                return;
+            } else {
+                wp_send_json_error('Chat log entry not found.');
+                return;
+            }
+        }
 
         function wpaicg_submit_feedback() {
             global $wpdb;
@@ -95,7 +193,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 wp_send_json_error('Invalid input.');
             }
         }
-
 
         public function wpaicg_remove_chat_tokens()
         {

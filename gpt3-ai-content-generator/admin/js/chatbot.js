@@ -1461,6 +1461,98 @@ jQuery(document).ready(function ($) {
             ajaxAction: 'aipower_save_field',
             defaultValue: 'none',
         },
+        {
+            name: 'lead_collection',
+            selector: '#aipower-lead-collection',
+            type: 'checkbox',
+            label: 'Lead Collection',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: '0',
+        },
+        {
+            name: 'lead_title',
+            selector: '#aipower-bot-lead-title',
+            type: 'text',
+            label: 'Title',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: 'Let us know how to contact you'
+        },
+        {
+            name: 'enable_lead_name',
+            selector: '#aipower-enable-lead-name',
+            type: 'checkbox',
+            label: 'Collect Name',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: '1',
+        },
+        {
+            name: 'lead_name',
+            selector: '#aipower-bot-lead-name',
+            type: 'text',
+            label: 'Name',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: 'Name',
+            visibility: {
+                dependsOn: 'enable_lead_name',
+                showWhen: '1'
+            },
+        },
+        {
+            name: 'enable_lead_email',
+            selector: '#aipower-enable-lead-email',
+            type: 'checkbox',
+            label: 'Collect Email',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: '1',
+        },
+        {
+            name: 'lead_email',
+            selector: '#aipower-bot-lead-email',
+            type: 'text',
+            label: 'Email',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: 'Email',
+            visibility: {
+                dependsOn: 'enable_lead_email',
+                showWhen: '1'
+            },
+        },
+        {
+            name: 'enable_lead_phone',
+            selector: '#aipower-enable-lead-phone',
+            type: 'checkbox',
+            label: 'Collect Phone',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: '1',
+        },
+        {
+            name: 'lead_phone',
+            selector: '#aipower-bot-lead-phone',
+            type: 'text',
+            label: 'Phone',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: 'Phone',
+            visibility: {
+                dependsOn: 'enable_lead_phone',
+                showWhen: '1'
+            },
+        },
         
     ];
 
@@ -3016,6 +3108,7 @@ jQuery(document).ready(function ($) {
     handleModal('#aipower-bot-logs-settings-icon', '#bot-logs-settings-modal');
     handleModal('#aipower-bot-speech-settings-icon', '#bot-speech-settings-modal');
     handleModal('#aipower-bot-role-limits-icon', '#bot-role-limits-modal');
+    handleModal('#aipower-bot-leads-settings-icon', '#bot-leads-settings-modal');
     
     // Reusable function to set up media uploader
     function setupMediaUploader(options) {

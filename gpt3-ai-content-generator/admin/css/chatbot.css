@@ -1045,6 +1045,43 @@ input:checked + .aipower-slider:before {
 .aipower-log-feedback-details {
     vertical-align: middle;
 }
+.aipower-message-badges {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.aipower-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    margin-left: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 3px;
+}
+.aipower-lead-details {
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin: 10px 0;
+    border-left: 4px solid #4caf50; /* Match the lead badge color */
+}
+
+.aipower-lead-details h4 {
+    margin-top: 0;
+}
+
+.aipower-lead-details p {
+    margin: 5px 0;
+}
+
+.aipower-feedback-badge {
+    background-color: #ff9800; /* Orange */
+}
+
+.aipower-lead-badge {
+    background-color: #4caf50; /* Green */
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
