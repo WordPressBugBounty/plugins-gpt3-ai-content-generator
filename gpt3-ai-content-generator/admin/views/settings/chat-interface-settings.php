@@ -85,7 +85,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 <div class="aipower-form-group aipower-grouped-fields-bot">
     <!-- AI Avatar Selection -->
     <div class="aipower-form-group">
-        <label><?php echo esc_html__('Use Avatar', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-widget-avatar-selection"><?php echo esc_html__('Use Avatar', 'gpt3-ai-content-generator'); ?></label>
         <div class="aipower-radio-group">
             <label for="aipower-use-avatar-no">
                 <input type="radio" id="aipower-use-avatar-no" name="use_avatar" value="0" checked />
@@ -108,7 +108,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
     </div>
     <!-- AI Icon Selection -->
     <div class="aipower-form-group">
-        <label><?php echo esc_html__('Widget Icon', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-widget-icon-selection"><?php echo esc_html__('Widget Icon', 'gpt3-ai-content-generator'); ?></label>
         <div class="aipower-radio-group">
             <label for="aipower-ai-icon-default">
                 <input type="radio" id="aipower-ai-icon-default" name="icon" value="default" checked />

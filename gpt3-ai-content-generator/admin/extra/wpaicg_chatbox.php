@@ -960,7 +960,7 @@ if($wpaicg_chat_fullscreen || $wpaicg_chat_download_btn || $wpaicg_chat_clear_bt
 <?php endif; ?>
 <span class="wpaicg-bot-thinking" style="padding-left: 20px;color: <?php echo esc_html($wpaicg_thinking_color)?>;"><?php echo esc_html(str_replace("\\",'',$wpaicg_ai_thinking))?>&nbsp;<span class="wpaicg-jumping-dots"><span class="wpaicg-dot-1">.</span><span class="wpaicg-dot-2">.</span><span class="wpaicg-dot-3">.</span></span></span>
 <div class="wpaicg-chat-shortcode-type">
-    <textarea type="text" class="auto-expand wpaicg-chat-shortcode-typing" placeholder="<?php echo esc_html(str_replace("\\",'',$wpaicg_typing_placeholder))?>"></textarea>
+    <textarea type="text" name="wpaicg-chat-shortcode-typing" class="auto-expand wpaicg-chat-shortcode-typing" placeholder="<?php echo esc_html(str_replace("\\",'',$wpaicg_typing_placeholder))?>"></textarea>
     <div class="wpaicg_chat_additions">
         <span class="wpaicg-thumbnail-placeholder"></span>
         <span class="wpaicg-mic-icon" data-type="shortcode" role="button" aria-label="Mic" tabindex="0" style="<?php echo $wpaicg_audio_enable ? '' : 'display:none'?>">

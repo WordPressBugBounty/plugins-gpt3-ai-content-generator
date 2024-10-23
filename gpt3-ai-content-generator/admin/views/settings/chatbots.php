@@ -220,7 +220,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
 <div id="bot-content-aware-settings-modal" class="aipower-modal" style="display: none;">
     <div class="aipower-modal-content">
         <div class="aipower-modal-header">
-            <h2><?php echo esc_html__('Data Source Settings', 'gpt3-ai-content-generator'); ?></h2>
+            <h2><?php echo esc_html__('Knowledge Settings', 'gpt3-ai-content-generator'); ?></h2>
             <span class="aipower-close">&times;</span>
         </div>
         <div class="aipower-modal-body">
@@ -238,7 +238,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
                 <!-- Data Source Section -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Data Source', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-data-source-selection"><?php echo esc_html__('Data Source', 'gpt3-ai-content-generator'); ?></label>
                     <div class="aipower-radio-group">
                         <label for="aipower-bot-type-excerpt">
                             <input type="radio" id="aipower-bot-type-excerpt" name="embedding" value="0" checked />
@@ -252,7 +252,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
                 <!-- Vector DB Selection -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Vector DB', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-vectordb-selection"><?php echo esc_html__('Vector DB', 'gpt3-ai-content-generator'); ?></label>
                     <div class="aipower-radio-group">
                         <label for="aipower-bot-type-pinecone">
                             <input type="radio" id="aipower-bot-type-pinecone" name="vectordb" value="pinecone" checked />
@@ -266,7 +266,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
                 <!-- Pinecone Index Selection -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Index', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-pinecone-index-selection"><?php echo esc_html__('Index', 'gpt3-ai-content-generator'); ?></label>
                     <select name="embedding_index" id="aipower-bot-pinecone-index">
                         <option value=""><?php echo esc_html__('Default','gpt3-ai-content-generator')?></option>
                         <?php
@@ -278,7 +278,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
                 <!-- Qdrant Collection Selection -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Collection', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-qdrant-collection-selection"><?php echo esc_html__('Collection', 'gpt3-ai-content-generator'); ?></label>
                     <select name="qdrant_collection" id="aipower-bot-qdrant-collection">
                         <?php foreach ($wpaicg_qdrant_collections as $collection)
                             {
@@ -300,7 +300,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
                 <!-- Query Limit Selection -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Query Limit', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-query-limit-selection"><?php echo esc_html__('Query Limit', 'gpt3-ai-content-generator'); ?></label>
                     <select name="embedding_top" id="aipower-bot-embedding-top">
                         <?php
                             for($i = 1; $i <=5;$i++){
@@ -311,7 +311,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
                 <!-- Embedding Type -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Bot Behaviour', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-embedding-type-selection"><?php echo esc_html__('Bot Behaviour', 'gpt3-ai-content-generator'); ?></label>
                     <select name="embedding_type" id="aipower-bot-embedding-type">
                         <option value="openai"><?php echo esc_html__('Conversational','gpt3-ai-content-generator')?></option>
                         <option value=""><?php echo esc_html__('Non-Conversational','gpt3-ai-content-generator')?></option>
@@ -335,7 +335,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
                 <!-- Custom Embedding Model Selection -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Embedding Model', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-embedding-model-selection"><?php echo esc_html__('Embedding Model', 'gpt3-ai-content-generator'); ?></label>
                     <select name="embedding_model" id="aipower-bot-embedding-model">
                         <?php
                             foreach ($embedding_models as $provider => $models) {
@@ -352,7 +352,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
             </div>
             <div class="aipower-form-group aipower-grouped-fields">
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Language', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-bot-language-selection"><?php echo esc_html__('Language', 'gpt3-ai-content-generator'); ?></label>
                     <small><?php echo esc_html__('Select none if not listed.', 'gpt3-ai-content-generator'); ?></small>
                     <?php $language_options = \WPAICG\WPAICG_Util::get_instance()->chat_language_options; ?>
                     <select name="aipower-bot-language" id="aipower-bot-language">
@@ -363,7 +363,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                     </select>
                 </div>
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Tone', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-bot-tone-selection"><?php echo esc_html__('Tone', 'gpt3-ai-content-generator'); ?></label>
                     <small><?php echo esc_html__('Set the tone.', 'gpt3-ai-content-generator'); ?></small>
                     <?php $tone_options = \WPAICG\WPAICG_Util::get_instance()->chat_tone_options; ?>
                     <select name="aipower-bot-tone" id="aipower-bot-tone">
@@ -373,7 +373,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                     </select>
                 </div>
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Profession', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-bot-profession-selection"><?php echo esc_html__('Profession', 'gpt3-ai-content-generator'); ?></label>
                     <small><?php echo esc_html__('Select none if not listed.', 'gpt3-ai-content-generator'); ?></small>
                     <?php $proffesion_options = \WPAICG\WPAICG_Util::get_instance()->chat_profession_options; ?>
                     <select name="aipower-bot-proffesion" id="aipower-bot-proffesion">
@@ -438,7 +438,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- PDF Page Limit -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('PDF Page Limit', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower-pdf-page-limit-selection"><?php echo esc_html__('PDF Page Limit', 'gpt3-ai-content-generator'); ?></label>
                     <select name="pdf_pages" id="aipower-bot-pdf-page-limit">
                         <?php
                             $pdf_pages = 120;

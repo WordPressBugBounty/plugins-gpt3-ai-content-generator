@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 1.8.87\n"
+"Project-Id-Version: AI Power: Complete AI Pack 1.8.88\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-10-21T17:03:27+00:00\n"
+"POT-Creation-Date: 2024-10-23T09:15:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -384,7 +384,6 @@ msgstr ""
 
 #: admin/extra/wpaicg_bulk.php:160
 #: admin/extra/wpaicg_bulk.php:259
-#: admin/extra/wpaicg_comparison_tool.php:190
 #: admin/extra/wpaicg_form_index.php:760
 #: admin/extra/wpaicg_form_index.php:944
 #: admin/extra/wpaicg_form_index.php:1004
@@ -903,161 +902,6 @@ msgstr ""
 msgid "AI thinking"
 msgstr ""
 
-#: admin/extra/wpaicg_comparison_tool.php:7
-msgid "Comparison tool is not available in Azure or Google. If you want to use it, change your provider to OpenAI under Settings - AI Engine tab."
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:23
-msgid "Select Prompt"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:130
-msgid "Comparison tool is not available in Azure. If you want to use it, change your provider to OpenAI under Settings - AI Engine tab."
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:158
-msgid "Enter Azure Deployment Name"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:164
-msgid "Limited Beta"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:192
-#: admin/extra/wpaicg_single.php:358
-#: admin/views/audio/converter.php:219
-#: admin/views/embeddings/settings.php:304
-#: admin/views/settings/chatbots.php:125
-#: admin/views/settings/chatbots.php:139
-#: admin/views/settings/chatbots.php:153
-#: admin/views/settings/chatlogs.php:89
-#: classes/wpaicg_embeddings.php:537
-#: classes/wpaicg_finetune.php:1341
-#: classes/wpaicg_woocommerce.php:617
-msgid "Cancel"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:217
-#: admin/extra/wpaicg_form_index.php:459
-#: admin/extra/wpaicg_form_log.php:236
-#: admin/extra/wpaicg_image_generator.php:370
-#: admin/extra/wpaicg_image_generator_log.php:51
-#: admin/extra/wpaicg_promptbase_index.php:377
-#: admin/extra/wpaicg_promptbase_index.php:897
-#: admin/extra/wpaicg_promptbase_log.php:232
-#: admin/extra/wpaicg_prompt_shortcode.php:443
-#: admin/views/finetune/manual.php:150
-#: admin/views/finetune/manual.php:156
-#: admin/views/finetune/manual.php:288
-#: lib/views/twitter/index.php:76
-#: lib/views/twitter/index.php:117
-msgid "Prompt"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:218
-#: admin/extra/wpaicg_form_index.php:470
-#: admin/extra/wpaicg_form_index.php:1026
-#: admin/extra/wpaicg_form_shortcode.php:653
-#: admin/extra/wpaicg_promptbase_index.php:388
-#: admin/extra/wpaicg_promptbase_index.php:929
-#: admin/extra/wpaicg_prompt_shortcode.php:547
-#: admin/views/settings/ai.php:70
-msgid "Engine"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:219
-#: admin/extra/wpaicg_form_shortcode.php:728
-#: admin/extra/wpaicg_prompt_shortcode.php:621
-msgid "Temp"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:220
-#: admin/extra/wpaicg_form_index.php:546
-#: admin/extra/wpaicg_form_index.php:1100
-#: admin/extra/wpaicg_promptbase_index.php:464
-#: admin/extra/wpaicg_promptbase_index.php:1003
-msgid "Max Tokens"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:221
-#: admin/extra/wpaicg_form_index.php:554
-#: admin/extra/wpaicg_form_index.php:1102
-#: admin/extra/wpaicg_promptbase_index.php:472
-#: admin/extra/wpaicg_promptbase_index.php:1005
-#: admin/extra/wpaicg_single.php:1220
-#: admin/views/settings/ai.php:333
-#: admin/views/settings/chatbots.php:193
-msgid "Top P"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:222
-msgid "Fre. P"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:223
-msgid "Pre. P"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:225
-msgid "Output"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:226
-#: admin/extra/wpaicg_form_shortcode.php:727
-#: admin/extra/wpaicg_prompt_shortcode.php:620
-#: admin/extra/wpaicg_single.php:450
-#: admin/views/settings/chatlogs.php:135
-#: classes/wpaicg_logs.php:225
-#: lib/views/chat/embeddings.php:56
-msgid "Token"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:227
-#: admin/views/settings/chatlogs.php:136
-msgid "Cost"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:228
-#: admin/extra/wpaicg_image_generator_log.php:56
-#: admin/views/audio/logs.php:58
-msgid "Duration"
-msgstr ""
-
-#: admin/extra/wpaicg_comparison_tool.php:229
-#: admin/extra/wpaicg_single.php:453
-msgid "Word"
-msgstr ""
-
-#. translators: 1: minimum temperature, 2: maximum temperature
-#: admin/extra/wpaicg_comparison_tool.php:383
-#: admin/extra/wpaicg_single.php:2140
-msgid "Please enter a valid temperature value between %1$d and %2$d."
-msgstr ""
-
-#. translators: 1: minimum top_p, 2: maximum top_p
-#: admin/extra/wpaicg_comparison_tool.php:388
-msgid "Please enter a valid top probability value between %1$d and %2$d."
-msgstr ""
-
-#. translators: 1: minimum frequency_penalty, 2: maximum frequency_penalty
-#: admin/extra/wpaicg_comparison_tool.php:393
-msgid "Please enter valid frequency penalty value between %1$d and %2$d."
-msgstr ""
-
-#. translators: 1: minimum presence_penalty, 2: maximum presence_penalty
-#: admin/extra/wpaicg_comparison_tool.php:398
-msgid "Please enter valid presence penalty value between %1$d and %2$d."
-msgstr ""
-
-#. translators: 1: minimum max_tokens, 2: maximum max_tokens
-#: admin/extra/wpaicg_comparison_tool.php:403
-#: admin/extra/wpaicg_comparison_tool.php:408
-#: admin/extra/wpaicg_comparison_tool.php:413
-#: admin/extra/wpaicg_comparison_tool.php:418
-#: admin/extra/wpaicg_comparison_tool.php:423
-msgid "Please enter a valid max token value between %1$d and %2$d."
-msgstr ""
-
 #: admin/extra/wpaicg_forms.php:27
 #: admin/views/account/index.php:217
 #: admin/views/account/index.php:257
@@ -1202,6 +1046,22 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
+#: admin/extra/wpaicg_form_index.php:459
+#: admin/extra/wpaicg_form_log.php:236
+#: admin/extra/wpaicg_image_generator.php:370
+#: admin/extra/wpaicg_image_generator_log.php:51
+#: admin/extra/wpaicg_promptbase_index.php:377
+#: admin/extra/wpaicg_promptbase_index.php:897
+#: admin/extra/wpaicg_promptbase_log.php:232
+#: admin/extra/wpaicg_prompt_shortcode.php:443
+#: admin/views/finetune/manual.php:150
+#: admin/views/finetune/manual.php:156
+#: admin/views/finetune/manual.php:288
+#: lib/views/twitter/index.php:76
+#: lib/views/twitter/index.php:117
+msgid "Prompt"
+msgstr ""
+
 #: admin/extra/wpaicg_form_index.php:463
 #: admin/extra/wpaicg_form_index.php:1110
 #: admin/extra/wpaicg_form_shortcode.php:737
@@ -1209,6 +1069,23 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:1013
 #: admin/extra/wpaicg_prompt_shortcode.php:630
 msgid "Sample Response"
+msgstr ""
+
+#: admin/extra/wpaicg_form_index.php:470
+#: admin/extra/wpaicg_form_index.php:1026
+#: admin/extra/wpaicg_form_shortcode.php:653
+#: admin/extra/wpaicg_promptbase_index.php:388
+#: admin/extra/wpaicg_promptbase_index.php:929
+#: admin/extra/wpaicg_prompt_shortcode.php:547
+#: admin/views/settings/ai.php:70
+msgid "Engine"
+msgstr ""
+
+#: admin/extra/wpaicg_form_index.php:546
+#: admin/extra/wpaicg_form_index.php:1100
+#: admin/extra/wpaicg_promptbase_index.php:464
+#: admin/extra/wpaicg_promptbase_index.php:1003
+msgid "Max Tokens"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:550
@@ -1219,6 +1096,16 @@ msgstr ""
 #: admin/views/settings/ai.php:315
 #: admin/views/settings/chatbots.php:175
 msgid "Temperature"
+msgstr ""
+
+#: admin/extra/wpaicg_form_index.php:554
+#: admin/extra/wpaicg_form_index.php:1102
+#: admin/extra/wpaicg_promptbase_index.php:472
+#: admin/extra/wpaicg_promptbase_index.php:1005
+#: admin/extra/wpaicg_single.php:1220
+#: admin/views/settings/ai.php:333
+#: admin/views/settings/chatbots.php:193
+msgid "Top P"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:558
@@ -2039,6 +1926,20 @@ msgstr ""
 msgid "Role Limits"
 msgstr ""
 
+#: admin/extra/wpaicg_form_shortcode.php:727
+#: admin/extra/wpaicg_prompt_shortcode.php:620
+#: admin/extra/wpaicg_single.php:450
+#: admin/views/settings/chatlogs.php:135
+#: classes/wpaicg_logs.php:225
+#: lib/views/chat/embeddings.php:56
+msgid "Token"
+msgstr ""
+
+#: admin/extra/wpaicg_form_shortcode.php:728
+#: admin/extra/wpaicg_prompt_shortcode.php:621
+msgid "Temp"
+msgstr ""
+
 #: admin/extra/wpaicg_form_shortcode.php:729
 #: admin/extra/wpaicg_prompt_shortcode.php:622
 msgid "TP"
@@ -2328,6 +2229,11 @@ msgstr ""
 msgid "Shortcode"
 msgstr ""
 
+#: admin/extra/wpaicg_image_generator_log.php:56
+#: admin/views/audio/logs.php:58
+msgid "Duration"
+msgstr ""
+
 #: admin/extra/wpaicg_image_generator_settings.php:32
 #: admin/views/embeddings/settings.php:23
 msgid "Records updated successfully"
@@ -2603,6 +2509,19 @@ msgstr ""
 msgid "Pause"
 msgstr ""
 
+#: admin/extra/wpaicg_single.php:358
+#: admin/views/audio/converter.php:219
+#: admin/views/embeddings/settings.php:304
+#: admin/views/settings/chatbots.php:125
+#: admin/views/settings/chatbots.php:139
+#: admin/views/settings/chatbots.php:153
+#: admin/views/settings/chatlogs.php:89
+#: classes/wpaicg_embeddings.php:537
+#: classes/wpaicg_finetune.php:1341
+#: classes/wpaicg_woocommerce.php:617
+msgid "Cancel"
+msgstr ""
+
 #: admin/extra/wpaicg_single.php:362
 msgid "\"Speech to Post\" module is only available with OpenAI. If you want to use this feature, go to Settings - AI Engine and change your provider to OpenAI."
 msgstr ""
@@ -2636,6 +2555,10 @@ msgstr ""
 #: lib/views/builder/custom_post_type.php:29
 #: lib/views/chat/embeddings.php:61
 msgid "Date"
+msgstr ""
+
+#: admin/extra/wpaicg_single.php:453
+msgid "Word"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:525
@@ -3141,6 +3064,11 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:2135
 msgid "Please enter a template name"
+msgstr ""
+
+#. translators: 1: minimum temperature, 2: maximum temperature
+#: admin/extra/wpaicg_single.php:2140
+msgid "Please enter a valid temperature value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum top p value, 2: maximum top p value
@@ -4773,10 +4701,11 @@ msgid "Enter instructions..."
 msgstr ""
 
 #: admin/views/settings/chat-general-settings.php:100
-msgid "Content Aware"
+msgid "Knowledge"
 msgstr ""
 
 #: admin/views/settings/chat-general-settings.php:107
+#: admin/views/settings/chatbots.php:223
 msgid "Knowledge Settings"
 msgstr ""
 
@@ -5117,10 +5046,6 @@ msgstr ""
 
 #: admin/views/settings/chatbots.php:212
 msgid "Memory Limit"
-msgstr ""
-
-#: admin/views/settings/chatbots.php:223
-msgid "Data Source Settings"
 msgstr ""
 
 #: admin/views/settings/chatbots.php:227
@@ -5469,6 +5394,10 @@ msgstr ""
 
 #: admin/views/settings/chatlogs.php:126
 msgid "Token Usage Details"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:136
+msgid "Cost"
 msgstr ""
 
 #: admin/views/settings/chatlogs.php:144
@@ -6113,7 +6042,6 @@ msgid "Shorten Product URL"
 msgstr ""
 
 #: admin/views/settings/woocommerce_settings.php:77
-#: admin/views/settings/woocommerce_settings.php:80
 msgid "Generate Focus Keyword"
 msgstr ""
 
@@ -6462,33 +6390,33 @@ msgstr ""
 msgid "Maximum audio file size: 25MB."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1748
-#: classes/wpaicg_chat.php:1763
+#: classes/wpaicg_chat.php:1868
+#: classes/wpaicg_chat.php:1883
 msgid "You are not allowed to access this feature."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1788
-#: classes/wpaicg_chat.php:1802
+#: classes/wpaicg_chat.php:1908
+#: classes/wpaicg_chat.php:1922
 msgid "Your message contains prohibited words. Please modify your message and try again."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1960
+#: classes/wpaicg_chat.php:2080
 msgid "No results from Pinecone."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1968
+#: classes/wpaicg_chat.php:2088
 msgid "Something wrong with Pinecone setup. Check your Pinecone settings."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2094
+#: classes/wpaicg_chat.php:2214
 msgid "No results from Qdrant."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2095
+#: classes/wpaicg_chat.php:2215
 msgid "Response from Qdrant: "
 msgstr ""
 
-#: classes/wpaicg_chat.php:2119
+#: classes/wpaicg_chat.php:2239
 msgid "Something wrong with Qdrant setup3. Check your Qdrant settings."
 msgstr ""
 

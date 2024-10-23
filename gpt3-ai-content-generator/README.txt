@@ -4,7 +4,7 @@ Tags: chatgpt, gpt, ai, openai, chatbot
 Requires at least: 5.0.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.8.87
+Stable tag: 1.8.88
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -12,7 +12,7 @@ ChatGPT, Content Writer, Auto Content Writer, ChatBot, Product Writer, Image Gen
  
 == Description ==
 
-AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's GPT-4 and GPT-3.5, along with Claude, Gemini, Azure, Mistral, LLaMA, Yi Chat, and Alpaca.
+AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's GPT-4 and GPT-3.5, along with Claude, Gemini, Azure, Grok, Mistral, LLaMA, Yi Chat, and Alpaca.
 
 It uses o1-mini, o1-preview, GPT-3.5, GPT-4,  GPT-4o, GPT-4o-mini, GPT-4 Vision, Gemini 1.5 Flash, Anthropic (Claude 3 Sonnet, Opus etc.) and more to generate content, images, and forms with customizable options. It includes AI training, Chat widget, WooCommerce integration, Embeddings and more.
 
@@ -45,7 +45,6 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 * Speech-to-Post (Whisper)
 * Text-to-Speech (ElevenLabs)
 * Text-to-Speech (Google)
-* Model Comparison Tool
 * Role Manager
 * Token Sale
 * Comment Replier
@@ -151,6 +150,13 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.8.88 =
+
+- Updated third-party libraries to the latest versions.
+- Fixed an issue with OpenRouter streaming.
+- Fixed console error occurrences.
+- Removed unused functions for optimization.
 
 = 1.8.87 =
 

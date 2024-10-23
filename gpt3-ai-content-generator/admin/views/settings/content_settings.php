@@ -112,10 +112,10 @@ $cta_positions = [
         <div class="aipower-form-group">
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                 <input type="checkbox" id="aipower-add-keywords-bold" name="wpai_add_keywords_bold" value="1" <?php checked(1, $current_bold_keywords); ?>>
-                <label><?php echo esc_html__('Bold Keywords', 'gpt3-ai-content-generator'); ?></label>
+                <label for="aipower-add-keywords-bold"><?php echo esc_html__('Bold Keywords', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled>
-                <label><?php echo esc_html__('Bold Keywords', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="wpai_add_keywords_bold_disabled">
+                <label for="aipower-add-keywords-bold"><?php echo esc_html__('Bold Keywords', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -123,10 +123,10 @@ $cta_positions = [
         <div class="aipower-form-group">
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                 <input type="checkbox" id="aipower-add-faq" name="wpai_add_faq" value="1" <?php checked(1, $current_qa); ?>>
-                <label><?php echo esc_html__('Generate Q & A', 'gpt3-ai-content-generator'); ?></label>
+                <label for="wpai_add_faq"><?php echo esc_html__('Generate Q & A', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled>
-                <label><?php echo esc_html__('Generate Q & A', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="wpai_add_faq_disabled">
+                <label for="wpai_add_faq"><?php echo esc_html__('Generate Q & A', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -235,13 +235,13 @@ $cta_positions = [
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- ToC Title -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Title', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_toc_title"><?php echo esc_html__('Title', 'gpt3-ai-content-generator'); ?></label>
                     <input type="text" id="aipower_toc_title" name="aipower_toc_title" value="<?php echo esc_attr($current_toc_title); ?>">
                 </div>
 
                 <!-- ToC Tag -->
                 <div class="aipower-form-group">
-                    <label><?php echo esc_html__('Tag', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_toc_title_tag"><?php echo esc_html__('Tag', 'gpt3-ai-content-generator'); ?></label>
                     <select id="aipower_toc_title_tag" name="aipower_toc_title_tag">
                         <?php foreach ($heading_tags as $tag): ?>
                             <option value="<?php echo esc_attr($tag); ?>" <?php echo $tag === $current_toc_title_tag ? 'selected' : ''; ?>>

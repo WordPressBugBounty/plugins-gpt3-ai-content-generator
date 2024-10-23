@@ -4,44 +4,44 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     <div id="tabs-7">
         <h3><?php echo esc_html__('Product Writer','gpt3-ai-content-generator')?></h3>
         <div class="wpcgai_form_row">
-            <label class="wpcgai_label"><?php echo esc_html__('Write a product title','gpt3-ai-content-generator')?>:</label>
+            <label class="wpcgai_label" for="wpaicg_woo_generate_title"><?php echo esc_html__('Write a product title','gpt3-ai-content-generator')?>:</label>
             <?php $wpaicg_woo_generate_title = get_option('wpaicg_woo_generate_title',false); ?>
             <input <?php echo $wpaicg_woo_generate_title ? ' checked':'';?> type="checkbox" name="wpaicg_woo_generate_title" value="1">
             <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/woocommerce#woocommerce-product-writer" target="_blank">?</a>
         </div>
         <div class="wpcgai_form_row">
-            <label class="wpcgai_label"><?php echo esc_html__('Write a full product description','gpt3-ai-content-generator')?>:</label>
+            <label class="wpcgai_label" for="wpaicg_woo_generate_description"><?php echo esc_html__('Write a full product description','gpt3-ai-content-generator')?>:</label>
             <?php $wpaicg_woo_generate_description = get_option('wpaicg_woo_generate_description',false); ?>
             <input <?php echo $wpaicg_woo_generate_description ? ' checked':'';?> type="checkbox" name="wpaicg_woo_generate_description" value="1">
             <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/woocommerce#woocommerce-product-writer" target="_blank">?</a>
         </div>
         <div class="wpcgai_form_row">
-            <label class="wpcgai_label"><?php echo esc_html__('Write a short product description','gpt3-ai-content-generator')?>:</label>
+            <label class="wpcgai_label" for="wpaicg_woo_generate_short"><?php echo esc_html__('Write a short product description','gpt3-ai-content-generator')?>:</label>
             <?php $wpaicg_woo_generate_short = get_option('wpaicg_woo_generate_short',false); ?>
             <input <?php echo $wpaicg_woo_generate_short ? ' checked':'';?> type="checkbox" name="wpaicg_woo_generate_short" value="1">
             <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/woocommerce#woocommerce-product-writer" target="_blank">?</a>
         </div>
         <div class="wpcgai_form_row">
-            <label class="wpcgai_label"><?php echo esc_html__('Generate product tags','gpt3-ai-content-generator')?>:</label>
+            <label class="wpcgai_label" for="wpaicg_woo_generate_tags"><?php echo esc_html__('Generate product tags','gpt3-ai-content-generator')?>:</label>
             <?php $wpaicg_woo_generate_tags = get_option('wpaicg_woo_generate_tags',false); ?>
             <input <?php echo $wpaicg_woo_generate_tags ? ' checked':'';?> type="checkbox" name="wpaicg_woo_generate_tags" value="1">
             <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/woocommerce#woocommerce-product-writer" target="_blank">?</a>
         </div>
         <h3><?php echo esc_html__('SEO Optimization','gpt3-ai-content-generator')?></h3>
         <div class="wpcgai_form_row">
-            <label class="wpcgai_label"><?php echo esc_html__('Generate meta description','gpt3-ai-content-generator')?>:</label>
+            <label class="wpcgai_label" for="wpaicg_woo_meta_description"><?php echo esc_html__('Generate meta description','gpt3-ai-content-generator')?>:</label>
             <?php $wpaicg_woo_meta_description = get_option('wpaicg_woo_meta_description',false); ?>
             <input <?php echo $wpaicg_woo_meta_description ? ' checked':'';?> type="checkbox" name="wpaicg_woo_meta_description" value="1">
             <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/woocommerce#woocommerce-product-writer" target="_blank">?</a>
         </div>
         <div class="wpcgai_form_row">
-            <label class="wpcgai_label"><?php echo esc_html__('Shorten product URL', 'gpt3-ai-content-generator'); ?>:</label>
+            <label class="wpcgai_label" for="_wpaicg_shorten_woo_url"><?php echo esc_html__('Shorten product URL', 'gpt3-ai-content-generator'); ?>:</label>
             
             <?php
             if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()) {
                 $_wpaicg_shorten_woo_url = get_option('_wpaicg_shorten_woo_url', false);
                 ?>
-                <input<?php echo $_wpaicg_shorten_woo_url ? ' checked' : ''; ?> type="checkbox" name="_wpaicg_shorten_woo_url" value="1">
+                <input <?php echo $_wpaicg_shorten_woo_url ? ' checked' : ''; ?> type="checkbox" name="_wpaicg_shorten_woo_url" value="1">
                 <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/woocommerce#shorten-url" target="_blank">?</a>
             <?php
             } else {
@@ -55,12 +55,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         </div>
         <!-- Generate Focus Keyword -->
         <div class="wpcgai_form_row">
-            <label class="wpcgai_label"><?php echo esc_html__('Generate focus keyword', 'gpt3-ai-content-generator'); ?>:</label>
+            <label class="wpcgai_label" for="wpaicg_generate_woo_focus_keyword"><?php echo esc_html__('Generate focus keyword', 'gpt3-ai-content-generator'); ?>:</label>
             <?php
             if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()) {
                 $wpaicg_generate_woo_focus_keyword = get_option('wpaicg_generate_woo_focus_keyword', false);
                 ?>
-                <input<?php echo $wpaicg_generate_woo_focus_keyword ? ' checked' : ''; ?> type="checkbox" name="wpaicg_generate_woo_focus_keyword" value="1">
+                <input <?php echo $wpaicg_generate_woo_focus_keyword ? ' checked' : ''; ?> type="checkbox" name="wpaicg_generate_woo_focus_keyword" value="1">
                 <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/woocommerce#focus-keyword" target="_blank">?</a>
             <?php
             } else {
@@ -74,12 +74,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         </div>
         <!-- Enforce focus keyword in URL -->
         <div class="wpcgai_form_row">
-            <label class="wpcgai_label"><?php echo esc_html__('Enforce focus keyword in URL', 'gpt3-ai-content-generator'); ?>:</label>
+            <label class="wpcgai_label" for="wpaicg_enforce_woo_keyword_in_url"><?php echo esc_html__('Enforce focus keyword in URL', 'gpt3-ai-content-generator'); ?>:</label>
             <?php
             if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()) {
                 $wpaicg_enforce_woo_keyword_in_url = get_option('wpaicg_enforce_woo_keyword_in_url', false);
                 ?>
-                <input<?php echo $wpaicg_enforce_woo_keyword_in_url ? ' checked' : ''; ?> type="checkbox" name="wpaicg_enforce_woo_keyword_in_url" value="1">
+                <input <?php echo $wpaicg_enforce_woo_keyword_in_url ? ' checked' : ''; ?> type="checkbox" name="wpaicg_enforce_woo_keyword_in_url" value="1">
                 <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/woocommerce#enforce-focus-keyword-in-url" target="_blank">?</a>
             <?php
             } else {
@@ -108,12 +108,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         $wpaicg_woo_custom_prompt_meta = str_replace("\\",'',$wpaicg_woo_custom_prompt_meta);
         ?>
         <div class="wpcgai_form_row">
-            <label class="wpcgai_label"><?php echo esc_html__('Use Custom Prompt','gpt3-ai-content-generator')?>:</label>
-            <input<?php echo $wpaicg_woo_custom_prompt ? ' checked':'';?> type="checkbox" class="wpaicg_woo_custom_prompt" name="wpaicg_woo_custom_prompt" value="1">
+            <label class="wpcgai_label" for="wpaicg_woo_custom_prompt"><?php echo esc_html__('Use Custom Prompt','gpt3-ai-content-generator')?>:</label>
+            <input <?php echo $wpaicg_woo_custom_prompt ? ' checked':'';?> type="checkbox" class="wpaicg_woo_custom_prompt" name="wpaicg_woo_custom_prompt" value="1">
             <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/woocommerce#customizing-prompts" target="_blank">?</a>
         </div>
         <p></p>
-        <div<?php echo $wpaicg_woo_custom_prompt ? '':' style="display:none"';?> class="wpaicg_woo_custom_prompts">
+        <div <?php echo $wpaicg_woo_custom_prompt ? '':' style="display:none"';?> class="wpaicg_woo_custom_prompts">
         <div class="wpcgai_form_row">
         <p>
             <?php echo esc_html__('You can use these shortcodes in your custom prompts:', 'gpt3-ai-content-generator');?> 
@@ -135,7 +135,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         </div>
         <div class="wpcgai_form_row">
                 <!-- Dropdown right below the textarea -->
-                <label class="wpcgai_label">Title Prompt Templates:</label>
+                <label class="wpcgai_label" for="titlePromptTemplates">Title Prompt Templates:</label>
                 <select id="titlePromptTemplates" class="regular-text">
                     <option value="0">--Select a Template--</option>
                     <option value="1">Incorporate Key Features</option>
@@ -146,13 +146,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 </select>
             </div>
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label"><?php echo esc_html__('Title Prompt','gpt3-ai-content-generator')?>:</label>
+                <label class="wpcgai_label" for="wpaicg_woo_custom_prompt_title"><?php echo esc_html__('Title Prompt','gpt3-ai-content-generator')?>:</label>
                 <textarea style="width: 65%;" rows="5" type="text" name="wpaicg_woo_custom_prompt_title"><?php echo esc_html($wpaicg_woo_custom_prompt_title);?></textarea>
             </div>
             <p></p>
             <!-- Added Short Description Prompt Templates Dropdown -->
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label">Short Description Prompt Templates:</label>
+                <label class="wpcgai_label" for="ShortDescriptionPromptTemplates">Short Description Prompt Templates:</label>
                 <select id="ShortDescriptionPromptTemplates" class="regular-text">
                     <option value="0">--Select a Template--</option>
                     <option value="1">Highlight Features and Benefits</option>
@@ -163,12 +163,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 </select>
             </div>
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label"><?php echo esc_html__('Short description prompt','gpt3-ai-content-generator')?>:</label>
+                <label class="wpcgai_label" for="wpaicg_woo_custom_prompt_short"><?php echo esc_html__('Short description prompt','gpt3-ai-content-generator')?>:</label>
                 <textarea style="width: 65%;" rows="10" type="text" name="wpaicg_woo_custom_prompt_short"><?php echo esc_html($wpaicg_woo_custom_prompt_short);?></textarea>
             </div>
             <p></p>
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label">Description Prompt Templates:</label>
+                <label class="wpcgai_label" for="DescriptionPromptTemplates">Description Prompt Templates:</label>
                 <select id="DescriptionPromptTemplates" class="regular-text">
                     <option value="0">--Select a Template--</option>
                     <option value="1">Highlight Key Features and Benefits</option>
@@ -179,12 +179,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 </select>
             </div>
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label"><?php echo esc_html__('Description prompt','gpt3-ai-content-generator')?>:</label>
+                <label class="wpcgai_label" for="wpaicg_woo_custom_prompt_description"><?php echo esc_html__('Description prompt','gpt3-ai-content-generator')?>:</label>
                 <textarea style="width: 65%;" rows="10" type="text" name="wpaicg_woo_custom_prompt_description"><?php echo esc_html($wpaicg_woo_custom_prompt_description);?></textarea>
             </div>
             <p></p>
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label">Meta Description Prompt Templates:</label>
+                <label class="wpcgai_label" for="MetaDescriptionPromptTemplates">Meta Description Prompt Templates:</label>
                 <select id="MetaDescriptionPromptTemplates" class="regular-text">
                     <option value="0">--Select a Template--</option>
                     <option value="1">Focused on Key Features and Benefits</option>
@@ -195,13 +195,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 </select>
             </div>
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label"><?php echo esc_html__('Meta Description prompt','gpt3-ai-content-generator')?>:</label>
+                <label class="wpcgai_label" for="wpaicg_woo_custom_prompt_meta"><?php echo esc_html__('Meta Description prompt','gpt3-ai-content-generator')?>:</label>
                 <textarea style="width: 65%;" rows="5" type="text" name="wpaicg_woo_custom_prompt_meta"><?php echo esc_html($wpaicg_woo_custom_prompt_meta);?></textarea>
             </div>
             <p></p>
             <!-- Added Tags Prompt Templates Dropdown -->
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label">Tag Prompt Templates:</label>
+                <label class="wpcgai_label" for="TagsPromptTemplates">Tag Prompt Templates:</label>
                 <select id="TagsPromptTemplates" class="regular-text">
                     <option value="0">--Select a Template--</option>
                     <option value="1">Highly Relevant and SEO-Optimized</option>
@@ -212,14 +212,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 </select>
             </div>
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label"><?php echo esc_html__('Tag prompt','gpt3-ai-content-generator')?>:</label>
+                <label class="wpcgai_label" for="wpaicg_woo_custom_prompt_keywords"><?php echo esc_html__('Tag prompt','gpt3-ai-content-generator')?>:</label>
                 <textarea style="width: 65%;" rows="5" type="text" name="wpaicg_woo_custom_prompt_keywords"><?php echo esc_html($wpaicg_woo_custom_prompt_keywords);?></textarea>
             </div>
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
             <!-- Added Focus Keyword Prompt Templates Dropdown -->
             <p></p>
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label">Focus Keyword Prompt Templates:</label>
+                <label class="wpcgai_label" for="FocusKeywordPromptTemplates">Focus Keyword Prompt Templates:</label>
                 <select id="FocusKeywordPromptTemplates" class="regular-text">
                     <option value="0">--Select a Template--</option>
                     <option value="1">Generate Single Keyword</option>
@@ -230,7 +230,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 </select>
             </div>
             <div class="wpcgai_form_row">
-                <label class="wpcgai_label"><?php echo esc_html__('Focus Keyword prompt','gpt3-ai-content-generator')?>:</label>
+                <label class="wpcgai_label" for="wpaicg_woo_custom_prompt_focus_keyword"><?php echo esc_html__('Focus Keyword prompt','gpt3-ai-content-generator')?>:</label>
                 <textarea style="width: 65%;" rows="5" type="text" name="wpaicg_woo_custom_prompt_focus_keyword"><?php echo esc_html($wpaicg_woo_custom_prompt_focus_keyword);?></textarea>
             </div>
             <?php endif; ?>
@@ -241,10 +241,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         $wpaicg_order_status_token = get_option('wpaicg_order_status_token','completed');
         ?>
         <div class="wpcgai_form_row wpaicg_woo_token_sale">
-            <label class="wpcgai_label"><?php echo esc_html__('Add tokens to user account if order status is','gpt3-ai-content-generator')?>: </label>
+            <label class="wpcgai_label" for="wpaicg_order_status_token"><?php echo esc_html__('Add tokens to user account if order status is','gpt3-ai-content-generator')?>: </label>
             <select name="wpaicg_order_status_token">
-                <option<?php echo $wpaicg_order_status_token == 'completed'? ' selected':''?> value="completed"><?php echo esc_html__('Completed','gpt3-ai-content-generator')?></option>
-                <option<?php echo $wpaicg_order_status_token == 'processing'? ' selected':''?> value="processing"><?php echo esc_html__('Processing','gpt3-ai-content-generator')?></option>
+                <option <?php echo $wpaicg_order_status_token == 'completed'? ' selected':''?> value="completed"><?php echo esc_html__('Completed','gpt3-ai-content-generator')?></option>
+                <option <?php echo $wpaicg_order_status_token == 'processing'? ' selected':''?> value="processing"><?php echo esc_html__('Processing','gpt3-ai-content-generator')?></option>
             </select>
         <a class="wpcgai_help_link" href="https://docs.aipower.org/docs/user-management-token-sale" target="_blank">?</a>
         </div>

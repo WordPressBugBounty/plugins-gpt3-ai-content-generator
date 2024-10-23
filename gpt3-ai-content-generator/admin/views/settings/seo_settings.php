@@ -67,10 +67,10 @@ $seo_plugins_options = [
         <div class="aipower-form-group">
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                 <input type="checkbox" id="_wpaicg_shorten_url" name="_wpaicg_shorten_url" value="1" <?php checked(1, $_wpaicg_shorten_url); ?> />
-                <label><?php echo esc_html__('Shorten URL', 'gpt3-ai-content-generator'); ?></label>
+                <label for="_wpaicg_shorten_url"><?php echo esc_html__('Shorten URL', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled />
-                <label><?php echo esc_html__('Shorten URL', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="_wpaicg_shorten_url_disabled">
+                <label for="_wpaicg_shorten_url"><?php echo esc_html__('Shorten URL', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -79,10 +79,10 @@ $seo_plugins_options = [
         <div class="aipower-form-group">
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                 <input type="checkbox" id="_wpaicg_gen_title_from_keywords" name="_wpaicg_gen_title_from_keywords" value="1" <?php checked(1, $_wpaicg_gen_title_from_keywords); ?>/>
-                <label><?php echo esc_html__('Generate Title from Keywords', 'gpt3-ai-content-generator'); ?></label>
+                <label for="_wpaicg_gen_title_from_keywords"><?php echo esc_html__('Generate Title from Keywords', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled />
-                <label><?php echo esc_html__('Generate Title from Keywords', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="_wpaicg_gen_title_from_keywords_disabled" />
+                <label for="_wpaicg_gen_title_from_keywords"><?php echo esc_html__('Generate Title from Keywords', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -91,10 +91,10 @@ $seo_plugins_options = [
         <div class="aipower-form-group">
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                 <input type="checkbox" id="_wpaicg_original_title_in_prompt" name="_wpaicg_original_title_in_prompt" value="1" <?php checked(1, $_wpaicg_original_title_in_prompt); ?> <?php if (!$_wpaicg_gen_title_from_keywords) echo 'disabled'; ?> />
-                <label><?php echo esc_html__('Include Original Title in the Prompt', 'gpt3-ai-content-generator'); ?></label>
+                <label for="_wpaicg_original_title_in_prompt"><?php echo esc_html__('Include Original Title in the Prompt', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled />
-                <label><?php echo esc_html__('Include Original Title in the Prompt', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="_wpaicg_original_title_in_prompt_disabled" />
+                <label for="_wpaicg_original_title_in_prompt"><?php echo esc_html__('Include Original Title in the Prompt', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -103,10 +103,10 @@ $seo_plugins_options = [
         <div class="aipower-form-group">
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                 <input type="checkbox" id="_wpaicg_focus_keyword_in_url" name="_wpaicg_focus_keyword_in_url" value="1" <?php checked(1, $_wpaicg_focus_keyword_in_url); ?> />
-                <label><?php echo esc_html__('Enforce Focus Keyword in URL', 'gpt3-ai-content-generator'); ?></label>
+                <label for="_wpaicg_focus_keyword_in_url"><?php echo esc_html__('Enforce Focus Keyword in URL', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled />
-                <label><?php echo esc_html__('Enforce Focus Keyword in URL', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="_wpaicg_focus_keyword_in_url_disabled" />
+                <label for="_wpaicg_focus_keyword_in_url"><?php echo esc_html__('Enforce Focus Keyword in URL', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -115,10 +115,10 @@ $seo_plugins_options = [
         <div class="aipower-form-group">
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                 <input type="checkbox" id="_wpaicg_sentiment_in_title" name="_wpaicg_sentiment_in_title" value="1" <?php checked(1, $_wpaicg_sentiment_in_title); ?> />
-                <label><?php echo esc_html__('Use Sentiment in Title', 'gpt3-ai-content-generator'); ?></label>
+                <label for="_wpaicg_sentiment_in_title"><?php echo esc_html__('Use Sentiment in Title', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled />
-                <label><?php echo esc_html__('Use Sentiment in Title', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="_wpaicg_sentiment_in_title_disabled" />
+                <label for="_wpaicg_sentiment_in_title"><?php echo esc_html__('Use Sentiment in Title', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -127,10 +127,10 @@ $seo_plugins_options = [
         <div class="aipower-form-group">
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                 <input type="checkbox" id="_wpaicg_power_word_in_title" name="_wpaicg_power_word_in_title" value="1" <?php checked(1, $_wpaicg_power_word_in_title); ?> />
-                <label><?php echo esc_html__('Use Power Word in Title', 'gpt3-ai-content-generator'); ?></label>
+                <label for="_wpaicg_power_word_in_title"><?php echo esc_html__('Use Power Word in Title', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled />
-                <label><?php echo esc_html__('Use Power Word in Title', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="_wpaicg_power_word_in_title_disabled" />
+                <label for="_wpaicg_power_word_in_title"><?php echo esc_html__('Use Power Word in Title', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>

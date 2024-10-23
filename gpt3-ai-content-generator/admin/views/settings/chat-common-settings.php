@@ -29,14 +29,14 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
 
         <!-- Conversations -->
         <div class="aipower-form-group">
-            <label><?php echo esc_html__('Conversations', 'gpt3-ai-content-generator'); ?></label>
+            <label for="aipower-conversations-selection"><?php echo esc_html__('Conversations', 'gpt3-ai-content-generator'); ?></label>
             <button type="button" class="aipower-settings-icon" id="aipower_conversations_settings_icon" title="<?php echo esc_attr__('Conversations', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
             </button>
         </div>
         <!-- Text to Speech -->
         <div class="aipower-form-group">
-            <label><?php echo esc_html__('Text to Speech', 'gpt3-ai-content-generator'); ?></label>
+            <label for="aipower-text-to-speech-selection"><?php echo esc_html__('Text to Speech', 'gpt3-ai-content-generator'); ?></label>
             <button type="button" class="aipower-settings-icon" id="aipower_text_to_speech_settings_icon" title="<?php echo esc_attr__('Text to Speech', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
             </button>
@@ -44,7 +44,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
 
         <!-- Internet Browsing -->
         <div class="aipower-form-group">
-            <label><?php echo esc_html__('Internet Browsing', 'gpt3-ai-content-generator'); ?></label>
+            <label for="aipower-internet-browsing-selection"><?php echo esc_html__('Internet Browsing', 'gpt3-ai-content-generator'); ?></label>
             <button type="button" class="aipower-settings-icon" id="aipower_common_internet_settings_icon" title="<?php echo esc_attr__('Internet Browsing', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
             </button>
@@ -52,7 +52,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
 
         <!-- Security Settings -->
         <div class="aipower-form-group">
-            <label><?php echo esc_html__('Security', 'gpt3-ai-content-generator'); ?></label>
+            <label for="aipower-bot-security-selection"><?php echo esc_html__('Security', 'gpt3-ai-content-generator'); ?></label>
             <button type="button" class="aipower-settings-icon" id="aipower_chat_security_settings_icon" title="<?php echo esc_attr__('Security', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
             </button>
@@ -60,7 +60,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
 
         <!-- Image Settings -->
         <div class="aipower-form-group">
-            <label><?php echo esc_html__('Images', 'gpt3-ai-content-generator'); ?></label>
+            <label for="aipower-image-upload-selection"><?php echo esc_html__('Images', 'gpt3-ai-content-generator'); ?></label>
             <button type="button" class="aipower-settings-icon" id="aipower_chat_image_settings_icon" title="<?php echo esc_attr__('Images', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
             </button>
@@ -82,7 +82,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
                 <!-- Google API Key -->
                 <div class="aipower-form-group">
                     <p><?php echo esc_html__('To use Google Text to Speech, you need to provide a Google API Key. This api key is used both for Text to Speech and Internet Browsing feature.', 'gpt3-ai-content-generator'); ?></p>
-                    <label><?php echo esc_html__('Google API Key', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_google_common_api_key"><?php echo esc_html__('Google API Key', 'gpt3-ai-content-generator'); ?></label>
                     <input type="text" id="aipower_google_common_api_key" style="width:80%;" name="aipower_google_common_api_key" value="<?php echo esc_attr($current_google_api_key); ?>">
                     <a href="https://console.cloud.google.com/" target="_blank"><?php echo esc_html__('Get API Key', 'gpt3-ai-content-generator'); ?></a>
                 </div>
@@ -100,7 +100,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
                 <!-- ElevenLabs API Key -->
                 <div class="aipower-form-group">
                     <p><?php echo esc_html__('To use ElevenLabs Text to Speech, you need to provide an ElevenLabs API Key.', 'gpt3-ai-content-generator'); ?></p>
-                    <label><?php echo esc_html__('ElevenLabs API Key', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_elevenlabs_api_key"><?php echo esc_html__('ElevenLabs API Key', 'gpt3-ai-content-generator'); ?></label>
                     <input type="text" id="aipower_elevenlabs_api_key"  style="width:80%;" name="aipower_elevenlabs_api_key" value="<?php echo esc_attr($current_elevenlabs_api_key); ?>">
                     <a href="https://elevenlabs.io/" target="_blank"><?php echo esc_html__('Get API Key', 'gpt3-ai-content-generator'); ?></a>
                 </div>
@@ -139,7 +139,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
                 <!-- Google API Key -->
                 <div class="aipower-form-group">
                     <p><?php echo esc_html__('To use Google Text to Speech, you need to provide a Google API Key. This api key is used both for Text to Speech and Internet Browsing feature.', 'gpt3-ai-content-generator'); ?></p>
-                    <label><?php echo esc_html__('Google API Key', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_google_common_api_key_for_internet"><?php echo esc_html__('Google API Key', 'gpt3-ai-content-generator'); ?></label>
                     <input type="text" id="aipower_google_common_api_key_for_internet" style="width:60%;" name="aipower_google_common_api_key_for_internet" value="<?php echo esc_attr($current_google_api_key); ?>">
                     <a href="https://console.cloud.google.com/" target="_blank"><?php echo esc_html__('Get API Key', 'gpt3-ai-content-generator'); ?></a>
                 </div>
@@ -148,7 +148,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
                 <!-- Google Custom Search Engine ID -->
                 <div class="aipower-form-group">
                     <p><?php echo esc_html__('To use Internet Browsing, you need to provide a Google Custom Search Engine ID.', 'gpt3-ai-content-generator'); ?></p>
-                    <label><?php echo esc_html__('Google Custom Search Engine ID', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_google_custom_search_engine_id"><?php echo esc_html__('Google Custom Search Engine ID', 'gpt3-ai-content-generator'); ?></label>
                     <input type="text" id="aipower_google_custom_search_engine_id" style="width:60%;" name="aipower_google_custom_search_engine_id" value="<?php echo esc_attr($current_google_search_engine_id); ?>">
                     <a href="https://programmablesearchengine.google.com/" target="_blank"><?php echo esc_html__('Get Custom Search Engine ID', 'gpt3-ai-content-generator'); ?></a>
                 </div>
@@ -203,7 +203,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
                 <!-- Banned Words -->
                 <div class="aipower-form-group">
                     <p><?php echo esc_html__('You can add banned words that will be filtered out from the chat. Enter words separated by commas.', 'gpt3-ai-content-generator'); ?></p>
-                    <label><?php echo esc_html__('Banned Words', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_chat_banned_words"><?php echo esc_html__('Banned Words', 'gpt3-ai-content-generator'); ?></label>
                     <input type="text" id="aipower_chat_banned_words" placeholder="<?php echo esc_attr__('e.g., badword1, badword2', 'gpt3-ai-content-generator'); ?>" name="aipower_chat_banned_words" value="<?php echo esc_attr($current_banned_words); ?>">
                 </div>
             </div>
@@ -211,7 +211,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
                 <!-- Banned IP Addresses -->
                 <div class="aipower-form-group">
                     <p><?php echo esc_html__('You can add banned IP addresses that will be blocked from accessing the chat. Enter IP addresses separated by commas.', 'gpt3-ai-content-generator'); ?></p>
-                    <label><?php echo esc_html__('Banned IP Addresses', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_chat_banned_ips"><?php echo esc_html__('Banned IP Addresses', 'gpt3-ai-content-generator'); ?></label>
                     <input type="text" id="aipower_chat_banned_ips" placeholder="<?php echo esc_attr__('e.g., 123.456.789.0, 987.654.321.0', 'gpt3-ai-content-generator'); ?>" name="aipower_chat_banned_ips" value="<?php echo esc_attr($current_banned_ips); ?>">
                 </div>
             </div>

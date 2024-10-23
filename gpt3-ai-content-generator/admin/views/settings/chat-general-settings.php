@@ -97,7 +97,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
         <!-- Content Aware Switch -->
         <div class="aipower-form-group  aipower-content-aware-container">
             <div class="aipower-switch-container">
-                <label class="aipower-switch-label" for="aipower-content-aware"><?php echo esc_html__('Content Aware', 'gpt3-ai-content-generator'); ?></label>
+                <label class="aipower-switch-label" for="aipower-content-aware"><?php echo esc_html__('Knowledge', 'gpt3-ai-content-generator'); ?></label>
                 <div class="aipower-switch-icon-group">
                     <label class="aipower-switch">
                         <input type="checkbox" id="aipower-content-aware" name="aipower-content-aware">
@@ -293,7 +293,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 <div class="aipower-form-group aipower-grouped-fields-bot">
     <!-- Bot Type Radio Buttons -->
     <div class="aipower-form-group" style="max-width: 20%;min-width: 100px;">
-        <label><?php echo esc_html__('Bot Type', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-bot-type"><?php echo esc_html__('Bot Type', 'gpt3-ai-content-generator'); ?></label>
         <div class="aipower-radio-group">
             <label for="aipower-bot-type-shortcode">
                 <input type="radio" id="aipower-bot-type-shortcode" name="type" value="shortcode" checked />
@@ -307,7 +307,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
     </div>
     <!-- Widget Position -->
     <div class="aipower-form-group" style="max-width: 20%;">
-        <label><?php echo esc_html__('Position', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-widget-position"><?php echo esc_html__('Position', 'gpt3-ai-content-generator'); ?></label>
         <div class="aipower-radio-group">
             <label for="aipower-widget-position-left">
                 <input type="radio" id="aipower-widget-position-left" name="position" value="left" checked />

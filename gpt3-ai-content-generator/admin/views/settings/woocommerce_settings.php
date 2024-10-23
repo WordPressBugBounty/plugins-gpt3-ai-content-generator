@@ -66,8 +66,8 @@ function get_shortcode_text() {
                 <input type="checkbox" id="aipower_shorten_woo_url" name="_wpaicg_shorten_woo_url" value="1" <?php checked(1, $_wpaicg_shorten_woo_url); ?>>
                 <label for="aipower_shorten_woo_url"><?php echo esc_html__('Shorten Product URL', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled>
-                <label><?php echo esc_html__('Shorten Product URL', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="_wpaicg_shorten_woo_url">
+                <label for="aipower_shorten_woo_url"><?php echo esc_html__('Shorten Product URL', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -76,8 +76,8 @@ function get_shortcode_text() {
                 <input type="checkbox" id="aipower_generate_woo_focus_keyword" name="wpaicg_generate_woo_focus_keyword" value="1" <?php checked(1, $wpaicg_generate_woo_focus_keyword); ?>>
                 <label for="aipower_generate_woo_focus_keyword"><?php echo esc_html__('Generate Focus Keyword', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled>
-                <label><?php echo esc_html__('Generate Focus Keyword', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="wpaicg_generate_woo_focus_keyword">
+                <label for="aipower_generate_woo_focus_keyword">?php echo esc_html__('Generate Focus Keyword', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -86,8 +86,8 @@ function get_shortcode_text() {
                 <input type="checkbox" id="aipower_enforce_woo_keyword_in_url" name="wpaicg_enforce_woo_keyword_in_url" value="1" <?php checked(1, $wpaicg_enforce_woo_keyword_in_url); ?>>
                 <label for="aipower_enforce_woo_keyword_in_url"><?php echo esc_html__('Enforce Focus Keyword in URL', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
-                <input type="checkbox" value="0" disabled>
-                <label><?php echo esc_html__('Enforce Focus Keyword in URL', 'gpt3-ai-content-generator'); ?></label>
+                <input type="checkbox" value="0" disabled name="wpaicg_enforce_woo_keyword_in_url">
+                <label for="aipower_enforce_woo_keyword_in_url"><?php echo esc_html__('Enforce Focus Keyword in URL', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>

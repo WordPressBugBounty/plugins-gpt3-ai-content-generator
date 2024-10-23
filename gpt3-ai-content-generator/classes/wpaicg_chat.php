@@ -1511,6 +1511,36 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 // add source = chat to the request
                 $wpaicg_data_request['sourceModule'] = 'chat';
                 return $open_ai->chat($wpaicg_data_request);
+            } elseif ($wpaicg_provider == 'OpenRouter') {
+                // Custom handling for OpenRouter
+                try {
+                    return $open_ai->$apiFunction($wpaicg_data_request, function ($curl_info, $data) use (&$accumulatedData) {
+                        // Process data line by line for OpenRouter
+                        $lines = explode("\n", $data);
+                        foreach ($lines as $line) {
+                            $line = trim($line);
+                            if ($line === '') {
+                                continue;
+                            }
+                            // Only echo lines that start with 'data:'
+                            if (strpos($line, 'data:') === 0) {
+                                // Echo the line to the client
+                                echo $line . "\n\n";
+                                ob_implicit_flush( true );
+                                // Flush and end buffer if it exists
+                                if (ob_get_level() > 0) {
+                                    ob_end_flush();
+                                }
+                                // Accumulate the data
+                                $accumulatedData .= $line . "\n";
+                            }
+                        }
+                        return strlen($data);
+                    });
+                } catch (\Exception $exception) {
+                    $message = $exception->getMessage();
+                    $this->wpaicg_event_message($message);
+                }
             } else {
                 try {
                     return $open_ai->$apiFunction($wpaicg_data_request, function ($curl_info, $data) use (&$accumulatedData) {
@@ -1589,6 +1619,10 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
         }
 
         public function processChunkedData($accumulatedData, $wpaicg_chatgpt_messages, $wpaicg_ai_model, $isChatEndpoint) {
+            if ($wpaicg_provider == 'OpenRouter') {
+                // OpenRouter-specific processing
+                return $this->processOpenRouterData($accumulatedData, $wpaicg_chatgpt_messages, $wpaicg_ai_model, $isChatEndpoint);
+            } else {
             // First, check for an error in the accumulated data
             $decodedData = json_decode($accumulatedData, true);
             if (isset($decodedData['error']['message'])) {
@@ -1642,6 +1676,92 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             $completion_tokens = intval($completionCharacters / 100 * 21);
             $total_tokens = $prompt_tokens + $completion_tokens;
         
+            // Construct the complete array with usage information
+            return [
+                "id" => $id,
+                "object" => "chat.completion",
+                "created" => $created,
+                "model" => $wpaicg_ai_model,
+                "choices" => [
+                    [
+                        "index" => 0,
+                        "message" => [
+                            "role" => "assistant",
+                            "content" => $finalMessage
+                        ],
+                        "finish_reason" => "stop"
+                    ]
+                ],
+                "usage" => [
+                    "prompt_tokens" => $prompt_tokens,
+                    "completion_tokens" => $completion_tokens,
+                    "total_tokens" => $total_tokens
+                ]
+            ];
+        }
+        }
+
+
+        // New function for OpenRouter-specific processing
+        public function processOpenRouterData($accumulatedData, $wpaicg_chatgpt_messages, $wpaicg_ai_model, $isChatEndpoint) {
+            // First, check for an error in the accumulated data
+            if (strpos($accumulatedData, '"error":') !== false) {
+                $decodedData = json_decode($accumulatedData, true);
+                if (isset($decodedData['error']['message'])) {
+                    echo "event: message\n";
+                    echo 'data: {"choices":[{"delta":{"content":"' . $decodedData['error']['message'] . '"}}]}';
+                    echo "\n\n";
+                    echo 'data: {"choices":[{"finish_reason":"stop"}]}';
+                    echo "\n\n";
+                    ob_flush();
+                    flush();
+                    return;
+                }
+            }
+
+            // Parse the chunked data
+            $lines = explode("\n", $accumulatedData);
+            $completeData = [];
+            $id = $created = null;
+
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line === "") {
+                    continue;
+                }
+                if (strpos($line, 'data:') === 0) {
+                    $jsonData = trim(substr($line, 5)); // Remove 'data:' and trim
+                    if ($jsonData === '[DONE]') {
+                        break;
+                    }
+                    $decodedChunk = json_decode($jsonData, true);
+                    if ($decodedChunk !== null) {
+                        if ($isChatEndpoint) {
+                            if (isset($decodedChunk['choices'][0]['delta']['content'])) {
+                                $completeData[] = $decodedChunk['choices'][0]['delta']['content'];
+                            }
+                        } else {
+                            if (isset($decodedChunk['choices'][0]['text'])) {
+                                $completeData[] = $decodedChunk['choices'][0]['text'];
+                            }
+                        }
+                        if (is_null($id) && isset($decodedChunk['id']) && isset($decodedChunk['created'])) {
+                            $id = $decodedChunk['id'];
+                            $created = $decodedChunk['created'];
+                        }
+                    }
+                }
+            }
+
+            $finalMessage = implode("", $completeData);
+
+            // Token calculation
+            $promptCharacters = array_sum(array_map('strlen', array_column($wpaicg_chatgpt_messages, 'content')));
+            $prompt_tokens = intval($promptCharacters / 100 * 21);
+            $completionCharacters = strlen($finalMessage);
+            $completion_tokens = intval($completionCharacters / 100 * 21);
+            $total_tokens = $prompt_tokens + $completion_tokens;
+
             // Construct the complete array with usage information
             return [
                 "id" => $id,
