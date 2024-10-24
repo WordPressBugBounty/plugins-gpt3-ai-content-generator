@@ -272,7 +272,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                 "fontcolor" => "#E8E8E8",
                 "ai_bg_color" => "#495057",
                 "user_bg_color" => "#6C757D",
-                "width" => "60%",
+                "width" => "400px",
                 "height" => "50%",
                 "chat_rounded" => "8",
                 "fontsize" => "13",

@@ -5,7 +5,27 @@ $wpaicg_ai_thinking = get_option('_wpaicg_ai_thinking','');
 $wpaicg_you = get_option('_wpaicg_chatbox_you','');
 $wpaicg_typing_placeholder = get_option('_wpaicg_typing_placeholder','');
 $wpaicg_welcome_message = get_option('_wpaicg_chatbox_welcome_message','');
-$wpaicg_chat_widget = get_option('wpaicg_chat_widget',[]);
+if (!isset($wpaicg_chat_widget)) {
+    $wpaicg_chat_widget = get_option('wpaicg_chat_widget',[]);
+}
+
+/* Check Custom Widget For Page/Post */
+if (!isset($wpaicg_chat_widget['custom_loaded']) && !isset($wpaicg_chat_widget['bot_id'])) {
+    $current_context_ID = get_the_ID();
+    $wpaicg_bot_content = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->postmeta." WHERE meta_key=%s",'wpaicg_widget_page_'.$current_context_ID));
+    if($wpaicg_bot_content && isset($wpaicg_bot_content->post_id)){
+        $wpaicg_bot = get_post($wpaicg_bot_content->post_id);
+        if($wpaicg_bot) {
+            if(strpos($wpaicg_bot->post_content,'\"') !== false) {
+                $wpaicg_bot->post_content = str_replace('\"', '&quot;', $wpaicg_bot->post_content);
+            }
+            if(strpos($wpaicg_bot->post_content,"\'") !== false) {
+                $wpaicg_bot->post_content = str_replace('\\', '', $wpaicg_bot->post_content);
+            }
+            $wpaicg_chat_widget = json_decode($wpaicg_bot->post_content, true);
+        }
+    }
+}
 $wpaicg_ai_name = get_option('_wpaicg_chatbox_ai_name','');
 $wpaicg_stream_nav_setting = get_option('wpaicg_widget_stream', '0'); // Default to '1' if not set
 $wpaicg_conversation_starters_widget_json = get_option('wpaicg_conversation_starters_widget', '');

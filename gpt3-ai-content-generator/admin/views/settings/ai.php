@@ -93,6 +93,10 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
                 <span id="aipower-safety-settings-icon" class="aipower-settings-icon" style="margin-top:-10px;" title="<?php echo esc_attr__('Safety Settings', 'gpt3-ai-content-generator'); ?>" style="display: none;">
                     <span class="dashicons dashicons-shield"></span>
                 </span>
+                <!-- Info Icon Link -->
+                <a href="https://docs.aipower.org/docs/category/ai-engines" target="_blank" class="aipower-info-icon" title="<?php echo esc_attr__('AI Engine Documentation', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-info"></span>
+                </a>
             </div>
             <!-- Provider Specific Containers -->
             <div id="aipower-openai-container" class="aipower-provider-container" style="display: none;">
@@ -135,6 +139,10 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
                     <div id="syncOpenAI" data-target="#aipower-openai-model-dropdown" class="aipower-settings-icon aipower_sync_openai_models" style="margin-top:-10px;" title="<?php echo esc_attr__('Syncs the latest models from OpenAI', 'gpt3-ai-content-generator'); ?>">
                         <span class="dashicons dashicons-update"></span>
                     </div>
+                    <!-- Info Icon Link -->
+                    <a href="https://docs.aipower.org/docs/ai-engine/openai/gpt-models" target="_blank" class="aipower-info-icon" title="<?php echo esc_attr__('OpenAI Documentation', 'gpt3-ai-content-generator'); ?>">
+                        <span class="dashicons dashicons-info"></span>
+                    </a>
                 </div>
             </div>
 
@@ -192,6 +200,10 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
                     <span id="syncOpenRouter" data-target="#aipower-openrouter-model-dropdown" class="aipower-settings-icon aipower_sync_openrouter_models" style="margin-top:-10px;" title="<?php echo esc_attr__('Syncs the latest models from OpenRouter', 'gpt3-ai-content-generator'); ?>">
                         <span class="dashicons dashicons-update"></span>
                     </span>
+                    <!-- Info Icon Link -->
+                    <a href="https://docs.aipower.org/docs/ai-engine/openrouter" target="_blank" class="aipower-info-icon" title="<?php echo esc_attr__('OpenRouter Documentation', 'gpt3-ai-content-generator'); ?>">
+                        <span class="dashicons dashicons-info"></span>
+                    </a>
                 </div>
             </div>
 
@@ -237,6 +249,10 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
                     <span id="syncGoogle" data-target="#aipower-google-model-dropdown"  class="aipower-settings-icon aipower_sync_google_models" style="margin-top:-10px;" title="<?php echo esc_attr__('Syncs the latest models from Google', 'gpt3-ai-content-generator'); ?>">
                         <span class="dashicons dashicons-update"></span>
                     </span>
+                    <!-- Info Icon Link -->
+                    <a href="https://docs.aipower.org/docs/ai-engine/google" target="_blank" class="aipower-info-icon" title="<?php echo esc_attr__('Google Documentation', 'gpt3-ai-content-generator'); ?>">
+                        <span class="dashicons dashicons-info"></span>
+                    </a>
                 </div>
             </div>
 

@@ -1496,7 +1496,7 @@
         });
     });
     // Handle toggle switch for default site-wide widget
-    $('.aipower-toggle-switch').on('click', function () {
+    $(document).on('click', '.aipower-toggle-switch', function () {
         var $switch = $(this);
         var currentStatus = $switch.data('status'); // 'active' or ''
         var newStatus = currentStatus === 'active' ? '' : 'active';
@@ -1507,7 +1507,7 @@
 
         // AJAX request to update the widget status
         $.post(ajaxurl, {
-            action: 'aipower_toggle_default_widget_status', // Define this action in your backend
+            action: 'aipower_toggle_default_widget_status',
             status: newStatus,
             _wpnonce: nonce
         }, function (response) {
@@ -1528,7 +1528,7 @@
             }
         }).fail(function () {
             showError('Failed to connect to the server. Please try again.');
-        })
+        });
     });
 
 	$( document ).on("click", "#wpcgai_load_draft_settings", function(event) {

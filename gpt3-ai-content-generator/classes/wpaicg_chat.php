@@ -2250,13 +2250,38 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             return $wpaicg_chatbox;
         }
 
-        public function wpaicg_chatbox_widget()
-        {
+        public function wpaicg_chatbox_widget($atts) {
+            // Extract shortcode attributes, defaulting 'id' to empty
+            $atts = shortcode_atts( array(
+                'id' => '',
+            ), $atts, 'wpaicg_chatgpt_widget' );
+        
+            $wpaicg_bot_id = $atts['id'];
+        
+            if (!empty($wpaicg_bot_id)) {
+                // Load bot data from post with ID $wpaicg_bot_id
+                $bot_post = get_post($wpaicg_bot_id);
+                if ($bot_post && $bot_post->post_type === 'wpaicg_chatbot') {
+                    $bot_data = json_decode($bot_post->post_content, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($bot_data)) {
+                        // Set $wpaicg_chat_widget and $wpaicg_chat_status variables
+                        $wpaicg_chat_widget = $bot_data;
+                        $wpaicg_chat_status = 'active';
+                        // Optionally, set other variables used in wpaicg_chatbox_widget.php
+                    }
+                }
+            } else {
+                // Fallback to default site-wide widget settings if 'id' is not provided
+                $wpaicg_chat_widget = get_option('wpaicg_chat_widget', []);
+                $wpaicg_chat_status = isset($wpaicg_chat_widget['status']) && !empty($wpaicg_chat_widget['status']) ? $wpaicg_chat_widget['status'] : '';
+            }
+        
             ob_start();
             include WPAICG_PLUGIN_DIR . 'admin/extra/wpaicg_chatbox_widget.php';
             $wpaicg_chatbox = ob_get_clean();
             return $wpaicg_chatbox;
         }
+        
     }
     WPAICG_Chat::get_instance();
 }

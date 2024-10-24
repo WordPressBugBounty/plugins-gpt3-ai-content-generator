@@ -534,7 +534,7 @@ body {
     gap: 10px; /* Adds space between the dropdown and the sync icon */
 }
 /* Settings Icon */
-.aipower-settings-icon, .aipower-bot-settings-icon {
+.aipower-settings-icon, .aipower-bot-settings-icon,.aipower-info-icon {
     background: none;
     border: none;
     cursor: pointer;
@@ -551,8 +551,15 @@ body {
     opacity: 0.5;
 }
 
-.aipower-settings-icon:hover:not(:disabled) {
-    color: #005bb5; /* Darker color on hover */
+.aipower-info-icon {
+    text-decoration: none;
+    outline: none;
+    margin-top:-10px;
+}
+
+.aipower-info-icon:focus {
+    outline: none;
+    box-shadow: none; /* This removes any focus border or shadow */
 }
 
 

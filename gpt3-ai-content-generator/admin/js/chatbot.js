@@ -2514,7 +2514,7 @@ jQuery(document).ready(function ($) {
     });
 
     // Handle chatbot duplication
-    $('#aipower-confirm-duplicate-btn').on('click', function (e) {
+    $(document).on('click', '#aipower-confirm-duplicate-btn', function (e) {
         e.preventDefault();
         if (!chatbotToDuplicate) return;
 
@@ -2547,7 +2547,7 @@ jQuery(document).ready(function ($) {
     // Variable to store the chatbot ID to export
     var chatbotToExport = null;
     
-    $('.aipower-export-icon').on('click', function(e) {
+    $(document).on('click', '.aipower-export-icon', function(e) {
         e.preventDefault();
         var botId = $(this).data('id');
         chatbotToExport = botId;
@@ -2563,7 +2563,7 @@ jQuery(document).ready(function ($) {
     });
     
     // Confirm Export Single Bot
-    $('#aipower-confirm-export-btn').on('click', function (e) {
+    $(document).on('click', '#aipower-confirm-export-btn', function (e) {
         e.preventDefault();
         if (!chatbotToExport) return;
     

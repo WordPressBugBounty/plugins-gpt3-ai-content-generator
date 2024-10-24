@@ -1251,7 +1251,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     "fontcolor" => "#E8E8E8",
                     "ai_bg_color" => "#495057",
                     "user_bg_color" => "#6C757D",
-                    "width" => "60%",
+                    "width" => "400px",
                     "height" => "50%",
                     "chat_rounded" => "8",
                     "fontsize" => "13",
@@ -3190,9 +3190,9 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
             $chatbot_data['name'] = $new_title;
         
             // Re-encode the post_content JSON
-            $new_content = wp_json_encode($chatbot_data);
-            if ($new_content === false) {
-                wp_send_json_error(array('message' => esc_html__('Failed to encode chatbot data.', 'gpt3-ai-content-generator')));
+            $new_content = wp_json_encode($chatbot_data, JSON_UNESCAPED_UNICODE);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                wp_send_json_error(array('message' => esc_html__('Failed to encode duplicated chatbot data.', 'gpt3-ai-content-generator')));
                 return;
             }
         

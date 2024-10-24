@@ -538,6 +538,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                     <select name="aipower-moderation_model" id="aipower-moderation_model">
                         <option value="text-moderation-latest"><?php echo esc_html__('text-moderation-latest','gpt3-ai-content-generator')?></option>
                         <option value="text-moderation-stable"><?php echo esc_html__('text-moderation-stable','gpt3-ai-content-generator')?></option>
+                        <option value="omni-moderation-latest"><?php echo esc_html__('omni-moderation-latest','gpt3-ai-content-generator')?></option>
                     </select>
                 </div>
             </div>
