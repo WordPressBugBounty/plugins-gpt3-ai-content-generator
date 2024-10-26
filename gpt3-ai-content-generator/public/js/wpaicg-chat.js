@@ -86,6 +86,23 @@ function loadChatInterface(containerSelector, type, clientId) {
         }
     });
 }
+// Function to convert Markdown to HTML
+function markdownToHtml(markdown) {
+    // Convert bold (**text** or __text__)
+    let html = markdown.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/__(.*?)__/g, '<strong>$1</strong>');
+    
+    // Convert italic (*text* or _text_)
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/_(.*?)_/g, '<em>$1</em>');
+    
+    // Convert underline (~~text~~)
+    html = html.replace(/~~(.*?)~~/g, '<u>$1</u>');
+    
+    // Convert links ([text](url))
+    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+    
+    return html;
+}
+
 
 function reconstructMessage(chatBox, message, chatContainer) {
     var messageElement = document.createElement('li');
@@ -106,6 +123,8 @@ function reconstructMessage(chatBox, message, chatContainer) {
     
     // Format the message content
     var formattedMessage = messageText.replace('Human:', '').replace('AI:', '').replace(/\n/g, '<br>');
+    // Convert Markdown to HTML for bold, italic, underline, and links
+    formattedMessage = markdownToHtml(formattedMessage);
     var userBgColor = chatContainer.getAttribute('data-user-bg-color');
     var aiBgColor = chatContainer.getAttribute('data-ai-bg-color');
     var fontSize = chatContainer.getAttribute('data-fontsize');
@@ -1252,6 +1271,11 @@ function wpaicgChatInit() {
         var imageUrl = ''; // Variable to store the URL of the uploaded image for preview
         if(imageInput){
             if (imageInput.files && imageInput.files[0]) {
+                var validImageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'];
+                if (!validImageTypes.includes(imageInput.files[0].type)) {
+                    alert('Invalid file type. Only PNG, JPEG, WEBP, and non-animated GIF images are allowed.');
+                    return;
+                }
                 // Append image file to FormData object
                 wpaicgData.append('image', imageInput.files[0], imageInput.files[0].name);
                 // Create a URL for the uploaded image file for preview

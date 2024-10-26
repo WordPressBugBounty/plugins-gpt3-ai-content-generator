@@ -308,7 +308,7 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
 </div>
 <!-- Advanced Settings Modal -->
 <div class="aipower-modal" id="aipower_advanced_settings_modal" style="display: none;">
-    <div class="aipower-modal-content">
+    <div class="aipower-modal-content" style="width: 25%;">
         <div class="aipower-modal-header">
             <h2><?php echo esc_html__('Advanced Settings', 'gpt3-ai-content-generator'); ?></h2>
             <span class="aipower-close">&times;</span>
@@ -320,6 +320,8 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
                     <label for="aipower-max-tokens"><?php echo esc_html__('Maximum Tokens', 'gpt3-ai-content-generator'); ?></label>
                     <input id="aipower-max-tokens" name="wpaicg_max_tokens" type="number" value="<?php echo esc_attr($current_max_tokens); ?>">
                 </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- RATE LIMIT -->
                 <div class="aipower-form-group">
                     <label for="aipower-rate-limit"><?php echo esc_html__('Buffer (in seconds)', 'gpt3-ai-content-generator'); ?></label>
@@ -357,7 +359,7 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
 
 <!-- Safety Settings Modal -->
 <div class="aipower-modal" id="aipower_safety_settings_modal" style="display: none;">
-    <div class="aipower-modal-content">
+    <div class="aipower-modal-content" style="width: 25%;">
         <div class="aipower-modal-header">
             <h2><?php echo esc_html__('Safety Settings', 'gpt3-ai-content-generator'); ?></h2>
             <span class="aipower-close">&times;</span>

@@ -1169,7 +1169,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 if ($stream_nav_setting == 1) {
                     $isChatEndpoint = ($apiFunction === 'chat');
                     $complete = $this->processChunkedData($accumulatedData, $wpaicg_chatgpt_messages, $wpaicg_ai_model, $isChatEndpoint);
-
                 } else {
                     if (is_string($complete)) {
                         $complete = json_decode($complete);
@@ -1326,14 +1325,28 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             return ['status' => 'empty', 'data' => ''];
         }
         
-        
-
         public function handle_image_upload($image) {
             $wpaicg_user_uploads = get_option('wpaicg_user_uploads', 'filesystem');
             $wpaicg_img_processing_method = get_option('wpaicg_img_processing_method', 'url'); // Fetch user preference
             $wpaicg_delete_image = get_option('wpaicg_delete_image', 0); // Fetch delete image preference
             $result = ['url' => '', 'base64' => '']; // Initialize result variable with both keys
         
+            // Validate file type before proceeding
+            $file_info = wp_check_filetype_and_ext($image['tmp_name'], $image['name']);
+            
+            // Allowed file extensions and MIME types
+            $allowed_file_types = [
+                'png' => 'image/png',
+                'jpeg' => 'image/jpeg',
+                'jpg' => 'image/jpeg',
+                'webp' => 'image/webp',
+                'gif' => 'image/gif'
+            ];
+
+            if (!$file_info['ext'] || !$file_info['type'] || !array_key_exists($file_info['ext'], $allowed_file_types) || $file_info['type'] !== $allowed_file_types[$file_info['ext']]) {
+                die(__("File type is not allowed. Only PNG, JPEG, WEBP, and non-animated GIF are supported.", "gpt3-ai-content-generator"));
+            }
+
             if ($wpaicg_user_uploads === 'filesystem') {
                 // Save the image to a custom folder inside the uploads directory
                 $upload_dir = wp_upload_dir();
@@ -1348,14 +1361,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
         
                 // Move the uploaded file to the new location
                 if (move_uploaded_file($image['tmp_name'], $file_path)) {
-
+        
                     // Always set the URL of the saved image
                     $result['url'] = $upload_dir['baseurl'] . '/wpaicg_user_uploads/' . basename($image['name']);
-
+        
                     // Convert to base64 if required
                     $imageData = file_get_contents($file_path);
                     $result['base64'] = 'data:image/' . pathinfo($file_path, PATHINFO_EXTENSION) . ';base64,' . base64_encode($imageData);
-
+        
                     // Delete the image file after processing if the option is enabled and processing method is not URL
                     if ($wpaicg_delete_image && $wpaicg_img_processing_method !== 'url') {
                         unlink($file_path);
@@ -1370,7 +1383,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 require_once(ABSPATH . 'wp-admin/includes/media.php');
         
                 $attachment_id = media_handle_upload('image', 0);
-
+        
                 if (is_wp_error($attachment_id)) {
                     error_log('Failed to save image to media library: ' . $attachment_id->get_error_message());
                 } else {
@@ -1383,13 +1396,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     // Convert to base64 if required
                     $imageData = file_get_contents($file_path);
                     $result['base64'] = 'data:image/' . pathinfo($file_path, PATHINFO_EXTENSION) . ';base64,' . base64_encode($imageData);
-
+        
                     // Delete the image file after processing if the option is enabled and processing method is not URL
                     if ($wpaicg_delete_image && $wpaicg_img_processing_method !== 'url') {
                         wp_delete_attachment($attachment_id, true);
                     }
                 }
             }
+        
             return $result;
         }
         
@@ -1489,7 +1503,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
         
         public function extractResponseData($complete, $stream_nav_setting, $isLegacyModel) {
             if ($stream_nav_setting == 1) {
-                // For chunked data, the content is already concatenated in processChunkedData
+                // For chunked data, the content is already concatenated in process ChunkedData
                 if (isset($complete['choices'][0]['message']['content'])) {
                     return $complete['choices'][0]['message']['content'];
                 } elseif (isset($complete['choices'][0]['text'])) {
@@ -1503,8 +1517,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 return isset($complete->choices[0]->$dataKey->content) ? $complete->choices[0]->$dataKey->content : (isset($complete->choices[0]->$dataKey) ? $complete->choices[0]->$dataKey : '');
             }
         }
-        
-        
         
         public function performOpenAiRequest($wpaicg_provider, $open_ai, $apiFunction, $wpaicg_data_request, &$accumulatedData) {
             if ($wpaicg_provider == 'Google') {
@@ -1619,11 +1631,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
         }
 
         public function processChunkedData($accumulatedData, $wpaicg_chatgpt_messages, $wpaicg_ai_model, $isChatEndpoint) {
-            if ($wpaicg_provider == 'OpenRouter') {
-                // OpenRouter-specific processing
-                return $this->processOpenRouterData($accumulatedData, $wpaicg_chatgpt_messages, $wpaicg_ai_model, $isChatEndpoint);
-            } else {
-            // First, check for an error in the accumulated data
             $decodedData = json_decode($accumulatedData, true);
             if (isset($decodedData['error']['message'])) {
                 echo "event: message\n";
@@ -1638,8 +1645,15 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 }
                 return;
             }
-            // Parse the chunked data
-            $chunks = explode("\n\n", $accumulatedData);
+            // Check if this is OpenRouter response (contains multiple data: entries in one chunk)
+            if (strpos($accumulatedData, "data: {") !== false && substr_count($accumulatedData, "data: {") > 1) {
+                // Split the OpenRouter response into individual chunks
+                preg_match_all('/data: ({.*})(?:\n|$)/', $accumulatedData, $matches);
+                $chunks = $matches[0];
+            } else {
+                // Handle OpenAI format (already properly split)
+                $chunks = explode("\n\n", $accumulatedData);
+            }
             $completeData = [];
             $id = $created = null;
         
@@ -1676,92 +1690,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             $completion_tokens = intval($completionCharacters / 100 * 21);
             $total_tokens = $prompt_tokens + $completion_tokens;
         
-            // Construct the complete array with usage information
-            return [
-                "id" => $id,
-                "object" => "chat.completion",
-                "created" => $created,
-                "model" => $wpaicg_ai_model,
-                "choices" => [
-                    [
-                        "index" => 0,
-                        "message" => [
-                            "role" => "assistant",
-                            "content" => $finalMessage
-                        ],
-                        "finish_reason" => "stop"
-                    ]
-                ],
-                "usage" => [
-                    "prompt_tokens" => $prompt_tokens,
-                    "completion_tokens" => $completion_tokens,
-                    "total_tokens" => $total_tokens
-                ]
-            ];
-        }
-        }
-
-
-        // New function for OpenRouter-specific processing
-        public function processOpenRouterData($accumulatedData, $wpaicg_chatgpt_messages, $wpaicg_ai_model, $isChatEndpoint) {
-            // First, check for an error in the accumulated data
-            if (strpos($accumulatedData, '"error":') !== false) {
-                $decodedData = json_decode($accumulatedData, true);
-                if (isset($decodedData['error']['message'])) {
-                    echo "event: message\n";
-                    echo 'data: {"choices":[{"delta":{"content":"' . $decodedData['error']['message'] . '"}}]}';
-                    echo "\n\n";
-                    echo 'data: {"choices":[{"finish_reason":"stop"}]}';
-                    echo "\n\n";
-                    ob_flush();
-                    flush();
-                    return;
-                }
-            }
-
-            // Parse the chunked data
-            $lines = explode("\n", $accumulatedData);
-            $completeData = [];
-            $id = $created = null;
-
-            foreach ($lines as $line) {
-                $line = trim($line);
-                if ($line === "") {
-                    continue;
-                }
-                if (strpos($line, 'data:') === 0) {
-                    $jsonData = trim(substr($line, 5)); // Remove 'data:' and trim
-                    if ($jsonData === '[DONE]') {
-                        break;
-                    }
-                    $decodedChunk = json_decode($jsonData, true);
-                    if ($decodedChunk !== null) {
-                        if ($isChatEndpoint) {
-                            if (isset($decodedChunk['choices'][0]['delta']['content'])) {
-                                $completeData[] = $decodedChunk['choices'][0]['delta']['content'];
-                            }
-                        } else {
-                            if (isset($decodedChunk['choices'][0]['text'])) {
-                                $completeData[] = $decodedChunk['choices'][0]['text'];
-                            }
-                        }
-                        if (is_null($id) && isset($decodedChunk['id']) && isset($decodedChunk['created'])) {
-                            $id = $decodedChunk['id'];
-                            $created = $decodedChunk['created'];
-                        }
-                    }
-                }
-            }
-
-            $finalMessage = implode("", $completeData);
-
-            // Token calculation
-            $promptCharacters = array_sum(array_map('strlen', array_column($wpaicg_chatgpt_messages, 'content')));
-            $prompt_tokens = intval($promptCharacters / 100 * 21);
-            $completionCharacters = strlen($finalMessage);
-            $completion_tokens = intval($completionCharacters / 100 * 21);
-            $total_tokens = $prompt_tokens + $completion_tokens;
-
             // Construct the complete array with usage information
             return [
                 "id" => $id,

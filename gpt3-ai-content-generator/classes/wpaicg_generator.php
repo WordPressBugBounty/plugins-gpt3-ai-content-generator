@@ -34,6 +34,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
         public $wpaicg_add_keywords_bold;
         public $wpaicg_heading_tag;
         public $wpaicg_words_to_avoid;
+        public $avoid_text;
         public $wpaicg_add_tagline;
         public $wpaicg_add_faq;
         public $wpaicg_target_url;

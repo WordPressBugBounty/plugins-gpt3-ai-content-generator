@@ -154,7 +154,6 @@ $wpaicg_openai_voice_speed = isset($wpaicg_chat_widget['openai_voice_speed']) &&
 
 // Lead Collection Settings
 $wpaicg_lead_collection = isset($wpaicg_chat_widget['lead_collection']) && !empty($wpaicg_chat_widget['lead_collection']) ? $wpaicg_chat_widget['lead_collection'] : 0;
-error_log('wpaicg_lead_collection: '.$wpaicg_lead_collection);
 $wpaicg_lead_title = isset($wpaicg_chat_widget['lead_title']) && !empty($wpaicg_chat_widget['lead_title']) ? $wpaicg_chat_widget['lead_title'] : 'Let us know how to contact you';
 $wpaicg_lead_name = isset($wpaicg_chat_widget['lead_name']) && !empty($wpaicg_chat_widget['lead_name']) ? $wpaicg_chat_widget['lead_name'] : 'Name';
 $wpaicg_enable_lead_name = isset($wpaicg_chat_widget['enable_lead_name']) && !empty($wpaicg_chat_widget['enable_lead_name']) ? $wpaicg_chat_widget['enable_lead_name'] : 0;

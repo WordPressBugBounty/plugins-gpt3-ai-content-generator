@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 1.8.89\n"
+"Project-Id-Version: AI Power: Complete AI Pack 1.8.90\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-10-24T19:51:23+00:00\n"
+"POT-Creation-Date: 2024-10-26T16:50:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -470,7 +470,7 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:1980
 #: admin/extra/wpaicg_promptbase_index.php:1457
 #: admin/extra/wpaicg_promptbase_index.php:1679
-#: admin/extra/wpaicg_single.php:3476
+#: admin/extra/wpaicg_single.php:3485
 #: admin/views/audio/converter.php:721
 #: admin/views/embeddings/autoscan.php:176
 #: admin/views/finetune/files.php:157
@@ -519,7 +519,7 @@ msgstr ""
 #: classes/wpaicg_finetune.php:1027
 #: classes/wpaicg_finetune.php:1167
 #: classes/wpaicg_forms.php:485
-#: classes/wpaicg_generator.php:1599
+#: classes/wpaicg_generator.php:1600
 #: classes/wpaicg_hook.php:42
 #: classes/wpaicg_hook.php:108
 #: classes/wpaicg_image.php:41
@@ -590,7 +590,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_bulk_queue.php:241
 #: admin/extra/wpaicg_chatbox.php:981
-#: admin/extra/wpaicg_chatbox_widget.php:986
+#: admin/extra/wpaicg_chatbox_widget.php:985
 #: admin/extra/wpaicg_form_index.php:772
 #: admin/extra/wpaicg_form_index.php:949
 #: admin/extra/wpaicg_form_index.php:1015
@@ -699,7 +699,7 @@ msgstr ""
 #: classes/wpaicg_forms.php:436
 #: classes/wpaicg_forms.php:454
 #: classes/wpaicg_forms.php:492
-#: classes/wpaicg_generator.php:173
+#: classes/wpaicg_generator.php:174
 #: classes/wpaicg_google_speech.php:103
 #: classes/wpaicg_google_speech.php:141
 #: classes/wpaicg_google_speech.php:177
@@ -709,13 +709,13 @@ msgstr ""
 #: classes/wpaicg_image.php:393
 #: classes/wpaicg_image.php:538
 #: classes/wpaicg_image.php:638
-#: classes/wpaicg_logs.php:467
-#: classes/wpaicg_logs.php:491
-#: classes/wpaicg_logs.php:784
-#: classes/wpaicg_logs.php:817
-#: classes/wpaicg_logs.php:853
-#: classes/wpaicg_logs.php:886
-#: classes/wpaicg_logs.php:909
+#: classes/wpaicg_logs.php:423
+#: classes/wpaicg_logs.php:447
+#: classes/wpaicg_logs.php:740
+#: classes/wpaicg_logs.php:773
+#: classes/wpaicg_logs.php:809
+#: classes/wpaicg_logs.php:842
+#: classes/wpaicg_logs.php:865
 #: classes/wpaicg_openroutermethod.php:57
 #: classes/wpaicg_playground.php:212
 #: classes/wpaicg_playground.php:453
@@ -882,7 +882,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:661
 #: admin/extra/wpaicg_promptbase_log.php:251
 #: admin/views/settings/chat-general-settings.php:222
-#: classes/wpaicg_logs.php:345
+#: classes/wpaicg_logs.php:305
 msgid "Feedback"
 msgstr ""
 
@@ -1093,7 +1093,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:468
 #: admin/extra/wpaicg_promptbase_index.php:1004
 #: admin/extra/wpaicg_single.php:1218
-#: admin/views/settings/ai.php:331
+#: admin/views/settings/ai.php:333
 #: admin/views/settings/chatbots.php:175
 msgid "Temperature"
 msgstr ""
@@ -1103,7 +1103,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:472
 #: admin/extra/wpaicg_promptbase_index.php:1005
 #: admin/extra/wpaicg_single.php:1220
-#: admin/views/settings/ai.php:349
+#: admin/views/settings/ai.php:351
 #: admin/views/settings/chatbots.php:193
 msgid "Top P"
 msgstr ""
@@ -1204,8 +1204,8 @@ msgstr ""
 #: admin/views/settings/chatlogs.php:22
 #: admin/views/settings/chatlogs.php:27
 #: admin/views/settings/extra_tools.php:257
-#: classes/wpaicg_logs.php:385
-#: classes/wpaicg_logs.php:567
+#: classes/wpaicg_logs.php:341
+#: classes/wpaicg_logs.php:523
 #: lib/modules/wpaicg_user_pdfs.php:136
 #: lib/views/chat/pdfs.php:20
 #: lib/views/google-sheets/fields.php:67
@@ -1518,7 +1518,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:480
 #: admin/extra/wpaicg_promptbase_index.php:1007
 #: admin/extra/wpaicg_single.php:1221
-#: admin/views/settings/ai.php:337
+#: admin/views/settings/ai.php:339
 #: admin/views/settings/chatbots.php:181
 msgid "Frequency Penalty"
 msgstr ""
@@ -1527,7 +1527,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:484
 #: admin/extra/wpaicg_promptbase_index.php:1008
 #: admin/extra/wpaicg_single.php:1222
-#: admin/views/settings/ai.php:343
+#: admin/views/settings/ai.php:345
 #: admin/views/settings/chatbots.php:187
 msgid "Presence Penalty"
 msgstr ""
@@ -1586,7 +1586,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:1441
 #: admin/extra/wpaicg_promptbase_index.php:1156
-#: admin/extra/wpaicg_single.php:1806
+#: admin/extra/wpaicg_single.php:1815
 #: admin/views/embeddings/autoscan.php:154
 #: admin/views/finetune/files.php:164
 #: admin/views/finetune/fine-tunes.php:102
@@ -1777,8 +1777,8 @@ msgstr ""
 #: classes/wpaicg_dashboard.php:581
 #: classes/wpaicg_dashboard.php:2122
 #: classes/wpaicg_logs.php:45
-#: classes/wpaicg_logs.php:749
-#: classes/wpaicg_logs.php:993
+#: classes/wpaicg_logs.php:705
+#: classes/wpaicg_logs.php:949
 msgid "Nonce verification failed."
 msgstr ""
 
@@ -2045,8 +2045,8 @@ msgstr ""
 #: admin/views/metabox.php:792
 #: admin/views/settings/image_settings.php:223
 #: classes/wpaicg_custom_prompt.php:234
-#: classes/wpaicg_generator.php:1142
-#: classes/wpaicg_generator.php:1263
+#: classes/wpaicg_generator.php:1143
+#: classes/wpaicg_generator.php:1264
 #: classes/wpaicg_image.php:447
 #: classes/wpaicg_image.php:561
 msgid "Lighting"
@@ -2057,8 +2057,8 @@ msgstr ""
 #: admin/views/metabox.php:802
 #: admin/views/settings/image_settings.php:236
 #: classes/wpaicg_custom_prompt.php:235
-#: classes/wpaicg_generator.php:1143
-#: classes/wpaicg_generator.php:1264
+#: classes/wpaicg_generator.php:1144
+#: classes/wpaicg_generator.php:1265
 #: classes/wpaicg_image.php:448
 #: classes/wpaicg_image.php:562
 msgid "Subject"
@@ -2076,8 +2076,8 @@ msgstr ""
 #: admin/views/metabox.php:822
 #: admin/views/settings/image_settings.php:262
 #: classes/wpaicg_custom_prompt.php:230
-#: classes/wpaicg_generator.php:1138
-#: classes/wpaicg_generator.php:1259
+#: classes/wpaicg_generator.php:1139
+#: classes/wpaicg_generator.php:1260
 #: classes/wpaicg_image.php:443
 #: classes/wpaicg_image.php:557
 msgid "Composition"
@@ -2088,8 +2088,8 @@ msgstr ""
 #: admin/views/metabox.php:832
 #: admin/views/settings/image_settings.php:275
 #: classes/wpaicg_custom_prompt.php:231
-#: classes/wpaicg_generator.php:1139
-#: classes/wpaicg_generator.php:1260
+#: classes/wpaicg_generator.php:1140
+#: classes/wpaicg_generator.php:1261
 #: classes/wpaicg_image.php:444
 #: classes/wpaicg_image.php:558
 msgid "Resolution"
@@ -2100,8 +2100,8 @@ msgstr ""
 #: admin/views/metabox.php:842
 #: admin/views/settings/image_settings.php:288
 #: classes/wpaicg_custom_prompt.php:232
-#: classes/wpaicg_generator.php:1140
-#: classes/wpaicg_generator.php:1261
+#: classes/wpaicg_generator.php:1141
+#: classes/wpaicg_generator.php:1262
 #: classes/wpaicg_image.php:445
 #: classes/wpaicg_image.php:559
 msgid "Color"
@@ -2112,8 +2112,8 @@ msgstr ""
 #: admin/views/metabox.php:852
 #: admin/views/settings/image_settings.php:301
 #: classes/wpaicg_custom_prompt.php:233
-#: classes/wpaicg_generator.php:1141
-#: classes/wpaicg_generator.php:1262
+#: classes/wpaicg_generator.php:1142
+#: classes/wpaicg_generator.php:1263
 #: classes/wpaicg_image.php:446
 #: classes/wpaicg_image.php:560
 msgid "Special Effects"
@@ -2503,7 +2503,7 @@ msgid "Speak"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:356
-#: admin/extra/wpaicg_single.php:2431
+#: admin/extra/wpaicg_single.php:2440
 #: admin/views/audio/converter.php:108
 #: admin/views/audio/converter.php:641
 msgid "Pause"
@@ -2837,7 +2837,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:927
 #: admin/extra/wpaicg_single.php:955
-#: classes/wpaicg_generator.php:242
+#: classes/wpaicg_generator.php:243
 msgid "Table of Contents"
 msgstr ""
 
@@ -2991,7 +2991,7 @@ msgid "Together AI"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1330
-#: admin/extra/wpaicg_single.php:2973
+#: admin/extra/wpaicg_single.php:2982
 msgid "Select a prompt"
 msgstr ""
 
@@ -3014,38 +3014,38 @@ msgstr ""
 msgid "Type heading text..."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:1819
+#: admin/extra/wpaicg_single.php:1828
 msgid "Template successfully deleted."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:1831
+#: admin/extra/wpaicg_single.php:1840
 msgid "Please choose correct title"
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:1851
+#: admin/extra/wpaicg_single.php:1860
 msgid "Please enter a topic"
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:1879
+#: admin/extra/wpaicg_single.php:1888
 msgid "Preparing title suggestions..."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:1889
+#: admin/extra/wpaicg_single.php:1898
 #: classes/wpaicg_regenerate_title.php:293
 msgid "Use"
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:1894
-#: admin/extra/wpaicg_single.php:1994
-#: admin/extra/wpaicg_single.php:2034
-#: admin/extra/wpaicg_single.php:2074
+#: admin/extra/wpaicg_single.php:1903
+#: admin/extra/wpaicg_single.php:2003
+#: admin/extra/wpaicg_single.php:2043
+#: admin/extra/wpaicg_single.php:2083
 #: classes/wpaicg_regenerate_title.php:298
 msgid "No result"
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:1959
-#: admin/extra/wpaicg_single.php:2048
-#: admin/extra/wpaicg_single.php:2091
+#: admin/extra/wpaicg_single.php:1968
+#: admin/extra/wpaicg_single.php:2057
+#: admin/extra/wpaicg_single.php:2100
 #: classes/wpaicg_template.php:207
 #: classes/wpaicg_template.php:216
 #: classes/wpaicg_template.php:224
@@ -3053,118 +3053,118 @@ msgstr ""
 msgid "Please generate title first"
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:1962
+#: admin/extra/wpaicg_single.php:1971
 #: classes/wpaicg_template.php:236
 msgid "Please generate sections first"
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:2094
+#: admin/extra/wpaicg_single.php:2103
 msgid "Please generate content first"
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:2135
+#: admin/extra/wpaicg_single.php:2144
 msgid "Please enter a template name"
 msgstr ""
 
 #. translators: 1: minimum temperature, 2: maximum temperature
-#: admin/extra/wpaicg_single.php:2140
+#: admin/extra/wpaicg_single.php:2149
 msgid "Please enter a valid temperature value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum top p value, 2: maximum top p value
-#: admin/extra/wpaicg_single.php:2145
+#: admin/extra/wpaicg_single.php:2154
 msgid "Please enter a valid top p value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum frequency penalty value, 2: maximum frequency penalty value
-#: admin/extra/wpaicg_single.php:2150
+#: admin/extra/wpaicg_single.php:2159
 msgid "Please enter a valid frequency penalty value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum presence penalty value, 2: maximum presence penalty value
-#: admin/extra/wpaicg_single.php:2155
+#: admin/extra/wpaicg_single.php:2164
 msgid "Please enter a valid presence penalty value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max token value, 2: maximum max token value
-#: admin/extra/wpaicg_single.php:2160
+#: admin/extra/wpaicg_single.php:2169
 msgid "For gpt-3.5-turbo, gpt-3.5-turbo-instruct or text-davinci-003, please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max token value, 2: maximum max token value
-#: admin/extra/wpaicg_single.php:2165
+#: admin/extra/wpaicg_single.php:2174
 msgid "For gpt-4, please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max token value, 2: maximum max token value
-#: admin/extra/wpaicg_single.php:2170
+#: admin/extra/wpaicg_single.php:2179
 msgid "For gpt-4o, please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max token value, 2: maximum max token value
-#: admin/extra/wpaicg_single.php:2175
+#: admin/extra/wpaicg_single.php:2184
 msgid "For gpt-4o-mini, please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max token value, 2: maximum max token value
-#: admin/extra/wpaicg_single.php:2180
+#: admin/extra/wpaicg_single.php:2189
 msgid "For gpt-3.5-turbo-16k, please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max token value, 2: maximum max token value
-#: admin/extra/wpaicg_single.php:2185
+#: admin/extra/wpaicg_single.php:2194
 msgid "For gpt-4-32k, please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max token value, 2: maximum max token value
-#: admin/extra/wpaicg_single.php:2190
+#: admin/extra/wpaicg_single.php:2199
 msgid "For gpt-4-turbo, please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max token value, 2: maximum max token value
-#: admin/extra/wpaicg_single.php:2195
+#: admin/extra/wpaicg_single.php:2204
 msgid "For gpt-4-vision-preview, please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
 #. translators: 1: minimum max token value, 2: maximum max token value
-#: admin/extra/wpaicg_single.php:2200
+#: admin/extra/wpaicg_single.php:2209
 msgid "For ada, babbage and curie, please enter a valid max token value between %1$d and %2$d."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:2220
+#: admin/extra/wpaicg_single.php:2229
 msgid "Template updated successfully."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:2225
+#: admin/extra/wpaicg_single.php:2234
 msgid "New template created successfully."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:2337
+#: admin/extra/wpaicg_single.php:2346
 msgid "Your Prompt"
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:2371
+#: admin/extra/wpaicg_single.php:2380
 msgid "Please insert a title before saving."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:2375
+#: admin/extra/wpaicg_single.php:2384
 msgid "Please record a speech before saving."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:2399
+#: admin/extra/wpaicg_single.php:2408
 msgid "Your post has been saved successfully. You can view its details under the Logs tab."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:2435
+#: admin/extra/wpaicg_single.php:2444
 #: admin/views/audio/converter.php:645
 msgid "Continue"
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:3447
+#: admin/extra/wpaicg_single.php:3456
 msgid "Please enter a title."
 msgstr ""
 
-#: admin/extra/wpaicg_single.php:3450
+#: admin/extra/wpaicg_single.php:3459
 msgid "Please wait until the content is generated."
 msgstr ""
 
@@ -3181,7 +3181,6 @@ msgid "Out of Quota"
 msgstr ""
 
 #: admin/views/account/index.php:225
-#: admin/views/account/index.php:262
 #: admin/views/account/metabox.php:13
 msgid "ChatGPT"
 msgstr ""
@@ -3202,6 +3201,11 @@ msgstr ""
 
 #: admin/views/account/index.php:249
 msgid "Token/Price"
+msgstr ""
+
+#: admin/views/account/index.php:262
+#: admin/views/settings/dashboard.php:103
+msgid "Chatbot"
 msgstr ""
 
 #: admin/views/account/metabox.php:7
@@ -4395,7 +4399,7 @@ msgid "Advanced Settings"
 msgstr ""
 
 #: admin/views/settings/ai.php:93
-#: admin/views/settings/ai.php:362
+#: admin/views/settings/ai.php:364
 msgid "Safety Settings"
 msgstr ""
 
@@ -4484,7 +4488,7 @@ msgstr ""
 msgid "Maximum Tokens"
 msgstr ""
 
-#: admin/views/settings/ai.php:325
+#: admin/views/settings/ai.php:327
 msgid "Buffer (in seconds)"
 msgstr ""
 
@@ -4990,7 +4994,7 @@ msgstr ""
 #: admin/views/settings/chatbots.php:56
 #: admin/views/settings/chatlogs.php:21
 #: admin/views/settings/extra_tools.php:255
-#: classes/wpaicg_logs.php:384
+#: classes/wpaicg_logs.php:340
 #: lib/modules/wpaicg_user_pdfs.php:135
 #: lib/views/chat/pdfs.php:19
 msgid "Sure?"
@@ -5381,10 +5385,10 @@ msgid "Tools to refresh, export, and delete all logs"
 msgstr ""
 
 #: admin/views/settings/chatlogs.php:63
-#: classes/wpaicg_logs.php:642
-#: classes/wpaicg_logs.php:654
-#: classes/wpaicg_logs.php:707
-#: classes/wpaicg_logs.php:717
+#: classes/wpaicg_logs.php:598
+#: classes/wpaicg_logs.php:610
+#: classes/wpaicg_logs.php:663
+#: classes/wpaicg_logs.php:673
 msgid "Revise Answer"
 msgstr ""
 
@@ -5405,10 +5409,10 @@ msgid "Update Answer"
 msgstr ""
 
 #: admin/views/settings/chatlogs.php:104
-#: classes/wpaicg_logs.php:639
-#: classes/wpaicg_logs.php:651
-#: classes/wpaicg_logs.php:705
-#: classes/wpaicg_logs.php:715
+#: classes/wpaicg_logs.php:595
+#: classes/wpaicg_logs.php:607
+#: classes/wpaicg_logs.php:661
+#: classes/wpaicg_logs.php:671
 msgid "Prompt Details"
 msgstr ""
 
@@ -5426,7 +5430,7 @@ msgstr ""
 
 #: admin/views/settings/chatlogs.php:774
 #: admin/views/settings/chatlogs.php:785
-#: classes/wpaicg_logs.php:999
+#: classes/wpaicg_logs.php:955
 msgid "Invalid IP address."
 msgstr ""
 
@@ -5543,10 +5547,6 @@ msgstr ""
 
 #: admin/views/settings/dashboard.php:99
 msgid "Dashboard"
-msgstr ""
-
-#: admin/views/settings/dashboard.php:103
-msgid "Chatbot"
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:27
@@ -6372,7 +6372,7 @@ msgstr ""
 #: classes/wpaicg_finetune.php:937
 #: classes/wpaicg_finetune.php:1048
 #: classes/wpaicg_finetune.php:1185
-#: classes/wpaicg_generator.php:178
+#: classes/wpaicg_generator.php:179
 #: classes/wpaicg_playground.php:222
 #: classes/wpaicg_search.php:37
 msgid "Missing API Setting"
@@ -6383,8 +6383,8 @@ msgid "Method does not exist"
 msgstr ""
 
 #: classes/wpaicg_audio.php:241
-#: classes/wpaicg_generator.php:1703
-#: classes/wpaicg_generator.php:1709
+#: classes/wpaicg_generator.php:1704
+#: classes/wpaicg_generator.php:1710
 msgid "The model predicted a completion that begins with a stop sequence, resulting in no output. Consider adjusting your prompt or stop sequences."
 msgstr ""
 
@@ -6398,45 +6398,49 @@ msgstr ""
 msgid "You have reached your token limit."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1279
+#: classes/wpaicg_chat.php:1278
 msgid "It appears that nothing was inputted."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1417
+#: classes/wpaicg_chat.php:1347
+msgid "File type is not allowed. Only PNG, JPEG, WEBP, and non-animated GIF are supported."
+msgstr ""
+
+#: classes/wpaicg_chat.php:1431
 msgid "Accepted audio and video formats: MP3, MP4, MPEG, M4A, WAV, and WEBM."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1421
+#: classes/wpaicg_chat.php:1435
 msgid "Maximum audio file size: 25MB."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1868
-#: classes/wpaicg_chat.php:1883
+#: classes/wpaicg_chat.php:1796
+#: classes/wpaicg_chat.php:1811
 msgid "You are not allowed to access this feature."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1908
-#: classes/wpaicg_chat.php:1922
+#: classes/wpaicg_chat.php:1836
+#: classes/wpaicg_chat.php:1850
 msgid "Your message contains prohibited words. Please modify your message and try again."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2080
+#: classes/wpaicg_chat.php:2008
 msgid "No results from Pinecone."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2088
+#: classes/wpaicg_chat.php:2016
 msgid "Something wrong with Pinecone setup. Check your Pinecone settings."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2214
+#: classes/wpaicg_chat.php:2142
 msgid "No results from Qdrant."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2215
+#: classes/wpaicg_chat.php:2143
 msgid "Response from Qdrant: "
 msgstr ""
 
-#: classes/wpaicg_chat.php:2239
+#: classes/wpaicg_chat.php:2167
 msgid "Something wrong with Qdrant setup3. Check your Qdrant settings."
 msgstr ""
 
@@ -6505,24 +6509,24 @@ msgid "Can not save image to media"
 msgstr ""
 
 #: classes/wpaicg_custom_prompt.php:228
-#: classes/wpaicg_generator.php:1136
-#: classes/wpaicg_generator.php:1257
+#: classes/wpaicg_generator.php:1137
+#: classes/wpaicg_generator.php:1258
 #: classes/wpaicg_image.php:440
 #: classes/wpaicg_image.php:554
 msgid "Painter"
 msgstr ""
 
 #: classes/wpaicg_custom_prompt.php:229
-#: classes/wpaicg_generator.php:1137
-#: classes/wpaicg_generator.php:1258
+#: classes/wpaicg_generator.php:1138
+#: classes/wpaicg_generator.php:1259
 #: classes/wpaicg_image.php:442
 #: classes/wpaicg_image.php:556
 msgid "Photography Style"
 msgstr ""
 
 #: classes/wpaicg_custom_prompt.php:236
-#: classes/wpaicg_generator.php:1144
-#: classes/wpaicg_generator.php:1265
+#: classes/wpaicg_generator.php:1145
+#: classes/wpaicg_generator.php:1266
 #: classes/wpaicg_image.php:449
 #: classes/wpaicg_image.php:563
 msgid "Camera Settings"
@@ -6545,15 +6549,15 @@ msgstr ""
 #: classes/wpaicg_dashboard.php:3158
 #: classes/wpaicg_finetune.php:59
 #: classes/wpaicg_logs.php:39
-#: classes/wpaicg_logs.php:462
-#: classes/wpaicg_logs.php:486
-#: classes/wpaicg_logs.php:743
-#: classes/wpaicg_logs.php:779
-#: classes/wpaicg_logs.php:812
-#: classes/wpaicg_logs.php:848
-#: classes/wpaicg_logs.php:881
-#: classes/wpaicg_logs.php:904
-#: classes/wpaicg_logs.php:987
+#: classes/wpaicg_logs.php:418
+#: classes/wpaicg_logs.php:442
+#: classes/wpaicg_logs.php:699
+#: classes/wpaicg_logs.php:735
+#: classes/wpaicg_logs.php:768
+#: classes/wpaicg_logs.php:804
+#: classes/wpaicg_logs.php:837
+#: classes/wpaicg_logs.php:860
+#: classes/wpaicg_logs.php:943
 #: lib/modules/wpaicg_user_pdfs.php:212
 #: lib/modules/wpaicg_user_pdfs.php:233
 #: lib/modules/wpaicg_user_pdfs.php:276
@@ -7239,30 +7243,30 @@ msgstr ""
 msgid "Failed to save feedback."
 msgstr ""
 
-#: classes/wpaicg_generator.php:1397
-#: classes/wpaicg_generator.php:1463
-#: classes/wpaicg_generator.php:1468
-#: classes/wpaicg_generator.php:1562
+#: classes/wpaicg_generator.php:1398
+#: classes/wpaicg_generator.php:1464
+#: classes/wpaicg_generator.php:1469
+#: classes/wpaicg_generator.php:1563
 msgid "No image generated"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1403
+#: classes/wpaicg_generator.php:1404
 msgid "Missing Pixabay API Setting"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1475
+#: classes/wpaicg_generator.php:1476
 msgid "Missing Pexels API Setting"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1566
+#: classes/wpaicg_generator.php:1567
 msgid "Failed to retrieve images"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1571
+#: classes/wpaicg_generator.php:1572
 msgid "Missing Replicate API Key"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1687
+#: classes/wpaicg_generator.php:1688
 msgid "Please note that this message is coming from OpenAI and it is not related to our plugin. It means that you do not have enough credit from OpenAI. To fix this issue go to https://platform.openai.com/account/billing/payment-methods and add a new payment method. Once payment method is added, go to https://platform.openai.com/account/billing/overview and add credit to your balance. Once balance is added go to https://platform.openai.com/account/api-keys and generate new api keys. Now paste this new api key under the plugin Settings - AI engine tab."
 msgstr ""
 
@@ -7420,12 +7424,12 @@ msgid "Invalid log ID or message identifier."
 msgstr ""
 
 #: classes/wpaicg_logs.php:65
-#: classes/wpaicg_logs.php:508
+#: classes/wpaicg_logs.php:464
 msgid "Log not found."
 msgstr ""
 
 #: classes/wpaicg_logs.php:73
-#: classes/wpaicg_logs.php:516
+#: classes/wpaicg_logs.php:472
 msgid "Invalid log data."
 msgstr ""
 
@@ -7433,162 +7437,166 @@ msgstr ""
 msgid "ago"
 msgstr ""
 
-#: classes/wpaicg_logs.php:345
+#: classes/wpaicg_logs.php:305
 msgid "Has Feedback"
 msgstr ""
 
-#: classes/wpaicg_logs.php:348
+#: classes/wpaicg_logs.php:308
 msgid "Has Lead"
 msgstr ""
 
-#: classes/wpaicg_logs.php:348
+#: classes/wpaicg_logs.php:308
 msgid "Lead"
 msgstr ""
 
-#: classes/wpaicg_logs.php:353
+#: classes/wpaicg_logs.php:313
 msgid "messages"
 msgstr ""
 
-#: classes/wpaicg_logs.php:357
+#: classes/wpaicg_logs.php:316
 msgid "feedback"
 msgstr ""
 
-#: classes/wpaicg_logs.php:362
+#: classes/wpaicg_logs.php:320
+msgid "lead"
+msgstr ""
+
+#: classes/wpaicg_logs.php:322
 msgid "leads"
 msgstr ""
 
-#: classes/wpaicg_logs.php:368
+#: classes/wpaicg_logs.php:326
 msgid "Flagged Message(s)"
 msgstr ""
 
-#: classes/wpaicg_logs.php:376
+#: classes/wpaicg_logs.php:334
 msgid "View Token Details"
 msgstr ""
 
-#: classes/wpaicg_logs.php:381
+#: classes/wpaicg_logs.php:338
 msgid "Delete Log"
 msgstr ""
 
-#: classes/wpaicg_logs.php:451
+#: classes/wpaicg_logs.php:407
 msgid "No logs found."
 msgstr ""
 
-#: classes/wpaicg_logs.php:496
-#: classes/wpaicg_logs.php:789
+#: classes/wpaicg_logs.php:452
+#: classes/wpaicg_logs.php:745
 msgid "Invalid log ID."
 msgstr ""
 
-#: classes/wpaicg_logs.php:551
+#: classes/wpaicg_logs.php:507
 msgid "Source:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:554
-#: classes/wpaicg_logs.php:589
+#: classes/wpaicg_logs.php:510
+#: classes/wpaicg_logs.php:545
 msgid "User:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:559
+#: classes/wpaicg_logs.php:515
 msgid "IP:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:562
+#: classes/wpaicg_logs.php:518
 msgid "Block IP"
 msgstr ""
 
-#: classes/wpaicg_logs.php:566
+#: classes/wpaicg_logs.php:522
 msgid "Are you sure you want to block this IP?"
 msgstr ""
 
-#: classes/wpaicg_logs.php:572
+#: classes/wpaicg_logs.php:528
 #: lib/modules/wpaicg_user_pdfs.php:120
 msgid "Token:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:594
+#: classes/wpaicg_logs.php:550
 msgid "Flagged as"
 msgstr ""
 
-#: classes/wpaicg_logs.php:604
+#: classes/wpaicg_logs.php:560
 msgid "Lead Details"
 msgstr ""
 
-#: classes/wpaicg_logs.php:606
+#: classes/wpaicg_logs.php:562
 msgid "Name:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:609
+#: classes/wpaicg_logs.php:565
 msgid "Email:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:612
+#: classes/wpaicg_logs.php:568
 msgid "Phone:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:626
-#: classes/wpaicg_logs.php:693
+#: classes/wpaicg_logs.php:582
+#: classes/wpaicg_logs.php:649
 #: lib/modules/wpaicg_user_pdfs.php:121
 msgid "AI:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:637
-#: classes/wpaicg_logs.php:704
+#: classes/wpaicg_logs.php:593
+#: classes/wpaicg_logs.php:660
 msgid "Confidence:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:668
+#: classes/wpaicg_logs.php:624
 msgid "Thumbs Up"
 msgstr ""
 
-#: classes/wpaicg_logs.php:672
+#: classes/wpaicg_logs.php:628
 msgid "Thumbs Down"
 msgstr ""
 
-#: classes/wpaicg_logs.php:755
+#: classes/wpaicg_logs.php:711
 msgid "No content provided."
 msgstr ""
 
-#: classes/wpaicg_logs.php:765
+#: classes/wpaicg_logs.php:721
 msgid "Answer revised successfully. Try asking your bot the same question."
 msgstr ""
 
-#: classes/wpaicg_logs.php:801
+#: classes/wpaicg_logs.php:757
 msgid "Log deleted successfully."
 msgstr ""
 
-#: classes/wpaicg_logs.php:803
+#: classes/wpaicg_logs.php:759
 msgid "Failed to delete log."
 msgstr ""
 
-#: classes/wpaicg_logs.php:829
+#: classes/wpaicg_logs.php:785
 msgid "There are no logs to delete."
 msgstr ""
 
-#: classes/wpaicg_logs.php:837
+#: classes/wpaicg_logs.php:793
 msgid "All logs deleted successfully."
 msgstr ""
 
-#: classes/wpaicg_logs.php:839
+#: classes/wpaicg_logs.php:795
 msgid "Failed to delete logs."
 msgstr ""
 
-#: classes/wpaicg_logs.php:895
-#: classes/wpaicg_logs.php:941
+#: classes/wpaicg_logs.php:851
+#: classes/wpaicg_logs.php:897
 msgid "The uploads folder is not writable. Please check the folder permissions."
 msgstr ""
 
-#: classes/wpaicg_logs.php:934
+#: classes/wpaicg_logs.php:890
 msgid "No logs found to export."
 msgstr ""
 
-#: classes/wpaicg_logs.php:953
+#: classes/wpaicg_logs.php:909
 msgid "Failed to create CSV file."
 msgstr ""
 
-#: classes/wpaicg_logs.php:1011
+#: classes/wpaicg_logs.php:967
 msgid "This IP is already blocked."
 msgstr ""
 
-#: classes/wpaicg_logs.php:1022
+#: classes/wpaicg_logs.php:978
 msgid "IP has been successfully blocked."
 msgstr ""
 

@@ -842,14 +842,25 @@ echo esc_html__( 'Pro', 'gpt3-ai-content-generator' );
 echo esc_html__( 'Keywords to Include', 'gpt3-ai-content-generator' );
 ?></label>
                             <?php 
-?>
-                            <input type="text" disabled id="wpai_keywords" placeholder="<?php 
-echo esc_html__( 'Pro Feature', 'gpt3-ai-content-generator' );
-?>" name="_wporg_keywords" value="">
+if ( \WPAICG\wpaicg_util_core()->wpaicg_is_pro() ) {
+    ?>
+                            <input type="text" id="wpai_keywords" placeholder="<?php 
+    echo esc_html__( 'e.g. gpt, ai', 'gpt3-ai-content-generator' );
+    ?>" name="_wporg_keywords" value="">
                             <small><?php 
-echo esc_html__( 'Use comma to separate keywords', 'gpt3-ai-content-generator' );
-?></small>
+    echo esc_html__( 'Use comma to separate keywords', 'gpt3-ai-content-generator' );
+    ?></small>
                             <?php 
+} else {
+    ?>
+                            <input type="text" disabled id="wpai_keywords" placeholder="<?php 
+    echo esc_html__( 'Pro Feature', 'gpt3-ai-content-generator' );
+    ?>" name="_wporg_keywords" value="">
+                            <small><?php 
+    echo esc_html__( 'Use comma to separate keywords', 'gpt3-ai-content-generator' );
+    ?></small>
+                            <?php 
+}
 ?>
                         </div>
                         <div class="nice-form-group">
@@ -857,14 +868,25 @@ echo esc_html__( 'Use comma to separate keywords', 'gpt3-ai-content-generator' )
 echo esc_html__( 'Keywords to Avoid', 'gpt3-ai-content-generator' );
 ?></label>
                             <?php 
-?>
-                            <input type="text" disabled id="wpai_words_to_avoid" placeholder="<?php 
-echo esc_html__( 'Pro Feature', 'gpt3-ai-content-generator' );
-?>" name="_wporg_words_to_avoid" value="">
+if ( \WPAICG\wpaicg_util_core()->wpaicg_is_pro() ) {
+    ?>
+                            <input type="text" id="wpai_words_to_avoid" placeholder="<?php 
+    echo esc_html__( 'e.g. top, best', 'gpt3-ai-content-generator' );
+    ?>" name="_wporg_words_to_avoid" value="">
                             <small><?php 
-echo esc_html__( 'Use comma to separate keywords', 'gpt3-ai-content-generator' );
-?></small>
+    echo esc_html__( 'Use comma to separate keywords', 'gpt3-ai-content-generator' );
+    ?></small>
                             <?php 
+} else {
+    ?>
+                            <input type="text" disabled id="wpai_words_to_avoid" placeholder="<?php 
+    echo esc_html__( 'Pro Feature', 'gpt3-ai-content-generator' );
+    ?>" name="_wporg_words_to_avoid" value="">
+                            <small><?php 
+    echo esc_html__( 'Use comma to separate keywords', 'gpt3-ai-content-generator' );
+    ?></small>
+                            <?php 
+}
 ?>
                         </div>
                         <div class="nice-form-group">
@@ -2417,6 +2439,15 @@ echo admin_url( 'admin-ajax.php' );
             wpaicg_custom_template_row_type.hide();
             wpaicg_template_title_result.hide();
         });
+        // Function to add or update the hidden 'id' field
+        function setTemplateId(id) {
+            let existingIdField = $('.wpaicg_custom_template_id');
+            if (existingIdField.length) {
+                existingIdField.val(id);
+            } else {
+                $('.wpaicg_custom_template_title').after('<input class="wpaicg_custom_template_id" type="hidden" name="id" value="' + id + '">');
+            }
+        }
         $(document).on('change','#wpaicg_custom_template_select', function (e){
             let selection = $(e.currentTarget);
             wpaicg_custom_template_title_count.val(3);
@@ -2427,8 +2458,8 @@ echo admin_url( 'admin-ajax.php' );
             let parameters = selected.attr('data-parameters');
             parameters = JSON.parse(parameters);
             if(val > 0){
-                $('.wpaicg_custom_template_title').val(selected.text().trim());
-                $('.wpaicg_custom_template_title').after('<input class="wpaicg_custom_template_id" type="hidden" name="id" value="'+val+'">');
+                $('.wpaicg_custom_template_title').val(selection.find('option:selected').text().trim());
+                setTemplateId(val);
                 $('.wpaicg_template_update').show();
                 $('.wpaicg_template_delete').show();
                 $('.wpaicg_template_delete').attr('data-id',val);

@@ -235,101 +235,62 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                 // Calculate human-readable time difference
                                 $time_diff = human_time_diff(intval($log->created_at), current_time('timestamp')) . ' ' . __('ago', 'gpt3-ai-content-generator');
                                 
-                                // Decode the log data to count user messages
+                                // Decode the log data to count user messages, feedback, and leads
                                 $data = json_decode($log->data, true);
                                 $user_message_count = 0;
-                                $lead_count = 0; // Initialize lead count
-                                $feedback_count = 0; // Initialize feedback count
+                                $lead_count = 0;
+                                $feedback_count = 0;
+                                $total_tokens = 0;
+                                $has_flagged = false;
+                                $flag_reasons = array();
+                                $message_details = array();
+                                $message_number = 1;
+
                                 if (is_array($data)) {
                                     foreach ($data as $message) {
                                         if (isset($message['type']) && $message['type'] === 'user') {
                                             $user_message_count++;
-                                
+
                                             // Check for user feedback
                                             if (isset($message['userfeedback']) && is_array($message['userfeedback'])) {
                                                 $feedback_count += count($message['userfeedback']);
                                             }
-                                
-                                            // **New code to count leads**
+
+                                            // Count leads for user messages
                                             if (isset($message['lead_data']) && is_array($message['lead_data'])) {
                                                 $lead_count++;
                                             }
                                         }
-                                        // Existing code...
-                                    }
-                                }
-                                // Retrieve the pricing table
-                                $pricing = \WPAICG\WPAICG_Util::get_instance()->model_pricing;
-                                // Calculate total tokens from AI messages and prepare detailed message data
-                                $total_tokens = 0; // Initialize total tokens
-                                $message_details = array(); // Initialize array to hold message details
-                                $message_number = 1; // Initialize message counter
 
-                                if (is_array($data)) {
-                                    foreach ($data as $message) {
                                         // Sum tokens from AI messages
                                         if (isset($message['type']) && $message['type'] === 'ai' && isset($message['token'])) {
                                             $total_tokens += intval($message['token']);
                                         }
-                                
+
                                         // Collect detailed message data only for AI messages
                                         if (isset($message['type']) && $message['type'] === 'ai') {
                                             $model = isset($message['request']['model']) ? sanitize_text_field($message['request']['model']) : 'N/A';
                                             $token = isset($message['token']) ? intval($message['token']) : 0;
-                                            
-                                            // Calculate cost
-                                            if (isset($pricing[$model])) {
-                                                $cost = ($token / 1000) * $pricing[$model];
-                                            } else {
-                                                // Handle unknown models gracefully
-                                                $cost = 0;
-                                            }
-                                            
-                                            // Format cost to 4 decimal places for precision
-                                            $cost = number_format($cost, 8);
-                                            
+                                            $cost = isset($pricing[$model]) ? number_format(($token / 1000) * $pricing[$model], 8) : 0;
                                             $message_details[] = array(
                                                 'number' => $message_number,
                                                 'model'  => $model,
                                                 'token'  => $token,
                                                 'cost'   => $cost
                                             );
-                                
                                             $message_number++;
                                         }
-                                    }
-                                }
 
-                                // Encode the message details as JSON for data attribute
-                                $encoded_message_details = esc_attr(json_encode($message_details));
-                                if (is_array($data)) {
-                                    foreach ($data as $message) {
-                                        if (isset($message['type']) && $message['type'] === 'user') {
-                                            $user_message_count++;
-                                            
-                                            // Check if 'userfeedback' exists and is an array
-                                            if (isset($message['userfeedback']) && is_array($message['userfeedback'])) {
-                                                $feedback_count += count($message['userfeedback']);
-                                            }
-                                        }
-                                        // Sum tokens from AI messages
-                                        if (isset($message['type']) && $message['type'] === 'ai' && isset($message['token'])) {
-                                            $total_tokens += intval($message['token']);
-                                        }
-                                    }
-                                }
-                                // Initialize flag variables
-                                $has_flagged = false;
-                                $flag_reasons = array();
-                                // Check for flagged messages
-                                if (is_array($data)) {
-                                    foreach ($data as $message) {
+                                        // Check for flagged messages
                                         if (isset($message['flag']) && $message['flag'] !== false) {
                                             $has_flagged = true;
                                             $flag_reasons[] = sanitize_text_field($message['flag']);
                                         }
                                     }
                                 }
+
+                                // Encode the message details as JSON for data attribute
+                                $encoded_message_details = esc_attr(json_encode($message_details));
                                 ?>
                                 <tr>
                                     <td class="aipower-clickable-message" data-id="<?php echo esc_attr($log->id); ?>">
@@ -339,7 +300,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                         <?php if ($latest_conversation['ai']) : ?>
                                             <?php echo esc_html($latest_conversation['ai']); ?>
                                         <?php endif; ?>
-                                        <!-- **New Badges Section** -->
                                         <div class="aipower-message-badges">
                                             <?php if ($feedback_count > 0): ?>
                                                 <span class="aipower-badge aipower-feedback-badge" title="<?php echo esc_attr__('Has Feedback', 'gpt3-ai-content-generator'); ?>"><?php echo esc_html__('Feedback', 'gpt3-ai-content-generator'); ?></span>
@@ -352,19 +312,17 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                             <?php 
                                             echo esc_html($time_diff) . ', ' . esc_html($user_message_count) . ' ' . esc_html__('messages', 'gpt3-ai-content-generator'); 
                                             
-                                            // Conditionally display feedback count if greater than zero
                                             if ($feedback_count > 0) {
                                                 echo ', ' . esc_html($feedback_count) . ' ' . esc_html__('feedback', 'gpt3-ai-content-generator');
                                             }
 
-                                            // **New code to display lead count**
-                                            if ($lead_count > 0) {
+                                            if ($lead_count === 1) {
+                                                echo ', ' . esc_html($lead_count) . ' ' . esc_html__('lead', 'gpt3-ai-content-generator');
+                                            } elseif ($lead_count > 1) {
                                                 echo ', ' . esc_html($lead_count) . ' ' . esc_html__('leads', 'gpt3-ai-content-generator');
                                             }
                                             
-                                            // Conditionally display flag icon if there are flagged messages
                                             if ($has_flagged) {
-                                                // Display a red flag icon
                                                 echo ', <span class="dashicons dashicons-flag aipower-flag-icon" title="' . esc_attr__('Flagged Message(s)', 'gpt3-ai-content-generator') . '"></span>';
                                             }
                                             ?>
@@ -376,10 +334,8 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                             <span class="dashicons dashicons-info aipower-log-info-icon" data-details='<?php echo $encoded_message_details; ?>' title="<?php echo esc_attr__('View Token Details', 'gpt3-ai-content-generator'); ?>"></span>
                                         </div>
                                     </td>
-
                                     <td style="position: relative;">
                                         <span class="dashicons dashicons-trash aipower-delete-log-icon" data-id="<?php echo esc_attr($log->id); ?>" title="<?php echo esc_attr__('Delete Log', 'gpt3-ai-content-generator'); ?>"></span>
-                                        <!-- Inline confirmation prompt for single delete -->
                                         <div class="aipower-single-delete-confirmation">
                                             <span><?php echo esc_html__('Sure?', 'gpt3-ai-content-generator'); ?></span>
                                             <span class="aipower-single-confirm-yes" data-id="<?php echo esc_attr($log->id); ?>"><?php echo esc_html__('Yes', 'gpt3-ai-content-generator'); ?></span>

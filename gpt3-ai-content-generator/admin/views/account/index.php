@@ -259,7 +259,7 @@ if($wpaicg_chat_has_limit){
                         $wpaicg_moduleName = __('Image Generator','gpt3-ai-content-generator');
                     }
                     if($wpaicg_log->module == 'chat'){
-                        $wpaicg_moduleName = __('ChatGPT','gpt3-ai-content-generator');
+                        $wpaicg_moduleName = __('Chatbot','gpt3-ai-content-generator');
                     }
                     if($wpaicg_log->module == 'promptbase'){
                         $wpaicg_moduleName = __('Promptbase','gpt3-ai-content-generator');
