@@ -77,7 +77,7 @@ function get_shortcode_text() {
                 <label for="aipower_generate_woo_focus_keyword"><?php echo esc_html__('Generate Focus Keyword', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
                 <input type="checkbox" value="0" disabled name="wpaicg_generate_woo_focus_keyword">
-                <label for="aipower_generate_woo_focus_keyword">?php echo esc_html__('Generate Focus Keyword', 'gpt3-ai-content-generator'); ?></label>
+                <label for="aipower_generate_woo_focus_keyword"><?php echo esc_html__('Generate Focus Keyword', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>

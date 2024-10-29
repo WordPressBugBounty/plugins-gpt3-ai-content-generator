@@ -37,18 +37,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
         public function wpaicg_submit_lead() {
             global $wpdb;
         
-            // Nonce verification
-            $wpaicg_nonce = sanitize_text_field($_REQUEST['_wpnonce']);
-            if (!wp_verify_nonce($wpaicg_nonce, 'wpaicg-chatbox')) {
-                wp_send_json_error('Nonce verification failed.');
-                exit;
-            }
+            // Verify the nonce
+            check_admin_referer('wpaicg-chatbox', '_wpnonce');
         
             // Sanitize and retrieve data from the request
-            $lead_name = isset($_POST['lead_name']) ? sanitize_text_field($_POST['lead_name']) : '';
-            $lead_email = isset($_POST['lead_email']) ? sanitize_email($_POST['lead_email']) : '';
-            $lead_phone = isset($_POST['lead_phone']) ? sanitize_text_field($_POST['lead_phone']) : '';
-            $chatId = isset($_POST['chatId']) ? sanitize_text_field($_POST['chatId']) : '';
+            $lead_name = isset($_POST['lead_name']) ? sanitize_text_field( wp_unslash($_POST['lead_name']) ) : '';
+            $lead_email = isset($_POST['lead_email']) ? sanitize_email( wp_unslash($_POST['lead_email']) ) : '';
+            $lead_phone = isset($_POST['lead_phone']) ? sanitize_text_field( wp_unslash($_POST['lead_phone']) ) : '';
+            $chatId = isset($_POST['chatId']) ? sanitize_text_field( wp_unslash($_POST['chatId']) ) : '';            
             // remove wpaicg-chat-message-73714 the text from the chatId
             $chatId = str_replace('wpaicg-chat-message-', '', $chatId);
         
@@ -93,7 +89,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                         // Update the database with the new log data
                         $wpdb->update(
                             $wpdb->prefix . 'wpaicg_chatlogs',
-                            array('data' => json_encode($log_data)),
+                            array('data' => wp_json_encode($log_data)),
                             array('id' => $log_entry['id']),
                             array('%s'),
                             array('%d')
@@ -117,7 +113,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 // Update the database with the new log data
                 $wpdb->update(
                     $wpdb->prefix . 'wpaicg_chatlogs',
-                    array('data' => json_encode($log_data)),
+                    array('data' => wp_json_encode($log_data)),
                     array('id' => $log_entry['id']),
                     array('%s'),
                     array('%d')
@@ -134,18 +130,13 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
         function wpaicg_submit_feedback() {
             global $wpdb;
 
-            // Nonce verification
-            $wpaicg_nonce = sanitize_text_field($_REQUEST['_wpnonce']);
-            if (!wp_verify_nonce($wpaicg_nonce, 'wpaicg-chatbox')) {
-                $wpaicg_result['msg'] = esc_html__('Nonce verification failed', 'gpt3-ai-content-generator');
-                wp_send_json($wpaicg_result);
-                exit;
-            }
-        
-            // Sanitize and retrieve data from the request
-            $chatId = isset($_POST['chatId']) ? sanitize_text_field($_POST['chatId']) : '';
-            $feedbackType = isset($_POST['feedbackType']) ? sanitize_text_field($_POST['feedbackType']) : '';
-            $feedbackDetails = isset($_POST['feedbackDetails']) ? sanitize_textarea_field($_POST['feedbackDetails']) : '';
+            // Verify the nonce
+            check_admin_referer('wpaicg-chatbox', '_wpnonce');
+
+            // Unslash and sanitize data from the request
+            $chatId = isset($_POST['chatId']) ? sanitize_text_field( wp_unslash($_POST['chatId']) ) : '';
+            $feedbackType = isset($_POST['feedbackType']) ? sanitize_text_field( wp_unslash($_POST['feedbackType']) ) : '';
+            $feedbackDetails = isset($_POST['feedbackDetails']) ? sanitize_textarea_field( wp_unslash($_POST['feedbackDetails']) ) : '';
         
             if (!empty($chatId) && !empty($feedbackType)) {
                 // Retrieve the specific chat log entry that matches the chatId
@@ -176,7 +167,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                             // Update the database with the new log data
                             $wpdb->update(
                                 $wpdb->prefix . 'wpaicg_chatlogs',
-                                array('data' => json_encode($log_data)),
+                                array('data' => wp_json_encode($log_data)),
                                 array('id' => $log_entry['id']),
                                 array('%s'),
                                 array('%d')
@@ -233,21 +224,20 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 'msg'    => esc_html__('Something went wrong', 'gpt3-ai-content-generator'),
             ];
         
-            // Nonce verification
-            $wpaicg_nonce = sanitize_text_field($_REQUEST['_wpnonce']);
-            if (!wp_verify_nonce($wpaicg_nonce, 'wpaicg-chatbox')) {
-                $wpaicg_result['msg'] = esc_html__('Nonce verification failed', 'gpt3-ai-content-generator');
-                wp_send_json($wpaicg_result);
-                exit;
-            }
+            // Verify the nonce
+            check_admin_referer('wpaicg-chatbox', '_wpnonce');
         
             global $wpdb;
     
-            // check client id
-            if (isset($_REQUEST['wpaicg_chat_client_id']) && !empty($_REQUEST['wpaicg_chat_client_id'])) {
-                $wpaicg_client_id = sanitize_text_field($_REQUEST['wpaicg_chat_client_id']);
+            // Use $_POST instead of $_REQUEST for better clarity and security
+            if (isset($_POST['wpaicg_chat_client_id']) && !empty($_POST['wpaicg_chat_client_id'])) {
+                // Remove slashes and sanitize the client ID
+                $wpaicg_client_id = sanitize_text_field(wp_unslash($_POST['wpaicg_chat_client_id']));
             } else {
-                error_log('wpaicg_chat_client_id is not set in the request');
+                // Optionally, handle the absence gracefully without logging or exiting
+                // For example, set a default client ID or leave it as null
+                // $wpaicg_client_id = 'default_client_id';
+                // Or simply continue without setting it
             }
 
             // Get the default provider option
@@ -257,8 +247,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             $confidence_score_threshold = 20; // Default value
 
             // Check for bot_id first
-            if (isset($_REQUEST['bot_id']) && intval($_REQUEST['bot_id']) > 0) {
-                $bot_id = intval($_REQUEST['bot_id']);
+            if (isset($_POST['bot_id']) && intval($_POST['bot_id']) > 0) {
+                $bot_id = intval($_POST['bot_id']);
                 $post = get_post($bot_id);
                 if ($post) {
                     $post_content = $post->post_content;
@@ -268,8 +258,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     // Set confidence score for custom bot
                     $confidence_score_threshold = isset($post_content_json['confidence_score']) ? intval($post_content_json['confidence_score']) : 20;
                 }
-            } elseif (isset($_REQUEST['chatbot_identity'])) {
-                $chatbot_identity = sanitize_text_field($_REQUEST['chatbot_identity']);
+            } elseif (isset($_POST['chatbot_identity'])) {
+                $chatbot_identity = sanitize_text_field(wp_unslash($_POST['chatbot_identity']));
                 if ($chatbot_identity === 'shortcode') {
                     $shortcode_options = get_option('wpaicg_chat_shortcode_options');
                     $wpaicg_provider = isset($shortcode_options['provider']) ? sanitize_text_field($shortcode_options['provider']) : $default_provider;
@@ -280,7 +270,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     $widget_options = get_option('wpaicg_chat_widget');
                     $wpaicg_use_internet = isset($widget_options['internet_browsing']) && $widget_options['internet_browsing'] ? 1 : 0;
                     if (isset($_POST['wpaicg_chat_widget']['provider']) && !empty($_POST['wpaicg_chat_widget']['provider'])) {
-                        $wpaicg_provider = sanitize_text_field($_POST['wpaicg_chat_widget']['provider']);
+                        $wpaicg_provider = sanitize_text_field(wp_unslash($_POST['wpaicg_chat_widget']['provider']));
                     } else {
                         $widget_options = get_option('wpaicg_chat_widget');
                         $wpaicg_provider = isset($widget_options['provider']) ? sanitize_text_field($widget_options['provider']) : $default_provider;
@@ -326,8 +316,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             $wpaicg_save_request = false;
 
             // Get message and URL
-            $wpaicg_message = sanitize_text_field($_REQUEST['message'] ?? '');
-            $url = sanitize_text_field($_REQUEST['url'] ?? '');
+            $wpaicg_message = sanitize_text_field(wp_unslash($_POST['message'] ?? ''));
+            $url = sanitize_text_field(wp_unslash($_POST['url'] ?? ''));
 
             $wpaicg_pinecone_api = get_option('wpaicg_pinecone_api', '');
             $wpaicg_pinecone_environment = get_option('wpaicg_pinecone_environment', '');
@@ -355,8 +345,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             $wpaicg_moderation_model = 'text-moderation-latest';
             $wpaicg_moderation_notice = esc_html__('Your message has been flagged as potentially harmful or inappropriate. Please ensure that your messages are respectful and do not contain language or content that could be offensive or harmful to others. Thank you for your cooperation.','gpt3-ai-content-generator');
             if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'wpaicg_chat_shortcode_message'){
-                $table = $wpdb->prefix . 'wpaicg';
-                $existingValue = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE name = %s", 'wpaicg_settings' ), ARRAY_A );
+                $existingValue = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}wpaicg WHERE name = %s", 'wpaicg_settings' ), ARRAY_A );
                 $wpaicg_chat_shortcode_options = get_option('wpaicg_chat_shortcode_options',[]);
                 $default_setting = array(
                     'provider' => 'OpenAI',
@@ -412,11 +401,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     'embedding_provider' => '',
                 );
                 $wpaicg_settings = shortcode_atts($default_setting, $wpaicg_chat_shortcode_options);
-
-                if(isset($_REQUEST['wpaicg_chat_shortcode_options']) && is_array($_REQUEST['wpaicg_chat_shortcode_options'])){
-                    $wpaicg_chat_shortcode_options = wpaicg_util_core()->sanitize_text_or_array_field($_REQUEST['wpaicg_chat_shortcode_options']);
-                    $wpaicg_settings = shortcode_atts($wpaicg_settings, $wpaicg_chat_shortcode_options);
-                }
                 $wpaicg_save_request = isset($wpaicg_settings['log_request']) && $wpaicg_settings['log_request'] ? true : false;
                 $wpaicg_chat_embedding = isset($wpaicg_settings['embedding']) && $wpaicg_settings['embedding'] ? true : false;
                 $wpaicg_chat_embedding_type = isset($wpaicg_settings['embedding_type']) ? $wpaicg_settings['embedding_type'] : '' ;
@@ -586,8 +570,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 $selected_embedding_model = isset($wpaicg_chat_widget['embedding_model']) ? $wpaicg_chat_widget['embedding_model'] : "";
                 $selected_embedding_provider = isset($wpaicg_chat_widget['embedding_provider']) ? $wpaicg_chat_widget['embedding_provider'] : "";
             }
-            if(isset($_REQUEST['bot_id']) && !empty($_REQUEST['bot_id'])){
-                $wpaicg_bot = get_post(sanitize_text_field($_REQUEST['bot_id']));
+            if (isset($_POST['bot_id']) && !empty($_POST['bot_id'])) {
+                $wpaicg_bot = get_post(sanitize_text_field(wp_unslash($_POST['bot_id'])));
                 if($wpaicg_bot) {
                     $wpaicg_limited_tokens = false;
                     if(strpos($wpaicg_bot->post_content,'\"') !== false) {
@@ -741,20 +725,33 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
 
             /*End check token handing*/
 
-            // inialize the audio_message variable
+            // Initialize the audio_message variable
             $audio_message = '';
 
-            /*Check Audio Recording*/
+            /* Check Audio Recording */
             if (isset($_FILES['audio']) && empty($_FILES['audio']['error'])) {
-                $result = $this->processSpeechToText($_FILES['audio'], $open_ai);
-            
-                if ($result['error']) {
-                    $wpaicg_result['msg'] = $result['msg'];
+                $audio_file = (isset($_FILES['audio']) && is_array($_FILES['audio'])) ? array_map('sanitize_text_field', $_FILES['audio']) : array();
+                $file_name = sanitize_file_name($audio_file['name']);
+                $file_tmp_name = $audio_file['tmp_name'];
+                $file_type = wp_check_filetype_and_ext($file_tmp_name, $file_name);
+                $allowed_types = ['mp3', 'wav', 'ogg', 'flac', 'webm', 'mp4', 'mpeg', 'mpga', 'm4a'];
+
+                // Check if the file type is allowed and file size is acceptable (e.g., 10MB limit)
+                if (in_array($file_type['ext'], $allowed_types) && $audio_file['size'] <= 10000000) { // 10MB limit
+                    // Process the audio file using the speech-to-text function
+                    $result = $this->processSpeechToText($audio_file, $open_ai);
+                    
+                    if ($result['error']) {
+                        $wpaicg_result['msg'] = $result['msg'];
+                        wp_send_json($wpaicg_result);
+                    }
+                    
+                    $wpaicg_message = sanitize_text_field($result['text']);
+                    $audio_message = $wpaicg_message;
+                } else {
+                    $wpaicg_result['msg'] = 'Invalid file type or file too large.';
                     wp_send_json($wpaicg_result);
                 }
-            
-                $wpaicg_message = $result['text'];
-                $audio_message = $wpaicg_message;
             }
 
             /*Start check Log*/
@@ -762,7 +759,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             $wpaicg_chat_log_data = array();
 
             if (!empty($wpaicg_message) && $wpaicg_save_logs) {
-                $wpaicg_current_context_id = isset($_REQUEST['post_id']) && !empty($_REQUEST['post_id']) ? sanitize_text_field($_REQUEST['post_id']) : '';
+                $wpaicg_current_context_id = isset($_POST['post_id']) && !empty($_POST['post_id']) ? sanitize_text_field(wp_unslash($_POST['post_id'])) : '';
                 $wpaicg_current_context_title = !empty($wpaicg_current_context_id) ? get_the_title($wpaicg_current_context_id) : '';
                 $wpaicg_unique_chat = md5($wpaicg_client_id . '-' . $wpaicg_current_context_id);
                 $wpaicg_chat_log_check = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $wpdb->prefix . "wpaicg_chatlogs WHERE source=%s AND log_session=%s", $wpaicg_chat_source, $wpaicg_unique_chat));
@@ -770,7 +767,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 if (!$wpaicg_chat_log_check) {
                     $wpdb->insert($wpdb->prefix . 'wpaicg_chatlogs', array(
                         'log_session' => $wpaicg_unique_chat,
-                        'data' => json_encode(array(), JSON_UNESCAPED_UNICODE),
+                        'data' => wp_json_encode(array(), JSON_UNESCAPED_UNICODE),
                         'page_title' => $wpaicg_current_context_title,
                         'source' => $wpaicg_chat_source,
                         'created_at' => current_time('timestamp')
@@ -785,8 +782,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 }
                 
                 // Extract chatId from the request and remove non-numeric characters
-                $chatId = isset($_REQUEST['chat_id']) ? preg_replace('/\D/', '', sanitize_text_field($_REQUEST['chat_id'])) : null;
-                
+                $chatId = isset($_POST['chat_id']) ? preg_replace('/\D/', '', sanitize_text_field(wp_unslash($_POST['chat_id']))) : null;
+
                 // Insert the message into the logs with the numeric chatId
                 $wpaicg_chat_log_data[] = array(
                     'message' => $wpaicg_message,
@@ -800,12 +797,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 // Save the log data back to the database
                 $wpdb->update(
                     $wpdb->prefix . 'wpaicg_chatlogs',
-                    array('data' => json_encode($wpaicg_chat_log_data, JSON_UNESCAPED_UNICODE)),
+                    array('data' => wp_json_encode($wpaicg_chat_log_data, JSON_UNESCAPED_UNICODE)),
                     array('id' => $wpaicg_chat_log_id)
                 );
                 
                 // Clean up chat history if needed
-                $wpaicg_chat_history = !empty($_REQUEST['wpaicg_chat_history']) ? json_decode(stripslashes($_REQUEST['wpaicg_chat_history']), true) : [];
+                $wpaicg_chat_history = isset($_POST['wpaicg_chat_history']) && !empty($_POST['wpaicg_chat_history']) 
+                                        ? json_decode(sanitize_text_field(wp_unslash($_POST['wpaicg_chat_history'])), true) 
+                                        : [];
                 $cleaned_chat_history = [];
 
                 if (is_array($wpaicg_chat_history)) {
@@ -819,7 +818,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 }
                 
                 // Save the cleaned history back to the database if needed
-                $_REQUEST['wpaicg_chat_history'] = json_encode($cleaned_chat_history, JSON_UNESCAPED_UNICODE);
+                $_REQUEST['wpaicg_chat_history'] = wp_json_encode($cleaned_chat_history, JSON_UNESCAPED_UNICODE);
             }
             /*End Check Log*/
 
@@ -874,8 +873,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             if($wpaicg_chat_embedding){
                 /*Using embeddings only*/
                 $namespace = false;
-                if(isset($_REQUEST['namespace']) && !empty($_REQUEST['namespace'])){
-                    $namespace = sanitize_text_field($_REQUEST['namespace']);
+                if(isset($_POST['namespace']) && !empty($_POST['namespace'])){
+                    $namespace = sanitize_text_field(wp_unslash($_POST['namespace']));
                 }
 
                 $wpaicg_qdrant_api_key = get_option('wpaicg_qdrant_api_key', '');
@@ -926,32 +925,43 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 }
             }
             if ($wpaicg_chat_remember_conversation == 'yes') {
-
-                // get wpaicg_chat_history from request
-                if (isset($_REQUEST['wpaicg_chat_history']) && !empty($_REQUEST['wpaicg_chat_history'])) {
-                    $wpaicg_chat_history = sanitize_text_field($_REQUEST['wpaicg_chat_history']);
-                    // remove \\ from wpaicg_chat_history
+                
+                // Check if wpaicg_chat_history exists in the POST request
+                if (isset($_POST['wpaicg_chat_history']) && !empty($_POST['wpaicg_chat_history'])) {
+                    // Use wp_unslash and sanitize_textarea_field for better sanitization of potential multi-line inputs
+                    $wpaicg_chat_history = sanitize_textarea_field(wp_unslash($_POST['wpaicg_chat_history']));
+                    
+                    // Remove any backslashes
                     $wpaicg_chat_history = str_replace("\\", '', $wpaicg_chat_history);
-                } else {
-                    error_log('wpaicg_chat_history is not set in the request');
+                    
+                    // Decode the JSON chat history
+                    $wpaicg_chat_history = json_decode($wpaicg_chat_history, true);
                 }
 
-                $wpaicg_chat_history = isset($wpaicg_chat_history) && !empty($wpaicg_chat_history) ? json_decode($wpaicg_chat_history, true) : array();
+                // Ensure it's an array, even if json_decode fails or history is empty
+                $wpaicg_chat_history = is_array($wpaicg_chat_history) ? $wpaicg_chat_history : array();
 
-                if (!is_array($wpaicg_chat_history)) {
-                    $wpaicg_chat_history = array(); // Ensure it's an array even if json_decode fails
-                }
-
+                // Set conversation end messages
                 $wpaicg_conversation_end_messages = $wpaicg_chat_history;
             }
 
             if (!empty($wpaicg_message)) {
+                global $wp_filesystem;
+
+                // Initialize the filesystem API
+                if (empty($wp_filesystem)) {
+                    require_once(ABSPATH . 'wp-admin/includes/file.php');
+                    WP_Filesystem();
+                }
+                
                 $wpaicg_language_file = WPAICG_PLUGIN_DIR . 'admin/chat/languages/' . $wpaicg_chat_language . '.json';
 
-                if (!file_exists($wpaicg_language_file)) {
+                // Fallback to English if the specified language file doesn't exist
+                if (!$wp_filesystem->exists($wpaicg_language_file)) {
                     $wpaicg_language_file = WPAICG_PLUGIN_DIR . 'admin/chat/languages/en.json';
                 }
-                $wpaicg_language_json = file_get_contents($wpaicg_language_file);
+                // Get the file contents using WP_Filesystem
+                $wpaicg_language_json = $wp_filesystem->get_contents($wpaicg_language_file);
                 $wpaicg_languages = json_decode($wpaicg_language_json, true);
                 $wpaicg_chat_tone = isset($wpaicg_languages['tone'][$wpaicg_chat_tone]) ? $wpaicg_languages['tone'][$wpaicg_chat_tone] : 'Professional';
                 $wpaicg_chat_proffesion = isset($wpaicg_languages['proffesion'][$wpaicg_chat_proffesion]) ? $wpaicg_languages['proffesion'][$wpaicg_chat_proffesion] : 'none';
@@ -989,11 +999,11 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                         }
                     }
                     elseif(isset($_REQUEST['post_id']) && !empty($_REQUEST['post_id'])){
-                        $current_post = get_post(sanitize_text_field($_REQUEST['post_id']));
+                        $current_post = get_post(sanitize_text_field(wp_unslash($_POST['post_id'])));
                         if ($current_post) {
                             $wpaicg_greeting_key .= '_content';
-                            $current_context = '"' . strip_tags($current_post->post_title);
-                            $current_post_excerpt = str_replace('[...]', '', strip_tags(get_the_excerpt($current_post)));
+                            $current_context = '"' . wp_strip_all_tags($current_post->post_title);
+                            $current_post_excerpt = str_replace('[...]', '', wp_strip_all_tags(get_the_excerpt($current_post)));
                             if ($current_post_excerpt !== '') {
                                 $current_post_excerpt = preg_replace_callback("/(&#[0-9]+;)/", function ($m) {
                                     return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES");
@@ -1034,9 +1044,11 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 $image_final_data = '';
                 // gpt-4-vision-preview or gpt-4o or openai/gpt-4o-2024-05-13
                 if ($wpaicg_ai_model === 'gpt-4-vision-preview' || $wpaicg_ai_model === 'gpt-4o' || $wpaicg_ai_model === 'gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4-vision-preview' || $wpaicg_ai_model === 'openai/gpt-4o' || $wpaicg_ai_model === 'openai/gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4o-mini-2024-07-18' || $wpaicg_ai_model === 'openai/gpt-4o-2024-05-13') {
-                    if (isset($_FILES['image']) && empty($_FILES['image']['error'])) {
+                    $image_file = (isset($_FILES['image']) && is_array($_FILES['image'])) ? array_map('sanitize_text_field', $_FILES['image']) : array();
+                    
+                    if (!empty($image_file) && empty($image_file['error'])) {
                         // Handle the image upload and get the URL or base64 string
-                        $image_data = $this->handle_image_upload($_FILES['image']);
+                        $image_data = $this->handle_image_upload($image_file);
                         // Fetch the user's preference for image processing method
                         $wpaicg_img_processing_method = get_option('wpaicg_img_processing_method', 'url');
                         
@@ -1141,9 +1153,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                         $prompt .= $wpaicg_chatgpt_message['content'] . "\n";
                     }
                     $wpaicg_data_request += ['prompt' => $prompt, 'best_of' => intval($wpaicg_chat_best_of)];
-                } else {
-                    // Handle the case where the model is not recognized
-                    error_log('Error: Model not recognized');
                 }
 
                 // Determine stream navigation setting and modify the data request
@@ -1172,8 +1181,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 } else {
                     if (is_string($complete)) {
                         $complete = json_decode($complete);
-                    } else {
-                        error_log('Error: $complete is not a string for non-chunked data');
                     }
                 }
 
@@ -1346,35 +1353,41 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             if (!$file_info['ext'] || !$file_info['type'] || !array_key_exists($file_info['ext'], $allowed_file_types) || $file_info['type'] !== $allowed_file_types[$file_info['ext']]) {
                 die(__("File type is not allowed. Only PNG, JPEG, WEBP, and non-animated GIF are supported.", "gpt3-ai-content-generator"));
             }
-
+            // Initialize the WordPress filesystem once
+            global $wp_filesystem;
+            if (empty($wp_filesystem)) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+                WP_Filesystem();
+            }
             if ($wpaicg_user_uploads === 'filesystem') {
-                // Save the image to a custom folder inside the uploads directory
-                $upload_dir = wp_upload_dir();
-                $upload_path = $upload_dir['basedir'] . '/wpaicg_user_uploads/';
-        
-                // Create the directory if it doesn't exist
-                if (!file_exists($upload_path)) {
-                    mkdir($upload_path, 0755, true);
-                }
-        
-                $file_path = $upload_path . basename($image['name']);
-        
-                // Move the uploaded file to the new location
-                if (move_uploaded_file($image['tmp_name'], $file_path)) {
-        
-                    // Always set the URL of the saved image
-                    $result['url'] = $upload_dir['baseurl'] . '/wpaicg_user_uploads/' . basename($image['name']);
-        
+                // Use WordPress function wp_handle_upload to manage the upload
+                $upload = wp_handle_upload($image, ['test_form' => false]);
+            
+                if ($upload && !isset($upload['error'])) {
+                    // Get the base upload directory path (e.g., uploads/)
+                    $upload_dir = wp_upload_dir();
+                    $custom_subfolder = $upload_dir['basedir'] . '/aipower_user_uploads/'; // Define custom subfolder inside basedir
+            
+                    // Create the custom subfolder if it doesn't exist
+                    if (!file_exists($custom_subfolder)) {
+                        wp_mkdir_p($custom_subfolder);
+                    }
+            
+                    // Move the uploaded file to the custom subfolder using WP_Filesystem::move()
+                    $new_file_path = $custom_subfolder . basename($upload['file']);
+                    $wp_filesystem->move($upload['file'], $new_file_path, true);
+            
+                    // Set the new URL for the uploaded file in the custom subfolder
+                    $result['url'] = $upload_dir['baseurl'] . '/aipower_user_uploads/' . basename($new_file_path);
+            
                     // Convert to base64 if required
-                    $imageData = file_get_contents($file_path);
-                    $result['base64'] = 'data:image/' . pathinfo($file_path, PATHINFO_EXTENSION) . ';base64,' . base64_encode($imageData);
-        
+                    $imageData = $wp_filesystem->get_contents($new_file_path);
+                    $result['base64'] = 'data:image/' . pathinfo($new_file_path, PATHINFO_EXTENSION) . ';base64,' . base64_encode($imageData);
+            
                     // Delete the image file after processing if the option is enabled and processing method is not URL
                     if ($wpaicg_delete_image && $wpaicg_img_processing_method !== 'url') {
-                        unlink($file_path);
+                        wp_delete_file($new_file_path);
                     }
-                } else {
-                    error_log('Failed to save image to filesystem.');
                 }
             } else if ($wpaicg_user_uploads === 'media_library') {
                 // Insert the image into the WordPress Media Library
@@ -1384,24 +1397,22 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
         
                 $attachment_id = media_handle_upload('image', 0);
         
-                if (is_wp_error($attachment_id)) {
-                    error_log('Failed to save image to media library: ' . $attachment_id->get_error_message());
-                } else {
+                if (!is_wp_error($attachment_id)) {
                     // Get the file path of the uploaded image
                     $file_path = get_attached_file($attachment_id);
-        
+                
                     // Always set the URL of the uploaded image
                     $result['url'] = wp_get_attachment_url($attachment_id);
-        
+                
                     // Convert to base64 if required
-                    $imageData = file_get_contents($file_path);
+                    $imageData = $wp_filesystem->get_contents($file_path);
                     $result['base64'] = 'data:image/' . pathinfo($file_path, PATHINFO_EXTENSION) . ';base64,' . base64_encode($imageData);
-        
+                
                     // Delete the image file after processing if the option is enabled and processing method is not URL
                     if ($wpaicg_delete_image && $wpaicg_img_processing_method !== 'url') {
                         wp_delete_attachment($attachment_id, true);
                     }
-                }
+                }                
             }
         
             return $result;
@@ -1411,18 +1422,36 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
         public function getUserTokenUsage($wpdb, $wpaicg_chat_source, $wpaicg_client_id) {
             if (is_user_logged_in()) {
                 $user_id = get_current_user_id();
-                $query = $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."wpaicg_chattokens WHERE source = %s AND user_id=%d", $wpaicg_chat_source, $user_id);
+                return $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpdb->prefix}wpaicg_chattokens WHERE source = %s AND user_id = %d", 
+                        $wpaicg_chat_source, 
+                        $user_id
+                    )
+                );
             } else {
-                $query = $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."wpaicg_chattokens WHERE source = %s AND session_id=%s", $wpaicg_chat_source, $wpaicg_client_id);
+                return $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpdb->prefix}wpaicg_chattokens WHERE source = %s AND session_id = %s", 
+                        $wpaicg_chat_source, 
+                        $wpaicg_client_id
+                    )
+                );
             }
-            return $wpdb->get_row($query);
         }
+
 
         public function isUserTokenLimited($user_tokens, $wpaicg_limited_tokens_number, $wpaicg_token_usage_client) {
             return $user_tokens <= 0 && $wpaicg_token_usage_client > $wpaicg_limited_tokens_number;
         }
 
         public function processSpeechToText($file, $open_ai) {
+            global $wp_filesystem;
+            if (empty($wp_filesystem)) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                WP_Filesystem();
+            }
+
             $file_name = sanitize_file_name(basename($file['name']));
             $filetype = wp_check_filetype($file_name);
             $mime_types = ['mp3' => 'audio/mpeg', 'mp4' => 'video/mp4', 'mpeg' => 'video/mpeg', 'm4a' => 'audio/m4a', 'wav' => 'audio/wav', 'webm' => 'video/webm'];
@@ -1436,10 +1465,15 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             }
         
             $tmp_file = $file['tmp_name'];
+            $audio_data = $wp_filesystem->get_contents($tmp_file);
+            if ($audio_data === false) {
+                return ['error' => true, 'msg' => esc_html__('Failed to read the audio file.', 'gpt3-ai-content-generator')];
+            }
+
             $data_audio_request = [
                 'audio' => [
                     'filename' => $file_name,
-                    'data' => file_get_contents($tmp_file)
+                    'data' => $audio_data
                 ],
                 'model' => 'whisper-1',
                 'response_format' => 'json'
@@ -1747,41 +1781,51 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
 
         public function getIpAddress()
         {
+            $ip_sources = [
+                'HTTP_CLIENT_IP',
+                'HTTP_X_FORWARDED_FOR',
+                'HTTP_X_FORWARDED',
+                'HTTP_X_CLUSTER_CLIENT_IP',
+                'HTTP_FORWARDED_FOR',
+                'HTTP_FORWARDED',
+                'REMOTE_ADDR'
+            ];
+        
             $ipAddress = '';
-            if (! empty($_SERVER['HTTP_CLIENT_IP'])) {
-                // to get shared ISP IP address
-                $ipAddress = $_SERVER['HTTP_CLIENT_IP'];
-            } else if (! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                // check for IPs passing through proxy servers
-                // check if multiple IP addresses are set and take the first one
-                $ipAddressList = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-                foreach ($ipAddressList as $ip) {
-                    if (! empty($ip)) {
-                        // if you prefer, you can check for valid IP address here
+        
+            foreach ($ip_sources as $source) {
+                if (isset($_SERVER[$source]) && !empty($_SERVER[$source])) {
+                    // Unsanitize and sanitize the IP source
+                    $ip = sanitize_text_field(wp_unslash($_SERVER[$source]));
+        
+                    // Handle multiple IPs for 'HTTP_X_FORWARDED_FOR'
+                    if ($source === 'HTTP_X_FORWARDED_FOR') {
+                        $ipAddressList = explode(',', $ip);
+                        foreach ($ipAddressList as $ipItem) {
+                            $ipItem = sanitize_text_field($ipItem); // Ensure each IP is sanitized
+                            if (!empty($ipItem)) {
+                                $ipAddress = $ipItem;
+                                break;
+                            }
+                        }
+                    } else {
                         $ipAddress = $ip;
-                        break;
+                    }
+        
+                    if (!empty($ipAddress)) {
+                        break; // Exit loop once a valid IP is found
                     }
                 }
-            } else if (! empty($_SERVER['HTTP_X_FORWARDED'])) {
-                $ipAddress = $_SERVER['HTTP_X_FORWARDED'];
-            } else if (! empty($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])) {
-                $ipAddress = $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
-            } else if (! empty($_SERVER['HTTP_FORWARDED_FOR'])) {
-                $ipAddress = $_SERVER['HTTP_FORWARDED_FOR'];
-            } else if (! empty($_SERVER['HTTP_FORWARDED'])) {
-                $ipAddress = $_SERVER['HTTP_FORWARDED'];
-            } else if (! empty($_SERVER['REMOTE_ADDR'])) {
-                $ipAddress = $_SERVER['REMOTE_ADDR'];
             }
-
+        
             // Replace ::1 with 127.0.0.1
             if ($ipAddress === '::1') {
                 $ipAddress = '127.0.0.1';
             }
-
+        
             return $ipAddress;
         }
-
+        
         public function check_banned_ips($wpaicg_chat_source, $wpaicg_provider) {
             // Get the user's IP
             $user_ip = $this->getIpAddress();
@@ -1872,7 +1916,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             if($wpaicg_log_id){
                 $wpaicg_log_data[] = array('message' => $message, 'type' => $type, 'date' => time(), 'token' => $tokens, 'flag' => $flag, 'request' => $request,'matches' => $matches);
                 $wpdb->update($wpdb->prefix.'wpaicg_chatlogs', array(
-                    'data' => json_encode($wpaicg_log_data,JSON_UNESCAPED_UNICODE),
+                    'data' => wp_json_encode($wpaicg_log_data,JSON_UNESCAPED_UNICODE),
                     'created_at' => current_time('timestamp')
                 ), array(
                     'id' => $wpaicg_log_id
@@ -1959,8 +2003,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                         }
                         $response = wp_remote_post('https://' . $wpaicg_pinecone_environment . '/query', array(
                             'headers' => $headers,
-                            'body' => json_encode($pinecone_body)
+                            'body' => wp_json_encode($pinecone_body)
                         ));
+
                         if (is_wp_error($response)) {
                             $result['data'] = esc_html($response->get_error_message());
                         } else {
@@ -2104,7 +2149,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                             ]
                         ];
 
-                        $query = json_encode($queryData);
+                        $query = wp_json_encode($queryData);
 
                         // Send request to Qdrant
                         $response = wp_remote_post($wpaicg_qdrant_endpoint . '/collections/' . $wpaicg_chat_qdrant_collection . '/points/search', array(

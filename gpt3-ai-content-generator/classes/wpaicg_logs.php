@@ -579,7 +579,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                         // Output the AI response with additional elements
                                         ?>
                                         <div class="aipower-log-message ai">
-                                            <p><strong><?php echo esc_html__('AI:', 'gpt3-ai-content-generator'); ?></strong> <?php echo esc_html($next_message['message']); ?></p>
+                                            <p><strong><?php echo esc_html__('AI:', 'gpt3-ai-content-generator'); ?></strong> <?php echo self::aipower_simple_markdown_parser($next_message['message']); ?></p>
                                             <p><em><?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), intval($next_message['date']))); ?></em></p>
                                             
                                             <?php
@@ -977,6 +977,35 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
 
             wp_send_json_success(array('message' => esc_html__('IP has been successfully blocked.', 'gpt3-ai-content-generator')));
             wp_die();
+        }
+
+        /**
+         * Simple Markdown Parser
+         *
+         * @param string $text The markdown text to parse.
+         * @return string The parsed HTML.
+         */
+        private static function aipower_simple_markdown_parser($text) {
+            if (empty($text)) {
+                return '';
+            }
+
+            // Escape HTML to prevent XSS
+            $text = esc_html($text);
+
+            // Convert **bold** to <strong>
+            $text = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $text);
+
+            // Convert *italic* to <em>
+            $text = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $text);
+
+            // Convert URLs to clickable links
+            $text = make_clickable($text);
+
+            // Convert newlines to <br>
+            $text = nl2br($text);
+
+            return $text;
         }
 
     }

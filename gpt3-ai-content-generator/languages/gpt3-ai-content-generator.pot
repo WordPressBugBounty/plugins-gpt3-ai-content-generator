@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 1.8.90\n"
+"Project-Id-Version: AI Power: Complete AI Pack 1.8.91\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-10-26T16:50:34+00:00\n"
+"POT-Creation-Date: 2024-10-29T14:24:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -487,7 +487,7 @@ msgstr ""
 #: admin/views/finetune/manual.php:596
 #: admin/views/scripts.php:740
 #: classes/wpaicg_audio.php:103
-#: classes/wpaicg_chat.php:233
+#: classes/wpaicg_chat.php:224
 #: classes/wpaicg_content.php:717
 #: classes/wpaicg_content.php:794
 #: classes/wpaicg_content.php:896
@@ -633,8 +633,6 @@ msgstr ""
 #: classes/wpaicg_audio.php:35
 #: classes/wpaicg_audio.php:110
 #: classes/wpaicg_audio.php:281
-#: classes/wpaicg_chat.php:140
-#: classes/wpaicg_chat.php:239
 #: classes/wpaicg_comment.php:100
 #: classes/wpaicg_content.php:351
 #: classes/wpaicg_content.php:425
@@ -842,29 +840,29 @@ msgstr ""
 
 #: admin/extra/wpaicg_chatbox.php:57
 #: admin/extra/wpaicg_chatbox_widget.php:77
-#: classes/wpaicg_chat.php:373
+#: classes/wpaicg_chat.php:362
 msgid "AI"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbox.php:58
 #: admin/extra/wpaicg_chatbox_widget.php:79
-#: classes/wpaicg_chat.php:374
+#: classes/wpaicg_chat.php:363
 msgid "You"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbox.php:59
-#: classes/wpaicg_chat.php:375
+#: classes/wpaicg_chat.php:364
 msgid "Gathering thoughts"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbox.php:60
 #: admin/extra/wpaicg_chatbox_widget.php:80
-#: classes/wpaicg_chat.php:376
+#: classes/wpaicg_chat.php:365
 msgid "Type a message"
 msgstr ""
 
 #: admin/extra/wpaicg_chatbox.php:61
-#: classes/wpaicg_chat.php:377
+#: classes/wpaicg_chat.php:366
 msgid "Hello, how can I help you today?"
 msgstr ""
 
@@ -5215,8 +5213,8 @@ msgid "omni-moderation-latest"
 msgstr ""
 
 #: admin/views/settings/chatbots.php:548
-#: classes/wpaicg_chat.php:356
-#: classes/wpaicg_chat.php:404
+#: classes/wpaicg_chat.php:346
+#: classes/wpaicg_chat.php:393
 #: lib/modules/wpaicg_chat_pro.php:29
 msgid "Your message has been flagged as potentially harmful or inappropriate. Please ensure that your messages are respectful and do not contain language or content that could be offensive or harmful to others. Thank you for your cooperation."
 msgstr ""
@@ -6062,6 +6060,7 @@ msgid "Shorten Product URL"
 msgstr ""
 
 #: admin/views/settings/woocommerce_settings.php:77
+#: admin/views/settings/woocommerce_settings.php:80
 msgid "Generate Focus Keyword"
 msgstr ""
 
@@ -6388,59 +6387,63 @@ msgstr ""
 msgid "The model predicted a completion that begins with a stop sequence, resulting in no output. Consider adjusting your prompt or stop sequences."
 msgstr ""
 
-#: classes/wpaicg_chat.php:321
+#: classes/wpaicg_chat.php:311
 msgid "Unable to initialize the AI instance. Please make sure the API key is valid."
 msgstr ""
 
-#: classes/wpaicg_chat.php:337
-#: classes/wpaicg_chat.php:400
+#: classes/wpaicg_chat.php:327
+#: classes/wpaicg_chat.php:389
 #: classes/wpaicg_playground.php:281
 msgid "You have reached your token limit."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1278
+#: classes/wpaicg_chat.php:1285
 msgid "It appears that nothing was inputted."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1347
+#: classes/wpaicg_chat.php:1354
 msgid "File type is not allowed. Only PNG, JPEG, WEBP, and non-animated GIF are supported."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1431
+#: classes/wpaicg_chat.php:1460
 msgid "Accepted audio and video formats: MP3, MP4, MPEG, M4A, WAV, and WEBM."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1435
+#: classes/wpaicg_chat.php:1464
 msgid "Maximum audio file size: 25MB."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1796
-#: classes/wpaicg_chat.php:1811
+#: classes/wpaicg_chat.php:1470
+msgid "Failed to read the audio file."
+msgstr ""
+
+#: classes/wpaicg_chat.php:1840
+#: classes/wpaicg_chat.php:1855
 msgid "You are not allowed to access this feature."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1836
-#: classes/wpaicg_chat.php:1850
+#: classes/wpaicg_chat.php:1880
+#: classes/wpaicg_chat.php:1894
 msgid "Your message contains prohibited words. Please modify your message and try again."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2008
+#: classes/wpaicg_chat.php:2053
 msgid "No results from Pinecone."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2016
+#: classes/wpaicg_chat.php:2061
 msgid "Something wrong with Pinecone setup. Check your Pinecone settings."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2142
+#: classes/wpaicg_chat.php:2187
 msgid "No results from Qdrant."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2143
+#: classes/wpaicg_chat.php:2188
 msgid "Response from Qdrant: "
 msgstr ""
 
-#: classes/wpaicg_chat.php:2167
+#: classes/wpaicg_chat.php:2212
 msgid "Something wrong with Qdrant setup3. Check your Qdrant settings."
 msgstr ""
 
