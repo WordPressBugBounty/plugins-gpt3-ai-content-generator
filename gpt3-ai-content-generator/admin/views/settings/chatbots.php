@@ -64,6 +64,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                     <div id="aipower-delete-all-btn" class="aipower-tools-action aipower-delete-all"><?php echo esc_html__('Delete All Bots', 'gpt3-ai-content-generator'); ?></div>
                     <div id="aipower-export-all-btn" class="aipower-tools-action"><?php echo esc_html__('Export All Bots', 'gpt3-ai-content-generator'); ?></div>
                     <div id="aipower-import-btn" class="aipower-tools-action"><?php echo esc_html__('Import', 'gpt3-ai-content-generator'); ?></div>
+                    <div id="aipower-reset-btn" class="aipower-tools-action"><?php echo esc_html__('Reset', 'gpt3-ai-content-generator'); ?></div>
                 </div>
                 <!-- Hidden File Input for Importing Chatbots -->
                 <input type="file" id="aipower-import-file-input" accept=".json" style="display:none;" />

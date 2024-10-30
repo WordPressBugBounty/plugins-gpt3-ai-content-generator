@@ -4,7 +4,7 @@ Tags: chatbot, ai, content writer, openai, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.8.91
+Stable tag: 1.8.92
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -84,6 +84,10 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.8.92 =
+
+This release includes several improvements.
 
 = 1.8.91 =
 

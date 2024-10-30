@@ -245,6 +245,8 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                 $flag_reasons = array();
                                 $message_details = array();
                                 $message_number = 1;
+                                // Retrieve the pricing table
+                                $pricing = \WPAICG\WPAICG_Util::get_instance()->model_pricing;
 
                                 if (is_array($data)) {
                                     foreach ($data as $message) {

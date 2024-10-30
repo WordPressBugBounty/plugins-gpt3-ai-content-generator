@@ -1,7 +1,33 @@
 <?php
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 ?>
-
+<div class="aipower-form-group aipower-grouped-fields-bot">
+    <!-- Themes -->
+    <div class="aipower-form-group">
+        <label for="aipower-themes"><?php echo esc_html__('Theme', 'gpt3-ai-content-generator'); ?></label>
+        <select name="aipower-themes" id="aipower-themes">
+            <option value="default"><?php echo esc_html__('Default', 'gpt3-ai-content-generator'); ?></option>
+            <option value="dark"><?php echo esc_html__('Dark', 'gpt3-ai-content-generator'); ?></option>
+            <option value="light"><?php echo esc_html__('Light', 'gpt3-ai-content-generator'); ?></option>
+            <option value="whatsapp"><?php echo esc_html__('WhatsApp', 'gpt3-ai-content-generator'); ?></option>
+            <option value="terminal"><?php echo esc_html__('Terminal', 'gpt3-ai-content-generator'); ?></option>
+            <option value="sunset"><?php echo esc_html__('Sunset', 'gpt3-ai-content-generator'); ?></option>
+            <option value="ocean"><?php echo esc_html__('Ocean', 'gpt3-ai-content-generator'); ?></option>
+            <option value="forest"><?php echo esc_html__('Forest', 'gpt3-ai-content-generator'); ?></option>
+            <option value="neon"><?php echo esc_html__('Neon', 'gpt3-ai-content-generator'); ?></option>
+        </select>
+    </div>
+    <!-- Chat Window Width -->
+    <div class="aipower-form-group">
+        <label for="aipower-chat-window-width"><?php echo esc_html__('Width', 'gpt3-ai-content-generator'); ?></label>
+        <input type="text" id="aipower-chat-window-width" name="aipower-chat-window-width"/>
+    </div>
+    <!-- Chat Window Height -->
+    <div class="aipower-form-group">
+        <label for="aipower-chat-window-height"><?php echo esc_html__('Height', 'gpt3-ai-content-generator'); ?></label>
+        <input type="text" id="aipower-chat-window-height" name="aipower-chat-window-height"/>
+    </div>
+</div>
 <h4 class="aipower-h3-chatbot-style"><?php echo esc_html__('Chat Window', 'gpt3-ai-content-generator'); ?></h4>
 <div class="aipower-form-group aipower-grouped-fields-bot">
     <!-- Background Color -->
@@ -45,18 +71,6 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
             }
             ?>
         </select>
-    </div>
-</div>
-<div class="aipower-form-group aipower-grouped-fields-bot">
-    <!-- Chat Window Width -->
-    <div class="aipower-form-group">
-        <label for="aipower-chat-window-width"><?php echo esc_html__('Width', 'gpt3-ai-content-generator'); ?></label>
-        <input type="text" id="aipower-chat-window-width" name="aipower-chat-window-width"/>
-    </div>
-    <!-- Chat Window Height -->
-    <div class="aipower-form-group">
-        <label for="aipower-chat-window-height"><?php echo esc_html__('Height', 'gpt3-ai-content-generator'); ?></label>
-        <input type="text" id="aipower-chat-window-height" name="aipower-chat-window-height"/>
     </div>
 </div>
 

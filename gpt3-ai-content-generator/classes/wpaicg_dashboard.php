@@ -38,6 +38,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
             add_action('wp_ajax_aipower_duplicate_chatbot', array($this, 'aipower_duplicate_chatbot'));
             add_action('wp_ajax_aipower_export_bots', array($this, 'aipower_export_bots'));
             add_action('wp_ajax_aipower_import_bots', array($this, 'aipower_import_bots'));
+            add_action('wp_ajax_aipower_reset_settings', array($this, 'aipower_reset_settings'));
         }
 
         /**
@@ -1633,6 +1634,48 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                         // You might want to perform additional actions here if necessary
                         // For example, updating titles in other areas or caching mechanisms
                     }
+                    // Special handling for 'icon_url' field
+                    if ($field === 'icon_url') {
+                        if (isset($bot_data['icon']) && $bot_data['icon'] === 'custom') {
+                            if (empty($sanitized_value)) {
+                                wp_send_json_error(array('message' => esc_html__('Icon ID is required when using a custom icon.', 'gpt3-ai-content-generator')));
+                                return;
+                            }
+
+                            // Validate that the attachment ID exists and is an image
+                            if (!wp_attachment_is_image($sanitized_value)) {
+                                wp_send_json_error(array('message' => esc_html__('Invalid attachment ID or not an image.', 'gpt3-ai-content-generator')));
+                                return;
+                            }
+                        } else {
+                            // If 'icon' is not 'custom', ensure 'icon_url' is empty
+                            $bot_data['icon_url'] = '';
+                        }
+                    }
+
+                    // Special handling for 'ai_avatar_id' field
+                    if ($field === 'ai_avatar_id') {
+                        if (!empty($sanitized_value)) {
+                            $bot_data['ai_avatar'] = 'custom'; // Set to custom if 'ai_avatar_id' has a value
+                        } else {
+                            $bot_data['ai_avatar'] = 'default'; // Set to default if 'ai_avatar_id' is empty
+                        }
+                        if (isset($bot_data['use_avatar']) && $bot_data['use_avatar'] === '1') {
+                            if (empty($sanitized_value)) {
+                                wp_send_json_error(array('message' => esc_html__('AI Avatar ID is required when using a custom avatar.', 'gpt3-ai-content-generator')));
+                                return;
+                            }
+
+                            // Validate that the attachment ID exists and is an image
+                            if (!wp_attachment_is_image($sanitized_value)) {
+                                wp_send_json_error(array('message' => esc_html__('Invalid AI Avatar ID or not an image.', 'gpt3-ai-content-generator')));
+                                return;
+                            }
+                        } else {
+                            // If 'use_avatar' is not '1', ensure 'ai_avatar_id' is empty
+                            $bot_data['ai_avatar_id'] = '';
+                        }
+                    }
         
                     // Update the option in the database
                     update_option($option_key, $bot_data);
@@ -3226,8 +3269,43 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 'new_chatbot_id' => $new_chatbot_id
             ));
         }
-        
-        
+
+        public function aipower_reset_settings() {
+            // Verify nonce
+            if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce' ) ) {
+                wp_send_json_error( array( 'message' => __( 'Nonce verification failed.', 'gpt3-ai-content-generator' ) ) );
+                return;
+            }
+
+            // Check user capabilities
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'message' => __( 'You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator' ) ) );
+                return;
+            }
+
+            // Delete the specified options
+            $options_deleted = array();
+            $options_to_delete = array( 'wpaicg_chat_widget', 'wpaicg_chat_shortcode_options' );
+
+            foreach ( $options_to_delete as $option_name ) {
+                if ( delete_option( $option_name ) ) {
+                    $options_deleted[] = $option_name;
+                } else {
+                    // Option might not exist; log or handle as needed
+                    $options_deleted[] = $option_name . ' (' . __( 'not found or already deleted', 'gpt3-ai-content-generator' ) . ')';
+                }
+            }
+
+            // Optionally, reset default settings or perform additional cleanup
+            // Example: Reset default widgets or shortcode settings to initial values
+            // This depends on how your plugin initializes these settings
+
+            // Prepare response message
+            $deleted_count = count( $options_deleted );
+            $message = sprintf( __( 'Reset completed. %d option(s) deleted.', 'gpt3-ai-content-generator' ), $deleted_count );
+
+            wp_send_json_success( array( 'message' => $message ) );
+        }
     }
     WPAICG_Dashboard::get_instance();
 }

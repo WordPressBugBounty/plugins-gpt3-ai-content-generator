@@ -1082,6 +1082,40 @@ input:checked + .aipower-slider:before {
 .aipower-lead-badge {
     background-color: #4caf50; /* Green */
 }
+/* Scanning Light Effect */
+.aipower-scanning-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.aipower-scanning-overlay::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: rgba(255, 255, 255, 0.2); /* Adjusted color */
+    animation: aipower-scanning 2s linear infinite;
+}
+
+@keyframes aipower-scanning {
+    0% {
+        top: -50%;
+    }
+    50% {
+        top: 100%;
+    }
+    100% {
+        top: 100%;
+    }
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {

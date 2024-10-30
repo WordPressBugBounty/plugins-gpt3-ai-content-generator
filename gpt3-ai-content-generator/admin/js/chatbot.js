@@ -796,7 +796,15 @@ jQuery(document).ready(function ($) {
             required: false,
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
-            defaultValue: '#FF0000'
+            defaultValue: '#FF0000',
+            realtimePreview: {
+                css: [
+                    {
+                        target: '.wpaicg-pdf-icon',
+                        property: 'color'
+                    }
+                ]
+            }
         },
         {
             name: 'conversation_starters',
@@ -818,10 +826,16 @@ jQuery(document).ready(function ($) {
             ajaxAction: 'aipower_save_field',
             defaultValue: '#343A40',
             realtimePreview: {
-                css: {
+                css:  [
+                    {
                     target: '.wpaicg-chat-shortcode',
                     property: 'background-color'
-                }
+                    },
+                    {
+                    target: '.wpaicg-chatbox',
+                    property: 'background-color'
+                    }
+                ] 
             }
         },
         {
@@ -840,11 +854,19 @@ jQuery(document).ready(function ($) {
                         property: 'color'
                     },
                     {
+                        target: '.wpaicg-chat-user-message',
+                        property: 'color'
+                    },
+                    {
                         target: '.wpaicg-conversation-starter',
                         property: 'color'
                     },
                     {
                         target: '.wpaicg-ai-message',
+                        property: 'color'
+                    },
+                    {
+                        target: '.wpaicg-chat-ai-message',
                         property: 'color'
                     },
                 ]
@@ -866,7 +888,15 @@ jQuery(document).ready(function ($) {
                         property: 'background-color'
                     },
                     {
+                        target: '.wpaicg-chatbox-footer',
+                        property: 'background-color'
+                    },
+                    {
                         target: '.wpaicg-chat-shortcode-footer',
+                        property: 'border-top-color'
+                    },
+                    {
+                        target: '.wpaicg-chatbox-footer',
                         property: 'border-top-color'
                     },
                     {
@@ -886,10 +916,16 @@ jQuery(document).ready(function ($) {
             ajaxAction: 'aipower_save_field',
             defaultValue: '#495057',
             realtimePreview: {
-                css: {
+                css: [
+                    {
                     target: '.wpaicg-ai-message',
                     property: 'background-color'
-                }
+                    },
+                    {
+                        target: '.wpaicg-chat-ai-message',
+                        property: 'background-color'
+                    }
+                ]
             }
         },
         {
@@ -905,6 +941,10 @@ jQuery(document).ready(function ($) {
                 css: [
                     {
                         target: '.wpaicg-user-message',
+                        property: 'background-color'
+                    },
+                    {
+                        target: '.wpaicg-chat-user-message',
                         property: 'background-color'
                     },
                     {
@@ -928,6 +968,10 @@ jQuery(document).ready(function ($) {
                     {
                         target: '.wpaicg-chat-shortcode-typing',
                         property: 'background-color'
+                    },
+                    {
+                        target: '.wpaicg-chatbox-typing',
+                        property: 'background-color'
                     }
                 ]
             }
@@ -948,10 +992,14 @@ jQuery(document).ready(function ($) {
                         property: 'color'
                     },
                     {
-                        target: 'textarea.wpaicg-chat-shortcode-typing::placeholder',
+                        target: 'textarea.wpaicg-chatbox-typing, textarea.auto-expand',
                         property: 'color'
-                    },
-                ]
+                    }
+                ],
+                custom: function(value) {
+                    // Update the placeholder color
+                    updatePlaceholderColor(value);
+                }
             }
         },
         {
@@ -967,6 +1015,10 @@ jQuery(document).ready(function ($) {
                 css: [
                     {
                         target: '.wpaicg-chat-shortcode-typing',
+                        property: 'border-color'
+                    },
+                    {
+                        target: '.wpaicg-chatbox-typing',
                         property: 'border-color'
                     }
                 ]
@@ -988,7 +1040,19 @@ jQuery(document).ready(function ($) {
                         property: 'color'
                     },
                     {
+                        target: '.wpaicg-chatbox-send',
+                        property: 'color'
+                    },
+                    {
                         target: '.wpaicg-img-icon',
+                        property: 'color'
+                    },
+                    {
+                        target: '.wpaicg-chat-shortcode-type',
+                        property: 'color'
+                    },
+                    {
+                        target: '.wpaicg-chatbox-type',
                         property: 'color'
                     },
                 ]
@@ -1003,6 +1067,14 @@ jQuery(document).ready(function ($) {
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
             defaultValue: '#F8F9FA',
+            realtimePreview: {
+                css: [
+                    {
+                        target: '.wpaicg-mic-icon',
+                        property: 'color'
+                    }
+                ]
+            }
         },
         {
             name: 'stop_color',
@@ -1024,10 +1096,16 @@ jQuery(document).ready(function ($) {
             ajaxAction: 'aipower_save_field',
             defaultValue: '#FFFFFF',
             realtimePreview: {
-                css: {
+                css: [
+                    {
                     target: '.wpaicg-chat-shortcode-footer',
                     property: 'color'
-                }
+                    },
+                    {
+                    target: '.wpaicg-chatbox-footer',
+                    property: 'color'
+                    }
+                ]
             }
         },
         {
@@ -2851,6 +2929,7 @@ jQuery(document).ready(function ($) {
     const $toolsMenu = $('#aipower-tools-menu');
     const $deleteAllBtn = $('#aipower-delete-all-btn');
     const $exportAllBtn = $('#aipower-export-all-btn');
+    const $resetBtn = $('#aipower-reset-btn');
     const $importBtn = $('#aipower-import-btn');
     const $confirmation = $('#aipower-confirmation');
     const $confirmYes = $('#aipower-confirm-yes');
@@ -2884,6 +2963,13 @@ jQuery(document).ready(function ($) {
         $toolsMenu.hide(); // Hide the menu
         currentAction = 'export_all';
         $confirmation.show(); // Show the confirmation
+    });
+
+    // Handle reset action (reload the page)
+    $resetBtn.on('click', function () {
+        $toolsMenu.hide(); // Hide the menu
+        currentAction = 'reset';
+        $confirmation.show();
     });
 
     // Handle import action (trigger file input)
@@ -2962,6 +3048,40 @@ jQuery(document).ready(function ($) {
                 UI.hideSpinner();
                 $confirmation.hide();
                 currentAction = null; // Reset the action
+            });
+        } else if (currentAction === 'reset') {
+            // -------------------- Handle Reset --------------------
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'aipower_reset_settings',
+                    _wpnonce: $('#ai-engine-nonce').val()
+                },
+                beforeSend: function () {
+                    UI.showSpinner(); // Show spinner during reset
+                },
+                success: function (response) {
+                    if (response.success) {
+                        UI.showMessage('success', 'Default shortcode and site-wide widget reset successfully.', true);
+                        UI.showReloadMessage(); // Inform the user to reload the page
+                        // reloading the page now
+                        setTimeout(() => {
+                            location.reload(); 
+                        }
+                        , 3000);
+                    } else {
+                        UI.showMessage('error', response.data.message || 'Failed to reset chatbots.');
+                    }
+                },
+                error: function () {
+                    UI.showMessage('error', 'Failed to connect to the server. Please try again.');
+                },
+                complete: function () {
+                    UI.hideSpinner(); // Hide spinner after completion
+                    $confirmation.hide(); // Hide the confirmation text
+                    currentAction = null; // Reset the action
+                }
             });
         }
     });
@@ -3230,5 +3350,287 @@ jQuery(document).ready(function ($) {
 
     $('#bot-role-limits-modal').on('input', '.role-limit-input', debounce(saveLimitedRoles, 300));
 
+    // Theme selection handling
+    $('#aipower-themes').on('change', function () {
+        const selectedTheme = $(this).val();
+
+        // Disable the theme dropdown
+        $(this).prop('disabled', true);
+
+        // Show the scanning effect
+        showScanningEffect();
+
+        // Define the theme color values
+        const themes = {
+            'default': {
+                'bgcolor': '#f8f9fa',
+                'fontcolor': '#495057',
+                'footer_color': '#FFFFFF',
+                'ai_bg_color': '#d1e8ff',
+                'user_bg_color': '#ccf5e1',
+                'bg_text_field': '#FFFFFF',
+                'input_font_color': '#495057',
+                'border_text_field': '#CED4DA',
+                'send_color': '#d1e8ff',
+                'mic_color': '#d1e8ff',
+                'pdf_color': '#d1e8ff',
+                'footer_font_color': '#495057',
+                'bar_color': '#495057',
+                'thinking_color': '#495057'
+            },
+            'dark': {
+                // Dark theme colors
+                'bgcolor': '#1E1E1E',
+                'fontcolor': '#FFFFFF',
+                'footer_color': '#2E2E2E',
+                'ai_bg_color': '#2E2E2E',
+                'user_bg_color': '#3E3E3E',
+                'bg_text_field': '#2E2E2E',
+                'input_font_color': '#FFFFFF',
+                'border_text_field': '#3E3E3E',
+                'send_color': '#FFFFFF',
+                'mic_color': '#FFFFFF',
+                'pdf_color': '#FFFFFF',
+                'footer_font_color': '#FFFFFF',
+                'bar_color': '#FFFFFF',
+                'thinking_color': '#BBBBBB'
+            },
+            'light': {
+                // Light theme colors
+                'bgcolor': '#f8f9fa',
+                'fontcolor': '#495057',
+                'footer_color': '#FFFFFF',
+                'ai_bg_color': '#d1e8ff',
+                'user_bg_color': '#ccf5e1',
+                'bg_text_field': '#FFFFFF',
+                'input_font_color': '#495057',
+                'border_text_field': '#CED4DA',
+                'send_color': '#d1e8ff',
+                'mic_color': '#d1e8ff',
+                'pdf_color': '#d1e8ff',
+                'footer_font_color': '#495057',
+                'bar_color': '#495057',
+                'thinking_color': '#495057'
+            },
+            'whatsapp': {
+                // WhatsApp theme colors
+                'bgcolor': '#ECE5DD',
+                'fontcolor': '#000000',
+                'footer_color': '#D9DBD5',
+                'ai_bg_color': '#DCF8C6',
+                'user_bg_color': '#FFFFFF',
+                'bg_text_field': '#FFFFFF',
+                'input_font_color': '#000000',
+                'border_text_field': '#D9DBD5',
+                'send_color': '#075E54',
+                'mic_color': '#075E54',
+                'pdf_color': '#075E54',
+                'footer_font_color': '#000000',
+                'bar_color': '#075E54',
+                'thinking_color': '#777777'
+            },
+            'terminal': {
+                // Terminal theme colors
+                'bgcolor': '#000000',
+                'fontcolor': '#00FF00',
+                'footer_color': '#000000',
+                'ai_bg_color': '#000000',
+                'user_bg_color': '#000000',
+                'bg_text_field': '#000000',
+                'input_font_color': '#00FF00',
+                'border_text_field': '#00FF00',
+                'send_color': '#00FF00',
+                'mic_color': '#00FF00',
+                'pdf_color': '#00FF00',
+                'footer_font_color': '#00FF00',
+                'bar_color': '#00FF00',
+                'thinking_color': '#00FF00'
+            },
+            'sunset': {
+                // Sunset-inspired colors
+                'bgcolor': '#FF6F61',
+                'fontcolor': '#2E1F27',
+                'footer_color': '#FF8360',
+                'ai_bg_color': '#FFE0B2',
+                'user_bg_color': '#FFAB91',
+                'bg_text_field': '#FFE0B2',
+                'input_font_color': '#2E1F27',
+                'border_text_field': '#FFAB91',
+                'send_color': '#FF7043',
+                'mic_color': '#FF7043',
+                'pdf_color': '#FF7043',
+                'footer_font_color': '#FFE0B2',
+                'bar_color': '#FFE0B2',
+                'thinking_color': '#FFAB91'
+            },
+            'ocean': {
+                // Ocean-inspired colors
+                'bgcolor': '#0077B6',
+                'fontcolor': '#FFFFFF',
+                'footer_color': '#0096C7',
+                'ai_bg_color': '#00B4D8',
+                'user_bg_color': '#48CAE4',
+                'bg_text_field': '#00B4D8',
+                'input_font_color': '#FFFFFF',
+                'border_text_field': '#90E0EF',
+                'send_color': '#FFFFFF',
+                'mic_color': '#FFFFFF',
+                'pdf_color': '#FFFFFF',
+                'footer_font_color': '#FFFFFF',
+                'bar_color': '#FFFFFF',
+                'thinking_color': '#90E0EF'
+            },
+            'forest': {
+                // Forest-inspired colors
+                'bgcolor': '#2D6A4F',
+                'fontcolor': '#FFFFFF',
+                'footer_color': '#40916C',
+                'ai_bg_color': '#52B788',
+                'user_bg_color': '#74C69D',
+                'bg_text_field': '#52B788',
+                'input_font_color': '#FFFFFF',
+                'border_text_field': '#74C69D',
+                'send_color': '#1B4332',
+                'mic_color': '#1B4332',
+                'pdf_color': '#1B4332',
+                'footer_font_color': '#FFFFFF',
+                'bar_color': '#FFFFFF',
+                'thinking_color': '#95D5B2'
+            },
+            'neon': {
+                // Neon-inspired colors
+                'bgcolor': '#121212',
+                'fontcolor': '#0ABAB5',
+                'footer_color': '#1A1A1A',
+                'ai_bg_color': '#1F1F1F',
+                'user_bg_color': '#2D2D2D',
+                'bg_text_field': '#1A1A1A',
+                'input_font_color': '#0ABAB5',
+                'border_text_field': '#0ABAB5',
+                'send_color': '#0ABAB5',
+                'mic_color': '#0ABAB5',
+                'pdf_color': '#0ABAB5',
+                'footer_font_color': '#FFFFFF',
+                'bar_color': '#FFFFFF',
+                'thinking_color': '#FF26A2'
+            }
+        };
+
+        const themeColors = themes[selectedTheme];
+
+        // Prepare the fields to update
+        const colorFields = [
+            'bgcolor',
+            'fontcolor',
+            'footer_color',
+            'ai_bg_color',
+            'user_bg_color',
+            'bg_text_field',
+            'input_font_color',
+            'border_text_field',
+            'send_color',
+            'footer_font_color',
+            'bar_color',
+            'thinking_color',
+            'mic_color',
+            'pdf_color'
+        ];
+
+        // Update the fields one by one
+        let index = 0;
+
+        function updateNextField() {
+            if (index >= colorFields.length) {
+                // All fields updated
+                // Re-enable the theme dropdown
+                $('#aipower-themes').prop('disabled', false);
+                // Hide the scanning effect
+                hideScanningEffect();
+                return;
+            }
+
+            const fieldName = colorFields[index];
+            const fieldValue = themeColors[fieldName];
+            const fieldConfig = fieldConfigurations.find(f => f.name === fieldName);
+
+            if (fieldConfig) {
+                // Set the field value without triggering events
+                setFieldValue(fieldConfig, fieldValue, false);
+
+                // Apply realtime preview if any
+                handleRealtimePreview(fieldConfig, fieldValue);
+
+                // Autosave the field
+                autosaveField(fieldConfig, fieldValue, function () {
+                    // Proceed to the next field
+                    index++;
+                    updateNextField();
+                });
+            } else {
+                // Field not found, proceed to next
+                index++;
+                updateNextField();
+            }
+        }
+
+        // Start updating fields
+        updateNextField();
+    });
+
+    // Function to show the scanning effect
+    function showScanningEffect() {
+        // Append the overlay to the chat window its either .wpaicg-chat-shortcode or .wpaicg-chatbox
+        const $chatWindow = $('.wpaicg-chat-shortcode, .wpaicg-chatbox');
+        if ($chatWindow.length) {
+            // Ensure the chat window has position relative or absolute
+            if ($chatWindow.css('position') === 'static') {
+                $chatWindow.css('position', 'relative');
+            }
+
+            // Add the scanning overlay if it doesn't exist
+            if (!$chatWindow.find('.aipower-scanning-overlay').length) {
+                $chatWindow.append('<div class="aipower-scanning-overlay"></div>');
+            }
+        }
+    }
+
+    // Function to hide the scanning effect
+    function hideScanningEffect() {
+        const $chatWindow = $('.wpaicg-chat-shortcode, .wpaicg-chatbox');
+        $chatWindow.find('.aipower-scanning-overlay').remove();
+    }
+
+    function updatePlaceholderColor(colorValue) {
+        // Create or get the style element
+        let styleElement = $('#placeholder-style');
+        if (styleElement.length === 0) {
+            styleElement = $('<style id="placeholder-style"></style>');
+            $('head').append(styleElement);
+        }
+        // Generate the CSS rule
+        const cssRule = `
+            textarea.wpaicg-chat-shortcode-typing::placeholder {
+                color: ${colorValue} !important;
+            }
+            textarea.wpaicg-chat-shortcode-typing::-webkit-input-placeholder {
+                color: ${colorValue} !important;
+            }
+            textarea.wpaicg-chat-shortcode-typing:-ms-input-placeholder {
+                color: ${colorValue} !important;
+            }
+            textarea.wpaicg-chatbox-typing::placeholder {
+                color: ${colorValue} !important;
+            }
+            textarea.wpaicg-chatbox-typing::-webkit-input-placeholder {
+                color: ${colorValue} !important;
+            }
+            textarea.wpaicg-chatbox-typing:-ms-input-placeholder {
+                color: ${colorValue} !important;
+            }
+        `;
+        // Update the style element
+        styleElement.html(cssRule);
+    }
+    
 
 });
