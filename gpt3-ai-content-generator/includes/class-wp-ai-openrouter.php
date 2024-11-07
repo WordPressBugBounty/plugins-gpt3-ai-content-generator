@@ -3,7 +3,7 @@ namespace WPAICG;
 if ( ! defined( 'ABSPATH' ) ) exit;
 class WPAICG_OpenRouterUrl
 {
-    const ORIGIN = 'https://openrouter.ai/api/';
+    const ORIGIN = 'https://openrouter.ai/api';
     const API_VERSION = 'v1';
     const OPEN_AI_URL = self::ORIGIN . "/" . self::API_VERSION;
 
