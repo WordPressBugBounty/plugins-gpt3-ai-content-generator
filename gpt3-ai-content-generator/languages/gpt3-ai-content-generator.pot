@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 1.8.93\n"
+"Project-Id-Version: AI Power: Complete AI Pack 1.8.94\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-07T13:47:11+00:00\n"
+"POT-Creation-Date: 2024-11-19T09:40:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -67,8 +67,8 @@ msgstr ""
 #: admin/views/settings/ai.php:221
 #: admin/views/settings/chat-general-settings.php:30
 #: admin/views/settings/chatlogs.php:134
-#: admin/views/settings/image_settings.php:390
-#: classes/wpaicg_dashboard.php:2470
+#: admin/views/settings/image_settings.php:420
+#: classes/wpaicg_dashboard.php:2472
 #: lib/views/chat/embeddings.php:59
 msgid "Model"
 msgstr ""
@@ -90,7 +90,7 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1089
 #: admin/views/settings/chatbots.php:802
 #: admin/views/settings/chatbots.php:808
-#: classes/wpaicg_dashboard.php:2468
+#: classes/wpaicg_dashboard.php:2470
 msgid "Name"
 msgstr ""
 
@@ -116,7 +116,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_assistants.php:155
 #: admin/views/settings/dashboard.php:116
-#: classes/wpaicg_dashboard.php:2469
+#: classes/wpaicg_dashboard.php:2471
 msgid "Tools"
 msgstr ""
 
@@ -140,13 +140,13 @@ msgstr ""
 #: admin/extra/wpaicg_assistants.php:189
 #: admin/extra/wpaicg_assistants.php:194
 #: admin/views/embeddings/index.php:414
-#: classes/wpaicg_dashboard.php:2396
-#: classes/wpaicg_dashboard.php:2399
+#: classes/wpaicg_dashboard.php:2398
 #: classes/wpaicg_dashboard.php:2401
-#: classes/wpaicg_dashboard.php:2416
-#: classes/wpaicg_dashboard.php:2434
-#: classes/wpaicg_dashboard.php:2570
-#: classes/wpaicg_dashboard.php:2571
+#: classes/wpaicg_dashboard.php:2403
+#: classes/wpaicg_dashboard.php:2418
+#: classes/wpaicg_dashboard.php:2436
+#: classes/wpaicg_dashboard.php:2572
+#: classes/wpaicg_dashboard.php:2573
 msgid "N/A"
 msgstr ""
 
@@ -190,7 +190,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:877
 #: admin/extra/wpaicg_single.php:1278
 #: admin/views/audio/logs.php:111
-#: classes/wpaicg_dashboard.php:2620
+#: classes/wpaicg_dashboard.php:2622
 #: classes/wpaicg_embeddings.php:192
 #: classes/wpaicg_finetune.php:1225
 #: classes/wpaicg_finetune.php:1344
@@ -229,14 +229,16 @@ msgstr ""
 #: admin/extra/wpaicg_prompt_shortcode.php:545
 #: admin/extra/wpaicg_single.php:1288
 #: admin/views/settings/chatbot.php:28
-#: admin/views/settings/content_settings.php:87
-#: admin/views/settings/content_settings.php:97
-#: admin/views/settings/content_settings.php:107
-#: admin/views/settings/content_settings.php:139
+#: admin/views/settings/content_settings.php:105
+#: admin/views/settings/content_settings.php:115
+#: admin/views/settings/content_settings.php:125
+#: admin/views/settings/content_settings.php:157
 #: admin/views/settings/extra_tools.php:69
 #: admin/views/settings/extra_tools.php:77
 #: admin/views/settings/extra_tools.php:85
 #: admin/views/settings/extra_tools.php:93
+#: admin/views/settings/image_settings.php:145
+#: admin/views/settings/image_settings.php:155
 #: admin/views/settings/woocommerce_settings.php:100
 msgid "Settings"
 msgstr ""
@@ -291,7 +293,7 @@ msgstr ""
 #: admin/extra/wpaicg_bulk_queue.php:67
 #: admin/views/embeddings/autoscan.php:25
 #: admin/views/settings/chatlogs.php:133
-#: admin/views/settings/image_settings.php:86
+#: admin/views/settings/image_settings.php:95
 msgid "#"
 msgstr ""
 
@@ -304,7 +306,7 @@ msgstr ""
 #: admin/views/audio/logs.php:55
 #: admin/views/metabox.php:290
 #: admin/views/settings/chatbots.php:795
-#: admin/views/settings/content_settings.php:238
+#: admin/views/settings/content_settings.php:256
 #: classes/wpaicg_hook.php:52
 #: classes/wpaicg_hook.php:118
 #: lib/modules/wpaicg_user_pdfs.php:84
@@ -417,10 +419,10 @@ msgstr ""
 #: admin/views/metabox.php:899
 #: admin/views/settings/chatbots.php:360
 #: admin/views/settings/image_settings.php:50
-#: admin/views/settings/image_settings.php:146
-#: admin/views/settings/image_settings.php:157
-#: admin/views/settings/image_settings.php:340
-#: admin/views/settings/image_settings.php:351
+#: admin/views/settings/image_settings.php:177
+#: admin/views/settings/image_settings.php:188
+#: admin/views/settings/image_settings.php:371
+#: admin/views/settings/image_settings.php:382
 msgid "None"
 msgstr ""
 
@@ -519,7 +521,7 @@ msgstr ""
 #: classes/wpaicg_finetune.php:1027
 #: classes/wpaicg_finetune.php:1167
 #: classes/wpaicg_forms.php:485
-#: classes/wpaicg_generator.php:1600
+#: classes/wpaicg_generator.php:1697
 #: classes/wpaicg_hook.php:42
 #: classes/wpaicg_hook.php:108
 #: classes/wpaicg_image.php:41
@@ -643,20 +645,20 @@ msgstr ""
 #: classes/wpaicg_content.php:1038
 #: classes/wpaicg_content.php:1122
 #: classes/wpaicg_content.php:1747
-#: classes/wpaicg_dashboard.php:2194
-#: classes/wpaicg_dashboard.php:2221
-#: classes/wpaicg_dashboard.php:2367
-#: classes/wpaicg_dashboard.php:2706
-#: classes/wpaicg_dashboard.php:2740
-#: classes/wpaicg_dashboard.php:2812
-#: classes/wpaicg_dashboard.php:2842
-#: classes/wpaicg_dashboard.php:2895
-#: classes/wpaicg_dashboard.php:2920
-#: classes/wpaicg_dashboard.php:2946
-#: classes/wpaicg_dashboard.php:2971
-#: classes/wpaicg_dashboard.php:3022
-#: classes/wpaicg_dashboard.php:3045
-#: classes/wpaicg_dashboard.php:3195
+#: classes/wpaicg_dashboard.php:2196
+#: classes/wpaicg_dashboard.php:2223
+#: classes/wpaicg_dashboard.php:2369
+#: classes/wpaicg_dashboard.php:2708
+#: classes/wpaicg_dashboard.php:2742
+#: classes/wpaicg_dashboard.php:2831
+#: classes/wpaicg_dashboard.php:2861
+#: classes/wpaicg_dashboard.php:3012
+#: classes/wpaicg_dashboard.php:3037
+#: classes/wpaicg_dashboard.php:3063
+#: classes/wpaicg_dashboard.php:3088
+#: classes/wpaicg_dashboard.php:3139
+#: classes/wpaicg_dashboard.php:3162
+#: classes/wpaicg_dashboard.php:3312
 #: classes/wpaicg_editor.php:130
 #: classes/wpaicg_elevenlabs.php:70
 #: classes/wpaicg_elevenlabs.php:119
@@ -788,8 +790,8 @@ msgstr ""
 #: admin/views/roles/index.php:145
 #: admin/views/settings/chat-general-settings.php:202
 #: admin/views/settings/chatbots.php:533
-#: admin/views/settings/content_settings.php:119
-#: admin/views/settings/content_settings.php:130
+#: admin/views/settings/content_settings.php:137
+#: admin/views/settings/content_settings.php:148
 #: admin/views/settings/seo_settings.php:74
 #: admin/views/settings/seo_settings.php:86
 #: admin/views/settings/seo_settings.php:98
@@ -830,7 +832,9 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1060
 #: admin/views/metabox.php:1230
 #: admin/views/settings/chatbots.php:67
-#: admin/views/settings/content_settings.php:364
+#: admin/views/settings/content_settings.php:382
+#: admin/views/settings/image_settings.php:579
+#: admin/views/settings/image_settings.php:629
 msgid "Reset"
 msgstr ""
 
@@ -931,8 +935,8 @@ msgstr ""
 #: admin/extra/wpaicg_image_generator.php:550
 #: admin/extra/wpaicg_single.php:1098
 #: admin/views/finetune/events.php:20
-#: admin/views/settings/image_settings.php:175
-#: admin/views/settings/image_settings.php:460
+#: admin/views/settings/image_settings.php:206
+#: admin/views/settings/image_settings.php:498
 msgid "Type"
 msgstr ""
 
@@ -1027,7 +1031,7 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:539
 #: admin/views/metabox.php:432
 #: admin/views/settings/chatbots.php:86
-#: admin/views/settings/image_settings.php:184
+#: admin/views/settings/image_settings.php:215
 #: classes/wpaicg_image.php:441
 #: classes/wpaicg_image.php:555
 msgid "Style"
@@ -1494,7 +1498,7 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:809
 #: admin/extra/wpaicg_promptbase_index.php:721
 #: admin/views/settings/chatlogs.php:36
-#: classes/wpaicg_dashboard.php:2631
+#: classes/wpaicg_dashboard.php:2633
 msgid "Export"
 msgstr ""
 
@@ -1504,7 +1508,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:971
 #: admin/extra/wpaicg_promptbase_index.php:875
-#: classes/wpaicg_dashboard.php:2625
+#: classes/wpaicg_dashboard.php:2627
 msgid "Duplicate"
 msgstr ""
 
@@ -1769,13 +1773,13 @@ msgid "Comment"
 msgstr ""
 
 #: admin/extra/wpaicg_form_settings.php:7
-#: classes/wpaicg_dashboard.php:50
-#: classes/wpaicg_dashboard.php:177
-#: classes/wpaicg_dashboard.php:306
-#: classes/wpaicg_dashboard.php:348
-#: classes/wpaicg_dashboard.php:582
-#: classes/wpaicg_dashboard.php:2165
-#: classes/wpaicg_dashboard.php:3276
+#: classes/wpaicg_dashboard.php:52
+#: classes/wpaicg_dashboard.php:179
+#: classes/wpaicg_dashboard.php:308
+#: classes/wpaicg_dashboard.php:350
+#: classes/wpaicg_dashboard.php:584
+#: classes/wpaicg_dashboard.php:2167
+#: classes/wpaicg_dashboard.php:3393
 #: classes/wpaicg_logs.php:45
 #: classes/wpaicg_logs.php:707
 #: classes/wpaicg_logs.php:951
@@ -1785,8 +1789,8 @@ msgstr ""
 #: admin/extra/wpaicg_form_settings.php:23
 #: admin/extra/wpaicg_image_generator_settings.php:45
 #: admin/extra/wpaicg_promptbase_settings.php:19
-#: classes/wpaicg_dashboard.php:2793
-#: classes/wpaicg_dashboard.php:2797
+#: classes/wpaicg_dashboard.php:2812
+#: classes/wpaicg_dashboard.php:2816
 msgid "Settings updated successfully."
 msgstr ""
 
@@ -2010,7 +2014,7 @@ msgstr ""
 #: admin/views/metabox.php:672
 #: admin/views/metabox.php:685
 #: admin/views/metabox.php:692
-#: admin/views/settings/image_settings.php:95
+#: admin/views/settings/image_settings.php:104
 msgid "DALL-E"
 msgstr ""
 
@@ -2029,24 +2033,24 @@ msgstr ""
 #: admin/extra/wpaicg_image_generator.php:408
 #: admin/extra/wpaicg_single.php:745
 #: admin/views/metabox.php:771
-#: admin/views/settings/image_settings.php:197
+#: admin/views/settings/image_settings.php:228
 msgid "Artist"
 msgstr ""
 
 #: admin/extra/wpaicg_image_generator.php:428
 #: admin/extra/wpaicg_single.php:755
 #: admin/views/metabox.php:782
-#: admin/views/settings/image_settings.php:210
+#: admin/views/settings/image_settings.php:241
 msgid "Photography"
 msgstr ""
 
 #: admin/extra/wpaicg_image_generator.php:438
 #: admin/extra/wpaicg_single.php:765
 #: admin/views/metabox.php:792
-#: admin/views/settings/image_settings.php:223
-#: classes/wpaicg_custom_prompt.php:234
-#: classes/wpaicg_generator.php:1143
-#: classes/wpaicg_generator.php:1264
+#: admin/views/settings/image_settings.php:254
+#: classes/wpaicg_custom_prompt.php:237
+#: classes/wpaicg_generator.php:1165
+#: classes/wpaicg_generator.php:1308
 #: classes/wpaicg_image.php:447
 #: classes/wpaicg_image.php:561
 msgid "Lighting"
@@ -2055,10 +2059,10 @@ msgstr ""
 #: admin/extra/wpaicg_image_generator.php:448
 #: admin/extra/wpaicg_single.php:775
 #: admin/views/metabox.php:802
-#: admin/views/settings/image_settings.php:236
-#: classes/wpaicg_custom_prompt.php:235
-#: classes/wpaicg_generator.php:1144
-#: classes/wpaicg_generator.php:1265
+#: admin/views/settings/image_settings.php:267
+#: classes/wpaicg_custom_prompt.php:238
+#: classes/wpaicg_generator.php:1166
+#: classes/wpaicg_generator.php:1309
 #: classes/wpaicg_image.php:448
 #: classes/wpaicg_image.php:562
 msgid "Subject"
@@ -2067,17 +2071,17 @@ msgstr ""
 #: admin/extra/wpaicg_image_generator.php:458
 #: admin/extra/wpaicg_single.php:785
 #: admin/views/metabox.php:812
-#: admin/views/settings/image_settings.php:249
+#: admin/views/settings/image_settings.php:280
 msgid "Camera"
 msgstr ""
 
 #: admin/extra/wpaicg_image_generator.php:468
 #: admin/extra/wpaicg_single.php:795
 #: admin/views/metabox.php:822
-#: admin/views/settings/image_settings.php:262
-#: classes/wpaicg_custom_prompt.php:230
-#: classes/wpaicg_generator.php:1139
-#: classes/wpaicg_generator.php:1260
+#: admin/views/settings/image_settings.php:293
+#: classes/wpaicg_custom_prompt.php:233
+#: classes/wpaicg_generator.php:1161
+#: classes/wpaicg_generator.php:1304
 #: classes/wpaicg_image.php:443
 #: classes/wpaicg_image.php:557
 msgid "Composition"
@@ -2086,10 +2090,10 @@ msgstr ""
 #: admin/extra/wpaicg_image_generator.php:478
 #: admin/extra/wpaicg_single.php:805
 #: admin/views/metabox.php:832
-#: admin/views/settings/image_settings.php:275
-#: classes/wpaicg_custom_prompt.php:231
-#: classes/wpaicg_generator.php:1140
-#: classes/wpaicg_generator.php:1261
+#: admin/views/settings/image_settings.php:306
+#: classes/wpaicg_custom_prompt.php:234
+#: classes/wpaicg_generator.php:1162
+#: classes/wpaicg_generator.php:1305
 #: classes/wpaicg_image.php:444
 #: classes/wpaicg_image.php:558
 msgid "Resolution"
@@ -2098,10 +2102,10 @@ msgstr ""
 #: admin/extra/wpaicg_image_generator.php:488
 #: admin/extra/wpaicg_single.php:815
 #: admin/views/metabox.php:842
-#: admin/views/settings/image_settings.php:288
-#: classes/wpaicg_custom_prompt.php:232
-#: classes/wpaicg_generator.php:1141
-#: classes/wpaicg_generator.php:1262
+#: admin/views/settings/image_settings.php:319
+#: classes/wpaicg_custom_prompt.php:235
+#: classes/wpaicg_generator.php:1163
+#: classes/wpaicg_generator.php:1306
 #: classes/wpaicg_image.php:445
 #: classes/wpaicg_image.php:559
 msgid "Color"
@@ -2110,10 +2114,10 @@ msgstr ""
 #: admin/extra/wpaicg_image_generator.php:498
 #: admin/extra/wpaicg_single.php:825
 #: admin/views/metabox.php:852
-#: admin/views/settings/image_settings.php:301
-#: classes/wpaicg_custom_prompt.php:233
-#: classes/wpaicg_generator.php:1142
-#: classes/wpaicg_generator.php:1263
+#: admin/views/settings/image_settings.php:332
+#: classes/wpaicg_custom_prompt.php:236
+#: classes/wpaicg_generator.php:1164
+#: classes/wpaicg_generator.php:1307
 #: classes/wpaicg_image.php:446
 #: classes/wpaicg_image.php:560
 msgid "Special Effects"
@@ -2124,8 +2128,8 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:850
 #: admin/views/finetune/files.php:78
 #: admin/views/metabox.php:897
-#: admin/views/settings/image_settings.php:163
-#: admin/views/settings/image_settings.php:349
+#: admin/views/settings/image_settings.php:194
+#: admin/views/settings/image_settings.php:380
 msgid "Size"
 msgstr ""
 
@@ -2224,8 +2228,8 @@ msgstr ""
 
 #: admin/extra/wpaicg_image_generator_log.php:55
 #: admin/views/settings/chat-general-settings.php:300
-#: classes/wpaicg_dashboard.php:2481
-#: classes/wpaicg_dashboard.php:2573
+#: classes/wpaicg_dashboard.php:2483
+#: classes/wpaicg_dashboard.php:2575
 msgid "Shortcode"
 msgstr ""
 
@@ -2571,8 +2575,8 @@ msgstr ""
 #: admin/views/metabox.php:922
 #: admin/views/settings/chat-common-settings.php:170
 #: admin/views/settings/chatbots.php:356
-#: admin/views/settings/content_settings.php:155
-#: admin/views/settings/image_settings.php:448
+#: admin/views/settings/content_settings.php:173
+#: admin/views/settings/image_settings.php:486
 msgid "Language"
 msgstr ""
 
@@ -2583,7 +2587,7 @@ msgid "Tone"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:561
-#: admin/views/settings/content_settings.php:191
+#: admin/views/settings/content_settings.php:209
 msgid "Headings"
 msgstr ""
 
@@ -2593,14 +2597,14 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:570
 #: admin/views/metabox.php:403
-#: admin/views/settings/content_settings.php:203
+#: admin/views/settings/content_settings.php:221
 msgid "Heading Tag"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:600
 #: admin/extra/wpaicg_single.php:606
-#: admin/views/settings/content_settings.php:115
-#: admin/views/settings/content_settings.php:118
+#: admin/views/settings/content_settings.php:133
+#: admin/views/settings/content_settings.php:136
 msgid "Bold Keywords"
 msgstr ""
 
@@ -2630,31 +2634,31 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:648
 #: admin/extra/wpaicg_single.php:668
-#: admin/views/settings/image_settings.php:87
+#: admin/views/settings/image_settings.php:96
 msgid "Image"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:671
 #: admin/extra/wpaicg_single.php:684
 #: admin/views/settings/image_settings.php:52
-#: admin/views/settings/image_settings.php:143
-#: admin/views/settings/image_settings.php:154
+#: admin/views/settings/image_settings.php:174
+#: admin/views/settings/image_settings.php:185
 msgid "DALL-E 3"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:672
 #: admin/extra/wpaicg_single.php:685
 #: admin/views/settings/image_settings.php:51
-#: admin/views/settings/image_settings.php:144
-#: admin/views/settings/image_settings.php:155
+#: admin/views/settings/image_settings.php:175
+#: admin/views/settings/image_settings.php:186
 msgid "DALL-E 3 HD"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:673
 #: admin/extra/wpaicg_single.php:686
 #: admin/views/settings/image_settings.php:53
-#: admin/views/settings/image_settings.php:145
-#: admin/views/settings/image_settings.php:156
+#: admin/views/settings/image_settings.php:176
+#: admin/views/settings/image_settings.php:187
 msgid "DALL-E 2"
 msgstr ""
 
@@ -2699,51 +2703,51 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:892
 #: admin/views/metabox.php:885
 #: admin/views/metabox.php:941
-#: admin/views/settings/image_settings.php:338
-#: admin/views/settings/image_settings.php:471
+#: admin/views/settings/image_settings.php:369
+#: admin/views/settings/image_settings.php:509
 msgid "Orientation"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:844
 #: admin/views/metabox.php:888
-#: admin/views/settings/image_settings.php:341
+#: admin/views/settings/image_settings.php:372
 msgid "Landscape"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:845
 #: admin/views/metabox.php:889
-#: admin/views/settings/image_settings.php:342
+#: admin/views/settings/image_settings.php:373
 msgid "Portrait"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:846
 #: admin/views/metabox.php:890
-#: admin/views/settings/image_settings.php:343
+#: admin/views/settings/image_settings.php:374
 msgid "Square"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:853
 #: admin/views/metabox.php:900
-#: admin/views/settings/image_settings.php:352
+#: admin/views/settings/image_settings.php:383
 msgid "Large"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:854
 #: admin/views/metabox.php:901
-#: admin/views/settings/image_settings.php:353
+#: admin/views/settings/image_settings.php:384
 msgid "Medium"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:855
 #: admin/views/metabox.php:902
-#: admin/views/settings/image_settings.php:354
+#: admin/views/settings/image_settings.php:385
 msgid "Small"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:860
 #: admin/extra/wpaicg_single.php:908
-#: admin/views/settings/image_settings.php:360
-#: admin/views/settings/image_settings.php:490
+#: admin/views/settings/image_settings.php:391
+#: admin/views/settings/image_settings.php:528
 msgid "Use Keyword"
 msgstr ""
 
@@ -2778,56 +2782,56 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:894
 #: admin/views/metabox.php:934
 #: admin/views/metabox.php:943
-#: admin/views/settings/image_settings.php:462
-#: admin/views/settings/image_settings.php:473
+#: admin/views/settings/image_settings.php:500
+#: admin/views/settings/image_settings.php:511
 msgid "All"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:886
 #: admin/views/metabox.php:935
-#: admin/views/settings/image_settings.php:463
+#: admin/views/settings/image_settings.php:501
 msgid "Photo"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:887
 #: admin/views/metabox.php:936
-#: admin/views/settings/image_settings.php:464
+#: admin/views/settings/image_settings.php:502
 msgid "Illustration"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:888
 #: admin/views/metabox.php:937
-#: admin/views/settings/image_settings.php:465
+#: admin/views/settings/image_settings.php:503
 msgid "Vector"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:895
 #: admin/views/metabox.php:944
-#: admin/views/settings/image_settings.php:474
+#: admin/views/settings/image_settings.php:512
 msgid "Horizontal"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:896
 #: admin/views/metabox.php:945
-#: admin/views/settings/image_settings.php:475
+#: admin/views/settings/image_settings.php:513
 msgid "Vertical"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:900
 #: admin/views/metabox.php:949
-#: admin/views/settings/image_settings.php:481
+#: admin/views/settings/image_settings.php:519
 msgid "Order"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:902
 #: admin/views/metabox.php:951
-#: admin/views/settings/image_settings.php:483
+#: admin/views/settings/image_settings.php:521
 msgid "Popular"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:903
 #: admin/views/metabox.php:952
-#: admin/views/settings/image_settings.php:484
+#: admin/views/settings/image_settings.php:522
 msgid "Latest"
 msgstr ""
 
@@ -2897,19 +2901,19 @@ msgid "Call-to-Action"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1028
-#: admin/views/settings/content_settings.php:215
+#: admin/views/settings/content_settings.php:233
 msgid "CTA Position"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1030
 #: admin/views/metabox.php:1143
-#: admin/views/settings/content_settings.php:49
+#: admin/views/settings/content_settings.php:67
 msgid "Beginning"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1031
 #: admin/views/metabox.php:1146
-#: admin/views/settings/content_settings.php:50
+#: admin/views/settings/content_settings.php:68
 msgid "End"
 msgstr ""
 
@@ -3968,7 +3972,7 @@ msgid "Theoretical"
 msgstr ""
 
 #: admin/views/metabox.php:569
-#: admin/views/settings/image_settings.php:177
+#: admin/views/settings/image_settings.php:208
 msgid "Vivid"
 msgstr ""
 
@@ -4106,12 +4110,12 @@ msgid "Worried"
 msgstr ""
 
 #: admin/views/metabox.php:666
-#: admin/views/settings/image_settings.php:141
+#: admin/views/settings/image_settings.php:172
 msgid "Image Source"
 msgstr ""
 
 #: admin/views/metabox.php:679
-#: admin/views/settings/image_settings.php:152
+#: admin/views/settings/image_settings.php:183
 msgid "Featured Image Source"
 msgstr ""
 
@@ -4411,9 +4415,9 @@ msgstr ""
 #: admin/views/settings/ai.php:152
 #: admin/views/settings/ai.php:212
 #: admin/views/settings/ai.php:262
-#: admin/views/settings/image_settings.php:328
-#: admin/views/settings/image_settings.php:380
-#: admin/views/settings/image_settings.php:438
+#: admin/views/settings/image_settings.php:359
+#: admin/views/settings/image_settings.php:411
+#: admin/views/settings/image_settings.php:476
 #: lib/views/twitter/index.php:47
 msgid "API Key"
 msgstr ""
@@ -4620,7 +4624,7 @@ msgid "e.g., 123.456.789.0, 987.654.321.0"
 msgstr ""
 
 #: admin/views/settings/chat-common-settings.php:225
-#: admin/views/settings/image_settings.php:81
+#: admin/views/settings/image_settings.php:90
 msgid "Image Settings"
 msgstr ""
 
@@ -5487,94 +5491,96 @@ msgstr ""
 msgid "No AI messages with token data."
 msgstr ""
 
-#: admin/views/settings/content_settings.php:56
+#: admin/views/settings/content_settings.php:74
 msgid "Content Writer"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:63
+#: admin/views/settings/content_settings.php:81
 msgid "Language and Headings"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:64
-#: admin/views/settings/content_settings.php:149
+#: admin/views/settings/content_settings.php:82
+#: admin/views/settings/content_settings.php:167
 msgid "Writing Settings"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:71
+#: admin/views/settings/content_settings.php:89
 msgid "Use Outline Editor"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:76
+#: admin/views/settings/content_settings.php:94
 msgid "Generate Tagline"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:83
+#: admin/views/settings/content_settings.php:101
 msgid "Generate Table of Contents"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:94
+#: admin/views/settings/content_settings.php:112
 msgid "Generate Introduction"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:104
+#: admin/views/settings/content_settings.php:122
 msgid "Generate Conclusion"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:126
-#: admin/views/settings/content_settings.php:129
+#: admin/views/settings/content_settings.php:144
+#: admin/views/settings/content_settings.php:147
 msgid "Generate Q & A"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:136
+#: admin/views/settings/content_settings.php:154
 #: admin/views/settings/woocommerce.php:111
 #: admin/views/settings/woocommerce_settings.php:97
 msgid "Use Custom Prompt"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:167
+#: admin/views/settings/content_settings.php:185
 msgid "Writing Style"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:179
+#: admin/views/settings/content_settings.php:197
 msgid "Writing Tone"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:231
+#: admin/views/settings/content_settings.php:249
 msgid "Table of Contents Settings"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:244
-#: admin/views/settings/content_settings.php:268
-#: admin/views/settings/content_settings.php:298
+#: admin/views/settings/content_settings.php:262
+#: admin/views/settings/content_settings.php:286
+#: admin/views/settings/content_settings.php:316
 msgid "Tag"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:261
+#: admin/views/settings/content_settings.php:279
 msgid "Introduction Settings"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:280
-#: admin/views/settings/content_settings.php:310
+#: admin/views/settings/content_settings.php:298
+#: admin/views/settings/content_settings.php:328
 msgid "Hide Title"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:291
+#: admin/views/settings/content_settings.php:309
 msgid "Conclusion Settings"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:321
+#: admin/views/settings/content_settings.php:339
 msgid "Custom Prompt for Express Mode"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:332
+#: admin/views/settings/content_settings.php:350
 msgid "Enter your custom prompt here..."
 msgstr ""
 
-#: admin/views/settings/content_settings.php:342
+#: admin/views/settings/content_settings.php:360
 msgid "Make sure to include %s in your prompt. You can also add %s and %s to further customize your prompt."
 msgstr ""
 
-#: admin/views/settings/content_settings.php:354
+#: admin/views/settings/content_settings.php:372
+#: admin/views/settings/image_settings.php:570
+#: admin/views/settings/image_settings.php:620
 msgid "Make sure to include %s in your prompt."
 msgstr ""
 
@@ -5727,47 +5733,75 @@ msgstr ""
 msgid "Above"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:88
+#: admin/views/settings/image_settings.php:97
 msgid "Featured"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:89
+#: admin/views/settings/image_settings.php:98
 msgid "Conf"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:103
-#: admin/views/settings/image_settings.php:134
+#: admin/views/settings/image_settings.php:112
+#: admin/views/settings/image_settings.php:165
 msgid "DALL-E Settings"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:178
+#: admin/views/settings/image_settings.php:142
+#: admin/views/settings/image_settings.php:539
+msgid "Custom Image Prompt"
+msgstr ""
+
+#: admin/views/settings/image_settings.php:152
+#: admin/views/settings/image_settings.php:589
+msgid "Custom Featured Image Prompt"
+msgstr ""
+
+#: admin/views/settings/image_settings.php:209
 msgid "Natural"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:320
+#: admin/views/settings/image_settings.php:351
 msgid "Pexels Settings"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:330
-#: admin/views/settings/image_settings.php:382
-#: admin/views/settings/image_settings.php:440
+#: admin/views/settings/image_settings.php:361
+#: admin/views/settings/image_settings.php:413
+#: admin/views/settings/image_settings.php:478
 msgid "Get Your Key"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:372
+#: admin/views/settings/image_settings.php:403
 msgid "Replicate Settings"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:410
+#: admin/views/settings/image_settings.php:440
 msgid "Sync Replicate Models"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:418
+#: admin/views/settings/image_settings.php:449
 msgid "Version"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:430
+#: admin/views/settings/image_settings.php:468
 msgid "Pixabay Settings"
+msgstr ""
+
+#: admin/views/settings/image_settings.php:544
+#: admin/views/settings/image_settings.php:594
+msgid "Prompt Templates"
+msgstr ""
+
+#: admin/views/settings/image_settings.php:546
+#: admin/views/settings/image_settings.php:596
+msgid "Select a template..."
+msgstr ""
+
+#: admin/views/settings/image_settings.php:561
+msgid "Enter your custom image prompt here..."
+msgstr ""
+
+#: admin/views/settings/image_settings.php:611
+msgid "Enter your custom featured image prompt here..."
 msgstr ""
 
 #: admin/views/settings/seo_settings.php:18
@@ -6342,7 +6376,7 @@ msgstr ""
 #: classes/wpaicg_content.php:955
 #: classes/wpaicg_content.php:1034
 #: classes/wpaicg_content.php:1743
-#: classes/wpaicg_custom_prompt.php:29
+#: classes/wpaicg_custom_prompt.php:33
 #: classes/wpaicg_editor.php:125
 #: classes/wpaicg_elevenlabs.php:66
 #: classes/wpaicg_elevenlabs.php:115
@@ -6397,7 +6431,7 @@ msgstr ""
 #: classes/wpaicg_audio.php:193
 #: classes/wpaicg_content.php:729
 #: classes/wpaicg_content.php:1352
-#: classes/wpaicg_custom_prompt.php:50
+#: classes/wpaicg_custom_prompt.php:54
 #: classes/wpaicg_finetune.php:245
 #: classes/wpaicg_finetune.php:517
 #: classes/wpaicg_finetune.php:587
@@ -6421,8 +6455,8 @@ msgid "Method does not exist"
 msgstr ""
 
 #: classes/wpaicg_audio.php:241
-#: classes/wpaicg_generator.php:1704
-#: classes/wpaicg_generator.php:1710
+#: classes/wpaicg_generator.php:1801
+#: classes/wpaicg_generator.php:1807
 msgid "The model predicted a completion that begins with a stop sequence, resulting in no output. Consider adjusting your prompt or stop sequences."
 msgstr ""
 
@@ -6550,46 +6584,46 @@ msgstr ""
 msgid "Can not save image to media"
 msgstr ""
 
-#: classes/wpaicg_custom_prompt.php:228
-#: classes/wpaicg_generator.php:1137
-#: classes/wpaicg_generator.php:1258
+#: classes/wpaicg_custom_prompt.php:231
+#: classes/wpaicg_generator.php:1159
+#: classes/wpaicg_generator.php:1302
 #: classes/wpaicg_image.php:440
 #: classes/wpaicg_image.php:554
 msgid "Painter"
 msgstr ""
 
-#: classes/wpaicg_custom_prompt.php:229
-#: classes/wpaicg_generator.php:1138
-#: classes/wpaicg_generator.php:1259
+#: classes/wpaicg_custom_prompt.php:232
+#: classes/wpaicg_generator.php:1160
+#: classes/wpaicg_generator.php:1303
 #: classes/wpaicg_image.php:442
 #: classes/wpaicg_image.php:556
 msgid "Photography Style"
 msgstr ""
 
-#: classes/wpaicg_custom_prompt.php:236
-#: classes/wpaicg_generator.php:1145
-#: classes/wpaicg_generator.php:1266
+#: classes/wpaicg_custom_prompt.php:239
+#: classes/wpaicg_generator.php:1167
+#: classes/wpaicg_generator.php:1310
 #: classes/wpaicg_image.php:449
 #: classes/wpaicg_image.php:563
 msgid "Camera Settings"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:56
-#: classes/wpaicg_dashboard.php:183
-#: classes/wpaicg_dashboard.php:2199
-#: classes/wpaicg_dashboard.php:2362
-#: classes/wpaicg_dashboard.php:2711
-#: classes/wpaicg_dashboard.php:2735
-#: classes/wpaicg_dashboard.php:2807
-#: classes/wpaicg_dashboard.php:2837
-#: classes/wpaicg_dashboard.php:2890
-#: classes/wpaicg_dashboard.php:2915
-#: classes/wpaicg_dashboard.php:2941
-#: classes/wpaicg_dashboard.php:2966
-#: classes/wpaicg_dashboard.php:3017
-#: classes/wpaicg_dashboard.php:3040
-#: classes/wpaicg_dashboard.php:3201
-#: classes/wpaicg_dashboard.php:3282
+#: classes/wpaicg_dashboard.php:58
+#: classes/wpaicg_dashboard.php:185
+#: classes/wpaicg_dashboard.php:2201
+#: classes/wpaicg_dashboard.php:2364
+#: classes/wpaicg_dashboard.php:2713
+#: classes/wpaicg_dashboard.php:2737
+#: classes/wpaicg_dashboard.php:2826
+#: classes/wpaicg_dashboard.php:2856
+#: classes/wpaicg_dashboard.php:3007
+#: classes/wpaicg_dashboard.php:3032
+#: classes/wpaicg_dashboard.php:3058
+#: classes/wpaicg_dashboard.php:3083
+#: classes/wpaicg_dashboard.php:3134
+#: classes/wpaicg_dashboard.php:3157
+#: classes/wpaicg_dashboard.php:3318
+#: classes/wpaicg_dashboard.php:3399
 #: classes/wpaicg_finetune.php:59
 #: classes/wpaicg_logs.php:39
 #: classes/wpaicg_logs.php:420
@@ -6608,439 +6642,479 @@ msgstr ""
 msgid "You do not have sufficient permissions to perform this action."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:62
+#: classes/wpaicg_dashboard.php:64
 msgid "Failed to upload file. Please try again."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:71
+#: classes/wpaicg_dashboard.php:73
 msgid "Invalid file format. Please upload a JSON file."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:78
+#: classes/wpaicg_dashboard.php:80
 msgid "File size exceeds the maximum limit of 2MB."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:85
+#: classes/wpaicg_dashboard.php:87
 msgid "Failed to read the uploaded file."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:92
+#: classes/wpaicg_dashboard.php:94
 msgid "Invalid JSON format: "
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:103
+#: classes/wpaicg_dashboard.php:105
 msgid "Invalid data structure in JSON file. Expected an array of chatbots."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:117
+#: classes/wpaicg_dashboard.php:119
 msgid "Chatbot at index %d is missing required fields."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:124
+#: classes/wpaicg_dashboard.php:126
 msgid "Chatbot \"%s\" has invalid \"Content\" format."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:132
+#: classes/wpaicg_dashboard.php:134
 msgid "Chatbot \"%s\" already exists and was skipped."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:149
+#: classes/wpaicg_dashboard.php:151
 msgid "Failed to import chatbot: %s"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:160
+#: classes/wpaicg_dashboard.php:162
 msgid "Imported %d chatbot(s)."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:162
+#: classes/wpaicg_dashboard.php:164
 msgid "Skipped %d chatbot(s) due to duplicates or invalid data."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:224
+#: classes/wpaicg_dashboard.php:226
 msgid "No chatbots found to export."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:231
-#: classes/wpaicg_dashboard.php:2214
-#: classes/wpaicg_dashboard.php:3207
+#: classes/wpaicg_dashboard.php:233
+#: classes/wpaicg_dashboard.php:2216
+#: classes/wpaicg_dashboard.php:3324
 msgid "Invalid chatbot ID."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:237
-#: classes/wpaicg_dashboard.php:3216
+#: classes/wpaicg_dashboard.php:239
+#: classes/wpaicg_dashboard.php:3333
 msgid "Chatbot not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:246
+#: classes/wpaicg_dashboard.php:248
 msgid "Chatbot data is incomplete."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:258
+#: classes/wpaicg_dashboard.php:260
 msgid "Invalid export type."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:265
+#: classes/wpaicg_dashboard.php:267
 msgid "Failed to encode data to JSON."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:272
+#: classes/wpaicg_dashboard.php:274
 msgid "The uploads folder is not writable. Please check folder permissions."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:289
+#: classes/wpaicg_dashboard.php:291
 msgid "Failed to create JSON file."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:312
-#: classes/wpaicg_dashboard.php:354
-#: classes/wpaicg_dashboard.php:588
-#: classes/wpaicg_dashboard.php:2171
+#: classes/wpaicg_dashboard.php:314
+#: classes/wpaicg_dashboard.php:356
+#: classes/wpaicg_dashboard.php:590
+#: classes/wpaicg_dashboard.php:2173
 msgid "Insufficient permissions."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:335
+#: classes/wpaicg_dashboard.php:337
 msgid "Your widget is activated site-wide."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:337
+#: classes/wpaicg_dashboard.php:339
 msgid "Your widget is deactivated."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:341
+#: classes/wpaicg_dashboard.php:343
 msgid "Failed to update widget status."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:367
+#: classes/wpaicg_dashboard.php:369
 msgid "Shortcode bot data not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:454
+#: classes/wpaicg_dashboard.php:456
 msgid "Widget bot data not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:467
-#: classes/wpaicg_dashboard.php:1384
-#: classes/wpaicg_dashboard.php:1780
-#: classes/wpaicg_dashboard.php:1854
-#: classes/wpaicg_dashboard.php:2277
+#: classes/wpaicg_dashboard.php:469
+#: classes/wpaicg_dashboard.php:1386
+#: classes/wpaicg_dashboard.php:1782
+#: classes/wpaicg_dashboard.php:1856
+#: classes/wpaicg_dashboard.php:2279
 msgid "Bot not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:486
-#: classes/wpaicg_dashboard.php:1390
-#: classes/wpaicg_dashboard.php:1786
-#: classes/wpaicg_dashboard.php:1860
-#: classes/wpaicg_dashboard.php:2284
+#: classes/wpaicg_dashboard.php:488
+#: classes/wpaicg_dashboard.php:1392
+#: classes/wpaicg_dashboard.php:1788
+#: classes/wpaicg_dashboard.php:1862
+#: classes/wpaicg_dashboard.php:2286
 msgid "Invalid bot data format."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:575
-#: classes/wpaicg_dashboard.php:1377
+#: classes/wpaicg_dashboard.php:577
+#: classes/wpaicg_dashboard.php:1379
 msgid "Invalid Bot ID."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:598
+#: classes/wpaicg_dashboard.php:600
 msgid "Field name is missing."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1158
+#: classes/wpaicg_dashboard.php:1160
 msgid "Field definition not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1238
+#: classes/wpaicg_dashboard.php:1240
 msgid "Failed to create bot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1365
+#: classes/wpaicg_dashboard.php:1367
 msgid "Bot created successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1398
-#: classes/wpaicg_dashboard.php:1617
-#: classes/wpaicg_dashboard.php:1713
+#: classes/wpaicg_dashboard.php:1400
+#: classes/wpaicg_dashboard.php:1619
+#: classes/wpaicg_dashboard.php:1715
 msgid "Invalid value provided."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1439
+#: classes/wpaicg_dashboard.php:1441
 msgid "Failed to update post title."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1519
-#: classes/wpaicg_dashboard.php:1641
+#: classes/wpaicg_dashboard.php:1521
+#: classes/wpaicg_dashboard.php:1643
 msgid "Icon ID is required when using a custom icon."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1525
-#: classes/wpaicg_dashboard.php:1647
-#: classes/wpaicg_dashboard.php:2179
+#: classes/wpaicg_dashboard.php:1527
+#: classes/wpaicg_dashboard.php:1649
+#: classes/wpaicg_dashboard.php:2181
 msgid "Invalid attachment ID or not an image."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1543
-#: classes/wpaicg_dashboard.php:1665
+#: classes/wpaicg_dashboard.php:1545
+#: classes/wpaicg_dashboard.php:1667
 msgid "AI Avatar ID is required when using a custom avatar."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1549
-#: classes/wpaicg_dashboard.php:1671
+#: classes/wpaicg_dashboard.php:1551
+#: classes/wpaicg_dashboard.php:1673
 msgid "Invalid AI Avatar ID or not an image."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1572
+#: classes/wpaicg_dashboard.php:1574
 msgid "Invalid voice_language format."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1584
-#: classes/wpaicg_dashboard.php:1683
-#: classes/wpaicg_dashboard.php:1804
-#: classes/wpaicg_dashboard.php:1944
+#: classes/wpaicg_dashboard.php:1586
+#: classes/wpaicg_dashboard.php:1685
+#: classes/wpaicg_dashboard.php:1806
+#: classes/wpaicg_dashboard.php:1946
 msgid "Bot updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1595
-#: classes/wpaicg_dashboard.php:1697
+#: classes/wpaicg_dashboard.php:1597
+#: classes/wpaicg_dashboard.php:1699
 msgid "Invalid Bot ID for option type."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1604
+#: classes/wpaicg_dashboard.php:1606
 msgid "Bot name is not editable for default bots."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1609
-#: classes/wpaicg_dashboard.php:1705
+#: classes/wpaicg_dashboard.php:1611
+#: classes/wpaicg_dashboard.php:1707
 msgid "Bot data not found in options."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1731
-#: classes/wpaicg_dashboard.php:2882
+#: classes/wpaicg_dashboard.php:1733
+#: classes/wpaicg_dashboard.php:2901
 msgid "Setting updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1736
+#: classes/wpaicg_dashboard.php:1738
 msgid "Field mapping not defined."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1800
+#: classes/wpaicg_dashboard.php:1802
 msgid "Invalid Bot ID for conversation starters."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1919
+#: classes/wpaicg_dashboard.php:1921
 msgid "Invalid provider."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1923
+#: classes/wpaicg_dashboard.php:1925
 msgid "Provider not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1933
+#: classes/wpaicg_dashboard.php:1935
 msgid "Invalid field for widget bot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1940
+#: classes/wpaicg_dashboard.php:1942
 msgid "Invalid Bot ID for field."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2188
+#: classes/wpaicg_dashboard.php:2190
 msgid "Failed to retrieve attachment URL."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2211
+#: classes/wpaicg_dashboard.php:2213
 msgid "Failed to delete the chatbot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2264
-#: classes/wpaicg_dashboard.php:2317
+#: classes/wpaicg_dashboard.php:2266
+#: classes/wpaicg_dashboard.php:2319
 msgid "Chatbot Toggle"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2325
+#: classes/wpaicg_dashboard.php:2327
 msgid "Invalid bot type."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2331
+#: classes/wpaicg_dashboard.php:2333
 msgid "Invalid request parameters."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2471
+#: classes/wpaicg_dashboard.php:2473
 #: classes/wpaicg_logs.php:226
 #: lib/modules/wpaicg_user_pdfs.php:86
 msgid "Actions"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2485
-#: classes/wpaicg_dashboard.php:2521
-#: classes/wpaicg_dashboard.php:2582
+#: classes/wpaicg_dashboard.php:2487
+#: classes/wpaicg_dashboard.php:2523
+#: classes/wpaicg_dashboard.php:2584
 msgid "Streaming Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2489
-#: classes/wpaicg_dashboard.php:2525
-#: classes/wpaicg_dashboard.php:2586
+#: classes/wpaicg_dashboard.php:2491
+#: classes/wpaicg_dashboard.php:2527
+#: classes/wpaicg_dashboard.php:2588
 msgid "Image Upload Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2493
-#: classes/wpaicg_dashboard.php:2529
-#: classes/wpaicg_dashboard.php:2590
+#: classes/wpaicg_dashboard.php:2495
+#: classes/wpaicg_dashboard.php:2531
+#: classes/wpaicg_dashboard.php:2592
 msgid "Vector DB Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2497
-#: classes/wpaicg_dashboard.php:2533
-#: classes/wpaicg_dashboard.php:2594
+#: classes/wpaicg_dashboard.php:2499
+#: classes/wpaicg_dashboard.php:2535
+#: classes/wpaicg_dashboard.php:2596
 msgid "Internet Browsing Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2502
-#: classes/wpaicg_dashboard.php:2538
-#: classes/wpaicg_dashboard.php:2599
+#: classes/wpaicg_dashboard.php:2504
+#: classes/wpaicg_dashboard.php:2540
+#: classes/wpaicg_dashboard.php:2601
 msgid "Audio Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2508
-#: classes/wpaicg_dashboard.php:2509
+#: classes/wpaicg_dashboard.php:2510
+#: classes/wpaicg_dashboard.php:2511
 msgid "Default Shortcode"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2508
+#: classes/wpaicg_dashboard.php:2510
 msgid "Preview Shortcode"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2509
+#: classes/wpaicg_dashboard.php:2511
 msgid "Edit Shortcode"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2517
+#: classes/wpaicg_dashboard.php:2519
 msgid "Site-wide Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2541
-#: classes/wpaicg_dashboard.php:2603
+#: classes/wpaicg_dashboard.php:2543
+#: classes/wpaicg_dashboard.php:2605
 msgid "PDF Upload Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2547
-#: classes/wpaicg_dashboard.php:2548
+#: classes/wpaicg_dashboard.php:2549
+#: classes/wpaicg_dashboard.php:2550
 msgid "Default Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2547
+#: classes/wpaicg_dashboard.php:2549
 msgid "Preview Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2548
+#: classes/wpaicg_dashboard.php:2550
 msgid "Edit Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2556
+#: classes/wpaicg_dashboard.php:2558
 msgid "Toggle Widget Status"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2611
+#: classes/wpaicg_dashboard.php:2613
 msgid "Preview Bot"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2614
+#: classes/wpaicg_dashboard.php:2616
 msgid "Edit Bot"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2696
+#: classes/wpaicg_dashboard.php:2698
 msgid "No chatbots found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2729
+#: classes/wpaicg_dashboard.php:2731
 msgid "All chatbots deleted successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2762
+#: classes/wpaicg_dashboard.php:2781
 msgid "Custom image setting updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2773
+#: classes/wpaicg_dashboard.php:2792
 msgid "Editor button menus updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2775
+#: classes/wpaicg_dashboard.php:2794
 msgid "Invalid data for editor button menus."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2800
-#: classes/wpaicg_dashboard.php:2830
-#: classes/wpaicg_dashboard.php:2884
-#: classes/wpaicg_dashboard.php:2907
-#: classes/wpaicg_dashboard.php:2932
-#: classes/wpaicg_dashboard.php:2958
-#: classes/wpaicg_dashboard.php:3009
-#: classes/wpaicg_dashboard.php:3032
-#: classes/wpaicg_dashboard.php:3057
+#: classes/wpaicg_dashboard.php:2819
+#: classes/wpaicg_dashboard.php:2849
+#: classes/wpaicg_dashboard.php:2903
+#: classes/wpaicg_dashboard.php:3024
+#: classes/wpaicg_dashboard.php:3049
+#: classes/wpaicg_dashboard.php:3075
+#: classes/wpaicg_dashboard.php:3126
+#: classes/wpaicg_dashboard.php:3149
+#: classes/wpaicg_dashboard.php:3174
 msgid "Invalid request."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2828
+#: classes/wpaicg_dashboard.php:2847
 msgid "Google safety settings updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2875
+#: classes/wpaicg_dashboard.php:2894
 msgid "Failed to update the setting."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2878
+#: classes/wpaicg_dashboard.php:2897
 msgid "Invalid setting."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2905
+#: classes/wpaicg_dashboard.php:2911
+msgid "you do not have sufficient permissions to perform this action."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:2919
+msgid "nonce verification failed."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:2946
+msgid "invalid value type: must be an integer."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:2953
+msgid "invalid value type: must be a number."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:2960
+msgid "invalid value type: must be boolean."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:2968
+msgid "invalid value: must be one of the allowed options."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:2973
+msgid "unsupported field type."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:2979
+msgid "value is below the minimum allowed."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:2982
+msgid "value exceeds the maximum allowed."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:3001
+msgid "Field or model not found in the schema."
+msgstr ""
+
+#: classes/wpaicg_dashboard.php:3022
 msgid "Azure settings updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2930
+#: classes/wpaicg_dashboard.php:3047
 msgid "Google model updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2956
+#: classes/wpaicg_dashboard.php:3073
 msgid "AI engine updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3004
+#: classes/wpaicg_dashboard.php:3121
 msgid "API key updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3006
+#: classes/wpaicg_dashboard.php:3123
 msgid "Failed to update the API key."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3030
+#: classes/wpaicg_dashboard.php:3147
 msgid "OpenAI model updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3055
+#: classes/wpaicg_dashboard.php:3172
 msgid "OpenRouter model updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3227
+#: classes/wpaicg_dashboard.php:3344
 msgid "Invalid chatbot data."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3232
+#: classes/wpaicg_dashboard.php:3349
 msgid "Duplicated"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3238
+#: classes/wpaicg_dashboard.php:3355
 msgid "Failed to encode duplicated chatbot data."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3253
+#: classes/wpaicg_dashboard.php:3370
 msgid "Failed to duplicate chatbot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3268
+#: classes/wpaicg_dashboard.php:3385
 msgid "Chatbot duplicated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3295
+#: classes/wpaicg_dashboard.php:3412
 msgid "not found or already deleted"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3305
+#: classes/wpaicg_dashboard.php:3422
 msgid "Reset completed. %d option(s) deleted."
 msgstr ""
 
@@ -7298,30 +7372,34 @@ msgstr ""
 msgid "Failed to save feedback."
 msgstr ""
 
-#: classes/wpaicg_generator.php:1398
-#: classes/wpaicg_generator.php:1464
-#: classes/wpaicg_generator.php:1469
-#: classes/wpaicg_generator.php:1563
+#: classes/wpaicg_generator.php:1443
+#: classes/wpaicg_generator.php:1509
+#: classes/wpaicg_generator.php:1514
+#: classes/wpaicg_generator.php:1653
 msgid "No image generated"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1404
+#: classes/wpaicg_generator.php:1449
 msgid "Missing Pixabay API Setting"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1476
+#: classes/wpaicg_generator.php:1521
 msgid "Missing Pexels API Setting"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1567
+#: classes/wpaicg_generator.php:1657
 msgid "Failed to retrieve images"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1572
+#: classes/wpaicg_generator.php:1662
 msgid "Missing Replicate API Key"
 msgstr ""
 
-#: classes/wpaicg_generator.php:1688
+#: classes/wpaicg_generator.php:1687
+msgid "Invalid output format"
+msgstr ""
+
+#: classes/wpaicg_generator.php:1785
 msgid "Please note that this message is coming from OpenAI and it is not related to our plugin. It means that you do not have enough credit from OpenAI. To fix this issue go to https://platform.openai.com/account/billing/payment-methods and add a new payment method. Once payment method is added, go to https://platform.openai.com/account/billing/overview and add credit to your balance. Once balance is added go to https://platform.openai.com/account/api-keys and generate new api keys. Now paste this new api key under the plugin Settings - AI engine tab."
 msgstr ""
 

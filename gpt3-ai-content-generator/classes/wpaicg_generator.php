@@ -1131,22 +1131,45 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
                             $_wpaicg_art_style = (isset($this->wpaicg_languages['art_style']) && !empty($this->wpaicg_languages['art_style']) ? ' ' . $this->wpaicg_languages['art_style'] : '');
                             $_wpaicg_image_style = (isset($this->wpaicg_languages['img_styles'][$this->wpaicg_img_style]) && !empty($this->wpaicg_languages['img_styles'][$this->wpaicg_img_style]) ? ' ' . $this->wpaicg_languages['img_styles'][$this->wpaicg_img_style] : '');
                         }
-                        $prompt_image = $this->wpaicg_preview_title . $_wpaicg_art_style . $_wpaicg_image_style;
-                        if($this->wpaicg_custom_image_settings && is_array($this->wpaicg_custom_image_settings) && count($this->wpaicg_custom_image_settings)) {
-                            $prompt_elements = array(
-                                'artist' => esc_html__('Painter','gpt3-ai-content-generator'),
-                                'photography_style' => esc_html__('Photography Style','gpt3-ai-content-generator'),
-                                'composition' => esc_html__('Composition','gpt3-ai-content-generator'),
-                                'resolution' => esc_html__('Resolution','gpt3-ai-content-generator'),
-                                'color' => esc_html__('Color','gpt3-ai-content-generator'),
-                                'special_effects' => esc_html__('Special Effects','gpt3-ai-content-generator'),
-                                'lighting' => esc_html__('Lighting','gpt3-ai-content-generator'),
-                                'subject' => esc_html__('Subject','gpt3-ai-content-generator'),
-                                'camera_settings' => esc_html__('Camera Settings','gpt3-ai-content-generator'),
-                            );
-                            foreach ($this->wpaicg_custom_image_settings as $key => $value) {
-                                if ($value != "None") {
-                                    $prompt_image = $prompt_image . ". " . $prompt_elements[$key] . ": " . $value;
+
+                        // **Check if Custom Image Prompt is Enabled**
+                        $custom_image_prompt_enable = get_option('wpaicg_custom_image_prompt_enable');
+
+                        if ($custom_image_prompt_enable == 1) {
+                            // **Retrieve Custom Image Prompt from Options**
+                            $custom_image_prompt = get_option('wpaicg_custom_image_prompt');
+
+                            if (!empty($custom_image_prompt)) {
+                                // **Sanitize the Custom Prompt**
+                                $sanitized_prompt = sanitize_text_field($custom_image_prompt);
+                                
+                                // **Replace [title] with the actual title**
+                                $prompt_image = str_replace('[title]', $this->wpaicg_preview_title, $sanitized_prompt);
+                            } else {
+                                // **Fallback to Default Prompt Construction**
+                                $prompt_image = $this->wpaicg_preview_title . $_wpaicg_art_style . $_wpaicg_image_style;
+                            }
+                        } else {
+                            // **Construct Prompt Using Title and Styles (Default Flow)**
+                            $prompt_image = $this->wpaicg_preview_title . $_wpaicg_art_style . $_wpaicg_image_style;
+
+                            // **Append Custom Image Settings Only If No Custom Prompt**
+                            if ($this->wpaicg_custom_image_settings && is_array($this->wpaicg_custom_image_settings) && count($this->wpaicg_custom_image_settings)) {
+                                $prompt_elements = array(
+                                    'artist' => esc_html__('Painter', 'gpt3-ai-content-generator'),
+                                    'photography_style' => esc_html__('Photography Style', 'gpt3-ai-content-generator'),
+                                    'composition' => esc_html__('Composition', 'gpt3-ai-content-generator'),
+                                    'resolution' => esc_html__('Resolution', 'gpt3-ai-content-generator'),
+                                    'color' => esc_html__('Color', 'gpt3-ai-content-generator'),
+                                    'special_effects' => esc_html__('Special Effects', 'gpt3-ai-content-generator'),
+                                    'lighting' => esc_html__('Lighting', 'gpt3-ai-content-generator'),
+                                    'subject' => esc_html__('Subject', 'gpt3-ai-content-generator'),
+                                    'camera_settings' => esc_html__('Camera Settings', 'gpt3-ai-content-generator'),
+                                );
+                                foreach ($this->wpaicg_custom_image_settings as $key => $value) {
+                                    if ($value != "None" && isset($prompt_elements[$key])) {
+                                        $prompt_image .= ". " . $prompt_elements[$key] . ": " . sanitize_text_field($value);
+                                    }
                                 }
                             }
                         }
@@ -1201,7 +1224,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
                         }
                     }
                     if($this->wpaicg_image_source == 'replicate'){
-                        $wpaicg_replicate_response = $this->wpaicg_replicate_image_generator();
+                        $wpaicg_replicate_response = $this->wpaicg_replicate_image_generator('image');
                         if($wpaicg_replicate_response['status'] == 'error'){
                             $this->wpaicg_result['status'] = 'no_image';
                             $this->wpaicg_result['msg'] = $wpaicg_replicate_response['msg'];
@@ -1252,22 +1275,44 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
                             $_wpaicg_art_style = (isset($this->wpaicg_languages['art_style']) && !empty($this->wpaicg_languages['art_style']) ? ' ' . $this->wpaicg_languages['art_style'] : '');
                             $_wpaicg_image_style = (isset($this->wpaicg_languages['img_styles'][$this->wpaicg_img_style]) && !empty($this->wpaicg_languages['img_styles'][$this->wpaicg_img_style]) ? ' ' . $this->wpaicg_languages['img_styles'][$this->wpaicg_img_style] : '');
                         }
-                        $prompt_image = $this->wpaicg_preview_title . $_wpaicg_art_style . $_wpaicg_image_style;
-                        if($this->wpaicg_custom_image_settings && is_array($this->wpaicg_custom_image_settings) && count($this->wpaicg_custom_image_settings)) {
-                            $prompt_elements = array(
-                                'artist' => esc_html__('Painter','gpt3-ai-content-generator'),
-                                'photography_style' => esc_html__('Photography Style','gpt3-ai-content-generator'),
-                                'composition' => esc_html__('Composition','gpt3-ai-content-generator'),
-                                'resolution' => esc_html__('Resolution','gpt3-ai-content-generator'),
-                                'color' => esc_html__('Color','gpt3-ai-content-generator'),
-                                'special_effects' => esc_html__('Special Effects','gpt3-ai-content-generator'),
-                                'lighting' => esc_html__('Lighting','gpt3-ai-content-generator'),
-                                'subject' => esc_html__('Subject','gpt3-ai-content-generator'),
-                                'camera_settings' => esc_html__('Camera Settings','gpt3-ai-content-generator'),
-                            );
-                            foreach ($this->wpaicg_custom_image_settings as $key => $value) {
-                                if ($value != "None") {
-                                    $prompt_image = $prompt_image . ". " . $prompt_elements[$key] . ": " . $value;
+                        // **Check if Custom Image Prompt is Enabled**
+                        $custom_featured_image_prompt_enable = get_option('wpaicg_custom_featured_image_prompt_enable');
+
+                        if ($custom_featured_image_prompt_enable == 1) {
+                            // **Retrieve Custom Image Prompt from Options**
+                            $custom_featured_image_prompt = get_option('wpaicg_custom_featured_image_prompt');
+
+                            if (!empty($custom_featured_image_prompt)) {
+                                // **Sanitize the Custom Prompt**
+                                $sanitized_prompt = sanitize_text_field($custom_featured_image_prompt);
+                                
+                                // **Replace [title] with the actual title**
+                                $prompt_image = str_replace('[title]', $this->wpaicg_preview_title, $sanitized_prompt);
+                            } else {
+                                // **Fallback to Default Prompt Construction**
+                                $prompt_image = $this->wpaicg_preview_title . $_wpaicg_art_style . $_wpaicg_image_style;
+                            }
+                        } else {
+                            // **Construct Prompt Using Title and Styles**
+                            $prompt_image = $this->wpaicg_preview_title . $_wpaicg_art_style . $_wpaicg_image_style;
+
+                            // **Append Custom Image Settings Only If No Custom Prompt**
+                            if ($this->wpaicg_custom_image_settings && is_array($this->wpaicg_custom_image_settings) && count($this->wpaicg_custom_image_settings)) {
+                                $prompt_elements = array(
+                                    'artist' => esc_html__('Painter', 'gpt3-ai-content-generator'),
+                                    'photography_style' => esc_html__('Photography Style', 'gpt3-ai-content-generator'),
+                                    'composition' => esc_html__('Composition', 'gpt3-ai-content-generator'),
+                                    'resolution' => esc_html__('Resolution', 'gpt3-ai-content-generator'),
+                                    'color' => esc_html__('Color', 'gpt3-ai-content-generator'),
+                                    'special_effects' => esc_html__('Special Effects', 'gpt3-ai-content-generator'),
+                                    'lighting' => esc_html__('Lighting', 'gpt3-ai-content-generator'),
+                                    'subject' => esc_html__('Subject', 'gpt3-ai-content-generator'),
+                                    'camera_settings' => esc_html__('Camera Settings', 'gpt3-ai-content-generator'),
+                                );
+                                foreach ($this->wpaicg_custom_image_settings as $key => $value) {
+                                    if ($value != "None" && isset($prompt_elements[$key])) {
+                                        $prompt_image .= ". " . $prompt_elements[$key] . ": " . sanitize_text_field($value);
+                                    }
                                 }
                             }
                         }
@@ -1328,7 +1373,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
                         }
                     }
                     if($this->wpaicg_featured_image_source == 'replicate'){
-                        $wpaicg_replicate_response = $this->wpaicg_replicate_image_generator();
+                        $wpaicg_replicate_response = $this->wpaicg_replicate_image_generator('featuredimage');
                         if($wpaicg_replicate_response['status'] == 'error'){
                             $this->wpaicg_result['status'] = 'no_image';
                             $this->wpaicg_result['msg'] = $wpaicg_replicate_response['msg'];
@@ -1478,9 +1523,10 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
             return $wpaicg_result;
         }
 
-        public function wpaicg_replicate_image_generator()
+        public function wpaicg_replicate_image_generator($current_step)
         {
             $wpaicg_result = array('status' => 'success');
+            $prompt = $this->wpaicg_preview_title;
         
             // Get the Replicate API key from the settings
             $wpaicg_replicate_api_key = get_option('wpaicg_sd_api_key', '');
@@ -1488,43 +1534,87 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
             $wpaicg_sd_api_version = get_option('wpaicg_sd_api_version', '');
         
             if (!empty($wpaicg_replicate_api_key)) {
-                // Use wpai_preview_title as the base for the prompt
-                $prompt = $this->wpaicg_preview_title;
-        
-                // Get settings from the options table
-                $image_settings = get_option('wpaicg_image_setting_sd', array());
         
                 // Prepare input fields for the Replicate API request
                 $input = array(
                     'prompt' => $prompt,
-                    'negative_prompt' => isset($image_settings['negative_prompt']) ? sanitize_text_field($image_settings['negative_prompt']) : '',
-                    'width' => isset($image_settings['width']) ? (float)sanitize_text_field($image_settings['width']) : 768,
-                    'height' => isset($image_settings['height']) ? (float)sanitize_text_field($image_settings['height']) : 768,
-                    'prompt_strength' => isset($image_settings['prompt_strength']) ? (float)sanitize_text_field($image_settings['prompt_strength']) : 0.8,
-                    'num_inference_steps' => isset($image_settings['num_inference_steps']) ? (float)sanitize_text_field($image_settings['num_inference_steps']) : 50,
-                    'scheduler' => isset($image_settings['scheduler']) ? sanitize_text_field($image_settings['scheduler']) : 'DPMSolverMultistep',
                     'num_outputs' => 1
                 );
-        
-                // Append additional elements from settings to the prompt
-                $prompt_elements = array(
-                    'artist' => isset($image_settings['artist']) && $image_settings['artist'] !== 'None' ? sanitize_text_field($image_settings['artist']) : '',
-                    'art_style' => isset($image_settings['art_style']) && $image_settings['art_style'] !== 'None' ? sanitize_text_field($image_settings['art_style']) : '',
-                    'photography_style' => isset($image_settings['photography_style']) && $image_settings['photography_style'] !== 'None' ? sanitize_text_field($image_settings['photography_style']) : '',
-                    'composition' => isset($image_settings['composition']) && $image_settings['composition'] !== 'None' ? sanitize_text_field($image_settings['composition']) : '',
-                    'resolution' => isset($image_settings['resolution']) && $image_settings['resolution'] !== 'None' ? sanitize_text_field($image_settings['resolution']) : '',
-                    'color' => isset($image_settings['color']) && $image_settings['color'] !== 'None' ? sanitize_text_field($image_settings['color']) : '',
-                    'special_effects' => isset($image_settings['special_effects']) && $image_settings['special_effects'] !== 'None' ? sanitize_text_field($image_settings['special_effects']) : '',
-                    'lighting' => isset($image_settings['lighting']) && $image_settings['lighting'] !== 'None' ? sanitize_text_field($image_settings['lighting']) : '',
-                    'subject' => isset($image_settings['subject']) && $image_settings['subject'] !== 'None' ? sanitize_text_field($image_settings['subject']) : '',
-                    'camera_settings' => isset($image_settings['camera_settings']) && $image_settings['camera_settings'] !== 'None' ? sanitize_text_field($image_settings['camera_settings']) : ''
-                );
-        
-                foreach ($prompt_elements as $key => $value) {
-                    if (!empty($value)) {
-                        $prompt .= ". " . ucfirst($key) . ": " . $value;
+
+                // Check if a default Replicate model is set
+                $default_model = get_option('wpaicg_default_replicate_model', '');
+
+                if (!empty($wpaicg_replicate_api_key) && !empty($default_model)) {
+                    // Get all Replicate models
+                    $replicate_models_serialized = get_option('wpaicg_replicate_models', '');
+                    if ($replicate_models_serialized) {
+                        $replicate_models = maybe_unserialize($replicate_models_serialized);
+
+                        // Initialize variable to store the selected model's data
+                        $selected_model = null;
+
+                        // Iterate through owners and their models to find the default model
+                        foreach ($replicate_models as $owner => $models) {
+                            foreach ($models as $model) {
+                                if (isset($model['name']) && $model['name'] === $default_model) {
+                                    $selected_model = $model;
+                                    break 2; // Exit both loops once the model is found
+                                }
+                            }
+                        }
+
+                        // If the model is found, extract its schema and add additional fields
+                        if ($selected_model && isset($selected_model['schema']['Input']['properties'])) {
+                            $properties = $selected_model['schema']['Input']['properties'];
+
+                            foreach ($properties as $field_name => $field_details) {
+                                // Skip 'prompt' and 'num_outputs' as they are already set
+                                if (in_array($field_name, ['prompt', 'num_outputs'])) {
+                                    continue;
+                                }
+
+                                // Check if a default value exists for the field
+                                if (isset($field_details['default'])) {
+                                    $default_value = $field_details['default'];
+
+                                    // Add the default value to the input array
+                                    $input[$field_name] = $default_value;
+                                }
+                            }
+                        }
                     }
                 }
+    
+
+                if ($current_step === 'image') {
+                    $custom_image_prompt_enable = get_option('wpaicg_custom_image_prompt_enable');
+                    if ($custom_image_prompt_enable == 1) {
+                        $custom_image_prompt = get_option('wpaicg_custom_image_prompt');
+                        if (!empty($custom_image_prompt)) {
+                            $sanitized_prompt = sanitize_text_field($custom_image_prompt);
+                            $prompt = str_replace('[title]', $this->wpaicg_preview_title, $sanitized_prompt);
+                        } else {
+                            $prompt = $this->wpaicg_preview_title;
+                        }
+                    } else {
+                        $prompt = $this->wpaicg_preview_title;
+                    }
+                } elseif ($current_step === 'featuredimage') {
+                    $custom_featured_image_prompt_enable = get_option('wpaicg_custom_featured_image_prompt_enable');
+                    if ($custom_featured_image_prompt_enable == 1) {
+                        $custom_featured_image_prompt = get_option('wpaicg_custom_featured_image_prompt');
+                        if (!empty($custom_featured_image_prompt)) {
+                            $sanitized_prompt = sanitize_text_field($custom_featured_image_prompt);
+                            $prompt = str_replace('[title]', $this->wpaicg_preview_title, $sanitized_prompt);
+                        } else {
+                            $prompt = $this->wpaicg_preview_title;
+                        }
+                    } else {
+                        $prompt = $this->wpaicg_preview_title;
+                    }
+                }
+
+                $prompt = stripslashes($prompt);
         
                 // Update the prompt in the input array
                 $input['prompt'] = $prompt;
@@ -1588,7 +1678,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
                     $body = json_decode($response['body'], true);
         
                     if ($body['status'] == 'succeeded') {
-                        $images = $body['output']; // This will be a list of generated images
+                        // check if output is a string or array
+                        if (is_string($body['output'])) {
+                            $images[] = $body['output']; // single string, add it to the array
+                        } elseif (is_array($body['output']) && !empty($body['output'])) {
+                            $images[] = $body['output'][0]; // array, take the first item
+                        } else {
+                            return esc_html__('Invalid output format', 'gpt3-ai-content-generator');
+                        }
                         break;
                     } elseif ($body['status'] == 'processing' || $body['status'] == 'starting') {
                         // Retrieve the sleep time value from the options table

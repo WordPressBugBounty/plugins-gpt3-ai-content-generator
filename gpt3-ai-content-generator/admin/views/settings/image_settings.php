@@ -75,6 +75,15 @@ foreach ($dalle_variants as $variant) {
         break;
     }
 }
+
+$prompt_templates = [
+    'surreal_dreamscape' => 'A surreal, imaginative visual interpretation of “[title],” blending abstract and realistic elements. Vibrant, contrasting colors swirl together to form a dynamic composition that hints at deeper symbolism. Details like floating objects, bending perspectives, and glowing light sources create an otherworldly yet thought-provoking atmosphere. The image feels both familiar and dreamlike, evoking emotion and curiosity.',
+    'vintage_poster_art' => 'A meticulously detailed vintage-style poster inspired by “[title],” with retro typography and bold, clean shapes. Muted tones with pops of bright color are used to evoke nostalgia, while the layout emphasizes symmetry and strong focal points. Subtle textures like aged paper, halftone patterns, and ink strokes lend authenticity. The design reflects timeless elegance and captivates the viewer’s attention.',
+    'cinematic_keyframe' => 'A dramatic, cinematic keyframe inspired by “[title],” with dynamic lighting and a sense of motion frozen in time. The composition is carefully balanced, using golden-hour lighting, deep shadows, or vibrant neon glows to create depth. Atmospheric effects like fog, lens flares, or falling particles enhance the realism, while the framing suggests a larger narrative, leaving the viewer intrigued by the untold story.',
+    'baroque_painting_style' => 'A highly detailed baroque-style painting interpreting “[title]” with classical artistry. Rich, deep colors, intricate textures, and dramatic contrasts between light and shadow create a sense of grandeur. Ornamental elements, such as elaborate patterns or flowing shapes, are carefully arranged to emphasize sophistication and depth, making the image feel timeless and monumental.',
+    'hyper_modern_typography' => 'A cutting-edge typographic design inspired by “[title],” combining bold, futuristic fonts with dynamic layouts. Vibrant gradients, holographic effects, and sleek 3D text elements merge seamlessly with abstract shapes and patterns. Negative space is used intentionally to balance the composition, resulting in an image that feels fresh, innovative, and eye-catching.'
+];
+
 ?>
 <!-- Image Settings -->
 <div class="aipower-category-container image-settings-container">
@@ -125,6 +134,28 @@ foreach ($dalle_variants as $variant) {
                 <?php endforeach; ?>
             </tbody>
         </table>
+    </div>
+    <div id="aipower-image-extra-settings" class="aipower-image-extra-settings">
+        <!-- Custom Image Prompt Section -->
+        <div class="aipower-form-group">
+            <input type="checkbox" id="aipower_custom_image_prompt_enable" name="wpaicg_custom_image_prompt_enable" value="1" <?php checked(1, $current_custom_image_prompt_enable); ?>>
+            <label for="aipower_custom_image_prompt_enable"><?php echo esc_html__('Custom Image Prompt', 'gpt3-ai-content-generator'); ?></label>
+
+            <!-- Settings Icon -->
+            <button type="button" class="aipower-settings-icon" id="aipower_custom_image_prompt_settings_icon" <?php echo $current_custom_image_prompt_enable ? '' : 'disabled'; ?> title="<?php echo esc_attr__('Settings', 'gpt3-ai-content-generator'); ?>">
+                <span class="dashicons dashicons-admin-generic"></span>
+            </button>
+        </div>
+        <!-- Custom Featured Image Prompt Section -->
+        <div class="aipower-form-group">
+            <input type="checkbox" id="aipower_custom_featured_image_prompt_enable" name="wpaicg_custom_featured_image_prompt_enable" value="1" <?php checked(1, $current_custom_featured_image_prompt_enable); ?>>
+            <label for="aipower_custom_featured_image_prompt_enable"><?php echo esc_html__('Custom Featured Image Prompt', 'gpt3-ai-content-generator'); ?></label>
+
+            <!-- Settings Icon -->
+            <button type="button" class="aipower-settings-icon" id="aipower_custom_featured_image_prompt_settings_icon" <?php echo $current_custom_featured_image_prompt_enable ? '' : 'disabled'; ?> title="<?php echo esc_attr__('Settings', 'gpt3-ai-content-generator'); ?>">
+                <span class="dashicons dashicons-admin-generic"></span>
+            </button>
+        </div>
     </div>
 </div>
 <!-- DALL-E Modal -->
@@ -384,7 +415,6 @@ foreach ($dalle_variants as $variant) {
                     </label>
                     <input value="<?php echo esc_html($masked_replicate_api_key); ?>" type="text" name="wpaicg_sd_api_key" id="aipower-replicate-api-key" data-full-api-key="<?php echo esc_attr($wpaicg_sd_api_key); ?>">
                 </div>
-
                 <!-- Replicate Model Dropdown -->
                 <div class="aipower-form-group aipower-model-group">
                     <label for="aipower-replicate-model"><?php echo esc_html__('Model', 'gpt3-ai-content-generator'); ?></label>
@@ -398,7 +428,7 @@ foreach ($dalle_variants as $variant) {
                                         $model_name = $model['name'];
                                         $model_version = isset($model['latest_version']) ? $model['latest_version'] : '';
                                         $selected = ($model_name === $wpaicg_default_replicate_model) ? 'selected' : '';
-                                        echo '<option value="' . esc_attr($model_name) . '" data-version="' . esc_attr($model_version) . '" ' . esc_attr($selected) . '>';
+                                        echo '<option value="' . esc_attr($model_name) . '" data-version="' . esc_attr($model_version) . '" data-schema="' . esc_attr(json_encode($model['schema'])) . '" ' . esc_attr($selected) . '>';
                                         echo esc_html($model_name . ' (' . $model['run_count'] . ' runs)');
                                         echo '</option>';
                                     }
@@ -412,11 +442,19 @@ foreach ($dalle_variants as $variant) {
                         </span>
                     </div>
                 </div>
-
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Replicate Version -->
                 <div class="aipower-form-group">
                     <label for="aipower-replicate-version"><?php echo esc_html__('Version', 'gpt3-ai-content-generator'); ?></label>
                     <input value="<?php echo esc_html($wpaicg_sd_api_version); ?>" type="text" name="wpaicg_sd_api_version" id="aipower-replicate-version">
+                </div>
+
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Dynamic Model Schema -->
+                <div id="aipower-replicate-model-fields">
+                    
                 </div>
             </div>
         </div>
@@ -494,3 +532,132 @@ foreach ($dalle_variants as $variant) {
         </div>
     </div>
 </div>
+<!-- Custom Image Prompt Modal -->
+<div class="aipower-modal" id="aipower_custom_image_prompt_modal" style="display: none;">
+    <div class="aipower-modal-content">
+        <div class="aipower-modal-header">
+            <h2><?php echo esc_html__('Custom Image Prompt', 'gpt3-ai-content-generator'); ?></h2>
+            <span class="aipower-close">&times;</span>
+        </div>
+        <div class="aipower-modal-body">
+            <div class="aipower-form-group">
+                <label for="aipower-prompt-templates"><?php echo esc_html__('Prompt Templates', 'gpt3-ai-content-generator'); ?></label>
+                <select id="aipower-prompt-templates">
+                    <option value=""><?php echo esc_html__('Select a template...', 'gpt3-ai-content-generator'); ?></option>
+                    <?php foreach ($prompt_templates as $key => $template): ?>
+                        <option value="<?php echo esc_attr($template); ?>">
+                            <?php echo esc_html(ucwords(str_replace('_', ' ', $key))); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <!-- Custom Prompt Textarea -->
+            <div class="aipower-form-group">
+                <textarea
+                    rows="15"
+                    id="aipower_custom_image_prompt"
+                    name="wpaicg_custom_image_prompt"
+                    data-default="<?php echo esc_attr($default_custom_image_prompt); ?>"
+                    placeholder="<?php echo esc_attr__('Enter your custom image prompt here...', 'gpt3-ai-content-generator'); ?>"
+                ><?php echo esc_textarea(wp_unslash($current_custom_image_prompt)); ?></textarea>
+            </div>
+
+            <!-- Explanation Text and Reset Button -->
+            <div class="aipower-custom-prompt-footer">
+                <div class="aipower-custom-prompt-explanation">
+                    <?php
+                        echo sprintf(
+                            esc_html__(
+                                'Make sure to include %s in your prompt.',
+                                'gpt3-ai-content-generator'
+                            ),
+                            '<code>[title]</code>'
+                        );
+                    ?>
+                </div>
+                <button type="button" id="reset_custom_image_prompt" class="aipower-button reset-button">
+                    <?php echo esc_html__('Reset', 'gpt3-ai-content-generator'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Custom Featured Image Prompt Modal -->
+<div class="aipower-modal" id="aipower_custom_featured_image_prompt_modal" style="display: none;">
+    <div class="aipower-modal-content">
+        <div class="aipower-modal-header">
+            <h2><?php echo esc_html__('Custom Featured Image Prompt', 'gpt3-ai-content-generator'); ?></h2>
+            <span class="aipower-close">&times;</span>
+        </div>
+        <div class="aipower-modal-body">
+            <div class="aipower-form-group">
+                <label for="aipower-featured-prompt-templates"><?php echo esc_html__('Prompt Templates', 'gpt3-ai-content-generator'); ?></label>
+                <select id="aipower-featured-prompt-templates">
+                    <option value=""><?php echo esc_html__('Select a template...', 'gpt3-ai-content-generator'); ?></option>
+                    <?php foreach ($prompt_templates as $key => $template): ?>
+                        <option value="<?php echo esc_attr($template); ?>">
+                            <?php echo esc_html(ucwords(str_replace('_', ' ', $key))); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <!-- Custom Prompt Textarea -->
+            <div class="aipower-form-group">
+                <textarea
+                    rows="15"
+                    id="aipower_custom_featured_image_prompt"
+                    name="wpaicg_custom_featured_image_prompt"
+                    data-default="<?php echo esc_attr($default_custom_featured_image_prompt); ?>"
+                    placeholder="<?php echo esc_attr__('Enter your custom featured image prompt here...', 'gpt3-ai-content-generator'); ?>"
+                ><?php echo esc_textarea(wp_unslash($current_custom_featured_image_prompt)); ?></textarea>
+            </div>
+
+            <!-- Explanation Text and Reset Button -->
+            <div class="aipower-custom-prompt-footer">
+                <div class="aipower-custom-prompt-explanation">
+                    <?php
+                        echo sprintf(
+                            esc_html__(
+                                'Make sure to include %s in your prompt.',
+                                'gpt3-ai-content-generator'
+                            ),
+                            '<code>[title]</code>'
+                        );
+                    ?>
+                </div>
+                <button type="button" id="reset_custom_featured_image_prompt" class="aipower-button reset-button">
+                    <?php echo esc_html__('Reset', 'gpt3-ai-content-generator'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // for custom image prompt
+    const imagePromptDropdown = document.getElementById("aipower-prompt-templates");
+    const imagePromptTextarea = document.getElementById("aipower_custom_image_prompt");
+
+    imagePromptDropdown.addEventListener("change", function () {
+        const selectedTemplate = imagePromptDropdown.value;
+        if (selectedTemplate) {
+            imagePromptTextarea.value = selectedTemplate;
+            const event = new Event('change');
+            imagePromptTextarea.dispatchEvent(event);
+        }
+    });
+
+    // for custom featured image prompt
+    const featuredPromptDropdown = document.getElementById("aipower-featured-prompt-templates");
+    const featuredPromptTextarea = document.getElementById("aipower_custom_featured_image_prompt");
+
+    featuredPromptDropdown.addEventListener("change", function () {
+        const selectedTemplate = featuredPromptDropdown.value;
+        if (selectedTemplate) {
+            featuredPromptTextarea.value = selectedTemplate;
+            const event = new Event('change');
+            featuredPromptTextarea.dispatchEvent(event);
+        }
+    });
+});
+</script>

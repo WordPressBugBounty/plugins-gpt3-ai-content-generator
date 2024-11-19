@@ -4,7 +4,7 @@ Tags: chatbot, ai, content writer, openai, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.8.93
+Stable tag: 1.8.94
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -84,6 +84,13 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.8.94 =
+
+This update imrproves image generation capabilities in both Express Mode and AutoGPT.
+
+- **Custom Prompts for Image Generation**: You can now set your own custom prompts. Go to the **Dashboard > Tools** tab to configure your prompt or choose from ready-to-use templates.
+- **Improved Replicate Integration**: Improved support for configuring individual models (e.g., Flux, Flux Ultra) with detailed settings. Go to **Dashboard > Tools** and click the **Settings** icon for Replicate to customize each model.
 
 = 1.8.93 =
 

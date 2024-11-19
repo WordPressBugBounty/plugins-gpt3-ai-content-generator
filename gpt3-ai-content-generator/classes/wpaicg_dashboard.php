@@ -39,6 +39,8 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
             add_action('wp_ajax_aipower_export_bots', array($this, 'aipower_export_bots'));
             add_action('wp_ajax_aipower_import_bots', array($this, 'aipower_import_bots'));
             add_action('wp_ajax_aipower_reset_settings', array($this, 'aipower_reset_settings'));
+            // aipower_save_replicate_field
+            add_action('wp_ajax_aipower_save_replicate_field', array($this, 'aipower_save_replicate_field'));
         }
 
         /**
@@ -2755,10 +2757,27 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                         $setting_key = $matches[1];
                         // Get the current stored option value (an array)
                         $custom_settings = get_option('wpaicg_custom_image_settings', array());
+                
+                        // Define the list of required fields
+                        $required_fields = [
+                            'artist', 'photography_style', 'lighting', 'subject',
+                            'camera_settings', 'composition', 'resolution', 
+                            'color', 'special_effects'
+                        ];
+                
+                        // Ensure all required fields exist in the array with a default value of 'None'
+                        foreach ($required_fields as $required_field) {
+                            if (!array_key_exists($required_field, $custom_settings)) {
+                                $custom_settings[$required_field] = 'None';
+                            }
+                        }
+                
                         // Update the specific setting
                         $custom_settings[$setting_key] = $value;
+                
                         // Save the updated array as serialized data
                         update_option('wpaicg_custom_image_settings', $custom_settings);
+                
                         wp_send_json_success(array('message' => esc_html__('Custom image setting updated successfully.', 'gpt3-ai-content-generator')));
                         return;
                     }
@@ -2882,6 +2901,104 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 wp_send_json_success(array('message' => esc_html__('Setting updated successfully.', 'gpt3-ai-content-generator')));
             } else {
                 wp_send_json_error(array('message' => esc_html__('Invalid request.', 'gpt3-ai-content-generator')));
+            }
+        }
+
+        public function aipower_save_replicate_field() {
+            // check permissions
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error([
+                    'message' => esc_html__('you do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator')
+                ]);
+                return;
+            }
+        
+            // verify nonce
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
+                wp_send_json_error([
+                    'message' => esc_html__('nonce verification failed.', 'gpt3-ai-content-generator')
+                ]);
+                return;
+            }
+        
+            // sanitize inputs
+            $model_name = sanitize_text_field($_POST['model_name']);
+            $field_key = sanitize_text_field($_POST['field_key']);
+            $field_value = $_POST['field_value']; // keep raw to handle all value types
+        
+            // get replicate models
+            $replicate_models = get_option('wpaicg_replicate_models', []);
+            $found = false;
+        
+            // validate field against schema
+            foreach ($replicate_models as $owner => &$model_group) {
+                foreach ($model_group as &$model) {
+                    if ($model['name'] === $model_name) {
+        
+                        if (isset($model['schema']['Input']['properties'][$field_key])) {
+                            $field_schema = $model['schema']['Input']['properties'][$field_key];
+        
+                            // validate type
+                            if (isset($field_schema['type'])) {
+                                switch ($field_schema['type']) {
+                                    case 'integer':
+                                        if (!is_numeric($field_value) || intval($field_value) != $field_value) {
+                                            wp_send_json_error(['message' => __('invalid value type: must be an integer.', 'gpt3-ai-content-generator')]);
+                                        }
+                                        $field_value = intval($field_value);
+                                        break;
+        
+                                    case 'number':
+                                        if (!is_numeric($field_value)) {
+                                            wp_send_json_error(['message' => __('invalid value type: must be a number.', 'gpt3-ai-content-generator')]);
+                                        }
+                                        $field_value = floatval($field_value);
+                                        break;
+        
+                                    case 'boolean':
+                                        if (!in_array($field_value, [0, 1, '0', '1', true, false], true)) {
+                                            wp_send_json_error(['message' => __('invalid value type: must be boolean.', 'gpt3-ai-content-generator')]);
+                                        }
+                                        $field_value = (bool) $field_value;
+                                        break;
+        
+                                    case 'string':
+                                        $field_value = sanitize_text_field($field_value);
+                                        if (isset($field_schema['enum']) && !in_array($field_value, $field_schema['enum'], true)) {
+                                            wp_send_json_error(['message' => __('invalid value: must be one of the allowed options.', 'gpt3-ai-content-generator')]);
+                                        }
+                                        break;
+        
+                                    default:
+                                        wp_send_json_error(['message' => __('unsupported field type.', 'gpt3-ai-content-generator')]);
+                                }
+                            }
+        
+                            // validate range
+                            if (isset($field_schema['minimum']) && $field_value < $field_schema['minimum']) {
+                                wp_send_json_error(['message' => __('value is below the minimum allowed.', 'gpt3-ai-content-generator')]);
+                            }
+                            if (isset($field_schema['maximum']) && $field_value > $field_schema['maximum']) {
+                                wp_send_json_error(['message' => __('value exceeds the maximum allowed.', 'gpt3-ai-content-generator')]);
+                            }
+        
+                            // all validations passed: save the value
+                            $model['schema']['Input']['properties'][$field_key]['default'] = $field_value;
+                            $found = true;
+                            break 2; // exit both loops
+                        } else {
+                            error_log("field key '{$field_key}' not found in schema.");
+                        }
+                    }
+                }
+            }
+        
+            if ($found) {
+                // update the option with the new value
+                update_option('wpaicg_replicate_models', $replicate_models);
+                wp_send_json_success(['message' => wp_kses(__("{$field_key} updated successfully.", 'gpt3-ai-content-generator'), [])]);
+            } else {
+                wp_send_json_error(['message' => esc_html__('Field or model not found in the schema.', 'gpt3-ai-content-generator')]);
             }
         }
 

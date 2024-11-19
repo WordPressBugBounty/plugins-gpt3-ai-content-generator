@@ -9,6 +9,10 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
 
         public $wpaicg_default_custom_prompt = 'Create a compelling and well-researched article of at least 500 words on the topic of "[title]" in English. Structure the article with clear headings enclosed within the appropriate heading tags (e.g., <h1>, <h2>, etc.) and engaging subheadings. Ensure that the content is informative and provides valuable insights to the reader. Incorporate relevant examples, case studies, and statistics to support your points. Organize your ideas using unordered lists with <ul> and <li> tags where appropriate. Conclude with a strong summary that ties together the key takeaways of the article. Remember to enclose headings in the specified heading tags to make parsing the content easier. Additionally, wrap even paragraphs in <p> tags for improved readability.';
 
+        public $wpaicg_default_custom_image_prompt = 'Create a high-quality image that visually represents the topic of "[title]". The image should be visually appealing and relevant to the content of the article.';
+
+        public $wpaicg_default_custom_featured_image_prompt = 'Create a high-quality featured image that visually represents the topic of "[title]". The featured image should be visually appealing and relevant to the content of the article.';
+
         public static function get_instance()
         {
             if ( is_null( self::$instance ) ) {
@@ -212,7 +216,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
                                 }
                             }
                             else{
-
                                 /*Generate Image*/
                                 if($wpaicg_generator->wpaicg_image_source == 'dalle' || $wpaicg_generator->wpaicg_image_source == 'dalle2' || $wpaicg_generator->wpaicg_image_source == 'dalle3' || $wpaicg_generator->wpaicg_image_source == 'dalle3hd'){
                                     $wpaicg_generator->sleep_request();
@@ -262,6 +265,20 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
                                         $extra_params_custom['quality'] = 'hd';
                                     }
 
+                                    // check if custom image prompt is enabled
+                                    $custom_image_prompt_enable = get_option('wpaicg_custom_image_prompt_enable');
+                                    if ($custom_image_prompt_enable && $custom_image_prompt_enable == 1) {
+                                        // check if custom image prompt exists and has a value
+                                        $custom_image_prompt = get_option('wpaicg_custom_image_prompt');
+                                        if (!empty($custom_image_prompt)) {
+                                            // replace [title] placeholder with post title in custom prompt
+                                            if (isset($wpaicg_single->post_title)) {
+                                                $custom_image_prompt = str_replace('[title]', $wpaicg_single->post_title, $custom_image_prompt);
+                                            }
+                                            $prompt_image = $custom_image_prompt; // use the final custom prompt
+                                        }
+                                    }
+
                                     $wpaicg_request = $wpaicg_generator->wpaicg_image(array_merge([
                                         "prompt" => $prompt_image,
                                         "n" => 1,
@@ -290,7 +307,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
                                     }
                                 }
                                 if($wpaicg_generator->wpaicg_image_source == 'replicate'){
-                                    $wpaicg_replicate_response = $wpaicg_generator->wpaicg_replicate_image_generator();
+                                    $wpaicg_replicate_response = $wpaicg_generator->wpaicg_replicate_image_generator('image');
                                     if($wpaicg_replicate_response['status'] == 'error'){
                                         $wpaicg_generator->wpaicg_result['status'] = 'no_image';
                                         $wpaicg_generator->wpaicg_result['msg'] = $wpaicg_replicate_response['msg'];

@@ -412,7 +412,8 @@ body {
 #aipower-image-settings .aipower-form-group,
 #aipower-woocommerce-settings .aipower-form-group,
 #aipower-additional-settings .aipower-form-group,
-#aipower-common-settings .aipower-form-group {
+#aipower-common-settings .aipower-form-group,
+#aipower-image-extra-settings .aipower-form-group {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -423,7 +424,8 @@ body {
 #aipower-image-settings input[type="checkbox"],
 #aipower-woocommerce-settings input[type="checkbox"],
 #aipower-additional-settings input[type="checkbox"],
-#aipower-common-settings input[type="checkbox"] {
+#aipower-common-settings input[type="checkbox"],
+#aipower-image-extra-settings input[type="checkbox"] {
     margin: 0; /* Remove default margins */
     vertical-align: middle; /* Ensures checkbox aligns vertically with text */
 }
@@ -433,7 +435,8 @@ body {
 #aipower-image-settings label,
 #aipower-woocommerce-settings label,
 #aipower-additional-settings label,
-#aipower-common-settings label {
+#aipower-common-settings label,
+#aipower-image-extra-settings label {
     margin: 0; /* Ensure label is aligned */
     vertical-align: middle;
     font-weight: normal; /* Reset font weight */
@@ -444,7 +447,8 @@ body {
 #aipower-image-settings a,
 #aipower-woocommerce-settings a,
 #aipower-additional-settings a,
-#aipower-common-settings a {
+#aipower-common-settings a,
+#aipower-image-extra-settings a {
     vertical-align: middle;
 }
 
@@ -942,6 +946,29 @@ body {
     color: grey;
     cursor: pointer;
 }
+
+/* Tooltip Styling */
+.aipower-replicate-tooltip {
+    background: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: none;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    word-wrap: break-word;
+    /* Positioning is handled via inline styles in JavaScript */
+}
+
+/* Help Icon Styling */
+.aipower-replicate-help-icon {
+    color: #007cba;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+
 
 /* Responsive Adjustments for Mobile (max-width: 768px) */
 @media (max-width: 768px) {

@@ -36,9 +36,27 @@ $current_custom_prompt_enable = get_option('wpaicg_content_custom_prompt_enable'
 $current_custom_prompt = get_option('wpaicg_content_custom_prompt', '');
 $default_custom_prompt = \WPAICG\WPAICG_Custom_Prompt::get_instance()->wpaicg_default_custom_prompt;
 
+$current_custom_image_prompt_enable = get_option('wpaicg_custom_image_prompt_enable', false);
+$current_custom_image_prompt = get_option('wpaicg_custom_image_prompt', '');
+$default_custom_image_prompt = \WPAICG\WPAICG_Custom_Prompt::get_instance()->wpaicg_default_custom_image_prompt;
+
+$current_custom_featured_image_prompt_enable = get_option('wpaicg_custom_featured_image_prompt_enable', false);
+$current_custom_featured_image_prompt = get_option('wpaicg_custom_featured_image_prompt', '');
+$default_custom_featured_image_prompt = \WPAICG\WPAICG_Custom_Prompt::get_instance()->wpaicg_default_custom_featured_image_prompt;
+
 // If current custom prompt is empty, set it to default
 if (empty($current_custom_prompt)) {
     $current_custom_prompt = $default_custom_prompt;
+}
+
+// If current custom image prompt is empty, set it to default
+if (empty($current_custom_image_prompt)) {
+    $current_custom_image_prompt = $default_custom_image_prompt;
+}
+
+// If current custom featured image prompt is empty, set it to default
+if (empty($current_custom_featured_image_prompt)) {
+    $current_custom_featured_image_prompt = $default_custom_featured_image_prompt;
 }
 
 // Retrieve CTA Position

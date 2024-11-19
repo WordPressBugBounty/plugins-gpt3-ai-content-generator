@@ -689,6 +689,10 @@
         { field: 'wpaicg_conclusion_title_tag', selector: '#wpaicg_conclusion_title_tag' },
         { field: 'wpaicg_content_custom_prompt_enable', selector: '#aipower_custom_prompt_enable', toggleGroups: ['#aipower_custom_prompt_box'] },
         { field: 'wpaicg_content_custom_prompt', selector: '#aipower_custom_prompt' },
+        { field: 'wpaicg_custom_image_prompt_enable', selector: '#aipower_custom_image_prompt_enable', toggleGroups: ['#aipower_custom_prompt_box'] },
+        { field: 'wpaicg_custom_image_prompt', selector: '#aipower_custom_image_prompt' },
+        { field: 'wpaicg_custom_featured_image_prompt_enable', selector: '#aipower_custom_featured_image_prompt_enable', toggleGroups: ['#aipower_custom_prompt_box'] },
+        { field: 'wpaicg_custom_featured_image_prompt', selector: '#aipower_custom_featured_image_prompt' },
         { field: '_wpaicg_seo_meta_desc', selector: '#_wpaicg_seo_meta_desc' },
         { field: '_wpaicg_seo_meta_tag', selector: '#_wpaicg_seo_meta_tag' },
         { field: '_yoast_wpseo_metadesc', selector: '#_yoast_wpseo_metadesc' },
@@ -861,6 +865,19 @@
         $('#aipower_custom_prompt').val(defaultPrompt).trigger('change'); // Trigger change event to autosave
     });
 
+    // -------------------- LOGIC: Reset Custom Image Prompt --------------------
+    $('#reset_custom_image_prompt').on('click', function () {
+        const defaultPrompt = $('#aipower_custom_image_prompt').data('default');
+        $('#aipower_custom_image_prompt').val(defaultPrompt).trigger('change'); // Trigger change event to autosave
+    });
+
+    // -------------------- LOGIC: Reset Custom Featured Image Prompt --------------------
+    $('#reset_custom_featured_image_prompt').on('click', function () {
+        const defaultPrompt = $('#aipower_custom_featured_image_prompt').data('default');
+        $('#aipower_custom_featured_image_prompt').val(defaultPrompt).trigger('change'); // Trigger change event to autosave
+    });
+    
+
     // -------------------- LOGIC: Reset Comment Replier Prompt --------------------
     $('#reset_comment_prompt').on('click', function () {
         const defaultCommentPrompt = $('#aipower_comment_prompt').data('default-prompt');
@@ -902,7 +919,8 @@
                             var option = $('<option>', {
                                 value: model.name,
                                 text: model.name + ' (' + model.run_count + ' runs)',
-                                'data-version': model.latest_version // Attach the version as a data attribute
+                                'data-version': model.latest_version, // Attach the version as a data attribute
+                                'data-schema': model.schema 
                             });
 
                             optgroup.append(option);
@@ -918,6 +936,7 @@
 
                     // Trigger change event to update the version field with the default model's version
                     $modelDropdown.trigger('change');
+                    updateModelFields();
 
                     // Show success message
                     showSuccess('Replicate models synced successfully.');
@@ -1002,6 +1021,8 @@
     setupModalLogic('#aipower_intro_modal', '#aipower_intro_settings_icon', '#aipower_add_intro');
     setupModalLogic('#aipower_conclusion_modal', '#aipower_conclusion_settings_icon', '#aipower_add_conclusion');
     setupModalLogic('#aipower_custom_prompt_modal', '#aipower_custom_prompt_settings_icon', '#aipower_custom_prompt_enable');
+    setupModalLogic('#aipower_custom_image_prompt_modal', '#aipower_custom_image_prompt_settings_icon', '#aipower_custom_image_prompt_enable');
+    setupModalLogic('#aipower_custom_featured_image_prompt_modal', '#aipower_custom_featured_image_prompt_settings_icon', '#aipower_custom_featured_image_prompt_enable');
     setupModalLogic('#aipower_writing_settings_modal', '#aipower_writing_settings_icon', '#aipower_writing_settings_enable');
     setupModalLogic('#aipower_woo_custom_prompt_modal', '#aipower_woo_custom_prompt_settings_icon', '#aipower_woo_custom_prompt_enable');
     setupModalLogic('#aipower_comment_replier_modal', '#aipower_comment_replier_settings_icon');
@@ -1019,6 +1040,8 @@
     $('#aipower_intro_settings_icon').prop('disabled', !$('#aipower_add_intro').is(':checked'));
     $('#aipower_conclusion_settings_icon').prop('disabled', !$('#aipower_add_conclusion').is(':checked'));
     $('#aipower_custom_prompt_settings_icon').prop('disabled', !$('#aipower_custom_prompt_enable').is(':checked'));
+    $('#aipower_custom_image_prompt_settings_icon').prop('disabled', !$('#aipower_custom_image_prompt_enable').is(':checked'));
+    $('#aipower_custom_featured_image_prompt_settings_icon').prop('disabled', !$('#aipower_custom_featured_image_prompt_enable').is(':checked'));
     $('#aipower_woo_custom_prompt_settings_icon').prop('disabled', !$('#aipower_woo_custom_prompt_enable').is(':checked'));
 
     // -------------------- LOGIC: Handle Image Source Selection --------------------
@@ -1563,5 +1586,260 @@
 			}, 500);  
   
 	});
+
+    // -------------------- LOGIC: Handle Replicate Model Fields START--------------------
+    const parseJsonFromHtmlAttribute = (htmlEncodedString) => {
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = htmlEncodedString;
+            return JSON.parse(textarea.value);
+        } catch (error) {
+            console.error('Error parsing JSON from HTML attribute:', error, htmlEncodedString);
+            return null;
+        }
+    };
+
+    const updateModelFields = () => {
+        const selectedOption = $('#aipower-replicate-model').find(':selected');
+        const rawSchema = selectedOption.attr('data-schema') || '{}';
+        const schema = parseJsonFromHtmlAttribute(rawSchema);
+
+        if (!schema) {
+            console.error('Failed to parse schema');
+            return;
+        }
+
+        const inputSchema = schema?.Input?.properties || {};
+        const fieldsContainer = $('#aipower-replicate-model-fields');
+        fieldsContainer.empty(); // Clear existing fields
+
+        const wrapper = $('<div>', { class: 'aipower-form-group aipower-grouped-fields' });
+
+        $.each(inputSchema, function (key, config) {
+            // Skip fields we want to hide
+            if (key === 'num_outputs' || key === 'prompt') {
+                return; // Do not render these fields
+            }
+
+            const field = $('<div>', { class: 'aipower-form-group', css: { position: 'relative' } });
+
+            // Create label with a consistent space for the icon
+            const label = $('<label>', {
+                text: config.title || key
+            });
+
+            // Question mark icon, initially hidden
+            const helpIcon = $('<span>', {
+                class: 'dashicons dashicons-editor-help aipower-replicate-help-icon',
+                title: 'Click for more info',
+                css: { visibility: 'hidden', cursor: 'pointer' },
+                tabindex: 0, // Make it focusable
+                role: 'button',
+                'aria-expanded': 'false',
+            });
+
+            // Tooltip element
+            const tooltip = $('<div>', {
+                class: 'aipower-replicate-tooltip',
+                text: config.description || 'No description available.',
+                css: {
+                    position: 'absolute',
+                    background: '#333',
+                    color: '#fff',
+                    padding: '5px 10px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    display: 'none',
+                    zIndex: 1000,
+                    top: '30%', // Position below the icon
+                    marginTop: '5px', // Space between icon and tooltip
+                    wordWrap: 'break-word',
+                },
+            }).appendTo(field); // Append tooltip to the field container
+
+            // Show help icon on label hover
+            label.on('mouseenter', () => helpIcon.css('visibility', 'visible'));
+            label.on('mouseleave', () => helpIcon.css('visibility', 'hidden'));
+
+            // Toggle tooltip on icon click
+            helpIcon.on('click', (event) => {
+                event.stopPropagation(); // Prevent event from bubbling up
+                $('.aipower-replicate-tooltip').not(tooltip).hide(); // Hide other tooltips
+                tooltip.toggle(); // Toggle current tooltip
+                const isVisible = tooltip.is(':visible');
+                helpIcon.attr('aria-expanded', isVisible);
+            });
+
+            // Hide tooltip when clicking outside
+            $(document).on('click', function () {
+                tooltip.hide();
+                helpIcon.attr('aria-expanded', 'false');
+            });
+
+            // Prevent hiding when clicking inside tooltip
+            tooltip.on('click', function (event) {
+                event.stopPropagation();
+            });
+
+            // **New:** Hide tooltip when mouse leaves the field container
+            field.on('mouseleave', function () {
+                tooltip.hide();
+                helpIcon.attr('aria-expanded', 'false');
+            });
+
+            label.append(helpIcon).appendTo(field);
+
+            let input;
+
+            if (config.type === 'boolean') {
+                input = $('<input>', {
+                    type: 'checkbox',
+                    checked: !!config.default
+                });
+            } else if (config.type === 'integer' || config.type === 'number') {
+                input = $('<input>', {
+                    type: 'number',
+                    value: config.default || '',
+                    min: config.minimum || undefined,
+                    max: config.maximum || undefined,
+                    step: config.type === 'integer' ? '1' : 'any', // Ensure integer fields have step=1
+                });
+
+                // **Updated:** Validate input values on blur instead of input
+                input.on('blur', function () {
+                    const valueStr = $(this).val();
+                    const value = parseFloat(valueStr);
+                    const min = parseFloat($(this).attr('min')) || 0;
+                    const max = parseFloat($(this).attr('max')) || Infinity;
+
+                    if (valueStr === '') {
+                        showError(`This field is required.`);
+                        return;
+                    }
+
+                    if (isNaN(value)) {
+                        showError(`Please enter a valid number.`);
+                        return;
+                    }
+
+                    if (value < min || value > max) {
+                        showError(`Value must be between ${min} and ${max}.`);
+                        // Optionally, you can highlight the field
+                        $(this).addClass('input-error');
+                    } else {
+                        clearError();
+                        $(this).removeClass('input-error');
+                    }
+                });
+
+                // **Optional:** Prevent non-numeric input (excluding control keys)
+                input.on('keypress', function (e) {
+                    const charCode = e.which ? e.which : e.keyCode;
+                    // Allow: backspace, delete, left arrow, right arrow, tab, etc.
+                    if (
+                        [8, 9, 37, 39, 46].includes(charCode) ||
+                        // Allow numbers
+                        (charCode >= 48 && charCode <= 57) ||
+                        // Allow one decimal point for type 'number' (if not integer)
+                        (config.type !== 'integer' && charCode === 46 && !$(this).val().includes('.'))
+                    ) {
+                        return;
+                    }
+                    e.preventDefault();
+                });
+            } else if (config.type === 'string' && config.enum) {
+                input = $('<select>');
+                $.each(config.enum, function (_, value) {
+                    $('<option>', {
+                        value: value,
+                        text: value,
+                        selected: config.default === value
+                    }).appendTo(input);
+                });
+            } else {
+                input = $('<input>', {
+                    type: 'text',
+                    value: config.default || ''
+                });
+            }
+
+            input.attr('data-key', key); // Add a key to identify the field
+            input.on('change', saveReplicateField); // Attach autosave logic
+            field.append(input);
+            wrapper.append(field);
+        });
+
+        fieldsContainer.append(wrapper);
+    };
+
+    // Prevent tooltips from hiding when clicking inside them
+    $(document).on('click', '.aipower-replicate-tooltip', function (event) {
+        event.stopPropagation();
+    });
+
+    // Initialize fields on page load
+    $(document).ready(function () {
+        updateModelFields();
+    });
+
+    // -------------------- LOGIC: Handle Replicate Model Fields END-------------------- 
+
+    // Autosave logic
+    const saveReplicateField = function () {
+        const key = $(this).data('key');
+        const input = $(this);
+        const min = parseFloat(input.attr('min')) || 0;
+        const max = parseFloat(input.attr('max')) || Infinity;
+        const valueStr = input.val();
+        const value = input.is(':checkbox') ? (input.is(':checked') ? 1 : 0) : parseFloat(valueStr);
+
+        // Validate before saving
+        if (input.is('input[type="number"]')) {
+            if (isNaN(value) || value < min || value > max) {
+                showError(`Cannot save. Value for ${key} must be between ${min} and ${max}.`);
+                return; // Abort save
+            }
+        }
+
+        let fieldValue;
+        if (input.is(':checkbox')) {
+            fieldValue = input.is(':checked') ? 1 : 0;
+        } else {
+            fieldValue = input.val();
+        }
+
+        const nonce = $('#ai-engine-nonce').val();
+        const modelName = $('#aipower-replicate-model').val();
+
+        showSpinner();
+
+        $.post(ajaxurl, {
+            action: 'aipower_save_replicate_field',
+            model_name: modelName,
+            field_key: key,
+            field_value: fieldValue,
+            _wpnonce: nonce
+        }, function (response) {
+            if (response.success) {
+                showSuccess(response.data.message);
+            } else {
+                showError(response.data.message || 'An error occurred while saving the field.');
+            }
+        }).fail(function () {
+            showError('Failed to connect to the server. Please try again.');
+        });
+    };
+
+    // Helper function to clear error messages
+    const clearError = () => {
+        $('#error-message').hide().text('');
+    };
+
+    // Update fields on model change
+    $('#aipower-replicate-model').on('change', updateModelFields);
+
+    // Initialize fields on page load
+    updateModelFields();
+    // -------------------- LOGIC: Handle Replicate Model Fields END--------------------
 
 })( jQuery );
