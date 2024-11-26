@@ -86,23 +86,6 @@ function loadChatInterface(containerSelector, type, clientId) {
         }
     });
 }
-// Function to convert Markdown to HTML
-function markdownToHtml(markdown) {
-    // Convert bold (**text** or __text__)
-    let html = markdown.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/__(.*?)__/g, '<strong>$1</strong>');
-    
-    // Convert italic (*text* or _text_)
-    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/_(.*?)_/g, '<em>$1</em>');
-    
-    // Convert underline (~~text~~)
-    html = html.replace(/~~(.*?)~~/g, '<u>$1</u>');
-    
-    // Convert links ([text](url))
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-    
-    return html;
-}
-
 
 function reconstructMessage(chatBox, message, chatContainer) {
     var messageElement = document.createElement('li');
@@ -124,20 +107,16 @@ function reconstructMessage(chatBox, message, chatContainer) {
     // Format the message content
     var formattedMessage = messageText.replace('Human:', '').replace('AI:', '').replace(/\n/g, '<br>');
     // Convert Markdown to HTML for bold, italic, underline, and links
-    formattedMessage = markdownToHtml(formattedMessage);
+    formattedMessage = marked.parse(formattedMessage);
     var userBgColor = chatContainer.getAttribute('data-user-bg-color');
     var aiBgColor = chatContainer.getAttribute('data-ai-bg-color');
     var fontSize = chatContainer.getAttribute('data-fontsize');
     var fontColor = chatContainer.getAttribute('data-color');
-    var useAvatar = parseInt(chatContainer.getAttribute('data-use-avatar')) || 0;
-    var userAvatar = chatContainer.getAttribute('data-user-avatar');
-    var aiAvatar = chatContainer.getAttribute('data-ai-avatar');
-    var displayName = isUserMessage ? (useAvatar ? `<img src="${userAvatar}" height="40" width="40">` : 'You:') : (useAvatar ? `<img src="${aiAvatar}" height="40" width="40">` : 'AI:');
 
     messageElement.style.backgroundColor = isUserMessage ? userBgColor : aiBgColor;
     messageElement.style.color = fontColor;
     messageElement.style.fontSize = fontSize;
-    messageElement.innerHTML = `<p style="width:100%"><strong class="wpaicg-chat-avatar">${displayName}</strong> <span class="wpaicg-chat-message">${formattedMessage}</span></p>`;
+    messageElement.innerHTML = `<span class="wpaicg-chat-message">${formattedMessage}</span>`;
 
     chatBox.appendChild(messageElement);
 }
@@ -760,6 +739,29 @@ function wpaicgChatInit() {
 
         // delete wpaicg_lead_form_shown if exists
         localStorage.removeItem('wpaicg_lead_form_shown');
+
+        // Check if wpaicg_thread_list exists in local storage
+        var threadList = localStorage.getItem('wpaicg_thread_list');
+        if (threadList) {
+            try {
+                var threadListObj = JSON.parse(threadList);
+
+                // Construct the key for the thread to be deleted
+                var threadKey = isCustomBot 
+                    ? `custom_bot_${botId}_${clientId}` 
+                    : `${type}_${clientId}`;
+
+                // Delete the relevant record from threadListObj
+                if (threadKey in threadListObj) {
+                    delete threadListObj[threadKey];
+
+                    // Update the local storage with the modified thread list
+                    localStorage.setItem('wpaicg_thread_list', JSON.stringify(threadListObj));
+                }
+            } catch (error) {
+                console.error('Error parsing wpaicg_thread_list:', error);
+            }
+        }
     }
 
     // Call this function once your DOM is fully loaded or at the end of your script
@@ -1220,13 +1222,8 @@ function wpaicgChatInit() {
         let wpaicg_ai_thinking, wpaicg_messages_box, class_user_item, class_ai_item;
         let wpaicgMessage = '';
         let wpaicgData = new FormData();
-        let wpaicg_you = chat.getAttribute('data-you') + ':';
-        let wpaicg_ai_name = chat.getAttribute('data-ai-name') + ':';
         let wpaicg_nonce = chat.getAttribute('data-nonce');
-        let wpaicg_use_avatar = parseInt(chat.getAttribute('data-use-avatar'));
         let wpaicg_bot_id = parseInt(chat.getAttribute('data-bot-id'));
-        let wpaicg_user_avatar = chat.getAttribute('data-user-avatar');
-        let wpaicg_ai_avatar = chat.getAttribute('data-ai-avatar');
         let wpaicg_user_bg = chat.getAttribute('data-user-bg-color');
         let wpaicg_font_size = chat.getAttribute('data-fontsize');
         let wpaicg_speech = chat.getAttribute('data-speech');
@@ -1302,10 +1299,6 @@ function wpaicgChatInit() {
             class_user_item = 'wpaicg-user-message';
             class_ai_item = 'wpaicg-ai-message';
         }
-        if (wpaicg_use_avatar) {
-            wpaicg_you = '<img src="' + wpaicg_user_avatar + '" height="40" width="40">';
-            wpaicg_ai_name = '<img src="' + wpaicg_ai_avatar + '" height="40" width="40">';
-        }
         wpaicg_ai_thinking.style.display = 'block';
         let wpaicg_question = wpaicgescapeHtml(wpaicg_box_typing.value);
         if (!wpaicg_question.trim() && blob === undefined) {
@@ -1313,7 +1306,6 @@ function wpaicgChatInit() {
             return; // Exit the function if no message or blob is provided
         }
         wpaicgMessage += '<li class="' + class_user_item + '" style="background-color:' + wpaicg_user_bg + ';font-size: ' + wpaicg_font_size + 'px;color: ' + wpaicg_font_color + '">';
-        wpaicgMessage += '<strong class="wpaicg-chat-avatar">' + wpaicg_you + '</strong>';
         wpaicgData.append('_wpnonce', wpaicg_nonce);
         wpaicgData.append('post_id', post_id);
         if(chat_pdf && chat_pdf !== null) {
@@ -1391,6 +1383,29 @@ function wpaicgChatInit() {
         //append client_id to wpaicgData
         wpaicgData.append('wpaicg_chat_client_id', clientID);
 
+        // Declare threadList and threadIdKey in the parent scope
+        let threadList;
+        let threadIdKey;
+
+        // Check if assistantEnabled is true
+        let assistantEnabled = chat.getAttribute('data-assistant-enabled') === 'true';
+
+        if (assistantEnabled) {
+            // Retrieve or initialize the thread list object from localStorage
+            threadList = JSON.parse(localStorage.getItem('wpaicg_thread_list')) || {};
+
+            // Define the thread id key for the current chatbot and client id
+            threadIdKey = chatbot_identity + '_' + clientID; // Removed `let` here
+
+            // Retrieve the thread id from the thread list
+            let threadId = threadList[threadIdKey];
+
+            // If thread id exists, include it in the request data
+            if (threadId) {
+                wpaicgData.append('thread_id', threadId);
+            }
+        }
+        
         // Hide the image thumbnail after sending the message
         if (imageInputThumbnail) {
             imageInputThumbnail.style.display = 'none';
@@ -1426,7 +1441,22 @@ function wpaicgChatInit() {
         if (stream_nav === "1") {
             updateChatHistory(wpaicg_question, 'user');
             wpaicgData.append('wpaicg_chat_history', localStorage.getItem('wpaicg_chat_history_' + chatbot_identity + '_' + clientID));
-            handleStreaming(wpaicgData,wpaicg_messages_box,wpaicg_box_typing,wpaicg_ai_thinking,class_ai_item,chat, chatbot_identity, clientID, wpaicg_use_avatar, wpaicg_ai_avatar,wpaicg_nonce);
+            if (assistantEnabled) {
+                // Call the new assistant streaming function
+                handleAssistantStreaming(
+                    wpaicgData,
+                    wpaicg_messages_box,
+                    wpaicg_box_typing,
+                    wpaicg_ai_thinking,
+                    class_ai_item,
+                    chat,
+                    chatbot_identity,
+                    clientID,
+                    wpaicg_nonce
+                );
+            } else {
+                handleStreaming(wpaicgData,wpaicg_messages_box,wpaicg_box_typing,wpaicg_ai_thinking,class_ai_item,chat, chatbot_identity, clientID,wpaicg_nonce);
+            }
         }
         else {
 
@@ -1469,11 +1499,15 @@ function wpaicgChatInit() {
                             wpaicg_response = JSON.parse(wpaicg_response);
                             wpaicg_ai_thinking.style.display = 'none'
                             if (wpaicg_response.status === 'success') {
+                                // If assistantEnabled and the response contains thread_id, store it in the thread list
+                                if (assistantEnabled && wpaicg_response.thread_id) {
+                                    threadList[threadIdKey] = wpaicg_response.thread_id;
+                                    localStorage.setItem('wpaicg_thread_list', JSON.stringify(threadList));
+                                }
                                 wpaicg_response_text = wpaicg_response.data;
                                 wpaicg_message = `
                                     <li class="${class_ai_item} wpaicg-icon-container" style="background-color:${wpaicg_ai_bg};font-size:${wpaicg_font_size}px;color:${wpaicg_font_color}">
                                         <p style="width:100%">
-                                            <strong class="wpaicg-chat-avatar">${wpaicg_ai_name}</strong>
                                             <span class="wpaicg-chat-message" id="${chatId}">${wpaicg_response_text}</span>
                                             ${copyEnabled ? `<button class="wpaicg-copy-button" data-chat-id="${chatId}">${emptyClipboardSVG}</button>` : ''}
                                             ${feedbackEnabled ? `
@@ -1484,11 +1518,11 @@ function wpaicgChatInit() {
                                 `;
                             } else {
                                 wpaicg_response_text = wpaicg_response.msg;
-                                wpaicg_message = '<li class="' + class_ai_item + '" style="background-color:' + wpaicg_ai_bg + ';font-size: ' + wpaicg_font_size + 'px;color: ' + wpaicg_font_color + '"><p style="width:100%"><strong class="wpaicg-chat-avatar">' + wpaicg_ai_name + '</strong><span class="wpaicg-chat-message wpaicg-chat-message-error" id="wpaicg-chat-message-' + wpaicg_randomnum + '"></span>';
+                                wpaicg_message = '<li class="' + class_ai_item + '" style="background-color:' + wpaicg_ai_bg + ';font-size: ' + wpaicg_font_size + 'px;color: ' + wpaicg_font_color + '"><p style="width:100%"><span class="wpaicg-chat-message wpaicg-chat-message-error" id="wpaicg-chat-message-' + wpaicg_randomnum + '"></span>';
                             }
                         }
                     } else {
-                        wpaicg_message = '<li class="' + class_ai_item + '" style="background-color:' + wpaicg_ai_bg + ';font-size: ' + wpaicg_font_size + 'px;color: ' + wpaicg_font_color + '"><p style="width:100%"><strong class="wpaicg-chat-avatar">' + wpaicg_ai_name + '</strong><span class="wpaicg-chat-message wpaicg-chat-message-error" id="wpaicg-chat-message-' + wpaicg_randomnum + '"></span>';
+                        wpaicg_message = '<li class="' + class_ai_item + '" style="background-color:' + wpaicg_ai_bg + ';font-size: ' + wpaicg_font_size + 'px;color: ' + wpaicg_font_color + '"><p style="width:100%"><span class="wpaicg-chat-message wpaicg-chat-message-error" id="wpaicg-chat-message-' + wpaicg_randomnum + '"></span>';
                         wpaicg_response_text = 'Something went wrong. Please clear your cache and try again.';
                         wpaicg_ai_thinking.style.display = 'none';
                     }
@@ -1586,7 +1620,6 @@ function wpaicgChatInit() {
                                         const blobMimeType = getBlobMimeType(openai_output_format); // Get the MIME type based on the format
                                         const blob = new Blob([audioData], { type: blobMimeType });
                                         const blobUrl = URL.createObjectURL(blob);
-                            
                                         // Update your message UI here
                                         wpaicg_message += '<audio style="margin-top:6px;" controls="controls"><source type="audio/mpeg" src="' + blobUrl + '"></audio>';
                                         // scroll to the bottom of the chatbox
@@ -1691,7 +1724,7 @@ function wpaicgChatInit() {
         });
     }
 
-    function handleStreaming(wpaicgData, wpaicg_messages_box, wpaicg_box_typing, wpaicg_ai_thinking, class_ai_item, chat, chatbot_identity, clientID, wpaicg_use_avatar, wpaicg_ai_avatar,wpaicg_nonce) {
+    function handleStreaming(wpaicgData, wpaicg_messages_box, wpaicg_box_typing, wpaicg_ai_thinking, class_ai_item, chat, chatbot_identity, clientID,wpaicg_nonce) {
         // Remove the lead form if it exists
         var leadFormMessage = chat.querySelector('.wpaicg-lead-form-message');
         if (leadFormMessage) {
@@ -1699,7 +1732,6 @@ function wpaicgChatInit() {
             // Optionally, set 'wpaicg_lead_form_shown' to '1' so it doesn't show again
             localStorage.setItem('wpaicg_lead_form_shown', '1');
         }
-        const aiName = wpaicg_use_avatar ? `<img src="${wpaicg_ai_avatar}" height="40" width="40">` : `${chat.getAttribute('data-ai-name')}:`;
         const fontSize = chat.getAttribute('data-fontsize');
         const aiBg = chat.getAttribute('data-ai-bg-color');
         const fontColor = chat.getAttribute('data-color');
@@ -1730,7 +1762,6 @@ function wpaicgChatInit() {
         const messageHtml = `
             <li class="${class_ai_item} wpaicg-icon-container" style="background-color:${aiBg};font-size:${fontSize}px;color:${fontColor}">
                 <p style="width:100%">
-                    <strong class="wpaicg-chat-avatar">${aiName}</strong>
                     <span class="wpaicg-chat-message" id="${chatId}"></span>
                     ${copyEnabled ? `<button class="wpaicg-copy-button" data-chat-id="${chatId}">${emptyClipboardSVG}</button>` : ''}
                     ${feedbackEnabled ? `<button class="wpaicg-thumbs-up-button" data-chat-id="${chatId}">${thumbsUpSVG}</button>
@@ -1746,7 +1777,6 @@ function wpaicgChatInit() {
         let isProcessing = false;
 
         function processBuffer() {
-            // Call the unified processMarkdown function for stream mode
             processMarkdown(buffer, true, chatId);
         }
 
@@ -1961,51 +1991,323 @@ function wpaicgChatInit() {
 
     }
 
+    function handleAssistantStreaming(
+        wpaicgData,
+        wpaicg_messages_box,
+        wpaicg_box_typing,
+        wpaicg_ai_thinking,
+        class_ai_item,
+        chat,
+        chatbot_identity,
+        clientID,
+        wpaicg_nonce
+    ) {
+        // Remove the lead form if it exists
+        const leadFormMessage = chat.querySelector('.wpaicg-lead-form-message');
+        if (leadFormMessage) {
+            leadFormMessage.remove();
+            // Optionally, set 'wpaicg_lead_form_shown' to '1' so it doesn't show again
+            localStorage.setItem('wpaicg_lead_form_shown', '1');
+        }
+    
+        // Retrieve UI configurations
+        const fontSize = chat.getAttribute('data-fontsize');
+        const aiBg = chat.getAttribute('data-ai-bg-color');
+        const fontColor = chat.getAttribute('data-color');
+        const usrBg = chat.getAttribute('data-user-bg-color');
+        const copyEnabled = chat.getAttribute('data-copy_btn') === "1";
+        const feedbackEnabled = chat.getAttribute('data-feedback_btn') === "1";
+    
+        // Clear the typing box
+        wpaicg_box_typing.value = '';
+    
+        // Generate a unique chat ID
+        const chatId = `wpaicg-chat-message-${Math.floor(Math.random() * 100000) + 1}`;
+        const cleanedChatId = chatId.replace('wpaicg-chat-message-', ''); // Clean the chatId by removing the prefix
+        wpaicgData.append('chat_id', cleanedChatId);
+    
+        const emptyClipboardSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${fontColor}" class="bi bi-copy" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+        </svg>`;
+        const checkedClipboardSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${fontColor}" class="bi bi-check2" viewBox="0 0 16 16">
+        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0"/>
+        </svg>`;
+
+        const thumbsUpSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${fontColor}" class="bi bi-hand-thumbs-up" viewBox="0 0 16 16">
+        <path d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464.201-.263.38-.578.488-.901.11-.33.172-.762.004-1.149.069-.13.12-.269.159-.403.077-.27.113-.568.113-.857 0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362 1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05 9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65 1.095-.3 1.977-.996 2.614-1.708.635-.71 1.064-1.475 1.238-1.978.243-.7.407-1.768.482-2.85.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725.5.5 0 0 0 .595.644l.003-.001.014-.003.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164.175.058.45.3.57.65.107.308.087.67-.266 1.022l-.353.353.353.354c.043.043.105.141.154.315.048.167.075.37.075.581 0 .212-.027.414-.075.582-.05.174-.111.272-.154.315l-.353.353.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"/>
+        </svg>`;
+        const thumbsDownSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${fontColor}" class="bi bi-hand-thumbs-down" viewBox="0 0 16 16">
+        <path d="M8.864 15.674c-.956.24-1.843-.484-1.908-1.42-.072-1.05-.23-2.015-.428-2.59-.125-.36-.479-1.012-1.04-1.638-.557-.624-1.282-1.179-2.131-1.41C2.685 8.432 2 7.85 2 7V3c0-.845.682-1.464 1.448-1.546 1.07-.113 1.564-.415 2.068-.723l.048-.029c.272-.166.578-.349.97-.484C6.931.08 7.395 0 8 0h3.5c.937 0 1.599.478 1.934 1.064.164.287.254.607.254.913 0 .152-.023.312-.077.464.201.262.38.577.488.9.11.33.172.762.004 1.15.069.13.12.268.159.403.077.27.113.567.113.856s-.036.586-.113.856c-.035.12-.08.244-.138.363.394.571.418 1.2.234 1.733-.206.592-.682 1.1-1.2 1.272-.847.283-1.803.276-2.516.211a10 10 0 0 1-.443-.05 9.36 9.36 0 0 1-.062 4.51c-.138.508-.55.848-1.012.964zM11.5 1H8c-.51 0-.863.068-1.14.163-.281.097-.506.229-.776.393l-.04.025c-.555.338-1.198.73-2.49.868-.333.035-.554.29-.554.55V7c0 .255.226.543.62.65 1.095.3 1.977.997 2.614 1.709.635.71 1.064 1.475 1.238 1.977.243.7.407 1.768.482 2.85.025.362.36.595.667.518l.262-.065c.16-.04.258-.144.288-.255a8.34 8.34 0 0 0-.145-4.726.5.5 0 0 1 .595-.643h.003l.014.004.058.013a9 9 0 0 0 1.036.157c.663.06 1.457.054 2.11-.163.175-.059.45-.301.57-.651.107-.308.087-.67-.266-1.021L12.793 7l.353-.354c.043-.042.105-.14.154-.315.048-.167.075-.37.075-.581s-.027-.414-.075-.581c-.05-.174-.111-.273-.154-.315l-.353-.354.353-.354c.047-.047.109-.176.005-.488a2.2 2.2 0 0 0-.505-.804l-.353-.354.353-.354c.006-.005.041-.05.041-.17a.9.9 0 0 0-.121-.415C12.4 1.272 12.063 1 11.5 1"/>
+        </svg>`;
+    
+        const messageHtml = `
+            <li class="${class_ai_item} wpaicg-icon-container" style="background-color:${aiBg};font-size:${fontSize}px;color:${fontColor}">
+                <span class="wpaicg-chat-message" id="${chatId}"></span>
+                ${copyEnabled ? `<button class="wpaicg-copy-button" data-chat-id="${chatId}">${emptyClipboardSVG}</button>` : ''}
+                ${feedbackEnabled ? `<button class="wpaicg-thumbs-up-button" data-chat-id="${chatId}">${thumbsUpSVG}</button>
+                <button class="wpaicg-thumbs-down-button" data-chat-id="${chatId}">${thumbsDownSVG}</button>` : ''}
+            </li>
+        `;
+    
+        let completeAIResponse = '';
+        let aiMessageAdded = false; 
+        let accumulatedBuffer = ''; // Buffer to accumulate chunks
+    
+        function updateChatHistory(message, sender, chatId) {
+            const key = `wpaicg_chat_history_${chatbot_identity}_${clientID}`;
+            const history = JSON.parse(localStorage.getItem(key) || '[]');
+            
+            const simpleChatId = chatId.replace('wpaicg-chat-message-', '');
+    
+            history.push({
+                id: simpleChatId, // Store the simplified chat ID as a separate key
+                text: `${sender === 'user' ? "Human: " : "AI: "} ${message.trim()}`
+            });
+    
+            localStorage.setItem(key, JSON.stringify(history));
+        }
+    
+        function scrollToBottom() {
+            wpaicg_messages_box.scrollTop = wpaicg_messages_box.scrollHeight;
+        }
+    
+        function toggleBlinkingCursor(isVisible) {
+            const cursorElement = jQuery(`#${chatId} .blinking-cursor`);
+            if (isVisible) {
+                if (!cursorElement.length) {
+                    jQuery(`#${chatId}`).append('<span class="blinking-cursor">|</span>');
+                }
+            } else {
+                cursorElement.remove();
+            }
+        }
+    
+        // **Thread Management for Assistant Mode**
+        // Initialize threadList from localStorage
+        let threadList = JSON.parse(localStorage.getItem('wpaicg_thread_list')) || {};
+        let threadIdKey = `${chatbot_identity}_${clientID}`;
+    
+        // Retrieve the thread id from the thread list
+        let threadId = threadList[threadIdKey];
+    
+        // **Prevent Multiple Appends of 'thread_id'**
+        if (threadId && !wpaicgData.has('thread_id')) {
+            wpaicgData.append('thread_id', threadId);
+        }
+    
+        // Fetch POST request for Assistant API streaming
+        fetch(wpaicgParams.ajax_url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(wpaicgData).toString(),
+        })
+        .then(response => {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let partial = '';
+            let currentEvent = null;
+        
+            function read() {
+                return reader.read().then(({ done, value }) => {
+                    if (done) {
+                        handleDoneEvent();
+                        return;
+                    }
+        
+                    partial += decoder.decode(value, { stream: true });
+                    // attempt to parse the partial response as JSON
+                    try {
+                        const json = JSON.parse(partial);
+                        if (json.status === 'error' && json.msg) {
+                            handleErrorEvent(json.msg); // use the existing error handler
+                            return; // stop further processing
+                        }
+                    } catch (e) {
+                        // ignore JSON parse errors here, continue streaming
+                    }
+                    const lines = partial.split('\n');
+        
+                    for (let i = 0; i < lines.length - 1; i++) {
+                        const line = lines[i].trim();
+                        if (line === '') continue;
+        
+                        if (line.startsWith('event: ')) {
+                            currentEvent = line.slice(7).trim();
+                        } else if (line.startsWith('data: ')) {
+                            const data = line.slice(6).trim();
+                            handleAssistantStreamEvent(currentEvent, data);
+                        }
+                    }
+        
+                    partial = lines[lines.length - 1];
+                    return read();
+                });
+            }
+        
+            return read();
+        })
+        .catch(error => {
+            console.log("Fetch failed:", error);
+            toggleBlinkingCursor(false);
+            wpaicg_ai_thinking.style.display = 'none';
+        });
+    
+        // Function to handle Assistant API streaming events
+        function handleAssistantStreamEvent(event, data) {
+            switch (event) {
+                case 'thread_id':
+                    handleThreadIdEvent(data);
+                    break;
+                case 'thread.message.delta':
+                    handleMessageDeltaEvent(data);
+                    break;
+                case 'thread.message.completed':
+                    handleMessageCompletedEvent(data);
+                    break;
+                case 'assistant_error':
+                    handleErrorEvent(data);
+                    break;
+                case 'done':
+                    handleDoneEvent();
+                    break;
+                case null:
+                    handleErrorEvent(data);
+                    break;
+            }
+        }
+
+        function handleMessageDeltaEvent(data) {
+            const deltaData = JSON.parse(data);
+            if (deltaData && deltaData.delta && deltaData.delta.content) {
+                const contentArray = deltaData.delta.content;
+                for (const contentItem of contentArray) {
+                    if (contentItem.type === 'text' && contentItem.text && contentItem.text.value) {
+                        const messageChunk = contentItem.text.value;
+                        if (!aiMessageAdded) {
+                            wpaicg_messages_box.innerHTML += messageHtml;
+                            aiMessageAdded = true;
+                            wpaicg_ai_thinking.style.display = 'none';
+                        }
+        
+                        // Accumulate chunks
+                        accumulatedBuffer += messageChunk;
+                        completeAIResponse += messageChunk;
+        
+                        // Convert Markdown to HTML
+                        const htmlContent = marked.parse(accumulatedBuffer);
+        
+                        // Update the chat message content
+                        document.getElementById(chatId).innerHTML = htmlContent;
+        
+                        scrollToBottom();
+                    }
+                }
+            }
+        }
+
+        function handleMessageCompletedEvent(data) {
+            toggleBlinkingCursor(false);
+            wpaicg_ai_thinking.style.display = 'none';
+            updateChatHistory(completeAIResponse, 'ai', chatId);
+            scrollToBottom();
+        }
+    
+    
+        // Handler for 'thread_id' events
+        function handleThreadIdEvent(threadId) {
+            const threadIdKey = `${chatbot_identity}_${clientID}`;
+            const threadList = JSON.parse(localStorage.getItem('wpaicg_thread_list')) || {};
+            threadList[threadIdKey] = threadId;
+            localStorage.setItem('wpaicg_thread_list', JSON.stringify(threadList));
+        }
+    
+        // Handler for 'assistant_error' events
+        function handleErrorEvent(errorData) {
+            console.log('Assistant Error:', errorData);
+
+            let errorMessage = 'An unknown error occurred.';
+            
+            try {
+                // check if errorData is a string and try to parse it as JSON
+                if (typeof errorData === 'string') {
+                    try {
+                        const parsedError = JSON.parse(errorData);
+                        errorMessage = parsedError.msg || errorMessage; // use parsed message if available
+                    } catch (jsonParseError) {
+                        // if parsing fails, fall back to using the raw string
+                        errorMessage = errorData;
+                    }
+                } else if (errorData && errorData.msg) {
+                    errorMessage = errorData.msg; // directly use the msg field if it's an object
+                }
+            } catch (e) {
+                console.error('Error handling error data:', e); // log any unexpected issues
+            }
+
+            // parse the error message with marked for markdown or URL formatting
+            const parsedHtml = marked.parse(errorMessage);
+
+            const chatElement = document.getElementById(chatId);
+
+            if (chatElement) {
+                chatElement.innerHTML = `<span class="wpaicg-chat-message">${parsedHtml}</span>`;
+            } else {
+                // fallback if chatId doesn't exist yet
+                wpaicg_messages_box.innerHTML += `
+                    <li class="${class_ai_item}" style="background-color:${aiBg};font-size:${fontSize}px;color:${fontColor}">
+                        <span class="wpaicg-chat-message">${parsedHtml}</span>
+                    </li>`;
+            }
+
+            wpaicg_ai_thinking.style.display = 'none';
+            toggleBlinkingCursor(false);
+            scrollToBottom();
+        }
+
+    
+        // Handler for 'done' events
+        function handleDoneEvent() {
+            toggleBlinkingCursor(false);
+            wpaicg_ai_thinking.style.display = 'none';
+            if (!localStorage.getItem('wpaicg_lead_form_shown')) {
+                maybeShowLeadForm(chat, chatId);
+                scrollToBottom();
+            }
+        }
+    
+        // Setup button listeners for the copy and feedback buttons
+        setupButtonListeners(
+            copyEnabled,
+            feedbackEnabled,
+            class_ai_item,
+            emptyClipboardSVG,
+            checkedClipboardSVG,
+            thumbsUpSVG,
+            thumbsDownSVG,
+            showFeedbackModal,
+            aiBg,
+            fontColor,
+            usrBg,
+            chat,
+            wpaicg_nonce,
+            chatbot_identity
+        );
+    }
+
     function processMarkdown(inputText, isStream = false, chatId = null) {
         inputText = inputText !== '' ? inputText.trim() : '';
     
-        // Replace new lines
-        let formattedText = inputText.replace(/(?:\r\n|\r|\n)/g, '<br>');
+        // parse the markdown using the marked library
+        const formattedText = marked.parse(inputText);
     
-        // Replace blockquotes
-        formattedText = formattedText.replace(/^>\s*(.*)$/gm, '<blockquote>$1</blockquote>');
-    
-        // Replace unordered lists
-        formattedText = formattedText.replace(/^\s*-\s+(.*)$/gm, '<ul><li>$1</li></ul>');
-    
-        // Replace ordered lists
-        formattedText = formattedText.replace(/^\s*\d+\.\s+(.*)$/gm, '<ol><li>$1</li></ol>');
-    
-        // Replace horizontal rules
-        formattedText = formattedText.replace(/^\s*---\s*$/gm, '<hr>');
-    
-        // Replace bold text
-        formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-    
-        // Replace italic text
-        formattedText = formattedText.replace(/\*(.*?)\*/g, '<i>$1</i>');
-    
-        // Replace underline text
-        formattedText = formattedText.replace(/__(.*?)__/g, '<u>$1</u>');
-    
-        // Replace strikethrough text
-        formattedText = formattedText.replace(/~~(.*?)~~/g, '<s>$1</s>');
-    
-        // Replace markdown links (first)
-        formattedText = formattedText.replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-    
-        // Replace plain URLs (after handling markdown links)
-        formattedText = formattedText.replace(/(^|[^"])(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank">$2</a>');
-    
-        // Replace code blocks
-        formattedText = formattedText.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-    
-        // Replace inline code
-        formattedText = formattedText.replace(/`([\s\S]*?)`/g, '<code>$1</code>');
-    
-        // If stream mode, update the element with the chatId
+        // if in stream mode and chatId exists, update the DOM
         if (isStream && chatId) {
-            document.getElementById(chatId).innerHTML = formattedText;
+            const element = document.getElementById(chatId);
+            if (element) {
+                element.innerHTML = formattedText;
+            }
         }
     
         return formattedText;
@@ -2030,7 +2332,6 @@ function wpaicgChatInit() {
             
             // Check if the next element is an audio tag and play it if found
             if (nextElement && nextElement.tagName.toLowerCase() === 'audio') {
-                console.log('Audio found. Playing audio:', nextElement);
                 nextElement.play();
             } else {
                 console.log('No audio found next to the current message.');
@@ -2040,7 +2341,7 @@ function wpaicgChatInit() {
         }
 
         // Apply formatting to the entire response text first
-        var formattedText = processMarkdown(wpaicg_response_text);
+        var formattedText = marked.parse(wpaicg_response_text);
 
         if (wpaicg_typewriter_effect) {
             let index = 0; // Starting index of the substring
@@ -2140,6 +2441,7 @@ function wpaicgChatInit() {
 wpaicgChatInit();
 // Call the init function when the document is ready
 document.addEventListener('DOMContentLoaded', loadConversations);
+
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Recorder = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
         "use strict";
 

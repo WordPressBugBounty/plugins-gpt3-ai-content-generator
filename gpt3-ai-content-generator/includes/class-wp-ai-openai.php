@@ -69,12 +69,85 @@ class WPAICG_Url
     }
 
     /**
-     * @param
      * @return string
      */
     public static function assistantsUrl(): string
     {
         return self::OPEN_AI_URL . "/assistants";
+    }
+
+        /**
+     * @param string $assistant_id
+     * @return string
+     */
+    public static function assistantUrl(string $assistant_id): string
+    {
+        return self::OPEN_AI_URL . "/assistants/{$assistant_id}";
+    }
+
+    /**
+     * @return string
+     */
+    public static function threadsUrl(): string
+    {
+        return self::OPEN_AI_URL . "/threads";
+    }
+
+    /**
+     * @param string $thread_id
+     * @return string
+     */
+    public static function threadUrl(string $thread_id): string
+    {
+        return self::OPEN_AI_URL . "/threads/{$thread_id}";
+    }
+
+    /**
+     * @param string $thread_id
+     * @return string
+     */
+    public static function messagesUrl(string $thread_id): string
+    {
+        return self::OPEN_AI_URL . "/threads/{$thread_id}/messages";
+    }
+
+    /**
+     * @param string $thread_id
+     * @param string $message_id
+     * @return string
+     */
+    public static function messageUrl(string $thread_id, string $message_id): string
+    {
+        return self::OPEN_AI_URL . "/threads/{$thread_id}/messages/{$message_id}";
+    }
+
+    /**
+     * @param string $thread_id
+     * @return string
+     */
+    public static function runsUrl(string $thread_id): string
+    {
+        return self::OPEN_AI_URL . "/threads/{$thread_id}/runs";
+    }
+
+    /**
+     * @param string $thread_id
+     * @param string $run_id
+     * @return string
+     */
+    public static function runUrl(string $thread_id, string $run_id): string
+    {
+        return self::OPEN_AI_URL . "/threads/{$thread_id}/runs/{$run_id}";
+    }
+
+    /**
+     * @param string $thread_id
+     * @param string $run_id
+     * @return string
+     */
+    public static function runStepsUrl(string $thread_id, string $run_id): string
+    {
+        return self::OPEN_AI_URL . "/threads/{$thread_id}/runs/{$run_id}/steps";
     }
 
     /**
@@ -409,6 +482,15 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
             return $this->sendRequest($url, 'POST', $opts);
         }
 
+        public function uploadAssitantFile($opts)
+        {
+            // add the purpose key to the $opts array
+            $opts['purpose'] = 'vision';
+            $url = WPAICG_Url::filesUrl();
+
+            return $this->sendRequest($url, 'POST', $opts);
+        }
+
         public function retrieveFile($file_id)
         {
             $file_id = "/$file_id";
@@ -534,68 +616,111 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
             $this->timeout = $timeout;
         }
 
-        private function setUpHeaders() {
+        private function setUpHeaders($beta_version = null) {
             global $wpdb;
             $wpaicgTable = $wpdb->prefix . 'wpaicg';
             $sql = $wpdb->prepare('SELECT * FROM ' . $wpaicgTable . ' WHERE name = %s', 'wpaicg_settings');
             $wpaicg_settings = $wpdb->get_row($sql, ARRAY_A);
             $api_key = isset($wpaicg_settings['api_key']) ? $wpaicg_settings['api_key'] : '';
-        
+
             $this->headers['Authorization'] = 'Bearer ' . $api_key;
-            $this->headers['OpenAI-Beta'] = 'assistants=v1';
             $this->headers['Content-Type'] = 'application/json';
+
+            if ($beta_version) {
+                $this->headers['OpenAI-Beta'] = $beta_version;
+            } else {
+                unset($this->headers['OpenAI-Beta']);
+            }
         }
         
         /**
+         * List assistants.
          * @param array $query
          * @return bool|string
          */
         public function listAssistants($query = [])
         {
-            // Set up headers
-            $this->setUpHeaders();
+            $this->setUpHeaders('assistants=v2');
 
             $url = WPAICG_Url::assistantsUrl();
 
             // Add query parameters to the URL if they exist
-            if (count($query) > 0) {
+            if (!empty($query)) {
                 $url .= '?' . http_build_query($query);
             }
 
             return $this->sendRequest($url, 'GET');
         }
 
+        /**
+         * Get a specific assistant.
+         * @param string $assistant_id
+         * @return bool|string
+         */
+        public function getAssistant($assistant_id)
+        {
+            $this->setUpHeaders('assistants=v2');
 
+            $url = WPAICG_Url::assistantUrl($assistant_id);
+
+            return $this->sendRequest($url, 'GET');
+        }
+
+
+        /**
+         * Delete an assistant.
+         * @param string $assistant_id
+         * @return bool|string
+         */
         public function deleteAssistant($assistant_id) {
-            $url = WPAICG_Url::assistantsUrl() . '/' . $assistant_id;
-        
-            // Set up headers
-            $this->setUpHeaders();
-        
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::assistantUrl($assistant_id);
+
             return $this->sendRequest($url, 'DELETE');
         }
 
+        /**
+         * Create an assistant.
+         * @param array $assistant_data
+         * @return bool|string
+         */
         public function createAssistant($assistant_data) {
+            $this->setUpHeaders('assistants=v2');
+
             $url = WPAICG_Url::assistantsUrl();
-        
-            // Set up headers
-            $this->setUpHeaders();
-        
+
             return $this->sendRequest($url, 'POST', $assistant_data);
         }
 
+        /**
+         * Modify an assistant.
+         * @param string $assistant_id
+         * @param array $assistant_data
+         * @return bool|string
+         */
         public function modifyAssistant($assistant_id, $assistant_data) {
-            $url = WPAICG_Url::assistantsUrl() . '/' . $assistant_id;
-        
-            // Set up headers
-            $this->setUpHeaders();
-        
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::assistantUrl($assistant_id);
+
             return $this->sendRequest($url, 'POST', $assistant_data);
         }
         
         public function create_body_for_file($file, $boundary)
         {
-            $filePurpose = isset($file['purpose']) && $file['purpose'] === 'assistants' ? 'assistants' : 'fine-tune';
+            // check for the 'vision' purpose along with 'assistants'
+            if (isset($file['purpose'])) {
+                if ($file['purpose'] === 'assistants') {
+                    $filePurpose = 'assistants';
+                } elseif ($file['purpose'] === 'vision') {
+                    $filePurpose = 'vision';
+                } else {
+                    $filePurpose = 'fine-tune';
+                }
+            } else {
+                $filePurpose = 'fine-tune';
+            }
             $fields = array(
                 'purpose' => $filePurpose,
                 'file' => $file['filename']
@@ -685,6 +810,165 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
             return $opts;
         }
 
+
+        /**
+         * Threads and Messages Methods
+         */
+
+        /**
+         * Create a thread.
+         * @param array $messages
+         * @return bool|string
+         */
+        public function createThread($messages = [])
+        {
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::threadsUrl();
+            $data = [];
+            if (!empty($messages)) {
+                $data['messages'] = $messages;
+            }
+            return $this->sendRequest($url, 'POST', $data);
+        }
+
+        /**
+         * Get a thread.
+         * @param string $thread_id
+         * @return bool|string
+         */
+        public function getThread($thread_id)
+        {
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::threadUrl($thread_id);
+
+            return $this->sendRequest($url, 'GET');
+        }
+
+        /**
+         * Add a message to a thread.
+         * @param string $thread_id
+         * @param array $message_data
+         * @return bool|string
+         */
+        public function addMessageToThread($thread_id, $message_data)
+        {
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::messagesUrl($thread_id);
+
+            return $this->sendRequest($url, 'POST', $message_data);
+        }
+
+        /**
+         * Get a specific message from a thread.
+         * @param string $thread_id
+         * @param string $message_id
+         * @return bool|string
+         */
+        public function getMessage($thread_id, $message_id)
+        {
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::messageUrl($thread_id, $message_id);
+
+            return $this->sendRequest($url, 'GET');
+        }
+
+        /**
+         * List messages in a thread.
+         * @param string $thread_id
+         * @return bool|string
+         */
+        public function listMessages($thread_id)
+        {
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::messagesUrl($thread_id);
+
+            return $this->sendRequest($url, 'GET');
+        }
+
+        /**
+         * Runs Methods
+         */
+
+        /**
+         * Create a run.
+         * @param string $thread_id
+         * @param array $run_data
+         * @param callable|null $stream_method
+         * @return bool|string
+         */
+        public function createRun($thread_id, $run_data, $stream_method = null)
+        {
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::runsUrl($thread_id);
+
+            if (isset($run_data['stream']) && $run_data['stream']) {
+                if (!is_callable($stream_method)) {
+                    throw new \Exception('Please provide a stream function.');
+                }
+                $this->stream_method = $stream_method;
+                $response = $this->sendRequestForAssistantStreaming($url, 'POST', $run_data);
+                return $response;
+            } else {
+                return $this->sendRequest($url, 'POST', $run_data);
+            }
+        }
+
+        /**
+         * Get a run.
+         * @param string $thread_id
+         * @param string $run_id
+         * @return bool|string
+         */
+        public function getRun($thread_id, $run_id)
+        {
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::runUrl($thread_id, $run_id);
+
+            return $this->sendRequest($url, 'GET');
+        }
+
+        /**
+         * List runs in a thread.
+         * @param string $thread_id
+         * @return bool|string
+         */
+        public function listRuns($thread_id)
+        {
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::runsUrl($thread_id);
+
+            return $this->sendRequest($url, 'GET');
+        }
+
+        /**
+         * List run steps belonging to a run.
+         * @param string $thread_id
+         * @param string $run_id
+         * @param array $query Optional query parameters like limit, order, etc.
+         * @return bool|string
+         */
+        public function listRunSteps($thread_id, $run_id, $query = [])
+        {
+            $this->setUpHeaders('assistants=v2');
+
+            $url = WPAICG_Url::runStepsUrl($thread_id, $run_id);
+
+            // Add query parameters to the URL if they exist
+            if (!empty($query)) {
+                $url .= '?' . http_build_query($query);
+            }
+
+            return $this->sendRequest($url, 'GET');
+        }
+
         /**
          * @param string $url
          * @param string $method
@@ -714,6 +998,10 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
             if (array_key_exists('file', $opts)) {
                 $boundary = wp_generate_password(24, false);
                 $this->headers['Content-Type'] = 'multipart/form-data; boundary='.$boundary;
+                // check if purpose=vision exists in $opts
+                if (isset($opts['purpose']) && $opts['purpose'] === 'vision') {
+                    $opts['file']['purpose'] = 'vision';
+                }
                 $post_fields = $this->create_body_for_file($opts['file'], $boundary);
             }
             elseif (isset($opts['purpose']) && $opts['purpose'] === 'assistants') {
@@ -750,7 +1038,9 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
             if($post_fields == '[]'){
                 unset($request_options['body']);
             }
+
             $response = wp_remote_request($url,$request_options);
+
             if(is_wp_error($response)){
                 return json_encode(array('error' => array('message' => $response->get_error_message())));
             }
@@ -763,5 +1053,95 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
                 }
             }
         }
+
+        private function sendRequestForAssistantStreaming(string $url, string $method, array $opts = [])
+        {
+            // Handle model-specific adjustments
+            $opts = $this->handleO1Models($opts);
+
+            $post_fields = json_encode($opts);
+
+            // initialize total_tokens
+            $total_tokens = 0;
+            $model = null;
+            $response_text = ""; // initialize response_text
+
+            // Ensure that we're handling streaming requests only
+            if (!(array_key_exists('stream', $opts) && $opts['stream'])) {
+                throw new \Exception('Streaming is not enabled in options.');
+            }
+
+            // Use cURL directly
+            $curl = curl_init($url);
+
+            $headers = [];
+            foreach ($this->headers as $key => $value) {
+                $headers[] = "$key: $value";
+            }
+
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $post_fields);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($curl, CURLOPT_TIMEOUT, $this->timeout);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);
+            curl_setopt($curl, CURLOPT_HEADER, false);
+            curl_setopt($curl, CURLOPT_WRITEFUNCTION, function ($ch, $data) use (&$total_tokens, &$model, &$response_text) {
+            
+                // Process `thread.run.completed` to gather usage and model information
+                if (strpos($data, 'event: thread.run.completed') !== false) {
+                    $json_start = strpos($data, '{');
+                    if ($json_start !== false) {
+                        $json_part = substr($data, $json_start);
+                        $event_data = json_decode($json_part, true);
+                        if (isset($event_data['usage']['total_tokens'])) {
+                            $total_tokens += $event_data['usage']['total_tokens'];
+                        }
+                        if (isset($event_data['model'])) {
+                            $model = $event_data['model'];
+                        }
+                    }
+                }
+            
+                // Process `thread.message.delta` to accumulate response text
+                if (strpos($data, 'event: thread.message.delta') !== false) {
+                    $json_start = strpos($data, '{');
+                    if ($json_start !== false) {
+                        $json_part = substr($data, $json_start);
+                        $event_data = json_decode($json_part, true);
+                        if (isset($event_data['delta']['content'][0]['text']['value'])) {
+                            $response_text .= $event_data['delta']['content'][0]['text']['value'];
+                        }
+                    }
+            
+                    // Send `thread.message.delta` event to the client
+                    echo $data;
+                    flush();
+                }
+            
+                // Pass through the `done` event directly to the client
+                if (strpos($data, 'event: done') !== false) {
+                    echo $data;
+                    flush();
+                }
+            
+                // For all other events, do nothing
+                return strlen($data);
+            });
+
+            $exec = curl_exec($curl);
+            if ($exec === false) {
+                $error = curl_error($curl);
+                curl_close($curl);
+                return json_encode(array('error' => array('message' => $error)));
+            } else {
+                curl_close($curl);
+                return json_encode(array(
+                    'response_text' => $response_text,
+                    'total_tokens' => $total_tokens,
+                    'model' => $model
+                ));
+            }
+        }
+
     }
 }

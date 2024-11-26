@@ -345,11 +345,21 @@ $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !emp
         text-decoration: none;
     }
 
-    .wpaicg-chat-shortcode-content ul li {
+    .wpaicg-chat-shortcode-content ul .wpaicg-user-message {
+        margin-left: auto; /* This pushes the user messages to the right */
+        background: <?php echo esc_html($wpaicg_user_bg_color)?>;
         color: <?php echo esc_html($wpaicg_font_color)?>;
         font-size: <?php echo esc_html($wpaicg_font_size)?>px;
-        display: flex;
-        align-items: center;
+        margin-bottom: 20px;
+        margin-right: 10px;
+        padding: 10px;
+        border-radius: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        width: fit-content;
+    }
+    .wpaicg-chat-shortcode-content ul .wpaicg-ai-message {
+        color: <?php echo esc_html($wpaicg_font_color)?>;
+        font-size: <?php echo esc_html($wpaicg_font_size)?>px;
         margin-bottom: 20px;
         margin-right: 10px;
         padding: 10px;
@@ -358,36 +368,6 @@ $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !emp
         width: fit-content;
     }
 
-    .wpaicg-chat-shortcode-content ul .wpaicg-user-message {
-        margin-left: auto; /* This pushes the user messages to the right */
-        background: <?php echo esc_html($wpaicg_user_bg_color)?>;
-    }
-    .wpaicg-chat-shortcode .wpaicg-ai-message .wpaicg-chat-message,
-    .wpaicg-chat-shortcode .wpaicg-user-message .wpaicg-chat-message {
-        color: inherit;
-    }
-
-    .wpaicg-chat-shortcode-content ul li .wpaicg-chat-message {
-        color: inherit;
-    }
-    .wpaicg-chat-shortcode-content ul li strong {
-        font-weight: bold;
-        margin-right: 5px;
-        float: left;
-        color: inherit;
-    }
-    .wpaicg-chat-shortcode-content ul li p {
-        font-size: inherit;
-    }
-
-    .wpaicg-chat-shortcode-content ul li p {
-        margin: 0;
-        padding: 0;
-    }
-    .wpaicg-chat-shortcode-content ul li p:after {
-        clear: both;
-        display: block;
-    }
     .wpaicg-chat-shortcode .wpaicg-bot-thinking {
         bottom: 0;
         font-size: 11px;
@@ -397,9 +377,6 @@ $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !emp
 
     .wpaicg-chat-message-error {
         color: #f00;
-    }
-    .wpaicg-chat-message {
-        line-height: auto;
     }
 
     .wpaicg-jumping-dots span {
@@ -517,7 +494,6 @@ $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !emp
         border-radius: 50%;
         font-weight: normal;
         padding: 0;
-        margin: 0;
     }
     .wpaicg-chat-shortcode .wpaicg-pdf-loading {
         border-color: <?php echo esc_html($wpaicg_settings['pdf_color'])?>;
@@ -797,13 +773,13 @@ $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !emp
         border-bottom-left-radius: 3px;
     }
 
-
     .wpaicg-chat-shortcode .wpaicg-chatbox-action-bar {
         position: relative;
         top: 0;
         display: flex;
         justify-content: flex-end;
     }
+    
 </style>
 <?php
 if(isset($wpaicg_settings['use_avatar']) && $wpaicg_settings['use_avatar']) {
@@ -813,6 +789,13 @@ if(isset($wpaicg_settings['use_avatar']) && $wpaicg_settings['use_avatar']) {
 $wpaicg_has_action_bar = false;
 if($wpaicg_chat_fullscreen || $wpaicg_chat_download_btn || $wpaicg_chat_clear_btn || $wpaicg_chat_audio_btn) {
     $wpaicg_has_action_bar = true;
+}
+?>
+<?php
+// Check if the model name starts with 'asst_'
+$assistantEnabled = false;
+if (isset($wpaicg_settings['model']) && strpos($wpaicg_settings['model'], 'asst_') === 0) {
+    $assistantEnabled = true;
 }
 ?>
 <div class="wpaicg-chat-shortcode"
@@ -873,6 +856,7 @@ if($wpaicg_chat_fullscreen || $wpaicg_chat_download_btn || $wpaicg_chat_clear_bt
      data-bg_text_field = "<?php echo esc_html($wpaicg_bg_text_field)?>"
      data-bg_text_field_font_color = "<?php echo esc_html($wpaicg_input_font_color)?>"
      data-bg_text_field_border_color = "<?php echo esc_html($wpaicg_border_text_field)?>"
+     data-assistant-enabled="<?php echo esc_html($assistantEnabled ? 'true' : 'false'); ?>"
      data-type="shortcode"
 >
 <?php if($wpaicg_has_action_bar): ?>
@@ -930,21 +914,9 @@ if($wpaicg_chat_fullscreen || $wpaicg_chat_download_btn || $wpaicg_chat_clear_bt
         endif;
         ?>
         <li class="wpaicg-ai-message" style="color: <?php echo esc_html($wpaicg_font_color)?>; font-size: <?php echo esc_html($wpaicg_font_size)?>px; background-color: <?php echo esc_html($wpaicg_ai_bg_color);?>">
-            <p>
-                <strong style="float: left" class="wpaicg-chat-avatar">
-                    <?php
-                    if(isset($wpaicg_settings['use_avatar']) && $wpaicg_settings['use_avatar']) {
-                        echo wp_kses_post($wpaicg_ai_name);
-                    }
-                    else{
-                        echo wp_kses_post($wpaicg_ai_name).':';
-                    }
-                    ?>
-                </strong>
-                <span class="wpaicg-chat-message">
-                    <?php echo esc_html(str_replace("\\",'',$wpaicg_welcome_message))?>
-                </span>
-            </p>
+            <span class="wpaicg-chat-message">
+                <?php echo esc_html(str_replace("\\",'',$wpaicg_welcome_message))?>
+            </span>
         </li>
     </ul>
 </div>

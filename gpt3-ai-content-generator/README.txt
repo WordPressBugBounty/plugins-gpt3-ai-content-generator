@@ -4,7 +4,7 @@ Tags: chatbot, ai, content writer, openai, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.8.94
+Stable tag: 1.8.95
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -12,7 +12,7 @@ Chatbot, Content Writer, Auto Content Writer, Product Writer, Image Generator, A
  
 == Description ==
 
-AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's GPT-4 and GPT-3.5, along with Claude, Gemini, Azure, Grok, Mistral, LLaMA, Yi Chat, and Alpaca.
+AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's GPT-4, GPT-3.5, Assistant API, along with Claude, Gemini, Azure, Grok, Mistral, LLaMA, Yi Chat, and Alpaca.
 
 It uses o1-mini, o1-preview, GPT-3.5, GPT-4,  GPT-4o, GPT-4o-mini, GPT-4 Vision, Gemini 1.5 Flash, Anthropic (Claude 3 Sonnet, Opus etc.) and more to generate content, images, and forms with customizable options. It includes AI training, Chat widget, WooCommerce integration, Embeddings and more.
 
@@ -21,6 +21,7 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 == Core Features ==
 * Multiple AI providers (OpenAI, Microsoft Azure, Google and OpenRouter)
 * Latest AI models (GPT-4, Claude, Gemini, Llama, Grok and more)
+* OpenAI Assistant API
 * Chatbot
 * Content writer
 * Bulk writer
@@ -48,7 +49,7 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 
 == Integrations ==
 
-- OpenAI: Use GPT models, Whisper and text to speech for advanced AI capabilities.
+- OpenAI: Use GPT models, Whisper and text to speech for advanced AI capabilities. Supports OpenAI Assistant API too.
 - OpenRouter: All models on OpenRouter are accesible via our plugin.
 - Azure OpenAI: If you dont have OpenAI API access, you can use Azure.
 - Google: Gemini Pro, Gemini 1.0, Gemini 1.5 Flash and Gemini 1.5 Pro langauge models.
@@ -84,6 +85,21 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.8.95 =
+
+This release includes couple of improvements for the chat bot:
+
+- **OpenAI Assistant API Integration**: The chatbot now supports the OpenAI Assistant API. To use it, go to your chatbot settings and click the "Sync" button next to the models. This will synchronize your assistants. 
+
+[Learn more here](https://docs.aipower.org/docs/Chatbot/ai-settings#selecting-assistant).
+
+- **Improved Markdown Formatting**: Switched to a better third-party library for parsing markdown.
+- **Simplified Interface**: I've removed the AI Name and Avatar options to keep the chat window clean and simple.
+
+The next release will introduce a conversation sidebar for viewing and managing conversations.
+
+**Note:** If you're using a caching plugin, please remember to clear your site cache to make sure that the changes take effect.
 
 = 1.8.94 =
 

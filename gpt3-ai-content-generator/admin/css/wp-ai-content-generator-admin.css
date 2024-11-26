@@ -74,11 +74,10 @@
 
 
 .wpcgai_menu_editor,
-
 .wpcgai_menu_editor ul ul,
-ol ul,
-ul ol,
-ol ol {
+.wpcgai_menu_editor ol ul,
+.wpcgai_menu_editor ul ol,
+.wpcgai_menu_editor ol ol {
   list-style-type: none;
 }
 

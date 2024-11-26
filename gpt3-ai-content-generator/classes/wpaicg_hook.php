@@ -58,6 +58,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                 )
             ));
             wp_enqueue_script('wpaicg-chat-shortcode',WPAICG_PLUGIN_URL.'public/js/wpaicg-chat.js',array(),null,true);
+            wp_enqueue_script('wpaicg-chat-shortcode',WPAICG_PLUGIN_URL.'public/js/marked.js',array(),null,true);
             wp_enqueue_style('wpaicg-extra-css',WPAICG_PLUGIN_URL.'admin/css/wpaicg_extra.css',array(),null);
             wp_enqueue_style('wpaicg-jquery-datepicker-css',WPAICG_PLUGIN_URL.'admin/css/jquery.datetimepicker.min.css',array(),null);
             wp_enqueue_style('wpaicg-rtl-css',WPAICG_PLUGIN_URL.'public/css/wpaicg-rtl.css',array(),null);
@@ -124,6 +125,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                 )
             ));
             wp_enqueue_script('wpaicg-chat-script',WPAICG_PLUGIN_URL.'public/js/wpaicg-chat.js',null,null,true);
+            wp_enqueue_script('wpaicg-markdown-script',WPAICG_PLUGIN_URL.'public/js/marked.js',null,null,true);
         }
 
         public function wpaicg_head_seo()

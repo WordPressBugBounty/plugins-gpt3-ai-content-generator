@@ -351,11 +351,26 @@
                     // Check if the target selector is Page 1's dropdown
                     if (targetSelector === '#aipower-openai-model-dropdown') {
                         // For Page 1: Show success message and reload the page
-                        showSuccess('Models synced successfully. Reloading the page...');
+                        showSuccess('Models and assistants synced successfully. Reloading the page...');
                         location.reload(); // Reload the current page
                     } else {
                         // For Page 2: Update the dropdown without reloading
                         $modelDropdown.empty();
+
+                        // 1. Add Assistants Optgroup
+                        var assistants = response.data.assistants;
+                        var $assistantsGroup = $('<optgroup>').attr('label', 'Assistants');
+                        if (assistants && assistants.length > 0) {
+                            assistants.forEach(function(assistant) {
+                                // Display assistant name if available, else display assistant_id
+                                var displayName = assistant.name ? assistant.name : assistant.assistant_id;
+                                $assistantsGroup.append('<option value="' + assistant.assistant_id + '">' + displayName + '</option>');
+                            });
+                        } else {
+                            // If no assistants, add a disabled option
+                            $assistantsGroup.append('<option disabled>Click sync button next to this model list to fetch your assistants</option>');
+                        }
+                        $modelDropdown.append($assistantsGroup);
 
                         // Populate GPT-3.5 Models
                         var gpt35Group = $('<optgroup>').attr('label', 'GPT-3.5 Models');
@@ -394,7 +409,7 @@
                         }
 
                         // Display a success message
-                        showSuccess('Models synced successfully.');
+                        showSuccess('Models and assistants synced successfully.');
                     }
                 } else {
                     // Extract and display the error message

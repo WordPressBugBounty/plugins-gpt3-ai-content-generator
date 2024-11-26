@@ -142,11 +142,15 @@ class Wp_Ai_Content_Generator_Admin
             if (isset($_GET['page']) && $_GET['page'] == 'wpaicg') {
                 wp_enqueue_script(
                     'wpaicg-chatbot',
+                    // admin/js/chatbot.js
                     plugin_dir_url(__FILE__) . 'js/chatbot.js',
                     array( 'jquery' ),
                     $this->version,
                     false
                 );
+            }
+            if (isset($_GET['page']) && $_GET['page'] == 'wpaicg') {
+                wp_enqueue_script('wpaicg-markedjs',WPAICG_PLUGIN_URL.'public/js/marked.js',array(),null,false);
             }
         }
         wp_enqueue_script( 'jquery' );

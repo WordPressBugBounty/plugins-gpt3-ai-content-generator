@@ -1,5 +1,10 @@
 <?php
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
+
+$assistants = get_option('wpaicg_assistants', []);
+
+$assistants_json = json_encode($assistants);
+
 ?>
 <div class="aipower-form-group aipower-grouped-fields-bot">
     <!-- Bot Name Field -->
@@ -27,7 +32,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
     <!-- Model Select Field with Sync Icon -->
     <div class="aipower-form-group">
-        <label for="aipower-bot-model"><?php echo esc_html__('Model', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-bot-model"><?php echo esc_html__('Model & Assistant', 'gpt3-ai-content-generator'); ?></label>
         <select id="aipower-bot-model" name="aipower-bot-model" data-default="<?php echo esc_attr($selected_model); ?>">
             <!-- Options will be populated dynamically -->
         </select>
@@ -348,3 +353,4 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
     data-openrouter-default="<?php echo esc_attr(get_option('wpaicg_openrouter_default_model', 'anthropic/claude-3.5-sonnet')); ?>"
     data-azure-default="<?php echo esc_attr(get_option('wpaicg_azure_deployment', '')); ?>">
 </div>
+<div id="openai-assistants" data-assistants='<?php echo esc_attr($assistants_json); ?>'></div>

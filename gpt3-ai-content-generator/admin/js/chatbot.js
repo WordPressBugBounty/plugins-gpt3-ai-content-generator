@@ -2015,12 +2015,71 @@ jQuery(document).ready(function ($) {
         $modelField.empty();
         
         if (selectedProvider === 'OpenAI') {
+            // 1. Add the "Assistants" optgroup
+            const $assistantsOptgroup = $('<optgroup label="Assistants"></optgroup>');
+            const $assistantsDiv = $('#openai-assistants');
+            let assistantsData = $assistantsDiv.attr('data-assistants');
+
+            // Parse the JSON string into a JavaScript object
+            try {
+                assistantsData = JSON.parse(assistantsData);
+            } catch (e) {
+                console.error('Failed to parse assistants data:', e);
+                assistantsData = [];
+            }
+
+            if (Array.isArray(assistantsData) && assistantsData.length > 0) {
+                assistantsData.forEach(function(assistant) {
+                    // Check if 'name' exists; if not, fallback to 'assistant_id' or a default label
+                    let displayName = 'Unnamed Assistant';
+                    if (assistant.name && assistant.name.trim() !== '') {
+                        displayName = assistant.name;
+                    } else if (assistant.assistant_id) {
+                        displayName = assistant.assistant_id;
+                    }
+
+                    // Append the assistant as an option with name as display text
+                    $assistantsOptgroup.append('<option value="' + assistant.assistant_id + '">' + displayName + '</option>');
+                });
+            } else {
+                // If no assistants, add a disabled option with a helpful message
+                $assistantsOptgroup.append('<option disabled>You don\'t have any assistants. Click the sync button to fetch your assistants.</option>');
+            }
+
+            // Append the "Assistants" optgroup to the model dropdown
+            $modelField.append($assistantsOptgroup);
+
+            // 2. Append existing OpenAI models
+
             const openaiModelsDiv = $('#openai-models');
-            const gpt4Models = JSON.parse(openaiModelsDiv.attr('data-gpt4-models'));
-            const gpt35Models = JSON.parse(openaiModelsDiv.attr('data-gpt35-models'));
-            const customModels = JSON.parse(openaiModelsDiv.attr('data-custom-models'));
-            
-            if (gpt35Models) {
+            let gpt4Models = openaiModelsDiv.attr('data-gpt4-models');
+            let gpt35Models = openaiModelsDiv.attr('data-gpt35-models');
+            let customModels = openaiModelsDiv.attr('data-custom-models');
+
+            // Parse the JSON strings
+            try {
+                gpt4Models = JSON.parse(gpt4Models);
+            } catch (e) {
+                console.error('Failed to parse GPT-4 models:', e);
+                gpt4Models = [];
+            }
+
+            try {
+                gpt35Models = JSON.parse(gpt35Models);
+            } catch (e) {
+                console.error('Failed to parse GPT-3.5 models:', e);
+                gpt35Models = [];
+            }
+
+            try {
+                customModels = JSON.parse(customModels);
+            } catch (e) {
+                console.error('Failed to parse custom models:', e);
+                customModels = [];
+            }
+
+            // Append GPT-3.5 Models
+            if (gpt35Models && Object.keys(gpt35Models).length > 0) {
                 const $gpt35Optgroup = $('<optgroup label="GPT-3.5 Models"></optgroup>');
                 $.each(gpt35Models, function(key, label) {
                     $gpt35Optgroup.append('<option value="' + key + '">' + label + '</option>');
@@ -2028,7 +2087,8 @@ jQuery(document).ready(function ($) {
                 $modelField.append($gpt35Optgroup);
             }
             
-            if (gpt4Models) {
+            // Append GPT-4 Models
+            if (gpt4Models && Object.keys(gpt4Models).length > 0) {
                 const $gpt4Optgroup = $('<optgroup label="GPT-4 Models"></optgroup>');
                 $.each(gpt4Models, function(key, label) {
                     $gpt4Optgroup.append('<option value="' + key + '">' + label + '</option>');
@@ -2036,7 +2096,8 @@ jQuery(document).ready(function ($) {
                 $modelField.append($gpt4Optgroup);
             }
 
-            if (customModels) {
+            // Append Custom Models
+            if (customModels && customModels.length > 0) {
                 const $customOptgroup = $('<optgroup label="Custom Models"></optgroup>');
                 $.each(customModels, function(index, value) {
                     $customOptgroup.append('<option value="' + value + '">' + value + '</option>');

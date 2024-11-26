@@ -315,8 +315,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
 
             $wpaicg_save_request = false;
 
-            // Get message and URL
-            $wpaicg_message = sanitize_text_field(wp_unslash($_POST['message'] ?? ''));
+
             $url = sanitize_text_field(wp_unslash($_POST['url'] ?? ''));
 
             $wpaicg_pinecone_api = get_option('wpaicg_pinecone_api', '');
@@ -691,6 +690,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             // Check for banned IPs
             $this->check_banned_ips($wpaicg_chat_source, $wpaicg_provider);
 
+            // Get message and URL
+            $wpaicg_message = sanitize_text_field(wp_unslash($_POST['message'] ?? ''));
+
             // Check for banned words
             $this->check_banned_words($wpaicg_message, $wpaicg_chat_source, $wpaicg_provider);
 
@@ -722,7 +724,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     exit;
                 }
             }
-
             /*End check token handing*/
 
             // Initialize the audio_message variable
@@ -869,7 +870,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     }
                 }
             }
-
+            $wpaicg_embedding_context_for_assistant = '';
+            $excerpt_content_for_assistant = '';
             if($wpaicg_chat_embedding){
                 /*Using embeddings only*/
                 $namespace = false;
@@ -987,6 +989,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 }
                 if ($wpaicg_chat_content_aware == 'yes') {
                     if($wpaicg_chat_with_embedding && !empty($wpaicg_embedding_content)){
+                        $wpaicg_embedding_context_for_assistant = $wpaicg_embedding_content;
                         $wpaicg_greeting_key .= '_content';
                         $current_context = '"'.$wpaicg_embedding_content.'"';
                         if ($wpaicg_chat_proffesion != 'none') {
@@ -1011,6 +1014,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                                 $current_context .= "\n" . $current_post_excerpt;
                             }
                             $current_context .= '"';
+                            $excerpt_content_for_assistant = $current_context;
                             if ($wpaicg_chat_proffesion != 'none') {
                                 $wpaicg_chat_greeting_message = sprintf($wpaicg_languages[$wpaicg_greeting_key], $wpaicg_chat_tone, $wpaicg_chat_proffesion . ".\n", $current_context);
                             } else {
@@ -1040,23 +1044,51 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 }
 
                 $wpaicg_result['greeting_message'] = $wpaicg_chat_greeting_message;
+
+                // Fetch assistant_id
+                $assistant_id = '';
+                if (!empty($wpaicg_ai_model) && strpos($wpaicg_ai_model, 'asst_') === 0) {
+                    $assistant_id = $wpaicg_ai_model; // assign if model name starts with "asst_"
+                }
                 // check to see image is present in the request
                 $image_final_data = '';
                 // gpt-4-vision-preview or gpt-4o or openai/gpt-4o-2024-05-13
-                if ($wpaicg_ai_model === 'gpt-4-vision-preview' || $wpaicg_ai_model === 'gpt-4o' || $wpaicg_ai_model === 'gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4-vision-preview' || $wpaicg_ai_model === 'openai/gpt-4o' || $wpaicg_ai_model === 'openai/gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4o-mini-2024-07-18' || $wpaicg_ai_model === 'openai/gpt-4o-2024-05-13') {
+                if ($wpaicg_ai_model === 'gpt-4-vision-preview' || $wpaicg_ai_model === 'gpt-4o' || $wpaicg_ai_model === 'gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4-vision-preview' || $wpaicg_ai_model === 'openai/gpt-4o' || $wpaicg_ai_model === 'openai/gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4o-mini-2024-07-18' || $wpaicg_ai_model === 'openai/gpt-4o-2024-05-13' || !empty($assistant_id)) {
                     $image_file = (isset($_FILES['image']) && is_array($_FILES['image'])) ? array_map('sanitize_text_field', $_FILES['image']) : array();
-                    
+
                     if (!empty($image_file) && empty($image_file['error'])) {
-                        // Handle the image upload and get the URL or base64 string
-                        $image_data = $this->handle_image_upload($image_file);
                         // Fetch the user's preference for image processing method
                         $wpaicg_img_processing_method = get_option('wpaicg_img_processing_method', 'url');
                         
-                        // Assign the appropriate data based on the processing method
-                        if ($wpaicg_img_processing_method == 'base64' && isset($image_data['base64'])) {
-                            $image_final_data = $image_data['base64'];
-                        } elseif (isset($image_data['url'])) {
-                            $image_final_data = $image_data['url'];
+                        // Check if $assistant_id is not empty AND the processing method is base64
+                        if (!empty($assistant_id) && $wpaicg_img_processing_method === 'base64') {
+                            // If $assistant_id is present, perform the new method for OpenAI Assistant
+                            $tmp_file = $image_file['tmp_name'];
+
+                            $result = json_decode($open_ai->uploadAssitantFile(array(
+                                'file' => array(
+                                    'data' => file_get_contents($tmp_file),
+                                    'filename' => basename($image_file['name']),
+                                )
+                            )), true);
+                            
+                            if (!empty($result) && isset($result['id'])) {
+                                $image_final_data = $result['id'];
+                            } else {
+                                error_log("Failed to upload the file to OpenAI servers: " . print_r($result, true));
+                            }
+                                                                                 
+                        } else {
+                            // Otherwise, proceed with the existing logic
+                            // Handle the image upload and get the URL or base64 string
+                            $image_data = $this->handle_image_upload($image_file);
+                            
+                            // Assign the appropriate data based on the processing method
+                            if ($wpaicg_img_processing_method == 'base64' && isset($image_data['base64'])) {
+                                $image_final_data = $image_data['base64'];
+                            } elseif (isset($image_data['url'])) {
+                                $image_final_data = $image_data['url'];
+                            }
                         }
                     }
                 } 
@@ -1128,6 +1160,164 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     $wpaicg_chatgpt_messages[] = array('role' => 'user','content' => $wpaicg_message);
                 }
 
+                // Determine if user enabled streaming
+                $stream_nav_setting = $this->determine_stream_nav_setting($wpaicg_chat_source, $wpaicg_provider);
+                $is_streaming = ($stream_nav_setting == 1);
+
+                if (!empty($assistant_id)) {
+                    // Call the separate function
+                    // Get thread_id from the thread_id in post data
+                    $thread_id = sanitize_text_field(wp_unslash($_POST['thread_id'] ?? ''));
+
+                    // Prepare additional instructions
+                    $additional_instructions = '';
+                    // Additional text
+                    if ($wpaicg_chat_addition && !empty($wpaicg_chat_addition_text)) {
+                        $additional_instructions .= $wpaicg_chat_addition_text . "\n";
+                    }
+
+                    // Internet search results
+                    if ($wpaicg_use_internet == 1 && !empty($internet_search_content)) {
+                        $additional_instructions .= $internet_search_content . "\n";
+                    }
+
+                    // Check if content-aware mode is enabled
+                    if ($wpaicg_chat_content_aware == 'yes') {
+                        // Check if embeddings are enabled and content exists
+                        if ($wpaicg_chat_with_embedding && !empty($wpaicg_embedding_content)) {
+                            $additional_instructions .= $wpaicg_embedding_content . "\n";
+                        } 
+                        // Fall back to excerpt content if embeddings are not enabled or empty
+                        elseif (!empty($excerpt_content_for_assistant)) {
+                            $additional_instructions .= $excerpt_content_for_assistant . "\n";
+                        }
+                    }
+
+                    // if $wpaicg_user_aware is enabled, add the user's name to the additional instructions
+                    if (!empty($wpaicg_user_name)) {
+                        $additional_instructions .= $wpaicg_user_name . "\n";
+                    }
+
+                    // Trim any extra whitespace
+                    $additional_instructions = trim($additional_instructions);
+
+                    // If additional_instructions is empty, set to null
+                    if (empty($additional_instructions)) {
+                        $additional_instructions = null;
+                    }
+
+                    $assistant_response = WPAICG_Assistants::get_instance()->handle_assistant_api(
+                        $assistant_id,
+                        $wpaicg_message,
+                        $thread_id,
+                        $additional_instructions,
+                        $is_streaming,
+                        $image_final_data 
+                    );
+                    
+                    if ($is_streaming) {
+                        // we need to save logs and token handling here.
+
+                        $wpaicg_result['data'] = $assistant_response['data'];
+                        $wpaicg_total_tokens = isset($assistant_response['total_tokens']) ? $assistant_response['total_tokens'] : 0;
+                        $wpaicg_assistant_model = isset($assistant_response['model']) ? $assistant_response['model'] : $wpaicg_ai_model;
+
+                        // Include embedding tokens if any
+                        if (isset($wpaicg_embeddings_result['tokens'])) {
+                            $wpaicg_total_tokens += $wpaicg_embeddings_result['tokens'];
+                        }
+
+                        // Prepare the request array with model
+                        $request = [
+                            'model' => $wpaicg_assistant_model,
+                            'temperature' => floatval($wpaicg_chat_temperature),
+                            'max_tokens' => intval($wpaicg_chat_max_tokens),
+                            'frequency_penalty' => floatval($wpaicg_chat_frequency_penalty),
+                            'presence_penalty' => floatval($wpaicg_chat_presence_penalty),
+                            'top_p' => floatval($wpaicg_chat_top_p),
+                            'stream' => $is_streaming,
+                            'provider' => $wpaicg_provider
+                        ];
+
+                        // call the function for log saving and token handling
+                        $this->wpaicg_handle_logs_and_tokens(
+                            $wpaicg_chat_log_id,
+                            $wpaicg_chat_log_data,
+                            $wpaicg_result['data'],
+                            $wpaicg_total_tokens,
+                            $request,
+                            isset($wpaicg_embeddings_result['matches']) ? $wpaicg_embeddings_result['matches'] : [],
+                            $wpaicg_limited_tokens,
+                            $wpaicg_token_usage_client,
+                            $wpaicg_chat_token_id,
+                            $wpaicg_chat_source,
+                            $wpaicg_client_id,
+                            $wpdb
+                        );
+
+                        // Prepare result
+                        $wpaicg_result['status'] = 'success';
+                        $wpaicg_result['log'] = $wpaicg_chat_log_id;
+
+                        exit;
+
+                    }
+
+                    if ($assistant_response['status'] == 'error') {
+                        $wpaicg_result['status'] = 'error';
+                        $wpaicg_result['msg'] = $assistant_response['msg'];
+                    } else {
+                        // Process the assistant result
+                        $wpaicg_result['data'] = $assistant_response['data'];
+                        $wpaicg_result['thread_id'] = $assistant_response['thread_id'];
+
+                        // Use the total_tokens from the assistant response
+                        $wpaicg_total_tokens = isset($assistant_response['total_tokens']) ? $assistant_response['total_tokens'] : 0;
+                        // get model name from the assistant response
+                        $wpaicg_assistant_model = isset($assistant_response['model']) ? $assistant_response['model'] : $wpaicg_ai_model;
+
+                        // Include embedding tokens if any
+                        if (isset($wpaicg_embeddings_result['tokens'])) {
+                            $wpaicg_total_tokens += $wpaicg_embeddings_result['tokens'];
+                        }
+
+                        // Prepare the request array with model
+                        $request = [
+                            'model' => $wpaicg_assistant_model,
+                            'temperature' => floatval($wpaicg_chat_temperature),
+                            'max_tokens' => intval($wpaicg_chat_max_tokens),
+                            'frequency_penalty' => floatval($wpaicg_chat_frequency_penalty),
+                            'presence_penalty' => floatval($wpaicg_chat_presence_penalty),
+                            'top_p' => floatval($wpaicg_chat_top_p),
+                            'stream' => $is_streaming,
+                            'provider' => $wpaicg_provider
+                        ];
+
+                        // call the function for log saving and token handling
+                        $this->wpaicg_handle_logs_and_tokens(
+                            $wpaicg_chat_log_id,
+                            $wpaicg_chat_log_data,
+                            $wpaicg_result['data'],
+                            $wpaicg_total_tokens,
+                            $request,
+                            isset($wpaicg_embeddings_result['matches']) ? $wpaicg_embeddings_result['matches'] : [],
+                            $wpaicg_limited_tokens,
+                            $wpaicg_token_usage_client,
+                            $wpaicg_chat_token_id,
+                            $wpaicg_chat_source,
+                            $wpaicg_client_id,
+                            $wpdb
+                        );
+
+                        // Prepare result
+                        $wpaicg_result['status'] = 'success';
+                        $wpaicg_result['log'] = $wpaicg_chat_log_id;
+                    }
+
+                    // Send the JSON response
+                    wp_send_json($wpaicg_result);
+                    exit;
+                }
 
                 // Get the list of models for chat and completion endpoints
                 $chatEndpointModels = $this->getChatEndpointModels();
@@ -1157,6 +1347,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
 
                 // Determine stream navigation setting and modify the data request
                 $stream_nav_setting = $this->determine_stream_nav_setting($wpaicg_chat_source, $wpaicg_provider);
+
                 if ($stream_nav_setting == 1) {
                     $wpaicg_data_request['stream'] = true;
                     header("Content-Type: text/event-stream");
@@ -1290,6 +1481,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 exit;
             }
             wp_send_json( $wpaicg_result );
+        }
+
+        private function estimateTokens($text)
+        {
+            // Simple estimation: 1 token per 4 characters
+            $num_chars = mb_strlen($text, 'UTF-8');
+            $num_tokens = ceil($num_chars / 4);
+            return $num_tokens;
         }
 
         // Add the search_internet function to handle the API call
@@ -1910,6 +2109,49 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             }
         }
         
+
+        function wpaicg_handle_logs_and_tokens($chat_log_id,$chat_log_data,$result_data,$total_tokens,$request,$embeddings_matches,$limited_tokens,$token_usage_client,$chat_token_id,$chat_source,$client_id,$wpdb) {
+            // Save logs
+            $this->wpaicg_save_chat_log(
+                $chat_log_id,
+                $chat_log_data,
+                'ai',
+                $result_data,
+                $total_tokens,
+                false,
+                $request,
+                $embeddings_matches
+            );
+
+            // Handle token usage
+            if ($limited_tokens) {
+                if ($chat_token_id) {
+                    $wpdb->update(
+                        $wpdb->prefix . 'wpaicg_chattokens',
+                        ['tokens' => ($total_tokens + $token_usage_client)],
+                        ['id' => $chat_token_id]
+                    );
+                } else {
+                    $chat_token_data = [
+                        'tokens' => $total_tokens,
+                        'source' => $chat_source,
+                        'created_at' => current_time('timestamp'),
+                    ];
+                    if (is_user_logged_in()) {
+                        $chat_token_data['user_id'] = get_current_user_id();
+                    } else {
+                        $chat_token_data['session_id'] = $client_id;
+                    }
+                    $wpdb->insert($wpdb->prefix . 'wpaicg_chattokens', $chat_token_data);
+                }
+            }
+
+            if (is_user_logged_in()) {
+                WPAICG_Account::get_instance()->save_log('chat', $total_tokens);
+            }
+        }
+
+
         public function wpaicg_save_chat_log($wpaicg_log_id, $wpaicg_log_data, $type = 'user', $message = '', $tokens = 0, $flag = false, $request = '', $matches = array())
         {
             global $wpdb;

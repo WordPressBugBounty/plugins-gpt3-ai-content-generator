@@ -962,6 +962,7 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
         }
 
         public function aipower_fetch_openai_models() {
+            // Verify nonce
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
                 wp_send_json_error(array('message' => esc_html__('Nonce verification failed', 'gpt3-ai-content-generator')));
                 return;
@@ -993,33 +994,56 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
         
             // Update the 'wpaicg_custom_models' option in the database
             update_option('wpaicg_custom_models', $custom_models);
-
+        
             // Check if 'wpaicg_ai_model' option exists and has a value
             $ai_model_option = get_option('wpaicg_ai_model', '');
-
+        
             if (empty($ai_model_option)) {
                 // If the option does not exist or is empty, update it with 'gpt-3.5-turbo'
                 update_option('wpaicg_ai_model', 'gpt-3.5-turbo');
             }
-
         
             // Retrieve custom models from the updated option
             $custom_models_serialized = get_option('wpaicg_custom_models', '');
             $custom_models = maybe_unserialize($custom_models_serialized);
         
-            // Check for errors and format the response
-            if (is_wp_error($gpt35_models) || is_wp_error($gpt4_models)) {
-                wp_send_json_error('Failed to fetch models from OpenAI');
+            // Fetch assistants using the existing listAssistants method
+            $assistants_response = WPAICG_OpenAI::get_instance()->listAssistants(); // This should return JSON
+        
+            $assistants_data = json_decode($assistants_response, true);
+        
+            if (isset($assistants_data['error'])) {
+                wp_send_json_error(array('message' => $assistants_data['error']['message']));
                 return;
+            } else {
+                if (isset($assistants_data['data']) && is_array($assistants_data['data']) && count($assistants_data['data'])) {
+                    $assistants = array();
+                    foreach ($assistants_data['data'] as $assistant) {
+                        if (isset($assistant['id'])) {
+                            $assistants[] = array(
+                                'assistant_id' => sanitize_text_field($assistant['id']),
+                                'name' => isset($assistant['name']) ? sanitize_text_field($assistant['name']) : 'Unnamed Assistant'
+                            );
+                        }
+                    }
+                    // Update the 'wpaicg_assistants' option with the fetched assistants
+                    update_option('wpaicg_assistants', $assistants);
+                } else {
+                    // No assistants found, set to empty
+                    $assistants = array();
+                    update_option('wpaicg_assistants', $assistants);
+                }
             }
         
-            // Return success with the OpenAI models
+            // Return success with the OpenAI models and assistants
             wp_send_json_success([
                 'gpt35_models'   => $gpt35_models,
                 'gpt4_models'    => $gpt4_models,
-                'custom_models'  => $custom_models
+                'custom_models'  => $custom_models,
+                'assistants'     => $assistants // array of assistant objects
             ]);
         }
+        
         
         public function wpaicg_finetunes()
         {

@@ -162,6 +162,11 @@ $wpaicg_enable_lead_email = isset($wpaicg_chat_widget['enable_lead_email']) && !
 $wpaicg_lead_phone = isset($wpaicg_chat_widget['lead_phone']) && !empty($wpaicg_chat_widget['lead_phone']) ? $wpaicg_chat_widget['lead_phone'] : 'Phone';
 $wpaicg_enable_lead_phone = isset($wpaicg_chat_widget['enable_lead_phone']) && !empty($wpaicg_chat_widget['enable_lead_phone']) ? $wpaicg_chat_widget['enable_lead_phone'] : 0;
 
+// Check if the model name starts with 'asst_'
+$assistantEnabled = false;
+if (isset($wpaicg_chat_widget['model']) && strpos($wpaicg_chat_widget['model'], 'asst_') === 0) {
+    $assistantEnabled = true;
+}
 ?>
 <style>
     .wpaicg-icon-container {
@@ -524,11 +529,11 @@ border-radius: 10px;
         padding: 0;
         list-style: none;
     }
-    .wpaicg-chatbox-content ul li {
+    .wpaicg-chatbox-content ul .wpaicg-chat-user-message {
+        margin-left: auto; /* This pushes the user messages to the right */
+        background-color: <?php echo esc_html($wpaicg_user_bg_color)?>;
         color: <?php echo esc_html($wpaicg_chat_fontcolor)?>;
         font-size: <?php echo esc_html($wpaicg_chat_fontsize)?>px;
-        display: flex;
-        align-items: center;
         margin-bottom: 20px;
         margin-right: 10px;
         padding: 10px;
@@ -536,34 +541,26 @@ border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         width: fit-content;
     }
-    .wpaicg-chatbox-content ul li strong {
-        font-weight: bold;
-        margin-right: 5px;
-        float: left;
-        color: inherit;
+
+    .wpaicg-chatbox-content ul .wpaicg-chat-ai-message {
+        background-color: <?php echo esc_html($wpaicg_ai_bg_color)?>;
+        color: <?php echo esc_html($wpaicg_chat_fontcolor)?>;
+        font-size: <?php echo esc_html($wpaicg_chat_fontsize)?>px;
+        margin-bottom: 20px;
+        margin-right: 10px;
+        padding: 10px;
+        border-radius: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        width: fit-content;
     }
-    .wpaicg-chatbox-content ul li p {
-        font-size: inherit;
-        margin: 0;
-        padding: 0;
-    }
-    .wpaicg-chatbox-content ul li p:after {
-        clear: both;
-        display: block;
-    }
-    .wpaicg-chatbox-content ul .wpaicg-chat-user-message {
-        margin-left: auto; /* This pushes the user messages to the right */
-        background-color: <?php echo esc_html($wpaicg_user_bg_color)?>;
-    }
+
+
+
     .wpaicg_chat_widget_content .wpaicg-chat-ai-message .wpaicg-chat-message,
     .wpaicg_chat_widget_content .wpaicg-chat-user-message .wpaicg-chat-message {
         color: inherit;
     }
 
-    .wpaicg-chatbox-content ul li .wpaicg-chat-message {
-        color: inherit;
-        font-size: <?php echo esc_html($wpaicg_chat_fontsize)?>px;
-    }
 
     .wpaicg-chat-user-message{
         padding: 10px;
@@ -580,9 +577,7 @@ border-radius: 10px;
         color: <?php echo esc_html($wpaicg_thinking_color)?>;
         display: none;
     }
-    .wpaicg-chat-message {
-        line-height: auto;
-    }
+
     .wpaicg-jumping-dots span {
         position: relative;
         bottom: 0px;
@@ -710,7 +705,6 @@ border-radius: 10px;
         border-radius: 50%;
         font-weight: normal;
         padding: 0;
-        margin: 0;
     }
     .wpaicg-chatbox .wpaicg-pdf-loading{
         border-color: <?php echo esc_html($wpaicg_pdf_color)?>;
@@ -865,6 +859,7 @@ border-radius: 10px;
      data-bg_text_field = "<?php echo esc_html($wpaicg_bg_text_field)?>"
      data-bg_text_field_font_color = "<?php echo esc_html($wpaicg_input_font_color)?>"
      data-bg_text_field_border_color = "<?php echo esc_html($wpaicg_border_text_field)?>"
+     data-assistant-enabled="<?php echo esc_html($assistantEnabled ? 'true' : 'false'); ?>"
      data-type="widget"
 >
     <?php
@@ -938,12 +933,9 @@ border-radius: 10px;
             endif;
             ?>
             <li class="wpaicg-chat-ai-message">
-                <p>
-                    <strong style="float: left"><?php echo $wpaicg_use_avatar ? '<img src="'.$wpaicg_ai_avatar_url.'" height="40" width="40">' : esc_html($wpaicg_ai_name).':' ?></strong>
-                    <span class="wpaicg-chat-message">
-                        <?php echo esc_html(str_replace("\\",'',$wpaicg_welcome_message))?>
-                    </span>
-                </p>
+                <span class="wpaicg-chat-message">
+                    <?php echo esc_html(str_replace("\\",'',$wpaicg_welcome_message))?>
+                </span>
             </li>
         </ul>
     </div>

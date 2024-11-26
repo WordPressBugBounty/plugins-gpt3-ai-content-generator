@@ -1907,6 +1907,9 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                         switch ($provider) {
                             case 'OpenAI':
                                 update_option('wpaicg_chat_model', $sanitized_value);
+                                // Update the model value in $widget_options and save it back
+                                $widget_options['model'] = $sanitized_value;
+                                update_option('wpaicg_chat_widget', $widget_options);
                                 break;
                             case 'OpenRouter':
                                 update_option('wpaicg_widget_openrouter_model', $sanitized_value);
@@ -2160,8 +2163,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
          * AJAX handler to retrieve attachment URL based on attachment ID.
          */
         public function aipower_get_attachment_url() {
-            // error log all post data
-            // error_log(print_r($_POST, true));
             // Verify nonce
             if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
                 wp_send_json_error(array('message' => esc_html__('Nonce verification failed.', 'gpt3-ai-content-generator')));
@@ -2382,7 +2383,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
         public static function aipower_render_chatbot_table($paged = 1) {
             
             // Number of bots to display per page (excluding defaults)
-            $bots_per_page = 3;
+            $bots_per_page = 8;
         
             // Retrieve the default shortcode data from the options table
             $default_shortcode_serialized = get_option('wpaicg_chat_shortcode_options');
