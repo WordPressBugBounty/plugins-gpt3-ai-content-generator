@@ -58,16 +58,6 @@ function update_chat_options($option_name, $new_fields) {
 update_chat_options('wpaicg_chat_shortcode_options', $new_default_fields);
 update_chat_options('wpaicg_chat_widget', $new_default_fields);
 
-// Check and set ai_icon and ai_icon_url if conditions are met
-$chat_options = get_option('wpaicg_chat_shortcode_options');
-
-if (!empty($chat_options['use_avatar']) && $chat_options['use_avatar'] == 1 &&
-    !empty($chat_options['ai_avatar']) && $chat_options['ai_avatar'] == 'custom' &&
-    !empty($chat_options['ai_avatar_id'])) {
-    $chat_options['ai_icon'] = 'custom';
-    $chat_options['ai_icon_url'] = $chat_options['ai_avatar_id'];
-    update_option('wpaicg_chat_shortcode_options', $chat_options);
-}
 ?>
 <div class="aipower-dashboard-container">
     <!-- Top Navigation -->

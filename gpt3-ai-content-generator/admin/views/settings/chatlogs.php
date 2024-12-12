@@ -1,7 +1,6 @@
 <?php
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 ?>
-
 <!-- Main container for logs and preview -->
 <div class="aipower-chat-log-container">
 
@@ -41,13 +40,59 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
         <!-- Hidden nonce field for AJAX security -->
         <input type="hidden" id="ai-engine-nonce" value="<?php echo wp_create_nonce('wpaicg_save_ai_engine_nonce'); ?>" />
-
-        <!-- Render the logs table -->
         <?php
-        // Determine the current page from a query parameter or default to 1
         $current_log_page = isset($_GET['aipower_log_page']) ? intval($_GET['aipower_log_page']) : 1;
-        echo wp_kses_post(WPAICG\WPAICG_Logs::aipower_render_logs_table($current_log_page));
-        ?>
+        $table_data = WPAICG\WPAICG_Logs::aipower_render_logs_table($current_log_page);
+
+        // Extract leads and feedback arrays
+        $leads = $table_data['leads'];
+        $feedback = $table_data['feedback'];
+
+        $lead_count = count($leads);
+        $feedback_count = count($feedback);
+
+        // Determine singular/plural for leads
+        $lead_word = ($lead_count === 1) ? __('lead', 'gpt3-ai-content-generator') : __('leads', 'gpt3-ai-content-generator');
+        // Feedback is typically uncountable, we can leave it as 'feedback'
+        $feedback_word = __('feedback', 'gpt3-ai-content-generator');
+
+        $display_line = '';
+        if ($lead_count > 0 && $feedback_count > 0) {
+            // Both leads and feedback
+            $display_line = sprintf(
+                __('<p>You have <a href="#" id="aipower-leads-link">%d %s</a> and <a href="#" id="aipower-feedback-link">%d %s</a>.</p>', 'gpt3-ai-content-generator'),
+                $lead_count,
+                $lead_word,
+                $feedback_count,
+                $feedback_word
+            );
+        } elseif ($lead_count > 0 && $feedback_count == 0) {
+            // Only leads
+            $display_line = sprintf(
+                __('<p>You have <a href="#" id="aipower-leads-link">%d %s</a>.</p>', 'gpt3-ai-content-generator'),
+                $lead_count,
+                $lead_word
+            );
+        } elseif ($lead_count == 0 && $feedback_count > 0) {
+            // Only feedback
+            $display_line = sprintf(
+                __('<p>You have <a href="#" id="aipower-feedback-link">%d %s</a>.</p>', 'gpt3-ai-content-generator'),
+                $feedback_count,
+                $feedback_word
+            );
+        } else {
+            // No leads and no feedback
+            $display_line = '';
+        }
+
+        if (!empty($display_line)): ?>
+            <div id="aipower-lead-feedback-summary" style="margin-top:10px;">
+                <span id="aipower-lead-feedback-text"><?php echo wp_kses_post($display_line); ?></span>
+            </div>
+        <?php endif; ?>
+
+        <!-- Render the logs table below the summary line -->
+        <?php echo wp_kses_post($table_data['html']); ?>
     </div>
 
 
@@ -151,7 +196,37 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
     </div>
 </div>
 
+<!-- Leads Modal -->
+<div id="aipower-leads-modal" class="aipower-modal" style="display:none;">
+    <div class="aipower-modal-content">
+        <div class="aipower-modal-header">
+            <h2><?php echo esc_html__('Leads Details', 'gpt3-ai-content-generator'); ?></h2>
+            <span class="aipower-close">&times;</span>
+        </div>
+        <div class="aipower-modal-body">
+            <ul id="aipower-leads-list"></ul>
+        </div>
+        <div class="aipower-form-group">
+            <button id="aipower-leads-close" class="button button-primary"><?php echo esc_html__('Close', 'gpt3-ai-content-generator'); ?></button>
+        </div>
+    </div>
+</div>
 
+<!-- Feedback Modal -->
+<div id="aipower-feedback-modal" class="aipower-modal" style="display:none;">
+    <div class="aipower-modal-content">
+        <div class="aipower-modal-header">
+            <h2><?php echo esc_html__('Feedback Details', 'gpt3-ai-content-generator'); ?></h2>
+            <span class="aipower-close">&times;</span>
+        </div>
+        <div class="aipower-modal-body">
+            <ul id="aipower-feedback-list"></ul>
+        </div>
+        <div class="aipower-form-group">
+            <button id="aipower-feedback-close" class="button button-primary"><?php echo esc_html__('Close', 'gpt3-ai-content-generator'); ?></button>
+        </div>
+    </div>
+</div>
 <!-- Include JavaScript -->
 <script type="text/javascript">
 jQuery(document).ready(function($) {
@@ -231,7 +306,7 @@ jQuery(document).ready(function($) {
                 success: function(response) {
                     UI.hideSpinner();
                     if (response.success) {
-                        $logsTableContainer.html(response.data.table);
+                        $logsTableContainer.html(response.data.table.html);
                         UI.showMessage('success', response.data.message, true);
                     } else {
                         UI.showMessage('error', response.data.message, true);
@@ -262,7 +337,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 UI.hideSpinner();
                 if (response.success) {
-                    $logsTableContainer.html(response.data.table);
+                    $logsTableContainer.html(response.data.table.html);
                     UI.showMessage('success', response.data.message || 'Logs refreshed successfully.', true);
                 } else {
                     UI.showMessage('error', response.data.message || 'An error occurred while refreshing logs.', true);
@@ -324,7 +399,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 UI.hideSpinner();
                 if (response.success) {
-                    $logsTableContainer.html(response.data.table);
+                    $logsTableContainer.html(response.data.table.html);
                     UI.showMessage('success', response.data.message, true);
                 } else {
                     UI.showMessage('error', response.data.message, true);
@@ -916,5 +991,76 @@ jQuery(document).ready(function($) {
         }
     });
 
+});
+</script>
+
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    const leads = <?php echo wp_json_encode($leads); ?>;
+    const feedback = <?php echo wp_json_encode($feedback); ?>;
+
+    // Handle Leads link click
+    $(document).on('click', '#aipower-leads-link', function(e) {
+        e.preventDefault();
+        const $leadsList = $('#aipower-leads-list');
+        $leadsList.empty();
+
+        if (leads.length === 0) {
+            $leadsList.append('<li><?php echo esc_js(__('No leads available.', 'gpt3-ai-content-generator')); ?></li>');
+        } else {
+            leads.forEach(function(lead) {
+                const leadItem = `
+                    <li>
+                        <p><strong><?php echo esc_js(__('User Message:', 'gpt3-ai-content-generator')); ?></strong> ${lead.user_message}</p>
+                        <p><strong><?php echo esc_js(__('AI Response:', 'gpt3-ai-content-generator')); ?></strong> ${lead.ai_message ? lead.ai_message : '<?php echo esc_js(__('No AI response', 'gpt3-ai-content-generator')); ?>'}</p>
+                        <p class="aipower-timestamp">${lead.user_timestamp}</p>
+                        <p><strong><?php echo esc_js(__('Lead Info:', 'gpt3-ai-content-generator')); ?></strong></p>
+                        <p><span class="aipower-label"><?php echo esc_js(__('Name:', 'gpt3-ai-content-generator')); ?></span> ${lead.name ? lead.name : 'N/A'}</p>
+                        <p><span class="aipower-label"><?php echo esc_js(__('Email:', 'gpt3-ai-content-generator')); ?></span> ${lead.email ? lead.email : 'N/A'}</p>
+                        <p><span class="aipower-label"><?php echo esc_js(__('Phone:', 'gpt3-ai-content-generator')); ?></span> ${lead.phone ? lead.phone : 'N/A'}</p>
+                    </li>
+                `;
+                $leadsList.append(leadItem);
+            });
+        }
+
+        $('#aipower-leads-modal').fadeIn();
+    });
+
+    // Handle Feedback link click
+    $(document).on('click', '#aipower-feedback-link', function(e) {
+        e.preventDefault();
+        const $feedbackList = $('#aipower-feedback-list');
+        $feedbackList.empty();
+
+        if (feedback.length === 0) {
+            $feedbackList.append('<li><?php echo esc_js(__('No feedback available.', 'gpt3-ai-content-generator')); ?></li>');
+        } else {
+            feedback.forEach(function(fb) {
+                const icon = fb.feedback_type === 'up' ? '👍' : '👎';
+                const feedbackItem = `
+                    <li>
+                        <p><strong><?php echo esc_js(__('User Message:', 'gpt3-ai-content-generator')); ?></strong> ${fb.user_message}</p>
+                        <p class="aipower-timestamp"><?php echo esc_js(__('Sent at:', 'gpt3-ai-content-generator')); ?> ${fb.user_timestamp}</p>
+                        <p><strong><?php echo esc_js(__('AI Response:', 'gpt3-ai-content-generator')); ?></strong> ${fb.ai_message ? fb.ai_message : '<?php echo esc_js(__('No AI response', 'gpt3-ai-content-generator')); ?>'}</p>
+                        <p class="aipower-timestamp"><?php echo esc_js(__('AI Response at:', 'gpt3-ai-content-generator')); ?> ${fb.ai_timestamp}</p>
+                        <p><strong><?php echo esc_js(__('Feedback:', 'gpt3-ai-content-generator')); ?></strong> <span class="aipower-feedback-icon">${icon}</span> ${fb.feedback_details}</p>
+                    </li>
+                `;
+                $feedbackList.append(feedbackItem);
+            });
+        }
+
+        $('#aipower-feedback-modal').fadeIn();
+    });
+
+    // Close modals
+    $('#aipower-leads-close, #aipower-leads-modal .aipower-close').on('click', function() {
+        $('#aipower-leads-modal').fadeOut();
+    });
+
+    $('#aipower-feedback-close, #aipower-feedback-modal .aipower-close').on('click', function() {
+        $('#aipower-feedback-modal').fadeOut();
+    });
 });
 </script>

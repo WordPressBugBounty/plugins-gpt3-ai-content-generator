@@ -104,18 +104,20 @@ $wpaicg_search_loading_color = get_option('wpaicg_search_loading_color', '#ccccc
             <h2><?php echo esc_html__('Custom Prompt for Comment Replier', 'gpt3-ai-content-generator'); ?></h2>
             <span class="aipower-close">&times;</span>
         </div>
+        <p><?php echo esc_html__('You can customize the prompt that is used to generate a response to a comment.', 'gpt3-ai-content-generator'); ?></p>
         <div class="aipower-modal-body">
-            <!-- Comment Prompt Section -->
-            <div class="aipower-form-group">
-                <label for="wpaicg_comment_prompt"><?php echo esc_html__('Prompt for Comment Replier ', 'gpt3-ai-content-generator'); ?>
-                </label>
-                <textarea rows="10" type="text" name="wpaicg_comment_prompt" id="aipower_comment_prompt" data-default-prompt="<?php echo esc_attr($wpaicg_default_comment_prompt); ?>"><?php echo esc_html(str_replace("\\",'',$wpaicg_comment_prompt));?></textarea>
-                <p><?php echo sprintf(esc_html__('Ensure %s, %s, %s, %s, and %s are included in your prompt.', 'gpt3-ai-content-generator'), '<code>[username]</code>', '<code>[post_title]</code>', '<code>[post_excerpt]</code>', '<code>[last_comment]</code>', '<code>[parent_comments]</code>');?></p>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Comment Prompt Section -->
+                <div class="aipower-form-group">
+                    <textarea rows="10" type="text" name="wpaicg_comment_prompt" id="aipower_comment_prompt" data-default-prompt="<?php echo esc_attr($wpaicg_default_comment_prompt); ?>"><?php echo esc_html(str_replace("\\",'',$wpaicg_comment_prompt));?></textarea>
+                    <p><?php echo sprintf(esc_html__('Ensure %s, %s, %s, %s, and %s are included in your prompt.', 'gpt3-ai-content-generator'), '<code>[username]</code>', '<code>[post_title]</code>', '<code>[post_excerpt]</code>', '<code>[last_comment]</code>', '<code>[parent_comments]</code>');?></p>
+                </div>
             </div>
-
-            <!-- Reset Button -->
-            <div class="aipower-settings-buttons">
-                <button type="button" class="aipower-button reset-button" id="reset_comment_prompt"><?php echo esc_html__('Reset to Default', 'gpt3-ai-content-generator'); ?></button>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Reset Button -->
+                <div class="aipower-settings-buttons">
+                    <button type="button" class="aipower-button reset-button" id="reset_comment_prompt"><?php echo esc_html__('Reset', 'gpt3-ai-content-generator'); ?></button>
+                </div>
             </div>
         </div>
     </div>
@@ -132,13 +134,15 @@ $wpaicg_search_loading_color = get_option('wpaicg_search_loading_color', '#ccccc
             <p><?php echo wp_kses(__('Insert this code where you want the search box: <code>[wpaicg_search]</code>', 'gpt3-ai-content-generator'), array('code' => array())); ?></p>
             <!-- Search Settings Section -->
             <h3><?php echo esc_html__('Search Box', 'gpt3-ai-content-generator'); ?></h3>
-            <div class="aipower-form-group">
-                <label for="wpaicg_search_placeholder" style="font-weight: normal;"><?php echo esc_html__('Placeholder', 'gpt3-ai-content-generator'); ?></label>
-                <input type="text" name="wpaicg_search_placeholder" id="aipower_search_placeholder" value="<?php echo esc_html($wpaicg_search_placeholder); ?>">
+            <div class="aipower-form-group aipower-grouped-fields">
+                <div class="aipower-form-group">
+                    <label for="aipower_search_placeholder"><?php echo esc_html__('Placeholder', 'gpt3-ai-content-generator'); ?></label>
+                    <input type="text" name="wpaicg_search_placeholder" id="aipower_search_placeholder" value="<?php echo esc_html($wpaicg_search_placeholder); ?>">
+                </div>
             </div>
             <div class="aipower-form-group aipower-grouped-fields">
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_font_size"><?php echo esc_html__('Font Size', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_font_size"><?php echo esc_html__('Font Size', 'gpt3-ai-content-generator'); ?></label>
                     <select name="wpaicg_search_font_size" id="aipower_search_font_size">
                         <?php for($i = 10; $i <= 30; $i++) { ?>
                             <option value="<?php echo esc_html($i); ?>" <?php echo ($wpaicg_search_font_size == $i ? 'selected' : ''); ?>><?php echo esc_html($i); ?></option>
@@ -146,23 +150,23 @@ $wpaicg_search_loading_color = get_option('wpaicg_search_loading_color', '#ccccc
                     </select>
                 </div>
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_font_color"><?php echo esc_html__('Font Color', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_font_color"><?php echo esc_html__('Font Color', 'gpt3-ai-content-generator'); ?></label>
                     <input type="color" name="wpaicg_search_font_color" id="aipower_search_font_color" value="<?php echo esc_html($wpaicg_search_font_color); ?>">
                 </div>
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_border_color"><?php echo esc_html__('Border Color', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_border_color"><?php echo esc_html__('Border Color', 'gpt3-ai-content-generator'); ?></label>
                     <input type="color" name="wpaicg_search_border_color" id="aipower_search_border_color" value="<?php echo esc_html($wpaicg_search_border_color); ?>">
                 </div>
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_bg_color"><?php echo esc_html__('Background', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_bg_color"><?php echo esc_html__('Background', 'gpt3-ai-content-generator'); ?></label>
                     <input type="color" name="wpaicg_search_bg_color" id="aipower_search_bg_color" value="<?php echo esc_html($wpaicg_search_bg_color); ?>">
                 </div>
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_width"><?php echo esc_html__('Width', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_width"><?php echo esc_html__('Width', 'gpt3-ai-content-generator'); ?></label>
                     <input type="text" name="wpaicg_search_width" id="aipower_search_width" value="<?php echo esc_html($wpaicg_search_width); ?>">
                 </div>
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_height"><?php echo esc_html__('Height', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_height"><?php echo esc_html__('Height', 'gpt3-ai-content-generator'); ?></label>
                     <input type="text" name="wpaicg_search_height" id="aipower_search_height" value="<?php echo esc_html($wpaicg_search_height); ?>">
                 </div>
             </div>
@@ -170,7 +174,7 @@ $wpaicg_search_loading_color = get_option('wpaicg_search_loading_color', '#ccccc
             <h3><?php echo esc_html__('Search Results', 'gpt3-ai-content-generator'); ?></h3>
             <div class="aipower-form-group aipower-grouped-fields">
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_no_result"><?php echo esc_html__('Nr. of Results', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_no_result"><?php echo esc_html__('Nr. of Results', 'gpt3-ai-content-generator'); ?></label>
                     <select name="wpaicg_search_no_result" id="aipower_search_no_result">
                         <?php for($i = 1; $i <= 5; $i++) { ?>
                             <option value="<?php echo esc_html($i); ?>" <?php echo ($wpaicg_search_no_result == $i ? 'selected' : ''); ?>><?php echo esc_html($i); ?></option>
@@ -178,7 +182,7 @@ $wpaicg_search_loading_color = get_option('wpaicg_search_loading_color', '#ccccc
                     </select>
                 </div>
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_result_font_size"><?php echo esc_html__('Font Size', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_result_font_size"><?php echo esc_html__('Font Size', 'gpt3-ai-content-generator'); ?></label>
                     <select name="wpaicg_search_result_font_size" id="aipower_search_result_font_size">
                         <?php for($i = 10; $i <= 30; $i++) { ?>
                             <option value="<?php echo esc_html($i); ?>" <?php echo ($wpaicg_search_result_font_size == $i ? 'selected' : ''); ?>><?php echo esc_html($i); ?></option>
@@ -186,15 +190,15 @@ $wpaicg_search_loading_color = get_option('wpaicg_search_loading_color', '#ccccc
                     </select>
                 </div>
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_result_font_color"><?php echo esc_html__('Font Color', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_result_font_color"><?php echo esc_html__('Font Color', 'gpt3-ai-content-generator'); ?></label>
                     <input type="color" name="wpaicg_search_result_font_color" id="aipower_search_result_font_color" value="<?php echo esc_html($wpaicg_search_result_font_color); ?>">
                 </div>
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_result_bg_color"><?php echo esc_html__('Background', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_result_bg_color"><?php echo esc_html__('Background', 'gpt3-ai-content-generator'); ?></label>
                     <input type="color" name="wpaicg_search_result_bg_color" id="aipower_search_result_bg_color" value="<?php echo esc_html($wpaicg_search_result_bg_color); ?>">
                 </div>
                 <div class="aipower-form-group">
-                    <label for="wpaicg_search_loading_color"><?php echo esc_html__('Progress Color', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_search_loading_color"><?php echo esc_html__('Progress Color', 'gpt3-ai-content-generator'); ?></label>
                     <input type="color" name="wpaicg_search_loading_color" id="aipower_search_loading_color" value="<?php echo esc_html($wpaicg_search_loading_color); ?>">
                 </div>
             </div>

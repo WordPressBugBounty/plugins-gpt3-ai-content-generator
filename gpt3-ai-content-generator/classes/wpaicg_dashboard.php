@@ -427,9 +427,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'chat_addition' => ['option_name' => 'wpaicg_chat_addition', 'default' => '0'],
                     'chat_addition_text' => ['option_name' => 'wpaicg_chat_addition_text', 'default' => ''],
                     'openai_stream_nav' => ['option_name' => 'wpaicg_widget_stream', 'default' => '0'],
-                    'you' => ['option_name' => '_wpaicg_chatbox_you', 'default' => 'You'],
-                    'welcome' => ['option_name' => '_wpaicg_chatbox_welcome_message', 'default' => 'Hello, how can I help you today?'],
-                    'ai_name' => ['option_name' => '_wpaicg_chatbox_ai_name', 'default' => 'AI'],
+                    'welcome' => ['option_name' => '_wpaicg_chatbox_welcome_message', 'default' => 'Hello 👋, how can I help you today?'],
                     'temperature' => ['option_name' => 'wpaicg_chat_temperature', 'default' => '1'],
                     'max_tokens' => ['option_name' => 'wpaicg_chat_max_tokens', 'default' => '1500'],
                     'presence_penalty' => ['option_name' => 'wpaicg_chat_presence_penalty', 'default' => '0'],
@@ -537,21 +535,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 } else {
                     // If 'icon' is not 'custom', ensure 'icon_url' is empty
                     $bot_data['icon_url'] = '';
-                }
-
-                // Ensure 'use_avatar' and 'ai_avatar_id' are present and valid
-                if (isset($bot_data['use_avatar'])) {
-                    $bot_data['use_avatar'] = in_array($bot_data['use_avatar'], array('0', '1'), true) ? $bot_data['use_avatar'] : '0';
-                } else {
-                    $bot_data['use_avatar'] = '0'; // Default value
-                }
-
-                if ($bot_data['use_avatar'] === '1') {
-                    if (empty($bot_data['ai_avatar_id']) || !wp_attachment_is_image($bot_data['ai_avatar_id'])) {
-                        $bot_data['ai_avatar_id'] = ''; // Reset if invalid
-                    }
-                } else {
-                    $bot_data['ai_avatar_id'] = ''; // Clear if not using avatar
                 }
 
                 // Combine 'voice_language' and 'voice_name' into 'voice_language'**
@@ -868,16 +851,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'sanitize_callback' => array($this, 'sanitize_checkbox'),
                     'type' => 'post_content' // Stored in post_content JSON
                 ),
-                'ai_name' => array(
-                    'required' => false,
-                    'sanitize_callback' => 'sanitize_text_field',
-                    'type' => 'post_content' // Stored in post_content JSON
-                ),
-                'you' => array(
-                    'required' => false,
-                    'sanitize_callback' => 'sanitize_text_field',
-                    'type' => 'post_content' // Stored in post_content JSON
-                ),
                 'welcome' => array(
                     'required' => false,
                     'sanitize_callback' => 'sanitize_text_field',
@@ -912,18 +885,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 'icon_url' => array(
                     'required' => false,
                     'validate_callback' => array($this, 'validate_icon_url'),
-                    'sanitize_callback' => 'sanitize_text_field', // Sanitization function
-                    'type' => 'post_content' // Stored in post_content JSON
-                ),
-                'use_avatar' => array(
-                    'required' => false,
-                    'validate_callback' => array($this, 'validate_use_avatar'),
-                    'sanitize_callback' => 'sanitize_text_field', // Sanitization function
-                    'type' => 'post_content' // Stored in post_content JSON
-                ),
-                'ai_avatar_id' => array(
-                    'required' => false,
-                    'validate_callback' => array($this, 'validate_ai_avatar_id'),
                     'sanitize_callback' => 'sanitize_text_field', // Sanitization function
                     'type' => 'post_content' // Stored in post_content JSON
                 ),
@@ -1189,7 +1150,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'placeholder',
                     'top_p',
                     'openai_stream_nav',
-                    'ai_name',
                     'chat_addition',
                     'chat_addition_text',
                     'welcome',
@@ -1244,7 +1204,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 // Initialize the JSON structure with 'id' set to the new post ID
                 $bot_data = array(
                     "icon_url" => "",
-                    "ai_avatar_id" => "",
                     "id" => strval($post_id), // Cast to string
                     "name" => $value,
                     "type" => "shortcode",
@@ -1271,7 +1230,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     "footer_font_color" => "#FFFFFF",
                     "bar_color" => "#FFFFFF",
                     "thinking_color" => "#CED4DA",
-                    "ai_avatar" => "default",
                     "icon" => "default",
                     "delay_time" => "",
                     "provider" => "OpenAI",
@@ -1296,9 +1254,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'copy_btn' => '1',
                     'feedback_btn' => '1',
                     'close_btn' => '1',
-                    "welcome" => "Hello, how can I help you today?",
-                    "ai_name" => "AI",
-                    "you" => "User",
+                    "welcome" => "Hello 👋, how can I help you today?",
                     "ai_thinking" => "Gathering thoughts",
                     "placeholder" => "Type your message here...",
                     "no_answer" => "",
@@ -1533,30 +1489,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                         }
                     }
 
-                    // Special handling for 'ai_avatar_id' field
-                    if ($field === 'ai_avatar_id') {
-                        if (!empty($value)) {
-                            $bot_data['ai_avatar'] = 'custom'; // Set to custom if 'ai_avatar_id' has a value
-                        } else {
-                            $bot_data['ai_avatar'] = 'default'; // Set to default if 'ai_avatar_id' is empty
-                        }
-                        if ($bot_data['use_avatar'] === '1') {
-                            if (empty($value)) {
-                                wp_send_json_error(array('message' => esc_html__('AI Avatar ID is required when using a custom avatar.', 'gpt3-ai-content-generator')));
-                                return;
-                            }
-
-                            // Validate that the attachment ID exists and is an image
-                            if (!wp_attachment_is_image($value)) {
-                                wp_send_json_error(array('message' => esc_html__('Invalid AI Avatar ID or not an image.', 'gpt3-ai-content-generator')));
-                                return;
-                            }
-                        } else {
-                            // If 'use_avatar' is not '1', ensure 'ai_avatar_id' is empty
-                            $bot_data['ai_avatar_id'] = '';
-                        }
-                    }
-
                     // Set Google language and voice name based on the 'voice_language' field
                     if ($field === 'voice_language') {
                         // Split the value by the '|' delimiter
@@ -1655,30 +1587,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                         }
                     }
 
-                    // Special handling for 'ai_avatar_id' field
-                    if ($field === 'ai_avatar_id') {
-                        if (!empty($sanitized_value)) {
-                            $bot_data['ai_avatar'] = 'custom'; // Set to custom if 'ai_avatar_id' has a value
-                        } else {
-                            $bot_data['ai_avatar'] = 'default'; // Set to default if 'ai_avatar_id' is empty
-                        }
-                        if (isset($bot_data['use_avatar']) && $bot_data['use_avatar'] === '1') {
-                            if (empty($sanitized_value)) {
-                                wp_send_json_error(array('message' => esc_html__('AI Avatar ID is required when using a custom avatar.', 'gpt3-ai-content-generator')));
-                                return;
-                            }
-
-                            // Validate that the attachment ID exists and is an image
-                            if (!wp_attachment_is_image($sanitized_value)) {
-                                wp_send_json_error(array('message' => esc_html__('Invalid AI Avatar ID or not an image.', 'gpt3-ai-content-generator')));
-                                return;
-                            }
-                        } else {
-                            // If 'use_avatar' is not '1', ensure 'ai_avatar_id' is empty
-                            $bot_data['ai_avatar_id'] = '';
-                        }
-                    }
-        
                     // Update the option in the database
                     update_option($option_key, $bot_data);
         
@@ -1880,7 +1788,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'chat_addition_text' => 'wpaicg_chat_addition_text',
                     'openai_stream_nav' => 'wpaicg_widget_stream',
                     'welcome' => '_wpaicg_chatbox_welcome_message',
-                    'ai_name' => '_wpaicg_chatbox_ai_name',
                     'temperature' => 'wpaicg_chat_temperature',
                     'max_tokens' => 'wpaicg_chat_max_tokens',
                     'presence_penalty' => 'wpaicg_chat_presence_penalty',
@@ -1973,25 +1880,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 $sanitized_roles[$role] = $sanitized_limit;
             }
             return $sanitized_roles;
-        }
-        /**
-         * Validation function for use_avatar
-         */
-        public function validate_use_avatar($value) {
-            return in_array($value, array('0', '1'), true);
-        }
-
-        /**
-         * Validation function for ai_avatar_id
-         */
-        public function validate_ai_avatar_id($value) {
-            if (empty($value)) {
-                // If use_avatar is '0', ai_avatar_id can be empty
-                return true;
-            }
-
-            // Validate that the attachment ID exists and is an image
-            return wp_attachment_is_image($value);
         }
 
         /**

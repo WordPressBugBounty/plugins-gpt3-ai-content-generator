@@ -141,10 +141,10 @@ $cta_positions = [
         <div class="aipower-form-group">
             <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                 <input type="checkbox" id="aipower-add-faq" name="wpai_add_faq" value="1" <?php checked(1, $current_qa); ?>>
-                <label for="wpai_add_faq"><?php echo esc_html__('Generate Q & A', 'gpt3-ai-content-generator'); ?></label>
+                <label for="aipower-add-faq"><?php echo esc_html__('Generate Q & A', 'gpt3-ai-content-generator'); ?></label>
             <?php else: ?>
                 <input type="checkbox" value="0" disabled name="wpai_add_faq_disabled">
-                <label for="wpai_add_faq"><?php echo esc_html__('Generate Q & A', 'gpt3-ai-content-generator'); ?></label>
+                <label for="aipower-add-faq"><?php echo esc_html__('Generate Q & A', 'gpt3-ai-content-generator'); ?></label>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipower-pro-feature-label"><?php echo esc_html__('Pro', 'gpt3-ai-content-generator'); ?></a>
             <?php endif; ?>
         </div>
@@ -167,6 +167,7 @@ $cta_positions = [
             <h2><?php echo esc_html__('Writing Settings', 'gpt3-ai-content-generator'); ?></h2>
             <span class="aipower-close">&times;</span>
         </div>
+        <p><?php echo esc_html__('If Custom Prompt is enabled, the settings below will be ignored.', 'gpt3-ai-content-generator'); ?></p>
         <div class="aipower-form-group aipower-grouped-fields">
             <!-- Language Dropdown -->
             <div class="aipower-form-group">
@@ -281,9 +282,25 @@ $cta_positions = [
         </div>
         <div class="aipower-modal-body">
             <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Hide Title Option -->
+                <div class="aipower-form-group">
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="aipower_hide_introduction" 
+                                name="aipower_hide_introduction" 
+                                value="1" 
+                                <?php checked(1, $current_hide_introduction); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-general-switch-label" for="aipower_hide_introduction"><?php echo esc_html__('Hide Introduction Title', 'gpt3-ai-content-generator'); ?></label>
+                    </div>
+                </div>
                 <!-- Introduction Title Tag -->
                 <div class="aipower-form-group">
-                    <label for="aipower_intro_title_tag"><?php echo esc_html__('Tag', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="aipower_intro_title_tag"><?php echo esc_html__('Introduction Tag', 'gpt3-ai-content-generator'); ?></label>
                     <select id="aipower_intro_title_tag" name="aipower_intro_title_tag">
                         <?php foreach ($heading_tags as $tag): ?>
                             <option value="<?php echo esc_attr($tag); ?>" <?php echo $tag === $current_intro_title_tag ? 'selected' : ''; ?>>
@@ -291,12 +308,6 @@ $cta_positions = [
                             </option>
                         <?php endforeach; ?>
                     </select>
-                </div>
-
-                <!-- Hide Title Option -->
-                <div class="aipower-form-group">
-                    <label for="aipower_hide_introduction"><?php echo esc_html__('Hide Title', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="checkbox" id="aipower_hide_introduction" name="aipower_hide_introduction" value="1" <?php checked(1, $current_hide_introduction); ?>>
                 </div>
             </div>
         </div>
@@ -311,9 +322,25 @@ $cta_positions = [
         </div>
         <div class="aipower-modal-body">
             <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Hide Conclusion Option -->
+                <div class="aipower-form-group">
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="wpaicg_hide_conclusion" 
+                                name="wpaicg_hide_conclusion" 
+                                value="1" 
+                                <?php checked(1, $current_hide_conclusion); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-general-switch-label" for="wpaicg_hide_conclusion"><?php echo esc_html__('Hide Conclusion Title', 'gpt3-ai-content-generator'); ?></label>
+                    </div>
+                </div>
                 <!-- Conclusion Title Tag -->
                 <div class="aipower-form-group">
-                    <label for="wpaicg_conclusion_title_tag"><?php echo esc_html__('Tag', 'gpt3-ai-content-generator'); ?></label>
+                    <label for="wpaicg_conclusion_title_tag"><?php echo esc_html__('Conclusion Tag', 'gpt3-ai-content-generator'); ?></label>
                     <select id="wpaicg_conclusion_title_tag" name="wpaicg_conclusion_title_tag">
                         <?php foreach ($heading_tags as $tag): ?>
                             <option value="<?php echo esc_attr($tag); ?>" <?php selected($tag, $current_conclusion_title_tag); ?>>
@@ -321,12 +348,6 @@ $cta_positions = [
                             </option>
                         <?php endforeach; ?>
                     </select>
-                </div>
-
-                <!-- Hide Title Option -->
-                <div class="aipower-form-group">
-                    <label for="wpaicg_hide_conclusion"><?php echo esc_html__('Hide Title', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="checkbox" id="wpaicg_hide_conclusion" name="wpaicg_hide_conclusion" value="1" <?php checked(1, $current_hide_conclusion); ?>>
                 </div>
             </div>
         </div>
@@ -339,21 +360,24 @@ $cta_positions = [
             <h2><?php echo esc_html__('Custom Prompt for Express Mode', 'gpt3-ai-content-generator'); ?></h2>
             <span class="aipower-close">&times;</span>
         </div>
+        <p><?php echo esc_html__('You can customize the prompt used for generating content in Express Mode.', 'gpt3-ai-content-generator'); ?></p>
         <div class="aipower-modal-body">
-            <!-- Custom Prompt Textarea -->
-            <div class="aipower-form-group">
-                <textarea
-                    rows="15"
-                    id="aipower_custom_prompt"
-                    name="wpaicg_content_custom_prompt"
-                    data-default="<?php echo esc_attr($default_custom_prompt); ?>"
-                    placeholder="<?php echo esc_attr__('Enter your custom prompt here...', 'gpt3-ai-content-generator'); ?>"
-                ><?php echo esc_textarea(wp_unslash($current_custom_prompt)); ?></textarea>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Custom Prompt Textarea -->
+                <div class="aipower-form-group">
+                    <textarea
+                        rows="15"
+                        id="aipower_custom_prompt"
+                        name="wpaicg_content_custom_prompt"
+                        data-default="<?php echo esc_attr($default_custom_prompt); ?>"
+                        placeholder="<?php echo esc_attr__('Enter your custom prompt here...', 'gpt3-ai-content-generator'); ?>"
+                    ><?php echo esc_textarea(wp_unslash($current_custom_prompt)); ?></textarea>
+                </div>
             </div>
 
             <!-- Explanation Text and Reset Button -->
-            <div class="aipower-custom-prompt-footer">
-                <div class="aipower-custom-prompt-explanation">
+            <div class="aipower-form-group aipower-grouped-fields">
+                <div class="aipower-form-group">
                     <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                         <?php
                             echo sprintf(
@@ -378,9 +402,13 @@ $cta_positions = [
                         ?>
                     <?php endif; ?>
                 </div>
-                <button type="button" id="reset_custom_prompt" class="aipower-button reset-button">
-                    <?php echo esc_html__('Reset', 'gpt3-ai-content-generator'); ?>
-                </button>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <div class="aipower-form-group">
+                    <button type="button" id="reset_custom_prompt" class="aipower-button reset-button">
+                        <?php echo esc_html__('Reset', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

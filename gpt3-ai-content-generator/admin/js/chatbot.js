@@ -609,26 +609,6 @@ jQuery(document).ready(function ($) {
             }
         },
         {
-            name: 'ai_name',
-            selector: '#aipower-ai-name',
-            type: 'text',
-            label: 'AI Name',
-            required: false,
-            saveOn: 'change',
-            ajaxAction: 'aipower_save_field',
-            defaultValue: 'AI'
-        },
-        {
-            name: 'you',
-            selector: '#aipower-user-name',
-            type: 'text',
-            label: 'You',
-            required: false,
-            saveOn: 'change',
-            ajaxAction: 'aipower_save_field',
-            defaultValue: 'User'
-        },
-        {
             name: 'welcome',
             selector: '#aipower-welcome-message',
             type: 'text',
@@ -636,7 +616,7 @@ jQuery(document).ready(function ($) {
             required: false,
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
-            defaultValue: 'Hello, how can I help you today?'
+            defaultValue: 'Hello 👋, how can I help you today?'
         },
         {
             name: 'ai_thinking',
@@ -1149,7 +1129,8 @@ jQuery(document).ready(function ($) {
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
             defaultValue: 'default',
-            visibility: {
+            visibility:
+                {
                 dependsOn: 'type',
                 showWhen: 'widget'
             },
@@ -1165,37 +1146,14 @@ jQuery(document).ready(function ($) {
             required: false,
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
-            visibility: {
+            visibility: [{
                 dependsOn: 'icon',
                 showWhen: 'custom' // Show only when 'icon' is 'custom'
-            }
-        },
-        {
-            name: 'use_avatar',
-            selector: 'input[name="use_avatar"]',
-            type: 'radio',
-            label: 'Use Avatar',
-            required: false,
-            saveOn: 'change',
-            ajaxAction: 'aipower_save_field',
-            defaultValue: '0',
-            validate_callback: function(value) {
-                return ['0', '1'].includes(value);
             },
-        },
-        {
-            name: 'ai_avatar_id',
-            selector: '#aipower-ai-avatar-id',
-            type: 'hidden',
-            label: 'AI Avatar ID',
-            required: false,
-            saveOn: 'change',
-            ajaxAction: 'aipower_save_field',
-            defaultValue: '',
-            visibility: {
-                dependsOn: 'use_avatar',
-                showWhen: '1' // Show only when 'use_avatar' is '1'
-            },
+            {
+                dependsOn: 'type',
+                showWhen: 'widget'
+            }]
         },
         {
             name: 'audio_enable',
@@ -2741,7 +2699,7 @@ jQuery(document).ready(function ($) {
     });
     
     /**
-     * Loads and displays a custom attachment (icon/avatar) preview.
+     * Loads and displays a custom attachment (icon) preview.
      *
      * @param {boolean} isCustom - Determines if a custom attachment should be loaded.
      * @param {string|number} attachmentId - The ID of the attachment to load.
@@ -2897,19 +2855,12 @@ jQuery(document).ready(function ($) {
                 $('.aipower-accordion-btn').first().addClass('active');
                 $('.aipower-accordion-panel').first().show();
 
-                // **NEW CODE: Display custom icon and avatar thumbnails if set to 'custom' and 'use_avatar' is enabled **
+                // **NEW CODE: Display custom icon thumbnails if set to 'custom'**
                 loadCustomPreview(
                     botData.icon === 'custom',
                     botData.icon_url,
                     '#aipower-icon-preview',
                     'Failed to load the custom icon.'
-                );
-
-                loadCustomPreview(
-                    botData.use_avatar === '1',
-                    botData.ai_avatar_id,
-                    '#aipower-avatar-preview',
-                    'Failed to load the custom avatar.'
                 );
 
                 // Skip message if silent mode is active
@@ -3345,16 +3296,6 @@ jQuery(document).ready(function ($) {
         hiddenFieldSelector: '#aipower-icon-url',
         previewSelector: '#aipower-icon-preview',
         fieldName: 'icon_url'
-    });
-
-    // Set up the AI Avatar Uploader
-    setupMediaUploader({
-        buttonSelector: '#aipower-avatar-upload-button',
-        title: 'Select AI Avatar',
-        buttonText: 'Use this avatar',
-        hiddenFieldSelector: '#aipower-ai-avatar-id',
-        previewSelector: '#aipower-avatar-preview',
-        fieldName: 'ai_avatar_id'
     });
 
     // Function to update the main Speech switch based on the modal switches

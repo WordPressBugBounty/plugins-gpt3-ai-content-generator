@@ -26,7 +26,6 @@ if (!isset($wpaicg_chat_widget['custom_loaded']) && !isset($wpaicg_chat_widget['
         }
     }
 }
-$wpaicg_ai_name = get_option('_wpaicg_chatbox_ai_name','');
 $wpaicg_stream_nav_setting = get_option('wpaicg_widget_stream', '0'); // Default to '1' if not set
 $wpaicg_conversation_starters_widget_json = get_option('wpaicg_conversation_starters_widget', '');
 $wpaicg_conversation_starters_widget = !empty($wpaicg_conversation_starters_widget_json) ? json_decode($wpaicg_conversation_starters_widget_json, true) : [];
@@ -51,7 +50,6 @@ if($wpaicg_bot_content && isset($wpaicg_bot_content->post_id)){
         $wpaicg_you = isset($wpaicg_chat_widget['you']) && !empty($wpaicg_chat_widget['you']) ? $wpaicg_chat_widget['you'] : $wpaicg_you;
         $wpaicg_typing_placeholder = isset($wpaicg_chat_widget['placeholder']) && !empty($wpaicg_chat_widget['placeholder']) ? $wpaicg_chat_widget['placeholder'] : $wpaicg_typing_placeholder;
         $wpaicg_welcome_message = isset($wpaicg_chat_widget['welcome']) && !empty($wpaicg_chat_widget['welcome']) ? $wpaicg_chat_widget['welcome'] : $wpaicg_welcome_message;
-        $wpaicg_ai_name = isset($wpaicg_chat_widget['ai_name']) && !empty($wpaicg_chat_widget['ai_name']) ? $wpaicg_chat_widget['ai_name'] : $wpaicg_ai_name;
         $wpaicg_ai_thinking = isset($wpaicg_chat_widget['ai_thinking']) && !empty($wpaicg_chat_widget['ai_thinking']) ? $wpaicg_chat_widget['ai_thinking'] : $wpaicg_ai_thinking;
         $wpaicg_stream_nav_setting = isset($wpaicg_chat_widget['openai_stream_nav']) && !empty($wpaicg_chat_widget['openai_stream_nav']) ? $wpaicg_chat_widget['openai_stream_nav'] : '0';
         $wpaicg_conversation_cut = isset($wpaicg_chat_widget['conversation_cut']) && !empty($wpaicg_chat_widget['conversation_cut']) ? $wpaicg_chat_widget['conversation_cut'] : '100';
@@ -74,12 +72,10 @@ if($wpaicg_bot_content && isset($wpaicg_bot_content->post_id)){
 $wpaicg_chat_widget_width = isset($wpaicg_chat_widget['width']) && !empty($wpaicg_chat_widget['width']) ? $wpaicg_chat_widget['width'] : '30%';
 $wpaicg_chat_widget_height = isset($wpaicg_chat_widget['height']) && !empty($wpaicg_chat_widget['height']) ? $wpaicg_chat_widget['height'] : '40%';
 /*End check*/
-$wpaicg_ai_name = !empty($wpaicg_ai_name) ? $wpaicg_ai_name : esc_html__('AI','gpt3-ai-content-generator');
 $wpaicg_ai_thinking = !empty($wpaicg_ai_thinking) ? $wpaicg_ai_thinking : esc_html__('AI thinking','gpt3-ai-content-generator');
-$wpaicg_you = !empty($wpaicg_you) ? $wpaicg_you : esc_html__('You','gpt3-ai-content-generator');
 $wpaicg_typing_placeholder = !empty($wpaicg_typing_placeholder) ? $wpaicg_typing_placeholder : esc_html__('Type a message','gpt3-ai-content-generator');
 $wpaicg_chat_content_aware = isset($wpaicg_chat_widget['content_aware']) && !empty($wpaicg_chat_widget['content_aware']) ? $wpaicg_chat_widget['content_aware'] : 'yes';
-$wpaicg_welcome_message = !empty($wpaicg_welcome_message) ? $wpaicg_welcome_message : 'Hello, how can I help you today?';
+$wpaicg_welcome_message = !empty($wpaicg_welcome_message) ? $wpaicg_welcome_message : 'Hello 👋, how can I help you today?';
 $wpaicg_user_bg_color = isset($wpaicg_chat_widget['user_bg_color']) && !empty($wpaicg_chat_widget['user_bg_color']) ? $wpaicg_chat_widget['user_bg_color'] : '#444654';
 $wpaicg_ai_bg_color = isset($wpaicg_chat_widget['ai_bg_color']) && !empty($wpaicg_chat_widget['ai_bg_color']) ? $wpaicg_chat_widget['ai_bg_color'] : '#343541';
 $wpaicg_bg_text_field = isset($wpaicg_chat_widget['bg_text_field']) && !empty($wpaicg_chat_widget['bg_text_field']) ? $wpaicg_chat_widget['bg_text_field'] : '#ffffff';
@@ -87,14 +83,7 @@ $wpaicg_border_text_field = isset($wpaicg_chat_widget['border_text_field']) && !
 $wpaicg_send_color = isset($wpaicg_chat_widget['send_color']) && !empty($wpaicg_chat_widget['send_color']) ? $wpaicg_chat_widget['send_color'] : '#d1e8ff';
 $wpaicg_footer_color = isset($wpaicg_chat_widget['footer_color']) && !empty($wpaicg_chat_widget['footer_color']) ? $wpaicg_chat_widget['footer_color'] : '#ffffff';
 $wpaicg_footer_font_color = isset($wpaicg_chat_widget['footer_font_color']) && !empty($wpaicg_chat_widget['footer_font_color']) ? $wpaicg_chat_widget['footer_font_color'] : '#495057';
-$wpaicg_use_avatar = isset($wpaicg_chat_widget['use_avatar']) && !empty($wpaicg_chat_widget['use_avatar']) ? $wpaicg_chat_widget['use_avatar'] : false;
-$wpaicg_ai_avatar = isset($wpaicg_chat_widget['ai_avatar']) && !empty($wpaicg_chat_widget['ai_avatar']) ? $wpaicg_chat_widget['ai_avatar'] : 'default';
-$wpaicg_ai_avatar_id = isset($wpaicg_chat_widget['ai_avatar_id']) && !empty($wpaicg_chat_widget['ai_avatar_id']) ? $wpaicg_chat_widget['ai_avatar_id'] : '';
-$wpaicg_ai_avatar_url = WPAICG_PLUGIN_URL.'admin/images/chatbot.png';
-$wpaicg_user_avatar_url = is_user_logged_in() ? get_avatar_url(get_current_user_id()) : WPAICG_PLUGIN_URL . 'admin/images/default_profile.png';
-if($wpaicg_use_avatar && $wpaicg_ai_avatar == 'custom' && $wpaicg_ai_avatar_id != ''){
-    $wpaicg_ai_avatar_url = wp_get_attachment_url($wpaicg_ai_avatar_id);
-}
+
 $wpaicg_chat_fontsize = isset($wpaicg_chat_widget['fontsize']) && !empty($wpaicg_chat_widget['fontsize']) ? $wpaicg_chat_widget['fontsize'] : '13';
 $wpaicg_chat_fontcolor = isset($wpaicg_chat_widget['fontcolor']) && !empty($wpaicg_chat_widget['fontcolor']) ? $wpaicg_chat_widget['fontcolor'] : '#ffffff';
 $wpaicg_input_font_color = isset($wpaicg_chat_widget['input_font_color']) && !empty($wpaicg_chat_widget['input_font_color']) ? $wpaicg_chat_widget['input_font_color'] : '#495057';
@@ -806,11 +795,6 @@ border-radius: 10px;
      data-user-bg-color="<?php echo esc_html($wpaicg_user_bg_color)?>"
      data-color="<?php echo esc_html($wpaicg_chat_fontcolor)?>"
      data-fontsize="<?php echo esc_html($wpaicg_chat_fontsize)?>"
-     data-use-avatar="<?php echo esc_html($wpaicg_use_avatar)?>"
-     data-user-avatar="<?php echo esc_html($wpaicg_user_avatar_url)?>"
-     data-you="<?php echo esc_html($wpaicg_you)?>"
-     data-ai-avatar="<?php echo esc_html($wpaicg_ai_avatar_url)?>"
-     data-ai-name="<?php echo esc_html($wpaicg_ai_name)?>"
      data-ai-bg-color="<?php echo esc_html($wpaicg_ai_bg_color)?>"
      data-nonce="<?php echo esc_html(wp_create_nonce( 'wpaicg-chatbox' ))?>"
      data-post-id="<?php echo get_the_ID()?>"

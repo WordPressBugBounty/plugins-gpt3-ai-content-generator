@@ -354,7 +354,6 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
             <div class="aipower-form-group aipower-grouped-fields">
                 <div class="aipower-form-group">
                     <label for="aipower-bot-language-selection"><?php echo esc_html__('Language', 'gpt3-ai-content-generator'); ?></label>
-                    <small><?php echo esc_html__('Select none if not listed.', 'gpt3-ai-content-generator'); ?></small>
                     <?php $language_options = \WPAICG\WPAICG_Util::get_instance()->chat_language_options; ?>
                     <select name="aipower-bot-language" id="aipower-bot-language">
                         <option value=""><?php echo esc_html__('None','gpt3-ai-content-generator')?></option>
@@ -365,7 +364,6 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
                 <div class="aipower-form-group">
                     <label for="aipower-bot-tone-selection"><?php echo esc_html__('Tone', 'gpt3-ai-content-generator'); ?></label>
-                    <small><?php echo esc_html__('Set the tone.', 'gpt3-ai-content-generator'); ?></small>
                     <?php $tone_options = \WPAICG\WPAICG_Util::get_instance()->chat_tone_options; ?>
                     <select name="aipower-bot-tone" id="aipower-bot-tone">
                         <?php foreach($tone_options as $key => $value){?>
@@ -375,7 +373,6 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
                 <div class="aipower-form-group">
                     <label for="aipower-bot-profession-selection"><?php echo esc_html__('Profession', 'gpt3-ai-content-generator'); ?></label>
-                    <small><?php echo esc_html__('Select none if not listed.', 'gpt3-ai-content-generator'); ?></small>
                     <?php $proffesion_options = \WPAICG\WPAICG_Util::get_instance()->chat_profession_options; ?>
                     <select name="aipower-bot-proffesion" id="aipower-bot-proffesion">
                         <?php foreach($proffesion_options as $key => $value){?>
@@ -518,8 +515,8 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 </div>
             </div>
             <h3><?php echo esc_html__('Moderation Settings', 'gpt3-ai-content-generator'); ?></h3>
+            <p><?php echo esc_html__('You can turn moderation on or off for the chatbot. When it is on, the chatbot will not respond to messages until they are approved by the OpenAI moderation model. This feature only works with OpenAI.', 'gpt3-ai-content-generator'); ?></p>
             <div class="aipower-form-group aipower-grouped-fields">
-                <p><?php echo esc_html__('You can turn moderation on or off for the chatbot. When it is on, the chatbot will not respond to messages until they are approved by the OpenAI moderation model. This feature only works with OpenAI.', 'gpt3-ai-content-generator'); ?></p>
                 <!-- Enable Moderation -->
                 <div class="aipower-form-group">
                     <div class="aipower-switch-container">
@@ -609,7 +606,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                 <!-- Voice is Muted by Default -->
                 <div class="aipower-form-group">
                     <div class="aipower-switch-container">
-                        <label class="aipower-switch-label" for="aipower-text-to-speech-muted"><?php echo esc_html__('Voice is disabled by default', 'gpt3-ai-content-generator'); ?></label>
+                        <label class="aipower-switch-label" for="aipower-text-to-speech-muted"><?php echo esc_html__('Autoplay', 'gpt3-ai-content-generator'); ?></label>
                         <label class="aipower-switch">
                             <input type="checkbox" id="aipower-text-to-speech-muted" name="aipower-text-to-speech-muted">
                             <span class="aipower-slider"></span>

@@ -267,12 +267,11 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             // Define common default values
             $default_icon_path = WPAICG_PLUGIN_URL . 'admin/images/chatbot.png';
             $default_values = array(
-                "ai_avatar_id" => "",
                 "bgcolor" => "#343A40",
                 "fontcolor" => "#E8E8E8",
                 "ai_bg_color" => "#495057",
                 "user_bg_color" => "#6C757D",
-                "width" => "400px",
+                "width" => "75%",
                 "height" => "50%",
                 "chat_rounded" => "8",
                 "fontsize" => "13",
@@ -289,7 +288,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                 "footer_font_color" => "#FFFFFF",
                 "bar_color" => "#FFFFFF",
                 "thinking_color" => "#CED4DA",
-                "ai_avatar" => "default",
                 "provider" => "OpenAI",
                 "model" => "gpt-3.5-turbo",
                 "chat_addition" => "1",
@@ -310,9 +308,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                 'download_btn' => '1',
                 'copy_btn' => '1',
                 'feedback_btn' => '1',
-                "welcome" => "Hello, how can I help you today?",
-                "ai_name" => "AI",
-                "you" => "User",
+                "welcome" => "Hello 👋, how can I help you today?",
                 "ai_thinking" => "Gathering thoughts",
                 "placeholder" => "Type your message here...",
                 "no_answer" => "",
@@ -405,11 +401,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                     $options = [
                         'wpaicg_widget_stream' => 1,
                         'wpaicg_chat_addition' => 1,
-                        'ai_name' => 'AI',
                         'wpaicg_chat_addition' => 1,
                         'wpaicg_chat_addition_text' => 'You are a helpful AI Assistant. Please be friendly. Today\'s date is [date].',
-                        '_wpaicg_chatbox_welcome_message' => 'Hello, how can I help you today?',
-                        '_wpaicg_chatbox_ai_name' => 'AI',
+                        '_wpaicg_chatbox_welcome_message' => 'Hello 👋, how can I help you today?',
                         'wpaicg_chat_temperature' => 0,
                         'wpaicg_chat_max_tokens' => 1500,
                         'wpaicg_chat_presence_penalty' => 0,
@@ -449,7 +443,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                 case 'custom':
                     $default_values = array_merge($default_values, array(
                         "icon_url" => "",
-                        "ai_avatar_id" => "",
                         "id" => "custom_bot_id",
                         "type" => "custom",
                         "pages" => "",
@@ -1179,6 +1172,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
         ];
 
         public $openai_gpt4_models = [
+            'chatgpt-4o-latest' => 'ChatGPT-4o',
             'gpt-4' => 'GPT-4',
             'gpt-4o' => 'GPT-4o',
             'gpt-4o-mini' => 'GPT-4o Mini',
@@ -1201,6 +1195,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
         ];
 
         public $model_pricing = [
+            'chatgpt-4o-latest' => 0.06,
             'gpt-4' => 0.06,
             'gpt-4o' => 0.015,
             'gpt-4o-mini' => 0.0003,

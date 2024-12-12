@@ -358,11 +358,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     'best_of' => $existingValue['best_of'],
                     'frequency_penalty' => $existingValue['frequency_penalty'],
                     'presence_penalty' => $existingValue['presence_penalty'],
-                    'ai_name' => esc_html__('AI','gpt3-ai-content-generator'),
-                    'you' => esc_html__('You','gpt3-ai-content-generator'),
                     'ai_thinking' => esc_html__('Gathering thoughts','gpt3-ai-content-generator'),
                     'placeholder' => esc_html__('Type a message','gpt3-ai-content-generator'),
-                    'welcome' => esc_html__('Hello, how can I help you today?','gpt3-ai-content-generator'),
+                    'welcome' => esc_html__('Hello 👋, how can I help you today?','gpt3-ai-content-generator'),
                     'remember_conversation' => 'yes',
                     'conversation_cut' => 10,
                     'content_aware' => 'yes',
@@ -377,7 +375,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     'ai_bg_color' => '#d1e8ff',
                     'ai_icon_url' => '',
                     'ai_icon' => 'default',
-                    'use_avatar' => false,
                     'save_logs' => false,
                     'chat_addition' => false,
                     'chat_addition_text' => '',
@@ -691,7 +688,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             $this->check_banned_ips($wpaicg_chat_source, $wpaicg_provider);
 
             // Get message and URL
-            $wpaicg_message = sanitize_text_field(wp_unslash($_POST['message'] ?? ''));
+            $wpaicg_message = wp_unslash($_POST['message'] ?? '');
 
             // Check for banned words
             $this->check_banned_words($wpaicg_message, $wpaicg_chat_source, $wpaicg_provider);
@@ -785,12 +782,16 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 // Extract chatId from the request and remove non-numeric characters
                 $chatId = isset($_POST['chat_id']) ? preg_replace('/\D/', '', sanitize_text_field(wp_unslash($_POST['chat_id']))) : null;
 
+                $anonymize_ip = get_option('wpaicg_ip_anonymization', false);
+                $original_ip = $this->getIpAddress();
+                $ip_to_store = $anonymize_ip ? $this->anonymizeIp($original_ip) : $original_ip;
+
                 // Insert the message into the logs with the numeric chatId
                 $wpaicg_chat_log_data[] = array(
                     'message' => $wpaicg_message,
                     'type' => 'user',
                     'date' => time(),
-                    'ip' => $this->getIpAddress(),
+                    'ip' => $ip_to_store,
                     'username' => $this->getCurrentUsername(),
                     'chatId' => $chatId // Store numeric chatId
                 );
@@ -1694,7 +1695,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
 
         public function getChatEndpointModels() {
             // List of models for the chat completions endpoint
-            $chatModels = ['gpt-4', 'gpt-4-32k', 'gpt-4-1106-preview','gpt-4o', 'gpt-4o-mini','o1-preview','o1-mini','gpt-4-turbo','gpt-4-vision-preview', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k'];
+            $chatModels = ['gpt-4', 'gpt-4-32k', 'gpt-4-1106-preview','gpt-4o', 'gpt-4o-mini','o1-preview','o1-mini','gpt-4-turbo','gpt-4-vision-preview', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k','chatgpt-4o-latest'];
             
             // Get custom models and Azure deployment model, if any
             $custom_models = get_option('wpaicg_custom_models', []);
@@ -2098,7 +2099,22 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             }
         }
 
+        public function anonymizeIp($ip) {
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                // IPv4 example: Convert "192.168.1.123" to "192.168.1.0"
+                $parts = explode('.', $ip);
+                $parts[3] = '0'; // or 'xxx' if you prefer a non-valid IP format
+                $ip = implode('.', $parts);
+            } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                // IPv6 example: Only keep the first 4 groups and pad the rest
+                $parts = explode(':', $ip);
+                // Keep first 4 parts and replace remaining with "0000"
+                $parts = array_pad(array_slice($parts, 0, 4), 8, '0000');
+                $ip = implode(':', $parts);
+            }
         
+            return $ip;
+        }
         
         public function getCurrentUsername() {
             if (is_user_logged_in()) {

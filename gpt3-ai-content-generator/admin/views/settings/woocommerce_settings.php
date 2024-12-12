@@ -113,7 +113,7 @@ function get_shortcode_text() {
         <div class="aipower-modal-body">
             <!-- Title Prompt -->
             <div class="aipower-collapsible-section">
-                <button class="aipower-collapsible-toggle"><?php echo esc_html__('Title Prompt', 'gpt3-ai-content-generator'); ?></button>
+                <button class="aipower-collapsible-toggle"><label for="aipower_woo_custom_prompt_title" class="aipower-woocommerce-labels"><?php echo esc_html__('Title Prompt', 'gpt3-ai-content-generator'); ?></label></button>
                 <div class="aipower-collapsible-content">
                     <div class="aipower-dropdown-container">
                         <select id="aipower_woocommerce_title_dropdown" name="aipower_woocommerce_title_dropdown">
@@ -132,7 +132,7 @@ function get_shortcode_text() {
 
             <!-- Short Description Prompt -->
             <div class="aipower-collapsible-section">
-                <button class="aipower-collapsible-toggle"><?php echo esc_html__('Short Description Prompt', 'gpt3-ai-content-generator'); ?></button>
+                <button class="aipower-collapsible-toggle"><label for="aipower_custom_prompt_short" class="aipower-woocommerce-labels"><?php echo esc_html__('Short Description Prompt', 'gpt3-ai-content-generator'); ?></label></button>
                 <div class="aipower-collapsible-content">
                     <div class="aipower-dropdown-container">
                         <select id="aipower_woocommerce_short_dropdown" name="aipower_woocommerce_short_dropdown">
@@ -151,7 +151,7 @@ function get_shortcode_text() {
 
             <!-- Full Description Prompt -->
             <div class="aipower-collapsible-section">
-                <button class="aipower-collapsible-toggle"><?php echo esc_html__('Full Description Prompt', 'gpt3-ai-content-generator'); ?></button>
+                <button class="aipower-collapsible-toggle"><label for="aipower_custom_prompt_desc" class="aipower-woocommerce-labels"><?php echo esc_html__('Full Description Prompt', 'gpt3-ai-content-generator'); ?></label></button>
                 <div class="aipower-collapsible-content">
                     <div class="aipower-dropdown-container">
                         <select id="aipower_woocommerce_desc_dropdown" name="aipower_woocommerce_desc_dropdown">
@@ -170,7 +170,7 @@ function get_shortcode_text() {
 
             <!-- Meta Description Prompt -->
             <div class="aipower-collapsible-section">
-                <button class="aipower-collapsible-toggle"><?php echo esc_html__('Meta Description Prompt', 'gpt3-ai-content-generator'); ?></button>
+                <button class="aipower-collapsible-toggle"><label for="aipower_custom_prompt_meta" class="aipower-woocommerce-labels"><?php echo esc_html__('Meta Description Prompt', 'gpt3-ai-content-generator'); ?></label></button>
                 <div class="aipower-collapsible-content">
                     <div class="aipower-dropdown-container">
                         <select id="aipower_woocommerce_meta_dropdown" name="aipower_woocommerce_meta_dropdown">
@@ -189,7 +189,7 @@ function get_shortcode_text() {
 
             <!-- Tags Prompt -->
             <div class="aipower-collapsible-section">
-                <button class="aipower-collapsible-toggle"><?php echo esc_html__('Tags Prompt', 'gpt3-ai-content-generator'); ?></button>
+                <button class="aipower-collapsible-toggle"><label for="aipower_custom_prompt_tags" class="aipower-woocommerce-labels"><?php echo esc_html__('Tags Prompt', 'gpt3-ai-content-generator'); ?></label></button>
                 <div class="aipower-collapsible-content">
                     <div class="aipower-dropdown-container">
                         <select id="aipower_woocommerce_tags_dropdown" name="aipower_woocommerce_tags_dropdown">

@@ -56,6 +56,7 @@ $google_safety_settings = get_option('wpaicg_google_safety_settings', [
     ['category' => 'HARM_CATEGORY_HATE_SPEECH', 'threshold' => 'BLOCK_NONE'],
     ['category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold' => 'BLOCK_NONE'],
     ['category' => 'HARM_CATEGORY_DANGEROUS_CONTENT', 'threshold' => 'BLOCK_NONE'],
+    ['category' => 'HARM_CATEGORY_CIVIC_INTEGRITY', 'threshold' => 'BLOCK_NONE']
 ]);
 
 $google_safety_settings = array_column($google_safety_settings, 'threshold', 'category');
@@ -308,17 +309,58 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
 </div>
 <!-- Advanced Settings Modal -->
 <div class="aipower-modal" id="aipower_advanced_settings_modal" style="display: none;">
-    <div class="aipower-modal-content" style="width: 25%;">
+    <div class="aipower-modal-content">
         <div class="aipower-modal-header">
             <h2><?php echo esc_html__('Advanced Settings', 'gpt3-ai-content-generator'); ?></h2>
             <span class="aipower-close">&times;</span>
         </div>
         <div class="aipower-modal-body">
+            <h3><?php echo esc_html__('AI Parameters', 'gpt3-ai-content-generator'); ?></h3>
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- MAX TOKENS -->
                 <div class="aipower-form-group">
                     <label for="aipower-max-tokens"><?php echo esc_html__('Maximum Tokens', 'gpt3-ai-content-generator'); ?></label>
-                    <input id="aipower-max-tokens" name="wpaicg_max_tokens" type="number" value="<?php echo esc_attr($current_max_tokens); ?>">
+                    <input 
+                        id="aipower-max-tokens" 
+                        name="wpaicg_max_tokens" 
+                        type="range" 
+                        min="1" 
+                        max="16383" 
+                        value="<?php echo esc_attr($current_max_tokens); ?>" 
+                        oninput="this.nextElementSibling.value = this.value">
+                    <output><?php echo esc_attr($current_max_tokens); ?></output>
+                </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- TEMPERATURE -->
+                <div class="aipower-form-group">
+                    <label for="aipower-temperature"><?php echo esc_html__('Temperature', 'gpt3-ai-content-generator'); ?></label>
+                    <input id="aipower-temperature" name="wpaicg_temperature" type="range" step="0.01" min="0" max="2" value="<?php echo esc_attr($current_temperature); ?>" oninput="this.nextElementSibling.value = this.value">
+                    <output><?php echo esc_attr($current_temperature); ?></output>
+                </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- FREQUENCY PENALTY -->
+                <div class="aipower-form-group">
+                    <label for="aipower-frequency-penalty"><?php echo esc_html__('Frequency Penalty', 'gpt3-ai-content-generator'); ?></label>
+                    <input id="aipower-frequency-penalty" name="wpaicg_frequency" type="range" step="0.01" min="0" max="2" value="<?php echo esc_attr($current_frequency); ?>" oninput="this.nextElementSibling.value = this.value">
+                    <output><?php echo esc_attr($current_frequency); ?></output>
+                </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- PRESENCE PENALTY -->
+                <div class="aipower-form-group">
+                    <label for="aipower-presence-penalty"><?php echo esc_html__('Presence Penalty', 'gpt3-ai-content-generator'); ?></label>
+                    <input id="aipower-presence-penalty" name="wpaicg_presence" type="range" step="0.01" min="0" max="2" value="<?php echo esc_attr($current_presence); ?>" oninput="this.nextElementSibling.value = this.value">
+                    <output><?php echo esc_attr($current_presence); ?></output>
+                </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- TOP_P -->
+                <div class="aipower-form-group">
+                    <label for="aipower-top-p"><?php echo esc_html__('Top P', 'gpt3-ai-content-generator'); ?></label>
+                    <input id="aipower-top-p" name="wpaicg_top_p" type="range" step="0.01" min="0" max="1" value="<?php echo esc_attr($current_top_p); ?>" oninput="this.nextElementSibling.value = this.value">
+                    <output><?php echo esc_attr($current_top_p); ?></output>
                 </div>
             </div>
             <div class="aipower-form-group aipower-grouped-fields">
@@ -328,30 +370,6 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
                     <input id="aipower-rate-limit" name="wpaicg_sleep_time" type="range" min="1" max="30" value="<?php echo esc_attr($wpaicg_sleep_time); ?>" oninput="this.nextElementSibling.value = this.value">
                     <output><?php echo esc_attr($wpaicg_sleep_time); ?></output>
                 </div>
-                <!-- TEMPERATURE -->
-                <div class="aipower-form-group">
-                    <label for="aipower-temperature"><?php echo esc_html__('Temperature', 'gpt3-ai-content-generator'); ?></label>
-                    <input id="aipower-temperature" name="wpaicg_temperature" type="range" step="0.01" min="0" max="2" value="<?php echo esc_attr($current_temperature); ?>" oninput="this.nextElementSibling.value = this.value">
-                    <output><?php echo esc_attr($current_temperature); ?></output>
-                </div>
-                <!-- FREQUENCY PENALTY -->
-                <div class="aipower-form-group">
-                    <label for="aipower-frequency-penalty"><?php echo esc_html__('Frequency Penalty', 'gpt3-ai-content-generator'); ?></label>
-                    <input id="aipower-frequency-penalty" name="wpaicg_frequency" type="range" step="0.01" min="0" max="2" value="<?php echo esc_attr($current_frequency); ?>" oninput="this.nextElementSibling.value = this.value">
-                    <output><?php echo esc_attr($current_frequency); ?></output>
-                </div>
-                <!-- PRESENCE PENALTY -->
-                <div class="aipower-form-group">
-                    <label for="aipower-presence-penalty"><?php echo esc_html__('Presence Penalty', 'gpt3-ai-content-generator'); ?></label>
-                    <input id="aipower-presence-penalty" name="wpaicg_presence" type="range" step="0.01" min="0" max="2" value="<?php echo esc_attr($current_presence); ?>" oninput="this.nextElementSibling.value = this.value">
-                    <output><?php echo esc_attr($current_presence); ?></output>
-                </div>
-                <!-- TOP_P -->
-                <div class="aipower-form-group">
-                    <label for="aipower-top-p"><?php echo esc_html__('Top P', 'gpt3-ai-content-generator'); ?></label>
-                    <input id="aipower-top-p" name="wpaicg_top_p" type="range" step="0.01" min="0" max="1" value="<?php echo esc_attr($current_top_p); ?>" oninput="this.nextElementSibling.value = this.value">
-                    <output><?php echo esc_attr($current_top_p); ?></output>
-                </div>
             </div>
         </div>
     </div>
@@ -359,25 +377,108 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
 
 <!-- Safety Settings Modal -->
 <div class="aipower-modal" id="aipower_safety_settings_modal" style="display: none;">
-    <div class="aipower-modal-content" style="width: 25%;">
+    <div class="aipower-modal-content">
         <div class="aipower-modal-header">
             <h2><?php echo esc_html__('Safety Settings', 'gpt3-ai-content-generator'); ?></h2>
             <span class="aipower-close">&times;</span>
         </div>
         <div class="aipower-modal-body">
+            <p><?php echo esc_html__('Adjust how likely you are to see responses that could be harmful. Content is blocked based on the probability that it is harmful.', 'gpt3-ai-content-generator'); ?></p>
             <div class="aipower-form-group aipower-grouped-fields">
-                <?php foreach ($safety_categories as $category => $label): ?>
-                    <div class="aipower-form-group">
-                        <label for="<?php echo esc_attr($category); ?>"><?php echo esc_html__($label, 'gpt3-ai-content-generator'); ?></label>
-                        <select id="<?php echo esc_attr($category); ?>" name="google_safety_settings[<?php echo esc_attr($category); ?>]">
-                            <?php foreach ($thresholds as $value => $option): ?>
-                                <option value="<?php echo esc_attr($value); ?>" <?php selected(isset($google_safety_settings[$category]) ? $google_safety_settings[$category] : 'BLOCK_NONE', $value); ?>>
-                                    <?php echo esc_html__($option, 'gpt3-ai-content-generator'); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endforeach; ?>
+                <!-- Harassment -->
+                <div class="aipower-form-group">
+                    <label for="HARM_CATEGORY_HARASSMENT"><?php echo esc_html__('Harassment', 'gpt3-ai-content-generator'); ?></label>
+                    <select id="HARM_CATEGORY_HARASSMENT" name="google_safety_settings[HARM_CATEGORY_HARASSMENT]">
+                        <option value="BLOCK_NONE" <?php selected($google_safety_settings['HARM_CATEGORY_HARASSMENT'] ?? 'BLOCK_NONE', 'BLOCK_NONE'); ?>>
+                            <?php echo esc_html__('Block None', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_ONLY_HIGH" <?php selected($google_safety_settings['HARM_CATEGORY_HARASSMENT'] ?? 'BLOCK_NONE', 'BLOCK_ONLY_HIGH'); ?>>
+                            <?php echo esc_html__('Block Few', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_MEDIUM_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_HARASSMENT'] ?? 'BLOCK_NONE', 'BLOCK_MEDIUM_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Some', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_LOW_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_HARASSMENT'] ?? 'BLOCK_NONE', 'BLOCK_LOW_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Most', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Hate Speech -->
+                <div class="aipower-form-group">
+                    <label for="HARM_CATEGORY_HATE_SPEECH"><?php echo esc_html__('Hate Speech', 'gpt3-ai-content-generator'); ?></label>
+                    <select id="HARM_CATEGORY_HATE_SPEECH" name="google_safety_settings[HARM_CATEGORY_HATE_SPEECH]">
+                        <option value="BLOCK_NONE" <?php selected($google_safety_settings['HARM_CATEGORY_HATE_SPEECH'] ?? 'BLOCK_NONE', 'BLOCK_NONE'); ?>>
+                            <?php echo esc_html__('Block None', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_ONLY_HIGH" <?php selected($google_safety_settings['HARM_CATEGORY_HATE_SPEECH'] ?? 'BLOCK_NONE', 'BLOCK_ONLY_HIGH'); ?>>
+                            <?php echo esc_html__('Block Few', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_MEDIUM_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_HATE_SPEECH'] ?? 'BLOCK_NONE', 'BLOCK_MEDIUM_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Some', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_LOW_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_HATE_SPEECH'] ?? 'BLOCK_NONE', 'BLOCK_LOW_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Most', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                    </select>
+                </div>
+                <!-- Sexually Explicit -->
+                <div class="aipower-form-group">
+                    <label for="HARM_CATEGORY_SEXUALLY_EXPLICIT"><?php echo esc_html__('Sexually Explicit', 'gpt3-ai-content-generator'); ?></label>
+                    <select id="HARM_CATEGORY_SEXUALLY_EXPLICIT" name="google_safety_settings[HARM_CATEGORY_SEXUALLY_EXPLICIT]">
+                        <option value="BLOCK_NONE" <?php selected($google_safety_settings['HARM_CATEGORY_SEXUALLY_EXPLICIT'] ?? 'BLOCK_NONE', 'BLOCK_NONE'); ?>>
+                            <?php echo esc_html__('Block None', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_ONLY_HIGH" <?php selected($google_safety_settings['HARM_CATEGORY_SEXUALLY_EXPLICIT'] ?? 'BLOCK_NONE', 'BLOCK_ONLY_HIGH'); ?>>
+                            <?php echo esc_html__('Block Few', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_MEDIUM_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_SEXUALLY_EXPLICIT'] ?? 'BLOCK_NONE', 'BLOCK_MEDIUM_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Some', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_LOW_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_SEXUALLY_EXPLICIT'] ?? 'BLOCK_NONE', 'BLOCK_LOW_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Most', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- Dangerous Content -->
+                <div class="aipower-form-group">
+                    <label for="HARM_CATEGORY_DANGEROUS_CONTENT"><?php echo esc_html__('Dangerous', 'gpt3-ai-content-generator'); ?></label>
+                    <select id="HARM_CATEGORY_DANGEROUS_CONTENT" name="google_safety_settings[HARM_CATEGORY_DANGEROUS_CONTENT]">
+                        <option value="BLOCK_NONE" <?php selected($google_safety_settings['HARM_CATEGORY_DANGEROUS_CONTENT'] ?? 'BLOCK_NONE', 'BLOCK_NONE'); ?>>
+                            <?php echo esc_html__('Block None', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_ONLY_HIGH" <?php selected($google_safety_settings['HARM_CATEGORY_DANGEROUS_CONTENT'] ?? 'BLOCK_NONE', 'BLOCK_ONLY_HIGH'); ?>>
+                            <?php echo esc_html__('Block Few', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_MEDIUM_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_DANGEROUS_CONTENT'] ?? 'BLOCK_NONE', 'BLOCK_MEDIUM_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Some', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_LOW_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_DANGEROUS_CONTENT'] ?? 'BLOCK_NONE', 'BLOCK_LOW_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Most', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Civic Integrity -->
+                <div class="aipower-form-group">
+                    <label for="HARM_CATEGORY_CIVIC_INTEGRITY"><?php echo esc_html__('Civic Integrity', 'gpt3-ai-content-generator'); ?></label>
+                    <select id="HARM_CATEGORY_CIVIC_INTEGRITY" name="google_safety_settings[HARM_CATEGORY_CIVIC_INTEGRITY]">
+                        <option value="BLOCK_NONE" <?php selected($google_safety_settings['HARM_CATEGORY_CIVIC_INTEGRITY'] ?? 'BLOCK_NONE', 'BLOCK_NONE'); ?>>
+                            <?php echo esc_html__('Block None', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_ONLY_HIGH" <?php selected($google_safety_settings['HARM_CATEGORY_CIVIC_INTEGRITY'] ?? 'BLOCK_NONE', 'BLOCK_ONLY_HIGH'); ?>>
+                            <?php echo esc_html__('Block Few', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_MEDIUM_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_CIVIC_INTEGRITY'] ?? 'BLOCK_NONE', 'BLOCK_MEDIUM_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Some', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="BLOCK_LOW_AND_ABOVE" <?php selected($google_safety_settings['HARM_CATEGORY_CIVIC_INTEGRITY'] ?? 'BLOCK_NONE', 'BLOCK_LOW_AND_ABOVE'); ?>>
+                            <?php echo esc_html__('Block Most', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>

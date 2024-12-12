@@ -2,31 +2,35 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 1.8.95\n"
+"Project-Id-Version: AI Power: Complete AI Pack 1.8.96\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-26T10:31:16+00:00\n"
+"POT-Creation-Date: 2024-12-12T08:15:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.7.1\n"
+"X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
 
 #. Plugin Name of the plugin
+#: gpt3-ai-content-generator.php
 msgid "AI Power: Complete AI Pack"
 msgstr ""
 
 #. Description of the plugin
+#: gpt3-ai-content-generator.php
 msgid "ChatGPT, Content Writer, Auto Content Writer, ChatBot, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more."
 msgstr ""
 
 #. Author of the plugin
+#: gpt3-ai-content-generator.php
 msgid "Senol Sahin"
 msgstr ""
 
 #. Author URI of the plugin
+#: gpt3-ai-content-generator.php
 msgid "https://aipower.org"
 msgstr ""
 
@@ -116,7 +120,7 @@ msgstr ""
 #: admin/extra/wpaicg_bulk.php:93
 #: admin/extra/wpaicg_bulk_queue.php:67
 #: admin/views/embeddings/autoscan.php:25
-#: admin/views/settings/chatlogs.php:133
+#: admin/views/settings/chatlogs.php:178
 #: admin/views/settings/image_settings.php:95
 msgid "#"
 msgstr ""
@@ -129,8 +133,8 @@ msgstr ""
 #: admin/views/audio/converter.php:145
 #: admin/views/audio/logs.php:55
 #: admin/views/metabox.php:290
-#: admin/views/settings/chatbots.php:795
-#: admin/views/settings/content_settings.php:256
+#: admin/views/settings/chatbots.php:792
+#: admin/views/settings/content_settings.php:257
 #: classes/wpaicg_hook.php:52
 #: classes/wpaicg_hook.php:119
 #: lib/modules/wpaicg_user_pdfs.php:84
@@ -241,12 +245,12 @@ msgstr ""
 #: admin/views/metabox.php:722
 #: admin/views/metabox.php:887
 #: admin/views/metabox.php:899
-#: admin/views/settings/chatbots.php:360
+#: admin/views/settings/chatbots.php:359
 #: admin/views/settings/image_settings.php:50
 #: admin/views/settings/image_settings.php:177
 #: admin/views/settings/image_settings.php:188
-#: admin/views/settings/image_settings.php:371
-#: admin/views/settings/image_settings.php:382
+#: admin/views/settings/image_settings.php:372
+#: admin/views/settings/image_settings.php:383
 msgid "None"
 msgstr ""
 
@@ -431,14 +435,14 @@ msgid "Copy-Paste"
 msgstr ""
 
 #: admin/extra/wpaicg_bulk_queue.php:231
-#: admin/views/settings/chatlogs.php:35
+#: admin/views/settings/chatlogs.php:34
 #: lib/views/chat/pdfs.php:28
 msgid "Refresh"
 msgstr ""
 
 #: admin/extra/wpaicg_bulk_queue.php:241
-#: admin/extra/wpaicg_chatbox.php:953
-#: admin/extra/wpaicg_chatbox_widget.php:977
+#: admin/extra/wpaicg_chatbox.php:937
+#: admin/extra/wpaicg_chatbox_widget.php:961
 #: admin/extra/wpaicg_form_index.php:772
 #: admin/extra/wpaicg_form_index.php:949
 #: admin/extra/wpaicg_form_index.php:1015
@@ -491,20 +495,20 @@ msgstr ""
 #: classes/wpaicg_content.php:1038
 #: classes/wpaicg_content.php:1122
 #: classes/wpaicg_content.php:1747
-#: classes/wpaicg_dashboard.php:2197
-#: classes/wpaicg_dashboard.php:2224
-#: classes/wpaicg_dashboard.php:2370
-#: classes/wpaicg_dashboard.php:2709
-#: classes/wpaicg_dashboard.php:2743
-#: classes/wpaicg_dashboard.php:2832
-#: classes/wpaicg_dashboard.php:2862
-#: classes/wpaicg_dashboard.php:3013
-#: classes/wpaicg_dashboard.php:3038
-#: classes/wpaicg_dashboard.php:3064
-#: classes/wpaicg_dashboard.php:3089
-#: classes/wpaicg_dashboard.php:3140
-#: classes/wpaicg_dashboard.php:3163
-#: classes/wpaicg_dashboard.php:3313
+#: classes/wpaicg_dashboard.php:2085
+#: classes/wpaicg_dashboard.php:2112
+#: classes/wpaicg_dashboard.php:2258
+#: classes/wpaicg_dashboard.php:2597
+#: classes/wpaicg_dashboard.php:2631
+#: classes/wpaicg_dashboard.php:2720
+#: classes/wpaicg_dashboard.php:2750
+#: classes/wpaicg_dashboard.php:2901
+#: classes/wpaicg_dashboard.php:2926
+#: classes/wpaicg_dashboard.php:2952
+#: classes/wpaicg_dashboard.php:2977
+#: classes/wpaicg_dashboard.php:3028
+#: classes/wpaicg_dashboard.php:3051
+#: classes/wpaicg_dashboard.php:3201
 #: classes/wpaicg_editor.php:130
 #: classes/wpaicg_elevenlabs.php:70
 #: classes/wpaicg_elevenlabs.php:119
@@ -555,13 +559,13 @@ msgstr ""
 #: classes/wpaicg_image.php:393
 #: classes/wpaicg_image.php:538
 #: classes/wpaicg_image.php:638
-#: classes/wpaicg_logs.php:425
-#: classes/wpaicg_logs.php:449
-#: classes/wpaicg_logs.php:742
-#: classes/wpaicg_logs.php:775
-#: classes/wpaicg_logs.php:811
-#: classes/wpaicg_logs.php:844
-#: classes/wpaicg_logs.php:867
+#: classes/wpaicg_logs.php:472
+#: classes/wpaicg_logs.php:496
+#: classes/wpaicg_logs.php:789
+#: classes/wpaicg_logs.php:822
+#: classes/wpaicg_logs.php:858
+#: classes/wpaicg_logs.php:891
+#: classes/wpaicg_logs.php:914
 #: classes/wpaicg_openroutermethod.php:57
 #: classes/wpaicg_playground.php:212
 #: classes/wpaicg_playground.php:453
@@ -635,7 +639,7 @@ msgstr ""
 #: admin/views/embeddings/settings.php:279
 #: admin/views/roles/index.php:145
 #: admin/views/settings/chat-general-settings.php:207
-#: admin/views/settings/chatbots.php:533
+#: admin/views/settings/chatbots.php:530
 #: admin/views/settings/content_settings.php:137
 #: admin/views/settings/content_settings.php:148
 #: admin/views/settings/seo_settings.php:74
@@ -678,9 +682,10 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1060
 #: admin/views/metabox.php:1230
 #: admin/views/settings/chatbots.php:67
-#: admin/views/settings/content_settings.php:382
-#: admin/views/settings/image_settings.php:579
-#: admin/views/settings/image_settings.php:629
+#: admin/views/settings/content_settings.php:409
+#: admin/views/settings/extra_tools.php:119
+#: admin/views/settings/image_settings.php:603
+#: admin/views/settings/image_settings.php:653
 msgid "Reset"
 msgstr ""
 
@@ -715,65 +720,53 @@ msgstr ""
 msgid "Please note that keywords are only available in pro plan. Please remove keywords from your prompt"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox.php:57
-#: admin/extra/wpaicg_chatbox_widget.php:77
+#: admin/extra/wpaicg_chatbox.php:55
 #: classes/wpaicg_chat.php:361
-msgid "AI"
-msgstr ""
-
-#: admin/extra/wpaicg_chatbox.php:58
-#: admin/extra/wpaicg_chatbox_widget.php:79
-#: classes/wpaicg_chat.php:362
-msgid "You"
-msgstr ""
-
-#: admin/extra/wpaicg_chatbox.php:59
-#: classes/wpaicg_chat.php:363
 msgid "Gathering thoughts"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox.php:60
-#: admin/extra/wpaicg_chatbox_widget.php:80
-#: classes/wpaicg_chat.php:364
+#: admin/extra/wpaicg_chatbox.php:56
+#: admin/extra/wpaicg_chatbox_widget.php:76
+#: classes/wpaicg_chat.php:362
 msgid "Type a message"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox.php:61
-#: classes/wpaicg_chat.php:365
-msgid "Hello, how can I help you today?"
+#: admin/extra/wpaicg_chatbox.php:57
+#: classes/wpaicg_chat.php:363
+msgid "Hello 👋, how can I help you today?"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox.php:82
-#: admin/extra/wpaicg_chatbox.php:148
-#: admin/extra/wpaicg_chatbox_widget.php:103
+#: admin/extra/wpaicg_chatbox.php:77
+#: admin/extra/wpaicg_chatbox.php:141
+#: admin/extra/wpaicg_chatbox_widget.php:92
 msgid "Please note that your conversations will be recorded."
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox.php:104
-#: admin/extra/wpaicg_chatbox.php:162
-#: admin/extra/wpaicg_chatbox_widget.php:115
+#: admin/extra/wpaicg_chatbox.php:99
+#: admin/extra/wpaicg_chatbox.php:155
+#: admin/extra/wpaicg_chatbox_widget.php:104
 #: admin/extra/wpaicg_form_index.php:749
 #: admin/extra/wpaicg_form_log.php:255
 #: admin/extra/wpaicg_promptbase_index.php:661
 #: admin/extra/wpaicg_promptbase_log.php:251
 #: admin/views/settings/chat-general-settings.php:227
-#: classes/wpaicg_logs.php:307
+#: classes/wpaicg_logs.php:362
 msgid "Feedback"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox.php:105
-#: admin/extra/wpaicg_chatbox.php:163
-#: admin/extra/wpaicg_chatbox_widget.php:116
+#: admin/extra/wpaicg_chatbox.php:100
+#: admin/extra/wpaicg_chatbox.php:156
+#: admin/extra/wpaicg_chatbox_widget.php:105
 msgid "Please provide details: (optional)"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox.php:106
-#: admin/extra/wpaicg_chatbox.php:164
-#: admin/extra/wpaicg_chatbox_widget.php:117
+#: admin/extra/wpaicg_chatbox.php:101
+#: admin/extra/wpaicg_chatbox.php:157
+#: admin/extra/wpaicg_chatbox_widget.php:106
 msgid "Thank you for your feedback!"
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox_widget.php:78
+#: admin/extra/wpaicg_chatbox_widget.php:75
 msgid "AI thinking"
 msgstr ""
 
@@ -808,7 +801,7 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1098
 #: admin/views/finetune/events.php:20
 #: admin/views/settings/image_settings.php:206
-#: admin/views/settings/image_settings.php:498
+#: admin/views/settings/image_settings.php:511
 msgid "Type"
 msgstr ""
 
@@ -892,7 +885,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:432
 #: admin/extra/wpaicg_promptbase_index.php:350
-#: admin/views/settings/ai.php:287
+#: admin/views/settings/ai.php:288
 #: admin/views/settings/chatbots.php:250
 msgid "Embeddings"
 msgstr ""
@@ -952,7 +945,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:388
 #: admin/extra/wpaicg_promptbase_index.php:929
 #: admin/extra/wpaicg_prompt_shortcode.php:547
-#: admin/views/settings/ai.php:70
+#: admin/views/settings/ai.php:71
 msgid "Engine"
 msgstr ""
 
@@ -968,7 +961,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:468
 #: admin/extra/wpaicg_promptbase_index.php:1004
 #: admin/extra/wpaicg_single.php:1218
-#: admin/views/settings/ai.php:333
+#: admin/views/settings/ai.php:337
 #: admin/views/settings/chatbots.php:176
 msgid "Temperature"
 msgstr ""
@@ -978,7 +971,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:472
 #: admin/extra/wpaicg_promptbase_index.php:1005
 #: admin/extra/wpaicg_single.php:1220
-#: admin/views/settings/ai.php:351
+#: admin/views/settings/ai.php:361
 #: admin/views/settings/chatbots.php:194
 msgid "Top P"
 msgstr ""
@@ -1048,7 +1041,6 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:657
 #: admin/extra/wpaicg_promptbase_index.php:664
 #: admin/views/embeddings/settings.php:237
-#: admin/views/settings/chat-interface-settings.php:92
 #: lib/views/google-sheets/fields.php:68
 msgid "No"
 msgstr ""
@@ -1074,13 +1066,12 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:656
 #: admin/extra/wpaicg_promptbase_index.php:663
 #: admin/views/embeddings/settings.php:238
-#: admin/views/settings/chat-interface-settings.php:96
 #: admin/views/settings/chatbots.php:57
-#: admin/views/settings/chatlogs.php:22
-#: admin/views/settings/chatlogs.php:27
-#: admin/views/settings/extra_tools.php:257
-#: classes/wpaicg_logs.php:343
-#: classes/wpaicg_logs.php:525
+#: admin/views/settings/chatlogs.php:21
+#: admin/views/settings/chatlogs.php:26
+#: admin/views/settings/extra_tools.php:261
+#: classes/wpaicg_logs.php:395
+#: classes/wpaicg_logs.php:572
 #: lib/modules/wpaicg_user_pdfs.php:136
 #: lib/views/chat/pdfs.php:20
 #: lib/views/google-sheets/fields.php:67
@@ -1189,7 +1180,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:675
 #: admin/extra/wpaicg_promptbase_index.php:587
-#: admin/views/settings/chat-interface-settings.php:125
+#: admin/views/settings/chat-general-settings.php:355
 msgid "Icon"
 msgstr ""
 
@@ -1369,8 +1360,8 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:809
 #: admin/extra/wpaicg_promptbase_index.php:721
-#: admin/views/settings/chatlogs.php:36
-#: classes/wpaicg_dashboard.php:2634
+#: admin/views/settings/chatlogs.php:35
+#: classes/wpaicg_dashboard.php:2522
 msgid "Export"
 msgstr ""
 
@@ -1380,7 +1371,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:877
 #: admin/extra/wpaicg_single.php:1278
 #: admin/views/audio/logs.php:111
-#: classes/wpaicg_dashboard.php:2623
+#: classes/wpaicg_dashboard.php:2511
 #: classes/wpaicg_embeddings.php:192
 #: classes/wpaicg_finetune.php:1249
 #: classes/wpaicg_finetune.php:1368
@@ -1394,7 +1385,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:971
 #: admin/extra/wpaicg_promptbase_index.php:875
-#: classes/wpaicg_dashboard.php:2628
+#: classes/wpaicg_dashboard.php:2516
 msgid "Duplicate"
 msgstr ""
 
@@ -1412,7 +1403,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:480
 #: admin/extra/wpaicg_promptbase_index.php:1007
 #: admin/extra/wpaicg_single.php:1221
-#: admin/views/settings/ai.php:339
+#: admin/views/settings/ai.php:345
 #: admin/views/settings/chatbots.php:182
 msgid "Frequency Penalty"
 msgstr ""
@@ -1421,7 +1412,7 @@ msgstr ""
 #: admin/extra/wpaicg_promptbase_index.php:484
 #: admin/extra/wpaicg_promptbase_index.php:1008
 #: admin/extra/wpaicg_single.php:1222
-#: admin/views/settings/ai.php:345
+#: admin/views/settings/ai.php:353
 #: admin/views/settings/chatbots.php:188
 msgid "Presence Penalty"
 msgstr ""
@@ -1643,7 +1634,7 @@ msgstr ""
 #: admin/extra/wpaicg_form_log.php:73
 #: admin/extra/wpaicg_image_generator_log.php:44
 #: admin/extra/wpaicg_promptbase_log.php:72
-#: admin/views/settings/chatlogs.php:37
+#: admin/views/settings/chatlogs.php:36
 #: lib/views/chat/pdfs.php:29
 msgid "Delete All"
 msgstr ""
@@ -1668,20 +1659,20 @@ msgstr ""
 #: classes/wpaicg_dashboard.php:179
 #: classes/wpaicg_dashboard.php:308
 #: classes/wpaicg_dashboard.php:350
-#: classes/wpaicg_dashboard.php:584
-#: classes/wpaicg_dashboard.php:2168
-#: classes/wpaicg_dashboard.php:3394
+#: classes/wpaicg_dashboard.php:567
+#: classes/wpaicg_dashboard.php:2056
+#: classes/wpaicg_dashboard.php:3282
 #: classes/wpaicg_logs.php:45
-#: classes/wpaicg_logs.php:707
-#: classes/wpaicg_logs.php:951
+#: classes/wpaicg_logs.php:754
+#: classes/wpaicg_logs.php:998
 msgid "Nonce verification failed."
 msgstr ""
 
 #: admin/extra/wpaicg_form_settings.php:23
 #: admin/extra/wpaicg_image_generator_settings.php:45
 #: admin/extra/wpaicg_promptbase_settings.php:19
-#: classes/wpaicg_dashboard.php:2813
-#: classes/wpaicg_dashboard.php:2817
+#: classes/wpaicg_dashboard.php:2701
+#: classes/wpaicg_dashboard.php:2705
 msgid "Settings updated successfully."
 msgstr ""
 
@@ -1731,8 +1722,8 @@ msgstr ""
 #: admin/extra/wpaicg_form_settings.php:69
 #: admin/extra/wpaicg_image_generator_settings.php:94
 #: admin/extra/wpaicg_promptbase_settings.php:69
-#: admin/views/settings/chatbots.php:516
-#: admin/views/settings/chatbots.php:548
+#: admin/views/settings/chatbots.php:513
+#: admin/views/settings/chatbots.php:545
 msgid "Notification Message"
 msgstr ""
 
@@ -1824,8 +1815,8 @@ msgstr ""
 #: admin/extra/wpaicg_form_shortcode.php:727
 #: admin/extra/wpaicg_prompt_shortcode.php:620
 #: admin/extra/wpaicg_single.php:450
-#: admin/views/settings/chatlogs.php:135
-#: classes/wpaicg_logs.php:225
+#: admin/views/settings/chatlogs.php:180
+#: classes/wpaicg_logs.php:269
 #: lib/views/chat/embeddings.php:56
 msgid "Token"
 msgstr ""
@@ -1874,7 +1865,9 @@ msgstr ""
 #: admin/extra/wpaicg_prompt_shortcode.php:653
 #: admin/views/settings/chat-interface-settings.php:44
 #: admin/views/settings/chatbots.php:49
-#: admin/views/settings/chatlogs.php:118
+#: admin/views/settings/chatlogs.php:163
+#: admin/views/settings/chatlogs.php:210
+#: admin/views/settings/chatlogs.php:226
 msgid "Close"
 msgstr ""
 
@@ -2019,12 +2012,12 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1130
 #: admin/views/audio/converter.php:115
 #: admin/views/embeddings/index.php:381
-#: admin/views/settings/ai.php:112
-#: admin/views/settings/ai.php:162
-#: admin/views/settings/ai.php:221
-#: admin/views/settings/chatlogs.php:134
-#: admin/views/settings/image_settings.php:420
-#: classes/wpaicg_dashboard.php:2473
+#: admin/views/settings/ai.php:113
+#: admin/views/settings/ai.php:163
+#: admin/views/settings/ai.php:222
+#: admin/views/settings/chatlogs.php:179
+#: admin/views/settings/image_settings.php:432
+#: classes/wpaicg_dashboard.php:2361
 #: lib/views/chat/embeddings.php:59
 msgid "Model"
 msgstr ""
@@ -2035,7 +2028,7 @@ msgstr ""
 #: admin/views/finetune/files.php:78
 #: admin/views/metabox.php:897
 #: admin/views/settings/image_settings.php:194
-#: admin/views/settings/image_settings.php:380
+#: admin/views/settings/image_settings.php:381
 msgid "Size"
 msgstr ""
 
@@ -2053,14 +2046,14 @@ msgstr ""
 
 #: admin/extra/wpaicg_image_generator.php:589
 #: admin/views/settings/chat-style-settings.php:22
-#: admin/views/settings/extra_tools.php:161
+#: admin/views/settings/extra_tools.php:165
 msgid "Width"
 msgstr ""
 
 #: admin/extra/wpaicg_image_generator.php:599
 #: admin/views/settings/chat-style-settings.php:27
 #: admin/views/settings/chat-style-settings.php:101
-#: admin/views/settings/extra_tools.php:165
+#: admin/views/settings/extra_tools.php:169
 msgid "Height"
 msgstr ""
 
@@ -2134,8 +2127,8 @@ msgstr ""
 
 #: admin/extra/wpaicg_image_generator_log.php:55
 #: admin/views/settings/chat-general-settings.php:305
-#: classes/wpaicg_dashboard.php:2484
-#: classes/wpaicg_dashboard.php:2576
+#: classes/wpaicg_dashboard.php:2372
+#: classes/wpaicg_dashboard.php:2464
 msgid "Shortcode"
 msgstr ""
 
@@ -2431,7 +2424,7 @@ msgstr ""
 #: admin/views/settings/chatbots.php:126
 #: admin/views/settings/chatbots.php:140
 #: admin/views/settings/chatbots.php:154
-#: admin/views/settings/chatlogs.php:89
+#: admin/views/settings/chatlogs.php:134
 #: classes/wpaicg_embeddings.php:537
 #: classes/wpaicg_finetune.php:1365
 #: classes/wpaicg_woocommerce.php:617
@@ -2485,21 +2478,21 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:873
 #: admin/views/metabox.php:151
 #: admin/views/metabox.php:922
-#: admin/views/settings/chat-common-settings.php:170
+#: admin/views/settings/chat-common-settings.php:184
 #: admin/views/settings/chatbots.php:356
-#: admin/views/settings/content_settings.php:173
-#: admin/views/settings/image_settings.php:486
+#: admin/views/settings/content_settings.php:174
+#: admin/views/settings/image_settings.php:497
 msgid "Language"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:549
 #: admin/views/metabox.php:578
-#: admin/views/settings/chatbots.php:367
+#: admin/views/settings/chatbots.php:366
 msgid "Tone"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:561
-#: admin/views/settings/content_settings.php:209
+#: admin/views/settings/content_settings.php:210
 msgid "Headings"
 msgstr ""
 
@@ -2509,7 +2502,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:570
 #: admin/views/metabox.php:403
-#: admin/views/settings/content_settings.php:221
+#: admin/views/settings/content_settings.php:222
 msgid "Heading Tag"
 msgstr ""
 
@@ -2615,51 +2608,49 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:892
 #: admin/views/metabox.php:885
 #: admin/views/metabox.php:941
-#: admin/views/settings/image_settings.php:369
-#: admin/views/settings/image_settings.php:509
+#: admin/views/settings/image_settings.php:370
+#: admin/views/settings/image_settings.php:522
 msgid "Orientation"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:844
 #: admin/views/metabox.php:888
-#: admin/views/settings/image_settings.php:372
+#: admin/views/settings/image_settings.php:373
 msgid "Landscape"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:845
 #: admin/views/metabox.php:889
-#: admin/views/settings/image_settings.php:373
+#: admin/views/settings/image_settings.php:374
 msgid "Portrait"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:846
 #: admin/views/metabox.php:890
-#: admin/views/settings/image_settings.php:374
+#: admin/views/settings/image_settings.php:375
 msgid "Square"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:853
 #: admin/views/metabox.php:900
-#: admin/views/settings/image_settings.php:383
+#: admin/views/settings/image_settings.php:384
 msgid "Large"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:854
 #: admin/views/metabox.php:901
-#: admin/views/settings/image_settings.php:384
+#: admin/views/settings/image_settings.php:385
 msgid "Medium"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:855
 #: admin/views/metabox.php:902
-#: admin/views/settings/image_settings.php:385
+#: admin/views/settings/image_settings.php:386
 msgid "Small"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:860
 #: admin/extra/wpaicg_single.php:908
-#: admin/views/settings/image_settings.php:391
-#: admin/views/settings/image_settings.php:528
 msgid "Use Keyword"
 msgstr ""
 
@@ -2694,56 +2685,56 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:894
 #: admin/views/metabox.php:934
 #: admin/views/metabox.php:943
-#: admin/views/settings/image_settings.php:500
-#: admin/views/settings/image_settings.php:511
+#: admin/views/settings/image_settings.php:513
+#: admin/views/settings/image_settings.php:524
 msgid "All"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:886
 #: admin/views/metabox.php:935
-#: admin/views/settings/image_settings.php:501
+#: admin/views/settings/image_settings.php:514
 msgid "Photo"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:887
 #: admin/views/metabox.php:936
-#: admin/views/settings/image_settings.php:502
+#: admin/views/settings/image_settings.php:515
 msgid "Illustration"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:888
 #: admin/views/metabox.php:937
-#: admin/views/settings/image_settings.php:503
+#: admin/views/settings/image_settings.php:516
 msgid "Vector"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:895
 #: admin/views/metabox.php:944
-#: admin/views/settings/image_settings.php:512
+#: admin/views/settings/image_settings.php:525
 msgid "Horizontal"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:896
 #: admin/views/metabox.php:945
-#: admin/views/settings/image_settings.php:513
+#: admin/views/settings/image_settings.php:526
 msgid "Vertical"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:900
 #: admin/views/metabox.php:949
-#: admin/views/settings/image_settings.php:519
+#: admin/views/settings/image_settings.php:531
 msgid "Order"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:902
 #: admin/views/metabox.php:951
-#: admin/views/settings/image_settings.php:521
+#: admin/views/settings/image_settings.php:533
 msgid "Popular"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:903
 #: admin/views/metabox.php:952
-#: admin/views/settings/image_settings.php:522
+#: admin/views/settings/image_settings.php:534
 msgid "Latest"
 msgstr ""
 
@@ -2767,6 +2758,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:942
 #: admin/views/metabox.php:1024
+#: admin/views/settings/content_settings.php:298
 msgid "Hide Introduction Title"
 msgstr ""
 
@@ -2776,6 +2768,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:951
 #: admin/views/metabox.php:1092
+#: admin/views/settings/content_settings.php:338
 msgid "Hide Conclusion Title"
 msgstr ""
 
@@ -2813,7 +2806,7 @@ msgid "Call-to-Action"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1028
-#: admin/views/settings/content_settings.php:233
+#: admin/views/settings/content_settings.php:234
 msgid "CTA Position"
 msgstr ""
 
@@ -2835,9 +2828,9 @@ msgid "Template"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1089
-#: admin/views/settings/chatbots.php:802
-#: admin/views/settings/chatbots.php:808
-#: classes/wpaicg_dashboard.php:2471
+#: admin/views/settings/chatbots.php:799
+#: admin/views/settings/chatbots.php:805
+#: classes/wpaicg_dashboard.php:2359
 msgid "Name"
 msgstr ""
 
@@ -2856,7 +2849,7 @@ msgid "Provider"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1174
-#: admin/views/settings/ai.php:246
+#: admin/views/settings/ai.php:247
 msgid "Gemini Pro"
 msgstr ""
 
@@ -2893,19 +2886,19 @@ msgid "Update"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1293
-#: admin/views/settings/ai.php:76
-#: admin/views/settings/chatbots.php:625
+#: admin/views/settings/ai.php:77
+#: admin/views/settings/chatbots.php:622
 msgid "OpenAI"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1294
-#: admin/views/settings/ai.php:78
-#: admin/views/settings/chatbots.php:627
+#: admin/views/settings/ai.php:79
+#: admin/views/settings/chatbots.php:624
 msgid "Google"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1295
-#: admin/views/settings/ai.php:77
+#: admin/views/settings/ai.php:78
 msgid "OpenRouter"
 msgstr ""
 
@@ -3127,7 +3120,7 @@ msgid "Token/Price"
 msgstr ""
 
 #: admin/views/account/index.php:262
-#: admin/views/settings/dashboard.php:113
+#: admin/views/settings/dashboard.php:103
 msgid "Chatbot"
 msgstr ""
 
@@ -3162,7 +3155,7 @@ msgid "Computer"
 msgstr ""
 
 #: admin/views/audio/converter.php:97
-#: admin/views/settings/chat-common-settings.php:243
+#: admin/views/settings/chat-common-settings.php:284
 msgid "URL"
 msgstr ""
 
@@ -3187,7 +3180,7 @@ msgid "The transcript is about OpenAI which makes technology like DALL·E, GPT-3
 msgstr ""
 
 #: admin/views/audio/converter.php:131
-#: admin/views/settings/chatbots.php:652
+#: admin/views/settings/chatbots.php:649
 msgid "Output Format"
 msgstr ""
 
@@ -3364,13 +3357,13 @@ msgid "DB"
 msgstr ""
 
 #: admin/views/embeddings/index.php:414
-#: classes/wpaicg_dashboard.php:2399
-#: classes/wpaicg_dashboard.php:2402
-#: classes/wpaicg_dashboard.php:2404
-#: classes/wpaicg_dashboard.php:2419
-#: classes/wpaicg_dashboard.php:2437
-#: classes/wpaicg_dashboard.php:2573
-#: classes/wpaicg_dashboard.php:2574
+#: classes/wpaicg_dashboard.php:2287
+#: classes/wpaicg_dashboard.php:2290
+#: classes/wpaicg_dashboard.php:2292
+#: classes/wpaicg_dashboard.php:2307
+#: classes/wpaicg_dashboard.php:2325
+#: classes/wpaicg_dashboard.php:2461
+#: classes/wpaicg_dashboard.php:2462
 msgid "N/A"
 msgstr ""
 
@@ -3527,7 +3520,7 @@ msgid "Level"
 msgstr ""
 
 #: admin/views/finetune/events.php:21
-#: classes/wpaicg_logs.php:224
+#: classes/wpaicg_logs.php:268
 msgid "Message"
 msgstr ""
 
@@ -4330,162 +4323,214 @@ msgstr ""
 msgid "Search anything.."
 msgstr ""
 
-#: admin/views/settings/ai.php:67
+#: admin/views/settings/ai.php:68
 msgid "AI Settings"
 msgstr ""
 
-#: admin/views/settings/ai.php:79
+#: admin/views/settings/ai.php:80
 msgid "Microsoft"
 msgstr ""
 
-#: admin/views/settings/ai.php:88
-#: admin/views/settings/ai.php:313
+#: admin/views/settings/ai.php:89
+#: admin/views/settings/ai.php:314
 #: admin/views/settings/chat-general-settings.php:29
 #: admin/views/settings/chatbots.php:162
 msgid "Advanced Settings"
 msgstr ""
 
-#: admin/views/settings/ai.php:93
-#: admin/views/settings/ai.php:364
+#: admin/views/settings/ai.php:94
+#: admin/views/settings/ai.php:382
 msgid "Safety Settings"
 msgstr ""
 
-#: admin/views/settings/ai.php:97
+#: admin/views/settings/ai.php:98
 msgid "AI Engine Documentation"
 msgstr ""
 
-#: admin/views/settings/ai.php:104
-#: admin/views/settings/ai.php:152
-#: admin/views/settings/ai.php:212
-#: admin/views/settings/ai.php:262
+#: admin/views/settings/ai.php:105
+#: admin/views/settings/ai.php:153
+#: admin/views/settings/ai.php:213
+#: admin/views/settings/ai.php:263
+#: admin/views/settings/chat-common-settings.php:85
+#: admin/views/settings/chat-common-settings.php:102
 #: admin/views/settings/image_settings.php:359
-#: admin/views/settings/image_settings.php:411
-#: admin/views/settings/image_settings.php:476
+#: admin/views/settings/image_settings.php:423
+#: admin/views/settings/image_settings.php:488
 #: lib/views/twitter/index.php:47
 msgid "API Key"
 msgstr ""
 
-#: admin/views/settings/ai.php:108
-#: admin/views/settings/ai.php:157
-#: admin/views/settings/ai.php:216
-#: admin/views/settings/ai.php:265
+#: admin/views/settings/ai.php:109
+#: admin/views/settings/ai.php:158
+#: admin/views/settings/ai.php:217
+#: admin/views/settings/ai.php:266
 #: admin/views/settings/chat-common-settings.php:87
-#: admin/views/settings/chat-common-settings.php:105
-#: admin/views/settings/chat-common-settings.php:144
+#: admin/views/settings/chat-common-settings.php:104
+#: admin/views/settings/chat-common-settings.php:158
 msgid "Get API Key"
 msgstr ""
 
-#: admin/views/settings/ai.php:115
+#: admin/views/settings/ai.php:116
 msgid "GPT-3.5 Models"
 msgstr ""
 
-#: admin/views/settings/ai.php:122
+#: admin/views/settings/ai.php:123
 msgid "GPT-4 Models"
 msgstr ""
 
-#: admin/views/settings/ai.php:130
+#: admin/views/settings/ai.php:131
 msgid "Custom Models"
 msgstr ""
 
-#: admin/views/settings/ai.php:139
+#: admin/views/settings/ai.php:140
 #: admin/views/settings/chat-general-settings.php:46
 msgid "Syncs the latest models from OpenAI"
 msgstr ""
 
-#: admin/views/settings/ai.php:143
+#: admin/views/settings/ai.php:144
 msgid "OpenAI Documentation"
 msgstr ""
 
-#: admin/views/settings/ai.php:200
+#: admin/views/settings/ai.php:201
 #: admin/views/settings/chat-general-settings.php:56
 msgid "Syncs the latest models from OpenRouter"
 msgstr ""
 
-#: admin/views/settings/ai.php:204
+#: admin/views/settings/ai.php:205
 msgid "OpenRouter Documentation"
 msgstr ""
 
-#: admin/views/settings/ai.php:249
+#: admin/views/settings/ai.php:250
 #: admin/views/settings/chat-general-settings.php:66
 msgid "Syncs the latest models from Google"
 msgstr ""
 
-#: admin/views/settings/ai.php:253
+#: admin/views/settings/ai.php:254
 msgid "Google Documentation"
 msgstr ""
 
-#: admin/views/settings/ai.php:271
+#: admin/views/settings/ai.php:272
 msgid "Endpoint"
 msgstr ""
 
-#: admin/views/settings/ai.php:279
+#: admin/views/settings/ai.php:280
 msgid "Deployment"
 msgstr ""
 
-#: admin/views/settings/ai.php:296
+#: admin/views/settings/ai.php:297
 msgid "Module Settings"
 msgstr ""
 
-#: admin/views/settings/ai.php:297
+#: admin/views/settings/ai.php:298
 msgid "To avoid cluttering your WP, disable the modules that you do not need."
 msgstr ""
 
-#: admin/views/settings/ai.php:320
+#: admin/views/settings/ai.php:318
+msgid "AI Parameters"
+msgstr ""
+
+#: admin/views/settings/ai.php:322
 #: admin/views/settings/chatbots.php:169
 msgid "Maximum Tokens"
 msgstr ""
 
-#: admin/views/settings/ai.php:327
+#: admin/views/settings/ai.php:369
 msgid "Buffer (in seconds)"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:27
+#: admin/views/settings/ai.php:386
+msgid "Adjust how likely you are to see responses that could be harmful. Content is blocked based on the probability that it is harmful."
+msgstr ""
+
+#: admin/views/settings/ai.php:390
+msgid "Harassment"
+msgstr ""
+
+#: admin/views/settings/ai.php:393
+#: admin/views/settings/ai.php:412
+#: admin/views/settings/ai.php:430
+#: admin/views/settings/ai.php:450
+#: admin/views/settings/ai.php:469
+msgid "Block None"
+msgstr ""
+
+#: admin/views/settings/ai.php:396
+#: admin/views/settings/ai.php:415
+#: admin/views/settings/ai.php:433
+#: admin/views/settings/ai.php:453
+#: admin/views/settings/ai.php:472
+msgid "Block Few"
+msgstr ""
+
+#: admin/views/settings/ai.php:399
+#: admin/views/settings/ai.php:418
+#: admin/views/settings/ai.php:436
+#: admin/views/settings/ai.php:456
+#: admin/views/settings/ai.php:475
+msgid "Block Some"
+msgstr ""
+
+#: admin/views/settings/ai.php:402
+#: admin/views/settings/ai.php:421
+#: admin/views/settings/ai.php:439
+#: admin/views/settings/ai.php:459
+#: admin/views/settings/ai.php:478
+msgid "Block Most"
+msgstr ""
+
+#: admin/views/settings/ai.php:409
+msgid "Hate Speech"
+msgstr ""
+
+#: admin/views/settings/ai.php:427
+msgid "Sexually Explicit"
+msgstr ""
+
+#: admin/views/settings/ai.php:447
+msgid "Dangerous"
+msgstr ""
+
+#: admin/views/settings/ai.php:466
+msgid "Civic Integrity"
+msgstr ""
+
+#: admin/views/settings/chat-common-settings.php:28
 msgid "Chat Settings"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:32
 #: admin/views/settings/chat-common-settings.php:33
-msgid "Conversations"
+#: admin/views/settings/chat-common-settings.php:34
+msgid "Miscellaneous"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:39
 #: admin/views/settings/chat-common-settings.php:40
-#: admin/views/settings/chat-common-settings.php:76
-#: admin/views/settings/chatbots.php:587
-#: admin/views/settings/chatbots.php:592
+#: admin/views/settings/chat-common-settings.php:41
+#: admin/views/settings/chat-common-settings.php:77
+#: admin/views/settings/chatbots.php:584
+#: admin/views/settings/chatbots.php:589
 msgid "Text to Speech"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:47
 #: admin/views/settings/chat-common-settings.php:48
-#: admin/views/settings/chat-common-settings.php:134
+#: admin/views/settings/chat-common-settings.php:49
+#: admin/views/settings/chat-common-settings.php:148
 msgid "Internet Browsing"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:55
 #: admin/views/settings/chat-common-settings.php:56
-#: admin/views/settings/chat-common-settings.php:198
+#: admin/views/settings/chat-common-settings.php:57
+#: admin/views/settings/chat-common-settings.php:212
 #: admin/views/settings/chat-general-settings.php:155
 msgid "Security"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:63
 #: admin/views/settings/chat-common-settings.php:64
+#: admin/views/settings/chat-common-settings.php:65
 msgid "Images"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:80
+#: admin/views/settings/chat-common-settings.php:81
 msgid "Google Settings"
-msgstr ""
-
-#: admin/views/settings/chat-common-settings.php:84
-#: admin/views/settings/chat-common-settings.php:141
-msgid "To use Google Text to Speech, you need to provide a Google API Key. This api key is used both for Text to Speech and Internet Browsing feature."
-msgstr ""
-
-#: admin/views/settings/chat-common-settings.php:85
-#: admin/views/settings/chat-common-settings.php:142
-msgid "Google API Key"
 msgstr ""
 
 #: admin/views/settings/chat-common-settings.php:93
@@ -4497,137 +4542,155 @@ msgstr ""
 msgid "ElevenLabs Settings"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:102
-msgid "To use ElevenLabs Text to Speech, you need to provide an ElevenLabs API Key."
-msgstr ""
-
-#: admin/views/settings/chat-common-settings.php:103
-msgid "ElevenLabs API Key"
-msgstr ""
-
+#: admin/views/settings/chat-common-settings.php:110
 #: admin/views/settings/chat-common-settings.php:111
-#: admin/views/settings/chat-common-settings.php:112
 msgid "Sync ElevenLabs Voices"
 msgstr ""
 
+#: admin/views/settings/chat-common-settings.php:116
 #: admin/views/settings/chat-common-settings.php:117
 msgid "Sync ElevenLabs Models"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:118
-msgid "Sync Models"
+#: admin/views/settings/chat-common-settings.php:136
+msgid "Hide API Errors"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:123
-msgid "Hide API Errors in Chat"
+#: admin/views/settings/chat-common-settings.php:152
+#: lib/views/twitter/index.php:36
+msgid "API Settings"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:150
-msgid "To use Internet Browsing, you need to provide a Google Custom Search Engine ID."
+#: admin/views/settings/chat-common-settings.php:156
+msgid "Google API Key"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:151
-msgid "Google Custom Search Engine ID"
+#: admin/views/settings/chat-common-settings.php:161
+msgid "Google Custom Search Engine Settings"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:153
-msgid "Get Custom Search Engine ID"
+#: admin/views/settings/chat-common-settings.php:165
+msgid "Google CSE ID"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:159
+#: admin/views/settings/chat-common-settings.php:167
+msgid "Get CSE ID"
+msgstr ""
+
+#: admin/views/settings/chat-common-settings.php:173
 msgid "Region"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:181
+#: admin/views/settings/chat-common-settings.php:195
 msgid "Results"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:205
-msgid "You can add banned words that will be filtered out from the chat. Enter words separated by commas."
-msgstr ""
-
-#: admin/views/settings/chat-common-settings.php:206
+#: admin/views/settings/chat-common-settings.php:216
 msgid "Banned Words"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:207
+#: admin/views/settings/chat-common-settings.php:220
+msgid "Enter words separated by commas:"
+msgstr ""
+
+#: admin/views/settings/chat-common-settings.php:223
 msgid "e.g., badword1, badword2"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:213
-msgid "You can add banned IP addresses that will be blocked from accessing the chat. Enter IP addresses separated by commas."
-msgstr ""
-
-#: admin/views/settings/chat-common-settings.php:214
+#: admin/views/settings/chat-common-settings.php:227
 msgid "Banned IP Addresses"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:215
+#: admin/views/settings/chat-common-settings.php:231
+msgid "Enter IP addresses separated by commas:"
+msgstr ""
+
+#: admin/views/settings/chat-common-settings.php:234
 msgid "e.g., 123.456.789.0, 987.654.321.0"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:225
+#: admin/views/settings/chat-common-settings.php:238
+msgid "IP Anonymization (GDPR)"
+msgstr ""
+
+#: admin/views/settings/chat-common-settings.php:254
+msgid "Anonymize IP Addresses"
+msgstr ""
+
+#: admin/views/settings/chat-common-settings.php:266
 #: admin/views/settings/image_settings.php:90
 msgid "Image Settings"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:232
+#: admin/views/settings/chat-common-settings.php:273
 msgid "User Uploads"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:234
+#: admin/views/settings/chat-common-settings.php:275
 msgid "Filesystem"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:235
+#: admin/views/settings/chat-common-settings.php:276
 msgid "Media Library"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:240
+#: admin/views/settings/chat-common-settings.php:281
 msgid "Processing Method"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:242
+#: admin/views/settings/chat-common-settings.php:283
 msgid "Base64"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:250
+#: admin/views/settings/chat-common-settings.php:289
 msgid "Quality"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:252
+#: admin/views/settings/chat-common-settings.php:291
 msgid "Auto"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:253
+#: admin/views/settings/chat-common-settings.php:292
 msgid "Low"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:254
+#: admin/views/settings/chat-common-settings.php:293
 msgid "High"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:259
-msgid "Delete Images After Processing"
+#: admin/views/settings/chat-common-settings.php:312
+msgid "Auto-Delete Images"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:270
-msgid "Conversations Settings"
+#: admin/views/settings/chat-common-settings.php:324
+msgid "Miscellaneous Settings"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:277
+#: admin/views/settings/chat-common-settings.php:328
+msgid "Conversation History"
+msgstr ""
+
+#: admin/views/settings/chat-common-settings.php:342
 msgid "Don't Load Past Chats"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:282
+#: admin/views/settings/chat-common-settings.php:346
+msgid "Purchase Tokens"
+msgstr ""
+
+#: admin/views/settings/chat-common-settings.php:360
 msgid "Enable Token Purchase"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:287
+#: admin/views/settings/chat-common-settings.php:364
+msgid "Typewriter Effect"
+msgstr ""
+
+#: admin/views/settings/chat-common-settings.php:378
 msgid "Enable Typewriter Effect"
 msgstr ""
 
-#: admin/views/settings/chat-common-settings.php:292
+#: admin/views/settings/chat-common-settings.php:383
 msgid "Typewriter Speed"
 msgstr ""
 
@@ -4706,7 +4769,7 @@ msgid "Internet"
 msgstr ""
 
 #: admin/views/settings/chat-general-settings.php:197
-#: admin/views/settings/chatbots.php:427
+#: admin/views/settings/chatbots.php:424
 msgid "PDF Upload Settings"
 msgstr ""
 
@@ -4731,7 +4794,7 @@ msgid "Speech"
 msgstr ""
 
 #: admin/views/settings/chat-general-settings.php:267
-#: admin/views/settings/chatbots.php:559
+#: admin/views/settings/chatbots.php:556
 msgid "Speech Settings"
 msgstr ""
 
@@ -4740,7 +4803,7 @@ msgid "Lead Collection"
 msgstr ""
 
 #: admin/views/settings/chat-general-settings.php:290
-#: admin/views/settings/chatbots.php:784
+#: admin/views/settings/chatbots.php:781
 msgid "Lead Collection Settings"
 msgstr ""
 
@@ -4780,64 +4843,44 @@ msgstr ""
 msgid "Example: 5"
 msgstr ""
 
-#: admin/views/settings/chat-interface-settings.php:8
-msgid "Fullscreen"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:55
-msgid "AI Name"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:59
-msgid "User Name"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:65
-msgid "Welcome Message"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:71
-msgid "Response Wait Message"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:75
-#: admin/views/settings/extra_tools.php:136
-msgid "Placeholder"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:81
-msgid "Footer Note"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:88
-msgid "Use Avatar"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:102
-msgid "AI Avatar"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:103
-msgid "Upload Avatar"
-msgstr ""
-
-#: admin/views/settings/chat-interface-settings.php:111
+#: admin/views/settings/chat-general-settings.php:341
 msgid "Widget Icon"
 msgstr ""
 
-#: admin/views/settings/chat-interface-settings.php:115
+#: admin/views/settings/chat-general-settings.php:345
 #: admin/views/settings/chat-style-settings.php:9
 #: admin/views/settings/chatbots.php:272
 #: classes/wpaicg_google_speech.php:87
 msgid "Default"
 msgstr ""
 
-#: admin/views/settings/chat-interface-settings.php:119
+#: admin/views/settings/chat-general-settings.php:349
 msgid "Custom"
 msgstr ""
 
-#: admin/views/settings/chat-interface-settings.php:126
+#: admin/views/settings/chat-general-settings.php:356
 msgid "Upload Icon"
+msgstr ""
+
+#: admin/views/settings/chat-interface-settings.php:8
+msgid "Fullscreen"
+msgstr ""
+
+#: admin/views/settings/chat-interface-settings.php:55
+msgid "Welcome Message"
+msgstr ""
+
+#: admin/views/settings/chat-interface-settings.php:61
+msgid "Response Wait Message"
+msgstr ""
+
+#: admin/views/settings/chat-interface-settings.php:65
+#: admin/views/settings/extra_tools.php:139
+msgid "Placeholder"
+msgstr ""
+
+#: admin/views/settings/chat-interface-settings.php:71
+msgid "Footer Note"
 msgstr ""
 
 #: admin/views/settings/chat-style-settings.php:7
@@ -4882,15 +4925,15 @@ msgstr ""
 
 #: admin/views/settings/chat-style-settings.php:35
 #: admin/views/settings/chat-style-settings.php:81
-#: admin/views/settings/extra_tools.php:157
-#: admin/views/settings/extra_tools.php:193
+#: admin/views/settings/extra_tools.php:161
+#: admin/views/settings/extra_tools.php:197
 msgid "Background"
 msgstr ""
 
 #: admin/views/settings/chat-style-settings.php:40
 #: admin/views/settings/chat-style-settings.php:86
-#: admin/views/settings/extra_tools.php:149
-#: admin/views/settings/extra_tools.php:189
+#: admin/views/settings/extra_tools.php:153
+#: admin/views/settings/extra_tools.php:193
 msgid "Font Color"
 msgstr ""
 
@@ -4903,8 +4946,8 @@ msgid "User Color"
 msgstr ""
 
 #: admin/views/settings/chat-style-settings.php:55
-#: admin/views/settings/extra_tools.php:141
-#: admin/views/settings/extra_tools.php:181
+#: admin/views/settings/extra_tools.php:145
+#: admin/views/settings/extra_tools.php:185
 msgid "Font Size"
 msgstr ""
 
@@ -4984,9 +5027,9 @@ msgid "New Bot"
 msgstr ""
 
 #: admin/views/settings/chatbots.php:56
-#: admin/views/settings/chatlogs.php:21
-#: admin/views/settings/extra_tools.php:255
-#: classes/wpaicg_logs.php:342
+#: admin/views/settings/chatlogs.php:20
+#: admin/views/settings/extra_tools.php:259
+#: classes/wpaicg_logs.php:394
 #: lib/modules/wpaicg_user_pdfs.php:135
 #: lib/views/chat/pdfs.php:19
 msgid "Sure?"
@@ -5092,354 +5135,428 @@ msgstr ""
 msgid "Use Default Embedding"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:357
-#: admin/views/settings/chatbots.php:378
-msgid "Select none if not listed."
-msgstr ""
-
-#: admin/views/settings/chatbots.php:368
-msgid "Set the tone."
-msgstr ""
-
-#: admin/views/settings/chatbots.php:377
+#: admin/views/settings/chatbots.php:375
 msgid "Profession"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:394
+#: admin/views/settings/chatbots.php:391
 msgid "Feedback Collection Settings"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:398
+#: admin/views/settings/chatbots.php:395
 msgid "Let users provide feedback on the AI responses. When enabled, a little thumbs up/down icon will appear after each response."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:402
+#: admin/views/settings/chatbots.php:399
 msgid "Feedback Title"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:409
+#: admin/views/settings/chatbots.php:406
 msgid "Feedback Message"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:416
+#: admin/views/settings/chatbots.php:413
 msgid "Feedback Confirmation Message"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:431
+#: admin/views/settings/chatbots.php:428
 msgid "Enabling this allows users to upload PDF files to the chatbot."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:435
+#: admin/views/settings/chatbots.php:432
 msgid "PDF Upload Confirmation Message"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:436
+#: admin/views/settings/chatbots.php:433
 msgid "Congrats! Your PDF is uploaded now! You can ask questions about your document. Example Questions:[questions]"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:442
+#: admin/views/settings/chatbots.php:439
 msgid "PDF Page Limit"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:454
+#: admin/views/settings/chatbots.php:451
 msgid "PDF Icon Color"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:465
-#: admin/views/settings/chatbots.php:474
+#: admin/views/settings/chatbots.php:462
+#: admin/views/settings/chatbots.php:471
 msgid "Conversation Starters"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:469
+#: admin/views/settings/chatbots.php:466
 msgid "These are initial messages that the chatbot can use to initiate conversations."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:470
+#: admin/views/settings/chatbots.php:467
 msgid "Enter up to 10 conversation starters, one per line."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:485
+#: admin/views/settings/chatbots.php:482
 msgid "Log & Security Settings"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:489
+#: admin/views/settings/chatbots.php:486
 msgid "You can enable or disable logging and set the moderation for the chatbot."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:490
+#: admin/views/settings/chatbots.php:487
 msgid "Log Settings"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:495
+#: admin/views/settings/chatbots.php:492
 msgid "Save Prompt Details"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:505
+#: admin/views/settings/chatbots.php:502
 msgid "Display Notification"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:520
+#: admin/views/settings/chatbots.php:517
 msgid "Moderation Settings"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:522
+#: admin/views/settings/chatbots.php:518
 msgid "You can turn moderation on or off for the chatbot. When it is on, the chatbot will not respond to messages until they are approved by the OpenAI moderation model. This feature only works with OpenAI."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:526
+#: admin/views/settings/chatbots.php:523
 msgid "Enable Moderation"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:538
+#: admin/views/settings/chatbots.php:535
 msgid "Moderation Model"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:540
+#: admin/views/settings/chatbots.php:537
 msgid "text-moderation-latest"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:541
+#: admin/views/settings/chatbots.php:538
 msgid "text-moderation-stable"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:542
+#: admin/views/settings/chatbots.php:539
 msgid "omni-moderation-latest"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:549
+#: admin/views/settings/chatbots.php:546
 #: classes/wpaicg_chat.php:345
-#: classes/wpaicg_chat.php:392
+#: classes/wpaicg_chat.php:389
 #: lib/modules/wpaicg_chat_pro.php:29
 msgid "Your message has been flagged as potentially harmful or inappropriate. Please ensure that your messages are respectful and do not contain language or content that could be offensive or harmful to others. Thank you for your cooperation."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:563
+#: admin/views/settings/chatbots.php:560
 msgid "You can turn voice options on or off for the chatbot. Voice features do not work with Streaming, so make sure to turn off Streaming."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:564
-#: admin/views/settings/chatbots.php:569
+#: admin/views/settings/chatbots.php:561
+#: admin/views/settings/chatbots.php:566
 msgid "Speech to Text"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:578
+#: admin/views/settings/chatbots.php:575
 msgid "Microphone Play Color"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:583
+#: admin/views/settings/chatbots.php:580
 msgid "Microphone Stop Color"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:602
+#: admin/views/settings/chatbots.php:599
 msgid "Allow users to disable"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:612
-msgid "Voice is disabled by default"
+#: admin/views/settings/chatbots.php:609
+msgid "Autoplay"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:623
+#: admin/views/settings/chatbots.php:620
 msgid "Voice Provider"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:626
+#: admin/views/settings/chatbots.php:623
 msgid "ElevenLabs"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:632
-#: admin/views/settings/chatbots.php:670
+#: admin/views/settings/chatbots.php:629
+#: admin/views/settings/chatbots.php:667
 msgid "Voice Model"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:634
+#: admin/views/settings/chatbots.php:631
 msgid "tts-1 (Fastest)"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:635
+#: admin/views/settings/chatbots.php:632
 msgid "tts-1-hd (Highest Quality)"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:640
-#: admin/views/settings/chatbots.php:685
+#: admin/views/settings/chatbots.php:637
+#: admin/views/settings/chatbots.php:682
 msgid "Voice"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:642
+#: admin/views/settings/chatbots.php:639
 msgid "Alloy"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:643
+#: admin/views/settings/chatbots.php:640
 msgid "Echo"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:644
+#: admin/views/settings/chatbots.php:641
 msgid "Fable"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:645
+#: admin/views/settings/chatbots.php:642
 msgid "Onyx"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:646
+#: admin/views/settings/chatbots.php:643
 msgid "Nova"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:647
+#: admin/views/settings/chatbots.php:644
 msgid "Shimmer"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:654
+#: admin/views/settings/chatbots.php:651
 msgid "MP3"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:655
+#: admin/views/settings/chatbots.php:652
 msgid "OPUS"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:656
+#: admin/views/settings/chatbots.php:653
 msgid "AAC"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:657
+#: admin/views/settings/chatbots.php:654
 msgid "FLAC"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:658
+#: admin/views/settings/chatbots.php:655
 msgid "WAV"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:659
+#: admin/views/settings/chatbots.php:656
 msgid "PCM"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:664
-#: admin/views/settings/chatbots.php:745
+#: admin/views/settings/chatbots.php:661
+#: admin/views/settings/chatbots.php:742
 msgid "Voice Speed"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:699
+#: admin/views/settings/chatbots.php:696
 msgid "Language & Voice"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:728
+#: admin/views/settings/chatbots.php:725
 msgid "No voices available"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:734
+#: admin/views/settings/chatbots.php:731
 msgid "Device"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:751
+#: admin/views/settings/chatbots.php:748
 msgid "Voice Pitch"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:764
+#: admin/views/settings/chatbots.php:761
 msgid "Role Based Token Limit"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:768
+#: admin/views/settings/chatbots.php:765
 msgid "You can set the token limit for each user role. Empty and 0 means unlimited."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:788
+#: admin/views/settings/chatbots.php:785
 msgid "When enabled, the collection form will appear after the first AI response."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:789
+#: admin/views/settings/chatbots.php:786
 msgid "The form will only be shown once, unless the user clicks the \"Clear\" button to reset the chat."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:790
+#: admin/views/settings/chatbots.php:787
 msgid "You can view the collected leads in the \"Logs\" tab."
 msgstr ""
 
-#: admin/views/settings/chatbots.php:791
+#: admin/views/settings/chatbots.php:788
 msgid "Configuration"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:819
-#: admin/views/settings/chatbots.php:825
+#: admin/views/settings/chatbots.php:816
+#: admin/views/settings/chatbots.php:822
 #: lib/views/builder/custom_post_type.php:40
 msgid "Email"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:836
-#: admin/views/settings/chatbots.php:842
+#: admin/views/settings/chatbots.php:833
+#: admin/views/settings/chatbots.php:839
 msgid "Phone"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:15
+#: admin/views/settings/chatlogs.php:14
 msgid "Search Logs..."
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:31
+#: admin/views/settings/chatlogs.php:30
 msgid "Tools to refresh, export, and delete all logs"
 msgstr ""
 
+#: admin/views/settings/chatlogs.php:55
+#: classes/wpaicg_logs.php:375
+msgid "lead"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:55
+#: classes/wpaicg_logs.php:377
+msgid "leads"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:57
+#: classes/wpaicg_logs.php:372
+msgid "feedback"
+msgstr ""
+
 #: admin/views/settings/chatlogs.php:63
-#: classes/wpaicg_logs.php:600
-#: classes/wpaicg_logs.php:612
-#: classes/wpaicg_logs.php:665
-#: classes/wpaicg_logs.php:675
+msgid "<p>You have <a href=\"#\" id=\"aipower-leads-link\">%d %s</a> and <a href=\"#\" id=\"aipower-feedback-link\">%d %s</a>.</p>"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:72
+msgid "<p>You have <a href=\"#\" id=\"aipower-leads-link\">%d %s</a>.</p>"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:79
+msgid "<p>You have <a href=\"#\" id=\"aipower-feedback-link\">%d %s</a>.</p>"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:108
+#: classes/wpaicg_logs.php:647
+#: classes/wpaicg_logs.php:659
+#: classes/wpaicg_logs.php:712
+#: classes/wpaicg_logs.php:722
 msgid "Revise Answer"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:70
+#: admin/views/settings/chatlogs.php:115
+#: admin/views/settings/chatlogs.php:1014
+#: admin/views/settings/chatlogs.php:1043
 msgid "User Message:"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:77
+#: admin/views/settings/chatlogs.php:122
+#: admin/views/settings/chatlogs.php:1015
+#: admin/views/settings/chatlogs.php:1045
 msgid "AI Response:"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:84
+#: admin/views/settings/chatlogs.php:129
 msgid "Expected Response:"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:90
+#: admin/views/settings/chatlogs.php:135
 msgid "Update Answer"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:104
-#: classes/wpaicg_logs.php:597
-#: classes/wpaicg_logs.php:609
-#: classes/wpaicg_logs.php:663
-#: classes/wpaicg_logs.php:673
+#: admin/views/settings/chatlogs.php:149
+#: classes/wpaicg_logs.php:644
+#: classes/wpaicg_logs.php:656
+#: classes/wpaicg_logs.php:710
+#: classes/wpaicg_logs.php:720
 msgid "Prompt Details"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:126
+#: admin/views/settings/chatlogs.php:171
 msgid "Token Usage Details"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:136
+#: admin/views/settings/chatlogs.php:181
 msgid "Cost"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:144
+#: admin/views/settings/chatlogs.php:189
 msgid "Total"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:774
-#: admin/views/settings/chatlogs.php:785
-#: classes/wpaicg_logs.php:957
+#: admin/views/settings/chatlogs.php:203
+msgid "Leads Details"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:219
+msgid "Feedback Details"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:849
+#: admin/views/settings/chatlogs.php:860
+#: classes/wpaicg_logs.php:1004
 msgid "Invalid IP address."
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:813
+#: admin/views/settings/chatlogs.php:888
 msgid "IP Blocked"
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:820
+#: admin/views/settings/chatlogs.php:895
 msgid "An error occurred while blocking the IP."
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:853
+#: admin/views/settings/chatlogs.php:928
 msgid "No AI messages to display."
 msgstr ""
 
-#: admin/views/settings/chatlogs.php:881
+#: admin/views/settings/chatlogs.php:956
 msgid "No AI messages with token data."
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1009
+msgid "No leads available."
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1015
+#: admin/views/settings/chatlogs.php:1045
+msgid "No AI response"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1017
+msgid "Lead Info:"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1018
+#: classes/wpaicg_logs.php:611
+msgid "Name:"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1019
+#: classes/wpaicg_logs.php:614
+msgid "Email:"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1020
+#: classes/wpaicg_logs.php:617
+msgid "Phone:"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1037
+msgid "No feedback available."
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1044
+msgid "Sent at:"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1046
+msgid "AI Response at:"
+msgstr ""
+
+#: admin/views/settings/chatlogs.php:1047
+msgid "Feedback:"
 msgstr ""
 
 #: admin/views/settings/content_settings.php:74
@@ -5486,65 +5603,74 @@ msgstr ""
 msgid "Use Custom Prompt"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:185
+#: admin/views/settings/content_settings.php:170
+msgid "If Custom Prompt is enabled, the settings below will be ignored."
+msgstr ""
+
+#: admin/views/settings/content_settings.php:186
 msgid "Writing Style"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:197
+#: admin/views/settings/content_settings.php:198
 msgid "Writing Tone"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:249
+#: admin/views/settings/content_settings.php:250
 msgid "Table of Contents Settings"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:262
-#: admin/views/settings/content_settings.php:286
-#: admin/views/settings/content_settings.php:316
+#: admin/views/settings/content_settings.php:263
 msgid "Tag"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:279
+#: admin/views/settings/content_settings.php:280
 msgid "Introduction Settings"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:298
-#: admin/views/settings/content_settings.php:328
-msgid "Hide Title"
+#: admin/views/settings/content_settings.php:303
+msgid "Introduction Tag"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:309
+#: admin/views/settings/content_settings.php:320
 msgid "Conclusion Settings"
 msgstr ""
 
-#: admin/views/settings/content_settings.php:339
-msgid "Custom Prompt for Express Mode"
-msgstr ""
-
-#: admin/views/settings/content_settings.php:350
-msgid "Enter your custom prompt here..."
+#: admin/views/settings/content_settings.php:343
+msgid "Conclusion Tag"
 msgstr ""
 
 #: admin/views/settings/content_settings.php:360
+msgid "Custom Prompt for Express Mode"
+msgstr ""
+
+#: admin/views/settings/content_settings.php:363
+msgid "You can customize the prompt used for generating content in Express Mode."
+msgstr ""
+
+#: admin/views/settings/content_settings.php:373
+msgid "Enter your custom prompt here..."
+msgstr ""
+
+#: admin/views/settings/content_settings.php:384
 msgid "Make sure to include %s in your prompt. You can also add %s and %s to further customize your prompt."
 msgstr ""
 
-#: admin/views/settings/content_settings.php:372
-#: admin/views/settings/image_settings.php:570
-#: admin/views/settings/image_settings.php:620
+#: admin/views/settings/content_settings.php:396
+#: admin/views/settings/image_settings.php:594
+#: admin/views/settings/image_settings.php:644
 msgid "Make sure to include %s in your prompt."
 msgstr ""
 
-#: admin/views/settings/dashboard.php:95
+#: admin/views/settings/dashboard.php:85
 msgid "AI Power"
 msgstr ""
 
-#: admin/views/settings/dashboard.php:109
+#: admin/views/settings/dashboard.php:99
 msgid "Dashboard"
 msgstr ""
 
-#: admin/views/settings/dashboard.php:116
-#: classes/wpaicg_dashboard.php:2472
+#: admin/views/settings/dashboard.php:106
+#: classes/wpaicg_dashboard.php:2360
 msgid "Tools"
 msgstr ""
 
@@ -5577,115 +5703,111 @@ msgstr ""
 msgid "Custom Prompt for Comment Replier"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:110
-msgid "Prompt for Comment Replier "
+#: admin/views/settings/extra_tools.php:107
+msgid "You can customize the prompt that is used to generate a response to a comment."
 msgstr ""
 
 #: admin/views/settings/extra_tools.php:113
 msgid "Ensure %s, %s, %s, %s, and %s are included in your prompt."
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:118
-msgid "Reset to Default"
-msgstr ""
-
-#: admin/views/settings/extra_tools.php:128
+#: admin/views/settings/extra_tools.php:130
 msgid "Settings for Semantic Search"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:132
+#: admin/views/settings/extra_tools.php:134
 msgid "Insert this code where you want the search box: <code>[wpaicg_search]</code>"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:134
+#: admin/views/settings/extra_tools.php:136
 msgid "Search Box"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:153
+#: admin/views/settings/extra_tools.php:157
 msgid "Border Color"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:170
+#: admin/views/settings/extra_tools.php:174
 msgid "Search Results"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:173
+#: admin/views/settings/extra_tools.php:177
 msgid "Nr. of Results"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:197
+#: admin/views/settings/extra_tools.php:201
 msgid "Progress Color"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:209
+#: admin/views/settings/extra_tools.php:213
 msgid "Settings for Token Sale"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:214
+#: admin/views/settings/extra_tools.php:218
 msgid "Automatically credit tokens to the user's account based on the order status."
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:215
+#: admin/views/settings/extra_tools.php:219
 msgid "Order Status"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:218
+#: admin/views/settings/extra_tools.php:222
 #: admin/views/settings/woocommerce.php:246
 #: classes/wpaicg_content.php:380
 #: classes/wpaicg_content.php:454
 msgid "Completed"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:221
+#: admin/views/settings/extra_tools.php:225
 #: admin/views/settings/woocommerce.php:247
 msgid "Processing"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:224
+#: admin/views/settings/extra_tools.php:228
 msgid "If the order status is 'Completed', the tokens will be credited to the user's account once the order is marked as completed. If the order status is 'Processing', the tokens will be credited to the user's account once the order is marked as processing."
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:234
+#: admin/views/settings/extra_tools.php:238
 msgid "AI Assistant Settings"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:239
+#: admin/views/settings/extra_tools.php:243
 msgid "AI Assistant is a feature that allows you to add a button to the WordPress editor that will help you to create content."
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:240
+#: admin/views/settings/extra_tools.php:244
 msgid "It is compatible with both Gutenberg and Classic Editor."
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:241
+#: admin/views/settings/extra_tools.php:245
 msgid "Use the form below to add, modify, or remove menus as needed."
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:242
+#: admin/views/settings/extra_tools.php:246
 msgid "Select a Menu"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:265
+#: admin/views/settings/extra_tools.php:269
 msgid "Menu Name"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:269
+#: admin/views/settings/extra_tools.php:273
 msgid "Menu Prompt"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:271
+#: admin/views/settings/extra_tools.php:275
 msgid "Ensure to include [text] in your prompt."
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:277
+#: admin/views/settings/extra_tools.php:281
 msgid "Content Position"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:279
+#: admin/views/settings/extra_tools.php:283
 msgid "Below"
 msgstr ""
 
-#: admin/views/settings/extra_tools.php:280
+#: admin/views/settings/extra_tools.php:284
 msgid "Above"
 msgstr ""
 
@@ -5703,12 +5825,12 @@ msgid "DALL-E Settings"
 msgstr ""
 
 #: admin/views/settings/image_settings.php:142
-#: admin/views/settings/image_settings.php:539
+#: admin/views/settings/image_settings.php:563
 msgid "Custom Image Prompt"
 msgstr ""
 
 #: admin/views/settings/image_settings.php:152
-#: admin/views/settings/image_settings.php:589
+#: admin/views/settings/image_settings.php:613
 msgid "Custom Featured Image Prompt"
 msgstr ""
 
@@ -5721,42 +5843,47 @@ msgid "Pexels Settings"
 msgstr ""
 
 #: admin/views/settings/image_settings.php:361
-#: admin/views/settings/image_settings.php:413
-#: admin/views/settings/image_settings.php:478
+#: admin/views/settings/image_settings.php:425
+#: admin/views/settings/image_settings.php:490
 msgid "Get Your Key"
 msgstr ""
 
 #: admin/views/settings/image_settings.php:403
+#: admin/views/settings/image_settings.php:552
+msgid "Optimize Search Query"
+msgstr ""
+
+#: admin/views/settings/image_settings.php:415
 msgid "Replicate Settings"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:440
+#: admin/views/settings/image_settings.php:452
 msgid "Sync Replicate Models"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:449
+#: admin/views/settings/image_settings.php:461
 msgid "Version"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:468
+#: admin/views/settings/image_settings.php:480
 msgid "Pixabay Settings"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:544
-#: admin/views/settings/image_settings.php:594
+#: admin/views/settings/image_settings.php:568
+#: admin/views/settings/image_settings.php:618
 msgid "Prompt Templates"
 msgstr ""
 
-#: admin/views/settings/image_settings.php:546
-#: admin/views/settings/image_settings.php:596
+#: admin/views/settings/image_settings.php:570
+#: admin/views/settings/image_settings.php:620
 msgid "Select a template..."
 msgstr ""
 
-#: admin/views/settings/image_settings.php:561
+#: admin/views/settings/image_settings.php:585
 msgid "Enter your custom image prompt here..."
 msgstr ""
 
-#: admin/views/settings/image_settings.php:611
+#: admin/views/settings/image_settings.php:635
 msgid "Enter your custom featured image prompt here..."
 msgstr ""
 
@@ -6422,58 +6549,58 @@ msgid "The model predicted a completion that begins with a stop sequence, result
 msgstr ""
 
 #: classes/wpaicg_chat.php:326
-#: classes/wpaicg_chat.php:388
+#: classes/wpaicg_chat.php:385
 #: classes/wpaicg_playground.php:281
 msgid "You have reached your token limit."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1476
+#: classes/wpaicg_chat.php:1477
 msgid "It appears that nothing was inputted."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1553
+#: classes/wpaicg_chat.php:1554
 msgid "File type is not allowed. Only PNG, JPEG, WEBP, and non-animated GIF are supported."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1659
+#: classes/wpaicg_chat.php:1660
 msgid "Accepted audio and video formats: MP3, MP4, MPEG, M4A, WAV, and WEBM."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1663
+#: classes/wpaicg_chat.php:1664
 msgid "Maximum audio file size: 25MB."
 msgstr ""
 
-#: classes/wpaicg_chat.php:1669
+#: classes/wpaicg_chat.php:1670
 msgid "Failed to read the audio file."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2039
-#: classes/wpaicg_chat.php:2054
+#: classes/wpaicg_chat.php:2040
+#: classes/wpaicg_chat.php:2055
 msgid "You are not allowed to access this feature."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2079
-#: classes/wpaicg_chat.php:2093
+#: classes/wpaicg_chat.php:2080
+#: classes/wpaicg_chat.php:2094
 msgid "Your message contains prohibited words. Please modify your message and try again."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2295
+#: classes/wpaicg_chat.php:2311
 msgid "No results from Pinecone."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2303
+#: classes/wpaicg_chat.php:2319
 msgid "Something wrong with Pinecone setup. Check your Pinecone settings."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2429
+#: classes/wpaicg_chat.php:2445
 msgid "No results from Qdrant."
 msgstr ""
 
-#: classes/wpaicg_chat.php:2430
+#: classes/wpaicg_chat.php:2446
 msgid "Response from Qdrant: "
 msgstr ""
 
-#: classes/wpaicg_chat.php:2454
+#: classes/wpaicg_chat.php:2470
 msgid "Something wrong with Qdrant setup3. Check your Qdrant settings."
 msgstr ""
 
@@ -6567,31 +6694,31 @@ msgstr ""
 
 #: classes/wpaicg_dashboard.php:58
 #: classes/wpaicg_dashboard.php:185
-#: classes/wpaicg_dashboard.php:2202
-#: classes/wpaicg_dashboard.php:2365
-#: classes/wpaicg_dashboard.php:2714
-#: classes/wpaicg_dashboard.php:2738
-#: classes/wpaicg_dashboard.php:2827
-#: classes/wpaicg_dashboard.php:2857
-#: classes/wpaicg_dashboard.php:3008
-#: classes/wpaicg_dashboard.php:3033
-#: classes/wpaicg_dashboard.php:3059
-#: classes/wpaicg_dashboard.php:3084
-#: classes/wpaicg_dashboard.php:3135
-#: classes/wpaicg_dashboard.php:3158
-#: classes/wpaicg_dashboard.php:3319
-#: classes/wpaicg_dashboard.php:3400
+#: classes/wpaicg_dashboard.php:2090
+#: classes/wpaicg_dashboard.php:2253
+#: classes/wpaicg_dashboard.php:2602
+#: classes/wpaicg_dashboard.php:2626
+#: classes/wpaicg_dashboard.php:2715
+#: classes/wpaicg_dashboard.php:2745
+#: classes/wpaicg_dashboard.php:2896
+#: classes/wpaicg_dashboard.php:2921
+#: classes/wpaicg_dashboard.php:2947
+#: classes/wpaicg_dashboard.php:2972
+#: classes/wpaicg_dashboard.php:3023
+#: classes/wpaicg_dashboard.php:3046
+#: classes/wpaicg_dashboard.php:3207
+#: classes/wpaicg_dashboard.php:3288
 #: classes/wpaicg_finetune.php:59
 #: classes/wpaicg_logs.php:39
-#: classes/wpaicg_logs.php:420
-#: classes/wpaicg_logs.php:444
-#: classes/wpaicg_logs.php:701
-#: classes/wpaicg_logs.php:737
-#: classes/wpaicg_logs.php:770
-#: classes/wpaicg_logs.php:806
-#: classes/wpaicg_logs.php:839
-#: classes/wpaicg_logs.php:862
-#: classes/wpaicg_logs.php:945
+#: classes/wpaicg_logs.php:467
+#: classes/wpaicg_logs.php:491
+#: classes/wpaicg_logs.php:748
+#: classes/wpaicg_logs.php:784
+#: classes/wpaicg_logs.php:817
+#: classes/wpaicg_logs.php:853
+#: classes/wpaicg_logs.php:886
+#: classes/wpaicg_logs.php:909
+#: classes/wpaicg_logs.php:992
 #: lib/modules/wpaicg_user_pdfs.php:212
 #: lib/modules/wpaicg_user_pdfs.php:233
 #: lib/modules/wpaicg_user_pdfs.php:276
@@ -6652,13 +6779,13 @@ msgid "No chatbots found to export."
 msgstr ""
 
 #: classes/wpaicg_dashboard.php:233
-#: classes/wpaicg_dashboard.php:2217
-#: classes/wpaicg_dashboard.php:3325
+#: classes/wpaicg_dashboard.php:2105
+#: classes/wpaicg_dashboard.php:3213
 msgid "Invalid chatbot ID."
 msgstr ""
 
 #: classes/wpaicg_dashboard.php:239
-#: classes/wpaicg_dashboard.php:3334
+#: classes/wpaicg_dashboard.php:3222
 msgid "Chatbot not found."
 msgstr ""
 
@@ -6684,8 +6811,8 @@ msgstr ""
 
 #: classes/wpaicg_dashboard.php:314
 #: classes/wpaicg_dashboard.php:356
-#: classes/wpaicg_dashboard.php:590
-#: classes/wpaicg_dashboard.php:2174
+#: classes/wpaicg_dashboard.php:573
+#: classes/wpaicg_dashboard.php:2062
 msgid "Insufficient permissions."
 msgstr ""
 
@@ -6705,373 +6832,363 @@ msgstr ""
 msgid "Shortcode bot data not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:456
+#: classes/wpaicg_dashboard.php:454
 msgid "Widget bot data not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:469
-#: classes/wpaicg_dashboard.php:1386
-#: classes/wpaicg_dashboard.php:1782
-#: classes/wpaicg_dashboard.php:1856
-#: classes/wpaicg_dashboard.php:2280
+#: classes/wpaicg_dashboard.php:467
+#: classes/wpaicg_dashboard.php:1342
+#: classes/wpaicg_dashboard.php:1690
+#: classes/wpaicg_dashboard.php:1764
+#: classes/wpaicg_dashboard.php:2168
 msgid "Bot not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:488
-#: classes/wpaicg_dashboard.php:1392
-#: classes/wpaicg_dashboard.php:1788
-#: classes/wpaicg_dashboard.php:1862
-#: classes/wpaicg_dashboard.php:2287
+#: classes/wpaicg_dashboard.php:486
+#: classes/wpaicg_dashboard.php:1348
+#: classes/wpaicg_dashboard.php:1696
+#: classes/wpaicg_dashboard.php:1770
+#: classes/wpaicg_dashboard.php:2175
 msgid "Invalid bot data format."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:577
-#: classes/wpaicg_dashboard.php:1379
+#: classes/wpaicg_dashboard.php:560
+#: classes/wpaicg_dashboard.php:1335
 msgid "Invalid Bot ID."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:600
+#: classes/wpaicg_dashboard.php:583
 msgid "Field name is missing."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1160
+#: classes/wpaicg_dashboard.php:1121
 msgid "Field definition not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1240
+#: classes/wpaicg_dashboard.php:1200
 msgid "Failed to create bot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1367
+#: classes/wpaicg_dashboard.php:1323
 msgid "Bot created successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1400
-#: classes/wpaicg_dashboard.php:1619
-#: classes/wpaicg_dashboard.php:1715
+#: classes/wpaicg_dashboard.php:1356
+#: classes/wpaicg_dashboard.php:1551
+#: classes/wpaicg_dashboard.php:1623
 msgid "Invalid value provided."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1441
+#: classes/wpaicg_dashboard.php:1397
 msgid "Failed to update post title."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1521
-#: classes/wpaicg_dashboard.php:1643
+#: classes/wpaicg_dashboard.php:1477
+#: classes/wpaicg_dashboard.php:1575
 msgid "Icon ID is required when using a custom icon."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1527
-#: classes/wpaicg_dashboard.php:1649
-#: classes/wpaicg_dashboard.php:2182
+#: classes/wpaicg_dashboard.php:1483
+#: classes/wpaicg_dashboard.php:1581
+#: classes/wpaicg_dashboard.php:2070
 msgid "Invalid attachment ID or not an image."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1545
-#: classes/wpaicg_dashboard.php:1667
-msgid "AI Avatar ID is required when using a custom avatar."
-msgstr ""
-
-#: classes/wpaicg_dashboard.php:1551
-#: classes/wpaicg_dashboard.php:1673
-msgid "Invalid AI Avatar ID or not an image."
-msgstr ""
-
-#: classes/wpaicg_dashboard.php:1574
+#: classes/wpaicg_dashboard.php:1506
 msgid "Invalid voice_language format."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1586
-#: classes/wpaicg_dashboard.php:1685
-#: classes/wpaicg_dashboard.php:1806
-#: classes/wpaicg_dashboard.php:1949
+#: classes/wpaicg_dashboard.php:1518
+#: classes/wpaicg_dashboard.php:1593
+#: classes/wpaicg_dashboard.php:1714
+#: classes/wpaicg_dashboard.php:1856
 msgid "Bot updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1597
-#: classes/wpaicg_dashboard.php:1699
+#: classes/wpaicg_dashboard.php:1529
+#: classes/wpaicg_dashboard.php:1607
 msgid "Invalid Bot ID for option type."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1606
+#: classes/wpaicg_dashboard.php:1538
 msgid "Bot name is not editable for default bots."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1611
-#: classes/wpaicg_dashboard.php:1707
+#: classes/wpaicg_dashboard.php:1543
+#: classes/wpaicg_dashboard.php:1615
 msgid "Bot data not found in options."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1733
-#: classes/wpaicg_dashboard.php:2902
+#: classes/wpaicg_dashboard.php:1641
+#: classes/wpaicg_dashboard.php:2790
 msgid "Setting updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1738
+#: classes/wpaicg_dashboard.php:1646
 msgid "Field mapping not defined."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1802
+#: classes/wpaicg_dashboard.php:1710
 msgid "Invalid Bot ID for conversation starters."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1924
+#: classes/wpaicg_dashboard.php:1831
 msgid "Invalid provider."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1928
+#: classes/wpaicg_dashboard.php:1835
 msgid "Provider not found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1938
+#: classes/wpaicg_dashboard.php:1845
 msgid "Invalid field for widget bot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:1945
+#: classes/wpaicg_dashboard.php:1852
 msgid "Invalid Bot ID for field."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2191
+#: classes/wpaicg_dashboard.php:2079
 msgid "Failed to retrieve attachment URL."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2214
+#: classes/wpaicg_dashboard.php:2102
 msgid "Failed to delete the chatbot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2267
-#: classes/wpaicg_dashboard.php:2320
+#: classes/wpaicg_dashboard.php:2155
+#: classes/wpaicg_dashboard.php:2208
 msgid "Chatbot Toggle"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2328
+#: classes/wpaicg_dashboard.php:2216
 msgid "Invalid bot type."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2334
+#: classes/wpaicg_dashboard.php:2222
 msgid "Invalid request parameters."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2474
-#: classes/wpaicg_logs.php:226
+#: classes/wpaicg_dashboard.php:2362
+#: classes/wpaicg_logs.php:270
 #: lib/modules/wpaicg_user_pdfs.php:86
 msgid "Actions"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2488
-#: classes/wpaicg_dashboard.php:2524
-#: classes/wpaicg_dashboard.php:2585
+#: classes/wpaicg_dashboard.php:2376
+#: classes/wpaicg_dashboard.php:2412
+#: classes/wpaicg_dashboard.php:2473
 msgid "Streaming Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2492
-#: classes/wpaicg_dashboard.php:2528
-#: classes/wpaicg_dashboard.php:2589
+#: classes/wpaicg_dashboard.php:2380
+#: classes/wpaicg_dashboard.php:2416
+#: classes/wpaicg_dashboard.php:2477
 msgid "Image Upload Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2496
-#: classes/wpaicg_dashboard.php:2532
-#: classes/wpaicg_dashboard.php:2593
+#: classes/wpaicg_dashboard.php:2384
+#: classes/wpaicg_dashboard.php:2420
+#: classes/wpaicg_dashboard.php:2481
 msgid "Vector DB Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2500
-#: classes/wpaicg_dashboard.php:2536
-#: classes/wpaicg_dashboard.php:2597
+#: classes/wpaicg_dashboard.php:2388
+#: classes/wpaicg_dashboard.php:2424
+#: classes/wpaicg_dashboard.php:2485
 msgid "Internet Browsing Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2505
-#: classes/wpaicg_dashboard.php:2541
-#: classes/wpaicg_dashboard.php:2602
+#: classes/wpaicg_dashboard.php:2393
+#: classes/wpaicg_dashboard.php:2429
+#: classes/wpaicg_dashboard.php:2490
 msgid "Audio Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2511
-#: classes/wpaicg_dashboard.php:2512
+#: classes/wpaicg_dashboard.php:2399
+#: classes/wpaicg_dashboard.php:2400
 msgid "Default Shortcode"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2511
+#: classes/wpaicg_dashboard.php:2399
 msgid "Preview Shortcode"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2512
+#: classes/wpaicg_dashboard.php:2400
 msgid "Edit Shortcode"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2520
+#: classes/wpaicg_dashboard.php:2408
 msgid "Site-wide Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2544
-#: classes/wpaicg_dashboard.php:2606
+#: classes/wpaicg_dashboard.php:2432
+#: classes/wpaicg_dashboard.php:2494
 msgid "PDF Upload Enabled"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2550
-#: classes/wpaicg_dashboard.php:2551
+#: classes/wpaicg_dashboard.php:2438
+#: classes/wpaicg_dashboard.php:2439
 msgid "Default Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2550
+#: classes/wpaicg_dashboard.php:2438
 msgid "Preview Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2551
+#: classes/wpaicg_dashboard.php:2439
 msgid "Edit Widget"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2559
+#: classes/wpaicg_dashboard.php:2447
 msgid "Toggle Widget Status"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2614
+#: classes/wpaicg_dashboard.php:2502
 msgid "Preview Bot"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2617
+#: classes/wpaicg_dashboard.php:2505
 msgid "Edit Bot"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2699
+#: classes/wpaicg_dashboard.php:2587
 msgid "No chatbots found."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2732
+#: classes/wpaicg_dashboard.php:2620
 msgid "All chatbots deleted successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2782
+#: classes/wpaicg_dashboard.php:2670
 msgid "Custom image setting updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2793
+#: classes/wpaicg_dashboard.php:2681
 msgid "Editor button menus updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2795
+#: classes/wpaicg_dashboard.php:2683
 msgid "Invalid data for editor button menus."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2820
-#: classes/wpaicg_dashboard.php:2850
-#: classes/wpaicg_dashboard.php:2904
-#: classes/wpaicg_dashboard.php:3025
-#: classes/wpaicg_dashboard.php:3050
-#: classes/wpaicg_dashboard.php:3076
-#: classes/wpaicg_dashboard.php:3127
-#: classes/wpaicg_dashboard.php:3150
-#: classes/wpaicg_dashboard.php:3175
+#: classes/wpaicg_dashboard.php:2708
+#: classes/wpaicg_dashboard.php:2738
+#: classes/wpaicg_dashboard.php:2792
+#: classes/wpaicg_dashboard.php:2913
+#: classes/wpaicg_dashboard.php:2938
+#: classes/wpaicg_dashboard.php:2964
+#: classes/wpaicg_dashboard.php:3015
+#: classes/wpaicg_dashboard.php:3038
+#: classes/wpaicg_dashboard.php:3063
 msgid "Invalid request."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2848
+#: classes/wpaicg_dashboard.php:2736
 msgid "Google safety settings updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2895
+#: classes/wpaicg_dashboard.php:2783
 msgid "Failed to update the setting."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2898
+#: classes/wpaicg_dashboard.php:2786
 msgid "Invalid setting."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2912
+#: classes/wpaicg_dashboard.php:2800
 msgid "you do not have sufficient permissions to perform this action."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2920
+#: classes/wpaicg_dashboard.php:2808
 msgid "nonce verification failed."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2947
+#: classes/wpaicg_dashboard.php:2835
 msgid "invalid value type: must be an integer."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2954
+#: classes/wpaicg_dashboard.php:2842
 msgid "invalid value type: must be a number."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2961
+#: classes/wpaicg_dashboard.php:2849
 msgid "invalid value type: must be boolean."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2969
+#: classes/wpaicg_dashboard.php:2857
 msgid "invalid value: must be one of the allowed options."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2974
+#: classes/wpaicg_dashboard.php:2862
 msgid "unsupported field type."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2980
+#: classes/wpaicg_dashboard.php:2868
 msgid "value is below the minimum allowed."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:2983
+#: classes/wpaicg_dashboard.php:2871
 msgid "value exceeds the maximum allowed."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3002
+#: classes/wpaicg_dashboard.php:2890
 msgid "Field or model not found in the schema."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3023
+#: classes/wpaicg_dashboard.php:2911
 msgid "Azure settings updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3048
+#: classes/wpaicg_dashboard.php:2936
 msgid "Google model updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3074
+#: classes/wpaicg_dashboard.php:2962
 msgid "AI engine updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3122
+#: classes/wpaicg_dashboard.php:3010
 msgid "API key updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3124
+#: classes/wpaicg_dashboard.php:3012
 msgid "Failed to update the API key."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3148
+#: classes/wpaicg_dashboard.php:3036
 msgid "OpenAI model updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3173
+#: classes/wpaicg_dashboard.php:3061
 msgid "OpenRouter model updated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3345
+#: classes/wpaicg_dashboard.php:3233
 msgid "Invalid chatbot data."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3350
+#: classes/wpaicg_dashboard.php:3238
 msgid "Duplicated"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3356
+#: classes/wpaicg_dashboard.php:3244
 msgid "Failed to encode duplicated chatbot data."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3371
+#: classes/wpaicg_dashboard.php:3259
 msgid "Failed to duplicate chatbot."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3386
+#: classes/wpaicg_dashboard.php:3274
 msgid "Chatbot duplicated successfully."
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3413
+#: classes/wpaicg_dashboard.php:3301
 msgid "not found or already deleted"
 msgstr ""
 
-#: classes/wpaicg_dashboard.php:3423
+#: classes/wpaicg_dashboard.php:3311
 msgid "Reset completed. %d option(s) deleted."
 msgstr ""
 
@@ -7514,179 +7631,155 @@ msgid "Invalid log ID or message identifier."
 msgstr ""
 
 #: classes/wpaicg_logs.php:65
-#: classes/wpaicg_logs.php:466
+#: classes/wpaicg_logs.php:513
 msgid "Log not found."
 msgstr ""
 
 #: classes/wpaicg_logs.php:73
-#: classes/wpaicg_logs.php:474
+#: classes/wpaicg_logs.php:521
 msgid "Invalid log data."
 msgstr ""
 
-#: classes/wpaicg_logs.php:236
+#: classes/wpaicg_logs.php:280
 msgid "ago"
 msgstr ""
 
-#: classes/wpaicg_logs.php:307
+#: classes/wpaicg_logs.php:362
 msgid "Has Feedback"
 msgstr ""
 
-#: classes/wpaicg_logs.php:310
+#: classes/wpaicg_logs.php:365
 msgid "Has Lead"
 msgstr ""
 
-#: classes/wpaicg_logs.php:310
+#: classes/wpaicg_logs.php:365
 msgid "Lead"
 msgstr ""
 
-#: classes/wpaicg_logs.php:315
+#: classes/wpaicg_logs.php:370
 msgid "messages"
 msgstr ""
 
-#: classes/wpaicg_logs.php:318
-msgid "feedback"
-msgstr ""
-
-#: classes/wpaicg_logs.php:322
-msgid "lead"
-msgstr ""
-
-#: classes/wpaicg_logs.php:324
-msgid "leads"
-msgstr ""
-
-#: classes/wpaicg_logs.php:328
+#: classes/wpaicg_logs.php:380
 msgid "Flagged Message(s)"
 msgstr ""
 
-#: classes/wpaicg_logs.php:336
+#: classes/wpaicg_logs.php:388
 msgid "View Token Details"
 msgstr ""
 
-#: classes/wpaicg_logs.php:340
+#: classes/wpaicg_logs.php:392
 msgid "Delete Log"
 msgstr ""
 
-#: classes/wpaicg_logs.php:409
+#: classes/wpaicg_logs.php:450
 msgid "No logs found."
 msgstr ""
 
-#: classes/wpaicg_logs.php:454
-#: classes/wpaicg_logs.php:747
+#: classes/wpaicg_logs.php:501
+#: classes/wpaicg_logs.php:794
 msgid "Invalid log ID."
 msgstr ""
 
-#: classes/wpaicg_logs.php:509
+#: classes/wpaicg_logs.php:556
 msgid "Source:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:512
-#: classes/wpaicg_logs.php:547
+#: classes/wpaicg_logs.php:559
+#: classes/wpaicg_logs.php:594
 msgid "User:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:517
+#: classes/wpaicg_logs.php:564
 msgid "IP:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:520
+#: classes/wpaicg_logs.php:567
 msgid "Block IP"
 msgstr ""
 
-#: classes/wpaicg_logs.php:524
+#: classes/wpaicg_logs.php:571
 msgid "Are you sure you want to block this IP?"
 msgstr ""
 
-#: classes/wpaicg_logs.php:530
+#: classes/wpaicg_logs.php:577
 #: lib/modules/wpaicg_user_pdfs.php:120
 msgid "Token:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:552
+#: classes/wpaicg_logs.php:599
 msgid "Flagged as"
 msgstr ""
 
-#: classes/wpaicg_logs.php:562
+#: classes/wpaicg_logs.php:609
 msgid "Lead Details"
 msgstr ""
 
-#: classes/wpaicg_logs.php:564
-msgid "Name:"
-msgstr ""
-
-#: classes/wpaicg_logs.php:567
-msgid "Email:"
-msgstr ""
-
-#: classes/wpaicg_logs.php:570
-msgid "Phone:"
-msgstr ""
-
-#: classes/wpaicg_logs.php:584
-#: classes/wpaicg_logs.php:651
+#: classes/wpaicg_logs.php:631
+#: classes/wpaicg_logs.php:698
 #: lib/modules/wpaicg_user_pdfs.php:121
 msgid "AI:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:595
-#: classes/wpaicg_logs.php:662
+#: classes/wpaicg_logs.php:642
+#: classes/wpaicg_logs.php:709
 msgid "Confidence:"
 msgstr ""
 
-#: classes/wpaicg_logs.php:626
+#: classes/wpaicg_logs.php:673
 msgid "Thumbs Up"
 msgstr ""
 
-#: classes/wpaicg_logs.php:630
+#: classes/wpaicg_logs.php:677
 msgid "Thumbs Down"
 msgstr ""
 
-#: classes/wpaicg_logs.php:713
+#: classes/wpaicg_logs.php:760
 msgid "No content provided."
 msgstr ""
 
-#: classes/wpaicg_logs.php:723
+#: classes/wpaicg_logs.php:770
 msgid "Answer revised successfully. Try asking your bot the same question."
 msgstr ""
 
-#: classes/wpaicg_logs.php:759
+#: classes/wpaicg_logs.php:806
 msgid "Log deleted successfully."
 msgstr ""
 
-#: classes/wpaicg_logs.php:761
+#: classes/wpaicg_logs.php:808
 msgid "Failed to delete log."
 msgstr ""
 
-#: classes/wpaicg_logs.php:787
+#: classes/wpaicg_logs.php:834
 msgid "There are no logs to delete."
 msgstr ""
 
-#: classes/wpaicg_logs.php:795
+#: classes/wpaicg_logs.php:842
 msgid "All logs deleted successfully."
 msgstr ""
 
-#: classes/wpaicg_logs.php:797
+#: classes/wpaicg_logs.php:844
 msgid "Failed to delete logs."
 msgstr ""
 
-#: classes/wpaicg_logs.php:853
-#: classes/wpaicg_logs.php:899
+#: classes/wpaicg_logs.php:900
+#: classes/wpaicg_logs.php:946
 msgid "The uploads folder is not writable. Please check the folder permissions."
 msgstr ""
 
-#: classes/wpaicg_logs.php:892
+#: classes/wpaicg_logs.php:939
 msgid "No logs found to export."
 msgstr ""
 
-#: classes/wpaicg_logs.php:911
+#: classes/wpaicg_logs.php:958
 msgid "Failed to create CSV file."
 msgstr ""
 
-#: classes/wpaicg_logs.php:969
+#: classes/wpaicg_logs.php:1016
 msgid "This IP is already blocked."
 msgstr ""
 
-#: classes/wpaicg_logs.php:980
+#: classes/wpaicg_logs.php:1027
 msgid "IP has been successfully blocked."
 msgstr ""
 
@@ -8104,10 +8197,6 @@ msgstr ""
 
 #: lib/views/rss/wpaicg_rss_alert.php:34
 msgid "Force Refresh"
-msgstr ""
-
-#: lib/views/twitter/index.php:36
-msgid "API Settings"
 msgstr ""
 
 #: lib/views/twitter/index.php:39

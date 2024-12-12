@@ -357,13 +357,14 @@ $prompt_templates = [
                 <div class="aipower-form-group aipower-api-key-group">
                     <label for="aipower-pexels-api-key">
                         <?php echo esc_html__('API Key', 'gpt3-ai-content-generator'); ?>
-                        <a href="https://www.pexels.com/api/new/" target="_blank" class="aipower-get-api-link">
+                        <a href="https://www.pexels.com/api/" target="_blank" class="aipower-get-api-link">
                             <?php echo esc_html__('Get Your Key', 'gpt3-ai-content-generator'); ?>
                         </a>
                     </label>
                     <input value="<?php echo esc_html($masked_pexels_api); ?>" type="text" name="wpaicg_pexels_api" id="aipower-pexels-api-key" data-full-api-key="<?php echo esc_attr($wpaicg_pexels_api); ?>">
                 </div>
-
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Orientation Dropdown -->
                 <div class="aipower-form-group">
                     <label for="aipower-pexels-orientation"><?php echo esc_html__('Orientation', 'gpt3-ai-content-generator'); ?></label>
@@ -385,11 +386,22 @@ $prompt_templates = [
                         <option <?php selected($wpaicg_pexels_size, 'small'); ?> value="small"><?php echo esc_html__('Small', 'gpt3-ai-content-generator'); ?></option>
                     </select>
                 </div>
-
-                <!-- Use Keyword Checkbox -->
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <div class="aipower-form-group">
-                    <label for="aipower-pexels-enable-prompt"><?php echo esc_html__('Use Keyword', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="checkbox" id="aipower-pexels-enable-prompt" name="wpaicg_pexels_enable_prompt" value="1" <?php checked(1, $wpaicg_pexels_enable_prompt); ?> />
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="aipower-pexels-enable-prompt" 
+                                name="wpaicg_pexels_enable_prompt" 
+                                value="1" 
+                                <?php checked(1, $wpaicg_pexels_enable_prompt); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-general-switch-label" for="aipower-pexels-enable-prompt"><?php echo esc_html__('Optimize Search Query', 'gpt3-ai-content-generator'); ?></label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -480,7 +492,6 @@ $prompt_templates = [
                     </label>
                     <input value="<?php echo esc_html($masked_pixabay_api); ?>" type="text" name="wpaicg_pixabay_api" id="aipower-pixabay-api-key" data-full-api-key="<?php echo esc_attr($wpaicg_pixabay_api); ?>">
                 </div>
-
                 <!-- Pixabay Language Dropdown -->
                 <div class="aipower-form-group">
                     <label for="aipower-pixabay-language"><?php echo esc_html__('Language', 'gpt3-ai-content-generator'); ?></label>
@@ -492,6 +503,8 @@ $prompt_templates = [
                         <?php endforeach; ?>
                     </select>
                 </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
 
                 <!-- Pixabay Type Dropdown -->
                 <div class="aipower-form-group">
@@ -513,7 +526,6 @@ $prompt_templates = [
                         <option value="vertical" <?php selected($wpaicg_pixabay_orientation, 'vertical'); ?>><?php echo esc_html__('Vertical', 'gpt3-ai-content-generator'); ?></option>
                     </select>
                 </div>
-
                 <!-- Pixabay Order Dropdown -->
                 <div class="aipower-form-group">
                     <label for="aipower-pixabay-order"><?php echo esc_html__('Order', 'gpt3-ai-content-generator'); ?></label>
@@ -522,11 +534,23 @@ $prompt_templates = [
                         <option value="latest" <?php selected($wpaicg_pixabay_order, 'latest'); ?>><?php echo esc_html__('Latest', 'gpt3-ai-content-generator'); ?></option>
                     </select>
                 </div>
-
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Pixabay Use Keyword Checkbox -->
                 <div class="aipower-form-group">
-                    <label for="aipower-pixabay-enable-prompt"><?php echo esc_html__('Use Keyword', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="checkbox" id="aipower-pixabay-enable-prompt" name="wpaicg_pixabay_enable_prompt" value="1" <?php checked(1, $wpaicg_pixabay_enable_prompt); ?> />
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="aipower-pixabay-enable-prompt" 
+                                name="wpaicg_pixabay_enable_prompt" 
+                                value="1" 
+                                <?php checked(1, $wpaicg_pixabay_enable_prompt); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-general-switch-label" for="aipower-pixabay-enable-prompt"><?php echo esc_html__('Optimize Search Query', 'gpt3-ai-content-generator'); ?></label>
+                    </div>
                 </div>
             </div>
         </div>

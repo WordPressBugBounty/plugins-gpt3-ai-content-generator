@@ -684,120 +684,121 @@
      */
     const fieldsConfig = [
         // Existing Content Settings
-        { field: 'wpai_language', selector: '#aipower-language-dropdown' },
-        { field: 'wpai_writing_style', selector: '#aipower-writing-style-dropdown' },
-        { field: 'wpai_writing_tone', selector: '#aipower-writing-tone-dropdown' },
-        { field: 'wpai_number_of_heading', selector: '#aipower-number-of-heading-dropdown' },
-        { field: 'wpai_heading_tag', selector: '#aipower-heading-tag-dropdown' },
-        { field: 'wpai_add_tagline', selector: '#aipower-add-tagline' },
-        { field: 'wpai_modify_headings', selector: '#aipower-modify-headings' },
-        { field: 'wpai_add_keywords_bold', selector: '#aipower-add-keywords-bold' },
-        { field: 'wpai_add_faq', selector: '#aipower-add-faq' },
+        { field: 'wpai_language', selector: '#aipower-language-dropdown', tooltip: '<p>If your language is not listed, you can enable custom prompt and instruct the AI to write in your preferred language.</p>' },
+        { field: 'wpai_writing_style', selector: '#aipower-writing-style-dropdown', tooltip: '<p>If none of the writing styles match your requirements, you can enable custom prompt and instruct the AI to write in your preferred style.</p>' },
+        { field: 'wpai_writing_tone', selector: '#aipower-writing-tone-dropdown', tooltip: '<p>If none of the writing tones match your requirements, you can enable custom prompt and instruct the AI to write in your preferred tone.</p>' },
+        { field: 'wpai_number_of_heading', selector: '#aipower-number-of-heading-dropdown', tooltip: '<p>Choose the number of headings you want in your content.</p>' },
+        { field: 'wpai_heading_tag', selector: '#aipower-heading-tag-dropdown', tooltip: '<p>Choose the heading tag you want to use for your headings.</p>' },
+        { field: 'wpai_add_tagline', selector: '#aipower-add-tagline', tooltip: '<p>Generates a tagline at the beginning of the content.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpai_modify_headings', selector: '#aipower-modify-headings', tooltip: '<p>Enables you to edit the headings before generating content.</p><p>Available only in Express Mode.</p>' },
+        { field: 'wpai_add_keywords_bold', selector: '#aipower-add-keywords-bold', tooltip: '<p>Makes the keywords bold in the content.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpai_add_faq', selector: '#aipower-add-faq', tooltip: '<p>Generates a FAQ section at the end of the content.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
         { field: 'wpaicg_toc', selector: '#aipower_toc', toggleGroups: ['#aipower_toc_settings'] },
-        { field: 'wpaicg_toc_title', selector: '#aipower_toc_title' },
-        { field: 'wpaicg_toc_title_tag', selector: '#aipower_toc_title_tag' },
+        { field: 'wpaicg_toc_title', selector: '#aipower_toc_title', tooltip: '<p>You can specify a custom title for the Table of Contents.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_toc_title_tag', selector: '#aipower_toc_title_tag', tooltip: '<p>Choose the heading tag you want to use for the Table of Contents title.</p>' },
         { field: 'wpai_add_intro', selector: '#aipower_add_intro', toggleGroups: ['#aipower_intro_settings'] },
-        { field: 'wpaicg_intro_title_tag', selector: '#aipower_intro_title_tag' },
-        { field: 'wpaicg_hide_introduction', selector: '#aipower_hide_introduction' },
+        { field: 'wpaicg_intro_title_tag', selector: '#aipower_intro_title_tag', tooltip: '<p>Choose the heading tag you want to use for the introduction title.</p>' },
+        { field: 'wpaicg_hide_introduction', selector: '#aipower_hide_introduction', tooltip: '<p>Introduction will be generated but its title will not be displayed.</p>' },
         { field: 'wpai_add_conclusion', selector: '#aipower_add_conclusion', toggleGroups: ['#aipower_conclusion_settings'] },
-        { field: 'wpaicg_hide_conclusion', selector: '#wpaicg_hide_conclusion' },
-        { field: 'wpaicg_conclusion_title_tag', selector: '#wpaicg_conclusion_title_tag' },
+        { field: 'wpaicg_hide_conclusion', selector: '#wpaicg_hide_conclusion', tooltip: '<p>Conclusion will be generated but its title will not be displayed.</p>' },
+        { field: 'wpaicg_conclusion_title_tag', selector: '#wpaicg_conclusion_title_tag', tooltip: '<p>Choose the heading tag you want to use for the conclusion title.</p>' },
         { field: 'wpaicg_content_custom_prompt_enable', selector: '#aipower_custom_prompt_enable', toggleGroups: ['#aipower_custom_prompt_box'] },
         { field: 'wpaicg_content_custom_prompt', selector: '#aipower_custom_prompt' },
         { field: 'wpaicg_custom_image_prompt_enable', selector: '#aipower_custom_image_prompt_enable', toggleGroups: ['#aipower_custom_prompt_box'] },
         { field: 'wpaicg_custom_image_prompt', selector: '#aipower_custom_image_prompt' },
         { field: 'wpaicg_custom_featured_image_prompt_enable', selector: '#aipower_custom_featured_image_prompt_enable', toggleGroups: ['#aipower_custom_prompt_box'] },
         { field: 'wpaicg_custom_featured_image_prompt', selector: '#aipower_custom_featured_image_prompt' },
-        { field: '_wpaicg_seo_meta_desc', selector: '#_wpaicg_seo_meta_desc' },
-        { field: '_wpaicg_seo_meta_tag', selector: '#_wpaicg_seo_meta_tag' },
-        { field: '_yoast_wpseo_metadesc', selector: '#_yoast_wpseo_metadesc' },
-        { field: '_aioseo_description', selector: '#_aioseo_description' },
-        { field: 'rank_math_description', selector: '#rank_math_description' },
-        { field: '_wpaicg_genesis_description', selector: '#_wpaicg_genesis_description' },
-        { field: '_wpaicg_gen_title_from_keywords', selector: '#_wpaicg_gen_title_from_keywords' },
-        { field: '_wpaicg_original_title_in_prompt', selector: '#_wpaicg_original_title_in_prompt' },
-        { field: '_wpaicg_focus_keyword_in_url', selector: '#_wpaicg_focus_keyword_in_url' },
-        { field: '_wpaicg_sentiment_in_title', selector: '#_wpaicg_sentiment_in_title' },
-        { field: '_wpaicg_power_word_in_title', selector: '#_wpaicg_power_word_in_title' },
-        { field: '_wpaicg_shorten_url', selector: '#_wpaicg_shorten_url' },
-        { field: 'wpai_cta_pos', selector: '#aipower-cta-position-dropdown' },
-        { field: 'img_size', selector: '#aipower-img-size' },
-        { field: 'wpaicg_dalle_type', selector: '#aipower-dalle-type' },
-        { field: '_wpaicg_image_style', selector: '#aipower-image-style' },
-        { field: 'wpaicg_custom_image_settings[artist]', selector: '#aipower-artist' },
-        { field: 'wpaicg_custom_image_settings[photography_style]', selector: '#aipower-photography-style' },
-        { field: 'wpaicg_custom_image_settings[lighting]', selector: '#aipower-lighting' },
-        { field: 'wpaicg_custom_image_settings[subject]', selector: '#aipower-subject' },
-        { field: 'wpaicg_custom_image_settings[camera_settings]', selector: '#aipower-camera-settings' },
-        { field: 'wpaicg_custom_image_settings[composition]', selector: '#aipower-composition' },
-        { field: 'wpaicg_custom_image_settings[resolution]', selector: '#aipower-resolution' },
-        { field: 'wpaicg_custom_image_settings[color]', selector: '#aipower-color' },
-        { field: 'wpaicg_custom_image_settings[special_effects]', selector: '#aipower-special-effects' },
-        { field: 'wpaicg_sd_api_key', selector: '#aipower-replicate-api-key' },
-        { field: 'wpaicg_default_replicate_model', selector: '#aipower-replicate-model' },
-        { field: 'wpaicg_sd_api_version', selector: '#aipower-replicate-version' },
-        { field: 'wpaicg_pexels_api', selector: '#aipower-pexels-api-key' },
-        { field: 'wpaicg_pexels_orientation', selector: '#aipower-pexels-orientation' },
-        { field: 'wpaicg_pexels_size', selector: '#aipower-pexels-size' },
-        { field: 'wpaicg_pexels_enable_prompt', selector: '#aipower-pexels-enable-prompt' },
-        { field: 'wpaicg_pixabay_api', selector: '#aipower-pixabay-api-key' },
-        { field: 'wpaicg_pixabay_language', selector: '#aipower-pixabay-language' },
-        { field: 'wpaicg_pixabay_type', selector: '#aipower-pixabay-type' },
-        { field: 'wpaicg_pixabay_orientation', selector: '#aipower-pixabay-orientation' },
-        { field: 'wpaicg_pixabay_order', selector: '#aipower-pixabay-order' },
-        { field: 'wpaicg_pixabay_enable_prompt', selector: '#aipower-pixabay-enable-prompt' },
+        { field: '_wpaicg_seo_meta_desc', selector: '#_wpaicg_seo_meta_desc', tooltip: '<p>Generates a meta description.</p><p>One of these plugins must be enabled (Yoast, All In One SEO, Rank Math, or The SEO Framework); otherwise, the meta will be generated but not included in the content.</p>'},
+        { field: '_wpaicg_seo_meta_tag', selector: '#_wpaicg_seo_meta_tag', tooltip: '<p>Adds a meta tag directly to your content.</p><p>Enable this only if you are not using any SEO plugin.</p>'},
+        { field: '_yoast_wpseo_metadesc', selector: '#_yoast_wpseo_metadesc', tooltip: '<p>Updates the meta description field in Yoast SEO plugin.</p>'},
+        { field: '_aioseo_description', selector: '#_aioseo_description', tooltip: '<p>Updates the meta description field in All In One SEO plugin.</p>'},
+        { field: 'rank_math_description', selector: '#rank_math_description', tooltip: '<p>Updates the meta description field in Rank Math SEO plugin.</p>'},
+        { field: '_wpaicg_genesis_description', selector: '#_wpaicg_genesis_description', tooltip: '<p>Updates the meta description field in The SEO Framework plugin.</p>' },
+        { field: '_wpaicg_gen_title_from_keywords', selector: '#_wpaicg_gen_title_from_keywords', tooltip: '<p>Generates title using provided keywords. </p><p>If no keywords are supplied, no title will be generated.</p><p> Works only in Express Mode, AutoGPT - Bulk Editor, and AutoGPT - Google Sheets.</p>' },
+        { field: '_wpaicg_original_title_in_prompt', selector: '#_wpaicg_original_title_in_prompt', tooltip: '<p>Includes the original title in the prompt when generating a new title. Useful for maintaining context while refining the title.</p><p>This feature works only if keywords are provided.</p><p><b><u>Example:</u></b></p><p><b>Original Title:</b> How to Grow Indoor Plants</p><p><b>Keywords:</b> Houseplants, Growth, Tips</p><p><b>Generated Title without Original Title:</b> The Ultimate Guide to Houseplant Growth: Tips and Tricks</p><p><b>Generated Title with Original Title:</b> How to Grow Indoor Plants: Essential Tips for Thriving Houseplants</p>'},
+        { field: '_wpaicg_focus_keyword_in_url', selector: '#_wpaicg_focus_keyword_in_url', tooltip: '<p>Ensures the focus keyword is included in the URL slug.</p><p>If multiple keywords are provided, only the first one will be used.</p><p>This feature works only when a focus keyword is set and the keyword is not already in the URL.</p>'},
+        { field: '_wpaicg_sentiment_in_title', selector: '#_wpaicg_sentiment_in_title', tooltip: '<p>Adds emotions to the title, either positive or negative.</p>' },
+        { field: '_wpaicg_power_word_in_title', selector: '#_wpaicg_power_word_in_title', tooltip: '<p>Adds a power word to the title to make it more engaging.</p>' },
+        { field: '_wpaicg_shorten_url', selector: '#_wpaicg_shorten_url', tooltip: '<p>Shortens URL to stay within 70 characters, including your domain name and slug.</p>' },
+        { field: 'wpai_cta_pos', selector: '#aipower-cta-position-dropdown', tooltip: '<p>Choose the position of the call-to-action link in your content.</p><p>The link will be added either at the beginning or end of the content.</p><p>Available only in Express Mode, AutoGPT - Bulk Editor, and AutoGPT - Google Sheets.</p>' },
+        { field: 'img_size', selector: '#aipower-img-size', tooltip: '<p>Choose the size of the image to be generated.</p><p>Must be one of <b>256x256</b>, <b>512x512</b>, or <b>1024x1024</b> for Dall-E 2.</p><p>Must be one of <b>1024x1024</b>, <b>1792x1024</b>, or <b>1024x1792</b> for Dall-E 3 models.</p>' },
+        { field: 'wpaicg_dalle_type', selector: '#aipower-dalle-type', tooltip: '<p>The style of the generated images.</p><p>Must be one of <b>Vivid</b> or <b>Natural</b>.</p><p>Vivid causes the model to lean towards generating hyper-real and dramatic images.</p><p>Natural causes the model to produce more natural, less hyper-real looking images.</p><p>This parameter is only supported for Dall-E 3.</p>' },
+        { field: '_wpaicg_image_style', selector: '#aipower-image-style', tooltip: '<p>The style of the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_custom_image_settings[artist]', selector: '#aipower-artist', tooltip: '<p>Choose an artist style for the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_custom_image_settings[photography_style]', selector: '#aipower-photography-style', tooltip: '<p>Choose a photography style for the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_custom_image_settings[lighting]', selector: '#aipower-lighting', tooltip: '<p>Choose a lighting style for the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_custom_image_settings[subject]', selector: '#aipower-subject', tooltip: '<p>Choose a subject for the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_custom_image_settings[camera_settings]', selector: '#aipower-camera-settings', tooltip: '<p>Choose camera settings for the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_custom_image_settings[composition]', selector: '#aipower-composition', tooltip: '<p>Choose a composition style for the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_custom_image_settings[resolution]', selector: '#aipower-resolution', tooltip: '<p>Choose the resolution for the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_custom_image_settings[color]', selector: '#aipower-color', tooltip: '<p>Choose a color scheme for the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_custom_image_settings[special_effects]', selector: '#aipower-special-effects', tooltip: '<p>Choose special effects for the generated images.</p><p>It will be ignored if the custom prompt is enabled.</p>' },
+        { field: 'wpaicg_sd_api_key', selector: '#aipower-replicate-api-key', tooltip: '<p>Enter your API key to use the Replicate feature.</p>' },
+        { field: 'wpaicg_default_replicate_model', selector: '#aipower-replicate-model', tooltip: '<p>Choose the default model for the Replicate feature.</p><p>This model will be used in both Express Mode and AutoGPT module.</p><p>Hit Sync button on the right to fetch the latest models.</p>' },
+        { field: 'wpaicg_sd_api_version', selector: '#aipower-replicate-version', tooltip: '<p>Choose the API version for the Replicate model.</p><p>By default, it is set to the latest version. However, you can enter a specific version if you want to use an older version.</p>' },
+        { field: 'wpaicg_pexels_api', selector: '#aipower-pexels-api-key', tooltip: '<p>Enter your API key to use the Pexels.</p>' },
+        { field: 'wpaicg_pexels_orientation', selector: '#aipower-pexels-orientation', tooltip: '<p>Desired photo orientation.</p><p>The current supported orientations are: <b>Landscape</b>, <b>Portrait</b> or <b>Square</b>.</p><p>Select <b>None</b> to use the default orientation.</p>' },
+        { field: 'wpaicg_pexels_size', selector: '#aipower-pexels-size', tooltip: '<p>Desired photo size.</p><p>The current supported sizes are: <b>Small</b>, <b>Medium</b> or <b>Large</b>.</p><p>Select <b>None</b> to use the default size.</p>' },
+        { field: 'wpaicg_pexels_enable_prompt', selector: '#aipower-pexels-enable-prompt', tooltip: '<p>Enabling this option allows the plugin to use AI (OpenAI, Google, OpenRouter, etc.) to extract a single keyword from your title for searching images on Pexels.</p><p>For example, if your title is “The Impact of Climate Change on Global Agriculture,” the plugin will send it to the AI for keyword extraction and receive something like “#climate” or “#agriculture.”</p><p>This keyword will then be used to search for relevant images.</p><p>If this option is disabled, the full title will be used for the search instead.</p>' },
+        { field: 'wpaicg_pixabay_api', selector: '#aipower-pixabay-api-key', tooltip: '<p>Enter your API key to use the Pixabay.</p>' },
+        { field: 'wpaicg_pixabay_language', selector: '#aipower-pixabay-language', tooltip: '<p>Choose the language to search for images.</p>' },
+        { field: 'wpaicg_pixabay_type', selector: '#aipower-pixabay-type', tooltip: '<p>Filter results by image type.</p>' },
+        { field: 'wpaicg_pixabay_orientation', selector: '#aipower-pixabay-orientation', tooltip: '<p>Filter results by image orientation.</p>' },
+        { field: 'wpaicg_pixabay_order', selector: '#aipower-pixabay-order', tooltip: '<p>How the results should be ordered.</p>' },
+        { field: 'wpaicg_pixabay_enable_prompt', selector: '#aipower-pixabay-enable-prompt', tooltip: '<p>Enabling this option allows the plugin to use AI (OpenAI, Google, OpenRouter, etc.) to extract a single keyword from your title for searching images on Pixabay.</p><p>For example, if your title is “The Impact of Climate Change on Global Agriculture,” the plugin will send it to the AI for keyword extraction and receive something like “#climate” or “#agriculture.”</p><p>This keyword will then be used to search for relevant images.</p><p>If this option is disabled, the full title will be used for the search instead.</p>' },
         { field: 'wpaicg_image_source', selector: 'input.aipower-image-source:checkbox' },
         { field: 'wpaicg_featured_image_source', selector: 'input.aipower-featured-image-source:checkbox' },
-        { field: 'wpaicg_image_source', selector: '#aipower-dalle-variant' },
-        { field: 'wpaicg_featured_image_source', selector: '#aipower-dalle-featured-variant' },
-        { field: 'wpaicg_woo_generate_title', selector: '#aipower_woo_generate_title' },
-        { field: 'wpaicg_woo_generate_description', selector: '#aipower_woo_generate_description' },
-        { field: 'wpaicg_woo_generate_short', selector: '#aipower_woo_generate_short' },
-        { field: 'wpaicg_woo_generate_tags', selector: '#aipower_woo_generate_tags' },
-        { field: 'wpaicg_woo_meta_description', selector: '#aipower_woo_meta_description' },
-        { field: '_wpaicg_shorten_woo_url', selector: '#aipower_shorten_woo_url' },
-        { field: 'wpaicg_generate_woo_focus_keyword', selector: '#aipower_generate_woo_focus_keyword' },
-        { field: 'wpaicg_enforce_woo_keyword_in_url', selector: '#aipower_enforce_woo_keyword_in_url' },
+        { field: 'wpaicg_image_source', selector: '#aipower-dalle-variant', tooltip: '<p>Choose the variant of DALL-E model to generate images for the body of your content.</p><p>This will generate image based on your title and then add it to in the middle of your content.</p>' },
+        { field: 'wpaicg_featured_image_source', selector: '#aipower-dalle-featured-variant', tooltip: '<p>Choose the variant of DALL-E model to generate featured images for your content.</p><p>This will generate image based on your title and then add it to the featured image section.</p>' },
+        { field: 'wpaicg_woo_generate_title', selector: '#aipower_woo_generate_title',tooltip: '<p>Generates a title for your WooCommerce product.</p>' },
+        { field: 'wpaicg_woo_generate_description', selector: '#aipower_woo_generate_description', tooltip: '<p>Generates a full description for your WooCommerce product.</p>' },
+        { field: 'wpaicg_woo_generate_short', selector: '#aipower_woo_generate_short', tooltip: '<p>Generates a short description for your WooCommerce product.</p>' },
+        { field: 'wpaicg_woo_generate_tags', selector: '#aipower_woo_generate_tags', tooltip: '<p>Generates tags for your WooCommerce product.</p><p>If you are using a custom prompt, make sure that you instruct the AI to present the keywords in a comma-separated format and avoid using symbols such as -, #, etc.</p>' },
+        { field: 'wpaicg_woo_meta_description', selector: '#aipower_woo_meta_description', tooltip: '<p>Generates a meta description for your WooCommerce product.</p>' },
+        { field: '_wpaicg_shorten_woo_url', selector: '#aipower_shorten_woo_url', tooltip: '<p>Shortens the URL to stay within 70 characters, including your domain name and slug.</p>' },
+        { field: 'wpaicg_generate_woo_focus_keyword', selector: '#aipower_generate_woo_focus_keyword', tooltip: '<p>Generates a focus keyword for your WooCommerce product.</p><p>It will use the language you have selected in the Content tab to automatically generate focus keywords for your product listings based on built-in prompts.</p><p>You can enable custom prompt and instruct the AI to generate focus keywords that meet your requirements.</p>' },
+        { field: 'wpaicg_enforce_woo_keyword_in_url', selector: '#aipower_enforce_woo_keyword_in_url', tooltip: '<p>Ensures the focus keyword is included in the URL slug.</p><p>If multiple keywords are provided, only the first one will be used.</p><p>This feature works only when a focus keyword is set and the keyword is not already in the URL.</p>' },
         { field: 'wpaicg_woo_custom_prompt', selector: '#aipower_woo_custom_prompt_enable', toggleGroups: ['#aipower_woo_custom_prompt_box'] },
-        { field: 'wpaicg_woo_custom_prompt_title', selector: '#aipower_woo_custom_prompt_title' },
-        { field: 'wpaicg_woo_custom_prompt_short', selector: '#aipower_custom_prompt_short' },
-        { field: 'wpaicg_woo_custom_prompt_description', selector: '#aipower_custom_prompt_desc' },
-        { field: 'wpaicg_woo_custom_prompt_keywords', selector: '#aipower_custom_prompt_tags' },
-        { field: 'wpaicg_woo_custom_prompt_meta', selector: '#aipower_custom_prompt_meta' },
+        { field: 'wpaicg_woo_custom_prompt_title', selector: '#aipower_woo_custom_prompt_title', tooltip: '<p>You can write your own custom prompt to generate a title for your WooCommerce product.</p><p>Make sure to include %s variable in the prompt.</p>' },
+        { field: 'wpaicg_woo_custom_prompt_short', selector: '#aipower_custom_prompt_short', tooltip: '<p>You can write your own custom prompt to generate a short description for your WooCommerce product.</p><p>Make sure to include %s variable in the prompt.</p>' },
+        { field: 'wpaicg_woo_custom_prompt_description', selector: '#aipower_custom_prompt_desc', tooltip: '<p>You can write your own custom prompt to generate a full description for your WooCommerce product.</p><p>Make sure to include %s variable in the prompt.</p>' },
+        { field: 'wpaicg_woo_custom_prompt_keywords', selector: '#aipower_custom_prompt_tags', tooltip: '<p>You can write your own custom prompt to generate tags for your WooCommerce product.</p><p>Make sure to include %s variable in the prompt.</p><p>Make sure that you instruct the AI to present the keywords in a comma-separated format and avoid using symbols such as -, #, etc.</p>' },
+        { field: 'wpaicg_woo_custom_prompt_meta', selector: '#aipower_custom_prompt_meta', tooltip: '<p>You can write your own custom prompt to generate a meta description for your WooCommerce product.</p><p>Make sure to include %s variable in the prompt.</p>' },
         { field: 'wpaicg_woo_custom_prompt_focus_keyword', selector: '#aipower_custom_prompt_focus_keyword' },
         { field: 'wpaicg_comment_prompt', selector: '#aipower_comment_prompt' },
-        { field: 'wpaicg_search_font_size', selector: '#aipower_search_font_size' },
-        { field: 'wpaicg_search_placeholder', selector: '#aipower_search_placeholder' },
-        { field: 'wpaicg_search_font_color', selector: '#aipower_search_font_color' },
-        { field: 'wpaicg_search_border_color', selector: '#aipower_search_border_color' },
-        { field: 'wpaicg_search_bg_color', selector: '#aipower_search_bg_color' },
-        { field: 'wpaicg_search_width', selector: '#aipower_search_width' },
-        { field: 'wpaicg_search_height', selector: '#aipower_search_height' },
-        { field: 'wpaicg_search_no_result', selector: '#aipower_search_no_result' },
-        { field: 'wpaicg_search_result_font_size', selector: '#aipower_search_result_font_size' },
-        { field: 'wpaicg_search_result_font_color', selector: '#aipower_search_result_font_color' },
-        { field: 'wpaicg_search_result_bg_color', selector: '#aipower_search_result_bg_color' },
-        { field: 'wpaicg_search_loading_color', selector: '#aipower_search_loading_color' },
+        { field: 'wpaicg_search_font_size', selector: '#aipower_search_font_size', tooltip: '<p>Set the font size for the search bar.</p>' },
+        { field: 'wpaicg_search_placeholder', selector: '#aipower_search_placeholder', tooltip: '<p>Set the placeholder text for the search bar.</p>' },
+        { field: 'wpaicg_search_font_color', selector: '#aipower_search_font_color', tooltip: '<p>Set the font color for the search bar.</p>' },
+        { field: 'wpaicg_search_border_color', selector: '#aipower_search_border_color', tooltip: '<p>Set the border color for the search bar.</p>' },
+        { field: 'wpaicg_search_bg_color', selector: '#aipower_search_bg_color', tooltip: '<p>Set the background color for the search bar.</p>' },
+        { field: 'wpaicg_search_width', selector: '#aipower_search_width', tooltip: '<p>Set the width for the search bar.</p><p>You can either set it in pixels or percentage.</p>' },
+        { field: 'wpaicg_search_height', selector: '#aipower_search_height', tooltip: '<p>Set the height for the search bar.</p><p>You can either set it in pixels or percentage.</p>' },
+        { field: 'wpaicg_search_no_result', selector: '#aipower_search_no_result', tooltip: '<p>How many search results to show.</p>' },
+        { field: 'wpaicg_search_result_font_size', selector: '#aipower_search_result_font_size', tooltip: '<p>Set the font size for the search results.</p>' },
+        { field: 'wpaicg_search_result_font_color', selector: '#aipower_search_result_font_color', tooltip: '<p>Set the font color for the search results.</p>' },
+        { field: 'wpaicg_search_result_bg_color', selector: '#aipower_search_result_bg_color', tooltip: '<p>Set the background color for the search results.</p>' },
+        { field: 'wpaicg_search_loading_color', selector: '#aipower_search_loading_color', tooltip: '<p>Set the color for the loading spinner.</p>' },
         { field: 'wpaicg_order_status_token', selector: '#aipower_token_sale_status' },
         { field: 'wpaicg_editor_change_action', selector: '#aipower_editor_change_action' },
-        { field: 'wpaicg_google_api_key', selector: '#aipower_google_common_api_key' },
-        { field: 'wpaicg_google_api_key', selector: '#aipower_google_common_api_key_for_internet' },
-        { field: 'wpaicg_elevenlabs_api', selector: '#aipower_elevenlabs_api_key' },
-        { field: 'wpaicg_google_search_engine_id', selector: '#aipower_google_custom_search_engine_id' },
-        { field: 'wpaicg_google_search_country', selector: '#aipower_google_cse_region' },
-        { field: 'wpaicg_google_search_language', selector: '#aipower_google_cse_language' },
-        { field: 'wpaicg_google_search_num', selector: '#aipower_google_cse_results' },
-        { field: 'wpaicg_banned_words', selector: '#aipower_chat_banned_words' },
-        { field: 'wpaicg_banned_ips', selector: '#aipower_chat_banned_ips' },
-        { field: 'wpaicg_user_uploads', selector: '#aipower_chat_image_user_uploads' },
-        { field: 'wpaicg_img_processing_method', selector: '#aipower_chat_image_method' },
-        { field: 'wpaicg_img_vision_quality', selector: '#aipower_chat_image_quality' },
-        { field: 'wpaicg_delete_image', selector: '#aipower-delete-images-after-process' },
-        { field: 'wpaicg_chat_enable_sale', selector: '#aipower_enable_token_purchase' },
-        { field: 'wpaicg_elevenlabs_hide_error', selector: '#aipower_elevenlabs_hide_error' },
-        { field: 'wpaicg_typewriter_effect', selector: '#aipower_chat_typewriter_effect' },
-        { field: 'wpaicg_typewriter_speed', selector: '#aipower_chat_typewriter_speed' },
-        { field: 'wpaicg_autoload_chat_conversations', selector: '#aipower_chat_dont_load_past_chats' },
+        { field: 'wpaicg_google_api_key', selector: '#aipower_google_common_api_key', tooltip: '<p>If you already have an API key for Internet Browsing, you can use that same API key for Text-to-Speech as well.</p><p>For more information, visit our <a href="https://docs.aipower.org/docs/Chatbot/tools#text-to-speech" target="_blank">documentation</a>.</p>' },
+        { field: 'wpaicg_google_api_key', selector: '#aipower_google_common_api_key_for_internet', tooltip: '<p>If you already have an API key for Google Text-to-Speech, you can use that same API key for Internet Browsing as well.</p><p>For more information, visit our <a href="https://docs.aipower.org/docs/Chatbot/tools#internet-browsing" target="_blank">documentation</a>.</p>' },
+        { field: 'wpaicg_elevenlabs_api', selector: '#aipower_elevenlabs_api_key', tooltip: '<p>You can get your API key from <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank">here</a>.</p><p>For more information, visit our <a href="https://docs.aipower.org/docs/Chatbot/tools#text-to-speech" target="_blank">documentation</a>.</p>' },
+        { field: 'wpaicg_google_search_engine_id', selector: '#aipower_google_custom_search_engine_id', tooltip: '<p>You can get your CSE ID from <a href="https://programmablesearchengine.google.com/" target="_blank">here</a>.</p><p>For more information, visit our <a href="https://docs.aipower.org/docs/Chatbot/tools#internet-browsing" target="_blank">documentation</a>.</p>' },
+        { field: 'wpaicg_google_search_country', selector: '#aipower_google_cse_region', tooltip: '<p>Select the country to restrict search results to a specific region.</p><p> For example, selecting "Japan" will retrieve search results from the Japan only.</p><p>Useful for local search results.</p>' },
+        { field: 'wpaicg_google_search_language', selector: '#aipower_google_cse_language', tooltip: '<p>Select the language to restrict search results to a specific language.</p><p> For example, selecting "Chinese" will retrieve search results in Chinese only.</p>' },
+        { field: 'wpaicg_google_search_num', selector: '#aipower_google_cse_results', tooltip: '<p>Set the number of search results to feed the chat bot.</p><p>The more results, the more context the chat bot has to generate responses but it may feed irrelevant information as well.</p><p> Keep it 1 if you are sure the first search result is always the most relevant and enough for the chat bot.</p>' },
+        { field: 'wpaicg_banned_words', selector: '#aipower_chat_banned_words', tooltip: '<p>You can add banned words that will be filtered out from the chat.</p><p>If a user sends a message containing any of these words, the message will be blocked.</p>' },
+        { field: 'wpaicg_banned_ips', selector: '#aipower_chat_banned_ips', tooltip: '<p>You can add banned IPs that will be blocked from accessing the chat.</p><p>If a user with a banned IP tries to access the chat, they will be blocked.</p>' },
+        { field: 'wpaicg_user_uploads', selector: '#aipower_chat_image_user_uploads', tooltip: '<p>Choose where to store uploaded images:</p> <p><b>WordPress Media Library</b>: Saves images in Media Library and adds their records to the database.</p><p><b>Upload Folder</b>: Stores images in /wp-content/uploads/ folder, without adding database records.</p>' },
+        { field: 'wpaicg_img_processing_method', selector: '#aipower_chat_image_method', tooltip: '<p>Choose how to process images:</p> <p><b>Base64</b>: Converts images to Base64 format and sends them to the api.</p><p><b>URL</b>: Sends image URLs to the api. URL works only if the image is accessible from the internet.</p>' },
+        { field: 'wpaicg_img_vision_quality', selector: '#aipower_chat_image_quality', tooltip: '<p>By default, the model will use the <b>auto</b> setting which will look at the image input size and decide if it should use the low or high setting.</p><p><b>Low</b> will enable the "low res" mode. The model will receive a low-res 512px x 512px version of the image, and represent the image with a budget of 85 tokens. This allows the API to return faster responses and consume fewer input tokens for use cases that do not require high detail.</p><p><b>High</b> will enable "high res" mode, which first allows the model to first see the low res image (using 85 tokens) and then creates detailed crops using 170 tokens for each 512px x 512px tile.</p>' },
+        { field: 'wpaicg_delete_image', selector: '#aipower-delete-images-after-process', tooltip: '<p>Enable this option to delete the images after processing.</p><p>Useful for keeping your server clean.</p><p>Only works if the image processing method is set to Base64.</p>' },
+        { field: 'wpaicg_chat_enable_sale', selector: '#aipower_enable_token_purchase',tooltip: '<p>Enable this option to allow users to purchase tokens for the chatbot. Requires WooCommerce.</p><p>For more information, visit our <a href="https://docs.aipower.org/docs/user-management-token-sale" target="_blank">documentation</a>.</p>' },
+        { field: 'wpaicg_elevenlabs_hide_error', selector: '#aipower_elevenlabs_hide_error', tooltip: '<p>Enable this option to hide error messages from the ElevenLabs API.</p><p>Messages like "Not enough credits" or "Unable to generate a response" will not be shown to the user if this option is enabled.</p>' },
+        { field: 'wpaicg_typewriter_effect', selector: '#aipower_chat_typewriter_effect', tooltip: '<p>Enable this option to display the chat messages with a typewriter effect.</p><p>1 is the fastest, 10 is the slowest.</p>' },
+        { field: 'wpaicg_typewriter_speed', selector: '#aipower_chat_typewriter_speed'},
+        { field: 'wpaicg_autoload_chat_conversations', selector: '#aipower_chat_dont_load_past_chats',tooltip: '<p>If enabled, the chat will not load past conversations on page load. </p><p>Useful if you want to keep the chat window clean on page load.</p>' },
+        { field: 'wpaicg_ip_anonymization', selector: '#aipower-ip-anonymization', tooltip: '<p>Enable this option to anonymize user IP addresses in the chat logs for GDPR compliance.</p>' },
 
     ];
 
@@ -1856,5 +1857,96 @@
     // Initialize fields on page load
     updateModelFields();
     // -------------------- LOGIC: Handle Replicate Model Fields END--------------------
+
+    // -------------------- HANDLE SEO DEPENDENCIES --------------------
+
+    const seoFields = [
+        { field: '_wpaicg_seo_meta_tag', selector: '#_wpaicg_seo_meta_tag' },
+        { field: '_yoast_wpseo_metadesc', selector: '#_yoast_wpseo_metadesc' },
+        { field: '_aioseo_description', selector: '#_aioseo_description' },
+        { field: 'rank_math_description', selector: '#rank_math_description' },
+        { field: '_wpaicg_genesis_description', selector: '#_wpaicg_genesis_description' }
+    ];
+
+    /**
+     * Disable other fields if one is selected
+     * @param {string} activeField - The field that is currently selected
+     */
+    const manageDependencies = (activeField) => {
+        seoFields.forEach(({ field, selector }) => {
+            const $fieldElement = $(selector);
+
+            if (field === activeField) {
+                // Enable the selected field
+                $fieldElement.prop('disabled', false);
+            } else {
+                // Disable other fields
+                $fieldElement.prop('checked', false).prop('disabled', true);
+            }
+        });
+    };
+
+    /**
+     * Re-enable all fields if no field is selected
+     */
+    const resetDependencies = () => {
+        seoFields.forEach(({ selector }) => {
+            $(selector).prop('disabled', false);
+        });
+    };
+
+    // Attach change event listeners to all SEO fields
+    seoFields.forEach(({ field, selector }) => {
+        const $fieldElement = $(selector);
+
+        $fieldElement.on('change', function() {
+            if ($(this).is(':checked')) {
+                // If a field is selected, manage dependencies
+                manageDependencies(field);
+            } else {
+                // If no field is selected, reset all dependencies
+                const anyFieldChecked = seoFields.some(({ selector }) => $(selector).is(':checked'));
+                if (!anyFieldChecked) {
+                    resetDependencies();
+                }
+            }
+        });
+    });
+
+    // Applying tooltips to the fields
+    fieldsConfig.forEach(({ selector, tooltip }) => {
+        if (tooltip) {
+            // Extract the ID from the selector (remove the '#' prefix)
+            const id = selector.startsWith('#') ? selector.slice(1) : selector;
+
+            // Find the label associated with this ID
+            const $label = $(`label[for="${id}"]`);
+
+            if ($label.length) {
+
+                // Create the tooltip icon
+                const $helpIcon = $('<span class="aipower-tooltip-icon" aria-label="Tooltip" tabindex="0"></span>');
+
+                // Append the help icon after the label
+                $label.after($helpIcon);
+
+                // Create the tooltip content
+                const $tooltipContent = $('<div class="aipower-tooltip-content"></div>').html(tooltip);
+                $helpIcon.append($tooltipContent);
+
+                // Toggle tooltip visibility on icon click
+                $helpIcon.on('click', function () {
+                    $tooltipContent.toggleClass('visible');
+                });
+
+                // Close the tooltip if clicked outside
+                $(document).on('click', function (event) {
+                    if (!$(event.target).closest($helpIcon).length) {
+                        $tooltipContent.removeClass('visible');
+                    }
+                });
+            }
+        }
+    });
 
 })( jQuery );

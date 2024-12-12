@@ -104,9 +104,7 @@ function reconstructMessage(chatBox, message, chatContainer) {
         messageElement.className = isWidget ? 'wpaicg-chat-ai-message' : 'wpaicg-ai-message';
     }
     
-    // Format the message content
-    var formattedMessage = messageText.replace('Human:', '').replace('AI:', '').replace(/\n/g, '<br>');
-    // Convert Markdown to HTML for bold, italic, underline, and links
+    var formattedMessage = messageText.replace('Human:', '').replace('AI:', '');
     formattedMessage = marked.parse(formattedMessage);
     var userBgColor = chatContainer.getAttribute('data-user-bg-color');
     var aiBgColor = chatContainer.getAttribute('data-ai-bg-color');

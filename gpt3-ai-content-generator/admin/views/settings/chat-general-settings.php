@@ -335,7 +335,31 @@ $assistants_json = json_encode($assistants);
         <input type="text" id="aipower-widget-delay-time" name="aipower-widget-delay-time" placeholder="<?php echo esc_attr__('Example: 5', 'gpt3-ai-content-generator'); ?>" />
     </div>
 </div>
-
+<div class="aipower-form-group aipower-grouped-fields-bot">
+    <!-- AI Icon Selection -->
+    <div class="aipower-form-group">
+        <label for="aipower-widget-icon-selection"><?php echo esc_html__('Widget Icon', 'gpt3-ai-content-generator'); ?></label>
+        <div class="aipower-radio-group">
+            <label for="aipower-ai-icon-default">
+                <input type="radio" id="aipower-ai-icon-default" name="icon" value="default" checked />
+                <?php echo esc_html__('Default', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <label for="aipower-ai-icon-custom">
+                <input type="radio" id="aipower-ai-icon-custom" name="icon" value="custom" />
+                <?php echo esc_html__('Custom', 'gpt3-ai-content-generator'); ?>
+            </label>
+        </div>
+    </div>
+    <!-- Custom AI Icon Upload -->
+    <div class="aipower-form-group">
+        <label for="aipower-icon-upload"><?php echo esc_html__('Icon', 'gpt3-ai-content-generator'); ?></label>
+        <button type="button" class="button" id="aipower-icon-upload-button"><?php echo esc_html__('Upload Icon', 'gpt3-ai-content-generator'); ?></button>
+        <input type="hidden" id="aipower-icon-url" name="aipower-icon-url" value="">
+        <div id="aipower-icon-preview" style="margin-top:10px;">
+            <!-- Thumbnail will be displayed here when editing a custom icon -->
+        </div>
+    </div>
+</div>
 <!-- Hidden bot_id field -->
 <input type="hidden" id="current-bot-id" value="" />
 <!-- Hidden Divs to Store Models -->

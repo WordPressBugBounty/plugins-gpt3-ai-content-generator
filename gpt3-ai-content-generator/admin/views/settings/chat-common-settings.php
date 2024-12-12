@@ -19,7 +19,8 @@ $current_delete_image = get_option('wpaicg_delete_image', 0);
 $current_chat_token_purchase = get_option('wpaicg_chat_enable_sale', false);
 $current_typewriter_effect = get_option('wpaicg_typewriter_effect', false);
 $current_typewriter_speed = get_option('wpaicg_typewriter_speed', 1);
-$current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations', 0)
+$current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations', 0);
+$current_ip_anonymization = get_option('wpaicg_ip_anonymization', 0);
 ?>
 
 <!--Common Chat Settings -->
@@ -28,14 +29,14 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
     <div id="aipower-common-settings" class="aipower-common-settings">
 
         <!-- Conversations -->
-        <div class="aipower-form-group">
-            <label for="aipower-conversations-selection"><?php echo esc_html__('Conversations', 'gpt3-ai-content-generator'); ?></label>
-            <button type="button" class="aipower-settings-icon" id="aipower_conversations_settings_icon" title="<?php echo esc_attr__('Conversations', 'gpt3-ai-content-generator'); ?>">
+        <div class="aipower-form-group" style="margin-bottom: 10px;">
+            <label for="aipower-conversations-selection"><?php echo esc_html__('Miscellaneous', 'gpt3-ai-content-generator'); ?></label>
+            <button type="button" class="aipower-settings-icon" id="aipower_conversations_settings_icon" title="<?php echo esc_attr__('Miscellaneous', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
             </button>
         </div>
         <!-- Text to Speech -->
-        <div class="aipower-form-group">
+        <div class="aipower-form-group" style="margin-bottom: 10px;">
             <label for="aipower-text-to-speech-selection"><?php echo esc_html__('Text to Speech', 'gpt3-ai-content-generator'); ?></label>
             <button type="button" class="aipower-settings-icon" id="aipower_text_to_speech_settings_icon" title="<?php echo esc_attr__('Text to Speech', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
@@ -43,7 +44,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
         </div>
 
         <!-- Internet Browsing -->
-        <div class="aipower-form-group">
+        <div class="aipower-form-group" style="margin-bottom: 10px;">
             <label for="aipower-internet-browsing-selection"><?php echo esc_html__('Internet Browsing', 'gpt3-ai-content-generator'); ?></label>
             <button type="button" class="aipower-settings-icon" id="aipower_common_internet_settings_icon" title="<?php echo esc_attr__('Internet Browsing', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
@@ -51,7 +52,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
         </div>
 
         <!-- Security Settings -->
-        <div class="aipower-form-group">
+        <div class="aipower-form-group" style="margin-bottom: 10px;">
             <label for="aipower-bot-security-selection"><?php echo esc_html__('Security', 'gpt3-ai-content-generator'); ?></label>
             <button type="button" class="aipower-settings-icon" id="aipower_chat_security_settings_icon" title="<?php echo esc_attr__('Security', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
@@ -59,7 +60,7 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
         </div>
 
         <!-- Image Settings -->
-        <div class="aipower-form-group">
+        <div class="aipower-form-group" style="margin-bottom: 10px;">
             <label for="aipower-image-upload-selection"><?php echo esc_html__('Images', 'gpt3-ai-content-generator'); ?></label>
             <button type="button" class="aipower-settings-icon" id="aipower_chat_image_settings_icon" title="<?php echo esc_attr__('Images', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-admin-generic"></span>
@@ -81,9 +82,8 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Google API Key -->
                 <div class="aipower-form-group">
-                    <p><?php echo esc_html__('To use Google Text to Speech, you need to provide a Google API Key. This api key is used both for Text to Speech and Internet Browsing feature.', 'gpt3-ai-content-generator'); ?></p>
-                    <label for="aipower_google_common_api_key"><?php echo esc_html__('Google API Key', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="text" id="aipower_google_common_api_key" style="width:80%;" name="aipower_google_common_api_key" value="<?php echo esc_attr($current_google_api_key); ?>">
+                    <label for="aipower_google_common_api_key"><?php echo esc_html__('API Key', 'gpt3-ai-content-generator'); ?></label>
+                    <input type="text" id="aipower_google_common_api_key" name="aipower_google_common_api_key" value="<?php echo esc_attr($current_google_api_key); ?>">
                     <a href="https://console.cloud.google.com/" target="_blank"><?php echo esc_html__('Get API Key', 'gpt3-ai-content-generator'); ?></a>
                 </div>
             </div>
@@ -99,9 +99,8 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- ElevenLabs API Key -->
                 <div class="aipower-form-group">
-                    <p><?php echo esc_html__('To use ElevenLabs Text to Speech, you need to provide an ElevenLabs API Key.', 'gpt3-ai-content-generator'); ?></p>
-                    <label for="aipower_elevenlabs_api_key"><?php echo esc_html__('ElevenLabs API Key', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="text" id="aipower_elevenlabs_api_key"  style="width:80%;" name="aipower_elevenlabs_api_key" value="<?php echo esc_attr($current_elevenlabs_api_key); ?>">
+                    <label for="aipower_elevenlabs_api_key"><?php echo esc_html__('API Key', 'gpt3-ai-content-generator'); ?></label>
+                    <input type="text" id="aipower_elevenlabs_api_key" name="aipower_elevenlabs_api_key" value="<?php echo esc_attr($current_elevenlabs_api_key); ?>">
                     <a href="https://elevenlabs.io/" target="_blank"><?php echo esc_html__('Get API Key', 'gpt3-ai-content-generator'); ?></a>
                 </div>
             </div>
@@ -115,13 +114,28 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
                 <!-- Sync Models Button -->
                 <div class="aipower-form-group">
                     <button type="button" class="aipower-sync-models-button" id="aipower_sync_models_button" title="<?php echo esc_attr__('Sync ElevenLabs Models', 'gpt3-ai-content-generator'); ?>">
-                        <span class="dashicons dashicons-update"></span> <?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?>
+                        <span class="dashicons dashicons-update"></span> <?php echo esc_html__('Sync ElevenLabs Models', 'gpt3-ai-content-generator'); ?>
                     </button>
                 </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Hide ElevenLabs API Errors in Chat -->
                 <div class="aipower-form-group">
-                    <label for="aipower_elevenlabs_hide_error"><?php echo esc_html__('Hide API Errors in Chat', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="checkbox" id="aipower_elevenlabs_hide_error" name="aipower_elevenlabs_hide_error" value="1" <?php checked(1, $current_elevenlabs_hide_api_errors); ?>>
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="aipower_elevenlabs_hide_error" 
+                                name="aipower_elevenlabs_hide_error" 
+                                value="1" 
+                                <?php checked(1, $current_elevenlabs_hide_api_errors); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-switch-label" for="aipower_elevenlabs_hide_error">
+                            <?php echo esc_html__('Hide API Errors', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,22 +149,22 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
             <span class="aipower-close">&times;</span>
         </div>
         <div class="aipower-modal-body">
+            <h3><?php echo esc_html__('API Settings', 'gpt3-ai-content-generator'); ?></h3>
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Google API Key -->
                 <div class="aipower-form-group">
-                    <p><?php echo esc_html__('To use Google Text to Speech, you need to provide a Google API Key. This api key is used both for Text to Speech and Internet Browsing feature.', 'gpt3-ai-content-generator'); ?></p>
                     <label for="aipower_google_common_api_key_for_internet"><?php echo esc_html__('Google API Key', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="text" id="aipower_google_common_api_key_for_internet" style="width:60%;" name="aipower_google_common_api_key_for_internet" value="<?php echo esc_attr($current_google_api_key); ?>">
+                    <input type="text" id="aipower_google_common_api_key_for_internet" name="aipower_google_common_api_key_for_internet" value="<?php echo esc_attr($current_google_api_key); ?>">
                     <a href="https://console.cloud.google.com/" target="_blank"><?php echo esc_html__('Get API Key', 'gpt3-ai-content-generator'); ?></a>
                 </div>
             </div>
+            <h3><?php echo esc_html__('Google Custom Search Engine Settings', 'gpt3-ai-content-generator'); ?></h3>
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Google Custom Search Engine ID -->
                 <div class="aipower-form-group">
-                    <p><?php echo esc_html__('To use Internet Browsing, you need to provide a Google Custom Search Engine ID.', 'gpt3-ai-content-generator'); ?></p>
-                    <label for="aipower_google_custom_search_engine_id"><?php echo esc_html__('Google Custom Search Engine ID', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="text" id="aipower_google_custom_search_engine_id" style="width:60%;" name="aipower_google_custom_search_engine_id" value="<?php echo esc_attr($current_google_search_engine_id); ?>">
-                    <a href="https://programmablesearchengine.google.com/" target="_blank"><?php echo esc_html__('Get Custom Search Engine ID', 'gpt3-ai-content-generator'); ?></a>
+                    <label for="aipower_google_custom_search_engine_id"><?php echo esc_html__('Google CSE ID', 'gpt3-ai-content-generator'); ?></label>
+                    <input type="text" id="aipower_google_custom_search_engine_id" name="aipower_google_custom_search_engine_id" value="<?php echo esc_attr($current_google_search_engine_id); ?>">
+                    <a href="https://programmablesearchengine.google.com/" target="_blank"><?php echo esc_html__('Get CSE ID', 'gpt3-ai-content-generator'); ?></a>
                 </div>
             </div>
             <div class="aipower-form-group aipower-grouped-fields">
@@ -199,20 +213,47 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
             <span class="aipower-close">&times;</span>
         </div>
         <div class="aipower-modal-body">
+            <h3><?php echo esc_html__('Banned Words', 'gpt3-ai-content-generator'); ?></h3>
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Banned Words -->
                 <div class="aipower-form-group">
-                    <p><?php echo esc_html__('You can add banned words that will be filtered out from the chat. Enter words separated by commas.', 'gpt3-ai-content-generator'); ?></p>
-                    <label for="aipower_chat_banned_words"><?php echo esc_html__('Banned Words', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="text" id="aipower_chat_banned_words" placeholder="<?php echo esc_attr__('e.g., badword1, badword2', 'gpt3-ai-content-generator'); ?>" name="aipower_chat_banned_words" value="<?php echo esc_attr($current_banned_words); ?>">
+                    <label for="aipower_chat_banned_words"><?php echo esc_html__('Enter words separated by commas:', 'gpt3-ai-content-generator'); ?></label>
+                    <textarea id="aipower_chat_banned_words" 
+                    name="aipower_chat_banned_words" 
+                    placeholder="<?php echo esc_attr__('e.g., badword1, badword2', 'gpt3-ai-content-generator'); ?>" 
+                    rows="4"><?php echo esc_textarea($current_banned_words); ?></textarea>
                 </div>
             </div>
+            <h3><?php echo esc_html__('Banned IP Addresses', 'gpt3-ai-content-generator'); ?></h3>
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Banned IP Addresses -->
                 <div class="aipower-form-group">
-                    <p><?php echo esc_html__('You can add banned IP addresses that will be blocked from accessing the chat. Enter IP addresses separated by commas.', 'gpt3-ai-content-generator'); ?></p>
-                    <label for="aipower_chat_banned_ips"><?php echo esc_html__('Banned IP Addresses', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="text" id="aipower_chat_banned_ips" placeholder="<?php echo esc_attr__('e.g., 123.456.789.0, 987.654.321.0', 'gpt3-ai-content-generator'); ?>" name="aipower_chat_banned_ips" value="<?php echo esc_attr($current_banned_ips); ?>">
+                    <label for="aipower_chat_banned_ips"><?php echo esc_html__('Enter IP addresses separated by commas:', 'gpt3-ai-content-generator'); ?></label>
+                    <textarea id="aipower_chat_banned_ips" 
+                    name="aipower_chat_banned_ips" 
+                    placeholder="<?php echo esc_attr__('e.g., 123.456.789.0, 987.654.321.0', 'gpt3-ai-content-generator'); ?>" 
+                    rows="4"><?php echo esc_textarea($current_banned_ips); ?></textarea>
+                </div>
+            </div>
+            <h3><?php echo esc_html__('IP Anonymization (GDPR)', 'gpt3-ai-content-generator'); ?></h3>
+            <div class="aipower-form-group aipower-grouped-fields">
+                <!-- IP Anonymization -->
+                <div class="aipower-form-group">
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="aipower-ip-anonymization" 
+                                name="aipower-ip-anonymization" 
+                                value="1" 
+                                <?php checked(1, $current_ip_anonymization); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-switch-label" for="aipower-ip-anonymization">
+                            <?php echo esc_html__('Anonymize IP Addresses', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -243,8 +284,6 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
                         <option value="url" <?php selected($current_img_processing_method, 'url'); ?>><?php echo esc_html__('URL', 'gpt3-ai-content-generator'); ?></option>
                     </select>
                 </div>
-            </div>
-            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Quality -->
                 <div class="aipower-form-group">
                     <label for="aipower_chat_image_quality"><?php echo esc_html__('Quality', 'gpt3-ai-content-generator'); ?></label>
@@ -254,10 +293,25 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
                         <option value="high" <?php selected($current_img_vision_quality, 'high'); ?>><?php echo esc_html__('High', 'gpt3-ai-content-generator'); ?></option>
                     </select>
                 </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Delete Images After Processing -->
                 <div class="aipower-form-group">
-                    <label for="aipower-delete-images-after-process"><?php echo esc_html__('Delete Images After Processing', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="checkbox" id="aipower-delete-images-after-process" name="aipower-delete-images-after-process" value="1" <?php checked($current_delete_image, 1); ?>>
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="aipower-delete-images-after-process" 
+                                name="aipower-delete-images-after-process" 
+                                value="1" 
+                                <?php checked($current_delete_image, 1); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-switch-label" for="aipower-delete-images-after-process">
+                            <?php echo esc_html__('Auto-Delete Images', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -265,38 +319,70 @@ $current_dont_load_past_chats = get_option('wpaicg_autoload_chat_conversations',
 </div>
 <!-- Chat Conversations Modal -->
 <div class="aipower-modal" id="aipower_chat_conversations_modal" style="display: none;">
-    <div class="aipower-modal-content" style="width: 20%;">
+    <div class="aipower-modal-content">
         <div class="aipower-modal-header">
-            <h2><?php echo esc_html__('Conversations Settings', 'gpt3-ai-content-generator'); ?></h2>
+            <h2><?php echo esc_html__('Miscellaneous Settings', 'gpt3-ai-content-generator'); ?></h2>
             <span class="aipower-close">&times;</span>
         </div>
         <div class="aipower-modal-body">
+            <h3><?php echo esc_html__('Conversation History', 'gpt3-ai-content-generator'); ?></h3>
             <div class="aipower-form-group aipower-grouped-fields">
-                <!-- Dont Load Past Chats -->
                 <div class="aipower-form-group">
-                    <label for="aipower_chat_dont_load_past_chats"><?php echo esc_html__('Don\'t Load Past Chats', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="checkbox" id="aipower_chat_dont_load_past_chats" name="aipower_chat_dont_load_past_chats" value="1" <?php checked(1, $current_dont_load_past_chats); ?>>
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="aipower_chat_dont_load_past_chats" 
+                                name="aipower_chat_dont_load_past_chats" 
+                                value="1" 
+                                <?php checked(1, $current_dont_load_past_chats); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-general-switch-label" for="aipower_chat_dont_load_past_chats"><?php echo esc_html__('Don\'t Load Past Chats', 'gpt3-ai-content-generator'); ?></label>
+                    </div>
                 </div>
-                <!-- Token Purchase -->
+            </div>
+            <h3><?php echo esc_html__('Purchase Tokens', 'gpt3-ai-content-generator'); ?></h3>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <div class="aipower-form-group">
-                    <label for="aipower_enable_token_purchase"><?php echo esc_html__('Enable Token Purchase', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="checkbox" id="aipower_enable_token_purchase" name="aipower_enable_token_purchase" value="1" <?php checked(1, $current_chat_token_purchase); ?>>
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="aipower_enable_token_purchase" 
+                                name="aipower_enable_token_purchase" 
+                                value="1" 
+                                <?php checked(1, $current_chat_token_purchase); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-general-switch-label" for="aipower_enable_token_purchase"><?php echo esc_html__('Enable Token Purchase', 'gpt3-ai-content-generator'); ?></label>
+                    </div>
                 </div>
-                <!-- TypeWriter Effect -->
+            </div>
+            <h3><?php echo esc_html__('Typewriter Effect', 'gpt3-ai-content-generator'); ?></h3>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <div class="aipower-form-group">
-                    <label for="aipower_chat_typewriter_effect"><?php echo esc_html__('Enable Typewriter Effect', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="checkbox" id="aipower_chat_typewriter_effect" name="aipower_chat_typewriter_effect" value="1" <?php checked(1, $current_typewriter_effect); ?>>
+                    <div class="aipower-switch-container">
+                        <label class="aipower-switch">
+                            <input 
+                                type="checkbox" 
+                                id="aipower_chat_typewriter_effect" 
+                                name="aipower_chat_typewriter_effect" 
+                                value="1" 
+                                <?php checked(1, $current_typewriter_effect); ?>
+                            >
+                            <span class="aipower-slider"></span>
+                        </label>
+                        <label class="aipower-general-switch-label" for="aipower_chat_typewriter_effect"><?php echo esc_html__('Enable Typewriter Effect', 'gpt3-ai-content-generator'); ?></label>
+                    </div>
                 </div>
                 <!-- TypeWriter Speed -->
                 <div class="aipower-form-group">
                     <label for="aipower_chat_typewriter_speed"><?php echo esc_html__('Typewriter Speed', 'gpt3-ai-content-generator'); ?></label>
-                    <select name="aipower_chat_typewriter_speed" id="aipower_chat_typewriter_speed">
-                        <?php for ($i = 1; $i <= 10; $i++): ?>
-                            <option value="<?php echo $i; ?>" <?php selected($current_typewriter_speed, $i); ?>>
-                                <?php echo $i; ?>
-                            </option>
-                        <?php endfor; ?>
-                    </select>
+                    <input id="aipower_chat_typewriter_speed" name="aipower_chat_typewriter_speed" type="range" min="1" max="10" value="<?php echo esc_attr($current_typewriter_speed); ?>" oninput="this.nextElementSibling.value = this.value">
+                    <output><?php echo esc_attr($current_typewriter_speed); ?></output>
                 </div>
             </div>
         </div>

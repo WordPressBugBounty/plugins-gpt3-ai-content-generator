@@ -111,6 +111,13 @@ class Wp_Ai_Content_Generator_Admin
                     $this->version,
                     'all'
                 );
+                wp_enqueue_style(
+                    $this->plugin_name . '-public',
+                    plugin_dir_url(dirname(__FILE__)) . 'public/css/wp-ai-content-generator-public.css',
+                    array(),
+                    $this->version,
+                    'all'
+                );
             }
         }
         wp_enqueue_style(

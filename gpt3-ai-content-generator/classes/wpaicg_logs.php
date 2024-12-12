@@ -144,17 +144,12 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
          */
         public static function aipower_render_logs_table($paged = 1, $search_term = '') {
             global $wpdb;
-
-            // Number of logs to display per page
+        
             $logs_per_page = 10;
-            
-            // Calculate the offset
             $offset = ($paged - 1) * $logs_per_page;
-            
-            // Name of the logs table
             $logs_table = $wpdb->prefix . 'wpaicg_chatlogs';
-            
-            // Check if the table exists, and if not, create it
+        
+            // Check if the table exists, if not, create it
             if ($wpdb->get_var("SHOW TABLES LIKE '$logs_table'") != $logs_table) {
                 $charset_collate = $wpdb->get_charset_collate();
                 $sql = "CREATE TABLE $logs_table (
@@ -166,49 +161,98 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                     created_at VARCHAR(255) NOT NULL,
                     PRIMARY KEY (id)
                 ) $charset_collate;";
-                
+        
                 require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
                 dbDelta($sql);
             }
-            
-            // Prepare the base query
+        
             $query = "SELECT * FROM $logs_table";
-            $count_query = "SELECT COUNT(*) FROM $logs_table";
             $query_params = array();
-            
-            // Add search condition if search term is provided
+        
             if (!empty($search_term)) {
                 $search_condition = " WHERE log_session LIKE %s OR page_title LIKE %s OR source LIKE %s OR data LIKE %s";
                 $query .= $search_condition;
-                $count_query .= $search_condition;
                 $like_term = '%' . $wpdb->esc_like($search_term) . '%';
                 $query_params = array($like_term, $like_term, $like_term, $like_term);
             }
-            
-            // Get total number of logs
-            if (!empty($search_term)) {
-                $total_logs = $wpdb->get_var($wpdb->prepare($count_query, $query_params));
+        
+            // Fetch all matching logs (no LIMIT yet)
+            $query .= " ORDER BY created_at DESC";
+            if (!empty($query_params)) {
+                $all_logs = $wpdb->get_results($wpdb->prepare($query, $query_params));
             } else {
-                $total_logs = $wpdb->get_var($count_query);
+                $all_logs = $wpdb->get_results($query);
             }
-            
-            // Calculate total pages
+        
+            // Now we have all logs that match the search
+            $total_logs = count($all_logs);
             $total_pages = ceil($total_logs / $logs_per_page);
-            
-            // Append ordering and limit to the query
-            $query .= " ORDER BY created_at DESC LIMIT %d OFFSET %d";
-            $query_params[] = $logs_per_page;
-            $query_params[] = $offset;
-            
-            // Retrieve the logs
-            if (!empty($search_term)) {
-                $logs = $wpdb->get_results($wpdb->prepare($query, $query_params));
-            } else {
-                $logs = $wpdb->get_results($wpdb->prepare($query, array($logs_per_page, $offset)));
+        
+            // Slice the array to get only the logs for the current page
+            $logs = array_slice($all_logs, $offset, $logs_per_page);
+        
+            // Arrays to hold all leads and feedback from ALL matching logs (not just current page)
+            $all_leads = array();
+            $all_feedback = array();
+        
+            // Process ALL logs to gather all leads and feedback
+            if ($all_logs) {
+                foreach ($all_logs as $log) {
+                    $data = json_decode($log->data, true);
+        
+                    if (is_array($data)) {
+                        $num_messages = count($data);
+                        for ($i = 0; $i < $num_messages; $i++) {
+                            $message = $data[$i];
+                            if ($message['type'] === 'user') {
+                                $user_text = isset($message['message']) ? $message['message'] : '';
+                                $user_date = isset($message['date']) ? intval($message['date']) : 0;
+                                $user_date_formatted = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $user_date);
+        
+                                // Attempt to find the next AI message
+                                $ai_text = '';
+                                $ai_date_formatted = '';
+                                if (($i + 1) < $num_messages && isset($data[$i+1]['type']) && $data[$i+1]['type'] === 'ai') {
+                                    $ai_msg = $data[$i+1];
+                                    $ai_text = $ai_msg['message'];
+                                    $ai_date = intval($ai_msg['date']);
+                                    $ai_date_formatted = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $ai_date);
+                                }
+        
+                                // Check for user feedback
+                                if (isset($message['userfeedback']) && is_array($message['userfeedback'])) {
+                                    foreach ($message['userfeedback'] as $fb) {
+                                        $all_feedback[] = array(
+                                            'user_message' => $user_text,
+                                            'user_timestamp' => $user_date_formatted,
+                                            'ai_message' => $ai_text,
+                                            'ai_timestamp' => $ai_date_formatted,
+                                            'feedback_type' => $fb['type'], // 'up' or 'down'
+                                            'feedback_details' => $fb['details']
+                                        );
+                                    }
+                                }
+        
+                                // Leads
+                                if (isset($message['lead_data']) && is_array($message['lead_data'])) {
+                                    $all_leads[] = array(
+                                        'user_message' => $user_text,
+                                        'user_timestamp' => $user_date_formatted,
+                                        'ai_message' => $ai_text,
+                                        'ai_timestamp' => $ai_date_formatted,
+                                        'name' => isset($message['lead_data']['name']) ? $message['lead_data']['name'] : '',
+                                        'email' => isset($message['lead_data']['email']) ? $message['lead_data']['email'] : '',
+                                        'phone' => isset($message['lead_data']['phone']) ? $message['lead_data']['phone'] : ''
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
             }
-
+        
             ob_start();
-
+        
             if ($logs) {
                 ?>
                 <div id="aipower-logs-table-container">
@@ -218,7 +262,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                             <col style="width: 10%;">
                             <col style="width: 15%;">
                         </colgroup>
-
+        
                         <thead>
                             <tr>
                                 <th><?php echo esc_html__('Message', 'gpt3-ai-content-generator'); ?></th>
@@ -226,16 +270,15 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                 <th><?php echo esc_html__('Actions', 'gpt3-ai-content-generator'); ?></th>
                             </tr>
                         </thead>
-
+        
                         <tbody>
                             <?php
+                            $pricing = \WPAICG\WPAICG_Util::get_instance()->model_pricing;
+        
                             foreach ($logs as $log) {
-                                // Get the latest conversation (user and AI messages)
                                 $latest_conversation = self::get_latest_conversation($log->data);
-                                // Calculate human-readable time difference
                                 $time_diff = human_time_diff(intval($log->created_at), current_time('timestamp')) . ' ' . __('ago', 'gpt3-ai-content-generator');
-                                
-                                // Decode the log data to count user messages, feedback, and leads
+        
                                 $data = json_decode($log->data, true);
                                 $user_message_count = 0;
                                 $lead_count = 0;
@@ -245,31 +288,45 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                 $flag_reasons = array();
                                 $message_details = array();
                                 $message_number = 1;
-                                // Retrieve the pricing table
-                                $pricing = \WPAICG\WPAICG_Util::get_instance()->model_pricing;
-
+        
                                 if (is_array($data)) {
-                                    foreach ($data as $message) {
-                                        if (isset($message['type']) && $message['type'] === 'user') {
+                                    $num_messages = count($data);
+                                    for ($i = 0; $i < $num_messages; $i++) {
+                                        $message = $data[$i];
+        
+                                        if ($message['type'] === 'user') {
                                             $user_message_count++;
-
+                                            $user_text = isset($message['message']) ? $message['message'] : '';
+                                            $user_date = isset($message['date']) ? intval($message['date']) : 0;
+                                            $user_date_formatted = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $user_date);
+        
+                                            // Attempt to find the next AI message
+                                            $ai_text = '';
+                                            $ai_date_formatted = '';
+                                            if (($i + 1) < $num_messages && isset($data[$i+1]['type']) && $data[$i+1]['type'] === 'ai') {
+                                                $ai_msg = $data[$i+1];
+                                                $ai_text = $ai_msg['message'];
+                                                $ai_date = intval($ai_msg['date']);
+                                                $ai_date_formatted = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $ai_date);
+                                            }
+        
                                             // Check for user feedback
                                             if (isset($message['userfeedback']) && is_array($message['userfeedback'])) {
-                                                $feedback_count += count($message['userfeedback']);
+                                                foreach ($message['userfeedback'] as $fb) {
+                                                    $feedback_count++;
+                                                }
                                             }
-
-                                            // Count leads for user messages
+        
+                                            // Leads
                                             if (isset($message['lead_data']) && is_array($message['lead_data'])) {
                                                 $lead_count++;
                                             }
                                         }
-
-                                        // Sum tokens from AI messages
+        
                                         if (isset($message['type']) && $message['type'] === 'ai' && isset($message['token'])) {
                                             $total_tokens += intval($message['token']);
                                         }
-
-                                        // Collect detailed message data only for AI messages
+        
                                         if (isset($message['type']) && $message['type'] === 'ai') {
                                             $model = isset($message['request']['model']) ? sanitize_text_field($message['request']['model']) : 'N/A';
                                             $token = isset($message['token']) ? intval($message['token']) : 0;
@@ -282,16 +339,14 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                             );
                                             $message_number++;
                                         }
-
-                                        // Check for flagged messages
+        
                                         if (isset($message['flag']) && $message['flag'] !== false) {
                                             $has_flagged = true;
                                             $flag_reasons[] = sanitize_text_field($message['flag']);
                                         }
                                     }
                                 }
-
-                                // Encode the message details as JSON for data attribute
+        
                                 $encoded_message_details = esc_attr(json_encode($message_details));
                                 ?>
                                 <tr>
@@ -311,19 +366,16 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                             <?php endif; ?>
                                         </div>
                                         <div class="aipower-timing">
-                                            <?php 
-                                            echo esc_html($time_diff) . ', ' . esc_html($user_message_count) . ' ' . esc_html__('messages', 'gpt3-ai-content-generator'); 
-                                            
+                                            <?php
+                                            echo esc_html($time_diff) . ', ' . esc_html($user_message_count) . ' ' . esc_html__('messages', 'gpt3-ai-content-generator');
                                             if ($feedback_count > 0) {
                                                 echo ', ' . esc_html($feedback_count) . ' ' . esc_html__('feedback', 'gpt3-ai-content-generator');
                                             }
-
                                             if ($lead_count === 1) {
                                                 echo ', ' . esc_html($lead_count) . ' ' . esc_html__('lead', 'gpt3-ai-content-generator');
                                             } elseif ($lead_count > 1) {
                                                 echo ', ' . esc_html($lead_count) . ' ' . esc_html__('leads', 'gpt3-ai-content-generator');
                                             }
-                                            
                                             if ($has_flagged) {
                                                 echo ', <span class="dashicons dashicons-flag aipower-flag-icon" title="' . esc_attr__('Flagged Message(s)', 'gpt3-ai-content-generator') . '"></span>';
                                             }
@@ -349,67 +401,62 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                             ?>
                         </tbody>
                     </table>
-
-                    <?php
-                    // Show pagination only if there are multiple pages of logs
-                    if ($total_pages > 1) {
-                        ?>
-                        <div class="aipower-log-pagination">
-                            <?php
-                            $range = 2; // Number of pages to show around the current page
-                            $first_last = 2; // Always show the first and last two pages
-
-                            if ($total_pages <= ($first_last * 2 + $range)) {
-                                // If the total pages are small, display all pages
-                                for ($i = 1; $i <= $total_pages; $i++) {
+        
+                    <?php if ($total_pages > 1): ?>
+                    <div class="aipower-log-pagination">
+                        <?php
+                        $range = 2;
+                        $first_last = 2;
+        
+                        if ($total_pages <= ($first_last * 2 + $range)) {
+                            for ($i = 1; $i <= $total_pages; $i++) {
+                                echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
+                            }
+                        } else {
+                            for ($i = 1; $i <= $first_last; $i++) {
+                                echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
+                            }
+        
+                            if ($paged > $first_last + $range + 1) {
+                                echo '<span>...</span>';
+                            }
+        
+                            $start = max($first_last + 1, $paged - $range);
+                            $end = min($paged + $range, $total_pages - $first_last);
+        
+                            for ($i = $start; $i <= $end; $i++) {
+                                if ($i > $first_last && $i <= $total_pages - $first_last) {
                                     echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
-                                }
-                            } else {
-                                // Display the first set of pages
-                                for ($i = 1; $i <= $first_last; $i++) {
-                                    echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
-                                }
-
-                                // Display ellipsis if needed
-                                if ($paged > $first_last + $range + 1) {
-                                    echo '<span>...</span>';
-                                }
-
-                                // Calculate start and end for middle pages
-                                $start = max($first_last + 1, $paged - $range);
-                                $end = min($paged + $range, $total_pages - $first_last);
-
-                                // Display the middle pages
-                                for ($i = $start; $i <= $end; $i++) {
-                                    if ($i > $first_last && $i <= $total_pages - $first_last) {
-                                        echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
-                                    }
-                                }
-
-                                // Display ellipsis if needed
-                                if ($paged < $total_pages - $first_last - $range) {
-                                    echo '<span>...</span>';
-                                }
-
-                                // Display the last set of pages
-                                for ($i = $total_pages - $first_last + 1; $i <= $total_pages; $i++) {
-                                    if ($i > $end) {
-                                        echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
-                                    }
                                 }
                             }
-                            ?>
-                        </div>
-                        <?php
-                    }
-                    ?>
+        
+                            if ($paged < $total_pages - $first_last - $range) {
+                                echo '<span>...</span>';
+                            }
+        
+                            for ($i = $total_pages - $first_last + 1; $i <= $total_pages; $i++) {
+                                if ($i > $end) {
+                                    echo '<button class="aipower-log-page-btn" data-page="' . esc_attr($i) . '" ' . ($i == $paged ? 'disabled' : '') . '>' . esc_html($i) . '</button>';
+                                }
+                            }
+                        }
+                        ?>
+                    </div>
+                    <?php endif; ?>
+        
                 </div>
                 <?php
             } else {
                 echo '<p>' . esc_html__('No logs found.', 'gpt3-ai-content-generator') . '</p>';
             }
-
-            return ob_get_clean();
+        
+            $html = ob_get_clean();
+        
+            return array(
+                'html' => $html,
+                'leads' => $all_leads,
+                'feedback' => $all_feedback
+            );
         }
 
         /**

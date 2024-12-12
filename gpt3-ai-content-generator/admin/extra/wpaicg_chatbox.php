@@ -22,8 +22,6 @@ if(isset($atts) && isset($atts['id']) && !empty($atts['id'])) {
         $wpaicg_chat_shortcode_options = json_decode($wpaicg_bot->post_content, true);
         $wpaicg_chat_shortcode_options['width'] = isset($wpaicg_chat_shortcode_options['width']) && !empty($wpaicg_chat_shortcode_options['width']) ? $wpaicg_chat_shortcode_options['width'].'px' : '350px';
         $wpaicg_chat_shortcode_options['height'] = isset($wpaicg_chat_shortcode_options['height']) && !empty($wpaicg_chat_shortcode_options['height']) ? $wpaicg_chat_shortcode_options['height'].'px' : '400px';
-        $wpaicg_chat_shortcode_options['ai_icon'] = $wpaicg_chat_shortcode_options['ai_avatar'] ?? '';
-        $wpaicg_chat_shortcode_options['ai_icon_url'] = isset($wpaicg_chat_shortcode_options['ai_avatar_id']) ? $wpaicg_chat_shortcode_options['ai_avatar_id'] : false;
         
         $wpaicg_conversation_starters = isset($wpaicg_chat_shortcode_options['conversation_starters']) && is_array($wpaicg_chat_shortcode_options['conversation_starters']) ? $wpaicg_chat_shortcode_options['conversation_starters'] : [];
         $adapted_conversation_starters = [];
@@ -54,11 +52,9 @@ $default_setting = array(
     'best_of' => $existingValue['best_of'],
     'frequency_penalty' => $existingValue['frequency_penalty'],
     'presence_penalty' => $existingValue['presence_penalty'],
-    'ai_name' => esc_html__('AI','gpt3-ai-content-generator'),
-    'you' => esc_html__('You','gpt3-ai-content-generator'),
     'ai_thinking' => esc_html__('Gathering thoughts','gpt3-ai-content-generator'),
     'placeholder' => esc_html__('Type a message','gpt3-ai-content-generator'),
-    'welcome' => esc_html__('Hello, how can I help you today?','gpt3-ai-content-generator'),
+    'welcome' => esc_html__('Hello 👋, how can I help you today?','gpt3-ai-content-generator'),
     'remember_conversation' => 'yes',
     'conversation_cut' => 100,
     'content_aware' => 'yes',
@@ -74,7 +70,6 @@ $default_setting = array(
     'ai_bg_color' => '#d1e8ff',
     'ai_icon_url' => '',
     'ai_icon' => 'default',
-    'use_avatar' => false,
     'width' => '100%',
     'height' => '50%',
     'save_logs' => false,
@@ -134,10 +129,8 @@ $default_setting = array(
 );
 $wpaicg_settings = shortcode_atts($default_setting, $wpaicg_chat_shortcode_options);
 $wpaicg_ai_thinking = $wpaicg_settings['ai_thinking'];
-$wpaicg_you = $wpaicg_settings['you'];
 $wpaicg_typing_placeholder = $wpaicg_settings['placeholder'];
 $wpaicg_welcome_message = $wpaicg_settings['welcome'];
-$wpaicg_ai_name = $wpaicg_settings['ai_name'];
 $wpaicg_chat_content_aware = $wpaicg_settings['content_aware'];
 $wpaicg_font_color = $wpaicg_settings['fontcolor'];
 $wpaicg_font_size = $wpaicg_settings['fontsize'];
@@ -782,10 +775,6 @@ $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !emp
     
 </style>
 <?php
-if(isset($wpaicg_settings['use_avatar']) && $wpaicg_settings['use_avatar']) {
-    $wpaicg_ai_name = isset($wpaicg_settings['ai_icon_url']) && isset($wpaicg_settings['ai_icon']) && $wpaicg_settings['ai_icon'] == 'custom' && !empty($wpaicg_settings['ai_icon_url']) ? wp_get_attachment_url(esc_html($wpaicg_settings['ai_icon_url'])) : WPAICG_PLUGIN_URL . 'admin/images/chatbot.png';
-    $wpaicg_ai_name = '<img src="'.$wpaicg_ai_name.'" height="40" width="40">';
-}
 $wpaicg_has_action_bar = false;
 if($wpaicg_chat_fullscreen || $wpaicg_chat_download_btn || $wpaicg_chat_clear_btn || $wpaicg_chat_audio_btn) {
     $wpaicg_has_action_bar = true;
@@ -802,11 +791,6 @@ if (isset($wpaicg_settings['model']) && strpos($wpaicg_settings['model'], 'asst_
      data-user-bg-color="<?php echo esc_html($wpaicg_user_bg_color)?>"
      data-color="<?php echo esc_html($wpaicg_font_color)?>"
      data-fontsize="<?php echo esc_html($wpaicg_font_size)?>"
-     data-use-avatar="<?php echo isset($wpaicg_settings['use_avatar']) && $wpaicg_settings['use_avatar'] ? '1' : '0'?>"
-     data-user-avatar="<?php echo is_user_logged_in() ? get_avatar_url(get_current_user_id()) : WPAICG_PLUGIN_URL.'admin/images/default_profile.png' ?>"
-     data-you="<?php echo esc_html($wpaicg_you)?>"
-     data-ai-avatar="<?php echo isset($wpaicg_settings['use_avatar']) && $wpaicg_settings['use_avatar'] && isset($wpaicg_settings['ai_icon_url']) && !empty($wpaicg_settings['ai_icon_url']) && isset($wpaicg_settings['ai_icon']) && $wpaicg_settings['ai_icon'] == 'custom' ? wp_get_attachment_url(esc_html($wpaicg_settings['ai_icon_url'])) : WPAICG_PLUGIN_URL.'admin/images/chatbot.png'?>"
-     data-ai-name="<?php echo esc_html($wpaicg_ai_name)?>"
      data-ai-bg-color="<?php echo esc_html($wpaicg_ai_bg_color)?>"
      data-nonce="<?php echo esc_html(wp_create_nonce( 'wpaicg-chatbox' ))?>"
      data-post-id="<?php echo get_the_ID()?>"
