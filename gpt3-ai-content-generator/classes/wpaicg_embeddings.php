@@ -41,7 +41,48 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
             add_action('wp_ajax_wpaicg_delete_all_embeddings', array($this, 'wpaicg_delete_all_embeddings'));
             add_action('wp_ajax_set_results_per_page', array($this, 'set_results_per_page'));
             add_action('wp_ajax_wpaicg_save_revised_answer', [$this, 'wpaicg_save_revised_answer']);
+            add_action('wp_ajax_wpaicg_get_all_posts_for_embeddings', [$this, 'wpaicg_get_all_posts_for_embeddings']);
 
+        }
+
+        // =========== NEW: Provide a list of posts/pages/CPT for the "Add my data" button in knowledge modal =========== //
+        public function wpaicg_get_all_posts_for_embeddings() {
+            // Verify nonce
+            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
+                wp_send_json_error(array('message' => __('Nonce verification failed.', 'gpt3-ai-content-generator')));
+                return;
+            }
+            
+            if(!current_user_can('manage_options')){
+                wp_send_json_error(['message' => 'Permission denied.']);
+            }
+        
+            $post_types = get_post_types(['public' => true], 'names');
+            if(isset($post_types['attachment'])) {
+                unset($post_types['attachment']);
+            }
+        
+            $all_posts_by_type = [];
+            foreach($post_types as $pt) {
+                $args = [
+                    'post_type' => $pt,
+                    'post_status' => 'publish',
+                    'posts_per_page' => -1
+                ];
+                $posts = get_posts($args);
+                $list = [];
+                foreach($posts as $p) {
+                    $list[] = [
+                        'ID' => $p->ID,
+                        'post_title' => $p->post_title
+                    ];
+                }
+                // Even if zero posts found, $list = [] is still an array.
+                // Make sure you assign $all_posts_by_type[$pt] = $list, not just a single object.
+                $all_posts_by_type[$pt] = $list;
+            }
+        
+            wp_send_json_success(['data' => $all_posts_by_type]);
         }
 
         public function wpaicg_save_revised_answer() {
@@ -986,7 +1027,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
             $wpaicg_content = trim($wpaicg_content);
             if (empty($wpaicg_content)) {
                 update_post_meta($wpaicg_data->ID, 'wpaicg_indexed', 'skip');
-                return 'Empty content or probably a shortcode';
+                return 'Empty content or probably a shortcode. Skipped.';
             } else {
                 /*Check If is Re-Index*/
                 $check = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $wpdb->postmeta . " WHERE meta_key='wpaicg_parent' AND meta_value=%d",$wpaicg_data->ID));

@@ -90,26 +90,34 @@ if(!class_exists('\\WPAICG\\WPAICG_Promptbase')) {
             require_once(ABSPATH . 'wp-admin/includes/file.php');
             WP_Filesystem();
         
-            // Fetch AI forms and their meta
-            $forms = $wpdb->get_results("SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_type = 'wpaicg_prompt' AND post_status = 'publish'", ARRAY_A);
+            // Fetch Prompts and their meta
+            $forms = $wpdb->get_results("
+                SELECT ID, post_title, post_content
+                FROM {$wpdb->posts}
+                WHERE post_type = 'wpaicg_prompt'
+                  AND post_status = 'publish'
+            ", ARRAY_A);
+        
             $settings = [];
             foreach ($forms as $form) {
                 if (!empty($form['post_content'])) {
                     $meta = get_post_meta($form['ID']);
-                    // Optionally filter or clean meta data here
+                    // Instead of maybe_unserialize, safely unserialize:
+                    $content = $this->wpaicg_safe_unserialize($form['post_content']);
+        
                     $settings[] = [
-                        'title' => $form['post_title'],
-                        'content' => maybe_unserialize($form['post_content']),
-                        'meta' => $meta, // Include meta data
+                        'title'   => $form['post_title'],
+                        'content' => $content,
+                        'meta'    => $meta, // Include meta data
                     ];
                 }
             }
         
             // JSON encoding and file saving
             $json_content = json_encode($settings);
-            $upload_dir = wp_upload_dir();
-            $file_name = 'prompts_export_' . wp_rand() . '.json';
-            $file_path = $upload_dir['basedir'] . '/' . $file_name;
+            $upload_dir   = wp_upload_dir();
+            $file_name    = 'prompts_export_' . wp_rand() . '.json';
+            $file_path    = $upload_dir['basedir'] . '/' . $file_name;
         
             if ($wp_filesystem->put_contents($file_path, $json_content)) {
                 wp_send_json_success(['url' => $upload_dir['baseurl'] . '/' . $file_name]);
@@ -446,6 +454,35 @@ if(!class_exists('\\WPAICG\\WPAICG_Promptbase')) {
             ob_start();
             include WPAICG_PLUGIN_DIR . 'admin/extra/wpaicg_prompt_shortcode.php';
             return ob_get_clean();
+        }
+
+        private function wpaicg_safe_unserialize($data) {
+            // Early check: If it’s obviously not a serialized string, just return as-is.
+            if ( ! is_serialized($data) ) {
+                return $data;
+            }
+        
+            // On PHP 7+ we can prevent object rehydration by disallowing all classes.
+            if ( version_compare(PHP_VERSION, '7.0.0', '>=') ) {
+                $unserialized = @unserialize($data, ['allowed_classes' => false]);
+            } else {
+                // Fallback for older PHP. (In practice, strongly encourage upgrading PHP!)
+                $unserialized = @unserialize($data);
+            }
+        
+            // If unserialize() fails, return the original string (some prompts may just have plain text).
+            if ($unserialized === false && $data !== serialize(false)) {
+                return $data;
+            }
+        
+            // If it’s an object, discard it so no malicious object can be rehydrated. 
+            // Return null (or an empty array/string) to prevent the injection.
+            if ( is_object($unserialized) ) {
+                return null; 
+            }
+        
+            // Otherwise, it’s an array/scalar—safe to return.
+            return $unserialized;
         }
     }
     WPAICG_Promptbase::get_instance();

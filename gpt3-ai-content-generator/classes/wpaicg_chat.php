@@ -1695,7 +1695,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
 
         public function getChatEndpointModels() {
             // List of models for the chat completions endpoint
-            $chatModels = ['gpt-4', 'gpt-4-32k', 'gpt-4-1106-preview','gpt-4o', 'gpt-4o-mini','o1-preview','o1-mini','gpt-4-turbo','gpt-4-vision-preview', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k','chatgpt-4o-latest'];
+            $chatModels = ['gpt-4', 'gpt-4-32k', 'gpt-4-1106-preview','gpt-4o', 'gpt-4o-mini','o1-preview','o1','o1-mini','gpt-4-turbo','gpt-4-vision-preview', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k','chatgpt-4o-latest'];
             
             // Get custom models and Azure deployment model, if any
             $custom_models = get_option('wpaicg_custom_models', []);
@@ -2259,7 +2259,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                         if($namespace){
                             $pinecone_body['namespace'] = $namespace;
                         }
-                        $response = wp_remote_post('https://' . $wpaicg_pinecone_environment . '/query', array(
+                        $response = wp_safe_remote_post('https://' . $wpaicg_pinecone_environment . '/query', array(
                             'headers' => $headers,
                             'body' => wp_json_encode($pinecone_body)
                         ));

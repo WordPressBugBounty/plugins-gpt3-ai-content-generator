@@ -395,6 +395,12 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 // set the default value for type field to 'shortcode'
                 $bot_data['type'] = 'shortcode'; 
 
+                // **NEW CODE: Combine 'voice_language' and 'voice_name' for default bot_id=0**
+                if (isset($bot_data['voice_language']) && isset($bot_data['voice_name'])) {
+                    $combined_voice = sanitize_text_field($bot_data['voice_language']) . '|' . sanitize_text_field($bot_data['voice_name']);
+                    $bot_data['voice_language'] = $combined_voice;
+                }
+
                 wp_send_json_success(array('bot_data' => $bot_data, 'type' => 'shortcode'));
                 return;
             }
@@ -447,6 +453,12 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 // Loop through the options array to populate $bot_data
                 foreach ($options as $key => $option) {
                     $bot_data[$key] = get_option($option['option_name'], $option['default']);
+                }
+
+                // **NEW CODE: Combine 'voice_language' and 'voice_name' for default bot_id=-1**
+                if (isset($bot_data['voice_language']) && isset($bot_data['voice_name'])) {
+                    $combined_voice = sanitize_text_field($bot_data['voice_language']) . '|' . sanitize_text_field($bot_data['voice_name']);
+                    $bot_data['voice_language'] = $combined_voice;
                 }
 
         
@@ -1543,7 +1555,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                         wp_send_json_error(array('message' => esc_html__('Bot data not found in options.', 'gpt3-ai-content-generator')));
                         return;
                     }
-        
+
                     // Validate the value if a callback is provided
                     if (isset($definition['validate_callback']) && is_callable($definition['validate_callback'])) {
                         $is_valid = call_user_func($definition['validate_callback'], $value);
@@ -1562,12 +1574,32 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
         
                     // Update the specific field in the option data
                     $bot_data[$field] = $sanitized_value;
+
         
                     // For 'name' field, ensure consistency
                     if ($field === 'name') {
                         // You might want to perform additional actions here if necessary
                         // For example, updating titles in other areas or caching mechanisms
                     }
+                    if ($field === 'voice_language') {
+                        if (strpos($sanitized_value, '|') !== false) {
+                            // Split into language and voice name
+                            $parts = explode('|', $sanitized_value, 2);
+                            $language_part = sanitize_text_field($parts[0]);
+                            $voice_part = sanitize_text_field($parts[1]);
+            
+                            // Store both language and voice_name in the option data
+                            $bot_data['voice_language'] = $language_part;
+                            $bot_data['voice_name'] = $voice_part;
+                        } else {
+                            // If no delimiter, just store the language and clear voice_name
+                            $bot_data['voice_language'] = $sanitized_value;
+                            // Optionally clear voice_name if needed
+                            if (isset($bot_data['voice_name'])) {
+                                unset($bot_data['voice_name']);
+                            }
+                        }
+                    } 
                     // Special handling for 'icon_url' field
                     if ($field === 'icon_url') {
                         if (isset($bot_data['icon']) && $bot_data['icon'] === 'custom') {

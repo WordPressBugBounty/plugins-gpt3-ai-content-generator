@@ -73,6 +73,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
 
         <!-- Hidden nonce field for AJAX security -->
         <input type="hidden" id="ai-engine-nonce" value="<?php echo wp_create_nonce('wpaicg_save_ai_engine_nonce'); ?>" />
+        <input type="hidden" id="embedding-nonce" value="<?php echo wp_create_nonce('wpaicg-ajax-nonce'); ?>" />
 
         <div id="aipower-create-bot-section" style="display:none;">
             <div class="aipower-accordion">
@@ -226,6 +227,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
         </div>
         <div class="aipower-modal-body">
             <p><?php echo esc_html__('You can add knowledge to the chatbot by enabling below settings.', 'gpt3-ai-content-generator'); ?></p>
+            <h3><?php echo esc_html__('User Awareness', 'gpt3-ai-content-generator'); ?></h3>
             <div class="aipower-form-group aipower-grouped-fields">
                 <!-- User Aware Switch -->
                 <div class="aipower-form-group">
@@ -237,6 +239,9 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                         </label>
                     </div>
                 </div>
+            </div>
+            <h3><?php echo esc_html__('Content Awareness', 'gpt3-ai-content-generator'); ?></h3>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Data Source Section -->
                 <div class="aipower-form-group">
                     <label for="aipower-data-source-selection"><?php echo esc_html__('Data Source', 'gpt3-ai-content-generator'); ?></label>
@@ -265,6 +270,14 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                         </label>
                     </div>
                 </div>
+                <!-- NEW: "Add my data" button -->
+                <div class="aipower-form-group" style="margin-top:20px; display:none;" id="aipower-add-data-button-wrapper">
+                    <button id="aipower-add-data-button" class="button button-primary">
+                        <?php echo esc_html__('Add Data', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Pinecone Index Selection -->
                 <div class="aipower-form-group">
                     <label for="aipower-pinecone-index-selection"><?php echo esc_html__('Index', 'gpt3-ai-content-generator'); ?></label>
@@ -318,6 +331,8 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                         <option value=""><?php echo esc_html__('Non-Conversational','gpt3-ai-content-generator')?></option>
                     </select>
                 </div>
+            </div>
+            <div class="aipower-form-group aipower-grouped-fields">
                 <!-- Confidence Score -->
                 <div class="aipower-form-group">
                     <label for="aipower-confidence-score"><?php echo esc_html__('Confidence Score', 'gpt3-ai-content-generator'); ?></label>
@@ -351,6 +366,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                     </select>
                 </div>
             </div>
+            <h3><?php echo esc_html__('Other Settings', 'gpt3-ai-content-generator'); ?></h3>
             <div class="aipower-form-group aipower-grouped-fields">
                 <div class="aipower-form-group">
                     <label for="aipower-bot-language-selection"><?php echo esc_html__('Language', 'gpt3-ai-content-generator'); ?></label>
@@ -381,6 +397,37 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                     </select>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<!-- NEW: Modal to display all posts for embedding  -->
+<div id="aipower-add-data-modal" class="aipower-modal" style="display:none;">
+    <div class="aipower-modal-content" style="width: 70%;max-height:80vh;overflow:auto;">
+        <div class="aipower-modal-header">
+            <h2><?php echo esc_html__('Add Data to Vector DB', 'gpt3-ai-content-generator'); ?></h2>
+            <span class="aipower-close">&times;</span>
+        </div>
+        <div class="aipower-modal-body">
+            <p><?php echo esc_html__('Select the content you want to add to your Vector DB. Then click "Index Selected".', 'gpt3-ai-content-generator'); ?></p>
+            <!-- The "Index Selected" button and "Stop Indexing" button -->
+            <div style="margin-top:20px;">
+                <button id="aipower-index-selected-btn" class="button button-primary">
+                    <?php echo esc_html__('Index Selected', 'gpt3-ai-content-generator'); ?>
+                </button>
+                
+                <!-- NEW: Initially hidden stop button -->
+                <button id="aipower-stop-indexing-btn" class="button button-secondary" style="display:none;">
+                    <?php echo esc_html__('Stop', 'gpt3-ai-content-generator'); ?>
+                </button>
+            </div>
+
+            <!-- Container for progress updates -->
+            <div id="aipower-index-progress" style="margin-top: 20px;"></div>
+            <!-- Container for tabs or just a big list. We'll do tabs by post type. -->
+            <div id="aipower-add-data-tabs" class="aipower-add-data-tabs">
+                <!-- Will be populated by JS with a tab for each post type -->
+            </div>
+
         </div>
     </div>
 </div>

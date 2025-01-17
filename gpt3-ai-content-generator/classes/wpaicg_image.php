@@ -591,7 +591,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Image')) {
                         );
 
                         try {
-                            $wpaicg_response = wp_remote_post('https://api.replicate.com/v1/predictions', array(
+                            $wpaicg_response = wp_safe_remote_post('https://api.replicate.com/v1/predictions', array(
                                 'headers' => $headers,
                                 'body' => json_encode($body)
                             ));
@@ -632,35 +632,64 @@ if(!class_exists('\\WPAICG\\WPAICG_Image')) {
 
         public function wpaicg_save_image_media()
         {
-            $wpaicg_result = array('status' => 'error', 'msg' => esc_html__('Something went wrong','gpt3-ai-content-generator'));
+            // Default error response
+            $wpaicg_result = array(
+                'status' => 'error',
+                'msg'    => esc_html__('Something went wrong', 'gpt3-ai-content-generator')
+            );
+        
+            // 1) Verify nonce
             if ( ! wp_verify_nonce( $_POST['nonce'], 'wpaicg-ajax-nonce' ) ) {
-                $wpaicg_result['status'] = 'error';
                 $wpaicg_result['msg'] = esc_html__('Nonce verification failed','gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
-            if(
-                isset($_POST['image_url'])
-                && !empty($_POST['image_url'])
-            ){
-                $url = sanitize_url($_POST['image_url']);
-                $image_title = isset($_POST['image_title']) && !empty($_POST['image_title']) ? sanitize_text_field($_POST['image_title']) : '';
-                $image_alt = isset($_POST['image_alt']) && !empty($_POST['image_alt']) ? sanitize_text_field($_POST['image_alt']) : '';
-                $image_caption = isset($_POST['image_caption']) && !empty($_POST['image_caption']) ? sanitize_text_field($_POST['image_caption']) : '';
-                $image_description = isset($_POST['image_description']) && !empty($_POST['image_description']) ? sanitize_text_field($_POST['image_description']) : '';
-                $wpaicg_image_attachment_id = WPAICG_Content::get_instance()->wpaicg_save_image($url, $image_title,false);
-                if($wpaicg_image_attachment_id['status'] == 'success'){
-                    wp_update_post(array(
-                        'ID' => $wpaicg_image_attachment_id['id'],
-                        'post_content' => $image_description,
-                        'post_excerpt' => $image_caption
-                    ));
-                    update_post_meta($wpaicg_image_attachment_id['id'],'_wp_attachment_image_alt', $image_alt);
-                    $wpaicg_result['status'] = 'success';
-                }
-                else{
-                    $wpaicg_result['msg'] = $wpaicg_image_attachment_id['msg'];
-                }
+        
+            /**
+             * 2) Permission Checks:
+             *    - Must be able to upload files
+             *    - Must have at least one of the Image Generator sub-module caps
+             */
+            if (
+                ! current_user_can('wpaicg_image_generator_dalle') &&
+                ! current_user_can('wpaicg_image_generator_stable-diffusion')
+            ) {
+                $wpaicg_result['msg'] = esc_html__('You do not have permission to upload images','gpt3-ai-content-generator');
+                wp_send_json($wpaicg_result);
             }
+        
+            // 3) Check required field
+            if ( empty($_POST['image_url']) ) {
+                wp_send_json($wpaicg_result);
+            }
+        
+            // 4) Sanitize data
+            $url               = sanitize_url($_POST['image_url']);
+            $image_title       = isset($_POST['image_title'])       ? sanitize_text_field($_POST['image_title'])       : '';
+            $image_alt         = isset($_POST['image_alt'])         ? sanitize_text_field($_POST['image_alt'])         : '';
+            $image_caption     = isset($_POST['image_caption'])     ? sanitize_text_field($_POST['image_caption'])     : '';
+            $image_description = isset($_POST['image_description']) ? sanitize_text_field($_POST['image_description']) : '';
+        
+            // 5) Strip shortcodes from alt text to prevent shortcode injection
+            $image_alt = strip_shortcodes($image_alt);
+        
+            // 6) Save the image
+            $wpaicg_image_attachment_id = WPAICG_Content::get_instance()->wpaicg_save_image($url, $image_title, false);
+        
+            if ($wpaicg_image_attachment_id['status'] === 'success') {
+                // Update the newly created attachment
+                wp_update_post(array(
+                    'ID'           => $wpaicg_image_attachment_id['id'],
+                    'post_content' => $image_description,
+                    'post_excerpt' => $image_caption
+                ));
+                // Update alt text
+                update_post_meta($wpaicg_image_attachment_id['id'], '_wp_attachment_image_alt', $image_alt);
+        
+                $wpaicg_result['status'] = 'success';
+            } else {
+                $wpaicg_result['msg'] = $wpaicg_image_attachment_id['msg'];
+            }
+        
             wp_send_json($wpaicg_result);
         }
 

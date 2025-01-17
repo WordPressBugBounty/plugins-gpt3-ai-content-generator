@@ -303,7 +303,7 @@ if(!class_exists('\\WPAICG\\WPAICG_ElevenLabs')) {
                     );
                 }
 
-                $response = wp_remote_post($this->url . 'text-to-speech/' . $voice . '/stream', array(
+                $response = wp_safe_remote_post($this->url . 'text-to-speech/' . $voice . '/stream', array(
                     'headers' => array(
                         'Content-Type' => 'application/json',
                         'xi-api-key' => $this->api_key

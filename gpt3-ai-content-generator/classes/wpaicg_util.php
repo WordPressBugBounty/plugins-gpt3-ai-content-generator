@@ -1178,8 +1178,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             'gpt-4o-mini' => 'GPT-4o Mini',
             'gpt-4-turbo' => 'GPT-4 Turbo',
             'gpt-4-vision-preview' => 'GPT-4 Vision',
-            'o1-preview' => 'O1 Preview',
-            'o1-mini' => 'O1 Mini',
+            'o1-preview' => 'o1 Preview',
+            'o1-mini' => 'o1 Mini',
+            'o1' => 'o1',
         ];
 
         public $openai_gpt35_models = [
@@ -1190,8 +1191,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
 
         // New list for o1-mini and o1-preview models
         public $o1_models = [
-            'o1-preview' => 'O1 Preview',
-            'o1-mini' => 'O1 Mini',
+            'o1-preview' => 'o1 Preview',
+            'o1-mini' => 'o1 Mini',
+            'o1' => 'o1',
         ];
 
         public $model_pricing = [
@@ -1205,6 +1207,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             'gpt-4-vision-preview' => 0.06,
             'o1-preview' => 0.06,
             'o1-mini' => 0.0003,
+            'o1' => 0.015,
             'gpt-3.5-turbo' => 0.0015,
             'gpt-4-turbo-preview' => 0.03,
             'gpt-3.5-turbo-instruct' => 0.002,

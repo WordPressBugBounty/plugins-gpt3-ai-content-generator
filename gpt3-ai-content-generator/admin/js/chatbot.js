@@ -154,7 +154,7 @@ jQuery(document).ready(function ($) {
                 dependsOn: 'type',
                 showWhen: 'widget'
             },
-            validate_callback: function(value) {
+            validate_callback: function (value) {
                 // Validate that the value is comma-separated integers
                 const regex = /^(\d+,)*\d+$/;
                 return regex.test(value);
@@ -173,7 +173,7 @@ jQuery(document).ready(function ($) {
                 dependsOn: 'type',
                 showWhen: 'widget'
             },
-            validate_callback: function(value) {
+            validate_callback: function (value) {
                 return ['left', 'right'].includes(value);
             }
         },
@@ -279,7 +279,7 @@ jQuery(document).ready(function ($) {
             saveOn: 'blur',
             ajaxAction: 'aipower_save_field',
             defaultValue: '1500',
-            validate_callback: function(value) {
+            validate_callback: function (value) {
                 // Ensure it is a number.
                 return !isNaN(value) && value > 0;
             }
@@ -333,10 +333,10 @@ jQuery(document).ready(function ($) {
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
             defaultValue: 'yes', // Ensure default is 'yes'
-            validate_callback: function(value) {
+            validate_callback: function (value) {
                 return ['yes', 'no'].includes(value);
             }
-        }, 
+        },
         {
             name: 'conversation_cut',
             selector: '#aipower-memory-limit',
@@ -356,7 +356,7 @@ jQuery(document).ready(function ($) {
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
             defaultValue: 'yes', // Ensure default is 'yes'
-            validate_callback: function(value) {
+            validate_callback: function (value) {
                 return ['yes', 'no'].includes(value);
             }
         },
@@ -368,8 +368,8 @@ jQuery(document).ready(function ($) {
             required: false,
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
-            defaultValue: 'yes', 
-            validate_callback: function(value) {
+            defaultValue: 'yes',
+            validate_callback: function (value) {
                 return ['yes', 'no'].includes(value);
             }
         },
@@ -396,7 +396,7 @@ jQuery(document).ready(function ($) {
                 dependsOn: 'embedding',
                 showWhen: '1'
             },
-            validate_callback: function(value) {
+            validate_callback: function (value) {
                 return ['pinecone', 'qdrant'].includes(value);
             }
         },
@@ -806,16 +806,16 @@ jQuery(document).ready(function ($) {
             ajaxAction: 'aipower_save_field',
             defaultValue: '#343A40',
             realtimePreview: {
-                css:  [
+                css: [
                     {
-                    target: '.wpaicg-chat-shortcode',
-                    property: 'background-color'
+                        target: '.wpaicg-chat-shortcode',
+                        property: 'background-color'
                     },
                     {
-                    target: '.wpaicg-chatbox',
-                    property: 'background-color'
+                        target: '.wpaicg-chatbox',
+                        property: 'background-color'
                     }
-                ] 
+                ]
             }
         },
         {
@@ -898,8 +898,8 @@ jQuery(document).ready(function ($) {
             realtimePreview: {
                 css: [
                     {
-                    target: '.wpaicg-ai-message',
-                    property: 'background-color'
+                        target: '.wpaicg-ai-message',
+                        property: 'background-color'
                     },
                     {
                         target: '.wpaicg-chat-ai-message',
@@ -976,7 +976,7 @@ jQuery(document).ready(function ($) {
                         property: 'color'
                     }
                 ],
-                custom: function(value) {
+                custom: function (value) {
                     // Update the placeholder color
                     updatePlaceholderColor(value);
                 }
@@ -1078,12 +1078,12 @@ jQuery(document).ready(function ($) {
             realtimePreview: {
                 css: [
                     {
-                    target: '.wpaicg-chat-shortcode-footer',
-                    property: 'color'
+                        target: '.wpaicg-chat-shortcode-footer',
+                        property: 'color'
                     },
                     {
-                    target: '.wpaicg-chatbox-footer',
-                    property: 'color'
+                        target: '.wpaicg-chatbox-footer',
+                        property: 'color'
                     }
                 ]
             }
@@ -1130,11 +1130,11 @@ jQuery(document).ready(function ($) {
             ajaxAction: 'aipower_save_field',
             defaultValue: 'default',
             visibility:
-                {
+            {
                 dependsOn: 'type',
                 showWhen: 'widget'
             },
-            validate_callback: function(value) {
+            validate_callback: function (value) {
                 return ['default', 'custom'].includes(value);
             },
         },
@@ -1209,7 +1209,7 @@ jQuery(document).ready(function ($) {
             ajaxAction: 'aipower_save_field',
             defaultValue: 'openai',
             requiresReload: true,
-            validate_callback: function(value) {
+            validate_callback: function (value) {
                 return ['openai', 'elevenlabs', 'google'].includes(value);
             }
         },
@@ -1227,7 +1227,7 @@ jQuery(document).ready(function ($) {
                 dependsOn: 'voice_service',
                 showWhen: 'openai'
             },
-            validate_callback: function(value) {
+            validate_callback: function (value) {
                 return ['tts-1', 'tts-1-hd'].includes(value);
             }
         },
@@ -1245,8 +1245,8 @@ jQuery(document).ready(function ($) {
                 dependsOn: 'voice_service',
                 showWhen: 'openai'
             },
-            validate_callback: function(value) {
-                return ['alloy', 'echo','fable', 'onyx','nova', 'shimmer'].includes(value);
+            validate_callback: function (value) {
+                return ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'].includes(value);
             }
         },
         {
@@ -1263,8 +1263,8 @@ jQuery(document).ready(function ($) {
                 dependsOn: 'voice_service',
                 showWhen: 'openai'
             },
-            validate_callback: function(value) {
-                return ['mp3', 'opus','aac', 'flac','wav', 'pcm'].includes(value);
+            validate_callback: function (value) {
+                return ['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'].includes(value);
             }
         },
         {
@@ -1589,7 +1589,7 @@ jQuery(document).ready(function ($) {
                 showWhen: '1'
             },
         },
-        
+
     ];
 
     const yesNoFields = ['remember_conversation', 'content_aware', 'user_aware']; // Add more fields as needed
@@ -1604,7 +1604,7 @@ jQuery(document).ready(function ($) {
                 $(streamingField.selector).prop('disabled', true); // Disable in UI
                 handleFieldSave(streamingField); // Save the change
             }
-    
+
             // Disable Image Upload
             const imageUploadField = fieldConfigurations.find(f => f.name === 'image_enable');
             if (imageUploadField) {
@@ -1619,7 +1619,7 @@ jQuery(document).ready(function ($) {
                 $(streamingField.selector).prop('disabled', false); // **Enable in UI**
                 // Optionally, set to default value or leave as is
             }
-    
+
             // Enable Image Upload
             const imageUploadField = fieldConfigurations.find(f => f.name === 'image_enable');
             if (imageUploadField) {
@@ -1628,7 +1628,7 @@ jQuery(document).ready(function ($) {
             }
         }
     }
-    
+
     const lastSavedValues = {};
 
     // Initialize lastSavedValues with default values or current field values
@@ -1640,7 +1640,7 @@ jQuery(document).ready(function ($) {
                 lastSavedValues[field.name] = $(`${field.selector}`).is(':checked') ? 'yes' : 'no';
             } else {
                 lastSavedValues[field.name] = field.defaultValue !== undefined ? field.defaultValue : '';
-            }            
+            }
         } else {
             lastSavedValues[field.name] = field.defaultValue !== undefined ? field.defaultValue : '';
         }
@@ -1698,7 +1698,7 @@ jQuery(document).ready(function ($) {
     function setFieldValue(field, value, triggerEvent = true) {
         const $element = $(field.selector);
         if (!$element.length) return;
-    
+
         switch (field.type) {
             case 'text':
             case 'textarea':
@@ -1739,7 +1739,7 @@ jQuery(document).ready(function ($) {
                 $element.val(value);
         }
     }
-      
+
     function validateField(field, value) {
         if (field.required && !value) {
             return `Please enter a valid ${field.label}.`;
@@ -1754,7 +1754,7 @@ jQuery(document).ready(function ($) {
         // Add more validation rules as needed
         return null;
     }
-    
+
 
     function debounce(func, wait) {
         let timeout;
@@ -1776,14 +1776,14 @@ jQuery(document).ready(function ($) {
 
         // hide the shortcode message
         $('#aipower-shortcode-display').remove();
-        
+
         // Reset form fields to default values without triggering events
         fieldConfigurations.forEach(field => {
             // Special handling for the Azure provider case
             updateModelDropdown($('#aipower-bot-provider').val());
             setFieldValue(field, field.defaultValue !== undefined ? field.defaultValue : '', false);
         });
-    
+
         // Reset lastSavedValues
         fieldConfigurations.forEach(field => {
             if (field.type === 'radio') {
@@ -1792,16 +1792,16 @@ jQuery(document).ready(function ($) {
                 lastSavedValues[field.name] = field.defaultValue !== undefined ? field.defaultValue : '';
             }
         });
-    
+
         // After resetting fields, update dependencies and visibility
         fieldConfigurations.forEach(field => {
             updateFieldDependencies(field);
             updateFieldVisibility(field);
         });
     }
-    
+
     // -------------------- AJAX Helper Function --------------------
-    function ajaxPost(data, onSuccess, onError = () => {}) {
+    function ajaxPost(data, onSuccess, onError = () => { }) {
         $.post(ajaxurl, data, onSuccess)
             .fail(() => {
                 onError('Failed to connect to the server. Please try again.');
@@ -1812,12 +1812,12 @@ jQuery(document).ready(function ($) {
     const savingFields = {};
 
     // -------------------- Autosave Handling --------------------
-    const autosaveField = (field, value, callback, onError = () => {}) => {
+    const autosaveField = (field, value, callback, onError = () => { }) => {
         if (savingFields[field.name]) {
             // Field is already being saved; skip this save to prevent overlap
             return;
         }
-    
+
         savingFields[field.name] = true; // Lock the field to prevent concurrent saves
 
         UI.showAutosaving();
@@ -1830,26 +1830,26 @@ jQuery(document).ready(function ($) {
             $('#aipower-bot-provider').prop('disabled', true);
         }
 
-    
+
         // Set default name if empty
         if (field.name === 'name' && !value) {
             const randomnumber = Math.floor(Math.random() * 100);
             value = 'My Bot ' + randomnumber;
             $(field.selector).val(value); // Update the field in the UI
         }
-    
+
         const data = {
             action: field.ajaxAction,
             field: field.name,
             value,
             _wpnonce: $nonce
         };
-    
+
         const botId = getCurrentBotId();
         if (botId) {
             data.bot_id = botId;
         }
-    
+
         ajaxPost(data, (response) => {
             savingFields[field.name] = false; // Unlock the field after save
             // **NEW CODE: Re-enable related fields after saving**
@@ -1866,13 +1866,13 @@ jQuery(document).ready(function ($) {
                 if (field.name === 'conversation_starters') {
                     updateConversationStartersSwitch();
                 }
-        
+
                 // If saving the bot name and a new bot was created
                 if (field.name === 'name' && response.data.bot_id) {
                     $botIdField.val(response.data.bot_id); // Store the bot ID
                     // Pass the new bot ID to refreshPaginationState
                     refreshPaginationState(response.data.bot_id);
-                    
+
                     const shortcode = `[wpaicg_chatgpt id=${response.data.bot_id}]`;
                     const $shortcodeMessage = `<p id="aipower-shortcode-display">Use this: <code>${shortcode}</code></p>`;
                     // Display the shortcode message after the button
@@ -1882,7 +1882,7 @@ jQuery(document).ready(function ($) {
                 if (botId) {
                     debouncedRefreshPagination();
                 }
-    
+
                 // **NEW CODE: Handle 'type' field changes to show/hide shortcode message**
                 if (field.name === 'type') {
                     if (value === 'widget') {
@@ -1933,7 +1933,7 @@ jQuery(document).ready(function ($) {
             }
         });
     };
-    
+
 
     const debouncedRefreshPagination = debounce(() => {
         const currentPage = getCurrentPage();
@@ -1962,16 +1962,16 @@ jQuery(document).ready(function ($) {
 
     function updateModelDropdown(selectedProvider) {
         let $modelField = $('#aipower-bot-model');
-        
+
         // Check if the current field is an input, and if so, replace it with a select
         if ($modelField.is('input')) {
             $modelField.replaceWith('<select id="aipower-bot-model" name="aipower-bot-model"></select>');
             $modelField = $('#aipower-bot-model');  // Re-select the new element
         }
-        
+
         // Clear existing options
         $modelField.empty();
-        
+
         if (selectedProvider === 'OpenAI') {
             // 1. Add the "Assistants" optgroup
             const $assistantsOptgroup = $('<optgroup label="Assistants"></optgroup>');
@@ -1987,7 +1987,7 @@ jQuery(document).ready(function ($) {
             }
 
             if (Array.isArray(assistantsData) && assistantsData.length > 0) {
-                assistantsData.forEach(function(assistant) {
+                assistantsData.forEach(function (assistant) {
                     // Check if 'name' exists; if not, fallback to 'assistant_id' or a default label
                     let displayName = 'Unnamed Assistant';
                     if (assistant.name && assistant.name.trim() !== '') {
@@ -2039,16 +2039,16 @@ jQuery(document).ready(function ($) {
             // Append GPT-3.5 Models
             if (gpt35Models && Object.keys(gpt35Models).length > 0) {
                 const $gpt35Optgroup = $('<optgroup label="GPT-3.5 Models"></optgroup>');
-                $.each(gpt35Models, function(key, label) {
+                $.each(gpt35Models, function (key, label) {
                     $gpt35Optgroup.append('<option value="' + key + '">' + label + '</option>');
                 });
                 $modelField.append($gpt35Optgroup);
             }
-            
+
             // Append GPT-4 Models
             if (gpt4Models && Object.keys(gpt4Models).length > 0) {
                 const $gpt4Optgroup = $('<optgroup label="GPT-4 Models"></optgroup>');
-                $.each(gpt4Models, function(key, label) {
+                $.each(gpt4Models, function (key, label) {
                     $gpt4Optgroup.append('<option value="' + key + '">' + label + '</option>');
                 });
                 $modelField.append($gpt4Optgroup);
@@ -2057,18 +2057,18 @@ jQuery(document).ready(function ($) {
             // Append Custom Models
             if (customModels && customModels.length > 0) {
                 const $customOptgroup = $('<optgroup label="Custom Models"></optgroup>');
-                $.each(customModels, function(index, value) {
+                $.each(customModels, function (index, value) {
                     $customOptgroup.append('<option value="' + value + '">' + value + '</option>');
                 });
                 $modelField.append($customOptgroup);
             }
-            
+
         } else if (selectedProvider === 'OpenRouter') {
             const openrouterModelsDiv = $('#openrouter-models');
             const openrouterModels = JSON.parse(openrouterModelsDiv.attr('data-models'));
-            
+
             if (openrouterModels && openrouterModels.length > 0) {
-                $.each(openrouterModels, function(index, model) {
+                $.each(openrouterModels, function (index, model) {
                     const provider = model.id.split('/')[0];
                     let $optgroup = $modelField.find('optgroup[label="' + provider + '"]');
                     if ($optgroup.length === 0) {
@@ -2085,9 +2085,9 @@ jQuery(document).ready(function ($) {
         } else if (selectedProvider === 'Google') {
             const googleModelsDiv = $('#google-models');
             const googleModels = JSON.parse(googleModelsDiv.attr('data-models'));
-            
+
             if (googleModels && googleModels.length > 0) {
-                $.each(googleModels, function(index, model) {
+                $.each(googleModels, function (index, model) {
                     $modelField.append('<option value="' + model + '">' + model.replace(/-/g, ' ') + '</option>');
                 });
             } else {
@@ -2109,12 +2109,12 @@ jQuery(document).ready(function ($) {
                 $modelField = $input;  // Update the reference
             }
         }
-        
+
         // If no models are available, add a default option
         if ($modelField.is('select') && $modelField.find('option').length === 0) {
             $modelField.append('<option value="">No models available</option>');
         }
-    
+
         // Select the default model for the provider
         if (defaultModels[selectedProvider] && defaultModels[selectedProvider].length > 0) {
             const defaultModel = defaultModels[selectedProvider][0].value;
@@ -2124,7 +2124,7 @@ jQuery(document).ready(function ($) {
                 $modelField.val(defaultModel);
             }
         }
-    
+
         // Update field configuration and attach events
         const modelFieldConfig = fieldConfigurations.find(f => f.name === 'model');
         if (modelFieldConfig) {
@@ -2134,7 +2134,7 @@ jQuery(document).ready(function ($) {
 
         // Show/hide sync icons based on the selected provider
         $('.aipower-bot-settings-icon').hide(); // Hide all sync icons first
-        
+
         if (selectedProvider === 'OpenAI') {
             $('#aipower_sync_openai_models_bot').show();
         } else if (selectedProvider === 'OpenRouter') {
@@ -2143,7 +2143,7 @@ jQuery(document).ready(function ($) {
             $('#aipower_sync_google_models_bot').show();
         }
     }
-    
+
 
     // -------------------- Field Initialization --------------------
     fieldConfigurations.forEach(field => {
@@ -2169,7 +2169,7 @@ jQuery(document).ready(function ($) {
     // Function to attach event handlers to fields
     function attachFieldEvents(field) {
         const $field = $(field.selector);
-        
+
         if (field.saveOn) {
             $field.on(field.saveOn, function () {
                 debouncedHandleFieldSave(field);
@@ -2280,7 +2280,7 @@ jQuery(document).ready(function ($) {
     function updateFieldVisibility(field) {
         if (field.visibility) {
             let isVisible = true;
-    
+
             // Check if visibility is an array of conditions
             if (Array.isArray(field.visibility)) {
                 field.visibility.forEach(condition => {
@@ -2290,9 +2290,9 @@ jQuery(document).ready(function ($) {
                         isVisible = false;
                         return;
                     }
-    
+
                     const dependsOnValue = getFieldValue(dependsOnField);
-    
+
                     // If showWhen is an array, check if the value is included
                     if (Array.isArray(condition.showWhen)) {
                         if (!condition.showWhen.includes(dependsOnValue)) {
@@ -2314,7 +2314,7 @@ jQuery(document).ready(function ($) {
                     isVisible = false;
                 } else {
                     const dependsOnValue = getFieldValue(dependsOnField);
-                    
+
                     if (Array.isArray(showWhen)) {
                         isVisible = showWhen.includes(dependsOnValue);
                     } else {
@@ -2322,7 +2322,7 @@ jQuery(document).ready(function ($) {
                     }
                 }
             }
-    
+
             const $field = $(field.selector);
             if (isVisible) {
                 $field.closest('.aipower-form-group').show();
@@ -2331,7 +2331,7 @@ jQuery(document).ready(function ($) {
             }
         }
     }
-    
+
     function refreshAllVisibility() {
         fieldConfigurations.forEach(field => {
             if (field.visibility) {
@@ -2352,12 +2352,12 @@ jQuery(document).ready(function ($) {
                 $(target).css(property, value);
             }
         }
-    
+
         if (field.realtimePreview && field.realtimePreview.custom && typeof field.realtimePreview.custom === 'function') {
             field.realtimePreview.custom(value);
         }
-    }    
-    
+    }
+
     // -------------------- Pagination Handling --------------------
     const refreshChatbotTable = (page = 1, newBotId = null) => {
         UI.showSpinner();
@@ -2633,48 +2633,48 @@ jQuery(document).ready(function ($) {
             }
             UI.hideSpinner();
         }
-        , (errorMsg) => {
-            UI.showMessage('error', errorMsg);
-            UI.hideSpinner();
-        }
+            , (errorMsg) => {
+                UI.showMessage('error', errorMsg);
+                UI.hideSpinner();
+            }
         );
     });
 
     // --------------------  Export Single Chatbot Handling --------------------
     // Variable to store the chatbot ID to export
     var chatbotToExport = null;
-    
-    $(document).on('click', '.aipower-export-icon', function(e) {
+
+    $(document).on('click', '.aipower-export-icon', function (e) {
         e.preventDefault();
         var botId = $(this).data('id');
         chatbotToExport = botId;
-    
+
         // Show modal confirmation
         $('#aipower-export-modal').fadeIn();
     });
-    
+
     // Close Export Modal
     $('#aipower-export-modal .aipower-close, #aipower-cancel-export-btn').on('click', function () {
         chatbotToExport = null; // Reset chatbot ID
         $('#aipower-export-modal').fadeOut(); // Hide modal
     });
-    
+
     // Confirm Export Single Bot
     $(document).on('click', '#aipower-confirm-export-btn', function (e) {
         e.preventDefault();
         if (!chatbotToExport) return;
-    
+
         UI.showSpinner();
         $('#aipower-export-modal').fadeOut();
-    
+
         const data = {
             action: 'aipower_export_bots',
             export_type: 'single',
             bot_id: chatbotToExport,
             _wpnonce: $('#ai-engine-nonce').val()
         };
-    
-        ajaxPost(data, function(response) {
+
+        ajaxPost(data, function (response) {
             if (response.success) {
                 // Trigger download
                 var downloadLink = document.createElement('a');
@@ -2683,7 +2683,7 @@ jQuery(document).ready(function ($) {
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
-    
+
                 // Show success message
                 UI.showMessage('success', 'Chatbot exported successfully.', true);
             } else {
@@ -2691,13 +2691,13 @@ jQuery(document).ready(function ($) {
                 UI.showMessage('error', response.data.message || 'Failed to export chatbot.');
             }
             UI.hideSpinner();
-        }, function(errorMsg) {
+        }, function (errorMsg) {
             // Show error message
             UI.showMessage('error', errorMsg || 'An error occurred while exporting the chatbot.');
             UI.hideSpinner();
         });
     });
-    
+
     /**
      * Loads and displays a custom attachment (icon) preview.
      *
@@ -2821,7 +2821,7 @@ jQuery(document).ready(function ($) {
                             $(typeFieldConfig.selector).prop('disabled', false);
                         }
                     }
-                    
+
                     // Update dependencies and visibility
                     updateFieldDependencies(field);
                     updateFieldVisibility(field);
@@ -3030,10 +3030,10 @@ jQuery(document).ready(function ($) {
                 export_type: 'all',
                 _wpnonce: $('#ai-engine-nonce').val()
             };
-    
+
             UI.showSpinner(); // Show spinner during export
-    
-            ajaxPost(data, function(response) {
+
+            ajaxPost(data, function (response) {
                 if (response.success) {
                     // Trigger download
                     var downloadLink = document.createElement('a');
@@ -3042,7 +3042,7 @@ jQuery(document).ready(function ($) {
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
                     document.body.removeChild(downloadLink);
-    
+
                     // Show success message
                     UI.showMessage('success', 'All chatbots exported successfully.', true);
                 } else {
@@ -3053,7 +3053,7 @@ jQuery(document).ready(function ($) {
                 UI.hideSpinner();
                 $confirmation.hide();
                 currentAction = null; // Reset the action
-            }, function(errorMsg) {
+            }, function (errorMsg) {
                 // Show error message
                 UI.showMessage('error', errorMsg || 'An error occurred while exporting chatbots.');
                 // Hide spinner and confirmation
@@ -3079,9 +3079,9 @@ jQuery(document).ready(function ($) {
                         UI.showReloadMessage(); // Inform the user to reload the page
                         // reloading the page now
                         setTimeout(() => {
-                            location.reload(); 
+                            location.reload();
                         }
-                        , 3000);
+                            , 3000);
                     } else {
                         UI.showMessage('error', response.data.message || 'Failed to reset chatbots.');
                     }
@@ -3099,25 +3099,25 @@ jQuery(document).ready(function ($) {
     });
 
     // -------------------- Import All Chatbots Handling --------------------
-    $('#aipower-import-file-input').on('change', function(e) {
+    $('#aipower-import-file-input').on('change', function (e) {
         var file = e.target.files[0];
         if (!file) return;
-    
+
         // Validate file type
         if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
             UI.showMessage('error', 'Please upload a valid JSON file.');
             return;
         }
-    
+
         // Prepare FormData
         var formData = new FormData();
         formData.append('action', 'aipower_import_bots');
         formData.append('import_file', file);
         formData.append('_wpnonce', $('#ai-engine-nonce').val());
-    
+
         // Show spinner
         UI.showSpinner();
-    
+
         // Perform AJAX upload
         $.ajax({
             url: ajaxurl,
@@ -3125,7 +3125,7 @@ jQuery(document).ready(function ($) {
             data: formData,
             contentType: false, // Important for file upload
             processData: false, // Important for file upload
-            success: function(response) {
+            success: function (response) {
                 if (response.success) {
                     UI.showMessage('success', 'Chatbots imported successfully.', true);
                     refreshChatbotTable(); // Reload the chatbot table without page refresh
@@ -3133,10 +3133,10 @@ jQuery(document).ready(function ($) {
                     UI.showMessage('error', response.data.message || 'Failed to import chatbots.');
                 }
             },
-            error: function() {
+            error: function () {
                 UI.showMessage('error', 'An error occurred while importing chatbots.');
             },
-            complete: function() {
+            complete: function () {
                 UI.hideSpinner();
                 // Reset the file input
                 $('#aipower-import-file-input').val('');
@@ -3216,12 +3216,12 @@ jQuery(document).ready(function ($) {
         $(trigger).on('click', function () {
             $(modal).show();
         });
-    
+
         $('.aipower-close').on('click', function () {
             updateConversationStartersSwitch(); // Update the conversation starters switch after closing the modal
             $(modal).hide();
         });
-    
+
         $(window).on('click', function (event) {
             if ($(event.target).is(modal)) {
                 updateConversationStartersSwitch();
@@ -3229,11 +3229,11 @@ jQuery(document).ready(function ($) {
             }
         });
     }
-    
+
     // Handle modals
     handleModal('#aipower-bot-advanced-settings-icon', '#bot-advanced-settings-modal');
     handleModal('#aipower-bot-memory-settings-icon', '#bot-memory-settings-modal');
-    handleModal('#aipower-bot-content-aware-settings-icon', '#bot-content-aware-settings-modal'); 
+    handleModal('#aipower-bot-content-aware-settings-icon', '#bot-content-aware-settings-modal');
     handleModal('#aipower-bot-feedback-settings-icon', '#bot-feedback-settings-modal');
     handleModal('#aipower-bot-pdf-upload-settings-icon', '#bot-pdf-upload-settings-modal');
     handleModal('#aipower-bot-starters-settings-icon', '#bot-conversation-starters-modal');
@@ -3241,12 +3241,12 @@ jQuery(document).ready(function ($) {
     handleModal('#aipower-bot-speech-settings-icon', '#bot-speech-settings-modal');
     handleModal('#aipower-bot-role-limits-icon', '#bot-role-limits-modal');
     handleModal('#aipower-bot-leads-settings-icon', '#bot-leads-settings-modal');
-    
+
     // Reusable function to set up media uploader
     function setupMediaUploader(options) {
         let uploader;
 
-        $(options.buttonSelector).on('click', function(e) {
+        $(options.buttonSelector).on('click', function (e) {
             e.preventDefault();
 
             // If the uploader object has already been created, reopen the dialog
@@ -3265,7 +3265,7 @@ jQuery(document).ready(function ($) {
             });
 
             // When a file is selected, handle the selection
-            uploader.on('select', function() {
+            uploader.on('select', function () {
                 const attachment = uploader.state().get('selection').first().toJSON();
                 const attachmentId = attachment.id;
                 const attachmentUrl = attachment.url;
@@ -3633,6 +3633,258 @@ jQuery(document).ready(function ($) {
         // Update the style element
         styleElement.html(cssRule);
     }
-    
+
+
+    // -------------------- Handle Embeddings from Bot Settings --------------------
+    let allPostsForEmbedding = {};
+    let $addDataModal = $('#aipower-add-data-modal');
+    let $addDataTabs = $('#aipower-add-data-tabs');
+
+    // The two buttons in the modal:
+    let $indexSelectedBtn = $('#aipower-index-selected-btn');  // The button we want to disable while indexing
+    let $stopIndexingBtn = $('#aipower-stop-indexing-btn');
+
+    $('#aipower-add-data-button-wrapper').show();
+
+    // 1. Listen for "Add Data" button to open the second modal
+    $('#aipower-add-data-button').on('click', function (e) {
+        e.preventDefault();
+
+        // We only proceed if "Embeddings" is selected:
+        let embeddingVal = $('input[name="embedding"]:checked').val();
+        if (embeddingVal !== '1') {
+            alert('Please select "Embeddings" as Data Source first.');
+            return;
+        }
+
+        // Show the second modal
+        $addDataModal.show();
+
+        // If we haven't fetched posts yet, do so
+        if (Object.keys(allPostsForEmbedding).length === 0) {
+            fetchAllPostsForEmbedding();
+        }
+    });
+
+    // 2. AJAX to fetch all posts for embedding
+    function fetchAllPostsForEmbedding() {
+        $addDataTabs.html('<p>Loading content...</p>');
+
+        // The nonce from hidden field
+        let $nonce = $('#ai-engine-nonce').val();
+
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'wpaicg_get_all_posts_for_embeddings',
+                _wpnonce: $nonce
+            },
+            success: function (res) {
+                if (res.success) {
+                    allPostsForEmbedding = res.data.data;
+                    renderAllPostsByType(allPostsForEmbedding);
+                } else {
+                    $addDataTabs.html('<p style="color:red;">Failed to load posts. ' + (res.data.message ? res.data.message : '') + '</p>');
+                }
+            },
+            error: function () {
+                $addDataTabs.html('<p style="color:red;">Error retrieving posts.</p>');
+            }
+        });
+    }
+
+    // 3. Render the retrieved posts
+    function renderAllPostsByType(data) {
+        $addDataTabs.empty();
+        let tabHTML = '';
+        for (let pt in data) {
+            let typeTitle = pt.charAt(0).toUpperCase() + pt.slice(1);
+            let postsArray = data[pt];
+
+            tabHTML += `
+            <div class="aipower-add-data-posttype-block" style="margin-bottom: 20px;">
+                <h3>${typeTitle} 
+                    <span style="font-size:12px;color:#888;cursor:pointer;"
+                          class="aipower-select-all" data-pt="${pt}">[Select All]</span>
+                </h3>
+                <div style="margin-left:10px;">`;
+
+            postsArray.forEach(function (post) {
+                let safeTitle = $('<div/>').text(post.post_title).html();
+                tabHTML += `
+                <div style="margin:2px 0;">
+                    <label>
+                        <input type="checkbox" class="aipower-embed-checkbox" 
+                               data-post-id="${post.ID}" data-pt="${pt}" />
+                        ${safeTitle}
+                    </label>
+                </div>`;
+            });
+
+            tabHTML += `</div></div>`;
+        }
+        $addDataTabs.html(tabHTML);
+    }
+
+    // 4. "Select All" handler
+    $(document).on('click', '.aipower-select-all', function () {
+        let block = $(this).closest('.aipower-add-data-posttype-block');
+        let checkboxes = block.find('.aipower-embed-checkbox');
+        let allChecked = true;
+
+        checkboxes.each(function () {
+            if (!$(this).is(':checked')) {
+                allChecked = false;
+            }
+        });
+        checkboxes.prop('checked', !allChecked);
+    });
+
+    // === Indexing logic ===
+    let indexingQueue = [];
+    let currentIndexingIndex = 0;
+    let isIndexing = false;
+    let currentRequest = null;
+
+    // 5. "Index Selected" click
+    $indexSelectedBtn.on('click', function (e) {
+        e.preventDefault();
+
+        // Gather selected IDs
+        let selectedIDs = [];
+        $('.aipower-embed-checkbox:checked').each(function () {
+            selectedIDs.push($(this).data('post-id'));
+        });
+
+        if (selectedIDs.length === 0) {
+            alert('Please select at least one item to index.');
+            return;
+        }
+
+        startIndexing(selectedIDs);
+    });
+
+    // 6. Stop button click
+    $stopIndexingBtn.on('click', function (e) {
+        e.preventDefault();
+        stopIndexing();
+    });
+
+    function startIndexing(ids) {
+        isIndexing = true;
+        indexingQueue = ids;
+        currentIndexingIndex = 0;
+
+        $('#aipower-index-progress').html(`<p>Indexing 0/${indexingQueue.length} ...</p>`);
+
+        // Disable the "Index Selected" button
+        $indexSelectedBtn.prop('disabled', true);
+
+        // Show the "Stop Indexing" button
+        $stopIndexingBtn.show();
+
+        indexNext();
+    }
+
+    function stopIndexing() {
+        if (currentRequest) {
+            currentRequest.abort();
+        }
+
+        isIndexing = false;
+        $('#aipower-index-progress').append(`<p style="color:red;">Indexing stopped by user.</p>`);
+
+        // Hide status texts after a small delay
+        setTimeout(function () {
+            $('#aipower-index-progress').empty();
+        }, 3000);
+
+        // Hide the stop button
+        $stopIndexingBtn.hide();
+
+        // Re-enable "Index Selected" button
+        $indexSelectedBtn.prop('disabled', false);
+    }
+
+    function indexNext() {
+        if (!isIndexing) {
+            return; // indexing was stopped
+        }
+
+        if (currentIndexingIndex >= indexingQueue.length) {
+            // Done indexing all
+            $('#aipower-index-progress').append('<p style="color:green;">All done!</p>');
+            isIndexing = false;
+
+            // Hide the stop button
+            $stopIndexingBtn.hide();
+
+            // Re-enable "Index Selected"
+            $indexSelectedBtn.prop('disabled', false);
+
+            // Hide status texts after a small delay
+            setTimeout(function () {
+                $('#aipower-index-progress').empty();
+            }, 3000);
+            return;
+        }
+
+        let postId = indexingQueue[currentIndexingIndex];
+        let $embedding_nonce = $('#embedding-nonce').val();
+
+        currentRequest = $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'wpaicg_instant_embedding',
+                id: postId,
+                nonce: $embedding_nonce
+            },
+            success: function (res) {
+                if (!isIndexing) return; // if user stopped indexing, do nothing further
+
+                if (res.status === 'success') {
+                    $('#aipower-index-progress').html(
+                        `<p>Indexing ${currentIndexingIndex + 1}/${indexingQueue.length} ... success</p>`
+                    );
+                } else {
+                    $('#aipower-index-progress').append(
+                        `<p style="color:red;">Post ID ${postId} error: ${res.msg}</p>`
+                    );
+                }
+                currentIndexingIndex++;
+                indexNext();
+            },
+            error: function (err) {
+                if (err.statusText === 'abort') {
+                    // We intentionally aborted the request
+                    return;
+                }
+                $('#aipower-index-progress').append(
+                    `<p style="color:red;">Post ID ${postId} failed. Possibly server error.</p>`
+                );
+                currentIndexingIndex++;
+                indexNext();
+            }
+        });
+    }
+
+    // 7. Closing the Add Data modal
+    $(document).on('click', '#aipower-add-data-modal .aipower-close', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $addDataModal.hide();
+    });
+
+    // Also close if user clicks outside the second modal content
+    $(window).on('click', function (e) {
+        if ($(e.target).is($addDataModal)) {
+            e.stopPropagation();
+            $addDataModal.hide();
+        }
+    });
 
 });

@@ -186,55 +186,142 @@ if(!class_exists('\\WPAICG\\WPAICG_TroubleShoot')) {
         }
 
         public function wpaicg_troubleshoot_search_qdrant() {
+            // 1. Check nonce
             if (!wp_verify_nonce($_POST['nonce'], 'wpaicg-ajax-nonce')) {
-                die(esc_html__('Nonce verification failed', 'gpt3-ai-content-generator'));
+                wp_send_json_error( __('Nonce verification failed','gpt3-ai-content-generator'), 403 );
             }
         
+            // 2. Check capability (only allow if the user has the Troubleshoot capability or manage_options)
+            if ( ! current_user_can('wpaicg_embeddings_troubleshoot') && ! current_user_can('manage_options') ) {
+                wp_send_json_error( __('Insufficient permissions','gpt3-ai-content-generator'), 403 );
+            }
+        
+            // 3. Build and validate the endpoint URL
             $collectionName = sanitize_text_field($_POST['collection_name']);
-            $qdrantEndpoint = sanitize_text_field($_POST['endpoint']) . '/collections/' . $collectionName . '/points/search';
-            $query = stripslashes($_POST['query']);
-            $api_key = get_option('wpaicg_qdrant_api_key', '');
+            $baseEndpoint   = isset($_POST['endpoint']) ? wp_unslash($_POST['endpoint']) : '';
+            $baseEndpoint   = esc_url_raw($baseEndpoint);
+            if ( empty($baseEndpoint) || ! wp_http_validate_url($baseEndpoint) ) {
+                wp_send_json_error( __('Invalid or empty base Qdrant endpoint','gpt3-ai-content-generator') );
+            }
+            // Construct the final URL for searching
+            $url = trailingslashit($baseEndpoint) . 'collections/' . $collectionName . '/points/search';
         
-            $response = wp_remote_post($qdrantEndpoint, array(
-                'method' => 'POST',
-                'headers' => [
-                    'api-key' => $api_key,
-                    'Content-Type' => 'application/json'
-                ],
-                'body' => $query
-            ));
-        
-            if (is_wp_error($response)) {
-                echo json_encode(['error' => $response->get_error_message()]);
-            } else {
-                echo wp_remote_retrieve_body($response);
+            // OPTIONAL: block private/loopback addresses
+            $urlParts = parse_url($url);
+            if ( ! $this->is_valid_public_host( $urlParts['host'] ?? '' ) ) {
+                wp_send_json_error( __('Requests to private or invalid hosts are not allowed','gpt3-ai-content-generator') );
             }
         
-            die();
+            // 4. Prepare request
+            $api_key = get_option('wpaicg_qdrant_api_key', '');
+            $query   = stripslashes($_POST['query']);
+            $response = wp_safe_remote_post(
+                $url,
+                array(
+                    'method'  => 'POST',
+                    'headers' => array(
+                        'api-key'      => $api_key,
+                        'Content-Type' => 'application/json',
+                    ),
+                    'body'    => $query,
+                    'timeout' => 15,
+                )
+            );
+        
+            // 5. Handle response
+            if ( is_wp_error($response) ) {
+                wp_send_json_error( $response->get_error_message() );
+            } else {
+                wp_send_json_success( wp_remote_retrieve_body($response) );
+            }
         }
         
 
         public function wpaicg_troubleshoot_add_vector()
         {
+            // 1. Check nonce
             if ( ! wp_verify_nonce( $_POST['nonce'], 'wpaicg-ajax-nonce' ) ) {
-                die(esc_html__('Nonce verification failed','gpt3-ai-content-generator'));
+                wp_send_json_error( __('Nonce verification failed','gpt3-ai-content-generator'), 403 );
             }
+        
+            // 2. Check capability (only allow if the user has the Troubleshoot capability or manage_options)
+            if ( ! current_user_can('wpaicg_embeddings_troubleshoot') && ! current_user_can('manage_options') ) {
+                wp_send_json_error( __('Insufficient permissions','gpt3-ai-content-generator'), 403 );
+            }
+        
+            // 3. Validate the requested environment URL
+            $url = isset($_REQUEST['environment']) ? esc_url_raw( wp_unslash($_REQUEST['environment']) ) : '';
+            if ( empty($url) || ! wp_http_validate_url( $url ) ) {
+                wp_send_json_error( __('Invalid or empty URL','gpt3-ai-content-generator') );
+            }
+        
+            // OPTIONAL: Additional checks to prevent SSRF to private IPs
+            // parse_url() to examine host
+            $url_parts = parse_url($url);
+            if ( ! $this->is_valid_public_host( $url_parts['host'] ?? '' ) ) {
+                wp_send_json_error( __('Requests to private or invalid hosts are not allowed','gpt3-ai-content-generator') );
+            }
+        
+            // 4. Prepare safe remote request data
+            $api_key = sanitize_text_field($_REQUEST['api_key']);
             $headers = array(
-                'Api-Key' => sanitize_text_field($_REQUEST['api_key']),
-                'Content-Type' => 'application/json'
+                'Api-Key'       => $api_key,
+                'Content-Type'  => 'application/json',
             );
-            $vectors = str_replace("\\",'',sanitize_text_field($_REQUEST['data']));
-            $response = wp_remote_post(sanitize_text_field($_REQUEST['environment']),array(
-                'headers' => $headers,
-                'body' => $vectors
-            ));
-            if(is_wp_error($response)){
-                die($response->get_error_message());
+            $vectors = isset($_REQUEST['data']) ? wp_unslash($_REQUEST['data']) : '';
+            // If 'data' is JSON, we can decode and re-encode it, or at least we do some minimal checks.
+        
+            // 5. Use wp_safe_remote_post
+            $response = wp_safe_remote_post( 
+                $url,
+                array(
+                    'headers' => $headers,
+                    'body'    => $vectors,
+                    'timeout' => 15, // set an explicit timeout to avoid long-hangs
+                )
+            );
+        
+            // 6. Check for errors
+            if ( is_wp_error($response) ) {
+                wp_send_json_error( $response->get_error_message() );
+            } else {
+                // Return the response from the external server if needed
+                $body = wp_remote_retrieve_body($response);
+                wp_send_json_success( $body );
             }
-            else{
-                echo wp_remote_retrieve_body($response);
-                die();
+        }
+        
+        /**
+         * Helper function to prevent calls to internal or loopback addresses.
+         * 
+         * We can block 127.x.x.x, 10.x.x.x, 192.168.x.x, etc. 
+         * or do a DNS lookup and block private ranges. 
+         */
+        private function is_valid_public_host( $hostname ) {
+            // Quick exit if it's obviously empty
+            if ( empty($hostname) ) {
+                return false;
             }
+        
+            // Get IP(s) from the domain
+            $ip_list = gethostbynamel( $hostname );
+            if ( ! is_array($ip_list) || empty($ip_list) ) {
+                // could not resolve
+                return false;
+            }
+        
+            // Check each resolved IP to ensure it's not in private/reserved ranges
+            foreach ($ip_list as $ip) {
+                if (
+                    // IPv4 private ranges:
+                    filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false
+                ) {
+                    // It's in a local or reserved range => block it
+                    return false;
+                }
+            }
+        
+            return true;
         }
 
         public function wpaicg_troubleshoot_add_vector_qdrant()
@@ -289,50 +376,103 @@ if(!class_exists('\\WPAICG\\WPAICG_TroubleShoot')) {
         
         public function wpaicg_troubleshoot_search()
         {
+            // 1. Check nonce
             if ( ! wp_verify_nonce( $_POST['nonce'], 'wpaicg-ajax-nonce' ) ) {
-                die(esc_html__('Nonce verification failed','gpt3-ai-content-generator'));
+                wp_send_json_error( __('Nonce verification failed','gpt3-ai-content-generator'), 403 );
             }
+        
+            // 2. Check capability
+            if ( ! current_user_can('wpaicg_embeddings_troubleshoot') && ! current_user_can('manage_options') ) {
+                wp_send_json_error( __('Insufficient permissions','gpt3-ai-content-generator'), 403 );
+            }
+        
+            // 3. Validate environment URL
+            $url = isset($_REQUEST['environment']) ? wp_unslash($_REQUEST['environment']) : '';
+            $url = esc_url_raw($url);
+            if ( empty($url) || ! wp_http_validate_url($url) ) {
+                wp_send_json_error( __('Invalid or empty URL','gpt3-ai-content-generator') );
+            }
+        
+            // OPTIONAL: block private IP
+            $urlParts = parse_url($url);
+            if ( ! $this->is_valid_public_host( $urlParts['host'] ?? '' ) ) {
+                wp_send_json_error( __('Requests to private or invalid hosts are not allowed','gpt3-ai-content-generator') );
+            }
+        
+            // 4. Prepare request
+            $api_key = sanitize_text_field($_REQUEST['api_key']);
             $headers = array(
-                'Api-Key' => sanitize_text_field($_REQUEST['api_key']),
-                'Content-Type' => 'application/json'
+                'Api-Key'       => $api_key,
+                'Content-Type'  => 'application/json',
             );
-            $data = str_replace("\\",'',sanitize_text_field($_REQUEST['data']));
-
-            $response = wp_remote_post(sanitize_text_field($_REQUEST['environment']),array(
-                'headers' => $headers,
-                'body' => $data
-            ));
-            if(is_wp_error($response)){
-                die($response->get_error_message());
-            }
-            else{
-                echo wp_remote_retrieve_body($response);
-                die();
+            $data = str_replace("\\", '', sanitize_text_field($_REQUEST['data']));
+        
+            // 5. Use wp_safe_remote_post
+            $response = wp_safe_remote_post(
+                $url,
+                array(
+                    'headers' => $headers,
+                    'body'    => $data,
+                    'timeout' => 15,
+                )
+            );
+        
+            // 6. Handle response
+            if ( is_wp_error($response) ) {
+                wp_send_json_error( $response->get_error_message() );
+            } else {
+                wp_send_json_success( wp_remote_retrieve_body($response) );
             }
         }
 
         public function wpaicg_troubleshoot_delete_vector()
         {
+            // 1. Check nonce
             if ( ! wp_verify_nonce( $_POST['nonce'], 'wpaicg-ajax-nonce' ) ) {
-                die(esc_html__('Nonce verification failed','gpt3-ai-content-generator'));
+                wp_send_json_error( __('Nonce verification failed','gpt3-ai-content-generator'), 403 );
             }
-            // get api key from options wpaicg_pinecone_api
+        
+            // 2. Check capability
+            if ( ! current_user_can('wpaicg_embeddings_troubleshoot') && ! current_user_can('manage_options') ) {
+                wp_send_json_error( __('Insufficient permissions','gpt3-ai-content-generator'), 403 );
+            }
+        
+            // 3. Validate environment URL
+            $url = isset($_REQUEST['environment']) ? wp_unslash($_REQUEST['environment']) : '';
+            $url = esc_url_raw($url);
+            if ( empty($url) || ! wp_http_validate_url($url) ) {
+                wp_send_json_error( __('Invalid or empty URL','gpt3-ai-content-generator') );
+            }
+        
+            // OPTIONAL: block private IP addresses
+            $urlParts = parse_url($url);
+            if ( ! $this->is_valid_public_host( $urlParts['host'] ?? '' ) ) {
+                wp_send_json_error( __('Requests to private or invalid hosts are not allowed','gpt3-ai-content-generator') );
+            }
+        
+            // 4. Prepare request
             $api_key = get_option('wpaicg_pinecone_api','');
             $headers = array(
-                'Api-Key' => $api_key,
-                'Content-Type' => 'application/json'
+                'Api-Key'      => $api_key,
+                'Content-Type' => 'application/json',
             );
-            $data = str_replace("\\",'',sanitize_text_field($_REQUEST['data']));
-            $response = wp_remote_post(sanitize_text_field($_REQUEST['environment']),array(
-                'headers' => $headers,
-                'body' => $data
-            ));
-            if(is_wp_error($response)){
-                die($response->get_error_message());
-            }
-            else{
-                echo wp_remote_retrieve_body($response);
-                die();
+            $data = str_replace("\\", '', sanitize_text_field($_REQUEST['data']));
+        
+            // 5. Use wp_safe_remote_post
+            $response = wp_safe_remote_post(
+                $url,
+                array(
+                    'headers' => $headers,
+                    'body'    => $data,
+                    'timeout' => 15,
+                )
+            );
+        
+            // 6. Handle response
+            if ( is_wp_error($response) ) {
+                wp_send_json_error( $response->get_error_message() );
+            } else {
+                wp_send_json_success( wp_remote_retrieve_body($response) );
             }
         }
     }

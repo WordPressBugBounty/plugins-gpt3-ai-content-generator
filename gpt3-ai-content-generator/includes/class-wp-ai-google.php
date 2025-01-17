@@ -191,7 +191,7 @@ if (!class_exists('\\WPAICG\\WPAICG_Google')) {
                 "safetySettings" => $this->google_safety_settings
             ));
 
-            $response = wp_remote_post($url, $args);
+            $response = wp_safe_remote_post($url, $args);
             $processedResponse = $this->handle_response($response, $sourceModule);
             // Check for error status and return processed response
             if (isset($processedResponse['status']) && $processedResponse['status'] === 'error') {
@@ -445,7 +445,7 @@ if (!class_exists('\\WPAICG\\WPAICG_Google')) {
             ];
 
             // Send the request
-            $response = wp_remote_post($url, $args);
+            $response = wp_safe_remote_post($url, $args);
 
             // Check for errors in the response
             if (is_wp_error($response)) {

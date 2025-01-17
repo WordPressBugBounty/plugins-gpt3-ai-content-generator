@@ -4,7 +4,7 @@ Tags: ai, chat, seo, openai, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.8.96
+Stable tag: 1.8.97
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -14,13 +14,13 @@ Chatbot, Content Writer, Auto Content Writer, Product Writer, Image Generator, A
 
 AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's GPT-4, GPT-3.5, Assistant API, along with Claude, Gemini, Azure, Grok, Mistral, LLaMA, Yi Chat, and Alpaca.
 
-It uses o1-mini, o1-preview, GPT-3.5, GPT-4,  GPT-4o, GPT-4o-mini, GPT-4 Vision, Gemini 1.5 Flash, Anthropic (Claude 3 Sonnet, Opus etc.) and more to generate content, images, and forms with customizable options. It includes AI training, Chat widget, WooCommerce integration, Embeddings and more.
+It uses o1-mini, o1-preview, GPT-3.5, GPT-4,  GPT-4o, GPT-4o-mini, GPT-4 Vision, Gemini 1.5 Flash, Anthropic (Claude 3 Sonnet, Opus etc.), DeepSeek and more to generate content, images, and forms with customizable options. It includes AI training, Chat widget, WooCommerce integration, Embeddings and more.
 
 Please read documentation here: [https://docs.aipower.org/](https://docs.aipower.org/)
 
 == Core Features ==
 * Multiple AI providers (OpenAI, Microsoft Azure, Google and OpenRouter)
-* Latest AI models (GPT-4, Claude, Gemini, Llama, Grok and more)
+* Latest AI models (GPT-4, Claude, Gemini, Llama, Grok, DeepSeek and more)
 * OpenAI Assistant API
 * Chatbot
 * Content writer
@@ -85,6 +85,17 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.8.97 =
+
+This release includes several improvements and security patches.
+
+- Added OpenAI o1 model support.
+- Fixed issues with Google Voice selection in the chatbot.
+- Fixed issues related to deleting PDFs from the Pinecone namespace.
+- Improved the "Delete All PDFs" functionality.
+- Added the ability to upload data directly to the vector database through chatbot settings.
+- AutoGPT - RSS module now retrieves descriptions from target RSS feeds. You can use the [description] variable in custom prompts to provide the AI with more context.
 
 = 1.8.96 =
 

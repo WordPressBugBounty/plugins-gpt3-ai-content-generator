@@ -68,6 +68,13 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
                 $wpaicg_generator->init($openai,$wpaicg_single->post_title);
                 $wpaicg_custom_prompt_auto = sanitize_text_field($_REQUEST['wpaicg_custom_prompt']);
                 $wpaicg_custom_prompt_auto = str_replace('[title]', $wpaicg_single->post_title, $wpaicg_custom_prompt_auto);
+                // Replace [description] if user has included it
+                if (! empty($wpaicg_single->post_content)) {
+                    $wpaicg_custom_prompt_auto = str_replace('[description]', $wpaicg_single->post_content, $wpaicg_custom_prompt_auto);
+                } else {
+                    // Optionally, remove it or leave it blank if there is no content
+                    $wpaicg_custom_prompt_auto = str_replace('[description]', '', $wpaicg_custom_prompt_auto);
+                }
                 $wpaicg_generator->wpaicg_opts['prompt'] = $wpaicg_custom_prompt_auto;
                 if(wpaicg_util_core()->wpaicg_is_pro()){
                     $result = WPAICG_Custom_Prompt_Pro::get_instance()->request($wpaicg_generator);
@@ -164,6 +171,8 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
                     else{
                         $wpaicg_custom_prompt_auto = get_option('wpaicg_custom_prompt_auto',$this->wpaicg_default_custom_prompt);
                         $wpaicg_custom_prompt_auto = str_replace('[title]', $wpaicg_single->post_title,$wpaicg_custom_prompt_auto);
+                        // get description from post_content and Replace [description] similarly to [title]
+                        $wpaicg_custom_prompt_auto = str_replace('[description]', $wpaicg_single->post_content, $wpaicg_custom_prompt_auto);
                         $wpaicg_generator->init($openai,$wpaicg_single->post_title,true,$wpaicg_single->ID);
                         $wpaicg_has_error = false;
                         $break_step = '';

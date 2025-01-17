@@ -150,7 +150,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Search')) {
                 ];
         
                 // Execute the Qdrant search query
-                $response = wp_remote_post("$wpaicg_qdrant_endpoint/collections/$wpaicg_default_qdrant_collection/points/search", [
+                $response = wp_safe_remote_post("$wpaicg_qdrant_endpoint/collections/$wpaicg_default_qdrant_collection/points/search", [
                     'method' => 'POST',
                     'headers' => [
                         'api-key' => $wpaicg_qdrant_api_key,
@@ -240,7 +240,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Search')) {
                             'Content-Type' => 'application/json',
                             'Api-Key' => $wpaicg_pinecone_api
                         );
-                        $response = wp_remote_post('https://' . $wpaicg_pinecone_environment . '/query', array(
+                        $response = wp_safe_remote_post('https://' . $wpaicg_pinecone_environment . '/query', array(
                             'headers' => $headers,
                             'body' => wp_json_encode(array(
                                 'vector' => $embedding,

@@ -84,11 +84,11 @@ if(!class_exists('\\WPAICG\\WPAICG_Forms')) {
             // Security and permissions checks
             $nonce = isset($_REQUEST['nonce']) ? $_REQUEST['nonce'] : '';
             if (!wp_verify_nonce($nonce, 'wpaicg_export_ai_forms')) {
-                wp_send_json_error(esc_html__('Nonce verification failed', 'gpt3-ai-content-generator'));
+                wp_send_json_error(__('Nonce verification failed', 'gpt3-ai-content-generator'));
                 return;
             }
             if (!current_user_can('manage_options')) {
-                wp_send_json_error(esc_html__('You do not have sufficient permissions to access this page.', 'gpt3-ai-content-generator'));
+                wp_send_json_error(__('You do not have sufficient permissions to access this page.', 'gpt3-ai-content-generator'));
                 return;
             }
         
@@ -97,30 +97,39 @@ if(!class_exists('\\WPAICG\\WPAICG_Forms')) {
             WP_Filesystem();
         
             // Fetch AI forms and their meta
-            $forms = $wpdb->get_results("SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_type = 'wpaicg_form' AND post_status = 'publish'", ARRAY_A);
+            $forms = $wpdb->get_results("
+                SELECT ID, post_title, post_content
+                FROM {$wpdb->posts}
+                WHERE post_type = 'wpaicg_form'
+                  AND post_status = 'publish'
+            ", ARRAY_A);
+        
             $settings = [];
             foreach ($forms as $form) {
                 if (!empty($form['post_content'])) {
                     $meta = get_post_meta($form['ID']);
-                    // Optionally filter or clean meta data here
+                    
+                    // Instead of maybe_unserialize()
+                    $content = $this->wpaicg_safe_unserialize($form['post_content']);
+        
                     $settings[] = [
-                        'title' => $form['post_title'],
-                        'content' => maybe_unserialize($form['post_content']),
-                        'meta' => $meta, // Include meta data
+                        'title'   => $form['post_title'],
+                        'content' => $content,
+                        'meta'    => $meta, // Include meta data
                     ];
                 }
             }
         
             // JSON encoding and file saving
             $json_content = json_encode($settings);
-            $upload_dir = wp_upload_dir();
-            $file_name = 'ai_forms_export_' . wp_rand() . '.json';
-            $file_path = $upload_dir['basedir'] . '/' . $file_name;
+            $upload_dir   = wp_upload_dir();
+            $file_name    = 'ai_forms_export_' . wp_rand() . '.json';
+            $file_path    = $upload_dir['basedir'] . '/' . $file_name;
         
             if ($wp_filesystem->put_contents($file_path, $json_content)) {
                 wp_send_json_success(['url' => $upload_dir['baseurl'] . '/' . $file_name]);
             } else {
-                wp_send_json_error(esc_html__('Failed to export AI forms.', 'gpt3-ai-content-generator'));
+                wp_send_json_error(__('Failed to export AI forms.', 'gpt3-ai-content-generator'));
             }
         }
 
@@ -549,6 +558,38 @@ if(!class_exists('\\WPAICG\\WPAICG_Forms')) {
         public function wpaicg_forms()
         {
             include WPAICG_PLUGIN_DIR . 'admin/extra/wpaicg_forms.php';
+        }
+
+        private function wpaicg_safe_unserialize($data) {
+            // If it’s obviously not a serialized string, just return as-is
+            if ( ! is_serialized($data) ) {
+                return $data;
+            }
+        
+            // On PHP 7+ we can block object instantiation by passing `['allowed_classes' => false]`
+            // This prevents creation of any PHP objects during unserialize().
+            if (version_compare(PHP_VERSION, '7.0.0', '>=')) {
+                $unserialized = @unserialize($data, ['allowed_classes' => false]);
+            } else {
+                // Fallback for older PHP: standard unserialize. 
+                // In practice, anyone running <7.0 is strongly encouraged to upgrade PHP.
+                $unserialized = @unserialize($data);
+            }
+        
+            // If unserialize() fails, just return the original string.
+            // (Some forms may have stored plain text in post_content.)
+            if ($unserialized === false && $data !== serialize(false)) {
+                return $data;
+            }
+        
+            // If it ends up as an object (which means someone tried to inject a gadget/object),
+            // discard or degrade gracefully. We simply return null or a string. This ensures no object injection is possible.
+            if (is_object($unserialized)) {
+                return null; 
+            }
+        
+            // If we got here, $unserialized is likely an array or scalar, so return it
+            return $unserialized;
         }
     }
     WPAICG_Forms::get_instance();

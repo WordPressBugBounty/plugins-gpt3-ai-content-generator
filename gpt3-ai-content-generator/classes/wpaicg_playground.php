@@ -103,7 +103,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
                 ])
             );
         
-            $response = wp_remote_post($url, $args);
+            $response = wp_safe_remote_post($url, $args);
         
             if (is_wp_error($response)) {
                 return 'HTTP request error: ' . $response->get_error_message();
@@ -169,7 +169,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
                 ))
             );
         
-            $response = wp_remote_post($url, $args);
+            $response = wp_safe_remote_post($url, $args);
         
             if (is_wp_error($response)) {
                 return 'HTTP request error: ' . $response->get_error_message();
@@ -862,7 +862,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
                 $pinecone_body['namespace'] = $namespace;
             }
         
-            $response = wp_remote_post("https://$wpaicg_pinecone_environment/query", [
+            $response = wp_safe_remote_post("https://$wpaicg_pinecone_environment/query", [
                 'headers' => $headers,
                 'body' => json_encode($pinecone_body)
             ]);
@@ -997,7 +997,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
                 ]
             ];
         
-            $response = wp_remote_post("$endpoint/collections/$collection/points/search", [
+            $response = wp_safe_remote_post("$endpoint/collections/$collection/points/search", [
                 'method' => 'POST',
                 'headers' => ['api-key' => $apiKey, 'Content-Type' => 'application/json'],
                 'body' => json_encode($queryData)
