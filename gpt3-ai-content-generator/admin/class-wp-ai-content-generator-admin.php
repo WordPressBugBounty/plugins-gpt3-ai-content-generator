@@ -156,9 +156,11 @@ class Wp_Ai_Content_Generator_Admin
                     false
                 );
             }
-            if (isset($_GET['page']) && $_GET['page'] == 'wpaicg') {
-                wp_enqueue_script('wpaicg-markedjs',WPAICG_PLUGIN_URL.'public/js/marked.js',array(),null,false);
+            if (isset($_GET['page']) && ($_GET['page'] == 'wpaicg' || $_GET['page'] == 'wpaicg_forms')) {
+                // Enqueue the marked.js script for both 'wpaicg' and 'wpaicg_forms' pages
+                wp_enqueue_script('wpaicg-markedjs', WPAICG_PLUGIN_URL . 'public/js/marked.js', array(), null, false);
             }
+            
         }
         wp_enqueue_script( 'jquery' );
         wp_enqueue_script( 'jquery-ui-sortable' );

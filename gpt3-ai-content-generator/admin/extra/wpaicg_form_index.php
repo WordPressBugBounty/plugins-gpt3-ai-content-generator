@@ -1937,6 +1937,8 @@ endif;
         });
         var wpaicgEditorNumber;
         $(document).on('click','.wpaicg-template-form .wpaicg-template-save-draft', function(e){
+            e.preventDefault();
+            var btn = $(this);
             var response_type = $('.wpaicg-template-form .wpaicg-template-response-type').val();
             var post_content = '';
             if(response_type === 'textarea') {
@@ -2282,308 +2284,258 @@ endif;
                 return false;
             }
         }
-        $(document).on('submit','.wpaicg-template-form form', function (e){
-            var form = $(e.currentTarget);
-            var btn = form.find('.wpaicg-generate-button');
-            var template_title = form.find('.wpaicg-template-title').val();
-            var response_type = form.find('.wpaicg-template-response-type').val();
-            if(template_title !== '') {
-                // trim the title
-                template_title = template_title.trim();
-                var max_tokens = form.find('.wpaicg-template-max_tokens input').val();
-                var temperature = form.find('.wpaicg-template-temperature input').val();
-                var top_p = form.find('.wpaicg-template-top_p input').val();
-                var best_of = form.find('.wpaicg-template-best_of input').val();
-                var frequency_penalty = form.find('.wpaicg-template-frequency_penalty input').val();
-                var presence_penalty = form.find('.wpaicg-template-presence_penalty input').val();
 
-                var max_tokens = form.find('.wpaicg-template-max_tokens input').val();
-                var engine = form.find('.wpaicg-template-engine select').val();
-                
-                // Fetch context size based on the selected engine
-                var maxValidToken = engineMaxTokens[engine] || 4096;
+// Listen for form submission on .wpaicg-template-form
+$(document).on('submit', '.wpaicg-template-form form', function (e) {
+    e.preventDefault(); // Stop default form action
+    var form = $(e.currentTarget);
+    var btn = form.find('.wpaicg-generate-button');
+    var template_title = form.find('.wpaicg-template-title').val();
+    var response_type = form.find('.wpaicg-template-response-type').val();
 
-                var baseErrorMessageTemplate = '<?php echo esc_js(sprintf(esc_html__("Please enter a valid max token value between %s and %s", "gpt3-ai-content-generator"), "{minValue}", "{maxValue}"))?>';
+    // Trim and validate prompt title
+    if (template_title !== '') {
+        template_title = template_title.trim();
 
-                var error_message = false;
-                if (max_tokens === '') {
-                    error_message = '<?php echo esc_html__('Please enter max tokens', 'gpt3-ai-content-generator')?>';
-                } 
-                else if (parseFloat(max_tokens) < 1 || parseFloat(max_tokens) > maxValidToken) {
-                    // Replace placeholders with actual values
-                    error_message = baseErrorMessageTemplate.replace('{minValue}', '1').replace('{maxValue}', maxValidToken);
-                }
-                else if(temperature === ''){
-                    error_message = '<?php echo esc_html__('Please enter temperature','gpt3-ai-content-generator')?>';
-                }
-                else if(parseFloat(temperature) < 0 || parseFloat(temperature) > 1){
-                    error_message = '<?php echo sprintf(esc_html__('Please enter a valid temperature value between %d and %d.','gpt3-ai-content-generator'),0,1)?>';
-                }
-                else if(top_p === ''){
-                    error_message = '<?php echo esc_html__('Please enter Top P','gpt3-ai-content-generator')?>';
-                }
-                else if(parseFloat(top_p) < 0 || parseFloat(top_p) > 1){
-                    error_message = '<?php echo sprintf(esc_html__('Please enter a valid top p value between %d and %d.','gpt3-ai-content-generator'),0,1)?>';
-                }
-                else if(best_of === ''){
-                    error_message = '<?php echo esc_html__('Please enter best of','gpt3-ai-content-generator')?>';
-                }
-                else if(parseFloat(best_of) < 1 || parseFloat(best_of) > 20){
-                    error_message = '<?php echo sprintf(esc_html__('Please enter a valid best of value between %d and %d.','gpt3-ai-content-generator'),1,20)?>';
-                }
-                else if(frequency_penalty === ''){
-                    error_message = '<?php echo esc_html__('Please enter frequency penalty','gpt3-ai-content-generator')?>';
-                }
-                else if(parseFloat(frequency_penalty) < 0 || parseFloat(frequency_penalty) > 2){
-                    error_message = '<?php echo sprintf(esc_html__('Please enter a valid frequency penalty value between %d and %d.','gpt3-ai-content-generator'),0,2)?>';
-                }
-                else if(presence_penalty === ''){
-                    error_message = '<?php echo esc_html__('Please enter presence penalty','gpt3-ai-content-generator')?>';
-                }
-                else if(parseFloat(presence_penalty) < 0 || parseFloat(presence_penalty) > 2){
-                    error_message = '<?php echo sprintf(esc_html__('Please enter a valid presence penalty value between %d and %d.','gpt3-ai-content-generator'),0,2)?>';
-                }
-                if(error_message){
-                    alert(error_message);
-                }
-                else {
-                    if($('.wpaicg-template-form .wpaicg-form-field-template').length) {
-                        $('.wpaicg-template-form .wpaicg-form-field-template').each(function(idf, item){
-                            var field_type = $(item).attr('data-type');
-                            var field_name = $(item).attr('name');
-                            var field_label = $(item).attr('data-label');
-                            var field_value = $(item).val();
-                            var field_min = $(item).attr('data-min');
-                            var field_max = $(item).attr('data-max');
-                            if(field_type === 'text' ||field_type === 'textarea' || field_type === 'email' || field_type === 'url'){
-                                if(field_min !== '' && field_value.length < parseInt(field_min)){
-                                    error_message = '<?php echo esc_html__('{label} minimum {min} characters','gpt3-ai-content-generator')?>'.replace(/{label}/g,field_label).replace(/{min}/g,field_min);
-                                }
-                                else if(field_max !== '' && field_value.length > parseInt(field_max)){
-                                    error_message = '<?php echo esc_html__('{label} maximum {max} characters','gpt3-ai-content-generator')?>'.replace(/{label}/g,field_label).replace(/{max}/g,field_max);
-                                }
-                                else if(field_type === 'email' && !wpaicgValidEmail(field_value)){
-                                    error_message = '<?php echo esc_html__('{label} must be email address','gpt3-ai-content-generator')?>'.replace(/{label}/g,field_label);
-                                }
-                                else if(field_type === 'url' && !wpaicgValidUrl(field_value)){
-                                    error_message = '<?php echo esc_html__('{label} must be url','gpt3-ai-content-generator')?>'.replace(/{label}/g,field_label);
-                                }
-                            }
-                            else if(field_type === 'number'){
-                                if(field_min !== '' && parseFloat(field_value) < parseInt(field_min)){
-                                    error_message = '<?php echo esc_html__('{label} minimum {min}','gpt3-ai-content-generator')?>'.replace(/{label}/g,field_label).replace(/{min}/g,field_min);
-                                }
-                                else if(field_max !== '' && parseFloat(field_value) > parseInt(field_max)){
-                                    error_message = '<?php echo esc_html__('{label} maximum {max}','gpt3-ai-content-generator')?>'.replace(/{label}/g,field_label).replace(/{max}/g,field_max);
-                                }
-                            }
-                        })
-                    }
-                    if(error_message){
-                        alert(error_message);
-                    }
-                    else {
-                        prompt_response = '';
-                        let startTime = new Date();
-                        if($('.wpaicg-template-form .wpaicg-form-field-template').length) {
-                            $('.wpaicg-template-form .wpaicg-form-field-template').each(function (idf, item) {
-                                var field_name = $(item).attr('name');
-                                var field_value = $(item).val();
-                                var sRegExInput = new RegExp('{' + field_name + '}', 'g');
-                                template_title = template_title.replace(sRegExInput, field_value);
-                            })
-                        }
-                        var data = form.serialize();
-                        var basicEditor = true;
-                        if(response_type === 'textarea') {
-                            var editor = tinyMCE.get('editor-' + wpaicgEditorNumber);
-                            if ($('#wp-editor-' + wpaicgEditorNumber + '-wrap').hasClass('tmce-active') && editor) {
-                                basicEditor = false;
-                            }
-                            if (basicEditor) {
-                                $('#editor-' + wpaicgEditorNumber).val('');
-                            } else {
-                                editor.setContent('');
-                            }
-                        }
-                        wpaicgLoading(btn);
-                        form.find('.wpaicg-template-stop-generate').show();
-                        form.find('.wpaicg-template-save-result').hide();
-                        var wpaicg_limitLines = parseInt(form.find('.wpaicg-template-max-lines').val());
-                        var count_line = 0;
-                        var currentContent = '';
-                        data += '&source_stream=form&nonce=<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>';
-                        eventGenerator = new EventSource('<?php echo esc_html(add_query_arg('wpaicg_stream','yes',site_url().'/index.php'));?>&' + data);
-                        var wpaicg_response_events = 0;
-                        var wpaicg_newline_before = false;
-                        wpaicg_limited_token = false;
-                        eventGenerator.onmessage = function (e) {
-                            if(response_type === 'textarea') {
-                                if (basicEditor) {
-                                    currentContent = $('#editor-' + wpaicgEditorNumber).val();
-                                } else {
-                                    currentContent = editor.getContent();
-                                    currentContent = currentContent.replace(/<\/?p(>|$)/g, "");
-                                }
-                            }
-                            else{
-                                currentContent = $('.wpaicg-template-response-element').html();
-                            }
-                            // if e.data is [DONE] then close the event source
-                            if (e.data === "[DONE]") {
-                                stopOpenAIGenerator();
-                            }   else if (e.data === "[LIMITED]") {
-                                    console.log('Limited token');
-                                    wpaicg_limited_token = true;
-                                    count_line += 1;
-                                    if(response_type === 'textarea') {
-                                        if (basicEditor) {
-                                            $('#editor-' + wpaicgEditorNumber).val(currentContent + '<br /><br />');
-                                        } else {
-                                            editor.setContent(currentContent + '<br /><br />');
-                                        }
-                                    }
-                                    else{
-                                        $('.wpaicg-template-response-element').append('<br />');
-                                    }
-                                    wpaicg_response_events = 0;
-                                    stopOpenAIGenerator();
-                                }
-                    
-                            else 
-                            {
-                                var resultData = JSON.parse(e.data);
+        // Get form fields
+        var max_tokens         = form.find('.wpaicg-template-max_tokens input').val();
+        var temperature        = form.find('.wpaicg-template-temperature input').val();
+        var top_p              = form.find('.wpaicg-template-top_p input').val();
+        var best_of            = form.find('.wpaicg-template-best_of input').val();
+        var frequency_penalty  = form.find('.wpaicg-template-frequency_penalty input').val();
+        var presence_penalty   = form.find('.wpaicg-template-presence_penalty input').val();
+        var engine             = form.find('.wpaicg-template-engine select').val();
 
-                                // Check if the response contains the finish_reason property and if it's set to "stop"
-                                var hasFinishReason = resultData.choices && 
-                                    resultData.choices[0] && 
-                                    (resultData.choices[0].finish_reason === "stop" || 
-                                    resultData.choices[0].finish_reason === "length")||
-                                    (resultData.choices[0].finish_details && 
-                                    resultData.choices[0].finish_details.type === "stop");
+        // Fetch max valid tokens for the selected engine
+        var maxValidToken = engineMaxTokens[engine] || 4096;
 
-                                if (hasFinishReason) {
-                                    count_line += 1;
-                                    if(response_type === 'textarea') {
-                                        if (basicEditor) {
-                                            $('#editor-' + wpaicgEditorNumber).val(currentContent + '<br /><br />');
-                                        } else {
-                                            editor.setContent(currentContent + '<br /><br />');
-                                        }
-                                    }
-                                    else{
-                                        $('.wpaicg-template-response-element').append('<br />');
-                                    }
-                                    wpaicg_response_events = 0;
-                                }
-                                else if (e.data === "[LIMITED]") {
-                                    console.log('Limited token');
-                                    wpaicg_limited_token = true;
-                                    count_line += 1;
-                                    if(response_type === 'textarea') {
-                                        if (basicEditor) {
-                                            $('#editor-' + wpaicgEditorNumber).val(currentContent + '<br /><br />');
-                                        } else {
-                                            editor.setContent(currentContent + '<br /><br />');
-                                        }
-                                    }
-                                    else{
-                                        $('.wpaicg-template-response-element').append('<br />');
-                                    }
-                                    wpaicg_response_events = 0;
-                                } else {
-                                    var result = JSON.parse(e.data);
+        // Replaceable base error message (configured in PHP)
+        var baseErrorMessageTemplate = '<?php echo esc_js(sprintf(esc_html__("Please enter a valid max token value between %s and %s", "gpt3-ai-content-generator"), "{minValue}", "{maxValue}"))?>';
 
-                                    if (result.error !== undefined) {
-                                        var content_generated = result.error.message;
-                                    } else {
-                                        var content_generated = result.choices[0].delta !== undefined ? (result.choices[0].delta.content !== undefined ? result.choices[0].delta.content : '') : result.choices[0].text;
-                                    }
-                                    prompt_response += content_generated;
-                                    
-                                    // Preserve leading/trailing spaces when appending
-                                    if(content_generated.trim() === '' && content_generated.includes(' ')) {
-                                        content_generated = '&nbsp;';
-                                    }
+        // Basic validation
+        var error_message = false;
 
-                                    if((content_generated === '\n' || content_generated === ' \n' || content_generated === '.\n' || content_generated === '\n\n' || content_generated === '"\n') && wpaicg_response_events > 0 && currentContent !== ''){
-                                        if(!wpaicg_newline_before) {
-                                            wpaicg_newline_before = true;
-                                            if (response_type === 'textarea') {
-                                                if (basicEditor) {
-                                                    $('#editor-' + wpaicgEditorNumber).val(currentContent + '<br /><br />');
-                                                } else {
-                                                    editor.setContent(currentContent + '<br /><br />');
-                                                }
-                                            } else {
-                                                $('.wpaicg-template-response-element').append('<br />');
-                                            }
-                                        }
-                                    }
-                                    else if(content_generated.indexOf("\n") > -1 && wpaicg_response_events > 0 && currentContent !== ''){
-                                        if (!wpaicg_newline_before) {
-                                            wpaicg_newline_before = true;
-                                            content_generated = content_generated.replace(/\n/g,'<br>');
-                                            if(response_type === 'textarea') {
-                                                if (basicEditor) {
-                                                    $('#editor-' + wpaicgEditorNumber).val(currentContent + content_generated);
-                                                } else {
-                                                    editor.setContent(currentContent + content_generated);
-                                                }
-                                            }
-                                            else{
-                                                $('.wpaicg-template-response-element').append(content_generated);
-                                            }
-                                        }
-                                    }
-                                    else if(content_generated === '\n' && wpaicg_response_events === 0 && currentContent === '' ){
+        if (max_tokens === '') {
+            error_message = '<?php echo esc_html__("Please enter max tokens", "gpt3-ai-content-generator")?>';
+        } else if (parseFloat(max_tokens) < 1 || parseFloat(max_tokens) > maxValidToken) {
+            error_message = baseErrorMessageTemplate
+                .replace('{minValue}', '1')
+                .replace('{maxValue}', maxValidToken);
+        } else if (temperature === '') {
+            error_message = '<?php echo esc_html__("Please enter temperature","gpt3-ai-content-generator")?>';
+        } else if (parseFloat(temperature) < 0 || parseFloat(temperature) > 1) {
+            error_message = '<?php echo sprintf(esc_html__("Please enter a valid temperature value between %d and %d.","gpt3-ai-content-generator"),0,1)?>';
+        } else if (top_p === '') {
+            error_message = '<?php echo esc_html__("Please enter Top P","gpt3-ai-content-generator")?>';
+        } else if (parseFloat(top_p) < 0 || parseFloat(top_p) > 1) {
+            error_message = '<?php echo sprintf(esc_html__("Please enter a valid top p value between %d and %d.","gpt3-ai-content-generator"),0,1)?>';
+        } else if (best_of === '') {
+            error_message = '<?php echo esc_html__("Please enter best of","gpt3-ai-content-generator")?>';
+        } else if (parseFloat(best_of) < 1 || parseFloat(best_of) > 20) {
+            error_message = '<?php echo sprintf(esc_html__("Please enter a valid best of value between %d and %d.","gpt3-ai-content-generator"),1,20)?>';
+        } else if (frequency_penalty === '') {
+            error_message = '<?php echo esc_html__("Please enter frequency penalty","gpt3-ai-content-generator")?>';
+        } else if (parseFloat(frequency_penalty) < 0 || parseFloat(frequency_penalty) > 2) {
+            error_message = '<?php echo sprintf(esc_html__("Please enter a valid frequency penalty value between %d and %d.","gpt3-ai-content-generator"),0,2)?>';
+        } else if (presence_penalty === '') {
+            error_message = '<?php echo esc_html__("Please enter presence penalty","gpt3-ai-content-generator")?>';
+        } else if (parseFloat(presence_penalty) < 0 || parseFloat(presence_penalty) > 2) {
+            error_message = '<?php echo sprintf(esc_html__("Please enter a valid presence penalty value between %d and %d.","gpt3-ai-content-generator"),0,2)?>';
+        }
 
-                                    }
-                                    else {
-                                        wpaicg_newline_before = false;
-                                        wpaicg_response_events += 1;
-                                        if(response_type === 'textarea') {
-                                            if (basicEditor) {
-                                                $('#editor-' + wpaicgEditorNumber).val(currentContent + content_generated);
-                                            } else {
-                                                editor.setContent(currentContent + content_generated);
-                                            }
-                                        }
-                                        else{
-                                            $('.wpaicg-template-response-element').append(content_generated);
-                                        }
-                                    }
-                                }
-                                if (count_line === wpaicg_limitLines) {
-                                    if(!wpaicg_limited_token) {
-                                        let endTime = new Date();
-                                        let timeDiff = endTime - startTime;
-                                        timeDiff = timeDiff / 1000;
-                                        data += '&action=wpaicg_form_log&prompt_id=' + prompt_id + '&prompt_name=' + prompt_name + '&prompt_response=' + prompt_response + '&duration=' + timeDiff + '&_wpnonce=' + wp_nonce + '&eventID=';
-                                        $.ajax({
-                                            url: '<?php echo admin_url('admin-ajax.php')?>',
-                                            data: data,
-                                            dataType: 'JSON',
-                                            type: 'POST',
-                                            success: function (res) {
-
-                                            }
-                                        })
-                                    }
-                                    $('.wpaicg-template-form .wpaicg-template-stop-generate').hide();
-                                    stopOpenAIGenerator();
-                                    wpaicgRmLoading(btn);
-                                }
-                            }
- 
-                        }
-                    }
-                }
-            }
-            else{
-                alert('<?php echo esc_html__('Please enter prompt','gpt3-ai-content-generator')?>');
-            }
+        // If any errors so far, alert and stop
+        if (error_message) {
+            alert(error_message);
             return false;
-        })
+        }
+
+        // Validate any additional custom fields
+        if ($('.wpaicg-template-form .wpaicg-form-field-template').length) {
+            $('.wpaicg-template-form .wpaicg-form-field-template').each(function(idf, item) {
+                var field_type  = $(item).attr('data-type');
+                var field_name  = $(item).attr('name');
+                var field_label = $(item).attr('data-label');
+                var field_value = $(item).val();
+                var field_min   = $(item).attr('data-min');
+                var field_max   = $(item).attr('data-max');
+
+                if (field_type === 'text' || field_type === 'textarea' || field_type === 'email' || field_type === 'url') {
+                    if (field_min !== '' && field_value.length < parseInt(field_min)) {
+                        error_message = '<?php echo esc_html__("{label} minimum {min} characters","gpt3-ai-content-generator")?>'
+                            .replace(/{label}/g, field_label)
+                            .replace(/{min}/g, field_min);
+                    } else if (field_max !== '' && field_value.length > parseInt(field_max)) {
+                        error_message = '<?php echo esc_html__("{label} maximum {max} characters","gpt3-ai-content-generator")?>'
+                            .replace(/{label}/g, field_label)
+                            .replace(/{max}/g, field_max);
+                    } else if (field_type === 'email' && !wpaicgValidEmail(field_value)) {
+                        error_message = '<?php echo esc_html__("{label} must be email address","gpt3-ai-content-generator")?>'
+                            .replace(/{label}/g, field_label);
+                    } else if (field_type === 'url' && !wpaicgValidUrl(field_value)) {
+                        error_message = '<?php echo esc_html__("{label} must be url","gpt3-ai-content-generator")?>'
+                            .replace(/{label}/g, field_label);
+                    }
+                } else if (field_type === 'number') {
+                    if (field_min !== '' && parseFloat(field_value) < parseInt(field_min)) {
+                        error_message = '<?php echo esc_html__("{label} minimum {min}","gpt3-ai-content-generator")?>'
+                            .replace(/{label}/g, field_label)
+                            .replace(/{min}/g, field_min);
+                    } else if (field_max !== '' && parseFloat(field_value) > parseInt(field_max)) {
+                        error_message = '<?php echo esc_html__("{label} maximum {max}","gpt3-ai-content-generator")?>'
+                            .replace(/{label}/g, field_label)
+                            .replace(/{max}/g, field_max);
+                    }
+                }
+
+                if (error_message) {
+                    return false; // Break .each() loop
+                }
+            });
+        }
+
+        // If an error was found during field checks
+        if (error_message) {
+            alert(error_message);
+            return false;
+        }
+
+        // No errors, proceed with AI generation
+        var prompt_response = ''; // We'll store the entire AI response here
+        let startTime = new Date();
+
+        // Replace placeholders in template title with field values
+        if ($('.wpaicg-template-form .wpaicg-form-field-template').length) {
+            $('.wpaicg-template-form .wpaicg-form-field-template').each(function (idf, item) {
+                var field_name  = $(item).attr('name');
+                var field_value = $(item).val();
+                var sRegExInput = new RegExp('{' + field_name + '}', 'g');
+                template_title  = template_title.replace(sRegExInput, field_value);
+            });
+        }
+
+        // Prepare data for request
+        var data = form.serialize();
+        data += '&source_stream=form&nonce=<?php echo wp_create_nonce("wpaicg-ajax-nonce")?>';
+
+        // If we're using a WP editor, detect if TinyMCE is active
+        var basicEditor = true;
+        if (response_type === 'textarea') {
+            var editor = tinyMCE.get('editor-' + wpaicgEditorNumber);
+            if ($('#wp-editor-' + wpaicgEditorNumber + '-wrap').hasClass('tmce-active') && editor) {
+                basicEditor = false;
+            }
+            // Clear editor before new content
+            if (basicEditor) {
+                $('#editor-' + wpaicgEditorNumber).val('');
+            } else {
+                editor.setContent('');
+            }
+        } else {
+            // Clear inline display element
+            $('.wpaicg-template-response-element').html('');
+        }
+
+        // Show loader, reveal "Stop" button, etc.
+        wpaicgLoading(btn);
+        form.find('.wpaicg-template-stop-generate').show();
+        form.find('.wpaicg-template-save-result').hide();
+
+        // Potential line-limit setting
+        var wpaicg_limitLines = parseInt(form.find('.wpaicg-template-max-lines').val());
+        var count_line = 0;
+
+        // Open SSE connection
+        eventGenerator = new EventSource(
+            '<?php echo esc_html(add_query_arg("wpaicg_stream","yes",site_url()."/index.php"));?>&' + data
+        );
+
+        // Track how many chunks we've seen, etc.
+        var wpaicg_response_events = 0;
+        var wpaicg_limited_token = false;
+
+        // Handle streaming responses
+        eventGenerator.onmessage = function (e) {
+            // Check special signals first
+            if (e.data === "[DONE]") {
+                stopOpenAIGenerator(); // Graceful close
+                return;
+            }
+            if (e.data === "[LIMITED]") {
+                // Indicate a limitation (e.g., usage limit)
+                wpaicg_limited_token = true;
+                count_line++;
+                stopOpenAIGenerator();
+                return;
+            }
+
+            // Otherwise, parse normal chunk
+            var resultData = JSON.parse(e.data);
+
+            // Check if the chunk signals a finishing reason
+            var hasFinishReason = (
+                resultData.choices &&
+                resultData.choices[0] &&
+                (
+                    resultData.choices[0].finish_reason === "stop" ||
+                    resultData.choices[0].finish_reason === "length" ||
+                    (
+                        resultData.choices[0].finish_details &&
+                        resultData.choices[0].finish_details.type === "stop"
+                    )
+                )
+            );
+
+            if (hasFinishReason) {
+                count_line++;
+            }
+
+            if (resultData.error !== undefined) {
+                // If there's an error in the response
+                prompt_response += resultData.error.message;
+            } else {
+                // Accumulate chunk
+                var content_generated = (resultData.choices[0].delta !== undefined)
+                    ? (resultData.choices[0].delta.content !== undefined
+                        ? resultData.choices[0].delta.content
+                        : ''
+                      )
+                    : resultData.choices[0].text;
+
+                prompt_response += content_generated;
+            }
+
+            // Use marked.parse to convert the entire AI response so far to HTML
+            var parsedHTML = marked.parse(prompt_response);
+
+            // Update either WP editor (raw HTML) or inline element with parsed HTML
+            if (response_type === 'textarea') {
+                if (basicEditor) {
+                    // Basic text area
+                    $('#editor-' + wpaicgEditorNumber).val(parsedHTML);
+                } else {
+                    // TinyMCE editor
+                    editor.setContent(parsedHTML);
+                }
+            } else {
+                // Inline display element
+                $('.wpaicg-template-response-element').html(parsedHTML);
+            }
+
+            // If the chunk indicated a finishing reason or line-limit, stop
+            if (hasFinishReason || count_line === wpaicg_limitLines) {
+                let endTime = new Date();
+                let timeDiff = (endTime - startTime) / 1000;
+
+                form.find('.wpaicg-template-stop-generate').hide();
+                stopOpenAIGenerator();
+                wpaicgRmLoading(btn);
+            }
+        };
+    } else {
+        alert('<?php echo esc_html__("Please enter prompt","gpt3-ai-content-generator")?>');
+    }
+    return false;
+});
+
     })
 </script>

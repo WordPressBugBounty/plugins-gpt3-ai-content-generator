@@ -1,9 +1,16 @@
 var resetFeedbackButtons = function() {
-    document.getElementById('wpaicg-prompt-thumbs_up').disabled = false;
-    document.getElementById('wpaicg-prompt-thumbs_up').style.display = 'inline-block';
-    document.getElementById('wpaicg-prompt-thumbs_down').disabled = false;
-    document.getElementById('wpaicg-prompt-thumbs_down').style.display = 'inline-block';
+    var thumbsUp = document.getElementById('wpaicg-prompt-thumbs_up');
+    var thumbsDown = document.getElementById('wpaicg-prompt-thumbs_down');
+    if (thumbsUp) {
+        thumbsUp.disabled = false;
+        thumbsUp.style.display = 'inline-block';
+    }
+    if (thumbsDown) {
+        thumbsDown.disabled = false;
+        thumbsDown.style.display = 'inline-block';
+    }
 };
+
 var wpaicgPlayGround = {
     init: function(){
         var wpaicg_PlayGround = this;
@@ -26,11 +33,14 @@ var wpaicgPlayGround = {
                     var formID = wpaicgForm.getAttribute('data-id');
                     var wpaicgFormData = window['wpaicgForm'+formID];
                     var currentContent = wpaicg_PlayGround.getContent(wpaicgFormData.response,formID);
+
                     // Replace &nbsp; with space
                     currentContent = currentContent.replace(/&nbsp;/g, ' ');
-                    var element = document.createElement('a');
+
                     currentContent = currentContent.replace(/<br>/g,"\n");
                     currentContent = currentContent.replace(/<br \/>/g,"\n");
+
+                    var element = document.createElement('a');
                     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(currentContent));
                     element.setAttribute('download', 'response.txt');
 
@@ -38,11 +48,11 @@ var wpaicgPlayGround = {
                     document.body.appendChild(element);
 
                     element.click();
-
                     document.body.removeChild(element);
                 });
             }
         }
+
         if(wpaicgCopyButtons && wpaicgCopyButtons.length){
             for(var i=0; i < wpaicgCopyButtons.length; i++){
                 var wpaicgCopyButton = wpaicgCopyButtons[i];
@@ -69,8 +79,6 @@ var wpaicgPlayGround = {
                     // Replace double occurrences of <br><br> or <br /><br /> with double newline
                     responseText = responseText.replace(/\r\n\r\n/g, '\r\n\r\n');
 
-                    
-                    // Copy responseText to clipboard
                     navigator.clipboard.writeText(responseText).then(function() {
                         console.log('Text successfully copied to clipboard');
                     }).catch(function(err) {
@@ -95,6 +103,7 @@ var wpaicgPlayGround = {
                 });
             }
         }
+
         if(wpaicgStopButtons && wpaicgStopButtons.length){
             for(var i=0;i < wpaicgStopButtons.length;i++){
                 var wpaicgStopButton = wpaicgStopButtons[i];
@@ -109,6 +118,7 @@ var wpaicgPlayGround = {
                 });
             }
         }
+
         if(wpaicgSaveButtons && wpaicgSaveButtons.length){
             for(var i=0;i < wpaicgSaveButtons.length;i++){
                 var wpaicgSaveButton = wpaicgSaveButtons[i];
@@ -119,21 +129,21 @@ var wpaicgPlayGround = {
                     var formID = wpaicgForm.getAttribute('data-id');
                     var wpaicgFormData = window['wpaicgForm'+formID];
                     var title = wpaicgForm.getElementsByClassName('wpaicg-prompt-post_title')[0].value;
-                    var content = wpaicg_PlayGround.getContent(wpaicgFormData.response,formID);
+                    var content = wpaicgPlayGround.getContent(wpaicgFormData.response,formID);
                     if (title === '') {
                         alert('Please insert title');
                     } else if (content === '') {
-                        alert('Please wait generate content')
+                        alert('Please wait generate content');
                     } else {
                         const xhttp = new XMLHttpRequest();
                         xhttp.open('POST', wpaicgFormData.ajax);
                         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                         var encodedContent = encodeURIComponent(content);
-                        xhttp.send('action=wpaicg_save_draft_post_extra&title=' + title + '&content=' + encodedContent+'&save_source=promptbase&nonce='+wpaicgFormData.ajax_nonce);
-                        wpaicg_PlayGround.loading.add(wpaicgSaveButton);
+                        xhttp.send('action=wpaicg_save_draft_post_extra&title=' + encodeURIComponent(title) + '&content=' + encodedContent+'&save_source=promptbase&nonce='+wpaicgFormData.ajax_nonce);
+                        wpaicgPlayGround.loading.add(wpaicgSaveButton);
                         xhttp.onreadystatechange = function (oEvent) {
                             if (xhttp.readyState === 4) {
-                                wpaicg_PlayGround.loading.remove(wpaicgSaveButton);
+                                wpaicgPlayGround.loading.remove(wpaicgSaveButton);
                                 if (xhttp.status === 200) {
                                     var wpaicg_response = this.responseText;
                                     wpaicg_response = JSON.parse(wpaicg_response);
@@ -146,11 +156,12 @@ var wpaicgPlayGround = {
                                     alert('Something went wrong');
                                 }
                             }
-                        }
+                        };
                     }
                 });
             }
         }
+
         if(wpaicgFormsShortcode && wpaicgFormsShortcode.length){
             for(var i = 0;i< wpaicgFormsShortcode.length;i++){
                 var wpaicgFormShortcode =  wpaicgFormsShortcode[i];
@@ -164,9 +175,11 @@ var wpaicgPlayGround = {
                     var formSource = wpaicgForm.getAttribute('data-source');
                     var wpaicgFormData = window['wpaicgForm'+formID];
 
+                    // If feedback buttons are enabled, reset them
                     if (wpaicgFormData && wpaicgFormData.feedback_buttons === 'yes') {
                         resetFeedbackButtons();
                     }
+
                     var wpaicgMaxToken = wpaicgForm.getElementsByClassName('wpaicg-prompt-max_tokens')[0];
                     var wpaicgTemperature = wpaicgForm.getElementsByClassName('wpaicg-prompt-temperature')[0];
                     var wpaicgTopP = wpaicgForm.getElementsByClassName('wpaicg-prompt-top_p')[0];
@@ -185,6 +198,7 @@ var wpaicgPlayGround = {
                     var frequency_penalty = wpaicgFP.value;
                     var presence_penalty = wpaicgPP.value;
                     var error_message = false;
+
                     if (max_tokens === '') {
                         error_message = 'Please enter max tokens';
                     } else if (parseFloat(max_tokens) < 1 || parseFloat(max_tokens) > 8000) {
@@ -200,7 +214,7 @@ var wpaicgPlayGround = {
                     } else if (best_of === '') {
                         error_message = 'Please enter best of';
                     } else if (parseFloat(best_of) < 1 || parseFloat(best_of) > 20) {
-                        error_message = 'Please enter a valid best of value between 0 and 1';
+                        error_message = 'Please enter a valid best of value between 1 and 20';
                     } else if (frequency_penalty === '') {
                         error_message = 'Please enter frequency penalty';
                     } else if (parseFloat(frequency_penalty) < 0 || parseFloat(frequency_penalty) > 2) {
@@ -210,9 +224,11 @@ var wpaicgPlayGround = {
                     } else if (parseFloat(presence_penalty) < 0 || parseFloat(presence_penalty) > 2) {
                         error_message = 'Please enter a valid presence penalty value between 0 and 2';
                     }
+
                     if (error_message) {
                         alert(error_message);
                     } else {
+                        // Validate form fields if any
                         if (typeof wpaicgFormData.fields === 'object') {
                             for (var i = 0; i < wpaicgFormData.fields.length; i++) {
                                 var form_field = wpaicgFormData.fields[i];
@@ -221,7 +237,7 @@ var wpaicgPlayGround = {
                                 var field_label = form_field['label'] !== undefined ? form_field['label'] : '';
                                 var field_min = form_field['min'] !== undefined ? form_field['min'] : '';
                                 var field_max = form_field['max'] !== undefined ? form_field['max'] : '';
-                                
+
                                 if (field_type !== 'radio' && field_type !== 'checkbox') {
                                     var field_value = field.value;
                                     if (field_type === 'text' || field_type === 'textarea' || field_type === 'email' || field_type === 'url') {
@@ -229,9 +245,9 @@ var wpaicgPlayGround = {
                                             error_message = field_label + ' minimum ' + field_min + ' characters';
                                         } else if (field_max !== '' && field_value.length > parseInt(field_max)) {
                                             error_message = field_label + ' maximum ' + field_max + ' characters';
-                                        } else if (field_type === 'email' && !wpaicg_PlayGround.validate.email(field_value)) {
+                                        } else if (field_type === 'email' && !wpaicgPlayGround.validate.email(field_value)) {
                                             error_message = field_label + ' must be email address';
-                                        } else if (field_type === 'url' && !wpaicg_PlayGround.validate.url(field_value)) {
+                                        } else if (field_type === 'url' && !wpaicgPlayGround.validate.url(field_value)) {
                                             error_message = field_label + ' must be url';
                                         }
                                     } else if (field_type === 'number') {
@@ -258,130 +274,121 @@ var wpaicgPlayGround = {
                                 }
                             }
                         }
+
                         if(error_message){
                             alert(error_message);
-                        }
-                        else{
-                            if (typeof wpaicgFormData.fields === 'object') {
-                                for (var i = 0; i < wpaicgFormData.fields.length; i++) {
-                                    var form_field = wpaicgFormData.fields[i];
-                                    var field_type = form_field.type;
-                                    var field = wpaicgForm.getElementsByClassName('wpaicg-form-field-' + i)[0];
-                                    var field_name = form_field['id'] !== undefined ? form_field['id'] : '';
-                                    var field_value;
-                                    if (field_type === 'checkbox' || field_type === 'radio') {
-                                        field_value = '';
-                                        var field_inputs = field.getElementsByTagName('input');
-                                        if (field_inputs && field_inputs.length) {
-                                            for (var y = 0; y < field_inputs.length; y++) {
-                                                var field_input = field_inputs[y];
-                                                if (field_input.checked) {
-                                                    var current_field_value = field_input.value;
-                                                    if (current_field_value !== undefined && current_field_value !== '') {
-                                                        field_value += (field_value === '' ? '' : ', ') + current_field_value;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        field_value = field.value;
-                                    }
-                                    var sRegExInput = new RegExp('{' + field_name + '}', 'g');
-                                }
-                            }
+                        } else {
+                            // Build the query string
                             let queryString = new URLSearchParams(new FormData(wpaicgForm)).toString();
-                            wpaicg_PlayGround.loading.add(wpaicgGenerateBtn);
+                            wpaicgPlayGround.loading.add(wpaicgGenerateBtn);
                             wpaicgSaveResult.style.display = 'none';
                             wpaicgStop.style.display = 'inline';
-                            wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,'');
+                            wpaicgPlayGround.setContent(wpaicgFormData.response,formID,'');
                             queryString += '&source_stream='+formSource+'&nonce='+wpaicgFormData.ajax_nonce;
                             var eventID = Math.ceil(Math.random()*1000000);
 
-                            // Set the eventID as a data attribute on all thumbs up buttonsß
+                            // Assign data-eventid to thumbs up/down for feedback tracking
                             for (var i = 0; i < wpaicgThumbsUpButtons.length; i++) {
                                 wpaicgThumbsUpButtons[i].setAttribute('data-eventid', eventID);
                             }
-
-                            // Set the eventID as a data attribute on all thumbs down buttons
                             for (var i = 0; i < wpaicgThumbsDownButtons.length; i++) {
                                 wpaicgThumbsDownButtons[i].setAttribute('data-eventid', eventID);
                             }
 
                             wpaicgStop.setAttribute('data-event',eventID);
                             window['eventGenerator'+eventID] = new EventSource(wpaicgFormData.event + '&' + queryString);
+                            
                             if(formSource === 'form'){
                                 queryString += '&action=wpaicg_form_log';
-                            }
-                            else{
+                            } else {
                                 queryString += '&action=wpaicg_prompt_log';
                             }
-                            wpaicg_PlayGround.process(queryString,eventID,wpaicgFormData,formID,wpaicgStop,wpaicgSaveResult,wpaicgGenerateBtn,wpaicgMaxLines);
+                            wpaicgPlayGround.process(queryString,eventID,wpaicgFormData,formID,wpaicgStop,wpaicgSaveResult,wpaicgGenerateBtn,wpaicgMaxLines);
                         }
                     }
-                })
+                });
             }
 
-            // Function to handle the feedback button click
+            // Handle feedback button clicks
             var handleFeedbackButtonClick = function(e) {
                 e.preventDefault();
                 var button = e.currentTarget;
                 var formID = button.getAttribute('data-id');
                 var eventID = button.getAttribute('data-eventid');
-                var feedbackType = button.id.replace('wpaicg-prompt-', '');
+                var feedbackType = button.id.replace('wpaicg-prompt-', ''); // "thumbs_up" or "thumbs_down"
                 var wpaicgFormData = window['wpaicgForm' + formID];
-                var modal = jQuery('#wpaicg_feedbackModal');
-                var datasource = wpaicgFormData.datasource;
-                var textareaID = wpaicgFormData.feedbackID;
 
-                // Update the emoji in the modal
-                modal.find('.emoji').text(feedbackType == 'thumbs_up' ? '👍' : '👎');
+                var modal = jQuery('#wpaicg_feedbackModal');
+                var textareaID = wpaicgFormData.feedbackID;
                 
                 modal.fadeIn();
                 jQuery('.wpaicg_feedbackModal-overlay').fadeIn();
-
-                // Define the action parameter
-                var myaction = (datasource === 'promptbase') ? 'wpaicg_save_prompt_feedback' : 'wpaicg_save_feedback';
-
-                // Handle the submit feedback button click
+                
+                // Decide which AJAX action to call
+                var myaction = 'wpaicg_save_feedback'; // default
+                if (wpaicgFormData.sourceID && wpaicgFormData.sourceID.toString().length > 0) {
+                    // For "promptbase" type forms, we might call 'wpaicg_save_prompt_feedback'
+                    // if we want to differentiate. Adjust if needed based on your logic:
+                    myaction = 'wpaicg_save_prompt_feedback';
+                }
+                
+                // Set up the submit event for the feedback modal's "Submit" button
                 jQuery('#wpaicg_submitFeedback').off('click').on('click', function() {
                     modal.find('textarea').attr('id', textareaID);
-                    var comment = jQuery('#' + textareaID).val();
-                    console.log('comment: ' + comment);
+                    var comment = jQuery('#' + textareaID).val() || '';
+                    
+                    // Get the AI's response to store
                     var responseText = wpaicgPlayGround.getContent(wpaicgFormData.response, formID);
                     // Replace &nbsp; with space
                     responseText = responseText.replace(/&nbsp;/g, ' ');
 
-                    // Replace single occurrences of <br> or <br /> with a newline
+                    // Convert <br> tags to new lines
                     responseText = responseText.replace(/<br\s*\/?>/g, '\r\n');
-
-                    // Replace double occurrences of <br><br> or <br /><br /> with double newline
                     responseText = responseText.replace(/\r\n\r\n/g, '\r\n\r\n');
 
-                    // Send AJAX request to save feedback
                     const xhttp = new XMLHttpRequest();
                     xhttp.open('POST', wpaicgFormData.ajax);
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                    xhttp.send('action=' + myaction + '&formID=' + formID + '&feedback=' + feedbackType + '&comment=' + encodeURIComponent(comment) + '&nonce=' + wpaicgFormData.ajax_nonce + '&formname=' + wpaicgFormData.name + '&sourceID=' + wpaicgFormData.sourceID + '&response=' + responseText + '&eventID=' + eventID);
+                    xhttp.send(
+                        'action=' + myaction +
+                        '&formID=' + encodeURIComponent(formID) +
+                        '&feedback=' + encodeURIComponent(feedbackType) +
+                        '&comment=' + encodeURIComponent(comment) +
+                        '&nonce=' + wpaicgFormData.ajax_nonce +
+                        '&formname=' + encodeURIComponent(wpaicgFormData.name) +
+                        '&sourceID=' + encodeURIComponent(wpaicgFormData.sourceID) +
+                        '&response=' + encodeURIComponent(responseText) +
+                        '&eventID=' + encodeURIComponent(eventID)
+                    );
+                    
                     xhttp.onreadystatechange = function(oEvent) {
                         if (xhttp.readyState === 4) {
                             if (xhttp.status === 200) {
                                 var response = JSON.parse(xhttp.responseText);
                                 if (response.status === 'success') {
-                                    // Upon successful feedback submission:
-                                    
-                                    // Disable the clicked feedback button and hide the other one
+                                    // Disable the appropriate feedback button
                                     if (feedbackType === 'thumbs_up') {
-                                        document.getElementById('wpaicg-prompt-thumbs_up').disabled = true;
-                                        document.getElementById('wpaicg-prompt-thumbs_down').style.display = 'none';
+                                        var thumbsUpEl = document.getElementById('wpaicg-prompt-thumbs_up');
+                                        if (thumbsUpEl) {
+                                            thumbsUpEl.disabled = true;
+                                        }
+                                        var thumbsDownEl = document.getElementById('wpaicg-prompt-thumbs_down');
+                                        if (thumbsDownEl) {
+                                            thumbsDownEl.style.display = 'none';
+                                        }
                                     } else {
-                                        document.getElementById('wpaicg-prompt-thumbs_down').disabled = true;
-                                        document.getElementById('wpaicg-prompt-thumbs_up').style.display = 'none';
+                                        var thumbsDownEl = document.getElementById('wpaicg-prompt-thumbs_down');
+                                        if (thumbsDownEl) {
+                                            thumbsDownEl.disabled = true;
+                                        }
+                                        var thumbsUpEl = document.getElementById('wpaicg-prompt-thumbs_up');
+                                        if (thumbsUpEl) {
+                                            thumbsUpEl.style.display = 'none';
+                                        }
                                     }
-                                    // clear the feedback text area
                                     jQuery('#' + textareaID).val('');
-                                    
                                 } else {
-                                    alert(response.msg); // Show the error message returned from the backend
+                                    alert(response.msg);
                                 }
                             } else {
                                 alert('Error: ' + xhttp.status + ' - ' + xhttp.statusText + '\n\n' + xhttp.responseText);
@@ -389,18 +396,17 @@ var wpaicgPlayGround = {
                             modal.fadeOut();
                             jQuery('.wpaicg_feedbackModal-overlay').fadeOut();
                         }
-                    }
-                                      
+                    };
                 });
-
-                // Handle the close modal button click
+                
+                // Close modal
                 jQuery('#closeFeedbackModal').off('click').on('click', function() {
                     modal.fadeOut();
                     jQuery('.wpaicg_feedbackModal-overlay').fadeOut();
                 });
             };
 
-            // Attach event listeners
+            // Attach event listeners to thumbs up/down
             for (var k = 0; k < wpaicgThumbsUpButtons.length; k++) {
                 wpaicgThumbsUpButtons[k].addEventListener('click', handleFeedbackButtonClick);
             }
@@ -421,6 +427,7 @@ var wpaicgPlayGround = {
         var count_line = 0;
         var wpaicg_limitLines = parseFloat(wpaicgMaxLines.value);
         var currentContent = '';
+
         window['eventGenerator'+eventID].onmessage = function (e) {
             currentContent = wpaicg_PlayGround.getContent(wpaicgFormData.response,formID);
 
@@ -430,113 +437,98 @@ var wpaicgPlayGround = {
                 count_line += 1;
                 wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,currentContent + wpaicg_break_newline);
                 wpaicg_response_events = 0;
-            } else if (e.data.includes("GoogleError")) {
-                var error_message = e.data.match(/GoogleError: (.*)/);
-                if (error_message) {
-                    alert('Error: ' + error_message[1]);
-                } else {
-                    alert('Unknown error occurred');
-                }
+
+            } else if (e.data === "[DONE]") {
                 count_line += 1;
                 wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,currentContent + wpaicg_break_newline);
                 wpaicg_response_events = 0;
-            } 
-            // else if data is DONE then close the event
-            else if (e.data === "[DONE]") {
-                count_line += 1;
-                wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,currentContent + wpaicg_break_newline);
-                wpaicg_response_events = 0;
-            }
-            else {
+
+            } else {
                 var result = JSON.parse(e.data);
 
-                // Check if the response contains the finish_reason property and if it's set to "stop"
-                var hasFinishReason = result.choices && 
-                result.choices[0] && 
-                (result.choices[0].finish_reason === "stop" || 
-                result.choices[0].finish_reason === "length") ||
-                (result.choices[0].finish_details && 
-                result.choices[0].finish_details.type === "stop");
+                // Check if the response contains the finish_reason
+                var hasFinishReason = result.choices &&
+                    result.choices[0] &&
+                    (
+                      result.choices[0].finish_reason === "stop" ||
+                      result.choices[0].finish_reason === "length" ||
+                      (result.choices[0].finish_details && result.choices[0].finish_details.type === "stop")
+                    );
 
-                if (hasFinishReason) {
-                    count_line += 1;
-                    wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,currentContent + wpaicg_break_newline);
-                    wpaicg_response_events = 0;
-                }
                 var content_generated = '';
                 if (result.error !== undefined) {
                     content_generated = result.error.message;
                 } else {
-                    content_generated = result.choices[0].delta !== undefined ? (result.choices[0].delta.content !== undefined ? result.choices[0].delta.content : '') : result.choices[0].text;
+                    content_generated = result.choices[0].delta !== undefined ?
+                        (result.choices[0].delta.content !== undefined ? result.choices[0].delta.content : '') :
+                        result.choices[0].text;
                 }
                 prompt_response += content_generated;
 
-                // Preserve leading/trailing spaces when appending
-                if(content_generated.trim() === '' && content_generated.includes(' ')) {
-                    content_generated = '&nbsp;';
-                }
-                // if response is not text area then if content_generated is /n then add <br/>
-                if(wpaicgFormData.response !== 'textarea'){
-                    if(content_generated === '\n'){
-                        content_generated = '<br/>';
-                    }
-                }
-                
-                if ((content_generated === '\n' || content_generated === ' \n' || content_generated === '.\n' || content_generated === '\n\n' || content_generated === '"\n') && wpaicg_response_events > 0 && currentContent !== '') {
-                    if (!wpaicg_newline_before) {
-                        wpaicg_newline_before = true;
-                        wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,currentContent + wpaicg_break_newline);
-                    }
-                }
-                else if(content_generated.indexOf("\n") > -1 && wpaicg_response_events > 0 && currentContent !== ''){
-                    if (!wpaicg_newline_before) {
-                        wpaicg_newline_before = true;
-                        if(wpaicgFormData.response === 'textarea'){
-                            if(!wpaicg_PlayGround.editor(formID)){
-                                content_generated = content_generated.replace(/\n/g,'<br>');
-                            } 
-                        }
-                        else{
-                            content_generated = content_generated.replace(/\n/g,'<br>');
-                        }
-                        wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,currentContent + content_generated);
-                    }
-                }
-                
-                
-                else if (content_generated === '\n' && wpaicg_response_events === 0 && currentContent === '') {
+                // Use marked.js to parse the entire accumulated text so far
+                var parsedMarkdown = marked.parse(prompt_response);
 
+                // If we detect a finish reason
+                if (hasFinishReason) {
+                    count_line += 1;
+                    wpaicg_response_events = 0;
+                }
+
+                // Update the content in the appropriate container/textarea
+                if (wpaicgFormData.response === 'textarea') {
+                    var basicEditor = true;
+                    if (wpaicg_prompt_logged) {
+                        var editor = tinyMCE.get('wpaicg-prompt-result-'+formID);
+                        if ( document.getElementById('wp-wpaicg-prompt-result-'+formID+'-wrap') &&
+                            document.getElementById('wp-wpaicg-prompt-result-'+formID+'-wrap').classList.contains('tmce-active') && editor ) {
+                            basicEditor = false;
+                        }
+                    }
+                    if (basicEditor) {
+                        document.getElementById('wpaicg-prompt-result-'+formID).value = parsedMarkdown;
+                    } else {
+                        var editorInst = tinyMCE.get('wpaicg-prompt-result-'+formID);
+                        editorInst.setContent(parsedMarkdown);
+                    }
                 } else {
-                    wpaicg_newline_before = false;
-                    wpaicg_response_events += 1;
-                    wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,currentContent + content_generated);
+                    // If not textarea, insert parsed Markdown as HTML
+                    document.getElementById('wpaicg-prompt-result-'+formID).innerHTML = parsedMarkdown;
                 }
             }
+
             if (count_line === wpaicg_limitLines) {
                 if(!wpaicg_limited_token) {
                     let endTime = new Date();
                     let timeDiff = endTime - startTime;
                     timeDiff = timeDiff / 1000;
-                    queryString += '&prompt_id=' + wpaicgFormData.id + '&prompt_name=' + wpaicgFormData.name + '&prompt_response=' + encodeURIComponent(prompt_response) + '&duration=' + timeDiff + '&_wpnonce=' + wpaicgFormData.nonce + '&source_id=' + wpaicgFormData.sourceID + '&eventID=' + eventID;
+                    queryString += '&prompt_id=' + wpaicgFormData.id +
+                                   '&prompt_name=' + encodeURIComponent(wpaicgFormData.name) +
+                                   '&prompt_response=' + encodeURIComponent(prompt_response) +
+                                   '&duration=' + encodeURIComponent(timeDiff) +
+                                   '&_wpnonce=' + encodeURIComponent(wpaicgFormData.nonce) +
+                                   '&source_id=' + encodeURIComponent(wpaicgFormData.sourceID) +
+                                   '&eventID=' + encodeURIComponent(eventID);
+
                     const xhttp = new XMLHttpRequest();
                     xhttp.open('POST', wpaicgFormData.ajax);
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                     xhttp.send(queryString);
                     xhttp.onreadystatechange = function (oEvent) {
                         if (xhttp.readyState === 4) {
-
+                            // nothing special on success or error here
                         }
-                    }
+                    };
                 }
                 wpaicg_PlayGround.eventClose(eventID,wpaicgStop,wpaicgSaveResult,wpaicgGenerateBtn,wpaicg_limited_token);
             }
-        }
+        };
     },
     editor: function (form_id){
         var basicEditor = true;
         if(wpaicg_prompt_logged){
             var editor = tinyMCE.get('wpaicg-prompt-result-'+form_id);
-            if ( document.getElementById('wp-wpaicg-prompt-result-'+form_id+'-wrap').classList.contains('tmce-active') && editor ) {
+            if ( document.getElementById('wp-wpaicg-prompt-result-'+form_id+'-wrap') &&
+                document.getElementById('wp-wpaicg-prompt-result-'+form_id+'-wrap').classList.contains('tmce-active') && editor ) {
                 basicEditor = false;
             }
         }
@@ -544,7 +536,6 @@ var wpaicgPlayGround = {
     },
     setContent: function (type,form_id,value){
         if(type === 'textarea') {
-            // Check if the output is for a textarea and convert &nbsp; back to a space
             value = value.replace(/&nbsp;/g, ' ');
             if (this.editor(form_id)) {
                 document.getElementById('wpaicg-prompt-result-'+form_id).value = value;
@@ -560,7 +551,7 @@ var wpaicgPlayGround = {
     getContent: function (type,form_id){
         if(type === 'textarea') {
             if (this.editor(form_id)) {
-                return document.getElementById('wpaicg-prompt-result-'+form_id).value
+                return document.getElementById('wpaicg-prompt-result-'+form_id).value;
             } else {
                 var editor = tinyMCE.get('wpaicg-prompt-result-'+form_id);
                 var content = editor.getContent();
@@ -568,16 +559,23 @@ var wpaicgPlayGround = {
                 return content;
             }
         }
-        else return document.getElementById('wpaicg-prompt-result-'+form_id).innerHTML;
+        else {
+            return document.getElementById('wpaicg-prompt-result-'+form_id).innerHTML;
+        }
     },
     loading: {
         add: function (btn){
             btn.setAttribute('disabled','disabled');
-            btn.innerHTML += '<span class="wpaicg-loader"></span>';
+            var spinner = document.createElement('span');
+            spinner.classList.add('wpaicg-loader');
+            btn.appendChild(spinner);
         },
         remove: function (btn){
             btn.removeAttribute('disabled');
-            btn.removeChild(btn.getElementsByTagName('span')[0]);
+            var spinners = btn.getElementsByClassName('wpaicg-loader');
+            if(spinners.length){
+                spinners[0].remove();
+            }
         }
     },
     eventClose: function (eventID,btn,btnResult,btn_generator,wpaicg_limited_token){
@@ -586,7 +584,9 @@ var wpaicgPlayGround = {
             btnResult.style.display = 'block';
         }
         this.loading.remove(btn_generator);
-        window['eventGenerator'+eventID].close();
+        if(window['eventGenerator'+eventID]){
+            window['eventGenerator'+eventID].close();
+        }
     },
     validate: {
         email: function (email){
