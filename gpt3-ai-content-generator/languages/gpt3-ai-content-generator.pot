@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 1.8.98\n"
+"Project-Id-Version: AI Power: Complete AI Pack 1.8.99\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-01-19T08:37:53+00:00\n"
+"POT-Creation-Date: 2025-01-23T14:20:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -834,9 +834,10 @@ msgid "AI thinking"
 msgstr ""
 
 #: admin/extra/wpaicg_forms.php:27
-#: admin/views/account/index.php:217
-#: admin/views/account/index.php:257
+#: admin/views/account/index.php:484
+#: admin/views/account/index.php:557
 #: admin/views/account/metabox.php:27
+#: admin/views/account/usermanagement.php:583
 msgid "AI Forms"
 msgstr ""
 
@@ -2203,7 +2204,8 @@ msgid "Duration"
 msgstr ""
 
 #: admin/extra/wpaicg_image_generator_log.php:58
-#: admin/views/account/index.php:250
+#: admin/views/account/index.php:551
+#: admin/views/account/usermanagement.php:1216
 #: admin/views/finetune/events.php:19
 msgid "Created At"
 msgstr ""
@@ -2260,9 +2262,10 @@ msgid "Leave empty for no limit"
 msgstr ""
 
 #: admin/extra/wpaicg_promptbase.php:27
-#: admin/views/account/index.php:221
-#: admin/views/account/index.php:265
+#: admin/views/account/index.php:494
+#: admin/views/account/index.php:563
 #: admin/views/account/metabox.php:34
+#: admin/views/account/usermanagement.php:584
 msgid "Promptbase"
 msgstr ""
 
@@ -2604,6 +2607,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:648
 #: admin/extra/wpaicg_single.php:668
+#: admin/views/account/usermanagement.php:585
 #: admin/views/settings/image_settings.php:96
 msgid "Image"
 msgstr ""
@@ -3149,44 +3153,90 @@ msgstr ""
 msgid "Please wait until the content is generated."
 msgstr ""
 
-#: admin/views/account/index.php:9
-msgid "The token logs table does not exist. Please deactivate and then reactivate the plugin to trigger the table creation."
+#: admin/views/account/index.php:57
+#: admin/views/account/usermanagement.php:200
+msgid "Global Chat Widget"
 msgstr ""
 
-#: admin/views/account/index.php:35
-#: admin/views/account/index.php:47
-#: admin/views/account/index.php:58
-#: admin/views/account/index.php:167
-#: admin/views/account/index.php:230
+#: admin/views/account/index.php:86
+#: admin/views/account/usermanagement.php:228
+msgid "Global Chat Shortcode"
+msgstr ""
+
+#: admin/views/account/index.php:153
+msgid "You must be logged in to view this page."
+msgstr ""
+
+#: admin/views/account/index.php:164
+#: admin/views/account/index.php:172
+#: admin/views/account/index.php:180
+#: admin/views/account/index.php:266
 msgid "Out of Quota"
 msgstr ""
 
-#: admin/views/account/index.php:225
+#: admin/views/account/index.php:285
+msgid "Purchased Tokens"
+msgstr ""
+
+#: admin/views/account/index.php:468
 #: admin/views/account/metabox.php:13
 msgid "ChatGPT"
 msgstr ""
 
-#: admin/views/account/index.php:229
-#: admin/views/account/index.php:259
+#: admin/views/account/index.php:477
+msgid "See breakdown"
+msgstr ""
+
+#: admin/views/account/index.php:504
+#: admin/views/account/index.php:561
 #: admin/views/account/metabox.php:20
 msgid "Image Generator"
 msgstr ""
 
-#: admin/views/account/index.php:234
+#: admin/views/account/index.php:517
+msgid "Chat Token Breakdown"
+msgstr ""
+
+#: admin/views/account/index.php:521
+msgid "Bot"
+msgstr ""
+
+#: admin/views/account/index.php:522
+#: admin/views/account/usermanagement.php:702
+msgid "Allocated"
+msgstr ""
+
+#: admin/views/account/index.php:523
+#: admin/views/account/usermanagement.php:339
+#: admin/views/account/usermanagement.php:703
+msgid "Used"
+msgstr ""
+
+#: admin/views/account/index.php:524
+msgid "Remain"
+msgstr ""
+
+#: admin/views/account/index.php:544
 msgid "Token Usage"
 msgstr ""
 
-#: admin/views/account/index.php:248
+#: admin/views/account/index.php:549
+#: admin/views/account/usermanagement.php:1216
 msgid "Module"
 msgstr ""
 
-#: admin/views/account/index.php:249
+#: admin/views/account/index.php:550
 msgid "Token/Price"
 msgstr ""
 
-#: admin/views/account/index.php:262
+#: admin/views/account/index.php:559
+#: admin/views/account/usermanagement.php:701
 #: admin/views/settings/dashboard.php:103
 msgid "Chatbot"
+msgstr ""
+
+#: admin/views/account/index.php:596
+msgid "No usage data found."
 msgstr ""
 
 #: admin/views/account/metabox.php:7
@@ -3195,6 +3245,85 @@ msgstr ""
 
 #: admin/views/account/metabox.php:41
 msgid "Token Amount"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:315
+msgid "User Management"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:316
+msgid "You can modify purchased credits by clicking on the number."
+msgstr ""
+
+#: admin/views/account/usermanagement.php:317
+msgid "Click on the Free token badge to see a breakdown by each chatbot."
+msgstr ""
+
+#: admin/views/account/usermanagement.php:322
+msgid "The token logs table does not exist. Please deactivate and then reactivate the plugin to trigger the table creation."
+msgstr ""
+
+#: admin/views/account/usermanagement.php:331
+msgid "Free"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:335
+msgid "Purchased"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:343
+#: admin/views/account/usermanagement.php:704
+msgid "Remaining"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:352
+msgid "Search users..."
+msgstr ""
+
+#: admin/views/account/usermanagement.php:579
+msgid "Username"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:580
+#: admin/views/settings/chatbots.php:863
+#: admin/views/settings/chatbots.php:869
+#: lib/views/builder/custom_post_type.php:40
+msgid "Email"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:581
+msgid "Role(s)"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:582
+msgid "Chat"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:586
+#: classes/wpaicg_dashboard.php:2394
+#: classes/wpaicg_logs.php:270
+#: lib/modules/wpaicg_user_pdfs.php:120
+msgid "Actions"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:808
+msgid "View Usage"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:812
+msgid "No usage"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:861
+msgid "Usage Logs for"
+msgstr ""
+
+#: admin/views/account/usermanagement.php:868
+msgid "Below are the token usage records grouped by module. Paginate to view more."
+msgstr ""
+
+#: admin/views/account/usermanagement.php:1216
+msgid "Tokens/Price"
 msgstr ""
 
 #: admin/views/audio/converter.php:84
@@ -5481,12 +5610,6 @@ msgstr ""
 msgid "Configuration"
 msgstr ""
 
-#: admin/views/settings/chatbots.php:863
-#: admin/views/settings/chatbots.php:869
-#: lib/views/builder/custom_post_type.php:40
-msgid "Email"
-msgstr ""
-
 #: admin/views/settings/chatbots.php:880
 #: admin/views/settings/chatbots.php:886
 msgid "Phone"
@@ -6525,18 +6648,18 @@ msgstr ""
 msgid "Please choose least one field"
 msgstr ""
 
-#: classes/wpaicg_account.php:36
+#: classes/wpaicg_account.php:41
 msgid "My AI Account"
 msgstr ""
 
-#: classes/wpaicg_account.php:120
+#: classes/wpaicg_account.php:125
 msgid "AI Power Token Sale"
 msgstr ""
 
-#: classes/wpaicg_account.php:143
-#: classes/wpaicg_account.php:144
-#: classes/wpaicg_account.php:153
-#: classes/wpaicg_account.php:154
+#: classes/wpaicg_account.php:148
+#: classes/wpaicg_account.php:149
+#: classes/wpaicg_account.php:158
+#: classes/wpaicg_account.php:159
 msgid "User Credits"
 msgstr ""
 
@@ -7056,12 +7179,6 @@ msgstr ""
 
 #: classes/wpaicg_dashboard.php:2254
 msgid "Invalid request parameters."
-msgstr ""
-
-#: classes/wpaicg_dashboard.php:2394
-#: classes/wpaicg_logs.php:270
-#: lib/modules/wpaicg_user_pdfs.php:120
-msgid "Actions"
 msgstr ""
 
 #: classes/wpaicg_dashboard.php:2408

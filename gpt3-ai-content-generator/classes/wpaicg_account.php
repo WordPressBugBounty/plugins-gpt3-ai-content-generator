@@ -1,6 +1,8 @@
 <?php
 namespace WPAICG;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
+
 if(!class_exists('\\WPAICG\\WPAICG_Account')) {
     class WPAICG_Account
     {
@@ -26,6 +28,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Account')) {
             add_action('save_post_product',[$this,'wpaicg_save_product'],10,3);
             add_action('woocommerce_order_status_changed',[$this,'wpaicg_order_completed'],10,3);
             add_shortcode('wpaicg_my_account',[$this,'my_account']);
+
+            // New AJAX handler for editing purchased tokens via user management page
+            add_action('wp_ajax_wpaicg_update_purchased_tokens', [$this, 'wpaicg_update_purchased_tokens']);
         }
 
         public function wpaicg_init()
@@ -168,17 +173,206 @@ if(!class_exists('\\WPAICG\\WPAICG_Account')) {
 
         public function my_account()
         {
-            if(is_user_logged_in()){
+            if ( ! is_user_logged_in() ) {
+                ?>
+                <script>window.location.href='<?php echo esc_url(site_url()); ?>';</script>
+                <?php
+                return;
+            }
+
+            // If user is admin or has manage_options
+            if ( current_user_can('manage_options') ) {
+                // Load user management page
+                ob_start();
+                include WPAICG_PLUGIN_DIR . 'admin/views/account/usermanagement.php';
+                $content = ob_get_clean();
+                return $content;
+            } else {
+                // Normal user page
                 ob_start();
                 include WPAICG_PLUGIN_DIR . 'admin/views/account/index.php';
-                $myaccount = ob_get_clean();
-                return $myaccount;
+                $content = ob_get_clean();
+                return $content;
             }
-            else{
-                ?>
-                <script>window.location.href='<?php echo esc_url(site_url())?>';</script>
-                <?php
+        }
+
+        /**
+         * AJAX handler to update a user's purchased tokens for a given module.
+         */
+        public function wpaicg_update_purchased_tokens() 
+        {
+            check_ajax_referer('wpaicg_update_purchased_tokens', 'nonce');
+
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(['message' => 'You do not have sufficient permissions.']);
             }
+
+            $user_id         = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+            $module          = isset($_POST['module']) ? sanitize_text_field($_POST['module']) : '';
+            $purchased_tokens= isset($_POST['purchased_tokens']) ? floatval($_POST['purchased_tokens']) : 0.0;
+
+            if (!$user_id || empty($module)) {
+                wp_send_json_error(['message' => 'Invalid input.']);
+            }
+
+            // Update user meta
+            $meta_key = 'wpaicg_' . $module . '_tokens';
+            update_user_meta($user_id, $meta_key, $purchased_tokens);
+
+            // Recalculate
+            $free   = $this->calculate_free_tokens_for_user($user_id, $module);
+            $used   = $this->calculate_usage_for_module($user_id, $module);
+            $remain = max(0, $free + $purchased_tokens - $used);
+
+            wp_send_json_success([
+                'message' => 'Purchased tokens updated successfully.',
+                'remain'  => $remain
+            ]);
+        }
+
+        /**
+         * Internal helper to replicate 'free tokens' logic from usermanagement.
+         * Summation logic for user-limited, role-limited, etc.
+         */
+        private function calculate_free_tokens_for_user($user_id, $module) 
+        {
+            // Retrieve user roles
+            $user_info  = get_userdata($user_id);
+            $user_roles = $user_info ? (array) $user_info->roles : [];
+
+            // Sum up role-based limit if needed
+            $find_role_limit = function($role_limited_array, $roles){
+                $sum = 0;
+                if(is_array($role_limited_array)){
+                    foreach ($roles as $r) {
+                        if(isset($role_limited_array[$r]) && $role_limited_array[$r] > 0) {
+                            $sum += (float) $role_limited_array[$r];
+                        }
+                    }
+                }
+                return $sum;
+            };
+
+            $total_free = 0.0;
+
+            // Chat
+            if($module === 'chat'){
+                // 1) widget
+                $widget_options = get_option('wpaicg_chat_widget', []);
+                if($widget_options){
+                    $temp = 0;
+                    if(!empty($widget_options['user_limited']) && !empty($widget_options['user_tokens'])){
+                        $temp = (float) $widget_options['user_tokens'];
+                    }
+                    if(!empty($widget_options['role_limited']) && !empty($widget_options['limited_roles'])){
+                        $temp += $find_role_limit($widget_options['limited_roles'], $user_roles);
+                    }
+                    $total_free += $temp;
+                }
+                // 2) shortcode
+                $shortcode_options = get_option('wpaicg_chat_shortcode_options', []);
+                if($shortcode_options){
+                    $temp = 0;
+                    if(!empty($shortcode_options['user_limited']) && !empty($shortcode_options['user_tokens'])){
+                        $temp = (float) $shortcode_options['user_tokens'];
+                    }
+                    if(!empty($shortcode_options['role_limited']) && !empty($shortcode_options['limited_roles'])){
+                        $temp += $find_role_limit($shortcode_options['limited_roles'], $user_roles);
+                    }
+                    $total_free += $temp;
+                }
+                // 3) custom chatbots
+                $bots = new \WP_Query([
+                    'post_type' => 'wpaicg_chatbot',
+                    'posts_per_page' => -1
+                ]);
+                if($bots->have_posts()){
+                    while($bots->have_posts()){
+                        $bots->the_post();
+                        $bot_id = get_the_ID();
+                        $raw_content = get_post_field('post_content', $bot_id);
+                        if(!$raw_content) {
+                            continue;
+                        }
+                        $bot_settings = json_decode($raw_content, true);
+                        if(!is_array($bot_settings)) {
+                            continue;
+                        }
+                        $temp = 0;
+                        if(!empty($bot_settings['user_limited']) && !empty($bot_settings['user_tokens'])){
+                            $temp = (float) $bot_settings['user_tokens'];
+                        }
+                        if(!empty($bot_settings['role_limited']) && !empty($bot_settings['limited_roles'])){
+                            $temp += $find_role_limit($bot_settings['limited_roles'], $user_roles);
+                        }
+                        $total_free += $temp;
+                    }
+                    wp_reset_postdata();
+                }
+                return $total_free;
+            }
+
+            // forms
+            if($module === 'forms'){
+                $limit_settings = get_option('wpaicg_limit_tokens_form', []);
+                $temp = 0;
+                if(!empty($limit_settings['user_limited']) && !empty($limit_settings['user_tokens'])){
+                    $temp = (float) $limit_settings['user_tokens'];
+                }
+                if(!empty($limit_settings['role_limited']) && !empty($limit_settings['limited_roles'])){
+                    $temp += $find_role_limit($limit_settings['limited_roles'], $user_roles);
+                }
+                return $temp;
+            }
+
+            // promptbase
+            if($module === 'promptbase'){
+                $limit_settings = get_option('wpaicg_limit_tokens_promptbase', []);
+                $temp = 0;
+                if(!empty($limit_settings['user_limited']) && !empty($limit_settings['user_tokens'])){
+                    $temp = (float) $limit_settings['user_tokens'];
+                }
+                if(!empty($limit_settings['role_limited']) && !empty($limit_settings['limited_roles'])){
+                    $temp += $find_role_limit($limit_settings['limited_roles'], $user_roles);
+                }
+                return $temp;
+            }
+
+            // image
+            if($module === 'image'){
+                $limit_settings = get_option('wpaicg_limit_tokens_image', []);
+                $temp = 0;
+                if(!empty($limit_settings['user_limited']) && !empty($limit_settings['user_tokens'])){
+                    $temp = (float) $limit_settings['user_tokens'];
+                }
+                if(!empty($limit_settings['role_limited']) && !empty($limit_settings['limited_roles'])){
+                    $temp += $find_role_limit($limit_settings['limited_roles'], $user_roles);
+                }
+                return $temp;
+            }
+
+            // default
+            return 0.0;
+        }
+
+        /**
+         * Internal helper to replicate usage logs logic.
+         */
+        private function calculate_usage_for_module($user_id, $module)
+        {
+            global $wpdb;
+            $tbl = $wpdb->prefix . 'wpaicg_token_logs';
+            $sum = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT SUM(tokens) FROM $tbl WHERE user_id=%d AND module=%s",
+                    $user_id,
+                    $module
+                )
+            );
+            if(!$sum){
+                $sum = 0;
+            }
+            return (float) $sum;
         }
     }
     WPAICG_Account::get_instance();
