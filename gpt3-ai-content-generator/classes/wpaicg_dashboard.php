@@ -419,7 +419,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 
                 // get the model from wpaicg_chat_model and add it to bot_data
                 if ($bot_data['provider'] === 'OpenAI') {
-                    $bot_data['model'] = get_option('wpaicg_chat_model', 'gpt-3.5-turbo');
+                    $bot_data['model'] = get_option('wpaicg_chat_model', 'gpt-4o-mini');
                 } elseif ($bot_data['provider'] === 'Google') {
                     $bot_data['model'] = get_option('wpaicg_widget_google_model');
                 } elseif ($bot_data['provider'] === 'OpenRouter') {
@@ -1245,7 +1245,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     "icon" => "default",
                     "delay_time" => "",
                     "provider" => "OpenAI",
-                    "model" => "gpt-3.5-turbo",
+                    "model" => "gpt-4o-mini",
                     'openai_stream_nav' => '1',
                     "chat_addition" => "1",
                     "chat_addition_text" => "You are a helpful AI Assistant. Please be friendly. Today's date is [date].",

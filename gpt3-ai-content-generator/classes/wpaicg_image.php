@@ -591,7 +591,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Image')) {
                         );
 
                         try {
-                            $wpaicg_response = wp_safe_remote_post('https://api.replicate.com/v1/predictions', array(
+                            $wpaicg_response = wp_remote_post('https://api.replicate.com/v1/predictions', array(
                                 'headers' => $headers,
                                 'body' => json_encode($body)
                             ));

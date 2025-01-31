@@ -3235,7 +3235,7 @@ echo admin_url( 'admin-ajax.php' );
                 data: {
                     action: 'wpaicg_save_draft_post_extra',
                     title: title,
-                    model: 'gpt-3.5-turbo',
+                    model: 'gpt-4o-mini',
                     content: content,
                     duration: duration,
                     usage_token: tokens,

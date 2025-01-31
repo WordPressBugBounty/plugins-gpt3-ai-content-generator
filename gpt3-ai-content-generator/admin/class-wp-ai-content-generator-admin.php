@@ -84,6 +84,16 @@ class Wp_Ai_Content_Generator_Admin
                 );
             }
 
+            if (isset($_GET['page']) && ($_GET['page'] == 'wpaicg_forms')) {
+                wp_enqueue_style(
+                    'clean-formfull',
+                    plugin_dir_url(__FILE__) . 'css/aiforms.css',
+                    array(),
+                    $this->version,
+                    'all'
+                );
+            }
+
             //or wpaicg_single_content_beta or wpaicg_bulk_content or wpaicg_embeddings
             if (isset($_GET['page']) && $_GET['page'] == 'wpaicg_chatgpt' || isset($_GET['page']) && $_GET['page'] == 'wpaicg' || isset($_GET['page']) && $_GET['page'] == 'wpaicg_single_content' || isset($_GET['page']) && $_GET['page'] == 'wpaicg_bulk_content' || isset($_GET['page']) && $_GET['page'] == 'wpaicg_embeddings') {
                 wp_enqueue_style(
@@ -149,7 +159,6 @@ class Wp_Ai_Content_Generator_Admin
             if (isset($_GET['page']) && $_GET['page'] == 'wpaicg') {
                 wp_enqueue_script(
                     'wpaicg-chatbot',
-                    // admin/js/chatbot.js
                     plugin_dir_url(__FILE__) . 'js/chatbot.js',
                     array( 'jquery' ),
                     $this->version,
@@ -159,6 +168,7 @@ class Wp_Ai_Content_Generator_Admin
             if (isset($_GET['page']) && ($_GET['page'] == 'wpaicg' || $_GET['page'] == 'wpaicg_forms')) {
                 // Enqueue the marked.js script for both 'wpaicg' and 'wpaicg_forms' pages
                 wp_enqueue_script('wpaicg-markedjs', WPAICG_PLUGIN_URL . 'public/js/marked.js', array(), null, false);
+                wp_enqueue_script('wpaicg-formshortcode', WPAICG_PLUGIN_URL . 'public/js/wpaicg-form-shortcode.js', array(), null, false);
             }
             
         }

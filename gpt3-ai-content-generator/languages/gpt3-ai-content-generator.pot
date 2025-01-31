@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 1.8.99\n"
+"Project-Id-Version: AI Power: Complete AI Pack 1.9.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-01-23T14:20:53+00:00\n"
+"POT-Creation-Date: 2025-01-31T12:58:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -34,6 +34,360 @@ msgstr ""
 msgid "https://aipower.org"
 msgstr ""
 
+#: admin/extra/wpaicg_aiform_logs.php:7
+#: admin/extra/wpaicg_forms.php:192
+#: admin/extra/wpaicg_image_generator.php:343
+#: admin/extra/wpaicg_promptbase.php:28
+#: admin/extra/wpaicg_single.php:111
+#: admin/extra/wpaicg_single.php:430
+#: admin/views/audio/index.php:42
+#: admin/views/settings/chatbot.php:18
+msgid "Logs"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:13
+msgid "Search logs..."
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:21
+#: admin/extra/wpaicg_form_log.php:73
+#: admin/extra/wpaicg_image_generator_log.php:44
+#: admin/extra/wpaicg_promptbase_log.php:72
+#: admin/views/settings/chatlogs.php:36
+#: lib/views/chat/pdfs.php:29
+msgid "Delete All"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:29
+#: admin/extra/wpaicg_bulk_queue.php:158
+#: admin/extra/wpaicg_forms_js_create.php:516
+#: admin/extra/wpaicg_forms_js_edit.php:707
+#: admin/extra/wpaicg_form_index.php:380
+#: admin/views/audio/logs.php:54
+#: admin/views/embeddings/entries.php:74
+#: admin/views/finetune/events.php:17
+#: admin/views/finetune/files.php:77
+#: admin/views/finetune/fine-tunes.php:49
+#: lib/modules/wpaicg_user_pdfs.php:117
+#: lib/views/builder/custom_post_type.php:25
+msgid "ID"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:30
+#: admin/extra/wpaicg_single.php:1089
+#: admin/views/settings/chatbots.php:846
+#: admin/views/settings/chatbots.php:852
+#: classes/wpaicg_dashboard.php:2391
+msgid "Name"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:31
+#: admin/extra/wpaicg_forms_create.php:131
+#: admin/extra/wpaicg_forms_edit.php:128
+#: admin/extra/wpaicg_image_generator.php:512
+#: admin/extra/wpaicg_single.php:452
+#: admin/extra/wpaicg_single.php:1130
+#: admin/views/audio/converter.php:115
+#: admin/views/embeddings/index.php:381
+#: admin/views/settings/ai.php:113
+#: admin/views/settings/ai.php:163
+#: admin/views/settings/ai.php:222
+#: admin/views/settings/chatlogs.php:179
+#: admin/views/settings/image_settings.php:432
+#: classes/wpaicg_dashboard.php:2393
+#: lib/views/chat/embeddings.php:59
+msgid "Model"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:32
+#: admin/extra/wpaicg_image_generator_log.php:56
+#: admin/views/audio/logs.php:58
+msgid "Duration"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:33
+msgid "Tokens"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:34
+#: admin/extra/wpaicg_aiform_logs.php:59
+#: admin/extra/wpaicg_form_index.php:687
+#: admin/extra/wpaicg_form_log.php:238
+#: admin/extra/wpaicg_promptbase_index.php:599
+#: admin/extra/wpaicg_promptbase_log.php:234
+msgid "Response"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:35
+#: admin/extra/wpaicg_chatbox.php:99
+#: admin/extra/wpaicg_chatbox.php:155
+#: admin/extra/wpaicg_chatbox_widget.php:104
+#: admin/extra/wpaicg_form_index.php:749
+#: admin/extra/wpaicg_form_log.php:255
+#: admin/extra/wpaicg_promptbase_index.php:661
+#: admin/extra/wpaicg_promptbase_log.php:251
+#: admin/views/settings/chat-general-settings.php:227
+#: classes/wpaicg_logs.php:362
+msgid "Feedback"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:36
+#: admin/extra/wpaicg_form_log.php:258
+#: admin/extra/wpaicg_promptbase_log.php:254
+msgid "Comment"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:37
+#: admin/extra/wpaicg_single.php:449
+#: admin/views/audio/logs.php:57
+#: admin/views/embeddings/entries.php:78
+#: lib/views/builder/custom_post_type.php:29
+#: lib/views/chat/embeddings.php:61
+msgid "Date"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:43
+#: admin/extra/wpaicg_forms_js.php:834
+#: admin/extra/wpaicg_forms_js_logs.php:17
+msgid "Loading..."
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_logs.php:56
+#: admin/extra/wpaicg_forms_create.php:177
+#: admin/extra/wpaicg_forms_edit.php:167
+#: admin/extra/wpaicg_form_index.php:459
+#: admin/extra/wpaicg_form_log.php:236
+#: admin/extra/wpaicg_image_generator.php:370
+#: admin/extra/wpaicg_image_generator_log.php:51
+#: admin/extra/wpaicg_promptbase_index.php:377
+#: admin/extra/wpaicg_promptbase_index.php:897
+#: admin/extra/wpaicg_promptbase_log.php:232
+#: admin/extra/wpaicg_prompt_shortcode.php:443
+#: admin/views/finetune/manual.php:150
+#: admin/views/finetune/manual.php:156
+#: admin/views/finetune/manual.php:288
+#: lib/views/twitter/index.php:76
+#: lib/views/twitter/index.php:117
+msgid "Prompt"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:18
+#: admin/extra/wpaicg_form_settings.php:7
+#: classes/wpaicg_dashboard.php:52
+#: classes/wpaicg_dashboard.php:179
+#: classes/wpaicg_dashboard.php:308
+#: classes/wpaicg_dashboard.php:350
+#: classes/wpaicg_dashboard.php:579
+#: classes/wpaicg_dashboard.php:2088
+#: classes/wpaicg_dashboard.php:3314
+#: classes/wpaicg_embeddings.php:52
+#: classes/wpaicg_forms.php:94
+#: classes/wpaicg_logs.php:45
+#: classes/wpaicg_logs.php:754
+#: classes/wpaicg_logs.php:998
+msgid "Nonce verification failed."
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:50
+#: admin/extra/wpaicg_form_settings.php:23
+#: admin/extra/wpaicg_image_generator_settings.php:45
+#: admin/extra/wpaicg_promptbase_settings.php:19
+#: classes/wpaicg_dashboard.php:2733
+#: classes/wpaicg_dashboard.php:2737
+#: classes/wpaicg_forms.php:119
+msgid "Settings updated successfully."
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:54
+#: admin/extra/wpaicg_form_settings.php:26
+#: admin/extra/wpaicg_promptbase_settings.php:24
+#: admin/views/settings/chatbots.php:97
+msgid "Token Management"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:60
+#: admin/extra/wpaicg_form_settings.php:31
+#: admin/extra/wpaicg_image_generator_settings.php:56
+#: admin/extra/wpaicg_promptbase_settings.php:31
+msgid "Limit Registered User"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:77
+#: admin/extra/wpaicg_aiform_settings.php:147
+#: admin/extra/wpaicg_form_settings.php:37
+#: admin/extra/wpaicg_form_settings.php:61
+#: admin/extra/wpaicg_promptbase_settings.php:37
+#: admin/extra/wpaicg_promptbase_settings.php:61
+msgid "Token Allocation"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:93
+#: admin/extra/wpaicg_aiform_settings.php:163
+#: admin/extra/wpaicg_form_settings.php:42
+#: admin/extra/wpaicg_form_settings.php:66
+#: admin/extra/wpaicg_promptbase_settings.php:42
+#: admin/extra/wpaicg_promptbase_settings.php:66
+msgid "Leave empty for unlimited tokens. Specify a number for a set limit."
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:99
+#: admin/extra/wpaicg_form_settings.php:45
+#: admin/extra/wpaicg_promptbase_settings.php:45
+msgid "Token Allocation by Role"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:123
+#: admin/extra/wpaicg_form_settings.php:53
+#: admin/extra/wpaicg_image_generator_settings.php:78
+#: admin/extra/wpaicg_promptbase_settings.php:53
+msgid "Configure Role Limits"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:130
+#: admin/extra/wpaicg_form_settings.php:57
+#: admin/extra/wpaicg_image_generator_settings.php:82
+#: admin/extra/wpaicg_promptbase_settings.php:57
+msgid "Limit Non-Registered User"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:169
+#: admin/extra/wpaicg_form_settings.php:69
+#: admin/extra/wpaicg_image_generator_settings.php:94
+#: admin/extra/wpaicg_promptbase_settings.php:69
+#: admin/views/settings/chatbots.php:560
+#: admin/views/settings/chatbots.php:592
+msgid "Notification Message"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:180
+#: admin/extra/wpaicg_form_settings.php:75
+#: admin/extra/wpaicg_promptbase_settings.php:75
+msgid "Token Reset Interval"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:184
+#: admin/extra/wpaicg_form_settings.php:79
+#: admin/extra/wpaicg_image_generator_settings.php:102
+#: admin/extra/wpaicg_promptbase_settings.php:79
+#: admin/views/settings/chat-token-settings.php:62
+msgid "Never"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:185
+#: admin/extra/wpaicg_form_settings.php:80
+#: admin/extra/wpaicg_image_generator_settings.php:103
+#: admin/extra/wpaicg_promptbase_settings.php:80
+#: admin/views/settings/chat-token-settings.php:63
+msgid "1 Day"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:186
+#: admin/extra/wpaicg_form_settings.php:81
+#: admin/extra/wpaicg_image_generator_settings.php:104
+#: admin/extra/wpaicg_promptbase_settings.php:81
+#: admin/views/settings/chat-token-settings.php:64
+msgid "3 Days"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:187
+#: admin/extra/wpaicg_form_settings.php:82
+#: admin/extra/wpaicg_image_generator_settings.php:105
+#: admin/extra/wpaicg_promptbase_settings.php:82
+#: admin/views/settings/chat-token-settings.php:65
+msgid "1 Week"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:188
+#: admin/extra/wpaicg_form_settings.php:83
+#: admin/extra/wpaicg_image_generator_settings.php:106
+#: admin/extra/wpaicg_promptbase_settings.php:83
+#: admin/views/settings/chat-token-settings.php:66
+msgid "2 Weeks"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:189
+#: admin/extra/wpaicg_form_settings.php:84
+#: admin/extra/wpaicg_image_generator_settings.php:107
+#: admin/extra/wpaicg_promptbase_settings.php:84
+#: admin/views/settings/chat-token-settings.php:67
+msgid "1 Month"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:190
+#: admin/extra/wpaicg_form_settings.php:85
+#: admin/extra/wpaicg_image_generator_settings.php:108
+#: admin/extra/wpaicg_promptbase_settings.php:85
+#: admin/views/settings/chat-token-settings.php:68
+msgid "2 Months"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:191
+#: admin/extra/wpaicg_form_settings.php:86
+#: admin/extra/wpaicg_image_generator_settings.php:109
+#: admin/extra/wpaicg_promptbase_settings.php:86
+#: admin/views/settings/chat-token-settings.php:69
+msgid "3 Months"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:192
+#: admin/extra/wpaicg_form_settings.php:87
+#: admin/extra/wpaicg_image_generator_settings.php:110
+#: admin/extra/wpaicg_promptbase_settings.php:87
+#: admin/views/settings/chat-token-settings.php:70
+msgid "6 Months"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:210
+#: admin/extra/wpaicg_form_settings.php:102
+#: admin/extra/wpaicg_image_generator_settings.php:124
+#: admin/extra/wpaicg_promptbase_settings.php:102
+msgid "Enable Token Purchasing"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:230
+#: admin/extra/wpaicg_aiform_settings.php:284
+#: admin/extra/wpaicg_bulk_setting.php:212
+#: admin/extra/wpaicg_forms.php:278
+#: admin/extra/wpaicg_forms_create.php:550
+#: admin/extra/wpaicg_forms_edit.php:516
+#: admin/extra/wpaicg_form_index.php:793
+#: admin/extra/wpaicg_form_settings.php:107
+#: admin/extra/wpaicg_form_settings.php:133
+#: admin/extra/wpaicg_image_generator_settings.php:172
+#: admin/extra/wpaicg_image_generator_settings.php:198
+#: admin/extra/wpaicg_promptbase_index.php:705
+#: admin/extra/wpaicg_promptbase_settings.php:107
+#: admin/extra/wpaicg_promptbase_settings.php:133
+#: admin/extra/wpaicg_single.php:1277
+#: admin/views/embeddings/manual.php:14
+#: admin/views/embeddings/settings.php:193
+#: admin/views/embeddings/settings.php:290
+#: admin/views/finetune/manual.php:189
+#: admin/views/roles/index.php:186
+#: admin/views/woocommerce/wpaicg-meta-box.php:91
+#: classes/wpaicg_hook.php:56
+#: classes/wpaicg_hook.php:125
+#: lib/views/builder/custom_post_type.php:177
+#: lib/views/google-sheets/fields.php:74
+#: lib/views/google-sheets/setting.php:35
+#: lib/views/rss/wpaicg_rss.php:76
+#: lib/views/twitter/index.php:134
+msgid "Save"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:277
+#: admin/extra/wpaicg_form_settings.php:131
+#: admin/extra/wpaicg_promptbase_settings.php:131
+msgid "Leave empty for unlimited tokens"
+msgstr ""
+
+#: admin/extra/wpaicg_aiform_settings.php:286
+#: admin/extra/wpaicg_form_settings.php:134
+#: admin/extra/wpaicg_image_generator_settings.php:199
+#: admin/extra/wpaicg_promptbase_settings.php:134
+msgid "Role Limits"
+msgstr ""
+
 #: admin/extra/wpaicg_bulk.php:32
 #: admin/extra/wpaicg_bulk.php:65
 msgid "AutoGPT"
@@ -47,9 +401,11 @@ msgstr ""
 
 #: admin/extra/wpaicg_bulk.php:51
 #: admin/extra/wpaicg_bulk.php:327
-#: admin/extra/wpaicg_forms.php:29
+#: admin/extra/wpaicg_forms.php:181
+#: admin/extra/wpaicg_forms_create.php:46
+#: admin/extra/wpaicg_forms_edit.php:46
 #: admin/extra/wpaicg_form_index.php:1024
-#: admin/extra/wpaicg_form_shortcode.php:651
+#: admin/extra/wpaicg_form_shortcode.php:857
 #: admin/extra/wpaicg_image_generator.php:344
 #: admin/extra/wpaicg_image_generator.php:404
 #: admin/extra/wpaicg_promptbase.php:29
@@ -137,7 +493,7 @@ msgstr ""
 #: admin/views/settings/chatbots.php:839
 #: admin/views/settings/content_settings.php:257
 #: classes/wpaicg_hook.php:52
-#: classes/wpaicg_hook.php:119
+#: classes/wpaicg_hook.php:121
 #: lib/modules/wpaicg_user_pdfs.php:118
 #: lib/views/builder/custom_post_type.php:26
 msgid "Title"
@@ -146,6 +502,9 @@ msgstr ""
 #: admin/extra/wpaicg_bulk.php:95
 #: admin/extra/wpaicg_bulk.php:176
 #: admin/extra/wpaicg_bulk.php:222
+#: admin/extra/wpaicg_forms_create.php:530
+#: admin/extra/wpaicg_forms_edit.php:496
+#: admin/extra/wpaicg_forms_list.php:42
 #: admin/extra/wpaicg_form_index.php:444
 #: admin/extra/wpaicg_form_index.php:827
 #: admin/extra/wpaicg_promptbase_index.php:362
@@ -158,6 +517,7 @@ msgstr ""
 #: admin/extra/wpaicg_bulk.php:96
 #: admin/extra/wpaicg_bulk.php:187
 #: admin/extra/wpaicg_bulk.php:233
+#: admin/extra/wpaicg_forms_list.php:14
 #: admin/extra/wpaicg_form_index.php:815
 #: admin/extra/wpaicg_promptbase_index.php:727
 #: admin/views/audio/converter.php:165
@@ -218,7 +578,7 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:760
 #: admin/extra/wpaicg_form_index.php:944
 #: admin/extra/wpaicg_form_index.php:1004
-#: admin/extra/wpaicg_form_shortcode.php:89
+#: admin/extra/wpaicg_form_shortcode.php:112
 #: admin/extra/wpaicg_image_generator.php:248
 #: admin/extra/wpaicg_image_generator_settings.php:137
 #: admin/extra/wpaicg_promptbase_index.php:672
@@ -280,6 +640,7 @@ msgid "Publish"
 msgstr ""
 
 #: admin/extra/wpaicg_bulk.php:210
+#: admin/extra/wpaicg_forms.php:215
 #: admin/extra/wpaicg_form_index.php:810
 #: admin/extra/wpaicg_promptbase_index.php:722
 #: admin/views/settings/chatbots.php:66
@@ -351,10 +712,10 @@ msgstr ""
 #: classes/wpaicg_finetune.php:916
 #: classes/wpaicg_finetune.php:1051
 #: classes/wpaicg_finetune.php:1191
-#: classes/wpaicg_forms.php:494
+#: classes/wpaicg_forms.php:837
 #: classes/wpaicg_generator.php:1697
 #: classes/wpaicg_hook.php:42
-#: classes/wpaicg_hook.php:109
+#: classes/wpaicg_hook.php:111
 #: classes/wpaicg_image.php:41
 #: classes/wpaicg_image.php:389
 #: classes/wpaicg_image.php:523
@@ -400,18 +761,6 @@ msgstr ""
 msgid "Cron"
 msgstr ""
 
-#: admin/extra/wpaicg_bulk_queue.php:158
-#: admin/extra/wpaicg_form_index.php:380
-#: admin/views/audio/logs.php:54
-#: admin/views/embeddings/entries.php:74
-#: admin/views/finetune/events.php:17
-#: admin/views/finetune/files.php:77
-#: admin/views/finetune/fine-tunes.php:49
-#: lib/modules/wpaicg_user_pdfs.php:117
-#: lib/views/builder/custom_post_type.php:25
-msgid "ID"
-msgstr ""
-
 #: admin/extra/wpaicg_bulk_queue.php:159
 msgid "Batch"
 msgstr ""
@@ -447,7 +796,7 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:772
 #: admin/extra/wpaicg_form_index.php:949
 #: admin/extra/wpaicg_form_index.php:1015
-#: admin/extra/wpaicg_form_shortcode.php:96
+#: admin/extra/wpaicg_form_shortcode.php:119
 #: admin/extra/wpaicg_promptbase_index.php:684
 #: admin/extra/wpaicg_promptbase_index.php:853
 #: admin/extra/wpaicg_promptbase_index.php:919
@@ -545,11 +894,10 @@ msgstr ""
 #: classes/wpaicg_finetune.php:1199
 #: classes/wpaicg_finetune.php:1266
 #: classes/wpaicg_finetune.php:1385
-#: classes/wpaicg_forms.php:87
-#: classes/wpaicg_forms.php:248
-#: classes/wpaicg_forms.php:445
-#: classes/wpaicg_forms.php:463
-#: classes/wpaicg_forms.php:501
+#: classes/wpaicg_forms.php:462
+#: classes/wpaicg_forms.php:617
+#: classes/wpaicg_forms.php:642
+#: classes/wpaicg_forms.php:846
 #: classes/wpaicg_generator.php:174
 #: classes/wpaicg_google_speech.php:103
 #: classes/wpaicg_google_speech.php:141
@@ -569,7 +917,7 @@ msgstr ""
 #: classes/wpaicg_logs.php:914
 #: classes/wpaicg_openroutermethod.php:57
 #: classes/wpaicg_playground.php:212
-#: classes/wpaicg_playground.php:453
+#: classes/wpaicg_playground.php:459
 #: classes/wpaicg_promptbase.php:81
 #: classes/wpaicg_promptbase.php:237
 #: classes/wpaicg_promptbase.php:337
@@ -753,32 +1101,6 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: admin/extra/wpaicg_bulk_setting.php:212
-#: admin/extra/wpaicg_form_index.php:793
-#: admin/extra/wpaicg_form_settings.php:107
-#: admin/extra/wpaicg_form_settings.php:133
-#: admin/extra/wpaicg_image_generator_settings.php:172
-#: admin/extra/wpaicg_image_generator_settings.php:198
-#: admin/extra/wpaicg_promptbase_index.php:705
-#: admin/extra/wpaicg_promptbase_settings.php:107
-#: admin/extra/wpaicg_promptbase_settings.php:133
-#: admin/extra/wpaicg_single.php:1277
-#: admin/views/embeddings/manual.php:14
-#: admin/views/embeddings/settings.php:193
-#: admin/views/embeddings/settings.php:290
-#: admin/views/finetune/manual.php:189
-#: admin/views/roles/index.php:186
-#: admin/views/woocommerce/wpaicg-meta-box.php:91
-#: classes/wpaicg_hook.php:56
-#: classes/wpaicg_hook.php:123
-#: lib/views/builder/custom_post_type.php:177
-#: lib/views/google-sheets/fields.php:74
-#: lib/views/google-sheets/setting.php:35
-#: lib/views/rss/wpaicg_rss.php:76
-#: lib/views/twitter/index.php:134
-msgid "Save"
-msgstr ""
-
 #: admin/extra/wpaicg_bulk_setting.php:241
 msgid "Please remove restricted variables ([keywords_to_include], [keywords_to_avoid], [description]) – they are only available in Pro plan."
 msgstr ""
@@ -805,18 +1127,6 @@ msgstr ""
 msgid "Please note that your conversations will be recorded."
 msgstr ""
 
-#: admin/extra/wpaicg_chatbox.php:99
-#: admin/extra/wpaicg_chatbox.php:155
-#: admin/extra/wpaicg_chatbox_widget.php:104
-#: admin/extra/wpaicg_form_index.php:749
-#: admin/extra/wpaicg_form_log.php:255
-#: admin/extra/wpaicg_promptbase_index.php:661
-#: admin/extra/wpaicg_promptbase_log.php:251
-#: admin/views/settings/chat-general-settings.php:227
-#: classes/wpaicg_logs.php:362
-msgid "Feedback"
-msgstr ""
-
 #: admin/extra/wpaicg_chatbox.php:100
 #: admin/extra/wpaicg_chatbox.php:156
 #: admin/extra/wpaicg_chatbox_widget.php:105
@@ -833,7 +1143,20 @@ msgstr ""
 msgid "AI thinking"
 msgstr ""
 
-#: admin/extra/wpaicg_forms.php:27
+#: admin/extra/wpaicg_forms.php:62
+#: admin/views/settings/dashboard.php:85
+msgid "AI Power"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:87
+msgid "Untitled Form"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:129
+msgid "Unknown"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:176
 #: admin/views/account/index.php:484
 #: admin/views/account/index.php:557
 #: admin/views/account/metabox.php:27
@@ -841,25 +1164,697 @@ msgstr ""
 msgid "AI Forms"
 msgstr ""
 
-#: admin/extra/wpaicg_forms.php:28
-#: admin/extra/wpaicg_image_generator.php:343
-#: admin/extra/wpaicg_promptbase.php:28
-#: admin/extra/wpaicg_single.php:111
-#: admin/extra/wpaicg_single.php:430
-#: admin/views/audio/index.php:42
-#: admin/views/settings/chatbot.php:18
-msgid "Logs"
+#: admin/extra/wpaicg_forms.php:206
+msgid "Menu"
 msgstr ""
 
+#: admin/extra/wpaicg_forms.php:218
+#: admin/extra/wpaicg_form_index.php:809
+#: admin/extra/wpaicg_promptbase_index.php:721
+#: admin/views/settings/chatlogs.php:35
+#: classes/wpaicg_dashboard.php:2554
+msgid "Export"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:224
+#: admin/extra/wpaicg_forms.php:256
+#: admin/extra/wpaicg_form_index.php:811
+#: admin/extra/wpaicg_form_index.php:973
+#: admin/extra/wpaicg_promptbase_index.php:723
+#: admin/extra/wpaicg_promptbase_index.php:877
+#: admin/extra/wpaicg_single.php:1278
+#: admin/views/audio/logs.php:111
+#: classes/wpaicg_dashboard.php:2543
+#: classes/wpaicg_embeddings.php:233
+#: classes/wpaicg_finetune.php:1249
+#: classes/wpaicg_finetune.php:1368
+#: lib/views/chat/embeddings.php:140
+msgid "Delete"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:238
+#: admin/extra/wpaicg_forms.php:273
+#: admin/extra/wpaicg_forms_js.php:815
+#: admin/extra/wpaicg_forms_js.php:830
+#: admin/extra/wpaicg_forms_js.php:980
+#: admin/extra/wpaicg_forms_js_create.php:321
+#: admin/extra/wpaicg_forms_js_edit.php:658
+#: admin/extra/wpaicg_forms_js_logs.php:127
+#: admin/extra/wpaicg_forms_js_logs.php:145
+msgid "Back"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:244
+msgid "Create New Form"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:245
+#: admin/views/embeddings/settings.php:187
+msgid "Create New"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:249
+#: admin/extra/wpaicg_form_index.php:971
+#: admin/extra/wpaicg_promptbase_index.php:875
+#: classes/wpaicg_dashboard.php:2548
+msgid "Duplicate"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:252
+#: admin/extra/wpaicg_form_index.php:972
+#: admin/extra/wpaicg_promptbase_index.php:876
+msgid "Edit"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:261
+msgid "Save Form"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:264
+msgid "Save Changes"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:272
+msgid "Back to AI Forms"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:289
+#: admin/extra/wpaicg_forms_create.php:186
+#: admin/extra/wpaicg_forms_edit.php:177
+msgid "Copied!"
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:301
+msgid "Search forms..."
+msgstr ""
+
+#: admin/extra/wpaicg_forms.php:306
+msgid "Search Forms"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:33
+#: admin/extra/wpaicg_forms_edit.php:33
+msgid "Double-click (or click edit icon) to rename"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:35
+#: admin/extra/wpaicg_forms_js_create.php:334
+msgid "Form Name"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:41
+#: admin/extra/wpaicg_forms_edit.php:41
+msgid "Rename Form"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:53
+#: admin/extra/wpaicg_forms_edit.php:53
+msgid "Form Elements"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:54
+msgid "Drag an element here to add to your new form."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:56
+#: admin/extra/wpaicg_forms_edit.php:56
+#: admin/extra/wpaicg_form_index.php:387
+msgid "Single Line Text"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:57
+#: admin/extra/wpaicg_forms_edit.php:57
+#: admin/extra/wpaicg_form_index.php:392
+msgid "Multi-line Text"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:58
+#: admin/extra/wpaicg_forms_edit.php:58
+#: admin/views/account/usermanagement.php:580
+#: admin/views/settings/chatbots.php:863
+#: admin/views/settings/chatbots.php:869
+#: lib/views/builder/custom_post_type.php:40
+msgid "Email"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:59
+#: admin/extra/wpaicg_forms_edit.php:59
+msgid "Number"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:60
+#: admin/extra/wpaicg_forms_edit.php:60
+msgid "Checkbox"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:61
+#: admin/extra/wpaicg_forms_edit.php:61
+msgid "Radio"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:62
+#: admin/extra/wpaicg_forms_edit.php:62
+msgid "Select"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:63
+#: admin/extra/wpaicg_forms_edit.php:63
+#: admin/views/audio/converter.php:97
+#: admin/views/settings/chat-common-settings.php:284
+msgid "URL"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:68
+msgid "New Form"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:70
+#: admin/extra/wpaicg_forms_edit.php:69
+msgid "Drop fields here"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:75
+#: admin/views/settings/ai.php:68
+msgid "AI Settings"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:171
+#: admin/extra/wpaicg_forms_edit.php:163
+msgid "Advanced Model Settings"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:176
+#: admin/extra/wpaicg_forms_edit.php:74
+msgid "Prompt Settings"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:181
+#: admin/extra/wpaicg_forms_edit.php:171
+msgid "Use {fieldID} placeholders in your prompt"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:190
+#: admin/extra/wpaicg_forms_edit.php:181
+msgid "Validate My Prompt"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:207
+#: admin/extra/wpaicg_forms_edit.php:197
+#: admin/views/settings/chatbots.php:92
+msgid "Interface"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:208
+#: admin/extra/wpaicg_forms_edit.php:198
+msgid "Customize the look and feel of the form."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:214
+#: admin/extra/wpaicg_forms_edit.php:203
+msgid "Output"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:217
+#: admin/extra/wpaicg_forms_edit.php:205
+#: admin/extra/wpaicg_form_index.php:692
+#: admin/extra/wpaicg_promptbase_index.php:605
+msgid "Inline"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:218
+#: admin/extra/wpaicg_forms_edit.php:206
+#: admin/extra/wpaicg_form_index.php:693
+#: admin/extra/wpaicg_promptbase_index.php:604
+msgid "Text Editor"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:224
+#: admin/extra/wpaicg_forms_edit.php:211
+#: admin/extra/wpaicg_form_index.php:675
+#: admin/extra/wpaicg_promptbase_index.php:587
+#: admin/views/settings/chat-general-settings.php:355
+msgid "Icon"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:231
+#: admin/extra/wpaicg_forms_js_create.php:174
+msgid "tag"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:237
+#: admin/extra/wpaicg_forms_edit.php:217
+#: admin/extra/wpaicg_form_index.php:666
+#: admin/extra/wpaicg_promptbase_index.php:578
+msgid "Icon Color"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:249
+#: admin/extra/wpaicg_forms_edit.php:221
+#: admin/views/settings/chat-style-settings.php:35
+#: admin/views/settings/chat-style-settings.php:81
+#: admin/views/settings/extra_tools.php:161
+#: admin/views/settings/extra_tools.php:197
+msgid "Background"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:264
+#: admin/extra/wpaicg_forms_edit.php:230
+msgid "Display Header"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:276
+#: admin/extra/wpaicg_forms_edit.php:242
+msgid "Allow Feedback"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:288
+#: admin/extra/wpaicg_forms_edit.php:254
+#: admin/extra/wpaicg_form_index.php:756
+#: admin/extra/wpaicg_promptbase_index.php:668
+msgid "Custom Text"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:289
+#: admin/extra/wpaicg_forms_edit.php:255
+msgid "Customize the text for various elements."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:338
+#: admin/extra/wpaicg_forms_edit.php:304
+#: admin/extra/wpaicg_form_index.php:759
+#: admin/extra/wpaicg_promptbase_index.php:671
+msgid "Generate Button"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:341
+#: admin/extra/wpaicg_forms_edit.php:307
+msgid "Stop Button"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:346
+#: admin/extra/wpaicg_forms_edit.php:311
+#: admin/views/settings/chat-style-settings.php:7
+msgid "Theme"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:347
+#: admin/extra/wpaicg_forms_edit.php:312
+msgid "Coming Soon!"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:361
+#: admin/extra/wpaicg_forms_edit.php:327
+msgid "Form Settings"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:365
+#: admin/extra/wpaicg_forms_edit.php:330
+#: admin/views/settings/ai.php:318
+msgid "AI Parameters"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:371
+#: admin/extra/wpaicg_forms_edit.php:336
+#: admin/extra/wpaicg_form_index.php:546
+#: admin/extra/wpaicg_form_index.php:1100
+#: admin/extra/wpaicg_promptbase_index.php:464
+#: admin/extra/wpaicg_promptbase_index.php:1003
+msgid "Max Tokens"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:375
+#: admin/extra/wpaicg_forms_edit.php:340
+msgid "Stop Word(s)"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:383
+#: admin/extra/wpaicg_forms_edit.php:352
+#: admin/extra/wpaicg_form_index.php:554
+#: admin/extra/wpaicg_form_index.php:1102
+#: admin/extra/wpaicg_promptbase_index.php:472
+#: admin/extra/wpaicg_promptbase_index.php:1005
+#: admin/extra/wpaicg_single.php:1220
+#: admin/views/settings/ai.php:361
+#: admin/views/settings/chatbots.php:195
+msgid "Top P"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:388
+#: admin/extra/wpaicg_forms_edit.php:357
+#: admin/extra/wpaicg_form_index.php:1104
+#: admin/extra/wpaicg_promptbase_index.php:480
+#: admin/extra/wpaicg_promptbase_index.php:1007
+#: admin/extra/wpaicg_single.php:1221
+#: admin/views/settings/ai.php:345
+#: admin/views/settings/chatbots.php:183
+msgid "Frequency Penalty"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:393
+#: admin/extra/wpaicg_forms_edit.php:362
+#: admin/extra/wpaicg_form_index.php:1105
+#: admin/extra/wpaicg_promptbase_index.php:484
+#: admin/extra/wpaicg_promptbase_index.php:1008
+#: admin/extra/wpaicg_single.php:1222
+#: admin/views/settings/ai.php:353
+#: admin/views/settings/chatbots.php:189
+msgid "Presence Penalty"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:404
+#: admin/extra/wpaicg_forms_edit.php:375
+#: admin/extra/wpaicg_form_index.php:432
+#: admin/extra/wpaicg_promptbase_index.php:350
+#: admin/views/settings/ai.php:288
+#: admin/views/settings/chatbots.php:255
+msgid "Embeddings"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:409
+#: admin/extra/wpaicg_forms_edit.php:380
+msgid "Use Embeddings?"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:425
+#: admin/extra/wpaicg_forms_edit.php:395
+#: admin/extra/wpaicg_form_index.php:593
+#: admin/extra/wpaicg_promptbase_index.php:505
+#: admin/views/settings/chatbots.php:261
+#: lib/views/chat/embeddings.php:60
+msgid "Vector DB"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:428
+#: admin/extra/wpaicg_form_index.php:597
+#: admin/extra/wpaicg_promptbase_index.php:509
+#: admin/views/settings/chatbots.php:265
+msgid "Pinecone"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:429
+#: admin/extra/wpaicg_form_index.php:596
+#: admin/extra/wpaicg_promptbase_index.php:508
+#: admin/views/settings/chatbots.php:269
+msgid "Qdrant"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:437
+#: admin/extra/wpaicg_forms_edit.php:408
+#: admin/views/embeddings/settings.php:131
+msgid "Pinecone Index"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:446
+#: admin/extra/wpaicg_forms_edit.php:418
+msgid "Qdrant Collection"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:459
+#: admin/extra/wpaicg_forms_edit.php:431
+#: admin/extra/wpaicg_form_index.php:625
+#: admin/extra/wpaicg_promptbase_index.php:537
+msgid "Context Label"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:472
+#: admin/extra/wpaicg_forms_edit.php:443
+#: admin/extra/wpaicg_form_index.php:630
+#: admin/extra/wpaicg_promptbase_index.php:542
+msgid "Context Position"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:475
+#: admin/extra/wpaicg_forms_edit.php:446
+#: admin/extra/wpaicg_form_index.php:632
+#: admin/extra/wpaicg_promptbase_index.php:544
+msgid "After Prompt"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:476
+#: admin/extra/wpaicg_forms_edit.php:447
+#: admin/extra/wpaicg_form_index.php:633
+#: admin/extra/wpaicg_promptbase_index.php:545
+msgid "Before Prompt"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:482
+#: admin/extra/wpaicg_forms_edit.php:452
+msgid "Embeddings Limit"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:496
+#: admin/extra/wpaicg_forms_edit.php:466
+msgid "Use Default Model?"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:507
+#: admin/extra/wpaicg_forms_edit.php:476
+msgid "Embedding Provider"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:516
+#: admin/extra/wpaicg_forms_edit.php:484
+#: admin/extra/wpaicg_form_index.php:644
+#: admin/extra/wpaicg_promptbase_index.php:556
+#: admin/views/embeddings/settings.php:198
+#: admin/views/embeddings/settings.php:200
+#: admin/views/settings/chatbots.php:354
+msgid "Embedding Model"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:528
+#: admin/extra/wpaicg_forms_edit.php:494
+msgid "Form Info"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:533
+#: admin/extra/wpaicg_forms_edit.php:499
+msgid "-- Select Category --"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_create.php:545
+#: admin/extra/wpaicg_forms_edit.php:511
+msgid "Short Description"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_edit.php:35
+#: admin/extra/wpaicg_forms_js_edit.php:263
+msgid "Design"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_edit.php:54
+msgid "Drag an element here to add to existing form."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_edit.php:67
+msgid "Edit Form"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_edit.php:213
+#: admin/extra/wpaicg_forms_js_edit.php:123
+msgid "(none)"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:272
+msgid "No AI Forms found."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:291
+msgid "Custom Form #"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:445
+#: admin/extra/wpaicg_forms_js_edit.php:611
+msgid "Error loading form"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:546
+#: admin/extra/wpaicg_form_index.php:1441
+#: admin/extra/wpaicg_promptbase_index.php:1156
+#: admin/extra/wpaicg_single.php:1815
+#: admin/views/embeddings/autoscan.php:154
+#: admin/views/finetune/files.php:164
+#: admin/views/finetune/fine-tunes.php:102
+#: admin/views/finetune/fine-tunes.php:136
+#: lib/views/chat/embeddings.php:220
+msgid "Are you sure?"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:568
+msgid "Error deleting form"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:572
+#: admin/extra/wpaicg_forms_js.php:861
+#: admin/extra/wpaicg_forms_js.php:899
+#: admin/extra/wpaicg_forms_js.php:948
+#: admin/extra/wpaicg_forms_js_create.php:903
+#: admin/extra/wpaicg_forms_js_create.php:905
+#: admin/extra/wpaicg_forms_js_logs.php:44
+#: admin/extra/wpaicg_forms_js_logs.php:85
+msgid "Ajax error"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:598
+msgid "No custom forms found to export"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:601
+msgid "You are about to export"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:601
+#: admin/extra/wpaicg_forms_js.php:692
+msgid "forms. Continue?"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:623
+msgid "Export complete"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:626
+msgid "Download JSON"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:648
+#: admin/extra/wpaicg_forms_js.php:654
+msgid "exported"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:662
+#: admin/extra/wpaicg_forms_js.php:799
+msgid "Failed to retrieve form IDs"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:684
+msgid "Invalid JSON format"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:689
+msgid "No forms found in JSON"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:692
+msgid "You are about to import"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:698
+msgid "Import complete"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:716
+#: admin/extra/wpaicg_forms_js.php:721
+msgid "Imported"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:722
+#: admin/extra/wpaicg_forms_js.php:791
+msgid "(error)"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:730
+msgid "Invalid JSON file"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:759
+msgid "No custom forms found to delete"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:762
+msgid "You are about to delete"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:762
+msgid "forms. This cannot be undone. Continue?"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:768
+msgid "All done!"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:786
+msgid "deleted"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:852
+#: admin/extra/wpaicg_forms_js_logs.php:35
+msgid "Total logs:"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:856
+#: admin/extra/wpaicg_forms_js_logs.php:39
+#: admin/views/finetune/manual.php:582
+#: admin/views/scripts.php:409
+#: admin/views/scripts.php:416
+#: admin/views/scripts.php:668
+#: admin/views/scripts.php:681
+#: admin/views/woocommerce/wpaicg-meta-box.php:168
+#: admin/views/woocommerce/wpaicg-meta-box.php:176
+#: classes/wpaicg_content.php:383
+#: classes/wpaicg_content.php:457
+#: classes/wpaicg_embeddings.php:509
+#: classes/wpaicg_embeddings.php:528
+#: classes/wpaicg_woocommerce.php:789
+msgid "Error"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:880
+#: admin/extra/wpaicg_forms_js_logs.php:66
+msgid "Are you sure you want to delete ALL logs?"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:892
+#: admin/extra/wpaicg_forms_js_logs.php:78
+#: classes/wpaicg_logs.php:842
+msgid "All logs deleted successfully."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:895
+#: admin/extra/wpaicg_forms_js_logs.php:81
+msgid "Failed to delete logs"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:944
+msgid "Error saving settings"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:961
+#: admin/extra/wpaicg_forms_js_create.php:301
+msgid "Are you sure? All changes will be lost if you exit Create Mode."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js.php:966
+#: admin/extra/wpaicg_forms_js_edit.php:635
+msgid "Are you sure? All changes will be lost if you exit Edit Mode."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_create.php:278
+msgid "Exit Create Mode"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_create.php:289
+msgid "[No ID yet. Save to see snippet]"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_create.php:513
+#: admin/extra/wpaicg_forms_js_edit.php:704
 #: admin/extra/wpaicg_form_index.php:376
 #: lib/views/builder/custom_post_type.php:141
 msgid "Label"
 msgstr ""
 
-#: admin/extra/wpaicg_form_index.php:382
-msgid "Add this field in your prompt with following format"
+#: admin/extra/wpaicg_forms_js_create.php:514
+#: admin/extra/wpaicg_forms_js_edit.php:705
+msgid "Field Label"
 msgstr ""
 
+#: admin/extra/wpaicg_forms_js_create.php:517
+#: admin/extra/wpaicg_forms_js_edit.php:708
+msgid "Short ID"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_create.php:520
+#: admin/extra/wpaicg_forms_js_edit.php:711
 #: admin/extra/wpaicg_form_index.php:385
 #: admin/extra/wpaicg_image_generator.php:550
 #: admin/extra/wpaicg_single.php:1098
@@ -869,8 +1864,46 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: admin/extra/wpaicg_form_index.php:387
-msgid "Single Line Text"
+#: admin/extra/wpaicg_forms_js_create.php:769
+msgid "Your prompt did not pass validation."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_create.php:779
+msgid "Please fill in title, description, and prompt"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_create.php:817
+#: admin/extra/wpaicg_forms_js_edit.php:1012
+msgid "Each field must have a Label and ID"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_edit.php:345
+msgid "Exit Edit Mode"
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_edit.php:619
+msgid "Failed to load form data."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_edit.php:956
+msgid "Prompt not valid."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_edit.php:968
+msgid "Missing form ID."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_edit.php:972
+msgid "Please fill all required fields."
+msgstr ""
+
+#: admin/extra/wpaicg_forms_js_edit.php:1094
+#: admin/extra/wpaicg_forms_js_edit.php:1096
+msgid "Ajax error saving form"
+msgstr ""
+
+#: admin/extra/wpaicg_form_index.php:382
+msgid "Add this field in your prompt with following format"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:388
@@ -887,10 +1920,6 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:391
 msgid "Website URL"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:392
-msgid "Multi-line Text"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:393
@@ -947,13 +1976,6 @@ msgstr ""
 msgid "Fields"
 msgstr ""
 
-#: admin/extra/wpaicg_form_index.php:432
-#: admin/extra/wpaicg_promptbase_index.php:350
-#: admin/views/settings/ai.php:288
-#: admin/views/settings/chatbots.php:255
-msgid "Embeddings"
-msgstr ""
-
 #: admin/extra/wpaicg_form_index.php:433
 #: admin/extra/wpaicg_image_generator.php:418
 #: admin/extra/wpaicg_promptbase_index.php:351
@@ -974,29 +1996,12 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:455
 #: admin/extra/wpaicg_promptbase_index.php:373
 #: classes/wpaicg_hook.php:54
-#: classes/wpaicg_hook.php:122
+#: classes/wpaicg_hook.php:124
 msgid "Description"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:459
-#: admin/extra/wpaicg_form_log.php:236
-#: admin/extra/wpaicg_image_generator.php:370
-#: admin/extra/wpaicg_image_generator_log.php:51
-#: admin/extra/wpaicg_promptbase_index.php:377
-#: admin/extra/wpaicg_promptbase_index.php:897
-#: admin/extra/wpaicg_promptbase_log.php:232
-#: admin/extra/wpaicg_prompt_shortcode.php:443
-#: admin/views/finetune/manual.php:150
-#: admin/views/finetune/manual.php:156
-#: admin/views/finetune/manual.php:288
-#: lib/views/twitter/index.php:76
-#: lib/views/twitter/index.php:117
-msgid "Prompt"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:463
 #: admin/extra/wpaicg_form_index.php:1110
-#: admin/extra/wpaicg_form_shortcode.php:737
 #: admin/extra/wpaicg_promptbase_index.php:381
 #: admin/extra/wpaicg_promptbase_index.php:1013
 #: admin/extra/wpaicg_prompt_shortcode.php:630
@@ -1005,19 +2010,12 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:470
 #: admin/extra/wpaicg_form_index.php:1026
-#: admin/extra/wpaicg_form_shortcode.php:653
+#: admin/extra/wpaicg_form_shortcode.php:859
 #: admin/extra/wpaicg_promptbase_index.php:388
 #: admin/extra/wpaicg_promptbase_index.php:929
 #: admin/extra/wpaicg_prompt_shortcode.php:547
 #: admin/views/settings/ai.php:71
 msgid "Engine"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:546
-#: admin/extra/wpaicg_form_index.php:1100
-#: admin/extra/wpaicg_promptbase_index.php:464
-#: admin/extra/wpaicg_promptbase_index.php:1003
-msgid "Max Tokens"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:550
@@ -1028,16 +2026,6 @@ msgstr ""
 #: admin/views/settings/ai.php:337
 #: admin/views/settings/chatbots.php:177
 msgid "Temperature"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:554
-#: admin/extra/wpaicg_form_index.php:1102
-#: admin/extra/wpaicg_promptbase_index.php:472
-#: admin/extra/wpaicg_promptbase_index.php:1005
-#: admin/extra/wpaicg_single.php:1220
-#: admin/views/settings/ai.php:361
-#: admin/views/settings/chatbots.php:195
-msgid "Top P"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:558
@@ -1060,8 +2048,8 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:950
 #: admin/extra/wpaicg_form_index.php:1005
 #: admin/extra/wpaicg_form_index.php:1106
-#: admin/extra/wpaicg_form_shortcode.php:97
-#: admin/extra/wpaicg_form_shortcode.php:733
+#: admin/extra/wpaicg_form_shortcode.php:120
+#: admin/extra/wpaicg_form_shortcode.php:1018
 #: admin/extra/wpaicg_promptbase_index.php:488
 #: admin/extra/wpaicg_promptbase_index.php:688
 #: admin/extra/wpaicg_promptbase_index.php:854
@@ -1143,25 +2131,6 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: admin/extra/wpaicg_form_index.php:593
-#: admin/extra/wpaicg_promptbase_index.php:505
-#: admin/views/settings/chatbots.php:261
-#: lib/views/chat/embeddings.php:60
-msgid "Vector DB"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:596
-#: admin/extra/wpaicg_promptbase_index.php:508
-#: admin/views/settings/chatbots.php:269
-msgid "Qdrant"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:597
-#: admin/extra/wpaicg_promptbase_index.php:509
-#: admin/views/settings/chatbots.php:265
-msgid "Pinecone"
-msgstr ""
-
 #: admin/extra/wpaicg_form_index.php:602
 #: admin/views/settings/chatbots.php:295
 msgid "Collection"
@@ -1193,11 +2162,6 @@ msgstr ""
 msgid "3"
 msgstr ""
 
-#: admin/extra/wpaicg_form_index.php:625
-#: admin/extra/wpaicg_promptbase_index.php:537
-msgid "Context Label"
-msgstr ""
-
 #: admin/extra/wpaicg_form_index.php:626
 #: admin/extra/wpaicg_form_index.php:945
 #: admin/extra/wpaicg_promptbase_index.php:538
@@ -1205,37 +2169,9 @@ msgstr ""
 msgid "Context:"
 msgstr ""
 
-#: admin/extra/wpaicg_form_index.php:630
-#: admin/extra/wpaicg_promptbase_index.php:542
-msgid "Context Position"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:632
-#: admin/extra/wpaicg_promptbase_index.php:544
-msgid "After Prompt"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:633
-#: admin/extra/wpaicg_promptbase_index.php:545
-msgid "Before Prompt"
-msgstr ""
-
 #: admin/extra/wpaicg_form_index.php:637
 #: admin/extra/wpaicg_promptbase_index.php:549
 msgid "Use Default Model"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:644
-#: admin/extra/wpaicg_promptbase_index.php:556
-#: admin/views/embeddings/settings.php:198
-#: admin/views/embeddings/settings.php:200
-#: admin/views/settings/chatbots.php:354
-msgid "Embedding Model"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:666
-#: admin/extra/wpaicg_promptbase_index.php:578
-msgid "Icon Color"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:670
@@ -1243,32 +2179,9 @@ msgstr ""
 msgid "Background Color"
 msgstr ""
 
-#: admin/extra/wpaicg_form_index.php:675
-#: admin/extra/wpaicg_promptbase_index.php:587
-#: admin/views/settings/chat-general-settings.php:355
-msgid "Icon"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:687
-#: admin/extra/wpaicg_form_log.php:238
-#: admin/extra/wpaicg_promptbase_index.php:599
-#: admin/extra/wpaicg_promptbase_log.php:234
-msgid "Response"
-msgstr ""
-
 #: admin/extra/wpaicg_form_index.php:690
 #: admin/extra/wpaicg_promptbase_index.php:602
 msgid "Result"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:692
-#: admin/extra/wpaicg_promptbase_index.php:605
-msgid "Inline"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:693
-#: admin/extra/wpaicg_promptbase_index.php:604
-msgid "Text Editor"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:697
@@ -1305,7 +2218,7 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:784
 #: admin/extra/wpaicg_form_index.php:952
 #: admin/extra/wpaicg_form_index.php:1016
-#: admin/extra/wpaicg_form_shortcode.php:99
+#: admin/extra/wpaicg_form_shortcode.php:122
 #: admin/extra/wpaicg_promptbase_index.php:647
 #: admin/extra/wpaicg_promptbase_index.php:696
 #: admin/extra/wpaicg_promptbase_index.php:857
@@ -1320,7 +2233,7 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:788
 #: admin/extra/wpaicg_form_index.php:954
 #: admin/extra/wpaicg_form_index.php:1017
-#: admin/extra/wpaicg_form_shortcode.php:100
+#: admin/extra/wpaicg_form_shortcode.php:123
 #: admin/extra/wpaicg_promptbase_index.php:654
 #: admin/extra/wpaicg_promptbase_index.php:700
 #: admin/extra/wpaicg_promptbase_index.php:859
@@ -1328,16 +2241,6 @@ msgstr ""
 #: admin/extra/wpaicg_prompt_shortcode.php:118
 #: admin/views/settings/chat-interface-settings.php:35
 msgid "Copy"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:756
-#: admin/extra/wpaicg_promptbase_index.php:668
-msgid "Custom Text"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:759
-#: admin/extra/wpaicg_promptbase_index.php:671
-msgid "Generate Button"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:763
@@ -1348,7 +2251,6 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:764
 #: admin/extra/wpaicg_form_index.php:947
 #: admin/extra/wpaicg_form_index.php:996
-#: admin/extra/wpaicg_form_shortcode.php:95
 #: admin/extra/wpaicg_promptbase_index.php:676
 #: admin/extra/wpaicg_promptbase_index.php:851
 #: admin/extra/wpaicg_promptbase_index.php:900
@@ -1364,7 +2266,7 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:768
 #: admin/extra/wpaicg_form_index.php:948
 #: admin/extra/wpaicg_form_index.php:1014
-#: admin/extra/wpaicg_form_shortcode.php:94
+#: admin/extra/wpaicg_form_shortcode.php:117
 #: admin/extra/wpaicg_promptbase_index.php:680
 #: admin/extra/wpaicg_promptbase_index.php:852
 #: admin/extra/wpaicg_promptbase_index.php:918
@@ -1392,7 +2294,7 @@ msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:780
 #: admin/extra/wpaicg_form_index.php:951
-#: admin/extra/wpaicg_form_shortcode.php:98
+#: admin/extra/wpaicg_form_shortcode.php:121
 #: admin/extra/wpaicg_promptbase_index.php:692
 #: admin/extra/wpaicg_promptbase_index.php:855
 #: admin/extra/wpaicg_prompt_shortcode.php:116
@@ -1423,40 +2325,8 @@ msgstr ""
 msgid "Design Your Form"
 msgstr ""
 
-#: admin/extra/wpaicg_form_index.php:809
-#: admin/extra/wpaicg_promptbase_index.php:721
-#: admin/views/settings/chatlogs.php:35
-#: classes/wpaicg_dashboard.php:2554
-msgid "Export"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:811
-#: admin/extra/wpaicg_form_index.php:973
-#: admin/extra/wpaicg_promptbase_index.php:723
-#: admin/extra/wpaicg_promptbase_index.php:877
-#: admin/extra/wpaicg_single.php:1278
-#: admin/views/audio/logs.php:111
-#: classes/wpaicg_dashboard.php:2543
-#: classes/wpaicg_embeddings.php:233
-#: classes/wpaicg_finetune.php:1249
-#: classes/wpaicg_finetune.php:1368
-#: lib/views/chat/embeddings.php:140
-msgid "Delete"
-msgstr ""
-
 #: admin/extra/wpaicg_form_index.php:842
 msgid "Search Template"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:971
-#: admin/extra/wpaicg_promptbase_index.php:875
-#: classes/wpaicg_dashboard.php:2548
-msgid "Duplicate"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:972
-#: admin/extra/wpaicg_promptbase_index.php:876
-msgid "Edit"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:1023
@@ -1464,26 +2334,8 @@ msgstr ""
 msgid "Duplicate This Form"
 msgstr ""
 
-#: admin/extra/wpaicg_form_index.php:1104
-#: admin/extra/wpaicg_promptbase_index.php:480
-#: admin/extra/wpaicg_promptbase_index.php:1007
-#: admin/extra/wpaicg_single.php:1221
-#: admin/views/settings/ai.php:345
-#: admin/views/settings/chatbots.php:183
-msgid "Frequency Penalty"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:1105
-#: admin/extra/wpaicg_promptbase_index.php:484
-#: admin/extra/wpaicg_promptbase_index.php:1008
-#: admin/extra/wpaicg_single.php:1222
-#: admin/views/settings/ai.php:353
-#: admin/views/settings/chatbots.php:189
-msgid "Presence Penalty"
-msgstr ""
-
 #: admin/extra/wpaicg_form_index.php:1106
-#: admin/extra/wpaicg_form_shortcode.php:733
+#: admin/extra/wpaicg_form_shortcode.php:1019
 #: admin/extra/wpaicg_promptbase_index.php:1009
 #: admin/extra/wpaicg_prompt_shortcode.php:626
 msgid "separate by commas"
@@ -1532,17 +2384,6 @@ msgstr ""
 #: admin/extra/wpaicg_form_index.php:1320
 #: admin/extra/wpaicg_promptbase_index.php:1281
 msgid "No indexes available"
-msgstr ""
-
-#: admin/extra/wpaicg_form_index.php:1441
-#: admin/extra/wpaicg_promptbase_index.php:1156
-#: admin/extra/wpaicg_single.php:1815
-#: admin/views/embeddings/autoscan.php:154
-#: admin/views/finetune/files.php:164
-#: admin/views/finetune/fine-tunes.php:102
-#: admin/views/finetune/fine-tunes.php:136
-#: lib/views/chat/embeddings.php:220
-msgid "Are you sure?"
 msgstr ""
 
 #: admin/extra/wpaicg_form_index.php:1451
@@ -1696,14 +2537,6 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: admin/extra/wpaicg_form_log.php:73
-#: admin/extra/wpaicg_image_generator_log.php:44
-#: admin/extra/wpaicg_promptbase_log.php:72
-#: admin/views/settings/chatlogs.php:36
-#: lib/views/chat/pdfs.php:29
-msgid "Delete All"
-msgstr ""
-
 #: admin/extra/wpaicg_form_log.php:168
 #: admin/extra/wpaicg_promptbase_log.php:164
 msgid "Guest"
@@ -1714,171 +2547,7 @@ msgstr ""
 msgid "View Form Log"
 msgstr ""
 
-#: admin/extra/wpaicg_form_log.php:258
-#: admin/extra/wpaicg_promptbase_log.php:254
-msgid "Comment"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:7
-#: classes/wpaicg_dashboard.php:52
-#: classes/wpaicg_dashboard.php:179
-#: classes/wpaicg_dashboard.php:308
-#: classes/wpaicg_dashboard.php:350
-#: classes/wpaicg_dashboard.php:579
-#: classes/wpaicg_dashboard.php:2088
-#: classes/wpaicg_dashboard.php:3314
-#: classes/wpaicg_embeddings.php:52
-#: classes/wpaicg_logs.php:45
-#: classes/wpaicg_logs.php:754
-#: classes/wpaicg_logs.php:998
-msgid "Nonce verification failed."
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:23
-#: admin/extra/wpaicg_image_generator_settings.php:45
-#: admin/extra/wpaicg_promptbase_settings.php:19
-#: classes/wpaicg_dashboard.php:2733
-#: classes/wpaicg_dashboard.php:2737
-msgid "Settings updated successfully."
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:26
-#: admin/extra/wpaicg_promptbase_settings.php:24
-#: admin/views/settings/chatbots.php:97
-msgid "Token Management"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:31
-#: admin/extra/wpaicg_image_generator_settings.php:56
-#: admin/extra/wpaicg_promptbase_settings.php:31
-msgid "Limit Registered User"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:37
-#: admin/extra/wpaicg_form_settings.php:61
-#: admin/extra/wpaicg_promptbase_settings.php:37
-#: admin/extra/wpaicg_promptbase_settings.php:61
-msgid "Token Allocation"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:42
-#: admin/extra/wpaicg_form_settings.php:66
-#: admin/extra/wpaicg_promptbase_settings.php:42
-#: admin/extra/wpaicg_promptbase_settings.php:66
-msgid "Leave empty for unlimited tokens. Specify a number for a set limit."
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:45
-#: admin/extra/wpaicg_promptbase_settings.php:45
-msgid "Token Allocation by Role"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:53
-#: admin/extra/wpaicg_image_generator_settings.php:78
-#: admin/extra/wpaicg_promptbase_settings.php:53
-msgid "Configure Role Limits"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:57
-#: admin/extra/wpaicg_image_generator_settings.php:82
-#: admin/extra/wpaicg_promptbase_settings.php:57
-msgid "Limit Non-Registered User"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:69
-#: admin/extra/wpaicg_image_generator_settings.php:94
-#: admin/extra/wpaicg_promptbase_settings.php:69
-#: admin/views/settings/chatbots.php:560
-#: admin/views/settings/chatbots.php:592
-msgid "Notification Message"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:75
-#: admin/extra/wpaicg_promptbase_settings.php:75
-msgid "Token Reset Interval"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:79
-#: admin/extra/wpaicg_image_generator_settings.php:102
-#: admin/extra/wpaicg_promptbase_settings.php:79
-#: admin/views/settings/chat-token-settings.php:62
-msgid "Never"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:80
-#: admin/extra/wpaicg_image_generator_settings.php:103
-#: admin/extra/wpaicg_promptbase_settings.php:80
-#: admin/views/settings/chat-token-settings.php:63
-msgid "1 Day"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:81
-#: admin/extra/wpaicg_image_generator_settings.php:104
-#: admin/extra/wpaicg_promptbase_settings.php:81
-#: admin/views/settings/chat-token-settings.php:64
-msgid "3 Days"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:82
-#: admin/extra/wpaicg_image_generator_settings.php:105
-#: admin/extra/wpaicg_promptbase_settings.php:82
-#: admin/views/settings/chat-token-settings.php:65
-msgid "1 Week"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:83
-#: admin/extra/wpaicg_image_generator_settings.php:106
-#: admin/extra/wpaicg_promptbase_settings.php:83
-#: admin/views/settings/chat-token-settings.php:66
-msgid "2 Weeks"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:84
-#: admin/extra/wpaicg_image_generator_settings.php:107
-#: admin/extra/wpaicg_promptbase_settings.php:84
-#: admin/views/settings/chat-token-settings.php:67
-msgid "1 Month"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:85
-#: admin/extra/wpaicg_image_generator_settings.php:108
-#: admin/extra/wpaicg_promptbase_settings.php:85
-#: admin/views/settings/chat-token-settings.php:68
-msgid "2 Months"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:86
-#: admin/extra/wpaicg_image_generator_settings.php:109
-#: admin/extra/wpaicg_promptbase_settings.php:86
-#: admin/views/settings/chat-token-settings.php:69
-msgid "3 Months"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:87
-#: admin/extra/wpaicg_image_generator_settings.php:110
-#: admin/extra/wpaicg_promptbase_settings.php:87
-#: admin/views/settings/chat-token-settings.php:70
-msgid "6 Months"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:102
-#: admin/extra/wpaicg_image_generator_settings.php:124
-#: admin/extra/wpaicg_promptbase_settings.php:102
-msgid "Enable Token Purchasing"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:131
-#: admin/extra/wpaicg_promptbase_settings.php:131
-msgid "Leave empty for unlimited tokens"
-msgstr ""
-
-#: admin/extra/wpaicg_form_settings.php:134
-#: admin/extra/wpaicg_image_generator_settings.php:199
-#: admin/extra/wpaicg_promptbase_settings.php:134
-msgid "Role Limits"
-msgstr ""
-
-#: admin/extra/wpaicg_form_shortcode.php:727
+#: admin/extra/wpaicg_form_shortcode.php:958
 #: admin/extra/wpaicg_prompt_shortcode.php:620
 #: admin/extra/wpaicg_single.php:450
 #: admin/views/settings/chatlogs.php:180
@@ -1887,47 +2556,47 @@ msgstr ""
 msgid "Token"
 msgstr ""
 
-#: admin/extra/wpaicg_form_shortcode.php:728
+#: admin/extra/wpaicg_form_shortcode.php:968
 #: admin/extra/wpaicg_prompt_shortcode.php:621
 msgid "Temp"
 msgstr ""
 
-#: admin/extra/wpaicg_form_shortcode.php:729
+#: admin/extra/wpaicg_form_shortcode.php:978
 #: admin/extra/wpaicg_prompt_shortcode.php:622
 msgid "TP"
 msgstr ""
 
-#: admin/extra/wpaicg_form_shortcode.php:730
+#: admin/extra/wpaicg_form_shortcode.php:988
 #: admin/extra/wpaicg_prompt_shortcode.php:623
 msgid "BO"
 msgstr ""
 
-#: admin/extra/wpaicg_form_shortcode.php:731
+#: admin/extra/wpaicg_form_shortcode.php:998
 #: admin/extra/wpaicg_prompt_shortcode.php:624
 msgid "FP"
 msgstr ""
 
-#: admin/extra/wpaicg_form_shortcode.php:732
+#: admin/extra/wpaicg_form_shortcode.php:1008
 #: admin/extra/wpaicg_prompt_shortcode.php:625
 msgid "PP"
 msgstr ""
 
-#: admin/extra/wpaicg_form_shortcode.php:756
+#: admin/extra/wpaicg_form_shortcode.php:1066
 #: admin/extra/wpaicg_prompt_shortcode.php:649
 msgid "Provide additional feedback"
 msgstr ""
 
-#: admin/extra/wpaicg_form_shortcode.php:757
+#: admin/extra/wpaicg_form_shortcode.php:1070
 #: admin/extra/wpaicg_prompt_shortcode.php:650
 msgid "Enter your feedback here..."
 msgstr ""
 
-#: admin/extra/wpaicg_form_shortcode.php:759
+#: admin/extra/wpaicg_form_shortcode.php:1074
 #: admin/extra/wpaicg_prompt_shortcode.php:652
 msgid "Submit"
 msgstr ""
 
-#: admin/extra/wpaicg_form_shortcode.php:760
+#: admin/extra/wpaicg_form_shortcode.php:1077
 #: admin/extra/wpaicg_prompt_shortcode.php:653
 #: admin/views/settings/chat-interface-settings.php:44
 #: admin/views/settings/chatbots.php:49
@@ -1954,7 +2623,7 @@ msgstr ""
 #: admin/extra/wpaicg_image_generator.php:251
 #: admin/extra/wpaicg_image_generator_settings.php:155
 #: classes/wpaicg_hook.php:48
-#: classes/wpaicg_hook.php:115
+#: classes/wpaicg_hook.php:117
 msgid "Select All"
 msgstr ""
 
@@ -2073,21 +2742,6 @@ msgstr ""
 msgid "Special Effects"
 msgstr ""
 
-#: admin/extra/wpaicg_image_generator.php:512
-#: admin/extra/wpaicg_single.php:452
-#: admin/extra/wpaicg_single.php:1130
-#: admin/views/audio/converter.php:115
-#: admin/views/embeddings/index.php:381
-#: admin/views/settings/ai.php:113
-#: admin/views/settings/ai.php:163
-#: admin/views/settings/ai.php:222
-#: admin/views/settings/chatlogs.php:179
-#: admin/views/settings/image_settings.php:432
-#: classes/wpaicg_dashboard.php:2393
-#: lib/views/chat/embeddings.php:59
-msgid "Model"
-msgstr ""
-
 #: admin/extra/wpaicg_image_generator.php:529
 #: admin/extra/wpaicg_image_generator_log.php:52
 #: admin/extra/wpaicg_single.php:850
@@ -2196,11 +2850,6 @@ msgstr ""
 #: classes/wpaicg_dashboard.php:2404
 #: classes/wpaicg_dashboard.php:2496
 msgid "Shortcode"
-msgstr ""
-
-#: admin/extra/wpaicg_image_generator_log.php:56
-#: admin/views/audio/logs.php:58
-msgid "Duration"
 msgstr ""
 
 #: admin/extra/wpaicg_image_generator_log.php:58
@@ -2524,14 +3173,6 @@ msgstr ""
 
 #: admin/extra/wpaicg_single.php:443
 msgid "Only the last 10 logs are displayed here."
-msgstr ""
-
-#: admin/extra/wpaicg_single.php:449
-#: admin/views/audio/logs.php:57
-#: admin/views/embeddings/entries.php:78
-#: lib/views/builder/custom_post_type.php:29
-#: lib/views/chat/embeddings.php:61
-msgid "Date"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:453
@@ -2894,13 +3535,6 @@ msgstr ""
 #: admin/extra/wpaicg_single.php:1075
 #: admin/extra/wpaicg_single.php:1079
 msgid "Template"
-msgstr ""
-
-#: admin/extra/wpaicg_single.php:1089
-#: admin/views/settings/chatbots.php:846
-#: admin/views/settings/chatbots.php:852
-#: classes/wpaicg_dashboard.php:2391
-msgid "Name"
 msgstr ""
 
 #: admin/extra/wpaicg_single.php:1090
@@ -3284,13 +3918,6 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: admin/views/account/usermanagement.php:580
-#: admin/views/settings/chatbots.php:863
-#: admin/views/settings/chatbots.php:869
-#: lib/views/builder/custom_post_type.php:40
-msgid "Email"
-msgstr ""
-
 #: admin/views/account/usermanagement.php:581
 msgid "Role(s)"
 msgstr ""
@@ -3346,11 +3973,6 @@ msgstr ""
 
 #: admin/views/audio/converter.php:96
 msgid "Computer"
-msgstr ""
-
-#: admin/views/audio/converter.php:97
-#: admin/views/settings/chat-common-settings.php:284
-msgid "URL"
 msgstr ""
 
 #: admin/views/audio/converter.php:98
@@ -3587,10 +4209,6 @@ msgstr ""
 msgid "Get your API key"
 msgstr ""
 
-#: admin/views/embeddings/settings.php:131
-msgid "Pinecone Index"
-msgstr ""
-
 #: admin/views/embeddings/settings.php:133
 #: admin/views/embeddings/settings.php:560
 msgid "Select Index"
@@ -3623,10 +4241,6 @@ msgstr ""
 
 #: admin/views/embeddings/settings.php:186
 msgid "Sync Collections"
-msgstr ""
-
-#: admin/views/embeddings/settings.php:187
-msgid "Create New"
 msgstr ""
 
 #: admin/views/embeddings/settings.php:191
@@ -3881,21 +4495,6 @@ msgstr ""
 
 #: admin/views/finetune/manual.php:538
 msgid "Maximum file size: "
-msgstr ""
-
-#: admin/views/finetune/manual.php:582
-#: admin/views/scripts.php:409
-#: admin/views/scripts.php:416
-#: admin/views/scripts.php:668
-#: admin/views/scripts.php:681
-#: admin/views/woocommerce/wpaicg-meta-box.php:168
-#: admin/views/woocommerce/wpaicg-meta-box.php:176
-#: classes/wpaicg_content.php:383
-#: classes/wpaicg_content.php:457
-#: classes/wpaicg_embeddings.php:509
-#: classes/wpaicg_embeddings.php:528
-#: classes/wpaicg_woocommerce.php:789
-msgid "Error"
 msgstr ""
 
 #: admin/views/metabox.php:302
@@ -4521,10 +5120,6 @@ msgstr ""
 msgid "Search anything.."
 msgstr ""
 
-#: admin/views/settings/ai.php:68
-msgid "AI Settings"
-msgstr ""
-
 #: admin/views/settings/ai.php:80
 msgid "Microsoft"
 msgstr ""
@@ -4621,10 +5216,6 @@ msgstr ""
 
 #: admin/views/settings/ai.php:298
 msgid "To avoid cluttering your WP, disable the modules that you do not need."
-msgstr ""
-
-#: admin/views/settings/ai.php:318
-msgid "AI Parameters"
 msgstr ""
 
 #: admin/views/settings/ai.php:322
@@ -5074,10 +5665,6 @@ msgstr ""
 msgid "Footer Note"
 msgstr ""
 
-#: admin/views/settings/chat-style-settings.php:7
-msgid "Theme"
-msgstr ""
-
 #: admin/views/settings/chat-style-settings.php:10
 msgid "Dark"
 msgstr ""
@@ -5112,13 +5699,6 @@ msgstr ""
 
 #: admin/views/settings/chat-style-settings.php:31
 msgid "Chat Window"
-msgstr ""
-
-#: admin/views/settings/chat-style-settings.php:35
-#: admin/views/settings/chat-style-settings.php:81
-#: admin/views/settings/extra_tools.php:161
-#: admin/views/settings/extra_tools.php:197
-msgid "Background"
 msgstr ""
 
 #: admin/views/settings/chat-style-settings.php:40
@@ -5240,10 +5820,6 @@ msgstr ""
 
 #: admin/views/settings/chatbots.php:81
 msgid "General Settings"
-msgstr ""
-
-#: admin/views/settings/chatbots.php:92
-msgid "Interface"
 msgstr ""
 
 #: admin/views/settings/chatbots.php:121
@@ -5872,10 +6448,6 @@ msgstr ""
 #: admin/views/settings/image_settings.php:594
 #: admin/views/settings/image_settings.php:644
 msgid "Make sure to include %s in your prompt."
-msgstr ""
-
-#: admin/views/settings/dashboard.php:85
-msgid "AI Power"
 msgstr ""
 
 #: admin/views/settings/dashboard.php:99
@@ -6703,9 +7275,12 @@ msgstr ""
 #: classes/wpaicg_finetune.php:919
 #: classes/wpaicg_finetune.php:1054
 #: classes/wpaicg_finetune.php:1194
-#: classes/wpaicg_forms.php:441
-#: classes/wpaicg_forms.php:459
-#: classes/wpaicg_forms.php:497
+#: classes/wpaicg_forms.php:159
+#: classes/wpaicg_forms.php:279
+#: classes/wpaicg_forms.php:612
+#: classes/wpaicg_forms.php:636
+#: classes/wpaicg_forms.php:841
+#: classes/wpaicg_forms.php:1117
 #: classes/wpaicg_image.php:44
 #: classes/wpaicg_playground.php:208
 #: classes/wpaicg_promptbase.php:332
@@ -7631,25 +8206,98 @@ msgstr ""
 msgid "Events"
 msgstr ""
 
-#: classes/wpaicg_forms.php:91
-#: classes/wpaicg_promptbase.php:85
-#: lib/modules/wpaicg_user_pdfs.php:62
-msgid "You do not have sufficient permissions to access this page."
+#: classes/wpaicg_forms.php:99
+msgid "No permission to save settings."
 msgstr ""
 
-#: classes/wpaicg_forms.php:132
-#: classes/wpaicg_promptbase.php:125
-msgid "Failed to export AI forms."
+#: classes/wpaicg_forms.php:104
+msgid "Missing settings data."
 msgstr ""
 
-#: classes/wpaicg_forms.php:355
-#: classes/wpaicg_forms.php:393
+#: classes/wpaicg_forms.php:165
+msgid "Invalid form ID"
+msgstr ""
+
+#: classes/wpaicg_forms.php:172
+msgid "This form does not exist or is not a custom form."
+msgstr ""
+
+#: classes/wpaicg_forms.php:298
+msgid "Missing required data"
+msgstr ""
+
+#: classes/wpaicg_forms.php:303
+msgid "Not a valid custom form."
+msgstr ""
+
+#: classes/wpaicg_forms.php:390
+msgid "Form updated successfully."
+msgstr ""
+
+#: classes/wpaicg_forms.php:558
+#: classes/wpaicg_forms.php:593
 msgid "Thank you for your feedback."
 msgstr ""
 
-#: classes/wpaicg_forms.php:357
-#: classes/wpaicg_forms.php:395
+#: classes/wpaicg_forms.php:560
+#: classes/wpaicg_forms.php:595
 msgid "Failed to save feedback."
+msgstr ""
+
+#: classes/wpaicg_forms.php:653
+msgid "Missing form type"
+msgstr ""
+
+#: classes/wpaicg_forms.php:662
+msgid "Built-in forms data file not found"
+msgstr ""
+
+#: classes/wpaicg_forms.php:669
+msgid "Invalid built-in forms data"
+msgstr ""
+
+#: classes/wpaicg_forms.php:683
+msgid "Built-in form not found"
+msgstr ""
+
+#: classes/wpaicg_forms.php:705
+msgid "Could not create duplicated form"
+msgstr ""
+
+#: classes/wpaicg_forms.php:771
+msgid "Built-in form duplicated successfully."
+msgstr ""
+
+#: classes/wpaicg_forms.php:781
+msgid "Form not found or invalid"
+msgstr ""
+
+#: classes/wpaicg_forms.php:796
+msgid "Error duplicating custom form"
+msgstr ""
+
+#: classes/wpaicg_forms.php:825
+msgid "Custom form duplicated successfully."
+msgstr ""
+
+#: classes/wpaicg_forms.php:831
+msgid "Invalid duplication request"
+msgstr ""
+
+#: classes/wpaicg_forms.php:1137
+msgid "Required fields missing: title, description, or prompt"
+msgstr ""
+
+#: classes/wpaicg_forms.php:1150
+msgid "Failed to create new form"
+msgstr ""
+
+#: classes/wpaicg_forms.php:1235
+msgid "Form created successfully"
+msgstr ""
+
+#: classes/wpaicg_forms.php:1349
+msgid "No logs found"
 msgstr ""
 
 #: classes/wpaicg_generator.php:1443
@@ -7726,12 +8374,12 @@ msgid "Google does not return audio"
 msgstr ""
 
 #: classes/wpaicg_hook.php:40
-#: classes/wpaicg_hook.php:107
+#: classes/wpaicg_hook.php:109
 msgid "Sources"
 msgstr ""
 
 #: classes/wpaicg_hook.php:41
-#: classes/wpaicg_hook.php:108
+#: classes/wpaicg_hook.php:110
 #: classes/wpaicg_search.php:88
 #: classes/wpaicg_search.php:174
 #: classes/wpaicg_search.php:236
@@ -7739,67 +8387,67 @@ msgid "No result found"
 msgstr ""
 
 #: classes/wpaicg_hook.php:43
-#: classes/wpaicg_hook.php:110
+#: classes/wpaicg_hook.php:112
 msgid "Please enter a valid prompt strength value between %d and %d."
 msgstr ""
 
 #: classes/wpaicg_hook.php:44
-#: classes/wpaicg_hook.php:111
+#: classes/wpaicg_hook.php:113
 msgid "Please enter a valid number of inference steps value between %d and %d."
 msgstr ""
 
 #: classes/wpaicg_hook.php:45
-#: classes/wpaicg_hook.php:112
+#: classes/wpaicg_hook.php:114
 msgid "Please enter a valid guidance scale value between %d and %d."
 msgstr ""
 
 #: classes/wpaicg_hook.php:46
-#: classes/wpaicg_hook.php:113
+#: classes/wpaicg_hook.php:115
 msgid "Please select least one image for generate"
 msgstr ""
 
 #: classes/wpaicg_hook.php:47
-#: classes/wpaicg_hook.php:114
+#: classes/wpaicg_hook.php:116
 msgid "Save images to media successfully"
 msgstr ""
 
 #: classes/wpaicg_hook.php:49
-#: classes/wpaicg_hook.php:116
+#: classes/wpaicg_hook.php:118
 msgid "Unselect"
 msgstr ""
 
 #: classes/wpaicg_hook.php:50
-#: classes/wpaicg_hook.php:117
+#: classes/wpaicg_hook.php:119
 msgid "Please select least one image to save"
 msgstr ""
 
 #: classes/wpaicg_hook.php:51
-#: classes/wpaicg_hook.php:118
+#: classes/wpaicg_hook.php:120
 msgid "Alternative Text"
 msgstr ""
 
 #: classes/wpaicg_hook.php:53
-#: classes/wpaicg_hook.php:121
+#: classes/wpaicg_hook.php:123
 msgid "Caption"
 msgstr ""
 
 #: classes/wpaicg_hook.php:55
-#: classes/wpaicg_hook.php:120
+#: classes/wpaicg_hook.php:122
 msgid "Edit Image"
 msgstr ""
 
 #: classes/wpaicg_hook.php:57
-#: classes/wpaicg_hook.php:124
+#: classes/wpaicg_hook.php:126
 msgid "Your pdf session is cleared"
 msgstr ""
 
-#: classes/wpaicg_hook.php:73
-#: classes/wpaicg_hook.php:82
+#: classes/wpaicg_hook.php:75
+#: classes/wpaicg_hook.php:84
 #: classes/wpaicg_image.php:365
 msgid "GPT3 Modal"
 msgstr ""
 
-#: classes/wpaicg_hook.php:89
+#: classes/wpaicg_hook.php:91
 #: classes/wpaicg_image.php:372
 msgid "Generating content.."
 msgstr ""
@@ -7964,10 +8612,6 @@ msgstr ""
 msgid "There are no logs to delete."
 msgstr ""
 
-#: classes/wpaicg_logs.php:842
-msgid "All logs deleted successfully."
-msgstr ""
-
 #: classes/wpaicg_logs.php:844
 msgid "Failed to delete logs."
 msgstr ""
@@ -7993,30 +8637,39 @@ msgstr ""
 msgid "IP has been successfully blocked."
 msgstr ""
 
-#: classes/wpaicg_playground.php:821
+#: classes/wpaicg_playground.php:827
 msgid "Required Pinecone or API configuration missing."
 msgstr ""
 
-#: classes/wpaicg_playground.php:829
-#: classes/wpaicg_playground.php:911
+#: classes/wpaicg_playground.php:835
+#: classes/wpaicg_playground.php:917
 msgid "Unable to initialize the AI instance."
 msgstr ""
 
-#: classes/wpaicg_playground.php:842
-#: classes/wpaicg_playground.php:924
+#: classes/wpaicg_playground.php:848
+#: classes/wpaicg_playground.php:930
 msgid "No embedding data received from the AI provider."
 msgstr ""
 
-#: classes/wpaicg_playground.php:893
+#: classes/wpaicg_playground.php:899
 msgid "No matches found or error in Pinecone response."
 msgstr ""
 
-#: classes/wpaicg_playground.php:903
+#: classes/wpaicg_playground.php:909
 msgid "Required Qdrant or API configuration missing."
 msgstr ""
 
-#: classes/wpaicg_playground.php:1021
+#: classes/wpaicg_playground.php:1027
 msgid "No matches found or error in Qdrant response."
+msgstr ""
+
+#: classes/wpaicg_promptbase.php:85
+#: lib/modules/wpaicg_user_pdfs.php:62
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: classes/wpaicg_promptbase.php:125
+msgid "Failed to export AI forms."
 msgstr ""
 
 #: classes/wpaicg_regenerate_title.php:84

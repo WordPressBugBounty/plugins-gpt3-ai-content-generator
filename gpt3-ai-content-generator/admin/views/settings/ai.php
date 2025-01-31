@@ -31,8 +31,8 @@ $masked_openrouter_api_key = mask_api_key($current_openrouter_api_key);
 $masked_google_api_key = mask_api_key($current_google_api_key);
 $masked_azure_api_key = mask_api_key($current_azure_api_key);
 
-// Retrieve the selected OpenAI model or default to 'gpt-3.5-turbo'
-$selected_model = get_option('wpaicg_ai_model', 'gpt-3.5-turbo');
+// Retrieve the selected OpenAI model or default to 'gpt-4o-mini'
+$selected_model = get_option('wpaicg_ai_model', 'gpt-4o-mini');
 
 // Retrieve available models from different sources
 $gpt4_models = \WPAICG\WPAICG_Util::get_instance()->openai_gpt4_models;

@@ -6,7 +6,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Promptbase')) {
     class WPAICG_Promptbase
     {
         private static $instance = null;
-        public $wpaicg_engine = 'gpt-3.5-turbo';
+        public $wpaicg_engine = 'gpt-4o-mini';
         public $wpaicg_max_tokens = 2000;
         public $wpaicg_temperature = 0;
         public $wpaicg_top_p = 1;

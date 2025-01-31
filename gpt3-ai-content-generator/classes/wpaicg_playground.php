@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace WPAICG;
 if ( ! defined( 'ABSPATH' ) ) exit;
 if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
@@ -103,7 +103,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
                 ])
             );
         
-            $response = wp_safe_remote_post($url, $args);
+            $response = wp_remote_post($url, $args);
         
             if (is_wp_error($response)) {
                 return 'HTTP request error: ' . $response->get_error_message();
@@ -169,7 +169,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
                 ))
             );
         
-            $response = wp_safe_remote_post($url, $args);
+            $response = wp_remote_post($url, $args);
         
             if (is_wp_error($response)) {
                 return 'HTTP request error: ' . $response->get_error_message();
@@ -373,11 +373,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
             return $result;
         }
 
+        /**
+         * Retrieve the final prompt text by merging user inputs into placeholders.
+         */
         public function get_defined_prompt($post_id)
         {
             $form_fields = get_post_meta($post_id, 'wpaicg_form_fields', true);
             $defined_prompt = get_post_meta($post_id, 'wpaicg_form_prompt', true);
-            
+
             if (empty($form_fields) || empty($defined_prompt)) {
                 if (file_exists(WPAICG_PLUGIN_DIR . 'admin/data/gptforms.json')) {
                     $forms_data = json_decode(file_get_contents(WPAICG_PLUGIN_DIR . 'admin/data/gptforms.json'), true);
@@ -390,55 +393,58 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
                     }
                 }
             }
-            
+
             // Function to fix common JSON issues
             function fix_json($json) {
                 // Remove BOM
                 $json = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $json);
-                
+
                 // Fix escaped quotes
                 $json = str_replace("\\'", "'", $json);
-                
+
                 // Ensure double quotes for property names
-                $json = preg_replace('/(\w+)(?=\s*:)/','\"$1\"',$json);
-                
+                $json = preg_replace('/(\w+)(?=\s*:)/','"$1"',$json);
+
                 return $json;
             }
-            
+
             // Attempt to decode JSON and log any errors
             $decoded_fields = json_decode($form_fields, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                // error_log('Initial JSON decoding error: ' . json_last_error_msg());
-                // error_log('Attempting to fix JSON');
-                
                 $fixed_json = fix_json($form_fields);
                 $decoded_fields = json_decode($fixed_json, true);
-                
+
                 if (json_last_error() !== JSON_ERROR_NONE) {
-                    // error_log('JSON decoding still failed after cleanup: ' . json_last_error_msg());
-                    // error_log('Fixed JSON: ' . $fixed_json);
+                    // If still fails, return error
                     return "Error: Unable to process form fields.";
-                } else {
-                    // error_log('JSON successfully fixed and decoded');
                 }
             }
-            
-            $field_values = array();
-            
+
+            $field_values = [];
+
             if (is_array($decoded_fields)) {
+                // ADDED CHECK FOR CHECKBOX ARRAYS:
                 foreach ($decoded_fields as $field) {
                     if (isset($field['id']) && isset($_REQUEST[$field['id']])) {
-                        $field_values[$field['id']] = sanitize_text_field($_REQUEST[$field['id']]);
+                        // If the submitted data is an array (checkboxes), handle it
+                        if (is_array($_REQUEST[$field['id']])) {
+                            // e.g. user selected multiple checkboxes
+                            $values = array_map('sanitize_text_field', $_REQUEST[$field['id']]);
+                            // Convert to a comma+space string (or do whatever suits your prompt)
+                            $field_values[$field['id']] = implode(', ', $values);
+                        } else {
+                            // single input / text / radio
+                            $field_values[$field['id']] = sanitize_text_field($_REQUEST[$field['id']]);
+                        }
                     }
                 }
-                
+
                 foreach ($field_values as $key => $value) {
                     $defined_prompt = str_replace('{' . $key . '}', $value, $defined_prompt);
                 }
-                
+
                 return $defined_prompt;
             } else {
-                // error_log('Decoded fields is not an array');
                 return "Error: Invalid form structure.";
             }
         }
@@ -862,7 +868,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
                 $pinecone_body['namespace'] = $namespace;
             }
         
-            $response = wp_safe_remote_post("https://$wpaicg_pinecone_environment/query", [
+            $response = wp_remote_post("https://$wpaicg_pinecone_environment/query", [
                 'headers' => $headers,
                 'body' => json_encode($pinecone_body)
             ]);
@@ -997,7 +1003,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Playground')) {
                 ]
             ];
         
-            $response = wp_safe_remote_post("$endpoint/collections/$collection/points/search", [
+            $response = wp_remote_post("$endpoint/collections/$collection/points/search", [
                 'method' => 'POST',
                 'headers' => ['api-key' => $apiKey, 'Content-Type' => 'application/json'],
                 'body' => json_encode($queryData)

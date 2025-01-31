@@ -1632,7 +1632,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
                 );
         
                 // Send the request to the Replicate API
-                $response = wp_safe_remote_post('https://api.replicate.com/v1/predictions', array(
+                $response = wp_remote_post('https://api.replicate.com/v1/predictions', array(
                     'headers' => $headers,
                     'body' => json_encode($body)
                 ));

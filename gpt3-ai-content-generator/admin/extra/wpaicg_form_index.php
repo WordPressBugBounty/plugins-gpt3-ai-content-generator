@@ -34,7 +34,7 @@ $engineMaxTokens = \WPAICG\WPAICG_Util::get_instance()->max_token_values;
 
 $custom_models = get_option('wpaicg_custom_models', []);
 
-$current_model = 'gpt-3.5-turbo';
+$current_model = 'gpt-4o-mini';
 
 $wpaicg_authors = array('default' => array('name' => 'AI Power','count' => 0));
 if(file_exists(WPAICG_PLUGIN_DIR.'admin/data/gptcategories.json')){

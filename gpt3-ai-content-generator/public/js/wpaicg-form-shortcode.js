@@ -324,14 +324,17 @@ var wpaicgPlayGround = {
                 modal.fadeIn();
                 jQuery('.wpaicg_feedbackModal-overlay').fadeIn();
                 
-                // Decide which AJAX action to call
-                var myaction = 'wpaicg_save_feedback'; // default
+                // Always save to wpaicg_form_feedback:
+                var myaction = 'wpaicg_save_feedback';
+                
+                // If you actually want to differentiate or store in another table,
+                // you could re-enable the logic below. Otherwise, leave it commented out.
+                /*
                 if (wpaicgFormData.sourceID && wpaicgFormData.sourceID.toString().length > 0) {
-                    // For "promptbase" type forms, we might call 'wpaicg_save_prompt_feedback'
-                    // if we want to differentiate. Adjust if needed based on your logic:
                     myaction = 'wpaicg_save_prompt_feedback';
                 }
-                
+                */
+
                 // Set up the submit event for the feedback modal's "Submit" button
                 jQuery('#wpaicg_submitFeedback').off('click').on('click', function() {
                     modal.find('textarea').attr('id', textareaID);

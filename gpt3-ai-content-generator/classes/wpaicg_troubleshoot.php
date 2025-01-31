@@ -215,7 +215,7 @@ if(!class_exists('\\WPAICG\\WPAICG_TroubleShoot')) {
             // 4. Prepare request
             $api_key = get_option('wpaicg_qdrant_api_key', '');
             $query   = stripslashes($_POST['query']);
-            $response = wp_safe_remote_post(
+            $response = wp_remote_post(
                 $url,
                 array(
                     'method'  => 'POST',
@@ -272,7 +272,7 @@ if(!class_exists('\\WPAICG\\WPAICG_TroubleShoot')) {
             // If 'data' is JSON, we can decode and re-encode it, or at least we do some minimal checks.
         
             // 5. Use wp_safe_remote_post
-            $response = wp_safe_remote_post( 
+            $response = wp_remote_post( 
                 $url,
                 array(
                     'headers' => $headers,
@@ -408,7 +408,7 @@ if(!class_exists('\\WPAICG\\WPAICG_TroubleShoot')) {
             $data = str_replace("\\", '', sanitize_text_field($_REQUEST['data']));
         
             // 5. Use wp_safe_remote_post
-            $response = wp_safe_remote_post(
+            $response = wp_remote_post(
                 $url,
                 array(
                     'headers' => $headers,
@@ -459,7 +459,7 @@ if(!class_exists('\\WPAICG\\WPAICG_TroubleShoot')) {
             $data = str_replace("\\", '', sanitize_text_field($_REQUEST['data']));
         
             // 5. Use wp_safe_remote_post
-            $response = wp_safe_remote_post(
+            $response = wp_remote_post(
                 $url,
                 array(
                     'headers' => $headers,

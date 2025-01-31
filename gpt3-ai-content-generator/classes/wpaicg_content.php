@@ -765,7 +765,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                 wp_send_json($wpaicg_result);
             }
             $wpaicg_data_request = [
-                'model' => 'gpt-3.5-turbo',
+                'model' => 'gpt-4o-mini',
                 'prompt' => $text_generated,
                 'temperature' => 0.7,
                 'max_tokens' => 2000,

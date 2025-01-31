@@ -351,7 +351,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     'language' => 'en',
                     'tone' => 'friendly',
                     'profession' => 'none',
-                    'model' => 'gpt-3.5-turbo',
+                    'model' => 'gpt-4o-mini',
                     'temperature' => $existingValue['temperature'],
                     'max_tokens' => $existingValue['max_tokens'],
                     'top_p' => $existingValue['top_p'],
@@ -416,11 +416,11 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 $selected_embedding_model = isset($wpaicg_settings['embedding_model']) ? $wpaicg_settings['embedding_model'] : "";
                 $selected_embedding_provider = isset($wpaicg_settings['embedding_provider']) ? $wpaicg_settings['embedding_provider'] : "";
 
-                $wpaicg_ai_model = isset($wpaicg_settings['model']) ? $wpaicg_settings['model'] : 'gpt-3.5-turbo' ;
+                $wpaicg_ai_model = isset($wpaicg_settings['model']) ? $wpaicg_settings['model'] : 'gpt-4o-mini' ;
 
                 // if OpenAI or OpenRouter
                 if ($wpaicg_provider === 'OpenAI' || $wpaicg_provider === 'OpenRouter') {
-                    $wpaicg_ai_model = isset($wpaicg_settings['model']) ? $wpaicg_settings['model'] : 'gpt-3.5-turbo';
+                    $wpaicg_ai_model = isset($wpaicg_settings['model']) ? $wpaicg_settings['model'] : 'gpt-4o-mini';
                 } elseif ($wpaicg_provider === 'Azure') {
                     $wpaicg_ai_model = get_option('wpaicg_azure_deployment', ''); 
                 }  elseif ($wpaicg_provider === 'Google') {
@@ -431,7 +431,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     }
                 } else {
                     // Handle other providers or set a default value
-                    $wpaicg_ai_model = 'gpt-3.5-turbo';
+                    $wpaicg_ai_model = 'gpt-4o-mini';
                 }
 
                 $wpaicg_save_logs = isset($wpaicg_settings['save_logs']) && $wpaicg_settings['save_logs'] ? true : false;
@@ -509,7 +509,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 } elseif ($wpaicg_provider === 'OpenRouter') {
                     $wpaicg_ai_model = get_option('wpaicg_widget_openrouter_model', 'openrouter/auto'); 
                 } else {
-                    $wpaicg_ai_model = get_option('wpaicg_chat_model', 'gpt-3.5-turbo');
+                    $wpaicg_ai_model = get_option('wpaicg_chat_model', 'gpt-4o-mini');
                 }                    
                 $wpaicg_save_logs = isset($wpaicg_chat_widget['save_logs']) && $wpaicg_chat_widget['save_logs'] ? true : false;
                 $wpaicg_chat_addition = get_option('wpaicg_chat_addition',false);
@@ -591,7 +591,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     $wpaicg_chat_content_aware = isset($wpaicg_chat_widget['content_aware']) ? $wpaicg_chat_widget['content_aware'] : 'yes' ;
                     $wpaicg_chat_vectordb = isset($wpaicg_chat_widget['vectordb']) ? $wpaicg_chat_widget['vectordb'] : 'pinecone' ;
                     $wpaicg_chat_qdrant_collection = isset($wpaicg_chat_widget['qdrant_collection']) ? $wpaicg_chat_widget['qdrant_collection'] : '' ;
-                    $wpaicg_ai_model = isset($wpaicg_chat_widget['model']) ? $wpaicg_chat_widget['model'] : 'gpt-3.5-turbo' ;
+                    $wpaicg_ai_model = isset($wpaicg_chat_widget['model']) ? $wpaicg_chat_widget['model'] : 'gpt-4o-mini' ;
 
                     if ($wpaicg_provider === 'Azure') {
                         $wpaicg_ai_model = isset($wpaicg_chat_widget['model']) ? $wpaicg_chat_widget['model'] : '';
@@ -600,7 +600,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     }  elseif ($wpaicg_provider === 'OpenRouter') {
                         $wpaicg_ai_model = isset($wpaicg_chat_widget['model']) ? $wpaicg_chat_widget['model'] : 'openrouter/auto';
                     } else {
-                        $wpaicg_ai_model = isset($wpaicg_chat_widget['model']) ? $wpaicg_chat_widget['model'] : 'gpt-3.5-turbo';
+                        $wpaicg_ai_model = isset($wpaicg_chat_widget['model']) ? $wpaicg_chat_widget['model'] : 'gpt-4o-mini';
                     }
 
                     $wpaicg_save_logs = isset($wpaicg_chat_widget['save_logs']) && $wpaicg_chat_widget['save_logs'] ? true : false;
@@ -2259,7 +2259,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                         if($namespace){
                             $pinecone_body['namespace'] = $namespace;
                         }
-                        $response = wp_safe_remote_post('https://' . $wpaicg_pinecone_environment . '/query', array(
+                        $response = wp_remote_post('https://' . $wpaicg_pinecone_environment . '/query', array(
                             'headers' => $headers,
                             'body' => wp_json_encode($pinecone_body)
                         ));

@@ -372,7 +372,7 @@ $assistants_json = json_encode($assistants);
 }, $openrouter_models))); ?>"></div>
 
 <div id="google-models" data-models="<?php echo esc_attr(json_encode($wpaicg_google_model_list)); ?>"></div>
-<div id="default-models" data-openai-default="<?php echo esc_attr(get_option('wpaicg_ai_model', 'gpt-3.5-turbo')); ?>"
+<div id="default-models" data-openai-default="<?php echo esc_attr(get_option('wpaicg_ai_model', 'gpt-4o-mini')); ?>"
     data-google-default="<?php echo esc_attr(get_option('wpaicg_google_default_model', 'gemini-pro')); ?>"
     data-openrouter-default="<?php echo esc_attr(get_option('wpaicg_openrouter_default_model', 'anthropic/claude-3.5-sonnet')); ?>"
     data-azure-default="<?php echo esc_attr(get_option('wpaicg_azure_deployment', '')); ?>">

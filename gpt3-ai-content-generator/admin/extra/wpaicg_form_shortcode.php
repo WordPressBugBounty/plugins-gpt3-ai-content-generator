@@ -45,6 +45,16 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
     }
     $wpaicg_item = false;
     $wpaicg_custom = isset($atts['custom']) && $atts['custom'] == 'yes' ? true : false;
+
+    // Removed 'dans' and 'noanswer_text' from meta keys
+    $wpaicg_meta_keys = array(
+        'prompt','editor','fields','response','category','engine','max_tokens','temperature','top_p','best_of',
+        'frequency_penalty','presence_penalty','stop','color','icon','bgcolor','header','embeddings','vectordb',
+        'collections','pineconeindexes','suffix_text','suffix_position','embeddings_limit','use_default_embedding_model',
+        'selected_embedding_model','selected_embedding_provider','ddraft','dclear','dnotice','generate_text','draft_text',
+        'clear_text','stop_text','cnotice_text','download_text','ddownload','copy_button','copy_text','feedback_buttons'
+    );
+
     if(count($wpaicg_items) && !$wpaicg_custom){
         foreach ($wpaicg_items as $wpaicg_prompt){
             if(isset($wpaicg_prompt['id']) && $wpaicg_prompt['id'] == $wpaicg_item_id){
@@ -55,13 +65,22 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
     }
     if($wpaicg_custom){
         $sql = "SELECT p.ID as id,p.post_title as title, p.post_content as description";
-        $wpaicg_meta_keys = array('prompt','editor','fields','response','category','engine','max_tokens','temperature','top_p','best_of','frequency_penalty','presence_penalty','stop','color','icon','bgcolor','header','embeddings','vectordb','collections','pineconeindexes','suffix_text','suffix_position','embeddings_limit','use_default_embedding_model','selected_embedding_model','selected_embedding_provider','dans','ddraft','dclear','dnotice','generate_text','noanswer_text','draft_text','clear_text','stop_text','cnotice_text','download_text','ddownload','copy_button','copy_text','feedback_buttons');
         foreach($wpaicg_meta_keys as $wpaicg_meta_key){
-            $sql .= ", (".$wpdb->prepare("SELECT ".$wpaicg_meta_key.".meta_value FROM ".$wpdb->postmeta." ".$wpaicg_meta_key." WHERE ".$wpaicg_meta_key.".meta_key=%s AND p.ID=".$wpaicg_meta_key.".post_id LIMIT 1",
+            $sql .= ", (".$wpdb->prepare(
+                    "SELECT ".$wpaicg_meta_key.".meta_value 
+                     FROM ".$wpdb->postmeta." ".$wpaicg_meta_key." 
+                     WHERE ".$wpaicg_meta_key.".meta_key=%s 
+                     AND p.ID=".$wpaicg_meta_key.".post_id LIMIT 1",
                     'wpaicg_form_'.$wpaicg_meta_key
                 ).") as ".$wpaicg_meta_key;
         }
-        $sql .= $wpdb->prepare(" FROM ".$wpdb->posts." p WHERE p.post_type = 'wpaicg_form' AND p.post_status='publish' AND p.ID=%d ORDER BY p.post_date DESC", $wpaicg_item_id);
+        $sql .= $wpdb->prepare(
+            " FROM ".$wpdb->posts." p 
+              WHERE p.post_type = 'wpaicg_form' AND p.post_status='publish' 
+              AND p.ID=%d 
+              ORDER BY p.post_date DESC", 
+            $wpaicg_item_id
+        );
         $wpaicg_item = $wpdb->get_row($sql, ARRAY_A);
         if($wpaicg_item){
             $wpaicg_item['type'] = 'custom';
@@ -73,11 +92,15 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
         if(isset($wpaicg_item['category']) && !empty($wpaicg_item['category'])){
             $wpaicg_item_categories = array_map('trim', explode(',', $wpaicg_item['category']));
         }
-        $wpaicg_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path d="M320 0c17.7 0 32 14.3 32 32V96H480c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H160c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64H288V32c0-17.7 14.3-32 32-32zM208 384c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H208zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H304zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H400zM264 256c0-22.1-17.9-40-40-40s-40 17.9-40 40s17.9 40 40 40s40-17.9 40-40zm152 40c22.1 0 40-17.9 40-40s-17.9-40-40-40s-40 17.9-40 40s17.9 40 40 40zM48 224H64V416H48c-26.5 0-48-21.5-48-48V272c0-26.5 21.5-48 48-48zm544 0c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H576V224h16z"/></svg>';
+
+        // --- Updated dashicons approach ---
+        // Default to a dashicons fallback in case none is found or configured
+        $wpaicg_icon_class = 'dashicons dashicons-admin-generic';
         if(isset($wpaicg_item['icon']) && !empty($wpaicg_item['icon']) && isset($wpaicg_icons[$wpaicg_item['icon']]) && !empty($wpaicg_icons[$wpaicg_item['icon']])){
-            $wpaicg_icon = $wpaicg_icons[$wpaicg_item['icon']];
+            $wpaicg_icon_class = $wpaicg_icons[$wpaicg_item['icon']];
         }
         $wpaicg_icon_color = isset($wpaicg_item['color']) && !empty($wpaicg_item['color']) ? $wpaicg_item['color'] : '#19c37d';
+
         $wpaicg_engine = isset($wpaicg_item['engine']) && !empty($wpaicg_item['engine']) ? $wpaicg_item['engine'] : $this->wpaicg_engine;
         $wpaicg_max_tokens = isset($wpaicg_item['max_tokens']) && !empty($wpaicg_item['max_tokens']) ? $wpaicg_item['max_tokens'] : $this->wpaicg_max_tokens;
         $wpaicg_temperature = isset($wpaicg_item['temperature']) && !empty($wpaicg_item['temperature']) ? $wpaicg_item['temperature'] : $this->wpaicg_temperature;
@@ -92,7 +115,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
         $selected_embedding_model = isset($wpaicg_item['selected_embedding_model']) && !empty($wpaicg_item['selected_embedding_model']) ? $wpaicg_item['selected_embedding_model'] : '';
         $selected_embedding_provider = isset($wpaicg_item['selected_embedding_provider']) && !empty($wpaicg_item['selected_embedding_provider']) ? $wpaicg_item['selected_embedding_provider'] : '';
         $wpaicg_draft_text = isset($wpaicg_item['draft_text']) && !empty($wpaicg_item['draft_text']) ? $wpaicg_item['draft_text'] : esc_html__('Save Draft','gpt3-ai-content-generator');
-        $wpaicg_noanswer_text = isset($wpaicg_item['noanswer_text']) && !empty($wpaicg_item['noanswer_text']) ? $wpaicg_item['noanswer_text'] : esc_html__('Number of Answers','gpt3-ai-content-generator');
+        // Removed $wpaicg_noanswer_text definition since it's no longer needed
         $wpaicg_clear_text = isset($wpaicg_item['clear_text']) && !empty($wpaicg_item['clear_text']) ? $wpaicg_item['clear_text'] : esc_html__('Clear','gpt3-ai-content-generator');
         $wpaicg_stop_text = isset($wpaicg_item['stop_text']) && !empty($wpaicg_item['stop_text']) ? $wpaicg_item['stop_text'] : esc_html__('Stop','gpt3-ai-content-generator');
         $wpaicg_cnotice_text = isset($wpaicg_item['cnotice_text']) && !empty($wpaicg_item['cnotice_text']) ? $wpaicg_item['cnotice_text'] : esc_html__('Please register to save your result','gpt3-ai-content-generator');
@@ -123,307 +146,407 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
         }
         ?>
         <style>
-            .wpaicg-prompt-item{
+        /* Container for each prompt form */
+        .wpaicg-prompt-item {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-family: Arial, sans-serif;
+        }
 
+        /* Header section: icon + title + description */
+        .wpaicg-prompt-head {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .wpaicg-prompt-icon {
+            background: #19c37d; /* Adjust to your preferred accent color */
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wpaicg-prompt-icon .dashicons {
+            color: #fff; /* ensure icon color remains white (or suitable) */
+        }
+
+        .wpaicg-prompt-head strong {
+            font-size: 20px;
+            margin-bottom: 5px;
+            display: block;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .wpaicg-prompt-head p {
+            margin: 0;
+            color: #666;
+        }
+
+        /* Main content area within the form container */
+        .wpaicg-prompt-content {
+            margin-top: 15px;
+        }
+
+        /* Grid layouts: tweak to your preference */
+        .wpaicg-grid-three {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .wpaicg-grid-2 {
+            grid-column: span 2/span 2;
+        }
+
+        .wpaicg-grid-1 {
+            grid-column: span 1/span 1;
+        }
+
+        /* Form fields and labels */
+        .wpaicg-form-field,
+        .wpaicg-prompt-field {
+            margin-bottom: 15px;
+        }
+
+        .wpaicg-form-field label strong,
+        .wpaicg-prompt-field strong {
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #555;
+        }
+
+        .wpaicg-prompt-field > strong > small {
+            font-size: 12px;
+            font-weight: normal;
+            display: block;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* Inputs, textareas, selects */
+        .wpaicg-prompt-field input,
+        .wpaicg-prompt-field select,
+        .wpaicg-form-field input,
+        .wpaicg-form-field select,
+        .wpaicg-form-field textarea,
+        .wpaicg-prompt-field textarea {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 14px;
+            color: #333;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .wpaicg-prompt-field input:focus,
+        .wpaicg-prompt-field select:focus,
+        .wpaicg-form-field input:focus,
+        .wpaicg-form-field select:focus,
+        .wpaicg-form-field textarea:focus,
+        .wpaicg-prompt-field textarea:focus {
+            border-color: #19c37d;
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        /* Generate and Stop buttons */
+        .wpaicg-prompt-flex-center {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Primary button styles */
+        .wpaicg-button {
+            padding: 8px 12px;
+            background: #19c37d;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4em;
+        }
+
+        .wpaicg-button:hover:not(:disabled),
+        .wpaicg-button:focus:not(:disabled) {
+            background-color: #17ab6f;
+            transform: translateY(-2px);
+        }
+
+        .wpaicg-button:disabled {
+            background: #c8c8c8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loader animation inside the button */
+        .wpaicg-loader {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: wpaicg_rotation 1s linear infinite;
+        }
+
+        @keyframes wpaicg_rotation {
+            0%   { transform: rotate(0deg);   }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* The result text area or DIV */
+        .wpaicg-prompt-result {
+            width: 100%;
+            min-height: 200px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 15px;
+            box-sizing: border-box;
+            color: #333;
+            font-size: 14px;
+        }
+
+        /* Additional controls below the result (Save Draft, Clear, etc.) */
+        .wpaicg-prompt-save-result {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .wpaicg-prompt-item .wpaicg-prompt-response {
+            position: absolute;
+            background: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 8px;
+            width: 300px;
+            bottom: calc(100% + 5px);
+            left: 0;
+            z-index: 99;
+            display: none;
+            font-size: 13px;
+        }
+
+
+        .wpaicg-prompt-response:after,
+        .wpaicg-prompt-response:before {
+            content: "";
+            position: absolute;
+            left: 20px;
+            border: solid transparent;
+            height: 0;
+            width: 0;
+            pointer-events: none;
+        }
+
+        .wpaicg-prompt-response:before {
+            border-color: rgba(68, 68, 68, 0);
+            border-bottom-color: #444;
+            border-width: 7px;
+            top: -14px;
+        }
+
+        .wpaicg-prompt-response:after {
+            border-color: rgba(51, 51, 51, 0);
+            border-bottom-color: #333;
+            border-width: 6px;
+            top: -12px;
+        }
+
+        /* Feedback Modal Overlay */
+        .wpaicg_feedbackModal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+            display: none; 
+        }
+
+        /* Feedback Modal Container */
+        #wpaicg_feedbackModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            z-index: 9999;
+            width: 90%;
+            max-width: 600px;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Feedback Modal Content */
+        .wpaicg_feedbackModal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        #wpaicg_feedbackModal h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        #wpaicg_feedbackModal textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        /* Feedback Modal Buttons */
+        .wpaicg_button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        #wpaicg_feedbackModal button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        #wpaicg_feedbackModal #wpaicg_submitFeedback {
+            background-color: #19c37d;
+            color: #fff;
+        }
+
+        #wpaicg_feedbackModal #wpaicg_submitFeedback:hover {
+            background-color: #17ab6f;
+            transform: translateY(-2px);
+        }
+
+        #wpaicg_feedbackModal #closeFeedbackModal {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        #wpaicg_feedbackModal #closeFeedbackModal:hover {
+            background-color: #cacaca;
+            transform: translateY(-2px);
+        }
+
+        /* Checkbox/radio styling */
+        .wpaicg-checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 5px 0;
+        }
+        .wpaicg-checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            padding-left: 26px;
+            font-size: 14px;
+            color: #555;
+        }
+        .wpaicg-checkbox-label input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+        .wpaicg-checkbox-custom {
+            position: absolute;
+            left: 0;
+            top: 2px;
+            height: 18px;
+            width: 18px;
+            background-color: #fff;
+            border: 2px solid #ccc;
+            border-radius: 2px; 
+            box-sizing: border-box;
+        }
+        .wpaicg-checkbox-label input:checked ~ .wpaicg-checkbox-custom {
+            background-color: #19c37d;
+            border-color: #19c37d;
+        }
+        .wpaicg-checkbox-custom:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+        .wpaicg-checkbox-label input:checked ~ .wpaicg-checkbox-custom:after {
+            display: block;
+        }
+        .wpaicg-checkbox-label .wpaicg-checkbox-custom:after {
+            left: 5px;
+            top: 0;
+            width: 5px;
+            height: 11px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        .wpaicg-checkbox-text {
+            margin-left: 5px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .wpaicg-grid-three {
+                grid-template-columns: 1fr;
             }
-            .wpaicg-prompt-head{
-                display: flex;
-                align-items: center;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #b1b1b1;
-            }
-            .wpaicg-prompt-icon{
-                color: #fff;
-                width: 100px;
-                height: 100px;
-                margin-right: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 5px;
-            }
-            .wpaicg-prompt-icon svg{
-                fill: currentColor;
-                width: 50px;
-                height: 50px;
-            }
-            .wpaicg-prompt-head p{
-                margin: 5px 0;
-            }
-            .wpaicg-prompt-head strong{
-                font-size: 20px;
-                display: block;
-            }
-            .wpaicg-prompt-content{
-                padding: 10px 0;
-            }
-            .wpaicg-grid-three{
-                display: grid;
-                grid-template-columns: repeat(3,1fr);
-                grid-column-gap: 20px;
-                grid-row-gap: 20px;
-                grid-template-rows: auto auto;
-            }
-            .wpaicg-grid-2{
-                grid-column: span 2/span 1;
-            }
-            .wpaicg-grid-1{
-                grid-column: span 1/span 1;
-            }
-            .wpaicg-prompt-item .wpaicg-prompt-sample{
-                display: block;
-                position: relative;
-                font-size: 13px;
-            }
-            .wpaicg-prompt-item .wpaicg-prompt-sample:hover .wpaicg-prompt-response{
-                display: block;
-            }
-            .wpaicg-prompt-title{
-                display: block;
-                width: 100%;
-                margin-bottom: 20px;
-            }
-            .wpaicg-prompt-result{
-                width: 100%;
-            }
-            .wpaicg-prompt-max-lines{
-                display: inline-block;
-                width: auto;
-                border: 1px solid #8f8f8f;
-                margin-left: 10px;
-                padding: 5px 10px;
-                border-radius: 3px;
+            
+            .wpaicg-button {
                 font-size: 15px;
+                padding: 10px;
             }
-            .wpaicg-generate-button{
-                margin-left: 10px;
-            }
-            .wpaicg-button{
-                padding: 5px 10px;
-                background: #424242;
-                border: 1px solid #343434;
-                border-radius: 4px;
-                color: #fff;
-                font-size: 15px;
-                position: relative;
-                display: inline-flex;
-                align-items: center;
-            }
-            .wpaicg-button:disabled{
-                background: #505050;
-                border-color: #999;
-            }
-            .wpaicg-button:hover:not(:disabled),.wpaicg-button:focus:not(:disabled){
-                color: #fff;
-                background-color: #171717;
-                text-decoration: none;
-            }
-            .wpaicg-prompt-item .wpaicg-prompt-response{
-                background: #333;
-                border: 1px solid #444;
-                position: absolute;
-                border-radius: 3px;
-                color: #fff;
-                padding: 5px;
-                width: 320px;
-                bottom: calc(100% + 5px);
-                left: -100px;
-                z-index: 99;
-                display: none;
-                font-size: 13px;
-            }
-            .wpaicg-prompt-item h3{
-                font-size: 25px;
-                margin: 0 0 20px 0px;
-            }
-            .wpaicg-prompt-item .wpaicg-prompt-response:after,.wpaicg-prompt-item .wpaicg-prompt-response:before{
-                top: 100%;
-                left: 50%;
-                border: solid transparent;
-                content: "";
-                height: 0;
-                width: 0;
-                position: absolute;
-                pointer-events: none;
-            }
-            .wpaicg-prompt-item .wpaicg-prompt-response:before{
-                border-color: rgba(68, 68, 68, 0);
-                border-top-color: #444;
-                border-width: 7px;
-                margin-left: -7px;
-            }
-            .wpaicg-prompt-item .wpaicg-prompt-response:after{
-                border-color: rgba(51, 51, 51, 0);
-                border-top-color: #333;
-                border-width: 6px;
-                margin-left: -6px;
-            }
-            .wpaicg-prompt-item .wpaicg-prompt-field > strong{
-                display: inline-flex;
-                width: 50%;
-                font-size: 13px;
-                align-items: center;
-                flex-wrap: wrap;
-            }
-            .wpaicg-prompt-item .wpaicg-prompt-field > strong > small{
-                font-size: 12px;
-                font-weight: normal;
-                display: block;
-            }
-            .wpaicg-prompt-item .wpaicg-prompt-field > input,.wpaicg-prompt-item .wpaicg-prompt-field > select{
-                border: 1px solid #8f8f8f;
-                padding: 5px 10px;
-                border-radius: 3px;
-                font-size: 15px;
-                display: inline-block;
-                width: 50%;
-            }
-            .wpaicg-prompt-flex-center{
-                display: flex;
-                align-items: center;
-            }
-            .wpaicg-prompt-field{
-                margin-bottom: 10px;
-                display: flex;
-            }
-            .wpaicg-mb-10{
-                margin-bottom: 10px;
-            }
-            .wpaicg-loader{
-                width: 20px;
-                height: 20px;
-                border: 2px solid #FFF;
-                border-bottom-color: transparent;
-                border-radius: 50%;
-                display: inline-block;
-                box-sizing: border-box;
-                animation: wpaicg_rotation 1s linear infinite;
-            }
-            .wpaicg-button .wpaicg-loader{
-                float: right;
-                margin-left: 5px;
-                margin-top: 2px;
-            }
-            .wpaicg-form-field{
-                margin-bottom: 10px;
-            }
-            @keyframes wpaicg_rotation {
-                0% {
-                    transform: rotate(0deg);
-                }
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-
-            /* Feedback Modal Styles */
-            #wpaicg_feedbackModal {
-                display: none;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                z-index: 9999;
-                width: 80%; /* Use a percentage width for most screens */
-                max-width: 600px; /* Set a maximum width for very wide screens */
-                justify-content: center;
-                align-items: center;
-                transform: translate(-50%, -50%);
-            }
-
-            .wpaicg_feedbackModal-content {
-                background: #fff;
-                padding: 3vw;
-                border-radius: 16px;
-                box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
-            }
-
-            #wpaicg_feedbackModal h3 {
-                margin-bottom: 20px;
-                color: #333;
-            }
-
-            #wpaicg_feedbackModal textarea {
-                width: calc(100% - 3%); /* Adjust width considering the added padding */
-                padding: 1.5%; /* Internal padding */
-                margin-bottom: 1.5%; /* Spacing below the textarea */
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                font-size: 16px;
-                resize: vertical;
-                box-shadow: 0 0 5px rgba(0, 0, 0, 0.05) inset;
-            }
-
+            
             .wpaicg_button-group {
-                display: flex;
-                justify-content: flex-end;
-                gap: 12px;
-                margin-top: 20px;
+                flex-direction: column;
+                gap: 10px;
             }
 
-            #wpaicg_feedbackModal button {
-                padding: 10px 16px;
-                border: none;
-                border-radius: 8px;
-                font-size: 16px;
-                cursor: pointer;
-                transition: background-color 0.3s, transform 0.1s;
+            #wpaicg_feedbackModal {
+                width: 90%;
             }
-
-            #wpaicg_feedbackModal button:hover {
-                transform: translateY(-2px);
-            }
-
-            #wpaicg_feedbackModal #wpaicg_submitFeedback {
-                background-color: #007BFF;
-                color: #fff;
-            }
-
-            #wpaicg_feedbackModal #wpaicg_submitFeedback:hover {
-                background-color: #0056b3;
-            }
-
-            #wpaicg_feedbackModal #closeFeedbackModal {
-                background-color: #e0e0e0;
-                color: #333;
-            }
-
-            #wpaicg_feedbackModal #closeFeedbackModal:hover {
-                background-color: #c4c4c4;
-            }
-            .wpaicg_feedbackModal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);  /* semi-transparent black */
-                z-index: 9998;  /* one less than the modal to ensure it's below */
-                display: none;  /* hidden by default */
-                max-width: none !important;
-                margin: 0 !important;
-            }
-
-            /* Responsive Media Queries */
-            @media screen and (max-width: 768px) {
-                #wpaicg_feedbackModal h3 {
-                    font-size: 20px; /* Reduce font size for smaller screens */
-                    margin-bottom: 15px;
-                }
-
-                #wpaicg_feedbackModal textarea {
-                    font-size: 14px; /* Adjust font size for smaller screens */
-                }
-
-                .wpaicg_button-group {
-                    flex-direction: column; /* Stack buttons vertically on small screens */
-                    gap: 10px;
-                }
-
-                #wpaicg_feedbackModal button {
-                    width: 100%; /* Full-width buttons on small screens */
-                }
-            }
-
+        }
         </style>
         <?php
         $wpaicg_fields = [];
@@ -436,34 +559,23 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                     $wpaicg_item['fields'] = str_replace('\\', '', $wpaicg_item['fields']);
                 }
             }
-            $wpaicg_fields = $wpaicg_item['type'] == 'custom' ? json_decode($wpaicg_item['fields'],true) : $wpaicg_item['fields'];
+            $wpaicg_fields = $wpaicg_item['type'] == 'custom' 
+                ? json_decode($wpaicg_item['fields'],true) 
+                : $wpaicg_item['fields'];
         }
         $wpaicg_response_type = isset($wpaicg_item['editor']) && $wpaicg_item['editor'] == 'div' ? 'div' : 'textarea';
+
+        // KSES defaults for safety
         $kses_defaults = wp_kses_allowed_html( 'post' );
-        $svg_args = array(
-            'svg'   => array(
-                'class'           => true,
-                'aria-hidden'     => true,
-                'aria-labelledby' => true,
-                'role'            => true,
-                'xmlns'           => true,
-                'width'           => true,
-                'height'          => true,
-                'viewbox'         => true // <= Must be lower case!
-            ),
-            'g'     => array( 'fill' => true ),
-            'title' => array( 'title' => true ),
-            'path'  => array(
-                'd'               => true,
-                'fill'            => true
-            )
-        );
-        $allowed_tags = array_merge( $kses_defaults, $svg_args );
+        $allowed_tags = $kses_defaults;
+
         $randomFormID = wp_rand(100000,999999);
         ?>
         <div class="wpaicg-prompt-item wpaicg-playground-shortcode" style="<?php echo isset($wpaicg_item['bgcolor']) && !empty($wpaicg_item['bgcolor']) ? 'background-color:'.esc_html($wpaicg_item['bgcolor']):'';?>">
             <div class="wpaicg-prompt-head" style="<?php echo isset($wpaicg_item['header']) && $wpaicg_item['header'] == 'no' ? 'display: none;':'';?>">
-                <div class="wpaicg-prompt-icon" style="background: <?php echo esc_html($wpaicg_icon_color)?>"><?php echo wp_kses($wpaicg_icon,$allowed_tags)?></div>
+                <div class="wpaicg-prompt-icon" style="background: <?php echo esc_html($wpaicg_icon_color)?>">
+                    <span class="<?php echo esc_attr($wpaicg_icon_class); ?>"></span>
+                </div>
                 <div class="">
                     <strong><?php echo isset($wpaicg_item['title']) && !empty($wpaicg_item['title']) ? esc_html($wpaicg_item['title']) : ''?></strong>
                     <?php
@@ -487,7 +599,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                 <?php
                                 if($wpaicg_fields && is_array($wpaicg_fields) && count($wpaicg_fields)){
                                     foreach($wpaicg_fields as $key=>$wpaicg_field){
-                                    ?>
+                                        ?>
                                         <div class="wpaicg-form-field">
                                             <label><strong><?php echo esc_html(@$wpaicg_field['label'])?></strong></label><br>
                                             <?php
@@ -496,13 +608,20 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                                 if(isset($wpaicg_field['options'])){
                                                     if($wpaicg_item['type'] == 'custom'){
                                                         $wpaicg_field_options = explode("|", $wpaicg_field['options']);
-                                                    }
-                                                    else{
+                                                    } else {
                                                         $wpaicg_field_options = $wpaicg_field['options'];
                                                     }
                                                 }
                                                 ?>
-                                                <select id="wpaicg-form-field-<?php echo esc_html($key)?>" class="wpaicg-form-field-<?php echo esc_html($key)?>" name="<?php echo esc_html($wpaicg_field['id'])?>" data-label="<?php echo esc_html(@$wpaicg_field['label'])?>" data-type="<?php echo esc_html(@$wpaicg_field['type'])?>" data-min="<?php echo isset($wpaicg_field['min']) ? esc_html($wpaicg_field['min']) : ''?>" data-max="<?php echo isset($wpaicg_field['max']) ? esc_html($wpaicg_field['max']) : ''?>">
+                                                <select 
+                                                    id="wpaicg-form-field-<?php echo esc_html($key)?>" 
+                                                    class="wpaicg-form-field-<?php echo esc_html($key)?>" 
+                                                    name="<?php echo esc_html($wpaicg_field['id'])?>" 
+                                                    data-label="<?php echo esc_html(@$wpaicg_field['label'])?>" 
+                                                    data-type="<?php echo esc_html(@$wpaicg_field['type'])?>" 
+                                                    data-min="<?php echo isset($wpaicg_field['min']) ? esc_html($wpaicg_field['min']) : ''?>" 
+                                                    data-max="<?php echo isset($wpaicg_field['max']) ? esc_html($wpaicg_field['max']) : ''?>"
+                                                >
                                                     <?php
                                                     foreach($wpaicg_field_options as $wpaicg_field_option){
                                                         echo '<option value="'.esc_html($wpaicg_field_option).'">'.esc_html($wpaicg_field_option).'</option>';
@@ -516,17 +635,27 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                                 if(isset($wpaicg_field['options'])){
                                                     if($wpaicg_item['type'] == 'custom'){
                                                         $wpaicg_field_options = explode("|", $wpaicg_field['options']);
-                                                    }
-                                                    else{
+                                                    } else {
                                                         $wpaicg_field_options = $wpaicg_field['options'];
                                                     }
                                                 }
                                                 ?>
-                                                <div id="wpaicg-form-field-<?php echo esc_html($key)?>" class="wpaicg-form-field-<?php echo esc_html($key)?>">
+                                                <div 
+                                                    id="wpaicg-form-field-<?php echo esc_html($key)?>" 
+                                                    class="wpaicg-form-field-<?php echo esc_html($key)?> wpaicg-checkbox-group"
+                                                >
                                                     <?php
                                                     foreach($wpaicg_field_options as $wpaicg_field_option):
                                                     ?>
-                                                    <label><input name="<?php echo esc_html($wpaicg_field['id']).($wpaicg_field['type'] == 'checkbox' ? '[]':'')?>" value="<?php echo esc_html($wpaicg_field_option)?>" type="<?php echo esc_html($wpaicg_field['type'])?>">&nbsp;<?php echo esc_html($wpaicg_field_option)?></label>&nbsp;&nbsp;&nbsp;
+                                                    <label class="wpaicg-checkbox-label">
+                                                        <input 
+                                                            name="<?php echo esc_html($wpaicg_field['id']).($wpaicg_field['type'] == 'checkbox' ? '[]':'')?>"
+                                                            value="<?php echo esc_html($wpaicg_field_option)?>" 
+                                                            type="<?php echo esc_html($wpaicg_field['type'])?>"
+                                                        >
+                                                        <span class="wpaicg-checkbox-custom"></span>
+                                                        <span class="wpaicg-checkbox-text"><?php echo esc_html($wpaicg_field_option)?></span>
+                                                    </label>
                                                     <?php
                                                     endforeach;
                                                     ?>
@@ -534,50 +663,86 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                                 <?php
                                             }
                                             elseif($wpaicg_field['type'] == 'textarea'){
-                                            ?>
-                                                <textarea<?php echo isset($wpaicg_field['rows']) && !empty($wpaicg_field['rows']) ? ' rows="'.esc_html($wpaicg_field['rows']).'"': '';?><?php echo isset($wpaicg_field['cols']) && !empty($wpaicg_field['cols']) ? ' rows="'.esc_html($wpaicg_field['cols']).'"': '';?> id="wpaicg-form-field-<?php echo esc_html($key)?>" class="wpaicg-form-field-<?php echo esc_html($key)?>" name="<?php echo esc_html($wpaicg_field['id'])?>" data-label="<?php echo esc_html(@$wpaicg_field['label'])?>" data-type="<?php echo esc_html(@$wpaicg_field['type'])?>" type="<?php echo esc_html(@$wpaicg_field['type'])?>" data-min="<?php echo isset($wpaicg_field['min']) ? esc_html($wpaicg_field['min']) : ''?>" data-max="<?php echo isset($wpaicg_field['max']) ? esc_html($wpaicg_field['max']) : ''?>"></textarea>
+                                                ?>
+                                                <textarea
+                                                    <?php echo isset($wpaicg_field['rows']) && !empty($wpaicg_field['rows']) ? ' rows="'.esc_html($wpaicg_field['rows']).'"': '';?> 
+                                                    <?php echo isset($wpaicg_field['cols']) && !empty($wpaicg_field['cols']) ? ' cols="'.esc_html($wpaicg_field['cols']).'"': '';?> 
+                                                    id="wpaicg-form-field-<?php echo esc_html($key)?>" 
+                                                    class="wpaicg-form-field-<?php echo esc_html($key)?>" 
+                                                    name="<?php echo esc_html($wpaicg_field['id'])?>" 
+                                                    data-label="<?php echo esc_html(@$wpaicg_field['label'])?>" 
+                                                    data-type="<?php echo esc_html(@$wpaicg_field['type'])?>" 
+                                                    data-min="<?php echo isset($wpaicg_field['min']) ? esc_html($wpaicg_field['min']) : ''?>" 
+                                                    data-max="<?php echo isset($wpaicg_field['max']) ? esc_html($wpaicg_field['max']) : ''?>"
+                                                ></textarea>
                                                 <?php
                                             }
                                             else{
                                                 ?>
-                                                <input id="wpaicg-form-field-<?php echo esc_html($key)?>" class="wpaicg-form-field-<?php echo esc_html($key)?>" name="<?php echo esc_html($wpaicg_field['id'])?>" data-label="<?php echo esc_html(@$wpaicg_field['label'])?>" data-type="<?php echo esc_html(@$wpaicg_field['type'])?>" type="<?php echo esc_html(@$wpaicg_field['type'])?>" data-min="<?php echo isset($wpaicg_field['min']) ? esc_html($wpaicg_field['min']) : ''?>" data-max="<?php echo isset($wpaicg_field['max']) ? esc_html($wpaicg_field['max']) : ''?>">
+                                                <input 
+                                                    id="wpaicg-form-field-<?php echo esc_html($key)?>" 
+                                                    class="wpaicg-form-field-<?php echo esc_html($key)?>" 
+                                                    name="<?php echo esc_html($wpaicg_field['id'])?>" 
+                                                    data-label="<?php echo esc_html(@$wpaicg_field['label'])?>" 
+                                                    data-type="<?php echo esc_html(@$wpaicg_field['type'])?>" 
+                                                    type="<?php echo esc_html(@$wpaicg_field['type'])?>" 
+                                                    data-min="<?php echo isset($wpaicg_field['min']) ? esc_html($wpaicg_field['min']) : ''?>" 
+                                                    data-max="<?php echo isset($wpaicg_field['max']) ? esc_html($wpaicg_field['max']) : ''?>"
+                                                >
                                                 <?php
                                             }
                                             ?>
                                         </div>
-                                    <?php
+                                        <?php
                                     }
                                 }
                                 ?>
                                 <div class="wpaicg-prompt-flex-center">
-                                    <div style="<?php echo isset($wpaicg_item['dans']) && $wpaicg_item['dans'] == 'no' ? 'display:none':''?>">
-                                        <strong><?php echo esc_html($wpaicg_noanswer_text);?></strong>
-                                        <select class="wpaicg-prompt-max-lines" id="wpaicg-prompt-max-lines">
-                                            <?php
-                                            for($i=1;$i<=10;$i++){
-                                                echo '<option value="'.esc_html($i).'">'.esc_html($i).'</option>';
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                    <button style="<?php echo isset($wpaicg_item['dans']) && $wpaicg_item['dans'] == 'no' ? 'margin-left:0':''?>" class="wpaicg-button wpaicg-generate-button" id="wpaicg-generate-button"><?php echo esc_html($wpaicg_generate_text);?></button>
-                                    &nbsp;<button data-id="<?php echo esc_html($randomFormID)?>" type="button" class="wpaicg-button wpaicg-prompt-stop-generate" id="wpaicg-prompt-stop-generate" style="display: none"><?php echo esc_html($wpaicg_stop_text);?></button>
+                                    <!-- Hidden field to fix # of answers to 1 -->
+                                    <input 
+                                        type="hidden" 
+                                        class="wpaicg-prompt-max-lines" 
+                                        id="wpaicg-prompt-max-lines" 
+                                        value="1"
+                                    />
+                                    <button style="margin-left:0" class="wpaicg-button wpaicg-generate-button" id="wpaicg-generate-button">
+                                        <?php echo esc_html($wpaicg_generate_text);?>
+                                    </button>
+                                    &nbsp;
+                                    <button 
+                                        data-id="<?php echo esc_html($randomFormID)?>" 
+                                        type="button" 
+                                        class="wpaicg-button wpaicg-prompt-stop-generate" 
+                                        id="wpaicg-prompt-stop-generate" 
+                                        style="display: none"
+                                    >
+                                        <?php echo esc_html($wpaicg_stop_text);?>
+                                    </button>
                                 </div>
                             </div>
                             <div class="mb-5">
                                 <?php
                                 if($wpaicg_response_type == 'textarea'):
                                     if(is_user_logged_in()){
-                                        wp_editor('','wpaicg-prompt-result-'.$randomFormID, array('media_buttons' => true, 'textarea_name' => 'wpaicg-prompt-result-'.$randomFormID));
+                                        wp_editor('','wpaicg-prompt-result-'.$randomFormID, array(
+                                            'media_buttons' => true, 
+                                            'textarea_name' => 'wpaicg-prompt-result-'.$randomFormID
+                                        ));
                                     }
                                     else{
                                         ?>
-                                        <textarea class="wpaicg-prompt-result-<?php echo esc_html($randomFormID)?>" id="wpaicg-prompt-result-<?php echo esc_html($randomFormID)?>" rows="12"></textarea>
+                                        <textarea 
+                                            class="wpaicg-prompt-result-<?php echo esc_html($randomFormID)?>" 
+                                            id="wpaicg-prompt-result-<?php echo esc_html($randomFormID)?>" 
+                                            rows="12"
+                                        ></textarea>
                                         <?php
                                         if(isset($wpaicg_item['dnotice']) && $wpaicg_item['dnotice'] == 'no'):
                                         else:
                                             ?>
-                                        <a style="font-size: 13px;" href="<?php echo site_url('wp-login.php?action=register')?>"><?php echo esc_html($wpaicg_cnotice_text)?></a>
+                                        <a style="font-size: 13px;" href="<?php echo site_url('wp-login.php?action=register')?>">
+                                            <?php echo esc_html($wpaicg_cnotice_text)?>
+                                        </a>
                                         <?php
                                         endif;
                                         ?>
@@ -588,10 +753,11 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                     if(!is_user_logged_in()){
                                         if(isset($wpaicg_item['dnotice']) && $wpaicg_item['dnotice'] == 'no'){
 
-                                        }
-                                        else{
+                                        } else {
                                             ?>
-                                            <a style="font-size: 13px;" href="<?php echo site_url('wp-login.php?action=register')?>"><?php echo esc_html($wpaicg_cnotice_text)?></a>
+                                            <a style="font-size: 13px;" href="<?php echo site_url('wp-login.php?action=register')?>">
+                                                <?php echo esc_html($wpaicg_cnotice_text)?>
+                                            </a>
                                             <?php
                                         }
                                     }
@@ -604,7 +770,14 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                     if(isset($wpaicg_item['ddraft']) && $wpaicg_item['ddraft'] == 'no'):
                                     else:
                                 ?>
-                                <button data-id="<?php echo esc_html($randomFormID)?>" type="button" class="wpaicg-button wpaicg-prompt-save-draft" id="wpaicg-prompt-save-draft"><?php echo esc_html($wpaicg_draft_text);?></button>
+                                <button 
+                                    data-id="<?php echo esc_html($randomFormID)?>" 
+                                    type="button" 
+                                    class="wpaicg-button wpaicg-prompt-save-draft" 
+                                    id="wpaicg-prompt-save-draft"
+                                >
+                                    <?php echo esc_html($wpaicg_draft_text);?>
+                                </button>
                                 <?php
                                     endif;
                                 endif;
@@ -612,28 +785,61 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                 if(isset($wpaicg_item['dclear']) && $wpaicg_item['dclear'] == 'no'):
                                 else:
                                 ?>
-                                <button data-id="<?php echo esc_html($randomFormID)?>" type="button" class="wpaicg-button wpaicg-prompt-clear" id="wpaicg-prompt-clear"><?php echo esc_html($wpaicg_clear_text);?></button>
+                                <button 
+                                    data-id="<?php echo esc_html($randomFormID)?>" 
+                                    type="button" 
+                                    class="wpaicg-button wpaicg-prompt-clear" 
+                                    id="wpaicg-prompt-clear"
+                                >
+                                    <?php echo esc_html($wpaicg_clear_text);?>
+                                </button>
                                 <?php
                                 endif;
 
                                 if(isset($wpaicg_item['ddownload']) && $wpaicg_item['ddownload'] == 'no'):
                                 else:
                                 ?>
-                                <button data-id="<?php echo esc_html($randomFormID)?>" type="button" class="wpaicg-button wpaicg-prompt-download"><?php echo esc_html($wpaicg_download_text);?></button>
+                                <button 
+                                    data-id="<?php echo esc_html($randomFormID)?>" 
+                                    type="button" 
+                                    class="wpaicg-button wpaicg-prompt-download"
+                                >
+                                    <?php echo esc_html($wpaicg_download_text);?>
+                                </button>
                                 <?php
                                 endif;
 
                                 if (isset($wpaicg_item['copy_button']) && $wpaicg_item['copy_button'] === 'yes'):
                                 ?>
-
-                                <button data-id="<?php echo esc_html($randomFormID)?>" type="button" class="wpaicg-button wpaicg-prompt-copy_button" id="wpaicg-prompt-copy_button"><?php echo esc_html($wpaicg_copy_text);?></button>
+                                <button 
+                                    data-id="<?php echo esc_html($randomFormID)?>" 
+                                    type="button" 
+                                    class="wpaicg-button wpaicg-prompt-copy_button" 
+                                    id="wpaicg-prompt-copy_button"
+                                >
+                                    <?php echo esc_html($wpaicg_copy_text);?>
+                                </button>
                                 <?php
                                 endif;
                                 
                                 if(isset($wpaicg_item['feedback_buttons']) && $wpaicg_item['feedback_buttons'] === 'yes'):
-                                    ?>
-                                <button data-id="<?php echo esc_html($randomFormID)?>" type="button" class="wpaicg-button wpaicg-prompt-thumbs_up" id="wpaicg-prompt-thumbs_up">👍</button>
-                                <button data-id="<?php echo esc_html($randomFormID)?>" type="button" class="wpaicg-button wpaicg-prompt-thumbs_down" id="wpaicg-prompt-thumbs_down">👎</button>
+                                ?>
+                                <button 
+                                    data-id="<?php echo esc_html($randomFormID)?>" 
+                                    type="button" 
+                                    class="wpaicg-button wpaicg-prompt-thumbs_up" 
+                                    id="wpaicg-prompt-thumbs_up"
+                                >
+                                    👍
+                                </button>
+                                <button 
+                                    data-id="<?php echo esc_html($randomFormID)?>" 
+                                    type="button" 
+                                    class="wpaicg-button wpaicg-prompt-thumbs_down" 
+                                    id="wpaicg-prompt-thumbs_down"
+                                >
+                                    👎
+                                </button>
                                 <?php
                                 endif;
                                 ?>
@@ -659,82 +865,186 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                     $openrouter_models = get_option('wpaicg_openrouter_model_list', []);
                                     $wpaicg_openrouter_default_model = get_option('wpaicg_openrouter_default_model', 'openrouter/auto');
                                     ?>
-                                    <!-- if the provide is openai then display openai models else other models -->
                                     <?php if($wpaicg_provider == 'OpenAI'):?>
                                         <select name="engine">
                                             <optgroup label="GPT-4">
                                                 <?php foreach ($gpt4_models as $value => $display_name): ?>
-                                                    <option <?php echo $value == $wpaicg_engine ? ' selected':'' ?> value="<?php echo esc_attr($value); ?>"><?php echo esc_html($display_name); ?></option>
+                                                    <option 
+                                                        <?php echo $value == $wpaicg_engine ? ' selected':'' ?> 
+                                                        value="<?php echo esc_attr($value); ?>"
+                                                    >
+                                                        <?php echo esc_html($display_name); ?>
+                                                    </option>
                                                 <?php endforeach; ?>
                                             </optgroup>
                                             <optgroup label="GPT-3.5">
                                                 <?php foreach ($gpt35_models as $value => $display_name): ?>
-                                                    <option <?php echo $value == $wpaicg_engine ? ' selected':'' ?> value="<?php echo esc_attr($value); ?>"><?php echo esc_html($display_name); ?></option>
+                                                    <option 
+                                                        <?php echo $value == $wpaicg_engine ? ' selected':'' ?> 
+                                                        value="<?php echo esc_attr($value); ?>"
+                                                    >
+                                                        <?php echo esc_html($display_name); ?>
+                                                    </option>
                                                 <?php endforeach; ?>
                                             </optgroup>
                                             <optgroup label="Custom Models">
                                                 <?php foreach ($custom_models as $model): ?>
-                                                    <option <?php echo $model == $wpaicg_engine ? ' selected':'' ?> value="<?php echo esc_attr($model); ?>"><?php echo esc_html($model); ?></option>
+                                                    <option 
+                                                        <?php echo $model == $wpaicg_engine ? ' selected':'' ?> 
+                                                        value="<?php echo esc_attr($model); ?>"
+                                                    >
+                                                        <?php echo esc_html($model); ?>
+                                                    </option>
                                                 <?php endforeach; ?>
                                             </optgroup>
                                         </select>
                                     <?php elseif ($wpaicg_provider == 'Google'): ?>
-                                    <!-- Display dropdown for Google AI -->
-                                    <select name="engine">
-                                        <optgroup label="Google Models">
-                                            <?php foreach ($wpaicg_google_model_list as $model): ?>
-                                                <option value="<?php echo esc_attr($model); ?>"<?php selected($model, $wpaicg_google_default_model); ?>><?php echo esc_html($model); ?></option>
-                                            <?php endforeach; ?>
-                                        </optgroup>
-                                    </select>
-                                    <?php elseif ($wpaicg_provider == 'OpenRouter'): ?>
-                                    <!-- Display dropdown for OpenRouter -->
-                                    <?php
-                                    $openrouter_grouped_models = [];
-                                    foreach ($openrouter_models as $openrouter_model) {
-                                        $openrouter_provider = explode('/', $openrouter_model['id'])[0];
-                                        if (!isset($openrouter_grouped_models[$openrouter_provider])) {
-                                            $openrouter_grouped_models[$openrouter_provider] = [];
-                                        }
-                                        $openrouter_grouped_models[$openrouter_provider][] = $openrouter_model;
-                                    }
-                                    ksort($openrouter_grouped_models);
-                                    ?>
-                                    <select name="engine">
-                                        <?php
-                                        foreach ($openrouter_grouped_models as $openrouter_provider => $openrouter_models): ?>
-                                            <optgroup label="<?php echo esc_attr($openrouter_provider); ?>">
-                                                <?php
-                                                usort($openrouter_models, function($a, $b) {
-                                                    return strcmp($a["name"], $b["name"]);
-                                                });
-                                                foreach ($openrouter_models as $openrouter_model): ?>
-                                                    <option value="<?php echo esc_attr($openrouter_model['id']); ?>"<?php selected($openrouter_model['id'], $wpaicg_openrouter_default_model); ?>><?php echo esc_html($openrouter_model['name']); ?></option>
+                                        <!-- Display dropdown for Google AI -->
+                                        <select name="engine">
+                                            <optgroup label="Google Models">
+                                                <?php foreach ($wpaicg_google_model_list as $model): ?>
+                                                    <option 
+                                                        value="<?php echo esc_attr($model); ?>"
+                                                        <?php selected($model, $wpaicg_google_default_model); ?>
+                                                    >
+                                                        <?php echo esc_html($model); ?>
+                                                    </option>
                                                 <?php endforeach; ?>
                                             </optgroup>
-                                        <?php endforeach; ?>
-                                    </select>
+                                        </select>
+                                    <?php elseif ($wpaicg_provider == 'OpenRouter'): ?>
+                                        <!-- Display dropdown for OpenRouter -->
+                                        <?php
+                                        $openrouter_grouped_models = [];
+                                        foreach ($openrouter_models as $openrouter_model) {
+                                            $openrouter_provider = explode('/', $openrouter_model['id'])[0];
+                                            if (!isset($openrouter_grouped_models[$openrouter_provider])) {
+                                                $openrouter_grouped_models[$openrouter_provider] = [];
+                                            }
+                                            $openrouter_grouped_models[$openrouter_provider][] = $openrouter_model;
+                                        }
+                                        ksort($openrouter_grouped_models);
+                                        ?>
+                                        <select name="engine">
+                                            <?php
+                                            foreach ($openrouter_grouped_models as $openrouter_provider => $models): ?>
+                                                <optgroup label="<?php echo esc_attr($openrouter_provider); ?>">
+                                                    <?php
+                                                    usort($models, function($a, $b) {
+                                                        return strcmp($a["name"], $b["name"]);
+                                                    });
+                                                    foreach ($models as $omodel): ?>
+                                                        <option 
+                                                            value="<?php echo esc_attr($omodel['id']); ?>"
+                                                            <?php selected($omodel['id'], $wpaicg_openrouter_default_model); ?>
+                                                        >
+                                                            <?php echo esc_html($omodel['name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </optgroup>
+                                            <?php endforeach; ?>
+                                        </select>
                                     <?php else:?>
                                         <!-- Display readonly text field for AzureAI -->
-                                        <input type="text" 
-                                            name="engine" 
+                                        <input 
+                                            type="text"
+                                            name="engine"
                                             readonly
                                             value="<?php echo esc_html($azure_deployment_name); ?>"
                                         />
                                     <?php endif;?>
-
                                 </div>
-                                <div class="wpaicg-prompt-field"><strong><?php echo esc_html__('Token','gpt3-ai-content-generator')?>: </strong><input id="wpaicg-prompt-max_tokens" class="wpaicg-prompt-max_tokens" name="max_tokens" type="text" value="<?php echo esc_html($wpaicg_max_tokens);?>"></div>
-                                <div class="wpaicg-prompt-field"><strong><?php echo esc_html__('Temp','gpt3-ai-content-generator')?>: </strong><input id="wpaicg-prompt-temperature" class="wpaicg-prompt-temperature" name="temperature" type="text" value="<?php echo esc_html($wpaicg_temperature)?>"></div>
-                                <div class="wpaicg-prompt-field"><strong><?php echo esc_html__('TP','gpt3-ai-content-generator')?>: </strong><input id="wpaicg-prompt-top_p" class="wpaicg-prompt-top_p" type="text" name="top_p" value="<?php echo esc_html($wpaicg_top_p)?>"></div>
-                                <div class="wpaicg-prompt-field"><strong><?php echo esc_html__('BO','gpt3-ai-content-generator')?>: </strong><input id="wpaicg-prompt-best_of" class="wpaicg-prompt-best_of" name="best_of" type="text" value="<?php echo esc_html($wpaicg_best_of)?>"></div>
-                                <div class="wpaicg-prompt-field"><strong><?php echo esc_html__('FP','gpt3-ai-content-generator')?>: </strong><input id="wpaicg-prompt-frequency_penalty" class="wpaicg-prompt-frequency_penalty" name="frequency_penalty" type="text" value="<?php echo esc_html($wpaicg_frequency_penalty)?>"></div>
-                                <div class="wpaicg-prompt-field"><strong><?php echo esc_html__('PP','gpt3-ai-content-generator')?>: </strong><input id="wpaicg-prompt-presence_penalty" class="wpaicg-prompt-presence_penalty" name="presence_penalty" type="text" value="<?php echo esc_html($wpaicg_presence_penalty)?>"></div>
-                                <div class="wpaicg-prompt-field"><strong><?php echo esc_html__('Stop','gpt3-ai-content-generator')?>:<small><?php echo esc_html__('separate by commas','gpt3-ai-content-generator')?></small></strong><input class="wpaicg-prompt-stop" id="wpaicg-prompt-stop" type="text" name="stop" type="text" value="<?php echo esc_html($wpaicg_stop_lists)?>"></div>
-                                <div class="wpaicg-prompt-field"><input id="wpaicg-prompt-post_title" class="wpaicg-prompt-post_title" type="hidden" name="post_title" value="<?php echo esc_html($wpaicg_item['title'])?>"></div>
+                                <div class="wpaicg-prompt-field">
+                                    <strong><?php echo esc_html__('Token','gpt3-ai-content-generator')?>: </strong>
+                                    <input 
+                                        id="wpaicg-prompt-max_tokens" 
+                                        class="wpaicg-prompt-max_tokens" 
+                                        name="max_tokens" 
+                                        type="text" 
+                                        value="<?php echo esc_html($wpaicg_max_tokens);?>"
+                                    >
+                                </div>
+                                <div class="wpaicg-prompt-field">
+                                    <strong><?php echo esc_html__('Temp','gpt3-ai-content-generator')?>: </strong>
+                                    <input 
+                                        id="wpaicg-prompt-temperature" 
+                                        class="wpaicg-prompt-temperature" 
+                                        name="temperature" 
+                                        type="text" 
+                                        value="<?php echo esc_html($wpaicg_temperature)?>"
+                                    >
+                                </div>
+                                <div class="wpaicg-prompt-field">
+                                    <strong><?php echo esc_html__('TP','gpt3-ai-content-generator')?>: </strong>
+                                    <input 
+                                        id="wpaicg-prompt-top_p" 
+                                        class="wpaicg-prompt-top_p" 
+                                        type="text" 
+                                        name="top_p" 
+                                        value="<?php echo esc_html($wpaicg_top_p)?>"
+                                    >
+                                </div>
+                                <div class="wpaicg-prompt-field">
+                                    <strong><?php echo esc_html__('BO','gpt3-ai-content-generator')?>: </strong>
+                                    <input 
+                                        id="wpaicg-prompt-best_of" 
+                                        class="wpaicg-prompt-best_of" 
+                                        name="best_of" 
+                                        type="text" 
+                                        value="<?php echo esc_html($wpaicg_best_of)?>"
+                                    >
+                                </div>
+                                <div class="wpaicg-prompt-field">
+                                    <strong><?php echo esc_html__('FP','gpt3-ai-content-generator')?>: </strong>
+                                    <input 
+                                        id="wpaicg-prompt-frequency_penalty" 
+                                        class="wpaicg-prompt-frequency_penalty" 
+                                        name="frequency_penalty" 
+                                        type="text" 
+                                        value="<?php echo esc_html($wpaicg_frequency_penalty)?>"
+                                    >
+                                </div>
+                                <div class="wpaicg-prompt-field">
+                                    <strong><?php echo esc_html__('PP','gpt3-ai-content-generator')?>: </strong>
+                                    <input 
+                                        id="wpaicg-prompt-presence_penalty" 
+                                        class="wpaicg-prompt-presence_penalty" 
+                                        name="presence_penalty" 
+                                        type="text" 
+                                        value="<?php echo esc_html($wpaicg_presence_penalty)?>"
+                                    >
+                                </div>
+                                <div class="wpaicg-prompt-field">
+                                    <strong><?php echo esc_html__('Stop','gpt3-ai-content-generator')?>:
+                                        <small><?php echo esc_html__('separate by commas','gpt3-ai-content-generator')?></small>
+                                    </strong>
+                                    <input 
+                                        class="wpaicg-prompt-stop" 
+                                        id="wpaicg-prompt-stop" 
+                                        type="text" 
+                                        name="stop" 
+                                        value="<?php echo esc_html($wpaicg_stop_lists)?>"
+                                    >
+                                </div>
+                                <div class="wpaicg-prompt-field">
+                                    <input 
+                                        id="wpaicg-prompt-post_title" 
+                                        class="wpaicg-prompt-post_title" 
+                                        type="hidden" 
+                                        name="post_title" 
+                                        value="<?php echo esc_html($wpaicg_item['title'])?>"
+                                    >
+                                </div>
                                 <!-- get item id -->
-                                <div class="wpaicg-prompt-field"><input id="wpaicg-prompt-id" class="wpaicg-prompt-id" type="hidden" name="id" value="<?php echo esc_html($wpaicg_item_id)?>"></div>
-                                <div class="wpaicg-prompt-field wpaicg-prompt-sample"><?php echo esc_html__('Sample Response','gpt3-ai-content-generator')?><div class="wpaicg-prompt-response"><?php echo esc_html(@$wpaicg_item['response'])?></div></div>
+                                <div class="wpaicg-prompt-field">
+                                    <input 
+                                        id="wpaicg-prompt-id" 
+                                        class="wpaicg-prompt-id" 
+                                        type="hidden" 
+                                        name="id" 
+                                        value="<?php echo esc_html($wpaicg_item_id)?>"
+                                    >
+                                </div>
                             </div>
                             <?php
                             if($wpaicg_show_setting):
@@ -754,10 +1064,18 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
         <div id="wpaicg_feedbackModal">
             <div class="wpaicg_feedbackModal-content">
                 <h3><?php echo esc_html__('Provide additional feedback', 'gpt3-ai-content-generator'); ?></h3>
-                <textarea id="<?php echo esc_html($textareaID); ?>" rows="6" placeholder="<?php echo esc_attr__('Enter your feedback here...', 'gpt3-ai-content-generator'); ?>"></textarea>
+                <textarea 
+                    id="<?php echo esc_html($textareaID); ?>" 
+                    rows="6" 
+                    placeholder="<?php echo esc_attr__('Enter your feedback here...', 'gpt3-ai-content-generator'); ?>"
+                ></textarea>
                 <div class="wpaicg_button-group">
-                    <button id="wpaicg_submitFeedback"><?php echo esc_html__('Submit', 'gpt3-ai-content-generator'); ?></button>
-                    <button id="closeFeedbackModal"><?php echo esc_html__('Close', 'gpt3-ai-content-generator'); ?></button>
+                    <button id="wpaicg_submitFeedback">
+                        <?php echo esc_html__('Submit', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                    <button id="closeFeedbackModal">
+                        <?php echo esc_html__('Close', 'gpt3-ai-content-generator'); ?>
+                    </button>
                 </div>
             </div>
         </div>

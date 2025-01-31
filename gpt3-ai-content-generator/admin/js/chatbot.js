@@ -72,7 +72,7 @@ jQuery(document).ready(function ($) {
             required: false,
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
-            defaultValue: 'gpt-3.5-turbo',
+            defaultValue: 'gpt-4o-mini',
             dependsOn: 'provider'
         },
         {
@@ -1947,7 +1947,7 @@ jQuery(document).ready(function ($) {
     // Default models for each provider
     const defaultModels = {
         'OpenAI': [
-            { value: defaultModelsElement.dataset.openaiDefault || 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' }
+            { value: defaultModelsElement.dataset.openaiDefault || 'gpt-4o-mini', label: 'GPT-4o Mini' }
         ],
         'OpenRouter': [
             { value: defaultModelsElement.dataset.openrouterDefault || 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' }

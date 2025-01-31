@@ -19,7 +19,7 @@
                 "max": 80
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 12,
@@ -71,7 +71,7 @@
                 ]
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 3,
@@ -95,7 +95,7 @@
                 "max": 80
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 2,
@@ -153,7 +153,7 @@
                 "max": 80
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 5,
@@ -177,7 +177,7 @@
                 "max": 80
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 6,
@@ -201,7 +201,7 @@
                 "max": 80
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 11,
@@ -225,7 +225,7 @@
                 "max": 80
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 8,
@@ -249,7 +249,7 @@
                 "max": 80
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 9,
@@ -270,7 +270,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 113,
@@ -309,7 +309,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 13,
@@ -365,7 +365,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 14,
@@ -401,7 +401,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 15,
@@ -437,7 +437,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 16,
@@ -466,7 +466,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 17,
@@ -488,7 +488,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 18,
@@ -510,7 +510,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 19,
@@ -532,7 +532,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 20,
@@ -555,7 +555,7 @@
                 "max": 400
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 21,
@@ -591,7 +591,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 22,
@@ -627,7 +627,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 23,
@@ -648,7 +648,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 24,
@@ -670,7 +670,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 25,
@@ -692,7 +692,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 26,
@@ -714,7 +714,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 27,
@@ -738,7 +738,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 28,
@@ -762,7 +762,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 29,
@@ -786,7 +786,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 30,
@@ -817,7 +817,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 31,
@@ -841,7 +841,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 7,
@@ -876,7 +876,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 32,
@@ -900,7 +900,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 33,
@@ -924,7 +924,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 34,
@@ -946,7 +946,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 35,
@@ -966,7 +966,7 @@
                 "max": 240
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 36,
@@ -987,7 +987,7 @@
                 "max": 500
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 37,
@@ -1009,7 +1009,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 38,
@@ -1038,7 +1038,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 39,
@@ -1065,7 +1065,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 40,
@@ -1093,7 +1093,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 41,
@@ -1115,7 +1115,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 42,
@@ -1136,7 +1136,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 43,
@@ -1159,7 +1159,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 44,
@@ -1180,7 +1180,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 45,
@@ -1246,7 +1246,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 46,
@@ -1275,7 +1275,7 @@
                 "max": 300
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 47,
@@ -1298,7 +1298,7 @@
                 "max": 700
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 48,
@@ -1334,7 +1334,7 @@
                 "max": 50
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 49,
@@ -1376,7 +1376,7 @@
                 ]
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 50,
@@ -1398,7 +1398,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 51,
@@ -1419,7 +1419,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 52,
@@ -1440,7 +1440,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 53,
@@ -1464,7 +1464,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 54,
@@ -1486,7 +1486,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 55,
@@ -1509,7 +1509,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 56,
@@ -1530,7 +1530,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 57,
@@ -1551,7 +1551,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 58,
@@ -1575,7 +1575,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 59,
@@ -1597,7 +1597,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 60,
@@ -1619,7 +1619,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 61,
@@ -1641,7 +1641,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 62,
@@ -1663,7 +1663,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 63,
@@ -1685,7 +1685,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 64,
@@ -1718,7 +1718,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 65,
@@ -1740,7 +1740,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 66,
@@ -1762,7 +1762,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 67,
@@ -1784,7 +1784,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 68,
@@ -1806,7 +1806,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 69,
@@ -1830,7 +1830,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 70,
@@ -1853,7 +1853,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 71,
@@ -1877,7 +1877,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 72,
@@ -1901,7 +1901,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 73,
@@ -1925,7 +1925,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 74,
@@ -1959,7 +1959,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 75,
@@ -1983,7 +1983,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 76,
@@ -2007,7 +2007,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 77,
@@ -2031,7 +2031,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 78,
@@ -2055,7 +2055,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 79,
@@ -2079,7 +2079,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 80,
@@ -2101,7 +2101,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 81,
@@ -2125,7 +2125,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 82,
@@ -2148,7 +2148,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 83,
@@ -2172,7 +2172,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 84,
@@ -2196,7 +2196,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 85,
@@ -2217,7 +2217,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 86,
@@ -2241,7 +2241,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 87,
@@ -2265,7 +2265,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 88,
@@ -2289,7 +2289,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 89,
@@ -2320,7 +2320,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 90,
@@ -2344,7 +2344,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 91,
@@ -2365,7 +2365,7 @@
                 "max": 2000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 92,
@@ -2389,7 +2389,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 93,
@@ -2420,7 +2420,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 94,
@@ -2458,7 +2458,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 95,
@@ -2482,7 +2482,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 96,
@@ -2506,7 +2506,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 97,
@@ -2542,7 +2542,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 98,
@@ -2566,7 +2566,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 99,
@@ -2589,7 +2589,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 100,
@@ -2613,7 +2613,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 101,
@@ -2637,7 +2637,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 102,
@@ -2661,7 +2661,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 103,
@@ -2685,7 +2685,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 104,
@@ -2709,7 +2709,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 105,
@@ -2733,7 +2733,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 106,
@@ -2757,7 +2757,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 107,
@@ -2781,7 +2781,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 108,
@@ -2805,7 +2805,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 109,
@@ -2828,7 +2828,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 110,
@@ -2851,7 +2851,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 111,
@@ -2874,7 +2874,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 112,
@@ -2898,7 +2898,7 @@
                 "max": 1000
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 10,
@@ -2919,7 +2919,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 114,
@@ -2943,7 +2943,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 115,
@@ -2967,7 +2967,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 116,
@@ -2991,7 +2991,7 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     },
     {
         "id": 117,
@@ -3015,6 +3015,6 @@
                 "max": 120
             }
         ],
-        "editor": "textarea"
+        "editor": "div"
     }
 ]

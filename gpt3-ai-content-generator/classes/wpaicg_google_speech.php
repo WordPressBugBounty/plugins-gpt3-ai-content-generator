@@ -219,7 +219,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Google_Speech')) {
                 if(!empty($device)){
                     $params['audioConfig']['effectsProfileId'] = array($device);
                 }
-                $response = wp_safe_remote_post($this->url.'text:synthesize?fields=audioContent&key='.$apiKey,array(
+                $response = wp_remote_post($this->url.'text:synthesize?fields=audioContent&key='.$apiKey,array(
                     'headers' => array(
                         'Content-Type' => 'application/json'
                     ),
