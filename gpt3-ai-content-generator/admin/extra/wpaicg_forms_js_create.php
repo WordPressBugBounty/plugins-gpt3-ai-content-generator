@@ -5,6 +5,11 @@
  * Revised to handle new switches for "Header," "Copy Button," and "Feedback Buttons"
  * in the Style tab (Interface container),
  * AND to populate the Icon dropdown from icons.json.
+ *
+ * Updated to include support for the "fileupload" field type in the drag & drop builder.
+ *
+ * Also updated so that after the first “Save Changes” in create mode,
+ * the admin is redirected back to the main AI Forms list (avoiding extra duplicates).
  */
 
 declare(strict_types=1);
@@ -66,7 +71,6 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
     var embeddingModels   = <?php echo json_encode($embedding_models); ?>;
 
     // Icons from icons.json (as key => dashicon class)
-    // We'll only need the keys in the create UI:
     var wpaicgIcons       = <?php echo json_encode($wpaicg_icons); ?>;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -119,12 +123,11 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         if (Array.isArray(pineconeIndexes) && pineconeIndexes.length) {
             pineconeIndexes.forEach(function (idx) {
                 var name = idx.name || 'unknown';
-                var url = idx.url || ''; // Ensure there's a value
+                var url = idx.url || ''; 
                 $select.append('<option value="' + url + '">' + name + '</option>');
             });
         }
     }
-
 
     function populateQdrantCollectionsCreate(){
         var $select = $('#wpaicg_createform_collections');
@@ -174,7 +177,6 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         $select.append('<option value=""><?php echo esc_js(__('tag','gpt3-ai-content-generator')); ?></option>');
         // Icons are in the form { "tag":"dashicons dashicons-tag", "linkedin":"dashicons dashicons-linkedin", ... }
         $.each(wpaicgIcons, function(iconKey, iconClass){
-            // The label for the user is just the iconKey, e.g. "tag"
             $select.append('<option value="'+ iconKey +'">'+ iconKey +'</option>');
         });
     }
@@ -285,7 +287,7 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         // Reset form creation fields to defaults
         resetCreateFormFields();
 
-        // Show snippet but no ID yet
+        // Show snippet but no actual ID yet
         showShortcodeSnippet('<?php echo esc_js(__("[No ID yet. Save to see snippet]", "gpt3-ai-content-generator")); ?>');
     });
 
@@ -399,7 +401,7 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         $('#wpaicg_create_snippets').empty();
         $('#wpaicg_create_copied_msg').hide();
 
-        // New defaults
+        // Defaults
         $('#wpaicg_createform_title').val('New Form');
         updateCreateTabTitleDisplay('New Form');
         $('#wpaicg_createform_category').val('generation');
@@ -494,7 +496,7 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
             return;
         }
         var dataType = e.originalEvent.dataTransfer.getData('text/plain');
-        var allowed = ['text','textarea','email','number','checkbox','radio','select','url'];
+        var allowed = ['text','textarea','email','number','checkbox','radio','select','url','fileupload'];
         if (allowed.indexOf(dataType) >= 0) {
             createCreateFieldItem(dataType);
         }
@@ -598,10 +600,6 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         }
     });
 
-    /*************************************************************
-     * Helper to build field settings HTML
-     * (also referenced in wpaicg_forms_js.php if needed)
-     *************************************************************/
     window.getFieldSettingsHtml = function(type, minVal, maxVal, rowsVal, colsVal, optionsArr) {
         if(typeof minVal === 'undefined')  { minVal = ''; }
         if(typeof maxVal === 'undefined')  { maxVal = ''; }
@@ -610,27 +608,35 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         if(!Array.isArray(optionsArr))     { optionsArr = []; }
 
         var html = '<div class="field_settings">';
+
+        // text/number
         if(type === 'text' || type === 'number') {
             html += '<label>Min: <input type="number" class="min_value" value="'+ minVal +'"/></label>';
             html += '<label>Max: <input type="number" class="max_value" value="'+ maxVal +'"/></label>';
         }
+        // textarea
         if(type === 'textarea') {
             html += '<label>Min: <input type="number" class="min_value" value="'+ minVal +'"/></label>';
             html += '<label>Max: <input type="number" class="max_value" value="'+ maxVal +'"/></label>';
             html += '<label>Rows: <input type="number" class="rows_value" value="'+ rowsVal +'"/></label>';
             html += '<label>Cols: <input type="number" class="cols_value" value="'+ colsVal +'"/></label>';
         }
+        // checkbox / radio / select
         if(type === 'checkbox' || type === 'radio' || type === 'select') {
             html += '<ul class="options_list">';
-            if(optionsArr.length){
-                optionsArr.forEach(function(opt){
-                    opt = opt.replace(/"/g, "&quot;");
-                    html += '<li><input type="text" class="option_value" value="'+ opt +'" /></li>';
-                });
-            }
+            optionsArr.forEach(function(opt){
+                opt = opt.replace(/"/g, "&quot;");
+                html += '<li><input type="text" class="option_value" value="'+ opt +'" /></li>';
+            });
             html += '</ul>';
             html += '<button type="button" class="add_option_btn">+ Add Option</button>';
         }
+        // NEW: fileupload
+        if(type === 'fileupload') {
+            html += '<label><?php echo esc_js(__("Allowed File Types (comma-separated):","gpt3-ai-content-generator")); ?><br/>';
+            html += '<input type="text" class="file_types" value="txt,csv" /></label>';
+        }
+
         html += '</div>';
         return html;
     };
@@ -800,7 +806,15 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
                 var val = $(this).val().trim();
                 if(val){ optionValues.push(val); }
             });
-            var optionsStr = optionValues.join('|');
+
+            // For fileupload, we also read the "file_types" if present
+            var fileTypes = "";
+            if(type === 'fileupload'){
+                var $fTypesInput = $el.find('.file_types');
+                if($fTypesInput.length){
+                    fileTypes = $fTypesInput.val().trim();
+                }
+            }
 
             fieldsData.push({
                 type: type,
@@ -810,7 +824,8 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
                 max: maxVal,
                 rows: rowsVal,
                 cols: colsVal,
-                options: optionsStr
+                options: optionValues.join('|'),
+                file_types: fileTypes
             });
         });
         if(missingID){
@@ -823,7 +838,6 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
             'wpaicg_form_category':         $('#wpaicg_createform_category').val().trim(),
             'wpaicg_form_color':            $('#wpaicg_createform_color').val().trim(),
             'wpaicg_form_icon':             $('#wpaicg_createform_icon').val().trim(),
-            // These are read from hidden fields set by the switches
             'wpaicg_form_header':           $('#wpaicg_createform_header').val(),
             'wpaicg_form_copy_button':      $('#wpaicg_createform_copy_button').val(),
             'wpaicg_form_copy_text':        $('#wpaicg_createform_copy_text').val().trim(),
@@ -831,7 +845,6 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
             'wpaicg_form_generate_text':    $('#wpaicg_createform_generate_text').val().trim(),
             'wpaicg_form_noanswer_text':    $('#wpaicg_createform_noanswer_text').val().trim(),
             'wpaicg_form_draft_text':       $('#wpaicg_createform_draft_text').val().trim(),
-            'wpaicg_createform_clear_text': $('#wpaicg_createform_clear_text').val().trim(),
             'wpaicg_form_clear_text':       $('#wpaicg_createform_clear_text').val().trim(),
             'wpaicg_form_stop_text':        $('#wpaicg_createform_stop_text').val().trim(),
             'wpaicg_form_cnotice_text':     $('#wpaicg_createform_cnotice_text').val().trim(),
@@ -888,12 +901,15 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
             },
             success: function(response){
                 if(response.success){
+                    // Show success msg
                     showGlobalMessage('success', response.data.message);
                     $status.text(response.data.message).show();
-                    // Now we have an ID
-                    var newID = response.data.id;
-                    // Update snippet with real ID
-                    showShortcodeSnippet('[wpaicg_form id=' + newID + ' settings="no" custom="yes"]');
+                    
+                    // Now that the form is created, redirect to the main list
+                    setTimeout(function(){
+                        window.location.href = 'admin.php?page=wpaicg_forms';
+                    }, 1500);
+
                 } else {
                     showGlobalMessage('error', response.data.message || 'Error creating form');
                     $status.css('color','red').text(response.data.message || 'Error').show();

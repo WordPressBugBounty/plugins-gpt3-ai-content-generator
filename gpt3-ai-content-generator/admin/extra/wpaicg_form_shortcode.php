@@ -115,7 +115,6 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
         $selected_embedding_model = isset($wpaicg_item['selected_embedding_model']) && !empty($wpaicg_item['selected_embedding_model']) ? $wpaicg_item['selected_embedding_model'] : '';
         $selected_embedding_provider = isset($wpaicg_item['selected_embedding_provider']) && !empty($wpaicg_item['selected_embedding_provider']) ? $wpaicg_item['selected_embedding_provider'] : '';
         $wpaicg_draft_text = isset($wpaicg_item['draft_text']) && !empty($wpaicg_item['draft_text']) ? $wpaicg_item['draft_text'] : esc_html__('Save Draft','gpt3-ai-content-generator');
-        // Removed $wpaicg_noanswer_text definition since it's no longer needed
         $wpaicg_clear_text = isset($wpaicg_item['clear_text']) && !empty($wpaicg_item['clear_text']) ? $wpaicg_item['clear_text'] : esc_html__('Clear','gpt3-ai-content-generator');
         $wpaicg_stop_text = isset($wpaicg_item['stop_text']) && !empty($wpaicg_item['stop_text']) ? $wpaicg_item['stop_text'] : esc_html__('Stop','gpt3-ai-content-generator');
         $wpaicg_cnotice_text = isset($wpaicg_item['cnotice_text']) && !empty($wpaicg_item['cnotice_text']) ? $wpaicg_item['cnotice_text'] : esc_html__('Please register to save your result','gpt3-ai-content-generator');
@@ -523,7 +522,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
             border-width: 0 2px 2px 0;
             transform: rotate(45deg);
         }
-        .wpaicg-checkbox-text {
+        .wpaicg_checkbox_text {
             margin-left: 5px;
         }
 
@@ -675,6 +674,28 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                                     data-min="<?php echo isset($wpaicg_field['min']) ? esc_html($wpaicg_field['min']) : ''?>" 
                                                     data-max="<?php echo isset($wpaicg_field['max']) ? esc_html($wpaicg_field['max']) : ''?>"
                                                 ></textarea>
+                                                <?php
+                                            }
+                                            elseif($wpaicg_field['type'] == 'fileupload') {
+                                                // Front-end usage: file input + hidden input
+                                                // We store the file content in the hidden input after reading it on the client side
+                                                $fileTypes = isset($wpaicg_field['file_types']) ? esc_attr($wpaicg_field['file_types']) : 'txt,csv';
+                                                ?>
+                                                <input 
+                                                    type="file" 
+                                                    id="wpaicg-form-field-<?php echo esc_html($key)?>" 
+                                                    class="wpaicg-form-field-<?php echo esc_html($key)?> wpaicg-fileupload-input" 
+                                                    name="<?php echo esc_html($wpaicg_field['id'])?>__fileupload" 
+                                                    data-label="<?php echo esc_html(@$wpaicg_field['label'])?>" 
+                                                    data-type="fileupload"
+                                                    data-filetypes="<?php echo $fileTypes;?>"
+                                                />
+                                                <input 
+                                                    type="hidden" 
+                                                    name="<?php echo esc_html($wpaicg_field['id'])?>" 
+                                                    value="" 
+                                                    id="wpaicg-fileupload-hidden-<?php echo esc_html($key)?>" 
+                                                />
                                                 <?php
                                             }
                                             else{

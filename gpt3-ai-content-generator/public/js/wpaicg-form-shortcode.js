@@ -76,7 +76,7 @@ var wpaicgPlayGround = {
                     // Replace single occurrences of <br> or <br /> with a newline
                     responseText = responseText.replace(/<br\s*\/?>/g, '\r\n');
 
-                    // Replace double occurrences of <br><br> or <br /><br /> with double newline
+                    // Replace double occurrences
                     responseText = responseText.replace(/\r\n\r\n/g, '\r\n\r\n');
 
                     navigator.clipboard.writeText(responseText).then(function() {
@@ -162,6 +162,7 @@ var wpaicgPlayGround = {
             }
         }
 
+        // Initialize for each .wpaicg-playground-shortcode (the prompt forms)
         if(wpaicgFormsShortcode && wpaicgFormsShortcode.length){
             for(var i = 0;i< wpaicgFormsShortcode.length;i++){
                 var wpaicgFormShortcode =  wpaicgFormsShortcode[i];
@@ -238,7 +239,7 @@ var wpaicgPlayGround = {
                                 var field_min = form_field['min'] !== undefined ? form_field['min'] : '';
                                 var field_max = form_field['max'] !== undefined ? form_field['max'] : '';
 
-                                if (field_type !== 'radio' && field_type !== 'checkbox') {
+                                if (field_type !== 'radio' && field_type !== 'checkbox' && field_type !== 'fileupload') {
                                     var field_value = field.value;
                                     if (field_type === 'text' || field_type === 'textarea' || field_type === 'email' || field_type === 'url') {
                                         if (field_min !== '' && field_value.length < parseInt(field_min)) {
@@ -257,6 +258,9 @@ var wpaicgPlayGround = {
                                             error_message = field_label + ' maximum ' + field_max;
                                         }
                                     }
+                                } else if (field_type === 'fileupload') {
+                                    // The file content is read into the hidden input; no numeric constraints
+                                    // We could check if the hidden input is empty if required
                                 } else if (field_type === 'checkbox' || field_type === 'radio') {
                                     var field_inputs = field.getElementsByTagName('input');
                                     var field_checked = false;
@@ -308,116 +312,38 @@ var wpaicgPlayGround = {
                     }
                 });
             }
-
-            // Handle feedback button clicks
-            var handleFeedbackButtonClick = function(e) {
-                e.preventDefault();
-                var button = e.currentTarget;
-                var formID = button.getAttribute('data-id');
-                var eventID = button.getAttribute('data-eventid');
-                var feedbackType = button.id.replace('wpaicg-prompt-', ''); // "thumbs_up" or "thumbs_down"
-                var wpaicgFormData = window['wpaicgForm' + formID];
-
-                var modal = jQuery('#wpaicg_feedbackModal');
-                var textareaID = wpaicgFormData.feedbackID;
-                
-                modal.fadeIn();
-                jQuery('.wpaicg_feedbackModal-overlay').fadeIn();
-                
-                // Always save to wpaicg_form_feedback:
-                var myaction = 'wpaicg_save_feedback';
-                
-                // If you actually want to differentiate or store in another table,
-                // you could re-enable the logic below. Otherwise, leave it commented out.
-                /*
-                if (wpaicgFormData.sourceID && wpaicgFormData.sourceID.toString().length > 0) {
-                    myaction = 'wpaicg_save_prompt_feedback';
-                }
-                */
-
-                // Set up the submit event for the feedback modal's "Submit" button
-                jQuery('#wpaicg_submitFeedback').off('click').on('click', function() {
-                    modal.find('textarea').attr('id', textareaID);
-                    var comment = jQuery('#' + textareaID).val() || '';
-                    
-                    // Get the AI's response to store
-                    var responseText = wpaicgPlayGround.getContent(wpaicgFormData.response, formID);
-                    // Replace &nbsp; with space
-                    responseText = responseText.replace(/&nbsp;/g, ' ');
-
-                    // Convert <br> tags to new lines
-                    responseText = responseText.replace(/<br\s*\/?>/g, '\r\n');
-                    responseText = responseText.replace(/\r\n\r\n/g, '\r\n\r\n');
-
-                    const xhttp = new XMLHttpRequest();
-                    xhttp.open('POST', wpaicgFormData.ajax);
-                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                    xhttp.send(
-                        'action=' + myaction +
-                        '&formID=' + encodeURIComponent(formID) +
-                        '&feedback=' + encodeURIComponent(feedbackType) +
-                        '&comment=' + encodeURIComponent(comment) +
-                        '&nonce=' + wpaicgFormData.ajax_nonce +
-                        '&formname=' + encodeURIComponent(wpaicgFormData.name) +
-                        '&sourceID=' + encodeURIComponent(wpaicgFormData.sourceID) +
-                        '&response=' + encodeURIComponent(responseText) +
-                        '&eventID=' + encodeURIComponent(eventID)
-                    );
-                    
-                    xhttp.onreadystatechange = function(oEvent) {
-                        if (xhttp.readyState === 4) {
-                            if (xhttp.status === 200) {
-                                var response = JSON.parse(xhttp.responseText);
-                                if (response.status === 'success') {
-                                    // Disable the appropriate feedback button
-                                    if (feedbackType === 'thumbs_up') {
-                                        var thumbsUpEl = document.getElementById('wpaicg-prompt-thumbs_up');
-                                        if (thumbsUpEl) {
-                                            thumbsUpEl.disabled = true;
-                                        }
-                                        var thumbsDownEl = document.getElementById('wpaicg-prompt-thumbs_down');
-                                        if (thumbsDownEl) {
-                                            thumbsDownEl.style.display = 'none';
-                                        }
-                                    } else {
-                                        var thumbsDownEl = document.getElementById('wpaicg-prompt-thumbs_down');
-                                        if (thumbsDownEl) {
-                                            thumbsDownEl.disabled = true;
-                                        }
-                                        var thumbsUpEl = document.getElementById('wpaicg-prompt-thumbs_up');
-                                        if (thumbsUpEl) {
-                                            thumbsUpEl.style.display = 'none';
-                                        }
-                                    }
-                                    jQuery('#' + textareaID).val('');
-                                } else {
-                                    alert(response.msg);
-                                }
-                            } else {
-                                alert('Error: ' + xhttp.status + ' - ' + xhttp.statusText + '\n\n' + xhttp.responseText);
-                            }
-                            modal.fadeOut();
-                            jQuery('.wpaicg_feedbackModal-overlay').fadeOut();
-                        }
-                    };
-                });
-                
-                // Close modal
-                jQuery('#closeFeedbackModal').off('click').on('click', function() {
-                    modal.fadeOut();
-                    jQuery('.wpaicg_feedbackModal-overlay').fadeOut();
-                });
-            };
-
-            // Attach event listeners to thumbs up/down
-            for (var k = 0; k < wpaicgThumbsUpButtons.length; k++) {
-                wpaicgThumbsUpButtons[k].addEventListener('click', handleFeedbackButtonClick);
-            }
-            for (var k = 0; k < wpaicgThumbsDownButtons.length; k++) {
-                wpaicgThumbsDownButtons[k].addEventListener('click', handleFeedbackButtonClick);
-            }
-
         }
+
+        // Handle fileupload fields: read file as text => store in hidden input
+        var fileuploadFields = document.querySelectorAll('.wpaicg-fileupload-input');
+        fileuploadFields.forEach(function(field){
+            field.addEventListener('change', function(e){
+                var files = e.target.files;
+                if(!files.length) return;
+                var file = files[0];
+                // check extension
+                var allowed = e.target.getAttribute('data-filetypes');
+                if(allowed) {
+                    var exts = allowed.split(',');
+                    var ext = file.name.split('.').pop().toLowerCase();
+                    if(!exts.includes(ext)){
+                        alert('Invalid file type. Allowed: '+ exts.join(', '));
+                        e.target.value = '';
+                        return;
+                    }
+                }
+                var reader = new FileReader();
+                reader.onload = function(e2) {
+                    // e2.target.result is the file content as text
+                    var hiddenID = 'wpaicg-fileupload-hidden-' + field.id.replace('wpaicg-form-field-','');
+                    var hiddenEl = document.getElementById(hiddenID);
+                    if(hiddenEl) {
+                        hiddenEl.value = e2.target.result;
+                    }
+                };
+                reader.readAsText(file);
+            });
+        });
     },
     process: function(queryString,eventID,wpaicgFormData,formID,wpaicgStop,wpaicgSaveResult,wpaicgGenerateBtn,wpaicgMaxLines){
         var wpaicg_PlayGround = this;

@@ -61,6 +61,8 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <li draggable="true" data-type="radio"><?php echo esc_html__('Radio','gpt3-ai-content-generator'); ?></li>
                     <li draggable="true" data-type="select"><?php echo esc_html__('Select','gpt3-ai-content-generator'); ?></li>
                     <li draggable="true" data-type="url"><?php echo esc_html__('URL','gpt3-ai-content-generator'); ?></li>
+                    <!-- NEW: File Upload -->
+                    <li draggable="true" data-type="fileupload"><?php echo esc_html__('File Upload','gpt3-ai-content-generator'); ?></li>
                 </ul>
             </div>
 

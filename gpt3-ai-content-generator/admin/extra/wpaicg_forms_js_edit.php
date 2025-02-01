@@ -8,7 +8,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Splits out the Edit Form logic from wpaicg_forms_js.php.
  *
  * Revised to use switches for "Use Embeddings?" and "Use Default Embedding Model?"
- * arranged in 3 lines like the Create mode, while preserving existing conditions.
+ * arranged in 3 lines like the Create mode, while preserving existing logic.
+ *
+ * Now also includes "fileupload" support in Edit Mode (drag & drop).
  */
 
 // Prepare Qdrant and Pinecone arrays the same way as in create mode:
@@ -38,7 +40,7 @@ use WPAICG\WPAICG_Util;
 $embedding_models = WPAICG_Util::get_instance()->get_embedding_models();
 
 // Also load icons array from icons.json so we can populate the Icon dropdown:
-$wpaicg_plugin_dir = WPAICG_PLUGIN_DIR; // typically defined in main plugin
+$wpaicg_plugin_dir = WPAICG_PLUGIN_DIR;
 $wpaicg_icons_file = $wpaicg_plugin_dir . 'admin/data/icons.json';
 $wpaicg_icons      = [];
 if ( file_exists( $wpaicg_icons_file ) ) {
@@ -679,7 +681,8 @@ function handleEditDrop(e) {
         return;
     }
     var dataType = e.originalEvent.dataTransfer.getData('text/plain');
-    var allowed = ['text','textarea','email','number','checkbox','radio','select','url'];
+    // Now includes 'fileupload'
+    var allowed = ['text','textarea','email','number','checkbox','radio','select','url','fileupload'];
     if (allowed.indexOf(dataType) >= 0) {
         createEditFieldItem(dataType);
     }
@@ -997,6 +1000,15 @@ $('#wpaicg_save_edited_form').on('click', function(){
         });
         var optionsStr = optionValues.join('|');
 
+        // For fileupload, also read the "file_types" if present
+        var fileTypes = "";
+        if(type === 'fileupload'){
+            var $fTypesInput = $el.find('.file_types');
+            if($fTypesInput.length){
+                fileTypes = $fTypesInput.val().trim();
+            }
+        }
+
         fieldsData.push({
             type: type,
             label: label ? label : 'Field'+(idx+1),
@@ -1005,7 +1017,8 @@ $('#wpaicg_save_edited_form').on('click', function(){
             max: maxVal,
             rows: rowsVal,
             cols: colsVal,
-            options: optionsStr
+            options: optionsStr,
+            file_types: fileTypes
         });
     });
     if(missingID){
@@ -1178,6 +1191,12 @@ window.getFieldSettingsHtml = window.getFieldSettingsHtml || function(type, minV
         });
         html += '</ul>';
         html += '<button type="button" class="add_option_btn">+ Add Option</button>';
+    }
+
+    // NEW: fileupload
+    if(type === 'fileupload') {
+        html += '<label><?php echo esc_js(__("Allowed File Types (comma-separated):","gpt3-ai-content-generator")); ?><br/>';
+        html += '<input type="text" class="file_types" value="txt,csv" /></label>';
     }
 
     html += '</div>';

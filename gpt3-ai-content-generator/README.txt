@@ -1,10 +1,10 @@
 ===AI Power: Complete AI Pack===
 Contributors: senols
-Tags: ai, chat, seo, openai, chatgpt
+Tags: ai, chat, deepseek, openai, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.9.0
+Stable tag: 1.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -12,7 +12,7 @@ Chatbot, Content Writer, Auto Content Writer, Product Writer, Image Generator, A
  
 == Description ==
 
-AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's GPT-4, GPT-3.5, Assistant API, along with Claude, Gemini, Azure, Grok, Mistral, LLaMA, Yi Chat, and Alpaca.
+AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's o1, o3, GPT-4, GPT-3.5, Assistant API, along with DeepSeek, Claude, Gemini, Azure, Grok, Mistral, LLaMA, Yi Chat, and Alpaca.
 
 It uses o1-mini, o1-preview, GPT-3.5, GPT-4,  GPT-4o, GPT-4o-mini, GPT-4 Vision, Gemini 1.5 Flash, Anthropic (Claude 3 Sonnet, Opus etc.), DeepSeek and more to generate content, images, and forms with customizable options. It includes AI training, Chat widget, WooCommerce integration, Embeddings and more.
 
@@ -85,6 +85,12 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.9.1 =
+
+- o3-mini added.
+- File upload option for AI forms. For now it supports text and csv only.
+- Bug fixes in PromptBase
 
 = 1.9.0 =
 

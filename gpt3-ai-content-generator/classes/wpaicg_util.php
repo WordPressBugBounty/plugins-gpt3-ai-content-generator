@@ -1181,6 +1181,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             'o1-preview' => 'o1 Preview',
             'o1-mini' => 'o1 Mini',
             'o1' => 'o1',
+            'o3-mini' => 'o3 Mini',
         ];
 
         public $openai_gpt35_models = [
@@ -1194,6 +1195,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             'o1-preview' => 'o1 Preview',
             'o1-mini' => 'o1 Mini',
             'o1' => 'o1',
+            'o3-mini' => 'o3 Mini',
         ];
 
         public $model_pricing = [

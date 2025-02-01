@@ -123,6 +123,12 @@ if ( ! defined( 'ABSPATH' ) ) {
             html += '<button type="button" class="add_option_btn">+ Add Option</button>';
         }
 
+        // NEW: fileupload
+        if(type === 'fileupload') {
+            html += '<label><?php echo esc_js(__("Allowed File Types (comma-separated):","gpt3-ai-content-generator")); ?><br/>';
+            html += '<input type="text" class="file_types" value="txt,csv" /></label>';
+        }
+
         html += '</div>';
         return html;
     };
@@ -280,9 +286,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 // Evaluate the icon class
                 var icon_class = f.icon || f.icon_key || 'dashicons dashicons-star-filled';
-                // If we had a global icons object, we could map here. (But not strictly needed, unless you'd like.)
-                // e.g. if (typeof wpaicg_icons !== 'undefined' && f.icon_key && wpaicg_icons[f.icon_key]) { ... }
-
                 // Suffix label
                 var suffix_label = '';
                 if (type === 'builtin' && f.data && f.data.description) {
@@ -460,8 +463,8 @@ if ( ! defined( 'ABSPATH' ) ) {
         var builtin_id = parseInt($item.data('builtin_id'),10);
         var db_id      = parseInt($item.data('db_id'),10);
 
-        $grid.hide();
-        $preview.show();
+        $('#wpaicg_forms_grid').hide();
+        $('#wpaicg_preview_panel').show();
 
         if( !$flex.hasClass('wpaicg_sidebar_hidden') ){
             $flex.addClass('wpaicg_sidebar_hidden');
@@ -495,8 +498,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     // "Back to List"
     $('.wpaicg_preview_back').on('click', function(e){
         e.preventDefault();
-        $preview.hide();
-        $grid.show();
+        $('#wpaicg_preview_panel').hide();
+        $('#wpaicg_forms_grid').show();
 
         $('#wpaicg_toggle_sidebar_icon, #wpaicg_search_icon, #wpaicg_plus_icon').show();
         $('.wpaicg_preview_back, .wpaicg_preview_duplicate, .wpaicg_preview_edit, .wpaicg_preview_delete').hide();
