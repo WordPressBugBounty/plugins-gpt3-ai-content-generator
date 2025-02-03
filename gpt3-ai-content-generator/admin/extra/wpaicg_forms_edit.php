@@ -9,13 +9,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Drag & drop editing container for an existing form, with 2 tabs.
- * The AI provider/model selection is in the first tab above the Prompt.
+ * Now includes a "Provider" dropdown, followed by the "Model" dropdown,
+ * mirroring the Create Mode logic. The chosen provider is read from meta
+ * (wpaicg_model_provider) and the model from wpaicg_form_engine.
  *
- * Revised to arrange the Embeddings settings on 3 lines and to use switches
- * (like the Create mode), while preserving existing logic/conditions.
+ * Revised to arrange the Embeddings settings on 3 lines, using switches
+ * (like Create mode), and to incorporate the new dynamic provider selection.
  *
- * Also moved Category + Short Description into the Model Settings modal
- * and removed them from the “Basic Info” container in the Style tab.
+ * Also moved Category + Short Description into the Model Settings modal,
+ * removing them from the "Basic Info" container in the Style tab.
  */
 ?>
 <div id="wpaicg_edit_container" style="display:none;">
@@ -23,8 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     <!-- Tabs navigation -->
     <ul class="wpaicg_edit_tabs">
         <!-- 
-             The first tab now has an inline-editable form title. 
-             Users can double-click the text or click the pen icon to edit.
+             The first tab has an inline-editable form title. 
+             Users can double-click or click the pen icon to edit.
         -->
         <li data-tab="wpaicg_edit_tab1" class="active">
             <span
@@ -46,7 +48,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <li data-tab="wpaicg_edit_tab3"><?php echo esc_html__('Settings','gpt3-ai-content-generator'); ?></li>
     </ul>
 
-    <!-- TAB 1: Form Elements + AI Model + Prompt Settings -->
+    <!-- TAB 1: Form Elements + Prompt + Provider/Model Selection -->
     <div class="wpaicg_edit_tab_content active" id="wpaicg_edit_tab1">
         <div class="wpaicg_form_builder">
             <div class="builder_left">
@@ -62,10 +64,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <li draggable="true" data-type="select"><?php echo esc_html__('Select','gpt3-ai-content-generator'); ?></li>
                     <li draggable="true" data-type="url"><?php echo esc_html__('URL','gpt3-ai-content-generator'); ?></li>
 
-                    <!-- Newly added for Edit Mode -->
+                    <!-- Newly added for Edit Mode as well -->
                     <li draggable="true" data-type="fileupload"><?php echo esc_html__('File Upload','gpt3-ai-content-generator'); ?></li>
                 </ul>
             </div>
+
             <div class="builder_center">
                 <h3><?php echo esc_html__('Edit Form','gpt3-ai-content-generator'); ?></h3>
                 <div class="builder_fields_dropzone" id="wpaicg_edit_dropzone">
@@ -74,99 +77,45 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
 
             <div class="builder_right">
-                <h3><?php echo esc_html__('Prompt Settings','gpt3-ai-content-generator'); ?></h3>
-
+                <h3><?php echo esc_html__('AI Settings','gpt3-ai-content-generator'); ?></h3>
                 <!-- Hidden form_id field -->
                 <input type="hidden" id="wpaicg_edit_form_id" value="" />
 
-                <?php
-                // Detect the current provider
-                $wpaicg_provider = get_option('wpaicg_provider','OpenAI');
+                <!-- Provider & Model Dropdowns (mirroring Create Mode) -->
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <div>
+                        <label for="wpaicg_editform_provider" style="display:block; margin-bottom:4px;">
+                            <?php echo esc_html__('Provider','gpt3-ai-content-generator'); ?>
+                        </label>
+                        <select id="wpaicg_editform_provider">
+                            <option value="OpenAI">OpenAI</option>
+                            <option value="Google">Google</option>
+                            <option value="OpenRouter">OpenRouter</option>
+                            <option value="Azure">Azure</option>
+                        </select>
+                    </div>
 
-                $gpt4_models    = WPAICG_Util::get_instance()->openai_gpt4_models;
-                $gpt35_models   = WPAICG_Util::get_instance()->openai_gpt35_models;
-                $custom_models  = get_option('wpaicg_custom_models', []);
-                $google_models  = get_option('wpaicg_google_model_list', ['gemini-pro']);
-                $openrouter_raw = get_option('wpaicg_openrouter_model_list', []);
-                // Group OpenRouter
-                $openrouter_grouped = [];
-                foreach ($openrouter_raw as $entry) {
-                    $prov = explode('/', $entry['id'])[0];
-                    if (!isset($openrouter_grouped[$prov])) {
-                        $openrouter_grouped[$prov] = [];
-                    }
-                    $openrouter_grouped[$prov][] = $entry['id'];
-                }
-                ksort($openrouter_grouped);
-
-                function wpaicg_render_openai_edit_options($gpt4, $gpt35, $custom) {
-                    ?>
-                    <optgroup label="GPT 3.5 Models">
-                        <?php foreach ($gpt35 as $key => $label) : ?>
-                            <option value="<?php echo esc_attr($key); ?>">
-                                <?php echo esc_html($label); ?>
+                    <div>
+                        <label for="wpaicg_editform_engine" style="display:block; margin-bottom:4px;">
+                            <?php echo esc_html__('Model','gpt3-ai-content-generator'); ?>
+                        </label>
+                        <select id="wpaicg_editform_engine" style="max-width: 150px;">
+                            <option value="">
+                                <?php echo esc_html__('Select a model','gpt3-ai-content-generator'); ?>
                             </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                    <optgroup label="GPT 4 Models">
-                        <?php foreach ($gpt4 as $key => $label) : ?>
-                            <option value="<?php echo esc_attr($key); ?>">
-                                <?php echo esc_html($label); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                    <?php if (!empty($custom)) : ?>
-                    <optgroup label="Custom Fine-Tuned">
-                        <?php foreach ($custom as $cmodel) : ?>
-                            <option value="<?php echo esc_attr($cmodel); ?>">
-                                <?php echo esc_html($cmodel); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                    <?php endif; ?>
-                    <?php
-                }
-                ?>
-
-                <label for="wpaicg_editform_engine"><?php echo esc_html__('Model','gpt3-ai-content-generator'); ?></label><br />
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                    <select id="wpaicg_editform_engine" style="flex:1;">
-                    <?php if ($wpaicg_provider === 'OpenAI'): ?>
-                        <?php wpaicg_render_openai_edit_options($gpt4_models, $gpt35_models, $custom_models); ?>
-                    <?php elseif ($wpaicg_provider === 'Google'): ?>
-                        <?php
-                        foreach ($google_models as $gm) {
-                            echo '<option value="'.esc_attr($gm).'">'.esc_html($gm).'</option>';
-                        }
-                        ?>
-                    <?php elseif ($wpaicg_provider === 'OpenRouter'): ?>
-                        <?php
-                        foreach ($openrouter_grouped as $prov => $modelsArr) {
-                            echo '<optgroup label="'.esc_attr($prov).'">';
-                            foreach ($modelsArr as $m) {
-                                echo '<option value="'.esc_attr($m).'">'.esc_html($m).'</option>';
-                            }
-                            echo '</optgroup>';
-                        }
-                        ?>
-                    <?php elseif ($wpaicg_provider === 'Azure'): ?>
-                        <?php $azure_deployment = get_option('wpaicg_azure_deployment',''); ?>
-                        <option value="<?php echo esc_attr($azure_deployment); ?>">
-                            <?php echo esc_html($azure_deployment); ?>
-                        </option>
-                    <?php else: ?>
-                        <option value="gpt-4o-mini">GPT-4o-mini</option>
-                    <?php endif; ?>
-                    </select>
-                    <!-- Click to open modal -->
-                    <span
-                        class="dashicons dashicons-admin-generic"
-                        style="cursor: pointer;"
-                        id="wpaicg_editform_model_settings_icon"
-                        title="<?php echo esc_attr__('Advanced Model Settings','gpt3-ai-content-generator'); ?>">
-                    </span>
+                        </select>
+                        <!-- Click to open modal -->
+                        <span
+                            class="dashicons dashicons-admin-generic"
+                            style="cursor: pointer;"
+                            id="wpaicg_editform_model_settings_icon"
+                            title="<?php echo esc_attr__('Advanced Model Settings','gpt3-ai-content-generator'); ?>">
+                        </span>
+                    </div>
                 </div>
 
+                <!-- Prompt Settings -->
+                <h3><?php echo esc_html__('Prompt Settings','gpt3-ai-content-generator'); ?></h3>
                 <label for="wpaicg_editform_prompt"><?php echo esc_html__('Prompt','gpt3-ai-content-generator'); ?></label>
                 <textarea
                     id="wpaicg_editform_prompt"
@@ -184,7 +133,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php echo esc_html__('Validate My Prompt','gpt3-ai-content-generator'); ?>
                 </button>
                 <div id="wpaicg_edit_validation_results" style="margin:8px 0; display:none;">
+                    <!-- In code, we'll insert #wpaicg_edit_validate_count_result, #wpaicg_edit_validate_order_result, etc.
+                         but we only show #wpaicg_edit_validate_existence_result in the default layout. -->
                     <div>
+                        <span id="wpaicg_edit_validate_count_result"></span><br/>
+                        <span id="wpaicg_edit_validate_order_result"></span><br/>
                         <span id="wpaicg_edit_validate_existence_result" style="margin-left:6px;"></span>
                     </div>
                 </div>
@@ -200,33 +153,47 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <h3><?php echo esc_html__('Interface','gpt3-ai-content-generator'); ?></h3>
                 <p><?php echo esc_html__('Customize the look and feel of the form.','gpt3-ai-content-generator'); ?></p>
 
-                <!-- Single line row for Response Output, Color, and Icon -->
+                <!-- Single line row for Output, Icon, Icon Color, Background -->
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                     <div style="flex: 1;">
-                        <label for="wpaicg_editform_editor"><?php echo esc_html__('Output','gpt3-ai-content-generator'); ?></label><br/>
+                        <label for="wpaicg_editform_editor">
+                            <?php echo esc_html__('Output','gpt3-ai-content-generator'); ?>
+                        </label><br/>
                         <select id="wpaicg_editform_editor" style="width:100%;">
-                            <option value="div"><?php echo esc_html__('Inline','gpt3-ai-content-generator'); ?></option>
-                            <option value="editor"><?php echo esc_html__('Text Editor','gpt3-ai-content-generator'); ?></option>
+                            <option value="div">
+                                <?php echo esc_html__('Inline','gpt3-ai-content-generator'); ?>
+                            </option>
+                            <option value="editor">
+                                <?php echo esc_html__('Text Editor','gpt3-ai-content-generator'); ?>
+                            </option>
                         </select>
                     </div>
-                    <!-- Updated: Icon is now a dropdown using icons.json keys -->
+                    <!-- Icon is a dropdown from icons.json -->
                     <div style="flex: 1;">
-                        <label for="wpaicg_editform_icon"><?php echo esc_html__('Icon','gpt3-ai-content-generator'); ?></label><br/>
+                        <label for="wpaicg_editform_icon">
+                            <?php echo esc_html__('Icon','gpt3-ai-content-generator'); ?>
+                        </label><br/>
                         <select id="wpaicg_editform_icon" style="width:100%;">
-                            <option value=""><?php echo esc_html__('(none)','gpt3-ai-content-generator'); ?></option>
+                            <option value="">
+                                <?php echo esc_html__('(none)','gpt3-ai-content-generator'); ?>
+                            </option>
                         </select>
                     </div>
                     <div style="flex: 1;">
-                        <label for="wpaicg_editform_color"><?php echo esc_html__('Icon Color','gpt3-ai-content-generator'); ?></label><br/>
+                        <label for="wpaicg_editform_color">
+                            <?php echo esc_html__('Icon Color','gpt3-ai-content-generator'); ?>
+                        </label><br/>
                         <input type="color" id="wpaicg_editform_color" style="width:100%;" value="#00BFFF" />
                     </div>
                     <div style="flex: 1;">
-                        <label for="wpaicg_editform_bgcolor"><?php echo esc_html__('Background','gpt3-ai-content-generator'); ?></label><br/>
+                        <label for="wpaicg_editform_bgcolor">
+                            <?php echo esc_html__('Background','gpt3-ai-content-generator'); ?>
+                        </label><br/>
                         <input type="color" id="wpaicg_editform_bgcolor" style="width:100%;" value="#f9f9f9" />
                     </div>
                 </div>
 
-                <!-- Switch for Header -->
+                <!-- Switch for Header + Switch for Feedback -->
                 <div style="display:flex; gap:10px;">
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                         <label style="margin:0;">
@@ -239,7 +206,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </label>
                     </div>
 
-                    <!-- Switch for Feedback Buttons -->
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                         <label style="margin:0;">
                             <?php echo esc_html__('Allow Feedback','gpt3-ai-content-generator'); ?>
@@ -251,7 +217,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </label>
                     </div>
                 </div>
-            </div>
+            </div><!-- .builder_left -->
 
             <div class="builder_center">
                 <h3><?php echo esc_html__('Custom Text','gpt3-ai-content-generator'); ?></h3>
@@ -266,6 +232,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </label>
                 </div>
 
+                <!-- hidden noanswer_text -->
                 <input type="hidden" id="wpaicg_editform_noanswer_text" style="width:100%; margin-bottom:10px;" />
 
                 <div style="display:flex; gap:10px;">
@@ -304,12 +271,17 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </label>
                 </div>
 
-                <label for="wpaicg_editform_generate_text"><?php echo esc_html__('Generate Button','gpt3-ai-content-generator'); ?></label>
+                <label for="wpaicg_editform_generate_text">
+                    <?php echo esc_html__('Generate Button','gpt3-ai-content-generator'); ?>
+                </label>
                 <input type="text" id="wpaicg_editform_generate_text" style="width:100%; margin-bottom:10px;" />
 
-                <label for="wpaicg_editform_stop_text"><?php echo esc_html__('Stop Button','gpt3-ai-content-generator'); ?></label>
+                <label for="wpaicg_editform_stop_text">
+                    <?php echo esc_html__('Stop Button','gpt3-ai-content-generator'); ?>
+                </label>
                 <input type="text" id="wpaicg_editform_stop_text" style="width:100%; margin-bottom:10px;" />
             </div>
+
             <div class="builder_right">
                 <h3><?php echo esc_html__('Theme','gpt3-ai-content-generator'); ?></h3>
                 <p><?php echo esc_html__('Coming Soon!','gpt3-ai-content-generator'); ?></p>
@@ -330,8 +302,10 @@ if ( ! defined( 'ABSPATH' ) ) {
         <h3><?php echo esc_html__('Form Settings','gpt3-ai-content-generator'); ?></h3>
 
         <hr style="margin:20px 0;" />
-        <h4 style="margin-bottom:8px;"><?php echo esc_html__('AI Parameters','gpt3-ai-content-generator'); ?></h4>
-        <!-- ====== AI Parameter Settings in a grid for nicer layout ====== -->
+        <h4 style="margin-bottom:8px;">
+            <?php echo esc_html__('AI Parameters','gpt3-ai-content-generator'); ?>
+        </h4>
+        <!-- AI Parameter Settings in a grid layout -->
         <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
             <!-- Row 1: Max Tokens / Stop Words -->
             <div style="display:flex; gap:10px;">
@@ -348,8 +322,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     />
                 </label>
             </div>
-
-            <!-- Row 2: Sliders (Top P, Frequency, Presence) -->
+            <!-- Row 2: Sliders (Top P, Frequency Penalty, Presence Penalty) -->
             <div style="display:flex; gap:10px;">
                 <label style="flex:1;">
                     <?php echo esc_html__('Top P','gpt3-ai-content-generator'); ?><br/>
@@ -367,17 +340,18 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <span id="wpaicg_editform_presence_penalty_value">0</span>
                 </label>
             </div>
-
-            <!-- best_of hidden -->
+            <!-- best_of is hidden -->
             <input type="hidden" id="wpaicg_editform_best_of" value="1" />
         </div>
 
         <hr style="margin:20px 0;" />
 
-        <!-- ====== Embeddings Settings (3 lines), using switches for yes/no ====== -->
-        <h4 style="margin-bottom:8px;"><?php echo esc_html__('Embeddings','gpt3-ai-content-generator'); ?></h4>
+        <!-- Embeddings Settings (3 lines), using switches for yes/no, etc. -->
+        <h4 style="margin-bottom:8px;">
+            <?php echo esc_html__('Embeddings','gpt3-ai-content-generator'); ?>
+        </h4>
 
-        <!-- 1) Use Embeddings SWITCH + Vector DB + Index/Collection -->
+        <!-- 1) Use Embeddings SWITCH -->
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
             <label style="margin:0;">
                 <?php echo esc_html__('Use Embeddings?','gpt3-ai-content-generator'); ?>
@@ -389,10 +363,10 @@ if ( ! defined( 'ABSPATH' ) ) {
             </label>
         </div>
 
-        <!-- Container that shows/hides everything if embeddings = yes -->
+        <!-- Container that shows/hides the embeddings block -->
         <div id="wpaicg_editform_embeddings_settings_wrapper" style="display:none;">
             <div style="display:flex; gap:15px; margin-bottom:15px;">
-                <!-- Vector DB -->
+                <!-- Vector DB select -->
                 <div style="flex:1;">
                     <label style="display:block; margin-bottom:4px;">
                         <?php echo esc_html__('Vector DB','gpt3-ai-content-generator'); ?>
@@ -403,7 +377,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </select>
                 </div>
 
-                <!-- Pinecone/Qdrant Indexes -->
+                <!-- Pinecone or Qdrant selection -->
                 <div style="flex:1;">
                     <!-- Pinecone indexes -->
                     <div id="wpaicg_editform_pineconeindexes_wrap" style="display:none;">
@@ -414,7 +388,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <!-- Populated by JS -->
                         </select>
                     </div>
-
                     <!-- Qdrant collections -->
                     <div id="wpaicg_editform_collections_wrap" style="display:none;">
                         <label style="display:block; margin-bottom:4px;">
@@ -446,8 +419,12 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <?php echo esc_html__('Context Position','gpt3-ai-content-generator'); ?>
                     </label>
                     <select id="wpaicg_editform_suffix_position" style="width:100%;">
-                        <option value="after"><?php echo esc_html__('After Prompt','gpt3-ai-content-generator'); ?></option>
-                        <option value="before"><?php echo esc_html__('Before Prompt','gpt3-ai-content-generator'); ?></option>
+                        <option value="after">
+                            <?php echo esc_html__('After Prompt','gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="before">
+                            <?php echo esc_html__('Before Prompt','gpt3-ai-content-generator'); ?>
+                        </option>
                     </select>
                 </div>
                 <div style="flex:1;">
@@ -462,7 +439,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </div>
             </div>
 
-            <!-- 3) Use default embedding model SWITCH, provider, model -->
+            <!-- 3) Use default embedding model SWITCH, plus provider+model -->
             <div style="display:flex; gap:15px; margin-bottom:10px;">
                 <div style="flex:1;">
                     <label style="display:block; margin-bottom:4px;">
@@ -494,12 +471,16 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div><!-- #wpaicg_editform_embeddings_settings_wrapper -->
 
         <hr style="margin:20px 0;" />
-        <h4 style="margin-bottom:8px;"><?php echo esc_html__('Form Info','gpt3-ai-content-generator'); ?></h4>
+        <h4 style="margin-bottom:8px;">
+            <?php echo esc_html__('Form Info','gpt3-ai-content-generator'); ?>
+        </h4>
         <label for="wpaicg_editform_category" style="display:block; margin-bottom:4px;">
             <?php echo esc_html__('Category','gpt3-ai-content-generator'); ?>
         </label>
         <select id="wpaicg_editform_category" style="width:100%; margin-bottom:10px;">
-            <option value=""><?php echo esc_html__('-- Select Category --','gpt3-ai-content-generator'); ?></option>
+            <option value="">
+                <?php echo esc_html__('-- Select Category --','gpt3-ai-content-generator'); ?>
+            </option>
             <?php
             global $wpaicg_categories;
             if ( isset($wpaicg_categories) && is_array($wpaicg_categories) ) {

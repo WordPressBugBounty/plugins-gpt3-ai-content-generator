@@ -25,7 +25,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Promptbase')) {
 
         public function __construct()
         {
-            add_action( 'admin_menu', array( $this, 'wpaicg_menu' ) );
             add_shortcode('wpaicg_prompt',[$this,'wpaicg_prompt_shortcode']);
             add_action('wp_ajax_wpaicg_update_prompt',[$this,'wpaicg_update_prompt']);
             add_action('wp_ajax_wpaicg_prompt_delete',[$this,'wpaicg_prompt_delete']);
@@ -300,28 +299,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Promptbase')) {
 
             }
             wp_send_json($wpaicg_result);
-        }
-
-        public function wpaicg_menu()
-        {
-            $module_settings = get_option('wpaicg_module_settings');
-            if ($module_settings === false) {
-                $module_settings = array_map(function() { return true; }, \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules);
-            }
-        
-            $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
-        
-            if (isset($module_settings['promptbase']) && $module_settings['promptbase']) {
-                add_submenu_page(
-                    'wpaicg',
-                    esc_html__($modules['promptbase']['title'], 'gpt3-ai-content-generator'),
-                    esc_html__($modules['promptbase']['title'], 'gpt3-ai-content-generator'),
-                    $modules['promptbase']['capability'],
-                    $modules['promptbase']['menu_slug'],
-                    array($this, $modules['promptbase']['callback']),
-                    $modules['promptbase']['position']
-                );
-            }
         }
         
         public function wpaicg_update_prompt()

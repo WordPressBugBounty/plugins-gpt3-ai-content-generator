@@ -179,6 +179,8 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
             $description = $post->post_content;
             $title       = $post->post_title;
             $engine      = get_post_meta($form_id, 'wpaicg_form_engine', true);
+            // IMPORTANT: must retrieve from wpaicg_form_model_provider
+            $model_provider = get_post_meta($form_id, 'wpaicg_form_model_provider', true);
 
             // advanced settings
             $max_tokens         = get_post_meta($form_id, 'wpaicg_form_max_tokens', true);
@@ -245,6 +247,8 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                 'fields'      => $fields,
                 'interface'   => $interfaceData,
                 'engine'      => $engine,
+                // must pass back the correct provider
+                'model_provider' => $model_provider,
                 'advanced_settings' => [
                     'max_tokens'         => $max_tokens ?: 1500,
                     'top_p'              => $top_p ?: 1,
@@ -285,6 +289,8 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
             $prompt     = isset($_POST['prompt']) ? wp_kses_post($_POST['prompt']) : '';
             $fields_json= isset($_POST['fields']) ? wp_unslash($_POST['fields']) : '';
             $engine     = isset($_POST['engine']) ? sanitize_text_field($_POST['engine']) : 'gpt-4o-mini';
+            // Must read the provider from the posted data
+            $provider   = isset($_POST['provider']) ? sanitize_text_field($_POST['provider']) : '';
 
             $model_settings = isset($_POST['model_settings']) ? (array) $_POST['model_settings'] : [];
             $wpaicg_max_tokens        = isset($model_settings['max_tokens']) ? intval($model_settings['max_tokens']) : 1500;
@@ -312,6 +318,9 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
 
             // Update meta
             update_post_meta($form_id, 'wpaicg_form_engine', $engine);
+            // Correct: store provider in wpaicg_form_model_provider
+            update_post_meta($form_id, 'wpaicg_form_model_provider', $provider);
+
             update_post_meta($form_id, 'wpaicg_form_prompt', $prompt);
             update_post_meta($form_id, 'wpaicg_form_fields', $fields_json);
 
@@ -768,6 +777,9 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                 update_post_meta($new_form_id, 'wpaicg_form_category', 'generation');
                 update_post_meta($new_form_id, 'wpaicg_form_bgcolor', '#f9f9f9');
 
+                // NEW: also store default provider for duplicated built-in forms
+                update_post_meta($new_form_id, 'wpaicg_form_model_provider', 'OpenAI');
+
                 $wpaicg_result['msg'] = esc_html__('Built-in form duplicated successfully.', 'gpt3-ai-content-generator');
                 $wpaicg_result['new_id'] = $new_form_id;
                 wp_send_json($wpaicg_result);
@@ -876,7 +888,9 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                     'suffix_text','suffix_position','embeddings_limit','use_default_embedding_model',
                     'selected_embedding_model','selected_embedding_provider','dans','ddraft','dclear',
                     'dnotice','ddownload','copy_button','copy_text','feedback_buttons','generate_text',
-                    'noanswer_text','draft_text','clear_text','stop_text','cnotice_text','download_text'
+                    'noanswer_text','draft_text','clear_text','stop_text','cnotice_text','download_text',
+                    // Must include model_provider here as well
+                    'model_provider'
                 ];
 
                 foreach ($template_fields as $template_field) {
@@ -1121,6 +1135,8 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
             $title       = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
             $description = isset($_POST['description']) ? sanitize_text_field($_POST['description']) : '';
             $prompt      = isset($_POST['prompt']) ? wp_kses_post($_POST['prompt']) : '';
+            // Must read provider from posted data
+            $provider    = isset($_POST['provider']) ? sanitize_text_field($_POST['provider']) : '';
             $fields_json = isset($_POST['fields']) ? wp_unslash($_POST['fields']) : '';
             $engine      = isset($_POST['engine']) ? sanitize_text_field($_POST['engine']) : 'gpt-4o-mini';
 
@@ -1150,6 +1166,9 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                     'message' => esc_html__('Failed to create new form', 'gpt3-ai-content-generator')
                 ]);
             }
+
+            // Correct: store provider in wpaicg_form_model_provider
+            update_post_meta($post_id, 'wpaicg_form_model_provider', $provider);
 
             update_post_meta($post_id, 'wpaicg_form_prompt', $prompt);
             if (!empty($fields_json)) {

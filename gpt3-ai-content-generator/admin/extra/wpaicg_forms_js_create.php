@@ -10,6 +10,11 @@
  *
  * Also updated so that after the first “Save Changes” in create mode,
  * the admin is redirected back to the main AI Forms list (avoiding extra duplicates).
+ *
+ * Lastly, we've introduced a "Provider" select for choosing among
+ * OpenAI / Google / OpenRouter / Azure. The chosen provider is stored
+ * in meta as "wpaicg_model_provider". The model select is populated
+ * dynamically based on that provider.
  */
 
 declare(strict_types=1);
@@ -55,6 +60,31 @@ if ( file_exists( $wpaicg_icons_file ) ) {
     }
 }
 
+// For providers
+$wpaicg_provider     = get_option('wpaicg_provider','OpenAI');
+$gpt4_models         = WPAICG_Util::get_instance()->openai_gpt4_models;
+$gpt35_models        = WPAICG_Util::get_instance()->openai_gpt35_models;
+$custom_models       = get_option('wpaicg_custom_models', []);
+$google_models       = get_option('wpaicg_google_model_list', ['gemini-pro']);
+$openrouter_raw      = get_option('wpaicg_openrouter_model_list', []);
+$azure_deployment    = get_option('wpaicg_azure_deployment','');
+$default_openai      = 'gpt-4o-mini';
+$default_google      = get_option('wpaicg_google_default_model','gemini-pro');
+$default_openrouter  = 'openrouter/auto';
+
+// Group openrouter models
+$openrouter_grouped = [];
+if (is_array($openrouter_raw)) {
+    foreach ($openrouter_raw as $entry) {
+        $provSplit = explode('/', $entry['id'])[0];
+        if (!isset($openrouter_grouped[$provSplit])) {
+            $openrouter_grouped[$provSplit] = [];
+        }
+        $openrouter_grouped[$provSplit][] = $entry['id'];
+    }
+}
+ksort($openrouter_grouped);
+
 // Nonce for form creation
 $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
 ?>
@@ -69,9 +99,19 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
     var qdrantDefault     = <?php echo json_encode($qdrant_default_collection); ?>;
     var pineconeIndexes   = <?php echo json_encode($pinecone_indexes_opt); ?>;
     var embeddingModels   = <?php echo json_encode($embedding_models); ?>;
-
-    // Icons from icons.json (as key => dashicon class)
     var wpaicgIcons       = <?php echo json_encode($wpaicg_icons); ?>;
+
+    // For provider -> models
+    var wpaicgDefaultProvider = "<?php echo esc_js($wpaicg_provider); ?>";
+    var openaiGpt4      = <?php echo json_encode($gpt4_models); ?>;
+    var openaiGpt35     = <?php echo json_encode($gpt35_models); ?>;
+    var openaiCustom    = <?php echo json_encode($custom_models); ?>;
+    var googleModels    = <?php echo json_encode($google_models); ?>;
+    var openrouterGroup = <?php echo json_encode($openrouter_grouped); ?>;
+    var azureDeployment = "<?php echo esc_js($azure_deployment); ?>";
+    var defaultOpenai   = "<?php echo esc_js($default_openai); ?>";
+    var defaultGoogle   = "<?php echo esc_js($default_google); ?>";
+    var defaultOpenRouter= "<?php echo esc_js($default_openrouter); ?>";
 
     ////////////////////////////////////////////////////////////////////////////////
     // 2) Show/Hide logic for Embeddings in CREATE form's model settings modal
@@ -115,7 +155,89 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
     });
 
     ////////////////////////////////////////////////////////////////////////////////
-    // 3) Populate Pinecone / Qdrant / Embedding Models / Icons
+    // 2.1) Provider -> Model population
+    //////////////////////////////////////////////////////////////////////////////
+    // Helper to populate the model dropdown (#wpaicg_createform_engine) 
+    // based on selected provider (#wpaicg_createform_provider)
+    function populateModelsByProvider(provider) {
+        var $modelSelect = $('#wpaicg_createform_engine');
+        $modelSelect.empty();
+
+        if(provider === 'OpenAI') {
+            // Build GPT3.5, GPT4, and custom
+            if(Object.keys(openaiGpt35).length) {
+                $modelSelect.append('<optgroup label="GPT 3.5 Models"></optgroup>');
+                $.each(openaiGpt35, function(mKey, mLabel){
+                    $modelSelect.find('optgroup[label="GPT 3.5 Models"]').append(
+                        '<option value="'+ mKey +'">'+ mLabel +'</option>'
+                    );
+                });
+            }
+            if(Object.keys(openaiGpt4).length) {
+                $modelSelect.append('<optgroup label="GPT 4 Models"></optgroup>');
+                $.each(openaiGpt4, function(mKey, mLabel){
+                    $modelSelect.find('optgroup[label="GPT 4 Models"]').append(
+                        '<option value="'+ mKey +'">'+ mLabel +'</option>'
+                    );
+                });
+            }
+            if(Array.isArray(openaiCustom) && openaiCustom.length) {
+                $modelSelect.append('<optgroup label="Custom Fine-Tuned"></optgroup>');
+                openaiCustom.forEach(function(cmodel){
+                    $modelSelect.find('optgroup[label="Custom Fine-Tuned"]').append(
+                        '<option value="'+ cmodel +'">'+ cmodel +'</option>'
+                    );
+                });
+            }
+            // Set default
+            $modelSelect.val(defaultOpenai);
+
+        } else if(provider === 'Google') {
+            // googleModels is an array
+            if(Array.isArray(googleModels) && googleModels.length){
+                googleModels.forEach(function(gm){
+                    $modelSelect.append('<option value="'+ gm +'">'+ gm +'</option>');
+                });
+            }
+            // Default
+            $modelSelect.val('<?php echo esc_js($default_google); ?>');
+
+        } else if(provider === 'OpenRouter') {
+            // openrouterGroup is an object of { providerName: [modelIds...] }
+            var keys = Object.keys(openrouterGroup).sort();
+            keys.forEach(function(k){
+                $modelSelect.append('<optgroup label="'+ k +'"></optgroup>');
+                openrouterGroup[k].forEach(function(m){
+                    $modelSelect.find('optgroup[label="'+ k +'"]').append(
+                        '<option value="'+ m +'">'+ m +'</option>'
+                    );
+                });
+            });
+            // default
+            $modelSelect.val('<?php echo esc_js($default_openrouter); ?>');
+
+        } else if(provider === 'Azure') {
+            // azureDeployment is a single
+            if(azureDeployment) {
+                $modelSelect.append('<option value="'+ azureDeployment +'">'+ azureDeployment +'</option>');
+            } else {
+                $modelSelect.append('<option value="">(No Azure deployment found)</option>');
+            }
+        } else {
+            // fallback
+            $modelSelect.append('<option value="">Select a model</option>');
+        }
+    }
+
+    // On change of provider select => populate models
+    $('#wpaicg_createform_provider').on('change', function(){
+        var selectedProv = $(this).val();
+        populateModelsByProvider(selectedProv);
+    });
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 3) Populate Pinecone, Qdrant, Embedding Providers, Icons, etc.
     //////////////////////////////////////////////////////////////////////////////
     function populatePineconeIndexesCreate() {
         var $select = $('#wpaicg_createform_pineconeindexes');
@@ -150,7 +272,7 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         $provider.empty();
         $model.empty();
 
-        // embeddingModels is an object: { "OpenAI": { "modelA":1536, ... }, "Google": {...} }
+        // embeddingModels is an object: { "OpenAI": { "modelA":1536, ... }, "Google": {...}, ... }
         $.each(embeddingModels, function(providerName, modelObj){
             $provider.append('<option value="'+providerName+'">'+providerName+'</option>');
         });
@@ -259,6 +381,11 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
             $('#wpaicg_createform_selected_embedding_provider').prop('disabled', true);
             $('#wpaicg_createform_selected_embedding_model').prop('disabled', true);
         }
+
+        // Populate the main "Model" select based on default provider
+        // (Set the provider dropdown to the global wpaicgDefaultProvider,
+        // then trigger change to populate models.)
+        $('#wpaicg_createform_provider').val(wpaicgDefaultProvider).trigger('change');
     });
 
     /*************************************************************
@@ -296,8 +423,6 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
      *************************************************************/
     $('#wpaicg_return_main').on('click', function(){
         var createVisible = $('#wpaicg_create_container').is(':visible');
-        var editVisible   = $('#wpaicg_edit_container').is(':visible');
-
         // If user is in create mode, confirm
         if(createVisible) {
             if(!confirm('<?php echo esc_js(__('Are you sure? All changes will be lost if you exit Create Mode.','gpt3-ai-content-generator')); ?>')) {
@@ -394,7 +519,6 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         $('#wpaicg_createform_prompt').val('');
         $('#wpaicg_create_validation_results').hide();
         $('#wpaicg_create_status').hide().text('').css('color','green');
-        $('#wpaicg_create_save_form').attr('disabled','disabled');
         createFieldCounter = 1;
 
         // Reset snippet container
@@ -406,6 +530,9 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         updateCreateTabTitleDisplay('New Form');
         $('#wpaicg_createform_category').val('generation');
         $('#wpaicg_createform_description').val('Custom Form');
+
+        // Reset provider & model (will be re-initialized on .trigger('change') later)
+        $('#wpaicg_createform_provider').val(wpaicgDefaultProvider);
 
         // Interface fields
         $('#wpaicg_createform_editor').val('div');
@@ -707,7 +834,6 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
             $('#wpaicg_create_order_result').css('color','red').text('✘ Not checked');
             $('#wpaicg_create_existence_result').css('color','red').text('✘ Not checked');
             createPromptIsValid = false;
-            $('#wpaicg_create_save_form').attr('disabled','disabled');
             return;
         }
 
@@ -741,6 +867,7 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
             $('#wpaicg_create_order_result').css('color','red').text('✘ Order mismatch');
         }
 
+        // at the moment we will only validate existence
         // 3) Existence
         var missingIDs = [];
         for(var j=0; j<fieldIDs.length; j++){
@@ -759,11 +886,6 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         }
 
         createPromptIsValid = (missingIDs.length === 0);
-        if(createPromptIsValid) {
-            $('#wpaicg_create_save_form').removeAttr('disabled');
-        } else {
-            $('#wpaicg_create_save_form').attr('disabled','disabled');
-        }
     }
     $('#wpaicg_create_validate_prompt').on('click', wpaicg_create_validatePrompt);
 
@@ -778,6 +900,7 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
         var title       = $('#wpaicg_createform_title').val().trim();
         var description = $('#wpaicg_createform_description').val().trim();
         var prompt      = $('#wpaicg_createform_prompt').val().trim();
+        var provider    = $('#wpaicg_createform_provider').val();
         var engine      = $('#wpaicg_createform_engine').val();
         var $fields     = $('#wpaicg_create_dropzone').find('.builder_field_item');
 
@@ -845,7 +968,7 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
             'wpaicg_form_generate_text':    $('#wpaicg_createform_generate_text').val().trim(),
             'wpaicg_form_noanswer_text':    $('#wpaicg_createform_noanswer_text').val().trim(),
             'wpaicg_form_draft_text':       $('#wpaicg_createform_draft_text').val().trim(),
-            'wpaicg_form_clear_text':       $('#wpaicg_createform_clear_text').val().trim(),
+            'wpaicg_createform_clear_text': $('#wpaicg_createform_clear_text').val().trim(),
             'wpaicg_form_stop_text':        $('#wpaicg_createform_stop_text').val().trim(),
             'wpaicg_form_cnotice_text':     $('#wpaicg_createform_cnotice_text').val().trim(),
             'wpaicg_form_download_text':    $('#wpaicg_createform_download_text').val().trim(),
@@ -893,9 +1016,11 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
                 title: title,
                 description: description,
                 prompt: prompt,
+                // New: provider => wpaicg_model_provider
+                provider: provider,
+                engine: engine,
                 fields: JSON.stringify(fieldsData),
                 interface: interfaceData,
-                engine: engine,
                 model_settings: formSettingsData,
                 embedding_settings: embeddingSettings
             },

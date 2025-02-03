@@ -184,7 +184,6 @@ var wpaicgPlayGround = {
                     var wpaicgMaxToken = wpaicgForm.getElementsByClassName('wpaicg-prompt-max_tokens')[0];
                     var wpaicgTemperature = wpaicgForm.getElementsByClassName('wpaicg-prompt-temperature')[0];
                     var wpaicgTopP = wpaicgForm.getElementsByClassName('wpaicg-prompt-top_p')[0];
-                    var wpaicgBestOf = wpaicgForm.getElementsByClassName('wpaicg-prompt-best_of')[0];
                     var wpaicgFP = wpaicgForm.getElementsByClassName('wpaicg-prompt-frequency_penalty')[0];
                     var wpaicgPP = wpaicgForm.getElementsByClassName('wpaicg-prompt-presence_penalty')[0];
                     var wpaicgMaxLines = wpaicgForm.getElementsByClassName('wpaicg-prompt-max-lines')[0];
@@ -195,7 +194,6 @@ var wpaicgPlayGround = {
                     var max_tokens = wpaicgMaxToken.value;
                     var temperature = wpaicgTemperature.value;
                     var top_p = wpaicgTopP.value;
-                    var best_of = wpaicgBestOf.value;
                     var frequency_penalty = wpaicgFP.value;
                     var presence_penalty = wpaicgPP.value;
                     var error_message = false;
@@ -212,11 +210,7 @@ var wpaicgPlayGround = {
                         error_message = 'Please enter Top P';
                     } else if (parseFloat(top_p) < 0 || parseFloat(top_p) > 1) {
                         error_message = 'Please enter a valid Top P value between 0 and 1';
-                    } else if (best_of === '') {
-                        error_message = 'Please enter best of';
-                    } else if (parseFloat(best_of) < 1 || parseFloat(best_of) > 20) {
-                        error_message = 'Please enter a valid best of value between 1 and 20';
-                    } else if (frequency_penalty === '') {
+                    }  else if (frequency_penalty === '') {
                         error_message = 'Please enter frequency penalty';
                     } else if (parseFloat(frequency_penalty) < 0 || parseFloat(frequency_penalty) > 2) {
                         error_message = 'Please enter a valid frequency penalty value between 0 and 2';

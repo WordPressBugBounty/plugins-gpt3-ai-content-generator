@@ -221,15 +221,6 @@ $display_guest_token_tr = (!empty($wpaicg_settings['guest_limited'])) ? '' : 'st
                     </label>
                 </td>
             </tr>
-
-            <!-- Save Button -->
-            <tr>
-                <th></th>
-                <td>
-                    <button class="button button-primary">
-                        <?php echo esc_html__('Save', 'gpt3-ai-content-generator'); ?>
-                    </button>
-                </td>
             </tr>
         </table>
     </form>

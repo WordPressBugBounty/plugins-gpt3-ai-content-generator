@@ -48,11 +48,13 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
 
     // Removed 'dans' and 'noanswer_text' from meta keys
     $wpaicg_meta_keys = array(
-        'prompt','editor','fields','response','category','engine','max_tokens','temperature','top_p','best_of',
+        'prompt','editor','fields','response','category','engine','max_tokens','temperature','top_p',
         'frequency_penalty','presence_penalty','stop','color','icon','bgcolor','header','embeddings','vectordb',
         'collections','pineconeindexes','suffix_text','suffix_position','embeddings_limit','use_default_embedding_model',
         'selected_embedding_model','selected_embedding_provider','ddraft','dclear','dnotice','generate_text','draft_text',
-        'clear_text','stop_text','cnotice_text','download_text','ddownload','copy_button','copy_text','feedback_buttons'
+        'clear_text','stop_text','cnotice_text','download_text','ddownload','copy_button','copy_text','feedback_buttons',
+        // new meta key to store the chosen AI provider
+        'model_provider'
     );
 
     if(count($wpaicg_items) && !$wpaicg_custom){
@@ -105,7 +107,6 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
         $wpaicg_max_tokens = isset($wpaicg_item['max_tokens']) && !empty($wpaicg_item['max_tokens']) ? $wpaicg_item['max_tokens'] : $this->wpaicg_max_tokens;
         $wpaicg_temperature = isset($wpaicg_item['temperature']) && !empty($wpaicg_item['temperature']) ? $wpaicg_item['temperature'] : $this->wpaicg_temperature;
         $wpaicg_top_p = isset($wpaicg_item['top_p']) && !empty($wpaicg_item['top_p']) ? $wpaicg_item['top_p'] : $this->wpaicg_top_p;
-        $wpaicg_best_of = isset($wpaicg_item['best_of']) && !empty($wpaicg_item['best_of']) ? $wpaicg_item['best_of'] : $this->wpaicg_best_of;
         $wpaicg_frequency_penalty = isset($wpaicg_item['frequency_penalty']) && !empty($wpaicg_item['frequency_penalty']) ? $wpaicg_item['frequency_penalty'] : $this->wpaicg_frequency_penalty;
         $wpaicg_presence_penalty = isset($wpaicg_item['presence_penalty']) && !empty($wpaicg_item['presence_penalty']) ? $wpaicg_item['presence_penalty'] : $this->wpaicg_presence_penalty;
         $wpaicg_stop = isset($wpaicg_item['stop']) && !empty($wpaicg_item['stop']) ? $wpaicg_item['stop'] : $this->wpaicg_stop;
@@ -876,17 +877,33 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                             ?>
                             <div class="wpaicg-mb-10 wpaicg-prompt-item" style="<?php echo !$wpaicg_show_setting ? 'display:none': ''?>">
                                 <h3><?php echo esc_html__('Settings','gpt3-ai-content-generator')?></h3>
+                                <?php
+                                // Provider meta
+                                $wpaicg_model_provider = isset($wpaicg_item['model_provider']) && !empty($wpaicg_item['model_provider'])
+                                    ? $wpaicg_item['model_provider'] : 'OpenAI';
+
+                                // Additional data for optional provider-based engines
+                                $azure_deployment_name = get_option('wpaicg_azure_deployment', '');
+                                $wpaicg_google_model_list = get_option('wpaicg_google_model_list', ['gemini-pro']);
+                                $wpaicg_google_default_model = get_option('wpaicg_google_default_model', 'gemini-pro');
+                                $openrouter_models = get_option('wpaicg_openrouter_model_list', []);
+                                $wpaicg_openrouter_default_model = get_option('wpaicg_openrouter_default_model', 'openrouter/auto');
+                                ?>
+
+                                <!-- AI Provider -->
+                                <div class="wpaicg-prompt-field wpaicg-prompt-provider">
+                                    <strong><?php echo esc_html__('AI Provider','gpt3-ai-content-generator')?>: </strong>
+                                    <select name="model_provider">
+                                        <option value="OpenAI" <?php selected($wpaicg_model_provider, 'OpenAI'); ?>>OpenAI</option>
+                                        <option value="OpenRouter" <?php selected($wpaicg_model_provider, 'OpenRouter'); ?>>OpenRouter</option>
+                                        <option value="Google" <?php selected($wpaicg_model_provider, 'Google'); ?>>Google</option>
+                                        <option value="Azure" <?php selected($wpaicg_model_provider, 'Azure'); ?>>Azure</option>
+                                    </select>
+                                </div>
+
                                 <div class="wpaicg-prompt-field wpaicg-prompt-engine">
-                                    <strong><?php echo esc_html__('Engine','gpt3-ai-content-generator')?>: </strong>
-                                    <?php 
-                                    $wpaicg_provider = get_option('wpaicg_provider', 'OpenAI');
-                                    $azure_deployment_name = get_option('wpaicg_azure_deployment', '');
-                                    $wpaicg_google_model_list = get_option('wpaicg_google_model_list', ['gemini-pro']);
-                                    $wpaicg_google_default_model = get_option('wpaicg_google_default_model', 'gemini-pro');
-                                    $openrouter_models = get_option('wpaicg_openrouter_model_list', []);
-                                    $wpaicg_openrouter_default_model = get_option('wpaicg_openrouter_default_model', 'openrouter/auto');
-                                    ?>
-                                    <?php if($wpaicg_provider == 'OpenAI'):?>
+                                    <strong><?php echo esc_html__('AI Engine','gpt3-ai-content-generator')?>: </strong>
+                                    <?php if($wpaicg_model_provider === 'OpenAI'): ?>
                                         <select name="engine">
                                             <optgroup label="GPT-4">
                                                 <?php foreach ($gpt4_models as $value => $display_name): ?>
@@ -919,21 +936,21 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                                 <?php endforeach; ?>
                                             </optgroup>
                                         </select>
-                                    <?php elseif ($wpaicg_provider == 'Google'): ?>
+                                    <?php elseif ($wpaicg_model_provider === 'Google'): ?>
                                         <!-- Display dropdown for Google AI -->
                                         <select name="engine">
                                             <optgroup label="Google Models">
                                                 <?php foreach ($wpaicg_google_model_list as $model): ?>
                                                     <option 
                                                         value="<?php echo esc_attr($model); ?>"
-                                                        <?php selected($model, $wpaicg_google_default_model); ?>
+                                                        <?php selected($model, $wpaicg_engine); ?>
                                                     >
                                                         <?php echo esc_html($model); ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </optgroup>
                                         </select>
-                                    <?php elseif ($wpaicg_provider == 'OpenRouter'): ?>
+                                    <?php elseif ($wpaicg_model_provider === 'OpenRouter'): ?>
                                         <!-- Display dropdown for OpenRouter -->
                                         <?php
                                         $openrouter_grouped_models = [];
@@ -957,7 +974,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                                     foreach ($models as $omodel): ?>
                                                         <option 
                                                             value="<?php echo esc_attr($omodel['id']); ?>"
-                                                            <?php selected($omodel['id'], $wpaicg_openrouter_default_model); ?>
+                                                            <?php selected($omodel['id'], $wpaicg_engine); ?>
                                                         >
                                                             <?php echo esc_html($omodel['name']); ?>
                                                         </option>
@@ -966,15 +983,16 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                             <?php endforeach; ?>
                                         </select>
                                     <?php else:?>
-                                        <!-- Display readonly text field for AzureAI -->
+                                        <!-- Azure case -->
                                         <input 
                                             type="text"
                                             name="engine"
                                             readonly
-                                            value="<?php echo esc_html($azure_deployment_name); ?>"
+                                            value="<?php echo esc_html($wpaicg_engine ? $wpaicg_engine : $azure_deployment_name); ?>"
                                         />
                                     <?php endif;?>
                                 </div>
+
                                 <div class="wpaicg-prompt-field">
                                     <strong><?php echo esc_html__('Token','gpt3-ai-content-generator')?>: </strong>
                                     <input 
@@ -1003,16 +1021,6 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                         type="text" 
                                         name="top_p" 
                                         value="<?php echo esc_html($wpaicg_top_p)?>"
-                                    >
-                                </div>
-                                <div class="wpaicg-prompt-field">
-                                    <strong><?php echo esc_html__('BO','gpt3-ai-content-generator')?>: </strong>
-                                    <input 
-                                        id="wpaicg-prompt-best_of" 
-                                        class="wpaicg-prompt-best_of" 
-                                        name="best_of" 
-                                        type="text" 
-                                        value="<?php echo esc_html($wpaicg_best_of)?>"
                                     >
                                 </div>
                                 <div class="wpaicg-prompt-field">

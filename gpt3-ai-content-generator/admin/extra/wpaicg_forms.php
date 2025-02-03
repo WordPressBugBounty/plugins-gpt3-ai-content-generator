@@ -257,10 +257,10 @@ if ( ! empty( $wpaicg_custom_forms ) ) {
         </button>
 
         <!-- NEW: Save buttons (hidden by default) -->
-        <button class="button button-primary" id="wpaicg_create_save_form" style="display:none;" disabled>
+        <button class="button button-primary" id="wpaicg_create_save_form" style="display:none;">
             <?php echo esc_html__('Save Form','gpt3-ai-content-generator'); ?>
         </button>
-        <button class="button button-primary" id="wpaicg_save_edited_form" style="display:none;" disabled>
+        <button class="button button-primary" id="wpaicg_save_edited_form" style="display:none;">
             <?php echo esc_html__('Save Changes','gpt3-ai-content-generator'); ?>
         </button>
 

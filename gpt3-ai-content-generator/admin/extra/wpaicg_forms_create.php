@@ -16,6 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * checkboxes with switches, each in its own line.
  *
  * Also revised to make the Icon field a dropdown populated from icons.json.
+ *
+ * Additionally revised to add a "Provider" select above the "Model" select.
+ * This provider is stored in meta as "wpaicg_model_provider" and the model
+ * is stored as "wpaicg_form_engine".
  */
 ?>
 <div id="wpaicg_create_container" style="display:none;">
@@ -77,13 +81,15 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <h3><?php echo esc_html__('AI Settings','gpt3-ai-content-generator'); ?></h3>
 
                 <?php
-                // Detect provider
+                // Detect a global provider (just to default the select)
                 $wpaicg_provider = get_option('wpaicg_provider','OpenAI');
+                // Gather model lists:
                 $gpt4_models    = WPAICG_Util::get_instance()->openai_gpt4_models;
                 $gpt35_models   = WPAICG_Util::get_instance()->openai_gpt35_models;
                 $custom_models  = get_option('wpaicg_custom_models', []);
                 $google_models  = get_option('wpaicg_google_model_list', ['gemini-pro']);
                 $openrouter_raw = get_option('wpaicg_openrouter_model_list', []);
+                $azure_deployment = get_option('wpaicg_azure_deployment','');
 
                 // Group for OpenRouter
                 $openrouter_grouped = [];
@@ -96,82 +102,42 @@ if ( ! defined( 'ABSPATH' ) ) {
                 }
                 ksort($openrouter_grouped);
 
+                // We'll keep default references
                 $default_openai     = 'gpt-4o-mini';
                 $default_google     = get_option('wpaicg_google_default_model','gemini-pro');
                 $default_openrouter = 'openrouter/auto';
-
-                function wpaicg_render_openai_model_options_create($gpt4, $gpt35, $custom, $default) {
-                    ?>
-                    <optgroup label="GPT 3.5 Models">
-                        <?php foreach ($gpt35 as $key => $label) : ?>
-                            <option value="<?php echo esc_attr($key); ?>" <?php selected($key, $default); ?>>
-                                <?php echo esc_html($label); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                    <optgroup label="GPT 4 Models">
-                        <?php foreach ($gpt4 as $key => $label) : ?>
-                            <option value="<?php echo esc_attr($key); ?>" <?php selected($key, $default); ?>>
-                                <?php echo esc_html($label); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                    <?php if (!empty($custom)) : ?>
-                    <optgroup label="Custom Fine-Tuned">
-                        <?php foreach ($custom as $cmodel) : ?>
-                            <option value="<?php echo esc_attr($cmodel); ?>">
-                                <?php echo esc_html($cmodel); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                    <?php endif; ?>
-                    <?php
-                }
                 ?>
+                <div style="display:flex; gap:10px;margin-bottom:10px;">
+                    <!-- Provider dropdown -->
+                    <div>
+                        <label for="wpaicg_createform_provider" style="display:block; margin-bottom:4px;">
+                            <?php echo esc_html__('Provider','gpt3-ai-content-generator'); ?>
+                        </label>
+                        <select id="wpaicg_createform_provider">
+                            <option value="OpenAI" <?php selected($wpaicg_provider, 'OpenAI'); ?>>OpenAI</option>
+                            <option value="Google" <?php selected($wpaicg_provider, 'Google'); ?>>Google</option>
+                            <option value="OpenRouter" <?php selected($wpaicg_provider, 'OpenRouter'); ?>>OpenRouter</option>
+                            <option value="Azure" <?php selected($wpaicg_provider, 'Azure'); ?>>Azure</option>
+                        </select>
+                    </div>
 
-                <!-- Model dropdown + Gear Icon -->
-                <label for="wpaicg_createform_engine"><?php echo esc_html__('Model','gpt3-ai-content-generator'); ?></label><br />
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                    <select id="wpaicg_createform_engine" style="flex:1;">
-                    <?php if ($wpaicg_provider === 'OpenAI'): ?>
-                        <?php wpaicg_render_openai_model_options_create(
-                            $gpt4_models,
-                            $gpt35_models,
-                            $custom_models,
-                            $default_openai
-                        ); ?>
-                    <?php elseif ($wpaicg_provider === 'Google'): ?>
-                        <?php foreach ($google_models as $gm) {
-                            $sel = ($gm === $default_google) ? 'selected' : '';
-                            echo '<option value="'.esc_attr($gm).'" '.$sel.'>'.esc_html($gm).'</option>';
-                        } ?>
-                    <?php elseif ($wpaicg_provider === 'OpenRouter'): ?>
-                        <?php
-                        foreach ($openrouter_grouped as $prov => $modelsArr) {
-                            echo '<optgroup label="'.esc_attr($prov).'">';
-                            foreach ($modelsArr as $m) {
-                                $sel = ($m === $default_openrouter) ? 'selected' : '';
-                                echo '<option value="'.esc_attr($m).'" '.$sel.'>'.esc_html($m).'</option>';
-                            }
-                            echo '</optgroup>';
-                        }
-                        ?>
-                    <?php elseif ($wpaicg_provider === 'Azure'): ?>
-                        <?php $azure_deployment = get_option('wpaicg_azure_deployment',''); ?>
-                        <option value="<?php echo esc_attr($azure_deployment); ?>">
-                            <?php echo esc_html($azure_deployment); ?>
-                        </option>
-                    <?php else: ?>
-                        <option value="gpt-4o-mini">GPT-4o-mini</option>
-                    <?php endif; ?>
-                    </select>
-                    <!-- Click to open model settings modal -->
-                    <span
-                        class="dashicons dashicons-admin-generic"
-                        style="cursor: pointer;"
-                        id="wpaicg_createform_model_settings_icon"
-                        title="<?php echo esc_attr__('Advanced Model Settings','gpt3-ai-content-generator'); ?>">
-                    </span>
+                    <!-- Model dropdown + Gear Icon -->
+                    <div>
+                        <label for="wpaicg_createform_engine" style="display:block; margin-bottom:4px;">
+                            <?php echo esc_html__('Model','gpt3-ai-content-generator'); ?>
+                        </label>
+                        <select id="wpaicg_createform_engine" style="max-width: 150px;">
+                            <!-- Options are populated in JS based on chosen provider -->
+                            <option value=""><?php echo esc_html__('Select a model','gpt3-ai-content-generator'); ?></option>
+                        </select>
+                        <!-- Click to open model settings modal -->
+                        <span
+                            class="dashicons dashicons-admin-generic"
+                            style="cursor: pointer;"
+                            id="wpaicg_createform_model_settings_icon"
+                            title="<?php echo esc_attr__('Advanced Model Settings','gpt3-ai-content-generator'); ?>">
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Prompt Settings -->
