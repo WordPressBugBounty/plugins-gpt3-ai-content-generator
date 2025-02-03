@@ -581,7 +581,6 @@ $all_users = get_users();
                 <th><?php echo esc_html__('Role(s)','gpt3-ai-content-generator'); ?></th>
                 <th><?php echo esc_html__('Chat','gpt3-ai-content-generator'); ?></th>
                 <th><?php echo esc_html__('AI Forms','gpt3-ai-content-generator'); ?></th>
-                <th><?php echo esc_html__('Promptbase','gpt3-ai-content-generator'); ?></th>
                 <th><?php echo esc_html__('Image','gpt3-ai-content-generator'); ?></th>
                 <th><?php echo esc_html__('Actions','gpt3-ai-content-generator'); ?></th>
             </tr>
@@ -741,32 +740,6 @@ $all_users = get_users();
                                 class="wpaicg-token-badge remain"
                             >
                                 <?php echo number_format($forms_remain, 0); ?>
-                            </span>
-                        </div>
-                    </td>
-
-                    <!-- Promptbase module -->
-                    <td>
-                        <div class="wpaicg-token-badges">
-                            <span class="wpaicg-token-badge free">
-                                <?php echo number_format($pbase_free, 0); ?>
-                            </span>
-                            <span
-                                class="wpaicg-token-badge purchased wpaicg-editable"
-                                data-userid="<?php echo $user->ID; ?>"
-                                data-module="promptbase"
-                                data-remaining-id="remain-promptbase-<?php echo $user->ID; ?>"
-                            >
-                                <?php echo number_format($pbase_purch, 0); ?>
-                            </span>
-                            <span class="wpaicg-token-badge used">
-                                <?php echo number_format($pbase_used, 0); ?>
-                            </span>
-                            <span
-                                id="remain-promptbase-<?php echo $user->ID; ?>"
-                                class="wpaicg-token-badge remain"
-                            >
-                                <?php echo number_format($pbase_remain, 0); ?>
                             </span>
                         </div>
                     </td>

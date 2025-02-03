@@ -60,11 +60,11 @@ var wpaicgPlayGround = {
                     e.preventDefault();
                     var wpaicgCopyButton = e.currentTarget;
                     var originalText = wpaicgCopyButton.textContent;  // Store the original text
-                    wpaicgCopyButton.textContent = "👍"; 
+                    wpaicgCopyButton.textContent = "👍";
                     setTimeout(function() {
                         wpaicgCopyButton.textContent = originalText;  // Restore the original text after 2 seconds
                     }, 2000);
-                    
+
                     var wpaicgForm = wpaicgCopyButton.closest('.wpaicg-prompt-form');
                     var formID = wpaicgForm.getAttribute('data-id');
                     var wpaicgFormData = window['wpaicgForm'+formID];
@@ -87,7 +87,7 @@ var wpaicgPlayGround = {
                 });
             }
         }
-        
+
         if(wpaicgClearButtons && wpaicgClearButtons.length){
             for(var i=0;i < wpaicgClearButtons.length;i++){
                 var wpaicgClearButton = wpaicgClearButtons[i];
@@ -253,8 +253,8 @@ var wpaicgPlayGround = {
                                         }
                                     }
                                 } else if (field_type === 'fileupload') {
-                                    // The file content is read into the hidden input; no numeric constraints
-                                    // We could check if the hidden input is empty if required
+                                    // The file content is now stored in a transient. The hidden input
+                                    // just has the transient key, so no length constraints needed here.
                                 } else if (field_type === 'checkbox' || field_type === 'radio') {
                                     var field_inputs = field.getElementsByTagName('input');
                                     var field_checked = false;
@@ -295,7 +295,7 @@ var wpaicgPlayGround = {
 
                             wpaicgStop.setAttribute('data-event',eventID);
                             window['eventGenerator'+eventID] = new EventSource(wpaicgFormData.event + '&' + queryString);
-                            
+
                             if(formSource === 'form'){
                                 queryString += '&action=wpaicg_form_log';
                             } else {
@@ -308,7 +308,106 @@ var wpaicgPlayGround = {
             }
         }
 
-        // Handle fileupload fields: read file as text => store in hidden input
+        // Handle feedback button clicks
+        var handleFeedbackButtonClick = function(e) {
+            e.preventDefault();
+            var button = e.currentTarget;
+            var formID = button.getAttribute('data-id');
+            var eventID = button.getAttribute('data-eventid');
+            var feedbackType = button.id.replace('wpaicg-prompt-', ''); // "thumbs_up" or "thumbs_down"
+            var wpaicgFormData = window['wpaicgForm' + formID];
+
+            var modal = jQuery('#wpaicg_feedbackModal');
+            var textareaID = wpaicgFormData.feedbackID;
+
+            modal.fadeIn();
+            jQuery('.wpaicg_feedbackModal-overlay').fadeIn();
+
+            // Decide which AJAX action to call — always use wpaicg_form_feedback
+            var myaction = 'wpaicg_save_feedback';
+
+            // Set up the submit event for the feedback modal's "Submit" button
+            jQuery('#wpaicg_submitFeedback').off('click').on('click', function() {
+                modal.find('textarea').attr('id', textareaID);
+                var comment = jQuery('#' + textareaID).val() || '';
+
+                // Get the AI's response to store
+                var responseText = wpaicgPlayGround.getContent(wpaicgFormData.response, formID);
+                // Replace &nbsp; with space
+                responseText = responseText.replace(/&nbsp;/g, ' ');
+
+                // Convert <br> tags to new lines
+                responseText = responseText.replace(/<br\s*\/?>/g, '\r\n');
+                responseText = responseText.replace(/\r\n\r\n/g, '\r\n\r\n');
+
+                const xhttp = new XMLHttpRequest();
+                xhttp.open('POST', wpaicgFormData.ajax);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send(
+                    'action=' + myaction +
+                    '&formID=' + encodeURIComponent(formID) +
+                    '&feedback=' + encodeURIComponent(feedbackType) +
+                    '&comment=' + encodeURIComponent(comment) +
+                    '&nonce=' + wpaicgFormData.ajax_nonce +
+                    '&formname=' + encodeURIComponent(wpaicgFormData.name) +
+                    '&sourceID=' + encodeURIComponent(wpaicgFormData.sourceID) +
+                    '&response=' + encodeURIComponent(responseText) +
+                    '&eventID=' + encodeURIComponent(eventID)
+                );
+
+                xhttp.onreadystatechange = function(oEvent) {
+                    if (xhttp.readyState === 4) {
+                        if (xhttp.status === 200) {
+                            var response = JSON.parse(xhttp.responseText);
+                            if (response.status === 'success') {
+                                // Disable the appropriate feedback button
+                                if (feedbackType === 'thumbs_up') {
+                                    var thumbsUpEl = document.getElementById('wpaicg-prompt-thumbs_up');
+                                    if (thumbsUpEl) {
+                                        thumbsUpEl.disabled = true;
+                                    }
+                                    var thumbsDownEl = document.getElementById('wpaicg-prompt-thumbs_down');
+                                    if (thumbsDownEl) {
+                                        thumbsDownEl.style.display = 'none';
+                                    }
+                                } else {
+                                    var thumbsDownEl = document.getElementById('wpaicg-prompt-thumbs_down');
+                                    if (thumbsDownEl) {
+                                        thumbsDownEl.disabled = true;
+                                    }
+                                    var thumbsUpEl = document.getElementById('wpaicg-prompt-thumbs_up');
+                                    if (thumbsUpEl) {
+                                        thumbsUpEl.style.display = 'none';
+                                    }
+                                }
+                                jQuery('#' + textareaID).val('');
+                            } else {
+                                alert(response.msg);
+                            }
+                        } else {
+                            alert('Error: ' + xhttp.status + ' - ' + xhttp.statusText + '\n\n' + xhttp.responseText);
+                        }
+                        modal.fadeOut();
+                        jQuery('.wpaicg_feedbackModal-overlay').fadeOut();
+                    }
+                };
+            });
+
+            // Close modal
+            jQuery('#closeFeedbackModal').off('click').on('click', function() {
+                modal.fadeOut();
+                jQuery('.wpaicg_feedbackModal-overlay').fadeOut();
+            });
+        };
+
+        for (var k = 0; k < wpaicgThumbsUpButtons.length; k++) {
+            wpaicgThumbsUpButtons[k].addEventListener('click', handleFeedbackButtonClick);
+        }
+        for (var k = 0; k < wpaicgThumbsDownButtons.length; k++) {
+            wpaicgThumbsDownButtons[k].addEventListener('click', handleFeedbackButtonClick);
+        }
+
+        // Handle fileupload fields: store in transient instead of entire content in hidden input
         var fileuploadFields = document.querySelectorAll('.wpaicg-fileupload-input');
         fileuploadFields.forEach(function(field){
             field.addEventListener('change', function(e){
@@ -327,15 +426,64 @@ var wpaicgPlayGround = {
                     }
                 }
                 var reader = new FileReader();
+                var ext = file.name.split('.').pop().toLowerCase();
+
                 reader.onload = function(e2) {
-                    // e2.target.result is the file content as text
-                    var hiddenID = 'wpaicg-fileupload-hidden-' + field.id.replace('wpaicg-form-field-','');
-                    var hiddenEl = document.getElementById(hiddenID);
-                    if(hiddenEl) {
-                        hiddenEl.value = e2.target.result;
+                    var content;
+                    // For docx (or doc), read as binary -> Base64
+                    if (ext === 'docx' || ext === 'doc') {
+                        // Convert array buffer to Base64
+                        var bytes = new Uint8Array(e2.target.result);
+                        var len = bytes.byteLength;
+                        var binary = '';
+                        for (var i = 0; i < len; i++) {
+                            binary += String.fromCharCode(bytes[i]);
+                        }
+                        content = 'base64:' + btoa(binary);
+                    } else {
+                        // For txt, csv, etc., read as text
+                        content = e2.target.result;
                     }
+
+                    // Make an AJAX call to store the content in a transient
+                    var wpaicgForm = field.closest('.wpaicg-prompt-form');
+                    var formID = wpaicgForm.getAttribute('data-id');
+                    var wpaicgFormData = window['wpaicgForm'+formID];
+
+                    var formData = new FormData();
+                    formData.append('action','wpaicg_store_file_content');
+                    formData.append('nonce', wpaicgFormData.ajax_nonce);
+                    formData.append('fileContent', content);
+
+                    fetch(wpaicgFormData.ajax, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(function(resp){ return resp.json(); })
+                    .then(function(data){
+                        if(data.success && data.data && data.data.transient_key) {
+                            // Set the hidden input to the transient key
+                            var hiddenID = 'wpaicg-fileupload-hidden-' + field.id.replace('wpaicg-form-field-','');
+                            var hiddenEl = document.getElementById(hiddenID);
+                            if(hiddenEl) {
+                                hiddenEl.value = data.data.transient_key;
+                            }
+                        } else {
+                            alert('Failed to store file content in transient.');
+                        }
+                    })
+                    .catch(function(err){
+                        console.error('Error storing file content:', err);
+                    });
                 };
-                reader.readAsText(file);
+
+                // Decide how to read the file:
+                if (ext === 'docx' || ext === 'doc') {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    // For txt, csv, etc.
+                    reader.readAsText(file);
+                }
             });
         });
     },
@@ -414,7 +562,6 @@ var wpaicgPlayGround = {
                         editorInst.setContent(parsedMarkdown);
                     }
                 } else {
-                    // If not textarea, insert parsed Markdown as HTML
                     document.getElementById('wpaicg-prompt-result-'+formID).innerHTML = parsedMarkdown;
                 }
             }

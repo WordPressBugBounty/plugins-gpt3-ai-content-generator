@@ -1158,7 +1158,7 @@ window.getFieldSettingsHtml = window.getFieldSettingsHtml || function(type, minV
     }
     if(type==='fileupload'){
         html += '<label><?php echo esc_js(__("Allowed File Types (comma-separated):","gpt3-ai-content-generator")); ?><br/>';
-        html += '<input type="text" class="file_types" value="txt,csv" /></label>';
+        html += '<input type="text" class="file_types" value="txt,csv,doc,docx" /></label>';
     }
     html += '</div>';
     return html;

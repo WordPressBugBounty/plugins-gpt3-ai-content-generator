@@ -680,7 +680,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                             elseif($wpaicg_field['type'] == 'fileupload') {
                                                 // Front-end usage: file input + hidden input
                                                 // We store the file content in the hidden input after reading it on the client side
-                                                $fileTypes = isset($wpaicg_field['file_types']) ? esc_attr($wpaicg_field['file_types']) : 'txt,csv';
+                                                $fileTypes = isset($wpaicg_field['file_types']) ? esc_attr($wpaicg_field['file_types']) : 'txt,csv,doc,docx';
                                                 ?>
                                                 <input 
                                                     type="file" 

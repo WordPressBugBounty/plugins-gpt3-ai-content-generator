@@ -444,7 +444,20 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                         $values = array_map('sanitize_text_field', $_REQUEST[$field['id']]);
                         $field_values[$field['id']] = implode(', ', $values);
                     } else {
-                        $field_values[$field['id']] = sanitize_text_field($_REQUEST[$field['id']]);
+                        // Single value (text, fileupload, etc.)
+                        $rawValue = sanitize_text_field($_REQUEST[$field['id']]);
+                        // If it references our transient key, retrieve the actual content
+                        if (strpos($rawValue, 'wpaicg_upload_') === 0) {
+                            $fileData = get_transient($rawValue);
+                            if ($fileData !== false) {
+                                $field_values[$field['id']] = $fileData;
+                            } else {
+                                // If the transient is missing/expired, store as empty
+                                $field_values[$field['id']] = '';
+                            }
+                        } else {
+                            $field_values[$field['id']] = $rawValue;
+                        }
                     }
                 }
             }

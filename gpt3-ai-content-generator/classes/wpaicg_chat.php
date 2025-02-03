@@ -1053,8 +1053,11 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 }
                 // check to see image is present in the request
                 $image_final_data = '';
-                // gpt-4-vision-preview or gpt-4o or openai/gpt-4o-2024-05-13
-                if ($wpaicg_ai_model === 'gpt-4-vision-preview' || $wpaicg_ai_model === 'gpt-4o' || $wpaicg_ai_model === 'gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4-vision-preview' || $wpaicg_ai_model === 'openai/gpt-4o' || $wpaicg_ai_model === 'openai/gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4o-mini-2024-07-18' || $wpaicg_ai_model === 'openai/gpt-4o-2024-05-13' || !empty($assistant_id)) {
+                $image_model_list = get_option( 'wpaicg_openrouter_image_model_list', array() );
+                // Extract all 'id' fields from the stored image models.
+                $image_model_ids  = array_column( $image_model_list, 'id' );
+                
+            if ($wpaicg_ai_model === 'gpt-4-vision-preview' || $wpaicg_ai_model === 'gpt-4o' || $wpaicg_ai_model === 'gpt-4o-mini' || in_array( $wpaicg_ai_model, $image_model_ids, true ) || ! empty( $assistant_id )) {
                     $image_file = (isset($_FILES['image']) && is_array($_FILES['image'])) ? array_map('sanitize_text_field', $_FILES['image']) : array();
 
                     if (!empty($image_file) && empty($image_file['error'])) {
@@ -1407,9 +1410,23 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     $wpaicg_data_request['provider'] = $wpaicg_provider !== false ? $wpaicg_provider : 'OpenAI';
 
                     $wpaicg_data_request['model'] = $wpaicg_ai_model;
+                    /**
+                     * 1. Retrieve any stored image model list from the database.
+                     * 2. Extract the "id" fields to compare with $wpaicg_ai_model.
+                     */
+                    $image_model_list = get_option( 'wpaicg_openrouter_image_model_list', array() );
+                    $image_model_ids  = array_column( $image_model_list, 'id' );
 
-                    // Before saving the log, check if the model is gpt-4-vision-preview and an image file is present openai/gpt-4o-2024-05-13
-                    if (($wpaicg_ai_model === 'gpt-4-vision-preview' || $wpaicg_ai_model === 'gpt-4o' || $wpaicg_ai_model === 'gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4-vision-preview' || $wpaicg_ai_model === 'openai/gpt-4o' || $wpaicg_ai_model === 'openai/gpt-4o-mini' || $wpaicg_ai_model === 'openai/gpt-4o-mini-2024-07-18' || $wpaicg_ai_model === 'openai/gpt-4o-2024-05-13') && isset($_FILES['image']) && empty($_FILES['image']['error'])) {
+                    if (
+                        (
+                            $wpaicg_ai_model === 'gpt-4-vision-preview' ||
+                            $wpaicg_ai_model === 'gpt-4o' ||
+                            $wpaicg_ai_model === 'gpt-4o-mini' ||
+                            in_array( $wpaicg_ai_model, $image_model_ids, true )
+                        )
+                        && isset( $_FILES['image'] )
+                        && empty( $_FILES['image']['error'] )
+                    ) {
                         $wpaicg_img_processing_method = get_option('wpaicg_img_processing_method', 'url');
                         
                         // Proceed only if the image processing method is base64

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace WPAICG;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
@@ -81,6 +81,12 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
 
             // IMPORTANT: handle Settings save via AJAX so the user stays on the same page
             add_action('wp_ajax_wpaicg_save_form_settings', [$this, 'wpaicg_save_form_settings']);
+
+            // *********
+            // NEW: store file content in transient for large uploads
+            // *********
+            add_action('wp_ajax_wpaicg_store_file_content', [$this, 'wpaicg_store_file_content']);
+            add_action('wp_ajax_nopriv_wpaicg_store_file_content', [$this, 'wpaicg_store_file_content']);
         }
 
         /**
@@ -117,6 +123,103 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
 
             // Respond success without reloading the page
             wp_send_json_success(['message' => __('Settings updated successfully.', 'gpt3-ai-content-generator')]);
+        }
+
+        /**
+         * Store large file content in a transient instead of passing in the SSE URL.
+         *
+         * Updated to parse .docx files from base64 -> extracted text.
+         */
+        public function wpaicg_store_file_content()
+        {
+            check_ajax_referer('wpaicg-ajax-nonce','nonce');
+            if(!isset($_POST['fileContent'])) {
+                wp_send_json_error(['message' => __('No file content found','gpt3-ai-content-generator')]);
+            }
+            $rawContent = wp_unslash($_POST['fileContent']);
+
+            /**
+             * If the user uploaded a doc/docx file, it's sent from JS as "base64:..."
+             * We'll parse .docx into text so that the transient stores actual text.
+             * For .doc, we currently still store the base64 string (unsupported).
+             */
+            if (strpos($rawContent, 'base64:') === 0) {
+                // This implies docx or doc. We'll parse .docx. 
+                // .doc is older binary format; for now we store it as base64.
+                $justBase64 = substr($rawContent, 7);
+                // Attempt docx extraction:
+                $extractedText = $this->wpaicg_try_extract_docx($justBase64);
+
+                // If extraction failed or not a valid docx,
+                // we keep the original base64 for doc fallback.
+                if (!empty($extractedText)) {
+                    $rawContent = $extractedText;
+                }
+            } else {
+                // For txt/csv (or any textual file), we keep standard sanitization
+                $rawContent = sanitize_textarea_field($rawContent);
+            }
+
+            // Generate a unique transient key
+            $transient_key = 'wpaicg_upload_' . wp_generate_uuid4();
+
+            // Store for 1 hour
+            set_transient($transient_key, $rawContent, HOUR_IN_SECONDS);
+
+            wp_send_json_success(['transient_key'=>$transient_key]);
+        }
+
+        /**
+         * Attempt to parse a .docx file (base64-encoded) into text.
+         * If it fails or is invalid, return an empty string.
+         */
+        private function wpaicg_try_extract_docx(string $base64Docx): string
+        {
+            // Decode base64 to raw .docx data
+            $binaryData = base64_decode($base64Docx, true);
+            if (!$binaryData) {
+                return '';
+            }
+
+            // Ensure we have ZipArchive available
+            if (!class_exists('\\ZipArchive')) {
+                return '';
+            }
+
+            // Create a temporary file
+            $tmpFile = tempnam(sys_get_temp_dir(), 'wpaicg_docx_');
+            if (!$tmpFile) {
+                return '';
+            }
+
+            // Save the binary data to the temp file
+            file_put_contents($tmpFile, $binaryData);
+
+            $zip = new \ZipArchive();
+            if ($zip->open($tmpFile) !== true) {
+                @unlink($tmpFile);
+                return '';
+            }
+
+            // Attempt to read "word/document.xml" inside docx
+            $xmlContent = $zip->getFromName("word/document.xml");
+            $zip->close();
+            @unlink($tmpFile);
+
+            if (!$xmlContent) {
+                return '';
+            }
+
+            // Strip all tags to get raw text
+            // Basic approach: remove XML tags. We can refine as needed.
+            $text = strip_tags($xmlContent);
+
+            // Clean up any leftover entities or newlines
+            $text = html_entity_decode($text, ENT_QUOTES | ENT_XML1, 'UTF-8');
+            $text = preg_replace("/[\r\n\t]+/", " ", $text);
+            $text = trim($text);
+
+            return $text;
         }
 
         /**
