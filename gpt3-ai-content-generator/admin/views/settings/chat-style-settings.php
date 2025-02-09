@@ -28,7 +28,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
         <input type="text" id="aipower-chat-window-height" name="aipower-chat-window-height"/>
     </div>
 </div>
-<h4 class="aipower-h3-chatbot-style"><?php echo esc_html__('Chat Window', 'gpt3-ai-content-generator'); ?></h4>
+<h4 class="aipower-h3-chatbot-style"><?php echo esc_html__('Window', 'gpt3-ai-content-generator'); ?></h4>
 <div class="aipower-form-group aipower-grouped-fields-bot">
     <!-- Background Color -->
     <div class="aipower-form-group">
@@ -37,22 +37,22 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
     </div>
     <!-- Font Color -->
     <div class="aipower-form-group">
-        <label for="aipower-fontcolor"><?php echo esc_html__('Font Color', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-fontcolor"><?php echo esc_html__('Font', 'gpt3-ai-content-generator'); ?></label>
         <input type="color" id="aipower-fontcolor" name="aipower-fontcolor"/>
     </div>
     <!-- AI Bubble Color -->
     <div class="aipower-form-group">
-        <label for="aipower-aibgcolor"><?php echo esc_html__('AI Color', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-aibgcolor"><?php echo esc_html__('AI', 'gpt3-ai-content-generator'); ?></label>
         <input type="color" id="aipower-aibgcolor" name="aipower-aibgcolor"/>
     </div>
     <!-- User Bubble Color -->
     <div class="aipower-form-group">
-        <label for="aipower-userbgcolor"><?php echo esc_html__('User Color', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-userbgcolor"><?php echo esc_html__('User', 'gpt3-ai-content-generator'); ?></label>
         <input type="color" id="aipower-userbgcolor" name="aipower-userbgcolor"/>
     </div>
     <!-- Font Size -->
     <div class="aipower-form-group">
-        <label for="aipower-fontsize"><?php echo esc_html__('Font Size', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-fontsize"><?php echo esc_html__('Size', 'gpt3-ai-content-generator'); ?></label>
         <select name="aipower-fontsize" id="aipower-fontsize">
             <?php
             for($i = 10; $i <= 30; $i++){
@@ -83,7 +83,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
     </div>
     <!-- Input Field Font Color -->
     <div class="aipower-form-group">
-        <label for="aipower-input-field-fontcolor"><?php echo esc_html__('Font Color', 'gpt3-ai-content-generator'); ?></label>
+        <label for="aipower-input-field-fontcolor"><?php echo esc_html__('Font', 'gpt3-ai-content-generator'); ?></label>
         <input type="color" id="aipower-input-field-fontcolor" name="aipower-input-field-fontcolor"/>
     </div>
     <!-- Border Color -->

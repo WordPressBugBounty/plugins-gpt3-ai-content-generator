@@ -103,7 +103,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
             $response = $this->send_google_request($title, $model);
             wp_send_json_success(['content' => $response]);
         }
-
+        
         /**
          * Actually sends the request to the Google API endpoint.
          *
@@ -118,10 +118,11 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                 return 'Error: Google API key is not set';
             }
 
+            // Dynamically construct the URL using the model name
             $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
-            $args = [
-                'headers' => ['Content-Type' => 'application/json'],
+            $args = array(
+                'headers' => array('Content-Type' => 'application/json'),
                 'method'  => 'POST',
                 'timeout' => 300,
                 'body'    => json_encode([
@@ -139,9 +140,10 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                         ["category" => "HARM_CATEGORY_HARASSMENT", "threshold" => "BLOCK_MEDIUM_AND_ABOVE"],
                     ]
                 ])
-            ];
+            );
 
-            $response = wp_remote_post($url, $args);
+            $response = wp_safe_remote_post($url, $args);
+
             if (is_wp_error($response)) {
                 return 'HTTP request error: ' . $response->get_error_message();
             }
@@ -154,17 +156,14 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                 return 'Error: ' . $errorMsg;
             }
 
-            // Check the expected response structure
-            if (
-                isset($decodedResponse['candidates'][0]['content']['parts'][0]['text'])
-                && ! empty($decodedResponse['candidates'][0]['content']['parts'][0]['text'])
-            ) {
+            // Check the expected response structure based on the API documentation
+            if (isset($decodedResponse['candidates'][0]['content']['parts'][0]['text'])) {
                 return $decodedResponse['candidates'][0]['content']['parts'][0]['text'];
+            } else {
+                return 'Error: Invalid response from Google API';
             }
-
-            return 'Error: Invalid response from Google API';
         }
-
+        
         /**
          * AJAX callback for generating content via Together AI.
          */
@@ -177,7 +176,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
             $response = $this->send_togetherai_request($title, $model);
             wp_send_json_success(['content' => $response]);
         }
-
+        
         /**
          * Sends the request to the Together AI endpoint.
          *
@@ -217,7 +216,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                 ])
             ];
 
-            $response = wp_remote_post($url, $args);
+            $response = wp_safe_remote_post($url, $args);
             if (is_wp_error($response)) {
                 return 'HTTP request error: ' . $response->get_error_message();
             }
@@ -225,7 +224,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
             $body = wp_remote_retrieve_body($response);
             return $this->process_stream_response($body);
         }
-
+        
         /**
          * Parses the streaming JSON data from Together AI.
          *
@@ -551,15 +550,78 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
 
                 // If not limited, proceed with streaming
                 if (!$has_limited) {
-                    $wpaicg_args = $this->build_ai_args($ai_engine, $wpaicg_prompt);
-
-                    // Check provider once instead of retrieving again
+                    // If the provider is Google, use the original arguments exactly as before.
                     if ($this->provider === 'Google') {
-                        // Google doesn't truly stream in the same sense; simulate SSE output
-                        $this->handle_google_stream_sse($ai_engine, $wpaicg_args);
+                        $google_model = (isset($_REQUEST['engine']) && !empty($_REQUEST['engine']))
+                            ? sanitize_text_field($_REQUEST['engine'])
+                            : get_option('wpaicg_google_default_model', 'gemini-pro');
+                        $wpaicg_args = [
+                            'messages'      => [
+                                ['content' => $wpaicg_prompt]
+                            ],
+                            'model'         => $google_model,
+                            'temperature'   => 0.9,
+                            'top_p'         => 1,
+                            'max_tokens'    => 2048,
+                            'sourceModule'  => 'form'
+                        ];
+                        $response = $ai_engine->chat($wpaicg_args);
+                        $words = [];
+                        if (isset($response['error']) && !empty($response['error'])) {
+                            $words = explode(' ', $response['error']);
+                        } else {
+                            $words = explode(' ', $response['data']);
+                        }
+                        foreach ($words as $key => $word) {
+                            echo "event: message\n";
+                            if ($key === 0) {
+                                echo 'data: {"choices":[{"delta":{"content":"' . $word . '"}}]}';
+                            } else {
+                                echo 'data: {"choices":[{"delta":{"content":" ' . $word . '"}}]}';
+                            }
+                            echo "\n\n";
+                            if (ob_get_level() > 0) {
+                                ob_end_flush();
+                            }
+                            flush();
+                        }
+                        echo 'data: [DONE]' . "\n\n";
+                        if (ob_get_length()) {
+                            ob_flush();
+                            flush();
+                        }
                     } else {
-                        // Providers that support real streaming (OpenAI, Azure, etc.)
-                        $this->handle_openai_like_stream($ai_engine, $wpaicg_args);
+                        $wpaicg_args = $this->build_ai_args($ai_engine, $wpaicg_prompt);
+                        $legacy_models = [
+                            'text-davinci-001','davinci','babbage','text-babbage-001','curie-instruct-beta','text-davinci-003',
+                            'text-curie-001','davinci-instruct-beta','text-davinci-002','ada','text-ada-001','curie','gpt-3.5-turbo-instruct'
+                        ];
+                        if (!in_array($wpaicg_args['model'], $legacy_models, true)) {
+                            unset($wpaicg_args['best_of']);
+                            $wpaicg_args['messages'] = [
+                                ['role' => 'user', 'content' => $wpaicg_args['prompt']]
+                            ];
+                            unset($wpaicg_args['prompt']);
+                            try {
+                                $ai_engine->chat($wpaicg_args, function ($curl_info, $data) {
+                                    $this->handle_sse_callback($data);
+                                    return strlen($data);
+                                });
+                            } catch (\Exception $exception) {
+                                $message = $exception->getMessage();
+                                $this->wpaicg_event_message($message);
+                            }
+                        } else {
+                            try {
+                                $ai_engine->completion($wpaicg_args, function ($curl_info, $data) {
+                                    $this->handle_sse_callback($data);
+                                    return strlen($data);
+                                });
+                            } catch (\Exception $exception) {
+                                $message = $exception->getMessage();
+                                $this->wpaicg_event_message($message);
+                            }
+                        }
                     }
                 }
                 exit;
@@ -614,12 +676,18 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                     }
                 }
 
-                // If user set no limit, default to 1
-                if (empty($embeddings_limit)) {
+                if(empty($embeddings_limit)){
                     $embeddings_limit = 1;
                 }
+        
+                // Disable embeddings if provider is OpenRouter
+                if ($this->provider === 'OpenRouter') {
+                    $embeddingsEnabled = false;
+                }
 
+                // If embeddings are enabled, return vectordb and collections or indexes meta values
                 if ($embeddingsEnabled) {
+
                     return [
                         'embeddingsEnabled'           => true,
                         'vectordb'                    => $vectordb,
@@ -762,36 +830,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
          * @return void
          */
         private function handle_google_stream_sse($ai_engine, array $wpaicg_args) {
-            // We make a chat call with 'sourceModule' => 'form' to differentiate
-            $wpaicg_args['sourceModule'] = 'form';
-            $response = $ai_engine->chat($wpaicg_args);
-
-            $words = [];
-            if (isset($response['error']) && !empty($response['error'])) {
-                $words = explode(' ', $response['error']);
-            } else {
-                $words = explode(' ', $response['data']);
-            }
-
-            foreach ($words as $index => $word) {
-                echo "event: message\n";
-                if ($index === 0) {
-                    echo 'data: {"choices":[{"delta":{"content":"' . $word . '"}}]}';
-                } else {
-                    echo 'data: {"choices":[{"delta":{"content":" ' . $word . '"}}]}';
-                }
-                echo "\n\n";
-                if (ob_get_level() > 0) {
-                    ob_end_flush();
-                }
-                flush();
-            }
-
-            echo 'data: [DONE]' . "\n\n";
-            if (ob_get_level() > 0) {
-                ob_end_flush();
-            }
-            flush();
+            // This function is no longer used for Google since we now call the old code path directly in wpaicg_stream()
         }
 
         /**
@@ -997,9 +1036,32 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                 return ['data' => esc_html__('No embedding data received from the AI provider.', 'gpt3-ai-content-generator')];
             }
 
-            return $this->search_pinecone($wpaicg_pinecone_environment, $embedding, $wpaicg_pinecone_api_key, $limit, $namespace);
-        }
+            // Calculate prompt_tokens based on $wpaicg_message character count
+            $contentLength = strlen($wpaicg_message);
+            $promptTokens = ceil($contentLength / 4);
 
+            // Convert to OpenAI format
+            $openAiResponse = [
+                "object" => "list",
+                "data" => [
+                    [
+                        "object" => "embedding",
+                        "index" => 0,
+                        "embedding" => $embedding
+                    ]
+                ],
+                "model" => $model,
+                "usage" => [
+                    "prompt_tokens" => $promptTokens,
+                    "total_tokens" => $promptTokens
+                ]
+            ];
+
+            $decodedResponse = json_encode($openAiResponse);
+
+            return $decodedResponse;
+        }
+        
         /**
          * Perform the Pinecone query to search for nearest matches.
          *
@@ -1025,7 +1087,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                 $pinecone_body['namespace'] = $namespace;
             }
 
-            $response = wp_remote_post("https://{$wpaicg_pinecone_environment}/query", [
+            $response = wp_safe_remote_post("https://{$wpaicg_pinecone_environment}/query", [
                 'headers' => $headers,
                 'body'    => json_encode($pinecone_body)
             ]);
@@ -1106,8 +1168,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
             $response = json_decode($response, true);
 
             if (isset($response['error']) && !empty($response['error'])) {
-                $errorMessage = $response['error']['message']
-                    ?? 'Incorrect API key provided. You can find your API key at https://platform.openai.com/account/api-keys.';
+                $errorMessage = $response['error']['message'] ?? 'Incorrect API key provided.';
                 return ['data' => $errorMessage];
             }
 
@@ -1116,7 +1177,9 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                 return ['data' => esc_html__('No embedding data received from the AI provider.', 'gpt3-ai-content-generator')];
             }
 
-            return $this->search_qdrant($wpaicg_qdrant_endpoint, $wpaicg_qdrant_collection, $embedding, $limit, $wpaicg_qdrant_api_key);
+            $result = $this->search_qdrant($wpaicg_qdrant_endpoint, $wpaicg_qdrant_collection, $embedding, $limit, $wpaicg_qdrant_api_key);
+
+            return $result;
         }
 
         /**
@@ -1130,24 +1193,24 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
             if ($use_default_embedding_model === 'no') {
                 return $selected_embedding_model;
             }
+
             $main_embedding_model = get_option('wpaicg_main_embedding_model', '');
             if (!empty($main_embedding_model)) {
-                // e.g. "OpenAI:text-embedding-ada-002"
-                $parts = explode(':', $main_embedding_model, 2);
-                return isset($parts[1]) ? $parts[1] : 'text-embedding-ada-002';
-            }
-
-            // Fallback by main provider
-            switch ($this->provider) {
-                case 'OpenAI':
-                    return get_option('wpaicg_openai_embeddings', 'text-embedding-ada-002');
-                case 'Azure':
-                    return get_option('wpaicg_azure_embeddings', 'text-embedding-ada-002');
-                case 'Google':
-                    return get_option('wpaicg_google_embeddings', 'embedding-001');
-                default:
-                    // If there's no recognized provider, fallback
-                    return 'default-embedding-model';
+                list($provider, $model) = explode(':', $main_embedding_model, 2);
+                return $model;
+            } else {
+                $wpaicg_provider = get_option('wpaicg_provider', 'OpenAI');
+                // Retrieve the embedding model based on the provider
+                switch ($wpaicg_provider) {
+                    case 'OpenAI':
+                        return get_option('wpaicg_openai_embeddings', 'text-embedding-ada-002');
+                    case 'Azure':
+                        return get_option('wpaicg_azure_embeddings', 'text-embedding-ada-002');
+                    case 'Google':
+                        return get_option('wpaicg_google_embeddings', 'embedding-001');
+                    default:
+                        return 'default-embedding-model';
+                }
             }
         }
 
@@ -1185,8 +1248,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                 // Check if a specific model was configured in "wpaicg_main_embedding_model"
                 $main_embedding_model = get_option('wpaicg_main_embedding_model', '');
                 if (!empty($main_embedding_model)) {
-                    $parts    = explode(':', $main_embedding_model, 2);
-                    $provider = $parts[0]; // e.g. "OpenAI"
+                    list($provider, $model) = explode(':', $main_embedding_model, 2);
                 }
             }
 
@@ -1225,7 +1287,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                 ]
             ];
 
-            $response = wp_remote_post("{$endpoint}/collections/{$collection}/points/search", [
+            $response = wp_safe_remote_post("{$endpoint}/collections/{$collection}/points/search", [
                 'method'  => 'POST',
                 'headers' => [
                     'api-key'      => $apiKey,
@@ -1242,16 +1304,16 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
             $body        = json_decode($bodyContent, true);
 
             if (isset($body['result']) && is_array($body['result'])) {
-                $data = '';
-                foreach ($body['result'] as $match) {
+                $data = array_reduce($body['result'], function ($carry, $match) {
                     $postContent = get_post($match['id'])->post_content ?? '';
-                    $data .= empty($data) ? $postContent : "\n{$postContent}";
-                }
+                    return $carry . ($carry ? "\n" : '') . $postContent;
+                }, '');
+
                 return ['status' => 'success', 'data' => $data];
             }
+
             return ['data' => esc_html__('No matches found or error in Qdrant response.', 'gpt3-ai-content-generator')];
         }
-
     }
 
     WPAICG_Playground::get_instance();

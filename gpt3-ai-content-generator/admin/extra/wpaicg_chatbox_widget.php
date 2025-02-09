@@ -392,6 +392,14 @@ border-radius: 10px;
 .wpaicg-chatbox .wpaicg-conversation-starter:hover {
     filter: brightness(90%);
 }
+    .wpaicg-chatbox  h1, 
+    .wpaicg-chatbox h2, 
+    .wpaicg-chatbox h3, 
+    .wpaicg-chatbox h4, 
+    .wpaicg-chatbox h5, 
+    .wpaicg-chatbox h6 {
+        color: <?php echo esc_html($wpaicg_chat_fontcolor)?>;
+    }
 </style>
 <style>
     .wpaicg-img-spinner {
@@ -415,6 +423,7 @@ border-radius: 10px;
         overflow: hidden;
     }
 </style>
+
 <style>
     .wpaicg_chat_widget,.wpaicg_chat_widget_content{
         z-index: 99999;
@@ -790,7 +799,6 @@ border-radius: 10px;
         border-bottom-left-radius: 3px;
     }
 </style>
-
 <div class="wpaicg-chatbox<?php echo $wpaicg_has_action_bar ? ' wpaicg-chatbox-has-action-bar':''?><?php echo isset($wpaicg_chat_widget['footer_text']) && !empty($wpaicg_chat_widget['footer_text']) ? ' wpaicg-chat-widget-has-footer':' wpaicg-chat-widget-no-footer'?>"
      data-user-bg-color="<?php echo esc_html($wpaicg_user_bg_color)?>"
      data-color="<?php echo esc_html($wpaicg_chat_fontcolor)?>"
@@ -898,9 +906,7 @@ border-radius: 10px;
             endif;
             ?>
         </div>
-    <?php
-    endif;
-    ?>
+    <?php endif; ?>
     <div class="wpaicg-chatbox-content">
         <ul class="wpaicg-chatbox-messages">
             <?php
@@ -933,7 +939,7 @@ border-radius: 10px;
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
-    <span class="wpaicg-bot-thinking" style="padding-left: 20px;color: <?php echo esc_html($wpaicg_thinking_color)?>;"><?php echo esc_html(str_replace("\\",'',$wpaicg_ai_thinking))?>&nbsp;<span class="wpaicg-jumping-dots"><span class="wpaicg-dot-1">.</span><span class="wpaicg-dot-2">.</span><span class="wpaicg-dot-3">.</span></span></span>
+    <span class="wpaicg-bot-thinking" style="padding-left: 15px;color: <?php echo esc_html($wpaicg_thinking_color)?>;"><?php echo esc_html(str_replace("\\",'',$wpaicg_ai_thinking))?>&nbsp;<span class="wpaicg-jumping-dots"><span class="wpaicg-dot-1">.</span><span class="wpaicg-dot-2">.</span><span class="wpaicg-dot-3">.</span></span></span>
     <div class="wpaicg-chatbox-type">
         <textarea type="text" class="auto-expand wpaicg-chatbox-typing" placeholder="<?php echo esc_html(str_replace("\\",'',$wpaicg_typing_placeholder))?>"></textarea>
         <div class="wpaicg_chat_additions">
@@ -975,7 +981,5 @@ border-radius: 10px;
             echo wp_kses_post(str_replace("\\", '', htmlspecialchars_decode($wpaicg_chat_widget['footer_text'])));
             ?>
         </div>
-    <?php
-    endif;
-    ?>
+    <?php endif; ?>
 </div>

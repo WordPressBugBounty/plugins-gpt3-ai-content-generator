@@ -36,7 +36,6 @@ var wpaicgPlayGround = {
 
                     // Replace &nbsp; with space
                     currentContent = currentContent.replace(/&nbsp;/g, ' ');
-
                     currentContent = currentContent.replace(/<br>/g,"\n");
                     currentContent = currentContent.replace(/<br \/>/g,"\n");
 
@@ -59,10 +58,10 @@ var wpaicgPlayGround = {
                 wpaicgCopyButton.addEventListener('click', function (e) {
                     e.preventDefault();
                     var wpaicgCopyButton = e.currentTarget;
-                    var originalText = wpaicgCopyButton.textContent;  // Store the original text
+                    var originalText = wpaicgCopyButton.textContent;  // Store the original button text
                     wpaicgCopyButton.textContent = "👍";
                     setTimeout(function() {
-                        wpaicgCopyButton.textContent = originalText;  // Restore the original text after 2 seconds
+                        wpaicgCopyButton.textContent = originalText;  // Restore original text after 2 seconds
                     }, 2000);
 
                     var wpaicgForm = wpaicgCopyButton.closest('.wpaicg-prompt-form');
@@ -70,16 +69,12 @@ var wpaicgPlayGround = {
                     var wpaicgFormData = window['wpaicgForm'+formID];
                     var responseText = wpaicgPlayGround.getContent(wpaicgFormData.response, formID);
 
-                    // Replace &nbsp; with space
-                    responseText = responseText.replace(/&nbsp;/g, ' ');
-
-                    // Replace single occurrences of <br> or <br /> with a newline
-                    responseText = responseText.replace(/<br\s*\/?>/g, '\r\n');
-
-                    // Replace double occurrences
-                    responseText = responseText.replace(/\r\n\r\n/g, '\r\n\r\n');
-
-                    navigator.clipboard.writeText(responseText).then(function() {
+                    // Convert HTML to plain text (no markup)
+                    var tmpDiv = document.createElement('div');
+                    tmpDiv.innerHTML = responseText;
+                    var plainText = tmpDiv.innerText || tmpDiv.textContent || '';
+                    
+                    navigator.clipboard.writeText(plainText).then(function() {
                         console.log('Text successfully copied to clipboard');
                     }).catch(function(err) {
                         console.error('Unable to copy text to clipboard', err);
@@ -335,7 +330,6 @@ var wpaicgPlayGround = {
                 var responseText = wpaicgPlayGround.getContent(wpaicgFormData.response, formID);
                 // Replace &nbsp; with space
                 responseText = responseText.replace(/&nbsp;/g, ' ');
-
                 // Convert <br> tags to new lines
                 responseText = responseText.replace(/<br\s*\/?>/g, '\r\n');
                 responseText = responseText.replace(/\r\n\r\n/g, '\r\n\r\n');

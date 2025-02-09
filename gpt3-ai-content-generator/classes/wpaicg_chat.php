@@ -361,6 +361,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                     'ai_thinking' => esc_html__('Gathering thoughts','gpt3-ai-content-generator'),
                     'placeholder' => esc_html__('Type a message','gpt3-ai-content-generator'),
                     'welcome' => esc_html__('Hello 👋, how can I help you today?','gpt3-ai-content-generator'),
+                    'newchat' => esc_html__('New Chat','gpt3-ai-content-generator'),
                     'remember_conversation' => 'yes',
                     'conversation_cut' => 10,
                     'content_aware' => 'yes',

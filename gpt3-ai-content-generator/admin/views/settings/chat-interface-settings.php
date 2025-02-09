@@ -5,6 +5,15 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 <div class="aipower-form-group aipower-grouped-fields-bot">
     <div class="aipower-form-group">
         <div class="aipower-switch-container">
+            <label class="aipower-switch-label" for="aipower-sidebar"><?php echo esc_html__('Conversations', 'gpt3-ai-content-generator'); ?></label>
+            <label class="aipower-switch">
+                <input type="checkbox" id="aipower-sidebar" name="aipower-sidebar">
+                <span class="aipower-slider"></span>
+            </label>
+        </div>
+    </div>
+    <div class="aipower-form-group">
+        <div class="aipower-switch-container">
             <label class="aipower-switch-label" for="aipower-fullscreen"><?php echo esc_html__('Fullscreen', 'gpt3-ai-content-generator'); ?></label>
             <label class="aipower-switch">
                 <input type="checkbox" id="aipower-fullscreen" name="aipower-fullscreen">
@@ -54,6 +63,10 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
     <div class="aipower-form-group">
         <label for="aipower-welcome-message"><?php echo esc_html__('Welcome Message', 'gpt3-ai-content-generator'); ?></label>
         <input type="text" id="aipower-welcome-message" name="aipower-welcome-message"/>
+    </div>
+    <div class="aipower-form-group">
+        <label for="aipower-new-chat"><?php echo esc_html__('New Chat', 'gpt3-ai-content-generator'); ?></label>
+        <input type="text" id="aipower-new-chat" name="aipower-new-chat"/>
     </div>
 </div>
 <div class="aipower-form-group aipower-grouped-fields-bot">

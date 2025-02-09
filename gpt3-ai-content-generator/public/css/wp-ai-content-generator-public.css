@@ -55,7 +55,7 @@
   .wpaicg-chat-shortcode-type {
     display: flex;
     align-items: center;
-    padding: 15px;
+    padding: 0;
   }
   
   textarea.wpaicg-chat-shortcode-typing {
@@ -87,6 +87,7 @@
     bottom: 0;
     font-size: 11px;
     display: none;
+    margin-bottom: 5px;
   }
   
   .wpaicg-jumping-dots span {
@@ -522,6 +523,11 @@
     margin-left: 250px;
     transition: margin-left 0.3s ease;
   }
+
+  .wpaicg-sidebar.open ~ .wpaicg-chatbox-content {
+    margin-left: 250px;
+    transition: margin-left 0.3s ease;
+  }
   
   /* Sidebar Header */
   .wpaicg-sidebar-header {
@@ -546,26 +552,42 @@
     flex-grow: 1;
     overflow-y: auto;
   }
-  
+  /* Trash icon displayed on hover for deleting a conversation */
+.wpaicg-conversation-list li .wpaicg-delete-icon {
+  display: none;
+  position: absolute;
+  top: 55%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+.wpaicg-conversation-list li:hover .wpaicg-delete-icon {
+  display: inline-block;
+}
   /* Conversation List Items */
   .wpaicg-conversation-list li {
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
     display: flex;
     align-items: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     box-sizing: border-box;
+    position: relative;
   }
   
-  .wpaicg-conversation-list li:hover {
-    transform: translateX(5px);
-  }
-  
+  .wpaicg-new-chat-button {
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
   /* Sidebar Toggle Button */
   .wpaicg-sidebar-toggle {
     position: absolute;
@@ -576,8 +598,6 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    width: 32px;
-    height: 32px;
     border-radius: 5px;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     z-index: 1002;
@@ -605,6 +625,7 @@
     width: 8px;
     height: 8px;
   }
+
   /* ---- RESPONSIVE ---- */
   @media (max-width: 768px) {
     .wpaicg-chat-shortcode {

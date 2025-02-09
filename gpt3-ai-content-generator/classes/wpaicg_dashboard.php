@@ -434,6 +434,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'chat_addition_text' => ['option_name' => 'wpaicg_chat_addition_text', 'default' => ''],
                     'openai_stream_nav' => ['option_name' => 'wpaicg_widget_stream', 'default' => '0'],
                     'welcome' => ['option_name' => '_wpaicg_chatbox_welcome_message', 'default' => 'Hello 👋, how can I help you today?'],
+                    'newchat' => ['option_name' => '_wpaicg_chatbox_newchat', 'default' => 'New Chat'],
                     'temperature' => ['option_name' => 'wpaicg_chat_temperature', 'default' => '1'],
                     'max_tokens' => ['option_name' => 'wpaicg_chat_max_tokens', 'default' => '1500'],
                     'presence_penalty' => ['option_name' => 'wpaicg_chat_presence_penalty', 'default' => '0'],
@@ -525,7 +526,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 }
 
                 // if these fields not exist, set them to 0
-                $fields = ['openai_stream_nav', 'feedback_btn', 'save_logs','chat_addition','fullscreen','download_btn','clear_btn','copy_btn','close_btn','moderation'];
+                $fields = ['openai_stream_nav', 'feedback_btn', 'save_logs','chat_addition','fullscreen','download_btn','clear_btn','sidebar','copy_btn','close_btn','moderation'];
 
                 foreach ($fields as $field) {
                     if (!isset($bot_data[$field])) {
@@ -853,6 +854,11 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'sanitize_callback' => array($this, 'sanitize_checkbox'),
                     'type' => 'post_content' // Stored in post_content JSON
                 ),
+                'sidebar' => array(
+                    'required' => false,
+                    'sanitize_callback' => array($this, 'sanitize_checkbox'),
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
                 'copy_btn' => array(
                     'required' => false,
                     'sanitize_callback' => array($this, 'sanitize_checkbox'),
@@ -864,6 +870,11 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'type' => 'post_content' // Stored in post_content JSON
                 ),
                 'welcome' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_text_field',
+                    'type' => 'post_content' // Stored in post_content JSON
+                ),
+                'newchat' => array(
                     'required' => false,
                     'sanitize_callback' => 'sanitize_text_field',
                     'type' => 'post_content' // Stored in post_content JSON
@@ -1165,6 +1176,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'chat_addition',
                     'chat_addition_text',
                     'welcome',
+                    'newchat',
                     'temperature',
                     'max_tokens',
                     'presence_penalty',
@@ -1225,8 +1237,8 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     "fontcolor" => "#E8E8E8",
                     "ai_bg_color" => "#495057",
                     "user_bg_color" => "#6C757D",
-                    "width" => "400px",
-                    "height" => "50%",
+                    "width" => "100%",
+                    "height" => "60%",
                     "chat_rounded" => "8",
                     "fontsize" => "13",
                     "bg_text_field" => "#495057",
@@ -1262,11 +1274,13 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     "image_enable" => "0",
                     'fullscreen' => '1',
                     'clear_btn' => '1',
+                    'sidebar' => '1',
                     'download_btn' => '1',
                     'copy_btn' => '1',
                     'feedback_btn' => '1',
                     'close_btn' => '1',
                     "welcome" => "Hello 👋, how can I help you today?",
+                    "newchat" => "New Chat",
                     "ai_thinking" => "Gathering thoughts",
                     "placeholder" => "Type your message here...",
                     "no_answer" => "",
@@ -1820,6 +1834,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'chat_addition_text' => 'wpaicg_chat_addition_text',
                     'openai_stream_nav' => 'wpaicg_widget_stream',
                     'welcome' => '_wpaicg_chatbox_welcome_message',
+                    'newchat' => '_wpaicg_chatbox_newchat',
                     'temperature' => 'wpaicg_chat_temperature',
                     'max_tokens' => 'wpaicg_chat_max_tokens',
                     'presence_penalty' => 'wpaicg_chat_presence_penalty',

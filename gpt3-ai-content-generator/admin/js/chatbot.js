@@ -565,6 +565,16 @@ jQuery(document).ready(function ($) {
             defaultValue: '1'
         },
         {
+            name: 'sidebar',
+            selector: '#aipower-sidebar',
+            type: 'checkbox',
+            label: 'Sidebar',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: '1'
+        },
+        {
             name: 'download_btn',
             selector: '#aipower-download',
             type: 'checkbox',
@@ -617,6 +627,16 @@ jQuery(document).ready(function ($) {
             saveOn: 'change',
             ajaxAction: 'aipower_save_field',
             defaultValue: 'Hello 👋, how can I help you today?'
+        },
+        {
+            name: 'newchat',
+            selector: '#aipower-new-chat',
+            type: 'text',
+            label: 'New Chat',
+            required: false,
+            saveOn: 'change',
+            ajaxAction: 'aipower_save_field',
+            defaultValue: 'New Chat'
         },
         {
             name: 'ai_thinking',
@@ -1874,7 +1894,7 @@ jQuery(document).ready(function ($) {
                     refreshPaginationState(response.data.bot_id);
 
                     const shortcode = `[wpaicg_chatgpt id=${response.data.bot_id}]`;
-                    const $shortcodeMessage = `<p id="aipower-shortcode-display">Use this: <code>${shortcode}</code></p>`;
+                    const $shortcodeMessage = `<p id="aipower-shortcode-display">Use this: <code style="font-size: 12px;background: #f1f1f1;color: #333333;border-radius: 3px;cursor: pointer;">${shortcode}</code></p>`;
                     // Display the shortcode message after the button
                     $('#aipower-done-editing-btn').after($shortcodeMessage);
                 }
@@ -2425,12 +2445,21 @@ jQuery(document).ready(function ($) {
         ajaxPost(dataPayload, (response) => {
             if (response.success) {
                 $chatboxContainer.html(response.data.chatbox); // Replace with chatbox content
-                if (typeof wpaicgChatInit === 'function') {
-                    wpaicgChatInit(); // Reinitialize chat JS if necessary
-                }
-                if (typeof loadConversations === 'function') {
-                    loadConversations(); // Initialize conversation starter buttons
-                }
+                const functionNames = [
+                    'wpaicgChatInit',       // Reinitialize chat JS if necessary
+                    'loadConversations',    // Initialize conversation starter buttons
+                    'initSidebarToggle',    // Initialize sidebar toggle
+                    'loadConversationList', // Initialize conversation list
+                    'initNewChatButtons'    // Initialize new chat buttons
+                  ];
+                  
+                  functionNames.forEach(name => {
+                    const fn = window[name]; // Adjust if your functions live on another object
+                    if (typeof fn === 'function') {
+                      fn();
+                    }
+                  });
+                  
                 // **New Code: Automatically toggle all widgets found in the chatbox**
                 $chatboxContainer.find('.wpaicg_chat_widget').each(function () {
                     const $widget = $(this);

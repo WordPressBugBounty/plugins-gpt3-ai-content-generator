@@ -1,5 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
+
 global $wp,$wpdb;
 $table = $wpdb->prefix . 'wpaicg';
 $wpaicg_bot_id = 0;
@@ -8,6 +9,7 @@ $wpaicg_chat_shortcode_options = get_option('wpaicg_chat_shortcode_options',[]);
 $wpaicg_stream_nav_setting = get_option('wpaicg_shortcode_stream', '1'); // Default to '1' if not set
 $wpaicg_conversation_starters_json = get_option('wpaicg_conversation_starters', '');
 $wpaicg_conversation_starters = !empty($wpaicg_conversation_starters_json) ? json_decode($wpaicg_conversation_starters_json, true) : [];
+
 /*Check Custom Shortcode ID*/
 if(isset($atts) && isset($atts['id']) && !empty($atts['id'])) {
     $wpaicg_bot = get_post($atts['id']);
@@ -22,7 +24,7 @@ if(isset($atts) && isset($atts['id']) && !empty($atts['id'])) {
         $wpaicg_chat_shortcode_options = json_decode($wpaicg_bot->post_content, true);
         $wpaicg_chat_shortcode_options['width'] = isset($wpaicg_chat_shortcode_options['width']) && !empty($wpaicg_chat_shortcode_options['width']) ? $wpaicg_chat_shortcode_options['width'].'px' : '350px';
         $wpaicg_chat_shortcode_options['height'] = isset($wpaicg_chat_shortcode_options['height']) && !empty($wpaicg_chat_shortcode_options['height']) ? $wpaicg_chat_shortcode_options['height'].'px' : '400px';
-        
+
         $wpaicg_conversation_starters = isset($wpaicg_chat_shortcode_options['conversation_starters']) && is_array($wpaicg_chat_shortcode_options['conversation_starters']) ? $wpaicg_chat_shortcode_options['conversation_starters'] : [];
         $adapted_conversation_starters = [];
         // Proceed with the conversion only if $wpaicg_conversation_starters is not empty
@@ -36,7 +38,7 @@ if(isset($atts) && isset($atts['id']) && !empty($atts['id'])) {
 
         // Update $wpaicg_conversation_starters with the adapted version or keep it as an empty array if it was initially empty
         $wpaicg_conversation_starters = $adapted_conversation_starters;
-        
+
         $wpaicg_stream_nav_setting = isset($wpaicg_chat_shortcode_options['openai_stream_nav']) ? $wpaicg_chat_shortcode_options['openai_stream_nav'] : '0';
     }
 }
@@ -55,6 +57,7 @@ $default_setting = array(
     'ai_thinking' => esc_html__('Gathering thoughts','gpt3-ai-content-generator'),
     'placeholder' => esc_html__('Type a message','gpt3-ai-content-generator'),
     'welcome' => esc_html__('Hello 👋, how can I help you today?','gpt3-ai-content-generator'),
+    'newchat' => esc_html__('New Chat','gpt3-ai-content-generator'),
     'remember_conversation' => 'yes',
     'conversation_cut' => 100,
     'content_aware' => 'yes',
@@ -94,6 +97,7 @@ $default_setting = array(
     'audio_btn' => false,
     'muted_by_default' => false,
     'clear_btn' => false,
+    'sidebar' => false,
     'copy_btn' => false,
     'feedback_btn' => false,
     'feedback_title' => __('Feedback','gpt3-ai-content-generator'),
@@ -131,6 +135,7 @@ $wpaicg_settings = shortcode_atts($default_setting, $wpaicg_chat_shortcode_optio
 $wpaicg_ai_thinking = $wpaicg_settings['ai_thinking'];
 $wpaicg_typing_placeholder = $wpaicg_settings['placeholder'];
 $wpaicg_welcome_message = $wpaicg_settings['welcome'];
+$wpaicg_new_chat = $wpaicg_settings['newchat'];
 $wpaicg_chat_content_aware = $wpaicg_settings['content_aware'];
 $wpaicg_font_color = $wpaicg_settings['fontcolor'];
 $wpaicg_font_size = $wpaicg_settings['fontsize'];
@@ -150,6 +155,7 @@ $wpaicg_chat_download_btn = isset($wpaicg_settings['download_btn']) && !empty($w
 $wpaicg_chat_audio_btn = isset($wpaicg_settings['audio_btn']) && !empty($wpaicg_settings['audio_btn']) ? $wpaicg_settings['audio_btn'] : false;
 $wpaicg_voice_muted_by_default = isset($wpaicg_settings['muted_by_default']) && !empty($wpaicg_settings['muted_by_default']) ? $wpaicg_settings['muted_by_default'] : false;
 $wpaicg_chat_clear_btn = isset($wpaicg_settings['clear_btn']) && !empty($wpaicg_settings['clear_btn']) ? $wpaicg_settings['clear_btn'] : false;
+$wpaicg_chat_sidebar = isset($wpaicg_settings['sidebar']) && !empty($wpaicg_settings['sidebar']) ? $wpaicg_settings['sidebar'] : false;
 $wpaicg_chat_copy_btn = isset($wpaicg_settings['copy_btn']) && !empty($wpaicg_settings['copy_btn']) ? $wpaicg_settings['copy_btn'] : false;
 $wpaicg_chat_feedback_btn = isset($wpaicg_settings['feedback_btn']) && !empty($wpaicg_settings['feedback_btn']) ? $wpaicg_settings['feedback_btn'] : false;
 $wpaicg_chat_feedback_title = isset($wpaicg_settings['feedback_title']) && !empty($wpaicg_settings['feedback_title']) ? $wpaicg_settings['feedback_title'] : __('Feedback','gpt3-ai-content-generator');
@@ -198,7 +204,6 @@ $wpaicg_enable_lead_phone = isset($wpaicg_settings['enable_lead_phone']) && !emp
 $wpaicg_bg_text_field = isset($wpaicg_settings['bg_text_field']) && !empty($wpaicg_settings['bg_text_field']) ? $wpaicg_settings['bg_text_field'] : '#ffffff';
 // border_text_field
 $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !empty($wpaicg_settings['border_text_field']) ? $wpaicg_settings['border_text_field'] : '#ced4da';
-
 
 ?>
 <style>
@@ -394,7 +399,7 @@ $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !emp
     .wpaicg-chat-shortcode-type {
         display: flex;
         align-items: center;
-        padding: 15px;
+        padding: 0;
         color: <?php echo esc_html($wpaicg_settings['send_color'])?>;
     }
 
@@ -772,7 +777,67 @@ $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !emp
         display: flex;
         justify-content: flex-end;
     }
-    
+    .wpaicg-chat-shortcode h1, 
+    .wpaicg-chat-shortcode h2, 
+    .wpaicg-chat-shortcode h3, 
+    .wpaicg-chat-shortcode h4, 
+    .wpaicg-chat-shortcode h5, 
+    .wpaicg-chat-shortcode h6 {
+        color: <?php echo esc_html($wpaicg_settings['fontcolor'])?>;
+    }
+
+</style>
+<style>
+    /* Sidebar */
+    .wpaicg-sidebar {
+    background-color: <?php echo esc_html($wpaicg_settings['bgcolor'])?>;
+    border-right: 1px solid <?php echo esc_html($wpaicg_border_text_field)?>;
+    }
+
+    /* Sidebar Header */
+    .wpaicg-sidebar-header {
+    border-bottom: 1px solid <?php echo esc_html($wpaicg_border_text_field)?>;
+    color: <?php echo esc_html($wpaicg_font_color)?>;
+    }
+
+    .wpaicg-sidebar-header h3 {
+    color: <?php echo esc_html($wpaicg_font_color)?>;
+    }
+
+    .wpaicg-sidebar-header p {
+    color: <?php echo esc_html($wpaicg_font_color)?>;
+    font-size: <?php echo esc_html($wpaicg_font_size)?>px;
+    }
+
+    /* Conversation List Items */
+    .wpaicg-conversation-list li {
+    background-color: <?php echo esc_html($wpaicg_user_bg_color)?>;
+    color: <?php echo esc_html($wpaicg_font_color)?>;
+    font-size: <?php echo esc_html($wpaicg_font_size)?>px;
+    }
+    .wpaicg-conversation-list li:hover {
+    background-color: <?php echo esc_html($wpaicg_font_color); ?>;
+    color: <?php echo esc_html($wpaicg_user_bg_color); ?>;
+    transform: none;
+    }
+    /* Trash icon displayed on hover for deleting a conversation */
+    .wpaicg-conversation-list li .wpaicg-delete-icon {
+    color: <?php echo esc_html($wpaicg_user_bg_color); ?>;
+    font-size: <?php echo esc_html($wpaicg_font_size)?>px;
+    }
+
+    /* Sidebar Toggle Button */
+    .wpaicg-sidebar-toggle {
+    background-color: <?php echo esc_html($wpaicg_ai_bg_color)?>;
+    }
+
+    .wpaicg-sidebar-toggle:hover {
+    background-color: <?php echo esc_html($wpaicg_user_bg_color)?>;
+    }
+
+    .wpaicg-sidebar-toggle span {
+    color: <?php echo esc_html($wpaicg_font_color)?>;
+    }
 </style>
 <?php
 $wpaicg_has_action_bar = false;
@@ -841,8 +906,34 @@ if (isset($wpaicg_settings['model']) && strpos($wpaicg_settings['model'], 'asst_
      data-bg_text_field_font_color = "<?php echo esc_html($wpaicg_input_font_color)?>"
      data-bg_text_field_border_color = "<?php echo esc_html($wpaicg_border_text_field)?>"
      data-assistant-enabled="<?php echo esc_html($assistantEnabled ? 'true' : 'false'); ?>"
+     data-sidebar-enabled="<?php echo esc_html($wpaicg_chat_sidebar)?>"
      data-type="shortcode"
 >
+<style>
+.wpaicg-new-chat-button {
+    background-color: <?php echo esc_html($wpaicg_ai_bg_color)?>;
+    color: <?php echo esc_html($wpaicg_font_color)?>;
+    font-size: <?php echo esc_html($wpaicg_font_size)?>px;
+}
+.wpaicg-new-chat-button:hover {
+    background-color: <?php echo esc_html($wpaicg_user_bg_color)?>;
+}
+</style>
+<?php
+
+// Sidebar HTML structure with added "New Chat" button:
+$sidebar_html = '
+    <div class="wpaicg-sidebar">
+        <div class="wpaicg-sidebar-header">
+            <button type="button" class="wpaicg-new-chat-button" style="margin-top:10px;">' . esc_html($wpaicg_new_chat) . '</button>
+        </div>
+        <ul class="wpaicg-conversation-list">
+            <!-- Conversations will be loaded here dynamically -->
+        </ul>
+    </div>
+';
+
+?>
 <?php if($wpaicg_has_action_bar): ?>
     <div class="wpaicg-chatbox-action-bar">
         <?php
@@ -882,66 +973,76 @@ if (isset($wpaicg_settings['model']) && strpos($wpaicg_settings['model'], 'asst_
 
     </div>
 <?php endif; ?>
-<div class="wpaicg-chat-shortcode-content">
-    <ul class="wpaicg-chat-shortcode-messages">
-        <?php
-        if($wpaicg_save_logs && $wpaicg_log_notice && !empty($wpaicg_log_notice_message)):
+<!-- Begin Chat Content Wrapper -->
+<div class="wpaicg-chat-content-wrapper">
+    <!-- Insert the toggle and sidebar if $wpaicg_chat_sidebar is enabled -->
+    <?php if($wpaicg_chat_sidebar): ?>
+        <span class="wpaicg-sidebar-toggle" role="button" aria-label="Toggle Sidebar" tabindex="0">
+            <span class="dashicons dashicons-menu"></span>
+        </span>
+        <?php echo $sidebar_html; ?>
+    <?php endif; ?>
+    <div class="wpaicg-chat-shortcode-content">
+        <ul class="wpaicg-chat-shortcode-messages">
+            <?php
+            if($wpaicg_save_logs && $wpaicg_log_notice && !empty($wpaicg_log_notice_message)):
+                ?>
+                <li class="log_notification">
+                    <p>
+                    <span class="wpaicg-chat-message">
+                        <?php echo esc_html(str_replace("\\",'',$wpaicg_log_notice_message))?>
+                    </span>
+                    </p>
+                </li>
+            <?php
+            endif;
             ?>
-            <li class="log_notification">
-                <p>
+            <li class="wpaicg-ai-message" style="color: <?php echo esc_html($wpaicg_font_color)?>; font-size: <?php echo esc_html($wpaicg_font_size)?>px; background-color: <?php echo esc_html($wpaicg_ai_bg_color);?>">
                 <span class="wpaicg-chat-message">
-                    <?php echo esc_html(str_replace("\\",'',$wpaicg_log_notice_message))?>
+                    <?php echo esc_html(str_replace("\\",'',$wpaicg_welcome_message))?>
                 </span>
-                </p>
             </li>
-        <?php
-        endif;
-        ?>
-        <li class="wpaicg-ai-message" style="color: <?php echo esc_html($wpaicg_font_color)?>; font-size: <?php echo esc_html($wpaicg_font_size)?>px; background-color: <?php echo esc_html($wpaicg_ai_bg_color);?>">
-            <span class="wpaicg-chat-message">
-                <?php echo esc_html(str_replace("\\",'',$wpaicg_welcome_message))?>
-            </span>
-        </li>
-    </ul>
-</div>
-<!-- Conversation Starters -->
-<?php if (!empty($wpaicg_conversation_starters)): ?>
-    <div class="wpaicg-conversation-starters">
-        <?php foreach ($wpaicg_conversation_starters as $starter): ?>
-            <button type="button" class="wpaicg-conversation-starter">
-                <?php echo esc_html($starter['text']); ?>
-            </button>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
-<span class="wpaicg-bot-thinking" style="padding-left: 20px;color: <?php echo esc_html($wpaicg_thinking_color)?>;"><?php echo esc_html(str_replace("\\",'',$wpaicg_ai_thinking))?>&nbsp;<span class="wpaicg-jumping-dots"><span class="wpaicg-dot-1">.</span><span class="wpaicg-dot-2">.</span><span class="wpaicg-dot-3">.</span></span></span>
-<div class="wpaicg-chat-shortcode-type">
-    <textarea type="text" name="wpaicg-chat-shortcode-typing" class="auto-expand wpaicg-chat-shortcode-typing" placeholder="<?php echo esc_html(str_replace("\\",'',$wpaicg_typing_placeholder))?>"></textarea>
-    <div class="wpaicg_chat_additions">
-        <span class="wpaicg-thumbnail-placeholder"></span>
-        <span class="wpaicg-mic-icon" data-type="shortcode" role="button" aria-label="Mic" tabindex="0" style="<?php echo $wpaicg_audio_enable ? '' : 'display:none'?>">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M176 0C123 0 80 43 80 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM48 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H104c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H200V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"/></svg>
-        </span>
-        <span class="wpaicg-img-icon" data-type="shortcode" style="<?php echo $wpaicg_image_enable ? '' : 'display:none'?>">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-image"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-            <input type="file" id="imageUpload" class="wpaicg-img-file" accept="image/png, image/jpeg, image/webp, image/gif" style="display: none;" />
-            <!-- add nonce -->
-            <input type="hidden" id="wpaicg-img-nonce" value="<?php echo esc_html(wp_create_nonce( 'wpaicg-img-nonce' ))?>" />
-        </span>
-        <span class="wpaicg-img-spinner"></span>
-        <?php if(\WPAICG\wpaicg_util_core()->wpaicg_is_pro()):?>
-        <span class="wpaicg-pdf-icon" data-type="shortcode" style="<?php echo $wpaicg_pdf_enable ? '' : 'display:none'?>">
-            <svg version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512"  xml:space="preserve"><path class="st0" d="M378.413,0H208.297h-13.182L185.8,9.314L57.02,138.102l-9.314,9.314v13.176v265.514 c0,47.36,38.528,85.895,85.896,85.895h244.811c47.353,0,85.881-38.535,85.881-85.895V85.896C464.294,38.528,425.766,0,378.413,0z M432.497,426.105c0,29.877-24.214,54.091-54.084,54.091H133.602c-29.884,0-54.098-24.214-54.098-54.091V160.591h83.716 c24.885,0,45.077-20.178,45.077-45.07V31.804h170.116c29.87,0,54.084,24.214,54.084,54.092V426.105z"/><path class="st0" d="M171.947,252.785h-28.529c-5.432,0-8.686,3.533-8.686,8.825v73.754c0,6.388,4.204,10.599,10.041,10.599 c5.711,0,9.914-4.21,9.914-10.599v-22.406c0-0.545,0.279-0.817,0.824-0.817h16.436c20.095,0,32.188-12.226,32.188-29.612 C204.136,264.871,192.182,252.785,171.947,252.785z M170.719,294.888h-15.208c-0.545,0-0.824-0.272-0.824-0.81v-23.23 c0-0.545,0.279-0.816,0.824-0.816h15.208c8.42,0,13.447,5.027,13.447,12.498C184.167,290,179.139,294.888,170.719,294.888z"/><path class="st0" d="M250.191,252.785h-21.868c-5.432,0-8.686,3.533-8.686,8.825v74.843c0,5.3,3.253,8.693,8.686,8.693h21.868 c19.69,0,31.923-6.249,36.81-21.324c1.76-5.3,2.723-11.681,2.723-24.857c0-13.175-0.964-19.557-2.723-24.856 C282.113,259.034,269.881,252.785,250.191,252.785z M267.856,316.896c-2.318,7.331-8.965,10.459-18.21,10.459h-9.23 c-0.545,0-0.824-0.272-0.824-0.816v-55.146c0-0.545,0.279-0.817,0.824-0.817h9.23c9.245,0,15.892,3.128,18.21,10.46 c0.95,3.128,1.62,8.56,1.62,17.93C269.476,308.336,268.805,313.768,267.856,316.896z"/><path class="st0" d="M361.167,252.785h-44.812c-5.432,0-8.7,3.533-8.7,8.825v73.754c0,6.388,4.218,10.599,10.055,10.599 c5.697,0,9.914-4.21,9.914-10.599v-26.351c0-0.538,0.265-0.81,0.81-0.81h26.086c5.837,0,9.23-3.532,9.23-8.56 c0-5.028-3.393-8.553-9.23-8.553h-26.086c-0.545,0-0.81-0.272-0.81-0.817v-19.425c0-0.545,0.265-0.816,0.81-0.816h32.733 c5.572,0,9.245-3.666,9.245-8.553C370.411,256.45,366.738,252.785,361.167,252.785z"/></svg>
-        </span>
-            <span class="wpaicg-pdf-loading" style="display: none"></span>
-            <span data-type="shortcode" alt="<?php echo esc_html__('Clear','gpt3-ai-content-generator')?>" title="<?php echo esc_html__('Clear','gpt3-ai-content-generator')?>" class="wpaicg-pdf-remove" style="display: none">&times;</span>
-            <input data-type="shortcode" data-limit="<?php echo esc_html($wpaicg_settings['pdf_pages'])?>" type="file" accept="application/pdf" class="wpaicg-pdf-file" style="display: none">
+        </ul>
+        <!-- Conversation Starters -->
+        <?php if (!empty($wpaicg_conversation_starters)): ?>
+            <div class="wpaicg-conversation-starters">
+                <?php foreach ($wpaicg_conversation_starters as $starter): ?>
+                    <button type="button" class="wpaicg-conversation-starter">
+                        <?php echo esc_html($starter['text']); ?>
+                    </button>
+                <?php endforeach; ?>
+            </div>
         <?php endif; ?>
-        <?php if(isset($wpaicg_settings['send_button_enabled']) && $wpaicg_settings['send_button_enabled']): ?>
-        <span class="wpaicg-chat-shortcode-send" role="button" aria-label="Send" tabindex="0">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-        </span>
-        <?php endif; ?>
+        <span class="wpaicg-bot-thinking" style="padding-left: 0;color: <?php echo esc_html($wpaicg_thinking_color)?>;"><?php echo esc_html(str_replace("\\",'',$wpaicg_ai_thinking))?>&nbsp;<span class="wpaicg-jumping-dots"><span class="wpaicg-dot-1">.</span><span class="wpaicg-dot-2">.</span><span class="wpaicg-dot-3">.</span></span></span>
+        <div class="wpaicg-chat-shortcode-type">
+            <textarea type="text" name="wpaicg-chat-shortcode-typing" class="auto-expand wpaicg-chat-shortcode-typing" placeholder="<?php echo esc_html(str_replace("\\",'',$wpaicg_typing_placeholder))?>"></textarea>
+            <div class="wpaicg_chat_additions">
+                <span class="wpaicg-thumbnail-placeholder"></span>
+                <span class="wpaicg-mic-icon" data-type="shortcode" role="button" aria-label="Mic" tabindex="0" style="<?php echo $wpaicg_audio_enable ? '' : 'display:none'?>">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M176 0C123 0 80 43 80 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM48 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H104c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H200V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"/></svg>
+                </span>
+                <span class="wpaicg-img-icon" data-type="shortcode" style="<?php echo $wpaicg_image_enable ? '' : 'display:none'?>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-image"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    <input type="file" id="imageUpload" class="wpaicg-img-file" accept="image/png, image/jpeg, image/webp, image/gif" style="display: none;" />
+                    <!-- add nonce -->
+                    <input type="hidden" id="wpaicg-img-nonce" value="<?php echo esc_html(wp_create_nonce( 'wpaicg-img-nonce' ))?>" />
+                </span>
+                <span class="wpaicg-img-spinner"></span>
+                <?php if(\WPAICG\wpaicg_util_core()->wpaicg_is_pro()):?>
+                <span class="wpaicg-pdf-icon" data-type="shortcode" style="<?php echo $wpaicg_pdf_enable ? '' : 'display:none'?>">
+                    <svg version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512"  xml:space="preserve"><path class="st0" d="M378.413,0H208.297h-13.182L185.8,9.314L57.02,138.102l-9.314,9.314v13.176v265.514 c0,47.36,38.528,85.895,85.896,85.895h244.811c47.353,0,85.881-38.535,85.881-85.895V85.896C464.294,38.528,425.766,0,378.413,0z M432.497,426.105c0,29.877-24.214,54.091-54.084,54.091H133.602c-29.884,0-54.098-24.214-54.098-54.091V160.591h83.716 c24.885,0,45.077-20.178,45.077-45.07V31.804h170.116c29.87,0,54.084,24.214,54.084,54.092V426.105z"/><path class="st0" d="M171.947,252.785h-28.529c-5.432,0-8.686,3.533-8.686,8.825v73.754c0,6.388,4.204,10.599,10.041,10.599 c5.711,0,9.914-4.21,9.914-10.599v-22.406c0-0.545,0.279-0.817,0.824-0.817h16.436c20.095,0,32.188-12.226,32.188-29.612 C204.136,264.871,192.182,252.785,171.947,252.785z M170.719,294.888h-15.208c-0.545,0-0.824-0.272-0.824-0.81v-23.23 c0-0.545,0.279-0.816,0.824-0.816h15.208c8.42,0,13.447,5.027,13.447,12.498C184.167,290,179.139,294.888,170.719,294.888z"/><path class="st0" d="M250.191,252.785h-21.868c-5.432,0-8.686,3.533-8.686,8.825v74.843c0,5.3,3.253,8.693,8.686,8.693h21.868 c19.69,0,31.923-6.249,36.81-21.324c1.76-5.3,2.723-11.681,2.723-24.857c0-13.175-0.964-19.557-2.723-24.856 C282.113,259.034,269.881,252.785,250.191,252.785z M267.856,316.896c-2.318,7.331-8.965,10.459-18.21,10.459h-9.23 c-0.545,0-0.824-0.272-0.824-0.816v-55.146c0-0.545,0.279-0.817,0.824-0.817h9.23c9.245,0,15.892,3.128,18.21,10.46 c0.95,3.128,1.62,8.56,1.62,17.93C269.476,308.336,268.805,313.768,267.856,316.896z"/><path class="st0" d="M361.167,252.785h-44.812c-5.432,0-8.7,3.533-8.7,8.825v73.754c0,6.388,4.218,10.599,10.055,10.599 c5.697,0,9.914-4.21,9.914-10.599v-26.351c0-0.538,0.265-0.81,0.81-0.81h26.086c5.837,0,9.23-3.532,9.23-8.56 c0-5.028-3.393-8.553-9.23-8.553h-26.086c-0.545,0-0.81-0.272-0.81-0.817v-19.425c0-0.545,0.265-0.816,0.81-0.816h32.733 c5.572,0,9.245-3.666,9.245-8.553C370.411,256.45,366.738,252.785,361.167,252.785z"/></svg>
+                </span>
+                    <span class="wpaicg-pdf-loading" style="display: none"></span>
+                    <span data-type="shortcode" alt="<?php echo esc_html__('Clear','gpt3-ai-content-generator')?>" title="<?php echo esc_html__('Clear','gpt3-ai-content-generator')?>" class="wpaicg-pdf-remove" style="display: none">&times;</span>
+                    <input data-type="shortcode" data-limit="<?php echo esc_html($wpaicg_settings['pdf_pages'])?>" type="file" accept="application/pdf" class="wpaicg-pdf-file" style="display: none">
+                <?php endif; ?>
+                <?php if(isset($wpaicg_settings['send_button_enabled']) && $wpaicg_settings['send_button_enabled']): ?>
+                <span class="wpaicg-chat-shortcode-send" role="button" aria-label="Send" tabindex="0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </span>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 </div>
 <?php if($wpaicg_include_footer): ?>
@@ -949,7 +1050,6 @@ if (isset($wpaicg_settings['model']) && strpos($wpaicg_settings['model'], 'asst_
         <?php echo wp_kses_post(str_replace("\\",'',$wpaicg_settings['footer_text'])); ?>
     </div>
 <?php endif; ?>
-</div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const textareas = document.querySelectorAll('.auto-expand');
