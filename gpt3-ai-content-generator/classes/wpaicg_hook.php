@@ -62,6 +62,31 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
             wp_enqueue_script('wpaicg-chat-recorder',WPAICG_PLUGIN_URL.'public/js/recorder.js',array(),null,true);
             // wpaicg-form-shortcode.js
             wp_enqueue_script('wpaicg-form-shortcode',WPAICG_PLUGIN_URL.'public/js/wpaicg-form-shortcode.js',array(),null,true);
+            // *** NEW: Enqueue KaTeX for math rendering ***
+            // 1. CSS
+            wp_enqueue_style(
+                'katex-css',
+                'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css',
+                array(),
+                '0.16.4',
+                'all'
+            );
+            // 2. Main KaTeX JS
+            wp_enqueue_script(
+                'katex-main',
+                'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js',
+                array(),
+                '0.16.4',
+                true
+            );
+            // 3. Auto-render
+            wp_enqueue_script(
+                'katex-auto-render',
+                'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js',
+                array('katex-main'),
+                '0.16.4',
+                true
+            );
             wp_enqueue_style('wpaicg-extra-css',WPAICG_PLUGIN_URL.'admin/css/wpaicg_extra.css',array(),null);
             wp_enqueue_style('wpaicg-jquery-datepicker-css',WPAICG_PLUGIN_URL.'admin/css/jquery.datetimepicker.min.css',array(),null);
             wp_enqueue_style('wpaicg-rtl-css',WPAICG_PLUGIN_URL.'public/css/wpaicg-rtl.css',array(),null);
@@ -131,6 +156,30 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
             wp_enqueue_script('wpaicg-markdown-script',WPAICG_PLUGIN_URL.'public/js/marked.js',null,null,true);
             wp_enqueue_script('wpaicg-chat-recorder',WPAICG_PLUGIN_URL.'public/js/recorder.js',null,null,true);
             wp_enqueue_script('wpaicg-form-shortcode',WPAICG_PLUGIN_URL.'public/js/wpaicg-form-shortcode.js',null,null,true);
+                // 1. CSS
+    wp_enqueue_style(
+        'katex-css',
+        'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css',
+        array(),
+        '0.16.4',
+        'all'
+    );
+    // 2. Main KaTeX JS
+    wp_enqueue_script(
+        'katex-main',
+        'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js',
+        array(),
+        '0.16.4',
+        true
+    );
+    // 3. Auto-render
+    wp_enqueue_script(
+        'katex-auto-render',
+        'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js',
+        array('katex-main'),
+        '0.16.4',
+        true
+    );
         }
 
         public function wpaicg_head_seo()

@@ -481,7 +481,7 @@ var wpaicgPlayGround = {
             });
         });
     },
-    process: function(queryString,eventID,wpaicgFormData,formID,wpaicgStop,wpaicgSaveResult,wpaicgGenerateBtn,wpaicgMaxLines){
+    process: function(queryString, eventID, wpaicgFormData, formID, wpaicgStop, wpaicgSaveResult, wpaicgGenerateBtn, wpaicgMaxLines) {
         var wpaicg_PlayGround = this;
         var wpaicg_break_newline = wpaicgParams.logged_in === "1" ? '<br/><br/>' : '\n';
         var startTime = new Date();
@@ -492,26 +492,22 @@ var wpaicgPlayGround = {
         var count_line = 0;
         var wpaicg_limitLines = parseFloat(wpaicgMaxLines.value);
         var currentContent = '';
-
-        window['eventGenerator'+eventID].onmessage = function (e) {
-            currentContent = wpaicg_PlayGround.getContent(wpaicgFormData.response,formID);
-
+    
+        window['eventGenerator' + eventID].onmessage = function(e) {
+            currentContent = wpaicg_PlayGround.getContent(wpaicgFormData.response, formID);
+    
             if (e.data === "[LIMITED]") {
                 console.log('Limited token');
                 wpaicg_limited_token = true;
                 count_line += 1;
-                wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,currentContent + wpaicg_break_newline);
+                wpaicg_PlayGround.setContent(wpaicgFormData.response, formID, currentContent + wpaicg_break_newline);
                 wpaicg_response_events = 0;
-
             } else if (e.data === "[DONE]") {
                 count_line += 1;
-                wpaicg_PlayGround.setContent(wpaicgFormData.response,formID,currentContent + wpaicg_break_newline);
+                wpaicg_PlayGround.setContent(wpaicgFormData.response, formID, currentContent + wpaicg_break_newline);
                 wpaicg_response_events = 0;
-
             } else {
                 var result = JSON.parse(e.data);
-
-                // Check if the response contains the finish_reason
                 var hasFinishReason = result.choices &&
                     result.choices[0] &&
                     (
@@ -519,49 +515,57 @@ var wpaicgPlayGround = {
                       result.choices[0].finish_reason === "length" ||
                       (result.choices[0].finish_details && result.choices[0].finish_details.type === "stop")
                     );
-
                 var content_generated = '';
                 if (result.error !== undefined) {
                     content_generated = result.error.message;
                 } else {
-                    content_generated = result.choices[0].delta !== undefined ?
-                        (result.choices[0].delta.content !== undefined ? result.choices[0].delta.content : '') :
-                        result.choices[0].text;
+                    content_generated = (result.choices[0].delta !== undefined)
+                        ? (result.choices[0].delta.content !== undefined ? result.choices[0].delta.content : '')
+                        : result.choices[0].text;
                 }
                 prompt_response += content_generated;
-
-                // Use marked.js to parse the entire accumulated text so far
-                var parsedMarkdown = marked.parse(prompt_response);
-
-                // If we detect a finish reason
+    
+                // Preprocess the prompt_response to convert math written between square brackets
+                // into proper KaTeX delimiters.
+                var convertedResponse = wpaicg_PlayGround.convertMathDelimiters(prompt_response);
+    
+                // Use marked.js to parse the (possibly mixed) markdown + math response.
+                var parsedMarkdown = marked.parse(convertedResponse);
+    
+                // Place the HTML in the container
+                if (wpaicgFormData.response === 'textarea') {
+                    var basicEditor = wpaicg_PlayGround.editor(formID);
+                    if (basicEditor) {
+                        document.getElementById('wpaicg-prompt-result-' + formID).value = parsedMarkdown;
+                    } else {
+                        var editorInst = tinyMCE.get('wpaicg-prompt-result-' + formID);
+                        editorInst.setContent(parsedMarkdown);
+                    }
+                } else {
+                    var container = document.getElementById('wpaicg-prompt-result-' + formID);
+                    container.innerHTML = parsedMarkdown;
+                    // Render math (KaTeX) if available
+                    if (typeof renderMathInElement === 'function') {
+                        renderMathInElement(container, {
+                            delimiters: [
+                                { left: '$$', right: '$$', display: true },
+                                { left: '$',  right: '$',  display: false },
+                                { left: '\\(', right: '\\)', display: false },
+                                { left: '\\[', right: '\\]', display: true }
+                            ],
+                            throwOnError: false
+                        });
+                    }
+                }
+    
                 if (hasFinishReason) {
                     count_line += 1;
                     wpaicg_response_events = 0;
                 }
-
-                // Update the content in the appropriate container/textarea
-                if (wpaicgFormData.response === 'textarea') {
-                    var basicEditor = true;
-                    if (wpaicg_prompt_logged) {
-                        var editor = tinyMCE.get('wpaicg-prompt-result-'+formID);
-                        if ( document.getElementById('wp-wpaicg-prompt-result-'+formID+'-wrap') &&
-                            document.getElementById('wp-wpaicg-prompt-result-'+formID+'-wrap').classList.contains('tmce-active') && editor ) {
-                            basicEditor = false;
-                        }
-                    }
-                    if (basicEditor) {
-                        document.getElementById('wpaicg-prompt-result-'+formID).value = parsedMarkdown;
-                    } else {
-                        var editorInst = tinyMCE.get('wpaicg-prompt-result-'+formID);
-                        editorInst.setContent(parsedMarkdown);
-                    }
-                } else {
-                    document.getElementById('wpaicg-prompt-result-'+formID).innerHTML = parsedMarkdown;
-                }
             }
-
+    
             if (count_line === wpaicg_limitLines) {
-                if(!wpaicg_limited_token) {
+                if (!wpaicg_limited_token) {
                     let endTime = new Date();
                     let timeDiff = endTime - startTime;
                     timeDiff = timeDiff / 1000;
@@ -572,21 +576,32 @@ var wpaicgPlayGround = {
                                    '&_wpnonce=' + encodeURIComponent(wpaicgFormData.nonce) +
                                    '&source_id=' + encodeURIComponent(wpaicgFormData.sourceID) +
                                    '&eventID=' + encodeURIComponent(eventID);
-
+    
                     const xhttp = new XMLHttpRequest();
                     xhttp.open('POST', wpaicgFormData.ajax);
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                     xhttp.send(queryString);
-                    xhttp.onreadystatechange = function (oEvent) {
+                    xhttp.onreadystatechange = function(oEvent) {
                         if (xhttp.readyState === 4) {
-                            // nothing special on success or error here
+                            // No special action needed here
                         }
                     };
                 }
-                wpaicg_PlayGround.eventClose(eventID,wpaicgStop,wpaicgSaveResult,wpaicgGenerateBtn,wpaicg_limited_token);
+                wpaicg_PlayGround.eventClose(eventID, wpaicgStop, wpaicgSaveResult, wpaicgGenerateBtn, wpaicg_limited_token);
             }
         };
+    },    
+    convertMathDelimiters: function(text) {
+        // Replace any text in square brackets that contains a backslash (a likely indicator of LaTeX)
+        // with KaTeX display math delimiters.
+        return text.replace(/\[\s*([^\[\]]+?)\s*\]/g, function(match, innerText) {
+            if (innerText.indexOf('\\') !== -1) {
+                return "$$" + innerText + "$$";
+            }
+            return match;
+        });
     },
+    
     editor: function (form_id){
         var basicEditor = true;
         if(wpaicg_prompt_logged){
