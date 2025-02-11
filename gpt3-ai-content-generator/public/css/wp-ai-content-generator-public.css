@@ -655,4 +655,9 @@
       }
     }
   }
-  
+  @media (max-width: 768px) {
+    .wpaicg-sidebar-toggle {
+      padding: 10px;
+      
+    }
+  }

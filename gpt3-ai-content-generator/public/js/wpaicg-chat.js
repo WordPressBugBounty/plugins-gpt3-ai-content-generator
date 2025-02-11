@@ -391,6 +391,11 @@ function showConversationStarters(chatContainer) {
         });
     }
 }
+/**
+ * Adjusts the size of all shortcode-based chat windows (.wpaicg-chat-shortcode),
+ * including handling fullscreen mode and mobile layout. Now adds an extra offset
+ * on mobile when there is *no* footer to prevent the text box from being cut off.
+ */
 function wpaicgChatShortcodeSize() {
     var wpaicgWindowWidth = window.innerWidth;
     var wpaicgWindowHeight = window.innerHeight;
@@ -404,24 +409,37 @@ function wpaicgChatShortcodeSize() {
             var chatWidth = chatShortcode.getAttribute('data-width');
             var chatHeight = chatShortcode.getAttribute('data-height');
             var chatFooter = chatShortcode.getAttribute('data-footer') === 'true';
-            var chatBar = chatShortcode.getAttribute('data-has-bar');
+            var chatBar = chatShortcode.getAttribute('data-has-bar') === 'true';
             var chatRounded = parseFloat(chatShortcode.getAttribute('data-chat_rounded'));
             var textRounded = parseFloat(chatShortcode.getAttribute('data-text_rounded'));
             var textHeight = parseFloat(chatShortcode.getAttribute('data-text_height'));
             var textInput = chatShortcode.getElementsByClassName('wpaicg-chat-shortcode-typing')[0];
 
+            // Set text area dimensions
             textInput.style.height = textHeight + 'px';
             textInput.style.borderRadius = textRounded + 'px';
+
+            // Round the chat container
             chatShortcode.style.borderRadius = chatRounded + 'px';
             chatShortcode.style.overflow = 'hidden';
+
+            // Fallback dimension if not supplied
             chatWidth = chatWidth !== null ? chatWidth : '350';
             chatHeight = chatHeight !== null ? chatHeight : '400';
 
+            // FULLSCREEN MODE
             if (chatShortcode.classList.contains('wpaicg-fullscreened')) {
+                // Occupy the full window
                 parentWidth = wpaicgWindowWidth;
 
-                chatWidth = resolveDimension(chatWidth, parentWidth);
-                chatHeight = resolveDimension(chatHeight, wpaicgWindowHeight);
+                // On very narrow mobile, subtract a bit more from height
+                if (wpaicgWindowWidth < 480) {
+                    chatWidth = wpaicgWindowWidth;
+                    chatHeight = wpaicgWindowHeight - 40; 
+                } else {
+                    chatWidth = resolveDimension(chatWidth, parentWidth);
+                    chatHeight = resolveDimension(chatHeight, wpaicgWindowHeight);
+                }
 
                 chatShortcode.style.width = chatWidth + 'px';
                 chatShortcode.style.maxWidth = chatWidth + 'px';
@@ -429,21 +447,39 @@ function wpaicgChatShortcodeSize() {
                 chatShortcode.style.maxHeight = chatHeight + 'px';
                 chatShortcode.style.marginTop = 0;
 
-                var deduceHeight = 69;
+                // Deduce space for header(s), action bar, etc.
+                var deduceHeight = 69; // Base
                 if (chatFooter) {
-                    deduceHeight += 60; // Adjusted for footer height
+                    deduceHeight += 60; // Footer
                 }
                 if (chatBar) {
-                    deduceHeight += 30;
+                    deduceHeight += 30; // Action bar
+                }
+                deduceHeight += 20;   // Additional spacing
+
+                // On mobile, add some extra
+                if (wpaicgWindowWidth < 480) {
+                    deduceHeight += 20;
+                }
+
+                // NEW: If no footer and on mobile, add offset so text box is visible
+                if (!chatFooter && wpaicgWindowWidth < 480) {
+                    deduceHeight += 60;
                 }
 
                 var chatMessages = chatShortcode.getElementsByClassName('wpaicg-chat-shortcode-messages')[0];
                 chatMessages.style.height = (chatHeight - deduceHeight - textHeight) + 'px';
 
-                // Scroll to the bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            } else {
-                // Original non-fullscreen logic
+                // Force scroll to bottom so new messages or input are visible
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    });
+                });
+            }
+            // NON-FULLSCREEN MODE
+            else {
+                // Resolve percentage or px for chatWidth
                 if (chatWidth.indexOf('%') < 0) {
                     if (chatWidth.indexOf('px') < 0) {
                         chatWidth = parseFloat(chatWidth);
@@ -459,6 +495,7 @@ function wpaicgChatShortcodeSize() {
                     }
                 }
 
+                // Resolve percentage or px for chatHeight
                 if (chatHeight.indexOf('%') < 0) {
                     if (chatHeight.indexOf('px') < 0) {
                         chatHeight = parseFloat(chatHeight);
@@ -470,6 +507,7 @@ function wpaicgChatShortcodeSize() {
                     chatHeight = chatHeight * wpaicgWindowHeight / 100;
                 }
 
+                // Apply final computed width & height
                 if (chatWidth !== '') {
                     chatShortcode.style.width = chatWidth + 'px';
                     chatShortcode.style.maxWidth = chatWidth + 'px';
@@ -485,18 +523,37 @@ function wpaicgChatShortcodeSize() {
                 }
 
                 var chatMessages = chatShortcode.getElementsByClassName('wpaicg-chat-shortcode-messages')[0];
-                var deduceHeight = 69;
+                var deduceHeight = 69; // Base
                 if (chatFooter) {
-                    deduceHeight += 60; // Adjusted for footer height
+                    deduceHeight += 60; // Footer
                 }
                 if (chatBar) {
-                    deduceHeight += 30;
+                    deduceHeight += 30; // Action bar
                 }
-                chatMessages.style.height = (chatHeight - deduceHeight) + 'px';
+                deduceHeight += 20;   // Additional spacing
+
+                // On mobile, add some extra
+                if (wpaicgWindowWidth < 480) {
+                    deduceHeight += 20;
+                }
+
+                // NEW: If no footer and on mobile, add offset so text box is visible
+                if (!chatFooter && wpaicgWindowWidth < 480) {
+                    deduceHeight += 60;
+                }
+
+                // Subtract the typed text box height
+                chatMessages.style.height = (chatHeight - deduceHeight - textHeight) + 'px';
             }
         }
     }
 }
+
+/**
+ * Adjusts the size of widget-based chat windows (.wpaicg_chat_widget_content
+ * containing .wpaicg-chatbox). Also adds an extra offset on mobile when there's
+ * no footer so the text box remains visible in fullscreen.
+ */
 function wpaicgChatBoxSize() {
     var wpaicgWindowWidth = window.innerWidth;
     var wpaicgWindowHeight = window.innerHeight;
@@ -508,36 +565,52 @@ function wpaicgChatBoxSize() {
             var chatbox = chatWidget.getElementsByClassName('wpaicg-chatbox')[0];
             var chatWidth = chatbox.getAttribute('data-width') || '350';
             var chatHeight = chatbox.getAttribute('data-height') || '400';
-            var chatFooter = chatbox.getAttribute('data-footer');
+            var chatFooter = chatbox.getAttribute('data-footer') === 'true';
             var chatboxBar = chatbox.getElementsByClassName('wpaicg-chatbox-action-bar');
             var textHeight = parseFloat(chatbox.getAttribute('data-text_height'));
 
-            // Calculate dimensions dynamically
-            chatWidth = resolveDimension(chatWidth, wpaicgWindowWidth);
-            chatHeight = resolveDimension(chatHeight, wpaicgWindowHeight);
+            // If the widget container is in fullscreen mode, override dimensions
+            if (chatWidget.classList.contains('wpaicg-fullscreened')) {
+                chatWidth = wpaicgWindowWidth;
+                // On small mobile, subtract more so text box is not hidden
+                if (wpaicgWindowWidth < 480) {
+                    chatHeight = wpaicgWindowHeight - 40;
+                } else {
+                    chatHeight = wpaicgWindowHeight - 20;
+                }
+            } else {
+                chatWidth = resolveDimension(chatWidth, wpaicgWindowWidth);
+                chatHeight = resolveDimension(chatHeight, wpaicgWindowHeight);
+            }
 
             chatbox.style.width = chatWidth + 'px';
             chatbox.style.height = chatHeight + 'px';
             chatWidget.style.width = chatWidth + 'px';
             chatWidget.style.height = chatHeight + 'px';
 
-            // Adjusting heights for content and message areas
-            var actionBarHeight = chatboxBar.length ? 40 : 0; // Assuming action bar height is 40
-            var footerHeight = chatFooter ? 60 : 0; // Adjusting footer height if enabled
-            var contentHeight = chatHeight - textHeight - actionBarHeight - footerHeight - 20; // Including some padding
-            var messagesHeight = contentHeight - 20; // Additional space for inner padding or margins
+            var actionBarHeight = chatboxBar.length ? 40 : 0;
+            var footerHeight = chatFooter ? 60 : 0;
+            var extraGap = (wpaicgWindowWidth < 480) ? 40 : 20;
+
+            // NEW: If no footer on mobile, still add 60px so text box isn't hidden
+            if (!chatFooter && wpaicgWindowWidth < 480) {
+                footerHeight = 60;
+            }
+
+            var contentHeight = chatHeight - textHeight - actionBarHeight - footerHeight - extraGap;
+            var messagesHeight = contentHeight - 20;
 
             var chatboxContent = chatWidget.getElementsByClassName('wpaicg-chatbox-content')[0];
             var chatboxMessages = chatWidget.getElementsByClassName('wpaicg-chatbox-messages')[0];
+
             chatboxContent.style.height = contentHeight + 'px';
             chatboxMessages.style.height = messagesHeight + 'px';
 
-            // Ensure last message is visible
+            // Ensure we are scrolled to bottom for existing messages
             chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
         }
     }
 }
-
 function resolveDimension(value, totalSize) {
     if (value.includes('%')) {
         return parseFloat(value) / 100 * totalSize;
@@ -1095,80 +1168,157 @@ function wpaicgChatInit() {
         }
     }
 
+    /**
+     * Toggle fullscreen mode for either a shortcode chat or a widget chat.
+     * Ensures that upon restore, the prior sizing/layout is fully restored,
+     * including footer, text box, etc.
+     *
+     * @param {HTMLElement} btn - The clicked fullscreen button.
+     */
     function wpaicgFullScreen(btn) {
-        var type = btn.getAttribute('data-type');
+        const type = btn.getAttribute('data-type');
+        const isExitingFullscreen = btn.classList.contains('wpaicg-fullscreen-box');
+    
         if (type === 'shortcode') {
-            var wpaicgChatShortcode = btn.closest('.wpaicg-chat-shortcode');
-            if (btn.classList.contains('wpaicg-fullscreen-box')) {
-                // exit fullscreen
+            const wpaicgChatShortcode = btn.closest('.wpaicg-chat-shortcode');
+            if (!wpaicgChatShortcode) return;
+    
+            // Exiting fullscreen
+            if (isExitingFullscreen) {
                 btn.classList.remove('wpaicg-fullscreen-box');
-                var chatWidth = wpaicgChatShortcode.getAttribute('data-old-width');
-                var chatHeight = wpaicgChatShortcode.getAttribute('data-old-height');
-                wpaicgChatShortcode.style.width = chatWidth;
-                wpaicgChatShortcode.style.height = chatHeight;
-                wpaicgChatShortcode.setAttribute('data-width', chatWidth);
-                wpaicgChatShortcode.setAttribute('data-height', chatHeight);
-                wpaicgChatShortcode.style.position = '';
-                wpaicgChatShortcode.style.top = '';
-                wpaicgChatShortcode.style.left = '';
-                wpaicgChatShortcode.style.zIndex = '';
                 wpaicgChatShortcode.classList.remove('wpaicg-fullscreened');
+    
+                // Restore old inline style
+                const oldInlineStyle = wpaicgChatShortcode.getAttribute('data-old-inline-style') || '';
+                wpaicgChatShortcode.setAttribute('style', oldInlineStyle);
+                wpaicgChatShortcode.removeAttribute('data-old-inline-style');
+    
+                // Restore old data-width / data-height
+                const oldDataWidth = wpaicgChatShortcode.getAttribute('data-old-width');
+                const oldDataHeight = wpaicgChatShortcode.getAttribute('data-old-height');
+                if (oldDataWidth !== null) {
+                    wpaicgChatShortcode.setAttribute('data-width', oldDataWidth);
+                    wpaicgChatShortcode.removeAttribute('data-old-width');
+                }
+                if (oldDataHeight !== null) {
+                    wpaicgChatShortcode.setAttribute('data-height', oldDataHeight);
+                    wpaicgChatShortcode.removeAttribute('data-old-height');
+                }
+    
+                // Rerun sizing
+                wpaicgChatShortcodeSize();
             }
+            // Entering fullscreen
             else {
-                // enter fullscreen
-                var newChatBoxWidth = document.body.offsetWidth;
-                // var chatWidth = wpaicgChatShortcode.getAttribute('data-width');
-                // var chatHeight = wpaicgChatShortcode.getAttribute('data-height');
-                var chatWidth = window.getComputedStyle(wpaicgChatShortcode).width;
-                var chatHeight = window.getComputedStyle(wpaicgChatShortcode).height;
-                wpaicgChatShortcode.setAttribute('data-old-width', chatWidth);
-                wpaicgChatShortcode.setAttribute('data-old-height', chatHeight);
-                wpaicgChatShortcode.setAttribute('data-width', newChatBoxWidth);
-                wpaicgChatShortcode.setAttribute('data-height', '100%');
                 btn.classList.add('wpaicg-fullscreen-box');
-                wpaicgChatShortcode.style.width = newChatBoxWidth;
-                wpaicgChatShortcode.style.height = '100vh';
-                wpaicgChatShortcode.style.position = 'fixed';
-                wpaicgChatShortcode.style.top = 0;
-                wpaicgChatShortcode.style.left = 0;
-                wpaicgChatShortcode.style.zIndex = 999999999;
                 wpaicgChatShortcode.classList.add('wpaicg-fullscreened');
+    
+                // Save existing style
+                const currentInline = wpaicgChatShortcode.getAttribute('style') || '';
+                wpaicgChatShortcode.setAttribute('data-old-inline-style', currentInline);
+    
+                // Save data-width / data-height
+                const currentDataWidth = wpaicgChatShortcode.getAttribute('data-width') || '';
+                const currentDataHeight = wpaicgChatShortcode.getAttribute('data-height') || '';
+                wpaicgChatShortcode.setAttribute('data-old-width', currentDataWidth);
+                wpaicgChatShortcode.setAttribute('data-old-height', currentDataHeight);
+    
+                // Apply fixed positioning for fullscreen
+                wpaicgChatShortcode.style.position = 'fixed';
+                wpaicgChatShortcode.style.top = '0';
+                wpaicgChatShortcode.style.left = '0';
+                wpaicgChatShortcode.style.zIndex = '999999999';
+                wpaicgChatShortcode.style.width = '100%';
+                // Use slight offset so the text area & footer are fully visible
+                wpaicgChatShortcode.style.height = 'calc(100vh - 20px)';
+                wpaicgChatShortcode.style.overflowY = 'auto';
+    
+                // Update data-width / data-height to reflect 100% fill
+                wpaicgChatShortcode.setAttribute('data-width', '100%');
+                // Use 100% but we do an inline "calc(100vh - 20px)" so that the JS dimensioning can handle subtracting
+                wpaicgChatShortcode.setAttribute('data-height', '100%');
+    
+                // Re-run sizing
+                wpaicgChatShortcodeSize();
             }
-            wpaicgChatShortcodeSize();
-
         }
         else {
-            var wpaicgWidgetContent = btn.closest('.wpaicg_chat_widget_content');
-            var chatbox = wpaicgWidgetContent.getElementsByClassName('wpaicg-chatbox')[0];
-            if (btn.classList.contains('wpaicg-fullscreen-box')) {
+            // For a widget
+            const wpaicgWidgetContent = btn.closest('.wpaicg_chat_widget_content');
+            if (!wpaicgWidgetContent) return;
+            const chatbox = wpaicgWidgetContent.querySelector('.wpaicg-chatbox');
+            if (!chatbox) return;
+    
+            // Exiting fullscreen
+            if (isExitingFullscreen) {
                 btn.classList.remove('wpaicg-fullscreen-box');
-                var chatWidth = chatbox.getAttribute('data-old-width');
-                var chatHeight = chatbox.getAttribute('data-old-height');
-                chatbox.setAttribute('data-width', chatWidth);
-                chatbox.setAttribute('data-height', chatHeight);
-                wpaicgWidgetContent.style.position = 'absolute';
-                wpaicgWidgetContent.style.bottom = '';
-                wpaicgWidgetContent.style.left = '';
                 wpaicgWidgetContent.classList.remove('wpaicg-fullscreened');
-            } else {
-                var newChatBoxWidth = document.body.offsetWidth;
-                // var chatWidth = chatbox.getAttribute('data-width');
-                // var chatHeight = chatbox.getAttribute('data-height');
-                var chatWidth = window.getComputedStyle(chatbox).width;
-                var chatHeight = window.getComputedStyle(chatbox).height;
-                chatbox.setAttribute('data-old-width', chatWidth);
-                chatbox.setAttribute('data-old-height', chatHeight);
-                chatbox.setAttribute('data-width', newChatBoxWidth);
-                chatbox.setAttribute('data-height', '100%');
-                btn.classList.add('wpaicg-fullscreen-box');
-                chatbox.style.width = newChatBoxWidth;
-                chatbox.style.height = '100vh';
-                wpaicgWidgetContent.style.position = 'fixed';
-                wpaicgWidgetContent.style.bottom = 0;
-                wpaicgWidgetContent.style.left = 0;
-                wpaicgWidgetContent.classList.add('wpaicg-fullscreened');
+    
+                // Restore old inline style for wpaicg_chat_widget_content
+                const oldWidgetStyle = wpaicgWidgetContent.getAttribute('data-old-inline-style') || '';
+                wpaicgWidgetContent.setAttribute('style', oldWidgetStyle);
+                wpaicgWidgetContent.removeAttribute('data-old-inline-style');
+    
+                // Restore old inline style for chatbox
+                const oldChatboxStyle = chatbox.getAttribute('data-old-inline-style') || '';
+                chatbox.setAttribute('style', oldChatboxStyle);
+                chatbox.removeAttribute('data-old-inline-style');
+    
+                // Restore data-width / data-height
+                const oldWidth = chatbox.getAttribute('data-old-width');
+                const oldHeight = chatbox.getAttribute('data-old-height');
+                if (oldWidth !== null) {
+                    chatbox.setAttribute('data-width', oldWidth);
+                    chatbox.removeAttribute('data-old-width');
+                }
+                if (oldHeight !== null) {
+                    chatbox.setAttribute('data-height', oldHeight);
+                    chatbox.removeAttribute('data-old-height');
+                }
+    
+                // Re-run the widget sizing
+                wpaicgChatBoxSize();
             }
-            wpaicgChatBoxSize();
+            // Entering fullscreen
+            else {
+                btn.classList.add('wpaicg-fullscreen-box');
+                wpaicgWidgetContent.classList.add('wpaicg-fullscreened');
+    
+                // Save wpaicg_chat_widget_content style
+                const currentWidgetStyle = wpaicgWidgetContent.getAttribute('style') || '';
+                wpaicgWidgetContent.setAttribute('data-old-inline-style', currentWidgetStyle);
+    
+                // Save chatbox style
+                const currentChatboxStyle = chatbox.getAttribute('style') || '';
+                chatbox.setAttribute('data-old-inline-style', currentChatboxStyle);
+    
+                // Also store data-width / data-height
+                const currentDataWidth = chatbox.getAttribute('data-width') || '';
+                const currentDataHeight = chatbox.getAttribute('data-height') || '';
+                chatbox.setAttribute('data-old-width', currentDataWidth);
+                chatbox.setAttribute('data-old-height', currentDataHeight);
+    
+                // Fullscreen styles
+                wpaicgWidgetContent.style.position = 'fixed';
+                wpaicgWidgetContent.style.top = '0';
+                wpaicgWidgetContent.style.left = '0';
+                wpaicgWidgetContent.style.width = '100%';
+                wpaicgWidgetContent.style.height = 'calc(100vh - 20px)';
+                wpaicgWidgetContent.style.zIndex = '999999999';
+                wpaicgWidgetContent.style.overflowY = 'auto';
+    
+                // Expand chatbox to fill container
+                chatbox.style.width = '100%';
+                chatbox.style.height = 'calc(100vh - 20px)';
+                chatbox.style.overflowY = 'auto';
+    
+                // Update data attributes
+                chatbox.setAttribute('data-width', '100%');
+                chatbox.setAttribute('data-height', '100%');
+    
+                // Re-run widget sizing
+                wpaicgChatBoxSize();
+            }
         }
     }
     if (wpaicgChatFullScreens.length) {
