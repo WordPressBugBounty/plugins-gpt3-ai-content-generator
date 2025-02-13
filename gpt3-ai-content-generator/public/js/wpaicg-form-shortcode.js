@@ -511,9 +511,9 @@ var wpaicgPlayGround = {
                 var hasFinishReason = result.choices &&
                     result.choices[0] &&
                     (
-                      result.choices[0].finish_reason === "stop" ||
-                      result.choices[0].finish_reason === "length" ||
-                      (result.choices[0].finish_details && result.choices[0].finish_details.type === "stop")
+                        result.choices[0].finish_reason === "stop" ||
+                        result.choices[0].finish_reason === "length" ||
+                        (result.choices[0].finish_details && result.choices[0].finish_details.type === "stop")
                     );
                 var content_generated = '';
                 if (result.error !== undefined) {
@@ -549,7 +549,8 @@ var wpaicgPlayGround = {
                         renderMathInElement(container, {
                             delimiters: [
                                 { left: '$$', right: '$$', display: true },
-                                { left: '$',  right: '$',  display: false },
+                                // REMOVED SINGLE-DOLLAR DELIMITER:
+                                // { left: '$',  right: '$',  display: false },
                                 { left: '\\(', right: '\\)', display: false },
                                 { left: '\\[', right: '\\]', display: true }
                             ],
@@ -590,7 +591,7 @@ var wpaicgPlayGround = {
                 wpaicg_PlayGround.eventClose(eventID, wpaicgStop, wpaicgSaveResult, wpaicgGenerateBtn, wpaicg_limited_token);
             }
         };
-    },    
+    },   
     convertMathDelimiters: function(text) {
         // Replace any text in square brackets that contains a backslash (a likely indicator of LaTeX)
         // with KaTeX display math delimiters.

@@ -85,6 +85,9 @@ if (is_array($openrouter_raw)) {
 }
 ksort($openrouter_grouped);
 
+$current_google_api_key = get_option('wpaicg_google_api_key','');
+$current_google_cse_id  = get_option('wpaicg_google_search_engine_id','');
+
 // Nonce for form creation
 $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
 ?>
@@ -112,6 +115,10 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
     var defaultOpenai   = "<?php echo esc_js($default_openai); ?>";
     var defaultGoogle   = "<?php echo esc_js($default_google); ?>";
     var defaultOpenRouter= "<?php echo esc_js($default_openrouter); ?>";
+
+    // For the Internet toggle
+    var globalGoogleApiKey = "<?php echo esc_js($current_google_api_key); ?>";
+    var globalGoogleCseId  = "<?php echo esc_js($current_google_cse_id); ?>";
 
     ////////////////////////////////////////////////////////////////////////////////
     // 2) Show/Hide logic for Embeddings in CREATE form's model settings modal
@@ -890,6 +897,30 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
     $('#wpaicg_create_validate_prompt').on('click', wpaicg_create_validatePrompt);
 
     /*************************************************************
+     * INTERNET BROWSING TOGGLE
+     *************************************************************/
+    $('#wpaicg_createform_internet_toggle').on('click', function(){
+        var currentVal = $('#wpaicg_createform_internet').val();
+        // if user has no Google API key or no CSE ID, show alert
+        if(!globalGoogleApiKey || !globalGoogleCseId){
+            alert("Please configure your Google API Key and Search Engine ID under AI Form Settings first.");
+            return;
+        }
+        // Otherwise, we can toggle
+        if(currentVal === 'no'){
+            // Turn on
+            $('#wpaicg_createform_internet').val('yes');
+            // Make icon blue
+            $(this).css('color','#2271b1');
+        } else {
+            // Turn off
+            $('#wpaicg_createform_internet').val('no');
+            // Return icon to grey
+            $(this).css('color','#808080');
+        }
+    });
+
+    /*************************************************************
      * SAVE NEW FORM
      *************************************************************/
     $('#wpaicg_create_save_form').on('click', function(){
@@ -1003,6 +1034,9 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
             embeddings_limit: $('#wpaicg_createform_embeddings_limit').val()
         };
 
+        // NEW: gather internet toggled value
+        var internetValue = $('#wpaicg_createform_internet').val();  // yes/no
+
         var $status = $('#wpaicg_create_status');
         $status.hide().css('color','green');
 
@@ -1022,7 +1056,8 @@ $create_nonce = wp_create_nonce('wpaicg_create_form_nonce');
                 fields: JSON.stringify(fieldsData),
                 interface: interfaceData,
                 model_settings: formSettingsData,
-                embedding_settings: embeddingSettings
+                embedding_settings: embeddingSettings,
+                internet_browsing: internetValue
             },
             success: function(response){
                 if(response.success){

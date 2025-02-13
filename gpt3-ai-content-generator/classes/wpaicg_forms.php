@@ -121,6 +121,26 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                 delete_option('wpaicg_forms_enable_sale');
             }
 
+            // --------------------------------------------------------------------
+            // 2) Save "Internet Browsing" (Google API Key, CSE, region, language, etc.)
+            //    We store them in the same standard WP options used by the Chatbot.
+            // --------------------------------------------------------------------
+            if (isset($_POST['wpaicg_google_api_key'])) {
+                update_option('wpaicg_google_api_key', sanitize_text_field($_POST['wpaicg_google_api_key']));
+            }
+            if (isset($_POST['wpaicg_google_search_engine_id'])) {
+                update_option('wpaicg_google_search_engine_id', sanitize_text_field($_POST['wpaicg_google_search_engine_id']));
+            }
+            if (isset($_POST['wpaicg_google_search_country'])) {
+                update_option('wpaicg_google_search_country', sanitize_text_field($_POST['wpaicg_google_search_country']));
+            }
+            if (isset($_POST['wpaicg_google_search_language'])) {
+                update_option('wpaicg_google_search_language', sanitize_text_field($_POST['wpaicg_google_search_language']));
+            }
+            if (isset($_POST['wpaicg_google_search_num'])) {
+                update_option('wpaicg_google_search_num', intval($_POST['wpaicg_google_search_num']));
+            }
+
             // Respond success without reloading the page
             wp_send_json_success(['message' => __('Settings updated successfully.', 'gpt3-ai-content-generator')]);
         }
@@ -343,6 +363,10 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                 }
             }
 
+            // NEW: internet browsing meta
+            $internet_browsing = get_post_meta($form_id, 'wpaicg_form_internet_browsing', true);
+            $internet_status = ($internet_browsing === 'yes') ? 'yes' : 'no';
+
             wp_send_json_success([
                 'title'       => $title,
                 'description' => $description,
@@ -371,7 +395,8 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                     'selected_embedding_provider'  => $selected_provider ?: '',
                     'selected_embedding_model'     => $selected_model ?: '',
                     'embeddings_limit'             => $embeddings_limit ?: 1,
-                ]
+                ],
+                'internet_browsing' => $internet_status
             ]);
         }
 
@@ -497,6 +522,10 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                     update_post_meta($form_id, $imKey, $val);
                 }
             }
+
+            // NEW: internet browsing
+            $internet_browsing = isset($_POST['internet_browsing']) ? sanitize_text_field($_POST['internet_browsing']) : 'no';
+            update_post_meta($form_id, 'wpaicg_form_internet_browsing', $internet_browsing);
 
             wp_send_json_success([
                 'message' => __('Form updated successfully.', 'gpt3-ai-content-generator')
@@ -1352,6 +1381,10 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                     update_post_meta($post_id, $ik, $df);
                 }
             }
+
+            // NEW: Internet Browsing toggle (yes/no)
+            $internet_browsing = isset($_POST['internet_browsing']) ? sanitize_text_field($_POST['internet_browsing']) : 'no';
+            update_post_meta($post_id, 'wpaicg_form_internet_browsing', $internet_browsing);
 
             wp_send_json_success([
                 'message' => esc_html__('Form created successfully', 'gpt3-ai-content-generator'),

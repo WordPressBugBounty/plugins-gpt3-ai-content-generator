@@ -111,6 +111,15 @@ if ( ! defined( 'ABSPATH' ) ) {
                             id="wpaicg_editform_model_settings_icon"
                             title="<?php echo esc_attr__('Advanced Model Settings','gpt3-ai-content-generator'); ?>">
                         </span>
+                        <!-- Internet Browsing icon toggle -->
+                        <span
+                            class="dashicons dashicons-admin-site"
+                            id="wpaicg_editform_internet_toggle"
+                            style="cursor:pointer; color:#808080;"
+                            title="<?php echo esc_attr__('Enable/Disable Internet Browsing','gpt3-ai-content-generator'); ?>"
+                        ></span>
+                        <!-- Hidden input storing "yes"/"no" for internet browsing -->
+                        <input type="hidden" id="wpaicg_editform_internet" value="no" />
                     </div>
                 </div>
 

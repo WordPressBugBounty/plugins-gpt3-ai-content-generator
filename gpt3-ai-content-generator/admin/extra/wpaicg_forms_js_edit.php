@@ -76,6 +76,10 @@ if (is_array($openrouter_raw)) {
 }
 ksort($openrouter_grouped);
 
+// Also retrieve the global Google API Key / CSE ID for controlling the toggle
+$current_google_api_key = get_option('wpaicg_google_api_key','');
+$current_google_cse_id  = get_option('wpaicg_google_search_engine_id','');
+
 // Nonce for editing
 $edit_nonce = wp_create_nonce('wpaicg_save_edited_form_nonce');
 ?>
@@ -103,6 +107,10 @@ var azureDeploymentEdit       = "<?php echo esc_js($azure_deployment); ?>";
 var defaultOpenaiEdit         = "<?php echo esc_js($default_openai); ?>";
 var defaultGoogleEdit         = "<?php echo esc_js($default_google); ?>";
 var defaultOpenRouterEdit     = "<?php echo esc_js($default_openrouter); ?>";
+
+// For Internet toggling
+var globalGoogleApiKey = "<?php echo esc_js($current_google_api_key); ?>";
+var globalGoogleCseId  = "<?php echo esc_js($current_google_cse_id); ?>";
 
 /*************************************************************
  * 2) PINECONE, QDRANT, EMBEDDING PROVIDERS, ICONS => Populate
@@ -319,6 +327,25 @@ $('#wpaicg_editform_ddownload_switch').on('change', function(){
 });
 $('#wpaicg_editform_feedback_buttons_switch').on('change', function(){
     $('#wpaicg_editform_feedback_buttons').val($(this).is(':checked') ? 'yes' : 'no');
+});
+
+/*************************************************************
+ * 6) Internet Browsing Toggle (Edit Mode)
+ *************************************************************/
+$('#wpaicg_editform_internet_toggle').on('click', function(){
+    var currentVal = $('#wpaicg_editform_internet').val();
+    // If no Google API key or no CSE, block
+    if(!globalGoogleApiKey || !globalGoogleCseId){
+        alert("Please configure your Google API Key and Search Engine ID first.");
+        return;
+    }
+    if(currentVal==='no'){
+        $('#wpaicg_editform_internet').val('yes');
+        $(this).css('color','#2271b1');
+    } else {
+        $('#wpaicg_editform_internet').val('no');
+        $(this).css('color','#808080');
+    }
 });
 
 /*************************************************************
@@ -636,6 +663,13 @@ $(document).on('click', '.wpaicg_preview_edit', function(){
                         $('#wpaicg_editform_selected_embedding_provider').prop('disabled', false);
                         $('#wpaicg_editform_selected_embedding_model').prop('disabled', false);
                     }
+                }
+                if(response.data.internet_browsing === 'yes'){
+                    $('#wpaicg_editform_internet').val('yes');
+                    $('#wpaicg_editform_internet_toggle').css('color','#2271b1');
+                } else {
+                    $('#wpaicg_editform_internet').val('no');
+                    $('#wpaicg_editform_internet_toggle').css('color','#808080');
                 }
             } else {
                 $('#wpaicg_edit_status').show().css('color','red')
@@ -1044,6 +1078,9 @@ $('#wpaicg_save_edited_form').on('click', function(){
         embeddings_limit: $('#wpaicg_editform_embeddings_limit').val()
     };
 
+    // NEW: read internet toggle
+    var internetValue = $('#wpaicg_editform_internet').val(); // "yes" or "no"
+
     var $status = $('#wpaicg_edit_status');
     $status.hide().css('color','green');
 
@@ -1063,7 +1100,8 @@ $('#wpaicg_save_edited_form').on('click', function(){
             fields: JSON.stringify(fieldsData),
             interface: interfaceData,
             model_settings: modelSettingsData,
-            embedding_settings: embeddingSettings
+            embedding_settings: embeddingSettings,
+            internet_browsing: internetValue
         },
         success: function(response){
             if(response.success){

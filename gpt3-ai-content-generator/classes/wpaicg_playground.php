@@ -473,37 +473,27 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
          * Action to handle streaming responses from AI providers.
          * Primarily used for SSE (Server-Sent Events) output.
          */
-        public function wpaicg_stream() {
+        public function wpaicg_stream()
+        {
             if (isset($_GET['wpaicg_stream']) && sanitize_text_field($_GET['wpaicg_stream']) === 'yes') {
                 global $wpdb;
-
+        
                 header('Content-type: text/event-stream');
                 header('Cache-Control: no-cache');
-
+        
                 if (! wp_verify_nonce($_REQUEST['nonce'], 'wpaicg-ajax-nonce')) {
                     $wpaicg_error_message = esc_html__('Nonce verification failed', 'gpt3-ai-content-generator');
                     $this->wpaicg_event_message($wpaicg_error_message);
                     exit;
                 }
-
-                // If request is from an AI form, override $this->provider from meta:
-                if (
-                    (isset($_REQUEST['source_stream']) && $_REQUEST['source_stream'] === 'form')
-                    && !empty($_REQUEST['id'])
-                ) {
-                    $post_id          = intval($_REQUEST['id']);
-                    $providerFromMeta = get_post_meta($post_id, 'wpaicg_form_model_provider', true);
-                    if (!empty($providerFromMeta)) {
-                        $this->provider = $providerFromMeta;
-                    }
-                }
-
+        
+                $source = isset($_REQUEST['source_stream']) ? sanitize_text_field($_REQUEST['source_stream']) : '';
+        
                 $wpaicg_prompt = '';
+                $post_id       = 0;
+        
                 // Playground & Promptbase
-                if (
-                    (isset($_REQUEST['source']) && $_REQUEST['source'] === 'playground')
-                    || (isset($_REQUEST['source_stream']) && $_REQUEST['source_stream'] === 'promptbase')
-                ) {
+                if ($source === 'playground' || $source === 'promptbase') {
                     if (isset($_REQUEST['title']) && !empty($_REQUEST['title'])) {
                         $wpaicg_prompt = sanitize_text_field($_REQUEST['title']);
                     }
@@ -514,59 +504,101 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                         $wpaicg_prompt = $this->get_defined_prompt($post_id);
                     }
                 }
-
+        
                 if (!$wpaicg_prompt) {
                     exit;
                 }
-
-                // Fetch embedding details if embeddings are enabled
+        
+                // ------------------------------------
+                // 1) Check if user enabled Internet Browsing for this form/prompt
+                //    If yes, fetch Google search results and append to prompt
+                // ------------------------------------
+                if ($source === 'form' && !empty($post_id)) {
+                    $internet_browsing = get_post_meta($post_id, 'wpaicg_form_internet_browsing', true);
+                    if ($internet_browsing === 'yes') {
+                        $googleSearch = $this->handle_internet_search($wpaicg_prompt);
+                        if (!empty($googleSearch)) {
+                            // Append the search results
+                            $wpaicg_prompt .= "\n" . $googleSearch;
+                        }
+                    }
+                } elseif ($source === 'promptbase' && !empty($post_id)) {
+                    // If you also support “internet” for Promptbase, 
+                    // you could do something similar here, e.g.:
+                    // $internet_browsing = get_post_meta($post_id, 'wpaicg_prompt_internet_browsing', true);
+                    // if ($internet_browsing === 'yes') { ... }
+                }
+        
+                // ------------------------------------
+                // 2) Check if embeddings are enabled
+                // ------------------------------------
                 $embeddingsDetails = $this->get_embeddings_details();
                 if ($embeddingsDetails['embeddingsEnabled']) {
                     $wpaicg_prompt = $this->handle_embeddings($wpaicg_prompt, $embeddingsDetails);
                 }
-
-                // Initialize AI engine
+        
+                // ------------------------------------
+                // 3) Initialize the correct AI provider
+                //    (possibly overridden if source=‘form’ or ‘promptbase’)
+                // ------------------------------------
                 try {
-                    // Pass the (possibly overridden) provider to the AI engine:
-                    $ai_engine = WPAICG_Util::get_instance()->initialize_ai_engine($this->provider);
+                    // If the request is from an AI form, we override $this->provider
+                    if ($source === 'form' && !empty($post_id)) {
+                        $providerFromMeta = get_post_meta($post_id, 'wpaicg_form_model_provider', true);
+                        if (!empty($providerFromMeta)) {
+                            $this->provider = $providerFromMeta;
+                        }
+                    } elseif ($source === 'promptbase' && !empty($post_id)) {
+                        $providerFromMeta = get_post_meta($post_id, 'wpaicg_prompt_model_provider', true);
+                        if (!empty($providerFromMeta)) {
+                            $this->provider = $providerFromMeta;
+                        }
+                    }
+        
+                    $ai_engine = \WPAICG\WPAICG_Util::get_instance()->initialize_ai_engine($this->provider);
                 } catch (\Exception $e) {
                     $wpaicg_result['msg'] = $e->getMessage();
                     wp_send_json($wpaicg_result);
                 }
-
+        
                 if (!$ai_engine) {
                     exit;
                 }
-
-                // Check if user is limited
+        
+                // ------------------------------------
+                // 4) Check if user is token-limited
+                // ------------------------------------
                 $has_limited = false;
-                if (isset($_REQUEST['source_stream']) && in_array($_REQUEST['source_stream'], ['promptbase','form'], true)) {
-                    $wpaicg_token_handling = $this->wpaicg_token_handling(sanitize_text_field($_REQUEST['source_stream']));
+                if (in_array($source, ['promptbase','form'], true)) {
+                    $wpaicg_token_handling = $this->wpaicg_token_handling($source);
                     if ($wpaicg_token_handling['limited']) {
                         $has_limited = true;
                         $this->wpaicg_event_message($wpaicg_token_handling['message']);
                     }
                 }
-
-                // If not limited, proceed with streaming
+        
+                // ------------------------------------
+                // 5) If not limited, proceed with SSE
+                // ------------------------------------
                 if (!$has_limited) {
-                    // If the provider is Google, use the original arguments exactly as before.
+                    // If the provider is Google, handle it differently
                     if ($this->provider === 'Google') {
                         $google_model = (isset($_REQUEST['engine']) && !empty($_REQUEST['engine']))
                             ? sanitize_text_field($_REQUEST['engine'])
                             : get_option('wpaicg_google_default_model', 'gemini-pro');
+        
                         $wpaicg_args = [
-                            'messages'      => [
+                            'messages'    => [
                                 ['content' => $wpaicg_prompt]
                             ],
-                            'model'         => $google_model,
-                            'temperature'   => 0.9,
-                            'top_p'         => 1,
-                            'max_tokens'    => 2048,
-                            'sourceModule'  => 'form'
+                            'model'       => $google_model,
+                            'temperature' => 0.9,
+                            'top_p'       => 1,
+                            'max_tokens'  => 2048,
+                            'sourceModule'=> 'form'
                         ];
                         $response = $ai_engine->chat($wpaicg_args);
-                        $words = [];
+                        $words    = [];
                         if (isset($response['error']) && !empty($response['error'])) {
                             $words = explode(' ', $response['error']);
                         } else {
@@ -591,12 +623,14 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                             flush();
                         }
                     } else {
+                        // For OpenAI / Azure / OpenRouter
                         $wpaicg_args = $this->build_ai_args($ai_engine, $wpaicg_prompt);
                         $legacy_models = [
                             'text-davinci-001','davinci','babbage','text-babbage-001','curie-instruct-beta','text-davinci-003',
                             'text-curie-001','davinci-instruct-beta','text-davinci-002','ada','text-ada-001','curie','gpt-3.5-turbo-instruct'
                         ];
                         if (!in_array($wpaicg_args['model'], $legacy_models, true)) {
+                            // Chat endpoint
                             unset($wpaicg_args['best_of']);
                             $wpaicg_args['messages'] = [
                                 ['role' => 'user', 'content' => $wpaicg_args['prompt']]
@@ -612,6 +646,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                                 $this->wpaicg_event_message($message);
                             }
                         } else {
+                            // Legacy completion endpoint
                             try {
                                 $ai_engine->completion($wpaicg_args, function ($curl_info, $data) {
                                     $this->handle_sse_callback($data);
@@ -626,6 +661,84 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                 }
                 exit;
             }
+        }
+
+        /**
+         * If "internet browsing" is enabled for this AI Form,
+         * perform a Google search with the user’s prompt and return results.
+         * This is appended to the main $wpaicg_prompt before sending to the AI.
+         */
+        private function handle_internet_search(string $prompt): string
+        {
+            // Retrieve necessary settings
+            $google_api_key          = get_option('wpaicg_google_api_key', '');
+            $google_search_engine_id = get_option('wpaicg_google_search_engine_id', '');
+            if (empty($google_api_key) || empty($google_search_engine_id)) {
+                // If no API key or engine ID, simply return nothing
+                return '';
+            }
+
+            // Sanitize the search query
+            $search_query = sanitize_text_field($prompt);
+
+            // Execute the search
+            $results = $this->wpaicg_search_internet($google_api_key, $google_search_engine_id, $search_query);
+
+            if ($results['status'] === 'success' && !empty($results['data'])) {
+                // Return raw string of results, optionally label them
+                return "\n" . esc_html__('Internet Search Results:', 'gpt3-ai-content-generator') 
+                    . "\n" . $results['data'];
+            }
+
+            return '';
+        }
+
+        /**
+         * Perform a Google CSE (Custom Search Engine) call using the provided API key, engine ID, and query.
+         * Returns an array with ['status'=>'success','data'=>'...'] or ['status'=>'error','data'=>''].
+         */
+        public function wpaicg_search_internet(string $api_key, string $search_engine_id, string $query): array
+        {
+            $country    = get_option('wpaicg_google_search_country', '');
+            $num_results= get_option('wpaicg_google_search_num', 10);
+            $language   = get_option('wpaicg_google_search_language', '');
+
+            $search_url = 'https://www.googleapis.com/customsearch/v1?q=' . urlencode($query)
+                        . '&key=' . $api_key
+                        . '&cx=' . $search_engine_id;
+
+            if (!empty($country)) {
+                $search_url .= '&cr=' . urlencode($country);
+            }
+            if (!empty($language)) {
+                $search_url .= '&lr=' . urlencode($language);
+            }
+            $search_url .= '&num=' . intval($num_results);
+
+            $response = wp_remote_get($search_url);
+            if (is_wp_error($response)) {
+                return ['status' => 'error', 'data' => ''];
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+
+            if (isset($data['items']) && !empty($data['items'])) {
+                $search_content = '';
+                // Build a short textual snippet from each result
+                foreach ($data['items'] as $item) {
+                    $title   = isset($item['title'])   ? $item['title']   : '';
+                    $snippet = isset($item['snippet']) ? $item['snippet'] : '';
+                    $link    = isset($item['link'])    ? $item['link']    : '';
+                    $search_content .= $title . "\n" . $snippet . "\n" . $link . "\n\n";
+                }
+                return [
+                    'status' => 'success',
+                    'data'   => $search_content
+                ];
+            }
+
+            return ['status' => 'empty', 'data' => ''];
         }
 
         /**

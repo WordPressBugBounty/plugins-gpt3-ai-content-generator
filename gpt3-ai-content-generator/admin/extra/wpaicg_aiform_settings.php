@@ -42,6 +42,16 @@ $wpaicg_roles             = wp_roles()->get_names();
 $display_user_token_tr  = (!empty($wpaicg_settings['user_limited'])) ? '' : 'style="display:none;"';
 $display_role_limit_tr  = (!empty($wpaicg_settings['role_limited'])) ? '' : 'style="display:none;"';
 $display_guest_token_tr = (!empty($wpaicg_settings['guest_limited'])) ? '' : 'style="display:none;"';
+
+// Retrieve existing Google CSE settings
+$current_google_api_key = get_option('wpaicg_google_api_key', '');
+$current_google_search_engine_id = get_option('wpaicg_google_search_engine_id', '');
+$current_google_search_country = get_option('wpaicg_google_search_country', '');
+$current_google_search_language = get_option('wpaicg_google_search_language', '');
+$current_google_search_num = get_option('wpaicg_google_search_num', 10);
+// For the region/language dropdowns, re-use from WPAICG_Util (like the chatbot settings do)
+$cse_countries  = \WPAICG\WPAICG_Util::get_instance()->wpaicg_countries;
+$cse_languages  = \WPAICG\WPAICG_Util::get_instance()->search_languages;
 ?>
 <!-- The container remains hidden by default; it is shown via JS in the AI Forms Beta UI -->
 <div id="wpaicg_settings_container" style="display:none;">
@@ -221,6 +231,105 @@ $display_guest_token_tr = (!empty($wpaicg_settings['guest_limited'])) ? '' : 'st
                     </label>
                 </td>
             </tr>
+            </tr>
+        </table>
+                <!-- ============= INTERNET BROWSING SECTION ============= -->
+                <h2 style="margin-top:30px;">
+            <?php echo esc_html__('Internet Browsing', 'gpt3-ai-content-generator'); ?>
+        </h2>
+        <p><?php echo esc_html__('These settings are shared across all AI Forms and the Chatbot module.', 'gpt3-ai-content-generator'); ?></p>
+
+        <table class="form-table">
+            <!-- Google API Key -->
+            <tr>
+                <th><?php echo esc_html__('Google API Key', 'gpt3-ai-content-generator'); ?></th>
+                <td>
+                    <input
+                        type="text"
+                        name="wpaicg_google_api_key"
+                        style="width:300px;"
+                        value="<?php echo esc_attr($current_google_api_key); ?>"
+                    />
+                    <p>
+                        <small>
+                            <a href="https://console.cloud.google.com/" target="_blank">
+                                <?php echo esc_html__('Get API Key', 'gpt3-ai-content-generator'); ?>
+                            </a>
+                        </small>
+                    </p>
+                </td>
+            </tr>
+
+            <!-- Google CSE ID -->
+            <tr>
+                <th><?php echo esc_html__('Google Custom Search Engine ID', 'gpt3-ai-content-generator'); ?></th>
+                <td>
+                    <input
+                        type="text"
+                        name="wpaicg_google_search_engine_id"
+                        style="width:300px;"
+                        value="<?php echo esc_attr($current_google_search_engine_id); ?>"
+                    />
+                    <p>
+                        <small>
+                            <a href="https://programmablesearchengine.google.com/" target="_blank">
+                                <?php echo esc_html__('Get CSE ID', 'gpt3-ai-content-generator'); ?>
+                            </a>
+                        </small>
+                    </p>
+                </td>
+            </tr>
+
+            <!-- Region -->
+            <tr>
+                <th><?php echo esc_html__('Region', 'gpt3-ai-content-generator'); ?></th>
+                <td>
+                    <select name="wpaicg_google_search_country">
+                        <?php foreach ($cse_countries as $value => $label): ?>
+                            <option
+                                value="<?php echo esc_attr($value); ?>"
+                                <?php selected($current_google_search_country, $value); ?>
+                            >
+                                <?php echo esc_html($label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+            </tr>
+
+            <!-- Language -->
+            <tr>
+                <th><?php echo esc_html__('Language', 'gpt3-ai-content-generator'); ?></th>
+                <td>
+                    <select name="wpaicg_google_search_language">
+                        <?php foreach ($cse_languages as $value => $label): ?>
+                            <option
+                                value="<?php echo esc_attr($value); ?>"
+                                <?php selected($current_google_search_language, $value); ?>
+                            >
+                                <?php echo esc_html($label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+            </tr>
+
+            <!-- Results -->
+            <tr>
+                <th><?php echo esc_html__('Results', 'gpt3-ai-content-generator'); ?></th>
+                <td>
+                    <select name="wpaicg_google_search_num">
+                        <?php for ($i = 1; $i <= 10; $i++): ?>
+                            <option
+                                value="<?php echo $i; ?>"
+                                <?php selected($current_google_search_num, $i); ?>
+                            >
+                                <?php echo $i; ?>
+                            </option>
+                        <?php endfor; ?>
+                    </select>
+                    <p><small><?php echo esc_html__('How many Google search results to retrieve.', 'gpt3-ai-content-generator'); ?></small></p>
+                </td>
             </tr>
         </table>
     </form>
