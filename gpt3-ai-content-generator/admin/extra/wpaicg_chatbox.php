@@ -1050,6 +1050,7 @@ $sidebar_html = '
         <?php echo wp_kses_post(str_replace("\\",'',$wpaicg_settings['footer_text'])); ?>
     </div>
 <?php endif; ?>
+</div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const textareas = document.querySelectorAll('.auto-expand');
