@@ -1165,6 +1165,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
         public $openai_gpt4_models = [
             'chatgpt-4o-latest' => 'ChatGPT-4o',
             'gpt-4' => 'GPT-4',
+            'gpt-4.5-preview' => 'GPT-4.5 Preview',
             'gpt-4o' => 'GPT-4o',
             'gpt-4o-mini' => 'GPT-4o Mini',
             'gpt-4-turbo' => 'GPT-4 Turbo',
@@ -1192,6 +1193,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
         public $model_pricing = [
             'chatgpt-4o-latest' => 0.06,
             'gpt-4' => 0.06,
+            'gpt-4.5-preview' => 0.6,
             'gpt-4o' => 0.015,
             'gpt-4o-mini' => 0.0003,
             'gpt-4-32k' => 0.12,
@@ -1326,6 +1328,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
         public $max_token_values = [
             'gpt-4' => 8192,
             'gpt-4o' => 8192,
+            'gpt-4.5-preview' => 8192,
             'gpt-4o-mini' => 8192,
             'gpt-4-32k'=> 32768,
             'gpt-3.5-turbo'=> 4096,

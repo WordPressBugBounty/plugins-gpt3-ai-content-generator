@@ -363,6 +363,10 @@ $assistants_json = json_encode($assistants);
 <!-- Hidden bot_id field -->
 <input type="hidden" id="current-bot-id" value="" />
 <!-- Hidden Divs to Store Models -->
+<?php 
+// Ensure $openrouter_models is an array
+$openrouter_models = is_array($openrouter_models) ? $openrouter_models : [];
+?>
 <div id="openai-models" data-gpt4-models="<?php echo esc_attr(json_encode($gpt4_models)); ?>" data-gpt35-models="<?php echo esc_attr(json_encode($gpt35_models)); ?>" data-custom-models="<?php echo esc_attr(json_encode($custom_models)); ?>"></div>
 <div id="openrouter-models" data-models="<?php echo esc_attr(json_encode(array_map(function($model) {
     return [
