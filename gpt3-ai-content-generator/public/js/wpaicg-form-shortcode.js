@@ -492,6 +492,7 @@ var wpaicgPlayGround = {
         var count_line = 0;
         var wpaicg_limitLines = parseFloat(wpaicgMaxLines.value);
         var currentContent = '';
+        var katexEnabled = wpaicgParams.katex_enabled ? true : false;
     
         window['eventGenerator' + eventID].onmessage = function(e) {
             currentContent = wpaicg_PlayGround.getContent(wpaicgFormData.response, formID);
@@ -525,12 +526,18 @@ var wpaicgPlayGround = {
                 }
                 prompt_response += content_generated;
     
-                // Preprocess the prompt_response to convert math written between square brackets
-                // into proper KaTeX delimiters.
-                var convertedResponse = wpaicg_PlayGround.convertMathDelimiters(prompt_response);
-    
+                // Only process KaTeX if enabled
+                var processedResponse = '';
+                if (katexEnabled) {
+                    // Preprocess the prompt_response to convert math written between square brackets
+                    // into proper KaTeX delimiters.
+                    processedResponse = wpaicg_PlayGround.convertMathDelimiters(prompt_response);
+                } else {
+                    processedResponse = prompt_response;
+                }
+
                 // Use marked.js to parse the (possibly mixed) markdown + math response.
-                var parsedMarkdown = marked.parse(convertedResponse);
+                var parsedMarkdown = marked.parse(processedResponse);
     
                 // Place the HTML in the container
                 if (wpaicgFormData.response === 'textarea') {
@@ -544,8 +551,9 @@ var wpaicgPlayGround = {
                 } else {
                     var container = document.getElementById('wpaicg-prompt-result-' + formID);
                     container.innerHTML = parsedMarkdown;
-                    // Render math (KaTeX) if available
-                    if (typeof renderMathInElement === 'function') {
+                    
+                    // Only attempt to render KaTeX if enabled and the function exists
+                    if (katexEnabled && typeof renderMathInElement === 'function') {
                         renderMathInElement(container, {
                             delimiters: [
                                 { left: '$$', right: '$$', display: true },

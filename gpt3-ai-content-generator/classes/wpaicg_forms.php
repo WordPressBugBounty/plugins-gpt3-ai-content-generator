@@ -121,6 +121,13 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                 delete_option('wpaicg_forms_enable_sale');
             }
 
+            // NEW: Save KaTeX option
+            if (isset($_POST['wpaicg_form_katex']) && !empty($_POST['wpaicg_form_katex'])) {
+                update_option('wpaicg_form_katex', 1);
+            } else {
+                delete_option('wpaicg_form_katex');
+            }
+
             // --------------------------------------------------------------------
             // 2) Save "Internet Browsing" (Google API Key, CSE, region, language, etc.)
             //    We store them in the same standard WP options used by the Chatbot.

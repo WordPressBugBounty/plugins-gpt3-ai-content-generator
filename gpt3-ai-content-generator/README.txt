@@ -4,7 +4,7 @@ Tags: ai, chat, deepseek, openai, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.9.9
+Stable tag: 1.9.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -85,6 +85,10 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.9.11 =
+
+- Made KaTeX support for AI Forms optional to reduce page load times. KaTeX libraries (80KB) are now only loaded when needed. Disabled by default, can be enabled in **AI Forms > Setting** tab.
 
 = 1.9.9 =
 

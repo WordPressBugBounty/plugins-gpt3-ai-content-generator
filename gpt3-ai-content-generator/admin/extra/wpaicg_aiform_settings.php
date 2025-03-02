@@ -331,6 +331,22 @@ $cse_languages  = \WPAICG\WPAICG_Util::get_instance()->search_languages;
                     <p><small><?php echo esc_html__('How many Google search results to retrieve.', 'gpt3-ai-content-generator'); ?></small></p>
                 </td>
             </tr>
+            <!-- KaTeX Support -->
+            <tr>
+                <th><?php echo esc_html__('Enable KaTeX', 'gpt3-ai-content-generator'); ?></th>
+                <td>
+                    <label class="wpaicg-switch">
+                        <input
+                            type="checkbox"
+                            value="1"
+                            name="wpaicg_form_katex"
+                            <?php echo (get_option('wpaicg_form_katex', false) ? ' checked' : ''); ?>
+                        />
+                        <span class="slider"></span>
+                    </label>
+                    <p><small><?php echo esc_html__('Enable LaTeX math rendering in AI Form responses. Disable if not needed to improve performance.', 'gpt3-ai-content-generator'); ?></small></p>
+                </td>
+            </tr>
         </table>
     </form>
 
