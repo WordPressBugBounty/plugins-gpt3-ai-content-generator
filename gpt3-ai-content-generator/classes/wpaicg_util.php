@@ -105,6 +105,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
                 'Google' => array(
                     'embedding-001' => 768,
                     'text-embedding-004' => 768,
+                    'text-embedding-005' => 768
                 )
             );
         

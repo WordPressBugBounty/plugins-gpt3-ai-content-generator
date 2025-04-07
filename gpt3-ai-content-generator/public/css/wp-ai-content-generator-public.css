@@ -661,3 +661,85 @@
       
     }
   }
+      /* Enhanced Mobile Styles */
+@media (max-width: 767px) {
+  .wpaicg_chat_widget_content.wpaicg-fullscreened {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      z-index: 9999999 !important;
+      background-color: <?php echo esc_html($wpaicg_chat_bgcolor)?>;
+  }
+  
+  .wpaicg_chat_widget_content.wpaicg-fullscreened .wpaicg-chatbox {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+      box-shadow: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+  }
+  
+  .wpaicg_chat_widget_content.wpaicg-fullscreened .wpaicg-chatbox-content {
+      flex: 1 !important;
+      overflow: hidden !important;
+  }
+  
+  .wpaicg_chat_widget_content.wpaicg-fullscreened .wpaicg-chatbox-messages {
+      max-height: none !important;
+      overflow-y: auto !important;
+  }
+  
+  .wpaicg_chat_widget_content.wpaicg-fullscreened .wpaicg-chatbox-type {
+      position: sticky !important;
+      bottom: 0 !important;
+      background-color: <?php echo esc_html($wpaicg_chat_bgcolor)?>;
+      z-index: 3 !important;
+      padding: 10px !important;
+  }
+  
+  /* Improve the chatbox size on smaller screens */
+  .wpaicg_chat_widget {
+      max-width: 100% !important;
+  }
+  
+  /* Make sure action buttons are easily tappable on mobile */
+  .wpaicg-chatbox-action-bar span {
+      padding: 8px !important;
+      margin: 0 8px !important;
+  }
+  
+  /* Ensure adequate spacing for text input on mobile */
+  .wpaicg-chatbox-typing {
+      min-height: 50px !important;
+  }
+  .wpaicg_chat_widget_content.wpaicg-fullscreened .wpaicg-chatbox-fullscreen {
+      display: none !important;
+  }
+}
+
+/* Improved widget toggle button for mobile */
+@media (max-width: 767px) {
+  .wpaicg_chat_widget .wpaicg_toggle {
+      width: 60px !important;
+      height: 60px !important;
+  }
+  
+  .wpaicg_chat_widget .wpaicg_toggle img {
+      width: 100% !important;
+      height: 100% !important;
+  }
+}

@@ -138,6 +138,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
                 case 'text-embedding-004':
                     $costPerToken = 0.0002 / 1000;
                     break;
+                case 'text-embedding-005':
+                    $costPerToken = 0.0002 / 1000;
+                    break;
             }
         
             // Calculate estimated cost
