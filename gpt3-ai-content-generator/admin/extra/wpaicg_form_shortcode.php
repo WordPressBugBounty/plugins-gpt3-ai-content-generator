@@ -1124,6 +1124,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                 id: <?php echo esc_html($wpaicg_item_id)?>,
                 feedback_buttons: '<?php echo isset($wpaicg_item['feedback_buttons']) && $wpaicg_item['feedback_buttons'] !== 'no' ? 'yes' : 'no' ?>',
                 name: '<?php echo isset($wpaicg_item['title']) && !empty($wpaicg_item['title']) ? esc_html($wpaicg_item['title']) : ''?>',
+                is_pro_plan: <?php echo \WPAICG\wpaicg_util_core()->wpaicg_is_pro() ? 'true' : 'false'; ?>,
                 feedbackID: '<?php echo esc_html($textareaID); ?>'
             };
         </script>

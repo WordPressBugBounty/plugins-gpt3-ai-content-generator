@@ -4,7 +4,7 @@ Tags: ai, chat, deepseek, openai, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.9.12
+Stable tag: 1.9.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -85,6 +85,14 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.9.13 =
+
+- Added PDF download option for AI Forms.
+- Performance improvement: Now loading AI Forms related JS codes only when forms are present. This will remove unnecessary JS calls from your website if you are not using AI Forms.
+- Fixed Azure API key saving issue.
+- Fixed loading past conversations issue in the chat bot.
+- Fixed claring chat history issue in the chatbot.
 
 = 1.9.12 =
 

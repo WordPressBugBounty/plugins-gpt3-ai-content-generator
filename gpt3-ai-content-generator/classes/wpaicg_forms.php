@@ -746,11 +746,6 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
             wp_die();
         }
 
-        public function enqueue_scripts()
-        {
-            wp_enqueue_script('wpaicg-gpt-form', WPAICG_PLUGIN_URL . 'public/js/wpaicg-form-shortcode.js', [], null, true);
-        }
-
         public function wpaicg_template_delete()
         {
             $wpaicg_result = ['status' => 'success'];
@@ -1091,6 +1086,46 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
          */
         public function wpaicg_form_shortcode($atts)
         {
+            $is_pro = \WPAICG\wpaicg_util_core()->wpaicg_is_pro();
+
+            // Conditionally enqueue the main AI Forms JS if not already enqueued
+            if ( ! wp_script_is('wpaicg-markedjs', 'enqueued') ) {
+                // If your form JS uses Marked.js for parsing, enqueue it now
+                wp_enqueue_script(
+                    'wpaicg-markedjs',
+                    WPAICG_PLUGIN_URL . 'public/js/marked.js',
+                    array(),
+                    null,
+                    true
+                );
+            }
+
+            // Conditionally load jsPDF only
+            if ($is_pro && !wp_script_is('wpaicg-jspdf', 'enqueued')) {
+                $jspdf_path = WPAICG_PLUGIN_DIR . 'lib/js/jspdf.umd.min.js';
+                if (file_exists($jspdf_path)) {
+                    wp_enqueue_script(
+                        'wpaicg-jspdf',
+                        WPAICG_PLUGIN_URL . 'lib/js/jspdf.umd.min.js',
+                        array(),
+                        null,
+                        true
+                    );
+                }
+            }
+        
+            if ( ! wp_script_is('wpaicg-gpt-form', 'enqueued') ) {
+                // Enqueue the AI Form JS file only when the shortcode is rendered
+                wp_enqueue_script(
+                    'wpaicg-gpt-form',
+                    WPAICG_PLUGIN_URL . 'public/js/wpaicg-form-shortcode.js',
+                    array('wpaicg-markedjs'), // so that Marked.js loads first
+                    null,
+                    true
+                );
+            }
+        
+            // --- The rest of the shortcode logic remains identical ---
             ob_start();
             include WPAICG_PLUGIN_DIR . 'admin/extra/wpaicg_form_shortcode.php';
             return ob_get_clean();

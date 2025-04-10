@@ -61,8 +61,21 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
             wp_enqueue_script('wpaicg-chat-shortcode',WPAICG_PLUGIN_URL.'public/js/wpaicg-chat.js',array(),null,true);
             wp_enqueue_script('wpaicg-chat-shortcode',WPAICG_PLUGIN_URL.'public/js/marked.js',array(),null,true);
             wp_enqueue_script('wpaicg-chat-recorder',WPAICG_PLUGIN_URL.'public/js/recorder.js',array(),null,true);
-            // wpaicg-form-shortcode.js
-            wp_enqueue_script('wpaicg-form-shortcode',WPAICG_PLUGIN_URL.'public/js/wpaicg-form-shortcode.js',array(),null,true);
+
+            // Only load jsPDF on the Forms admin page for Pro users
+            if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro() && isset($_GET['page']) && $_GET['page'] === 'wpaicg_forms') {
+            
+                $jspdf_path = WPAICG_PLUGIN_DIR . 'lib/js/jspdf.umd.min.js';
+                if (file_exists($jspdf_path)) {
+                    wp_enqueue_script(
+                        'wpaicg-jspdf',
+                        WPAICG_PLUGIN_URL . 'lib/js/jspdf.umd.min.js',
+                        array(),
+                        null,
+                        true
+                    );
+                }
+            }
 
             // *** Check if KaTeX option is enabled before loading KaTeX resources ***
             $katex_enabled = get_option('wpaicg_form_katex', false);
@@ -161,7 +174,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
             wp_enqueue_script('wpaicg-chat-script',WPAICG_PLUGIN_URL.'public/js/wpaicg-chat.js',null,null,true);
             wp_enqueue_script('wpaicg-markdown-script',WPAICG_PLUGIN_URL.'public/js/marked.js',null,null,true);
             wp_enqueue_script('wpaicg-chat-recorder',WPAICG_PLUGIN_URL.'public/js/recorder.js',null,null,true);
-            wp_enqueue_script('wpaicg-form-shortcode',WPAICG_PLUGIN_URL.'public/js/wpaicg-form-shortcode.js',null,null,true);
 
             // *** Check if KaTeX option is enabled before loading KaTeX resources ***
             $katex_enabled = get_option('wpaicg_form_katex', false);

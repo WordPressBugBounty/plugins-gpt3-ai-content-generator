@@ -281,8 +281,7 @@ function loadChatInterface(containerSelector, type, clientId) {
     var chatContainers = document.querySelectorAll(containerSelector);
 
     chatContainers.forEach(chatContainer => {
-
-        // Read autoload chat conversations setting, default to '0' if not set
+        // Read autoload chat conversations setting, default to '1' if not set
         var autoloadConversations = chatContainer.getAttribute('data-autoload_chat_conversations');
         if (autoloadConversations === null) {
             autoloadConversations = '1';  // Default value if attribute does not exist
@@ -291,15 +290,41 @@ function loadChatInterface(containerSelector, type, clientId) {
         // Fetch the bot ID based on the type
         var botId = chatContainer.getAttribute('data-bot-id') || '0';
 
-        // Determine the history key based on whether it's a custom bot or not
-        var historyKey = botId !== '0'
-            ? `wpaicg_chat_history_custom_bot_${botId}_${clientId}`
-            : `wpaicg_chat_history_${type}_${clientId}`;
-
         if (autoloadConversations === '0') {
-            // Retrieve and display the chat history
-            var chatHistory = localStorage.getItem(historyKey);
-            if (chatHistory) {
+            // Get the active conversation key for this chat/bot
+            var activeConversationKey = `wpaicg_current_conversation_${botId}_${clientId}`;
+            var conversationKey = localStorage.getItem(activeConversationKey);
+
+            // If no active conversation has been set, find the latest one
+            if (!conversationKey) {
+                let highestIndex = 0;
+                let conversationKeyBase = botId !== '0'
+                    ? `wpaicg_chat_history_custom_bot_${botId}_${clientId}`
+                    : `wpaicg_chat_history_${type}_${clientId}`;
+
+                // Find the highest index (latest conversation)
+                for (let i = 0; i < localStorage.length; i++) {
+                    let key = localStorage.key(i);
+                    if (key.startsWith(conversationKeyBase)) {
+                        let suffixMatch = key.match(/_(\d+)$/);
+                        if (suffixMatch) {
+                            let indexNum = parseInt(suffixMatch[1], 10);
+                            if (indexNum > highestIndex) {
+                                highestIndex = indexNum;
+                            }
+                        }
+                    }
+                }
+
+                // If we found a conversation, use it
+                if (highestIndex > 0) {
+                    conversationKey = `${conversationKeyBase}_${highestIndex}`;
+                }
+            }
+
+            // Retrieve and display the chat history if we have a valid key
+            if (conversationKey && localStorage.getItem(conversationKey)) {
+                var chatHistory = localStorage.getItem(conversationKey);
                 chatHistory = JSON.parse(chatHistory);
 
                 // Convert old format messages to new format
@@ -314,7 +339,7 @@ function loadChatInterface(containerSelector, type, clientId) {
                 });
 
                 // Save the updated history back to localStorage in the new format
-                localStorage.setItem(historyKey, JSON.stringify(chatHistory));
+                localStorage.setItem(conversationKey, JSON.stringify(chatHistory));
 
                 var chatBox = chatContainer.querySelector('.wpaicg-chatbox-messages, .wpaicg-chat-shortcode-messages'); // Generalized selector
                 if (!chatBox) {
@@ -332,7 +357,6 @@ function loadChatInterface(containerSelector, type, clientId) {
                     });
                 });
                 hideConversationStarter(chatContainer);
-
             } else {
                 showConversationStarters(chatContainer);
             }
@@ -1066,45 +1090,80 @@ function wpaicgChatInit() {
     function clearChatHistory(botId, clientId, chatContainer) {
         var isCustomBot = botId !== '0';
         var type = chatContainer.classList.contains('wpaicg-chat-shortcode') ? 'shortcode' : 'widget'; // Determine the type based on class
-        var historyKey = isCustomBot
-            ? `wpaicg_chat_history_custom_bot_${botId}_${clientId}`
-            : `wpaicg_chat_history_${type}_${clientId}`; // Adjust history key based on type
-
-        // Remove the item from local storage
-        localStorage.removeItem(historyKey);
-
+        
+        // First, get the active conversation key
+        const activeConversationKey = `wpaicg_current_conversation_${botId}_${clientId}`;
+        const currentConversationKey = localStorage.getItem(activeConversationKey);
+        
+        if (currentConversationKey) {
+            // Remove the active conversation from localStorage
+            localStorage.removeItem(currentConversationKey);
+            // Also remove its timestamp
+            localStorage.removeItem(`${currentConversationKey}_timestamp`);
+        } else {
+            // Fallback if no active conversation: clear using base key
+            var historyKey = isCustomBot
+                ? `wpaicg_chat_history_custom_bot_${botId}_${clientId}`
+                : `wpaicg_chat_history_${type}_${clientId}`; // Adjust history key based on type
+            
+            // Get all keys that start with this prefix
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(historyKey)) {
+                    localStorage.removeItem(key);
+                }
+            }
+        }
+    
         // Clear the chat display
         var chatBoxSelector = '.wpaicg-chatbox-messages, .wpaicg-chat-shortcode-messages'; // Generalized selector for both types
         var chatBox = chatContainer.querySelector(chatBoxSelector);
         if (chatBox) {
             chatBox.innerHTML = ''; // Clear the chat box visually
         }
-
+    
         // delete wpaicg_lead_form_shown if exists
         localStorage.removeItem('wpaicg_lead_form_shown');
-
-        // Check if wpaicg_thread_list exists in local storage
+    
+        // Check if wpaicg_thread_list exists in local storage (for assistant API)
         var threadList = localStorage.getItem('wpaicg_thread_list');
         if (threadList) {
             try {
                 var threadListObj = JSON.parse(threadList);
-
+    
                 // Construct the key for the thread to be deleted
                 var threadKey = isCustomBot
                     ? `custom_bot_${botId}_${clientId}`
                     : `${type}_${clientId}`;
-
-                // Delete the relevant record from threadListObj
-                if (threadKey in threadListObj) {
-                    delete threadListObj[threadKey];
-
-                    // Update the local storage with the modified thread list
-                    localStorage.setItem('wpaicg_thread_list', JSON.stringify(threadListObj));
+                    
+                // If we have a specific active thread key, clear only that one
+                const activeThreadKey = `wpaicg_current_thread_${botId}_${clientId}`;
+                const currentThreadKey = localStorage.getItem(activeThreadKey);
+                
+                if (currentThreadKey && threadListObj[currentThreadKey]) {
+                    // Delete this specific thread
+                    delete threadListObj[currentThreadKey];
+                } else {
+                    // Otherwise delete all threads matching the base prefix
+                    for (let existingKey in threadListObj) {
+                        if (existingKey.startsWith(threadKey)) {
+                            delete threadListObj[existingKey];
+                        }
+                    }
                 }
+    
+                // Update the local storage with the modified thread list
+                localStorage.setItem('wpaicg_thread_list', JSON.stringify(threadListObj));
             } catch (error) {
                 console.error('Error parsing wpaicg_thread_list:', error);
             }
         }
+        
+        // Show conversation starters after clearing
+        showConversationStarters(chatContainer);
+        
+        // Refresh the conversation list in the sidebar
+        loadConversationList();
     }
 
     // Call this function once your DOM is fully loaded or at the end of your script

@@ -114,7 +114,7 @@
     }
 
     // -------------------- EVENTS: Handle Focus and Blur for API Keys --------------------
-    ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Replicate', 'Pexels', 'Pixabay'].forEach(function (engine) {
+    ['OpenAI', 'OpenRouter', 'Google', 'Replicate', 'Pexels', 'Pixabay'].forEach(function (engine) {
         var apiKeyField = $('#' + engine + '-api-key');
         var fullApiKey = apiKeyField.data('full-api-key') || apiKeyField.val(); // Store the full API key
 
