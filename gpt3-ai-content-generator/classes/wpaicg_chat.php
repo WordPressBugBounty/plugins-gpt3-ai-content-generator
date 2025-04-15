@@ -1714,7 +1714,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
 
         public function getChatEndpointModels() {
             // List of models for the chat completions endpoint
-            $chatModels = ['gpt-4', 'gpt-4-32k', 'gpt-4-1106-preview','gpt-4o', 'gpt-4o-mini','gpt-4.5-preview','o1-preview','o1','o1-mini','o3-mini','gpt-4-turbo','gpt-4-vision-preview', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k','chatgpt-4o-latest'];
+            $chatModels = ['gpt-4', 'gpt-4-32k', 'gpt-4-1106-preview','gpt-4o', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano','gpt-4o-mini','gpt-4.5-preview','o1-preview','o1','o1-mini','o3-mini','gpt-4-turbo','gpt-4-vision-preview', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k','chatgpt-4o-latest'];
             
             // Get custom models and Azure deployment model, if any
             $custom_models = get_option('wpaicg_custom_models', []);

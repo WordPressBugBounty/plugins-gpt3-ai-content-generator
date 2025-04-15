@@ -2,9 +2,9 @@
 Contributors: senols
 Tags: ai, chat, deepseek, openai, chatgpt
 Requires at least: 5.0.0
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.9.13
+Stable tag: 1.9.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
@@ -12,9 +12,9 @@ Chatbot, Content Writer, Auto Content Writer, Product Writer, Image Generator, A
  
 == Description ==
 
-AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's o1, o3, GPT-4, GPT-4.5, GPT-3.5, Assistant API, along with DeepSeek, Claude, Gemini, Azure, Grok, Mistral, LLaMA, Yi Chat, and Alpaca.
+AI Power is an all-in-one AI solution for WordPress, featuring models like OpenAI's o1, o3, gpt-4, gpt-4.5, gpt-3.5, Assistant API, along with DeepSeek, Claude, Gemini, Azure, Grok, Mistral, LLaMA, Yi Chat, and Alpaca.
 
-It uses o1-mini, o1-preview, GPT-3.5, GPT-4,  GPT-4o, GPT-4o-mini, GPT-4 Vision, Gemini 1.5 Flash, Anthropic (Claude 3 Sonnet, Opus etc.), DeepSeek and more to generate content, images, and forms with customizable options. It includes AI training, Chat widget, WooCommerce integration, Embeddings and more.
+It uses o1-mini, o1-preview, gpt-3.5, gpt-4,  GPT-4o, gpt-4o-mini, gpt-4 Vision, Gemini 1.5 Flash, Anthropic (Claude 3 Sonnet, Opus etc.), DeepSeek and more to generate content, images, and forms with customizable options. It includes AI training, Chat widget, WooCommerce integration, Embeddings and more.
 
 Please read documentation here: [https://docs.aipower.org/](https://docs.aipower.org/)
 
@@ -85,6 +85,12 @@ Please read documentation here: [https://docs.aipower.org/](https://docs.aipower
 Note: You can view non-Minified JS files [here](https://github.com/aipowerorg/Non-Minified-JS-Files).
 
 == Changelog ==
+
+= 1.9.14 =
+
+- Added support for WordPress 6.8
+- New OpenAI models added: gpt-4.1, gpt-4.1-mini, gpt-4.1-nano
+- Fixed an issue in PDF downloads.
 
 = 1.9.13 =
 

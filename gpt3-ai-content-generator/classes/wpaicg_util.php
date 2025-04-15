@@ -1165,12 +1165,15 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
 
         public $openai_gpt4_models = [
             'chatgpt-4o-latest' => 'ChatGPT-4o',
-            'gpt-4' => 'GPT-4',
-            'gpt-4.5-preview' => 'GPT-4.5 Preview',
-            'gpt-4o' => 'GPT-4o',
-            'gpt-4o-mini' => 'GPT-4o Mini',
-            'gpt-4-turbo' => 'GPT-4 Turbo',
-            'gpt-4-vision-preview' => 'GPT-4 Vision',
+            'gpt-4' => 'gpt-4',
+            'gpt-4.1' => 'gpt-4.1',
+            'gpt-4.1-mini' => 'gpt-4.1 Mini',
+            'gpt-4.1-nano' => 'gpt-4.1 Nano',
+            'gpt-4.5-preview' => 'gpt-4.5 Preview',
+            'gpt-4o' => 'gpt-4o',
+            'gpt-4o-mini' => 'gpt-4o Mini',
+            'gpt-4-turbo' => 'gpt-4 Turbo',
+            'gpt-4-vision-preview' => 'gpt-4 Vision',
             'o1-preview' => 'o1 Preview',
             'o1-mini' => 'o1 Mini',
             'o1' => 'o1',
@@ -1178,9 +1181,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
         ];
 
         public $openai_gpt35_models = [
-            'gpt-3.5-turbo' => 'GPT-3.5 Turbo',
-            'gpt-3.5-turbo-16k' => 'GPT-3.5 Turbo 16K',
-            'gpt-3.5-turbo-instruct' => 'GPT-3.5 Turbo Instruct'
+            'gpt-3.5-turbo' => 'gpt-3.5 Turbo',
+            'gpt-3.5-turbo-16k' => 'gpt-3.5 Turbo 16K',
+            'gpt-3.5-turbo-instruct' => 'gpt-3.5 Turbo Instruct'
         ];
 
         // New list for o1-mini and o1-preview models
@@ -1196,6 +1199,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             'gpt-4' => 0.06,
             'gpt-4.5-preview' => 0.6,
             'gpt-4o' => 0.015,
+            'gpt-4.1' => 0.06,
+            'gpt-4.1-mini' => 0.0003,
+            'gpt-4.1-nano' => 0.0003,
             'gpt-4o-mini' => 0.0003,
             'gpt-4-32k' => 0.12,
             'gpt-4-1106-preview' => 0.06,

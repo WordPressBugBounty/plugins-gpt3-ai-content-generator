@@ -115,7 +115,20 @@ var wpaicgPlayGround = {
                                 var { jsPDF } = window.jspdf;
                                 var doc = new jsPDF();
                                 var lines = doc.splitTextToSize(plainText, 180);
-                                doc.text(lines, 10, 10);
+
+                                // Multi-page handling
+                                var yPos = 10;
+                                var lineHeight = 6;
+                                var pageHeight = doc.internal.pageSize.height;
+
+                                for (var i = 0; i < lines.length; i++) {
+                                    if (yPos > pageHeight - 20) {
+                                        doc.addPage();
+                                        yPos = 10;
+                                    }
+                                    doc.text(lines[i], 10, yPos);
+                                    yPos += lineHeight;
+                                }
                                 doc.save('response.pdf');
                             }
                             menuContainer.remove();
