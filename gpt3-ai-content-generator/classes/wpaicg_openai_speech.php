@@ -62,6 +62,17 @@ if(!class_exists('\\WPAICG\\WPAICG_OpenAI_Speech')) {
             }
 
             // Process the result and return appropriate response
+            // 7. Output Raw Audio Data
+            // The $audioData variable contains raw binary audio data from the OpenAI API.
+            // Standard WordPress escaping functions (esc_html, esc_attr, etc.) are designed
+            // for outputting text within an HTML context to prevent XSS. Applying them
+            // here would corrupt the binary audio data, making it unplayable.
+            // Security is handled by:
+            //    - Nonce verification (preventing CSRF).
+            //    - Input sanitization (preventing injection into API parameters).
+            //    - Setting the correct `Content-Type` header (preventing content sniffing attacks).
+            // Therefore, direct output of the validated binary data is the correct approach here.
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting raw binary audio data with correct Content-Type header. Escaping would corrupt the data.
             echo $audioData;
             exit;
         }

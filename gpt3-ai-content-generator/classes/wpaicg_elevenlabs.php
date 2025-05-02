@@ -51,7 +51,6 @@ if(!class_exists('\\WPAICG\\WPAICG_ElevenLabs')) {
                 $this->models = $models;
             }
 
-            add_action('http_api_curl', array($this, 'filterCurlForStream'));
             add_action('wp_ajax_wpaicg_text_to_speech', [$this,'wpaicg_text_to_speech']);
             add_action('wp_ajax_nopriv_wpaicg_text_to_speech', [$this,'wpaicg_text_to_speech']);
             add_action('wp_ajax_wpaicg_speech_error_log', [$this,'wpaicg_speech_error_log']);
@@ -260,20 +259,9 @@ if(!class_exists('\\WPAICG\\WPAICG_ElevenLabs')) {
                 wp_send_json($result);
             }
             else {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting raw SSE line. Escaping would break the protocol. Client-side must handle payload securely.
                 echo $result;
                 die();
-            }
-        }
-
-
-        public function filterCurlForStream($handle)
-        {
-            if ($this->stream_method !== null){
-                curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
-                curl_setopt($handle, CURLOPT_WRITEFUNCTION, function ($curl_info, $data) {
-                    return call_user_func($this->stream_method, $this, $data);
-                });
             }
         }
 

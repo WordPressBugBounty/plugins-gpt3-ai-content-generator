@@ -122,7 +122,7 @@ else {
             var wpaicg_next_step = step+1;
             var wpaicg_step = steps[step];
             var product_id = $('#post_ID').val();
-            var data = {'action': 'wpaicg_product_generator', 'step': wpaicg_step,'title' : title,'product_id': product_id,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'}
+            var data = {'action': 'wpaicg_product_generator', 'step': wpaicg_step,'title' : title,'product_id': product_id,'nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'}
             if(wpaicg_step === 'title'){
                 wpaicg_generatorProcess(wpaicg_step,'<?php echo esc_html__('Generating Title','gpt3-ai-content-generator')?>');
             }
@@ -143,7 +143,7 @@ else {
             }
 
             $.ajax({
-                url: '<?php echo admin_url('admin-ajax.php')?>',
+                url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
                 data: data,
                 dataType: 'JSON',
                 type: 'POST',
@@ -194,9 +194,9 @@ else {
             else{
                 data += '&mode=edit';
             }
-            data += '&nonce=<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>';
+            data += '&nonce=<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>';
             $.ajax({
-                url: '<?php echo admin_url('admin-ajax.php')?>',
+                url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
                 data: data,
                 dataType: 'JSON',
                 type: 'POST',

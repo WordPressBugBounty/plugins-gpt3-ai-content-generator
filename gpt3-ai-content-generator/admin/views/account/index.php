@@ -164,14 +164,6 @@ if ($forms_limited) {
     $forms_left = ($forms_left <= 0) ? esc_html__('Out of Quota','gpt3-ai-content-generator') : $forms_left;
 }
 
-// 2) PROMPTBASE
-$wpaicg_promptbase_tokens = $wpaicg_playground->wpaicg_token_handling('promptbase');
-$promptbase_limited       = $wpaicg_promptbase_tokens['limited'];
-$promptbase_left          = $wpaicg_promptbase_tokens['left_tokens'] ?? 0;
-if ($promptbase_limited) {
-    $promptbase_left = ($promptbase_left <= 0) ? esc_html__('Out of Quota','gpt3-ai-content-generator') : $promptbase_left;
-}
-
 // 3) IMAGE
 $wpaicg_image_tokens = $wpaicg_playground->wpaicg_token_handling('image');
 $image_limited       = $wpaicg_image_tokens['limited'];
@@ -294,20 +286,36 @@ if ($wpaicg_chat_has_limit) {
 
 // Next: let's retrieve the usage logs for each module from wpaicg_token_logs
 // Because we have the user usage table at the bottom
-$logs_page          = isset($_GET['wpage']) ? (int)$_GET['wpage'] : 1;
+$logs_page          = isset($_GET['wpage']) ? absint($_GET['wpage']) : 1; // Sanitize page number
 $items_per_page     = 10;
 $offset             = ($logs_page - 1) * $items_per_page;
-$logs_query         = $wpdb->prepare(
-    "SELECT * FROM {$wpdb->prefix}wpaicg_token_logs WHERE user_id=%d ORDER BY created_at DESC",
-    $current_user_id
+$table_name         = $wpdb->prefix . 'wpaicg_token_logs'; // Store table name
+
+// Prepare and execute the total count query
+$total_rows = $wpdb->get_var(
+    $wpdb->prepare(
+        "SELECT COUNT(*) FROM {$table_name} WHERE user_id=%d",
+        $current_user_id
+    )
 );
-$total_query        = "SELECT COUNT(1) FROM ({$logs_query}) AS combined_table";
-$total_rows         = $wpdb->get_var($total_query);
-$usage_logs         = $wpdb->get_results($logs_query . $wpdb->prepare(" LIMIT %d,%d", $offset, $items_per_page));
-$total_pages        = ceil($total_rows / $items_per_page);
+
+// Prepare and execute the main logs query with LIMIT
+$usage_logs = $wpdb->get_results(
+    $wpdb->prepare(
+        "SELECT * FROM {$table_name} WHERE user_id=%d ORDER BY created_at DESC LIMIT %d, %d",
+        $current_user_id,
+        $offset,
+        $items_per_page
+    )
+);
+
+$total_pages        = $total_rows > 0 ? ceil($total_rows / $items_per_page) : 0; // Avoid division by zero if no rows
+
+// Ensure global $wp is available if needed for home_url on frontend
+global $wp;
 $current_url        = is_admin()
     ? admin_url('admin.php?page=wpaicg_myai_account')
-    : home_url($wp->request);
+    : (isset($wp) ? home_url(add_query_arg(array(), $wp->request)) : ''); // Use add_query_arg for frontend URL
 
 /**
  * Apple-like Minimal/Elegant CSS styling inline
@@ -489,23 +497,13 @@ $current_url        = is_admin()
         <?php endif; ?>
       </div>
 
-      <!-- Promptbase tokens -->
-      <div class="wpaicg-header-grid-item">
-        <h4><?php echo esc_html__('Promptbase','gpt3-ai-content-generator'); ?></h4>
-        <?php if ($promptbase_limited): ?>
-          <strong class="wpaicg-limited"><?php echo esc_html($promptbase_left); ?></strong>
-        <?php else: ?>
-          <strong class="wpaicg-available"><?php echo is_numeric($promptbase_left) ? (int)$promptbase_left : esc_html($promptbase_left); ?></strong>
-        <?php endif; ?>
-      </div>
-
       <!-- Image Generator tokens -->
       <div class="wpaicg-header-grid-item">
         <h4><?php echo esc_html__('Image Generator','gpt3-ai-content-generator'); ?></h4>
         <?php if ($image_limited): ?>
           <strong class="wpaicg-limited"><?php echo esc_html($image_left); ?></strong>
         <?php else: ?>
-          <strong class="wpaicg-available"><?php echo is_numeric($image_left) ? $image_left : esc_html($image_left); ?></strong>
+          <strong class="wpaicg-available"><?php echo is_numeric($image_left) ? esc_html($image_left) : esc_html($image_left); ?></strong>
         <?php endif; ?>
       </div>
 
@@ -559,16 +557,14 @@ $current_url        = is_admin()
                   $moduleLabel = esc_html__('Chatbot','gpt3-ai-content-generator');
               } elseif ($lg->module === 'image') {
                   $moduleLabel = esc_html__('Image Generator','gpt3-ai-content-generator');
-              } elseif ($lg->module === 'promptbase') {
-                  $moduleLabel = esc_html__('Promptbase','gpt3-ai-content-generator');
-              }
+              } 
               // For image, tokens are cost in $
               $value = $lg->module === 'image'
                        ? ('$' . $lg->tokens)
                        : $lg->tokens;
               ?>
               <tr>
-                <td><?php echo $moduleLabel; ?></td>
+                <td><?php echo esc_html($moduleLabel); ?></td>
                 <td><?php echo esc_html($value); ?></td>
                 <td><?php echo esc_html(gmdate('Y-m-d H:i', $lg->created_at)); ?></td>
               </tr>
@@ -583,9 +579,11 @@ $current_url        = is_admin()
         <div class="wpaicg-pagination">
           <?php
           for ($i = 1; $i <= $total_pages; $i++) {
+              // Determine class - content is known safe ('current' or '')
               $cls = ($i == $logs_page) ? 'current' : '';
               $link = add_query_arg(['wpage' => $i], $current_url);
-              echo '<a class="'.$cls.'" href="'.esc_url($link).'">'.(int)$i.'</a>';
+              // Escape class attribute (for linter), link URL, and page number (for HTML content)
+              echo '<a class="'.esc_attr($cls).'" href="'.esc_url($link).'">'.esc_html((int)$i).'</a>';
           }
           ?>
         </div>

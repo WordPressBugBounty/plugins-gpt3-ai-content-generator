@@ -10,11 +10,17 @@ $_wpaicg_shorten_woo_url = get_option('_wpaicg_shorten_woo_url', false);
 $wpaicg_generate_woo_focus_keyword = get_option('wpaicg_generate_woo_focus_keyword', false);
 $wpaicg_enforce_woo_keyword_in_url = get_option('wpaicg_enforce_woo_keyword_in_url', false);
 $wpaicg_woo_custom_prompt = get_option('wpaicg_woo_custom_prompt',false);
+// translators: %s: Product title.
 $wpaicg_woo_custom_prompt_title = get_option('wpaicg_woo_custom_prompt_title',esc_html__('Compose an SEO-optimized title in English for the following product: %s. Ensure it is engaging, concise, and includes relevant keywords to maximize its visibility on search engines.','gpt3-ai-content-generator'));
+// translators: %s: Product title.
 $wpaicg_woo_custom_prompt_short = get_option('wpaicg_woo_custom_prompt_short',esc_html__('Provide a compelling and concise summary in English for the following product: %s, highlighting its key features, benefits, and unique selling points.','gpt3-ai-content-generator'));
+// translators: %s: Product title.
 $wpaicg_woo_custom_prompt_description = get_option('wpaicg_woo_custom_prompt_description',esc_html__('Craft a comprehensive and engaging product description in English for: %s. Include specific details, features, and benefits, as well as the value it offers to the customer, thereby creating a compelling narrative around the product.','gpt3-ai-content-generator'));
+// translators: %s: Product title.
 $wpaicg_woo_custom_prompt_keywords = get_option('wpaicg_woo_custom_prompt_keywords',esc_html__('Propose a set of relevant keywords in English for the following product: %s. The keywords should be directly related to the product, enhancing its discoverability. Please present these keywords in a comma-separated format, avoiding the use of symbols such as -, #, etc.','gpt3-ai-content-generator'));
+// translators: %s: Product title.
 $wpaicg_woo_custom_prompt_meta = get_option('wpaicg_woo_custom_prompt_meta',esc_html__('Craft a compelling and concise meta description in English for: %s. Aim to highlight its key features and benefits within a limit of 155 characters, while incorporating relevant keywords for SEO effectiveness.','gpt3-ai-content-generator'));
+// translators: %s: Product title.
 $wpaicg_woo_custom_prompt_focus_keyword = get_option('wpaicg_woo_custom_prompt_focus_keyword', esc_html__('Identify the primary keyword for the following product: %s. Please respond in English. No additional comments, just the keyword.', 'gpt3-ai-content-generator'));
 function get_shortcode_text() {
     return '
@@ -126,7 +132,7 @@ function get_shortcode_text() {
                         </select>
                     </div>
                     <textarea rows="5" id="aipower_woo_custom_prompt_title" name="wpaicg_woo_custom_prompt_title"><?php echo esc_textarea(wp_unslash($wpaicg_woo_custom_prompt_title)); ?></textarea>
-                    <?php echo get_shortcode_text(); ?>
+                    <?php echo esc_html(get_shortcode_text()); ?>
                 </div>
             </div>
 
@@ -145,7 +151,7 @@ function get_shortcode_text() {
                         </select>
                     </div>
                     <textarea rows="5" id="aipower_custom_prompt_short" name="wpaicg_woo_custom_prompt_short"><?php echo esc_textarea(wp_unslash($wpaicg_woo_custom_prompt_short)); ?></textarea>
-                    <?php echo get_shortcode_text(); ?>
+                    <?php echo esc_html(get_shortcode_text()); ?>
                 </div>
             </div>
 
@@ -164,7 +170,7 @@ function get_shortcode_text() {
                         </select>
                     </div>
                     <textarea rows="5" id="aipower_custom_prompt_desc" name="wpaicg_woo_custom_prompt_description"><?php echo esc_textarea(wp_unslash($wpaicg_woo_custom_prompt_description)); ?></textarea>
-                    <?php echo get_shortcode_text(); ?>
+                    <?php echo esc_html(get_shortcode_text()); ?>
                 </div>
             </div>
 
@@ -183,7 +189,7 @@ function get_shortcode_text() {
                         </select>
                     </div>
                     <textarea rows="5" id="aipower_custom_prompt_meta" name="wpaicg_woo_custom_prompt_meta"><?php echo esc_textarea(wp_unslash($wpaicg_woo_custom_prompt_meta)); ?></textarea>
-                    <?php echo get_shortcode_text(); ?>
+                    <?php echo esc_html(get_shortcode_text()); ?>
                 </div>
             </div>
 
@@ -202,7 +208,7 @@ function get_shortcode_text() {
                         </select>
                     </div>
                     <textarea rows="5" id="aipower_custom_prompt_tags" name="wpaicg_woo_custom_prompt_keywords"><?php echo esc_textarea(wp_unslash($wpaicg_woo_custom_prompt_keywords)); ?></textarea>
-                    <?php echo get_shortcode_text(); ?>
+                    <?php echo esc_html(get_shortcode_text()); ?>
                 </div>
             </div>
             <!-- Focus Keyword Prompt-->
@@ -226,7 +232,7 @@ function get_shortcode_text() {
                         </select>
                     </div>
                     <textarea rows="5" id="aipower_custom_prompt_focus_keyword" name="wpaicg_woo_custom_prompt_focus_keyword"><?php echo esc_textarea(wp_unslash($wpaicg_woo_custom_prompt_focus_keyword)); ?></textarea>
-                    <?php echo get_shortcode_text(); ?>
+                    <?php echo esc_html(get_shortcode_text()); ?>
                     <?php else: ?>
                         <p><?php echo esc_html__('This feature is available in the Pro plan.', 'gpt3-ai-content-generator'); ?></p>
                     <?php endif; ?>

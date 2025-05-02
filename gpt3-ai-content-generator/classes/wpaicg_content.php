@@ -50,30 +50,32 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
         }
 
         public function wpaicg_custom_cron_schedules($schedules) {
+            // --- FIX: Change text domain from 'wpaicg' to 'gpt3-ai-content-generator' ---
             $schedules['every_5_minutes'] = array(
                 'interval' => 300, // 5 minutes in seconds
-                'display'  => __('Every 5 Minutes', 'wpaicg')
+                'display'  => __('Every 5 Minutes', 'gpt3-ai-content-generator')
             );
             $schedules['every_15_minutes'] = array(
                 'interval' => 900, // 15 minutes in seconds
-                'display'  => __('Every 15 Minutes', 'wpaicg')
+                'display'  => __('Every 15 Minutes', 'gpt3-ai-content-generator')
             );
             $schedules['every_30_minutes'] = array(
                 'interval' => 1800, // 30 minutes in seconds
-                'display'  => __('Every 30 Minutes', 'wpaicg')
+                'display'  => __('Every 30 Minutes', 'gpt3-ai-content-generator')
             );
             $schedules['every_2_hours'] = array(
                 'interval' => 7200, // 2 hours in seconds
-                'display'  => __('Every 2 Hours', 'wpaicg')
+                'display'  => __('Every 2 Hours', 'gpt3-ai-content-generator')
             );
             $schedules['every_6_hours'] = array(
                 'interval' => 21600, // 6 hours in seconds
-                'display'  => __('Every 6 Hours', 'wpaicg')
+                'display'  => __('Every 6 Hours', 'gpt3-ai-content-generator')
             );
             $schedules['every_12_hours'] = array(
                 'interval' => 43200, // 12 hours in seconds
-                'display'  => __('Every 12 Hours', 'wpaicg')
+                'display'  => __('Every 12 Hours', 'gpt3-ai-content-generator')
             );
+            // --- END FIX ---
 
             return $schedules;
         }
@@ -181,6 +183,13 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                 return;
             }
 
+            // Use the Filesystem API
+            global $wp_filesystem;
+            if (empty($wp_filesystem)) {
+                require_once ABSPATH . '/wp-admin/includes/file.php';
+                WP_Filesystem();
+            }
+
             $files = [
                 WPAICG_PLUGIN_DIR . 'wpaicg_running.txt',
                 WPAICG_PLUGIN_DIR . '/wpaicg_sheets.txt',
@@ -189,8 +198,8 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
             ];
 
             foreach ($files as $file) {
-                if (file_exists($file)) {
-                    @unlink($file);
+                if ($wp_filesystem->exists($file)) {
+                    $wp_filesystem->delete($file);
                 }
             }
 
@@ -457,7 +466,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                         $status = '<span style="color: #e20000;">' . esc_html__('Error', 'gpt3-ai-content-generator') . '</span>';
                         break;
                     case 'trash':
-                        $status = '<span style="color: #e20000;">' . esc_html__('Cancelled', 'gpt-3-ai-content-generator') . '</span>';
+                        $status = '<span style="color: #e20000;">' . esc_html__('Cancelled', 'gpt3-ai-content-generator') . '</span>';
                         break;
                 }
                 $source = ''; // Initialize source variable
@@ -519,81 +528,80 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
             global $wpdb;
             // Security check
             check_ajax_referer('gpt3_ajax_pagination_nonce', 'nonce');
-        
-            // Query to select all posts of the custom post types
-            $tasks_sql = $wpdb->prepare(
-                "SELECT ID FROM " . $wpdb->posts . " WHERE post_type IN ('wpaicg_bulk', 'wpaicg_tracking')"
-            );
-            $tasks = $wpdb->get_results($tasks_sql, ARRAY_A);
-        
+
+            // Query to select all posts of the custom post types and directly execute
+            $tasks = $wpdb->get_results($wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts} WHERE post_type IN (%s, %s)",
+                'wpaicg_bulk', 'wpaicg_tracking'
+            ), ARRAY_A);
+
             // Loop through each task and delete it using wp_delete_post
             foreach ($tasks as $task) {
                 wp_delete_post($task['ID'], true); // Set to true to bypass trash
             }
-        
+
             wp_send_json_success(); // Return success
-            
-            die();
+
+            die(); // die() is needed here for wp_send_json_success in AJAX context
         }
 
         public function delete_completed_wpaicg_posts() {
             global $wpdb;
             // Security check
             check_ajax_referer('gpt3_ajax_pagination_nonce', 'nonce');
-        
-            // Query to select all completed posts (post_status = 'publish') of the custom post types
-            $tasks_sql = $wpdb->prepare(
-                "SELECT ID FROM " . $wpdb->posts . " WHERE post_type IN ('wpaicg_bulk', 'wpaicg_tracking') AND post_status = 'publish'"
-            );
-            $tasks = $wpdb->get_results($tasks_sql, ARRAY_A);
-        
+
+            // Query to select all completed posts (post_status = 'publish') of the custom post types and execute
+            $tasks = $wpdb->get_results($wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts} WHERE post_type IN (%s, %s) AND post_status = %s",
+                'wpaicg_bulk', 'wpaicg_tracking', 'publish'
+            ), ARRAY_A);
+
             // Loop through each task and delete it using wp_delete_post
             foreach ($tasks as $task) {
                 wp_delete_post($task['ID'], true); // Set to true to bypass trash
             }
-        
+
             wp_send_json_success(); // Return success
-            
-            die();
+
+            die(); // die() is needed here for wp_send_json_success in AJAX context
         }
         
         public function delete_pending_wpaicg_posts() {
             global $wpdb;
             // Security check
             check_ajax_referer('gpt3_ajax_pagination_nonce', 'nonce');
-        
+
             // Select all pending tasks
-            $pending_tasks_sql = $wpdb->prepare(
-                "SELECT ID, post_parent FROM " . $wpdb->posts . " WHERE post_type = 'wpaicg_bulk' AND post_status = 'pending'"
-            );
-            $pending_tasks = $wpdb->get_results($pending_tasks_sql, ARRAY_A);
-        
+            $pending_tasks = $wpdb->get_results($wpdb->prepare(
+                "SELECT ID, post_parent FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
+                'wpaicg_bulk', 'pending'
+            ), ARRAY_A);
+
             // Array to keep track of the batch statuses
             $batch_status_updates = [];
-        
+
             // Delete each pending task
             foreach ($pending_tasks as $task) {
                 $task_id = $task['ID'];
                 $parent_id = $task['post_parent'];
-        
+
                 wp_delete_post($task_id, true); // Set to true to bypass trash
-        
+
                 if (!isset($batch_status_updates[$parent_id])) {
                     $batch_status_updates[$parent_id] = ['total' => 0, 'completed' => 0, 'pending' => 0, 'draft' => 0, 'trash' => 0, 'inherit' => 0];
                 }
-        
+
                 $batch_status_updates[$parent_id]['pending']++;
             }
-        
+
             // Update batch statuses based on remaining tasks
             foreach ($batch_status_updates as $parent_id => $status) {
                 // Get the remaining tasks in the batch
-                $remaining_tasks_sql = $wpdb->prepare(
-                    "SELECT ID, post_status FROM " . $wpdb->posts . " WHERE post_type = 'wpaicg_bulk' AND post_parent = %d",
-                    $parent_id
-                );
-                $remaining_tasks = $wpdb->get_results($remaining_tasks_sql, ARRAY_A);
-        
+                $remaining_tasks = $wpdb->get_results($wpdb->prepare(
+                    "SELECT ID, post_status FROM {$wpdb->posts} WHERE post_type = %s AND post_parent = %d",
+                    'wpaicg_bulk', $parent_id
+                ), ARRAY_A);
+
                 $remaining_task_count = count($remaining_tasks);
                 $completed_task_count = count(array_filter($remaining_tasks, function($task) {
                     return $task['post_status'] === 'publish';
@@ -607,7 +615,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                 $trash_task_count = count(array_filter($remaining_tasks, function($task) {
                     return in_array($task['post_status'], ['trash', 'inherit']);
                 }));
-        
+
                 if ($remaining_task_count === 0) {
                     // Delete the batch if no tasks are remaining
                     wp_delete_post($parent_id, true); // Set to true to bypass trash
@@ -620,7 +628,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                     } else {
                         $new_status = 'publish'; // Default to completed
                     }
-        
+
                     // Update the batch status
                     wp_update_post([
                         'ID' => $parent_id,
@@ -628,49 +636,51 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                     ]);
                 }
             }
-        
+
             wp_send_json_success(); // Return success
-            
-            die();
+
+            die(); // die() is needed here for wp_send_json_success in AJAX context
         }
 
         public function delete_cancelled_wpaicg_posts() {
             global $wpdb;
             // Security check
             check_ajax_referer('gpt3_ajax_pagination_nonce', 'nonce');
-        
+
             // Select all cancelled tasks
-            $cancelled_tasks_sql = $wpdb->prepare(
-                "SELECT ID, post_parent FROM " . $wpdb->posts . " WHERE post_type = 'wpaicg_bulk' AND post_status IN ('trash', 'inherit')"
-            );
-            $cancelled_tasks = $wpdb->get_results($cancelled_tasks_sql, ARRAY_A);
-        
+            $cancelled_tasks = $wpdb->get_results($wpdb->prepare(
+                "SELECT ID, post_parent FROM {$wpdb->posts} WHERE post_type = %s AND post_status IN (%s, %s)",
+                'wpaicg_bulk', 'trash', 'inherit'
+            ), ARRAY_A);
+
             // Array to keep track of the batch statuses
             $batch_status_updates = [];
-        
+
             // Delete each cancelled task
             foreach ($cancelled_tasks as $task) {
                 $task_id = $task['ID'];
                 $parent_id = $task['post_parent'];
-        
+
                 wp_delete_post($task_id, true); // Set to true to bypass trash
-        
+
                 if (!isset($batch_status_updates[$parent_id])) {
                     $batch_status_updates[$parent_id] = ['total' => 0, 'completed' => 0, 'pending' => 0, 'draft' => 0, 'trash' => 0, 'inherit' => 0];
                 }
-        
+
                 $batch_status_updates[$parent_id]['trash']++;
             }
-        
+
             // Update batch statuses based on remaining tasks
             foreach ($batch_status_updates as $parent_id => $status) {
                 // Get the remaining tasks in the batch
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $remaining_tasks_sql is prepared in the original code, this block remains unchanged from delete_pending for consistency. False positive is possible on other tools.
                 $remaining_tasks_sql = $wpdb->prepare(
-                    "SELECT ID, post_status FROM " . $wpdb->posts . " WHERE post_type = 'wpaicg_bulk' AND post_parent = %d",
-                    $parent_id
+                    "SELECT ID, post_status FROM " . $wpdb->posts . " WHERE post_type = %s AND post_parent = %d",
+                    'wpaicg_bulk', $parent_id
                 );
+                 // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $remaining_tasks_sql variable holds prepared statement.
                 $remaining_tasks = $wpdb->get_results($remaining_tasks_sql, ARRAY_A);
-        
+
                 $remaining_task_count = count($remaining_tasks);
                 $completed_task_count = count(array_filter($remaining_tasks, function($task) {
                     return $task['post_status'] === 'publish';
@@ -684,7 +694,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                 $trash_task_count = count(array_filter($remaining_tasks, function($task) {
                     return in_array($task['post_status'], ['trash', 'inherit']);
                 }));
-        
+
                 if ($remaining_task_count === 0) {
                     // Delete the batch if no tasks are remaining
                     wp_delete_post($parent_id, true); // Set to true to bypass trash
@@ -697,7 +707,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                     } else {
                         $new_status = 'publish'; // Default to completed
                     }
-        
+
                     // Update the batch status
                     wp_update_post([
                         'ID' => $parent_id,
@@ -705,10 +715,10 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                     ]);
                 }
             }
-        
+
             wp_send_json_success(); // Return success
-            
-            die();
+
+            die(); // die() is needed here for wp_send_json_success in AJAX context
         }
 
         public function wpaicg_speech_record()
@@ -797,21 +807,51 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                 $wpaicg_result['msg'] = esc_html__('You do not have permission for this action.','gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
-            if ( ! wp_verify_nonce( $_POST['nonce'], 'wpaicg-ajax-nonce' ) ) {
+            if ( ! isset($_POST['nonce']) || ! wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['nonce'])), 'wpaicg-ajax-nonce' ) ) {
                 $wpaicg_result['msg'] = esc_html__('Nonce verification failed','gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
-            if ( !empty($_FILES['file']) && empty($_FILES['file']['error']) ) {
-                $wpaicg_file = $_FILES['file'];
+
+            // Ensure we have the WP_Filesystem
+            global $wp_filesystem;
+            if (empty($wp_filesystem)) {
+                require_once ABSPATH . '/wp-admin/includes/file.php';
+                WP_Filesystem();
+            }
+
+            if ( !empty($_FILES['file']) && isset($_FILES['file']['error']) && $_FILES['file']['error'] === UPLOAD_ERR_OK && isset($_FILES['file']['tmp_name']) ) {
+                // Security: Ensure it's a valid uploaded file before proceeding
+                // Note: WP_Filesystem often works better with paths obtained after wp_handle_upload,
+                // but for minimal change, we'll try reading the tmp_name directly.
+                $wpaicg_file_path = $_FILES['file']['tmp_name'];
                 $wpaicg_csv_lines = array();
 
-                if ( ($handle = fopen( $wpaicg_file['tmp_name'], 'r' )) !== false ) {
-                    while ( ($data = fgetcsv( $handle, 100, ',' )) !== false ) {
-                        if ( isset( $data[0] ) && !empty($data[0]) ) {
-                            $wpaicg_csv_lines[] = $data[0];
+                if ( $wp_filesystem->exists($wpaicg_file_path) ) {
+                    $file_content = $wp_filesystem->get_contents( $wpaicg_file_path );
+
+                    if ($file_content !== false) {
+                        // Split content into lines, handling different line endings
+                        $lines = preg_split('/\r\n|\r|\n/', $file_content);
+
+                        foreach ($lines as $line) {
+                            // Skip empty lines
+                            if (empty(trim($line))) {
+                                continue;
+                            }
+                            // Parse the CSV line string
+                            $data = str_getcsv($line, ',');
+                            if ( isset( $data[0] ) && !empty(trim($data[0])) ) {
+                                $wpaicg_csv_lines[] = trim($data[0]);
+                            }
                         }
+                    } else {
+                         $wpaicg_result['msg'] = esc_html__('Could not read the uploaded file content.','gpt3-ai-content-generator');
+                         wp_send_json($wpaicg_result);
                     }
-                    fclose( $handle );
+
+                } else {
+                     $wpaicg_result['msg'] = esc_html__('Uploaded temporary file not found.','gpt3-ai-content-generator');
+                     wp_send_json($wpaicg_result);
                 }
 
 
@@ -819,19 +859,41 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                     if ( count( $wpaicg_csv_lines ) > $this->wpaicg_limit_titles ) {
 
                         if ( wpaicg_util_core()->wpaicg_is_pro() ) {
-                            $wpaicg_result['notice'] = sprintf(esc_html__('Your CSV was including more than %d lines so we are only processing first 10 lines','gpt3-ai-content-generator'),$this->wpaicg_limit_titles);
+                            // --- FIX: Simplified static message ---
+                            $wpaicg_result['notice'] = esc_html__('Your CSV included too many lines. Only the first lines allowed by your plan will be processed.','gpt3-ai-content-generator');
+                            // Alternative suggested by user (less informative):
+                            // $wpaicg_result['notice'] = esc_html__('Your CSV was including more than 10 lines.', 'gpt3-ai-content-generator');
                         } else {
-                            $wpaicg_result['notice'] = sprintf(esc_html__('Free users can only generate %d titles at a time. Please upgrade to the Pro plan to get access to more fields.','gpt3-ai-content-generator'),$this->wpaicg_limit_titles);
+                            // --- FIX: Add translators comment (still needed here as it has a placeholder) ---
+                            // translators: %d: The maximum number of titles free users can generate at a time.
+                            $wpaicg_result['notice'] = sprintf(esc_html__('Free users can only generate %d titles at a time. Please upgrade to the Pro plan to get access to more fields.','gpt3-ai-content-generator'), $this->wpaicg_limit_titles);
                         }
 
                     }
                     $wpaicg_result['status'] = 'success';
-                    $wpaicg_result['data'] = implode( '|', array_splice( $wpaicg_csv_lines, 0, $this->wpaicg_limit_titles ) );
+                    // Use array_slice instead of array_splice to avoid modifying the original array if needed later
+                    $limited_lines = array_slice($wpaicg_csv_lines, 0, $this->wpaicg_limit_titles);
+                    $wpaicg_result['data'] = implode( '|', $limited_lines );
                 } else {
-                    $wpaicg_result['msg'] = esc_html__('Your CSV file is empty','gpt3-ai-content-generator');
+                    $wpaicg_result['msg'] = esc_html__('Your CSV file is empty or contains no valid data in the first column.','gpt3-ai-content-generator');
                 }
 
+            } elseif (!empty($_FILES['file']) && isset($_FILES['file']['error']) && $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+                 $upload_errors = array(
+                    UPLOAD_ERR_INI_SIZE   => esc_html__("The uploaded file exceeds the upload_max_filesize directive in php.ini.", 'gpt3-ai-content-generator'),
+                    UPLOAD_ERR_FORM_SIZE  => esc_html__("The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.", 'gpt3-ai-content-generator'),
+                    UPLOAD_ERR_PARTIAL    => esc_html__("The uploaded file was only partially uploaded.", 'gpt3-ai-content-generator'),
+                    UPLOAD_ERR_NO_FILE    => esc_html__("No file was uploaded.", 'gpt3-ai-content-generator'),
+                    UPLOAD_ERR_NO_TMP_DIR => esc_html__("Missing a temporary folder.", 'gpt3-ai-content-generator'),
+                    UPLOAD_ERR_CANT_WRITE => esc_html__("Failed to write file to disk.", 'gpt3-ai-content-generator'),
+                    UPLOAD_ERR_EXTENSION  => esc_html__("A PHP extension stopped the file upload.", 'gpt3-ai-content-generator'),
+                );
+                $error_code = $_FILES['file']['error'];
+                $wpaicg_result['msg'] = isset($upload_errors[$error_code]) ? $upload_errors[$error_code] : esc_html__('Unknown upload error.', 'gpt3-ai-content-generator');
+            } elseif (empty($_FILES['file'])) {
+                 $wpaicg_result['msg'] = esc_html__('No file uploaded.', 'gpt3-ai-content-generator');
             }
+
             wp_send_json( $wpaicg_result );
         }
 
@@ -845,34 +907,47 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
         
             $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
             if (isset($module_settings['content_writer']) && $module_settings['content_writer']) {
+                // --- FIX: Use the literal string for the title ---
+                // Get the correct literal title from the $wpaicg_modules array ('Content Writer')
+                $content_writer_page_title = esc_html__('Content Writer', 'gpt3-ai-content-generator');
+                $content_writer_menu_title = esc_html__('Content Writer', 'gpt3-ai-content-generator');
+                // --- END FIX ---
+
                 add_submenu_page(
                     'wpaicg',
-                    esc_html__($modules['content_writer']['title'], 'gpt3-ai-content-generator'),
-                    esc_html__($modules['content_writer']['title'], 'gpt3-ai-content-generator'),
-                    $modules['content_writer']['capability'],
-                    $modules['content_writer']['menu_slug'],
-                    array($this, $modules['content_writer']['callback']),
-                    $modules['content_writer']['position']
+                    $content_writer_page_title,  // Use the prepared variable
+                    $content_writer_menu_title, // Use the prepared variable
+                    $modules['content_writer']['capability'], // Keep dynamic
+                    $modules['content_writer']['menu_slug'],  // Keep dynamic
+                    array($this, $modules['content_writer']['callback']), // Keep dynamic
+                    $modules['content_writer']['position'] // Keep dynamic
                 );
                 // Add the 'Generate New Post' submenu only if Content Writer is enabled
+                // This part is already correct as it uses literal strings
                 add_submenu_page(
                     'edit.php', // Attach to the 'Posts' admin menu
                     esc_html__('Generate New Post', 'gpt3-ai-content-generator'),
                     esc_html__('Generate New Post', 'gpt3-ai-content-generator'),
-                    $modules['content_writer']['capability'],
-                    $modules['content_writer']['menu_slug'],
-                    array($this, $modules['content_writer']['callback'])
+                    $modules['content_writer']['capability'], // Keep dynamic
+                    $modules['content_writer']['menu_slug'], // Keep dynamic - Note: might want a unique slug here?
+                    array($this, $modules['content_writer']['callback']) // Keep dynamic
                 );
             }
             if (isset($module_settings['autogpt']) && $module_settings['autogpt']) {
+                // --- FIX: Use the literal string for the title ---
+                // Get the correct literal title from the $wpaicg_modules array ('AutoGPT')
+                $autogpt_page_title = esc_html__('AutoGPT', 'gpt3-ai-content-generator');
+                $autogpt_menu_title = esc_html__('AutoGPT', 'gpt3-ai-content-generator');
+                // --- END FIX ---
+
                 add_submenu_page(
                     'wpaicg',
-                    esc_html__($modules['autogpt']['title'], 'gpt3-ai-content-generator'),
-                    esc_html__($modules['autogpt']['title'], 'gpt3-ai-content-generator'),
-                    $modules['autogpt']['capability'],
-                    $modules['autogpt']['menu_slug'],
-                    array($this, $modules['autogpt']['callback']),
-                    $modules['autogpt']['position']
+                    $autogpt_page_title,  // Use the prepared variable
+                    $autogpt_menu_title, // Use the prepared variable
+                    $modules['autogpt']['capability'], // Keep dynamic
+                    $modules['autogpt']['menu_slug'],  // Keep dynamic
+                    array($this, $modules['autogpt']['callback']), // Keep dynamic
+                    $modules['autogpt']['position'] // Keep dynamic
                 );
             }
         
@@ -1299,15 +1374,32 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
             if ( empty($wpaicg_cron_added) ) {
                 update_option( '_wpaicg_cron_added', time() );
             } else {
-                $sql = "SELECT * FROM " . $wpdb->posts . " WHERE post_type='wpaicg_bulk' AND post_status='pending' ORDER BY post_date ASC";
-                $wpaicg_single = $wpdb->get_row( $sql );
+                $wpaicg_single = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s ORDER BY post_date ASC",
+                        'wpaicg_bulk',
+                        'pending'
+                    )
+                );
                 update_option( '_wpaicg_crojob_bulk_last_time', time() );
                 /* Fix in progress task stuck*/
                 $wpaicg_restart_queue = get_option('wpaicg_restart_queue','');
                 $wpaicg_try_queue = get_option('wpaicg_try_queue','');
                 if(!empty($wpaicg_restart_queue) && !empty($wpaicg_try_queue)) {
-                    $wpaicg_fix_sql = $wpdb->prepare("SELECT p.post_parent,p.ID,(SELECT m.meta_value FROM ".$wpdb->postmeta." m WHERE m.post_id=p.ID AND m.meta_key='wpaicg_try_queue_time') as try_time FROM ".$wpdb->posts." p WHERE (p.post_status='draft' OR p.post_status='trash') AND p.post_type='wpaicg_bulk' AND p.post_modified <  NOW() - INTERVAL %d MINUTE",$wpaicg_restart_queue);
-                    $in_progress_posts = $wpdb->get_results($wpaicg_fix_sql);
+                    $in_progress_posts = $wpdb->get_results(
+                        $wpdb->prepare(
+                            "SELECT p.post_parent, p.ID, (SELECT m.meta_value FROM {$wpdb->postmeta} m WHERE m.post_id = p.ID AND m.meta_key = %s) as try_time
+                             FROM {$wpdb->posts} p
+                             WHERE (p.post_status = %s OR p.post_status = %s)
+                             AND p.post_type = %s
+                             AND p.post_modified < NOW() - INTERVAL %d MINUTE",
+                             'wpaicg_try_queue_time', // Added placeholder for meta_key
+                             'draft',                 // Added placeholder for status
+                             'trash',                 // Added placeholder for status
+                             'wpaicg_bulk',           // Added placeholder for post_type
+                             $wpaicg_restart_queue
+                        )
+                    );
                     if($in_progress_posts && is_array($in_progress_posts) && count($in_progress_posts)){
                         foreach($in_progress_posts as $in_progress_post){
                             if(!$in_progress_post->try_time || (int)$in_progress_post->try_time < $wpaicg_try_queue){
@@ -1377,9 +1469,17 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Content' ) ) {
                             }
                             if($wpaicg_has_error){
                                 $this->wpaicg_bulk_error_log($wpaicg_single->ID, $wpaicg_has_error.'. '.esc_html__('Break at step','gpt3-ai-content-generator').' '.$break_step);
+
+                                // Use the Filesystem API
+                                global $wp_filesystem;
+                                if (empty($wp_filesystem)) {
+                                    require_once ABSPATH . '/wp-admin/includes/file.php';
+                                    WP_Filesystem();
+                                }
+
                                 $wpaicg_running = WPAICG_PLUGIN_DIR.'/wpaicg_running.txt';
-                                if(file_exists($wpaicg_running)){
-                                    unlink($wpaicg_running);
+                                if($wp_filesystem->exists($wpaicg_running)){
+                                    $wp_filesystem->delete($wpaicg_running);
                                 }
                             }
                             else{

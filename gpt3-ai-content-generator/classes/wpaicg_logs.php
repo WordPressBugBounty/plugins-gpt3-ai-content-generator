@@ -135,6 +135,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
         }
 
 
+
         /**
          * Render the Logs Table with Optional Search
          *
@@ -166,36 +167,45 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                 dbDelta($sql);
             }
         
-            $query = "SELECT * FROM $logs_table";
-            $query_params = array();
-        
+            $all_logs = [];
             if (!empty($search_term)) {
-                $search_condition = " WHERE log_session LIKE %s OR page_title LIKE %s OR source LIKE %s OR data LIKE %s";
-                $query .= $search_condition;
                 $like_term = '%' . $wpdb->esc_like($search_term) . '%';
-                $query_params = array($like_term, $like_term, $like_term, $like_term);
-            }
         
-            // Fetch all matching logs (no LIMIT yet)
-            $query .= " ORDER BY created_at DESC";
-            if (!empty($query_params)) {
-                $all_logs = $wpdb->get_results($wpdb->prepare($query, $query_params));
+                $all_logs = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "
+                        SELECT * FROM $logs_table
+                        WHERE log_session LIKE %s
+                           OR page_title LIKE %s
+                           OR source LIKE %s
+                           OR data LIKE %s
+                        ORDER BY created_at DESC
+                        ",
+                        $like_term,
+                        $like_term,
+                        $like_term,
+                        $like_term
+                    )
+                );
             } else {
-                $all_logs = $wpdb->get_results($query);
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static query with no user input, safe to run directly.
+                $all_logs = $wpdb->get_results(
+                    "
+                    SELECT * FROM $logs_table
+                    ORDER BY created_at DESC
+                    "
+                );
             }
         
-            // Now we have all logs that match the search
+            // Pagination
             $total_logs = count($all_logs);
             $total_pages = ceil($total_logs / $logs_per_page);
-        
-            // Slice the array to get only the logs for the current page
             $logs = array_slice($all_logs, $offset, $logs_per_page);
         
-            // Arrays to hold all leads and feedback from ALL matching logs (not just current page)
+            // Prepare arrays for processing logs
             $all_leads = array();
             $all_feedback = array();
         
-            // Process ALL logs to gather all leads and feedback
             if ($all_logs) {
                 foreach ($all_logs as $log) {
                     $data = json_decode($log->data, true);
@@ -385,7 +395,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                     <td>
                                         <div class="aipower-token-cell">
                                             <?php echo esc_html($total_tokens); ?>
-                                            <span class="dashicons dashicons-info aipower-log-info-icon" data-details='<?php echo $encoded_message_details; ?>' title="<?php echo esc_attr__('View Token Details', 'gpt3-ai-content-generator'); ?>"></span>
+                                            <span class="dashicons dashicons-info aipower-log-info-icon" data-details='<?php echo esc_attr( $encoded_message_details ); ?>' title="<?php echo esc_attr__('View Token Details', 'gpt3-ai-content-generator'); ?>"></span>
                                         </div>
                                     </td>
                                     <td style="position: relative;">
@@ -589,13 +599,13 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                             // Start a container for this conversation
                             ?>
                             <div class="aipower-conversation">
-                                <div class="aipower-log-message user">
+                            <div class="aipower-log-message user">
                                     <p>
-                                        <strong><?php echo esc_html__('User:', 'gpt3-ai-content-generator'); ?></strong> 
+                                        <strong><?php echo esc_html__('User:', 'gpt3-ai-content-generator'); ?></strong>
                                         <?php echo esc_html($message['message']); ?>
                                         <?php if (isset($message['flag']) && $message['flag'] !== false): ?>
                                             <!-- Flag Icon with Tooltip -->
-                                            <span class="dashicons dashicons-flag aipower-flag-icon" title="<?php echo esc_attr__('Flag Reason: ' . $message['flag']); ?>"></span>
+                                            <span class="dashicons dashicons-flag aipower-flag-icon" title="<?php echo esc_attr( 'Flag Reason: ' . $message['flag'] ); ?>"></span>
                                             <span class="aipower-flag-reasons"><?php echo esc_html__('Flagged as', 'gpt3-ai-content-generator') . ' ' . esc_html($message['flag']); ?></span>
                                         <?php endif; ?>
                                     </p>
@@ -628,8 +638,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
                                         // Output the AI response with additional elements
                                         ?>
                                         <div class="aipower-log-message ai">
-                                            <p><strong><?php echo esc_html__('AI:', 'gpt3-ai-content-generator'); ?></strong> <?php echo self::aipower_simple_markdown_parser($next_message['message']); ?></p>
-                                            <p><em><?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), intval($next_message['date']))); ?></em></p>
+                                            <p><strong><?php echo esc_html__('AI:', 'gpt3-ai-content-generator'); ?></strong> <?php echo wp_kses_post( self::aipower_simple_markdown_parser($next_message['message']) ); ?></p>                                            <p><em><?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), intval($next_message['date']))); ?></em></p>
                                             
                                             <?php
                                             // Check and display Confident Score if available
@@ -849,139 +858,188 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Logs' ) ) {
          * Handle AJAX Request to Count Logs for Export
          */
         public function aipower_count_export_logs() {
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error(array('message' => __('You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator')));
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array(
+                    'message' => __( 'You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator' )
+                ) );
                 return;
             }
-
-            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
-                wp_send_json_error(array('message' => __('Nonce verification failed', 'gpt3-ai-content-generator')));
+        
+            if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce' ) ) {
+                wp_send_json_error( array(
+                    'message' => __( 'Nonce verification failed', 'gpt3-ai-content-generator' )
+                ) );
                 return;
             }
-
-            $search_term = isset($_POST['search_term']) ? sanitize_text_field($_POST['search_term']) : '';
-
+        
+            $search_term = isset( $_POST['search_term'] ) ? sanitize_text_field( $_POST['search_term'] ) : '';
+        
             global $wpdb;
             $logs_table = $wpdb->prefix . 'wpaicg_chatlogs';
-
-            $query = "SELECT COUNT(*) FROM $logs_table";
-            $query_params = array();
-
-            if (!empty($search_term)) {
-                $like_term = '%' . $wpdb->esc_like($search_term) . '%';
-                $query .= " WHERE log_session LIKE %s OR page_title LIKE %s OR source LIKE %s OR data LIKE %s";
-                $query_params = array($like_term, $like_term, $like_term, $like_term);
-            }
-
-            $total_logs = $wpdb->get_var($wpdb->prepare($query, $query_params));
-
-            wp_send_json_success(array('total_logs' => intval($total_logs)));
-        }
-
-        /**
-         * Handle AJAX Request to Check if Uploads Directory is Writable
-         */
-        public function aipower_check_uploads_writable() {
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error(array('message' => __('You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator')));
-                return;
-            }
-
-            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
-                wp_send_json_error(array('message' => __('Nonce verification failed', 'gpt3-ai-content-generator')));
-                return;
-            }
-
-            $upload_dir = wp_upload_dir();
-
-            if (is_writable($upload_dir['basedir'])) {
-                wp_send_json_success();
+        
+            if ( ! empty( $search_term ) ) {
+                $like_term = '%' . $wpdb->esc_like( $search_term ) . '%';
+        
+                $total_logs = $wpdb->get_var(
+                    $wpdb->prepare(
+                        "
+                        SELECT COUNT(*)
+                        FROM {$logs_table}
+                        WHERE log_session LIKE %s
+                           OR page_title LIKE %s
+                           OR source LIKE %s
+                           OR data LIKE %s
+                        ",
+                        $like_term,
+                        $like_term,
+                        $like_term,
+                        $like_term
+                    )
+                );
             } else {
-                wp_send_json_error(array('message' => __('The uploads folder is not writable. Please check the folder permissions.', 'gpt3-ai-content-generator')));
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static query with no user input
+                $total_logs = $wpdb->get_var(
+                    "SELECT COUNT(*) FROM {$logs_table}"
+                );
             }
+        
+            wp_send_json_success( array( 'total_logs' => intval( $total_logs ) ) );
         }
+        
 
-        /**
-         * Handle AJAX Request to Export Logs to CSV
-         */
-        public function aipower_export_logs() {
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error(array('message' => __('You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator')));
-                return;
-            }
+/**
+ * Handle AJAX request: “Is the uploads directory writable?”
+ */
+public function aipower_check_uploads_writable() {
 
-            if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce')) {
-                wp_send_json_error(array('message' => __('Nonce verification failed', 'gpt3-ai-content-generator')));
-                return;
-            }
+	// Capability + nonce checks.
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( [ 'message' => __( 'You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator' ) ] );
+	}
 
-            $search_term = isset($_POST['search_term']) ? sanitize_text_field($_POST['search_term']) : '';
+	if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce' ) ) {
+		wp_send_json_error( [ 'message' => __( 'Nonce verification failed', 'gpt3-ai-content-generator' ) ] );
+	}
 
-            global $wpdb;
-            $logs_table = $wpdb->prefix . 'wpaicg_chatlogs';
+	// Boot WP_Filesystem.
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	WP_Filesystem();
+	global $wp_filesystem;                            // Now we can safely call FS helpers.
 
-            // Prepare the query
-            $query = "SELECT * FROM $logs_table";
-            $query_params = array();
+	$upload_dir = wp_upload_dir();
 
-            if (!empty($search_term)) {
-                $like_term = '%' . $wpdb->esc_like($search_term) . '%';
-                $query .= " WHERE log_session LIKE %s OR page_title LIKE %s OR source LIKE %s OR data LIKE %s";
-                $query_params = array($like_term, $like_term, $like_term, $like_term);
-            }
+	if ( $wp_filesystem->is_writable( $upload_dir['basedir'] ) ) {    // ✔ no is_writable()
+		wp_send_json_success();
+	} else {
+		wp_send_json_error( [
+			'message' => __( 'The uploads folder is not writable. Please check the folder permissions.', 'gpt3-ai-content-generator' ),
+		] );
+	}
+}
 
-            $query .= " ORDER BY created_at DESC";
 
-            // Retrieve the logs
-            $logs = $wpdb->get_results($wpdb->prepare($query, $query_params));
+/**
+ * Handle AJAX request: Export chat-logs to CSV (saved in uploads/).
+ */
+public function aipower_export_logs() {
 
-            if (!$logs) {
-                wp_send_json_error(array('message' => __('No logs found to export.', 'gpt3-ai-content-generator')));
-                return;
-            }
+    // Capability + nonce checks.
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( [ 'message' => __( 'You do not have sufficient permissions to perform this action.', 'gpt3-ai-content-generator' ) ] );
+    }
 
-            // Check uploads directory again for safety
-            $upload_dir = wp_upload_dir();
-            if (!is_writable($upload_dir['basedir'])) {
-                wp_send_json_error(array('message' => __('The uploads folder is not writable. Please check the folder permissions.', 'gpt3-ai-content-generator')));
-                return;
-            }
+    if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wpaicg_save_ai_engine_nonce' ) ) {
+        wp_send_json_error( [ 'message' => __( 'Nonce verification failed', 'gpt3-ai-content-generator' ) ] );
+    }
 
-            // Generate filename
-            $timestamp = current_time('Ymd_His');
-            $filename = "aipower_chat_logs_{$timestamp}.csv";
-            $file_path = trailingslashit($upload_dir['basedir']) . $filename;
+    $search_term = isset( $_POST['search_term'] ) ? sanitize_text_field( $_POST['search_term'] ) : '';
 
-            // Open file for writing
-            $file = fopen($file_path, 'w');
-            if ($file === false) {
-                wp_send_json_error(array('message' => __('Failed to create CSV file.', 'gpt3-ai-content-generator')));
-                return;
-            }
+    global $wpdb;
+    $table = $wpdb->prefix . 'wpaicg_chatlogs';
 
-            // Write CSV headers
-            fputcsv($file, array('ID', 'Session ID', 'Page Title', 'Source', 'Created At', 'Data'));
+    if ( $search_term !== '' ) {
+        $like = '%' . $wpdb->esc_like( $search_term ) . '%';
 
-            // Iterate through logs and write to CSV
-            foreach ($logs as $log) {
-                // Optionally, you can format the data as needed
-                fputcsv($file, array(
-                    $log->id,
-                    $log->log_session,
-                    $log->page_title,
-                    $log->source,
-                    $log->created_at,
-                    $log->data
-                ));
-            }
+        $logs = $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT * FROM {$table}
+                WHERE log_session LIKE %s
+                   OR page_title LIKE %s
+                   OR source LIKE %s
+                   OR data LIKE %s
+                ORDER BY created_at DESC
+                ",
+                $like,
+                $like,
+                $like,
+                $like
+            )
+        );
+    } else {
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static query with no user input
+        $logs = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY created_at DESC" );
+    }
 
-            fclose($file);
+    if ( empty( $logs ) ) {
+        wp_send_json_error( [ 'message' => __( 'No logs found to export.', 'gpt3-ai-content-generator' ) ] );
+    }
 
-            // Generate file URL
-            $file_url = trailingslashit($upload_dir['baseurl']) . $filename;
+    // Boot WP_Filesystem *once* per request.
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    WP_Filesystem();
+    global $wp_filesystem;
 
-            wp_send_json_success(array('file_url' => esc_url($file_url)));
-        }
+    $upload_dir = wp_upload_dir();
+
+    if ( ! $wp_filesystem->is_writable( $upload_dir['basedir'] ) ) {
+        wp_send_json_error( [ 'message' => __( 'The uploads folder is not writable. Please check the folder permissions.', 'gpt3-ai-content-generator' ) ] );
+    }
+
+    // Build CSV in-memory (no fopen/fclose).
+    $eol = "\r\n";
+    $csv = 'ID,Session ID,Page Title,Source,Created At,Data' . $eol;
+
+    foreach ( $logs as $log ) {
+        $row = [
+            $log->id,
+            $log->log_session,
+            $log->page_title,
+            $log->source,
+            $log->created_at,
+            $log->data,
+        ];
+
+        // Escape double-quotes inside each cell per RFC 4180.
+        $row = array_map(
+            static function ( $field ) {
+                $field = (string) $field;
+                $field = str_replace( '"', '""', $field );
+                return '"' . $field . '"';
+            },
+            $row
+        );
+
+        $csv .= implode( ',', $row ) . $eol;
+    }
+
+    $timestamp  = current_time( 'Ymd_His' );
+    $filename   = "aipower_chat_logs_{$timestamp}.csv";
+    $file_path  = trailingslashit( $upload_dir['basedir'] ) . $filename;
+
+    // Write the file through WP_Filesystem.
+    $written = $wp_filesystem->put_contents( $file_path, $csv, FS_CHMOD_FILE );
+
+    if ( ! $written ) {
+        wp_send_json_error( [ 'message' => __( 'Failed to create CSV file.', 'gpt3-ai-content-generator' ) ] );
+    }
+
+    $file_url = trailingslashit( $upload_dir['baseurl'] ) . $filename;
+    wp_send_json_success( [ 'file_url' => esc_url_raw( $file_url ) ] );
+}
+
+
+
 
         /**
          * Handle AJAX Request to Block an IP

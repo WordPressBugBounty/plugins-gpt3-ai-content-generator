@@ -285,7 +285,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Assistants')) {
                 if (is_array($data) || is_object($data)) {
                     $data = json_encode($data);
                 }
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting raw SSE event. Escaping would break the protocol.
                 echo "event: {$event}\n";
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting raw SSE line. Escaping would break the protocol.
                 echo "data: {$data}\n\n";
                 flush();
             }
@@ -350,6 +352,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Assistants')) {
             // Define a stream function to handle incoming data
             $stream_function = function ($data) {
                 // Output the data directly
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting raw SSE data. Escaping would break the protocol.
                 echo $data;
                 flush();
             };

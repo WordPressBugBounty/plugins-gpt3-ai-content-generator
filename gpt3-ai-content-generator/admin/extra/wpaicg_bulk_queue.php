@@ -30,16 +30,16 @@ $wpaicg_cron_tweet_added = get_option('wpaicg_cron_tweet_added', '');
 $is_pro_plan = \WPAICG\wpaicg_util_core()->wpaicg_is_pro();
 
 $wpaicg_cronjob_last_run_queue = get_option('_wpaicg_crojob_bulk_last_time','');
-$humanReadableQueue = (!empty($wpaicg_cronjob_last_run_queue)) ? date('y-m-d H:i', $wpaicg_cronjob_last_run_queue) : 'NA';
+$humanReadableQueue = (!empty($wpaicg_cronjob_last_run_queue)) ? gmdate('y-m-d H:i', $wpaicg_cronjob_last_run_queue) : 'NA';
 
 $wpaicg_cronjob_last_run_sheets = get_option('wpaicg_crojob_sheets_last_time','');
-$humanReadableSheets = (!empty($wpaicg_cronjob_last_run_sheets)) ? date('y-m-d H:i', $wpaicg_cronjob_last_run_sheets) : 'NA';
+$humanReadableSheets = (!empty($wpaicg_cronjob_last_run_sheets)) ? gmdate('y-m-d H:i', $wpaicg_cronjob_last_run_sheets) : 'NA';
 
 $wpaicg_cronjob_last_run_rss = get_option('_wpaicg_crojob_rss_last_time','');
-$humanReadableRss = (!empty($wpaicg_cronjob_last_run_rss)) ? date('y-m-d H:i', $wpaicg_cronjob_last_run_rss) : 'NA';
+$humanReadableRss = (!empty($wpaicg_cronjob_last_run_rss)) ? gmdate('y-m-d H:i', $wpaicg_cronjob_last_run_rss) : 'NA';
 
 $wpaicg_cronjob_last_run_tweet = get_option('wpaicg_cron_tweet_last_time','');
-$humanReadableTweet = (!empty($wpaicg_cronjob_last_run_tweet)) ? date('y-m-d H:i', $wpaicg_cronjob_last_run_tweet) : 'NA';
+$humanReadableTweet = (!empty($wpaicg_cronjob_last_run_tweet)) ? gmdate('y-m-d H:i', $wpaicg_cronjob_last_run_tweet) : 'NA';
 
 // Schedule options
 $schedule_options = [
@@ -151,7 +151,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
 </table>
 <p></p>
 <div class="content-area">
-    <input type="hidden" id="gpt3_pagination_nonce" value="<?php echo wp_create_nonce('gpt3_ajax_pagination_nonce'); ?>">
+    <input type="hidden" id="gpt3_pagination_nonce" value="<?php echo esc_attr( wp_create_nonce('gpt3_ajax_pagination_nonce') ); ?>">
     <table id="paginated-table" class="wp-list-table widefat fixed striped table-view-list comments">
         <thead>
         <tr>
@@ -217,7 +217,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
     </table>
     <div class="gpt3-pagination" style="margin-top: 0.5em;">
         <?php for($i = 1; $i <= $total_pages; $i++): ?>
-            <a href="#" data-page="<?php echo $i; ?>"><?php echo $i; ?></a>
+            <a href="#" data-page="<?php echo esc_attr( $i ); ?>"><?php echo esc_html( $i ); ?></a>
         <?php endfor; ?>
     </div>
     <p></p>
@@ -278,7 +278,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
         $('#clear-all').on('click', function() {
             if (confirm('Are you sure you want to delete all tasks? This action cannot be undone.')) {
                 var nonce = $('#gpt3_pagination_nonce').val();
-                var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+                var ajaxurl = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
 
                 $.ajax({
                     url: ajaxurl,
@@ -304,7 +304,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
         $('#clear-completed').on('click', function() {
             if (confirm('Are you sure you want to delete all completed tasks? This action cannot be undone.')) {
                 var nonce = $('#gpt3_pagination_nonce').val();
-                var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+                var ajaxurl = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
 
                 $.ajax({
                     url: ajaxurl,
@@ -330,7 +330,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
         $('#clear-pending').on('click', function() {
             if (confirm('Are you sure you want to delete all pending tasks? This action cannot be undone.')) {
                 var nonce = $('#gpt3_pagination_nonce').val();
-                var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+                var ajaxurl = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
 
                 $.ajax({
                     url: ajaxurl,
@@ -356,7 +356,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
         $('#clear-cancelled').on('click', function() {
             if (confirm('Are you sure you want to delete all cancelled tasks? This action cannot be undone.')) {
                 var nonce = $('#gpt3_pagination_nonce').val();
-                var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+                var ajaxurl = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
 
                 $.ajax({
                     url: ajaxurl,
@@ -382,13 +382,13 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
         // Function to save schedule
         function saveSchedule(task, value) {
             $.ajax({
-                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                url: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
                 type: 'post',
                 data: {
                     action: 'save_schedule',
                     task: task,
                     value: value,
-                    nonce: '<?php echo wp_create_nonce('save_schedule_nonce'); ?>'
+                    nonce: '<?php echo esc_js( wp_create_nonce('save_schedule_nonce') ); ?>'
                 },
                 success: function(response) {
                     if (!response.success) {
@@ -411,7 +411,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
             $('.show-details').off('click').on('click', function(e) {
                 e.preventDefault();
                 var batchId = $(this).data('id');
-                var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+                var ajaxurl = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
                 var $clickedRow = $(this).closest('tr');
 
                 $.ajax({
@@ -420,7 +420,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
                     data: {
                         action: 'fetch_batch_details',
                         batchId: batchId,
-                        nonce: '<?php echo wp_create_nonce('fetch_batch_details_nonce'); ?>'
+                        nonce: '<?php echo esc_js( wp_create_nonce('fetch_batch_details_nonce') ); ?>'
                     },
                     beforeSend: function() {
                         $('.details-row').remove();
@@ -449,7 +449,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
         $(document).on('click', '.gpt3-pagination a', function(e){
             e.preventDefault();
             var page = $(this).data('page');
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+            var ajaxurl = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
             var nonce = $('#gpt3_pagination_nonce').val();
 
             $.ajax({
@@ -473,7 +473,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
         // Handle reload items button click
         $('#reload-items').on('click', function(e) {
             e.preventDefault();
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+            var ajaxurl = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
             var nonce = $('#gpt3_pagination_nonce').val();
             $('#reload-icon').addClass('spinrefresh'); 
 
@@ -504,7 +504,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
         // Handle restart queue button click
         $('#restart-queue').on('click', function(e) {
             e.preventDefault();
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>'; // WordPress AJAX
+            var ajaxurl = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
 
             $.ajax({
                 url: ajaxurl,
@@ -527,7 +527,7 @@ $schedule_tweet = get_option('wpaicg_cron_tweet_schedule', 'none');
             var $this = $(this);
             var postid = $this.data('postid');
             var nonce = $('#gpt3_pagination_nonce').val();
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+            var ajaxurl = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
 
             if (confirm('Are you sure you want to delete this post?')) {
                 $.ajax({

@@ -56,8 +56,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Comment')) {
                                     alert('<?php echo esc_html__('Can not find ID of comment or review.', 'gpt3-ai-content-generator')?>');
                                 } else {
                                     wpaicgGeneratorCommentWorking = $.ajax({
-                                        url: '<?php echo admin_url('admin-ajax.php')?>',
-                                        data: {action: 'wpaicg_comment_replier',id: id,_wpnonce: '<?php echo wp_create_nonce('wpaicg_comment_replier')?>'},
+                                        url: '<?php echo esc_url_raw( admin_url('admin-ajax.php') ); ?>',
+                                        data: {action: 'wpaicg_comment_replier',id: id,_wpnonce: '<?php echo esc_js( wp_create_nonce('wpaicg_comment_replier') ); ?>'},
                                         type: 'POST',
                                         dataType: 'JSON',
                                         beforeSend: function (){

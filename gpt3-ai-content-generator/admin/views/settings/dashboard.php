@@ -72,7 +72,7 @@ update_chat_options('wpaicg_chat_widget', $new_default_fields);
                 ?>
                 <li data-module="<?php echo esc_attr($module_key); ?>" style="<?php echo (isset($module_settings[$module_key]) && $module_settings[$module_key]) ? '' : 'display: none;'; ?>">
                     <a href="<?php echo esc_url(admin_url('admin.php?page=' . $module_data['href'])); ?>" class="aipower-nav-link">
-                        <?php echo $module_data['icon']; ?>
+                        <?php echo wp_kses_post($module_data['icon']); // Sanitize icon HTML ?>
                         <?php echo esc_html($module_data['title']); ?>
                     </a>
                 </li>
@@ -91,7 +91,7 @@ update_chat_options('wpaicg_chat_widget', $new_default_fields);
                 <p id="aipower-delete-progress-counter">0/0</p>
             </div>
         </div>
-        <input type="hidden" id="ai-engine-nonce" value="<?php echo wp_create_nonce('wpaicg_save_ai_engine_nonce'); ?>">
+        <input type="hidden" id="ai-engine-nonce" value="<?php echo esc_attr(wp_create_nonce('wpaicg_save_ai_engine_nonce')); ?>">
     </header>
 
     <!-- Tab Navigation -->

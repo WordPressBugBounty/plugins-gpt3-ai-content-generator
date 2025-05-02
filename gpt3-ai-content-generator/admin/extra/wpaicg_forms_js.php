@@ -888,7 +888,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             dataType: 'json',
             data: {
                 action: 'wpaicg_delete_all_logs',
-                nonce: '<?php echo wp_create_nonce("wpaicg_delete_all_logs_nonce"); ?>'
+                nonce: '<?php echo esc_js( wp_create_nonce("wpaicg_delete_all_logs_nonce") ); ?>'
             },
             success: function(resp){
                 if(resp.success){

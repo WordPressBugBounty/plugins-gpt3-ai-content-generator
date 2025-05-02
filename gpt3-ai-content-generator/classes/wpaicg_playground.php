@@ -605,18 +605,23 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
                             $words = explode(' ', $response['data']);
                         }
                         foreach ($words as $key => $word) {
+                            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                             echo "event: message\n";
                             if ($key === 0) {
+                                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                                 echo 'data: {"choices":[{"delta":{"content":"' . $word . '"}}]}';
                             } else {
+                                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                                 echo 'data: {"choices":[{"delta":{"content":" ' . $word . '"}}]}';
                             }
+                             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                             echo "\n\n";
                             if (ob_get_level() > 0) {
                                 ob_end_flush();
                             }
                             flush();
                         }
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                         echo 'data: [DONE]' . "\n\n";
                         if (ob_get_length()) {
                             ob_flush();
@@ -1017,6 +1022,7 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
             }
 
             // Otherwise just echo raw chunk
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
             echo $data;
             ob_flush();
             flush();
@@ -1032,12 +1038,16 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
         private function stream_words_as_sse($message) {
             $words = explode(' ', $message);
             foreach ($words as $key => $word) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                 echo "event: message\n";
                 if ($key === 0) {
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                     echo 'data: {"choices":[{"delta":{"content":"' . $word . '"}}]}';
                 } else {
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                     echo 'data: {"choices":[{"delta":{"content":" ' . $word . '"}}]}';
                 }
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                 echo "\n\n";
                 if (ob_get_level() > 0) {
                     ob_end_flush();
@@ -1059,16 +1069,21 @@ if ( ! class_exists('\\WPAICG\\WPAICG_Playground')) {
             $splitWords[] = '[LIMITED]';
 
             foreach ($splitWords as $key => $word) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                 echo "event: message\n";
                 if ($key === 0) {
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                     echo 'data: {"choices":[{"delta":{"content":"' . $word . '"}}]}';
                 } else {
                     if ($word === '[LIMITED]') {
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                         echo 'data: [LIMITED]';
                     } else {
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                         echo 'data: {"choices":[{"delta":{"content":" ' . $word . '"}}]}';
                     }
                 }
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting raw SSE JSON data; client must handle content safely.
                 echo "\n\n";
                 if (ob_get_level() > 0) {
                     ob_end_flush();

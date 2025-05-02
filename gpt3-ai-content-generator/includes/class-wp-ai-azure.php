@@ -200,47 +200,56 @@ if (!class_exists('\\WPAICG\\WPAICG_AzureAI')) {
         {
             // Fetch the Azure API key from wp_options table
             $azure_api_key = get_option('wpaicg_azure_api_key', ''); // Default to an empty string if not set
-            
+        
             if (!empty($azure_api_key)) {
                 add_action('http_api_curl', array($this, 'filterCurlForStream'));
                 $this->headers = [
                     'Content-Type' => 'application/json',
-                    'api-key' => $azure_api_key,
+                    'api-key'      => $azure_api_key,
                 ];
         
                 global $wpdb;
                 $wpaicgTable = $wpdb->prefix . 'wpaicg';
-                $sql = $wpdb->prepare('SELECT * FROM ' . $wpaicgTable . ' where name=%s', 'wpaicg_settings');
-                $wpaicg_settings = $wpdb->get_row($sql, ARRAY_A);
+        
+                $wpaicg_settings = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                        'wpaicg_settings'
+                    ),
+                    ARRAY_A
+                );
         
                 if ($wpaicg_settings) {
-                    unset($wpaicg_settings['ID']);
-                    unset($wpaicg_settings['name']);
-                    unset($wpaicg_settings['added_date']);
-                    unset($wpaicg_settings['modified_date']);
-                    
+                    unset($wpaicg_settings['ID'], $wpaicg_settings['name'], $wpaicg_settings['added_date'], $wpaicg_settings['modified_date']);
+        
                     foreach ($wpaicg_settings as $key => $wpaicg_setting) {
                         $this->$key = $wpaicg_setting;
                     }
                 }
         
                 return $this;
-            } else {
-                return false;
             }
+        
+            return false;
         }
+        
         
 
         public function filterCurlForStream($handle)
         {
             if ($this->stream_method !== null) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
                 curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: disabling host verification for stream compatibility in some environments.
                 curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
+                
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: assigning custom stream method via CURLOPT_WRITEFUNCTION.
                 curl_setopt($handle, CURLOPT_WRITEFUNCTION, function ($curl_info, $data) {
                     return call_user_func($this->stream_method, $this, $data);
                 });
             }
         }
+        
 
         public function setResponse($content = "")
         {

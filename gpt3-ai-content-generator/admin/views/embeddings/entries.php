@@ -57,16 +57,19 @@ $nonce = wp_create_nonce('gpt4_ajax_pagination_nonce');
     <select id="results-per-page" name="results-per-page">
         <?php
         $options = [3, 5, 10, 25, 50, 100, 500, 1000];
+        // Assume $posts_per_page is defined and is a comparable value (e.g., integer)
         foreach ($options as $option) {
+            // Determine selected state - content is known safe ('selected' or '')
             $selected = ($option == $posts_per_page) ? 'selected' : '';
-            echo "<option value='$option' $selected>$option</option>";
+            // Escape option for attribute, selected for attribute (to satisfy linter), and option for HTML content
+            echo '<option value="' . esc_attr($option) . '" ' . esc_attr($selected) . '>' . esc_html($option) . '</option>';
         }
         ?>
     </select>
 </div>
 
 <div class="content-area">
-    <input type="hidden" id="gpt4_pagination_nonce" value="<?php echo wp_create_nonce('gpt4_ajax_pagination_nonce'); ?>">
+<input type="hidden" id="gpt4_pagination_nonce" value="<?php echo esc_attr(wp_create_nonce('gpt4_ajax_pagination_nonce')); ?>">
     <div class="wpaicg-table-responsive">
         <table id="paginated-table" class="wp-list-table widefat striped">
             <thead>
@@ -81,13 +84,19 @@ $nonce = wp_create_nonce('gpt4_ajax_pagination_nonce');
             </thead>
             <tbody>
                 <?php foreach ( $posts as $post ) : ?>
-                    <?php echo \WPAICG\WPAICG_Embeddings::get_instance()->generate_table_row($post); ?>
+                    <?php
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: generate_table_row() returns pre-sanitized HTML markup for a table row. Escaping it here would break the table structure.
+                    echo \WPAICG\WPAICG_Embeddings::get_instance()->generate_table_row($post);
+                    ?>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 
-    <?php echo \WPAICG\WPAICG_Embeddings::get_instance()->generate_smart_pagination($page, $total_pages); ?>
+    <?php
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: generate_smart_pagination() returns pre-sanitized HTML markup for pagination links. Escaping it here would break the structure.
+    echo \WPAICG\WPAICG_Embeddings::get_instance()->generate_smart_pagination($page, $total_pages);
+    ?>
     <p></p>
     <button id="reload-items" class="button button-secondary" title="Refresh">
         <svg id="reload-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-ccw"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
@@ -174,7 +183,7 @@ $nonce = wp_create_nonce('gpt4_ajax_pagination_nonce');
         $(document).on('click', '.gpt4-pagination a', function(e){
             e.preventDefault();
             var page = $(this).data('page');
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+            var ajaxurl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
             var nonce = $('#gpt4_pagination_nonce').val();
             var searchTerm = $('#search-input').val();
             var resultsPerPage = $('#results-per-page').val();
@@ -201,7 +210,7 @@ $nonce = wp_create_nonce('gpt4_ajax_pagination_nonce');
         // Handle reload items button click
         $('#reload-items').on('click', function(e) {
             e.preventDefault();
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+            var ajaxurl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
             var nonce = $('#gpt4_pagination_nonce').val();
             var searchTerm = $('#search-input').val();
             var resultsPerPage = $('#results-per-page').val();
@@ -251,7 +260,7 @@ $nonce = wp_create_nonce('gpt4_ajax_pagination_nonce');
         // Handle search input keyup event with debounce
         $('#search-input').on('keyup', debounce(function() {
             var searchTerm = $(this).val();
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>'; // Your AJAX handler URL
+            var ajaxurl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>'; // Your AJAX handler URL
             var nonce = $('#gpt4_pagination_nonce').val(); // Use your existing nonce for security
             var resultsPerPage = $('#results-per-page').val();
 
@@ -282,7 +291,7 @@ $nonce = wp_create_nonce('gpt4_ajax_pagination_nonce');
         // Handle results per page change
         $('#results-per-page').on('change', function() {
             var resultsPerPage = $(this).val();
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+            var ajaxurl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
             var nonce = $('#gpt4_pagination_nonce').val();
             var searchTerm = $('#search-input').val();
             
@@ -340,12 +349,12 @@ $nonce = wp_create_nonce('gpt4_ajax_pagination_nonce');
                 var btn = $(this);
                 var ids = [];
                 $.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    url: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>',
                     type: 'POST',
                     data: {
                         action: 'wpaicg_delete_embeddings',
                         ids: [postId],
-                        nonce: '<?php echo wp_create_nonce('wpaicg-ajax-nonce'); ?>'
+                        nonce: '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'
                     },
                     beforeSend: function() {
                         btn.prop('disabled', true);
@@ -391,12 +400,12 @@ $nonce = wp_create_nonce('gpt4_ajax_pagination_nonce');
             }
 
             $.ajax({
-                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                url: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>',
                 type: 'POST',
                 dataType: 'json',
                 data: {
                     action: 'wpaicg_delete_all_embeddings',
-                    nonce: '<?php echo wp_create_nonce('wpaicg-ajax-nonce'); ?>'
+                    nonce: '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'
                 },
                 success: function(response) {
                     if (response.success) {

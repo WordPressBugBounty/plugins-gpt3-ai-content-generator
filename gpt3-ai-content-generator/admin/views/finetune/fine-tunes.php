@@ -41,7 +41,7 @@ FROM " . $wpdb->posts . " f WHERE f.post_type='wpaicg_finetune' AND (f.post_stat
 </div>
 <p></p>
 <div class="content-area">
-    <input type="hidden" id="ajax_pagination_training_nonce" value="<?php echo wp_create_nonce('ajax_pagination_training_nonce'); ?>">
+<input type="hidden" id="ajax_pagination_training_nonce" value="<?php echo esc_attr(wp_create_nonce('ajax_pagination_training_nonce')); ?>">
     <div class="wpaicg-table-responsive">
         <table id="paginated-training-table" class="wp-list-table widefat striped">
             <thead>
@@ -54,13 +54,17 @@ FROM " . $wpdb->posts . " f WHERE f.post_type='wpaicg_finetune' AND (f.post_stat
             </thead>
             <tbody>
                 <?php foreach ($posts_trainings as $posts_training): ?>
-                    <?php echo \WPAICG\WPAICG_FineTune::get_instance()->generate_table_row_training($posts_training); ?>
+                    <?php
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: generate_table_row_training() returns pre-sanitized HTML markup for a table row. Escaping it here would break the table structure.
+                    echo \WPAICG\WPAICG_FineTune::get_instance()->generate_table_row_training($posts_training);
+                    ?>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 
     <?php
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: generate_smart_pagination_training() returns pre-sanitized HTML markup for pagination. Escaping it here would break the structure.
     echo \WPAICG\WPAICG_FineTune::get_instance()->generate_smart_pagination_training($page_training, $total_pages_training);
     ?>
     <p></p>
@@ -96,7 +100,7 @@ FROM " . $wpdb->posts . " f WHERE f.post_type='wpaicg_finetune' AND (f.post_stat
         var wpaicg_get_finetune = $('.wpaicg_get_finetune');
         var wpaicg_cancel_finetune = $('.wpaicg_cancel_finetune');
         var wpaicg_delete_finetune = $('.wpaicg_delete_finetune');
-        var wpaicg_ajax_url = '<?php echo admin_url('admin-ajax.php') ?>';
+        var wpaicg_ajax_url = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
         
         $(document).on('click', '.wpaicg_cancel_finetune', function () {
             var conf = confirm('<?php echo esc_html__('Are you sure?', 'gpt3-ai-content-generator') ?>');
@@ -107,7 +111,7 @@ FROM " . $wpdb->posts . " f WHERE f.post_type='wpaicg_finetune' AND (f.post_stat
                     wpaicgAjaxRunning = true;
                     $.ajax({
                         url: wpaicg_ajax_url,
-                        data: {action: 'wpaicg_cancel_finetune', id: id,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce') ?>'},
+                        data: {action: 'wpaicg_cancel_finetune', id: id,'nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'},
                         dataType: 'JSON',
                         type: 'POST',
                         beforeSend: function () {
@@ -141,7 +145,7 @@ FROM " . $wpdb->posts . " f WHERE f.post_type='wpaicg_finetune' AND (f.post_stat
                     wpaicgAjaxRunning = true;
                     $.ajax({
                         url: wpaicg_ajax_url,
-                        data: {action: 'wpaicg_delete_finetune', id: id,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce') ?>'},
+                        data: {action: 'wpaicg_delete_finetune', id: id,'nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'},
                         dataType: 'JSON',
                         type: 'POST',
                         beforeSend: function () {
@@ -174,7 +178,7 @@ FROM " . $wpdb->posts . " f WHERE f.post_type='wpaicg_finetune' AND (f.post_stat
                 wpaicgAjaxRunning = true;
                 $.ajax({
                     url: wpaicg_ajax_url,
-                    data: {action: 'wpaicg_other_finetune', id: id, type: type,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce') ?>'},
+                    data: {action: 'wpaicg_other_finetune', id: id, type: type,'nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'},
                     dataType: 'JSON',
                     type: 'POST',
                     beforeSend: function (){
@@ -202,7 +206,7 @@ FROM " . $wpdb->posts . " f WHERE f.post_type='wpaicg_finetune' AND (f.post_stat
             var btn = $(this);
             $.ajax({
                 url: wpaicg_ajax_url,
-                data: {action: 'wpaicg_fetch_finetunes','nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce') ?>'},
+                data: {action: 'wpaicg_fetch_finetunes','nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'},
                 dataType: 'JSON',
                 type: 'POST',
                 beforeSend: function (){
@@ -232,7 +236,7 @@ FROM " . $wpdb->posts . " f WHERE f.post_type='wpaicg_finetune' AND (f.post_stat
         $(document).on('click', '.training-pagination a', function(e){
             e.preventDefault();
             var page = $(this).data('page_training');
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+            var ajaxurl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
             var nonce = $('#ajax_pagination_training_nonce').val();
 
             $.ajax({

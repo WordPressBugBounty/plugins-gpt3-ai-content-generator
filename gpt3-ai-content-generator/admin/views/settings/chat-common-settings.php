@@ -69,7 +69,7 @@ $current_ip_anonymization = get_option('wpaicg_ip_anonymization', 0);
     </div>
 </div>
 <!-- Hidden nonce field for AJAX security -->
-<input type="hidden" id="ai-engine-nonce" value="<?php echo wp_create_nonce('wpaicg_save_ai_engine_nonce'); ?>" />
+<input type="hidden" id="ai-engine-nonce" value="<?php echo esc_attr(wp_create_nonce('wpaicg_save_ai_engine_nonce')); ?>" />
 <!-- Text to Speech Modal -->
 <div class="aipower-modal" id="aipower_text_to_speech_modal" style="display: none;">
     <div class="aipower-modal-content">
@@ -195,8 +195,8 @@ $current_ip_anonymization = get_option('wpaicg_ip_anonymization', 0);
                     <label for="aipower_google_cse_results"><?php echo esc_html__('Results', 'gpt3-ai-content-generator'); ?></label>
                     <select name="aipower_google_cse_results" id="aipower_google_cse_results">
                         <?php for ($i = 1; $i <= 10; $i++): ?>
-                            <option value="<?php echo $i; ?>" <?php selected($current_google_search_num, $i); ?>>
-                                <?php echo $i; ?>
+                            <option value="<?php echo esc_attr($i); ?>" <?php selected($current_google_search_num, $i); ?>>
+                                <?php echo esc_html($i);  ?>
                             </option>
                         <?php endfor; ?>
                     </select>

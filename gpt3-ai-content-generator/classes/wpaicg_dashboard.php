@@ -90,9 +90,12 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
 
             // Decode JSON
             $data = json_decode($json_content, true);
+            // Check for JSON errors
             if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
-                wp_send_json_error(array('message' => __('Invalid JSON format: ' . json_last_error_msg(), 'gpt3-ai-content-generator')));
-                return;
+                // --- FIX: Use a hardcoded, translatable string ---
+                wp_send_json_error(array('message' => __('Invalid JSON data provided.', 'gpt3-ai-content-generator')));
+                // --- END FIX ---
+                return; // Exit after sending error
             }
 
             // Handle if data is a single object, wrap it in an array
@@ -116,6 +119,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 // Validate required fields
                 if (!isset($chatbot['Name']) || !isset($chatbot['Content'])) {
                     $skipped++;
+                    // translators: %d: The index (position number) of the chatbot in the imported data.
                     $errors[] = sprintf(__('Chatbot at index %d is missing required fields.', 'gpt3-ai-content-generator'), $index);
                     continue; // Skip invalid entries
                 }
@@ -123,6 +127,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 // Validate that 'Content' is an array
                 if (!is_array($chatbot['Content'])) {
                     $skipped++;
+                    // translators: %s: The name of the chatbot.
                     $errors[] = sprintf(__('Chatbot "%s" has invalid "Content" format.', 'gpt3-ai-content-generator'), $chatbot['Name']);
                     continue; // Skip invalid entries
                 }
@@ -131,6 +136,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 $existing_bot = get_page_by_title($chatbot['Name'], OBJECT, 'wpaicg_chatbot');
                 if ($existing_bot) {
                     $skipped++;
+                    // translators: %s: The name of the chatbot.
                     $errors[] = sprintf(__('Chatbot "%s" already exists and was skipped.', 'gpt3-ai-content-generator'), $chatbot['Name']);
                     continue; // Skip duplicates
                 }
@@ -148,6 +154,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
 
                 if (is_wp_error($post_id)) {
                     $skipped++;
+                    // translators: %s: The name of the chatbot.
                     $errors[] = sprintf(__('Failed to import chatbot: %s', 'gpt3-ai-content-generator'), $chatbot['Name']);
                     continue;
                 }
@@ -159,8 +166,10 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
             }
 
             // Prepare response message
+            // translators: %d: The number of chatbots imported.
             $message = sprintf(__('Imported %d chatbot(s).', 'gpt3-ai-content-generator'), $imported);
             if ($skipped > 0) {
+                // translators: %d: The number of chatbots skipped.
                 $message .= ' ' . sprintf(__('Skipped %d chatbot(s) due to duplicates or invalid data.', 'gpt3-ai-content-generator'), $skipped);
             }
             if (!empty($errors)) {
@@ -268,11 +277,20 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                 return;
             }
 
+            global $wp_filesystem; // Make the global available
+
+            // Initialize the WP filesystem, if it hasn't been already.
+            if ( empty( $wp_filesystem ) ) {
+                require_once ABSPATH . '/wp-admin/includes/file.php';
+                WP_Filesystem();
+            }
+        
+
             // Check uploads directory
             $upload_dir = wp_upload_dir();
-            if (!is_writable($upload_dir['basedir'])) {
-                wp_send_json_error(array('message' => __('The uploads folder is not writable. Please check folder permissions.', 'gpt3-ai-content-generator')));
-                return;
+            if ( !$wp_filesystem->is_writable( $upload_dir['basedir'] ) ) {
+                wp_send_json_error( array( 'message' => __( 'The uploads folder is not writable. Please check folder permissions.', 'gpt3-ai-content-generator' ) ) );
+                return; // Use return instead of exit in AJAX handlers if possible
             }
 
             // Generate filename
@@ -2932,8 +2950,21 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
             if ($found) {
                 // update the option with the new value
                 update_option('wpaicg_replicate_models', $replicate_models);
-                wp_send_json_success(['message' => wp_kses(__("{$field_key} updated successfully.", 'gpt3-ai-content-generator'), [])]);
+
+                // --- FIX STARTS HERE ---
+                // 1. Prepare the translatable format string with a placeholder
+                // translators: %s: The name of the field that was updated.
+                $success_message_format = __( '%s updated successfully.', 'gpt3-ai-content-generator' );
+                // 2. Insert the dynamic field key into the translated string
+                $final_success_message = sprintf( $success_message_format, $field_key );
+                // 3. Sanitize the final message, allowing no HTML
+                $sanitized_message = wp_kses( $final_success_message, [] );
+                // 4. Send the success response
+                wp_send_json_success( [ 'message' => $sanitized_message ] );
+                // --- FIX ENDS HERE ---
+
             } else {
+                // This part is okay as it uses esc_html__ with a literal string
                 wp_send_json_error(['message' => esc_html__('Field or model not found in the schema.', 'gpt3-ai-content-generator')]);
             }
         }
@@ -3128,7 +3159,6 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
                     'content_writer' => true,
                     'autogpt' => true,
                     'ai_forms' => true,
-                    'promptbase' => true,
                     'image_generator' => true,
                     'training' => true,
                     'chat_bot' => true, // Include 'chat_bot' here if it's not in $available_modules
@@ -3353,9 +3383,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Dashboard' ) ) {
             // Example: Reset default widgets or shortcode settings to initial values
             // This depends on how your plugin initializes these settings
 
-            // Prepare response message
-            $deleted_count = count( $options_deleted );
-            $message = sprintf( __( 'Reset completed. %d option(s) deleted.', 'gpt3-ai-content-generator' ), $deleted_count );
+            $message = sprintf( __( 'Reset completed.', 'gpt3-ai-content-generator' ) );
 
             wp_send_json_success( array( 'message' => $message ) );
         }

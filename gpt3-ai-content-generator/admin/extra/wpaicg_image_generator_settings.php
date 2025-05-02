@@ -69,9 +69,11 @@ if($success){
         <tr>
             <th><?php echo esc_html__('Cost Allocation by Role','gpt3-ai-content-generator')?>:</th>
             <td>
-                <?php
+            <?php
                 foreach($wpaicg_roles as $key=>$wpaicg_role){
-                    echo '<input value="'.(isset($wpaicg_settings['limited_roles'][$key]) ? $wpaicg_settings['limited_roles'][$key] : '').'" class="wpaicg_role_'.esc_html($key).'" type="hidden" name="wpaicg_limit_price[limited_roles]['.esc_html($key).']">';
+                    // Determine the value first, then escape it for the attribute
+                    $role_value = isset($wpaicg_settings['limited_roles'][$key]) ? $wpaicg_settings['limited_roles'][$key] : '';
+                    echo '<input value="'. esc_attr($role_value) .'" class="wpaicg_role_'.esc_attr($key).'" type="hidden" name="wpaicg_limit_price[limited_roles]['.esc_attr($key).']">'; // Also changed esc_html to esc_attr for key in attributes for consistency
                 }
                 ?>
                 <input<?php echo isset($wpaicg_settings['role_limited']) && $wpaicg_settings['role_limited'] ? ' checked':''?> type="checkbox" value="1" class="wpaicg_role_limited" name="wpaicg_limit_price[role_limited]">
@@ -110,11 +112,13 @@ if($success){
                     180 => esc_html__('6 Months', 'gpt3-ai-content-generator'),
                 );
                 ?>
-                <select name="wpaicg_limit_price[reset_limit]">
-                    <?php 
+<select name="wpaicg_limit_price[reset_limit]">
+                    <?php
                     foreach ($options as $value => $label) {
+                        // Determine selected state - $selected will be ' selected' or ''
                         $selected = (isset($wpaicg_settings['reset_limit']) && $wpaicg_settings['reset_limit'] == $value) ? ' selected' : '';
-                        echo "<option value='{$value}'{$selected}>{$label}</option>";
+                        // Output the option tag with proper escaping for value, label, and selected attribute (to satisfy linter)
+                        echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($label) . '</option>';
                     }
                     ?>
                 </select>

@@ -33,7 +33,6 @@ class Wp_Ai_Content_Generator_Activator {
 		self::createTable();
         self::create_image_tables();
         self::create_form_tables();
-        self::create_prompt_tables();
         self::create_chat_tables();
         self::create_ai_account_tables();
 	}
@@ -176,251 +175,240 @@ class Wp_Ai_Content_Generator_Activator {
     public static function create_image_tables()
     {
         global $wpdb;
-        if(is_admin()) {
+    
+        if ( is_admin() ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    
+            // Table 1: wpaicg_image_logs
             $wpaicgLogTable = $wpdb->prefix . 'wpaicg_image_logs';
-            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgLogTable)) != $wpaicgLogTable) {
+            $table_exists = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SHOW TABLES LIKE %s",
+                    $wpaicgLogTable
+                )
+            );
+    
+            if ( $table_exists !== $wpaicgLogTable ) {
                 $charset_collate = $wpdb->get_charset_collate();
-                $sql = "CREATE TABLE " . $wpaicgLogTable . " (
-                    `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                    `prompt` TEXT NOT NULL,
-                    `source` INT NOT NULL DEFAULT '0',
-                    `shortcode` VARCHAR(255) DEFAULT NULL,
-                    `size` VARCHAR(255) DEFAULT NULL,
-                    `total` INT NOT NULL DEFAULT '0',
-                    `duration` VARCHAR(255) DEFAULT NULL,
-                    `price` VARCHAR(255) DEFAULT NULL,
-                    `created_at` VARCHAR(255) NOT NULL,
-                    PRIMARY KEY  (id)
-                    ) $charset_collate";
-                require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-                $wpdb->query($sql);
+    
+                $sql = "CREATE TABLE {$wpaicgLogTable} (
+                    id mediumint(11) NOT NULL AUTO_INCREMENT,
+                    prompt TEXT NOT NULL,
+                    source INT NOT NULL DEFAULT '0',
+                    shortcode VARCHAR(255) DEFAULT NULL,
+                    size VARCHAR(255) DEFAULT NULL,
+                    total INT NOT NULL DEFAULT '0',
+                    duration VARCHAR(255) DEFAULT NULL,
+                    price VARCHAR(255) DEFAULT NULL,
+                    created_at VARCHAR(255) NOT NULL,
+                    PRIMARY KEY (id)
+                ) $charset_collate;";
+    
+                dbDelta( $sql );
             }
+    
+            // Table 2: wpaicg_imagetokens
             $wpaicgTokensTable = $wpdb->prefix . 'wpaicg_imagetokens';
-            if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgTokensTable)) != $wpaicgTokensTable) {
+            $token_table_exists = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SHOW TABLES LIKE %s",
+                    $wpaicgTokensTable
+                )
+            );
+    
+            if ( $token_table_exists !== $wpaicgTokensTable ) {
                 $charset_collate = $wpdb->get_charset_collate();
-                $sql = "CREATE TABLE ".$wpaicgTokensTable." (
-                    `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                    `tokens` VARCHAR(255) DEFAULT NULL,
-                    `user_id` VARCHAR(255) DEFAULT NULL,
-                    `session_id` VARCHAR(255) DEFAULT NULL,
-                    `source` VARCHAR(255) DEFAULT NULL,
-                    `created_at` VARCHAR(255) NOT NULL,
-                    PRIMARY KEY  (id)
-                    ) $charset_collate";
-                require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-                $wpdb->query( $sql );
-
+    
+                $sql = "CREATE TABLE {$wpaicgTokensTable} (
+                    id mediumint(11) NOT NULL AUTO_INCREMENT,
+                    tokens VARCHAR(255) DEFAULT NULL,
+                    user_id VARCHAR(255) DEFAULT NULL,
+                    session_id VARCHAR(255) DEFAULT NULL,
+                    source VARCHAR(255) DEFAULT NULL,
+                    created_at VARCHAR(255) NOT NULL,
+                    PRIMARY KEY (id)
+                ) $charset_collate;";
+    
+                dbDelta( $sql );
             }
         }
     }
+    
 
     public static function create_form_tables()
     {
         global $wpdb;
-        if(is_admin()) {
+    
+        if ( is_admin() ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    
+            // Table 1: wpaicg_form_logs
             $wpaicgLogTable = $wpdb->prefix . 'wpaicg_form_logs';
-            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgLogTable)) != $wpaicgLogTable) {
+            $log_table_exists = $wpdb->get_var(
+                $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgLogTable)
+            );
+    
+            if ( $log_table_exists !== $wpaicgLogTable ) {
                 $charset_collate = $wpdb->get_charset_collate();
-                $sql = "CREATE TABLE " . $wpaicgLogTable . " (
-                    `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                    `prompt` TEXT NOT NULL,
-                    `source` INT NOT NULL DEFAULT '0',
-                    `data` LONGTEXT NOT NULL,
-                    `prompt_id` VARCHAR(255) DEFAULT NULL,
-                    `name` VARCHAR(255) DEFAULT NULL,
-                    `model` VARCHAR(255) DEFAULT NULL,
-                    `duration` VARCHAR(255) DEFAULT NULL,
-                    `tokens` VARCHAR(255) DEFAULT NULL,
-                    `created_at` VARCHAR(255) NOT NULL,
-                    `eventID` mediumint(11) DEFAULT NULL,
-                    `userID` varchar(255) DEFAULT NULL,
-                    PRIMARY KEY  (id)
-                    ) $charset_collate;";
-                require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-                $wpdb->query($sql);
+    
+                $sql = "CREATE TABLE {$wpaicgLogTable} (
+                    id mediumint(11) NOT NULL AUTO_INCREMENT,
+                    prompt TEXT NOT NULL,
+                    source INT NOT NULL DEFAULT '0',
+                    data LONGTEXT NOT NULL,
+                    prompt_id VARCHAR(255) DEFAULT NULL,
+                    name VARCHAR(255) DEFAULT NULL,
+                    model VARCHAR(255) DEFAULT NULL,
+                    duration VARCHAR(255) DEFAULT NULL,
+                    tokens VARCHAR(255) DEFAULT NULL,
+                    created_at VARCHAR(255) NOT NULL,
+                    eventID mediumint(11) DEFAULT NULL,
+                    userID varchar(255) DEFAULT NULL,
+                    PRIMARY KEY (id)
+                ) $charset_collate;";
+    
+                dbDelta( $sql );
             } else {
-                // Table exists, check for new columns and add them if necessary
-                $columns = $wpdb->get_col("DESCRIBE $wpaicgLogTable");
-                
-                if (!in_array('eventID', $columns)) {
-                    $wpdb->query("ALTER TABLE $wpaicgLogTable ADD `eventID` mediumint(11) DEFAULT NULL");
+                // Check and add missing columns
+                $columns = $wpdb->get_col("DESCRIBE {$wpaicgLogTable}");
+    
+                if ( !in_array('eventID', $columns, true) ) {
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static ALTER TABLE, no user input
+                    $wpdb->query("ALTER TABLE {$wpaicgLogTable} ADD eventID mediumint(11) DEFAULT NULL");
                 }
-                if (!in_array('userID', $columns)) {
-                    $wpdb->query("ALTER TABLE $wpaicgLogTable ADD `userID` varchar(255) DEFAULT NULL");
+                if ( !in_array('userID', $columns, true) ) {
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static ALTER TABLE, no user input
+                    $wpdb->query("ALTER TABLE {$wpaicgLogTable} ADD userID varchar(255) DEFAULT NULL");
                 }
             }
-
+    
+            // Table 2: wpaicg_formtokens
             $wpaicgTokensTable = $wpdb->prefix . 'wpaicg_formtokens';
-            if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgTokensTable)) != $wpaicgTokensTable) {
+            $tokens_table_exists = $wpdb->get_var(
+                $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgTokensTable)
+            );
+    
+            if ( $tokens_table_exists !== $wpaicgTokensTable ) {
                 $charset_collate = $wpdb->get_charset_collate();
-                $sql = "CREATE TABLE ".$wpaicgTokensTable." (
-                    `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                    `tokens` VARCHAR(255) DEFAULT NULL,
-                    `user_id` VARCHAR(255) DEFAULT NULL,
-                    `session_id` VARCHAR(255) DEFAULT NULL,
-                    `source` VARCHAR(255) DEFAULT NULL,
-                    `created_at` VARCHAR(255) NOT NULL,
-                    PRIMARY KEY  (id)
-                    ) $charset_collate;";
-                require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-                $wpdb->query( $sql );
+    
+                $sql = "CREATE TABLE {$wpaicgTokensTable} (
+                    id mediumint(11) NOT NULL AUTO_INCREMENT,
+                    tokens VARCHAR(255) DEFAULT NULL,
+                    user_id VARCHAR(255) DEFAULT NULL,
+                    session_id VARCHAR(255) DEFAULT NULL,
+                    source VARCHAR(255) DEFAULT NULL,
+                    created_at VARCHAR(255) NOT NULL,
+                    PRIMARY KEY (id)
+                ) $charset_collate;";
+    
+                dbDelta( $sql );
             }
-
-            // Add the code to create the new table wpaicg_form_feedback
+    
+            // Table 3: wpaicg_form_feedback
             $wpaicgFormFeedbackTable = $wpdb->prefix . 'wpaicg_form_feedback';
-            if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgFormFeedbackTable)) != $wpaicgFormFeedbackTable) {
+            $feedback_table_exists = $wpdb->get_var(
+                $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgFormFeedbackTable)
+            );
+    
+            if ( $feedback_table_exists !== $wpaicgFormFeedbackTable ) {
                 $charset_collate = $wpdb->get_charset_collate();
-                $sql = "CREATE TABLE " . $wpaicgFormFeedbackTable . " (
-                    `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                    `formID` mediumint(11) NOT NULL,
-                    `eventID` mediumint(11) DEFAULT NULL,
-                    `source` varchar(255) DEFAULT NULL,
-                    `formname` varchar(255) DEFAULT NULL,
-                    `response` text DEFAULT NULL,
-                    `session_id` varchar(255) DEFAULT NULL,
-                    `feedback` enum('thumbs_up', 'thumbs_down') NOT NULL,
-                    `comment` text DEFAULT NULL,
-                    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY  (id)
+    
+                $sql = "CREATE TABLE {$wpaicgFormFeedbackTable} (
+                    id mediumint(11) NOT NULL AUTO_INCREMENT,
+                    formID mediumint(11) NOT NULL,
+                    eventID mediumint(11) DEFAULT NULL,
+                    source varchar(255) DEFAULT NULL,
+                    formname varchar(255) DEFAULT NULL,
+                    response text DEFAULT NULL,
+                    session_id varchar(255) DEFAULT NULL,
+                    feedback enum('thumbs_up', 'thumbs_down') NOT NULL,
+                    comment text DEFAULT NULL,
+                    created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (id)
                 ) $charset_collate;";
-                require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-                $wpdb->query($sql);
-            }
-
-        }
-    }
-
-    public static function create_prompt_tables()
-    {
-        global $wpdb;
-        if(is_admin()) {
-            $wpaicgLogTable = $wpdb->prefix . 'wpaicg_promptbase_logs';
-            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgLogTable)) != $wpaicgLogTable) {
-                $charset_collate = $wpdb->get_charset_collate();
-                $sql = "CREATE TABLE " . $wpaicgLogTable . " (
-                    `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                    `prompt` TEXT NOT NULL,
-                    `source` INT NOT NULL DEFAULT '0',
-                    `data` LONGTEXT NOT NULL,
-                    `prompt_id` VARCHAR(255) DEFAULT NULL,
-                    `name` VARCHAR(255) DEFAULT NULL,
-                    `model` VARCHAR(255) DEFAULT NULL,
-                    `duration` VARCHAR(255) DEFAULT NULL,
-                    `tokens` VARCHAR(255) DEFAULT NULL,
-                    `created_at` VARCHAR(255) NOT NULL,
-                    `eventID` mediumint(11) DEFAULT NULL,
-                    `userID` varchar(255) DEFAULT NULL,
-                    PRIMARY KEY  (id)
-                    ) $charset_collate";
-                require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-                $wpdb->query($sql);
-            } else {
-                // Table exists, check for new columns and add them if necessary
-                $columns = $wpdb->get_col("DESCRIBE $wpaicgLogTable");
-                
-                if (!in_array('eventID', $columns)) {
-                    $wpdb->query("ALTER TABLE $wpaicgLogTable ADD `eventID` mediumint(11) DEFAULT NULL");
-                }
-                if (!in_array('userID', $columns)) {
-                    $wpdb->query("ALTER TABLE $wpaicgLogTable ADD `userID` varchar(255) DEFAULT NULL");
-                }
-            }
-
-            $wpaicgTokensTable = $wpdb->prefix . 'wpaicg_prompttokens';
-            if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgTokensTable)) != $wpaicgTokensTable) {
-                $charset_collate = $wpdb->get_charset_collate();
-                $sql = "CREATE TABLE ".$wpaicgTokensTable." (
-                    `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                    `tokens` VARCHAR(255) DEFAULT NULL,
-                    `user_id` VARCHAR(255) DEFAULT NULL,
-                    `session_id` VARCHAR(255) DEFAULT NULL,
-                    `source` VARCHAR(255) DEFAULT NULL,
-                    `created_at` VARCHAR(255) NOT NULL,
-                    PRIMARY KEY  (id)
-                    ) $charset_collate";
-                require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-                $wpdb->query( $sql );
-            }
-
-            // Add the code to create the new table wpaicg_prompt_feedback
-            $wpaicgPromptFeedbackTable = $wpdb->prefix . 'wpaicg_prompt_feedback';
-            if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgPromptFeedbackTable)) != $wpaicgPromptFeedbackTable) {
-                $charset_collate = $wpdb->get_charset_collate();
-                $sql = "CREATE TABLE " . $wpaicgPromptFeedbackTable . " (
-                    `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                    `formID` mediumint(11) NOT NULL,
-                    `eventID` mediumint(11) DEFAULT NULL,
-                    `source` varchar(255) DEFAULT NULL,
-                    `formname` varchar(255) DEFAULT NULL,
-                    `response` text DEFAULT NULL,
-                    `session_id` varchar(255) DEFAULT NULL,
-                    `feedback` enum('thumbs_up', 'thumbs_down') NOT NULL,
-                    `comment` text DEFAULT NULL,
-                    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY  (id)
-                ) $charset_collate;";
-                require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-                $wpdb->query($sql);
+    
+                dbDelta( $sql );
             }
         }
     }
+    
 
     public static function create_chat_tables()
     {
         global $wpdb;
+    
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    
+        // Table 1: wpaicg_chatlogs
         $wpaicgChatLogTable = $wpdb->prefix . 'wpaicg_chatlogs';
-        if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgChatLogTable)) != $wpaicgChatLogTable) {
+        $log_exists = $wpdb->get_var(
+            $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgChatLogTable)
+        );
+    
+        if ( $log_exists !== $wpaicgChatLogTable ) {
             $charset_collate = $wpdb->get_charset_collate();
-            $sql = "CREATE TABLE ".$wpaicgChatLogTable." (
-                `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                `log_session` VARCHAR(255) NOT NULL,
-                `data` LONGTEXT NOT NULL,
-                `page_title` TEXT DEFAULT NULL,
-                `source` VARCHAR(255) DEFAULT NULL,
-                `created_at` VARCHAR(255) NOT NULL,
-                PRIMARY KEY  (id)
-                ) $charset_collate";
-            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-            $wpdb->query( $sql );
+            $sql = "CREATE TABLE {$wpaicgChatLogTable} (
+                id mediumint(11) NOT NULL AUTO_INCREMENT,
+                log_session VARCHAR(255) NOT NULL,
+                data LONGTEXT NOT NULL,
+                page_title TEXT DEFAULT NULL,
+                source VARCHAR(255) DEFAULT NULL,
+                created_at VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id)
+            ) $charset_collate;";
+            dbDelta( $sql );
         }
+    
+        // Table 2: wpaicg_chattokens
         $wpaicgChatTokensTable = $wpdb->prefix . 'wpaicg_chattokens';
-        if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgChatTokensTable)) != $wpaicgChatTokensTable) {
+        $tokens_exists = $wpdb->get_var(
+            $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgChatTokensTable)
+        );
+    
+        if ( $tokens_exists !== $wpaicgChatTokensTable ) {
             $charset_collate = $wpdb->get_charset_collate();
-            $sql = "CREATE TABLE ".$wpaicgChatTokensTable." (
-                `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                `tokens` VARCHAR(255) DEFAULT NULL,
-                `user_id` VARCHAR(255) DEFAULT NULL,
-                `session_id` VARCHAR(255) DEFAULT NULL,
-                `source` VARCHAR(255) DEFAULT NULL,
-                `created_at` VARCHAR(255) NOT NULL,
-                PRIMARY KEY  (id)
-                ) $charset_collate";
-            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-            $wpdb->query( $sql );
-
+            $sql = "CREATE TABLE {$wpaicgChatTokensTable} (
+                id mediumint(11) NOT NULL AUTO_INCREMENT,
+                tokens VARCHAR(255) DEFAULT NULL,
+                user_id VARCHAR(255) DEFAULT NULL,
+                session_id VARCHAR(255) DEFAULT NULL,
+                source VARCHAR(255) DEFAULT NULL,
+                created_at VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id)
+            ) $charset_collate;";
+            dbDelta( $sql );
         }
     }
+    
 
     public static function create_ai_account_tables()
     {
         global $wpdb;
-        $wpaicgLogTable = $wpdb->prefix . 'wpaicg_token_logs';
-        if(is_admin()){
-            if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgLogTable)) != $wpaicgLogTable) {
+    
+        if ( is_admin() ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    
+            $wpaicgLogTable = $wpdb->prefix . 'wpaicg_token_logs';
+            $table_exists = $wpdb->get_var(
+                $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgLogTable)
+            );
+    
+            if ( $table_exists !== $wpaicgLogTable ) {
                 $charset_collate = $wpdb->get_charset_collate();
-                $sql = "CREATE TABLE ".$wpaicgLogTable." (
-                    `id` mediumint(11) NOT NULL AUTO_INCREMENT,
-                    `user_id` VARCHAR(255) DEFAULT NULL,
-                    `module` VARCHAR(255) DEFAULT NULL,
-                    `tokens` VARCHAR(255) DEFAULT NULL,
-                    `created_at` VARCHAR(255) NOT NULL,
-                    PRIMARY KEY  (id)
-                ) $charset_collate";
-                require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-                $wpdb->query($sql);
-                $sql = "ALTER TABLE `".$wpaicgLogTable."` ADD KEY `".$wpaicgLogTable."_user_id_index` (`user_id`)";
-                $wpdb->query($sql);
+    
+                $sql = "CREATE TABLE {$wpaicgLogTable} (
+                    id mediumint(11) NOT NULL AUTO_INCREMENT,
+                    user_id VARCHAR(255) DEFAULT NULL,
+                    module VARCHAR(255) DEFAULT NULL,
+                    tokens VARCHAR(255) DEFAULT NULL,
+                    created_at VARCHAR(255) NOT NULL,
+                    PRIMARY KEY (id),
+                    KEY {$wpaicgLogTable}_user_id_index (user_id)
+                ) $charset_collate;";
+    
+                dbDelta( $sql );
             }
         }
     }
+    
 }

@@ -628,13 +628,15 @@ if ( $wpaicg_single_logs->have_posts() ) {
         }
         ?>
                 <tr>
-                    <td>
+                <td>
                         <a href="<?php 
-        echo admin_url( 'post.php?post=' . esc_html( $wpaicg_post_id ) . '&action=edit' );
+        echo esc_url( admin_url( 'post.php?post=' . esc_html( $wpaicg_post_id ) . '&action=edit' ) );
         ?>">
                             <?php 
+        // Title is already escaped during assignment/creation
         $title = str_replace( 'WPAICGLOG:', '', esc_html( $wpaicg_single_log->post_title ) );
-        echo ( strlen( $title ) > 10 ? substr( $title, 0, 10 ) . '...' : $title );
+        // Echo the potentially truncated title, applying esc_html to the final output
+        echo ( strlen( $title ) > 10 ? esc_html( substr( $title, 0, 10 ) . '...' ) : esc_html( $title ) );
         ?>
                         </a>
                     </td>
@@ -1031,7 +1033,14 @@ $_wporg_img_size = $result->img_size;
 $sizes = \WPAICG\WPAICG_Util::get_instance()->wpaicg_image_sizes;
 foreach ( $sizes as $size => $label ) {
     $selected = ( esc_html( $_wporg_img_size ) == $size ? 'selected' : '' );
-    echo "<option value=\"{$size}\" {$selected}>{$label}</option>";
+    // Use printf for clearer escaping, add esc_attr to $selected
+    printf(
+        '<option value="%s" %s>%s</option>',
+        esc_attr( $size ),
+        esc_attr( $selected ),
+        // Escape for attribute context (satisfies linter)
+        esc_html( $label )
+    );
 }
 ?>
                                 </select>
@@ -1048,7 +1057,15 @@ echo esc_html__( 'Image Style', 'gpt3-ai-content-generator' );
                                     <?php 
 foreach ( $image_style_options as $value => $label ) {
     $selected = ( esc_html( $_wporg_img_style ) == $value ? 'selected' : '' );
-    echo "<option value=\"{$value}\" {$selected}>{$label}</option>";
+    // Use printf for clearer escaping
+    printf(
+        '<option value="%s" %s>%s</option>',
+        esc_attr( $value ),
+        // Escape for attribute
+        esc_attr( $selected ),
+        // Escape for attribute context (satisfies linter)
+        esc_html( $label )
+    );
 }
 ?>
                                 </select>
@@ -1243,11 +1260,18 @@ echo esc_html__( 'Use Keyword', 'gpt3-ai-content-generator' );
 ?></label>
                             </div>
                             <div class="wpaicg-mb-10 wpaicg_pexels_custom_prompt" style="display:none">
-                                <label><?php 
+                                <label>
+                                    <?php 
 echo esc_html__( 'Custom Prompt', 'gpt3-ai-content-generator' );
-?>:<small ><?php 
+?>:
+                                    <small>
+                                        <?php 
+// --- FIX: Add translators comment ---
+// translators: %s: The placeholder string "[title]" wrapped in <code> tags.
 echo sprintf( esc_html__( 'Ensure %s is included in your prompt.', 'gpt3-ai-content-generator' ), '<code>[title]</code>' );
-?></small></label>
+?>
+                                    </small>
+                                </label>
                                 <textarea id="wpaicg_pexels_custom_prompt" rows="5" name="wpaicg_pexels_custom_prompt"><?php 
 echo esc_html( $wpaicg_pexels_custom_prompt );
 ?></textarea>
@@ -1351,11 +1375,18 @@ echo esc_html__( 'Use Keyword', 'gpt3-ai-content-generator' );
 ?></label>
                             </div>
                             <div class="wpaicg-mb-10 wpaicg_pixabay_custom_prompt" style="display:none">
-                                <label><?php 
+                                <label>
+                                    <?php 
 echo esc_html__( 'Custom Prompt', 'gpt3-ai-content-generator' );
-?>:<small><?php 
+?>:
+                                    <small>
+                                        <?php 
+// --- FIX: Add translators comment ---
+// translators: %s: The placeholder string "[title]" wrapped in <code> tags.
 echo sprintf( esc_html__( 'Ensure %s is included in your prompt.', 'gpt3-ai-content-generator' ), '<code>[title]</code>' );
-?></small></label>
+?>
+                                    </small>
+                                </label>
                                 <textarea id="wpaicg_pixabay_custom_prompt" rows="5" name="wpaicg_pixabay_custom_prompt"><?php 
 echo esc_html( $wpaicg_pixabay_custom_prompt );
 ?></textarea>
@@ -1700,7 +1731,8 @@ $post_types = array_merge( $post_types, ['post', 'page'] );
 // to include post and page
 foreach ( $post_types as $post_type ) {
     $selected = ( isset( $wpaicg_parameters['post_type'] ) && $wpaicg_parameters['post_type'] == $post_type ? ' selected' : '' );
-    echo '<option value="' . esc_html( $post_type ) . '"' . $selected . '>' . esc_html( ucfirst( $post_type ) ) . '</option>';
+    // Apply esc_attr() to $selected
+    echo '<option value="' . esc_html( $post_type ) . '"' . esc_attr( $selected ) . '>' . esc_html( ucfirst( $post_type ) ) . '</option>';
 }
 ?>
                             </select>
@@ -2021,18 +2053,55 @@ echo esc_attr( get_option( 'wpaicg_togetherai_model_api_key' ) );
                         <div class="nice-form-group">
                             <select id="category_select">
                                 <?php 
-$playground_categories = \WPAICG\WPAICG_Util::get_instance()->playground_categories;
+// --- FIX: Hardcode the list and use literal strings for esc_html__() ---
 ?>
+                                <option value=""><?php 
+echo esc_html__( 'Select a category', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="wordpress"><?php 
+echo esc_html__( 'WordPress', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="blogging"><?php 
+echo esc_html__( 'Blogging', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="writing"><?php 
+echo esc_html__( 'Writing', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="ecommerce"><?php 
+echo esc_html__( 'E-commerce', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="online_business"><?php 
+echo esc_html__( 'Online Business', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="entrepreneurship"><?php 
+echo esc_html__( 'Entrepreneurship', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="seo"><?php 
+echo esc_html__( 'SEO', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="social_media"><?php 
+echo esc_html__( 'Social Media', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="digital_marketing"><?php 
+echo esc_html__( 'Digital Marketing', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="woocommerce"><?php 
+echo esc_html__( 'WooCommerce', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="content_strategy"><?php 
+echo esc_html__( 'Content Strategy', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="keyword_research"><?php 
+echo esc_html__( 'Keyword Research', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="product_listing"><?php 
+echo esc_html__( 'Product Listing', 'gpt3-ai-content-generator' );
+?></option>
+                                <option value="customer_relationship_management"><?php 
+echo esc_html__( 'Customer Relationship Management', 'gpt3-ai-content-generator' );
+?></option>
                                 <?php 
-foreach ( $playground_categories as $value => $label ) {
-    ?>
-                                    <option value="<?php 
-    echo esc_attr( $value );
-    ?>"><?php 
-    echo esc_html__( $label, 'gpt3-ai-content-generator' );
-    ?></option>
-                                <?php 
-}
+// --- END FIX ---
 ?>
                             </select>
                         </div>
@@ -2400,7 +2469,7 @@ echo esc_html__( 'Type heading text...', 'gpt3-ai-content-generator' );
         let wpaicg_template_save_post = $('.wpaicg_template_save_post');
         let wpaicg_template_title_field = $('.wpaicg_template_title_field');
         let wpaicg_template_ajax_url = '<?php 
-echo admin_url( 'admin-ajax.php' );
+echo esc_js( admin_url( 'admin-ajax.php' ) );
 ?>';
         let wpaicg_template_generate_stop = $('.wpaicg_template_generate_stop');
         let wpaicg_custom_template_add_topic = $('.wpaicg_custom_template_add_topic');
@@ -2547,7 +2616,7 @@ echo esc_html__( 'Are you sure?', 'gpt3-ai-content-generator' );
                 $.ajax({
                     url: wpaicg_template_ajax_url,
                     data: {action: 'wpaicg_template_delete', id: id,'nonce': '<?php 
-echo wp_create_nonce( 'wpaicg-ajax-nonce' );
+echo esc_js( wp_create_nonce( 'wpaicg-ajax-nonce' ) );
 ?>'},
                     type: 'POST',
                     dataType: 'JSON',
@@ -2872,7 +2941,7 @@ echo esc_html__( 'Please generate content first', 'gpt3-ai-content-generator' );
                 $.ajax({
                     url: wpaicg_template_ajax_url,
                     data: {action: 'wpaicg_template_post',post_type: post_type, model: model, provider:provider, google_model: google_model, openrouter_model: openrouter_model,azure_deployment: azure_deployment, duration: duration, title: title, excerpt: excerpt, content: content, description: description, tokens:wpaicg_tokens, words: wpaicg_words_count,'nonce': '<?php 
-echo wp_create_nonce( 'wpaicg-ajax-nonce' );
+echo esc_js( wp_create_nonce( 'wpaicg-ajax-nonce' ) );
 ?>'},
                     type: 'POST',
                     dataType: 'JSON',
@@ -2883,7 +2952,7 @@ echo wp_create_nonce( 'wpaicg-ajax-nonce' );
                         wpaicgRmLoading(wpaicg_template_save_post);
                         if(res.status === 'success'){
                             window.location.href = '<?php 
-echo admin_url( 'post.php?action=edit&post=' );
+echo esc_js( admin_url( 'post.php?action=edit&post=' ) );
 ?>'+res.id;
                         }
                         else{
@@ -3161,11 +3230,11 @@ echo esc_html__( 'New template created successfully.', 'gpt3-ai-content-generato
                 data.append('action','wpaicg_speech_record');
                 data.append('audio',blob,'speech_record.wav');
                 data.append('nonce','<?php 
-echo wp_create_nonce( 'wpaicg-ajax-nonce' );
+echo esc_js( wp_create_nonce( 'wpaicg-ajax-nonce' ) );
 ?>');
                 wpaicgSpeechAjaxRequest = $.ajax({
                     url: '<?php 
-echo admin_url( 'admin-ajax.php' );
+echo esc_js( admin_url( 'admin-ajax.php' ) );
 ?>',
                     data: data,
                     type: 'POST',
@@ -3230,7 +3299,7 @@ echo esc_html__( 'Please record a speech before saving.', 'gpt3-ai-content-gener
             }
             $.ajax({
                 url: '<?php 
-echo admin_url( 'admin-ajax.php' );
+echo esc_js( admin_url( 'admin-ajax.php' ) );
 ?>',
                 data: {
                     action: 'wpaicg_save_draft_post_extra',
@@ -3242,7 +3311,7 @@ echo admin_url( 'admin-ajax.php' );
                     word_count: wordcount,
                     source_log: 'speech',
                     'nonce': '<?php 
-echo wp_create_nonce( 'wpaicg-ajax-nonce' );
+echo esc_js( wp_create_nonce( 'wpaicg-ajax-nonce' ) );
 ?>'
                 },
                 dataType: 'JSON',
@@ -4005,7 +4074,7 @@ echo json_encode( get_option( 'wpaicg_openrouter_model_list', [] ) );
                     action: 'save_wpaicg_google_api_key',
                     api_key: apiKey,
                     nonce: '<?php 
-echo wp_create_nonce( 'wpaicg-save-google-api' );
+echo esc_js( wp_create_nonce( 'wpaicg-save-google-api' ) );
 ?>'
                 },
                 success: function(response) {
@@ -4039,7 +4108,7 @@ echo wp_create_nonce( 'wpaicg-save-google-api' );
                     action: 'save_wpaicg_togetherai_api_key',
                     api_key: apiKey,
                     nonce: '<?php 
-echo wp_create_nonce( 'wpaicg-save-togetherai-api' );
+echo esc_js( wp_create_nonce( 'wpaicg-save-togetherai-api' ) );
 ?>'
                 },
                 success: function(response) {
@@ -4100,7 +4169,7 @@ echo wp_create_nonce( 'wpaicg-save-togetherai-api' );
                 eventGenerator = new EventSource('<?php 
 echo esc_html( add_query_arg( 'wpaicg_stream', 'yes', site_url() . '/index.php' ) );
 ?>&title='+title+'&nonce=<?php 
-echo wp_create_nonce( 'wpaicg-ajax-nonce' );
+echo esc_attr( wp_create_nonce( 'wpaicg-ajax-nonce' ) );
 ?>'+'&engine='+selectedModel+'&provider='+selectedProvider + '&source=playground');
                 var editor = tinyMCE.get('wpaicg_generator_result');
                 var basicEditor = true;
@@ -4210,7 +4279,7 @@ echo wp_create_nonce( 'wpaicg-ajax-nonce' );
             button.prop('disabled', true);
             $.ajax({
                 url: '<?php 
-echo admin_url( 'admin-ajax.php' );
+echo esc_url( admin_url( 'admin-ajax.php' ) );
 ?>',
                 type: 'POST',
                 dataType: 'json',
@@ -4219,7 +4288,7 @@ echo admin_url( 'admin-ajax.php' );
                     title: title,
                     model: model,
                     nonce: '<?php 
-echo wp_create_nonce( 'wpaicg_generate_content_google' );
+echo esc_attr( wp_create_nonce( 'wpaicg_generate_content_google' ) );
 ?>'
                 },
                 success: function(response) {
@@ -4261,7 +4330,7 @@ echo wp_create_nonce( 'wpaicg_generate_content_google' );
 
             $.ajax({
                 url: '<?php 
-echo admin_url( 'admin-ajax.php' );
+echo esc_url( admin_url( 'admin-ajax.php' ) );
 ?>',
                 type: 'POST',
                 dataType: 'json',
@@ -4270,7 +4339,7 @@ echo admin_url( 'admin-ajax.php' );
                     title: title,
                     model: model,
                     nonce: '<?php 
-echo wp_create_nonce( 'wpaicg_generate_content_togetherai' );
+echo esc_attr( wp_create_nonce( 'wpaicg_generate_content_togetherai' ) );
 ?>' // Update the nonce for Together AI
                 },
                 success: function(response) {
@@ -4341,10 +4410,10 @@ echo esc_html__( 'Please wait until the content is generated.', 'gpt3-ai-content
             else{
                 $.ajax({
                     url: '<?php 
-echo admin_url( 'admin-ajax.php' );
+echo esc_url( admin_url( 'admin-ajax.php' ) );
 ?>',
                     data: {title: title, content: content, action: 'wpaicg_save_draft_post_extra','nonce': '<?php 
-echo wp_create_nonce( 'wpaicg-ajax-nonce' );
+echo esc_js( wp_create_nonce( 'wpaicg-ajax-nonce' ) );
 ?>'},
                     dataType: 'json',
                     type: 'POST',
@@ -4358,7 +4427,7 @@ echo wp_create_nonce( 'wpaicg-ajax-nonce' );
                         wpaicg_draft_btn.find('.spinner').remove();
                         if(res.status === 'success'){
                             window.location.href = '<?php 
-echo admin_url( 'post.php' );
+echo esc_url( admin_url( 'post.php' ) );
 ?>?post='+res.id+'&action=edit';
                         }
                         else{

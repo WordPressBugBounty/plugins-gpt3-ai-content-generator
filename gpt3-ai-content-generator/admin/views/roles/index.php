@@ -109,7 +109,7 @@ foreach($roles->get_names() as $role => $name){
         <div class="wpaicg_role">
             <div class="wpaicg-role-title">
                 <div>
-                    <span><?php echo esc_html__($name,'gpt3-ai-content-generator')?></span>
+                    <span><?php echo esc_html($name); ?></span>
                     <button style="opacity:0" class="button button-small wpaicg_toggle_role" data-target="<?php echo esc_html($role)?>" type="button"><?php echo esc_html__('Toggle All','gpt3-ai-content-generator')?></button>
                 </div>
                 <span class="wpaicg_content_toggle<?php echo $keyx == 1 ? ' wpaicg_expand':''?>">
@@ -128,7 +128,7 @@ foreach($roles->get_names() as $role => $name){
                 foreach($this->wpaicg_roles as $key=>$wpaicg_role){
                     ?>
                     <p style="margin-bottom: 5px">
-                        <strong><?php echo esc_html__($wpaicg_role['name'],'gpt3-ai-content-generator')?></strong>
+                        <strong><?php echo esc_html($wpaicg_role['name']); ?></strong>
                     </p>
                     <div class="wpaicg-grid-three wpaicg-list-roles">
                     <?php
@@ -142,7 +142,7 @@ foreach($roles->get_names() as $role => $name){
                                 ?>
                                 <div class="wpaicg-grid-1">
                                     <div class="wpaicg-role-item">
-                                        <label><input type="checkbox" disabled>&nbsp;<?php echo esc_html__($role_name['name'],'gpt3-ai-content-generator')?><span style="font-size: 12px;display: inline-block;padding: 0 4px;background: #ffb30a;border-radius: 2px;margin-left: 5px;font-weight: bold;"><?php echo esc_html__('Pro','gpt3-ai-content-generator')?></span></label>
+                                    <label><input type="checkbox" disabled> <?php echo esc_html($role_name['name']); ?><span style="font-size: 12px;display: inline-block;padding: 0 4px;background: #ffb30a;border-radius: 2px;margin-left: 5px;font-weight: bold;"><?php echo esc_html__('Pro','gpt3-ai-content-generator')?></span></label>
                                     </div>
                                 </div>
                                 <?php
@@ -151,7 +151,7 @@ foreach($roles->get_names() as $role => $name){
                             ?>
                             <div class="wpaicg-grid-1">
                                 <div class="wpaicg-role-item">
-                                    <label><input <?php echo in_array('wpaicg_'.$key.'_'.$key_role, $role_modules) ? ' checked':''?> name="wpaicgroles[<?php echo esc_html($role)?>][]" value="wpaicg_<?php echo esc_html($key)?>_<?php echo esc_html($key_role)?>" class="wpaicg_role_<?php echo esc_html($role)?> wpaicg_role_multi" type="checkbox">&nbsp;<?php echo esc_html__($role_name['name'],'gpt3-ai-content-generator')?></label>
+                                 <label><input <?php echo in_array('wpaicg_'.$key.'_'.$key_role, $role_modules) ? ' checked':''?> name="wpaicgroles[<?php echo esc_html($role)?>][]" value="wpaicg_<?php echo esc_html($key)?>_<?php echo esc_html($key_role)?>" class="wpaicg_role_<?php echo esc_html($role)?> wpaicg_role_multi" type="checkbox"> <?php echo esc_html($role_name['name']); ?></label>
                                 </div>
                             </div>
                             <?php
@@ -167,7 +167,7 @@ foreach($roles->get_names() as $role => $name){
                         ?>
                         <div class="wpaicg-grid-1">
                             <div class="wpaicg-role-item">
-                                <label><input <?php echo in_array('wpaicg_'.$key, $role_modules) ? ' checked':''?> name="wpaicgroles[<?php echo esc_html($role)?>][]" value="wpaicg_<?php echo esc_html($key)?>" class="wpaicg_role_<?php echo esc_html($role)?>" type="checkbox">&nbsp;<?php echo esc_html__($wpaicg_role['name'],'gpt3-ai-content-generator')?></label>
+                            <label><input <?php echo in_array('wpaicg_'.$key, $role_modules) ? ' checked':''?> name="wpaicgroles[<?php echo esc_html($role)?>][]" value="wpaicg_<?php echo esc_html($key)?>" class="wpaicg_role_<?php echo esc_html($role)?>" type="checkbox"> <?php echo esc_html($wpaicg_role['name']); ?></label>
                             </div>
                         </div>
                         <?php

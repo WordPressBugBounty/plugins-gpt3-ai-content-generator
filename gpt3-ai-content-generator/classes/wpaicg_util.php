@@ -177,13 +177,29 @@ if(!class_exists('\\WPAICG\\WPAICG_Util')) {
             global $wpdb;
             $table_prefix = $wpdb->prefix;
 
-            $post_type = array_map(function($item) use ($wpdb) {
-                return $wpdb->prepare('%s', $item);
-            }, $post_type);
+            // Prepare post types safely for the IN clause
+            $post_type_placeholders = implode(', ', array_fill(0, count($post_type), '%s'));
+            $prepare_args = $post_type; // Start arguments array with post types
 
-            $post_type_in = implode(',', $post_type);
+            // Prepare LIKE patterns
+            $like_edit = $wpdb->esc_like('_edit') . '%';
+            $like_oembed = $wpdb->esc_like('_oembed_') . '%';
+            $prepare_args[] = $like_edit; // Add LIKE patterns to arguments
+            $prepare_args[] = $like_oembed;
 
-            $meta_keys = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT {$table_prefix}postmeta.meta_key FROM {$table_prefix}postmeta, {$table_prefix}posts WHERE {$table_prefix}postmeta.post_id = {$table_prefix}posts.ID AND {$table_prefix}posts.post_type IN ({$post_type_in}) AND {$table_prefix}postmeta.meta_key NOT LIKE '_edit%' AND {$table_prefix}postmeta.meta_key NOT LIKE '_oembed_%' LIMIT 1000"));
+            // Construct the query using placeholders
+            $query = $wpdb->prepare(
+                "SELECT DISTINCT pm.meta_key
+                 FROM {$table_prefix}postmeta pm
+                 JOIN {$table_prefix}posts p ON pm.post_id = p.ID
+                 WHERE p.post_type IN ({$post_type_placeholders})
+                 AND pm.meta_key NOT LIKE %s
+                 AND pm.meta_key NOT LIKE %s
+                 LIMIT 1000",
+                 $prepare_args // Pass all arguments
+            );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $query is already the result of $wpdb->prepare() on the preceding lines.
+            $meta_keys = $wpdb->get_results($query);
 
             $_existing_meta_keys = array();
             if ( ! empty($meta_keys)){

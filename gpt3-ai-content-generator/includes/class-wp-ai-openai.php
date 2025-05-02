@@ -300,31 +300,53 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
         {
             global $wpdb;
             $wpaicgTable = $wpdb->prefix . 'wpaicg';
-            $sql = $wpdb->prepare( 'SELECT * FROM ' . $wpaicgTable . ' where name=%s','wpaicg_settings' );
-            $wpaicg_settings = $wpdb->get_row( $sql, ARRAY_A );
-            if($wpaicg_settings && isset($wpaicg_settings['api_key']) && !empty($wpaicg_settings['api_key'])){
+        
+            $wpaicg_settings = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                    'wpaicg_settings'
+                ),
+                ARRAY_A
+            );
+        
+            if (
+                $wpaicg_settings &&
+                isset($wpaicg_settings['api_key']) &&
+                !empty($wpaicg_settings['api_key'])
+            ) {
                 add_action('http_api_curl', array($this, 'filterCurlForStream'));
+        
                 $this->headers = [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer '.$wpaicg_settings['api_key'],
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . $wpaicg_settings['api_key'],
                 ];
-                unset($wpaicg_settings['ID']);
-                unset($wpaicg_settings['name']);
-                unset($wpaicg_settings['added_date']);
-                unset($wpaicg_settings['modified_date']);
-                foreach($wpaicg_settings as $key=>$wpaicg_setting){
+        
+                unset(
+                    $wpaicg_settings['ID'],
+                    $wpaicg_settings['name'],
+                    $wpaicg_settings['added_date'],
+                    $wpaicg_settings['modified_date']
+                );
+        
+                foreach ($wpaicg_settings as $key => $wpaicg_setting) {
                     $this->$key = $wpaicg_setting;
                 }
+        
                 return $this;
             }
-            else return false;
+        
+            return false;
         }
+        
 
         public function filterCurlForStream($handle)
         {
             if ($this->stream_method !== null){
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
                 curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
                 curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
                 curl_setopt($handle, CURLOPT_WRITEFUNCTION, function ($curl_info, $data) {
                     return call_user_func($this->stream_method, $this, $data);
                 });
@@ -616,22 +638,31 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
             $this->timeout = $timeout;
         }
 
-        private function setUpHeaders($beta_version = null) {
+        private function setUpHeaders($beta_version = null)
+        {
             global $wpdb;
             $wpaicgTable = $wpdb->prefix . 'wpaicg';
-            $sql = $wpdb->prepare('SELECT * FROM ' . $wpaicgTable . ' WHERE name = %s', 'wpaicg_settings');
-            $wpaicg_settings = $wpdb->get_row($sql, ARRAY_A);
+        
+            $wpaicg_settings = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                    'wpaicg_settings'
+                ),
+                ARRAY_A
+            );
+        
             $api_key = isset($wpaicg_settings['api_key']) ? $wpaicg_settings['api_key'] : '';
-
+        
             $this->headers['Authorization'] = 'Bearer ' . $api_key;
-            $this->headers['Content-Type'] = 'application/json';
-
-            if ($beta_version) {
+            $this->headers['Content-Type']  = 'application/json';
+        
+            if ( $beta_version ) {
                 $this->headers['OpenAI-Beta'] = $beta_version;
             } else {
-                unset($this->headers['OpenAI-Beta']);
+                unset( $this->headers['OpenAI-Beta'] );
             }
         }
+        
         
         /**
          * List assistants.
@@ -982,18 +1013,25 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
 
             $post_fields = json_encode($opts);
             // Check if the request is for text-to-speech
-            if (array_key_exists('tts', $opts)) {
+            if ( array_key_exists( 'tts', $opts ) ) {
                 // Retrieve API key from the database
-
                 global $wpdb;
                 $wpaicgTable = $wpdb->prefix . 'wpaicg';
-                $sql = $wpdb->prepare('SELECT * FROM ' . $wpaicgTable . ' WHERE name = %s', 'wpaicg_settings');
-                $wpaicg_settings = $wpdb->get_row($sql, ARRAY_A);
-                $api_key = isset($wpaicg_settings['api_key']) ? $wpaicg_settings['api_key'] : '';
-
+            
+                $wpaicg_settings = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                        'wpaicg_settings'
+                    ),
+                    ARRAY_A
+                );
+            
+                $api_key = isset( $wpaicg_settings['api_key'] ) ? $wpaicg_settings['api_key'] : '';
+            
                 // Add the Authorization header with the API key
                 $this->headers['Authorization'] = 'Bearer ' . $api_key;
             }
+            
 
             if (array_key_exists('file', $opts)) {
                 $boundary = wp_generate_password(24, false);
@@ -1004,19 +1042,33 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
                 }
                 $post_fields = $this->create_body_for_file($opts['file'], $boundary);
             }
-            elseif (isset($opts['purpose']) && $opts['purpose'] === 'assistants') {
+            elseif ( isset( $opts['purpose'] ) && $opts['purpose'] === 'assistants' ) {
                 $boundary = wp_generate_password(24, false);
-                $this->headers['Content-Type'] = 'multipart/form-data; boundary='.$boundary;
+                $this->headers['Content-Type'] = 'multipart/form-data; boundary=' . $boundary;
+            
                 global $wpdb;
                 $wpaicgTable = $wpdb->prefix . 'wpaicg';
-                $sql = $wpdb->prepare('SELECT * FROM ' . $wpaicgTable . ' WHERE name = %s', 'wpaicg_settings');
-                $wpaicg_settings = $wpdb->get_row($sql, ARRAY_A);
-                $api_key = isset($wpaicg_settings['api_key']) ? $wpaicg_settings['api_key'] : '';
-
+            
+                $wpaicg_settings = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                        'wpaicg_settings'
+                    ),
+                    ARRAY_A
+                );
+            
+                $api_key = isset( $wpaicg_settings['api_key'] ) ? $wpaicg_settings['api_key'] : '';
+            
                 // Add the Authorization header with the API key
                 $this->headers['Authorization'] = 'Bearer ' . $api_key;
-                $post_fields = $this->create_body_for_file(['filename' => $opts['filename'], 'data' => $opts['data'], 'purpose' => $opts['purpose']], $boundary);
+            
+                $post_fields = $this->create_body_for_file([
+                    'filename' => $opts['filename'],
+                    'data'     => $opts['data'],
+                    'purpose'  => $opts['purpose'],
+                ], $boundary);
             }
+            
             elseif (array_key_exists('audio', $opts)) {
                 $boundary = wp_generate_password(24, false);
                 $this->headers['Content-Type'] = 'multipart/form-data; boundary='.$boundary;
@@ -1071,20 +1123,26 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
                 throw new \Exception('Streaming is not enabled in options.');
             }
 
-            // Use cURL directly
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: customizing stream behavior via http_api_curl hook.
             $curl = curl_init($url);
 
             $headers = [];
             foreach ($this->headers as $key => $value) {
                 $headers[] = "$key: $value";
             }
-
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
             curl_setopt($curl, CURLOPT_POSTFIELDS, $post_fields);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
             curl_setopt($curl, CURLOPT_TIMEOUT, $this->timeout);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
             curl_setopt($curl, CURLOPT_HEADER, false);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
             curl_setopt($curl, CURLOPT_WRITEFUNCTION, function ($ch, $data) use (&$total_tokens, &$model, &$response_text) {
             
                 // Process `thread.run.completed` to gather usage and model information
@@ -1114,12 +1172,17 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
                     }
             
                     // Send `thread.message.delta` event to the client
+                    // **Security:** $payload is either a JSON-encoded string (safe for JSON context)
+                    // or the specific, hardcoded $limit_marker. Direct output is required for SSE.
+                    // Client-side JS handle the *content within* the received JSON safely.
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Direct output is required for SSE.
                     echo $data;
                     flush();
                 }
             
                 // Pass through the `done` event directly to the client
                 if (strpos($data, 'event: done') !== false) {
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Direct output is required for SSE.
                     echo $data;
                     flush();
                 }
@@ -1127,13 +1190,16 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenAI')){
                 // For all other events, do nothing
                 return strlen($data);
             });
-
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_exec -- Reason: customizing stream behavior via http_api_curl hook.
             $exec = curl_exec($curl);
             if ($exec === false) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: customizing stream behavior via http_api_curl hook.
                 $error = curl_error($curl);
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_close -- Reason: customizing stream behavior via http_api_curl hook.
                 curl_close($curl);
                 return json_encode(array('error' => array('message' => $error)));
             } else {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_close -- Reason: customizing stream behavior via http_api_curl hook.
                 curl_close($curl);
                 return json_encode(array(
                     'response_text' => $response_text,

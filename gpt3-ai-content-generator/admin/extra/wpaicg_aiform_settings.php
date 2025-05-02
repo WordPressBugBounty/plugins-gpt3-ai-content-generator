@@ -15,7 +15,7 @@ if ( isset($_POST['wpaicg_limit_tokens']) && ! empty($_POST['wpaicg_limit_tokens
     if ( ! isset($_POST['wpaicg_limit_tokens_nonce']) || 
          ! wp_verify_nonce($_POST['wpaicg_limit_tokens_nonce'], 'wpaicg_limit_tokens_action') ) 
     {
-        wp_die(__('Nonce verification failed.', 'gpt3-ai-content-generator'));
+        wp_die(esc_html(__('Nonce verification failed.', 'gpt3-ai-content-generator')));
     }
 
     // Mark successful update
@@ -83,7 +83,7 @@ $cse_languages  = \WPAICG\WPAICG_Util::get_instance()->search_languages;
             </tr>
 
             <!-- Token Allocation (for registered user) -->
-            <tr class="wpaicg_user_token_tr" <?php echo $display_user_token_tr; ?>>
+            <tr class="wpaicg_user_token_tr" <?php echo esc_attr($display_user_token_tr); ?>>
                 <th><?php echo esc_html__('Token Allocation', 'gpt3-ai-content-generator'); ?>:</th>
                 <td>
                     <input
@@ -97,7 +97,7 @@ $cse_languages  = \WPAICG\WPAICG_Util::get_instance()->search_languages;
                     />
                 </td>
             </tr>
-            <tr class="wpaicg_user_token_tr" <?php echo $display_user_token_tr; ?>>
+            <tr class="wpaicg_user_token_tr" <?php echo esc_attr($display_user_token_tr); ?>>
                 <th></th>
                 <td>
                     <small><em><?php echo esc_html__('Leave empty for unlimited tokens. Specify a number for a set limit.', 'gpt3-ai-content-generator'); ?></em></small>
@@ -153,7 +153,7 @@ $cse_languages  = \WPAICG\WPAICG_Util::get_instance()->search_languages;
             </tr>
 
             <!-- Token Allocation (guest) -->
-            <tr class="wpaicg_guest_token_tr" <?php echo $display_guest_token_tr; ?>>
+            <tr class="wpaicg_guest_token_tr" <?php echo esc_attr($display_guest_token_tr); ?>>
                 <th><?php echo esc_html__('Token Allocation', 'gpt3-ai-content-generator'); ?>:</th>
                 <td>
                     <input
@@ -167,7 +167,7 @@ $cse_languages  = \WPAICG\WPAICG_Util::get_instance()->search_languages;
                     />
                 </td>
             </tr>
-            <tr class="wpaicg_guest_token_tr" <?php echo $display_guest_token_tr; ?>>
+            <tr class="wpaicg_guest_token_tr" <?php echo esc_attr($display_guest_token_tr); ?>>
                 <th></th>
                 <td>
                     <small><em><?php echo esc_html__('Leave empty for unlimited tokens. Specify a number for a set limit.', 'gpt3-ai-content-generator'); ?></em></small>
@@ -205,10 +205,10 @@ $cse_languages  = \WPAICG\WPAICG_Util::get_instance()->search_languages;
                     <select name="wpaicg_limit_tokens[reset_limit]">
                         <?php foreach ($options as $value => $label): ?>
                             <option
-                                value="<?php echo $value; ?>"
+                                value="<?php echo esc_attr($value); ?>"
                                 <?php echo (isset($wpaicg_settings['reset_limit']) && (int)$wpaicg_settings['reset_limit'] === $value) ? ' selected' : ''; ?>
                             >
-                                <?php echo $label; ?>
+                                <?php echo esc_html($label); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -321,10 +321,10 @@ $cse_languages  = \WPAICG\WPAICG_Util::get_instance()->search_languages;
                     <select name="wpaicg_google_search_num">
                         <?php for ($i = 1; $i <= 10; $i++): ?>
                             <option
-                                value="<?php echo $i; ?>"
+                                value="<?php echo esc_attr($i); // Escaping for HTML attribute ?>"
                                 <?php selected($current_google_search_num, $i); ?>
                             >
-                                <?php echo $i; ?>
+                                <?php echo esc_html($i); // Escaping for HTML content ?>
                             </option>
                         <?php endfor; ?>
                     </select>

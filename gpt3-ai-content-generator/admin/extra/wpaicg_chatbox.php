@@ -413,7 +413,7 @@ $wpaicg_border_text_field = isset($wpaicg_settings['border_text_field']) && !emp
         background-color: <?php echo esc_html($wpaicg_settings['bg_text_field'])?>;
         resize: vertical;
         border-radius: <?php echo esc_html($wpaicg_settings['text_rounded'])?>px;
-        line-height: <?php echo $wpaicg_text_height - ($wpaicg_text_height * 0.1)?>px;
+        line-height: <?php echo esc_attr( $wpaicg_text_height - ($wpaicg_text_height * 0.1) ); ?>px;
         padding-left: 1em;
         color: <?php echo esc_html($wpaicg_input_font_color)?>;
         font-size: <?php echo esc_html($wpaicg_font_size)?>px;
@@ -858,8 +858,8 @@ if (isset($wpaicg_settings['model']) && strpos($wpaicg_settings['model'], 'asst_
      data-fontsize="<?php echo esc_html($wpaicg_font_size)?>"
      data-ai-bg-color="<?php echo esc_html($wpaicg_ai_bg_color)?>"
      data-nonce="<?php echo esc_html(wp_create_nonce( 'wpaicg-chatbox' ))?>"
-     data-post-id="<?php echo get_the_ID()?>"
-     data-url="<?php echo home_url( $wp->request )?>"
+     data-post-id="<?php echo esc_attr( get_the_ID() ); ?>"
+     data-url="<?php echo esc_attr( home_url( $wp->request ) ); ?>"
      data-bot-id="<?php echo esc_html($wpaicg_bot_id)?>"
      data-width="<?php echo esc_html($wpaicg_chat_widget_width)?>"
      data-height="<?php echo esc_html($wpaicg_chat_widget_height)?>"
@@ -980,7 +980,7 @@ $sidebar_html = '
         <span class="wpaicg-sidebar-toggle" role="button" aria-label="Toggle Sidebar" tabindex="0">
             <span class="dashicons dashicons-menu"></span>
         </span>
-        <?php echo $sidebar_html; ?>
+        <?php echo wp_kses_post( $sidebar_html ); ?>
     <?php endif; ?>
     <div class="wpaicg-chat-shortcode-content">
         <ul class="wpaicg-chat-shortcode-messages">

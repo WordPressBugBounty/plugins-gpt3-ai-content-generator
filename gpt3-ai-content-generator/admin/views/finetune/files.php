@@ -69,7 +69,7 @@ if($wpaicgMaxFileSize > 104857600){
     </div>
     <p></p>
     <div class="content-area">
-        <input type="hidden" id="ajax_pagination_finetune_nonce" value="<?php echo wp_create_nonce('ajax_pagination_finetune_nonce'); ?>">
+    <input type="hidden" id="ajax_pagination_finetune_nonce" value="<?php echo esc_attr(wp_create_nonce('ajax_pagination_finetune_nonce')); ?>">
         <div class="wpaicg-table-responsive">
             <table id="paginated-finetune-table" class="wp-list-table widefat striped">
                 <thead>
@@ -84,13 +84,17 @@ if($wpaicgMaxFileSize > 104857600){
                 </thead>
                 <tbody>
                     <?php foreach ($posts_finetune as $post_finetune): ?>
-                        <?php echo \WPAICG\WPAICG_FineTune::get_instance()->generate_table_row_files($post_finetune); ?>
+                        <?php
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: generate_table_row_files() returns pre-sanitized HTML markup for a table row. Escaping it here would break the table structure.
+                        echo \WPAICG\WPAICG_FineTune::get_instance()->generate_table_row_files($post_finetune);
+                        ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
 
         <?php
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: generate_smart_pagination_finetune() returns pre-sanitized HTML markup for pagination. Escaping it here would break the structure.
         echo \WPAICG\WPAICG_FineTune::get_instance()->generate_smart_pagination_finetune($page_finetune, $total_pages_finetune);
         ?>
         <p></p>
@@ -116,7 +120,7 @@ if($wpaicgMaxFileSize > 104857600){
             btn.find('.spinner').remove();
         }
         var wpaicg_max_file_size = <?php echo esc_html($wpaicgMaxFileSize)?>;
-        var wpaicg_max_size_in_mb = '<?php echo size_format(esc_html($wpaicgMaxFileSize))?>';
+        var wpaicg_max_size_in_mb = '<?php echo esc_js(size_format(esc_html($wpaicgMaxFileSize))); ?>';
         var wpaicg_file_button = $('#wpaicg_file_button');
         var wpaicg_file_upload = $('#wpaicg_file_upload');
         var wpaicg_file_purpose = $('#wpaicg_file_purpose');
@@ -124,14 +128,14 @@ if($wpaicgMaxFileSize > 104857600){
         var wpaicg_file_model = $('#wpaicg_file_model');
         var wpaicg_progress = $('.wpaicg_progress');
         var wpaicg_error_message = $('.wpaicg-error-msg');
-        var wpaicg_ajax_url = '<?php echo admin_url('admin-ajax.php')?>';
+        var wpaicg_ajax_url = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
         var wpaicgAjaxRunning = false;
         $('.wpaicg_sync_files').click(function (){
             var btn = $(this);
             if(!wpaicgAjaxRunning) {
                 $.ajax({
                     url: wpaicg_ajax_url,
-                    data: {action: 'wpaicg_fetch_finetune_files','nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                    data: {action: 'wpaicg_fetch_finetune_files','nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'},
                     dataType: 'JSON',
                     type: 'POST',
                     beforeSend: function () {
@@ -167,7 +171,7 @@ if($wpaicgMaxFileSize > 104857600){
                     var id = btn.attr('data-id');
                     $.ajax({
                         url: wpaicg_ajax_url,
-                        data: {action: 'wpaicg_delete_finetune_file', id: id,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                        data: {action: 'wpaicg_delete_finetune_file', id: id,'nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'},
                         dataType: 'JSON',
                         type: 'POST',
                         beforeSend: function () {
@@ -208,7 +212,7 @@ if($wpaicgMaxFileSize > 104857600){
                 var model = $('#wpaicg_create_finetune_model').val();
                 $.ajax({
                     url: wpaicg_ajax_url,
-                    data: {action: 'wpaicg_create_finetune', id: id, model: model,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                    data: {action: 'wpaicg_create_finetune', id: id, model: model,'nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'},
                     dataType: 'JSON',
                     type: 'POST',
                     beforeSend: function () {
@@ -245,7 +249,7 @@ if($wpaicgMaxFileSize > 104857600){
                 var id = btn.attr('data-id');
                 $.ajax({
                     url: wpaicg_ajax_url,
-                    data: {action: 'wpaicg_create_finetune_modal','nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                    data: {action: 'wpaicg_create_finetune_modal','nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'},
                     dataType: 'JSON',
                     type: 'POST',
                     beforeSend: function () {
@@ -292,7 +296,7 @@ if($wpaicgMaxFileSize > 104857600){
                 var id = btn.attr('data-id');
                 $.ajax({
                     url: wpaicg_ajax_url,
-                    data: {action: 'wpaicg_get_finetune_file', id: id,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                    data: {action: 'wpaicg_get_finetune_file', id: id,'nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'},
                     dataType: 'JSON',
                     type: 'POST',
                     beforeSend: function () {
@@ -333,7 +337,7 @@ if($wpaicgMaxFileSize > 104857600){
         $(document).on('click', '.finetune-pagination a', function(e){
             e.preventDefault();
             var page = $(this).data('page_finetune');
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+            var ajaxurl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
             var nonce = $('#ajax_pagination_finetune_nonce').val();
 
             $.ajax({

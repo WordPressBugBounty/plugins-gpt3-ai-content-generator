@@ -13,7 +13,7 @@ else{
     $key_text = $wpaicg_key.'th';
 }
 $post_parent = get_post_meta($post_id,'wpaicg_parent',true);
-$post_content = strip_tags($embedding->post_content);
+$post_content = wp_strip_all_tags($embedding->post_content);
 $source_data = false;
 if(!empty($post_parent)){
     $source_data = get_post($post_parent);
@@ -29,7 +29,7 @@ if(!empty($post_parent)){
         }
         else{
         ?>
-            <a href="<?php echo get_permalink($source_data)?>" target="_blank">
+                        <a href="<?php echo esc_url(get_permalink($source_data)); ?>" target="_blank">
         <?php
         }
         ?>
@@ -56,7 +56,8 @@ if(!empty($post_parent)){
         ?>
             <div class="wpaicg-search-item-excerpt">
                 <?php
-                echo substr(esc_html($post_content),0,400).'..';
+                // Escape the substring result for HTML output
+                echo esc_html(substr($post_content, 0, 400)).'..';
                 if(!$source_data){
                     ?>
                     <a href="javascript:void(0)" onclick="wpaicgInit.searchExpand(this)"><?php echo esc_html__('[Read more]','gpt3-ai-content-generator')?></a>
@@ -64,7 +65,7 @@ if(!empty($post_parent)){
                 }
                 else{
                     ?>
-                    <a href="<?php echo get_permalink($source_data)?>" target="_blank"><?php echo esc_html__('[Read more]','gpt3-ai-content-generator')?></a>
+                    <a href="<?php echo esc_url(get_permalink($source_data)); // Escape URL for href attribute ?>" target="_blank"><?php echo esc_html__('[Read more]','gpt3-ai-content-generator')?></a>
                     <?php
                 }
                 ?>

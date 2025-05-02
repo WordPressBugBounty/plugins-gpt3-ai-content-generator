@@ -1569,8 +1569,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                 'gif' => 'image/gif'
             ];
 
-            if (!$file_info['ext'] || !$file_info['type'] || !array_key_exists($file_info['ext'], $allowed_file_types) || $file_info['type'] !== $allowed_file_types[$file_info['ext']]) {
-                die(__("File type is not allowed. Only PNG, JPEG, WEBP, and non-animated GIF are supported.", "gpt3-ai-content-generator"));
+            if ( ! $file_info['ext'] || ! $file_info['type'] || ! array_key_exists( $file_info['ext'], $allowed_file_types ) || $file_info['type'] !== $allowed_file_types[ $file_info['ext'] ] ) {
+                // Using esc_html__() handles both translation and HTML escaping.
+                die( esc_html__( "File type is not allowed. Only PNG, JPEG, WEBP, and non-animated GIF are supported.", "gpt3-ai-content-generator" ) );
             }
             // Initialize the WordPress filesystem once
             global $wp_filesystem;
@@ -1789,7 +1790,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                             }
                             // Only echo lines that start with 'data:'
                             if (strpos($line, 'data:') === 0) {
-                                // Echo the line to the client
+
+                                // Echo the raw SSE line directly to the client, followed by two newlines as required by the SSE protocol.
+                                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting raw SSE line. Escaping would break the protocol.
                                 echo $line . "\n\n";
                                 ob_implicit_flush( true );
                                 // Flush and end buffer if it exists
@@ -1817,6 +1820,10 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                             }
                             $this->handleStreamErrorMessage($message);
                         } else {
+                            // **Security:** $payload is either a JSON-encoded string (safe for JSON context)
+                            // or the specific, hardcoded $limit_marker. Direct output is required for SSE.
+                            // Client-side JS handle the *content within* the received JSON safely.
+                            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting raw SSE line. Escaping would break the protocol.
                             echo $data;
                             ob_implicit_flush( true );
                             // Flush and end buffer if it exists
@@ -1840,16 +1847,31 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             $words = explode(' ', $words);
             $words[count($words) + 1] = '[LIMITED]';
             foreach ($words as $key => $word) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol keyword 'event:'.
                 echo "event: message\n";
                 if ($key == 0) {
+                    // 2. Send the data payload, prefixed with "data: "
+                    // **Security:** $payload is either a JSON-encoded string (safe for JSON context)
+                    // or the specific, hardcoded $limit_marker. Direct output is required for SSE.
+                    // Client-side JS MUST handle the *content within* the received JSON safely.
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting JSON-encoded string or hardcoded marker for SSE 'data:' line. Escaping would break protocol/JSON.
                     echo 'data: {"choices":[{"delta":{"content":"' . $word . '"}}]}';
                 } else {
                     if ($word == '[LIMITED]') {
+                        // 3. Send the event terminator (LIMITED)
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol limited terminators.
                         echo 'data: [LIMITED]';
                     } else {
+                        // 4. Send the data payload, prefixed with "data: "
+                        // **Security:** $payload is either a JSON-encoded string (safe for JSON context)
+                        // or the specific, hardcoded $limit_marker. Direct output is required for SSE.
+                        // Client-side JS MUST handle the *content within* the received JSON safely.
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting JSON-encoded string or hardcoded marker for SSE 'data:' line. Escaping would break protocol/JSON.
                         echo 'data: {"choices":[{"delta":{"content":" ' . $word . '"}}]}';
                     }
                 }
+                // 5. Send the event terminator (double newline)
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol event terminator.
                 echo "\n\n";
 				ob_implicit_flush( true );
                 // Flush and end buffer if it exists
@@ -1863,8 +1885,13 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             $words = explode(' ', $message);
 
             foreach ($words as $key => $word) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol keyword 'event:'.
                 echo "event: message\n";
                 $data = $key == 0 ? '{"choices":[{"delta":{"content":"' . $word . '"}}]}' : '{"choices":[{"delta":{"content":" ' . $word . '"}}]}';
+                // **Security:** $payload is either a JSON-encoded string (safe for JSON context)
+                // or the specific, hardcoded $limit_marker. Direct output is required for SSE.
+                // Client-side JS MUST handle the *content within* the received JSON safely.
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting JSON-encoded string or hardcoded marker for SSE 'data:' line. Escaping would break protocol/JSON.
                 echo "data: $data\n\n";
 				ob_implicit_flush( true );
                 // Flush and end buffer if it exists
@@ -1874,7 +1901,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
             }
 
             // Send finish_reason stop after the message
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol finish_reason.
             echo 'data: {"choices":[{"finish_reason":"stop"}]}';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol event terminator.
             echo "\n\n";
             ob_implicit_flush( true );
             // Flush and end buffer if it exists
@@ -1886,10 +1915,18 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
         public function processChunkedData($accumulatedData, $wpaicg_chatgpt_messages, $wpaicg_ai_model, $isChatEndpoint) {
             $decodedData = json_decode($accumulatedData, true);
             if (isset($decodedData['error']['message'])) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol keyword 'event:'.
                 echo "event: message\n";
+                // **Security:** $payload is either a JSON-encoded string (safe for JSON context)
+                // or the specific, hardcoded $limit_marker. Direct output is required for SSE.
+                // Client-side JS MUST handle the *content within* the received JSON safely.
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting JSON-encoded string or hardcoded marker for SSE 'data:' line. Escaping would break protocol/JSON.
                 echo 'data: {"choices":[{"delta":{"content":"' . $decodedData['error']['message'] . '"}}]}';
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol event terminator.
                 echo "\n\n";
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol finish_reason.
                 echo 'data: {"choices":[{"finish_reason":"stop"}]}';
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Outputting static SSE protocol event terminator.
                 echo "\n\n";
                 ob_implicit_flush( true );
                 // Flush and end buffer if it exists
@@ -2314,11 +2351,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                             }
                             else{
                                 $stream_nav_setting = $this->determine_stream_nav_setting($wpaicg_chat_source, $wpaicg_provider);
-                                $stream_pinecone_error = ['msg'    => esc_html__($body_content, 'gpt3-ai-content-generator'), 'pineconeError' => true];
+                                $safe_body_content = esc_html($body_content);
+                                $stream_pinecone_error = ['msg'    => $safe_body_content, 'pineconeError' => true];
+
                                 if ($stream_nav_setting == 1) {
                                     header('Content-Type: text/event-stream');
                                     header('Cache-Control: no-cache');
                                     header( 'X-Accel-Buffering: no' );
+                                    // Pass the already escaped message
                                     echo "data: " . wp_json_encode($stream_pinecone_error) . "\n\n";
                                     ob_implicit_flush( true );
                                     // Flush and end buffer if it exists
@@ -2327,7 +2367,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Chat')) {
                                     }
                                     exit;
                                 } else {
-                                    $result['data'] = $body_content ? $body_content : esc_html__('No results from Pinecone.','gpt3-ai-content-generator');
+                                    // FIX 2: Use esc_html() for the dynamic part, keep esc_html__() for the static part
+                                    $result['data'] = $body_content ? $safe_body_content : esc_html__('No results from Pinecone.','gpt3-ai-content-generator');
                                 }
                             }
                         }

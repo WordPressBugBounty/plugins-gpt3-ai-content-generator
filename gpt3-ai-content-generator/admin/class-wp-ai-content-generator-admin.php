@@ -188,7 +188,7 @@ class Wp_Ai_Content_Generator_Admin
     {
         if (in_array('administrator', (array)wp_get_current_user()->roles)) {
             add_menu_page(
-                __('AI Power', 'wp-ai-content-generator'),
+                __('AI Power', 'gpt3-ai-content-generator'),
                 'AI Power',
                 'manage_options',
                 'wpaicg',
@@ -198,7 +198,7 @@ class Wp_Ai_Content_Generator_Admin
             );
         } else {
             add_menu_page(
-                __('AI Power', 'wp-ai-content-generator'),
+                __('AI Power', 'gpt3-ai-content-generator'),
                 'AI Power',
                 'wpaicg_settings',
                 'wpaicg',

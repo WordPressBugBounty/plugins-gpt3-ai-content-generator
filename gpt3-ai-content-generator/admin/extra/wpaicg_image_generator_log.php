@@ -5,32 +5,91 @@ global $wpdb;
 
 // Check if the log table exists
 $wpaicgLogTable = $wpdb->prefix . 'wpaicg_image_logs';
-if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgLogTable)) != $wpaicgLogTable) {
+if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $wpaicgLogTable ) ) !== $wpaicgLogTable ) {
     echo '<div class="notice notice-info is-dismissible">
-        <p>'. esc_html__('The log table does not exist. Please deactivate and then reactivate the plugin to trigger the table creation.', 'gpt3-ai-content-generator') .'</p>
+        <p>' . esc_html__( 'The log table does not exist. Please deactivate and then reactivate the plugin to trigger the table creation.', 'gpt3-ai-content-generator' ) . '</p>
     </div>';
-    return; // Exit so that the rest of the code doesn't run
+    return;
 }
 
-$wpaicg_log_page = isset($_GET['wpage']) && !empty($_GET['wpage']) ? sanitize_text_field($_GET['wpage']) : 1;
-$search = isset($_GET['search']) && !empty($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
-$where = '';
-if (isset($_GET['search']) && !empty($_GET['search']) && !wp_verify_nonce($_GET['wpaicg_nonce'], 'wpaicg_imagelog_search_nonce')) {
-    die(esc_html__('Nonce verification failed','gpt3-ai-content-generator'));
+$wpaicg_log_page = isset( $_GET['wpage'] ) && !empty( $_GET['wpage'] ) ? intval( $_GET['wpage'] ) : 1;
+$search          = isset( $_GET['search'] ) ? sanitize_text_field( $_GET['search'] ) : '';
+$items_per_page  = 20;
+$offset          = ( $wpaicg_log_page * $items_per_page ) - $items_per_page;
+
+$where_sql    = '';
+$where_values = [];
+
+if ( ! empty( $search ) ) {
+    if ( ! isset( $_GET['wpaicg_nonce'] ) || ! wp_verify_nonce( $_GET['wpaicg_nonce'], 'wpaicg_imagelog_search_nonce' ) ) {
+        die( esc_html__( 'Nonce verification failed', 'gpt3-ai-content-generator' ) );
+    }
+
+    $where_sql     = " AND `prompt` LIKE %s";
+    $where_values  = [ '%' . $wpdb->esc_like( $search ) . '%' ];
 }
 
-if(!empty($search)) {
-    $where .= $wpdb->prepare(" AND `prompt` LIKE %s", '%' . $wpdb->esc_like($search) . '%');
+// ===================
+// Total Count Query
+// ===================
+if ( ! empty( $where_values ) ) {
+    $total = $wpdb->get_var(
+        $wpdb->prepare(
+            "
+            SELECT COUNT(1)
+            FROM {$wpaicgLogTable}
+            WHERE 1=1
+            {$where_sql}
+            ",
+            ...$where_values
+        )
+    );
+} else {
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static query, no user input
+    $total = $wpdb->get_var( "
+        SELECT COUNT(1)
+        FROM {$wpaicgLogTable}
+        WHERE 1=1
+    " );
 }
 
-$query = "SELECT * FROM ".$wpdb->prefix."wpaicg_image_logs WHERE 1=1".$where;
-$total_query = "SELECT COUNT(1) FROM ({$query}) AS combined_table";
-$total = $wpdb->get_var( $total_query );
-$items_per_page = 20;
-$offset = ( $wpaicg_log_page * $items_per_page ) - $items_per_page;
-$wpaicg_logs = $wpdb->get_results( $query . " ORDER BY created_at DESC LIMIT {$offset}, {$items_per_page}" );
-$totalPage         = ceil($total / $items_per_page);
+// ===================
+// Logs Fetch Query
+// ===================
+if ( ! empty( $where_values ) ) {
+    $wpaicg_logs = $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT *
+            FROM {$wpaicgLogTable}
+            WHERE 1=1
+            {$where_sql}
+            ORDER BY created_at DESC
+            LIMIT %d, %d
+            ",
+            ...array_merge( $where_values, [ $offset, $items_per_page ] )
+        )
+    );
+} else {
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static query with safe LIMIT
+    $wpaicg_logs = $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT *
+            FROM {$wpaicgLogTable}
+            WHERE 1=1
+            ORDER BY created_at DESC
+            LIMIT %d, %d
+            ",
+            $offset,
+            $items_per_page
+        )
+    );
+}
+
+$totalPage = ceil( $total / $items_per_page );
 ?>
+
 <style>
 </style>
 <form action="" method="get">
@@ -86,6 +145,7 @@ $totalPage         = ceil($total / $items_per_page);
 <div class="wpaicg-paginate">
     <?php
     if($totalPage > 1){
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: paginate_links() generates safe HTML markup; escaping it would break the generated links.
         echo paginate_links( array(
             'base'         => admin_url('admin.php?page=wpaicg_image_generator&action=logs&wpage=%#%'),
             'total'        => $totalPage,
@@ -111,7 +171,7 @@ jQuery(document).ready(function($) {
                 type: 'POST',
                 data: {
                     action: 'wpaicg_delete_all_image_logs', // The action hook for backend
-                    nonce: '<?php echo wp_create_nonce("wpaicg_delete_all_image_logs_nonce"); ?>'
+                    nonce: '<?php echo esc_js(wp_create_nonce("wpaicg_delete_all_image_logs_nonce")); ?>'
                 },
                 success: function(response) {
                     alert(response.data.message);

@@ -4,7 +4,7 @@ $wpaicg_action = isset($_GET['action']) && !empty($_GET['action']) ? sanitize_te
 if(is_admin()){
     $checkRole = \WPAICG\wpaicg_roles()->user_can('wpaicg_image_generator',empty($wpaicg_action) ? 'dalle' : $wpaicg_action);
     if($checkRole){
-        echo '<script>window.location.href="'.$checkRole.'"</script>';
+        echo '<script>window.location.href="'.esc_js($redirect_url_or_allowed).'"</script>';
         exit;
     }
 }
@@ -357,7 +357,7 @@ if(count($wpaicg_image_prompts)){
             if($wpaicg_action !== 'shortcodes' && $wpaicg_action != 'logs' && $wpaicg_action != 'settings'):
             ?>
             <form class="wpaicg-single-content-form" id="wpaicg-image-generator-form" method="post">
-                <input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'wpaicg-image-generator' )?>">
+                <input type="hidden" name="_wpnonce" value="<?php echo esc_attr(wp_create_nonce( 'wpaicg-image-generator' )); ?>">
                 <?php
                 if($wpaicg_show_setting):
                 ?>
@@ -681,10 +681,30 @@ if(count($wpaicg_image_prompts)){
                 /*Show shortcode HTML*/
             ?>
             <p><?php echo esc_html__('Copy and paste the following shortcode into your post or page to display the image generator.','gpt3-ai-content-generator')?></p>
-            <p><?php echo sprintf(esc_html__('If you want to display both DALL-E and Stable Diffusion, use: %s','gpt3-ai-content-generator'),'<code>[wpcgai_img]</code>')?></p>
-            <p><?php echo sprintf(esc_html__('If you want to display only DALL-E, use: %s','gpt3-ai-content-generator'),'<code>[wpcgai_img dalle=yes]</code>')?></p>
-            <p><?php echo sprintf(esc_html__('If you want to display only Stable Diffusion, use: %s','gpt3-ai-content-generator'),'<code>[wpcgai_img sd=yes]</code>')?></p>
-            <p><?php echo sprintf(esc_html__('If you want to display the settings, use: %s or %s or %s','gpt3-ai-content-generator'),'<code>[wpcgai_img settings=yes]</code>','<code>[wpcgai_img dalle=yes settings=yes]</code>','<code>[wpcgai_img sd=yes settings=yes]</code>')?></p>
+            <p>
+                <?php
+                // translators: %s: Example shortcode wrapped in <code> tags.
+                echo sprintf(esc_html__('If you want to display both DALL-E and Stable Diffusion, use: %s','gpt3-ai-content-generator'),'<code>[wpcgai_img]</code>');
+                ?>
+            </p>
+            <p>
+                <?php
+                // translators: %s: Example shortcode wrapped in <code> tags.
+                echo sprintf(esc_html__('If you want to display only DALL-E, use: %s','gpt3-ai-content-generator'),'<code>[wpcgai_img dalle=yes]</code>');
+                ?>
+            </p>
+            <p>
+                <?php
+                // translators: %s: Example shortcode wrapped in <code> tags.
+                echo sprintf(esc_html__('If you want to display only Stable Diffusion, use: %s','gpt3-ai-content-generator'),'<code>[wpcgai_img sd=yes]</code>');
+                ?>
+            </p>
+            <p>
+                <?php
+                // translators: %1$s, %2$s, %3$s: Example shortcodes wrapped in <code> tags.
+                echo sprintf(esc_html__('If you want to display the settings, use: %1$s or %2$s or %3$s','gpt3-ai-content-generator'),'<code>[wpcgai_img settings=yes]</code>', '<code>[wpcgai_img dalle=yes settings=yes]</code>', '<code>[wpcgai_img sd=yes settings=yes]</code>');
+                ?>
+            </p>
             <?php
             endif;
             ?>
@@ -706,7 +726,7 @@ if($wpaicg_action !== 'shortcodes' && $wpaicg_action != 'logs'):
             }
         });
     }
-    let wpaicgImageSourceID = <?php echo !empty(get_the_ID()) ? get_the_ID() : 0?>;
+    let wpaicgImageSourceID = <?php echo ! empty( get_the_ID() ) ? (int) get_the_ID() : 0; ?>;
     let wpaicgImageShortcode = '<?php echo esc_html($wpaicg_shortcode_text)?>';
     let wpaicgImageNonce = '<?php echo esc_html(wp_create_nonce( 'wpaicg-imagelog' ))?>';
     let wpaicgImageSaveNonce = '<?php echo esc_html(wp_create_nonce('wpaicg-ajax-nonce'))?>';

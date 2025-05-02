@@ -1705,7 +1705,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Generator')) {
         }
         public function wpaicg_count_words($text)
         {
-            $text = trim(strip_tags(html_entity_decode($text,ENT_QUOTES)));
+            $text = trim(wp_strip_all_tags(html_entity_decode($text,ENT_QUOTES)));
             $text = preg_replace("/[\n]+/", " ", $text);
             $text = preg_replace("/[\s]+/", "@SEPARATOR@", $text);
             $text_array = explode('@SEPARATOR@', $text);

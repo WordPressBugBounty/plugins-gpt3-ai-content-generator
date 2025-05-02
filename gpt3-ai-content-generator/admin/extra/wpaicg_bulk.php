@@ -437,7 +437,7 @@ $wpaicg_number_title = 5;
             else{
                 var wpaicg_data = wpaicg_form.serialize();
                 $.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php')?>',
+                    url: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
                     data: wpaicg_data,
                     type: 'POST',
                     dataType: 'JSON',
@@ -553,9 +553,9 @@ $wpaicg_number_title = 5;
                     var data = new FormData();
                     data.append('action', 'wpaicg_read_csv');
                     data.append('file', wpaicg_file);
-                    data.append('nonce','<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>');
+                    data.append('nonce','<?php echo esc_js( wp_create_nonce('wpaicg-ajax-nonce') ); ?>');
                     $.ajax({
-                        url: '<?php echo admin_url('admin-ajax.php')?>',
+                        url: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
                         data: data,
                         cache: false,
                         contentType: false,
@@ -584,8 +584,8 @@ $wpaicg_number_title = 5;
                                         wpaicg_categories.push(wpaicg_category);
                                     });
                                     $.ajax({
-                                        url: '<?php echo admin_url('admin-ajax.php')?>',
-                                        data: {wpaicg_titles: wpaicg_titles,wpaicg_schedules: wpaicg_schedules,post_author: wpaicg_author,post_status: wpaicg_post_status,wpaicg_category: wpaicg_categories, action: 'wpaicg_bulk_generator',source: 'csv','nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                                        url: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
+                                        data: {wpaicg_titles: wpaicg_titles,wpaicg_schedules: wpaicg_schedules,post_author: wpaicg_author,post_status: wpaicg_post_status,wpaicg_category: wpaicg_categories, action: 'wpaicg_bulk_generator',source: 'csv','nonce': '<?php echo esc_js( wp_create_nonce('wpaicg-ajax-nonce') ); ?>'},
                                         type: 'POST',
                                         dataType: 'JSON',
                                         success: function (res){
@@ -667,8 +667,8 @@ $wpaicg_number_title = 5;
                     wpaicg_categories.push(wpaicg_category);
                 });
                 $.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php')?>',
-                    data: {wpaicg_titles: wpaicg_titles,wpaicg_schedules: wpaicg_schedules,post_author: wpaicg_author,post_status: wpaicg_post_status,wpaicg_category: wpaicg_categories, action: 'wpaicg_bulk_generator',source: 'multi','nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                    url: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
+                    data: {wpaicg_titles: wpaicg_titles,wpaicg_schedules: wpaicg_schedules,post_author: wpaicg_author,post_status: wpaicg_post_status,wpaicg_category: wpaicg_categories, action: 'wpaicg_bulk_generator',source: 'multi','nonce': '<?php echo esc_js( wp_create_nonce('wpaicg-ajax-nonce') ); ?>'},
                     type: 'POST',
                     dataType: 'JSON',
                     beforeSend: function(){

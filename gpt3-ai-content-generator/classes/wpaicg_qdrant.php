@@ -116,28 +116,61 @@ if (!class_exists('\\WPAICG\\WPAICG_Qdrant')) {
         public function connect_to_qdrant()
         {
             // nonce verification
-            if (!wp_verify_nonce($_POST['nonce'], 'wpaicg-ajax-nonce')) {
-                die(esc_html__('Nonce verification failed', 'gpt3-ai-content-generator'));
+            // Ensure nonce field exists before verification
+            if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), 'wpaicg-ajax-nonce' ) ) {
+                // It's generally better to send a proper error response for AJAX
+                wp_send_json_error( esc_html__( 'Nonce verification failed', 'gpt3-ai-content-generator' ), 403 );
+                // wp_send_json_error includes die()
             }
 
-            $this->api_key = sanitize_text_field($_POST['api_key']);
-            $this->endpoint = sanitize_text_field($_POST['endpoint']);
+            // Sanitize input, using wp_unslash as data comes from $_POST
+            $this->api_key = isset($_POST['api_key']) ? sanitize_text_field(wp_unslash($_POST['api_key'])) : '';
+            // Use esc_url_raw for endpoint URL intended for backend requests
+            $this->endpoint = isset($_POST['endpoint']) ? esc_url_raw(wp_unslash($_POST['endpoint'])) : '';
+
+            // Basic validation for the endpoint URL format
+            if ( empty($this->endpoint) || ! filter_var($this->endpoint, FILTER_VALIDATE_URL) ) {
+                 wp_send_json_error( esc_html__( 'Invalid Endpoint URL provided.', 'gpt3-ai-content-generator' ), 400 );
+            }
 
             // Save Qdrant API key and endpoint
             update_option('wpaicg_qdrant_api_key', $this->api_key);
             update_option('wpaicg_qdrant_endpoint', $this->endpoint);
 
-            $response = wp_remote_get($this->endpoint, [
-                'headers' => ['api-key' => $this->api_key]
-            ]);
-
-            if (is_wp_error($response)) {
-                echo 'Error: ' . $response->get_error_message();
-            } else {
-                echo 'Response: ' . wp_remote_retrieve_body($response);
+            // Prepare arguments for wp_remote_get
+            $args = [
+                'headers' => [],
+                'timeout' => 15, // Add a reasonable timeout
+            ];
+            // Only include the API key header if the key is not empty
+            if (!empty($this->api_key)) {
+                $args['headers']['api-key'] = $this->api_key;
             }
 
-            die();
+            $response = wp_remote_get($this->endpoint, $args);
+
+            // Check for WP_Error and handle the response
+            if (is_wp_error($response)) {
+                // *** Escaping applied here ***
+                // Send a structured error response
+                wp_send_json_error( array(
+                    /* translators: %s: Specific error message */
+                    'message' => sprintf(esc_html__('Error: %s', 'gpt3-ai-content-generator'), esc_html($response->get_error_message()))
+                ) );
+            } else {
+                $body = wp_remote_retrieve_body($response);
+                $status_code = wp_remote_retrieve_response_code($response);
+
+                // *** Escaping applied here ***
+                // Send a structured success response, escaping the raw body output
+                 wp_send_json_success( array(
+                    'message' => esc_html__('Response Received.', 'gpt3-ai-content-generator'), // No placeholders, so no comment needed here
+                    'status_code' => $status_code,
+                    'body' => esc_html($body) // Escape the response body
+                 ) );
+            }
+
+            // die(); // die() is included in wp_send_json_success/error, so it's not needed here.
         }
 
         public function create_collection() {
@@ -168,6 +201,7 @@ if (!class_exists('\\WPAICG\\WPAICG_Qdrant')) {
             if (is_wp_error($response)) {
                 echo json_encode(['error' => $response->get_error_message()]);
             } else {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Sending raw JSON response from external API. Escaping would corrupt the JSON.
                 echo wp_remote_retrieve_body($response);
             }
 
@@ -180,44 +214,54 @@ if (!class_exists('\\WPAICG\\WPAICG_Qdrant')) {
             $query_params = '/points?wait=true';
             $endpoint = $this->endpoint . '/collections/' . $collection . $query_params;
             $api_key = $this->api_key;
-            $vectors = str_replace("\\", '', sanitize_text_field($_REQUEST['data']));
+            $vectors = wp_kses_post(wp_unslash($_REQUEST['data'])); 
 
             $response = wp_remote_request($endpoint, array(
                 'method'    => 'PUT',
                 'headers' => ['api-key' => $api_key, 'Content-Type' => 'application/json'],
-                'body'      => $vectors,
+                'body'      => $vectors, // Send the sanitized data
             ));
 
             if (is_wp_error($response)) {
-                die($response->get_error_message());
+                // Escape the error message before outputting with die()
+                wp_die(esc_html($response->get_error_message()));
             } else {
-                echo wp_remote_retrieve_body($response);
-                die();
+                $body = wp_remote_retrieve_body($response);
+                // Use wp_die to output the raw body from the API and terminate.
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Sending raw response (likely JSON) from external API via wp_die. Escaping would corrupt it.
+                wp_die($body);
             }
+            // die(); // Not needed after wp_die()
         }
 
         public function delete_vector() {
             if (!wp_verify_nonce($_POST['nonce'], 'wpaicg-ajax-nonce')) {
-                die(esc_html__('Nonce verification failed', 'gpt3-ai-content-generator'));
+                // Use wp_die() and escape the message for HTML context
+                wp_die(esc_html__('Nonce verification failed', 'gpt3-ai-content-generator'));
             }
 
             $collection_name = sanitize_text_field($_POST['collection_name']);
-            $points = str_replace("\\", '', sanitize_text_field($_POST['data']));
+            // Assuming $_POST['data'] contains JSON payload for deletion criteria.
+            // Basic sanitization, might need more specific validation depending on format.
+            $points = wp_kses_post(wp_unslash($_POST['data'])); // Using wp_kses_post as basic sanitization
 
-            $full_endpoint = $this->endpoint . '/' . $collection_name . '/points/delete?wait=true';
+            $full_endpoint = $this->endpoint . '/collections/' . $collection_name . '/points/delete?wait=true'; // Corrected endpoint structure assumption
 
             $response = wp_remote_request($full_endpoint, array(
                 'method' => 'POST',
                 'headers' => ['api-key' => $this->api_key, 'Content-Type' => 'application/json'],
-                'body' => $points,
+                'body' => $points, // Send sanitized data
             ));
 
             if (is_wp_error($response)) {
-                die($response->get_error_message());
+                wp_die(esc_html($response->get_error_message()));
             } else {
-                echo wp_remote_retrieve_body($response);
-                die();
+                $body = wp_remote_retrieve_body($response);
+                // Use wp_die to output the raw body from the API and terminate.
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: Sending raw response (likely JSON) from external API via wp_die. Escaping would corrupt it.
+                wp_die($body);
             }
+            // die(); // Not needed after wp_die()
         }
 
         public function search($query_params)

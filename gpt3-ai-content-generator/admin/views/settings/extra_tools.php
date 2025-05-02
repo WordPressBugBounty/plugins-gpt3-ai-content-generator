@@ -110,7 +110,20 @@ $wpaicg_search_loading_color = get_option('wpaicg_search_loading_color', '#ccccc
                 <!-- Comment Prompt Section -->
                 <div class="aipower-form-group">
                     <textarea rows="10" type="text" name="wpaicg_comment_prompt" id="aipower_comment_prompt" data-default-prompt="<?php echo esc_attr($wpaicg_default_comment_prompt); ?>"><?php echo esc_html(str_replace("\\",'',$wpaicg_comment_prompt));?></textarea>
-                    <p><?php echo sprintf(esc_html__('Ensure %s, %s, %s, %s, and %s are included in your prompt.', 'gpt3-ai-content-generator'), '<code>[username]</code>', '<code>[post_title]</code>', '<code>[post_excerpt]</code>', '<code>[last_comment]</code>', '<code>[parent_comments]</code>');?></p>
+                    <p>
+                        <?php
+                        // --- FIX: Add translators comment and use ordered placeholders ---
+                        // translators: %1$s: Placeholder [username]. %2$s: Placeholder [post_title]. %3$s: Placeholder [post_excerpt]. %4$s: Placeholder [last_comment]. %5$s: Placeholder [parent_comments]. All wrapped in <code> tags.
+                        echo sprintf(esc_html__('Ensure %1$s, %2$s, %3$s, %4$s, and %5$s are included in your prompt.','gpt3-ai-content-generator'),
+                            '<code>[username]</code>',        // Corresponds to %1$s
+                            '<code>[post_title]</code>',      // Corresponds to %2$s
+                            '<code>[post_excerpt]</code>',    // Corresponds to %3$s
+                            '<code>[last_comment]</code>',    // Corresponds to %4$s
+                            '<code>[parent_comments]</code>' // Corresponds to %5$s
+                        );
+                        // --- END FIX ---
+                        ?>
+                    </p>
                 </div>
             </div>
             <div class="aipower-form-group aipower-grouped-fields">

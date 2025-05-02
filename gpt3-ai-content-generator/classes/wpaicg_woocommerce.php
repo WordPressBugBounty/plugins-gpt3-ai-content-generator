@@ -110,13 +110,19 @@ if ( !class_exists( '\\WPAICG\\WPAICG_WooCommerce' ) ) {
                     $wpaicg_woo_generate_short = isset($_REQUEST['wpaicg_woo_generate_short']) && !empty($_REQUEST['wpaicg_woo_generate_short']) ? true : false;
                     $wpaicg_woo_generate_tags = isset($_REQUEST['wpaicg_woo_generate_tags']) && !empty($_REQUEST['wpaicg_woo_generate_tags']) ? true : false;
                     $wpaicg_woo_custom_prompt = isset($_REQUEST['wpaicg_woo_custom_prompt']) && !empty($_REQUEST['wpaicg_woo_custom_prompt']) ? true : false;
+                    // translators: %s: Product title.
                     $wpaicg_woo_custom_prompt_title = isset($_REQUEST['wpaicg_woo_custom_prompt_title']) && !empty($_REQUEST['wpaicg_woo_custom_prompt_title']) ? sanitize_text_field($_REQUEST['wpaicg_woo_custom_prompt_title']) : get_option('wpaicg_woo_custom_prompt_title',esc_html__('Compose an SEO-optimized title in English for the following product: %s. Ensure it is engaging, concise, and includes relevant keywords to maximize its visibility on search engines.','gpt3-ai-content-generator'));
+                    // translators: %s: Product title.
                     $wpaicg_woo_custom_prompt_short = isset($_REQUEST['wpaicg_woo_custom_prompt_short']) && !empty($_REQUEST['wpaicg_woo_custom_prompt_short']) ? sanitize_text_field($_REQUEST['wpaicg_woo_custom_prompt_short']) : get_option('wpaicg_woo_custom_prompt_short',esc_html__('Provide a compelling and concise summary in English for the following product: %s, highlighting its key features, benefits, and unique selling points.','gpt3-ai-content-generator'));
+                    // translators: %s: Product title.
                     $wpaicg_woo_custom_prompt_description = isset($_REQUEST['wpaicg_woo_custom_prompt_description']) && !empty($_REQUEST['wpaicg_woo_custom_prompt_description']) ? sanitize_text_field($_REQUEST['wpaicg_woo_custom_prompt_description']) : get_option('wpaicg_woo_custom_prompt_description',esc_html__('Craft a comprehensive and engaging product description in English for: %s. Include specific details, features, and benefits, as well as the value it offers to the customer, thereby creating a compelling narrative around the product.','gpt3-ai-content-generator'));
+                    // translators: %s: Product title.
                     $wpaicg_woo_custom_prompt_meta = isset($_REQUEST['wpaicg_woo_custom_prompt_meta']) && !empty($_REQUEST['wpaicg_woo_custom_prompt_meta']) ? sanitize_text_field($_REQUEST['wpaicg_woo_custom_prompt_meta']) : get_option('wpaicg_woo_custom_prompt_meta',esc_html__('Craft a compelling and concise meta description in English for: %s. Aim to highlight its key features and benefits within a limit of 155 characters, while incorporating relevant keywords for SEO effectiveness.','gpt3-ai-content-generator'));
+                    // translators: %s: Product title.
                     $wpaicg_woo_custom_prompt_keywords = isset($_REQUEST['wpaicg_woo_custom_prompt_keywords']) && !empty($_REQUEST['wpaicg_woo_custom_prompt_keywords']) ? sanitize_text_field($_REQUEST['wpaicg_woo_custom_prompt_keywords']) : get_option('wpaicg_woo_custom_prompt_keywords',esc_html__('Propose a set of relevant keywords in English for the following product: %s. The keywords should be directly related to the product, enhancing its discoverability. Please present these keywords in a comma-separated format, avoiding the use of symbols such as -, #, etc.','gpt3-ai-content-generator'));
                     
                     $wpaicg_generate_woo_focus_keyword = isset($_REQUEST['wpaicg_generate_woo_focus_keyword']) && !empty($_REQUEST['wpaicg_generate_woo_focus_keyword']) ? true : false;
+                    // translators: %s: Product title.
                     $wpaicg_woo_custom_prompt_focus_keyword = isset($_REQUEST['wpaicg_woo_custom_prompt_focus_keyword']) && !empty($_REQUEST['wpaicg_woo_custom_prompt_focus_keyword']) ? sanitize_text_field($_REQUEST['wpaicg_woo_custom_prompt_focus_keyword']) : get_option('wpaicg_woo_custom_prompt_focus_keyword', esc_html__('Identify the primary keyword for the following product: %s. Please respond in English. No additional comments, just the keyword.', 'gpt3-ai-content-generator'));
 
                     if(!$wpaicg_woo_custom_prompt){
@@ -584,7 +590,8 @@ if ( !class_exists( '\\WPAICG\\WPAICG_WooCommerce' ) ) {
                                 ?>
                                 // Include the language in the modal title if custom prompt is not enabled
                                 var wpaicg_modal_title_base = '<?php echo esc_html__("WooCommerce Content Generator", "gpt3-ai-content-generator")?>';
-                                if ('<?php echo $language_upper; ?>' !== '') {
+                                if ('<?php echo esc_js($language_upper); ?>' !== '') {
+                                    // Keep esc_html here as it seems intended for the title string itself
                                     wpaicg_modal_title_base += ' - <?php echo esc_html($language_upper); ?>';
                                 }
                                 $('.wpaicg_modal_title').html(wpaicg_modal_title_base + '<span style="font-size: 16px;background: #2271B1;padding: 1px 5px;border-radius: 3px;display: inline-block;margin-left: 6px;color: #fff;" class="wpaicg-woocontent-remain">0/' + ids.length + '</span>');
@@ -598,17 +605,17 @@ if ( !class_exists( '\\WPAICG\\WPAICG_WooCommerce' ) ) {
                                 });
 
                                 var woo_content_message = '<?php echo esc_html__('This will generate content for [numbers] products. Do you want to continue?','gpt3-ai-content-generator')?>';
-                                var wpaicg_provider = '<?php echo $wpaicg_provider; ?>'; // Fetch AI engine
-                                var ai_model = '<?php echo $ai_model; ?>'; // Fetch AI model
-                                var sleep_time = '<?php echo get_option('wpaicg_sleep_time', 1); ?>'; // Fetch sleep time
-                                var settings_message = '<?php echo esc_html__('You are using %1$s with %2$s and your rate limit buffer is %3$s seconds. You can change them from Settings > AI Engine tab.', 'gpt3-ai-content-generator'); ?>';
+                                var wpaicg_provider = '<?php echo esc_js($wpaicg_provider); ?>'; // Fetch AI engine
+                                var ai_model = '<?php echo esc_js($ai_model); ?>'; // Fetch AI model
+                                var sleep_time = '<?php echo esc_js(get_option('wpaicg_sleep_time', 1)); ?>'; // Fetch sleep time
+                                var settings_message = '<?php echo esc_js(esc_html__('You can change your model settings from Settings > AI Engine tab.', 'gpt3-ai-content-generator')); ?>';
                                 settings_message = settings_message.replace('%1$s', '<strong>' + wpaicg_provider + '</strong>');
                                 settings_message = settings_message.replace('%2$s', '<strong>' + ai_model + '</strong>');
                                 settings_message = settings_message.replace('%3$s', '<strong>' + sleep_time + '</strong>');
 
                                 var html = '<form action="" method="post" id="wpaicg-woo-content-form">';
                                 html += '<input type="hidden" name="action" value="wpaicg_woo_content_generator">';
-                                html += '<input type="hidden" name="nonce" value="<?php echo wp_create_nonce('wpaicg-ajax-action')?>">';
+                                html += '<input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce('wpaicg-ajax-action') ); ?>">';
                                 html += '<p>' + settings_message + '</p>';
                                 html += $('.wpaicg-woo-content-default').html();
                                 html += '<p><?php echo esc_html__('To modify your default settings, please visit Settings > WooCommerce.','gpt3-ai-content-generator')?></p>'
@@ -726,7 +733,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_WooCommerce' ) ) {
                                 currentStepText = 'focus keyword';
                             }
                             wpaicgWooContentAjax = $.ajax({
-                                url: '<?php echo admin_url('admin-ajax.php')?>',
+                                url: '<?php echo esc_url_raw( admin_url('admin-ajax.php') ); ?>',
                                 data: data,
                                 type: 'POST',
                                 beforeSend: function () {
@@ -760,7 +767,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_WooCommerce' ) ) {
                                                     if(key > 0){
                                                         html += ', ';
                                                     }
-                                                    html += '<a href="<?php echo admin_url('edit.php?product_tag=')?>'+slug+'&post_type=product">'+tag+'</a>';
+                                                    html += '<a href="<?php echo esc_url( admin_url('edit.php?product_tag=') ); ?>'+slug+'&post_type=product">'+tag+'</a>';
                                                     row.find('.column-product_tag').append(html);
                                                     key += 1;
                                                 })
@@ -1122,21 +1129,33 @@ if ( !class_exists( '\\WPAICG\\WPAICG_WooCommerce' ) ) {
                 $wpaicg_woo_custom_prompt = get_option('wpaicg_woo_custom_prompt',false);
                 if($wpaicg_woo_custom_prompt) {
                     if($wpaicg_step == 'title'){
+                        // --- FIX: Add translators comment ---
+                        // translators: %s: Product title.
                         $wpaicg_languages[$wpaicg_language_key] = get_option('wpaicg_woo_custom_prompt_title', esc_html__('Compose an SEO-optimized title in English for the following product: %s. Ensure it is engaging, concise, and includes relevant keywords to maximize its visibility on search engines.','gpt3-ai-content-generator'));
                     }
                     if($wpaicg_step == 'meta'){
+                        // --- FIX: Add translators comment ---
+                        // translators: %s: Product title.
                         $wpaicg_languages[$wpaicg_language_key] = get_option('wpaicg_woo_custom_prompt_meta', esc_html__('Craft a compelling and concise meta description in English for: %s. Aim to highlight its key features and benefits within a limit of 155 characters, while incorporating relevant keywords for SEO effectiveness.','gpt3-ai-content-generator'));
                     }
                     if($wpaicg_step == 'short'){
+                        // --- FIX: Add translators comment ---
+                        // translators: %s: Product title.
                         $wpaicg_languages[$wpaicg_language_key] = get_option('wpaicg_woo_custom_prompt_short', esc_html__('Provide a compelling and concise summary in English for the following product: %s, highlighting its key features, benefits, and unique selling points.','gpt3-ai-content-generator'));
                     }
                     if($wpaicg_step == 'description'){
+                        // --- FIX: Add translators comment ---
+                        // translators: %s: Product title.
                         $wpaicg_languages[$wpaicg_language_key] = get_option('wpaicg_woo_custom_prompt_description', esc_html__('Craft a comprehensive and engaging product description in English for: %s. Include specific details, features, and benefits, as well as the value it offers to the customer, thereby creating a compelling narrative around the product.','gpt3-ai-content-generator'));
                     }
                     if($wpaicg_step == 'tags'){
+                        // --- FIX: Add translators comment ---
+                        // translators: %s: Product title.
                         $wpaicg_languages[$wpaicg_language_key] = get_option('wpaicg_woo_custom_prompt_keywords', esc_html__('Propose a set of relevant keywords in English for the following product: %s. The keywords should be directly related to the product, enhancing its discoverability. Please present these keywords in a comma-separated format, avoiding the use of symbols such as -, #, etc.','gpt3-ai-content-generator'));
                     }
                     if ($wpaicg_step == 'focus_keyword') {
+                        // --- FIX: Add translators comment ---
+                        // translators: %s: Product title.
                         $wpaicg_languages[$wpaicg_language_key] = get_option('wpaicg_woo_custom_prompt_focus_keyword', esc_html__('Generate a focus keyword in English for the following product: %s.', 'gpt3-ai-content-generator'));
                     }
                 }

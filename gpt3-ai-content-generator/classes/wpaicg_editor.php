@@ -66,7 +66,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Editor')) {
             if(is_admin() && current_user_can('wpaicg_ai_assistant')) {
                 ?>
                 <script>
-                    var wpaicg_editor_wp_nonce = '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>';
+                    var wpaicg_editor_wp_nonce = '<?php echo esc_js( wp_create_nonce( 'wpaicg-ajax-nonce' ) ); ?>';
                 </script>
                 <?php
                 if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
@@ -82,7 +82,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Editor')) {
                         var wpaicg_plugin_url = '<?php echo esc_html(WPAICG_PLUGIN_URL)?>';
                         var wpaicg_editor_ajax_url = '<?php echo esc_html(admin_url('admin-ajax.php'))?>';
                         var wpaicgTinymceEditorMenus = <?php echo wp_json_encode($wpaicg_editor_button_menus, JSON_UNESCAPED_UNICODE) ?>;
-                        var wpaicgEditorChangeAction = '<?php echo get_option('wpaicg_editor_change_action','replace')?>';
+                        var wpaicgEditorChangeAction = '<?php echo esc_js( get_option( 'wpaicg_editor_change_action', 'replace' ) ); ?>';
                     </script>
                     <?php
                     add_filter('mce_external_plugins', array($this, 'wpaicg_add_buttons'));

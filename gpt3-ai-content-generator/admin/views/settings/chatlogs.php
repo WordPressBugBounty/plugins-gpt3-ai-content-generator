@@ -39,11 +39,12 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
         </div>
 
         <!-- Hidden nonce field for AJAX security -->
-        <input type="hidden" id="ai-engine-nonce" value="<?php echo wp_create_nonce('wpaicg_save_ai_engine_nonce'); ?>" />
+        <input type="hidden" id="ai-engine-nonce" value="<?php echo esc_attr(wp_create_nonce('wpaicg_save_ai_engine_nonce')); ?>" />
         <?php
         $current_log_page = isset($_GET['aipower_log_page']) ? intval($_GET['aipower_log_page']) : 1;
         $table_data = WPAICG\WPAICG_Logs::aipower_render_logs_table($current_log_page);
 
+        // Extract leads and feedback arrays
         // Extract leads and feedback arrays
         $leads = $table_data['leads'];
         $feedback = $table_data['feedback'];
@@ -51,38 +52,48 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
         $lead_count = count($leads);
         $feedback_count = count($feedback);
 
-        // Determine singular/plural for leads
-        $lead_word = ($lead_count === 1) ? __('lead', 'gpt3-ai-content-generator') : __('leads', 'gpt3-ai-content-generator');
-        // Feedback is typically uncountable, we can leave it as 'feedback'
-        $feedback_word = __('feedback', 'gpt3-ai-content-generator');
+        // --- REVISED LOGIC ---
 
         $display_line = '';
-        if ($lead_count > 0 && $feedback_count > 0) {
+
+        // Prepare the individual parts first
+        $leads_part_html = '';
+        if ($lead_count > 0) {
+            // Use _n() for proper pluralization of leads.
+            // The sprintf() here inserts the number into the translated '%d leads' string.
+            // translators: %d: Number of leads.
+            $leads_text = sprintf(_n( '%d lead', '%d leads', $lead_count, 'gpt3-ai-content-generator' ),$lead_count);
+            // Create the linked HTML part for leads
+            $leads_part_html = sprintf( '<a href="#" id="aipower-leads-link">%s</a>', $leads_text );
+        }
+
+        $feedback_part_html = '';
+        if ($feedback_count > 0) {
+            // Feedback is generally uncountable, so __() is okay, but we still need a placeholder for sprintf.
+            // Alternatively, use _n() if feedback *could* be countable in some context or language. Let's use __() for simplicity here.
+            // translators: %d: Number of feedback items.
+            $feedback_text = sprintf(__( '%d feedback', 'gpt3-ai-content-generator' ),$feedback_count);
+            // Create the linked HTML part for feedback
+            $feedback_part_html = sprintf( '<a href="#" id="aipower-feedback-link">%s</a>', $feedback_text );
+        }
+
+        // Now combine the parts using translatable sentence structures
+
+        if ( $leads_part_html && $feedback_part_html ) {
             // Both leads and feedback
-            $display_line = sprintf(
-                __('<p>You have <a href="#" id="aipower-leads-link">%d %s</a> and <a href="#" id="aipower-feedback-link">%d %s</a>.</p>', 'gpt3-ai-content-generator'),
-                $lead_count,
-                $lead_word,
-                $feedback_count,
-                $feedback_word
-            );
-        } elseif ($lead_count > 0 && $feedback_count == 0) {
+            // translators: %1$s: Linked text for leads count (e.g., <a href...>5 leads</a>). %2$s: Linked text for feedback count (e.g., <a href...>3 feedback</a>).
+            $display_line = sprintf( '<p>You have %1$s and %2$s.</p>', $leads_part_html, $feedback_part_html );
+        } elseif ( $leads_part_html ) {
             // Only leads
-            $display_line = sprintf(
-                __('<p>You have <a href="#" id="aipower-leads-link">%d %s</a>.</p>', 'gpt3-ai-content-generator'),
-                $lead_count,
-                $lead_word
-            );
-        } elseif ($lead_count == 0 && $feedback_count > 0) {
+            // translators: %s: Linked text for leads count (e.g., <a href...>5 leads</a>).
+            $display_line = sprintf( '<p>You have %s.</p>', $leads_part_html );
+        } elseif ( $feedback_part_html ) {
             // Only feedback
-            $display_line = sprintf(
-                __('<p>You have <a href="#" id="aipower-feedback-link">%d %s</a>.</p>', 'gpt3-ai-content-generator'),
-                $feedback_count,
-                $feedback_word
-            );
+            // translators: %s: Linked text for feedback count (e.g., <a href...>3 feedback</a>).
+            $display_line = sprintf( '<p>You have %s.</p>', $feedback_part_html );
         } else {
             // No leads and no feedback
-            $display_line = '';
+            $display_line = ''; // Or potentially a message like __('No new leads or feedback.', 'gpt3-ai-content-generator');
         }
 
         if (!empty($display_line)): ?>

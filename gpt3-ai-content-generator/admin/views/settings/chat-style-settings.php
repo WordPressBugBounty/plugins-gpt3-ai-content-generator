@@ -56,7 +56,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
         <select name="aipower-fontsize" id="aipower-fontsize">
             <?php
             for($i = 10; $i <= 30; $i++){
-                echo '<option value="' . $i . '">' . $i . '</option>';
+                echo '<option value="' . esc_attr($i) . '">' . esc_html($i) . '</option>';
             }
             ?>
         </select>
@@ -67,7 +67,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
         <select name="aipower-chat-window-corners" id="aipower-chat-window-corners">
             <?php
             for($i = 1; $i <= 100; $i++){
-                echo '<option value="' . $i . '">' . $i . '</option>';
+                echo '<option value="' . esc_attr($i) . '">' . esc_html($i) . '</option>';
             }
             ?>
         </select>
@@ -107,7 +107,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
         <select name="aipower-input-field-corners" id="aipower-input-field-corners">
             <?php
             for($i = 1; $i <= 100; $i++){
-                echo '<option value="' . $i . '">' . $i . '</option>';
+                echo '<option value="' . esc_attr($i) . '">' . esc_html($i) . '</option>';
             }
             ?>
         </select>

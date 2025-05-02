@@ -8,7 +8,7 @@ if(isset($_GET['audio_delete']) && !empty($_GET['audio_delete'])){
         die(esc_html__('Nonce verification failed','gpt3-ai-content-generator'));
     }
     wp_delete_post(sanitize_text_field($_GET['audio_delete']));
-    echo '<script>window.location.href = "'.admin_url('admin.php?page=wpaicg_audio&action=logs').'"</script>';
+    echo '<script>window.location.href = "'.esc_js(admin_url('admin.php?page=wpaicg_audio&action=logs')).'"</script>';
 }
 $wpaicg_audio_page = isset($_GET['wpage']) && !empty($_GET['wpage']) ? sanitize_text_field($_GET['wpage']) : 1;
 $args = array(
@@ -73,7 +73,7 @@ $wpaicg_audios = new WP_Query($args);
                     if($wpaicg_response == 'post' || $wpaicg_response == 'page'):
                     $wpaicg_post_id = get_post_meta($wpaicg_audio->ID,'wpaicg_post',true);
                     ?>
-                    <a href="<?php echo admin_url('post.php?post='.esc_html($wpaicg_post_id).'&action=edit')?>" class="wpaicg-view-content">
+                      <a href="<?php echo esc_url(admin_url('post.php?post='.esc_html($wpaicg_post_id).'&action=edit')); ?>" class="wpaicg-view-content">
                     <?php
                     else:
                     ?>
@@ -104,11 +104,11 @@ $wpaicg_audios = new WP_Query($args);
                     <?php
                     if($wpaicg_response != 'post' && $wpaicg_response != 'page'):
                     ?>
-                        <a download href="<?php echo wp_nonce_url(site_url('index.php?wpaicg_download_audio='.$wpaicg_audio->ID),'wpaicg_download_'.$wpaicg_audio->ID)?>" class="button button-primary button-small"><?php echo esc_html__('Download','gpt3-ai-content-generator')?></a>
+                    <a download href="<?php echo esc_url(wp_nonce_url(site_url('index.php?wpaicg_download_audio='.$wpaicg_audio->ID),'wpaicg_download_'.$wpaicg_audio->ID)); ?>" class="button button-primary button-small"><?php echo esc_html__('Download','gpt3-ai-content-generator')?></a>
                     <?php
                     endif;
                     ?>
-                    <a onclick="return confirm('Are you sure?')" href="<?php echo wp_nonce_url(admin_url('admin.php?page=wpaicg_audio&action=logs&audio_delete='.$wpaicg_audio->ID),'wpaicg_delete_'.$wpaicg_audio->ID)?>" class="button button-link-delete button-small"><?php echo esc_html__('Delete','gpt3-ai-content-generator')?></a>
+                    <a onclick="return confirm('Are you sure?')" href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=wpaicg_audio&action=logs&audio_delete='.$wpaicg_audio->ID),'wpaicg_delete_'.$wpaicg_audio->ID)); ?>" class="button button-link-delete button-small"><?php echo esc_html__('Delete','gpt3-ai-content-generator')?></a>
                 </td>
             </tr>
             <?php
@@ -119,8 +119,9 @@ $wpaicg_audios = new WP_Query($args);
 </table>
 <div class="wpaicg-paginate">
     <?php
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: paginate_links() generates safe HTML markup; escaping it would break the generated links.
     echo paginate_links( array(
-        'base'         => admin_url('admin.php?page=wpaicg_audio&action=logs&wpage=%#%'),
+        'base'         => admin_url('admin.php?page=wpaicg_audio&action=logs&wpage=%#%'), // admin_url() is safe here as an argument
         'total'        => $wpaicg_audios->max_num_pages,
         'current'      => $wpaicg_audio_page,
         'format'       => '?wpage=%#%',

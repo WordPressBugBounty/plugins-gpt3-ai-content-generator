@@ -69,15 +69,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Roles')) {
                     'settings' => array('name' => 'Settings')
                 )
             ),
-            'promptbase' => array(
-                'name' => 'Promptbase',
-                'hide' => 'promptbase',
-                'roles' => array(
-                    'promptbase' => array('name' => 'Promptbase'),
-                    'logs' => array('name' => 'Logs'),
-                    'settings' => array('name' => 'Settings')
-                )
-            ),
             'embeddings' => array(
                 'name' => 'Embeddings',
                 'hide' => 'embeddings',

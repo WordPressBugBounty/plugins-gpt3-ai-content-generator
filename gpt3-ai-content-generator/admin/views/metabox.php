@@ -1176,9 +1176,13 @@ echo ( $wpaicg_pexels_enable_prompt ? ' checked' : '' );
                     <?php 
 echo esc_html__( 'Custom Prompt', 'gpt3-ai-content-generator' );
 ?>:
-                    <small style="display: block;font-weight: normal"><?php 
+                    <small style="display: block;font-weight: normal">
+                        <?php 
+// --- FIX: Add translators comment ---
+// translators: %s: The placeholder string "[title]" wrapped in <code> tags.
 echo sprintf( esc_html__( 'Ensure %s is included in your prompt.', 'gpt3-ai-content-generator' ), '<code>[title]</code>' );
-?></small>
+?>
+                    </small>
                 </label>
                 <textarea id="wpaicg_pexels_custom_prompt" rows="5" name="wpaicg_pexels_custom_prompt"><?php 
 echo esc_html( $wpaicg_pexels_custom_prompt );
@@ -1282,9 +1286,13 @@ echo ( $wpaicg_pixabay_enable_prompt ? ' checked' : '' );
                     <?php 
 echo esc_html__( 'Custom Prompt', 'gpt3-ai-content-generator' );
 ?>:
-                    <small style="display: block;font-weight: normal"><?php 
+                    <small style="display: block;font-weight: normal">
+                        <?php 
+// --- FIX: Add translators comment ---
+// translators: %s: The placeholder string "[title]" wrapped in <code> tags.
 echo sprintf( esc_html__( 'Ensure %s is included in your prompt.', 'gpt3-ai-content-generator' ), '<code>[title]</code>' );
-?></small>
+?>
+                    </small>
                 </label>
                 <textarea id="wpaicg_pixabay_custom_prompt" rows="5" name="wpaicg_pixabay_custom_prompt"><?php 
 echo esc_html( $wpaicg_pixabay_custom_prompt );
@@ -1620,20 +1628,31 @@ echo esc_html( $wpaicg_custom_prompt );
                 <?php 
 if ( \WPAICG\wpaicg_util_core()->wpaicg_is_pro() ) {
     ?>
-                    <div><?php 
+                                        <div>
+                        <?php 
+    // --- FIX: Add translators comment and use ordered placeholders ---
+    // translators: %1$s: Placeholder [title]. %2$s: Placeholder [keywords_to_include]. %3$s: Placeholder [keywords_to_avoid]. All wrapped in <code> tags.
     echo sprintf(
-        esc_html__( 'Make sure to include %s in your prompt. You can also incorporate %s and %s to further customize your prompt.', 'gpt3-ai-content-generator' ),
+        esc_html__( 'Make sure to include %1$s in your prompt. You can also incorporate %2$s and %3$s to further customize your prompt.', 'gpt3-ai-content-generator' ),
         '<code>[title]</code>',
+        // Corresponds to %1$s
         '<code>[keywords_to_include]</code>',
+        // Corresponds to %2$s
         '<code>[keywords_to_avoid]</code>'
     );
-    ?></div>
+    // --- END FIX ---
+    ?>
+                    </div>
                 <?php 
 } else {
     ?>
-                    <div><?php 
+                                        <div>
+                        <?php 
+    // --- FIX: Add translators comment ---
+    // translators: %s: The placeholder string "[title]" wrapped in <code> tags.
     echo sprintf( esc_html__( 'Ensure %s is included in your prompt.', 'gpt3-ai-content-generator' ), '<code>[title]</code>' );
-    ?></div>
+    ?>
+                    </div>
                 <?php 
 }
 ?>

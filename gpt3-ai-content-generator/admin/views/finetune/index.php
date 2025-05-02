@@ -13,8 +13,11 @@ if($wpaicg_provider == 'Azure' || $wpaicg_provider == 'Google'){
 } else {
     $wpaicg_action = isset($_GET['action']) && !empty($_GET['action']) && in_array(sanitize_text_field($_GET['action']), array('embeddings','fine-tunes','files','manual')) ? sanitize_text_field($_GET['action']) : 'manual';
     $checkRole = \WPAICG\wpaicg_roles()->user_can('wpaicg_finetune', empty($wpaicg_action) ? 'manual' : ($wpaicg_action == 'fine-tunes' ? 'file-tunes' : $wpaicg_action));
-    if($checkRole){
-        echo '<script>window.location.href="'.$checkRole.'"</script>';
+
+    // Only attempt redirect if $checkRole is a non-empty string (likely a URL)
+    if(is_string($checkRole) && !empty($checkRole)){
+        // Escape the URL for safe embedding within the JavaScript string.
+        echo '<script>window.location.href="'.esc_js($checkRole).'"</script>';
         exit;
     }
     ?>

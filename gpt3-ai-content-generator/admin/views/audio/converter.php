@@ -699,10 +699,10 @@ $wpaicg_audio_settings = wp_parse_args($wpaicg_audio_settings, $wpaicg_audio_def
         $('.wpaicg-btn-setting').click(function (){
             var data = new FormData($('.wpaicg-audio-form')[0]);
             data.append('action','wpaicg_audio_settings');
-            data.append('nonce','<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>');
+            data.append('nonce','<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'); // Escape nonce for JS context
             var btn = $(this);
             $.ajax({
-                url: '<?php echo admin_url('admin-ajax.php')?>',
+                url: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>', // Escape URL for JS context
                 data: data,
                 type: 'POST',
                 dataType: 'JSON',
@@ -725,7 +725,7 @@ $wpaicg_audio_settings = wp_parse_args($wpaicg_audio_settings, $wpaicg_audio_def
         function wpaicgUploadConverter(data){
             var btn = $('.wpaicg-audio-form .button-start-converter');
             $.ajax({
-                url: '<?php echo admin_url('admin-ajax.php')?>',
+                url: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>', // Escape URL for JS context
                 data: data,
                 type: 'POST',
                 dataType: 'JSON',
@@ -810,7 +810,7 @@ $wpaicg_audio_settings = wp_parse_args($wpaicg_audio_settings, $wpaicg_audio_def
             else{
                 var data = new FormData($('.wpaicg-audio-form')[0]);
                 data.append('action','wpaicg_audio_converter');
-                data.append('nonce','<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>');
+                data.append('nonce','<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>');
                 if(type === 'record'){
                     data.append('recorded_audio', wpaicgAudioBlob,'wpaicg_recording.wav');
                     wpaicgUploadConverter(data);

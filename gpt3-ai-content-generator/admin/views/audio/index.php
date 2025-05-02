@@ -13,9 +13,13 @@ if($wpaicg_provider != 'OpenAI'){
     exit; // Stop the script if the provider is Azure
 } else {
     $wpaicg_action = isset($_GET['action']) && !empty($_GET['action']) ? sanitize_text_field($_GET['action']) : '';
+    // Assuming $checkRole will be a URL string if redirect is needed, or false/null otherwise
     $checkRole = \WPAICG\wpaicg_roles()->user_can('wpaicg_audio', empty($wpaicg_action) ? 'converter' : $wpaicg_action);
-    if($checkRole){
-        echo '<script>window.location.href="'.$checkRole.'"</script>';
+
+    // Only attempt redirect if $checkRole is a non-empty string (likely a URL)
+    if(is_string($checkRole) && !empty($checkRole)){
+        // Escape the URL for safe embedding within the JavaScript string.
+        echo '<script>window.location.href="'.esc_js($checkRole).'"</script>';
         exit;
     }
     ?>

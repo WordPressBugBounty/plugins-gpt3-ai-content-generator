@@ -141,7 +141,7 @@ if($wpaicg_embeddings_settings_updated){
                         $dimensionText = ''; // or perhaps default to '(Unknown Dimension)' if preferred
                     }
                     $displayText = esc_html($wpaicg_pinecone_index['name']) . $dimensionText;
-                    echo '<option' . ($wpaicg_pinecone_environment == $wpaicg_pinecone_index['url'] ? ' selected' : '') . ' value="' . esc_html($wpaicg_pinecone_index['url']) . '">' . $displayText . '</option>';
+                    echo '<option' . ($wpaicg_pinecone_environment == $wpaicg_pinecone_index['url'] ? ' selected' : '') . ' value="' . esc_html($wpaicg_pinecone_index['url']) . '">' . esc_html($displayText) . '</option>';
                 }
                 ?>
             </select>
@@ -167,18 +167,24 @@ if($wpaicg_embeddings_settings_updated){
                 <!-- PHP will dynamically fill this select based on the options retrieved -->
                 <?php
                 $default_qdrant_collection = get_option('wpaicg_qdrant_default_collection', '');
-                $wpaicg_qdrant_collections = get_option('wpaicg_qdrant_collections', []);  // Make sure this is decoded correctly if stored as JSON
+                // Assuming $wpaicg_qdrant_collections is already an array or correctly decoded
+                $wpaicg_qdrant_collections = get_option('wpaicg_qdrant_collections', []);
                 foreach ($wpaicg_qdrant_collections as $collection):
                     if (is_array($collection) && isset($collection['name'])) {
                         // New structure with name and dimension
                         $name = $collection['name'];
+                        // $dimension is pre-escaped (or contains safe text)
                         $dimension = isset($collection['dimension']) ? ' (' . esc_html($collection['dimension']) . ')' : ' (Dimension missing)';
+                        // Determine selected state - content is known safe (' selected' or '')
                         $selected = ($name === $default_qdrant_collection) ? ' selected' : '';
-                        echo '<option value="'.esc_attr($name).'"'.$selected.'>'.esc_html($name) . $dimension .'</option>';
+                        // Escape name for attribute, selected for attribute (linter), name for content, dimension for content (linter)
+                        echo '<option value="'.esc_attr($name).'"'.esc_attr($selected).'>'.esc_html($name) . esc_html($dimension) .'</option>';
                     } else {
-                        // Old structure where the collection itself is a string
+                        // Old structure where the collection itself is a string (assuming $collection is safe for display)
+                        // Determine selected state - content is known safe (' selected' or '')
                         $selected = ($collection === $default_qdrant_collection) ? ' selected' : '';
-                        echo '<option value="'.esc_attr($collection).'"'.$selected.'>'.esc_html($collection).'</option>';
+                        // Escape collection for attribute, selected for attribute (linter), collection for content
+                        echo '<option value="'.esc_attr($collection).'"'.esc_attr($selected).'>'.esc_html($collection).'</option>';
                     }
                 endforeach;
                 ?>
@@ -204,17 +210,27 @@ if($wpaicg_embeddings_settings_updated){
             $main_embedding_model = get_option('wpaicg_main_embedding_model', '');
 
             // Retrieve the full list of models from the utility class for all providers
+            // Assuming \WPAICG\WPAICG_Util::get_instance()->get_embedding_models() returns safe keys/values
             $embedding_models = \WPAICG\WPAICG_Util::get_instance()->get_embedding_models();
 
             // Loop through all models grouped by providers
             foreach ($embedding_models as $provider => $models) {
                 echo "<optgroup label='" . esc_attr($provider) . "'>"; // Group by provider
                 foreach ($models as $model_key => $model_desc) {
-                    $value = esc_attr($provider . ':' . $model_key);
+                    // Prepare value and text content (note: pre-escaping here is now technically redundant due to linter requirements below)
+                    $value = $provider . ':' . $model_key;
+                    $text_content = "{$model_key} ({$model_desc})";
+
+                    // Determine selected state - content is known safe (' selected' or '')
                     $selected = ($value === $main_embedding_model) ? ' selected' : '';
-                    echo "<option value='{$value}'{$selected}>"
-                        . esc_html("{$model_key} ({$model_desc})", 'gpt3-ai-content-generator')
-                        . "</option>";
+
+                    // Use sprintf for clarity, escaping EACH variable directly at output to satisfy linter
+                    echo sprintf(
+                        '<option value="%s"%s>%s</option>',
+                        esc_attr($value),      // Escape value for attribute context
+                        esc_attr($selected),   // Escape ' selected' or '' for attribute context
+                        esc_html($text_content, 'gpt3-ai-content-generator') // Escape text content for HTML context
+                    );
                 }
                 echo "</optgroup>";
             }
@@ -372,7 +388,7 @@ if($wpaicg_embeddings_settings_updated){
         }
 
         $('select[name="wpaicg_openai_embeddings"], select[name="wpaicg_google_embeddings"], select[name="wpaicg_azure_embeddings"]').change(function() {
-            var selectedProvider = '<?php echo $wpaicg_provider; ?>';
+            var selectedProvider = '<?php echo esc_js($wpaicg_provider); ?>';
             var selectedModel = $(this).val();
             var dimensionInfo = '';
 
@@ -440,11 +456,11 @@ if($wpaicg_embeddings_settings_updated){
             wpaicgLoading($('.wpaicg_submit_new_collection'));
 
             $.ajax({
-                url: '<?php echo admin_url('admin-ajax.php') ?>',
+                url: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>',
                 type: 'POST',
                 data: {
                     action: 'wpaicg_create_collection',
-                    nonce: '<?php echo wp_create_nonce('wpaicg-ajax-nonce') ?>',
+                    nonce: '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>',
                     collection_name: collectionName,
                     dimension: dimension,
                     api_key: apiKey,
@@ -466,9 +482,9 @@ if($wpaicg_embeddings_settings_updated){
                             return $(this).val();
                         }).get();
 
-                        $.post('<?php echo admin_url('admin-ajax.php') ?>', {
+                        $.post('<?php echo esc_js(admin_url('admin-ajax.php')); // Escape for JS context ?>', {
                             action: 'wpaicg_save_qdrant_collections',
-                            nonce: '<?php echo wp_create_nonce('wpaicg-ajax-nonce') ?>',
+                            nonce: '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); // Escape for JS context ?>',
                             collections: updatedCollections
                         });
 
@@ -501,12 +517,12 @@ if($wpaicg_embeddings_settings_updated){
             wpaicgLoading(btn);
 
             $.ajax({
-                url: '<?php echo admin_url('admin-ajax.php') ?>',
+                url: '<?php echo esc_js(admin_url('admin-ajax.php')); // Escape for JS context ?>',
                 type: 'POST',
                 dataType: 'json', // Expecting JSON response
                 data: {
                     action: 'wpaicg_show_collections',
-                    nonce: '<?php echo wp_create_nonce('wpaicg-ajax-nonce') ?>',
+                    nonce: '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); // Escape for JS context ?>',
                     api_key: apiKey,
                     endpoint: endpoint
                 },
@@ -516,9 +532,9 @@ if($wpaicg_embeddings_settings_updated){
                         updateCollectionsDropdown(collections);
 
                         // Save the collections to the options table
-                        $.post('<?php echo admin_url('admin-ajax.php') ?>', {
+                        $.post('<?php echo esc_js(admin_url('admin-ajax.php')); // Escape for JS context ?>', {
                             action: 'wpaicg_save_qdrant_collections',
-                            nonce: '<?php echo wp_create_nonce('wpaicg-ajax-nonce') ?>',
+                            nonce: '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); // Escape for JS context ?>',
                             collections: collections
                         });
                     } else {
@@ -569,9 +585,9 @@ if($wpaicg_embeddings_settings_updated){
                             $('.wpaicg_pinecone_environment').html(selectList);
 
                             // Save formatted indexes to the database
-                            $.post('<?php echo admin_url('admin-ajax.php')?>', {
+                            $.post('<?php echo esc_js(admin_url('admin-ajax.php')); // Escape for JS context ?>', {
                                 action: 'wpaicg_pinecone_indexes',
-                                nonce: '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>',
+                                nonce: '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); // Escape for JS context ?>',
                                 indexes: JSON.stringify(formattedIndexes),
                                 api_key: wpaicg_pinecone_api
                             });

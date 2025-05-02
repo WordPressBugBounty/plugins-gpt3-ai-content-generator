@@ -81,7 +81,7 @@ $google_safety_settings = array_column($google_safety_settings, 'threshold', 'ca
                     );
                     foreach ($engines as $key => $name) {
                         $selected = ($key === $selected_engine) ? 'selected' : '';
-                        echo "<option value='$key' $selected>$name</option>";
+                        echo '<option value="' . esc_attr($key) . '" ' . esc_attr($selected) . '>' . esc_html($name) . '</option>';
                     }
                     ?>
                 </select>

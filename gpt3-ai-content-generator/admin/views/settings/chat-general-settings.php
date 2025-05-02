@@ -20,7 +20,7 @@ $assistants_json = json_encode($assistants);
         <?php
         foreach ($engines as $key => $name) {
             $selected = ($key === $selected_engine) ? 'selected' : '';
-            echo "<option value='$key' $selected>$name</option>";
+            echo '<option value="' . esc_attr($key) . '" ' . esc_attr($selected) . '>' . esc_html($name) . '</option>';
         }
         ?>
         </select>

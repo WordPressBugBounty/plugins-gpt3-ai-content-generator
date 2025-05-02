@@ -78,14 +78,20 @@ if(!class_exists('\\WPAICG\\WPAICG_Audio')) {
 
                 // Only add the submenu if the module is enabled
                 if (isset($modules['audio_converter'])) {
+                    // --- CORRECT FIX ---
+                    // Use the literal string 'Audio Converter' as identified in the $wpaicg_modules array
+                    $page_title = esc_html__('Audio Converter', 'gpt3-ai-content-generator');
+                    $menu_title = esc_html__('Audio Converter', 'gpt3-ai-content-generator');
+                    // --- END FIX ---
+
                     add_submenu_page(
                         'wpaicg',
-                        esc_html__($modules['audio_converter']['title'], 'gpt3-ai-content-generator'),
-                        esc_html__($modules['audio_converter']['title'], 'gpt3-ai-content-generator'),
-                        $modules['audio_converter']['capability'],
-                        $modules['audio_converter']['menu_slug'],
-                        array($this, $modules['audio_converter']['callback']),
-                        $modules['audio_converter']['position']
+                        $page_title, // Use the prepared variable
+                        $menu_title, // Use the prepared variable
+                        $modules['audio_converter']['capability'], // Capability remains dynamic
+                        $modules['audio_converter']['menu_slug'],  // Menu slug remains dynamic
+                        array($this, $modules['audio_converter']['callback']), // Callback remains dynamic
+                        $modules['audio_converter']['position'] // Position remains dynamic
                     );
                 }
             }

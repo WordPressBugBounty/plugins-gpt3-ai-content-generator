@@ -237,16 +237,6 @@ if (!empty($vector_dimension) && !empty($embedding_dimension)) {
             Settings</a>
         </li>
         <li>
-          <a href="#troubleshoot">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-align-justify">
-              <line x1="21" y1="10" x2="3" y2="10" />
-              <line x1="21" y1="6" x2="3" y2="6" />
-              <line x1="21" y1="14" x2="3" y2="14" />
-              <line x1="21" y1="18" x2="3" y2="18" />
-            </svg>
-            Troubleshoot</a>
-        </li>
-        <li>
         <a href="#finetuning">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-square">
             <polyline points="9 11 12 14 22 4" />
@@ -327,25 +317,6 @@ if (!empty($vector_dimension) && !empty($embedding_dimension)) {
             ?>
       </div>
     </section>
-    <!-- TROUBLESHOOT -->
-    <section>
-      <div class="href-target" id="troubleshoot"></div>
-      <h1>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-align-justify">
-          <line x1="21" y1="10" x2="3" y2="10" />
-          <line x1="21" y1="6" x2="3" y2="6" />
-          <line x1="21" y1="14" x2="3" y2="14" />
-          <line x1="21" y1="18" x2="3" y2="18" />
-        </svg>
-        Troubleshoot
-      </h1>
-
-      <div class="nice-form-group">
-        <?php
-            include WPAICG_PLUGIN_DIR.'admin/views/embeddings/troubleshoot.php';
-            ?>
-      </div>
-    </section>
     <!-- FINE-TUNING -->
     <section>
         <div class="href-target" id="finetuning"></div>
@@ -375,12 +346,28 @@ if (!empty($vector_dimension) && !empty($embedding_dimension)) {
                                 <tr>
                                     <th style="font-size: 12px;width: 80px;"><?php echo esc_html__('Provider', 'gpt3-ai-content-generator'); ?></th>
                                     <td style="font-size: 12px;width: 80px;"><strong><?php echo esc_html($default_provider); ?></strong></td>
-                                    <td style="font-size: 12px;"><span class="wpaicg_alert_container"><?php echo empty($ai_provider_alert_reason) ? $svg_check_icon : $svg_alert_icon; ?> <?php echo esc_html($ai_provider_alert_reason); ?></span></td>
+                                    <td style="font-size: 12px;">
+                                        <span class="wpaicg_alert_container">
+                                            <?php
+                                            // Sanitize SVG markup before echoing
+                                            echo empty($ai_provider_alert_reason) ? wp_kses_post($svg_check_icon) : wp_kses_post($svg_alert_icon);
+                                            ?>
+                                            <?php echo esc_html($ai_provider_alert_reason); // Reason is plain text, escaped ?>
+                                        </span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th style="font-size: 12px;width: 80px;"><?php echo esc_html__('Model', 'gpt3-ai-content-generator'); ?></th>
                                     <td style="font-size: 12px;width: 80px;"><strong><?php echo esc_html($embedding_model); ?></strong></td>
-                                    <td style="font-size: 12px;"><span class="wpaicg_alert_container"><?php echo empty($embedding_model_reason) ? $svg_check_icon : $svg_alert_icon; ?> <?php echo esc_html($embedding_model_reason); ?></span></td>
+                                    <td style="font-size: 12px;">
+                                        <span class="wpaicg_alert_container">
+                                            <?php
+                                            // Sanitize SVG markup before echoing
+                                            echo empty($embedding_model_reason) ? wp_kses_post($svg_check_icon) : wp_kses_post($svg_alert_icon);
+                                            ?>
+                                            <?php echo esc_html($embedding_model_reason); // Reason is plain text, escaped ?>
+                                        </span>
+                                    </td>
                                 </tr>
                                 <!-- Show embedding dimension if exists and not empty, check for mismatch -->
                                 <tr>
@@ -388,9 +375,9 @@ if (!empty($vector_dimension) && !empty($embedding_dimension)) {
                                     <td style="font-size: 12px;width: 80px;"><strong><?php echo esc_html($embedding_dimension); ?></strong></td>
                                     <td style="font-size: 12px;">
                                         <?php if ($dimension_mismatch): ?>
-                                            <span class="wpaicg_alert_container"><?php echo $svg_alert_icon; ?></span><p style="font-size: 12px;word-break: normal;">Dimension mismatch</p>
+                                            <span class="wpaicg_alert_container"><?php echo wp_kses_post($svg_alert_icon); // Sanitize SVG markup ?></span><p style="font-size: 12px;word-break: normal;">Dimension mismatch</p>
                                         <?php else: ?>
-                                            <span class="wpaicg_alert_container"><?php echo $svg_check_icon; ?></span>
+                                            <span class="wpaicg_alert_container"><?php echo wp_kses_post($svg_check_icon); // Sanitize SVG markup ?></span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -407,12 +394,28 @@ if (!empty($vector_dimension) && !empty($embedding_dimension)) {
                                 <tr>
                                     <th style="font-size: 12px;width: 80px;"><?php echo esc_html__('DB', 'gpt3-ai-content-generator'); ?></th>
                                     <td style="font-size: 12px;width: 80px;"><strong><?php echo esc_html($wpaicg_vector_db_provider); ?></strong></td>
-                                    <td style="font-size: 10px;"><span class="wpaicg_alert_container"><?php echo empty($db_alert_reason) ? $svg_check_icon : $svg_alert_icon; ?> </span><p style="font-size: 12px;"><?php echo esc_html($db_alert_reason); ?></p></td>
+                                    <td style="font-size: 10px;">
+                                        <span class="wpaicg_alert_container">
+                                            <?php
+                                            // Sanitize SVG markup before echoing
+                                            echo empty($db_alert_reason) ? wp_kses_post($svg_check_icon) : wp_kses_post($svg_alert_icon);
+                                            ?>
+                                        </span>
+                                        <p style="font-size: 12px;"><?php echo esc_html($db_alert_reason); // Reason is plain text, already escaped ?></p>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th style="font-size: 12px;width: 80px;"><?php echo esc_html__('Index', 'gpt3-ai-content-generator'); ?></th>
                                     <td style="font-size: 12px;width: 80px;"><strong><?php echo !empty($index_name) ? esc_html($index_name) : esc_html__('N/A', 'gpt3-ai-content-generator'); ?></strong></td>
-                                    <td style="font-size: 10px;"><span class="wpaicg_alert_container"><?php echo empty($index_alert_reason) ? $svg_check_icon : $svg_alert_icon; ?></span><p style="font-size: 12px;"><?php echo esc_html($index_alert_reason); ?></p></td>
+                                    <td style="font-size: 10px;">
+                                        <span class="wpaicg_alert_container">
+                                            <?php
+                                            // Sanitize SVG markup before echoing
+                                            echo empty($index_alert_reason) ? wp_kses_post($svg_check_icon) : wp_kses_post($svg_alert_icon);
+                                            ?>
+                                        </span>
+                                        <p style="font-size: 12px;"><?php echo esc_html($index_alert_reason); // Reason is plain text, already escaped ?></p>
+                                    </td>
                                 </tr>
                                 <!-- Show vector dimension if exists and not empty, check for mismatch -->
                                 <?php if (!empty($vector_dimension)): ?>
@@ -421,9 +424,9 @@ if (!empty($vector_dimension) && !empty($embedding_dimension)) {
                                     <td style="font-size: 12px;width: 80px;"><strong><?php echo esc_html($vector_dimension); ?></strong></td>
                                     <td style="font-size: 12px;">
                                         <?php if ($dimension_mismatch): ?>
-                                            <span class="wpaicg_alert_container"><?php echo $svg_alert_icon; ?></span><p style="font-size: 12px;word-break: normal;">Dimension mismatch</p>
+                                            <span class="wpaicg_alert_container"><?php echo wp_kses_post($svg_alert_icon); // Sanitize SVG markup ?></span><p style="font-size: 12px;word-break: normal;">Dimension mismatch</p>
                                         <?php else: ?>
-                                            <span class="wpaicg_alert_container"><?php echo $svg_check_icon; ?></span>
+                                            <span class="wpaicg_alert_container"><?php echo wp_kses_post($svg_check_icon); // Sanitize SVG markup ?></span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -432,12 +435,20 @@ if (!empty($vector_dimension) && !empty($embedding_dimension)) {
                                 <tr>
                                     <th style="font-size: 12px;width: 80px;"><?php echo esc_html__('Vectors', 'gpt3-ai-content-generator'); ?></th>
                                     <td style="font-size: 12px;width: 80px;"><strong><?php echo esc_html($vectors_count); ?></strong></td>
-                                    <td style="font-size: 10px;"><span class="wpaicg_alert_container"><?php echo $svg_check_icon; ?></span></td>
+                                    <td style="font-size: 10px;">
+                                        <span class="wpaicg_alert_container">
+                                            <?php echo wp_kses_post($svg_check_icon); // Sanitize SVG markup ?>
+                                        </span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th style="font-size: 12px;width: 80px;"><?php echo esc_html__('Points', 'gpt3-ai-content-generator'); ?></th>
                                     <td style="font-size: 12px;width: 80px;"><strong><?php echo esc_html($points_count); ?></strong></td>
-                                    <td style="font-size: 10px;"><span class="wpaicg_alert_container"><?php echo $svg_check_icon; ?></span></td>
+                                    <td style="font-size: 10px;">
+                                        <span class="wpaicg_alert_container">
+                                            <?php echo wp_kses_post($svg_check_icon); // Sanitize SVG markup ?>
+                                        </span>
+                                    </td>
                                 </tr>
                                 <?php endif; ?>
                             </tbody>

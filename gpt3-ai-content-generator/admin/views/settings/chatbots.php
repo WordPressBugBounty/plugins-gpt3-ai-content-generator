@@ -72,8 +72,8 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
         </div>
 
         <!-- Hidden nonce field for AJAX security -->
-        <input type="hidden" id="ai-engine-nonce" value="<?php echo wp_create_nonce('wpaicg_save_ai_engine_nonce'); ?>" />
-        <input type="hidden" id="embedding-nonce" value="<?php echo wp_create_nonce('wpaicg-ajax-nonce'); ?>" />
+        <input type="hidden" id="ai-engine-nonce" value="<?php echo esc_attr(wp_create_nonce('wpaicg_save_ai_engine_nonce')); ?>" />
+        <input type="hidden" id="embedding-nonce" value="<?php echo esc_attr(wp_create_nonce('wpaicg-ajax-nonce')); ?>" />
 
         <div id="aipower-create-bot-section" style="display:none;">
             <div class="aipower-accordion">
@@ -307,7 +307,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                                     $display_name = $collection;
                                 }
                                 $selected = ($name === '') ? ' selected' : '';
-                                echo '<option value="' . esc_attr($name) . '"' . $selected . '>' . esc_html($display_name) . '</option>';
+                                echo '<option value="' . esc_attr($name) . '"' . esc_attr($selected) . '>' . esc_html($display_name) . '</option>';
                             } 
                         ?>
                     </select>
@@ -358,7 +358,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                                 echo '<optgroup label="' . esc_attr($provider) . '">';
                                 foreach ($models as $model => $dimension) {
                                     $selected = ($model === $embedding_model) ? 'selected' : '';
-                                    echo '<option value="' . esc_attr($model) . '" data-provider="' . esc_attr($provider) . '" ' . $selected . '>' . esc_html($model) . ' (' . esc_html($dimension) . ')</option>';
+                                    echo '<option value="' . esc_attr($model) . '" data-provider="' . esc_attr($provider) . '" ' . esc_attr($selected) . '>' . esc_html($model) . ' (' . esc_html($dimension) . ')</option>';
                                 }
                                 echo '</optgroup>';
                             }
@@ -719,7 +719,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
 
                             foreach ($models as $key => $model) {
                                 $selected = ($wpaicg_elevenlabs_model === $key) ? ' selected' : '';
-                                echo sprintf('<option value="%s"%s>%s</option>', esc_html($key), $selected, esc_html($model));
+                                echo sprintf('<option value="%s"%s>%s</option>', esc_html($key), esc_attr($selected), esc_html($model));
                             }
                         ?>
                     </select>
@@ -734,7 +734,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
 
                         foreach ($voices as $key => $voice) {
                             $selected = ($wpaicg_elevenlabs_voice === $key) ? ' selected' : '';
-                            echo sprintf('<option value="%s"%s>%s</option>', esc_html($key), $selected, esc_html($voice));
+                            echo sprintf('<option value="%s"%s>%s</option>', esc_html($key), esc_attr($selected), esc_html($voice));
                         }
                         ?>
                     </select>
@@ -758,7 +758,7 @@ $wpaicg_roles = wp_roles()->get_names(); // Get all roles
                                         echo sprintf(
                                             '<option value="%s"%s>%s (%s)</option>',
                                             esc_html($value),
-                                            $selected,
+                                            esc_attr($selected),
                                             esc_html($voice['name']),
                                             esc_html($voice['ssmlGender']) // Option includes voice name and gender
                                         );

@@ -140,7 +140,7 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
             } else {
                 $wpaicg_file_id = wp_insert_post(array(
                     'post_title' => $result->id,
-                    'post_date' => date('Y-m-d H:i:s', $result->created_at),
+                    'post_date' => wp_date('Y-m-d H:i:s', $result->created_at),
                     'post_status' => 'publish',
                     'post_type' => 'wpaicg_file',
                 ));
@@ -189,26 +189,73 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
                 }
             } else {
                 if (
-                    isset($_POST['prompt'])
+                    isset($_POST['prompt'], $_POST['completion']) // Combine isset checks
                     && !empty($_POST['prompt'])
-                    && isset($_POST['completion'])
                     && !empty($_POST['completion'])
                 ) {
                     $data = array(
-                        'prompt' => sanitize_text_field($_POST['prompt']) . ' ->',
-                        'completion' => strip_tags(sanitize_text_field($_POST['completion'])),
+                        'prompt' => sanitize_text_field( wp_unslash($_POST['prompt']) ) . ' ->', // Added wp_unslash
+                        'completion' => wp_strip_all_tags( sanitize_text_field( wp_unslash($_POST['completion']) ) ), // Use wp_strip_all_tags and added wp_unslash
                     );
                     $wpaicg_file_generation = true;
                 }
             }
 
             if ($wpaicg_file_generation) {
-                $file = isset($_POST['file']) && !empty($_POST['file']) ? sanitize_text_field($_POST['file']) : md5(time()) . '.jsonl';
-                $wpaicg_json_file = fopen(wp_upload_dir()['basedir'] . '/' . $file, "a");
-                fwrite($wpaicg_json_file, json_encode($data) . PHP_EOL);
-                fclose($wpaicg_json_file);
-                $wpaicg_result['file'] = $file;
-                $wpaicg_result['status'] = 'success';
+                // Initialize WP Filesystem
+                global $wp_filesystem;
+                if (empty($wp_filesystem)) {
+                    require_once ABSPATH . '/wp-admin/includes/file.php';
+                    WP_Filesystem();
+                }
+
+                // Sanitize or generate the file name
+                $file_name_base = isset($_POST['file']) && !empty($_POST['file'])
+                                ? sanitize_file_name( wp_unslash($_POST['file']) )
+                                : md5(time()); // Generate base name
+
+                // Ensure the file name ends with .jsonl
+                $file = $file_name_base;
+                if ( substr( $file, -6 ) !== '.jsonl' ) {
+                     // Remove existing extension if any, then add .jsonl
+                     $file_parts = pathinfo($file);
+                     $file = $file_parts['filename'] . '.jsonl';
+                }
+
+
+                $upload_dir = wp_upload_dir();
+                $file_path = trailingslashit($upload_dir['basedir']) . $file;
+
+                // Prepare the new line of data
+                $new_data_line = json_encode($data) . PHP_EOL;
+
+                // Get existing content if the file exists
+                $existing_content = '';
+                if ( $wp_filesystem->exists( $file_path ) ) {
+                    $existing_content = $wp_filesystem->get_contents( $file_path );
+                    if ( $existing_content === false ) {
+                        $wpaicg_result['msg']    = esc_html__('Error reading existing file to append data.', 'gpt3-ai-content-generator');
+                        $wpaicg_result['status'] = 'error';
+                        // Optionally log error or exit early if needed
+                        $existing_content = ''; // Attempt overwrite if read failed but write might work
+                    }
+                }
+
+                // Combine existing and new content
+                $full_content = $existing_content . $new_data_line;
+
+                // Write the combined content back to the file
+                if ( $wp_filesystem->put_contents( $file_path, $full_content, FS_CHMOD_FILE ) ) {
+                    // Only set success if put_contents worked
+                    if ($wpaicg_result['status'] !== 'error') { // Avoid overwriting previous error status
+                        $wpaicg_result['file']   = $file;
+                        $wpaicg_result['status'] = 'success';
+                    }
+                } else {
+                    // Handle error writing file
+                    $wpaicg_result['msg']    = esc_html__('Error writing data to the file.', 'gpt3-ai-content-generator');
+                    $wpaicg_result['status'] = 'error';
+                }
             }
             wp_send_json($wpaicg_result);
         }
@@ -250,31 +297,59 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
                             $result = $this->wpaicgUploadOpenAI($file, $open_ai);
                             $wpaicg_result['next'] = 'DONE';
                         } else {
-                            $filename = str_replace('.jsonl', '', $filename);
-                            $filename = $filename . '-' . $index . '.jsonl';
+                            // Prepare filename for the split part
+                            $filename_base = str_replace('.jsonl', '', $filename);
+                            $split_filename = $filename_base . '-' . $index . '.jsonl';
+
+                            // Initialize WP Filesystem
+                            global $wp_filesystem;
+                            if (empty($wp_filesystem)) {
+                                require_once ABSPATH . '/wp-admin/includes/file.php';
+                                WP_Filesystem();
+                            }
+
+                            $upload_dir = wp_upload_dir();
+                            $split_file_path = trailingslashit($upload_dir['basedir']) . $split_filename;
+
                             try {
-                                $split_file = wp_upload_dir()['basedir'] . '/' . $filename;
-                                $wpaicg_json_file = fopen($split_file, "a");
                                 $wpaicg_content = '';
-                                for ($i = $line; $i <= count($wpaicg_lines); $i++) {
-                                    if ($i == count($wpaicg_lines)) {
-                                        $wpaicg_content .= $wpaicg_lines[$i];
+                                // Loop through the lines for this chunk
+                                for ($i = $line; $i < count($wpaicg_lines); $i++) { // Adjusted loop condition to < count
+                                    $current_line_content = $wpaicg_lines[$i] . PHP_EOL; // Add newline back
+
+                                    // Check size *before* adding the next line if content already exists
+                                    if (!empty($wpaicg_content) && (mb_strlen($wpaicg_content, '8bit') + mb_strlen($current_line_content, '8bit')) > $this->wpaicg_max_file_size) {
+                                        $wpaicg_result['next'] = $i; // Next line to start from is the current one
+                                        break; // Stop adding lines to this chunk
+                                    }
+
+                                    // Add the line to the current chunk's content
+                                    $wpaicg_content .= $current_line_content;
+
+                                    // If this is the last line overall, mark as done
+                                    if ($i === count($wpaicg_lines) - 1) {
                                         $wpaicg_result['next'] = 'DONE';
-                                    } else {
-                                        if (mb_strlen($wpaicg_content, '8bit') > $this->wpaicg_max_file_size) {
-                                            $wpaicg_result['next'] = $i + 1;
-                                            break;
-                                        } else {
-                                            $wpaicg_content .= $wpaicg_lines[$i];
-                                        }
                                     }
                                 }
-                                fwrite($wpaicg_json_file, $wpaicg_content);
-                                fclose($wpaicg_json_file);
-                                $result = $this->wpaicgUploadOpenAI($split_file, $open_ai);
-                                unlink($split_file);
+
+                                // Write the collected content for this chunk to the split file
+                                if ( $wp_filesystem->put_contents( $split_file_path, $wpaicg_content, FS_CHMOD_FILE ) ) {
+                                    // Upload the split file
+                                    $result = $this->wpaicgUploadOpenAI($split_file_path, $open_ai);
+                                    // Delete the split file after successful upload
+                                    $wp_filesystem->delete($split_file_path);
+                                } else {
+                                    // Handle file writing error
+                                    // translators: %s: The filename that could not be written.
+                                    throw new \Exception( sprintf( esc_html__( 'Failed to write split file: %s', 'gpt3-ai-content-generator' ), $split_filename ) );
+                                }
+
                             } catch (\Exception $exception) {
                                 $result = $exception->getMessage();
+                                // Optionally try to delete the split file if it exists, even on error
+                                if (isset($split_file_path) && $wp_filesystem->exists($split_file_path)) {
+                                    $wp_filesystem->delete($split_file_path);
+                                }
                             }
                         }
                         if ($result == 'success') {
@@ -296,26 +371,55 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
         public function wpaicg_data_converter_count()
         {
             global $wpdb;
+            // Initialize result early
+            $wpaicg_result = array('status' => 'error', 'msg' => esc_html__('Something went wrong', 'gpt3-ai-content-generator'));
+
+            // Check capability
             if (!current_user_can('manage_options')) {
-                $wpaicg_result['status'] = 'error';
                 $wpaicg_result['msg'] = esc_html__('You do not have permission for this action.', 'gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
-            if (!wp_verify_nonce($_POST['nonce'], 'wpaicg_data_converter_count')) {
-                $wpaicg_result['status'] = 'error';
+            // Verify nonce securely
+            if (!isset($_POST['nonce']) || !wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['nonce'])), 'wpaicg_data_converter_count')) {
                 $wpaicg_result['msg'] = esc_html__('Nonce verification failed','gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
-            $wpaicg_result = array('status' => 'error', 'msg' => esc_html__('Something went wrong', 'gpt3-ai-content-generator'));
-            if (isset($_POST['data']) && is_array($_POST['data']) && count($_POST['data'])) {
-                $types = \WPAICG\wpaicg_util_core()->sanitize_text_or_array_field($_POST['data']);
-                $commaDelimitedPlaceholders = implode(',', array_fill(0, count($types), '%s'));
-                $sql = $wpdb->prepare("SELECT COUNT(*) FROM " . $wpdb->posts . " WHERE post_status='publish' AND post_type IN ($commaDelimitedPlaceholders)", $types);
-                $wpaicg_result['count'] = $wpdb->get_var($sql);
-                $wpaicg_result['status'] = 'success';
-                $wpaicg_result['types'] = $types;
+
+            // Check and sanitize input data
+            if (isset($_POST['data']) && is_array($_POST['data']) && !empty($_POST['data'])) {
+                $types = \WPAICG\wpaicg_util_core()->sanitize_text_or_array_field( wp_unslash($_POST['data']) ); // Added wp_unslash
+
+                // Ensure types is still an array and not empty after sanitization
+                if (is_array($types) && !empty($types)) {
+                    $placeholders = implode(',', array_fill(0, count($types), '%s'));
+                    // Prepare arguments: status first, then the types
+                    $args = array_merge( array('publish'), $types );
+
+                    // Prepare and execute the query in one step for get_var
+                    // The SQL string is now directly inside prepare()
+                    $wpaicg_result['count'] = $wpdb->get_var(
+                        $wpdb->prepare(
+                            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = %s AND post_type IN ({$placeholders})",
+                            $args
+                        )
+                    );
+
+                    // Check for DB errors (optional but good practice)
+                    if ($wpaicg_result['count'] === null && $wpdb->last_error) {
+                         $wpaicg_result['msg'] = esc_html__('Database query error.', 'gpt3-ai-content-generator');
+                         // Optionally log $wpdb->last_error for debugging
+                    } else {
+                        $wpaicg_result['status'] = 'success';
+                        $wpaicg_result['types'] = $types; // Return the sanitized types
+                        unset($wpaicg_result['msg']); // Remove default error message on success
+                    }
+
+                } else {
+                     $wpaicg_result['msg'] = esc_html__('Invalid data types provided after sanitization.', 'gpt3-ai-content-generator');
+                }
+
             } else {
-                $wpaicg_result['msg'] = esc_html__('Please select least one data to convert', 'gpt3-ai-content-generator');
+                $wpaicg_result['msg'] = esc_html__('Please select at least one data type to convert', 'gpt3-ai-content-generator');
             }
 
             wp_send_json($wpaicg_result);
@@ -324,78 +428,139 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
         public function wpaicg_data_converter()
         {
             $wpaicg_result = array('status' => 'error', 'msg' => esc_html__('Something went wrong', 'gpt3-ai-content-generator'));
+
+            // Check capability
             if (!current_user_can('manage_options')) {
-                $wpaicg_result['status'] = 'error';
                 $wpaicg_result['msg'] = esc_html__('You do not have permission for this action.', 'gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
-            if (!wp_verify_nonce($_POST['nonce'], 'wpaicg-ajax-nonce')) {
-                $wpaicg_result['status'] = 'error';
+            // Verify nonce securely
+            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'wpaicg-ajax-nonce')) {
                 $wpaicg_result['msg'] = esc_html__('Nonce verification failed','gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
+
             global $wpdb;
+            // Initialize WP Filesystem
+            global $wp_filesystem;
+            if (empty($wp_filesystem)) {
+                require_once ABSPATH . '/wp-admin/includes/file.php';
+                WP_Filesystem();
+            }
+
+            // Validate and sanitize inputs
             if (
                 isset($_POST['types'])
                 && is_array($_POST['types'])
-                && count($_POST['types'])
+                && !empty($_POST['types'])
                 && isset($_POST['per_page'])
-                && !empty($_POST['per_page'])
                 && isset($_POST['total'])
-                && !empty($_POST['total'])
             ) {
-                $types = \WPAICG\wpaicg_util_core()->sanitize_text_or_array_field($_POST['types']);
-                $wpaicg_total = sanitize_text_field($_POST['total']);
-                $wpaicg_per_page = sanitize_text_field($_POST['per_page']);
-                $wpaicg_page = isset($_POST['page']) && !empty($_POST['page']) ? sanitize_text_field($_POST['page']) : 1;
-                if (isset($_POST['file']) && !empty($_POST['file'])) {
-                    $wpaicg_file = sanitize_text_field($_POST['file']);
-                } else {
-                    $wpaicg_file = md5(time()) . '.jsonl';
+                $types = \WPAICG\wpaicg_util_core()->sanitize_text_or_array_field( wp_unslash($_POST['types']) );
+                $wpaicg_total = absint($_POST['total']);
+                $wpaicg_per_page = absint($_POST['per_page']);
+                $wpaicg_page = isset($_POST['page']) && !empty($_POST['page']) ? absint($_POST['page']) : 1;
+
+                // Ensure per_page is valid to prevent division by zero or excessive limits
+                if ($wpaicg_per_page <= 0) $wpaicg_per_page = 10; // Default or minimum
+
+                // Sanitize or generate file name
+                $wpaicg_file = isset($_POST['file']) && !empty($_POST['file'])
+                               ? sanitize_file_name( wp_unslash($_POST['file']) )
+                               : md5(time()) . '.jsonl';
+                // Ensure .jsonl extension
+                if ( substr( $wpaicg_file, -6 ) !== '.jsonl' ) {
+                    $file_parts = pathinfo($wpaicg_file);
+                    $wpaicg_file = $file_parts['filename'] . '.jsonl';
                 }
-                if (isset($_POST['id']) && !empty($_POST['id'])) {
-                    $wpaicg_convert_id = sanitize_text_field($_POST['id']);
-                } else {
-                    $wpaicg_convert_id = wp_insert_post(array(
-                        'post_title' => $wpaicg_file,
-                        'post_type' => 'wpaicg_convert',
-                        'post_status' => 'publish',
-                    ));
+
+                // Get or create conversion post ID
+                $wpaicg_convert_id = isset($_POST['id']) && !empty($_POST['id']) ? absint($_POST['id']) : 0;
+                if (empty($wpaicg_convert_id)) {
+                     $wpaicg_convert_id = wp_insert_post(array(
+                         'post_title' => $wpaicg_file,
+                         'post_type' => 'wpaicg_convert',
+                         'post_status' => 'publish',
+                         'post_date' => current_time('mysql'), // Use current time
+                     ), true); // Return error object on failure
+                     if (is_wp_error($wpaicg_convert_id)) {
+                         $wpaicg_result['msg'] = esc_html__('Could not create conversion record post.', 'gpt3-ai-content-generator');
+                         wp_send_json($wpaicg_result);
+                     }
                 }
+
                 try {
-                    $wpaicg_json_file = fopen(wp_upload_dir()['basedir'] . '/' . $wpaicg_file, "a");
-                    $wpaicg_content = '';
+                    $upload_dir = wp_upload_dir();
+                    $wpaicg_file_path = trailingslashit($upload_dir['basedir']) . $wpaicg_file;
+                    $wpaicg_content_to_append = '';
                     $wpaicg_offset = ($wpaicg_page * $wpaicg_per_page) - $wpaicg_per_page;
-                    $sql = $wpdb->prepare("SELECT post_title, post_content FROM " . $wpdb->posts . " WHERE post_status='publish' AND post_type IN ('" . implode("','", $types) . "') ORDER BY post_date ASC LIMIT %d,%d", $wpaicg_offset, $wpaicg_per_page);
-                    $wpaicg_data = $wpdb->get_results($sql);
+
+                    // Ensure types is still a non-empty array after sanitization
+                    if (!is_array($types) || empty($types)) {
+                         throw new \Exception(esc_html__('Invalid or empty post types provided after sanitization.', 'gpt3-ai-content-generator'));
+                    }
+
+                    // Prepare SQL query parts
+                    $placeholders = implode(',', array_fill(0, count($types), '%s'));
+                    $args = array_merge( array('publish'), $types, array($wpaicg_offset, $wpaicg_per_page) );
+
+                    // Fetch data directly using prepared statement inside get_results
+                    $wpaicg_data = $wpdb->get_results(
+                        $wpdb->prepare(
+                            "SELECT post_title, post_content FROM {$wpdb->posts} WHERE post_status = %s AND post_type IN ({$placeholders}) ORDER BY post_date ASC LIMIT %d, %d",
+                            $args
+                        )
+                    );
+
                     if ($wpaicg_data && is_array($wpaicg_data) && count($wpaicg_data)) {
                         foreach ($wpaicg_data as $item) {
                             $data = array(
                                 "prompt" => $item->post_title . ' ->',
-                                "completion" => strip_tags($item->post_content),
+                                "completion" => wp_strip_all_tags($item->post_content), // Use wp_strip_all_tags
                             );
-                            fwrite($wpaicg_json_file, json_encode($data) . PHP_EOL);
+                            $wpaicg_content_to_append .= json_encode($data) . PHP_EOL;
                         }
                     }
-                    fclose($wpaicg_json_file);
-                    $wpaicg_max_page = ceil($wpaicg_total / $wpaicg_per_page);
-                    if ($wpaicg_max_page == $wpaicg_page) {
+
+                    // Append content using WP_Filesystem
+                    $existing_content = '';
+                    if ($wp_filesystem->exists($wpaicg_file_path)) {
+                        $existing_content = $wp_filesystem->get_contents($wpaicg_file_path);
+                        if ($existing_content === false) {
+                             $existing_content = ''; // Attempt overwrite if read failed
+                             // Optionally log a warning here
+                        }
+                    }
+                    $full_content = $existing_content . $wpaicg_content_to_append;
+
+                    if (!$wp_filesystem->put_contents($wpaicg_file_path, $full_content, FS_CHMOD_FILE)) {
+                        throw new \Exception(esc_html__('Failed to write data to the JSONL file.', 'gpt3-ai-content-generator'));
+                    }
+
+                    // Determine next page or completion
+                    $wpaicg_max_page = $wpaicg_total > 0 ? ceil($wpaicg_total / $wpaicg_per_page) : 0;
+                    if ($wpaicg_max_page <= $wpaicg_page) {
                         $wpaicg_result['next_page'] = 'DONE';
                         wp_update_post(array(
                             'ID' => $wpaicg_convert_id,
-                            'post_modified' => date('Y-m-d H:i:s'),
+                            'post_modified' => current_time('mysql'), // Use current time
+                            'post_modified_gmt' => current_time('mysql', 1) // And GMT time
                         ));
                     } else {
                         $wpaicg_result['next_page'] = $wpaicg_page + 1;
                     }
+
+                    // Set success results
                     $wpaicg_result['file'] = $wpaicg_file;
                     $wpaicg_result['id'] = $wpaicg_convert_id;
                     $wpaicg_result['status'] = 'success';
+                    unset($wpaicg_result['msg']); // Remove default error message on success
+
                 } catch (\Exception $exception) {
                     $wpaicg_result['msg'] = $exception->getMessage();
                 }
             } else {
-                $wpaicg_result['msg'] = esc_html__('Please select least one data to convert', 'gpt3-ai-content-generator');
+                $wpaicg_result['msg'] = esc_html__('Missing required data: types, per_page, or total.', 'gpt3-ai-content-generator');
             }
 
             wp_send_json($wpaicg_result);
@@ -540,13 +705,13 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
                     update_post_meta($wpaicg_file->ID, 'wpaicg_fine_tune', $result->id);
                     $wpaicg_file_id = wp_insert_post(array(
                         'post_title' => $result->id,
-                        'post_date' => date('Y-m-d H:i:s', $result->created_at),
+                        'post_date' => wp_date('Y-m-d H:i:s', $result->created_at), // Use wp_date for WordPress timezone handling
                         'post_status' => 'publish',
                         'post_type' => 'wpaicg_finetune',
                     ));
                     add_post_meta($wpaicg_file_id, 'wpaicg_model', $result->model);
                     if (isset($result->updated_at)) {
-                        add_post_meta($wpaicg_file_id, 'wpaicg_updated_at', date('Y-m-d H:i:s', $result->updated_at));
+                        add_post_meta($wpaicg_file_id, 'wpaicg_updated_at', wp_date('Y-m-d H:i:s', $result->updated_at));
                     }                    
                     add_post_meta($wpaicg_file_id, 'wpaicg_name', $result->fine_tuned_model);
                     add_post_meta($wpaicg_file_id, 'wpaicg_org', $result->organization_id);
@@ -610,7 +775,7 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
                 } else {
                     $wpaicg_file_id = wp_insert_post(array(
                         'post_title' => $result->id,
-                        'post_date' => date('Y-m-d H:i:s', get_date_from_gmt(date('Y-m-d H:i:s', $result->created_at), 'U')),
+                        'post_date' => wp_date('Y-m-d H:i:s', $result->created_at),
                         'post_status' => 'publish',
                         'post_type' => 'wpaicg_file',
                     ));
@@ -1087,14 +1252,14 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
                         if (!$wpaicg_check) {
                             $wpaicg_file_id = wp_insert_post(array(
                                 'post_title' => $item->id,
-                                'post_date' => date('Y-m-d H:i:s', $item->created_at),
+                                'post_date' => wp_date('Y-m-d H:i:s', $item->created_at),
                                 'post_status' => 'publish',
                                 'post_type' => 'wpaicg_finetune',
                             ));
                             if (!is_wp_error($wpaicg_file_id)) {
                                 add_post_meta($wpaicg_file_id, 'wpaicg_model', $item->model);
                                 if (isset($item->updated_at)) {
-                                    add_post_meta($wpaicg_file_id, 'wpaicg_updated_at', date('Y-m-d H:i:s', $item->updated_at));
+                                    add_post_meta($wpaicg_file_id, 'wpaicg_updated_at', wp_date('Y-m-d H:i:s', $item->updated_at));
                                 }
                                 add_post_meta($wpaicg_file_id, 'wpaicg_name', $item->fine_tuned_model);
                                 add_post_meta($wpaicg_file_id, 'wpaicg_org', $item->organization_id);
@@ -1111,7 +1276,7 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
                             $wpaicg_file_id = $wpaicg_check->ID;
                             update_post_meta($wpaicg_check->ID, 'wpaicg_model', $item->model);
                             if (isset($item->updated_at)) {
-                                update_post_meta($wpaicg_check->ID, 'wpaicg_updated_at', date('Y-m-d H:i:s', $item->updated_at));
+                                update_post_meta($wpaicg_check->ID, 'wpaicg_updated_at', wp_date('Y-m-d H:i:s', $item->updated_at));
                             }                                                      
                             update_post_meta($wpaicg_check->ID, 'wpaicg_name', $item->fine_tuned_model);
                             update_post_meta($wpaicg_check->ID, 'wpaicg_org', $item->organization_id);
@@ -1156,7 +1321,7 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
                     if (!$wpaicg_check) {
                         $wpaicg_file_id = wp_insert_post(array(
                             'post_title' => $item->id,
-                            'post_date' => date('Y-m-d H:i:s', $item->created_at),
+                            'post_date' => wp_date('Y-m-d H:i:s', $item->created_at),
                             'post_status' => 'publish',
                             'post_type' => 'wpaicg_file',
                         ));
@@ -1229,7 +1394,7 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
             // $wpaicg_file->file_size
             $file_size = get_post_meta($post->ID, 'wpaicg_file_size', true);
             // $wpaicg_file->post_date
-            $postdate = date('y-m-d H:i', strtotime($post->post_date));
+            $postdate = wp_date('y-m-d H:i', strtotime($post->post_date));
             // $wpaicg_file->filename
             $filename = get_post_meta($post->ID, 'wpaicg_filename', true);
             // Truncate filename if it's longer than 10 characters
@@ -1319,7 +1484,7 @@ if (!class_exists('\\WPAICG\\WPAICG_FineTune')) {
         public function generate_table_row_training($post) {
             $post_title = strlen($post->post_title) > 15 ? substr($post->post_title, 0, 15) . '...' : $post->post_title;
             $model = $post->model;
-            $post_date = date('y-m-d H:i', strtotime($post->post_date));
+            $post_date = wp_date('y-m-d H:i', strtotime($post->post_date));
             $ft_model = $post->ft_model;
             $org_id = $post->org_id;
             

@@ -102,19 +102,6 @@ function wpaicg_calculate_free_tokens_for_user( $user_id, $module ) {
         return $temp;
     }
 
-    // For 'promptbase'
-    if ( $module === 'promptbase' ) {
-        $limit_settings = get_option('wpaicg_limit_tokens_promptbase', []);
-        $temp = 0;
-        if ( ! empty($limit_settings['user_limited']) && ! empty($limit_settings['user_tokens']) ) {
-            $temp = (float) $limit_settings['user_tokens'];
-        }
-        if ( ! empty($limit_settings['role_limited']) && ! empty($limit_settings['limited_roles']) ) {
-            $temp += $find_role_limit( $limit_settings['limited_roles'], $user_roles );
-        }
-        return $temp;
-    }
-
     // For 'image'
     if ( $module === 'image' ) {
         $limit_settings = get_option('wpaicg_limit_tokens_image', []);
@@ -297,11 +284,11 @@ $logs = array();
 if ($view_logs_user_id > 0) {
     $view_user = get_user_by('ID', $view_logs_user_id);
     if ($view_user && $tokenLogsTableExists) {
-        $log_query = $wpdb->prepare(
+        // Directly pass the prepared query to get_results
+        $logs = $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM $wpaicgTokenLogsTable WHERE user_id = %d ORDER BY created_at DESC",
             $view_logs_user_id
-        );
-        $logs = $wpdb->get_results($log_query);
+        ));
     }
 }
 
@@ -601,12 +588,6 @@ $all_users = get_users();
                 $forms_used   = wpaicg_calculate_usage_for_module($user->ID, 'forms');
                 $forms_remain = max( 0, $forms_free + $forms_purch - $forms_used );
 
-                // 3) Promptbase
-                $pbase_free   = wpaicg_calculate_free_tokens_for_user($user->ID, 'promptbase');
-                $pbase_purch  = (float) get_user_meta($user->ID, 'wpaicg_promptbase_tokens', true);
-                $pbase_used   = wpaicg_calculate_usage_for_module($user->ID, 'promptbase');
-                $pbase_remain = max( 0, $pbase_free + $pbase_purch - $pbase_used );
-
                 // 4) Image
                 $image_free   = wpaicg_calculate_free_tokens_for_user($user->ID, 'image');
                 $image_purch  = (float) get_user_meta($user->ID, 'wpaicg_image_tokens', true);
@@ -617,7 +598,6 @@ $all_users = get_users();
                 $has_any_usage = (
                     $chat_used > 0 ||
                     $forms_used > 0 ||
-                    $pbase_used > 0 ||
                     $image_used > 0
                 );
 
@@ -642,7 +622,7 @@ $all_users = get_users();
                 <tr
                     data-username="<?php echo esc_attr(strtolower($user->user_login . ' ' . $user->display_name)); ?>"
                     data-email="<?php echo esc_attr(strtolower($user->user_email)); ?>"
-                    data-userid="<?php echo $user->ID; ?>"
+                    data-userid="<?php echo esc_attr($user->ID); ?>"
                 >
                     <!-- Username -->
                     <td><?php echo esc_html($user->display_name); ?></td>
@@ -660,7 +640,7 @@ $all_users = get_users();
                                 <!-- Make the free token amount clickable to open Chatbot Breakdown -->
                                 <span 
                                     class="wpaicg-token-badge free wpaicg-chat-breakdown-toggle"
-                                    data-target="chat-breakdown-<?php echo $user->ID; ?>"
+                                    data-target="chat-breakdown-<?php echo esc_attr($user->ID); ?>"
                                 >
                                     <?php echo number_format($chat_free, 0); ?>
                                 </span>
@@ -672,9 +652,9 @@ $all_users = get_users();
 
                             <span
                                 class="wpaicg-token-badge purchased wpaicg-editable"
-                                data-userid="<?php echo $user->ID; ?>"
+                                data-userid="<?php echo esc_attr($user->ID); ?>"
                                 data-module="chat"
-                                data-remaining-id="remain-chat-<?php echo $user->ID; ?>"
+                                data-remaining-id="remain-chat-<?php echo esc_attr($user->ID); ?>"
                             >
                                 <?php echo number_format($chat_purch, 0); ?>
                             </span>
@@ -682,7 +662,7 @@ $all_users = get_users();
                                 <?php echo number_format($chat_used, 0); ?>
                             </span>
                             <span
-                                id="remain-chat-<?php echo $user->ID; ?>"
+                                id="remain-chat-<?php echo esc_attr($user->ID); ?>"
                                 class="wpaicg-token-badge remain"
                             >
                                 <?php echo number_format($chat_remain, 0); ?>
@@ -692,7 +672,7 @@ $all_users = get_users();
                         <?php if(!empty($chatBreakdown)): ?>
                             <div
                                 class="wpaicg-chat-breakdown-container"
-                                id="chat-breakdown-<?php echo $user->ID; ?>"
+                                id="chat-breakdown-<?php echo esc_attr($user->ID); ?>"
                             >
                                 <table class="wpaicg-chat-breakdown-table">
                                     <thead>
@@ -726,9 +706,9 @@ $all_users = get_users();
                             </span>
                             <span
                                 class="wpaicg-token-badge purchased wpaicg-editable"
-                                data-userid="<?php echo $user->ID; ?>"
+                                data-userid="<?php echo esc_attr($user->ID); ?>"
                                 data-module="forms"
-                                data-remaining-id="remain-forms-<?php echo $user->ID; ?>"
+                                data-remaining-id="remain-forms-<?php echo esc_attr($user->ID); ?>"
                             >
                                 <?php echo number_format($forms_purch, 0); ?>
                             </span>
@@ -736,7 +716,7 @@ $all_users = get_users();
                                 <?php echo number_format($forms_used, 0); ?>
                             </span>
                             <span
-                                id="remain-forms-<?php echo $user->ID; ?>"
+                                id="remain-forms-<?php echo esc_attr($user->ID); ?>"
                                 class="wpaicg-token-badge remain"
                             >
                                 <?php echo number_format($forms_remain, 0); ?>
@@ -752,9 +732,9 @@ $all_users = get_users();
                             </span>
                             <span
                                 class="wpaicg-token-badge purchased wpaicg-editable"
-                                data-userid="<?php echo $user->ID; ?>"
+                                data-userid="<?php echo esc_attr($user->ID); ?>"
                                 data-module="image"
-                                data-remaining-id="remain-image-<?php echo $user->ID; ?>"
+                                data-remaining-id="remain-image-<?php echo esc_attr($user->ID); ?>"
                             >
                                 <?php echo number_format($image_purch, 2); ?>
                             </span>
@@ -762,7 +742,7 @@ $all_users = get_users();
                                 <?php echo number_format($image_used, 2); ?>
                             </span>
                             <span
-                                id="remain-image-<?php echo $user->ID; ?>"
+                                id="remain-image-<?php echo esc_attr($user->ID); ?>"
                                 class="wpaicg-token-badge remain"
                             >
                                 <?php echo number_format($image_remain, 2); ?>
@@ -956,7 +936,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 // AJAX
                 const formData = new FormData();
                 formData.append('action','wpaicg_update_purchased_tokens');
-                formData.append('nonce','<?php echo wp_create_nonce("wpaicg_update_purchased_tokens"); ?>');
+                formData.append('nonce','<?php echo esc_js(wp_create_nonce("wpaicg_update_purchased_tokens")); ?>');
                 formData.append('user_id', userId);
                 formData.append('module', mod);
                 formData.append('purchased_tokens', newVal);

@@ -28,11 +28,23 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
 
         public function wpaicg_generate_custom_prompt()
         {
+
+            /* ---- Capability check ------------------------------------------------ */
             $wpaicg_result = array('status' => 'error','tokens' => 0, 'length' => 0);
             if(!current_user_can('wpaicg_single_content_express')){
                 $wpaicg_result['msg'] = esc_html__('You do not have permission for this action.','gpt3-ai-content-generator');
                 wp_send_json($wpaicg_result);
             }
+
+			/* ---- NONCE check (blocks CSRF) -------------------------------------- */
+			if (
+				! isset( $_POST['nonce'] )
+				|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'wpaicg-ajax-nonce' )
+			) {
+				$wpaicg_result['msg'] = esc_html__( 'Invalid request. Please refresh the page and try again.', 'gpt3-ai-content-generator' );
+				wp_send_json( $wpaicg_result );
+			}
+
             if(
                 isset($_REQUEST['wpai_preview_title'])
                 && !empty($_REQUEST['wpai_preview_title'])
@@ -116,15 +128,20 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
         {
             global  $wpdb ;
             update_option( '_wpaicg_cron_added', time() );
-            $sql = "SELECT * FROM " . $wpdb->posts . " WHERE post_type='wpaicg_bulk' AND post_status='pending' ORDER BY post_date ASC";
-            $wpaicg_single = $wpdb->get_row( $sql );
+            $wpaicg_single = $wpdb->get_row( $wpdb->prepare(
+                "SELECT * FROM " . $wpdb->posts . " WHERE post_type=%s AND post_status=%s ORDER BY post_date ASC",
+                'wpaicg_bulk', // Parameter for post_type
+                'pending'      // Parameter for post_status
+            ) );
             update_option( '_wpaicg_crojob_bulk_last_time', time() );
             /* Fix in progress task stuck*/
             $wpaicg_restart_queue = get_option('wpaicg_restart_queue','');
             $wpaicg_try_queue = get_option('wpaicg_try_queue','');
             if(!empty($wpaicg_restart_queue) && !empty($wpaicg_try_queue)) {
-                $wpaicg_fix_sql = $wpdb->prepare("SELECT p.ID,(SELECT m.meta_value FROM ".$wpdb->postmeta." m WHERE m.post_id=p.ID AND m.meta_key='wpaicg_try_queue_time') as try_time FROM ".$wpdb->posts." p WHERE (p.post_status='draft' OR p.post_status='trash') AND p.post_type='wpaicg_bulk' AND p.post_modified <  NOW() - INTERVAL %d MINUTE",$wpaicg_restart_queue);
-                $in_progress_posts = $wpdb->get_results($wpaicg_fix_sql);
+                $in_progress_posts = $wpdb->get_results( $wpdb->prepare(
+                    "SELECT p.ID,(SELECT m.meta_value FROM ".$wpdb->postmeta." m WHERE m.post_id=p.ID AND m.meta_key='wpaicg_try_queue_time') as try_time FROM ".$wpdb->posts." p WHERE (p.post_status='draft' OR p.post_status='trash') AND p.post_type='wpaicg_bulk' AND p.post_modified <  NOW() - INTERVAL %d MINUTE",
+                    $wpaicg_restart_queue
+                ) );
                 if($in_progress_posts && is_array($in_progress_posts) && count($in_progress_posts)){
                     foreach($in_progress_posts as $in_progress_post){
                         if(!$in_progress_post->try_time || (int)$in_progress_post->try_time < $wpaicg_try_queue){
@@ -221,7 +238,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
                                 $wpaicg_content_class->wpaicg_bulk_error_log($wpaicg_single->ID, $wpaicg_has_error.'. Break at step '.$break_step);
                                 $wpaicg_running = WPAICG_PLUGIN_DIR.'/wpaicg_running.txt';
                                 if(file_exists($wpaicg_running)){
-                                    unlink($wpaicg_running);
+                                    wp_delete_file($wpaicg_running);
                                 }
                             }
                             else{
@@ -548,7 +565,7 @@ if ( !class_exists( '\\WPAICG\\WPAICG_Custom_Prompt' ) ) {
                             $wpaicg_content_class->wpaicg_bulk_error_log($wpaicg_single->ID, $result['msg']);
                             $wpaicg_running = WPAICG_PLUGIN_DIR.'/wpaicg_running.txt';
                             if(file_exists($wpaicg_running)){
-                                unlink($wpaicg_running);
+                                wp_delete_file($wpaicg_running);
                             }
                         }
                     }

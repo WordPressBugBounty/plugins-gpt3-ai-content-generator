@@ -245,7 +245,7 @@ if($wpaicgMaxFileSize > 104857600){
         </div>
         <div class="nice-form-group" style="display: flex;align-items: center;">
             <button class="button button-primary" id="wpaicg_file_button"><?php echo esc_html__('Upload','gpt3-ai-content-generator')?></button>
-            <span style="margin-left: 1em;"><?php echo esc_html__('Maximum upload file size:','gpt3-ai-content-generator')?><?php echo size_format($wpaicgMaxFileSize)?></span>
+            <span style="margin-left: 1em;"><?php echo esc_html__('Maximum upload file size:','gpt3-ai-content-generator')?><?php echo esc_html(size_format($wpaicgMaxFileSize)); ?></span>
         </div>
     </div>
 </div>
@@ -283,7 +283,7 @@ if($wpaicgMaxFileSize > 104857600){
         var progressBar = $('.wpaicg-convert-bar');
         var wpaicg_add_data = $('.normal .wpaicg_add_data');
         var wpaicg_add_gtp_turbo_data = $('.gpt-turbo .wpaicg_add_data');
-        var wpaicg_ajax_url = '<?php echo admin_url('admin-ajax.php') ?>';
+        var wpaicg_ajax_url = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
         var form = $('#wpaicg_form_data');
         var wpaicg_item = '<div class="wpaicg_data_item wpaicg_data"><div><input type="text" name="data[0][prompt]" class="wpaicg_data_prompt" placeholder="<?php echo esc_html__('Prompt', 'gpt3-ai-content-generator') ?>"> </div><div><input type="text" name="data[0][completion]" class="wpaicg_data_completion" placeholder="<?php echo esc_html__('Completion', 'gpt3-ai-content-generator') ?>"><span class="button button-link-delete" style="display: flex;align-items: center;">×</span></div></div>';
         var wpaicg_gpt_turbo_item = '<div class="wpaicg_data_item wpaicg_data"><div class="nice-form-group"><input type="text" name="data[0][system]" class="wpaicg_data_system"> </div><div class="nice-form-group"><input type="text" name="data[0][user]" class="wpaicg_data_user"> </div><div class="nice-form-group"><input type="text" name="data[0][assistant]" class="wpaicg_data_assistant"><span class="button button-link-delete" style="display: flex;align-items: center;">×</span></div></div>';
@@ -379,7 +379,7 @@ if($wpaicgMaxFileSize > 104857600){
                 action: 'wpaicg_data_insert',
                 model: model,
                 file: file,
-                nonce: '<?php echo wp_create_nonce('wpaicg-ajax-nonce') ?>'
+                nonce: '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>'
             };
 
             var isChatModel = model === 'gpt-3.5-turbo' || model.includes('gpt-3.5-turbo-') || model === 'gpt-4-0613';
@@ -510,7 +510,7 @@ if($wpaicgMaxFileSize > 104857600){
             btn.find('.spinner').remove();
         }
         var wpaicg_max_file_size = <?php echo esc_html($wpaicgMaxFileSize)?>;
-        var wpaicg_max_size_in_mb = '<?php echo size_format(esc_html($wpaicgMaxFileSize))?>';
+        var wpaicg_max_size_in_mb = '<?php echo esc_js(size_format(esc_html($wpaicgMaxFileSize))); ?>';
         var wpaicg_file_button = $('#wpaicg_file_button');
         var wpaicg_file_upload = $('#wpaicg_file_upload');
         var wpaicg_file_purpose = $('#wpaicg_file_purpose');
@@ -521,7 +521,7 @@ if($wpaicgMaxFileSize > 104857600){
         var wpaicg_create_fine_tune = $('.wpaicg_create_fine_tune');
         var wpaicg_retrieve_content = $('.wpaicg_retrieve_content');
         var wpaicg_delete_file = $('.wpaicg_delete_file');
-        var wpaicg_ajax_url = '<?php echo admin_url('admin-ajax.php')?>';
+        var wpaicg_ajax_url = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
         wpaicg_file_button.click(function (){
             if(wpaicg_file_upload[0].files.length === 0){
                 alert('<?php echo esc_html__('Please select file','gpt3-ai-content-generator')?>');
@@ -544,7 +544,7 @@ if($wpaicgMaxFileSize > 104857600){
                     formData.append('purpose', wpaicg_file_purpose.val());
                     formData.append('model', wpaicg_file_model.val());
                     formData.append('name', wpaicg_file_name.val());
-                    formData.append('nonce','<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>');
+                    formData.append('nonce','<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); ?>');
                     $.ajax({
                         url: wpaicg_ajax_url,
                         type: 'POST',

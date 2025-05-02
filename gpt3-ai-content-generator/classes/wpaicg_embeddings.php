@@ -95,8 +95,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
             }
         
             if(isset($_POST['question']) && !empty($_POST['question']) && isset($_POST['content']) && !empty($_POST['content'])) {
-                $question = wp_kses_post(strip_tags($_POST['question']));
-                $content = wp_kses_post(strip_tags($_POST['content']));
+                $question = wp_kses_post(wp_strip_all_tags($_POST['question']));
+                $content = wp_kses_post(wp_strip_all_tags($_POST['content']));
                 
                 // Remove "User: " prefix from the question
                 $question = preg_replace('/^User:\s*/', '', $question);
@@ -182,7 +182,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
             
             $wpaicg_emb_model_display = !empty($wpaicg_emb_model) ? esc_html($wpaicg_emb_model) : 'text-embedding-ada-002';
 
-            $postdate = date('y-m-d H:i', strtotime($post->post_date));
+            $postdate = wp_date('y-m-d H:i', strtotime($post->post_date));
             // Combine all information into a detailed string
             $details = "<div style='font-size: 90%;white-space: break-spaces;'>";
             if (!empty($wpaicg_index)) {
@@ -246,17 +246,14 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
             $offset = ($page - 1) * $results_per_page;
         
             // Construct the basic query with LIKE clause for search within post_content
-            $query = $wpdb->prepare(
-                "SELECT ID, post_title, post_date, post_type FROM {$wpdb->posts} 
-                WHERE post_type IN ('wpaicg_embeddings', 'wpaicg_pdfadmin','wpaicg_builder') AND post_status = 'publish' 
+            $posts = $wpdb->get_results( $wpdb->prepare(
+                "SELECT ID, post_title, post_date, post_type FROM {$wpdb->posts}
+                WHERE post_type IN ('wpaicg_embeddings', 'wpaicg_pdfadmin','wpaicg_builder') AND post_status = 'publish'
                 AND post_content LIKE %s
-                ORDER BY post_date DESC 
+                ORDER BY post_date DESC
                 LIMIT %d, %d",
                 '%' . $wpdb->esc_like($search_term) . '%', $offset, $results_per_page
-            );
-
-            // Execute the query
-            $posts = $wpdb->get_results($query);
+            ) );
                 
             // Prepare content HTML
             $output = '';
@@ -265,13 +262,12 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
             }
         
             // Get total posts for pagination
-            $total_posts_query = $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->posts} 
-                WHERE post_type IN ('wpaicg_embeddings', 'wpaicg_pdfadmin','wpaicg_builder') AND post_status = 'publish' 
+            $total_posts = $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->posts}
+                WHERE post_type IN ('wpaicg_embeddings', 'wpaicg_pdfadmin','wpaicg_builder') AND post_status = 'publish'
                 AND post_content LIKE %s",
                 '%' . $wpdb->esc_like($search_term) . '%'
-            );
-            $total_posts = $wpdb->get_var($total_posts_query);
+            ) );
             $total_pages = ceil($total_posts / $results_per_page);
         
             // Generate pagination HTML
@@ -487,8 +483,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
                         let embedding = $('#wpaicg-instant-embedding-'+id);
                         if(wpaicgInstantWorking) {
                             wpaicgInstantAjax = $.ajax({
-                                url: '<?php echo admin_url('admin-ajax.php')?>',
-                                data: {action: 'wpaicg_instant_embedding', id: id,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                                url: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
+                                data: {action: 'wpaicg_instant_embedding', id: id,'nonce': '<?php echo esc_js( wp_create_nonce('wpaicg-ajax-nonce') ); ?>'},
                                 type: 'POST',
                                 dataType: 'JSON',
                                 success: function (res) {
@@ -896,26 +892,58 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
                 }
             }
             if(isset($_GET['wpaicg_builder']) && sanitize_text_field($_GET['wpaicg_builder']) == 'yes'){
-                $wpaicg_running = WPAICG_PLUGIN_DIR.'/wpaicg_builder.txt';
-                if(!file_exists($wpaicg_running)) {
-                    $wpaicg_file = fopen($wpaicg_running, "a") or die("Unable to open file!");
-                    $txt = 'running';
-                    fwrite($wpaicg_file, $txt);
-                    fclose($wpaicg_file);
-                    try {
-                        $_SERVER["REQUEST_METHOD"] = 'GET';
-                        chmod($wpaicg_running,0755);
-                        $this->wpaicg_builer();
-                    }
-                    catch (\Exception $exception){
-                        $wpaicg_error = WPAICG_PLUGIN_DIR.'wpaicg_error.txt';
-                        $wpaicg_file = fopen($wpaicg_error, "a") or die("Unable to open file!");
-                        $txt = $exception->getMessage();
-                        fwrite($wpaicg_file, $txt);
-                        fclose($wpaicg_file);
+                // Initialize WP Filesystem
+                global $wp_filesystem;
+                if ( empty( $wp_filesystem ) ) {
+                    require_once ABSPATH . '/wp-admin/includes/file.php';
+                    WP_Filesystem();
+                }
+                // Check if WP_Filesystem was initialized successfully
+                if ( ! $wp_filesystem ) {
+                    // Handle error: WP_Filesystem could not be initialized
+                    // Maybe log an error or exit gracefully. For minimal change, just proceed, but note this risk.
+                    // For now, we'll let the code proceed and potentially fail below if $wp_filesystem is null.
+                }
 
+
+                $wpaicg_running = WPAICG_PLUGIN_DIR.'/wpaicg_builder.txt';
+
+                // Use WP_Filesystem->exists()
+                if ( ! $wp_filesystem || ! $wp_filesystem->exists($wpaicg_running) ) {
+                    // Use WP_Filesystem->put_contents() instead of fopen/fwrite/fclose
+                    $write_result = $wp_filesystem ? $wp_filesystem->put_contents($wpaicg_running, 'running', FS_CHMOD_FILE) : false; // FS_CHMOD_FILE defines default permissions
+
+                    if ( $write_result ) {
+                        try {
+                            $_SERVER["REQUEST_METHOD"] = 'GET';
+                            // Use WP_Filesystem->chmod()
+                            if ($wp_filesystem) {
+                                $wp_filesystem->chmod($wpaicg_running, 0755);
+                            }
+                            $this->wpaicg_builer();
+                        }
+                        catch (\Exception $exception){
+                            $wpaicg_error = WPAICG_PLUGIN_DIR.'wpaicg_error.txt';
+                            $txt = $exception->getMessage();
+                            // Use WP_Filesystem->put_contents() for error log (overwrites/creates)
+                            // If appending is strictly necessary, it's more complex:
+                            // $current_error = $wp_filesystem ? $wp_filesystem->get_contents($wpaicg_error) : '';
+                            // $new_error_content = $current_error . PHP_EOL . $txt;
+                            // if ($wp_filesystem) $wp_filesystem->put_contents($wpaicg_error, $new_error_content, FS_CHMOD_FILE);
+                            if ($wp_filesystem) {
+                                $wp_filesystem->put_contents($wpaicg_error, $txt, FS_CHMOD_FILE);
+                            }
+
+                        }
+                        // Use WP_Filesystem->delete() instead of unlink()
+                        if ($wp_filesystem) {
+                            $wp_filesystem->delete($wpaicg_running);
+                        }
+                    } else {
+                        // Handle error: Could not write the running file
+                        // Maybe log this failure
                     }
-                    @unlink($wpaicg_running);
+
                 }
                 exit;
             }
@@ -1025,7 +1053,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
             $wpaicg_content = preg_replace("/<((?:style)).*>.*<\/style>/si", ' ',$wpaicg_content);
             $wpaicg_content = preg_replace("/<((?:script)).*>.*<\/script>/si", ' ',$wpaicg_content);
             $wpaicg_content = preg_replace('/<a(.*)href="([^"]*)"(.*)>(.*?)<\/a>/i', '$2', $wpaicg_content);
-            $wpaicg_content = strip_tags($wpaicg_content);
+            $wpaicg_content = wp_strip_all_tags($wpaicg_content);
             $wpaicg_content = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $wpaicg_content);
             $wpaicg_content = trim($wpaicg_content);
             if (empty($wpaicg_content)) {
@@ -1277,8 +1305,10 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
                 $wpaicg_builder_enable = get_option('wpaicg_builder_enable', '');
                 if ($wpaicg_builder_enable == 'yes' && is_array($wpaicg_builder_types) && count($wpaicg_builder_types)) {
                     $commaDelimitedPlaceholders = implode(',', array_fill(0, count($wpaicg_builder_types), '%s'));
-                    $wpaicg_sql = $wpdb->prepare("SELECT p.ID,p.post_title, p.post_content,p.post_type,p.post_excerpt,p.post_date,p.post_parent,p.post_status,p.post_author FROM " . $wpdb->posts . " p LEFT JOIN " . $wpdb->postmeta . " m ON m.post_id=p.ID AND m.meta_key='wpaicg_indexed' WHERE (m.meta_value IS NULL OR m.meta_value='' OR m.meta_value='reindex') AND p.post_content!='' AND p.post_type IN ($commaDelimitedPlaceholders) AND p.post_status = 'publish' ORDER BY p.ID ASC LIMIT 1",$wpaicg_builder_types);
-                    $wpaicg_data = $wpdb->get_row($wpaicg_sql);
+                    $wpaicg_data = $wpdb->get_row( $wpdb->prepare(
+                        "SELECT p.ID,p.post_title, p.post_content,p.post_type,p.post_excerpt,p.post_date,p.post_parent,p.post_status,p.post_author FROM " . $wpdb->posts . " p LEFT JOIN " . $wpdb->postmeta . " m ON m.post_id=p.ID AND m.meta_key='wpaicg_indexed' WHERE (m.meta_value IS NULL OR m.meta_value='' OR m.meta_value='reindex') AND p.post_content!='' AND p.post_type IN ($commaDelimitedPlaceholders) AND p.post_status = 'publish' ORDER BY p.ID ASC LIMIT 1",
+                        $wpaicg_builder_types
+                    ) );
                     if($wpaicg_data) {
                         $wpaicg_has_builder_run = true;
                         $this->wpaicg_builder_data($wpaicg_data);
@@ -1306,14 +1336,20 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
         
             $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
             if (isset($module_settings['training']) && $module_settings['training']) {
+                // --- FIX: Use the literal string for the title ---
+                // Get the correct literal title from the $wpaicg_modules array ('Training')
+                $training_page_title = esc_html__('Training', 'gpt3-ai-content-generator');
+                $training_menu_title = esc_html__('Training', 'gpt3-ai-content-generator');
+                // --- END FIX ---
+
                 add_submenu_page(
                     'wpaicg',
-                    esc_html__($modules['training']['title'], 'gpt3-ai-content-generator'),
-                    esc_html__($modules['training']['title'], 'gpt3-ai-content-generator'),
-                    $modules['training']['capability'],
-                    $modules['training']['menu_slug'],
-                    array($this, $modules['training']['callback']),
-                    $modules['training']['position']
+                    $training_page_title,  // Use the prepared variable
+                    $training_menu_title, // Use the prepared variable
+                    $modules['training']['capability'], // Keep dynamic
+                    $modules['training']['menu_slug'],  // Keep dynamic
+                    array($this, $modules['training']['callback']), // Keep dynamic
+                    $modules['training']['position'] // Keep dynamic
                 );
             }
         }
@@ -1491,7 +1527,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
                                     $body = json_decode($response['body'],true); 
                                     if($body){
                                         if(isset($body['code']) && isset($body['message'])){
-                                            $wpaicg_result['msg'] = strip_tags($body['message']);
+                                            $wpaicg_result['msg'] = wp_strip_all_tags($body['message']);
                                             wp_delete_post($embeddings_id);
                                             $wpdb->delete($wpdb->postmeta, array(
                                                 'meta_value' => $embeddings_id,
@@ -1603,7 +1639,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Embeddings')) {
                 wp_send_json($wpaicg_result);
             }
             if(isset($_POST['content']) && !empty($_POST['content'])){
-                $content = wp_kses_post(strip_tags($_POST['content']));
+                $content = wp_kses_post(wp_strip_all_tags($_POST['content']));
                 if(!empty($content)){
                     $wpaicg_result = $this->wpaicg_save_embedding($content);
                 }

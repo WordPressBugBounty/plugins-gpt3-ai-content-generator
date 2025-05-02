@@ -68,12 +68,22 @@ $wpaicg_authors = array(
 // 2. Load custom forms from DB
 // -----------------------------------------------------------------------------
 global $wpdb;
-$sql = "SELECT p.ID, p.post_author, p.post_title
+
+$wpaicg_custom_forms = $wpdb->get_results(
+    $wpdb->prepare(
+        "
+        SELECT p.ID, p.post_author, p.post_title
         FROM {$wpdb->posts} p
-        WHERE p.post_type = 'wpaicg_form'
-          AND p.post_status = 'publish'
-        ORDER BY p.post_date DESC";
-$wpaicg_custom_forms = $wpdb->get_results( $sql );
+        WHERE p.post_type = %s
+          AND p.post_status = %s
+        ORDER BY p.post_date DESC
+        ",
+        'wpaicg_form',
+        'publish'
+    )
+);
+
+
 
 // -----------------------------------------------------------------------------
 // 3. Combine built-in + custom forms into one array

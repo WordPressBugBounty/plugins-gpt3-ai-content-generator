@@ -91,22 +91,30 @@ if (!class_exists('\\WPAICG\\WPAICG_Google')) {
         private function initialize_settings() {
             global $wpdb;
             $wpaicgTable = $wpdb->prefix . 'wpaicg';
-            $sql = $wpdb->prepare( 'SELECT * FROM ' . $wpaicgTable . ' WHERE name=%s', 'wpaicg_settings' );
-            $wpaicg_settings = $wpdb->get_row( $sql, ARRAY_A );
+        
+            // Use prepare directly inside get_row, avoid variable assignment
+            $wpaicg_settings = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                    'wpaicg_settings'
+                ),
+                ARRAY_A
+            );
+        
             if ($wpaicg_settings) {
-                // Assign the values
                 $this->apiKey = get_option('wpaicg_google_model_api_key', '');
                 $this->model = get_option('wpaicg_google_default_model', 'gemini-pro');
-                
-                foreach($wpaicg_settings as $key => $value) {
+        
+                foreach ($wpaicg_settings as $key => $value) {
                     if (property_exists($this, $key)) {
                         $this->$key = $value;
                     }
                 }
-                // Initialize Google Safety Settings
+        
                 $this->initialize_google_safety_settings();
             }
         }
+        
 
         private function initialize_google_safety_settings() {
             $default_safety_settings = [

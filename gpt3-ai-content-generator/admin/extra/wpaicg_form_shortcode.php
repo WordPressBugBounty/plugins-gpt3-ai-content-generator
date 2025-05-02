@@ -65,29 +65,6 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
             }
         }
     }
-    if($wpaicg_custom){
-        $sql = "SELECT p.ID as id,p.post_title as title, p.post_content as description";
-        foreach($wpaicg_meta_keys as $wpaicg_meta_key){
-            $sql .= ", (".$wpdb->prepare(
-                    "SELECT ".$wpaicg_meta_key.".meta_value 
-                     FROM ".$wpdb->postmeta." ".$wpaicg_meta_key." 
-                     WHERE ".$wpaicg_meta_key.".meta_key=%s 
-                     AND p.ID=".$wpaicg_meta_key.".post_id LIMIT 1",
-                    'wpaicg_form_'.$wpaicg_meta_key
-                ).") as ".$wpaicg_meta_key;
-        }
-        $sql .= $wpdb->prepare(
-            " FROM ".$wpdb->posts." p 
-              WHERE p.post_type = 'wpaicg_form' AND p.post_status='publish' 
-              AND p.ID=%d 
-              ORDER BY p.post_date DESC", 
-            $wpaicg_item_id
-        );
-        $wpaicg_item = $wpdb->get_row($sql, ARRAY_A);
-        if($wpaicg_item){
-            $wpaicg_item['type'] = 'custom';
-        }
-    }
     if($wpaicg_item){
         $wpaicg_item_categories = array();
         $wpaicg_item_categories_name = array();
@@ -689,7 +666,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                                     name="<?php echo esc_html($wpaicg_field['id'])?>__fileupload" 
                                                     data-label="<?php echo esc_html(@$wpaicg_field['label'])?>" 
                                                     data-type="fileupload"
-                                                    data-filetypes="<?php echo $fileTypes;?>"
+                                                    data-filetypes="<?php echo esc_attr( $fileTypes );?>"
                                                 />
                                                 <input 
                                                     type="hidden" 
@@ -762,7 +739,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                         if(isset($wpaicg_item['dnotice']) && $wpaicg_item['dnotice'] == 'no'):
                                         else:
                                             ?>
-                                        <a style="font-size: 13px;" href="<?php echo site_url('wp-login.php?action=register')?>">
+                                        <a style="font-size: 13px;" href="<?php echo esc_url( site_url('wp-login.php?action=register') ); ?>">
                                             <?php echo esc_html($wpaicg_cnotice_text)?>
                                         </a>
                                         <?php
@@ -777,7 +754,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
 
                                         } else {
                                             ?>
-                                            <a style="font-size: 13px;" href="<?php echo site_url('wp-login.php?action=register')?>">
+                                            <a style="font-size: 13px;" href="<?php echo esc_url( site_url('wp-login.php?action=register') ); ?>">
                                                 <?php echo esc_html($wpaicg_cnotice_text)?>
                                             </a>
                                             <?php
@@ -1116,8 +1093,8 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                 response: '<?php echo esc_html($wpaicg_response_type)?>',
                 logged_in: <?php echo is_user_logged_in() ? 'true': 'false'?>,
                 event: '<?php echo esc_html(add_query_arg('wpaicg_stream','yes',site_url().'/index.php'));?>',
-                ajax: '<?php echo admin_url('admin-ajax.php')?>',
-                post: '<?php echo admin_url('post.php')?>',
+                ajax: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
+                post: '<?php echo esc_js( admin_url('post.php') ); ?>',
                 sourceID: '<?php echo esc_html(get_the_ID())?>',
                 nonce: '<?php echo esc_html(wp_create_nonce( 'wpaicg-formlog' ))?>',
                 ajax_nonce: '<?php echo esc_html(wp_create_nonce( 'wpaicg-ajax-nonce' ))?>',

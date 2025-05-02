@@ -238,8 +238,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Regenerate_Title')) {
                         }
                         else{
                             wpaicgRegenerateRunning = $.ajax({
-                                url: '<?php echo admin_url('admin-ajax.php')?>',
-                                data: {action: 'wpaicg_regenerate_save',title: title, id: id,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                                url: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
+                                data: {action: 'wpaicg_regenerate_save',title: title, id: id,'nonce': '<?php echo esc_js( wp_create_nonce('wpaicg-ajax-nonce') ); ?>'},
                                 dataType: 'JSON',
                                 type: 'POST',
                                 beforeSend: function (){
@@ -281,8 +281,8 @@ if(!class_exists('\\WPAICG\\WPAICG_Regenerate_Title')) {
                             $('.wpaicg_modal_title').html('AI Power - <?php echo esc_html__('Title Suggestion Tool','gpt3-ai-content-generator')?>');
                             $('.wpaicg_modal_content').html('<p style="font-style: italic;margin-top: 5px;text-align: center;"><?php echo esc_html__('Preparing suggestions...','gpt3-ai-content-generator')?></p>');
                             wpaicgRegenerateRunning = $.ajax({
-                                url: '<?php echo admin_url('admin-ajax.php')?>',
-                                data: {action: 'wpaicg_regenerate_title',title: title,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                                url: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
+                                data: {action: 'wpaicg_regenerate_title',title: title,'nonce': '<?php echo esc_js( wp_create_nonce('wpaicg-ajax-nonce') ); ?>'},
                                 dataType: 'JSON',
                                 type: 'POST',
                                 success: function (res){

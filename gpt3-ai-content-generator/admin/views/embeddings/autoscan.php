@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 global $wpdb;
 $wpaicg_cron_added = get_option('wpaicg_cron_builder_added','');
-$humanReadableBuilder = (!empty($wpaicg_cron_added)) ? date('y-m-d H:i', $wpaicg_cron_added) : 'NA';
+$humanReadableBuilder = (!empty($wpaicg_cron_added)) ? date_i18n('y-m-d H:i', $wpaicg_cron_added) : 'NA';
 $wpaicg_builder_types = get_option('wpaicg_builder_types',[]);
 $schedule_options = [
     'none' => 'None',
@@ -59,26 +59,96 @@ $schedule_builder = get_option('wpaicg_cron_builder_schedule', 'none');
 if ($wpaicg_builder_types && is_array($wpaicg_builder_types) && count($wpaicg_builder_types)) {
     foreach ($wpaicg_builder_types as $wpaicg_builder_type) {
         // Count total data
-        $sql_count_data = $wpdb->prepare("SELECT COUNT(p.ID) FROM " . $wpdb->posts . " p WHERE p.post_type=%s AND p.post_status = 'publish'", $wpaicg_builder_type);
-        $total_data = $wpdb->get_var($sql_count_data);
+        $total_data = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(p.ID) FROM {$wpdb->posts} p WHERE p.post_type = %s AND p.post_status = %s",
+                $wpaicg_builder_type,
+                'publish' // Use placeholder for status as well
+            )
+        );
 
         // Count for each status
-        $sql_error_count = $wpdb->prepare("SELECT COUNT(p.ID) FROM " . $wpdb->postmeta . " m LEFT JOIN " . $wpdb->posts . " p ON p.ID=m.post_id WHERE p.post_type=%s AND p.post_status = 'publish' AND m.meta_key='wpaicg_indexed' AND m.meta_value='error'", $wpaicg_builder_type);
-        $error_count = $wpdb->get_var($sql_error_count);
+        $error_count = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(p.ID)
+                 FROM {$wpdb->postmeta} m
+                 LEFT JOIN {$wpdb->posts} p ON p.ID = m.post_id
+                 WHERE p.post_type = %s
+                 AND p.post_status = %s
+                 AND m.meta_key = %s
+                 AND m.meta_value = %s",
+                 $wpaicg_builder_type,
+                 'publish',        // Placeholder for status
+                 'wpaicg_indexed', // Placeholder for meta_key
+                 'error'           // Placeholder for meta_value
+             )
+        );
 
-        $sql_skip_count = $wpdb->prepare("SELECT COUNT(p.ID) FROM " . $wpdb->postmeta . " m LEFT JOIN " . $wpdb->posts . " p ON p.ID=m.post_id WHERE p.post_type=%s AND p.post_status = 'publish' AND m.meta_key='wpaicg_indexed' AND m.meta_value='skip'", $wpaicg_builder_type);
-        $skip_count = $wpdb->get_var($sql_skip_count);
+        $skip_count = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(p.ID)
+                 FROM {$wpdb->postmeta} m
+                 LEFT JOIN {$wpdb->posts} p ON p.ID = m.post_id
+                 WHERE p.post_type = %s
+                 AND p.post_status = %s
+                 AND m.meta_key = %s
+                 AND m.meta_value = %s",
+                 $wpaicg_builder_type,
+                 'publish',        // Placeholder for status
+                 'wpaicg_indexed', // Placeholder for meta_key
+                 'skip'            // Placeholder for meta_value
+             )
+        );
 
         // After calculating $error_count and before the if statement
-        $sql_error_posts = $wpdb->prepare("SELECT p.ID, p.post_title FROM " . $wpdb->postmeta . " m LEFT JOIN " . $wpdb->posts . " p ON p.ID = m.post_id WHERE p.post_type = %s AND p.post_status = 'publish' AND m.meta_key = 'wpaicg_indexed' AND m.meta_value = 'error'", $wpaicg_builder_type);
-        $error_posts = $wpdb->get_results($sql_error_posts);
+        $error_posts = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT p.ID, p.post_title
+                 FROM {$wpdb->postmeta} m
+                 LEFT JOIN {$wpdb->posts} p ON p.ID = m.post_id
+                 WHERE p.post_type = %s
+                 AND p.post_status = %s
+                 AND m.meta_key = %s
+                 AND m.meta_value = %s",
+                 $wpaicg_builder_type,
+                 'publish',        // Placeholder for status
+                 'wpaicg_indexed', // Placeholder for meta_key
+                 'error'           // Placeholder for meta_value
+            )
+        );
 
         // Similar SQL query and fetch for $skip_posts
-        $sql_skip_posts = $wpdb->prepare("SELECT p.ID, p.post_title FROM " . $wpdb->postmeta . " m LEFT JOIN " . $wpdb->posts . " p ON p.ID = m.post_id WHERE p.post_type = %s AND p.post_status = 'publish' AND m.meta_key = 'wpaicg_indexed' AND m.meta_value = 'skip'", $wpaicg_builder_type);
-        $skip_posts = $wpdb->get_results($sql_skip_posts);
+        $skip_posts = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT p.ID, p.post_title
+                 FROM {$wpdb->postmeta} m
+                 LEFT JOIN {$wpdb->posts} p ON p.ID = m.post_id
+                 WHERE p.post_type = %s
+                 AND p.post_status = %s
+                 AND m.meta_key = %s
+                 AND m.meta_value = %s",
+                 $wpaicg_builder_type,
+                 'publish',        // Placeholder for status
+                 'wpaicg_indexed', // Placeholder for meta_key
+                 'skip'           // Placeholder for meta_value
+            )
+        );
 
-        $sql_completed_count = $wpdb->prepare("SELECT COUNT(p.ID) FROM " . $wpdb->postmeta . " m LEFT JOIN " . $wpdb->posts . " p ON p.ID=m.post_id WHERE p.post_type=%s AND p.post_status = 'publish' AND m.meta_key='wpaicg_indexed' AND m.meta_value='yes'", $wpaicg_builder_type);
-        $completed_count = $wpdb->get_var($sql_completed_count);
+        $completed_count = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(p.ID)
+                 FROM {$wpdb->postmeta} m
+                 LEFT JOIN {$wpdb->posts} p ON p.ID = m.post_id
+                 WHERE p.post_type = %s
+                 AND p.post_status = %s
+                 AND m.meta_key = %s
+                 AND m.meta_value = %s",
+                 $wpaicg_builder_type,
+                 'publish',         // Placeholder for status
+                 'wpaicg_indexed',  // Placeholder for meta_key
+                 'yes'              // Placeholder for meta_value
+             )
+        );
 
         if ($total_data > 0) {
             // Use completed_count for the percentage calculation
@@ -96,7 +166,7 @@ if ($wpaicg_builder_types && is_array($wpaicg_builder_types) && count($wpaicg_bu
                     } elseif ($wpaicg_builder_type == 'product') {
                         echo esc_html__('Products', 'gpt3-ai-content-generator');
                     } else {
-                        echo ucwords(str_replace(array('-', '_'), ' ', $wpaicg_builder_type));
+                        echo esc_html(ucwords(str_replace(array('-', '_'), ' ', $wpaicg_builder_type)));
                     }
                     ?>
                     <!-- Show completed_count against total_data for accuracy -->
@@ -104,24 +174,63 @@ if ($wpaicg_builder_types && is_array($wpaicg_builder_types) && count($wpaicg_bu
                         <!-- Conditional display for error, skip, completed -->
                         <?php 
                             if ($error_count > 0) {
-                                echo "<small><a href='javascript:void(0);' onclick=\"toggleVisibility('error-{$wpaicg_builder_type}');\">Error:</a>{$error_count}</small>";
+                                // Escape builder type for JS context and error count for HTML content
+                                echo sprintf(
+                                    '<small><a href="javascript:void(0);" onclick="toggleVisibility(\'error-%s\');">%s</a>%s</small>',
+                                    esc_js($wpaicg_builder_type), // Escape for JS context within onclick
+                                    esc_html__('Error:', 'gpt3-ai-content-generator'), // Use translation function for "Error:"
+                                    esc_html($error_count)        // Escape count for HTML content
+                                );
+
                                 // Fetch and display post titles for errors with clickable edit links and a Re-Index button
                                 foreach ($error_posts as $post) {
                                     $edit_link = get_edit_post_link($post->ID);
-                                    echo "<div class='error-{$wpaicg_builder_type}' style='display:none;'><small style='margin-bottom: 1em;'><a href='{$edit_link}' target='_blank'>{$post->post_title}</a> <button style='padding: 2px;font-size: xx-small;margin-top: -0.5em;' data-id='{$post->ID}' class='button button-primary button-small wpaicg_reindex'>Retry</button></small></div>";
+                                    // Escape builder type for class attribute, edit link for href, ID for data attribute, title for HTML content
+                                    echo sprintf(
+                                        '<div class="error-%s" style="display:none;"><small style="margin-bottom: 1em;"><a href="%s" target="_blank">%s</a> <button style="padding: 2px;font-size: xx-small;margin-top: -0.5em;" data-id="%s" class="button button-primary button-small wpaicg_reindex">%s</button></small></div>',
+                                        esc_attr($wpaicg_builder_type), // Escape for class attribute
+                                        esc_url($edit_link),            // Escape URL for href attribute
+                                        esc_html($post->post_title),    // Escape title for HTML content
+                                        esc_attr($post->ID),            // Escape ID for data attribute
+                                        esc_html__('Retry', 'gpt3-ai-content-generator') // Use translation function for "Retry"
+                                    );
                                 }
                             }
 
                             if ($skip_count > 0) {
-                                echo "<small style='padding-top: 1em;'><a href='javascript:void(0);' onclick=\"toggleVisibility('skip-{$wpaicg_builder_type}');\">Skipped:</a>{$skip_count}</small>";
+                                // Escape builder type for JS context and skip count for HTML content
+                                echo sprintf(
+                                    '<small style="padding-top: 1em;"><a href="javascript:void(0);" onclick="toggleVisibility(\'skip-%s\');">%s</a>%s</small>',
+                                    esc_js($wpaicg_builder_type), // Escape for JS context within onclick
+                                    esc_html__('Skipped:', 'gpt3-ai-content-generator'), // Use translation function for "Skipped:"
+                                    esc_html($skip_count)         // Escape count for HTML content
+                                );
+
                                 // Fetch and display post titles for skips with clickable edit links and a Re-Index button
                                 foreach ($skip_posts as $post) {
                                     $edit_link = get_edit_post_link($post->ID);
-                                    echo "<div class='skip-{$wpaicg_builder_type}' style='display:none;'><small style='margin-bottom: 1em;'><a href='{$edit_link}' target='_blank'>{$post->post_title}</a> <button style='padding: 2px;font-size: xx-small;margin-top: -0.5em;' data-id='{$post->ID}' class='button button-primary button-small wpaicg_reindex'>Retry</button></small></div>";
+                                    // Escape builder type for class attribute, edit link for href, ID for data attribute, title for HTML content
+                                    echo sprintf(
+                                        '<div class="skip-%s" style="display:none;"><small style="margin-bottom: 1em;"><a href="%s" target="_blank">%s</a> <button style="padding: 2px;font-size: xx-small;margin-top: -0.5em;" data-id="%s" class="button button-primary button-small wpaicg_reindex">%s</button></small></div>',
+                                        esc_attr($wpaicg_builder_type), // Escape for class attribute
+                                        esc_url($edit_link),            // Escape URL for href attribute
+                                        esc_html($post->post_title),    // Escape title for HTML content
+                                        esc_attr($post->ID),            // Escape ID for data attribute
+                                        esc_html__('Retry', 'gpt3-ai-content-generator') // Use translation function for "Retry"
+                                    );
                                 }
                             }
                         ?>
-                    <?php if ($completed_count > 0) echo "Completed: $completed_count"; ?>
+                                        <?php
+                    if ($completed_count > 0) {
+                        // Use sprintf for translation and escaping the count
+                        echo sprintf(
+                            /* translators: %d: Number of completed items */
+                            esc_html__('Completed: %d', 'gpt3-ai-content-generator'),
+                            (int) $completed_count // Cast to int for %d and general safety
+                        );
+                    }
+                    ?>
                     </span>
                     <div class="wpaicg-builder-process-content">
                         <span class="wpaicg-percent" style="width: <?php echo esc_html($percent_process)?>%"></span>
@@ -154,8 +263,8 @@ if ($wpaicg_builder_types && is_array($wpaicg_builder_types) && count($wpaicg_bu
             var conf = confirm('<?php echo esc_html__('Are you sure?','gpt3-ai-content-generator')?>');
             if(conf){
                 $.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php')?>',
-                    data: {action: 'wpaicg_builder_reindex', id: id,'nonce': '<?php echo wp_create_nonce('wpaicg-ajax-nonce')?>'},
+                    url: '<?php echo esc_js(admin_url('admin-ajax.php')); // Escape for JS context ?>',
+                    data: {action: 'wpaicg_builder_reindex', id: id,'nonce': '<?php echo esc_js(wp_create_nonce('wpaicg-ajax-nonce')); // Escape for JS context ?>'},
                     dataType: 'JSON',
                     type: 'POST',
                     beforeSend: function (){
@@ -201,13 +310,13 @@ if ($wpaicg_builder_types && is_array($wpaicg_builder_types) && count($wpaicg_bu
         // Function to save schedule
         function saveSchedule(task, value) {
             $.ajax({
-                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                url: '<?php echo esc_js(admin_url('admin-ajax.php')); // Escape for JS context ?>',
                 type: 'post',
                 data: {
                     action: 'save_schedule',
                     task: task,
                     value: value,
-                    nonce: '<?php echo wp_create_nonce('save_schedule_nonce'); ?>'
+                    nonce: '<?php echo esc_js(wp_create_nonce('save_schedule_nonce')); ?>'
                 },
                 success: function(response) {
                     if (!response.success) {

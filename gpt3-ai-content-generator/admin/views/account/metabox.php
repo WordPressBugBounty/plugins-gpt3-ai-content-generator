@@ -28,13 +28,6 @@ $wpaicg_product_sale_tokens = get_post_meta($post->ID,'wpaicg_product_sale_token
         <?php
         endif;
         ?>
-        <?php
-        if($this->promptbase_sale):
-        ?>
-        <option<?php echo $wpaicg_product_sale_type == 'promptbase' ? ' selected':''?> value="promptbase"><?php echo esc_html__('Promptbase','gpt3-ai-content-generator')?></option>
-        <?php
-        endif;
-        ?>
     </select>
 </p>
 <p class="wpaicg-form-row">

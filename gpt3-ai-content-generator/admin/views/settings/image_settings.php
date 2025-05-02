@@ -217,7 +217,7 @@ $prompt_templates = [
                         <?php 
                         foreach ($image_style_options as $value => $label) {
                             $selected = esc_html($_wpaicg_image_style) == $value ? ' selected' : '';
-                            echo "<option value=\"" . esc_attr($value) . "\"{$selected}>" . esc_html($label) . "</option>";
+                            echo "<option value=\"" . esc_attr($value) . "\"" . esc_attr($selected) . ">" . esc_html($label) . "</option>";
                         }
                         ?>
                     </select>
@@ -230,7 +230,7 @@ $prompt_templates = [
                         <?php
                         foreach ($wpaicg_painter_data['painters'] as $key => $value) {
                             $selected = (isset($wpaicg_custom_image_settings['artist']) && $wpaicg_custom_image_settings['artist'] == $value) || (!isset($wpaicg_custom_image_settings['artist']) && $value == 'None') ? ' selected' : '';
-                            echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($value) . '</option>';
+                            echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($value) . '</option>';
                         }
                         ?>
                     </select>
@@ -243,7 +243,7 @@ $prompt_templates = [
                         <?php
                         foreach ($wpaicg_photo_data['photography_style'] as $key => $value) {
                             $selected = (isset($wpaicg_custom_image_settings['photography_style']) && $wpaicg_custom_image_settings['photography_style'] == $value) || (!isset($wpaicg_custom_image_settings['photography_style']) && $value == 'None') ? ' selected' : '';
-                            echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($value) . '</option>';
+                            echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($value) . '</option>';
                         }
                         ?>
                     </select>
@@ -256,7 +256,7 @@ $prompt_templates = [
                         <?php
                         foreach ($wpaicg_photo_data['lighting'] as $key => $value) {
                             $selected = (isset($wpaicg_custom_image_settings['lighting']) && $wpaicg_custom_image_settings['lighting'] == $value) || (!isset($wpaicg_custom_image_settings['lighting']) && $value == 'None') ? ' selected' : '';
-                            echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($value) . '</option>';
+                            echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($value) . '</option>';
                         }
                         ?>
                     </select>
@@ -269,7 +269,7 @@ $prompt_templates = [
                         <?php
                         foreach ($wpaicg_photo_data['subject'] as $key => $value) {
                             $selected = (isset($wpaicg_custom_image_settings['subject']) && $wpaicg_custom_image_settings['subject'] == $value) || (!isset($wpaicg_custom_image_settings['subject']) && $value == 'None') ? ' selected' : '';
-                            echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($value) . '</option>';
+                            echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($value) . '</option>';
                         }
                         ?>
                     </select>
@@ -282,7 +282,7 @@ $prompt_templates = [
                         <?php
                         foreach ($wpaicg_photo_data['camera_settings'] as $key => $value) {
                             $selected = (isset($wpaicg_custom_image_settings['camera_settings']) && $wpaicg_custom_image_settings['camera_settings'] == $value) || (!isset($wpaicg_custom_image_settings['camera_settings']) && $value == 'None') ? ' selected' : '';
-                            echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($value) . '</option>';
+                            echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($value) . '</option>';
                         }
                         ?>
                     </select>
@@ -295,7 +295,7 @@ $prompt_templates = [
                         <?php
                         foreach ($wpaicg_photo_data['composition'] as $key => $value) {
                             $selected = (isset($wpaicg_custom_image_settings['composition']) && $wpaicg_custom_image_settings['composition'] == $value) || (!isset($wpaicg_custom_image_settings['composition']) && $value == 'None') ? ' selected' : '';
-                            echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($value) . '</option>';
+                            echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($value) . '</option>';
                         }
                         ?>
                     </select>
@@ -308,7 +308,7 @@ $prompt_templates = [
                         <?php
                         foreach ($wpaicg_photo_data['resolution'] as $key => $value) {
                             $selected = (isset($wpaicg_custom_image_settings['resolution']) && $wpaicg_custom_image_settings['resolution'] == $value) || (!isset($wpaicg_custom_image_settings['resolution']) && $value == 'None') ? ' selected' : '';
-                            echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($value) . '</option>';
+                            echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($value) . '</option>';
                         }
                         ?>
                     </select>
@@ -321,7 +321,7 @@ $prompt_templates = [
                         <?php
                         foreach ($wpaicg_photo_data['color'] as $key => $value) {
                             $selected = (isset($wpaicg_custom_image_settings['color']) && $wpaicg_custom_image_settings['color'] == $value) || (!isset($wpaicg_custom_image_settings['color']) && $value == 'None') ? ' selected' : '';
-                            echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($value) . '</option>';
+                            echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($value) . '</option>';
                         }
                         ?>
                     </select>
@@ -334,7 +334,7 @@ $prompt_templates = [
                         <?php
                         foreach ($wpaicg_photo_data['special_effects'] as $key => $value) {
                             $selected = (isset($wpaicg_custom_image_settings['special_effects']) && $wpaicg_custom_image_settings['special_effects'] == $value) || (!isset($wpaicg_custom_image_settings['special_effects']) && $value == 'None') ? ' selected' : '';
-                            echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($value) . '</option>';
+                            echo '<option value="' . esc_attr($value) . '"' . esc_attr($selected) . '>' . esc_html($value) . '</option>';
                         }
                         ?>
                     </select>
@@ -590,13 +590,9 @@ $prompt_templates = [
             <div class="aipower-custom-prompt-footer">
                 <div class="aipower-custom-prompt-explanation">
                     <?php
-                        echo sprintf(
-                            esc_html__(
-                                'Make sure to include %s in your prompt.',
-                                'gpt3-ai-content-generator'
-                            ),
-                            '<code>[title]</code>'
-                        );
+                        // --- FIX: Add translators comment ---
+                        // translators: %s: The placeholder string "[title]" wrapped in <code> tags.
+                        echo sprintf(esc_html__('Make sure to include %s in your prompt.','gpt3-ai-content-generator'),'<code>[title]</code>');
                     ?>
                 </div>
                 <button type="button" id="reset_custom_image_prompt" class="aipower-button reset-button">
@@ -638,15 +634,11 @@ $prompt_templates = [
 
             <!-- Explanation Text and Reset Button -->
             <div class="aipower-custom-prompt-footer">
-                <div class="aipower-custom-prompt-explanation">
+            <div class="aipower-custom-prompt-explanation">
                     <?php
-                        echo sprintf(
-                            esc_html__(
-                                'Make sure to include %s in your prompt.',
-                                'gpt3-ai-content-generator'
-                            ),
-                            '<code>[title]</code>'
-                        );
+                        // --- FIX: Add translators comment ---
+                        // translators: %s: The placeholder string "[title]" wrapped in <code> tags.
+                        echo sprintf(esc_html__('Make sure to include %s in your prompt.','gpt3-ai-content-generator'),'<code>[title]</code>');
                     ?>
                 </div>
                 <button type="button" id="reset_custom_featured_image_prompt" class="aipower-button reset-button">

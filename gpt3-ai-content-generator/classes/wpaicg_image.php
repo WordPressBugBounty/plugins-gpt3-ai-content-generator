@@ -344,14 +344,20 @@ if(!class_exists('\\WPAICG\\WPAICG_Image')) {
         
             $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
             if (isset($module_settings['image_generator']) && $module_settings['image_generator']) {
+                // --- FIX: Use the literal string for the title ---
+                // Get the correct literal title from the $wpaicg_modules array ('Image Generator')
+                $image_generator_page_title = esc_html__('Image Generator', 'gpt3-ai-content-generator');
+                $image_generator_menu_title = esc_html__('Image Generator', 'gpt3-ai-content-generator');
+                // --- END FIX ---
+
                 add_submenu_page(
                     'wpaicg',
-                    esc_html__($modules['image_generator']['title'], 'gpt3-ai-content-generator'),
-                    esc_html__($modules['image_generator']['title'], 'gpt3-ai-content-generator'),
-                    $modules['image_generator']['capability'],
-                    $modules['image_generator']['menu_slug'],
-                    array($this, $modules['image_generator']['callback']),
-                    $modules['image_generator']['position']
+                    $image_generator_page_title,  // Use the prepared variable
+                    $image_generator_menu_title, // Use the prepared variable
+                    $modules['image_generator']['capability'], // Keep dynamic
+                    $modules['image_generator']['menu_slug'],  // Keep dynamic
+                    array($this, $modules['image_generator']['callback']), // Keep dynamic
+                    $modules['image_generator']['position'] // Keep dynamic
                 );
             }
         }

@@ -380,23 +380,20 @@ $cta_positions = [
                 <div class="aipower-form-group">
                     <?php if (\WPAICG\wpaicg_util_core()->wpaicg_is_pro()): ?>
                         <?php
-                            echo sprintf(
-                                esc_html__(
-                                    'Make sure to include %s in your prompt. You can also add %s and %s to further customize your prompt.',
-                                    'gpt3-ai-content-generator'
-                                ),
-                                '<code>[title]</code>',
-                                '<code>[keywords_to_include]</code>',
-                                '<code>[keywords_to_avoid]</code>'
+                            // --- FIX: Add translators comment and use ordered placeholders ---
+                            // translators: %1$s: The placeholder string "[title]" wrapped in <code> tags. %2$s: The placeholder string "[keywords_to_include]" wrapped in <code> tags. %3$s: The placeholder string "[keywords_to_avoid]" wrapped in <code> tags.
+                            echo sprintf(esc_html__('Make sure to include %1$s in your prompt. You can also add %2$s and %3$s to further customize your prompt.', 'gpt3-ai-content-generator'),
+                                '<code>[title]</code>',                 // Corresponds to %1$s
+                                '<code>[keywords_to_include]</code>',  // Corresponds to %2$s
+                                '<code>[keywords_to_avoid]</code>'   // Corresponds to %3$s
                             );
+                            // --- END FIX ---
                         ?>
                     <?php else: ?>
                         <?php
-                            echo sprintf(
-                                esc_html__(
-                                    'Make sure to include %s in your prompt.',
-                                    'gpt3-ai-content-generator'
-                                ),
+                            // --- FIX: Add translators comment ---
+                            // translators: %s: The placeholder string "[title]" wrapped in <code> tags.
+                            echo sprintf(esc_html__('Make sure to include %s in your prompt.','gpt3-ai-content-generator'),
                                 '<code>[title]</code>'
                             );
                         ?>

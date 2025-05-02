@@ -233,32 +233,51 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenRouter')){
         {
             global $wpdb;
             $wpaicgTable = $wpdb->prefix . 'wpaicg';
-            $sql = $wpdb->prepare( 'SELECT * FROM ' . $wpaicgTable . ' where name=%s','wpaicg_settings' );
-            $wpaicg_settings = $wpdb->get_row( $sql, ARRAY_A );
+        
+            $wpaicg_settings = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                    'wpaicg_settings'
+                ),
+                ARRAY_A
+            );
+        
             $api_key = $this->retrieveApiKey();
-            if (!empty($api_key)) {
-                add_action('http_api_curl', array($this, 'filterCurlForStream'));
+        
+            if ( ! empty( $api_key ) ) {
+                add_action( 'http_api_curl', array( $this, 'filterCurlForStream' ) );
+        
                 $this->headers = [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer '.$api_key
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . $api_key,
                 ];
-                unset($wpaicg_settings['ID']);
-                unset($wpaicg_settings['name']);
-                unset($wpaicg_settings['added_date']);
-                unset($wpaicg_settings['modified_date']);
-                foreach($wpaicg_settings as $key=>$wpaicg_setting){
+        
+                unset(
+                    $wpaicg_settings['ID'],
+                    $wpaicg_settings['name'],
+                    $wpaicg_settings['added_date'],
+                    $wpaicg_settings['modified_date']
+                );
+        
+                foreach ( $wpaicg_settings as $key => $wpaicg_setting ) {
                     $this->$key = $wpaicg_setting;
                 }
+        
                 return $this;
             }
-            else return false;
+        
+            return false;
         }
+        
 
         public function filterCurlForStream($handle)
         {
             if ($this->stream_method !== null){
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
                 curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
                 curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: customizing stream behavior via http_api_curl hook.
                 curl_setopt($handle, CURLOPT_WRITEFUNCTION, function ($curl_info, $data) {
                     return call_user_func($this->stream_method, $this, $data);
                 });
@@ -541,17 +560,26 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenRouter')){
             $this->timeout = $timeout;
         }
 
-        private function setUpHeaders() {
+        private function setUpHeaders()
+        {
             global $wpdb;
             $wpaicgTable = $wpdb->prefix . 'wpaicg';
-            $sql = $wpdb->prepare('SELECT * FROM ' . $wpaicgTable . ' WHERE name = %s', 'wpaicg_settings');
-            $wpaicg_settings = $wpdb->get_row($sql, ARRAY_A);
+        
+            $wpaicg_settings = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                    'wpaicg_settings'
+                ),
+                ARRAY_A
+            );
+        
             $api_key = $this->retrieveApiKey();
         
             $this->headers['Authorization'] = 'Bearer ' . $api_key;
-            $this->headers['OpenAI-Beta'] = 'assistants=v1';
-            $this->headers['X-Title'] = 'test site';
+            $this->headers['OpenAI-Beta']   = 'assistants=v1';
+            $this->headers['X-Title']       = 'test site';
         }
+        
 
         
         /**
@@ -662,37 +690,58 @@ if (!class_exists('\\WPAICG\\WPAICG_OpenRouter')){
         {
             $post_fields = json_encode($opts);
             // Check if the request is for text-to-speech
-            if (array_key_exists('tts', $opts)) {
+            if ( array_key_exists( 'tts', $opts ) ) {
                 // Retrieve API key from the database
-
                 global $wpdb;
                 $wpaicgTable = $wpdb->prefix . 'wpaicg';
-                $sql = $wpdb->prepare('SELECT * FROM ' . $wpaicgTable . ' WHERE name = %s', 'wpaicg_settings');
-                $wpaicg_settings = $wpdb->get_row($sql, ARRAY_A);
+            
+                $wpaicg_settings = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                        'wpaicg_settings'
+                    ),
+                    ARRAY_A
+                );
+            
                 $api_key = $this->retrieveApiKey();
-
+            
                 // Add the Authorization header with the API key
                 $this->headers['Authorization'] = 'Bearer ' . $api_key;
             }
+            
 
             if (array_key_exists('file', $opts)) {
                 $boundary = wp_generate_password(24, false);
                 $this->headers['Content-Type'] = 'multipart/form-data; boundary='.$boundary;
                 $post_fields = $this->create_body_for_file($opts['file'], $boundary);
             }
-            elseif (isset($opts['purpose']) && $opts['purpose'] === 'assistants') {
+            elseif ( isset( $opts['purpose'] ) && $opts['purpose'] === 'assistants' ) {
                 $boundary = wp_generate_password(24, false);
-                $this->headers['Content-Type'] = 'multipart/form-data; boundary='.$boundary;
+                $this->headers['Content-Type'] = 'multipart/form-data; boundary=' . $boundary;
+            
                 global $wpdb;
                 $wpaicgTable = $wpdb->prefix . 'wpaicg';
-                $sql = $wpdb->prepare('SELECT * FROM ' . $wpaicgTable . ' WHERE name = %s', 'wpaicg_settings');
-                $wpaicg_settings = $wpdb->get_row($sql, ARRAY_A);
+            
+                $wpaicg_settings = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpaicgTable} WHERE name = %s",
+                        'wpaicg_settings'
+                    ),
+                    ARRAY_A
+                );
+            
                 $api_key = $this->retrieveApiKey();
-
+            
                 // Add the Authorization header with the API key
                 $this->headers['Authorization'] = 'Bearer ' . $api_key;
-                $post_fields = $this->create_body_for_file(['filename' => $opts['filename'], 'data' => $opts['data'], 'purpose' => $opts['purpose']], $boundary);
+            
+                $post_fields = $this->create_body_for_file([
+                    'filename' => $opts['filename'],
+                    'data'     => $opts['data'],
+                    'purpose'  => $opts['purpose'],
+                ], $boundary);
             }
+            
             elseif (array_key_exists('audio', $opts)) {
                 $boundary = wp_generate_password(24, false);
                 $this->headers['Content-Type'] = 'multipart/form-data; boundary='.$boundary;

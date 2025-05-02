@@ -323,7 +323,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <span class="dashicons dashicons-lock" style="color: #FFC107; margin-right: 5px;"></span>
                             <?php echo esc_html__('Unlock PDF downloads with Pro plan', 'gpt3-ai-content-generator'); ?>
                         </p>
-                        <a href="<?php echo admin_url('admin.php?page=wpaicg-pricing'); ?>" class="button button-secondary button-small">
+                        <a href="<?php echo esc_url( admin_url('admin.php?page=wpaicg-pricing') ); ?>" class="button button-secondary button-small">
                             <?php echo esc_html__('Upgrade', 'gpt3-ai-content-generator'); ?>
                         </a>
                     <?php endif; ?>

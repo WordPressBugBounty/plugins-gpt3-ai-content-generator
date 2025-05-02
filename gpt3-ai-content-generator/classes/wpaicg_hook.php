@@ -40,9 +40,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                     'source' => esc_html__('Sources','gpt3-ai-content-generator'),
                     'no_result' => esc_html__('No result found','gpt3-ai-content-generator'),
                     'wrong' => esc_html__('Something went wrong','gpt3-ai-content-generator'),
-                    'prompt_strength' => sprintf(esc_html__('Please enter a valid prompt strength value between %d and %d.', 'gpt3-ai-content-generator'), 0, 1),
-                    'num_inference_steps' => sprintf(esc_html__('Please enter a valid number of inference steps value between %d and %d.', 'gpt3-ai-content-generator'), 1, 500),
-                    'guidance_scale' => sprintf(esc_html__('Please enter a valid guidance scale value between %d and %d.', 'gpt3-ai-content-generator'), 1, 20),
+                    'prompt_strength' => esc_html__('Please enter a valid prompt strength value.', 'gpt3-ai-content-generator'),
+                    'num_inference_steps' => esc_html__('Please enter a valid number of inference steps.', 'gpt3-ai-content-generator'),
+                    'guidance_scale' => esc_html__('Please enter a valid guidance scale value.', 'gpt3-ai-content-generator'),
                     'error_image' => esc_html__('Please select least one image for generate', 'gpt3-ai-content-generator'),
                     'save_image_success' => esc_html__('Save images to media successfully','gpt3-ai-content-generator'),
                     'select_all' => esc_html__('Select All', 'gpt3-ai-content-generator'),
@@ -83,7 +83,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                 // 1. CSS
                 wp_enqueue_style(
                     'katex-css',
-                    'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css',
+                    WPAICG_PLUGIN_URL . 'public/css/katex.min.css', // Use local file
                     array(),
                     '0.16.4',
                     'all'
@@ -91,16 +91,16 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                 // 2. Main KaTeX JS
                 wp_enqueue_script(
                     'katex-main',
-                    'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js',
-                    array(),
+                    WPAICG_PLUGIN_URL . 'public/js/katex.min.js', // Use local file
+                    array(), // Keep dependencies if needed, KaTeX main usually doesn't have WP script deps
                     '0.16.4',
                     true
                 );
                 // 3. Auto-render
                 wp_enqueue_script(
                     'katex-auto-render',
-                    'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js',
-                    array('katex-main'),
+                    WPAICG_PLUGIN_URL . 'public/js/auto-render.min.js', // Use local file
+                    array('katex-main'), // Ensure dependency on local 'katex-main' is correct
                     '0.16.4',
                     true
                 );
@@ -137,7 +137,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                 <div class="wpaicg-timer"></div>
             </div>
             <script>
-                let wpaicg_ajax_url = '<?php echo admin_url('admin-ajax.php')?>';
+                let wpaicg_ajax_url = '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>';
             </script>
             <?php
         }
@@ -153,9 +153,9 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                     'source' => esc_html__('Sources','gpt3-ai-content-generator'),
                     'no_result' => esc_html__('No result found','gpt3-ai-content-generator'),
                     'wrong' => esc_html__('Something went wrong','gpt3-ai-content-generator'),
-                    'prompt_strength' => sprintf(esc_html__('Please enter a valid prompt strength value between %d and %d.', 'gpt3-ai-content-generator'), 0, 1),
-                    'num_inference_steps' => sprintf(esc_html__('Please enter a valid number of inference steps value between %d and %d.', 'gpt3-ai-content-generator'), 1, 500),
-                    'guidance_scale' => sprintf(esc_html__('Please enter a valid guidance scale value between %d and %d.', 'gpt3-ai-content-generator'), 1, 20),
+                    'prompt_strength' => esc_html__('Please enter a valid prompt strength value.', 'gpt3-ai-content-generator'),
+                    'num_inference_steps' => esc_html__('Please enter a valid number of inference steps value.', 'gpt3-ai-content-generator'),
+                    'guidance_scale' => esc_html__('Please enter a valid guidance scale value.', 'gpt3-ai-content-generator'),
                     'error_image' => esc_html__('Please select least one image for generate', 'gpt3-ai-content-generator'),
                     'save_image_success' => esc_html__('Save images to media successfully','gpt3-ai-content-generator'),
                     'select_all' => esc_html__('Select All', 'gpt3-ai-content-generator'),
@@ -181,7 +181,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                 // 1. CSS
                 wp_enqueue_style(
                     'katex-css',
-                    'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css',
+                    WPAICG_PLUGIN_URL . 'public/css/katex.min.css', // Use local file
                     array(),
                     '0.16.4',
                     'all'
@@ -189,16 +189,16 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                 // 2. Main KaTeX JS
                 wp_enqueue_script(
                     'katex-main',
-                    'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js',
-                    array(),
+                    WPAICG_PLUGIN_URL . 'public/js/katex.min.js', // Use local file
+                    array(), // Keep dependencies if needed, KaTeX main usually doesn't have WP script deps
                     '0.16.4',
                     true
                 );
                 // 3. Auto-render
                 wp_enqueue_script(
                     'katex-auto-render',
-                    'https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js',
-                    array('katex-main'),
+                    WPAICG_PLUGIN_URL . 'public/js/auto-render.min.js', // Use local file
+                    array('katex-main'), // Ensure dependency on local 'katex-main' is correct
                     '0.16.4',
                     true
                 );
@@ -576,12 +576,6 @@ if(!class_exists('\\WPAICG\\WPAICG_Hook')) {
                         }
                     </style>
                     <?php
-                }
-            ?>
-            <?php
-                // Check if the site is RTL
-                if ( is_rtl() ) {
-                    echo '<link href="' . esc_url(WPAICG_PLUGIN_URL) . 'public/css/wpaicg-rtl.css" type="text/css" rel="stylesheet" />';
                 }
             ?>
 
