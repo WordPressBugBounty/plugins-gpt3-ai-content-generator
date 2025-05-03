@@ -65,6 +65,44 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
             }
         }
     }
+    if ( $wpaicg_custom ) {
+        $meta_parts = [];
+        $params = [];
+    
+        foreach ( $wpaicg_meta_keys as $key ) {
+            $alias = sanitize_key( $key );
+            $meta_parts[] = "
+                (
+                    SELECT pm.meta_value
+                    FROM {$wpdb->postmeta} pm
+                    WHERE pm.meta_key = %s AND pm.post_id = p.ID
+                    LIMIT 1
+                ) as {$alias}";
+            $params[] = 'wpaicg_form_' . $key;
+        }
+    
+        $meta_sql = implode( ',', $meta_parts );
+    
+        // Inline the full query directly inside prepare()
+        $wpaicg_item = $wpdb->get_row(
+            $wpdb->prepare(
+                "
+                SELECT p.ID as id, p.post_title as title, p.post_content as description,
+                {$meta_sql}
+                FROM {$wpdb->posts} p
+                WHERE p.post_type = %s AND p.post_status = %s AND p.ID = %d
+                ORDER BY p.post_date DESC
+                ",
+                ...array_merge( $params, [ 'wpaicg_form', 'publish', $wpaicg_item_id ] )
+            ),
+            ARRAY_A
+        );
+    
+        if ( $wpaicg_item ) {
+            $wpaicg_item['type'] = 'custom';
+        }
+    }
+    
     if($wpaicg_item){
         $wpaicg_item_categories = array();
         $wpaicg_item_categories_name = array();
@@ -666,7 +704,7 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                                     name="<?php echo esc_html($wpaicg_field['id'])?>__fileupload" 
                                                     data-label="<?php echo esc_html(@$wpaicg_field['label'])?>" 
                                                     data-type="fileupload"
-                                                    data-filetypes="<?php echo esc_attr( $fileTypes );?>"
+                                                    data-filetypes="<?php echo esc_attr( $fileTypes ); ?>"
                                                 />
                                                 <input 
                                                     type="hidden" 
@@ -739,9 +777,10 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                                         if(isset($wpaicg_item['dnotice']) && $wpaicg_item['dnotice'] == 'no'):
                                         else:
                                             ?>
-                                        <a style="font-size: 13px;" href="<?php echo esc_url( site_url('wp-login.php?action=register') ); ?>">
-                                            <?php echo esc_html($wpaicg_cnotice_text)?>
+                                        <a style="font-size: 13px;" href="<?php echo esc_url( site_url( 'wp-login.php?action=register' ) ); ?>">
+                                            <?php echo esc_html( $wpaicg_cnotice_text ); ?>
                                         </a>
+
                                         <?php
                                         endif;
                                         ?>
@@ -754,9 +793,10 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
 
                                         } else {
                                             ?>
-                                            <a style="font-size: 13px;" href="<?php echo esc_url( site_url('wp-login.php?action=register') ); ?>">
-                                                <?php echo esc_html($wpaicg_cnotice_text)?>
+                                            <a style="font-size: 13px;" href="<?php echo esc_url( site_url( 'wp-login.php?action=register' ) ); ?>">
+                                                <?php echo esc_html( $wpaicg_cnotice_text ); ?>
                                             </a>
+
                                             <?php
                                         }
                                     }
@@ -1093,8 +1133,8 @@ if(isset($atts) && is_array($atts) && isset($atts['id']) && !empty($atts['id']))
                 response: '<?php echo esc_html($wpaicg_response_type)?>',
                 logged_in: <?php echo is_user_logged_in() ? 'true': 'false'?>,
                 event: '<?php echo esc_html(add_query_arg('wpaicg_stream','yes',site_url().'/index.php'));?>',
-                ajax: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
-                post: '<?php echo esc_js( admin_url('post.php') ); ?>',
+                ajax: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
+                post: '<?php echo esc_url( admin_url( 'post.php' ) ); ?>',
                 sourceID: '<?php echo esc_html(get_the_ID())?>',
                 nonce: '<?php echo esc_html(wp_create_nonce( 'wpaicg-formlog' ))?>',
                 ajax_nonce: '<?php echo esc_html(wp_create_nonce( 'wpaicg-ajax-nonce' ))?>',

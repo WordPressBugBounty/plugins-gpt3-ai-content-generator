@@ -197,74 +197,54 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
         }
 
         /**
-         * Attempt to parse a .docx file (base64-encoded) into text using WP Filesystem.
-         * If it fails or is invalid, return an empty string or WP_Error.
+         * Attempt to parse a .docx file (base64-encoded) into text.
+         * If it fails or is invalid, return an empty string.
          */
-        private function wpaicg_try_extract_docx(string $base64Docx): string|\WP_Error
-        {
+        private function wpaicg_try_extract_docx( string $base64Docx ): string {
             // Decode base64 to raw .docx data
-            $binaryData = base64_decode($base64Docx, true);
-            if (!$binaryData) {
-                return ''; // Invalid base64
+            $binaryData = base64_decode( $base64Docx, true );
+            if ( ! $binaryData ) {
+                return '';
             }
 
             // Ensure we have ZipArchive available
-            if (!class_exists('\\ZipArchive')) {
-                return ''; // ZipArchive not available
+            if ( ! class_exists( '\\ZipArchive' ) ) {
+                return '';
             }
 
-            // Initialize WP Filesystem
-            global $wp_filesystem;
-            if (empty($wp_filesystem)) {
-                require_once ABSPATH . '/wp-admin/includes/file.php';
-                WP_Filesystem();
-            }
-             // Check if WP_Filesystem is initialized correctly
-            if (empty($wp_filesystem)) {
-                // Log error or return WP_Error as we cannot proceed
-                error_log('AI Power Error: Could not initialize WP Filesystem in wpaicg_try_extract_docx.');
-                return new \WP_Error('filesystem_error', __('Could not initialize WP Filesystem.', 'gpt3-ai-content-generator'));
+            // Create a temporary file
+            $tmpFile = tempnam( sys_get_temp_dir(), 'wpaicg_docx_' );
+            if ( ! $tmpFile ) {
+                return '';
             }
 
-            // Create a temporary file using WP Filesystem compatible function
-            $tmpFile = wp_tempnam('wpaicg_docx_');
-            if (!$tmpFile) {
-                return ''; // Could not create temp file
-            }
-
-            // Save the binary data to the temp file using WP Filesystem
-            if (!$wp_filesystem->put_contents($tmpFile, $binaryData, FS_CHMOD_FILE)) {
-                 $wp_filesystem->delete($tmpFile); // Clean up temp file on failure
-                 return ''; // Could not write to temp file
-            }
+            // Save the binary data to the temp file
+            file_put_contents( $tmpFile, $binaryData );
 
             $zip = new \ZipArchive();
-            $text = ''; // Initialize text variable
-
-            // Open the zip file
-            if ($zip->open($tmpFile) === true) {
-                // Attempt to read "word/document.xml" inside docx
-                $xmlContent = $zip->getFromName("word/document.xml");
-                $zip->close();
-
-                if ($xmlContent) {
-                    // Strip all tags to get raw text using WP function
-                    $text = wp_strip_all_tags($xmlContent);
-
-                    // Clean up any leftover entities or newlines
-                    $text = html_entity_decode($text, ENT_QUOTES | ENT_XML1, 'UTF-8');
-                    $text = preg_replace("/[\r\n\t]+/", " ", $text);
-                    $text = trim($text);
-                }
-                // If $xmlContent was false, $text remains empty ''.
-            } else {
-                 // Could not open zip, $text remains empty ''.
+            if ( $zip->open( $tmpFile ) !== true ) {
+                wp_delete_file( $tmpFile );
+                return '';
             }
 
-            // Always delete the temp file
-            $wp_filesystem->delete($tmpFile);
+            // Attempt to read "word/document.xml" inside docx
+            $xmlContent = $zip->getFromName( 'word/document.xml' );
+            $zip->close();
+            wp_delete_file( $tmpFile );
 
-            return $text; // Return extracted text or empty string on failure
+            if ( ! $xmlContent ) {
+                return '';
+            }
+
+            // Strip tags using WordPress-safe method
+            $text = wp_strip_all_tags( $xmlContent );
+
+            // Clean up any leftover entities or newlines
+            $text = html_entity_decode( $text, ENT_QUOTES | ENT_XML1, 'UTF-8' );
+            $text = preg_replace( "/[\r\n\t]+/", " ", $text );
+            $text = trim( $text );
+
+            return $text;
         }
 
         /**
@@ -1076,8 +1056,8 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
          */
         public function wpaicg_menu()
         {
-            $module_settings = get_option('wpaicg_module_settings');
-            if ($module_settings === false) {
+            $module_settings = get_option( 'wpaicg_module_settings' );
+            if ( $module_settings === false ) {
                 $module_settings = array_map(
                     fn() => true,
                     \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules
@@ -1086,24 +1066,19 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
 
             $modules = \WPAICG\WPAICG_Util::get_instance()->wpaicg_modules;
 
-            if (isset($module_settings['ai_forms']) && $module_settings['ai_forms']) {
-                // --- FIX: Use the literal string for the title ---
-                // Get the correct literal title from the $wpaicg_modules array ('AI Forms')
-                $ai_forms_page_title = esc_html__('AI Forms', 'gpt3-ai-content-generator');
-                $ai_forms_menu_title = esc_html__('AI Forms', 'gpt3-ai-content-generator');
-                // --- END FIX ---
-
+            if ( isset( $module_settings['ai_forms'] ) && $module_settings['ai_forms'] ) {
                 add_submenu_page(
                     'wpaicg',
-                    $ai_forms_page_title,  // Use the prepared variable
-                    $ai_forms_menu_title, // Use the prepared variable
-                    $modules['ai_forms']['capability'], // Keep dynamic
-                    $modules['ai_forms']['menu_slug'],  // Keep dynamic
-                    [$this, $modules['ai_forms']['callback']], // Keep dynamic (using array shorthand)
-                    $modules['ai_forms']['position'] // Keep dynamic
+                    esc_html( $modules['ai_forms']['title'] ),
+                    esc_html( $modules['ai_forms']['title'] ),
+                    $modules['ai_forms']['capability'],
+                    $modules['ai_forms']['menu_slug'],
+                    [ $this, $modules['ai_forms']['callback'] ],
+                    $modules['ai_forms']['position']
                 );
             }
         }
+
 
         /**
          * Callback for shortcodes: [wpaicg_form id="..."]
@@ -1461,110 +1436,107 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
         /******************************************************
          * NEW: GET LOGS WITH PAGINATION & INSTANT SEARCH
          ******************************************************/
-        public function wpaicg_get_logs()
-        {
-            check_ajax_referer('wpaicg-ajax-nonce', 'nonce');
-
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error(['message' => 'No permission']);
+        public function wpaicg_get_logs() {
+            check_ajax_referer( 'wpaicg-ajax-nonce', 'nonce' );
+        
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( [ 'message' => 'No permission' ] );
             }
-
+        
             global $wpdb;
             $table_name    = $wpdb->prefix . 'wpaicg_form_logs';
             $feedbackTable = $wpdb->prefix . 'wpaicg_form_feedback';
-
-            $search  = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-            $page    = isset($_POST['page']) ? intval($_POST['page']) : 1;
-            $per_page= 10;
-
-            // Base WHERE clause component
-            $where_sql = '1=1';
-            // Note: Parameters for the search part are handled within this specific prepare call
-            if (!empty($search)) {
-                $like = '%'.$wpdb->esc_like($search).'%';
-                // Prepare the dynamic search part of the WHERE clause
-                $search_where = $wpdb->prepare(
-                    ' AND (name LIKE %s OR model LIKE %s OR prompt LIKE %s OR data LIKE %s OR duration LIKE %s OR tokens LIKE %s)',
-                    $like, $like, $like, $like, $like, $like
+        
+            $search    = isset( $_POST['search'] ) ? sanitize_text_field( $_POST['search'] ) : '';
+            $page      = isset( $_POST['page'] ) ? intval( $_POST['page'] ) : 1;
+            $per_page  = 10;
+            $offset    = ( $page - 1 ) * $per_page;
+            $total     = 0;
+            $rows      = [];
+        
+            if ( ! empty( $search ) ) {
+                $like = '%' . $wpdb->esc_like( $search ) . '%';
+        
+                $total = $wpdb->get_var(
+                    $wpdb->prepare(
+                        "
+                        SELECT COUNT(*)
+                        FROM {$table_name} l
+                        LEFT JOIN {$feedbackTable} f ON l.eventID = f.eventID
+                        WHERE name LIKE %s OR model LIKE %s OR prompt LIKE %s OR data LIKE %s OR duration LIKE %s OR tokens LIKE %s
+                        ",
+                        $like, $like, $like, $like, $like, $like
+                    )
                 );
-                // Append the prepared search part
-                $where_sql .= $search_where;
+        
+                $rows = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "
+                        SELECT l.*, f.feedback, f.comment
+                        FROM {$table_name} l
+                        LEFT JOIN {$feedbackTable} f ON l.eventID = f.eventID
+                        WHERE name LIKE %s OR model LIKE %s OR prompt LIKE %s OR data LIKE %s OR duration LIKE %s OR tokens LIKE %s
+                        ORDER BY created_at DESC
+                        LIMIT %d, %d
+                        ",
+                        $like, $like, $like, $like, $like, $like, $offset, $per_page
+                    )
+                );
+        
+            } else {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static query with no user input
+                $total = $wpdb->get_var(
+                    "SELECT COUNT(*) FROM {$table_name} l LEFT JOIN {$feedbackTable} f ON l.eventID = f.eventID"
+                );
+        
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static query with safe LIMIT clause
+                $rows = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "
+                        SELECT l.*, f.feedback, f.comment
+                        FROM {$table_name} l
+                        LEFT JOIN {$feedbackTable} f ON l.eventID = f.eventID
+                        ORDER BY created_at DESC
+                        LIMIT %d, %d
+                        ",
+                        $offset,
+                        $per_page
+                    )
+                );
             }
-
-            // JOIN feedback table to retrieve feedback & comment - Fix 1: Prepare the COUNT query
-            // Construct the full query string using the potentially complex $where_sql.
-            // Table names ($table_name, $feedbackTable) are interpolated, assuming safe due to $wpdb->prefix.
-            $total_query_string = "SELECT COUNT(*)
-                                  FROM {$table_name} l
-                                  LEFT JOIN {$feedbackTable} f ON l.eventID = f.eventID
-                                  WHERE {$where_sql}";
-
-            // Prepare the COUNT query string. No additional parameters needed here as they were handled above.
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $wpdb->prepare() is used for the COUNT query.
-            $prepared_total_sql = $wpdb->prepare( $total_query_string );
-
-            // Execute the prepared COUNT query, handling potential prepare failure.
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $wpdb->prepare() is used for the COUNT query.
-            $total = $prepared_total_sql ? $wpdb->get_var( $prepared_total_sql ) : 0;
-
-
-            $total_pages = max(1, (int)ceil($total / $per_page));
-
-            if ($page < 1) {
+        
+            $total_pages = max( 1, (int) ceil( $total / $per_page ) );
+        
+            if ( $page < 1 ) {
                 $page = 1;
             }
-            if ($page > $total_pages) {
+            if ( $page > $total_pages ) {
                 $page = $total_pages;
             }
-
-            $offset = ($page - 1) * $per_page;
-
-            // Main query, includes feedback/comment fields - Fix 2: Inline prepare call
-            // Table names and $where_sql are interpolated (assuming safe/pre-prepared).
-            // Only LIMIT parameters (%d, %d) are passed to this prepare call.
-            $rows = $wpdb->get_results( $wpdb->prepare("
-                SELECT l.*, f.feedback, f.comment
-                FROM {$table_name} l
-                LEFT JOIN {$feedbackTable} f ON l.eventID = f.eventID
-                WHERE {$where_sql}
-                ORDER BY created_at DESC
-                LIMIT %d, %d
-            ", $offset, $per_page) );
-
-
+        
             $html_rows = '';
-            if ($rows) {
-                foreach ($rows as $row) {
+            if ( $rows ) {
+                foreach ( $rows as $row ) {
                     $id       = $row->id;
-                    $name     = esc_html($row->name);
-                    $model    = esc_html($row->model);
-                    $duration = esc_html($row->duration);
-                    $tokens   = intval($row->tokens);
-                    // If feedback = 'thumbs_up', show 👍; if 'thumbs_down', show 👎; else empty
-                    $feedbackVal = isset($row->feedback) ? $row->feedback : '';
-                    $feedbackDisplay = '';
-                    if ($feedbackVal === 'thumbs_up') {
-                        $feedbackDisplay = '👍';
-                    } elseif ($feedbackVal === 'thumbs_down') {
-                        $feedbackDisplay = '👎';
-                    }
-                    $comment  = isset($row->comment) ? esc_html($row->comment) : '';
-
+                    $name     = esc_html( $row->name );
+                    $model    = esc_html( $row->model );
+                    $duration = esc_html( $row->duration );
+                    $tokens   = intval( $row->tokens );
+        
+                    $feedbackVal     = isset( $row->feedback ) ? $row->feedback : '';
+                    $feedbackDisplay = $feedbackVal === 'thumbs_up' ? '👍' : ( $feedbackVal === 'thumbs_down' ? '👎' : '' );
+                    $comment         = isset( $row->comment ) ? esc_html( $row->comment ) : '';
+        
                     $fullPrompt   = $row->prompt;
                     $fullResponse = $row->data;
-
-                    $cleanResponse = wp_strip_all_tags($fullResponse);
-                    if (function_exists('mb_strlen')) {
-                        $truncatedData = (mb_strlen($cleanResponse) > 25)
-                            ? mb_substr($cleanResponse, 0, 25).'...'
-                            : $cleanResponse;
-                    } else {
-                        $truncatedData = (strlen($cleanResponse) > 25)
-                            ? substr($cleanResponse, 0, 25).'...'
-                            : $cleanResponse;
-                    }
-                    $created = date_i18n('Y-m-d H:i:s', $row->created_at);
-
+        
+                    $cleanResponse = wp_strip_all_tags( $fullResponse );
+                    $truncatedData = function_exists( 'mb_strlen' )
+                        ? ( mb_strlen( $cleanResponse ) > 25 ? mb_substr( $cleanResponse, 0, 25 ) . '...' : $cleanResponse )
+                        : ( strlen( $cleanResponse ) > 25 ? substr( $cleanResponse, 0, 25 ) . '...' : $cleanResponse );
+        
+                    $created = date_i18n( 'Y-m-d H:i:s', $row->created_at );
+        
                     $html_rows .= "<tr>
                         <td>{$id}</td>
                         <td>{$name}</td>
@@ -1573,9 +1545,9 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                         <td>{$tokens}</td>
                         <td>
                             <span class='wpaicg_log_view'
-                                  data-fullprompt='".esc_attr($fullPrompt)."'
-                                  data-fullresponse='".esc_attr($fullResponse)."'>
-                                ".esc_html($truncatedData)."
+                                  data-fullprompt='" . esc_attr( $fullPrompt ) . "'
+                                  data-fullresponse='" . esc_attr( $fullResponse ) . "'>
+                                " . esc_html( $truncatedData ) . "
                             </span>
                         </td>
                         <td>{$feedbackDisplay}</td>
@@ -1584,17 +1556,18 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
                     </tr>";
                 }
             } else {
-                $html_rows = '<tr><td colspan="9">'.esc_html__('No logs found','gpt3-ai-content-generator').'</td></tr>';
+                $html_rows = '<tr><td colspan="9">' . esc_html__( 'No logs found', 'gpt3-ai-content-generator' ) . '</td></tr>';
             }
-
-            $pagination_html = $this->wpaicg_build_pagination_html($page, $total_pages);
-
-            wp_send_json_success([
+        
+            $pagination_html = $this->wpaicg_build_pagination_html( $page, $total_pages );
+        
+            wp_send_json_success( [
                 'table_rows' => $html_rows,
                 'pagination' => $pagination_html,
-                'total'      => $total
-            ]);
+                'total'      => $total,
+            ] );
         }
+        
 
         private function wpaicg_build_pagination_html(int $current_page, int $total_pages): string
         {
@@ -1644,7 +1617,6 @@ if (!class_exists('\\WPAICG\\WPAICG_Forms')) {
             $html .= '</div>';
             return $html;
         }
-
     }
 
     WPAICG_Forms::get_instance();
