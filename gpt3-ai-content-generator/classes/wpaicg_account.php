@@ -7,6 +7,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Account')) {
     class WPAICG_Account
     {
         private static $instance = null;
+        public $promptbase_sale = false;
         public $form_sale = false;
         public $image_sale = false;
         public $chat_sale = false;
@@ -79,7 +80,7 @@ if(!class_exists('\\WPAICG\\WPAICG_Account')) {
                     $wpaicg_product_sale_tokens = get_post_meta($product_id,'wpaicg_product_sale_tokens',true);
                     if(
                         !empty($wpaicg_product_sale_type)
-                        && in_array($wpaicg_product_sale_type, array('chat','forms','image'))
+                        && in_array($wpaicg_product_sale_type, array('chat','forms','promptbase','image'))
                         && !empty($wpaicg_product_sale_tokens)
                         && $wpaicg_product_sale_tokens > 0
                     ){
@@ -116,9 +117,13 @@ if(!class_exists('\\WPAICG\\WPAICG_Account')) {
 
         public function wpaicg_register_meta_box()
         {
+            $this->promptbase_sale = get_option('wpaicg_promptbase_enable_sale', false);
             $this->form_sale = get_option('wpaicg_forms_enable_sale', false);
             $this->image_sale = get_option('wpaicg_image_enable_sale', false);
             $this->chat_sale = get_option('wpaicg_chat_enable_sale', false);
+            if((!$this->promptbase_sale || $this->image_sale || $this->chat_sale || $this->form_sale) && current_user_can('wpaicg_woocommerce_meta_box')){
+                add_meta_box('wpaicg-sale-tokens', esc_html__('AI Power Token Sale','gpt3-ai-content-generator'), [$this, 'wpaicg_meta_box']);
+            }
         }
 
         public function wpaicg_meta_box($post)
@@ -310,6 +315,19 @@ if(!class_exists('\\WPAICG\\WPAICG_Account')) {
             // forms
             if($module === 'forms'){
                 $limit_settings = get_option('wpaicg_limit_tokens_form', []);
+                $temp = 0;
+                if(!empty($limit_settings['user_limited']) && !empty($limit_settings['user_tokens'])){
+                    $temp = (float) $limit_settings['user_tokens'];
+                }
+                if(!empty($limit_settings['role_limited']) && !empty($limit_settings['limited_roles'])){
+                    $temp += $find_role_limit($limit_settings['limited_roles'], $user_roles);
+                }
+                return $temp;
+            }
+
+            // promptbase
+            if($module === 'promptbase'){
+                $limit_settings = get_option('wpaicg_limit_tokens_promptbase', []);
                 $temp = 0;
                 if(!empty($limit_settings['user_limited']) && !empty($limit_settings['user_tokens'])){
                     $temp = (float) $limit_settings['user_tokens'];
