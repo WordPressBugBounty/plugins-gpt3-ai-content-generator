@@ -1,6 +1,7 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/migration-tool/partials/_status_analysis_results.php
 // Status: MODIFIED
+// I have moved the "Your Old Custom Prompts" section to be more visible, directly after the main migration table.
 
 /**
  * Partial: Migration Tool - Analysis Results Dashboard
@@ -90,6 +91,24 @@ if (!defined('ABSPATH')) {
         </tbody>
     </table>
 </div>
+
+<?php
+// --- START: MODIFIED POSITION OF CUSTOM PROMPT SECTION ---
+$custom_prompts_data = $analysis_results['custom_prompts'] ?? [];
+if (!empty($custom_prompts_data['prompts']) && is_array($custom_prompts_data['prompts'])):
+?>
+<div class="aipkit_migration_prompts_section" style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
+    <h3 style="margin-top: 0;"><?php esc_html_e('Your Old Custom Prompts', 'gpt3-ai-content-generator'); ?></h3>
+    <p><?php esc_html_e('Your old custom prompts could not be migrated automatically. You can copy them from here and paste them into the new templates in the Content Writer or AutoGPT modules.', 'gpt3-ai-content-generator'); ?></p>
+    <?php foreach ($custom_prompts_data['prompts'] as $prompt_key => $prompt_data): ?>
+    <div class="aipkit_form-group" style="margin-top: 15px;">
+        <label class="aipkit_form-label" for="aipkit_migrated_prompt_<?php echo esc_attr($prompt_key); ?>"><strong><?php echo esc_html($prompt_data['label']); ?></strong></label>
+        <textarea id="aipkit_migrated_prompt_<?php echo esc_attr($prompt_key); ?>" class="large-text" rows="6" readonly><?php echo esc_textarea($prompt_data['value']); ?></textarea>
+    </div>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+<?php // --- END: MODIFIED POSITION OF CUSTOM PROMPT SECTION --- ?>
 
 <!-- Footer Actions -->
 <div class="aipkit_migration_actions_footer" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: right;">

@@ -1,5 +1,8 @@
 <?php
 
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-post-enhancer-assets.php
+// Status: MODIFIED
+// I have modified the enqueue logic to dynamically support all public post types, ensuring assets load correctly on custom post type screens.
 namespace WPAICG\Admin\Assets;
 
 use WPAICG\AIPKit_Role_Manager;
@@ -43,7 +46,13 @@ class PostEnhancerAssets
         $screen = get_current_screen();
         $is_aipkit_page = $screen && strpos($screen->id, 'page_wpaicg') !== false;
         $is_post_edit_screen = in_array($hook_suffix, ['post.php', 'post-new.php']);
-        $is_post_list_screen = $screen && $screen->base === 'edit' && in_array($screen->post_type, apply_filters('aipkit_post_enhancer_post_types', ['post', 'page', 'product']));
+
+        // --- MODIFICATION: Dynamically support all public post types by default ---
+        $public_post_types = get_post_types(['public' => true]);
+        unset($public_post_types['attachment']); // Exclude attachments from enhancement
+        $supported_post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
+        $is_post_list_screen = $screen && $screen->base === 'edit' && in_array($screen->post_type, $supported_post_types, true);
+        // --- END MODIFICATION ---
 
         // Scripts (and their localized data) are needed on list, edit, and the main dashboard (for settings tab).
         if ($is_post_list_screen || $is_post_edit_screen || $is_aipkit_page) {

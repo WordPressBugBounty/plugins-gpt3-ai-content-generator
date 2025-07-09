@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 2.3\n"
+"Project-Id-Version: AI Power: Complete AI Pack 2.3.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-09T05:57:30+00:00\n"
+"POT-Creation-Date: 2025-07-09T12:56:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -186,11 +186,30 @@ msgid_plural "%d legacy posts found."
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/ajax/migration/analysis/get-old-options-details.php:35
+#: admin/ajax/migration/analysis/get-old-custom-prompts.php:25
+msgid "AutoGPT / Content Writer Prompt"
+msgstr ""
+
+#: admin/ajax/migration/analysis/get-old-custom-prompts.php:35
+msgid "In-Content Image Prompt"
+msgstr ""
+
+#: admin/ajax/migration/analysis/get-old-custom-prompts.php:45
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:211
+msgid "Featured Image Prompt"
+msgstr ""
+
+#: admin/ajax/migration/analysis/get-old-custom-prompts.php:54
+msgid "%d custom prompt found."
+msgid_plural "%d custom prompts found."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/ajax/migration/analysis/get-old-options-details.php:37
 msgid "Found option: %s"
 msgstr ""
 
-#: admin/ajax/migration/analysis/handle-analysis-request.php:92
+#: admin/ajax/migration/analysis/handle-analysis-request.php:97
 msgid "Analysis complete."
 msgstr ""
 
@@ -214,7 +233,7 @@ msgstr ""
 msgid "Old AI Forms & associated legacy data deleted: %d posts and %d database tables removed."
 msgstr ""
 
-#: admin/ajax/migration/delete/class-aipkit-delete-old-global-settings-action.php:69
+#: admin/ajax/migration/delete/class-aipkit-delete-old-global-settings-action.php:72
 msgid "Old global settings deleted: %d options and %d database tables removed."
 msgstr ""
 
@@ -230,7 +249,7 @@ msgstr ""
 msgid "AI Forms data migrated: %1$d forms and %2$d token records migrated. Other data in this category was not migrated."
 msgstr ""
 
-#: admin/ajax/migration/migrate/class-aipkit-migrate-global-settings-action.php:161
+#: admin/ajax/migration/migrate/class-aipkit-migrate-global-settings-action.php:193
 msgid "Global settings migrated successfully."
 msgstr ""
 
@@ -586,7 +605,7 @@ msgid "No automated tasks configured yet."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:236
-#: admin/assets/class-aipkit-post-enhancer-assets.php:193
+#: admin/assets/class-aipkit-post-enhancer-assets.php:202
 #: admin/js/ai-forms/list/render-table.js:174
 msgid "Edit"
 msgstr ""
@@ -608,8 +627,8 @@ msgid "Task must be active to run"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:241
-#: admin/assets/class-aipkit-post-enhancer-assets.php:194
-#: admin/views/migration-tool/partials/_status_analysis_results.php:85
+#: admin/assets/class-aipkit-post-enhancer-assets.php:203
+#: admin/views/migration-tool/partials/_status_analysis_results.php:86
 #: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:73
 #: admin/js/ai-forms/list/render-table.js:192
 #: admin/js/ai-forms/ui/render-dropped-element.js:164
@@ -834,149 +853,149 @@ msgstr ""
 msgid "Click to view full image"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:168
+#: admin/assets/class-aipkit-post-enhancer-assets.php:177
 msgid "Title Suggestions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:169
+#: admin/assets/class-aipkit-post-enhancer-assets.php:178
 msgid "Generating Title Suggestions..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:170
+#: admin/assets/class-aipkit-post-enhancer-assets.php:179
 msgid "Updating Title..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:171
+#: admin/assets/class-aipkit-post-enhancer-assets.php:180
 msgid "Error loading title suggestions."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:172
+#: admin/assets/class-aipkit-post-enhancer-assets.php:181
 msgid "Error updating title."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:173
+#: admin/assets/class-aipkit-post-enhancer-assets.php:182
 msgid "No title suggestions generated or AI Error."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:174
+#: admin/assets/class-aipkit-post-enhancer-assets.php:183
 msgid "Click a title to apply:"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:175
+#: admin/assets/class-aipkit-post-enhancer-assets.php:184
 msgid "Excerpt Suggestions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:176
+#: admin/assets/class-aipkit-post-enhancer-assets.php:185
 msgid "Generating Excerpt Suggestions..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:177
+#: admin/assets/class-aipkit-post-enhancer-assets.php:186
 msgid "Updating Excerpt..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:178
+#: admin/assets/class-aipkit-post-enhancer-assets.php:187
 msgid "Error loading excerpt suggestions."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:179
+#: admin/assets/class-aipkit-post-enhancer-assets.php:188
 msgid "Error updating excerpt."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:180
+#: admin/assets/class-aipkit-post-enhancer-assets.php:189
 msgid "No excerpt suggestions generated or AI Error."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:181
+#: admin/assets/class-aipkit-post-enhancer-assets.php:190
 msgid "Click an excerpt to apply:"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:182
+#: admin/assets/class-aipkit-post-enhancer-assets.php:191
 msgid "Meta Description Suggestions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:183
+#: admin/assets/class-aipkit-post-enhancer-assets.php:192
 msgid "Generating Meta Descriptions..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:184
+#: admin/assets/class-aipkit-post-enhancer-assets.php:193
 msgid "Updating Meta Description..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:185
+#: admin/assets/class-aipkit-post-enhancer-assets.php:194
 msgid "Error loading meta description suggestions."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:186
+#: admin/assets/class-aipkit-post-enhancer-assets.php:195
 msgid "Error updating meta description."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:187
+#: admin/assets/class-aipkit-post-enhancer-assets.php:196
 msgid "No meta description suggestions generated or AI Error."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:188
+#: admin/assets/class-aipkit-post-enhancer-assets.php:197
 msgid "Click a meta description to apply:"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:189
+#: admin/assets/class-aipkit-post-enhancer-assets.php:198
 msgid "Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:190
+#: admin/assets/class-aipkit-post-enhancer-assets.php:199
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:145
 #: includes/class-aipkit-shortcodes-manager.php:222
 msgid "Close"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:191
+#: admin/assets/class-aipkit-post-enhancer-assets.php:200
 msgid "Configure AI Actions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:192
+#: admin/assets/class-aipkit-post-enhancer-assets.php:201
 #: admin/views/modules/settings/partials/integrations/ai-assistant.php:55
 msgid "Add New"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:195
+#: admin/assets/class-aipkit-post-enhancer-assets.php:204
 msgid "Action Label"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:196
+#: admin/assets/class-aipkit-post-enhancer-assets.php:205
 msgid "Action Prompt"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:197
+#: admin/assets/class-aipkit-post-enhancer-assets.php:206
 msgid "Save Action"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:198
+#: admin/assets/class-aipkit-post-enhancer-assets.php:207
 #: admin/assets/class-aipkit-role-manager-assets.php:92
 #: admin/js/ai-forms/ajax/save-settings.js:39
 msgid "Saving..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:199
+#: admin/assets/class-aipkit-post-enhancer-assets.php:208
 msgid "Are you sure you want to delete this action? This cannot be undone."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:200
+#: admin/assets/class-aipkit-post-enhancer-assets.php:209
 #: admin/views/migration-tool/partials/_javascript.php:43
 msgid "Deleting..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:201
+#: admin/assets/class-aipkit-post-enhancer-assets.php:210
 msgid "Action deleted."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:202
+#: admin/assets/class-aipkit-post-enhancer-assets.php:211
 msgid "Action saved."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:203
+#: admin/assets/class-aipkit-post-enhancer-assets.php:212
 msgid "Loading actions..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:204
+#: admin/assets/class-aipkit-post-enhancer-assets.php:213
 msgid "Use %s as a placeholder for the selected text."
 msgstr ""
 
@@ -1749,7 +1768,7 @@ msgid "Choice processed. Reloading page..."
 msgstr ""
 
 #: admin/views/migration-tool/partials/_javascript.php:48
-#: admin/views/migration-tool/partials/_status_analysis_results.php:44
+#: admin/views/migration-tool/partials/_status_analysis_results.php:45
 #: admin/views/modules/autogpt/partials/task-queue.php:21
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:26
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:40
@@ -1761,28 +1780,28 @@ msgid "Pending"
 msgstr ""
 
 #: admin/views/migration-tool/partials/_javascript.php:49
-#: admin/views/migration-tool/partials/_status_analysis_results.php:45
+#: admin/views/migration-tool/partials/_status_analysis_results.php:46
 msgid "Migrated"
 msgstr ""
 
 #: admin/views/migration-tool/partials/_javascript.php:50
-#: admin/views/migration-tool/partials/_status_analysis_results.php:46
+#: admin/views/migration-tool/partials/_status_analysis_results.php:47
 msgid "Data Deleted"
 msgstr ""
 
 #: admin/views/migration-tool/partials/_javascript.php:51
-#: admin/views/migration-tool/partials/_status_analysis_results.php:47
+#: admin/views/migration-tool/partials/_status_analysis_results.php:48
 #: admin/views/modules/autogpt/partials/task-queue.php:24
 msgid "Failed"
 msgstr ""
 
 #: admin/views/migration-tool/partials/_javascript.php:52
-#: admin/views/migration-tool/partials/_status_analysis_results.php:48
+#: admin/views/migration-tool/partials/_status_analysis_results.php:49
 msgid "In Progress..."
 msgstr ""
 
 #: admin/views/migration-tool/partials/_javascript.php:53
-#: admin/views/migration-tool/partials/_status_analysis_results.php:98
+#: admin/views/migration-tool/partials/_status_analysis_results.php:117
 msgid "Analyze Again"
 msgstr ""
 
@@ -1818,38 +1837,38 @@ msgstr ""
 msgid "Choose this to ignore old data and start with default settings. You can delete the old data later from the migration dashboard if you change your mind."
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:15
+#: admin/views/migration-tool/partials/_status_analysis_results.php:16
 msgid "The analysis is complete. Review the items found below and choose an action for each category. You can migrate data to the new format or permanently delete the old data."
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:16
+#: admin/views/migration-tool/partials/_status_analysis_results.php:17
 msgid "Note: Deleting old data is a permanent action and cannot be undone."
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:19
+#: admin/views/migration-tool/partials/_status_analysis_results.php:20
 #: admin/views/migration-tool/partials/_status_failed.php:16
 msgid "Migration Failed!"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:20
+#: admin/views/migration-tool/partials/_status_analysis_results.php:21
 #: admin/views/migration-tool/partials/_status_failed.php:17
 msgid "An error occurred during the migration process."
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:22
+#: admin/views/migration-tool/partials/_status_analysis_results.php:23
 #: admin/views/migration-tool/partials/_status_failed.php:19
 msgid "Error details:"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:31
+#: admin/views/migration-tool/partials/_status_analysis_results.php:32
 msgid "Data Category"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:32
+#: admin/views/migration-tool/partials/_status_analysis_results.php:33
 msgid "Analysis Details"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:33
+#: admin/views/migration-tool/partials/_status_analysis_results.php:34
 #: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:53
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:63
 #: admin/views/modules/autogpt/partials/content-writing/post-settings.php:42
@@ -1859,7 +1878,7 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:34
+#: admin/views/migration-tool/partials/_status_analysis_results.php:35
 #: admin/views/modules/ai-forms/index.php:118
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:66
 #: admin/views/modules/autogpt/partials/task-list.php:32
@@ -1869,23 +1888,31 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:39
+#: admin/views/migration-tool/partials/_status_analysis_results.php:40
 msgid "Analysis data missing."
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:40
+#: admin/views/migration-tool/partials/_status_analysis_results.php:41
 msgid "No data found."
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:82
+#: admin/views/migration-tool/partials/_status_analysis_results.php:83
 msgid "Migrate"
 msgstr ""
 
+#: admin/views/migration-tool/partials/_status_analysis_results.php:101
+msgid "Your Old Custom Prompts"
+msgstr ""
+
 #: admin/views/migration-tool/partials/_status_analysis_results.php:102
+msgid "Your old custom prompts could not be migrated automatically. You can copy them from here and paste them into the new templates in the Content Writer or AutoGPT modules."
+msgstr ""
+
+#: admin/views/migration-tool/partials/_status_analysis_results.php:121
 msgid "Start Fresh & Ignore All Old Data"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_results.php:105
+#: admin/views/migration-tool/partials/_status_analysis_results.php:124
 msgid "Use \"Start Fresh\" to ignore all legacy data. This action cannot be undone."
 msgstr ""
 
@@ -1976,7 +2003,7 @@ msgstr ""
 
 #: admin/views/modules/addons/index.php:51
 #: admin/views/modules/settings/partials/integrations/ai-assistant.php:19
-#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:92
+#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:102
 #: admin/js/post-enhancer/block-editor-enhancer-plugin.js:119
 #: admin/js/post-enhancer/block-editor-enhancer-plugin.js:146
 msgid "Content Assistant"
@@ -4550,10 +4577,6 @@ msgstr ""
 
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:167
 msgid "Number of Images"
-msgstr ""
-
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:211
-msgid "Featured Image Prompt"
 msgstr ""
 
 #: admin/views/modules/content-writer/partials/form-inputs/mode-rss.php:19
@@ -7889,31 +7912,31 @@ msgstr ""
 msgid "Action deleted successfully."
 msgstr ""
 
-#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:134
+#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:144
 msgid "Enhance content using AI"
 msgstr ""
 
-#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:135
+#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:145
 msgid "Enhance"
 msgstr ""
 
-#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:136
+#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:146
 msgid "Text Tools"
 msgstr ""
 
-#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:138
+#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:148
 msgid "Generate Title"
 msgstr ""
 
-#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:140
+#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:150
 msgid "Generate Excerpt"
 msgstr ""
 
-#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:141
+#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:151
 msgid "SEO Tools"
 msgstr ""
 
-#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:143
+#: classes/post-enhancer/class-aipkit-post-enhancer-core.php:153
 msgid "Generate Meta Desc"
 msgstr ""
 

@@ -1,5 +1,8 @@
 <?php
 
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/class-aipkit-post-enhancer-core.php
+// Status: MODIFIED
+// I have updated the `init_hooks` and `add_bulk_enhance_button` methods to dynamically support all public post types, ensuring the "Enhance" link appears on custom post type screens.
 namespace WPAICG\PostEnhancer;
 
 use WPAICG\aipkit_dashboard; // To check if addon is active
@@ -60,8 +63,11 @@ class Core
                 error_log('AIPKit Post Enhancer: AJAX handler file not found.');
             }
 
-            // Add action links to post list table rows
-            $post_types = apply_filters('aipkit_post_enhancer_post_types', ['post', 'page', 'product']);
+            // --- MODIFICATION: Dynamically support all public post types by default ---
+            $public_post_types = get_post_types(['public' => true]);
+            unset($public_post_types['attachment']);
+            $post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
+            // --- END MODIFICATION ---
             foreach ($post_types as $post_type) {
                 add_filter("{$post_type}_row_actions", [$this, 'add_row_actions'], 10, 2);
             }
@@ -87,7 +93,11 @@ class Core
     public function add_bulk_enhance_button()
     {
         $screen = get_current_screen();
-        $supported_post_types = apply_filters('aipkit_post_enhancer_post_types', ['post', 'page', 'product']);
+        // --- MODIFICATION: Dynamically support all public post types by default ---
+        $public_post_types = get_post_types(['public' => true]);
+        unset($public_post_types['attachment']);
+        $supported_post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
+        // --- END MODIFICATION ---
         if ($screen && in_array($screen->post_type, $supported_post_types, true)) {
             echo '<button type="button" id="aipkit_bulk_enhance_btn" class="button" disabled>' . esc_html__('Content Assistant', 'gpt3-ai-content-generator') . '</button>';
         }

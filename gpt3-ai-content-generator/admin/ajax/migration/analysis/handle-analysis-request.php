@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/ajax/migration/analysis/handle-analysis-request.php
 // Status: MODIFIED
-// I have removed `wpaicg_pdfadmin` from the `cpt_data` check and added a new `indexed_data` category to analyze the legacy indexed content post types.
+// I have added a new step to analyze and retrieve old custom prompts, which will be displayed in the migration tool UI.
 
 namespace WPAICG\Admin\Ajax\Migration\Analysis;
 
@@ -18,6 +18,7 @@ if (!defined('ABSPATH')) {
 require_once __DIR__ . '/get-old-options-details.php';
 require_once __DIR__ . '/count-cpt-posts.php';
 require_once __DIR__ . '/table-exists-and-has-rows.php';
+require_once __DIR__ . '/get-old-custom-prompts.php';
 
 /**
  * Main logic function for handling the data analysis request.
@@ -81,6 +82,10 @@ function handle_analysis_request_logic(AIPKit_Migration_Base_Ajax_Action $handle
             'summary' => $indexed_data_result['summary'],
             'details' => $indexed_data_result['details']
         ];
+        // --- END NEW ---
+
+        // --- NEW: 5. Custom Prompts ---
+        $analysis_results['custom_prompts'] = get_old_custom_prompts_logic();
         // --- END NEW ---
 
 

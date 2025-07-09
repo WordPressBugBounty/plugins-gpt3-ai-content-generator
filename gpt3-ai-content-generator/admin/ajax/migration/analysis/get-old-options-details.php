@@ -1,6 +1,7 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/ajax/migration/analysis/get-old-options-details.php
 // Status: MODIFIED
+// I have added 'wpaicg_editor_button_menus' and 'wpaicg_editor_change_action' to the list of options to be analyzed.
 
 namespace WPAICG\Admin\Ajax\Migration\Analysis;
 
@@ -28,6 +29,7 @@ function get_old_options_details_logic(): array
         'wpaicg_image_setting_azure_model', 'wpaicg_image_setting_azure_size', 'wpaicg_image_setting_azure_n',
         'wpaicg_image_setting_google_model', 'wpaicg_image_setting_google_size', 'wpaicg_image_setting_google_n',
         'wpaicg_chat_shortcode_options', 'wpaicg_banned_words', 'wpaicg_banned_ips',
+        'wpaicg_editor_button_menus', 'wpaicg_editor_change_action'
     ];
     foreach ($old_options as $option_name) {
         if (get_option($option_name) !== false) {

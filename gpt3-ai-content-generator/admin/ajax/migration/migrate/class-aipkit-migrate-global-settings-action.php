@@ -2,6 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/ajax/migration/migrate/class-aipkit-migrate-global-settings-action.php
 // Status: MODIFIED
+// I have added logic to migrate the old AI Assistant custom prompts ('wpaicg_editor_button_menus') to the new Content Enhancer actions ('aipkit_enhancer_actions').
 
 namespace WPAICG\Admin\Ajax\Migration\Migrate;
 
@@ -11,6 +12,7 @@ use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\aipkit_dashboard;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
+use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -148,6 +150,36 @@ class AIPKit_Migrate_Global_Settings_Action extends AIPKit_Migration_Base_Ajax_A
                 error_log("AIPKit Migration (Global Settings): AI Forms Settings handler not found, skipping token settings migration.");
             }
             // --- END ---
+
+            // --- START: Migrate AI Assistant (Content Enhancer) Custom Actions ---
+            if (class_exists(AIPKit_Enhancer_Actions_Ajax_Handler::class)) {
+                $old_custom_actions = get_option('wpaicg_editor_button_menus', []);
+                if (!empty($old_custom_actions) && is_array($old_custom_actions)) {
+                    $actions_handler = new AIPKit_Enhancer_Actions_Ajax_Handler();
+                    $new_default_actions = $actions_handler->get_default_actions_public();
+                    $migrated_actions = [];
+                    foreach ($old_custom_actions as $old_action) {
+                        if (empty($old_action['name']) || empty($old_action['prompt'])) {
+                            continue;
+                        }
+                        // Transform to new format
+                        $migrated_actions[] = [
+                            'id' => 'custom-' . wp_generate_uuid4(),
+                            'label' => $old_action['name'],
+                            'prompt' => str_replace('[text]', '%s', $old_action['prompt']), // Replace placeholder
+                            'is_default' => false
+                        ];
+                    }
+                    // Merge new defaults with migrated custom actions
+                    $final_actions = array_merge($new_default_actions, $migrated_actions);
+                    update_option('aipkit_enhancer_actions', $final_actions, 'no');
+                    error_log("AIPKit Migration (Global Settings): Migrated " . count($migrated_actions) . " custom AI Assistant actions.");
+                }
+            } else {
+                error_log("AIPKit Migration (Global Settings): AIPKit_Enhancer_Actions_Ajax_Handler class not found, skipping AI Assistant actions migration.");
+            }
+            // --- END: Migrate AI Assistant ---
+
 
             // --- 4. Save and Finalize ---
             update_option('aipkit_options', $new_opts, 'no');
