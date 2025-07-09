@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/class-wp-ai-content-generator.php
 // Status: MODIFIED
-// I have updated the `ensure_tables_exist` method call to `ensure_tables_for_current_site` to reflect the changes in the Activator class and clarified the comment explaining its purpose.
+// I have added a call to the database table setup function within the update check, ensuring schema changes are applied automatically when the plugin version is updated.
 
 namespace WPAICG;
 
@@ -108,6 +108,9 @@ class WP_AI_Content_Generator
 
         if ($saved_version !== $current_version) {
             error_log("AIPKit: Plugin version changed from {$saved_version} to {$current_version}. Running update checks...");
+
+            // Run DB table setup on version change to apply any schema updates.
+            WP_AI_Content_Generator_Activator::setup_tables_for_blog();
 
             // Ensure Role Manager Permissions are Updated/Initialized
             if (class_exists('\\WPAICG\\AIPKit_Role_Manager')) {

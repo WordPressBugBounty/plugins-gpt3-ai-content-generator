@@ -2,6 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-writing/process-content-writing-item.php
 // Status: MODIFIED
+// I have added logic to update the Google Sheet status to "Processed on [Date]" after an article has been successfully generated.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
@@ -212,6 +213,32 @@ function process_content_writing_item_logic(array $item_config): array
         return ['status' => 'error', 'message' => $insert_result->get_error_message()];
     }
     $new_post_id = $insert_result;
+
+    // --- NEW: Update Google Sheet Status ---
+    if (isset($item_config['cw_generation_mode']) && $item_config['cw_generation_mode'] === 'gsheets' &&
+        isset($item_config['gsheets_row_index']) && isset($item_config['gsheets_sheet_id'])) {
+        if (class_exists('\WPAICG\Lib\ContentWriter\AIPKit_Google_Sheets_Parser')) {
+            try {
+                $credentials_array = $item_config['gsheets_credentials'] ?? [];
+                if (!empty($credentials_array)) {
+                    $sheets_parser = new \WPAICG\Lib\ContentWriter\AIPKit_Google_Sheets_Parser($credentials_array);
+                    $status_to_write = 'Processed on ' . current_time('mysql');
+                    $sheets_parser->update_row_status(
+                        $item_config['gsheets_sheet_id'],
+                        $item_config['gsheets_row_index'],
+                        $status_to_write
+                    );
+                    error_log("AIPKit GSheets Processor: Marked row {$item_config['gsheets_row_index']} as '{$status_to_write}' in sheet {$item_config['gsheets_sheet_id']}.");
+                } else {
+                    error_log("AIPKit GSheets Processor: Cannot update sheet status for row {$item_config['gsheets_row_index']}, credentials not found in item config.");
+                }
+            } catch (\Exception $e) {
+                error_log("AIPKit GSheets Processor: Failed to instantiate parser or update sheet for row {$item_config['gsheets_row_index']}. Error: " . $e->getMessage());
+                // Don't fail the whole post generation for this. Just log the error.
+            }
+        }
+    }
+    // --- END NEW ---
 
     // 7. Log the generated content
     $total_usage = ['input_tokens' => 0, 'output_tokens' => 0, 'total_tokens' => 0, 'provider_raw' => []];

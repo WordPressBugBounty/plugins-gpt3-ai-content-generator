@@ -1,7 +1,8 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/trigger/module/queue-writer.php
-// Status: NEW FILE
+// Status: MODIFIED
+// I have updated `prepare_item_config_logic` to include the Google Sheet row index and sheet ID in the item's configuration.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Trigger\Modules;
 
@@ -73,6 +74,13 @@ function prepare_item_config_logic($item_data, array $task_config, array $scrape
         if (isset($scraped_contexts[$link])) {
             $item_specific_config['url_content_context'] = $scraped_contexts[$link];
             $item_specific_config['source_url'] = $link;
+        }
+
+        if (isset($item_data['row_index'])) {
+            $item_specific_config['gsheets_row_index'] = $item_data['row_index'];
+        }
+        if (isset($task_config['gsheets_sheet_id'])) {
+            $item_specific_config['gsheets_sheet_id'] = $task_config['gsheets_sheet_id'];
         }
 
         if ($post_type_slug && post_type_exists($post_type_slug)) {
