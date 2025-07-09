@@ -1,0 +1,68 @@
+<?php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php
+// Status: MODIFIED (Logic moved here)
+
+namespace WPAICG\Dashboard\Ajax\OpenAI\HandlerStores;
+
+use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_Vector_Stores_Ajax_Handler;
+use WP_Error;
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
+/**
+ * Handles the logic for creating an OpenAI Vector Store.
+ * Called by AIPKit_OpenAI_Vector_Stores_Ajax_Handler::ajax_create_vector_store_openai().
+ *
+ * @param AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance
+ * @return void
+ */
+function do_ajax_create_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance): void {
+    // Permission check already done by the handler calling this
+
+    $vector_store_manager = $handler_instance->get_vector_store_manager();
+    $vector_store_registry = $handler_instance->get_vector_store_registry();
+    $wpdb = $handler_instance->get_wpdb();
+    $data_source_table_name = $handler_instance->get_data_source_table_name();
+
+    if (!$vector_store_manager || !$vector_store_registry) {
+        $handler_instance->send_wp_error(new WP_Error('manager_not_ready', __('Vector Store Manager or Registry not available.', 'gpt3-ai-content-generator'), ['status' => 500]));
+        return;
+    }
+
+    $openai_config = $handler_instance->_get_openai_config();
+    if (is_wp_error($openai_config)) {
+        $handler_instance->send_wp_error($openai_config);
+        return;
+    }
+
+    // Logic from old _aipkit_openai_vs_ajax_create_vector_store_logic
+    $store_name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+    $source_type = isset($_POST['source_type']) && is_string($_POST['source_type']) && !empty(trim($_POST['source_type']))
+                   ? sanitize_text_field(trim($_POST['source_type']))
+                   : 'backend_ai_training_panel_create';
+
+    if (empty($store_name)) {
+        $handler_instance->send_wp_error(new WP_Error('missing_name', __('Vector Store name is required.', 'gpt3-ai-content-generator'), ['status' => 400]));
+        return;
+    }
+
+    $index_config = ['metadata' => ['source_type' => $source_type]];
+
+    $store_result = $vector_store_manager->create_index_if_not_exists('OpenAI', $store_name, $index_config, $openai_config);
+    if (is_wp_error($store_result)) {
+        $handler_instance->send_wp_error($store_result);
+        return;
+    }
+
+    $vector_store_registry->add_registered_store('OpenAI', $store_result);
+    \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_stores_log_vector_store_event_logic($wpdb, $data_source_table_name, [
+        'vector_store_id' => $store_result['id'] ?? 'N/A',
+        'vector_store_name' => $store_result['name'] ?? $store_name,
+        'status' => 'success',
+        'message' => 'Vector store created/verified.',
+        'source_type_for_log' => 'action_create_store'
+    ]);
+    wp_send_json_success(['store' => $store_result, 'message' => __('Vector Store created/verified successfully.', 'gpt3-ai-content-generator')]);
+}

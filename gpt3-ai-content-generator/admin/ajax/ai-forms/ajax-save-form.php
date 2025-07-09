@@ -1,0 +1,133 @@
+<?php
+
+namespace WPAICG\Admin\Ajax\AIForms;
+
+use WP_Error;
+use WPAICG\AIForms\Admin\AIPKit_AI_Form_Ajax_Handler;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Handles the logic for saving an AI form.
+ * Called by AIPKit_AI_Form_Ajax_Handler::ajax_save_ai_form().
+ *
+ * @param AIPKit_AI_Form_Ajax_Handler $handler_instance
+ * @return void
+ */
+function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance): void
+{
+
+    $form_storage = $handler_instance->get_form_storage();
+
+    if (!$form_storage) {
+        $handler_instance->send_wp_error(new WP_Error('storage_missing', __('Form storage component is not available.', 'gpt3-ai-content-generator')), 500);
+        return;
+    }
+
+    $form_id = isset($_POST['form_id']) && !empty($_POST['form_id']) ? absint($_POST['form_id']) : null;
+    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+    $prompt_template = isset($_POST['prompt_template']) ? sanitize_textarea_field(wp_unslash($_POST['prompt_template'])) : '';
+    $form_structure_json = isset($_POST['form_structure']) ? wp_kses_post(wp_unslash($_POST['form_structure'])) : '[]';
+
+    // Process labels - now receiving as a JSON string from JavaScript
+    $default_labels = [
+        'generate_button' => __('Generate', 'gpt3-ai-content-generator'),
+        'stop_button'     => __('Stop', 'gpt3-ai-content-generator'),
+        'download_button' => __('Download', 'gpt3-ai-content-generator'),
+        'save_button'     => __('Save', 'gpt3-ai-content-generator'),
+        'copy_button'     => __('Copy', 'gpt3-ai-content-generator'),
+        'provider_label'  => __('AI Provider', 'gpt3-ai-content-generator'),
+        'model_label'     => __('AI Model', 'gpt3-ai-content-generator'),
+    ];
+
+    $submitted_labels = [];
+    if (isset($_POST['labels']) && !empty($_POST['labels'])) {
+        $labels_json = wp_unslash($_POST['labels']);
+        $decoded_labels = json_decode($labels_json, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_labels)) {
+            $submitted_labels = $decoded_labels;
+        }
+    }
+
+    // Merge defaults: Use submitted value if not empty, otherwise use default.
+    $final_labels = [];
+    foreach ($default_labels as $key => $default_value) {
+        $submitted_value = isset($submitted_labels[$key]) ? trim($submitted_labels[$key]) : '';
+        $final_labels[sanitize_key($key)] = sanitize_text_field(!empty($submitted_value) ? $submitted_value : $default_value);
+    }
+
+
+    // --- Get AI config fields from POST ---
+    $ai_provider = isset($_POST['ai_provider']) ? sanitize_text_field(wp_unslash($_POST['ai_provider'])) : null;
+    $ai_model = isset($_POST['ai_model']) ? sanitize_text_field(wp_unslash($_POST['ai_model'])) : null;
+    $temperature = isset($_POST['temperature']) ? sanitize_text_field(wp_unslash($_POST['temperature'])) : null;
+    $max_tokens = isset($_POST['max_tokens']) ? absint($_POST['max_tokens']) : null;
+
+    // --- Get Vector config fields from POST ---
+    $enable_vector_store = isset($_POST['enable_vector_store']) && $_POST['enable_vector_store'] === '1' ? '1' : '0';
+    $vector_store_provider = isset($_POST['vector_store_provider']) ? sanitize_key($_POST['vector_store_provider']) : 'openai';
+    $openai_vector_store_ids = isset($_POST['openai_vector_store_ids']) && is_array($_POST['openai_vector_store_ids']) ? array_map('sanitize_text_field', $_POST['openai_vector_store_ids']) : [];
+    $pinecone_index_name = isset($_POST['pinecone_index_name']) ? sanitize_text_field($_POST['pinecone_index_name']) : '';
+    $qdrant_collection_name = isset($_POST['qdrant_collection_name']) ? sanitize_text_field($_POST['qdrant_collection_name']) : '';
+    $vector_embedding_provider = isset($_POST['vector_embedding_provider']) ? sanitize_key($_POST['vector_embedding_provider']) : 'openai';
+    $vector_embedding_model = isset($_POST['vector_embedding_model']) ? sanitize_text_field($_POST['vector_embedding_model']) : '';
+    $vector_store_top_k = isset($_POST['vector_store_top_k']) ? absint($_POST['vector_store_top_k']) : 3;
+
+    $decoded_structure = json_decode($form_structure_json, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded_structure)) {
+        $handler_instance->send_wp_error(new WP_Error('invalid_structure_json', __('Invalid form structure data submitted.', 'gpt3-ai-content-generator')), 400);
+        return;
+    }
+
+    if (empty($title)) {
+        $handler_instance->send_wp_error(new WP_Error('title_required', __('Form title cannot be empty.', 'gpt3-ai-content-generator')), 400);
+        return;
+    }
+    if (empty($prompt_template)) {
+        $handler_instance->send_wp_error(new WP_Error('prompt_required', __('Prompt template is required.', 'gpt3-ai-content-generator')), 400);
+        return;
+    }
+
+    $settings = [
+        'prompt_template' => $prompt_template,
+        'form_structure'  => $form_structure_json,
+        'ai_provider' => $ai_provider,
+        'ai_model' => $ai_model,
+        'temperature' => $temperature,
+        'max_tokens' => $max_tokens,
+        // Vector settings
+        'enable_vector_store' => $enable_vector_store,
+        'vector_store_provider' => $vector_store_provider,
+        'openai_vector_store_ids' => $openai_vector_store_ids,
+        'pinecone_index_name' => $pinecone_index_name,
+        'qdrant_collection_name' => $qdrant_collection_name,
+        'vector_embedding_provider' => $vector_embedding_provider,
+        'vector_embedding_model' => $vector_embedding_model,
+        'vector_store_top_k' => $vector_store_top_k,
+        // Labels
+        'labels' => $final_labels,
+    ];
+
+    if ($form_id) {
+        $updated_post_id = wp_update_post([
+            'ID' => $form_id,
+            'post_title' => $title,
+        ], true);
+
+        if (is_wp_error($updated_post_id)) {
+            $handler_instance->send_wp_error($updated_post_id);
+            return;
+        }
+        $form_storage->save_form_settings($form_id, $settings);
+        wp_send_json_success(['message' => __('Form updated successfully.', 'gpt3-ai-content-generator'), 'form_id' => $form_id]);
+    } else {
+        $result = $form_storage->create_form($title, $settings);
+        if (is_wp_error($result)) {
+            $handler_instance->send_wp_error($result);
+        } else {
+            wp_send_json_success(['message' => __('Form created successfully.', 'gpt3-ai-content-generator'), 'form_id' => $result]);
+        }
+    }
+}

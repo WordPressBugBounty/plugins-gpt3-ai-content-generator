@@ -1,0 +1,41 @@
+<?php
+
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/seo/yoast/class-aipkit-yoast-handler.php
+// Status: NEW FILE
+
+namespace WPAICG\SEO\Yoast;
+
+use WPAICG\SEO\AIPKit_SEO_Handler_Interface;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Handler for Yoast SEO plugin interactions.
+ * Delegates logic to namespaced functions.
+ */
+class AIPKit_Yoast_Handler implements AIPKit_SEO_Handler_Interface
+{
+    public function update_meta_description(int $post_id, string $description): bool
+    {
+        $file_path = __DIR__ . '/update-meta-description.php';
+        if (file_exists($file_path)) {
+            require_once $file_path;
+            return update_meta_description_logic($post_id, $description);
+        }
+        error_log('AIPKit Yoast Handler: update-meta-description.php not found.');
+        return false;
+    }
+
+    public function update_focus_keyword(int $post_id, string $keyword): bool
+    {
+        $file_path = __DIR__ . '/update-focus-keyword.php';
+        if (file_exists($file_path)) {
+            require_once $file_path;
+            return update_focus_keyword_logic($post_id, $keyword);
+        }
+        error_log('AIPKit Yoast Handler: update-focus-keyword.php not found.');
+        return false;
+    }
+}

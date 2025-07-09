@@ -1,224 +1,165 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
-/**
- * The file that defines the core plugin class
- *
- * A class definition that includes attributes and functions used across both the
- * public-facing side of the site and the admin area.
- *
- * @link       https://aipower.org
- * @since      1.0.0
- *
- * @package    Wp_Ai_Content_Generator
- * @subpackage Wp_Ai_Content_Generator/includes
- */
 
-/**
- * The core plugin class.
- *
- * This is used to define internationalization, admin-specific hooks, and
- * public-facing site hooks.
- *
- * Also maintains the unique identifier of this plugin as well as the current
- * version of the plugin.
- *
- * @since      1.0.0
- * @package    Wp_Ai_Content_Generator
- * @subpackage Wp_Ai_Content_Generator/includes
- * @author     Senol Sahin <senols@gmail.com>
- */
-class Wp_Ai_Content_Generator {
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/class-wp-ai-content-generator.php
+// Status: MODIFIED
+// I have updated the `ensure_tables_exist` method call to `ensure_tables_for_current_site` to reflect the changes in the Activator class and clarified the comment explaining its purpose.
 
-	/**
-	 * The loader that's responsible for maintaining and registering all hooks that power
-	 * the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      Wp_Ai_Content_Generator_Loader    $loader    Maintains and registers all hooks for the plugin.
-	 */
-	protected $loader;
+namespace WPAICG;
 
-	/**
-	 * The unique identifier of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      string    $plugin_name    The string used to uniquely identify this plugin.
-	 */
-	protected $plugin_name;
+// --- Load Core Helper Classes FIRST ---
+require_once WPAICG_PLUGIN_DIR . 'includes/class-aipkit-dependency-loader.php';
+require_once WPAICG_PLUGIN_DIR . 'includes/class-aipkit-hook-manager.php';
+require_once WPAICG_PLUGIN_DIR . 'includes/class-aipkit-module-initializer.php';
+require_once WPAICG_PLUGIN_DIR . 'includes/class-aipkit-shared-assets-manager.php';
+// --- END Load Core Helper Classes FIRST ---
 
-	/**
-	 * The current version of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      string    $version    The current version of the plugin.
-	 */
-	protected $version;
+// --- Use statements for NEW Core Helper Classes ---
+use WPAICG\Includes\AIPKit_Dependency_Loader;
+use WPAICG\Includes\AIPKit_Hook_Manager;
+use WPAICG\Includes\AIPKit_Module_Initializer;
+use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
 
-	/**
-	 * Define the core functionality of the plugin.
-	 *
-	 * Set the plugin name and the plugin version that can be used throughout the plugin.
-	 * Load the dependencies, define the locale, and set the hooks for the admin area and
-	 * the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function __construct() {
-		if ( defined( 'WP_AI_CONTENT_GENERATOR_VERSION' ) ) {
-			$this->version = WP_AI_CONTENT_GENERATOR_VERSION;
-		} else {
-			$this->version = '1.0.0';
-		}
-		$this->plugin_name = 'wp-ai-content-generator';
+// --- END NEW ---
 
-		$this->load_dependencies();
-		$this->set_locale();
-		$this->define_admin_hooks();
-		$this->define_public_hooks();
+// Ensure Activator and Role Manager classes are loaded as we need their static methods/constants
+require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator-activator.php';
+require_once WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_role_manager.php'; // Needed for update check
 
-	}
-
-	/**
-	 * Load the required dependencies for this plugin.
-	 *
-	 * Include the following files that make up the plugin:
-	 *
-	 * - Wp_Ai_Content_Generator_Loader. Orchestrates the hooks of the plugin.
-	 * - Wp_Ai_Content_Generator_i18n. Defines internationalization functionality.
-	 * - Wp_Ai_Content_Generator_Admin. Defines all hooks for the admin area.
-	 * - Wp_Ai_Content_Generator_Public. Defines all hooks for the public side of the site.
-	 *
-	 * Create an instance of the loader which will be used to register the hooks
-	 * with WordPress.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function load_dependencies() {
-
-		/**
-		 * The class responsible for orchestrating the actions and filters of the
-		 * core plugin.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-ai-content-generator-loader.php';
-
-		/**
-		 * The class responsible for defining internationalization functionality
-		 * of the plugin.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-ai-content-generator-i18n.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the admin area.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wp-ai-content-generator-admin.php';
-
-		/**
-		 * The class responsible for defining all metabox that occur in the admin area.
-		 */
-		// require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wpaicg-metabox.php';
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wp-ai-content-generator-public.php';
-
-		$this->loader = new Wp_Ai_Content_Generator_Loader();
-
-	}
-
-	/**
-	 * Define the locale for this plugin for internationalization.
-	 *
-	 * Uses the Wp_Ai_Content_Generator_i18n class in order to set the domain and to register the hook
-	 * with WordPress.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function set_locale() {
-
-		$plugin_i18n = new Wp_Ai_Content_Generator_i18n();
-
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
-	}
-
-	/**
-	 * Register all of the hooks related to the admin area functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_admin_hooks() {
-
-		$plugin_admin = new Wp_Ai_Content_Generator_Admin( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-		$this->loader->add_action( 'wp_ajax_wpaicg_set_post_content_', $plugin_admin , 'wpaicg_set_post_content_' );
-		$this->loader->add_action( 'admin_menu', $plugin_admin, 'wpaicg_options_page' );
-		$this->loader->add_action( 'admin_footer', $plugin_admin, 'wpaicg_load_db_vaule_js' );
-	}
-
-	/**
-	 * Register all of the hooks related to the public-facing functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_public_hooks() {
-
-		$plugin_public = new Wp_Ai_Content_Generator_Public( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-
-	}
-
-	/**
-	 * Run the loader to execute all of the hooks with WordPress.
-	 *
-	 * @since    1.0.0
-	 */
-	public function run() {
-		$this->loader->run();
-	}
-
-	/**
-	 * The name of the plugin used to uniquely identify it within the context of
-	 * WordPress and to define internationalization functionality.
-	 *
-	 * @since     1.0.0
-	 * @return    string    The name of the plugin.
-	 */
-	public function get_plugin_name() {
-		return $this->plugin_name;
-	}
-
-	/**
-	 * The reference to the class that orchestrates the hooks with the plugin.
-	 *
-	 * @since     1.0.0
-	 * @return    Wp_Ai_Content_Generator_Loader    Orchestrates the hooks of the plugin.
-	 */
-	public function get_loader() {
-		return $this->loader;
-	}
-
-	/**
-	 * Retrieve the version number of the plugin.
-	 *
-	 * @since     1.0.0
-	 * @return    string    The version number of the plugin.
-	 */
-	public function get_version() {
-		return $this->version;
-	}
-
+if (!defined('ABSPATH')) {
+    exit;
 }
+
+/**
+ * The core plugin class. Bootstrapper.
+ */
+class WP_AI_Content_Generator
+{
+    private static $instance = null;
+    private $version;
+    private $plugin_name;
+    public const DB_VERSION_OPTION = 'aipkit_plugin_version'; // Option to store current DB version
+
+    public static function get_instance(): WP_AI_Content_Generator
+    {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    private function __construct()
+    {
+        $this->version = defined('WPAICG_VERSION') ? WPAICG_VERSION : '1.9.15';
+        $this->plugin_name = 'gpt3-ai-content-generator';
+    }
+
+    /**
+     * Run the plugin setup.
+     * Load dependencies, define hooks, initialize modules, and ensure DB tables exist.
+     */
+    public function run()
+    {
+        // Load all dependencies using the new loader class
+        AIPKit_Dependency_Loader::load();
+
+        // Register shared assets (moved to a separate manager, called on init)
+        add_action('init', [$this, 'register_shared_assets'], 0);
+
+        // Check for plugin updates (version change)
+        add_action('init', [$this, 'check_for_updates'], 10);
+
+        // Ensure DB tables exist for all users (new and existing) on page load.
+        add_action('plugins_loaded', [$this, 'ensure_tables_exist'], 15);
+
+        // Define hooks using the new hook manager
+        AIPKit_Hook_Manager::register_hooks($this->version);
+
+        // Initialize modules using the new module initializer
+        AIPKit_Module_Initializer::init($this->version);
+    }
+
+    /**
+     * Ensures all DB tables exist for the current site.
+     * Hooked to 'plugins_loaded', this check runs for existing users after an update,
+     * not just on first-time activation.
+     */
+    public function ensure_tables_exist()
+    {
+        WP_AI_Content_Generator_Activator::ensure_tables_for_current_site();
+    }
+
+    /**
+     * Register shared assets via the SharedAssetsManager.
+     * Hooked to 'init' with priority 0.
+     */
+    public function register_shared_assets()
+    {
+        AIPKit_Shared_Assets_Manager::register($this->version);
+    }
+
+    /**
+     * Check for plugin updates (e.g., version change) and run necessary routines.
+     * Now runs on 'init' action hook, after i18n is loaded.
+     */
+    public function check_for_updates()
+    {
+        $current_version = $this->version;
+        $saved_version = get_option(self::DB_VERSION_OPTION);
+
+        if ($saved_version !== $current_version) {
+            error_log("AIPKit: Plugin version changed from {$saved_version} to {$current_version}. Running update checks...");
+
+            // Ensure Role Manager Permissions are Updated/Initialized
+            if (class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
+                \WPAICG\AIPKit_Role_Manager::update_permissions_on_activation();
+            } else {
+                error_log("AIPKit Update Error: AIPKit_Role_Manager class not found during version update check.");
+            }
+
+            // Ensure Default Chatbot exists
+            if (class_exists('\\WPAICG\\Chat\\Storage\\DefaultBotSetup')) {
+                \WPAICG\Chat\Storage\DefaultBotSetup::ensure_default_chatbot();
+            } else {
+                error_log("AIPKit Update Error: DefaultBotSetup class not found during version update check.");
+            }
+
+            // Ensure Default Content Writer Template exists
+            if (class_exists('\\WPAICG\\ContentWriter\\AIPKit_Content_Writer_Template_Manager')) {
+                \WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager::ensure_default_template_exists();
+            } else {
+                error_log("AIPKit Update Error: AIPKit_Content_Writer_Template_Manager class not found during version update check.");
+            }
+
+            // Ensure Default AI Forms exist
+            if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Defaults')) {
+                \WPAICG\AIForms\Admin\AIPKit_AI_Form_Defaults::ensure_default_forms_exist();
+            } else {
+                error_log("AIPKit Update Error: AIPKit_AI_Form_Defaults class not found during version update check.");
+            }
+
+            // Ensure Cron Jobs are scheduled
+            if (class_exists('\\WPAICG\\Core\\TokenManager\\AIPKit_Token_Manager')) {
+                \WPAICG\Core\TokenManager\AIPKit_Token_Manager::schedule_token_reset_event();
+            }
+            if (class_exists('\\WPAICG\\Core\\Stream\\Cache\\AIPKit_SSE_Message_Cache')) {
+                \WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache::schedule_cleanup_event();
+            }
+            if (class_exists('\\WPAICG\\AutoGPT\\AIPKit_Automated_Task_Cron')) {
+                \WPAICG\AutoGPT\AIPKit_Automated_Task_Cron::init();
+            }
+
+            // Update the stored version
+            update_option(self::DB_VERSION_OPTION, $current_version, 'no'); // Use autoload 'no'
+        }
+    }
+
+    public function get_plugin_name(): string
+    {
+        return $this->plugin_name;
+    }
+    public function get_version(): string
+    {
+        return $this->version;
+    }
+
+} // End class

@@ -1,0 +1,245 @@
+<?php
+
+namespace WPAICG\Stats; // Use a dedicated Stats namespace
+
+use wpdb;
+use WP_Error;
+use DateTime;
+use DateTimeZone;
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
+/**
+ * Calculates statistics related to overall AI usage across different modules.
+ * Includes filtering for top N modules in daily stats.
+ */
+class AIPKit_Stats { // Renamed from AIPKit_Chat_Stats to reflect broader scope
+
+    private $wpdb;
+    private $log_table_name;
+    const TOP_N_MODULES_FOR_CHART = 4; // Number of top modules to display individually in the chart
+
+    public function __construct() {
+        global $wpdb;
+        $this->wpdb = $wpdb;
+        $this->log_table_name = $wpdb->prefix . 'aipkit_chat_logs'; // Table name remains the same
+    }
+
+    /**
+     * Calculates token usage statistics across all modules for the last X days.
+     *
+     * @param int $days Number of past days to include.
+     * @return array|WP_Error An array containing stats ['total_tokens', 'total_interactions', 'avg_tokens_per_interaction', 'module_counts', 'days_period'] or WP_Error.
+     */
+    public function get_token_stats_last_days(int $days = 30): array|WP_Error {
+        if ($days <= 0) {
+            return new WP_Error('invalid_days', __('Number of days must be positive.', 'gpt3-ai-content-generator'));
+        }
+
+        $wp_timezone = wp_timezone();
+        $end_datetime = new DateTime('now', $wp_timezone);
+        $start_datetime = new DateTime("-$days days", $wp_timezone);
+        $start_datetime->setTime(0, 0, 0);
+
+        $timestamp_threshold_start = $start_datetime->getTimestamp();
+        $timestamp_threshold_end = $end_datetime->getTimestamp();
+
+        // Query to fetch conversation logs within the date range based on last_message_ts
+        // Select 'messages' and 'module' columns
+        $query = $this->wpdb->prepare(
+            "SELECT messages, module FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d",
+            $timestamp_threshold_start,
+            $timestamp_threshold_end
+        );
+
+        $results = $this->wpdb->get_results($query, ARRAY_A);
+
+        if ($this->wpdb->last_error) {
+            error_log("AIPKit Stats DB Error (get_token_stats_last_days): " . $this->wpdb->last_error);
+            return new WP_Error('db_query_error', __('Database error fetching logs for stats.', 'gpt3-ai-content-generator'));
+        }
+
+        $total_tokens = 0;
+        $total_interactions = count($results); // Count each log row as an interaction/conversation
+        $module_counts = []; // Count how many interactions per module
+
+        if ($total_interactions > 0) {
+            foreach ($results as $row) {
+                $module_name = !empty($row['module']) ? $row['module'] : 'unknown';
+                $messages_json = $row['messages'] ?? '[]';
+                $conversation_data = json_decode($messages_json, true);
+                $messages_array = null;
+
+                // Handle new/old structure
+                if (is_array($conversation_data) && isset($conversation_data['messages']) && is_array($conversation_data['messages'])) {
+                    $messages_array = $conversation_data['messages'];
+                } elseif (is_array($conversation_data)) {
+                    $messages_array = $conversation_data; // Backward compat
+                }
+
+                if (is_array($messages_array)) {
+                    foreach ($messages_array as $msg) {
+                        // Sum tokens from bot messages or wherever usage is logged
+                         $tokens_in_message = 0;
+                        if (isset($msg['usage']['total_tokens']) && is_numeric($msg['usage']['total_tokens'])) {
+                            $tokens_in_message = (int) $msg['usage']['total_tokens'];
+                        } elseif (isset($msg['usage']['totalTokenCount']) && is_numeric($msg['usage']['totalTokenCount'])) { // Google compatibility
+                            $tokens_in_message = (int) $msg['usage']['totalTokenCount'];
+                        }
+                        $total_tokens += $tokens_in_message;
+                    }
+                } else {
+                    error_log("AIPKit Stats: Failed to decode messages JSON for a log row in get_token_stats_last_days.");
+                }
+
+                // Count the interaction for this module
+                $module_counts[$module_name] = ($module_counts[$module_name] ?? 0) + 1;
+
+            } // End foreach $results
+        } // End if $total_interactions
+
+        $avg_tokens_per_interaction = ($total_interactions > 0) ? round($total_tokens / $total_interactions) : 0;
+        arsort($module_counts); // Sort modules by interaction count descending
+
+        return [
+            'total_tokens' => $total_tokens,
+            'total_interactions' => $total_interactions, // Renamed from total_conversations
+            'avg_tokens_per_interaction' => $avg_tokens_per_interaction, // Renamed
+            'module_counts' => $module_counts, // Interaction counts per module
+            'days_period' => $days,
+        ];
+    }
+
+    /**
+     * Calculates daily token usage grouped by the top N modules and 'Other' for the last X days.
+     *
+     * @param int $days Number of past days to include.
+     * @return array|WP_Error An array ['YYYY-MM-DD' => ['top_module1' => tokens, 'top_moduleN' => tokens, 'Other' => tokens]] or WP_Error.
+     */
+    public function get_daily_token_stats(int $days = 30): array|WP_Error {
+        if ($days <= 0) {
+            return new WP_Error('invalid_days', __('Number of days must be positive.', 'gpt3-ai-content-generator'));
+        }
+
+        $wp_timezone = wp_timezone();
+        $end_datetime = new DateTime('now', $wp_timezone);
+        $start_datetime = new DateTime("-$days days", $wp_timezone);
+        $start_datetime->setTime(0, 0, 0);
+
+        $timestamp_threshold_start = $start_datetime->getTimestamp();
+        $timestamp_threshold_end = $end_datetime->getTimestamp();
+
+        // Fetch logs within the range, including 'module' and 'messages'
+        $query = $this->wpdb->prepare(
+            "SELECT messages, module FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d",
+            $timestamp_threshold_start,
+            $timestamp_threshold_end
+        );
+        $results = $this->wpdb->get_results($query, ARRAY_A);
+
+        if ($this->wpdb->last_error) {
+            error_log("AIPKit Stats DB Error (get_daily_token_stats): " . $this->wpdb->last_error);
+            return new WP_Error('db_query_error', __('Database error fetching logs for daily stats.', 'gpt3-ai-content-generator'));
+        }
+
+        // --- Phase 1: Aggregate ALL daily tokens per module and total tokens per module ---
+        $daily_tokens_all = [];
+        $total_module_tokens = []; // Stores total tokens for each module across the period
+
+        // Initialize all days in the period
+        $current_date = clone $start_datetime;
+        while ($current_date <= $end_datetime) {
+            $daily_tokens_all[$current_date->format('Y-m-d')] = [];
+            $current_date->modify('+1 day');
+        }
+
+        if (!empty($results)) {
+            foreach ($results as $row) {
+                 $module_name = !empty($row['module']) ? $row['module'] : 'unknown';
+                 $messages_json = $row['messages'] ?? '[]';
+                 $conversation_data = json_decode($messages_json, true);
+                 $messages_array = null;
+                 if (is_array($conversation_data) && isset($conversation_data['messages']) && is_array($conversation_data['messages'])) $messages_array = $conversation_data['messages'];
+                 elseif (is_array($conversation_data)) $messages_array = $conversation_data;
+
+                 if (is_array($messages_array)) {
+                     foreach ($messages_array as $msg) {
+                         // Use timestamp of the individual message for daily grouping
+                         if (isset($msg['timestamp']) && is_numeric($msg['timestamp'])) {
+                             $message_timestamp = (int)$msg['timestamp'];
+                             // Ensure message is within the overall date range (redundant check, but safe)
+                             if ($message_timestamp < $timestamp_threshold_start || $message_timestamp > $timestamp_threshold_end) continue;
+
+                             $message_date = new DateTime('@' . $message_timestamp); $message_date->setTimezone($wp_timezone); $date_key = $message_date->format('Y-m-d');
+
+                             // Sum tokens for this message
+                             $tokens_in_message = 0;
+                             if (isset($msg['usage']['total_tokens']) && is_numeric($msg['usage']['total_tokens'])) $tokens_in_message = (int) $msg['usage']['total_tokens'];
+                             elseif (isset($msg['usage']['totalTokenCount']) && is_numeric($msg['usage']['totalTokenCount'])) $tokens_in_message = (int) $msg['usage']['totalTokenCount'];
+
+                             if ($tokens_in_message > 0) {
+                                 // Add to daily count FOR THE MODULE
+                                 if (isset($daily_tokens_all[$date_key])) {
+                                     $daily_tokens_all[$date_key][$module_name] = ($daily_tokens_all[$date_key][$module_name] ?? 0) + $tokens_in_message;
+                                 }
+                                 // Add to overall module total
+                                 $total_module_tokens[$module_name] = ($total_module_tokens[$module_name] ?? 0) + $tokens_in_message;
+                             }
+                         } // End timestamp check
+                     } // End foreach message
+                 } else { error_log("AIPKit Stats: Failed to decode messages JSON for a log row in get_daily_token_stats."); }
+            } // End foreach result row
+        } // End if results
+
+        // --- Phase 2: Identify Top N modules ---
+        arsort($total_module_tokens); // Sort modules by total usage descending
+        $top_n_modules = array_slice(array_keys($total_module_tokens), 0, self::TOP_N_MODULES_FOR_CHART);
+        $top_n_modules_set = array_flip($top_n_modules); // Use as a set for quick lookups
+
+        // --- Phase 3: Create Filtered Daily Data with 'Other' category ---
+        $filtered_daily_tokens = [];
+        // Re-initialize all days
+        $current_date = clone $start_datetime;
+        while ($current_date <= $end_datetime) {
+            $filtered_daily_tokens[$current_date->format('Y-m-d')] = [];
+            $current_date->modify('+1 day');
+        }
+
+        foreach ($daily_tokens_all as $date => $modules_on_day) {
+            $other_tokens_for_day = 0;
+            foreach ($modules_on_day as $module => $tokens) {
+                if (isset($top_n_modules_set[$module])) {
+                    $filtered_daily_tokens[$date][$module] = $tokens;
+                } else {
+                    $other_tokens_for_day += $tokens;
+                }
+            }
+            if ($other_tokens_for_day > 0) {
+                $filtered_daily_tokens[$date]['Other'] = $other_tokens_for_day;
+            }
+        }
+
+        ksort($filtered_daily_tokens); // Ensure outer array is sorted by date key
+
+        return $filtered_daily_tokens;
+    }
+
+
+    /**
+     * Gets the most used module from the calculated module counts.
+     *
+     * @param array $module_counts Associative array of module => count.
+     * @return string|null The name of the most used module, or null if none.
+     */
+    public function get_most_used_module(array $module_counts): ?string {
+        if (empty($module_counts)) {
+            return null;
+        }
+        // arsort($module_counts); // Ensure sorted (should be done in get_token_stats_last_days)
+        $first_key = array_key_first($module_counts);
+        // Format the module name nicely for display
+        return $first_key ? ucfirst(str_replace(['-', '_'], ' ', $first_key)) : null;
+    }
+}

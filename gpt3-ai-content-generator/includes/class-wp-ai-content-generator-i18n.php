@@ -1,47 +1,33 @@
 <?php
+
+namespace WPAICG;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
-/**
- * Define the internationalization functionality
- *
- * Loads and defines the internationalization files for this plugin
- * so that it is ready for translation.
- *
- * @link       https://aipower.org
- * @since      1.0.0
- *
- * @package    Wp_Ai_Content_Generator
- * @subpackage Wp_Ai_Content_Generator/includes
- */
 
 /**
  * Define the internationalization functionality.
- *
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @since      1.0.0
+ * @since      1.9.15
  * @package    Wp_Ai_Content_Generator
  * @subpackage Wp_Ai_Content_Generator/includes
  * @author     Senol Sahin <senols@gmail.com>
  */
-class Wp_Ai_Content_Generator_i18n {
-
+class WP_AI_Content_Generator_i18n {
 
 	/**
 	 * Load the plugin text domain for translation.
+	 * Hooked to 'init'.
 	 *
-	 * @since    1.0.0
+	 * @since    1.9.15
+	 * @updated  NEXT_VERSION - Changed hook from 'plugins_loaded' to 'init'
 	 */
-	public function load_plugin_textdomain() {
-
+	public function init_hooks() { // Method name remains init_hooks, but its action hook changes
 		load_plugin_textdomain(
-			'gpt3-ai-content-generator',
+			'gpt3-ai-content-generator', // Correct text domain
 			false,
-			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
+			dirname( WPAICG_PLUGIN_DIR ) . '/gpt3-ai-content-generator/languages/' // Use constant for path base
 		);
-
 	}
-
-
-
 }

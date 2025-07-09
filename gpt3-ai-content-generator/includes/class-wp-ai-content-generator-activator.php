@@ -1,414 +1,350 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
-/**
- * Fired during plugin activation
- *
- * @link       https://aipower.org
- * @since      1.0.0
- *
- * @package    Wp_Ai_Content_Generator
- * @subpackage Wp_Ai_Content_Generator/includes
- */
+
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/class-wp-ai-content-generator-activator.php
+// Status: MODIFIED
+// I have updated `ensure_tables_for_current_site` to check for all required database tables, not just one, ensuring that existing users who update the plugin get newly added tables created automatically.
+
+namespace WPAICG;
+
+// Use statements for classes needed during activation
+use WPAICG\Chat\Admin\AdminSetup;
+use WPAICG\Chat\Storage\DefaultBotSetup;
+use WPAICG\AIPKit_Role_Manager;
+use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
+use WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache;
+use WPAICG\AutoGPT\AIPKit_Automated_Task_Cron;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager;
+
+if (! defined('ABSPATH')) {
+    exit;
+}
 
 /**
- * Fired during plugin activation.
- *
- * This class defines all code necessary to run during the plugin's activation.
- *
- * @since      1.0.0
- * @package    Wp_Ai_Content_Generator
- * @subpackage Wp_Ai_Content_Generator/includes
- * @author     Senol Sahin <senols@gmail.com>
+ * Fired during plugin activation. Also contains multisite setup logic.
  */
-class Wp_Ai_Content_Generator_Activator {
+class WP_AI_Content_Generator_Activator
+{
+    // --- NEW: Migration Status Option Constants ---
+    public const MIGRATION_DATA_EXISTS_OPTION = 'aipkit_migration_data_exists';
+    public const MIGRATION_STATUS_OPTION = 'aipkit_migration_status';
+    public const MIGRATION_LAST_ERROR_OPTION = 'aipkit_migration_last_error';
+    public const MIGRATION_OLD_VERSION_OPTION = 'aipkit_old_plugin_version_migrated_from';
+    public const MIGRATION_CATEGORY_STATUS_OPTION = 'aipkit_migration_category_status'; // ADDED
+    public const MIGRATION_ANALYSIS_RESULTS_OPTION = 'aipkit_migration_analysis_results'; // ADDED
+    // --- END NEW ---
 
-	/**
-	 * Short Description. (use period)
-	 *
-	 * Long Description.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function activate() {
-		self::createTable();
-        self::create_image_tables();
-        self::create_form_tables();
-        self::create_chat_tables();
-        self::create_ai_account_tables();
-	}
-
-	public static function createTable()
-	{
-		global $wpdb;
-
-		$wpaicgTable = $wpdb->prefix . 'wpaicg';
-		if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s",$wpaicgTable)) != $wpaicgTable) {
-			$charset_collate = $wpdb->get_charset_collate();
-			$sql = "CREATE TABLE $wpaicgTable (
-						ID mediumint(11) NOT NULL AUTO_INCREMENT,
-						name text NOT NULL,
-						temperature float NOT NULL,
-						max_tokens float NOT NULL,
-						top_p float NOT NULL,
-						best_of float NOT NULL,
-						frequency_penalty float NOT NULL,
-						presence_penalty float NOT NULL,
-						img_size text NOT NULL,
-						api_key text NOT NULL,
-						wpai_language VARCHAR(255) NOT NULL,
-						wpai_add_img BOOLEAN NOT NULL,
-						wpai_add_intro BOOLEAN NOT NULL,
-						wpai_add_conclusion BOOLEAN NOT NULL,
-						wpai_add_tagline BOOLEAN NOT NULL,
-						wpai_add_faq BOOLEAN NOT NULL,
-						wpai_add_keywords_bold BOOLEAN NOT NULL,
-						wpai_number_of_heading INT NOT NULL,
-						wpai_modify_headings BOOLEAN NOT NULL,
-						wpai_heading_tag VARCHAR(10) NOT NULL,
-						wpai_writing_style VARCHAR(255) NOT NULL,
-						wpai_writing_tone VARCHAR(255) NOT NULL,
-						wpai_target_url VARCHAR(255) NOT NULL,
-						wpai_target_url_cta VARCHAR(255) NOT NULL,
-						wpai_cta_pos VARCHAR(255) NOT NULL,
-						added_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-						modified_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-						PRIMARY KEY  (ID)
-					) $charset_collate;";
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			dbDelta( $sql );
-            $sampleData = [
-                'name'						=> 'wpaicg_settings',
-                'temperature' 				=> '1',
-                'max_tokens' 				=> '1500',
-                'top_p' 					=> '0.01',
-                'best_of' 					=> '1',
-                'frequency_penalty' 		=> '0.01',
-                'presence_penalty' 			=> '0.01',
-                'img_size' 					=> '1024x1024',
-                'api_key' 					=> 'sk..',
-                'wpai_language' 			=> 'en',
-                'wpai_add_img' 				=> 1,
-                'wpai_add_intro' 			=> 'false',
-                'wpai_add_conclusion' 		=> 'false',
-                'wpai_add_tagline' 			=> 'false',
-                'wpai_add_faq' 				=> 'false',
-                'wpai_add_keywords_bold' 	=> 'false',
-                'wpai_number_of_heading' 	=>  3,
-                'wpai_modify_headings' 		=> 'false',
-                'wpai_heading_tag' 			=> 'h1',
-                'wpai_writing_style' 		=> 'infor',
-                'wpai_writing_tone' 		=> 'formal',
-                'wpai_cta_pos' 				=> 'beg',
-                'added_date' 				=> gmdate('Y-m-d H:i:s'),
-                'modified_date'				=> gmdate('Y-m-d H:i:s')
-
-            ];
-
-            $result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpaicgTable WHERE name = %s", 'wpaicg_settings' ) );
-
-            if(!empty($result->name)){
-                $wpdb->update(
-                    $wpaicgTable,
-                    $sampleData,
-                    [
-                        'name'			=> 'wpaicg_settings'
-                    ],
-                    [
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s'
-                    ],
-                    [
-                        '%s'
-                    ]
-                );
-            }else{
-                $wpdb->insert(
-                    $wpaicgTable,
-                    $sampleData,
-                    [
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s',
-                        '%s'
-                    ]
-                );
-            }
-		}
-	}
-
-    public static function create_image_tables()
+    /**
+     * Main activation routine for single site or per-site activation.
+     * REVISED: This method is now significantly leaner. It only handles tasks that
+     * absolutely must run on first-time activation, like creating database tables.
+     * Other setup tasks (default content, cron scheduling) are moved to the
+     * `check_for_updates` hook which runs on `init` and is triggered by the version option.
+     */
+    public static function activate()
     {
-        global $wpdb;
-    
-        if ( is_admin() ) {
-            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    
-            // Table 1: wpaicg_image_logs
-            $wpaicgLogTable = $wpdb->prefix . 'wpaicg_image_logs';
-            $table_exists = $wpdb->get_var(
-                $wpdb->prepare(
-                    "SHOW TABLES LIKE %s",
-                    $wpaicgLogTable
-                )
-            );
-    
-            if ( $table_exists !== $wpaicgLogTable ) {
-                $charset_collate = $wpdb->get_charset_collate();
-    
-                $sql = "CREATE TABLE {$wpaicgLogTable} (
-                    id mediumint(11) NOT NULL AUTO_INCREMENT,
-                    prompt TEXT NOT NULL,
-                    source INT NOT NULL DEFAULT '0',
-                    shortcode VARCHAR(255) DEFAULT NULL,
-                    size VARCHAR(255) DEFAULT NULL,
-                    total INT NOT NULL DEFAULT '0',
-                    duration VARCHAR(255) DEFAULT NULL,
-                    price VARCHAR(255) DEFAULT NULL,
-                    created_at VARCHAR(255) NOT NULL,
-                    PRIMARY KEY (id)
-                ) $charset_collate;";
-    
-                dbDelta( $sql );
-            }
-    
-            // Table 2: wpaicg_imagetokens
-            $wpaicgTokensTable = $wpdb->prefix . 'wpaicg_imagetokens';
-            $token_table_exists = $wpdb->get_var(
-                $wpdb->prepare(
-                    "SHOW TABLES LIKE %s",
-                    $wpaicgTokensTable
-                )
-            );
-    
-            if ( $token_table_exists !== $wpaicgTokensTable ) {
-                $charset_collate = $wpdb->get_charset_collate();
-    
-                $sql = "CREATE TABLE {$wpaicgTokensTable} (
-                    id mediumint(11) NOT NULL AUTO_INCREMENT,
-                    tokens VARCHAR(255) DEFAULT NULL,
-                    user_id VARCHAR(255) DEFAULT NULL,
-                    session_id VARCHAR(255) DEFAULT NULL,
-                    source VARCHAR(255) DEFAULT NULL,
-                    created_at VARCHAR(255) NOT NULL,
-                    PRIMARY KEY (id)
-                ) $charset_collate;";
-    
-                dbDelta( $sql );
+        // Create database tables if they don't exist.
+        self::setup_tables_for_blog();
+
+        // Load the main plugin class to get access to constants.
+        if (!class_exists(WP_AI_Content_Generator::class)) {
+            require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator.php';
+        }
+        // Set the current version in the database. This is crucial for the `check_for_updates`
+        // routine to correctly trigger on new installs and version changes.
+        update_option(WP_AI_Content_Generator::DB_VERSION_OPTION, WPAICG_VERSION, 'no');
+
+        // --- MODIFICATION: Consolidate all one-time/update tasks here ---
+        // This ensures that fresh installs and reactivations get all necessary setup routines.
+        // The check_for_updates() hook will also call these, which is a safe redundancy for version updates.
+
+        // Update Role Manager permissions, migrating old caps if necessary.
+        $role_manager_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_role_manager.php';
+        if (file_exists($role_manager_path)) {
+            require_once $role_manager_path;
+            if (class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
+                \WPAICG\AIPKit_Role_Manager::update_permissions_on_activation();
             }
         }
-    }
-    
 
-    public static function create_form_tables()
+        // Ensure Default Chatbot exists.
+        $default_bot_setup_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/class-aipkit_default_bot_setup.php';
+        if (file_exists($default_bot_setup_path)) {
+            require_once $default_bot_setup_path;
+            if (class_exists('\\WPAICG\\Chat\\Storage\\DefaultBotSetup')) {
+                \WPAICG\Chat\Storage\DefaultBotSetup::ensure_default_chatbot();
+            }
+        }
+
+        // Ensure Default Content Writer Template exists.
+        $cw_template_manager_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-template-manager.php';
+        if (file_exists($cw_template_manager_path)) {
+            require_once $cw_template_manager_path;
+            if (class_exists('\\WPAICG\\ContentWriter\\AIPKit_Content_Writer_Template_Manager')) {
+                \WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager::ensure_default_template_exists();
+            }
+        }
+
+        // Ensure Default AI Forms exist.
+        $ai_form_defaults_path = WPAICG_PLUGIN_DIR . 'classes/ai-forms/admin/class-aipkit-ai-form-defaults.php';
+        if (file_exists($ai_form_defaults_path)) {
+            require_once $ai_form_defaults_path;
+            if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Defaults')) {
+                \WPAICG\AIForms\Admin\AIPKit_AI_Form_Defaults::ensure_default_forms_exist();
+            }
+        }
+        // --- END MODIFICATION ---
+
+        // Schedule cron jobs (methods are idempotent, so it's safe to run).
+        if (class_exists(AIPKit_Token_Manager::class)) {
+            AIPKit_Token_Manager::schedule_token_reset_event();
+        }
+        if (class_exists(AIPKit_SSE_Message_Cache::class)) {
+            AIPKit_SSE_Message_Cache::schedule_cleanup_event();
+        }
+        if (class_exists(AIPKit_Automated_Task_Cron::class)) {
+            AIPKit_Automated_Task_Cron::init();
+        }
+    }
+
+    /**
+     * Checks for old plugin data and sets initial migration status options.
+     * UPDATED: Sets status to 'analysis_required' and initializes new state options.
+     * MODIFIED: Changed visibility from private to public to allow calls from outside activation.
+     */
+    public static function check_for_old_data_and_set_migration_status()
     {
         global $wpdb;
-    
-        if ( is_admin() ) {
-            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    
-            // Table 1: wpaicg_form_logs
-            $wpaicgLogTable = $wpdb->prefix . 'wpaicg_form_logs';
-            $log_table_exists = $wpdb->get_var(
-                $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgLogTable)
-            );
-    
-            if ( $log_table_exists !== $wpaicgLogTable ) {
-                $charset_collate = $wpdb->get_charset_collate();
-    
-                $sql = "CREATE TABLE {$wpaicgLogTable} (
-                    id mediumint(11) NOT NULL AUTO_INCREMENT,
-                    prompt TEXT NOT NULL,
-                    source INT NOT NULL DEFAULT '0',
-                    data LONGTEXT NOT NULL,
-                    prompt_id VARCHAR(255) DEFAULT NULL,
-                    name VARCHAR(255) DEFAULT NULL,
-                    model VARCHAR(255) DEFAULT NULL,
-                    duration VARCHAR(255) DEFAULT NULL,
-                    tokens VARCHAR(255) DEFAULT NULL,
-                    created_at VARCHAR(255) NOT NULL,
-                    eventID mediumint(11) DEFAULT NULL,
-                    userID varchar(255) DEFAULT NULL,
-                    PRIMARY KEY (id)
-                ) $charset_collate;";
-    
-                dbDelta( $sql );
-            } else {
-                // Check and add missing columns
-                $columns = $wpdb->get_col("DESCRIBE {$wpaicgLogTable}");
-    
-                if ( !in_array('eventID', $columns, true) ) {
-                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static ALTER TABLE, no user input
-                    $wpdb->query("ALTER TABLE {$wpaicgLogTable} ADD eventID mediumint(11) DEFAULT NULL");
-                }
-                if ( !in_array('userID', $columns, true) ) {
-                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static ALTER TABLE, no user input
-                    $wpdb->query("ALTER TABLE {$wpaicgLogTable} ADD userID varchar(255) DEFAULT NULL");
+        $current_migration_status = get_option(self::MIGRATION_STATUS_OPTION, '');
+
+        // If migration is already completed or user has chosen to start fresh, do nothing.
+        if (in_array($current_migration_status, ['completed', 'fresh_install_chosen', 'not_applicable'], true)) {
+            return;
+        }
+
+        $old_data_found = false;
+        $old_table_names = ['wpaicg', 'wpaicg_chatlogs', 'wpaicg_chattokens', 'wpaicg_image_logs', 'wpaicg_imagetokens', 'wpaicg_form_logs', 'wpaicg_form_feedback', 'wpaicg_formtokens'];
+        foreach ($old_table_names as $table_suffix) {
+            $table_name = $wpdb->prefix . $table_suffix;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name) {
+                $old_data_found = true;
+                break;
+            }
+        }
+
+        if (!$old_data_found) {
+            // Check for old options
+            $old_options_to_check = ['wpaicg_options', 'wpaicg_provider', 'wpaicg_chat_widget', 'wpaicg_module_settings'];
+            foreach ($old_options_to_check as $option_name) {
+                if (get_option($option_name) !== false) {
+                    $old_data_found = true;
+                    break;
                 }
             }
-    
-            // Table 2: wpaicg_formtokens
-            $wpaicgTokensTable = $wpdb->prefix . 'wpaicg_formtokens';
-            $tokens_table_exists = $wpdb->get_var(
-                $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgTokensTable)
-            );
-    
-            if ( $tokens_table_exists !== $wpaicgTokensTable ) {
-                $charset_collate = $wpdb->get_charset_collate();
-    
-                $sql = "CREATE TABLE {$wpaicgTokensTable} (
-                    id mediumint(11) NOT NULL AUTO_INCREMENT,
-                    tokens VARCHAR(255) DEFAULT NULL,
-                    user_id VARCHAR(255) DEFAULT NULL,
-                    session_id VARCHAR(255) DEFAULT NULL,
-                    source VARCHAR(255) DEFAULT NULL,
-                    created_at VARCHAR(255) NOT NULL,
-                    PRIMARY KEY (id)
-                ) $charset_collate;";
-    
-                dbDelta( $sql );
-            }
-    
-            // Table 3: wpaicg_form_feedback
-            $wpaicgFormFeedbackTable = $wpdb->prefix . 'wpaicg_form_feedback';
-            $feedback_table_exists = $wpdb->get_var(
-                $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgFormFeedbackTable)
-            );
-    
-            if ( $feedback_table_exists !== $wpaicgFormFeedbackTable ) {
-                $charset_collate = $wpdb->get_charset_collate();
-    
-                $sql = "CREATE TABLE {$wpaicgFormFeedbackTable} (
-                    id mediumint(11) NOT NULL AUTO_INCREMENT,
-                    formID mediumint(11) NOT NULL,
-                    eventID mediumint(11) DEFAULT NULL,
-                    source varchar(255) DEFAULT NULL,
-                    formname varchar(255) DEFAULT NULL,
-                    response text DEFAULT NULL,
-                    session_id varchar(255) DEFAULT NULL,
-                    feedback enum('thumbs_up', 'thumbs_down') NOT NULL,
-                    comment text DEFAULT NULL,
-                    created_at timestamp DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY (id)
-                ) $charset_collate;";
-    
-                dbDelta( $sql );
+        }
+        // Check for old CPTs
+        if (!$old_data_found) {
+            $old_cpts = ['wpaicg_mtemplate', 'wpaicg_tracking', 'wpaicg_bulk', 'wpaicg_chatbot', 'wpaicg_form', 'wpaicg_embeddings', 'wpaicg_pdfadmin', 'wpaicg_file', 'wpaicg_finetune', 'wpaicg_audio'];
+            foreach ($old_cpts as $cpt_slug) {
+                $posts = get_posts(['post_type' => $cpt_slug, 'post_status' => 'any', 'posts_per_page' => 1, 'fields' => 'ids']);
+                if (!empty($posts)) {
+                    $old_data_found = true;
+                    break;
+                }
             }
         }
-    }
-    
 
-    public static function create_chat_tables()
-    {
-        global $wpdb;
-    
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    
-        // Table 1: wpaicg_chatlogs
-        $wpaicgChatLogTable = $wpdb->prefix . 'wpaicg_chatlogs';
-        $log_exists = $wpdb->get_var(
-            $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgChatLogTable)
-        );
-    
-        if ( $log_exists !== $wpaicgChatLogTable ) {
-            $charset_collate = $wpdb->get_charset_collate();
-            $sql = "CREATE TABLE {$wpaicgChatLogTable} (
-                id mediumint(11) NOT NULL AUTO_INCREMENT,
-                log_session VARCHAR(255) NOT NULL,
-                data LONGTEXT NOT NULL,
-                page_title TEXT DEFAULT NULL,
-                source VARCHAR(255) DEFAULT NULL,
-                created_at VARCHAR(255) NOT NULL,
-                PRIMARY KEY (id)
-            ) $charset_collate;";
-            dbDelta( $sql );
-        }
-    
-        // Table 2: wpaicg_chattokens
-        $wpaicgChatTokensTable = $wpdb->prefix . 'wpaicg_chattokens';
-        $tokens_exists = $wpdb->get_var(
-            $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgChatTokensTable)
-        );
-    
-        if ( $tokens_exists !== $wpaicgChatTokensTable ) {
-            $charset_collate = $wpdb->get_charset_collate();
-            $sql = "CREATE TABLE {$wpaicgChatTokensTable} (
-                id mediumint(11) NOT NULL AUTO_INCREMENT,
-                tokens VARCHAR(255) DEFAULT NULL,
-                user_id VARCHAR(255) DEFAULT NULL,
-                session_id VARCHAR(255) DEFAULT NULL,
-                source VARCHAR(255) DEFAULT NULL,
-                created_at VARCHAR(255) NOT NULL,
-                PRIMARY KEY (id)
-            ) $charset_collate;";
-            dbDelta( $sql );
+
+        if ($old_data_found) {
+            update_option(self::MIGRATION_DATA_EXISTS_OPTION, true, 'no');
+
+            // Only initialize the migration state ONCE.
+            if (empty($current_migration_status) || $current_migration_status === 'not_started') {
+                // Set the status to 'analysis_required' to start the process.
+                update_option(self::MIGRATION_STATUS_OPTION, 'analysis_required', 'no');
+
+                // Initialize new migration state options for a fresh migration attempt.
+                $migration_categories = ['global_settings', 'cron_jobs', 'cpt_data', 'chatbot_data', 'image_data'];
+                $default_category_status = array_fill_keys($migration_categories, 'pending');
+                update_option(self::MIGRATION_CATEGORY_STATUS_OPTION, $default_category_status, 'no');
+                update_option(self::MIGRATION_ANALYSIS_RESULTS_OPTION, [], 'no'); // Crucially, only init this once.
+
+                // Store the old version for informational purposes.
+                $old_plugin_version = get_option('wpaicg_version', '1.9.x');
+                update_option(self::MIGRATION_OLD_VERSION_OPTION, sanitize_text_field($old_plugin_version), 'no');
+                error_log("AIPKit Migration Check: Old data detected. Initializing migration process. Status set to 'analysis_required'.");
+            }
+            // If status is already 'analysis_required', 'analysis_complete', etc., do nothing here to preserve state.
+
+        } else {
+            // No old data found, set to not applicable and clean up any potential leftover options.
+            update_option(self::MIGRATION_DATA_EXISTS_OPTION, false, 'no');
+            update_option(self::MIGRATION_STATUS_OPTION, 'not_applicable', 'no');
+            delete_option(self::MIGRATION_OLD_VERSION_OPTION);
+            delete_option(self::MIGRATION_LAST_ERROR_OPTION);
+            delete_option(self::MIGRATION_CATEGORY_STATUS_OPTION);
+            delete_option(self::MIGRATION_ANALYSIS_RESULTS_OPTION);
+            error_log("AIPKit Migration Check: No old data detected. Migration status set to 'not_applicable'.");
         }
     }
-    
 
-    public static function create_ai_account_tables()
+
+    public static function setup_tables_for_blog($blog_id = null)
     {
+        $switched = false;
+        if (is_multisite() && $blog_id !== null && get_current_blog_id() !== $blog_id) {
+            switch_to_blog($blog_id);
+            $switched = true;
+            error_log("AIPKit Activator: Switched to blog {$blog_id} for table setup.");
+        }
+        $db_schema_path = WPAICG_PLUGIN_DIR . 'includes/database-schema.php';
+        if (!file_exists($db_schema_path)) {
+            error_log('AIPKit Activation Error: includes/database-schema.php not found during table setup.');
+            if ($switched) {
+                restore_current_blog();
+            }
+            return;
+        }
+        require_once $db_schema_path;
+
+        if (function_exists('aipkit_create_logs_table')) {
+            aipkit_create_logs_table();
+        } else {
+            error_log('AIPKit Activation Error: Function aipkit_create_logs_table not found.');
+        }
+        if (function_exists('aipkit_create_guest_token_usage_table')) {
+            aipkit_create_guest_token_usage_table();
+        } else {
+            error_log('AIPKit Activation Error: Function aipkit_create_guest_token_usage_table not found.');
+        }
+        if (function_exists('aipkit_create_sse_message_cache_table')) {
+            aipkit_create_sse_message_cache_table();
+        } else {
+            error_log('AIPKit Activation Error: Function aipkit_create_sse_message_cache_table not found.');
+        }
+        if (function_exists('aipkit_create_vector_data_source_table')) {
+            aipkit_create_vector_data_source_table();
+        } else {
+            error_log('AIPKit Activation Error: Function aipkit_create_vector_data_source_table not found.');
+        }
+        if (function_exists('aipkit_create_automated_tasks_table')) {
+            aipkit_create_automated_tasks_table();
+        } else {
+            error_log('AIPKit Activation Error: Function aipkit_create_automated_tasks_table not found.');
+        }
+        if (function_exists('aipkit_create_automated_task_queue_table')) {
+            aipkit_create_automated_task_queue_table();
+        } else {
+            error_log('AIPKit Activation Error: Function aipkit_create_automated_task_queue_table not found.');
+        }
+        if (function_exists('aipkit_create_content_writer_templates_table')) {
+            aipkit_create_content_writer_templates_table();
+        } else {
+            error_log('AIPKit Activation Error: Function aipkit_create_content_writer_templates_table not found.');
+        }
+        error_log("AIPKit Activator: Database table check/creation completed for blog " . ($blog_id ?: get_current_blog_id()) . ".");
+        if ($switched) {
+            restore_current_blog();
+            error_log("AIPKit Activator: Restored previous blog context.");
+        }
+    }
+
+    public static function setup_new_blog($blog, $user_id)
+    {
+        $blog_id = is_object($blog) ? $blog->blog_id : (is_array($blog) ? $blog['blog_id'] : 0);
+        if ($blog_id > 0) {
+            error_log("AIPKit Activator: New blog detected (ID: {$blog_id}). Running table setup...");
+            self::setup_tables_for_blog($blog_id);
+            switch_to_blog($blog_id);
+            if (class_exists('\\WPAICG\\Chat\\Storage\\DefaultBotSetup')) {
+                DefaultBotSetup::ensure_default_chatbot();
+            }
+            if (class_exists('\\WPAICG\\ContentWriter\\AIPKit_Content_Writer_Template_Manager')) {
+                AIPKit_Content_Writer_Template_Manager::ensure_default_template_exists();
+            }
+            restore_current_blog();
+        } else {
+            error_log("AIPKit Activator: setup_new_blog hook fired with invalid blog ID.");
+        }
+    }
+
+    public static function ensure_tables_for_current_site()
+    {
+        if (!is_admin()) {
+            return;
+        }
+        if (defined('WP_INSTALLING') && WP_INSTALLING) {
+            return;
+        }
+        $blog_id = get_current_blog_id();
+        $transient_key = "aipkit_tables_checked_blog_{$blog_id}";
+        if (get_transient($transient_key)) {
+            return;
+        }
+
         global $wpdb;
-    
-        if ( is_admin() ) {
-            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    
-            $wpaicgLogTable = $wpdb->prefix . 'wpaicg_token_logs';
-            $table_exists = $wpdb->get_var(
-                $wpdb->prepare("SHOW TABLES LIKE %s", $wpaicgLogTable)
-            );
-    
-            if ( $table_exists !== $wpaicgLogTable ) {
-                $charset_collate = $wpdb->get_charset_collate();
-    
-                $sql = "CREATE TABLE {$wpaicgLogTable} (
-                    id mediumint(11) NOT NULL AUTO_INCREMENT,
-                    user_id VARCHAR(255) DEFAULT NULL,
-                    module VARCHAR(255) DEFAULT NULL,
-                    tokens VARCHAR(255) DEFAULT NULL,
-                    created_at VARCHAR(255) NOT NULL,
-                    PRIMARY KEY (id),
-                    KEY {$wpaicgLogTable}_user_id_index (user_id)
-                ) $charset_collate;";
-    
-                dbDelta( $sql );
+        // This list should match the tables created in `setup_tables_for_blog()`
+        $required_table_suffixes = [
+            'aipkit_chat_logs',
+            'aipkit_guest_token_usage',
+            'aipkit_sse_message_cache',
+            'aipkit_vector_data_source',
+            'aipkit_automated_tasks',
+            'aipkit_automated_task_queue',
+            'aipkit_content_writer_templates',
+        ];
+        $run_setup = false;
+
+        foreach ($required_table_suffixes as $suffix) {
+            $table_name = $wpdb->prefix . $suffix;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name));
+            if ($table_exists !== $table_name) {
+                error_log("AIPKit Activator: Table '{$table_name}' not found for blog {$blog_id}. Scheduling table setup...");
+                $run_setup = true;
+                break; // Found one missing table, no need to check others
             }
         }
+
+        if ($run_setup) {
+            self::setup_tables_for_blog();
+        }
+        set_transient($transient_key, 'checked', DAY_IN_SECONDS);
     }
-    
+
+    /**
+     * Unschedule old plugin cron hooks during migration.
+     * @since 2.1
+     */
+    public static function unschedule_old_cron_hooks()
+    {
+        $old_hooks = [
+            'wpaicg_remove_chat_tokens_limited',
+            'wpaicg_remove_promptbase_tokens_limited',
+            'wpaicg_remove_image_tokens_limited',
+            'wpaicg_remove_forms_tokens_limited',
+            'wpaicg_cron', // General cron for old bulk content
+            'wpaicg_builder', // General cron for old embeddings
+        ];
+        $old_task_specific_hook_prefix = 'wpaicg_task_event_'; // Prefix for individual task events
+
+        foreach ($old_hooks as $hook_name) {
+            $timestamp = wp_next_scheduled($hook_name);
+            if ($timestamp) {
+                wp_unschedule_event($timestamp, $hook_name);
+                error_log("AIPKit Migration: Unscheduled old cron hook '{$hook_name}'.");
+            }
+            // Ensure any recurring schedules are also cleared
+            wp_clear_scheduled_hook($hook_name);
+        }
+
+        // Attempt to clear task-specific hooks (these might have dynamic arguments)
+        // This requires iterating through existing crons and checking for the prefix.
+        // However, wp_clear_scheduled_hook without args clears all matching hook names, which is safer.
+        // If wpaicg_task_event_{task_id} was a known pattern, we'd need a way to list old task IDs.
+        // For now, clearing the generic wpaicg_cron and wpaicg_builder should prevent new items from those tasks.
+        // For a more thorough cleanup, one might need to iterate over get_option('cron').
+
+        error_log("AIPKit Migration: Attempted to unschedule known old cron hooks.");
+    }
 }
