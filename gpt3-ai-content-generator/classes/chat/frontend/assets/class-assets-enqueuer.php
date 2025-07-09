@@ -2,6 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/frontend/assets/class-assets-enqueuer.php
 // Status: MODIFIED
+// I have updated the asset enqueueing logic to include a `has_shortcode` check, making asset loading for the Chatbot more robust and compatible with page builders like Beaver Builder.
 
 namespace WPAICG\Chat\Frontend\Assets;
 
@@ -45,7 +46,12 @@ class AssetsEnqueuer
             }
         }
 
-        $should_enqueue_core_css = AssetsOrchestrator::$shortcode_rendered || AssetsOrchestrator::$site_wide_injection_needed;
+        global $post;
+        $content = is_a($post, 'WP_Post') ? $post->post_content : '';
+        // Check for both new and legacy shortcodes in content to ensure assets load
+        $found_in_content = has_shortcode($content, 'aipkit_chatbot') || has_shortcode($content, 'wpaicg_chatgpt');
+
+        $should_enqueue_core_css = AssetsOrchestrator::$shortcode_rendered || AssetsOrchestrator::$site_wide_injection_needed || $found_in_content;
         $should_enqueue_core_js = $should_enqueue_core_css; // JS likely needed if CSS is
 
         // Main public CSS bundle (dist/css/public-main.bundle.css)

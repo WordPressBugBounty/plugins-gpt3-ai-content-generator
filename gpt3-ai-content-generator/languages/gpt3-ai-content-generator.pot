@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 2.3.2\n"
+"Project-Id-Version: AI Power: Complete AI Pack 2.3.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-09T16:55:47+00:00\n"
+"POT-Creation-Date: 2025-07-09T18:00:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -775,19 +775,19 @@ msgid "tasks"
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:207
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:110
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:116
 msgid "Error: Fullscreen functionality is unavailable."
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:208
 #: admin/data/dashboard-localized-texts.php:81
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:111
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:117
 msgid "Copied!"
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:209
 #: admin/data/dashboard-localized-texts.php:82
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:111
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:117
 msgid "Failed to copy"
 msgstr ""
 
@@ -1440,7 +1440,7 @@ msgid "Connection error. Please try again."
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:80
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:112
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:118
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:47
 msgid "Copy response"
 msgstr ""
@@ -1456,24 +1456,24 @@ msgid "Dislike response"
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:85
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:113
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:119
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:46
 msgid "Feedback submitted"
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:86
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:113
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:119
 msgid "Error saving feedback"
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:87
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:114
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:120
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:39
 msgid "Toggle Conversation Sidebar"
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:88
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:114
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:120
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:40
 msgid "New Chat"
 msgstr ""
@@ -1484,13 +1484,13 @@ msgid "Conversations"
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:90
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:115
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:121
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:42
 msgid "History unavailable for guests."
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:91
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:115
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:121
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:43
 msgid "No past conversations."
 msgstr ""
@@ -1517,13 +1517,13 @@ msgid "I Agree"
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:95
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:116
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:122
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:51
 msgid "Play audio"
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:96
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:117
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:123
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:53
 msgid "Pause audio"
 msgstr ""
@@ -6118,15 +6118,15 @@ msgstr ""
 msgid "Error processing form submission triggers."
 msgstr ""
 
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:118
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:124
 msgid "Upload File (TXT, PDF)"
 msgstr ""
 
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:119
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:125
 msgid "Chatting with: %s"
 msgstr ""
 
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:120
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:126
 msgid "Clear file context"
 msgstr ""
 
