@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/ajax/ai-forms/ajax-duplicate-form.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Admin\Ajax\AIForms;
 
@@ -41,10 +41,18 @@ function do_ajax_duplicate_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_insta
         return;
     }
 
+    // --- FIX: Remap and re-encode the structure for saving ---
+    // The get_form_data() returns 'structure' as an array, but save_form_settings() expects 'form_structure' as a JSON string.
+    if (isset($original_form_data['structure']) && is_array($original_form_data['structure'])) {
+        $original_form_data['form_structure'] = wp_json_encode($original_form_data['structure']);
+        unset($original_form_data['structure']);
+    }
+    // --- END FIX ---
+
     // Prepare data for the new form
     $new_title = $original_form_data['title'] . ' (Copy)';
 
-    // The get_form_data() result is compatible with the settings array needed by save_form_settings(),
+    // The get_form_data() result is now compatible with the settings array needed by save_form_settings(),
     // which is called by create_form().
     $result = $form_storage->create_form($new_title, $original_form_data);
 

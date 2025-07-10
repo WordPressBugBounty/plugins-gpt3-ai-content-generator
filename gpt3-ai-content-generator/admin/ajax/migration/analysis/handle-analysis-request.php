@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/ajax/migration/analysis/handle-analysis-request.php
 // Status: MODIFIED
-// I have added a new step to analyze and retrieve old custom prompts, which will be displayed in the migration tool UI.
+// I have updated this file to include the new integration data analysis step.
 
 namespace WPAICG\Admin\Ajax\Migration\Analysis;
 
@@ -19,6 +19,7 @@ require_once __DIR__ . '/get-old-options-details.php';
 require_once __DIR__ . '/count-cpt-posts.php';
 require_once __DIR__ . '/table-exists-and-has-rows.php';
 require_once __DIR__ . '/get-old-custom-prompts.php';
+require_once __DIR__ . '/get-old-integration-data.php';
 
 /**
  * Main logic function for handling the data analysis request.
@@ -74,7 +75,7 @@ function handle_analysis_request_logic(AIPKit_Migration_Base_Ajax_Action $handle
             'details' => array_merge($chatbot_cpt_result['details'], $chatbot_tables_result['details'])
         ];
 
-        // --- NEW: 4. Indexed Data (Knowledge Base) ---
+        // --- 4. Indexed Data (Knowledge Base) ---
         $indexed_data_cpts = ['wpaicg_embeddings', 'wpaicg_pdfadmin', 'wpaicg_builder'];
         $indexed_data_result = count_cpt_posts_logic($indexed_data_cpts);
         $analysis_results['indexed_data'] = [
@@ -82,11 +83,12 @@ function handle_analysis_request_logic(AIPKit_Migration_Base_Ajax_Action $handle
             'summary' => $indexed_data_result['summary'],
             'details' => $indexed_data_result['details']
         ];
-        // --- END NEW ---
 
-        // --- NEW: 5. Custom Prompts ---
+        // --- 5. Custom Prompts ---
         $analysis_results['custom_prompts'] = get_old_custom_prompts_logic();
-        // --- END NEW ---
+
+        // --- 6. Integration Data ---
+        $analysis_results['integration_data'] = get_old_integration_data_logic();
 
 
         // Update status and save results
