@@ -7,9 +7,6 @@
  * AIPKit Chatbot - Settings Manager (Refactored)
  * Handles getting/saving/defaulting chatbot settings stored as post meta.
  * Delegates actual logic to new helper classes.
- * UPDATED: Provide valid default hex color codes in get_custom_theme_defaults().
- * UPDATED: Added new default theme setting constants.
- * ADDED: DEFAULT_STREAM_ENABLED constant.
  */
 
 namespace WPAICG\Chat\Storage;
@@ -39,6 +36,7 @@ class BotSettingsManager
     public const DEFAULT_ENABLE_CONVERSATION_STARTERS = '0';
     public const DEFAULT_ENABLE_CONVERSATION_SIDEBAR = '0';
     public const DEFAULT_POPUP_ICON_TYPE = 'default';
+    public const DEFAULT_POPUP_ICON_STYLE = 'circle';
     public const DEFAULT_POPUP_ICON_VALUE = 'chat-bubble';
     public const DEFAULT_CONTENT_AWARE_ENABLED = '0';
     public const DEFAULT_TOKEN_GUEST_LIMIT = null;

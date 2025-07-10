@@ -66,6 +66,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_popup_delay', BotSettingsManager::DEFAULT_POPUP_DELAY);
         update_post_meta($post_id, '_aipkit_site_wide_enabled', '0');
         update_post_meta($post_id, '_aipkit_popup_icon_type', BotSettingsManager::DEFAULT_POPUP_ICON_TYPE);
+        update_post_meta($post_id, '_aipkit_popup_icon_style', BotSettingsManager::DEFAULT_POPUP_ICON_STYLE);
         update_post_meta($post_id, '_aipkit_popup_icon_value', BotSettingsManager::DEFAULT_POPUP_ICON_VALUE);
         // --- MODIFIED: Use new constant for stream_enabled ---
         update_post_meta($post_id, '_aipkit_stream_enabled', BotSettingsManager::DEFAULT_STREAM_ENABLED);

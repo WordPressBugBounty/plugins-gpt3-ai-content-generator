@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) {
 use WPAICG\Chat\Storage\BotSettingsManager; // Use for defaults
 // --- ADDED: Use statement for the new SVG utility class (ensure it's loaded via Initializer) ---
 use WPAICG\Chat\Utils\AIPKit_SVG_Icons;
+
 // --- END ADDED ---
 
 // Variables available from parent script:
@@ -25,6 +26,7 @@ $site_wide_enabled  = isset($bot_settings['site_wide_enabled']) ? $bot_settings[
 
 // NEW: Popup Icon Settings values needed here
 $popup_icon_type = $bot_settings['popup_icon_type'] ?? BotSettingsManager::DEFAULT_POPUP_ICON_TYPE;
+$popup_icon_style = $bot_settings['popup_icon_style'] ?? BotSettingsManager::DEFAULT_POPUP_ICON_STYLE;
 $popup_icon_value = $bot_settings['popup_icon_value'] ?? BotSettingsManager::DEFAULT_POPUP_ICON_VALUE;
 
 // --- UPDATED: Retrieve SVGs using the utility class ---
@@ -41,7 +43,7 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
 // --- END UPDATE ---
 
 ?>
-<div class="aipkit_accordion aipkit_popup_settings_accordion" style="display: none;"> <?php // Hidden by default, JS controls visibility ?>
+<div class="aipkit_accordion aipkit_popup_settings_accordion" style="display: none;"> <?php // Hidden by default, JS controls visibility?>
     <div class="aipkit_accordion-header">
         <span class="dashicons dashicons-arrow-right-alt2"></span>
         <?php esc_html_e('Popup', 'gpt3-ai-content-generator'); ?>
@@ -53,7 +55,7 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
             class="aipkit_form-row aipkit_form-row-align-bottom"
         >
              <!-- Position -->
-            <div class="aipkit_form-group aipkit_form-col aipkit_popup_position_group" style="flex: 0 0 180px;"> <?php // Fixed width ?>
+            <div class="aipkit_form-group aipkit_form-col aipkit_popup_position_group" style="flex: 0 0 180px;"> <?php // Fixed width?>
                 <label
                     class="aipkit_form-label"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_position"
@@ -80,7 +82,7 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
                 </select>
             </div>
              <!-- Delay -->
-             <div class="aipkit_form-group aipkit_form-col" style="flex: 0 0 150px;"> <?php // Fixed width ?>
+             <div class="aipkit_form-group aipkit_form-col" style="flex: 0 0 150px;"> <?php // Fixed width?>
                  <label
                     class="aipkit_form-label"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_delay"
@@ -120,7 +122,7 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
                     type="checkbox"
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_site_wide_enabled"
                     name="site_wide_enabled"
-                    class="aipkit_toggle_switch" <?php // Standard toggle style ?>
+                    class="aipkit_toggle_switch" <?php // Standard toggle style?>
                     value="1"
                     <?php checked($site_wide_enabled, '1'); ?>
                 >
@@ -135,10 +137,22 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
         <div
             class="aipkit_popup_icon_options_container"
             id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_icon_settings"
-             <?php // No inline style needed here, visibility controlled by parent accordion ?>
+             <?php // No inline style needed here, visibility controlled by parent accordion?>
         >
-            <hr class="aipkit_hr"> <?php // Add separator above ?>
+            <hr class="aipkit_hr"> <?php // Add separator above?>
             <h6><?php esc_html_e('Popup Icon', 'gpt3-ai-content-generator'); ?></h6>
+
+            <div class="aipkit_form-row aipkit_form-row-align-bottom">
+                <div class="aipkit_form-group aipkit_form-col">
+                    <label class="aipkit_form-label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_icon_style"><?php esc_html_e('Icon Style', 'gpt3-ai-content-generator'); ?></label>
+                    <select id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_icon_style" name="popup_icon_style" class="aipkit_form-input">
+                        <option value="circle" <?php selected($popup_icon_style, 'circle'); ?>><?php esc_html_e('Circle', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="square" <?php selected($popup_icon_style, 'square'); ?>><?php esc_html_e('Square', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="none" <?php selected($popup_icon_style, 'none'); ?>><?php esc_html_e('None (Original Image)', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
+                    <div class="aipkit_form-help"><?php esc_html_e('Choose the shape and background of the icon.', 'gpt3-ai-content-generator'); ?></div>
+                </div>
+            </div>
 
             <div class="aipkit_form-group aipkit_popup_icon_type_selector">
                 <label>
@@ -161,7 +175,7 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
                     foreach ($default_icons as $icon_key => $svg_html) :
                         $icon_checked = ($popup_icon_type === 'default' && $popup_icon_value === $icon_key);
                         $radio_id = 'aipkit_bot_' . esc_attr($bot_id) . '_popup_icon_' . esc_attr($icon_key);
-                    ?>
+                        ?>
                     <label class="aipkit_popup_icon_default_option" for="<?php echo $radio_id; ?>" title="<?php echo esc_attr(ucfirst(str_replace('-', ' ', $icon_key))); ?>">
                         <input
                             type="radio"
@@ -170,7 +184,7 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
                             value="<?php echo esc_attr($icon_key); ?>"
                             <?php checked($icon_checked); ?>
                         />
-                        <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Local, safe SVG string ?>
+                        <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Local, safe SVG string?>
                         <?php echo $svg_html; ?>
                     </label>
                     <?php endforeach; ?>
@@ -189,7 +203,7 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
                     <label
                         class="aipkit_form-label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_icon_custom_url"
-                        style="display: none;" <?php // Hide label, implied by context ?>
+                        style="display: none;" <?php // Hide label, implied by context?>
                     >
                         <?php esc_html_e('Custom Icon URL', 'gpt3-ai-content-generator'); ?>
                     </label>

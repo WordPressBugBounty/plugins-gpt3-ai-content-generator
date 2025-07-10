@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 2.3.5\n"
+"Project-Id-Version: AI Power: Complete AI Pack 2.3.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-10T12:55:14+00:00\n"
+"POT-Creation-Date: 2025-07-10T14:32:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -1379,9 +1379,9 @@ msgstr ""
 #: admin/views/modules/chatbot/partials/appearance/text-inputs.php:15
 #: admin/views/modules/chatbot/partials/appearance/text-inputs.php:81
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:22
-#: classes/chat/storage/class-aipkit-bot-settings-initializer.php:79
-#: classes/chat/storage/getter/fn-get-appearance-settings.php:58
-#: classes/chat/storage/saver/sanitize-settings-logic.php:64
+#: classes/chat/storage/class-aipkit-bot-settings-initializer.php:80
+#: classes/chat/storage/getter/fn-get-appearance-settings.php:60
+#: classes/chat/storage/saver/sanitize-settings-logic.php:75
 msgid "Type your message..."
 msgstr ""
 
@@ -3549,6 +3549,7 @@ msgid "Portrait"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:109
+#: admin/views/modules/chatbot/partials/accordion-popup.php:150
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:81
 msgid "Square"
 msgstr ""
@@ -3883,80 +3884,96 @@ msgstr ""
 msgid "Comma-separated commands (e.g., /image, /generate) to trigger."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:47
+#: admin/views/modules/chatbot/partials/accordion-popup.php:49
 #: admin/views/modules/chatbot/partials/appearance/feature-toggles.php:52
 #: admin/views/modules/chatbot/partials/context/feature-toggles.php:53
 msgid "Popup"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:61
+#: admin/views/modules/chatbot/partials/accordion-popup.php:63
 msgid "Popup Position"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:69
+#: admin/views/modules/chatbot/partials/accordion-popup.php:71
 msgid "Bottom Right"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:72
+#: admin/views/modules/chatbot/partials/accordion-popup.php:74
 msgid "Bottom Left"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:75
+#: admin/views/modules/chatbot/partials/accordion-popup.php:77
 msgid "Top Right"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:78
+#: admin/views/modules/chatbot/partials/accordion-popup.php:80
 msgid "Top Left"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:88
+#: admin/views/modules/chatbot/partials/accordion-popup.php:90
 msgid "Popup Delay (sec)"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:106
+#: admin/views/modules/chatbot/partials/accordion-popup.php:108
 msgid "Choose where the popup icon will appear and the delay before it automatically opens (0 = disabled)."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:127
+#: admin/views/modules/chatbot/partials/accordion-popup.php:129
 msgid "Site-wide"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:130
+#: admin/views/modules/chatbot/partials/accordion-popup.php:132
 msgid "Inject this popup globally. Only one bot can be site-wide."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:141
+#: admin/views/modules/chatbot/partials/accordion-popup.php:143
 msgid "Popup Icon"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:146
+#: admin/views/modules/chatbot/partials/accordion-popup.php:147
+msgid "Icon Style"
+msgstr ""
+
+#: admin/views/modules/chatbot/partials/accordion-popup.php:149
+msgid "Circle"
+msgstr ""
+
+#: admin/views/modules/chatbot/partials/accordion-popup.php:151
+msgid "None (Original Image)"
+msgstr ""
+
+#: admin/views/modules/chatbot/partials/accordion-popup.php:153
+msgid "Choose the shape and background of the icon."
+msgstr ""
+
+#: admin/views/modules/chatbot/partials/accordion-popup.php:160
 msgid "Default Icons"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:150
+#: admin/views/modules/chatbot/partials/accordion-popup.php:164
 msgid "Custom URL"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:179
+#: admin/views/modules/chatbot/partials/accordion-popup.php:193
 msgid "Select a default icon for the popup trigger button."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:194
+#: admin/views/modules/chatbot/partials/accordion-popup.php:208
 msgid "Custom Icon URL"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:202
+#: admin/views/modules/chatbot/partials/accordion-popup.php:216
 msgid "Enter full URL (e.g., https://.../icon.png)"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-popup.php:208
+#: admin/views/modules/chatbot/partials/accordion-popup.php:222
 msgid "Enter the full URL of your custom icon image (e.g., PNG, SVG). Recommended size 32x32."
 msgstr ""
 
 #: admin/views/modules/chatbot/partials/accordion-token-management.php:26
 #: admin/views/modules/image-generator/partials/settings-token-management.php:23
 #: classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php:30
-#: classes/chat/storage/class-aipkit-bot-settings-initializer.php:93
+#: classes/chat/storage/class-aipkit-bot-settings-initializer.php:94
 #: classes/chat/storage/getter/fn-get-token-management-config.php:49
 #: classes/core/token-manager/check/CheckAndResetTokensLogic.php:121
 #: classes/images/class-aipkit-image-settings-ajax-handler.php:29
@@ -6232,8 +6249,8 @@ msgstr ""
 msgid "Upload image"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_popup_mode_html.php:46
-#: classes/chat/frontend/shortcode/renderer/render_popup_mode_html.php:71
+#: classes/chat/frontend/shortcode/renderer/render_popup_mode_html.php:47
+#: classes/chat/frontend/shortcode/renderer/render_popup_mode_html.php:75
 msgid "Open Chat"
 msgstr ""
 
@@ -6262,7 +6279,7 @@ msgstr ""
 msgid "Failed to delete chatbot."
 msgstr ""
 
-#: classes/chat/storage/class-aipkit_bot_settings_manager.php:195
+#: classes/chat/storage/class-aipkit_bot_settings_manager.php:193
 msgid "Settings saving component is missing."
 msgstr ""
 
@@ -6344,7 +6361,7 @@ msgstr ""
 msgid "Chatbot post has an invalid status."
 msgstr ""
 
-#: classes/chat/storage/saver/save-meta-fields-logic.php:181
+#: classes/chat/storage/saver/save-meta-fields-logic.php:182
 msgid "Invalid JSON format for triggers. Triggers were not saved."
 msgstr ""
 

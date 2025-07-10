@@ -31,6 +31,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_popup_delay', $sanitized_settings['popup_delay']);
     update_post_meta($botId, '_aipkit_site_wide_enabled', $sanitized_settings['site_wide_enabled']);
     update_post_meta($botId, '_aipkit_popup_icon_type', $sanitized_settings['popup_icon_type']);
+    update_post_meta($botId, '_aipkit_popup_icon_style', $sanitized_settings['popup_icon_style']);
     update_post_meta($botId, '_aipkit_popup_icon_value', $sanitized_settings['popup_icon_value']);
     update_post_meta($botId, '_aipkit_stream_enabled', $sanitized_settings['stream_enabled']);
     update_post_meta($botId, '_aipkit_footer_text', $sanitized_settings['footer_text']);

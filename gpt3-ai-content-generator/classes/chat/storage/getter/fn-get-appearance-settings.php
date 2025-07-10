@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/chat/storage/getter/fn-get-appearance-settings.php
 // Status: MODIFIED
 
@@ -20,7 +21,8 @@ if (!defined('ABSPATH')) {
  * @param callable $get_meta_fn A function to retrieve post meta.
  * @return array Associative array of appearance settings.
  */
-function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $get_meta_fn): array {
+function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $get_meta_fn): array
+{
     $settings = [];
     $custom_theme_defaults = [];
 
@@ -28,11 +30,11 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
         $bsm_path = dirname(__DIR__) . '/class-aipkit_bot_settings_manager.php';
         if (file_exists($bsm_path)) {
             require_once $bsm_path;
-             $custom_theme_defaults = BotSettingsManager::get_custom_theme_defaults();
+            $custom_theme_defaults = BotSettingsManager::get_custom_theme_defaults();
         } else {
             error_log("AIPKit Getter (Appearance): BotSettingsManager class not found for constants.");
             // Define minimal defaults if class is missing to avoid undefined index errors later
-            $custom_theme_defaults = [ 
+            $custom_theme_defaults = [
                  'font_family' => 'inherit', 'bubble_border_radius' => 18,
                  'container_bg_color' => '#FFFFFF', /* ... other minimal defaults */
                  // --- NEW DIMENSION DEFAULTS (Fallback) ---
@@ -83,7 +85,10 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $settings['site_wide_enabled'] = in_array($get_meta_fn('_aipkit_site_wide_enabled', '0'), ['0','1'])
         ? $get_meta_fn('_aipkit_site_wide_enabled', '0')
         : '0';
-
+    $settings['popup_icon_style'] = $get_meta_fn('_aipkit_popup_icon_style', BotSettingsManager::DEFAULT_POPUP_ICON_STYLE);
+    if (!in_array($settings['popup_icon_style'], ['circle', 'square', 'none'])) {
+        $settings['popup_icon_style'] = BotSettingsManager::DEFAULT_POPUP_ICON_STYLE;
+    }
     $settings['popup_icon_type'] = $get_meta_fn('_aipkit_popup_icon_type', BotSettingsManager::DEFAULT_POPUP_ICON_TYPE);
     $settings['popup_icon_value'] = $get_meta_fn('_aipkit_popup_icon_value', BotSettingsManager::DEFAULT_POPUP_ICON_VALUE);
     if (!in_array($settings['popup_icon_type'], ['default', 'custom'])) {
@@ -99,11 +104,13 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     // --- Retrieve Custom Theme Settings ---
     $custom_theme_settings_retrieved = [];
     foreach (array_keys($custom_theme_defaults) as $key) {
-        if (strpos($key, '_placeholder') !== false) continue;
+        if (strpos($key, '_placeholder') !== false) {
+            continue;
+        }
         $meta_key_name = '_aipkit_cts_' . $key;
-        $value_from_meta = $get_meta_fn($meta_key_name); 
+        $value_from_meta = $get_meta_fn($meta_key_name);
 
-        if ($value_from_meta === '' || $value_from_meta === null) { 
+        if ($value_from_meta === '' || $value_from_meta === null) {
             $custom_theme_settings_retrieved[$key] = $custom_theme_defaults[$key];
         } else {
             // Specific handling for numeric dimension settings
@@ -114,7 +121,7 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
             ])) {
                 $custom_theme_settings_retrieved[$key] = is_numeric($value_from_meta) ? max(0, absint($value_from_meta)) : $custom_theme_defaults[$key];
             } elseif (in_array($key, ['container_max_height', 'popup_max_height'])) {
-                 $custom_theme_settings_retrieved[$key] = is_numeric($value_from_meta) ? max(1, min(absint($value_from_meta), 100)) : $custom_theme_defaults[$key];
+                $custom_theme_settings_retrieved[$key] = is_numeric($value_from_meta) ? max(1, min(absint($value_from_meta), 100)) : $custom_theme_defaults[$key];
             } else {
                 $custom_theme_settings_retrieved[$key] = $value_from_meta;
             }

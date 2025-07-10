@@ -39,6 +39,7 @@ function render_popup_mode_html_logic(
 ) {
     $popup_position = $frontend_config['popupPosition'];
     $popup_icon_type = $frontend_config['popupIconType'] ?? BotSettingsManager::DEFAULT_POPUP_ICON_TYPE;
+    $popup_icon_style = $frontend_config['popupIconStyle'] ?? 'circle';
     $popup_icon_value = $frontend_config['popupIconValue'] ?? BotSettingsManager::DEFAULT_POPUP_ICON_VALUE;
     $icon_html = '';
 
@@ -46,9 +47,12 @@ function render_popup_mode_html_logic(
         $icon_html = '<img src="' . esc_url($popup_icon_value) . '" alt="' . esc_attr__('Open Chat', 'gpt3-ai-content-generator') . '" class="aipkit_popup_custom_icon" />';
     } else {
         switch ($popup_icon_value) {
-            case 'plus': $icon_html = AIPKit_SVG_Icons::get_plus_svg(); break;
-            case 'question-mark': $icon_html = AIPKit_SVG_Icons::get_question_mark_svg(); break;
-            case 'chat-bubble': default: $icon_html = AIPKit_SVG_Icons::get_chat_bubble_svg(); break;
+            case 'plus': $icon_html = AIPKit_SVG_Icons::get_plus_svg();
+                break;
+            case 'question-mark': $icon_html = AIPKit_SVG_Icons::get_question_mark_svg();
+                break;
+            case 'chat-bubble': default: $icon_html = AIPKit_SVG_Icons::get_chat_bubble_svg();
+                break;
         }
     }
     $voice_input_class = $voice_input_enabled_ui ? 'aipkit-voice-input-enabled' : '';
@@ -68,10 +72,10 @@ function render_popup_mode_html_logic(
 
     ?>
     <div class="aipkit_popup_wrapper" id="aipkit_popup_wrapper_<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' data-bot-id="<?php echo esc_attr($bot_id); ?>">
-        <button class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>">
-            <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+        <button class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>">
+            <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
         </button>
-        <div class="aipkit_chat_container aipkit_popup_content aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-hidden="true" <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> >
+        <div class="aipkit_chat_container aipkit_popup_content aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-hidden="true" <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?> >
             <div class="aipkit_chat_main">
                 <?php if ($feature_flags['show_header']): ?>
                     <?php $rendererInstance->render_header_html_internal($feature_flags, $frontend_config, true); ?>
