@@ -69,9 +69,37 @@ function build_prompt_logic(array $form_config, array $submitted_fields): string
                                 break;
 
                             case 'checkbox':
-                                // If checkbox is checked, its value is '1'. Substitute the element's label text.
-                                // If unchecked, value is '0', substitute an empty string.
-                                $value_to_substitute = ($submitted_value === '1') ? ($element['label'] ?? '') : '';
+                                // Handle both array and single/comma-separated string value for robustness.
+                                $submitted_values_array = [];
+                                if (is_array($submitted_value)) {
+                                    $submitted_values_array = $submitted_value;
+                                } elseif (is_string($submitted_value) && !empty($submitted_value)) {
+                                    // This handles both a single value string and a comma-separated string
+                                    $submitted_values_array = array_map('trim', explode(',', $submitted_value));
+                                }
+
+                                if (!empty($submitted_values_array)) {
+                                    $labels_to_substitute = [];
+                                    $options = $element['options'] ?? [];
+                                    // Loop through submitted values and find their corresponding display text.
+                                    foreach ($submitted_values_array as $val) {
+                                        $found_text = false;
+                                        foreach ($options as $option) {
+                                            if (isset($option['value']) && $option['value'] == $val) { // Use == for loose comparison
+                                                $labels_to_substitute[] = $option['text'] ?? $val;
+                                                $found_text = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!$found_text) {
+                                            $labels_to_substitute[] = $val; // Fallback to the raw value
+                                        }
+                                    }
+                                    $value_to_substitute = implode(', ', $labels_to_substitute);
+                                } else {
+                                    // If nothing is selected, substitute with an empty string.
+                                    $value_to_substitute = '';
+                                }
                                 break;
 
                             default: // 'text-input', 'textarea', 'file-upload' etc.

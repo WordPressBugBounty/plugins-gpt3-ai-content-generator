@@ -41,7 +41,6 @@ class Migration_Ajax_Handlers_Loader
             'delete/class-aipkit-delete-old-global-settings-action.php',
             'delete/class-aipkit-delete-old-chatbot-data-action.php',
             'delete/class-aipkit-delete-old-cpt-data-action.php',
-            'delete/class-aipkit-delete-old-cron-jobs-action.php',
             'delete/class-aipkit-delete-old-indexed-data-action.php',
         ];
 

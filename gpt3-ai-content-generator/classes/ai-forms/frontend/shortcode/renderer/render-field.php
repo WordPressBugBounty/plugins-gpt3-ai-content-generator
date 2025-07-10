@@ -2,6 +2,7 @@
 
 // File: classes/ai-forms/frontend/shortcode/renderer/render-field.php
 // Status: MODIFIED
+// I have updated the checkbox rendering to support a group of options, similar to radio buttons.
 
 namespace WPAICG\AIForms\Frontend\Shortcode\Renderer;
 
@@ -27,14 +28,11 @@ function render_field_logic(array $element, int $form_id): void
         case 'text-input':
         case 'textarea':
         case 'select':
-        case 'checkbox':
             echo '<div class="aipkit_form-group">';
             echo '<label for="' . esc_attr($field_id_attr) . '" class="aipkit_form-label">';
-            if ($element['type'] !== 'checkbox') { // Label is separate for most
-                echo esc_html($element['label']);
-                if (!empty($element['required'])) {
-                    echo ' <span class="aipkit-required-indicator" aria-hidden="true">*</span>';
-                }
+            echo esc_html($element['label']);
+            if (!empty($element['required'])) {
+                echo ' <span class="aipkit-required-indicator" aria-hidden="true">*</span>';
             }
             echo '</label>';
             switch ($element['type']) {
@@ -56,17 +54,34 @@ function render_field_logic(array $element, int $form_id): void
                     }
                     echo '</select>';
                     break;
-                case 'checkbox':
-                    echo '<label for="' . esc_attr($field_id_attr) . '" class="aipkit_checkbox-label">'; // Re-wrap label for checkbox
-                    echo '<input type="checkbox" id="' . esc_attr($field_id_attr) . '" name="' . esc_attr($field_name_attr) . '" value="1" class="aipkit_form-input-checkbox" ' . esc_attr($required_attr) . '>';
-                    echo '<span>' . esc_html($element['label']) . (!empty($element['required']) ? ' <span class="aipkit-required-indicator" aria-hidden="true">*</span>' : '') . '</span>';
-                    echo '</label>';
-                    break;
             }
             if (!empty($help_text)) {
                 echo '<p class="aipkit_form-help">' . wp_kses_post($help_text) . '</p>';
             }
             echo '</div>'; // .aipkit_form-group
+            break;
+
+        case 'checkbox':
+            echo '<fieldset class="aipkit_form-group aipkit-checkbox-group">';
+            echo '<legend class="aipkit_form-label">' . esc_html($element['label']);
+            if (!empty($element['required'])) {
+                echo ' <span class="aipkit-required-indicator" aria-hidden="true">*</span>';
+            }
+            echo '</legend>';
+            if (!empty($element['options']) && is_array($element['options'])) {
+                foreach ($element['options'] as $index => $option) {
+                    $checkbox_id = esc_attr($field_id_attr . '_' . $index);
+                    $checkbox_name = esc_attr($field_name_attr . '[]');
+                    echo '<div class="aipkit-checkbox-item">';
+                    echo '<input type="checkbox" id="' . $checkbox_id . '" name="' . $checkbox_name . '" value="' . esc_attr($option['value']) . '" class="aipkit_form-input-checkbox" ' . ($required_attr && $index === 0 ? $required_attr : '') . '>';
+                    echo '<label for="' . $checkbox_id . '">' . esc_html($option['text']) . '</label>';
+                    echo '</div>';
+                }
+            }
+            if (!empty($help_text)) {
+                echo '<p class="aipkit_form-help">' . wp_kses_post($help_text) . '</p>';
+            }
+            echo '</fieldset>';
             break;
 
         case 'radio-button':
