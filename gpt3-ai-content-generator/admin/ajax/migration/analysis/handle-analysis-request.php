@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/ajax/migration/analysis/handle-analysis-request.php
 // Status: MODIFIED
-// I have updated this file to include the new integration data analysis step.
+// I have updated this file to include the new woocommerce prompts analysis step.
 
 namespace WPAICG\Admin\Ajax\Migration\Analysis;
 
@@ -20,6 +20,7 @@ require_once __DIR__ . '/count-cpt-posts.php';
 require_once __DIR__ . '/table-exists-and-has-rows.php';
 require_once __DIR__ . '/get-old-custom-prompts.php';
 require_once __DIR__ . '/get-old-integration-data.php';
+require_once __DIR__ . '/get-old-woocommerce-prompts.php';
 
 /**
  * Main logic function for handling the data analysis request.
@@ -89,6 +90,9 @@ function handle_analysis_request_logic(AIPKit_Migration_Base_Ajax_Action $handle
 
         // --- 6. Integration Data ---
         $analysis_results['integration_data'] = get_old_integration_data_logic();
+
+        // --- 7. WooCommerce Custom Prompts ---
+        $analysis_results['woocommerce_prompts'] = get_old_woocommerce_prompts_logic();
 
 
         // Update status and save results

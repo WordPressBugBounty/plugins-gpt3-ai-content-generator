@@ -1,7 +1,8 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/ajax/migration/delete/class-aipkit-delete-old-global-settings-action.php
 // Status: MODIFIED
-// I have added the old AI Assistant options ('wpaicg_editor_button_menus', 'wpaicg_editor_change_action') to the list of options to be deleted.
+// I have added the old WooCommerce settings options to the list of options to be deleted.
 
 namespace WPAICG\Admin\Ajax\Migration\Delete;
 
@@ -46,7 +47,11 @@ class AIPKit_Delete_Old_Global_Settings_Action extends AIPKit_Migration_Base_Aja
                 'wpaicg_openai_model_list', 'wpaicg_openrouter_model_list', 'wpaicg_google_model_list',
                 'wpaicg_limit_tokens_form', // Old AI Forms token settings
                 'wpaicg_editor_button_menus',
-                'wpaicg_editor_change_action'
+                'wpaicg_editor_change_action',
+                'wpaicg_woo_generate_title', 'wpaicg_woo_generate_description', 'wpaicg_woo_generate_short',
+                'wpaicg_woo_generate_tags', 'wpaicg_woo_meta_description', '_wpaicg_shorten_woo_url',
+                'wpaicg_generate_woo_focus_keyword', 'wpaicg_enforce_woo_keyword_in_url', 'wpaicg_woo_custom_prompt',
+                'wpaicg_order_status_token'
             ];
             foreach ($old_options as $option_name) {
                 if (get_option($option_name) !== false) {

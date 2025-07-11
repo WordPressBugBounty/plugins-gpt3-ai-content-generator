@@ -48,10 +48,10 @@ class PostEnhancerAssets
         $is_aipkit_page = $screen && strpos($screen->id, 'page_wpaicg') !== false;
         $is_post_edit_screen = in_array($hook_suffix, ['post.php', 'post-new.php']);
 
-        // --- MODIFICATION: Dynamically support all public post types by default ---
-        $public_post_types = get_post_types(['public' => true]);
-        unset($public_post_types['attachment']); // Exclude attachments from enhancement
-        $supported_post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
+        // --- MODIFICATION: Dynamically support all post types with an admin UI ---
+        $ui_post_types = get_post_types(['show_ui' => true]);
+        unset($ui_post_types['attachment']); // Exclude attachments from enhancement
+        $supported_post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($ui_post_types));
         $is_post_list_screen = $screen && $screen->base === 'edit' && in_array($screen->post_type, $supported_post_types, true);
         // --- END MODIFICATION ---
 
