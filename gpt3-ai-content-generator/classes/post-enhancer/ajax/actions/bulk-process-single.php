@@ -95,17 +95,20 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
 
         // --- Start: Gather all possible placeholders ---
         $original_meta = get_post_meta($post->ID, '_yoast_wpseo_metadesc', true) ?: (get_post_meta($post->ID, '_aioseo_description', true) ?: '');
+        $original_focus_keyword = AIPKit_SEO_Helper::get_focus_keyword($post->ID);
         $placeholders = [
             '{original_title}' => $post->post_title,
             '{original_content}' => get_post_full_content($post),
             '{original_excerpt}' => $post->post_excerpt,
             '{original_meta_description}' => $original_meta,
+            '{original_focus_keyword}' => $original_focus_keyword ?: '',
         ];
         if ($post->post_type === 'product' && class_exists('WooCommerce')) {
             $product = wc_get_product($post->ID);
             if ($product) {
                 $placeholders['{price}'] = $product->get_price();
                 $placeholders['{regular_price}'] = $product->get_regular_price();
+                $placeholders['{sale_price}'] = $product->get_sale_price();
                 $placeholders['{sku}'] = $product->get_sku();
                 $placeholders['{stock_quantity}'] = $product->get_stock_quantity() ?? 'N/A';
                 $placeholders['{stock_status}'] = $product->get_stock_status();
@@ -115,6 +118,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                 $placeholders['{height}'] = $product->get_height();
                 $placeholders['{short_description}'] = wp_strip_all_tags($product->get_short_description());
                 $placeholders['{purchase_note}'] = $product->get_purchase_note();
+
                 $attributes = $product->get_attributes();
                 $attribute_string = '';
                 foreach ($attributes as $attribute) {

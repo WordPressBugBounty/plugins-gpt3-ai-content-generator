@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/seo/framework/class-aipkit-framework-handler.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\SEO\Framework;
 
@@ -37,5 +37,16 @@ class AIPKit_Framework_Handler implements AIPKit_SEO_Handler_Interface
         }
         error_log('AIPKit The SEO Framework Handler: update-focus-keyword.php not found.');
         return false;
+    }
+
+    public function get_focus_keyword(int $post_id): ?string
+    {
+        $file_path = __DIR__ . '/get-focus-keyword.php';
+        if (file_exists($file_path)) {
+            require_once $file_path;
+            return get_focus_keyword_logic($post_id);
+        }
+        error_log('AIPKit The SEO Framework Handler: get-focus-keyword.php not found.');
+        return null;
     }
 }

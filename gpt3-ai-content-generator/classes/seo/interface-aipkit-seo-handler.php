@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/seo/interface-aipkit-seo-handler.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\SEO;
 
@@ -33,6 +33,11 @@ interface AIPKit_SEO_Handler_Interface
      */
     public function update_focus_keyword(int $post_id, string $keyword): bool;
 
-    // Add other method signatures here as needed, e.g.:
-    // public function get_seo_score(int $post_id): ?array;
+    /**
+     * Retrieves the focus keyword for a specific post.
+     *
+     * @param int $post_id The ID of the post.
+     * @return string|null The focus keyword, or null if not found.
+     */
+    public function get_focus_keyword(int $post_id): ?string;
 }

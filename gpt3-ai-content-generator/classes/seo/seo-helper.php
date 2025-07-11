@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/seo/seo-helper.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\SEO;
 
@@ -138,5 +138,18 @@ class AIPKit_SEO_Helper
         return false;
     }
 
-    // Add other placeholder methods here for future expansion
+    /**
+     * Retrieves the focus keyword for a post.
+     *
+     * @param int $post_id The ID of the post.
+     * @return string|null The focus keyword, or null if not found/supported.
+     */
+    public static function get_focus_keyword(int $post_id): ?string
+    {
+        $handler = self::get_handler();
+        if ($handler) {
+            return $handler->get_focus_keyword($post_id);
+        }
+        return null;
+    }
 }
