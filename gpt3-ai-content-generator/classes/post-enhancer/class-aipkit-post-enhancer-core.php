@@ -2,7 +2,8 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/class-aipkit-post-enhancer-core.php
 // Status: MODIFIED
-// I have updated the `init_hooks` and `add_bulk_enhance_button` methods to dynamically support all public post types, ensuring the "Enhance" link appears on custom post type screens.
+// I have updated the `add_row_actions` method to include a "Generate Tags" link and the `init_hooks` method to register the new AJAX actions for generating and updating tags.
+
 namespace WPAICG\PostEnhancer;
 
 use WPAICG\aipkit_dashboard; // To check if addon is active
@@ -45,6 +46,10 @@ class Core
                     // Meta Description actions
                     add_action('wp_ajax_aipkit_generate_meta_suggestions', [$ajax_handler, 'generate_meta_suggestions']);
                     add_action('wp_ajax_aipkit_update_post_meta_desc', [$ajax_handler, 'update_post_meta_desc']);
+                    // --- NEW: Add Tags hooks ---
+                    add_action('wp_ajax_aipkit_generate_tags_suggestions', [$ajax_handler, 'generate_tags_suggestions']);
+                    add_action('wp_ajax_aipkit_update_post_tags', [$ajax_handler, 'update_post_tags']);
+                    // --- END NEW ---
                     // --- NEW: Add Bulk Process hook ---
                     add_action('wp_ajax_aipkit_bulk_process_single_post', [$ajax_handler, 'ajax_bulk_process_single_post']);
                     // --- END NEW ---
@@ -137,6 +142,7 @@ class Core
                             <div class="aipkit_enhancer_group_title">📈 %s</div>
                             <ul>
                                 <li class="aipkit_enhancer_item" data-action-type="meta" data-post-id="%d">%s</li>
+                                <li class="aipkit_enhancer_item" data-action-type="tags" data-post-id="%d">%s</li>
                             </ul>
                         </div>
                     </div>
@@ -150,7 +156,9 @@ class Core
                 esc_html__('Generate Excerpt', 'gpt3-ai-content-generator'),
                 esc_html__('SEO Tools', 'gpt3-ai-content-generator'), // Group Title
                 esc_attr($post->ID),
-                esc_html__('Generate Meta Desc', 'gpt3-ai-content-generator') // Updated text
+                esc_html__('Generate Meta Desc', 'gpt3-ai-content-generator'),
+                esc_attr($post->ID),
+                esc_html__('Generate Tags', 'gpt3-ai-content-generator')
             );
         }
         return $actions;

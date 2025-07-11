@@ -13,9 +13,11 @@ require_once __DIR__ . '/ajax/base/enhancer-shared-utils.php';
 require_once __DIR__ . '/ajax/actions/generate-title.php';
 require_once __DIR__ . '/ajax/actions/generate-excerpt.php';
 require_once __DIR__ . '/ajax/actions/generate-meta.php';
+require_once __DIR__ . '/ajax/actions/generate-tags.php';
 require_once __DIR__ . '/ajax/actions/update-title.php';
 require_once __DIR__ . '/ajax/actions/update-excerpt.php';
 require_once __DIR__ . '/ajax/actions/update-meta.php';
+require_once __DIR__ . '/ajax/actions/update-tags.php';
 require_once __DIR__ . '/ajax/actions/bulk-process-single.php';
 require_once __DIR__ . '/ajax/actions/process-text.php';
 
@@ -28,9 +30,11 @@ class AjaxHandler
     private $generate_title_handler;
     private $generate_excerpt_handler;
     private $generate_meta_handler;
+    private $generate_tags_handler;
     private $update_title_handler;
     private $update_excerpt_handler;
     private $update_meta_handler;
+    private $update_tags_handler;
     private $bulk_process_single_handler; // ADDED
     private $process_text_handler;
     private $actions_handler; // ADDED
@@ -40,9 +44,11 @@ class AjaxHandler
         $this->generate_title_handler = new Actions\AIPKit_PostEnhancer_Generate_Title();
         $this->generate_excerpt_handler = new Actions\AIPKit_PostEnhancer_Generate_Excerpt();
         $this->generate_meta_handler = new Actions\AIPKit_PostEnhancer_Generate_Meta();
+        $this->generate_tags_handler = new Actions\AIPKit_PostEnhancer_Generate_Tags();
         $this->update_title_handler = new Actions\AIPKit_PostEnhancer_Update_Title();
         $this->update_excerpt_handler = new Actions\AIPKit_PostEnhancer_Update_Excerpt();
         $this->update_meta_handler = new Actions\AIPKit_PostEnhancer_Update_Meta();
+        $this->update_tags_handler = new Actions\AIPKit_PostEnhancer_Update_Tags();
         $this->bulk_process_single_handler = new Actions\AIPKit_PostEnhancer_Bulk_Process_Single(); // ADDED
         $this->process_text_handler = new Actions\AIPKit_PostEnhancer_Process_Text();
         $this->actions_handler = new AIPKit_Enhancer_Actions_Ajax_Handler(); // ADDED
@@ -60,6 +66,10 @@ class AjaxHandler
     {
         $this->generate_meta_handler->handle();
     }
+    public function generate_tags_suggestions()
+    {
+        $this->generate_tags_handler->handle();
+    }
     public function update_post_title()
     {
         $this->update_title_handler->handle();
@@ -71,6 +81,10 @@ class AjaxHandler
     public function update_post_meta_desc()
     {
         $this->update_meta_handler->handle();
+    }
+    public function update_post_tags()
+    {
+        $this->update_tags_handler->handle();
     }
 
     /**

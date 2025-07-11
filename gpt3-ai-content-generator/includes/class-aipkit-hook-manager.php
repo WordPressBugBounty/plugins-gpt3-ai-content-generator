@@ -56,6 +56,8 @@ use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
 // Migration action classes are handled by AIPKit_Migration_Handler, so no need for `use` statements for them here.
 // --- ADDED: Use statement for new Semantic Search handler ---
 use WPAICG\Core\Ajax\AIPKit_Semantic_Search_Ajax_Handler;
+
+use WPAICG\REST\AIPKit_REST_Controller;
 // --- END ADDED ---
 
 // --- Use statements for the NEW Hook Registrar classes ---

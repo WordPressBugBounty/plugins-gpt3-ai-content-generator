@@ -1,5 +1,9 @@
 <?php
 
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/hook-registrars/class-ajax-hooks-registrar.php
+// Status: MODIFIED
+// I have added a new hook for the 'generate_tags' AJAX action.
+
 namespace WPAICG\Includes\HookRegistrars;
 
 // --- Use statements for ALL handlers/services needed by ANY registrar ---
@@ -25,6 +29,7 @@ use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Init_Stream_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Standard_Generation_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Title_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Excerpt_Action;
+use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Tags_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Save_Post_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Create_Task_Action;
 // --- MODIFIED: Use new SEO action classes ---
@@ -52,6 +57,7 @@ use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Cron_Jobs_Action;
 use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
 // --- ADDED: Use statement for Semantic Search handler ---
 use WPAICG\Core\Ajax\AIPKit_Semantic_Search_Ajax_Handler;
+
 // --- END ADDED ---
 
 // Migration action classes are handled by AIPKit_Migration_Handler, so no need for `use` statements for them here.
@@ -93,6 +99,7 @@ class Ajax_Hooks_Registrar
         $content_writer_generate_meta_action = class_exists(AIPKit_Content_Writer_Generate_Meta_Action::class) ? new AIPKit_Content_Writer_Generate_Meta_Action() : null;
         $content_writer_generate_keyword_action = class_exists(AIPKit_Content_Writer_Generate_Keyword_Action::class) ? new AIPKit_Content_Writer_Generate_Keyword_Action() : null;
         $content_writer_generate_excerpt_action = class_exists(AIPKit_Content_Writer_Generate_Excerpt_Action::class) ? new AIPKit_Content_Writer_Generate_Excerpt_Action() : null;
+        $content_writer_generate_tags_action = class_exists(AIPKit_Content_Writer_Generate_Tags_Action::class) ? new AIPKit_Content_Writer_Generate_Tags_Action() : null;
         $content_writer_generate_images_action = class_exists(AIPKit_Content_Writer_Generate_Images_Action::class) ? new AIPKit_Content_Writer_Generate_Images_Action() : null;
         // --- MODIFIED: Instantiate new CSV action class ---
         $content_writer_parse_csv_action = class_exists(AIPKit_Content_Writer_Parse_Csv_Action::class) ? new AIPKit_Content_Writer_Parse_Csv_Action() : null;
@@ -248,6 +255,9 @@ class Ajax_Hooks_Registrar
         if ($content_writer_generate_excerpt_action && method_exists($content_writer_generate_excerpt_action, 'handle')) {
             add_action('wp_ajax_aipkit_content_writer_generate_excerpt', [$content_writer_generate_excerpt_action, 'handle']);
         }
+        if ($content_writer_generate_tags_action && method_exists($content_writer_generate_tags_action, 'handle')) {
+            add_action('wp_ajax_aipkit_content_writer_generate_tags', [$content_writer_generate_tags_action, 'handle']);
+        }
         // --- ADDED: Register new Image action hook ---
         if ($content_writer_generate_images_action && method_exists($content_writer_generate_images_action, 'handle')) {
             add_action('wp_ajax_aipkit_content_writer_generate_images', [$content_writer_generate_images_action, 'handle']);
@@ -293,7 +303,7 @@ class Ajax_Hooks_Registrar
             }
         }
         // --- END NEW ---
-        
+
         // --- NEW: Register Semantic Search AJAX hooks ---
         if ($semantic_search_ajax_handler && method_exists($semantic_search_ajax_handler, 'ajax_perform_semantic_search')) {
             add_action('wp_ajax_aipkit_perform_semantic_search', [$semantic_search_ajax_handler, 'ajax_perform_semantic_search']);

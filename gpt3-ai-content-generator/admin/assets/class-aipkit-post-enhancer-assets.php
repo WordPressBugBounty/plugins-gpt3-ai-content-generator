@@ -1,8 +1,9 @@
 <?php
 
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-post-enhancer-assets.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/class-aipkit-post-enhancer-assets.php
 // Status: MODIFIED
-// I have modified the enqueue logic to dynamically support all public post types, ensuring assets load correctly on custom post type screens.
+// I have updated this file to add nonces and localized text for the new "Generate Tags" feature.
+
 namespace WPAICG\Admin\Assets;
 
 use WPAICG\AIPKit_Role_Manager;
@@ -141,7 +142,8 @@ class PostEnhancerAssets
                 'excerpt' => "Rewrite the post excerpt to be more compelling and engaging based on the information provided. Use a friendly tone and aim for 1–2 concise sentences. Return ONLY the new excerpt without any explanation or formatting.\n\nPost title: \"{original_title}\"\nPost content snippet: \"{original_content}\"",
                 'content' => "You are an expert editor. Rewrite and improve the following article content to make it more engaging, clear, and informative. Maintain the original tone and intent but enhance the writing quality. The article title is: {original_title}.\n\nOriginal Content:\n{original_content}",
                 'meta'    => "Generate a single, concise, and SEO-friendly meta description (under 155 characters) for a web page based on the provided information. Include the key topic and make it engaging for search results. Return ONLY the new meta description without any introduction or formatting.\n\nPage title: \"{original_title}\"\nPage content snippet: \"{original_content}\"",
-                'keyword' => "You are an SEO expert. Your task is to identify the single most important and relevant focus keyphrase for the following article. The keyphrase should be concise (ideally 2-4 words) and must be present within the provided content.\n\nReturn ONLY the keyphrase. Do not add any explanation, labels, or quotation marks.\n\nArticle Title: \"{original_title}\"\nArticle Content:\n{original_content}"
+                'keyword' => "You are an SEO expert. Your task is to identify the single most important and relevant focus keyphrase for the following article. The keyphrase should be concise (ideally 2-4 words) and must be present within the provided content.\n\nReturn ONLY the keyphrase. Do not add any explanation, labels, or quotation marks.\n\nArticle Title: \"{original_title}\"\nArticle Content:\n{original_content}",
+                'tags'    => "You are an SEO expert. Generate a list of 5-10 relevant tags for a blog post titled \"{original_title}\". Return ONLY a comma-separated list of the tags. Do not include any introduction, explanation, or numbering.\n\nArticle Content Snippet:\n{original_content}"
             ];
 
             // --- ADDED: Fetch custom and default actions ---
@@ -160,6 +162,8 @@ class PostEnhancerAssets
                 'nonce_update_excerpt' => wp_create_nonce('aipkit_update_excerpt_nonce'),
                 'nonce_generate_meta' => wp_create_nonce('aipkit_generate_meta_nonce'),
                 'nonce_update_meta' => wp_create_nonce('aipkit_update_meta_nonce'),
+                'nonce_generate_tags' => wp_create_nonce('aipkit_generate_tags_nonce'),
+                'nonce_update_tags' => wp_create_nonce('aipkit_update_tags_nonce'),
                 'nonce_process_text' => wp_create_nonce('aipkit_process_enhancer_text_nonce'),
                 'nonce_manage_templates' => wp_create_nonce('aipkit_content_writer_template_nonce'),
                 'nonce_manage_actions' => wp_create_nonce('aipkit_enhancer_actions_nonce'),
@@ -195,6 +199,13 @@ class PostEnhancerAssets
                     'error_updating_meta' => __('Error updating meta description.', 'gpt3-ai-content-generator'),
                     'no_suggestions_meta' => __('No meta description suggestions generated or AI Error.', 'gpt3-ai-content-generator'),
                     'select_meta' => __('Click a meta description to apply:', 'gpt3-ai-content-generator'),
+                    'modal_title_tags' => __('Tag Suggestions', 'gpt3-ai-content-generator'),
+                    'loading_tags' => __('Generating Tag Suggestions...', 'gpt3-ai-content-generator'),
+                    'updating_tags' => __('Updating Tags...', 'gpt3-ai-content-generator'),
+                    'error_loading_tags' => __('Error loading tag suggestions.', 'gpt3-ai-content-generator'),
+                    'error_updating_tags' => __('Error updating tags.', 'gpt3-ai-content-generator'),
+                    'no_suggestions_tags' => __('No tag suggestions generated or AI Error.', 'gpt3-ai-content-generator'),
+                    'select_tags' => __('Click a tag set to apply:', 'gpt3-ai-content-generator'),
                     'loading_info_template' => __('Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)', 'gpt3-ai-content-generator'),
                     'close' => __('Close', 'gpt3-ai-content-generator'),
                     'config_modal_title' => __('Configure AI Actions', 'gpt3-ai-content-generator'),

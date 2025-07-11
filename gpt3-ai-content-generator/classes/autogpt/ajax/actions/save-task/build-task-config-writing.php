@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/ajax/actions/save-task/build-task-config-writing.php
 // Status: MODIFIED
-// I have added 'content_title' to the list of fields sanitized with sanitize_textarea_field to preserve newlines from CSV data.
+// I have added `generate_tags` and `custom_tags_prompt` to the list of allowed keys to be saved in the task configuration.
 
 namespace WPAICG\AutoGPT\Ajax\Actions\SaveTask;
 
@@ -34,6 +34,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
         'generate_meta_description', 'custom_meta_prompt',
         'generate_focus_keyword', 'custom_keyword_prompt',
         'generate_excerpt', 'custom_excerpt_prompt',
+        'generate_tags', 'custom_tags_prompt',
         'cw_generation_mode', 'rss_feeds',
         'gsheets_sheet_id', 'gsheets_credentials',
         'url_list',
@@ -52,7 +53,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
 
         foreach ($allowed_keys_from_template_manager as $key) {
             if (isset($post_data[$key])) {
-                if (in_array($key, ['content_title', 'content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'rss_include_keywords', 'rss_exclude_keywords'], true)) {
+                if (in_array($key, ['content_title', 'content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'rss_include_keywords', 'rss_exclude_keywords'], true)) {
                     $content_writer_config[$key] = sanitize_textarea_field(wp_unslash($post_data[$key]));
                 } elseif ($key === 'gsheets_credentials') {
                     if (class_exists('\WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler')) {
@@ -68,7 +69,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                         'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'deepseek' => 'DeepSeek',
                         default => ucfirst(strtolower($provider_raw))
                     };
-                } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store'], true)) {
+                } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store'], true)) {
                     $content_writer_config[$key] = ($post_data[$key] === '1' || $post_data[$key] === true || $post_data[$key] === 1) ? '1' : '0';
                 } elseif ($key === 'post_categories' && is_array($post_data[$key])) {
                     $content_writer_config[$key] = array_map('absint', $post_data[$key]);

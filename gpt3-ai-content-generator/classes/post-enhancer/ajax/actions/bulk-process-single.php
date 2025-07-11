@@ -204,6 +204,10 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                     wp_update_post(['ID' => $post->ID, 'post_content' => wp_kses_post($html_content)]);
                     $changes_made[] = 'content';
                     break;
+                case 'tags':
+                    wp_set_post_tags($post->ID, sanitize_text_field($new_value), false);
+                    $changes_made[] = 'tags';
+                    break;
                 case 'meta':
                     AIPKit_SEO_Helper::update_meta_description($post->ID, sanitize_text_field($new_value));
                     $changes_made[] = 'meta';

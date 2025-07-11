@@ -1,7 +1,8 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/content-writer/partials/output-area.php
 // Status: MODIFIED
-// I have added a new textarea for displaying the generated excerpt.
+// I have added a new textarea for displaying the generated post tags.
+
 /**
  * Partial: Content Writer Output Area
  * Contains the title display, main action buttons, and the content output display.
@@ -31,6 +32,14 @@ if (!defined('ABSPATH')) {
         <div class="aipkit_form-group">
             <label class="aipkit_form-label" for="aipkit_cw_generated_excerpt"><?php esc_html_e('Excerpt', 'gpt3-ai-content-generator'); ?></label>
             <textarea id="aipkit_cw_generated_excerpt" name="generated_excerpt" class="aipkit_form-input aipkit_autosave_trigger aipkit_cw_generated_output_field" rows="3" placeholder="<?php esc_attr_e('Generated excerpt will appear here...', 'gpt3-ai-content-generator'); ?>"></textarea>
+        </div>
+    </div>
+
+    <!-- Tags Display Area -->
+    <div id="aipkit_cw_tags_output_wrapper" style="display: none; margin-top: 15px;">
+        <div class="aipkit_form-group">
+            <label class="aipkit_form-label" for="aipkit_cw_generated_tags"><?php esc_html_e('Tags', 'gpt3-ai-content-generator'); ?></label>
+            <textarea id="aipkit_cw_generated_tags" name="generated_tags" class="aipkit_form-input aipkit_autosave_trigger aipkit_cw_generated_output_field" rows="2" placeholder="<?php esc_attr_e('Generated tags will appear here...', 'gpt3-ai-content-generator'); ?>"></textarea>
         </div>
     </div>
 

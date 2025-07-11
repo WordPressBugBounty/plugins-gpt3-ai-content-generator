@@ -1,7 +1,8 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/content-writer/partials/generation-status-indicators.php
 // Status: MODIFIED
-// I have removed the hardcoded `display: none;` style, as this is now controlled by JS.
+// I have added a new step for "Tags" to the generation status indicators.
+
 /**
  * Partial: Content Writer - Generation Status Indicators
  * Displays modern visual progress indicators for the content generation workflow.
@@ -51,6 +52,20 @@ if (!defined('ABSPATH')) {
             </div>
             <div class="aipkit_step_content">
                 <div class="aipkit_step_label"><?php esc_html_e('Excerpt', 'gpt3-ai-content-generator'); ?></div>
+                <div class="aipkit_step_status"><span class="status-text"><?php esc_html_e('Pending', 'gpt3-ai-content-generator'); ?></span></div>
+            </div>
+        </div>
+
+        <!-- NEW Step: Tags Generation -->
+        <div id="aipkit_cw_status_tags_generation" class="aipkit_cw_status_step">
+            <div class="aipkit_step_indicator">
+                <div class="aipkit_step_icon">
+                    <span class="dashicons dashicons-tag aipkit_cw_status_icon"></span>
+                </div>
+                <span class="aipkit_step_connector"></span>
+            </div>
+            <div class="aipkit_step_content">
+                <div class="aipkit_step_label"><?php esc_html_e('Tags', 'gpt3-ai-content-generator'); ?></div>
                 <div class="aipkit_step_status"><span class="status-text"><?php esc_html_e('Pending', 'gpt3-ai-content-generator'); ?></span></div>
             </div>
         </div>

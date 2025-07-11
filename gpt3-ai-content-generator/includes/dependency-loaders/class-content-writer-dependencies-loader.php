@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/dependency-loaders/class-content-writer-dependencies-loader.php
 // Status: MODIFIED
-// I have included the new excerpt generation action and prompt builder classes.
+// I have added the new tags generation action and prompt builder classes to the loader.
 
 namespace WPAICG\Includes\DependencyLoaders;
 
@@ -29,6 +29,7 @@ class Content_Writer_Dependencies_Loader
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-meta-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-keyword-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-excerpt-action.php',
+            $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-tags-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-images-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-parse-csv-action.php',
             // --- MODIFIED: Scrape URL action is a Pro feature, moved to lib loader ---
@@ -39,6 +40,7 @@ class Content_Writer_Dependencies_Loader
             $content_writer_base_path . 'prompt/class-aipkit-content-writer-meta-prompt-builder.php',
             $content_writer_base_path . 'prompt/class-aipkit-content-writer-keyword-prompt-builder.php',
             $content_writer_base_path . 'prompt/class-aipkit-content-writer-excerpt-prompt-builder.php',
+            $content_writer_base_path . 'prompt/class-aipkit-content-writer-tags-prompt-builder.php',
             // --- ADDED: New Image Handler and Injector classes ---
             $content_writer_base_path . 'class-aipkit-content-writer-image-handler.php',
             $content_writer_base_path . 'class-aipkit-image-injector.php',

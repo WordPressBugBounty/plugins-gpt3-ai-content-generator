@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/template-manager/ensure-default-template-exists.php
 // Status: MODIFIED
-// I have added 'generate_excerpt' and 'custom_excerpt_prompt' to the default template config.
+// I have added logic to update the existing default template with the new "Tags" prompt fields if they are missing.
 
 namespace WPAICG\ContentWriter\TemplateManagerMethods;
 
@@ -89,6 +89,8 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
         'custom_keyword_prompt' => AIPKit_Content_Writer_Prompts::get_default_keyword_prompt(),
         'generate_excerpt' => '0',
         'custom_excerpt_prompt' => AIPKit_Content_Writer_Prompts::get_default_excerpt_prompt(),
+        'generate_tags' => '0',
+        'custom_tags_prompt' => AIPKit_Content_Writer_Prompts::get_default_tags_prompt(),
         'cw_generation_mode' => 'single',
         'rss_feeds' => '',
         'rss_include_keywords' => '', // ADDED
@@ -143,5 +145,43 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
             ['%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s']
         );
         error_log("AIPKit Content Writer: Default template created for global user (ID {$user_id_for_default}).");
+    } else {
+        // Default template exists, check if it needs updating with new fields.
+        $config = json_decode($default_template->config, true);
+        $needs_update = false;
+
+        // Check for 'generate_tags'
+        if (!isset($config['generate_tags'])) {
+            $config['generate_tags'] = '0'; // default value
+            $needs_update = true;
+        }
+
+        // Check for 'custom_tags_prompt'
+        if (!isset($config['custom_tags_prompt'])) {
+            $config['custom_tags_prompt'] = AIPKit_Content_Writer_Prompts::get_default_tags_prompt();
+            $needs_update = true;
+        }
+
+        // --- ADDED: Also check for excerpt, as it was added recently too ---
+        if (!isset($config['generate_excerpt'])) {
+            $config['generate_excerpt'] = '0';
+            $needs_update = true;
+        }
+        if (!isset($config['custom_excerpt_prompt'])) {
+            $config['custom_excerpt_prompt'] = AIPKit_Content_Writer_Prompts::get_default_excerpt_prompt();
+            $needs_update = true;
+        }
+        // --- END ADDED ---
+
+        if ($needs_update) {
+            $wpdb->update(
+                $table_name,
+                ['config' => wp_json_encode($config)],
+                ['id' => $default_template->id],
+                ['%s'],
+                ['%d']
+            );
+            error_log("AIPKit Content Writer: Updated existing default template with new fields.");
+        }
     }
 }

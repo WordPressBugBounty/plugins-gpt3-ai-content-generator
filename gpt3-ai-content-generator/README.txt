@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.6
+Stable tag: 2.3.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,7 +71,7 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 
 == Changelog ==
 
-= 2.3.6 =
+= 2.3.7 =
 
 This is a major update.
 

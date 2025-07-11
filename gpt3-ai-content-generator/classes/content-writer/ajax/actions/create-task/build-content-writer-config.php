@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/ajax/actions/create-task/build-content-writer-config.php
 // Status: MODIFIED
-// I have added a new key `vector_store_top_k` to the `absint` sanitization check.
+// I have updated this file to include `content_title` in the list of fields sanitized with `sanitize_textarea_field`, ensuring that the multi-line content from CSV uploads is preserved when creating an automated task.
 
 namespace WPAICG\ContentWriter\Ajax\Actions\CreateTask;
 
@@ -34,29 +34,27 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'prompt_mode', 'custom_title_prompt', 'custom_content_prompt',
             'generate_meta_description', 'custom_meta_prompt',
             'generate_focus_keyword', 'custom_keyword_prompt',
+            'generate_excerpt', 'custom_excerpt_prompt',
+            'generate_tags', 'custom_tags_prompt',
             'cw_generation_mode', 'rss_feeds',
             'gsheets_sheet_id', 'gsheets_credentials',
             'url_list',
             'content_title',
             'generate_toc',
-            // --- ADDED: Image fields ---
             'generate_images_enabled', 'image_provider', 'image_model', 'image_prompt',
             'image_count', 'image_placement', 'image_placement_param_x', 'image_alignment', 'image_size',
             'generate_featured_image', 'featured_image_prompt',
             'pexels_orientation', 'pexels_size', 'pexels_color',
             'pixabay_orientation', 'pixabay_image_type', 'pixabay_category',
-            // --- END ADDED ---
-            // --- ADDED: All new vector setting field names ---
             'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids',
             'pinecone_index_name', 'qdrant_collection_name', 'vector_embedding_provider',
             'vector_embedding_model', 'vector_store_top_k',
-            // --- ADDED: New RSS keyword fields ---
             'rss_include_keywords', 'rss_exclude_keywords',
         ];
 
         foreach ($allowed_keys_from_template_manager as $key) {
             if (isset($settings[$key])) {
-                if (in_array($key, ['content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'rss_include_keywords', 'rss_exclude_keywords'], true)) {
+                if (in_array($key, ['content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'rss_include_keywords', 'rss_exclude_keywords', 'content_title'], true)) {
                     $content_writer_config[$key] = sanitize_textarea_field(wp_unslash($settings[$key]));
                 } elseif ($key === 'gsheets_credentials') {
                     if (class_exists('\WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler')) {
@@ -72,7 +70,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
                         'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'deepseek' => 'DeepSeek',
                         default => ucfirst(strtolower($provider_raw))
                     };
-                } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store'], true)) {
+                } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store'], true)) {
                     $content_writer_config[$key] = ($settings[$key] === '1' || $settings[$key] === true || $settings[$key] === 1) ? '1' : '0';
                 } elseif ($key === 'post_categories' && is_array($settings[$key])) {
                     $content_writer_config[$key] = array_map('absint', $settings[$key]);

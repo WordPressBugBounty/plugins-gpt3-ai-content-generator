@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/ajax/actions/class-aipkit-content-writer-save-post-action.php
 // Status: MODIFIED
-// I have updated the call to insert_post_logic to pass the new excerpt data.
+// I have added a call to the new `set_post_tags_logic` function to handle saving generated tags.
 
 namespace WPAICG\ContentWriter\Ajax\Actions;
 
@@ -24,9 +24,9 @@ require_once $logic_path . 'prepare-categories.php';
 require_once $logic_path . 'insert-post.php';
 require_once $logic_path . 'assign-taxonomies.php';
 require_once $logic_path . 'save-seo-meta.php';
-// --- NEW: Load the new SEO focus keyword saving logic ---
 require_once $logic_path . 'save-seo-focus-keyword.php';
-// --- END NEW ---
+require_once $logic_path . 'set-post-tags.php';
+
 
 /**
  * Handles the AJAX action for saving generated content as a new WordPress post.
@@ -99,7 +99,13 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         }
         // --- END NEW ---
 
-        // 11. Send a success response
+        // --- NEW: Step 11 - Save Tags ---
+        if (!empty($post_data['tags'])) {
+            SavePost\set_post_tags_logic($post_id_result, $post_data['tags']);
+        }
+        // --- END NEW ---
+
+        // 12. Send a success response
         wp_send_json_success([
             'message' => __('Post saved successfully!', 'gpt3-ai-content-generator'),
             'post_id' => $post_id_result,

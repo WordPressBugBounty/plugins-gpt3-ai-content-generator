@@ -18,6 +18,13 @@ if (!defined('ABSPATH')) {
         <?php // This hidden textarea will be populated by JS with the parsed CSV data (pipe-separated) ?>
         <textarea name="content_title" id="aipkit_task_cw_csv_data_holder" class="aipkit_form-input aipkit_csv_data_holder" style="display: none;" readonly></textarea>
 
-        <p class="aipkit_form-help"><?php esc_html_e('The first column is used as the {topic}. Subsequent columns are used for {keywords}, category ID, author login, and post type slug.', 'gpt3-ai-content-generator'); ?></p>
+        <p class="aipkit_form-help">
+            <?php esc_html_e('The first column is used as the {topic}. Subsequent columns are used for {keywords}, category ID, author login, and post type slug.', 'gpt3-ai-content-generator'); ?>
+        </p>
+        <p class="aipkit_form-help">
+            <a href="https://docs.google.com/spreadsheets/d/1WOnO_UKkbRCoyjRxQnDDTy0i-RsnrY_MDKD3Ks09JJk/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
+                <?php esc_html_e('Click here to download a sample CSV file.', 'gpt3-ai-content-generator'); ?>
+            </a>
+        </p>
     </div>
 </div>

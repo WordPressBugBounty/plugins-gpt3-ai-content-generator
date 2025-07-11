@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-writing/process-content-writing-item.php
 // Status: MODIFIED
-// I have added logic to update the Google Sheet status to "Processed on [Date]" after an article has been successfully generated.
+// I have added logic to generate and save post tags during automated content creation.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
@@ -11,6 +11,7 @@ use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Meta_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder;
+use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder; // ADDED
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Handler;
 use WP_Error;
 use WPAICG\Chat\Storage\LogStorage;
@@ -50,12 +51,29 @@ if (!class_exists(AIPKit_Content_Writer_Excerpt_Prompt_Builder::class)) {
         require_once $excerpt_builder_path;
     }
 }
+// --- ADDED: Load Tags Prompt Builder ---
+if (!class_exists(AIPKit_Content_Writer_Tags_Prompt_Builder::class)) {
+    $tags_builder_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/prompt/class-aipkit-content-writer-tags-prompt-builder.php';
+    if (file_exists($tags_builder_path)) {
+        require_once $tags_builder_path;
+    }
+}
+// --- END ADDED ---
 if (!class_exists(AIPKit_Content_Writer_Image_Handler::class)) {
     $image_handler_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-image-handler.php';
     if (file_exists($image_handler_path)) {
         require_once $image_handler_path;
     }
 }
+
+// --- ADDED: Load set_post_tags_logic function ---
+if (!function_exists('\WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_logic')) {
+    $set_tags_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/ajax/actions/save-post/set-post-tags.php';
+    if (file_exists($set_tags_path)) {
+        require_once $set_tags_path;
+    }
+}
+// --- END ADDED ---
 
 
 /**
@@ -120,15 +138,18 @@ function process_content_writing_item_logic(array $item_config): array
     $meta_description = null;
     $focus_keyword = null;
     $excerpt = null;
+    $tags = null; // ADDED
     $meta_usage = null;
     $keyword_usage = null;
     $excerpt_usage = null;
+    $tags_usage = null; // ADDED
 
     $generate_meta = (isset($item_config['generate_meta_description']) && $item_config['generate_meta_description'] === '1');
     $generate_keyword = (isset($item_config['generate_focus_keyword']) && $item_config['generate_focus_keyword'] === '1');
     $generate_excerpt = (isset($item_config['generate_excerpt']) && $item_config['generate_excerpt'] === '1');
+    $generate_tags = (isset($item_config['generate_tags']) && $item_config['generate_tags'] === '1'); // ADDED
     $prompt_mode = $item_config['prompt_mode'] ?? 'custom'; // For AutoGPT, we assume prompts are always custom
-    $should_generate_seo = ($generate_meta || $generate_keyword || $generate_excerpt) && !empty($generated_content);
+    $should_generate_seo = ($generate_meta || $generate_keyword || $generate_excerpt || $generate_tags) && !empty($generated_content); // ADDED tags to condition
 
     if ($should_generate_seo) {
         $content_summary = AIPKit_Content_Writer_Summarizer::summarize($generated_content);
@@ -154,6 +175,29 @@ function process_content_writing_item_logic(array $item_config): array
                 error_log('AutoGPT Excerpt Gen Failed: ' . (is_wp_error($excerpt_result) ? $excerpt_result->get_error_message() : 'Empty response'));
             }
         }
+
+        // --- ADDED: Tags Generation Logic ---
+        if ($generate_tags && class_exists(AIPKit_Content_Writer_Tags_Prompt_Builder::class)) {
+            $custom_tags_prompt = $item_config['custom_tags_prompt'] ?? null;
+            $tags_user_prompt = AIPKit_Content_Writer_Tags_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_tags_prompt);
+            $tags_system_instruction = 'You are an SEO expert. Your task is to provide a comma-separated list of relevant tags for a piece of content.';
+            $tags_ai_params = ['max_completion_tokens' => 100, 'temperature' => 0.5];
+
+            $tags_result = $ai_caller->make_standard_call(
+                $item_config['ai_provider'],
+                $item_config['ai_model'],
+                [['role' => 'user', 'content' => $tags_user_prompt]],
+                $tags_ai_params,
+                $tags_system_instruction
+            );
+            if (!is_wp_error($tags_result) && !empty($tags_result['content'])) {
+                $tags = trim(str_replace(['"', "'"], '', $tags_result['content']));
+                $tags_usage = $tags_result['usage'] ?? null;
+            } else {
+                error_log('AutoGPT Tags Gen Failed: ' . (is_wp_error($tags_result) ? $tags_result->get_error_message() : 'Empty response'));
+            }
+        }
+        // --- END ADDED ---
 
         if ($generate_meta && class_exists(AIPKit_Content_Writer_Meta_Prompt_Builder::class)) {
             $custom_meta_prompt = $item_config['custom_meta_prompt'] ?? null;
@@ -214,6 +258,12 @@ function process_content_writing_item_logic(array $item_config): array
     }
     $new_post_id = $insert_result;
 
+    // --- ADDED: Save Tags ---
+    if (!empty($tags) && function_exists('\WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_logic')) {
+        \WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_logic($new_post_id, $tags);
+    }
+    // --- END ADDED ---
+
     // --- NEW: Update Google Sheet Status ---
     if (isset($item_config['cw_generation_mode']) && $item_config['cw_generation_mode'] === 'gsheets' &&
         isset($item_config['gsheets_row_index']) && isset($item_config['gsheets_sheet_id'])) {
@@ -242,7 +292,7 @@ function process_content_writing_item_logic(array $item_config): array
 
     // 7. Log the generated content
     $total_usage = ['input_tokens' => 0, 'output_tokens' => 0, 'total_tokens' => 0, 'provider_raw' => []];
-    $all_usages = array_filter([$title_usage, $content_usage, $meta_usage, $keyword_usage, $image_usage, $excerpt_usage]);
+    $all_usages = array_filter([$title_usage, $content_usage, $meta_usage, $keyword_usage, $image_usage, $excerpt_usage, $tags_usage]); // ADDED tags_usage
     foreach ($all_usages as $usage) {
         if (is_array($usage)) {
             $total_usage['input_tokens'] += (int)($usage['input_tokens'] ?? 0);
@@ -273,7 +323,7 @@ function process_content_writing_item_logic(array $item_config): array
             'ai_model'          => $item_config['ai_model'],
             'usage'             => $total_usage,
             'request_payload'   => ['item_config' => $item_config, 'prompts' => $prompts],
-            'response_data'     => ['post_id' => $new_post_id, 'title' => $final_title, 'meta' => $meta_description, 'keyword' => $focus_keyword, 'excerpt' => $excerpt]
+            'response_data'     => ['post_id' => $new_post_id, 'title' => $final_title, 'meta' => $meta_description, 'keyword' => $focus_keyword, 'excerpt' => $excerpt, 'tags' => $tags] // ADDED tags
         ];
         $log_storage->log_message($log_data);
     } else {

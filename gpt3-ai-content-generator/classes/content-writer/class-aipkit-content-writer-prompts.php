@@ -1,8 +1,8 @@
 <?php
 
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/class-aipkit-content-writer-prompts.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/prompt/class-aipkit-content-writer-prompts.php
 // Status: MODIFIED
-// I have added a new method to get the default prompt for generating an excerpt.
+// I have added a new method to get the default prompt for generating tags.
 
 namespace WPAICG\ContentWriter;
 
@@ -54,6 +54,14 @@ class AIPKit_Content_Writer_Prompts
     public static function get_default_excerpt_prompt(): string
     {
         return __('You are an expert copywriter. Rewrite the post excerpt to be more compelling and engaging based on the information provided. Use a friendly tone and aim for 1–2 concise sentences. Return ONLY the new excerpt without any explanation or formatting.\n\nPost title: "{topic}"\nPost content summary: "{content_summary}"', 'gpt3-ai-content-generator');
+    }
+
+    /**
+     * @return string The default prompt for generating tags.
+     */
+    public static function get_default_tags_prompt(): string
+    {
+        return __('You are an SEO expert. Generate a list of 5-10 relevant tags for a blog post titled "{topic}". Return ONLY a comma-separated list of the tags. Do not include any introduction, explanation, or numbering.\n\nArticle Summary:\n{content_summary}', 'gpt3-ai-content-generator');
     }
 
 

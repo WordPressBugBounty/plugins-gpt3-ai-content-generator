@@ -1,8 +1,8 @@
 <?php
 
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/class-aipkit-content-writer-template-manager.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/template-manager/class-aipkit-content-writer-template-manager.php
 // Status: MODIFIED
-// I have added the vector store configuration keys to the list of allowed keys for templates.
+// I have added 'generate_tags' and 'custom_tags_prompt' to the list of allowed keys for templates.
 
 namespace WPAICG\ContentWriter;
 
@@ -41,7 +41,8 @@ class AIPKit_Content_Writer_Template_Manager
         'post_categories', 'prompt_mode', 'custom_title_prompt', 'custom_content_prompt',
         'generate_meta_description', 'custom_meta_prompt',
         'generate_focus_keyword', 'custom_keyword_prompt',
-        'generate_excerpt', 'custom_excerpt_prompt', // ADDED
+        'generate_excerpt', 'custom_excerpt_prompt',
+        'generate_tags', 'custom_tags_prompt',
         'cw_generation_mode', 'rss_feeds',
         'gsheets_sheet_id', 'gsheets_credentials',
         'url_list',

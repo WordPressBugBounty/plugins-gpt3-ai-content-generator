@@ -48,6 +48,9 @@ if (!defined('ABSPATH')) {
                         <?php esc_html_e('Subsequent columns are used for {keywords}, category ID, author login, and post type slug.', 'gpt3-ai-content-generator'); ?>
                     </p>
                     <p class="aipkit_form-help">
+                        <?php esc_html_e('The first column is used as the {topic}. Subsequent columns are used for {keywords}, category ID, author login, and post type slug.', 'gpt3-ai-content-generator'); ?>
+                    </p>
+                    <p class="aipkit_form-help">
                         <a href="https://docs.google.com/spreadsheets/d/1WOnO_UKkbRCoyjRxQnDDTy0i-RsnrY_MDKD3Ks09JJk/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
                             <?php esc_html_e('Click here to download a sample CSV file.', 'gpt3-ai-content-generator'); ?>
                         </a>
