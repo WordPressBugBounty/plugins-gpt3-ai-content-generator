@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-writing/process-content-writing-item.php
 // Status: MODIFIED
-// I have added logic to generate and save post tags during automated content creation.
+// I have added logic to get the calculated scheduled time from the item's config and pass it to the insert_post_logic function.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
@@ -252,7 +252,8 @@ function process_content_writing_item_logic(array $item_config): array
     // --- END Generate SEO Data ---
 
     // 6. Insert Post
-    $insert_result = insert_post_logic($final_title, $generated_content, $item_config, $meta_description, $focus_keyword, $image_data, $excerpt);
+    $scheduled_gmt_time = $item_config['scheduled_gmt_time'] ?? null;
+    $insert_result = insert_post_logic($final_title, $generated_content, $item_config, $meta_description, $focus_keyword, $image_data, $excerpt, $scheduled_gmt_time);
     if (is_wp_error($insert_result)) {
         return ['status' => 'error', 'message' => $insert_result->get_error_message()];
     }

@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/ajax/actions/save-task/build-task-config-writing.php
 // Status: MODIFIED
-// I have added `generate_tags` and `custom_tags_prompt` to the list of allowed keys to be saved in the task configuration.
+// I have added the new scheduling-related fields to the allowed keys and sanitization logic.
 
 namespace WPAICG\AutoGPT\Ajax\Actions\SaveTask;
 
@@ -29,7 +29,9 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
         $allowed_keys_from_template_manager = [
         'ai_provider', 'ai_model', 'content_title_bulk', 'content_keywords',
         'ai_temperature', 'content_max_tokens', 'post_type', 'post_author',
-        'post_status', 'post_schedule_date', 'post_schedule_time', 'post_categories',
+        'post_status',
+        'schedule_mode', 'smart_schedule_start_datetime', 'smart_schedule_interval_value', 'smart_schedule_interval_unit',
+        'post_categories',
         'prompt_mode', 'custom_title_prompt', 'custom_content_prompt',
         'generate_meta_description', 'custom_meta_prompt',
         'generate_focus_keyword', 'custom_keyword_prompt',
@@ -53,7 +55,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
 
         foreach ($allowed_keys_from_template_manager as $key) {
             if (isset($post_data[$key])) {
-                if (in_array($key, ['content_title', 'content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'rss_include_keywords', 'rss_exclude_keywords'], true)) {
+                if (in_array($key, ['content_title', 'content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'rss_include_keywords', 'rss_exclude_keywords', 'smart_schedule_start_datetime'], true)) {
                     $content_writer_config[$key] = sanitize_textarea_field(wp_unslash($post_data[$key]));
                 } elseif ($key === 'gsheets_credentials') {
                     if (class_exists('\WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler')) {
@@ -73,12 +75,14 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                     $content_writer_config[$key] = ($post_data[$key] === '1' || $post_data[$key] === true || $post_data[$key] === 1) ? '1' : '0';
                 } elseif ($key === 'post_categories' && is_array($post_data[$key])) {
                     $content_writer_config[$key] = array_map('absint', $post_data[$key]);
-                } elseif ($key === 'post_author' || in_array($key, ['image_count', 'image_placement_param_x', 'vector_store_top_k'])) {
+                } elseif ($key === 'post_author' || in_array($key, ['image_count', 'image_placement_param_x', 'vector_store_top_k', 'smart_schedule_interval_value'], true)) {
                     $content_writer_config[$key] = absint($post_data[$key]);
                 } elseif ($key === 'ai_temperature') {
                     $content_writer_config[$key] = (string)floatval($post_data[$key]);
                 } elseif ($key === 'openai_vector_store_ids' && is_array($post_data[$key])) {
                     $content_writer_config[$key] = array_map('sanitize_text_field', $post_data[$key]);
+                } elseif ($key === 'schedule_mode' || $key === 'smart_schedule_interval_unit') {
+                    $content_writer_config[$key] = sanitize_key($post_data[$key]);
                 } elseif (is_string($post_data[$key])) {
                     $content_writer_config[$key] = sanitize_text_field(wp_unslash($post_data[$key]));
                 } else {

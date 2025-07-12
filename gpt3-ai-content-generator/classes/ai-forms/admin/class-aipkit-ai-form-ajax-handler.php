@@ -43,6 +43,7 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
         add_action('wp_ajax_aipkit_get_form_preview', [$this, 'ajax_get_form_preview']);
         add_action('wp_ajax_aipkit_delete_all_ai_forms', [$this, 'ajax_delete_all_ai_forms']);
         add_action('wp_ajax_aipkit_export_all_ai_forms', [$this, 'ajax_export_all_ai_forms']);
+        add_action('wp_ajax_aipkit_import_ai_forms', [$this, 'ajax_import_ai_forms']);
     }
 
     /**
@@ -237,5 +238,21 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
 
         require_once WPAICG_PLUGIN_DIR . 'admin/ajax/ai-forms/ajax-delete-all-forms.php';
         \WPAICG\Admin\Ajax\AIForms\do_ajax_delete_all_forms_logic($this);
+    }
+
+    /**
+     * AJAX: Imports AI Forms from a JSON file.
+     * @since 2.1
+     */
+    public function ajax_import_ai_forms()
+    {
+        $permission_check = $this->check_module_access_permissions('ai-forms', 'aipkit_manage_ai_forms_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        require_once WPAICG_PLUGIN_DIR . 'admin/ajax/ai-forms/ajax-import-forms.php';
+        \WPAICG\Admin\Ajax\AIForms\do_ajax_import_forms_logic($this);
     }
 }

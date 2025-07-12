@@ -90,8 +90,18 @@ class AIPKit_Content_Writer_Create_Task_Action extends AIPKit_Content_Writer_Bas
             return;
         }
 
+        // --- START FIX: Determine task type based on generation mode sent from JS ---
+        $mode_map = [
+            'task'    => 'content_writing_bulk',
+            'csv'     => 'content_writing_csv',
+            'rss'     => 'content_writing_rss',
+            'url'     => 'content_writing_url',
+            'gsheets' => 'content_writing_gsheets',
+        ];
+        $task_type = $mode_map[$generation_mode] ?? 'content_writing_bulk'; // Fallback to bulk for safety.
+        // --- END FIX ---
+
         // 5. Insert the task into the database
-        $task_type = isset($raw_settings['task_type']) ? sanitize_key($raw_settings['task_type']) : 'content_writing_bulk';
         $insert_result = CreateTask\insert_task_into_db_logic($task_name, $task_type, $content_writer_config, $task_status);
         if (is_wp_error($insert_result)) {
             $this->send_wp_error($insert_result);
@@ -104,8 +114,8 @@ class AIPKit_Content_Writer_Create_Task_Action extends AIPKit_Content_Writer_Bas
 
         // 7. Send success response
         wp_send_json_success([
-        'message' => __('Your content writing task is queued. You can track it under the Automated Tasks tab.', 'gpt3-ai-content-generator'),
-        'task_id' => $new_task_id
+            'message' => __('Your content writing task is queued. You can track it under the Automated Tasks tab.', 'gpt3-ai-content-generator'),
+            'task_id' => $new_task_id
         ]);
     }
 }

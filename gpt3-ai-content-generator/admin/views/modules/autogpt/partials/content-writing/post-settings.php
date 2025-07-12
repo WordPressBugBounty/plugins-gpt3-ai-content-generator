@@ -47,15 +47,46 @@ if (!defined('ABSPATH')) {
         </select>
     </div>
 </div>
-<div class="aipkit_form-row aipkit_task_cw_schedule_row" style="display: none;">
-    <div class="aipkit_form-group aipkit_form-col">
-        <label class="aipkit_form-label" for="aipkit_task_cw_post_schedule_date"><?php esc_html_e('Schedule Date', 'gpt3-ai-content-generator'); ?></label>
-        <input type="date" id="aipkit_task_cw_post_schedule_date" name="post_schedule_date" class="aipkit_form-input">
+<div id="aipkit_task_cw_schedule_options_wrapper" class="aipkit_schedule_options_wrapper" style="display:none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--aipkit_container-border);">
+    <div class="aipkit_form-group">
+        <label class="aipkit_form-label"><?php esc_html_e('Publishing Schedule', 'gpt3-ai-content-generator'); ?></label>
+        <div class="aipkit_radio-group">
+            <label class="aipkit_radio-label">
+                <input type="radio" name="schedule_mode" value="immediate" checked>
+                <?php esc_html_e('Publish Immediately', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <label class="aipkit_radio-label">
+                <input type="radio" name="schedule_mode" value="smart">
+                <?php esc_html_e('Smart Schedule', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <label class="aipkit_radio-label aipkit_task_schedule_from_input_option">
+                <input type="radio" name="schedule_mode" value="from_input">
+                <?php esc_html_e('Use Dates from Input', 'gpt3-ai-content-generator'); ?>
+            </label>
+        </div>
     </div>
-     <div class="aipkit_form-group aipkit_form-col">
-        <label class="aipkit_form-label" for="aipkit_task_cw_post_schedule_time"><?php esc_html_e('Schedule Time', 'gpt3-ai-content-generator'); ?></label>
-        <input type="time" id="aipkit_task_cw_post_schedule_time" name="post_schedule_time" class="aipkit_form-input">
+    <div id="aipkit_task_cw_smart_schedule_fields" class="aipkit_smart_schedule_fields" style="display: none;">
+        <div class="aipkit_form-row">
+            <div class="aipkit_form-group aipkit_form-col">
+                <label class="aipkit_form-label" for="aipkit_task_cw_smart_schedule_start_datetime"><?php esc_html_e('Start Date/Time', 'gpt3-ai-content-generator'); ?></label>
+                <input type="datetime-local" id="aipkit_task_cw_smart_schedule_start_datetime" name="smart_schedule_start_datetime" class="aipkit_form-input">
+            </div>
+        </div>
+        <div class="aipkit_form-row">
+            <div class="aipkit_form-group aipkit_form-col">
+                <label class="aipkit_form-label" for="aipkit_task_cw_smart_schedule_interval_value"><?php esc_html_e('Publish one post every', 'gpt3-ai-content-generator'); ?></label>
+                <input type="number" id="aipkit_task_cw_smart_schedule_interval_value" name="smart_schedule_interval_value" value="1" min="1" class="aipkit_form-input" style="width: 70px; text-align: center;">
+            </div>
+            <div class="aipkit_form-group aipkit_form-col">
+                <label class="aipkit_form-label" for="aipkit_task_cw_smart_schedule_interval_unit"> </label>
+                <select id="aipkit_task_cw_smart_schedule_interval_unit" name="smart_schedule_interval_unit" class="aipkit_form-input">
+                    <option value="hours"><?php esc_html_e('Hours', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="days"><?php esc_html_e('Days', 'gpt3-ai-content-generator'); ?></option>
+                </select>
+            </div>
+        </div>
     </div>
-    <div class="aipkit_form-col"></div> <?php // Empty column for alignment?>
+    <p class="aipkit_form-help aipkit_task_schedule_from_input_help" style="display: none;">
+        <?php esc_html_e('Append | YYYY-MM-DD HH:MM to the end of each line in your Bulk/CSV/URL/Sheets input to schedule posts individually.', 'gpt3-ai-content-generator'); ?>
+    </p>
 </div>
-<p class="aipkit_form-help aipkit_task_cw_schedule_row" style="display: none; margin-top:-5px;"><?php esc_html_e('If "Publish" is selected and a future date/time is set, posts will be scheduled.', 'gpt3-ai-content-generator'); ?></p>

@@ -55,9 +55,10 @@ if (!class_exists(AIPKit_Image_Injector::class)) {
  * @param string|null $focus_keyword       Optional SEO focus keyword to save.
  * @param array|null  $image_data          Optional data for generated images.
  * @param string|null $excerpt             Optional post excerpt.
+ * @param string|null $schedule_gmt_time   Optional GMT time string to schedule the post.
  * @return int|WP_Error The new post ID or a WP_Error on failure.
  */
-function insert_post_logic(string $final_title, string $generated_content, array $cw_config, ?string $meta_description = null, ?string $focus_keyword = null, ?array $image_data = null, ?string $excerpt = null): int|WP_Error
+function insert_post_logic(string $final_title, string $generated_content, array $cw_config, ?string $meta_description = null, ?string $focus_keyword = null, ?array $image_data = null, ?string $excerpt = null, ?string $schedule_gmt_time = null): int|WP_Error
 {
     $post_author = $cw_config['post_author'] ?? get_current_user_id() ?: 1;
     if (!user_can($post_author, 'edit_posts') || !user_can($post_author, get_post_type_object($cw_config['post_type'])->cap->create_posts)) {
@@ -109,19 +110,17 @@ function insert_post_logic(string $final_title, string $generated_content, array
         'post_status'  => $cw_config['post_status'] ?? 'draft',
     ];
 
-    if ($postarr['post_status'] === 'publish' && !empty($cw_config['post_schedule_date']) && !empty($cw_config['post_schedule_time'])) {
-        $schedule_datetime_str = CwTemplateMethods\calculate_schedule_datetime_logic($cw_config['post_schedule_date'], $cw_config['post_schedule_time']);
-        if ($schedule_datetime_str) {
-            $schedule_timestamp_gmt = get_gmt_from_date($schedule_datetime_str);
-            $current_timestamp_gmt = current_time('timestamp', true);
-
-            if (strtotime($schedule_timestamp_gmt) > $current_timestamp_gmt) {
-                $postarr['post_status'] = 'future';
-                $postarr['post_date'] = get_date_from_gmt($schedule_timestamp_gmt, 'Y-m-d H:i:s');
-                $postarr['post_date_gmt'] = $schedule_timestamp_gmt;
-            }
+    // --- MODIFIED: Handle new scheduling logic ---
+    if (!empty($schedule_gmt_time)) {
+        $schedule_timestamp_gmt = strtotime($schedule_gmt_time);
+        $current_timestamp_gmt = current_time('timestamp', true);
+        if ($schedule_timestamp_gmt > $current_timestamp_gmt) {
+            $postarr['post_status'] = 'future';
+            $postarr['post_date_gmt'] = $schedule_gmt_time;
+            $postarr['post_date'] = get_date_from_gmt($schedule_gmt_time, 'Y-m-d H:i:s');
         }
     }
+    // --- END MODIFICATION ---
 
     if (!empty($excerpt)) {
         $postarr['post_excerpt'] = $excerpt;

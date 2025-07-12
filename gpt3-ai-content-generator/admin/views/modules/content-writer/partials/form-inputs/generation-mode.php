@@ -25,13 +25,47 @@ if (!defined('ABSPATH')) {
             <!-- Single Topic Pane -->
             <div class="aipkit_cw_tab_content aipkit_active" data-pane="single">
                 <div class="aipkit_form-group">
-                    <textarea id="aipkit_content_writer_title" name="content_title" class="aipkit_form-input aipkit_autosave_trigger" rows="1" required></textarea>
+                    <textarea id="aipkit_content_writer_title" name="content_title" class="aipkit_form-input aipkit_autosave_trigger" rows="1" required placeholder="<?php esc_attr_e('Enter your topic or topic | keywords...', 'gpt3-ai-content-generator'); ?>"></textarea>
+                    <p class="aipkit_form-help">
+                        <?php
+                        $text = __('Enter your main topic. Optionally, add keywords for the {keywords} placeholder separated by a pipe (`|`).', 'gpt3-ai-content-generator');
+                        $html = preg_replace_callback(
+                            '/(\{[a-zA-Z0-9_]+\})/',
+                            function ($matches) {
+                                return sprintf(
+                                    '<code class="aipkit-placeholder" title="%s">%s</code>',
+                                    esc_attr__('Click to copy', 'gpt3-ai-content-generator'),
+                                    esc_html($matches[0])
+                                );
+                            },
+                            $text
+                        );
+                        echo wp_kses($html, ['code' => ['class' => true, 'title' => true]]);
+                        ?>
+                    </p>
                 </div>
             </div>
             <!-- Bulk Entry Pane -->
             <div class="aipkit_cw_tab_content" data-pane="task">
                 <div class="aipkit_form-group">
-                    <textarea id="aipkit_cw_bulk_topics" name="content_title_bulk" class="aipkit_form-input" rows="5"></textarea>
+                    <textarea id="aipkit_cw_bulk_topics" name="content_title_bulk" class="aipkit_form-input" rows="5" placeholder="<?php esc_attr_e("e.g., How to bake a cake | frosting, flour | 15 | mary | post | 2025-12-25 14:30", 'gpt3-ai-content-generator'); ?>"></textarea>
+                    <p class="aipkit_form-help">
+                        <?php
+                        $base_text = __('Enter one topic per line. Optional columns:', 'gpt3-ai-content-generator');
+                        $placeholders = ['Keywords', 'Category ID', 'Author Login', 'Post Type', 'YYYY-MM-DD HH:MM'];
+                        $html_parts = [];
+                        foreach ($placeholders as $placeholder) {
+                            $html_parts[] = sprintf(
+                                '<code class="aipkit-placeholder" title="%s">%s</code>',
+                                esc_attr__('Click to copy', 'gpt3-ai-content-generator'),
+                                esc_html($placeholder)
+                            );
+                        }
+                        $placeholders_html = implode(' | ', $html_parts);
+                        $final_html = esc_html($base_text) . ' ' . $placeholders_html;
+                        echo wp_kses($final_html, ['code' => ['class' => true, 'title' => true]]);
+                        ?>
+                    </p>
                 </div>
             </div>
             <!-- CSV Upload Pane -->
@@ -42,13 +76,7 @@ if (!defined('ABSPATH')) {
                     <div id="aipkit_cw_csv_analysis_results" class="aipkit_form-help aipkit_csv_analysis_results" style="margin-top: 5px;"></div>
                     <textarea name="content_title_csv" id="aipkit_cw_csv_data_holder" class="aipkit_form-input aipkit_csv_data_holder" style="display: none;" readonly></textarea>
                     <p class="aipkit_form-help">
-                        <?php esc_html_e('The first column is used as the {topic}.', 'gpt3-ai-content-generator'); ?>
-                    </p>
-                    <p class="aipkit_form-help">
-                        <?php esc_html_e('Subsequent columns are used for {keywords}, category ID, author login, and post type slug.', 'gpt3-ai-content-generator'); ?>
-                    </p>
-                    <p class="aipkit_form-help">
-                        <?php esc_html_e('The first column is used as the {topic}. Subsequent columns are used for {keywords}, category ID, author login, and post type slug.', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('The first column is used as the {topic}. Subsequent columns are used for {keywords}, category ID, author login, post type slug, and schedule date.', 'gpt3-ai-content-generator'); ?>
                     </p>
                     <p class="aipkit_form-help">
                         <a href="https://docs.google.com/spreadsheets/d/1WOnO_UKkbRCoyjRxQnDDTy0i-RsnrY_MDKD3Ks09JJk/edit?usp=sharing" target="_blank" rel="noopener noreferrer">

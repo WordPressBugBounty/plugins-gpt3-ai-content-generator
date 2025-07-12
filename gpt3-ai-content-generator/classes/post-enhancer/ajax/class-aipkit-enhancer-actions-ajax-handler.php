@@ -1,5 +1,8 @@
 <?php
 
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php
+// Status: MODIFIED
+
 namespace WPAICG\PostEnhancer\Ajax;
 
 use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
@@ -95,9 +98,9 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         if ($action_id && strpos($action_id, 'new-') !== 0) { // It's an existing action
             foreach ($actions as &$action) {
                 if (isset($action['id']) && $action['id'] === $action_id) {
-                    if (isset($action['is_default']) && $action['is_default']) {
-                        $this->send_wp_error(new WP_Error('cannot_edit_default', __('Default actions cannot be modified.', 'gpt3-ai-content-generator')));
-                        return;
+                    // A default action that is edited becomes a custom action.
+                    if (isset($action['is_default'])) {
+                        $action['is_default'] = false;
                     }
                     $action['label'] = $label;
                     $action['prompt'] = $prompt;
@@ -158,18 +161,6 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         $actions = get_option(self::OPTION_NAME, []);
         if (!is_array($actions)) {
             wp_send_json_success(['message' => __('No actions to delete.', 'gpt3-ai-content-generator')]);
-            return;
-        }
-
-        $action_to_delete = null;
-        foreach ($actions as $action) {
-            if (isset($action['id']) && $action['id'] === $action_id_to_delete) {
-                $action_to_delete = $action;
-                break;
-            }
-        }
-        if ($action_to_delete && isset($action_to_delete['is_default']) && $action_to_delete['is_default']) {
-            $this->send_wp_error(new WP_Error('cannot_delete_default', __('Default actions cannot be deleted.', 'gpt3-ai-content-generator')));
             return;
         }
 

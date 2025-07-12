@@ -64,6 +64,10 @@ if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_a
                         <span class="dashicons dashicons-download"></span>
                         <span><?php esc_html_e('Export All', 'gpt3-ai-content-generator'); ?></span>
                     </button>
+                    <button type="button" id="aipkit_import_ai_forms_btn" class="aipkit_dropdown-item-btn">
+                        <span class="dashicons dashicons-upload"></span>
+                        <span><?php esc_html_e('Import', 'gpt3-ai-content-generator'); ?></span>
+                    </button>
                     <button type="button" id="aipkit_delete_all_ai_forms_btn" class="aipkit_dropdown-item-btn aipkit_dropdown-item--danger">
                         <span class="dashicons dashicons-trash"></span>
                         <span><?php esc_html_e('Delete All', 'gpt3-ai-content-generator'); ?></span>
@@ -84,6 +88,10 @@ if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_a
                 <div id="aipkit_ai_forms_messages">
                     <!-- Messages from AJAX operations will appear here -->
                 </div>
+                <div id="aipkit_ai_forms_import_messages" style="margin-bottom: 15px;">
+                    <!-- Messages for import progress will appear here -->
+                </div>
+                <input type="file" id="aipkit_ai_forms_import_file_input" style="display: none;" accept="application/json">
                 <!-- Form Editor (hidden by default) -->
                 <div id="aipkit_form_editor_container" style="display:none;">
                     <?php include __DIR__ . '/partials/form-editor.php'; ?>

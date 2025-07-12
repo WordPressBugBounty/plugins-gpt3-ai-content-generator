@@ -132,29 +132,29 @@ class AIPKit_Autogpt_Assets
             ],
             // --- NEW: Category: Content Creation ---
             'content_writing_bulk' => [
-                'label' => __('Generate Content from List', 'gpt3-ai-content-generator'),
+                'label' => __('List', 'gpt3-ai-content-generator'),
                 'category' => 'content_creation',
                 'description' => __('Generate full articles from a list of titles and optional keywords.', 'gpt3-ai-content-generator'),
             ],
             'content_writing_csv' => [
-                'label' => __('Generate Content from CSV', 'gpt3-ai-content-generator'),
+                'label' => __('CSV', 'gpt3-ai-content-generator'),
                 'category' => 'content_creation',
                 'description' => __('Generate articles by importing topics and metadata from a CSV file.', 'gpt3-ai-content-generator'),
             ],
             'content_writing_rss' => [
-                'label' => __('Generate Content from RSS', 'gpt3-ai-content-generator'),
+                'label' => __('RSS', 'gpt3-ai-content-generator'),
                 'category' => 'content_creation',
                 'description' => __('Automatically generate articles from new items in one or more RSS feeds.', 'gpt3-ai-content-generator'),
                 'pro' => true,
             ],
             'content_writing_url' => [
-                'label' => __('Generate Content from URLs', 'gpt3-ai-content-generator'),
+                'label' => __('URL', 'gpt3-ai-content-generator'),
                 'category' => 'content_creation',
                 'description' => __('Generate articles by scraping content from a list of URLs to use as context.', 'gpt3-ai-content-generator'),
                 'pro' => true,
             ],
             'content_writing_gsheets' => [
-                'label' => __('Generate Content from Google Sheet', 'gpt3-ai-content-generator'),
+                'label' => __('Google Sheet', 'gpt3-ai-content-generator'),
                 'category' => 'content_creation',
                 'description' => __('Generate articles from a list of topics in a Google Sheets spreadsheet.', 'gpt3-ai-content-generator'),
                 'pro' => true,
