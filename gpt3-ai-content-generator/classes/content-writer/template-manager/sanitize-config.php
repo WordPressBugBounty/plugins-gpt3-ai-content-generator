@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/template-manager/sanitize-config.php
 // Status: MODIFIED
-// I have added sanitization logic for the new 'generate_tags' and 'custom_tags_prompt' fields.
+// I have added the 'tags' key to the array in the elseif block to ensure it is properly sanitized and saved for Content Enhancer templates.
 
 namespace WPAICG\ContentWriter\TemplateManagerMethods;
 
@@ -33,7 +33,7 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
         if (isset($config[$key])) {
             if (in_array($key, ['content_title', 'content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'rss_include_keywords', 'rss_exclude_keywords', 'title_prompt', 'excerpt_prompt', 'content_prompt', 'meta_prompt', 'keyword_prompt'], true)) {
                 $sanitized[$key] = sanitize_textarea_field(wp_unslash($config[$key]));
-            } elseif (in_array($key, ['title', 'excerpt', 'content', 'meta', 'keyword'], true) && is_array($config[$key])) {
+            } elseif (in_array($key, ['title', 'excerpt', 'content', 'meta', 'keyword', 'tags'], true) && is_array($config[$key])) {
                 $sanitized_sub_array = [];
                 if (isset($config[$key]['enabled'])) {
                     $sanitized_sub_array['enabled'] = ($config[$key]['enabled'] === '1' || $config[$key]['enabled'] === true) ? '1' : '0';

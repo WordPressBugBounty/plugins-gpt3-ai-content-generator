@@ -12,6 +12,7 @@ use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Meta_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder;
+use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder; // ADDED
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Handler; // Added for images
 use WP_Error;
 use WPAICG\Chat\Storage\LogStorage;
@@ -24,6 +25,7 @@ if (!defined('ABSPATH')) {
  * Handles a successful response from the AI call by logging it and sending a JSON success response.
  * MODIFIED: Now generates and includes SEO meta description and focus keyword if requested.
  * MODIFIED: Now generates and includes AI images if requested.
+ * REFACTORED: Re-ordered SEO generation to prioritize focus keyword.
  *
  * @param AIPKit_Content_Writer_Standard_Generation_Action $handler The handler instance.
  * @param array $result The successful result array from the AI call.
@@ -35,11 +37,11 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
 {
     $content = $result['content'] ?? '';
     $usage = $result['usage'] ?? null;
-    $request_payload_log_for_success = $result['request_payload_log'] ?? null;
+    $request_payload_log = $result['request_payload_log'] ?? null;
     $meta_description = null;
     $focus_keyword = null;
     $excerpt = null;
-    $image_data = null; // New variable for image data
+    $tags = null;
 
     // Log main content generation
     if ($handler->log_storage) {
@@ -58,111 +60,65 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
             'ai_provider'       => $validated_params['provider'],
             'ai_model'          => $validated_params['model'],
             'usage'             => $usage,
-            'request_payload'   => $request_payload_log_for_success,
+            'request_payload'   => $request_payload_log,
         ]);
     }
 
-    // --- Generate Images ---
-    if (($validated_params['generate_images_enabled'] ?? '0') === '1' && !empty($content) && class_exists(AIPKit_Content_Writer_Image_Handler::class)) {
-        $image_handler = new AIPKit_Content_Writer_Image_Handler();
-        $final_title = $validated_params['content_title'] ?? ''; // This is the original topic
-        $final_keywords = !empty($validated_params['inline_keywords']) ? $validated_params['inline_keywords'] : ($validated_params['content_keywords'] ?? '');
-        $image_result = $image_handler->generate_and_prepare_images($validated_params, $final_title, $final_keywords, $final_title);
+    $final_title = $validated_params['content_title'] ?? '';
+    $user_provided_keywords = !empty($validated_params['inline_keywords']) ? $validated_params['inline_keywords'] : ($validated_params['content_keywords'] ?? '');
 
-        if (is_wp_error($image_result)) {
-            error_log('AIPKit Standard Gen: Image generation failed. Error: ' . $image_result->get_error_message());
-        } else {
-            $image_data = $image_result;
-        }
-    }
-    // --- End Image Generation ---
+    // --- START REFACTORED SEO LOGIC ---
+    $keywords_for_prompts = $user_provided_keywords;
 
-    // --- Generate SEO Data if requested ---
-    $generate_meta = ($validated_params['generate_meta_description'] ?? '0') === '1';
+    // 1. Generate Focus Keyword FIRST if needed.
     $generate_keyword = ($validated_params['generate_focus_keyword'] ?? '0') === '1';
-    $generate_excerpt = ($validated_params['generate_excerpt'] ?? '0') === '1';
-    $prompt_mode = $validated_params['prompt_mode'] ?? 'standard';
-    $should_generate_seo = ($generate_meta || $generate_keyword || $generate_excerpt) && !empty($content);
-
-
-    if ($should_generate_seo) {
-        $content_summary = AIPKit_Content_Writer_Summarizer::summarize($content);
-        $final_title = $validated_params['content_title'] ?? '';
-        $final_keywords = !empty($validated_params['inline_keywords']) ? $validated_params['inline_keywords'] : ($validated_params['content_keywords'] ?? '');
-
-        if ($generate_excerpt && class_exists(AIPKit_Content_Writer_Excerpt_Prompt_Builder::class)) {
-            $custom_excerpt_prompt = $validated_params['custom_excerpt_prompt'] ?? null;
-            $excerpt_user_prompt = AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_excerpt_prompt);
-            $excerpt_system_instruction = 'You are an expert copywriter. Your task is to provide an engaging excerpt for a piece of content.';
-            $excerpt_ai_params = ['max_completion_tokens' => 200, 'temperature' => 1];
-
-            $excerpt_result = $handler->get_ai_caller()->make_standard_call(
-                $validated_params['provider'],
-                $validated_params['model'],
-                [['role' => 'user', 'content' => $excerpt_user_prompt]],
-                $excerpt_ai_params,
-                $excerpt_system_instruction
-            );
-            if (!is_wp_error($excerpt_result) && !empty($excerpt_result['content'])) {
-                $excerpt = trim(str_replace(['"', "'"], '', $excerpt_result['content']));
-            } else {
-                error_log('AIPKit Standard Gen: Excerpt generation failed. Error: ' . (is_wp_error($excerpt_result) ? $excerpt_result->get_error_message() : 'Empty response.'));
-            }
+    if ($generate_keyword && empty($user_provided_keywords) && !empty($content)) {
+        $content_summary_for_kw = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer::summarize($content);
+        $keyword_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder::build($final_title, $content_summary_for_kw, 'custom', $validated_params['custom_keyword_prompt']);
+        $keyword_result = $handler->get_ai_caller()->make_standard_call(
+            $validated_params['provider'],
+            $validated_params['model'],
+            [['role' => 'user', 'content' => $keyword_user_prompt]],
+            ['max_completion_tokens' => 20, 'temperature' => 0.2],
+            'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.'
+        );
+        if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
+            $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
+            $keywords_for_prompts = $focus_keyword; // Use this new keyword for other SEO prompts
         }
+    } elseif ($generate_keyword) {
+        $focus_keyword = explode(',', $user_provided_keywords)[0];
+    }
 
+    $content_summary = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer::summarize($content);
 
-        if ($generate_meta && class_exists(AIPKit_Content_Writer_Meta_Prompt_Builder::class)) {
-            $custom_meta_prompt = $validated_params['custom_meta_prompt'] ?? null;
-            $meta_user_prompt = AIPKit_Content_Writer_Meta_Prompt_Builder::build($final_title, $content_summary, $final_keywords, $prompt_mode, $custom_meta_prompt);
-            $meta_system_instruction = 'You are an SEO expert specializing in writing meta descriptions.';
-            $meta_ai_params = ['max_completion_tokens' => 100, 'temperature' => 1];
-
-            $meta_result = $handler->get_ai_caller()->make_standard_call(
-                $validated_params['provider'],
-                $validated_params['model'],
-                [['role' => 'user', 'content' => $meta_user_prompt]],
-                $meta_ai_params,
-                $meta_system_instruction
-            );
-
-            if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
-                $meta_description = trim(str_replace(['"', "'"], '', $meta_result['content']));
-                $meta_usage = $meta_result['usage'] ?? null;
-            } else {
-                error_log('AutoGPT Meta Gen Failed: ' . (is_wp_error($meta_result) ? $meta_result->get_error_message() : 'Empty response'));
-            }
-        }
-
-        if ($generate_keyword) {
-            if (!empty($final_keywords)) {
-                list($first_keyword) = array_map('trim', explode(',', $final_keywords, 2));
-                $focus_keyword = $first_keyword;
-            } else {
-                if (class_exists(AIPKit_Content_Writer_Keyword_Prompt_Builder::class)) {
-                    $custom_keyword_prompt = $validated_params['custom_keyword_prompt'] ?? null;
-                    $keyword_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_keyword_prompt);
-                    $keyword_ai_params = ['max_completion_tokens' => 20, 'temperature' => 0.2];
-
-                    $keyword_result = $handler->get_ai_caller()->make_standard_call(
-                        $validated_params['provider'],
-                        $validated_params['model'],
-                        [['role' => 'user', 'content' => $keyword_user_prompt]],
-                        $keyword_ai_params,
-                        'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.'
-                    );
-
-                    if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
-                        $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
-                        $keyword_usage = $keyword_result['usage'] ?? null;
-                    } else {
-                        error_log('AutoGPT Focus Keyword Gen Failed: ' . (is_wp_error($keyword_result) ? $keyword_result->get_error_message() : 'Empty response'));
-                    }
-                }
-            }
+    // 2. Generate Excerpt
+    if (($validated_params['generate_excerpt'] ?? '0') === '1' && !empty($content)) {
+        $excerpt_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_excerpt_prompt']);
+        $excerpt_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $excerpt_user_prompt]], ['max_completion_tokens' => 200, 'temperature' => 1]);
+        if (!is_wp_error($excerpt_result) && !empty($excerpt_result['content'])) {
+            $excerpt = trim(str_replace(['"', "'"], '', $excerpt_result['content']));
         }
     }
-    // --- END Generate SEO Data ---
 
+    // 3. Generate Tags
+    if (($validated_params['generate_tags'] ?? '0') === '1' && !empty($content)) {
+        $tags_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_tags_prompt']);
+        $tags_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $tags_user_prompt]], ['max_completion_tokens' => 100, 'temperature' => 0.5]);
+        if (!is_wp_error($tags_result) && !empty($tags_result['content'])) {
+            $tags = trim(str_replace(['"', "'"], '', $tags_result['content']));
+        }
+    }
+
+    // 4. Generate Meta Description
+    if (($validated_params['generate_meta_description'] ?? '0') === '1' && !empty($content)) {
+        $meta_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Meta_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_meta_prompt']);
+        $meta_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $meta_user_prompt]], ['max_completion_tokens' => 100, 'temperature' => 1]);
+        if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
+            $meta_description = trim(str_replace(['"', "'"], '', $meta_result['content']));
+        }
+    }
+    // --- END REFACTORED SEO LOGIC ---
 
     wp_send_json_success([
         'content' => $content,
@@ -170,6 +126,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
         'meta_description' => $meta_description,
         'focus_keyword' => $focus_keyword,
         'excerpt' => $excerpt,
-        'image_data' => $image_data
+        'tags' => $tags,
+        'image_data' => null // Non-streaming doesn't generate images for now.
     ]);
 }

@@ -2,7 +2,6 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/prompt/class-aipkit-content-writer-prompts.php
 // Status: MODIFIED
-// I have added a new method to get the default prompt for generating tags.
 
 namespace WPAICG\ContentWriter;
 
@@ -21,15 +20,33 @@ class AIPKit_Content_Writer_Prompts
      */
     public static function get_default_title_prompt(): string
     {
-        return __('You are an expert SEO copywriter. Generate the single best and most compelling title based on the provided information. Analyze the topic and keywords to determine the most effective angle, and synthesize this into one optimal title. Instructions: The title must be SEO-friendly and under 60 characters. Prioritize placing the main keyword near the beginning. Return ONLY the single new title text. Do not include any introduction, explanation, or quotation marks. Topic: {topic} Keywords: {keywords}', 'gpt3-ai-content-generator');
+        return __('You are an expert SEO copywriter. Write a powerful and engaging SEO title that:
+- Is under 60 characters
+- Starts with the main focus keyword
+- Includes at least one power word (e.g., Stunning, Must-Have, Exclusive)
+- Includes a positive or negative sentiment word (e.g., Best, Effortless, Affordable)
+
+Return ONLY the new title text. Do not include any introduction, explanation, or quotation marks.
+
+Topic: "{topic}"
+Keywords: "{keywords}"', 'gpt3-ai-content-generator');
     }
 
     /**
-     * @return string The default prompt for generating main content.
+     * @return string The default prompt for generating new content.
      */
     public static function get_default_content_prompt(): string
     {
-        return __('Write an article about the topic: "{topic}". Do not repeat the title at the beginning of the article content. Start directly with the first paragraph. Please incorporate the following keywords naturally: {keywords}. Ensure the content is well-structured, informative, and engaging. Use clear headings and paragraphs. Avoid overly promotional language unless specifically requested. Focus on providing value to the reader. Generate the full article now.', 'gpt3-ai-content-generator');
+        return __('Write a full article based on the topic and keywords below. The article must:
+- Be at least 600 words long
+- Include the focus keyword in one or more subheadings (H2, H3, etc.)
+- Start the first paragraph with the focus keyword
+- Be informative, structured, and engaging
+- Use natural tone and clear formatting
+- Avoid repeating the title in the content
+
+Topic: "{topic}"
+Keywords: "{keywords}"', 'gpt3-ai-content-generator');
     }
 
     /**
@@ -37,7 +54,16 @@ class AIPKit_Content_Writer_Prompts
      */
     public static function get_default_meta_prompt(): string
     {
-        return __('You are an SEO expert. Write a meta description for a blog post with the title "{topic}" and keywords "{keywords}". The description must be under 156 characters, written in an active voice, and include a clear call-to-action. Your response must be ONLY the raw text of the meta description, without any labels, quotation marks, or markdown formatting. Here is a summary of the content for context:\n\n{content_summary}', 'gpt3-ai-content-generator');
+        return __('Write a meta description (under 155 characters) for a page about the following topic. The description must:
+- Begin with or include the focus keyword early
+- Use active voice and a clear call-to-action
+- Be concise and engaging
+
+Return ONLY the plain meta description without any quotation marks, labels, or formatting.
+
+Topic: "{topic}"
+Keywords: "{keywords}"
+Summary: "{content_summary}"', 'gpt3-ai-content-generator');
     }
 
     /**
@@ -45,7 +71,16 @@ class AIPKit_Content_Writer_Prompts
      */
     public static function get_default_keyword_prompt(): string
     {
-        return __('You are an SEO expert. Your task is to identify the single most important and relevant focus keyphrase for the following article. The keyphrase should be concise (ideally 2-4 words) and must be present within the provided article summary.\n\nReturn ONLY the keyphrase. Do not add any explanation, labels, or quotation marks.\n\nArticle Title: "{topic}"\nArticle Summary:\n{content_summary}', 'gpt3-ai-content-generator');
+        return __('Identify the single most important and relevant SEO focus keyphrase for the article based on the title and summary. The keyphrase must:
+- Be 2–4 words
+- Be naturally found in the content
+- Be suitable for SEO targeting
+
+Return ONLY the keyphrase, with no labels, formatting, or quotation marks.
+
+Title: "{topic}"
+Summary:
+{content_summary}', 'gpt3-ai-content-generator');
     }
 
     /**
@@ -53,7 +88,13 @@ class AIPKit_Content_Writer_Prompts
      */
     public static function get_default_excerpt_prompt(): string
     {
-        return __('You are an expert copywriter. Rewrite the post excerpt to be more compelling and engaging based on the information provided. Use a friendly tone and aim for 1–2 concise sentences. Return ONLY the new excerpt without any explanation or formatting.\n\nPost title: "{topic}"\nPost content summary: "{content_summary}"', 'gpt3-ai-content-generator');
+        return __('Write a short excerpt (1–2 engaging sentences) for the following article. Use a friendly, clear tone. Include the focus keyword naturally.
+
+Return ONLY the excerpt, without any formatting or explanation.
+
+Title: "{topic}"
+Keywords: "{keywords}"
+Summary: "{content_summary}"', 'gpt3-ai-content-generator');
     }
 
     /**
@@ -61,16 +102,22 @@ class AIPKit_Content_Writer_Prompts
      */
     public static function get_default_tags_prompt(): string
     {
-        return __('You are an SEO expert. Generate a list of 5-10 relevant tags for a blog post titled "{topic}". Return ONLY a comma-separated list of the tags. Do not include any introduction, explanation, or numbering.\n\nArticle Summary:\n{content_summary}', 'gpt3-ai-content-generator');
-    }
+        return __('Generate 5–10 relevant SEO tags for a blog post about the following topic. Tags must reflect key themes and keywords.
 
+Return ONLY a comma-separated list of tags. Do not include any explanation, numbering, or formatting.
+
+Title: "{topic}"
+Keywords: "{keywords}"
+Summary:
+{content_summary}', 'gpt3-ai-content-generator');
+    }
 
     /**
      * @return string The default prompt for generating an in-content image.
      */
     public static function get_default_image_prompt(): string
     {
-        return __('A high-quality, relevant image for an article about: {topic}', 'gpt3-ai-content-generator');
+        return __('Generate a high-quality, relevant image prompt for an article about: {topic}', 'gpt3-ai-content-generator');
     }
 
     /**
@@ -78,6 +125,6 @@ class AIPKit_Content_Writer_Prompts
      */
     public static function get_default_featured_image_prompt(): string
     {
-        return __('An eye-catching, high-quality featured image for an article about: {topic}. Keywords: {keywords}.', 'gpt3-ai-content-generator');
+        return __('Generate an eye-catching, high-quality featured image prompt for a blog post about: {topic}. Keywords: {keywords}.', 'gpt3-ai-content-generator');
     }
 }

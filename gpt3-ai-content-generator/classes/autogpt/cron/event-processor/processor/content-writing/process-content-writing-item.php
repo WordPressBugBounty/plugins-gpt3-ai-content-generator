@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-writing/process-content-writing-item.php
 // Status: MODIFIED
-// I have added logic to get the calculated scheduled time from the item's config and pass it to the insert_post_logic function.
+// I have added a call to the new `update_post_slug_for_seo` function after all other post data has been saved.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
@@ -71,6 +71,15 @@ if (!function_exists('\WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_
     $set_tags_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/ajax/actions/save-post/set-post-tags.php';
     if (file_exists($set_tags_path)) {
         require_once $set_tags_path;
+    }
+}
+// --- END ADDED ---
+
+// --- ADDED: Load SEO Helper for slug generation ---
+if (!class_exists('\WPAICG\SEO\AIPKit_SEO_Helper')) {
+    $seo_helper_path = WPAICG_PLUGIN_DIR . 'classes/seo/seo-helper.php';
+    if (file_exists($seo_helper_path)) {
+        require_once $seo_helper_path;
     }
 }
 // --- END ADDED ---
@@ -155,9 +164,25 @@ function process_content_writing_item_logic(array $item_config): array
         $content_summary = AIPKit_Content_Writer_Summarizer::summarize($generated_content);
         $final_keywords = !empty($item_config['inline_keywords']) ? $item_config['inline_keywords'] : ($item_config['content_keywords'] ?? '');
 
+        if ($generate_keyword && empty($final_keywords)) { // Only generate if not provided
+            $custom_keyword_prompt = $item_config['custom_keyword_prompt'] ?? null;
+            $keyword_user_prompt = AIPKit_Content_Writer_Keyword_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_keyword_prompt);
+            $keyword_ai_params = ['max_completion_tokens' => 20, 'temperature' => 0.2];
+            $keyword_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $keyword_user_prompt]], $keyword_ai_params, 'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.');
+            if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
+                $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
+                $final_keywords = $focus_keyword; // Use this new keyword for other SEO prompts
+                $keyword_usage = $keyword_result['usage'] ?? null;
+            } else {
+                error_log('AutoGPT Focus Keyword Gen Failed: ' . (is_wp_error($keyword_result) ? $keyword_result->get_error_message() : 'Empty response'));
+            }
+        } elseif (!empty($final_keywords)) {
+            $focus_keyword = explode(',', $final_keywords)[0]; // Use first provided keyword as focus keyword
+        }
+
         if ($generate_excerpt && class_exists(AIPKit_Content_Writer_Excerpt_Prompt_Builder::class)) {
             $custom_excerpt_prompt = $item_config['custom_excerpt_prompt'] ?? null;
-            $excerpt_user_prompt = AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_excerpt_prompt);
+            $excerpt_user_prompt = AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $final_keywords, $prompt_mode, $custom_excerpt_prompt);
             $excerpt_system_instruction = 'You are an expert copywriter. Your task is to provide an engaging excerpt for a piece of content.';
             $excerpt_ai_params = ['max_completion_tokens' => 200, 'temperature' => 1];
 
@@ -179,7 +204,7 @@ function process_content_writing_item_logic(array $item_config): array
         // --- ADDED: Tags Generation Logic ---
         if ($generate_tags && class_exists(AIPKit_Content_Writer_Tags_Prompt_Builder::class)) {
             $custom_tags_prompt = $item_config['custom_tags_prompt'] ?? null;
-            $tags_user_prompt = AIPKit_Content_Writer_Tags_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_tags_prompt);
+            $tags_user_prompt = AIPKit_Content_Writer_Tags_Prompt_Builder::build($final_title, $content_summary, $final_keywords, $prompt_mode, $custom_tags_prompt);
             $tags_system_instruction = 'You are an SEO expert. Your task is to provide a comma-separated list of relevant tags for a piece of content.';
             $tags_ai_params = ['max_completion_tokens' => 100, 'temperature' => 0.5];
 
@@ -220,34 +245,6 @@ function process_content_writing_item_logic(array $item_config): array
                 error_log('AutoGPT Meta Gen Failed: ' . (is_wp_error($meta_result) ? $meta_result->get_error_message() : 'Empty response'));
             }
         }
-
-        if ($generate_keyword) {
-            if (!empty($final_keywords)) {
-                list($first_keyword) = array_map('trim', explode(',', $final_keywords, 2));
-                $focus_keyword = $first_keyword;
-            } else {
-                if (class_exists(AIPKit_Content_Writer_Keyword_Prompt_Builder::class)) {
-                    $custom_keyword_prompt = $item_config['custom_keyword_prompt'] ?? null;
-                    $keyword_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_keyword_prompt);
-                    $keyword_ai_params = ['max_completion_tokens' => 20, 'temperature' => 0.2];
-
-                    $keyword_result = $ai_caller->make_standard_call(
-                        $item_config['ai_provider'],
-                        $item_config['ai_model'],
-                        [['role' => 'user', 'content' => $keyword_user_prompt]],
-                        $keyword_ai_params,
-                        'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.'
-                    );
-
-                    if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
-                        $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
-                        $keyword_usage = $keyword_result['usage'] ?? null;
-                    } else {
-                        error_log('AutoGPT Focus Keyword Gen Failed: ' . (is_wp_error($keyword_result) ? $keyword_result->get_error_message() : 'Empty response'));
-                    }
-                }
-            }
-        }
     }
     // --- END Generate SEO Data ---
 
@@ -264,6 +261,12 @@ function process_content_writing_item_logic(array $item_config): array
         \WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_logic($new_post_id, $tags);
     }
     // --- END ADDED ---
+
+    // --- NEW: Update Slug ---
+    if (class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+        \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($new_post_id);
+    }
+    // --- END NEW ---
 
     // --- NEW: Update Google Sheet Status ---
     if (isset($item_config['cw_generation_mode']) && $item_config['cw_generation_mode'] === 'gsheets' &&

@@ -1,8 +1,8 @@
 <?php
 
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/template-manager/class-aipkit-content-writer-template-manager.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/class-aipkit-content-writer-template-manager.php
 // Status: MODIFIED
-// I have added 'generate_tags' and 'custom_tags_prompt' to the list of allowed keys for templates.
+// I have added 'tags' to the list of allowed config keys to fix a bug where the enhancer template would not save the state of the 'Tags' checkbox.
 
 namespace WPAICG\ContentWriter;
 
@@ -57,7 +57,7 @@ class AIPKit_Content_Writer_Template_Manager
         // --- ADDED: Enhancer-specific config keys ---
         'update_title', 'update_excerpt', 'update_content', 'update_meta',
         'title_prompt', 'excerpt_prompt', 'content_prompt', 'meta_prompt',
-        'title', 'excerpt', 'content', 'meta', 'keyword', // These are the keys for bulk enhancer templates
+        'title', 'excerpt', 'content', 'meta', 'keyword', 'tags' // These are the keys for bulk enhancer templates
     ];
 
 

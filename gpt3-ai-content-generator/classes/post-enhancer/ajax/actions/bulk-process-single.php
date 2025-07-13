@@ -167,61 +167,103 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
         }
         // --- END: Vector Context Logic ---
 
-        // Loop through enhancements
+        // --- REORDERED LOGIC START ---
+        $fields_to_enhance = [];
+        // Determine which fields are selected for enhancement based on the presence of their prompt.
         foreach (array_keys($item_config) as $field_to_enhance) {
-            if (empty($item_config[$field_to_enhance]['prompt'])) {
-                continue;
-            }
-
-            $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config[$field_to_enhance]['prompt']);
-            $current_ai_params = $ai_params;
-
-            $instruction_context = ['post_id' => $post->ID];
-
-            $ai_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $current_ai_params, $system_instruction, $instruction_context);
-
-            if (is_wp_error($ai_result) || empty($ai_result['content'])) {
-                continue;
-            }
-
-            $new_value = trim(str_replace('"', '', $ai_result['content']));
-
-            switch ($field_to_enhance) {
-                case 'title':
-                    wp_update_post(['ID' => $post->ID, 'post_title' => sanitize_text_field($new_value)]);
-                    $changes_made[] = 'title';
-                    break;
-                case 'excerpt':
-                    wp_update_post(['ID' => $post->ID, 'post_excerpt' => wp_kses_post($new_value)]);
-                    $changes_made[] = 'excerpt';
-                    break;
-                case 'content':
-                    // --- START: Convert markdown to HTML ---
-                    $html_content = $new_value;
-                    $html_content = preg_replace('/^#\s+(.*)$/m', '<h1>$1</h1>', $html_content);
-                    $html_content = preg_replace('/^##\s+(.*)$/m', '<h2>$1</h2>', $html_content);
-                    $html_content = preg_replace('/^###\s+(.*)$/m', '<h3>$1</h3>', $html_content);
-                    $html_content = preg_replace('/^####\s+(.*)$/m', '<h4>$1</h4>', $html_content);
-                    $html_content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html_content);
-                    $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
-                    // --- END: Convert markdown to HTML ---
-                    wp_update_post(['ID' => $post->ID, 'post_content' => wp_kses_post($html_content)]);
-                    $changes_made[] = 'content';
-                    break;
-                case 'tags':
-                    wp_set_post_tags($post->ID, sanitize_text_field($new_value), false);
-                    $changes_made[] = 'tags';
-                    break;
-                case 'meta':
-                    AIPKit_SEO_Helper::update_meta_description($post->ID, sanitize_text_field($new_value));
-                    $changes_made[] = 'meta';
-                    break;
-                case 'keyword':
-                    AIPKit_SEO_Helper::update_focus_keyword($post->ID, sanitize_text_field($new_value));
-                    $changes_made[] = 'keyword';
-                    break;
+            if (in_array($field_to_enhance, ['title', 'excerpt', 'content', 'meta', 'keyword', 'tags']) && !empty($item_config[$field_to_enhance]['prompt'])) {
+                $fields_to_enhance[] = $field_to_enhance;
             }
         }
+
+        // 1. Process keyword first if requested
+        if (in_array('keyword', $fields_to_enhance) && !empty($item_config['keyword']['prompt'])) {
+            $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config['keyword']['prompt']);
+            $ai_params_kw = array_merge($ai_params, ['max_completion_tokens' => 20]);
+            $keyword_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $ai_params_kw, $system_instruction, ['post_id' => $post->ID]);
+
+            if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
+                $new_keyword = trim(str_replace('"', '', $keyword_result['content']));
+                AIPKit_SEO_Helper::update_focus_keyword($post->ID, $new_keyword);
+
+                // **CRUCIAL**: Update the placeholder for subsequent calls in this run
+                $placeholders['{original_focus_keyword}'] = $new_keyword;
+
+                $changes_made[] = 'focus keyword';
+            }
+        }
+
+        // 2. Process other fields
+        foreach ($fields_to_enhance as $field) {
+            if ($field === 'keyword') {
+                continue; // Already processed
+            }
+
+            if (!empty($item_config[$field]['prompt'])) {
+                $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config[$field]['prompt']);
+                $current_ai_params = $ai_params;
+
+                // Adjust tokens for shorter fields
+                if ($field === 'title') {
+                    $current_ai_params['max_completion_tokens'] = 150;
+                }
+                if ($field === 'excerpt') {
+                    $current_ai_params['max_completion_tokens'] = 300;
+                }
+                if ($field === 'meta') {
+                    $current_ai_params['max_completion_tokens'] = 250;
+                }
+                if ($field === 'tags') {
+                    $current_ai_params['max_completion_tokens'] = 100;
+                }
+
+                $ai_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $current_ai_params, $system_instruction, ['post_id' => $post->ID]);
+
+                if (!is_wp_error($ai_result) && !empty($ai_result['content'])) {
+                    $new_value = trim(str_replace('"', '', $ai_result['content']));
+                    switch ($field) {
+                        case 'title':
+                            wp_update_post(['ID' => $post->ID, 'post_title' => sanitize_text_field($new_value)]);
+                            $changes_made[] = 'title';
+                            break;
+                        case 'excerpt':
+                            wp_update_post(['ID' => $post->ID, 'post_excerpt' => wp_kses_post($new_value)]);
+                            $changes_made[] = 'excerpt';
+                            break;
+                        case 'content':
+                            // --- START: Convert markdown to HTML ---
+                            $html_content = $new_value;
+                            $html_content = preg_replace('/^#\s+(.*)$/m', '<h1>$1</h1>', $html_content);
+                            $html_content = preg_replace('/^##\s+(.*)$/m', '<h2>$1</h2>', $html_content);
+                            $html_content = preg_replace('/^###\s+(.*)$/m', '<h3>$1</h3>', $html_content);
+                            $html_content = preg_replace('/^####\s+(.*)$/m', '<h4>$1</h4>', $html_content);
+                            $html_content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html_content);
+                            $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
+                            // --- END: Convert markdown to HTML ---
+                            wp_update_post(['ID' => $post->ID, 'post_content' => wp_kses_post($html_content)]);
+                            $changes_made[] = 'content';
+                            break;
+                        case 'tags':
+                            wp_set_post_tags($post->ID, sanitize_text_field($new_value), false);
+                            $changes_made[] = 'tags';
+                            break;
+                        case 'meta':
+                            AIPKit_SEO_Helper::update_meta_description($post->ID, sanitize_text_field($new_value));
+                            $changes_made[] = 'meta';
+                            break;
+                    }
+                }
+            }
+        }
+        // --- REORDERED LOGIC END ---
+
+        // --- NEW: Update Slug after all other changes ---
+        if (!empty($changes_made)) {
+            if (class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+                \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($post->ID);
+            }
+        }
+        // --- END NEW ---
 
         if (empty($changes_made)) {
             $this->send_error_response(new WP_Error('enhancement_failed', 'AI failed to generate any valid enhancements for this post.', ['status' => 500]));

@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/autogpt/partials/task-form-config-seo.php
 // Status: MODIFIED
 // I have added a "Generate Tags" checkbox and its corresponding prompt textarea to the SEO settings UI.
@@ -35,11 +36,11 @@ $default_custom_tags_prompt = AIPKit_Content_Writer_Prompts::get_default_tags_pr
                 <?php esc_html_e('Focus Keyword', 'gpt3-ai-content-generator'); ?>
             </label>
             <label class="aipkit_checkbox-label" for="aipkit_task_cw_generate_excerpt">
-                <input type="checkbox" id="aipkit_task_cw_generate_excerpt" name="generate_excerpt" value="1">
+                <input type="checkbox" id="aipkit_task_cw_generate_excerpt" name="generate_excerpt" value="1" checked>
                 <?php esc_html_e('Excerpt', 'gpt3-ai-content-generator'); ?>
             </label>
             <label class="aipkit_checkbox-label" for="aipkit_task_cw_generate_tags">
-                <input type="checkbox" id="aipkit_task_cw_generate_tags" name="generate_tags" value="1">
+                <input type="checkbox" id="aipkit_task_cw_generate_tags" name="generate_tags" value="1" checked>
                 <?php esc_html_e('Tags', 'gpt3-ai-content-generator'); ?>
             </label>
             <label class="aipkit_checkbox-label" for="aipkit_task_cw_generate_toc">
@@ -113,18 +114,18 @@ echo wp_kses($html, ['code' => ['class' => true, 'title' => true]]);
            <textarea id="aipkit_task_cw_custom_excerpt_prompt" name="custom_excerpt_prompt" class="aipkit_form-input aipkit_autosave_trigger" rows="6"><?php echo esc_textarea($default_custom_excerpt_prompt); ?></textarea>
            <p class="aipkit_form-help"><?php
             $text = __('Use placeholders: {topic}, {content_summary}.', 'gpt3-ai-content-generator');
-$html = preg_replace_callback(
-    '/(\{[a-zA-Z0-9_]+\})/',
-    function ($matches) {
-        return sprintf(
-            '<code class="aipkit-placeholder" title="%s">%s</code>',
-            esc_attr__('Click to copy', 'gpt3-ai-content-generator'),
-            esc_html($matches[0])
-        );
-    },
-    $text
-);
-echo wp_kses($html, ['code' => ['class' => true, 'title' => true]]);
+                $html = preg_replace_callback(
+                    '/(\{[a-zA-Z0-9_]+\})/',
+                    function ($matches) {
+                        return sprintf(
+                            '<code class="aipkit-placeholder" title="%s">%s</code>',
+                            esc_attr__('Click to copy', 'gpt3-ai-content-generator'),
+                            esc_html($matches[0])
+                        );
+                    },
+                    $text
+                );
+                echo wp_kses($html, ['code' => ['class' => true, 'title' => true]]);
 ?></p>
         </div>
     </div>
@@ -139,19 +140,19 @@ echo wp_kses($html, ['code' => ['class' => true, 'title' => true]]);
             <textarea id="aipkit_task_cw_custom_tags_prompt" name="custom_tags_prompt" class="aipkit_form-input aipkit_autosave_trigger" rows="6"><?php echo esc_textarea($default_custom_tags_prompt); ?></textarea>
             <p class="aipkit_form-help"><?php
                 $text = __('Use placeholders: {topic}, {content_summary}.', 'gpt3-ai-content-generator');
-$html = preg_replace_callback(
-    '/(\{[a-zA-Z0-9_]+\})/',
-    function ($matches) {
-        return sprintf(
-            '<code class="aipkit-placeholder" title="%s">%s</code>',
-            esc_attr__('Click to copy', 'gpt3-ai-content-generator'),
-            esc_html($matches[0])
-        );
-    },
-    $text
-);
-echo wp_kses($html, ['code' => ['class' => true, 'title' => true]]);
-?></p>
+                $html = preg_replace_callback(
+                    '/(\{[a-zA-Z0-9_]+\})/',
+                    function ($matches) {
+                        return sprintf(
+                            '<code class="aipkit-placeholder" title="%s">%s</code>',
+                            esc_attr__('Click to copy', 'gpt3-ai-content-generator'),
+                            esc_html($matches[0])
+                        );
+                    },
+                    $text
+                );
+                echo wp_kses($html, ['code' => ['class' => true, 'title' => true]]);
+                ?></p>
         </div>
     </div>
 </div>

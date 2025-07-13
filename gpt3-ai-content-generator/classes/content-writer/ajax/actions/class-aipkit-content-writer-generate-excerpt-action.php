@@ -29,6 +29,7 @@ class AIPKit_Content_Writer_Generate_Excerpt_Action extends AIPKit_Content_Write
 
         $generated_content = isset($_POST['generated_content']) ? wp_kses_post(wp_unslash($_POST['generated_content'])) : '';
         $final_title = isset($_POST['final_title']) ? sanitize_text_field(wp_unslash($_POST['final_title'])) : '';
+        $keywords = isset($_POST['keywords']) ? sanitize_text_field(wp_unslash($_POST['keywords'])) : '';
         $provider_raw = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
         $model = isset($_POST['model']) ? sanitize_text_field(wp_unslash($_POST['model'])) : '';
         $prompt_mode = isset($_POST['prompt_mode']) ? sanitize_key($_POST['prompt_mode']) : 'standard';
@@ -51,7 +52,7 @@ class AIPKit_Content_Writer_Generate_Excerpt_Action extends AIPKit_Content_Write
         }
 
         $content_summary = AIPKit_Content_Writer_Summarizer::summarize($generated_content);
-        $excerpt_user_prompt = AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_excerpt_prompt);
+        $excerpt_user_prompt = AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $keywords, $prompt_mode, $custom_excerpt_prompt);
         $excerpt_system_instruction = 'You are an expert copywriter. Your task is to provide an engaging excerpt for a piece of content.';
         $excerpt_ai_params = ['max_completion_tokens' => 200, 'temperature' => 1];
 

@@ -46,12 +46,14 @@ function process_enhancement_item_logic(array $item, array $item_config): array
     $changes_made = [];
 
     // --- START: Gather all possible placeholders ---
-    $original_meta = get_post_meta($post_id, '_yoast_wpseo_metadesc', true) ?: (get_post_meta($post_id, '_aioseo_description', true) ?: '');
+    $original_meta = get_post_meta($post->ID, '_yoast_wpseo_metadesc', true) ?: (get_post_meta($post->ID, '_aioseo_description', true) ?: '');
+    $original_focus_keyword = AIPKit_SEO_Helper::get_focus_keyword($post->ID);
     $placeholders = [
         '{original_title}' => $post->post_title,
         '{original_content}' => wp_strip_all_tags($post->post_content),
         '{original_excerpt}' => $post->post_excerpt,
         '{original_meta_description}' => $original_meta,
+        '{original_focus_keyword}' => $original_focus_keyword ?: '',
     ];
 
     if ($post->post_type === 'product' && class_exists('WooCommerce')) {
@@ -87,121 +89,115 @@ function process_enhancement_item_logic(array $item, array $item_config): array
     }
     // --- END: Gather placeholders ---
 
-    // --- NEW: Vector Context Logic ---
+    // --- Vector Context Logic ---
     $vector_context = '';
-    if (($item_config['enable_vector_store'] ?? '0') === '1' && class_exists(AIPKit_Vector_Store_Manager::class) && function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
-        $vector_store_manager = new AIPKit_Vector_Store_Manager();
-        $vector_context = VectorContextBuilder\build_vector_search_context_logic(
-            $ai_caller,
-            $vector_store_manager,
-            $post->post_title, // Use post title as the query
-            $item_config,      // Pass the whole task config
-            $item_config['ai_provider'],
-            null, // frontend_active_openai_vs_id
-            $item_config['pinecone_index_name'] ?? null,
-            null, // frontend_active_pinecone_namespace
-            $item_config['qdrant_collection_name'] ?? null,
-            null // No frontend context in cron jobs
-        );
-        if (!empty($vector_context)) {
-            $system_instruction = "## Relevant information from knowledge base:\n" . trim($vector_context) . "\n##\n\n" . $system_instruction;
+    $vector_store_manager = null;
+    if (($item_config['enable_vector_store'] ?? '0') === '1') {
+        if (class_exists(AIPKit_Vector_Store_Manager::class)) {
+            $vector_store_manager = new AIPKit_Vector_Store_Manager();
+        } else {
+            error_log('AIPKit Bulk Enhancer: Vector Store Manager class not found.');
         }
+
+        if ($vector_store_manager && function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
+            $vector_context = VectorContextBuilder\build_vector_search_context_logic(
+                $ai_caller,
+                $vector_store_manager,
+                $post->post_title, // Use post title as the query
+                $item_config,      // Pass the whole task config
+                $item_config['ai_provider'],         // Main AI provider
+                null,
+                null,
+                null,
+                null,
+                null // No frontend context in bulk enhancer
+            );
+        }
+    }
+    if (!empty($vector_context)) {
+        $system_instruction = "## Relevant information from knowledge base:\n" . trim($vector_context) . "\n##\n\n" . $system_instruction;
+        error_log("AIPKit Bulk Enhancer: Added vector context to system prompt for Post #{$post->ID}.");
     }
     // --- END: Vector Context Logic ---
 
-    // 1. Enhance Title
-    if (isset($item_config['update_title']) && $item_config['update_title'] === '1' && !empty($item_config['title_prompt'])) {
-        $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config['title_prompt']);
+    // --- REORDERED LOGIC START ---
+    $fields_to_enhance = [];
+    if (isset($item_config['update_title']) && $item_config['update_title'] === '1') {
+        $fields_to_enhance[] = 'title';
+    }
+    if (isset($item_config['update_excerpt']) && $item_config['update_excerpt'] === '1') {
+        $fields_to_enhance[] = 'excerpt';
+    }
+    if (isset($item_config['update_content']) && $item_config['update_content'] === '1') {
+        $fields_to_enhance[] = 'content';
+    }
+    if (isset($item_config['update_meta']) && $item_config['update_meta'] === '1') {
+        $fields_to_enhance[] = 'meta';
+    }
+    if (isset($item_config['update_keyword']) && $item_config['update_keyword'] === '1') {
+        $fields_to_enhance[] = 'keyword';
+    } // Assuming 'update_keyword' is the form field name
 
-        $ai_params_title = array_merge($ai_params, ['max_completion_tokens' => min($user_max_tokens, 150)]);
-        $title_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $ai_params_title, $system_instruction);
+    // 1. Process keyword first if requested
+    if (in_array('keyword', $fields_to_enhance) && !empty($item_config['keyword_prompt'])) {
+        $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config['keyword_prompt']);
+        $ai_params_kw = array_merge($ai_params, ['max_completion_tokens' => min($user_max_tokens, 20)]);
+        $keyword_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $ai_params_kw, $system_instruction);
 
-        if (!is_wp_error($title_result) && !empty($title_result['content'])) {
-            $new_title = trim(str_replace('"', '', $title_result['content']));
-            wp_update_post(['ID' => $post_id, 'post_title' => $new_title]);
-            $changes_made[] = 'title';
-        } else {
-            error_log("AIPKit Content Enhancement: Title generation failed for Post #{$post_id}. Error: " . (is_wp_error($title_result) ? $title_result->get_error_message() : 'Empty response.'));
+        if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
+            $new_keyword = trim(str_replace('"', '', $keyword_result['content']));
+            AIPKit_SEO_Helper::update_focus_keyword($post->ID, $new_keyword);
+            $placeholders['{original_focus_keyword}'] = $new_keyword; // UPDATE placeholder for subsequent calls
+            $changes_made[] = 'focus keyword';
         }
     }
 
-    // 2. Enhance Excerpt
-    if (isset($item_config['update_excerpt']) && $item_config['update_excerpt'] === '1' && !empty($item_config['excerpt_prompt'])) {
-        $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config['excerpt_prompt']);
-
-        $ai_params_excerpt = array_merge($ai_params, ['max_completion_tokens' => min($user_max_tokens, 300)]);
-        $excerpt_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $ai_params_excerpt, $system_instruction);
-
-        if (!is_wp_error($excerpt_result) && !empty($excerpt_result['content'])) {
-            $new_excerpt = trim(str_replace('"', '', $excerpt_result['content']));
-            wp_update_post(['ID' => $post_id, 'post_excerpt' => $new_excerpt]);
-            $changes_made[] = 'excerpt';
-        } else {
-            error_log("AIPKit Content Enhancement: Excerpt generation failed for Post #{$post_id}. Error: " . (is_wp_error($excerpt_result) ? $excerpt_result->get_error_message() : 'Empty response.'));
+    // 2. Process other fields
+    foreach ($fields_to_enhance as $field) {
+        if ($field === 'keyword') {
+            continue; // Already processed
         }
-    }
 
-    // 3. Enhance Content
-    if (isset($item_config['update_content']) && $item_config['update_content'] === '1' && !empty($item_config['content_prompt'])) {
-        $original_content = $post->post_content;
-        $media_tags = [];
-        $placeholder_prefix = '[AIPKIT_MEDIA_PLACEHOLDER_';
-        $placeholder_suffix = ']';
+        if (!empty($item_config[$field]['prompt'])) {
+            $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config[$field]['prompt']);
+            $current_ai_params = $ai_params;
 
-        $content_for_ai = preg_replace_callback(
-            '/(<img[^>]+>|<video[^>]*>.*?<\/video>|<figure[^>]*>.*?<\/figure>|<iframe[^>]*>.*?<\/iframe>|\[.*?\])/is',
-            function ($matches) use (&$media_tags, $placeholder_prefix, $placeholder_suffix) {
-                $media_tags[] = $matches[0];
-                $index = count($media_tags) - 1;
-                return $placeholder_prefix . $index . $placeholder_suffix;
-            },
-            $original_content
-        );
-
-        $content_for_ai = wp_strip_all_tags($content_for_ai);
-
-        $prompt_placeholders = $placeholders;
-        $prompt_placeholders['{original_content}'] = $content_for_ai;
-        $prompt = str_replace(array_keys($prompt_placeholders), array_values($prompt_placeholders), $item_config['content_prompt']);
-
-        $system_instruction_for_content = 'You are an expert editor. Your task is to rewrite and improve the provided article content while preserving any special placeholders like [AIPKIT_MEDIA_PLACEHOLDER_...]. Return only the full, revised article content, formatted with standard HTML paragraph tags (<p> and </p>). Do not use any other HTML tags.';
-
-        $ai_params_content = array_merge($ai_params, ['max_completion_tokens' => min($user_max_tokens, 4000)]);
-        $content_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $ai_params_content, $system_instruction_for_content);
-
-        if (!is_wp_error($content_result) && !empty($content_result['content'])) {
-            $enhanced_content = $content_result['content'];
-
-            if (!empty($media_tags)) {
-                foreach ($media_tags as $index => $tag) {
-                    $placeholder_to_find = $placeholder_prefix . $index . $placeholder_suffix;
-                    $enhanced_content = str_ireplace($placeholder_to_find, $tag, $enhanced_content);
-                }
+            if ($field === 'title') {
+                $current_ai_params['max_completion_tokens'] = min($user_max_tokens, 150);
+            }
+            if ($field === 'excerpt') {
+                $current_ai_params['max_completion_tokens'] = min($user_max_tokens, 300);
+            }
+            if ($field === 'meta') {
+                $current_ai_params['max_completion_tokens'] = min($user_max_tokens, 250);
             }
 
-            $new_content = wp_kses_post($enhanced_content);
-            wp_update_post(['ID' => $post_id, 'post_content' => $new_content]);
-            $changes_made[] = 'content';
-        } else {
-            error_log("AIPKit Content Enhancement: Content rewrite failed for Post #{$post_id}. Error: " . (is_wp_error($content_result) ? $content_result->get_error_message() : 'Empty response.'));
+            $ai_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $current_ai_params, $system_instruction);
+
+            if (!is_wp_error($ai_result) && !empty($ai_result['content'])) {
+                $new_value = trim(str_replace('"', '', $ai_result['content']));
+                switch ($field) {
+                    case 'title':
+                        wp_update_post(['ID' => $post->ID, 'post_title' => sanitize_text_field($new_value)]);
+                        $changes_made[] = 'title';
+                        break;
+                    case 'excerpt':
+                        wp_update_post(['ID' => $post->ID, 'post_excerpt' => wp_kses_post($new_value)]);
+                        $changes_made[] = 'excerpt';
+                        break;
+                    case 'content':
+                        wp_update_post(['ID' => $post->ID, 'post_content' => wp_kses_post($new_value)]);
+                        $changes_made[] = 'content';
+                        break;
+                    case 'meta':
+                        AIPKit_SEO_Helper::update_meta_description($post->ID, sanitize_text_field($new_value));
+                        $changes_made[] = 'meta description';
+                        break;
+                }
+            }
         }
     }
-
-    // 4. Enhance Meta Description
-    if (isset($item_config['update_meta']) && $item_config['update_meta'] === '1' && !empty($item_config['meta_prompt'])) {
-        $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config['meta_prompt']);
-
-        $ai_params_meta = array_merge($ai_params, ['max_completion_tokens' => min($user_max_tokens, 250)]);
-        $meta_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $ai_params_meta, $system_instruction);
-
-        if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
-            $new_meta = trim(str_replace('"', '', $meta_result['content']));
-            AIPKit_SEO_Helper::update_meta_description($post_id, $new_meta);
-            $changes_made[] = 'meta description';
-        } else {
-            error_log("AIPKit Content Enhancement: Meta description generation failed for Post #{$post_id}. Error: " . (is_wp_error($meta_result) ? $meta_result->get_error_message() : 'Empty response.'));
-        }
-    }
+    // --- REORDERED LOGIC END ---
 
     if (empty($changes_made)) {
         return ['status' => 'success', 'message' => "No enhancements were enabled or all AI calls failed for post #{$post_id}."];

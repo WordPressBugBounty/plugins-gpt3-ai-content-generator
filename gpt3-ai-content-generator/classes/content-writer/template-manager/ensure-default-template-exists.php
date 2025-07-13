@@ -87,9 +87,9 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
         'custom_meta_prompt' => AIPKit_Content_Writer_Prompts::get_default_meta_prompt(),
         'generate_focus_keyword' => '1',
         'custom_keyword_prompt' => AIPKit_Content_Writer_Prompts::get_default_keyword_prompt(),
-        'generate_excerpt' => '0',
+        'generate_excerpt' => '1',
         'custom_excerpt_prompt' => AIPKit_Content_Writer_Prompts::get_default_excerpt_prompt(),
-        'generate_tags' => '0',
+        'generate_tags' => '1',
         'custom_tags_prompt' => AIPKit_Content_Writer_Prompts::get_default_tags_prompt(),
         'cw_generation_mode' => 'single',
         'rss_feeds' => '',
@@ -152,7 +152,7 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
 
         // Check for 'generate_tags'
         if (!isset($config['generate_tags'])) {
-            $config['generate_tags'] = '0'; // default value
+            $config['generate_tags'] = '1'; // default value
             $needs_update = true;
         }
 
@@ -164,7 +164,7 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
 
         // --- ADDED: Also check for excerpt, as it was added recently too ---
         if (!isset($config['generate_excerpt'])) {
-            $config['generate_excerpt'] = '0';
+            $config['generate_excerpt'] = '1'; // default value
             $needs_update = true;
         }
         if (!isset($config['custom_excerpt_prompt'])) {

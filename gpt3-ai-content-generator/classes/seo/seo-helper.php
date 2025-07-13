@@ -2,6 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/seo/seo-helper.php
 // Status: MODIFIED
+// I have added a new public static function `update_post_slug_for_seo` to generate an SEO-friendly slug from the focus keyword or title and update the post.
 
 namespace WPAICG\SEO;
 
@@ -139,7 +140,7 @@ class AIPKit_SEO_Helper
     }
 
     /**
-     * Retrieves the focus keyword for a post.
+     * Retrieves the focus keyword for a specific post.
      *
      * @param int $post_id The ID of the post.
      * @return string|null The focus keyword, or null if not found/supported.
@@ -151,5 +152,103 @@ class AIPKit_SEO_Helper
             return $handler->get_focus_keyword($post_id);
         }
         return null;
+    }
+
+    /**
+     * Generates an SEO-friendly slug and updates the post.
+     *
+     * @param int $post_id The ID of the post to update.
+     * @return bool True on success, false on failure.
+     */
+    public static function update_post_slug_for_seo(int $post_id): bool
+    {
+        if ($post_id <= 0) {
+            return false;
+        }
+
+        $post = get_post($post_id);
+        if (!$post) {
+            return false;
+        }
+
+        // 1. Prioritize source for slug: Focus Keyword > Title
+        $source_string = self::get_focus_keyword($post_id);
+        if (empty(trim($source_string))) {
+            $source_string = $post->post_title;
+        }
+        if (empty(trim($source_string))) {
+            return false; // Nothing to generate slug from
+        }
+
+        // 2. Sanitize and prepare the string
+        $slug = strtolower($source_string);
+
+        // List of common stop words
+        $stop_words = [
+            'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he', 'i',
+            'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 'were',
+            'will', 'with', 'what', 'when', 'where', 'who', 'which', 'why', 'how', 'about',
+            'above', 'after', 'below', 'into', 'out', 'over', 'under', 'again', 'further',
+            'then', 'once', 'here', 'there', 'all', 'any', 'both', 'each', 'few', 'more',
+            'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same',
+            'so', 'than', 'too', 'very', 's', 't', 'can', 'just', 'don', 'should', 'now'
+        ];
+        $slug = preg_replace('/\b(' . implode('|', $stop_words) . ')\b/i', '', $slug);
+
+        // Transliterate non-ASCII characters to their closest ASCII representation
+        $slug = remove_accents($slug);
+
+        // Replace non-alphanumeric with hyphens
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+        // Remove multiple hyphens
+        $slug = preg_replace('/-+/', '-', $slug);
+        // Trim hyphens from start and end
+        $slug = trim($slug, '-');
+
+        if (empty($slug)) {
+            // If everything was stripped, fall back to a sanitized title
+            $slug = sanitize_title($post->post_title);
+            if (empty($slug)) {
+                return false; // Still nothing, can't proceed
+            }
+        }
+
+        // 3. Ensure Optimal Length
+        $slug_words = explode('-', $slug);
+        if (count($slug_words) > 7) {
+            $slug_words = array_slice($slug_words, 0, 7);
+            $slug = implode('-', $slug_words);
+        }
+        // Final character trim
+        $slug = substr($slug, 0, 75);
+        $slug = trim($slug, '-'); // Trim again in case substr created a trailing hyphen
+
+        if (empty($slug)) {
+            return false;
+        }
+
+        // 4. Ensure Uniqueness
+        $unique_slug = wp_unique_post_slug($slug, $post->ID, $post->post_status, $post->post_type, $post->post_parent);
+
+        // 5. Check if a change is needed before updating
+        if ($unique_slug === $post->post_name) {
+            return true; // No change needed
+        }
+
+        // 6. Update the Post
+        $update_result = wp_update_post([
+            'ID'        => $post_id,
+            'post_name' => $unique_slug
+        ], true); // true to return WP_Error on failure
+
+        if (is_wp_error($update_result)) {
+            error_log("AIPKit SEO Helper: Failed to update slug for post #{$post_id}. Error: " . $update_result->get_error_message());
+            return false;
+        }
+
+        // Clear post cache after update
+        clean_post_cache($post_id);
+
+        return true;
     }
 }
