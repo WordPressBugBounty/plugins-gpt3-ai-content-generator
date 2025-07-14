@@ -3,6 +3,7 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-autogpt-assets.php
 // Status: MODIFIED
 // I have added the default content writer prompts and cron job frequencies to the localized data for the AutoGPT form.
+
 namespace WPAICG\Admin\Assets;
 
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
@@ -260,8 +261,11 @@ class AIPKit_Autogpt_Assets
                 'previous_button' => __('Previous', 'gpt3-ai-content-generator'),
                 'next_button' => __('Next', 'gpt3-ai-content-generator'),
                 'confirm_delete_queue_item' => __('Are you sure you want to remove this item from the queue?', 'gpt3-ai-content-generator'),
+                'confirmDeleteQueueByStatus' => __('Are you sure you want to delete all %s items from the queue? This cannot be undone.', 'gpt3-ai-content-generator'),
+                'confirmDeleteQueueAll' => __('Are you sure you want to delete ALL items from the queue? This cannot be undone.', 'gpt3-ai-content-generator'),
                 'queue_item_deleted' => __('Queue item deleted.', 'gpt3-ai-content-generator'),
                 'error_deleting_queue_item' => __('Error deleting item:', 'gpt3-ai-content-generator'),
+                'errorDeletingAllItems' => __('Error deleting items:', 'gpt3-ai-content-generator'),
                 'retry_button' => __('Retry', 'gpt3-ai-content-generator'),
                 'item_marked_retry' => __('Item marked for retry. Queue processing will pick it up.', 'gpt3-ai-content-generator'),
                 'error_retrying_item' => __('Error retrying item:', 'gpt3-ai-content-generator'),

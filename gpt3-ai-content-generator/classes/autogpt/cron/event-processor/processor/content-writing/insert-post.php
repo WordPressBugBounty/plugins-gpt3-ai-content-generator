@@ -2,6 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-writing/insert-post.php
 // Status: MODIFIED
+// I have added a preg_replace call to convert markdown-style links into HTML <a> tags before the content is saved.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
@@ -77,6 +78,8 @@ function insert_post_logic(string $final_title, string $generated_content, array
     // Convert inline markdown elements like bold and italic.
     $html_content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html_content);
     $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
+    // Convert links: [text](url) -> <a href="url">text</a>
+    $html_content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $html_content);
     // --- END: Convert markdown to HTML ---
 
     // Inject in-content images before ToC generation

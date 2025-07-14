@@ -4,7 +4,7 @@
 /**
  * Partial: Automated Task Queue Viewer
  * Displays items currently in the task queue.
- * MODIFIED: Added search and status filter controls, made headers sortable.
+ * MODIFIED: Changed the "Delete Filtered" button to an icon-only button for a cleaner UI.
  */
 
 if (!defined('ABSPATH')) {
@@ -23,6 +23,10 @@ if (!defined('ABSPATH')) {
                 <option value="completed"><?php esc_html_e('Completed', 'gpt3-ai-content-generator'); ?></option>
                 <option value="failed"><?php esc_html_e('Failed', 'gpt3-ai-content-generator'); ?></option>
             </select>
+            <button id="aipkit_delete_queue_by_status_btn" class="aipkit_btn aipkit_btn-danger" title="<?php esc_attr_e('Delete items matching filter', 'gpt3-ai-content-generator'); ?>">
+                <span class="dashicons dashicons-trash"></span>
+                <span class="aipkit_spinner" style="display:none;"></span>
+            </button>
             <button id="aipkit_refresh_task_queue_btn" class="aipkit_btn aipkit_btn-secondary" title="<?php esc_attr_e('Refresh Queue', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-update-alt"></span>
                 <span class="aipkit_spinner" style="display:none;"></span>

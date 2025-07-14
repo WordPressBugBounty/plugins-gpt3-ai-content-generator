@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/ajax/actions/save-post/insert-post.php
 // Status: MODIFIED
-// I have modified the function signature to accept an excerpt and added it to the post array before insertion.
+// I have added a preg_replace call to convert markdown-style links into HTML <a> tags before the content is saved.
 
 namespace WPAICG\ContentWriter\Ajax\Actions\SavePost;
 
@@ -70,6 +70,8 @@ function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $imag
     // Convert inline markdown elements like bold and italic.
     $html_content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html_content);
     $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
+    // Convert links: [text](url) -> <a href="url">text</a>
+    $html_content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $html_content);
 
     // Update the post content in the array with the converted HTML
     $postarr['post_content'] = $html_content;

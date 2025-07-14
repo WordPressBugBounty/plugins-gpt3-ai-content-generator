@@ -42,7 +42,7 @@ class AIPKit_SEO_Helper
             self::$active_plugin = 'rank_math';
         } elseif (defined('AIOSEO_VERSION')) {
             self::$active_plugin = 'aioseo';
-        } elseif (class_exists('\The_SEO_Framework\API')) {
+        } elseif (defined('THE_SEO_FRAMEWORK_VERSION')) {
             self::$active_plugin = 'framework';
         } else {
             self::$active_plugin = 'none';

@@ -78,12 +78,8 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
             }
         }
         // FIX: Use JSON_UNESCAPED_UNICODE to prevent encoding issues with special characters.
-        $json_to_save = wp_json_encode($sanitized_labels, JSON_UNESCAPED_UNICODE);
+        $json_to_save = wp_json_encode($sanitized_labels, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         update_post_meta($form_id, '_aipkit_ai_form_labels', $json_to_save);
-    } else {
-        // --- DEBUG LOG ---
-        // error_log("[AI FORMS DEBUG] No 'labels' key found in settings array for form ID {$form_id}.");
-        // --- END DEBUG LOG ---
     }
 
     return true;

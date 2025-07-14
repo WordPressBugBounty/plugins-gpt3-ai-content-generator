@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.13
+Stable tag: 2.3.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,14 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 6. The Automate module, showing the task list and queue.
 
 == Changelog ==
+
+= 2.3.14 =
+
+- Fixed: Non-latin character rendering issues in AI Forms.
+- Fixed: URL parsing bug in the Content Writer module.
+- Fixed: Compatibility issue with The SEO Framework plugin.
+- Added: Delete function for automated tasks queue items.
+- Improved: Error handling in Content Assistant.
 
 = 2.3.13 =
 

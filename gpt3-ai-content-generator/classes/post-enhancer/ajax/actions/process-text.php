@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/ajax/actions/process-text.php
 // Status: MODIFIED
-// I have updated this file to accept a `final_prompt` directly from the frontend, instead of building the prompt on the backend, and added basic markdown to HTML conversion.
+// I have added a preg_replace call to convert markdown-style links into HTML <a> tags before the content is sent back to the editor.
 
 namespace WPAICG\PostEnhancer\Ajax\Actions;
 
@@ -61,10 +61,10 @@ class AIPKit_PostEnhancer_Process_Text extends AIPKit_Post_Enhancer_Base_Ajax_Ac
         $html_content = preg_replace('/^####\s+(.*)$/m', '<h4>$1</h4>', $html_content);
         $html_content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html_content);
         $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
+        // Convert links: [text](url) -> <a href="url">text</a>
+        $html_content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $html_content);
         // --- END: Convert markdown to HTML ---
 
         wp_send_json_success(['text' => $html_content]);
     }
-
-    // --- REMOVED: build_prompt method is no longer needed ---
 }

@@ -42,10 +42,11 @@ function do_ajax_duplicate_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_insta
     }
 
     // --- FIX: Remap and re-encode the structure for saving ---
-    // The get_form_data() returns 'structure' as an array, but save_form_settings() expects 'form_structure' as a JSON string.
+    // The get_form_data() returns 'structure' as a PHP array, but the save function expects 'form_structure' as a JSON string.
     if (isset($original_form_data['structure']) && is_array($original_form_data['structure'])) {
-        $original_form_data['form_structure'] = wp_json_encode($original_form_data['structure']);
-        unset($original_form_data['structure']);
+        // Re-encode with flags to preserve Unicode characters, preventing them from becoming gibberish on some servers.
+        $original_form_data['form_structure'] = wp_json_encode($original_form_data['structure'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        unset($original_form_data['structure']); // Remove the old PHP array key
     }
     // --- END FIX ---
 

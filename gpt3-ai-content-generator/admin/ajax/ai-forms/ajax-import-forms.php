@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/ajax/ai-forms/ajax-import-forms.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Admin\Ajax\AIForms;
 
@@ -53,12 +53,15 @@ function do_ajax_import_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instanc
         $settings = $form_data;
         unset($settings['title'], $settings['id'], $settings['status']); // Remove fields not used in creation
 
+        // --- FIX: Remap and re-encode the structure for saving ---
         // The export file has 'structure' as an array, but the save function expects 'form_structure' as a JSON string.
         if (isset($settings['structure']) && is_array($settings['structure'])) {
-            // Re-encode the structure array to a JSON string and assign to the correct key.
+            // Re-encode with flags to preserve Unicode characters, preventing them from becoming gibberish on some servers.
             $settings['form_structure'] = wp_json_encode($settings['structure'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            unset($settings['structure']);
+            unset($settings['structure']); // Remove the old PHP array key
         }
+        // --- END FIX ---
+
 
         // Append "(Imported)" to avoid direct title conflicts, making management easier.
         $new_title = $title . ' (Imported)';

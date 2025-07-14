@@ -77,7 +77,7 @@ class ChatResponseLogger
                 'request_payload' => $request_payload_on_error,
             ]);
             $this->log_storage->log_message($log_error_data);
-            $status_code = is_array($error_data) && isset($error_data['status']) ? $error_data['status'] : 400;
+            $status_code = is_array($error_data) && isset($error_data['status_code']) ? (int)$error_data['status_code'] : 400; // Use status_code
             wp_send_json_error(['message' => $ai_result->get_error_message()], $status_code);
         } else {
             $ai_response = $ai_result['content'] ?? '';

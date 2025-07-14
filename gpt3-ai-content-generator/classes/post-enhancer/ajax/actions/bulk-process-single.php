@@ -1,5 +1,9 @@
 <?php
 
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/ajax/actions/bulk-process-single.php
+// Status: MODIFIED
+// I have updated this file to capture and return specific API errors during bulk processing, rather than showing a generic failure message.
+
 namespace WPAICG\PostEnhancer\Ajax\Actions;
 
 use WPAICG\PostEnhancer\Ajax\Base\AIPKit_Post_Enhancer_Base_Ajax_Action;
@@ -182,13 +186,15 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
             $ai_params_kw = array_merge($ai_params, ['max_completion_tokens' => 20]);
             $keyword_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $ai_params_kw, $system_instruction, ['post_id' => $post->ID]);
 
-            if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
+            if (is_wp_error($keyword_result)) {
+                $this->send_error_response($keyword_result);
+                return;
+            }
+
+            if (!empty($keyword_result['content'])) {
                 $new_keyword = trim(str_replace('"', '', $keyword_result['content']));
                 AIPKit_SEO_Helper::update_focus_keyword($post->ID, $new_keyword);
-
-                // **CRUCIAL**: Update the placeholder for subsequent calls in this run
                 $placeholders['{original_focus_keyword}'] = $new_keyword;
-
                 $changes_made[] = 'focus keyword';
             }
         }
@@ -219,7 +225,12 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
 
                 $ai_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $current_ai_params, $system_instruction, ['post_id' => $post->ID]);
 
-                if (!is_wp_error($ai_result) && !empty($ai_result['content'])) {
+                if (is_wp_error($ai_result)) {
+                    $this->send_error_response($ai_result);
+                    return;
+                }
+
+                if (!empty($ai_result['content'])) {
                     $new_value = trim(str_replace('"', '', $ai_result['content']));
                     switch ($field) {
                         case 'title':
@@ -231,7 +242,6 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                             $changes_made[] = 'excerpt';
                             break;
                         case 'content':
-                            // --- START: Convert markdown to HTML ---
                             $html_content = $new_value;
                             $html_content = preg_replace('/^#\s+(.*)$/m', '<h1>$1</h1>', $html_content);
                             $html_content = preg_replace('/^##\s+(.*)$/m', '<h2>$1</h2>', $html_content);
@@ -239,7 +249,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                             $html_content = preg_replace('/^####\s+(.*)$/m', '<h4>$1</h4>', $html_content);
                             $html_content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html_content);
                             $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
-                            // --- END: Convert markdown to HTML ---
+                            $html_content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $html_content);
                             wp_update_post(['ID' => $post->ID, 'post_content' => wp_kses_post($html_content)]);
                             $changes_made[] = 'content';
                             break;
