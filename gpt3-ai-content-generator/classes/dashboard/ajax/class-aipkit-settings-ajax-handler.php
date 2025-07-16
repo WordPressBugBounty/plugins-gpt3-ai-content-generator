@@ -144,13 +144,15 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                 $value_to_set = null;
                 switch ($key) {
                     case 'max_completion_tokens': $val = absint($value_from_post);
-                        $val = max(1, min($val, 16383));
+                        $val = max(1, min($val, 128000));
                         $value_to_set = $val;
                         break;
                     case 'temperature':
                     case 'top_p':
+                    case 'frequency_penalty':
+                    case 'presence_penalty':
                         $val = floatval($value_from_post);
-                        if ($key === 'temperature') {
+                        if ($key === 'temperature' || $key === 'frequency_penalty' || $key === 'presence_penalty') {
                             $val = max(0.0, min($val, 2.0));
                         }
                         if ($key === 'top_p') {

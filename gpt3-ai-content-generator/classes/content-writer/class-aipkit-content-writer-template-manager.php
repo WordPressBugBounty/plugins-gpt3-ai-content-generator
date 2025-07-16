@@ -47,6 +47,7 @@ class AIPKit_Content_Writer_Template_Manager
         'gsheets_sheet_id', 'gsheets_credentials',
         'url_list',
         'generate_toc',
+        'generate_seo_slug', // NEW: Add generate_seo_slug
         'generate_images_enabled', 'image_provider', 'image_model', 'image_prompt',
         'image_count', 'image_placement', 'image_placement_param_x', 'image_alignment', 'image_size',
         'generate_featured_image', 'featured_image_prompt',

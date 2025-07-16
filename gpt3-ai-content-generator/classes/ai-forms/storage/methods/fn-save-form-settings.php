@@ -40,6 +40,15 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     if (isset($settings['max_tokens'])) {
         update_post_meta($form_id, '_aipkit_ai_form_max_tokens', absint($settings['max_tokens']));
     }
+    if (isset($settings['top_p'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_top_p', sanitize_text_field($settings['top_p']));
+    }
+    if (isset($settings['frequency_penalty'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_frequency_penalty', sanitize_text_field($settings['frequency_penalty']));
+    }
+    if (isset($settings['presence_penalty'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_presence_penalty', sanitize_text_field($settings['presence_penalty']));
+    }
 
     // --- Save Vector Settings ---
     if (isset($settings['enable_vector_store'])) {

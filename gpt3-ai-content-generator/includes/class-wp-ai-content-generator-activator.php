@@ -242,6 +242,11 @@ class WP_AI_Content_Generator_Activator
         } else {
             error_log('AIPKit Activation Error: Function aipkit_create_content_writer_templates_table not found.');
         }
+        if (function_exists('aipkit_create_rss_history_table')) {
+            aipkit_create_rss_history_table();
+        } else {
+            error_log('AIPKit Activation Error: Function aipkit_create_rss_history_table not found.');
+        }
         error_log("AIPKit Activator: Database table check/creation completed for blog " . ($blog_id ?: get_current_blog_id()) . ".");
         if ($switched) {
             restore_current_blog();
@@ -266,50 +271,6 @@ class WP_AI_Content_Generator_Activator
         } else {
             error_log("AIPKit Activator: setup_new_blog hook fired with invalid blog ID.");
         }
-    }
-
-    public static function ensure_tables_for_current_site()
-    {
-        if (!is_admin()) {
-            return;
-        }
-        if (defined('WP_INSTALLING') && WP_INSTALLING) {
-            return;
-        }
-        $blog_id = get_current_blog_id();
-        $transient_key = "aipkit_tables_checked_blog_{$blog_id}";
-        if (get_transient($transient_key)) {
-            return;
-        }
-
-        global $wpdb;
-        // This list should match the tables created in `setup_tables_for_blog()`
-        $required_table_suffixes = [
-            'aipkit_chat_logs',
-            'aipkit_guest_token_usage',
-            'aipkit_sse_message_cache',
-            'aipkit_vector_data_source',
-            'aipkit_automated_tasks',
-            'aipkit_automated_task_queue',
-            'aipkit_content_writer_templates',
-        ];
-        $run_setup = false;
-
-        foreach ($required_table_suffixes as $suffix) {
-            $table_name = $wpdb->prefix . $suffix;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name));
-            if ($table_exists !== $table_name) {
-                error_log("AIPKit Activator: Table '{$table_name}' not found for blog {$blog_id}. Scheduling table setup...");
-                $run_setup = true;
-                break; // Found one missing table, no need to check others
-            }
-        }
-
-        if ($run_setup) {
-            self::setup_tables_for_blog();
-        }
-        set_transient($transient_key, 'checked', DAY_IN_SECONDS);
     }
 
     /**

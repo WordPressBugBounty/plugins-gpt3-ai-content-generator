@@ -64,6 +64,9 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $ai_model = isset($_POST['ai_model']) ? sanitize_text_field(wp_unslash($_POST['ai_model'])) : null;
     $temperature = isset($_POST['temperature']) ? sanitize_text_field(wp_unslash($_POST['temperature'])) : null;
     $max_tokens = isset($_POST['max_tokens']) ? absint($_POST['max_tokens']) : null;
+    $top_p = isset($_POST['top_p']) ? sanitize_text_field(wp_unslash($_POST['top_p'])) : null;
+    $frequency_penalty = isset($_POST['frequency_penalty']) ? sanitize_text_field(wp_unslash($_POST['frequency_penalty'])) : null;
+    $presence_penalty = isset($_POST['presence_penalty']) ? sanitize_text_field(wp_unslash($_POST['presence_penalty'])) : null;
 
     // --- Get Vector config fields from POST ---
     $enable_vector_store = isset($_POST['enable_vector_store']) && $_POST['enable_vector_store'] === '1' ? '1' : '0';
@@ -97,6 +100,9 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'ai_model' => $ai_model,
         'temperature' => $temperature,
         'max_tokens' => $max_tokens,
+        'top_p' => $top_p,
+        'frequency_penalty' => $frequency_penalty,
+        'presence_penalty' => $presence_penalty,
         // Vector settings
         'enable_vector_store' => $enable_vector_store,
         'vector_store_provider' => $vector_store_provider,

@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/ajax/actions/class-aipkit-content-writer-save-post-action.php
 // Status: MODIFIED
-// I have added a call to the new `update_post_slug_for_seo` function after all other post data has been saved.
+// I have updated this file to include a call to the new `set_post_tags_logic` function, ensuring that generated tags are saved with the post.
 
 namespace WPAICG\ContentWriter\Ajax\Actions;
 
@@ -105,11 +105,11 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         }
         // --- END NEW ---
 
-        // --- NEW: Step 12 - Generate and save SEO-friendly slug ---
-        if (class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+        // --- MODIFIED: Step 12 - Generate and save SEO-friendly slug (conditional) ---
+        if (isset($post_data['generate_seo_slug']) && $post_data['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
             \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($post_id_result);
         }
-        // --- END NEW ---
+        // --- END MODIFICATION ---
 
         // 13. Send a success response
         wp_send_json_success([

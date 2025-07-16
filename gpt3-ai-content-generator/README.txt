@@ -4,11 +4,13 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.14
+Stable tag: 2.3.15
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 A complete AI toolkit for WordPress. Includes a content writer, chatbot, image generator, AI forms, automation, AI training, and more.
+
+[Documentation](https://docs.aipower.org/) 
 
 == Description ==
 
@@ -70,6 +72,15 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 6. The Automate module, showing the task list and queue.
 
 == Changelog ==
+
+= 2.3.15 =
+
+- Added: URL Optimization support for Content Writer, Automated Tasks, and Content Assistant.
+- Added: {product_categories} placeholder for the WooCommerce Product Writer.
+- Added: Support for top_p, frequency_penalty, and presence_penalty parameters in AI Forms. Note: OpenAI's new Responses API does not support frequency_penalty and presence_penalty, but other providers still do.
+- Added: {source_url} placeholder is now available for prompts in the RSS module.
+- Improved: Improved RSS history handling.
+- Improved: Increased maximum token limit to 128,000.
 
 = 2.3.14 =
 

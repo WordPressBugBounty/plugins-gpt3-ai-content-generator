@@ -26,6 +26,9 @@ if (class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
 }
 $default_temp = $global_ai_params['temperature'] ?? 1.0;
 $default_max_tokens = $global_ai_params['max_completion_tokens'] ?? 2000;
+$default_top_p = $global_ai_params['top_p'] ?? 1.0;
+$default_frequency_penalty = $global_ai_params['frequency_penalty'] ?? 0.0;
+$default_presence_penalty = $global_ai_params['presence_penalty'] ?? 0.0;
 ?>
 <div class="aipkit_form_editor">
     <form id="aipkit_ai_form_editor_form" onsubmit="return false;">

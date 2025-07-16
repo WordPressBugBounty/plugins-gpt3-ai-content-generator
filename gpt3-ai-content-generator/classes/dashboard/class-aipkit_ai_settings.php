@@ -27,8 +27,10 @@ if (!class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
 
         // Default advanced parameters for AI generation.
         public static $default_ai_params = array(
-            'max_completion_tokens' => 1500, 'temperature' => 1, 
-            'top_p' => 1,
+            'max_completion_tokens' => 1500, 'temperature' => 1.0,
+            'top_p' => 1.0,
+            'frequency_penalty' => 0.0,
+            'presence_penalty' => 0.0,
         );
 
         // Default API Keys structure.

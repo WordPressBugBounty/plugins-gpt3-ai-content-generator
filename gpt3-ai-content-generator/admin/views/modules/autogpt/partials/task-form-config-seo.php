@@ -47,6 +47,12 @@ $default_custom_tags_prompt = AIPKit_Content_Writer_Prompts::get_default_tags_pr
                 <input type="checkbox" id="aipkit_task_cw_generate_toc" name="generate_toc" value="1">
                 <?php esc_html_e('Table of Contents', 'gpt3-ai-content-generator'); ?>
             </label>
+            <!-- NEW: Checkbox for SEO Slug generation -->
+            <label class="aipkit_checkbox-label" for="aipkit_task_cw_generate_seo_slug">
+                <input type="checkbox" id="aipkit_task_cw_generate_seo_slug" name="generate_seo_slug" value="1">
+                <?php esc_html_e('Optimize URL', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <!-- END NEW -->
         </div>
     </div>
     <hr class="aipkit_hr">
@@ -113,7 +119,7 @@ echo wp_kses($html, ['code' => ['class' => true, 'title' => true]]);
         <div id="aipkit_task_cw_custom_excerpt_prompt_wrapper" class="aipkit_collapsible_wrapper aipkit_collapsed">
            <textarea id="aipkit_task_cw_custom_excerpt_prompt" name="custom_excerpt_prompt" class="aipkit_form-input aipkit_autosave_trigger" rows="6"><?php echo esc_textarea($default_custom_excerpt_prompt); ?></textarea>
            <p class="aipkit_form-help"><?php
-            $text = __('Use placeholders: {topic}, {content_summary}.', 'gpt3-ai-content-generator');
+                $text = __('Use placeholders: {topic}, {content_summary}.', 'gpt3-ai-content-generator');
                 $html = preg_replace_callback(
                     '/(\{[a-zA-Z0-9_]+\})/',
                     function ($matches) {

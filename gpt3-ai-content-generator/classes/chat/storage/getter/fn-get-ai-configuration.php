@@ -59,7 +59,7 @@ function get_ai_configuration_logic(int $bot_id, ?string $current_provider_from_
     $settings['max_completion_tokens'] = ($max_tokens_val === 'not_set')
         ? absint($global_ai_params['max_completion_tokens'] ?? $default_max_tokens)
         : absint($max_tokens_val);
-    $settings['max_completion_tokens'] = max(1, min($settings['max_completion_tokens'], 16383));
+    $settings['max_completion_tokens'] = max(1, min($settings['max_completion_tokens'], 128000));
 
     $max_msgs_val = $get_meta_fn('_aipkit_max_messages', 'not_set');
     $settings['max_messages'] = ($max_msgs_val === 'not_set')

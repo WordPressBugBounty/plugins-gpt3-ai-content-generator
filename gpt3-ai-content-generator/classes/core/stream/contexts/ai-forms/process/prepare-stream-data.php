@@ -63,13 +63,26 @@ function prepare_stream_data_logic(
 
     // 2. Prepare AI and API Parameters
     $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
-    $ai_params_for_payload = ['temperature' => $global_ai_params['temperature'] ?? 1.0, 'max_completion_tokens' => $global_ai_params['max_completion_tokens'] ?? 2000, 'top_p' => $global_ai_params['top_p'] ?? 1.0];
+    $ai_params_for_payload = $global_ai_params; // Start with all global defaults
+
+    // Override with form-specific settings if they are numeric
     if (isset($form_config['temperature']) && is_numeric($form_config['temperature'])) {
         $ai_params_for_payload['temperature'] = floatval($form_config['temperature']);
     }
     if (isset($form_config['max_tokens']) && is_numeric($form_config['max_tokens'])) {
         $ai_params_for_payload['max_completion_tokens'] = absint($form_config['max_tokens']);
     }
+    if (isset($form_config['top_p']) && is_numeric($form_config['top_p'])) {
+        $ai_params_for_payload['top_p'] = floatval($form_config['top_p']);
+    }
+    if (isset($form_config['frequency_penalty']) && is_numeric($form_config['frequency_penalty'])) {
+        $ai_params_for_payload['frequency_penalty'] = floatval($form_config['frequency_penalty']);
+    }
+    if (isset($form_config['presence_penalty']) && is_numeric($form_config['presence_penalty'])) {
+        $ai_params_for_payload['presence_penalty'] = floatval($form_config['presence_penalty']);
+    }
+
+
     if ($provider === 'Google' && class_exists(GoogleSettingsHandler::class)) {
         $ai_params_for_payload['safety_settings'] = GoogleSettingsHandler::get_safety_settings();
     }

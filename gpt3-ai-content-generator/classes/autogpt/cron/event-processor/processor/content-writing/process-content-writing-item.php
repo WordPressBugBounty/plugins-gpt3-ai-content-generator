@@ -256,14 +256,29 @@ function process_content_writing_item_logic(array $item_config): array
     }
     $new_post_id = $insert_result;
 
+    // --- ADDED: Log processed RSS item GUID to history ---
+    if (isset($item_config['rss_item_guid']) && !empty($item_config['rss_item_guid']) && isset($item_config['task_id'])) {
+        global $wpdb;
+        $history_table_name = $wpdb->prefix . 'aipkit_rss_history';
+        $wpdb->insert(
+            $history_table_name,
+            [
+                'task_id'   => absint($item_config['task_id']),
+                'item_guid' => $item_config['rss_item_guid'],
+            ],
+            ['%d', '%s']
+        );
+    }
+    // --- END ADDED ---
+
     // --- ADDED: Save Tags ---
     if (!empty($tags) && function_exists('\WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_logic')) {
         \WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_logic($new_post_id, $tags);
     }
     // --- END ADDED ---
 
-    // --- NEW: Update Slug ---
-    if (class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+    // --- NEW: Update Slug based on checkbox ---
+    if (isset($item_config['generate_seo_slug']) && $item_config['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
         \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($new_post_id);
     }
     // --- END NEW ---

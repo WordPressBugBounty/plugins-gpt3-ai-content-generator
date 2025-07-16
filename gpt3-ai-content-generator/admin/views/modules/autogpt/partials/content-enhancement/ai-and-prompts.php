@@ -1,7 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/lib/views/modules/autogpt/partials/content-enhancement/ai-and-prompts.php
 // Status: MODIFIED
-// I have added a 'ce_' prefix to all 'name' attributes to prevent collisions with other task forms.
 
 /**
  * Partial: Automated Task Form - Content Enhancement AI & Prompt Settings
@@ -39,7 +38,7 @@ $default_title_prompt = "You are an expert SEO copywriter. Generate the single b
 $default_excerpt_prompt = "Rewrite the post excerpt to be more compelling and engaging based on the information provided. Use a friendly tone and aim for 1–2 concise sentences. Return ONLY the new excerpt without any explanation or formatting.\n\nPost title: \"{original_title}\"\nPost content snippet: \"{original_content}\"";
 $default_meta_prompt = "Generate a single, concise, and SEO-friendly meta description (under 155 characters) for a web page based on the provided information. The description must:\n- Begin with or include the focus keyword near the start\n- Use an active voice\n- Include a clear call-to-action\n\nReturn ONLY the new meta description without any introduction or formatting.\n\nPage title: \"{original_title}\"\nPage content snippet: \"{original_content}\"\nFocus keyword: \"{original_focus_keyword}\"";
 $default_content_prompt = "You are an expert editor. Rewrite and improve the following article to make it more engaging, clear, and informative. Maintain the original tone and intent, but enhance the writing quality. Ensure the following:\n- The revised content is at least 600 words long\n- The focus keyword appears in one or more subheadings (H2 or H3)\n- The focus keyword is used naturally throughout the article, especially in the introduction and conclusion\n\nThe article title is: {original_title}\nFocus keyword: {original_focus_keyword}\n\nOriginal Content:\n{original_content}";
-$product_placeholders_help_text = __(' For products: {price}, {regular_price}, {sku}, {attributes}, {stock_quantity}, {stock_status}, {weight}, {length}, {width}, {height}, {purchase_note}.', 'gpt3-ai-content-generator');
+$product_placeholders_help_text = __(' For products: {price}, {regular_price}, {sku}, {attributes}, {stock_quantity}, {stock_status}, {weight}, {length}, {width}, {height}, {purchase_note}, {product_categories}.', 'gpt3-ai-content-generator');
 
 ?>
 <div id="aipkit_task_config_enhancement_ai_and_prompts_main" class="aipkit_task_config_section">

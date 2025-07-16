@@ -29,7 +29,7 @@ use WPAICG\Core\Providers\Google\GoogleSettingsHandler; // For settings-safety-g
                 <div class="aipkit_form-group aipkit_form-col">
                     <label class="aipkit_form-label" for="aipkit_max_completion_tokens"><?php echo esc_html__('Max Tokens', 'gpt3-ai-content-generator'); ?></label>
                     <div class="aipkit_slider_wrapper">
-                        <input type="range" id="aipkit_max_completion_tokens" name="max_completion_tokens" class="aipkit_form-input aipkit_range_slider aipkit_autosave_trigger" min="1" max="16383" step="1" value="<?php echo esc_attr($max_completion_tokens); ?>" />
+                        <input type="range" id="aipkit_max_completion_tokens" name="max_completion_tokens" class="aipkit_form-input aipkit_range_slider aipkit_autosave_trigger" min="1" max="128000" step="1" value="<?php echo esc_attr($max_completion_tokens); ?>" />
                         <span id="aipkit_max_completion_tokens_value" class="aipkit_slider_value"><?php echo esc_html($max_completion_tokens); ?></span>
                     </div>
                 </div>

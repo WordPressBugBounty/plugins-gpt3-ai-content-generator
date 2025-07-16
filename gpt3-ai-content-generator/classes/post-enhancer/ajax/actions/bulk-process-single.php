@@ -2,7 +2,6 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/ajax/actions/bulk-process-single.php
 // Status: MODIFIED
-// I have updated this file to capture and return specific API errors during bulk processing, rather than showing a generic failure message.
 
 namespace WPAICG\PostEnhancer\Ajax\Actions;
 
@@ -122,6 +121,13 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                 $placeholders['{height}'] = $product->get_height();
                 $placeholders['{short_description}'] = wp_strip_all_tags($product->get_short_description());
                 $placeholders['{purchase_note}'] = $product->get_purchase_note();
+                $category_terms = get_the_terms($post->ID, 'product_cat');
+                if (!is_wp_error($category_terms) && !empty($category_terms)) {
+                    $category_names = wp_list_pluck($category_terms, 'name');
+                    $placeholders['{product_categories}'] = implode(', ', $category_names);
+                } else {
+                    $placeholders['{product_categories}'] = '';
+                }
 
                 $attributes = $product->get_attributes();
                 $attribute_string = '';
@@ -194,7 +200,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
             if (!empty($keyword_result['content'])) {
                 $new_keyword = trim(str_replace('"', '', $keyword_result['content']));
                 AIPKit_SEO_Helper::update_focus_keyword($post->ID, $new_keyword);
-                $placeholders['{original_focus_keyword}'] = $new_keyword;
+                $placeholders['{original_focus_keyword}'] = $new_keyword; // UPDATE placeholder for subsequent calls
                 $changes_made[] = 'focus keyword';
             }
         }
@@ -268,7 +274,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
         // --- REORDERED LOGIC END ---
 
         // --- NEW: Update Slug after all other changes ---
-        if (!empty($changes_made)) {
+        if (!empty($changes_made) && isset($item_config['generate_seo_slug']) && $item_config['generate_seo_slug'] === '1') {
             if (class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
                 \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($post->ID);
             }

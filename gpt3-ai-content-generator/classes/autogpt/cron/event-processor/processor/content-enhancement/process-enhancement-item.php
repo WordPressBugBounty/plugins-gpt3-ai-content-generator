@@ -2,7 +2,6 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-enhancement/process-enhancement-item.php
 // Status: MODIFIED
-// I have corrected the call to build_vector_search_context_logic and added the requested logging.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentEnhancement;
 
@@ -45,7 +44,7 @@ function process_enhancement_item_logic(array $item, array $item_config): array
     $system_instruction = 'You are an expert SEO copywriter. You follow instructions precisely. Your response must contain ONLY the generated text, with no introductory phrases, labels, or quotation marks.';
     $changes_made = [];
 
-    // --- START: Gather all possible placeholders ---
+    // --- Start: Gather all possible placeholders ---
     $original_meta = get_post_meta($post->ID, '_yoast_wpseo_metadesc', true) ?: (get_post_meta($post->ID, '_aioseo_description', true) ?: '');
     $original_focus_keyword = AIPKit_SEO_Helper::get_focus_keyword($post->ID);
     $placeholders = [
@@ -71,6 +70,14 @@ function process_enhancement_item_logic(array $item, array $item_config): array
             $placeholders['{height}'] = $product->get_height();
             $placeholders['{short_description}'] = wp_strip_all_tags($product->get_short_description());
             $placeholders['{purchase_note}'] = $product->get_purchase_note();
+            $placeholders['{total_sales}'] = $product->get_total_sales();
+            $category_terms = get_the_terms($post->ID, 'product_cat');
+            if (!is_wp_error($category_terms) && !empty($category_terms)) {
+                $category_names = wp_list_pluck($category_terms, 'name');
+                $placeholders['{product_categories}'] = implode(', ', $category_names);
+            } else {
+                $placeholders['{product_categories}'] = '';
+            }
 
             $attributes = $product->get_attributes();
             $attribute_string = '';
@@ -163,13 +170,13 @@ function process_enhancement_item_logic(array $item, array $item_config): array
             $current_ai_params = $ai_params;
 
             if ($field === 'title') {
-                $current_ai_params['max_completion_tokens'] = min($user_max_tokens, 150);
+                $current_ai_params['max_completion_tokens'] = 150;
             }
             if ($field === 'excerpt') {
-                $current_ai_params['max_completion_tokens'] = min($user_max_tokens, 300);
+                $current_ai_params['max_completion_tokens'] = 300;
             }
             if ($field === 'meta') {
-                $current_ai_params['max_completion_tokens'] = min($user_max_tokens, 250);
+                $current_ai_params['max_completion_tokens'] = 250;
             }
 
             $ai_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $current_ai_params, $system_instruction);

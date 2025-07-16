@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Variables passed from parent (form-editor.php):
-// $providers, $default_temp, $default_max_tokens
+// $providers, $default_temp, $default_max_tokens, $default_top_p, $default_frequency_penalty, $default_presence_penalty
 // NEW: Variables passed down from ai-forms/index.php
 // $openai_vector_stores, $pinecone_indexes, $qdrant_collections, $openai_embedding_models, $google_embedding_models
 ?>
@@ -69,9 +69,9 @@ if (!defined('ABSPATH')) {
             <p class="aipkit_form-help" style="margin-top: 0; margin-bottom: 15px;">
                 <?php esc_html_e('Set the AI model and parameters for this form. These settings will override the global defaults.', 'gpt3-ai-content-generator'); ?>
             </p>
-            <!-- Provider & Model Row -->
-            <div class="aipkit_form-row">
-                <div class="aipkit_form-group aipkit_form-col">
+            <!-- Provider, Model & Settings Icon Row -->
+            <div class="aipkit_form-row aipkit_ai_form_model_config_row" style="flex-wrap: unset;">
+                <div class="aipkit_form-group aipkit_form-col aipkit_ai_form_provider_col">
                     <label class="aipkit_form-label" for="aipkit_ai_form_ai_provider"><?php esc_html_e('AI Provider', 'gpt3-ai-content-generator'); ?></label>
                     <select id="aipkit_ai_form_ai_provider" name="ai_provider" class="aipkit_form-input">
                         <?php foreach ($providers as $p_value) : ?>
@@ -79,27 +79,66 @@ if (!defined('ABSPATH')) {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="aipkit_form-group aipkit_form-col">
+                <div class="aipkit_form-group aipkit_form-col aipkit_ai_form_model_col">
                     <label class="aipkit_form-label" for="aipkit_ai_form_ai_model"><?php esc_html_e('AI Model', 'gpt3-ai-content-generator'); ?></label>
                     <select id="aipkit_ai_form_ai_model" name="ai_model" class="aipkit_form-input">
                         <option value=""><?php esc_html_e('Sync provider to see models', 'gpt3-ai-content-generator'); ?></option>
                     </select>
                 </div>
+                <div class="aipkit_form-group aipkit_form-col aipkit_ai_form_settings_col">
+                     <button type="button" id="aipkit_ai_form_toggle_params_btn" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn" title="<?php esc_attr_e('Toggle advanced AI parameters', 'gpt3-ai-content-generator'); ?>">
+                        <span class="dashicons dashicons-admin-generic"></span>
+                    </button>
+                </div>
             </div>
-            <!-- Temperature & Tokens Row -->
-            <div class="aipkit_form-row">
-                <div class="aipkit_form-group aipkit_form-col">
-                    <label class="aipkit_form-label" for="aipkit_ai_form_temperature"><?php esc_html_e('Temperature', 'gpt3-ai-content-generator'); ?></label>
-                    <div class="aipkit_slider_wrapper">
-                        <input type="range" id="aipkit_ai_form_temperature" name="temperature" class="aipkit_form-input aipkit_range_slider" min="0" max="2" step="0.1" value="<?php echo esc_attr($default_temp); ?>" />
-                        <span id="aipkit_ai_form_temperature_value" class="aipkit_slider_value"><?php echo esc_html($default_temp); ?></span>
+
+            <!-- Hidden Parameters Container -->
+            <div id="aipkit_ai_form_advanced_params_container" style="display:none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--aipkit_container-border);">
+                <!-- Temperature & Tokens Row -->
+                <div class="aipkit_form-row">
+                    <div class="aipkit_form-group aipkit_form-col">
+                        <label class="aipkit_form-label" for="aipkit_ai_form_temperature"><?php esc_html_e('Temperature', 'gpt3-ai-content-generator'); ?></label>
+                        <div class="aipkit_slider_wrapper">
+                            <input type="range" id="aipkit_ai_form_temperature" name="temperature" class="aipkit_form-input aipkit_range_slider" min="0" max="2" step="0.1" value="<?php echo esc_attr($default_temp); ?>" />
+                            <span id="aipkit_ai_form_temperature_value" class="aipkit_slider_value"><?php echo esc_html($default_temp); ?></span>
+                        </div>
+                    </div>
+                    <div class="aipkit_form-group aipkit_form-col">
+                        <label class="aipkit_form-label" for="aipkit_ai_form_max_tokens"><?php esc_html_e('Max Tokens', 'gpt3-ai-content-generator'); ?></label>
+                        <div class="aipkit_slider_wrapper">
+                            <input type="range" id="aipkit_ai_form_max_tokens" name="max_tokens" class="aipkit_form-input aipkit_range_slider" min="1" max="128000" step="1" value="<?php echo esc_attr($default_max_tokens); ?>" />
+                            <span id="aipkit_ai_form_max_tokens_value" class="aipkit_slider_value"><?php echo esc_html($default_max_tokens); ?></span>
+                        </div>
                     </div>
                 </div>
-                <div class="aipkit_form-group aipkit_form-col">
-                    <label class="aipkit_form-label" for="aipkit_ai_form_max_tokens"><?php esc_html_e('Max Tokens', 'gpt3-ai-content-generator'); ?></label>
-                    <div class="aipkit_slider_wrapper">
-                        <input type="range" id="aipkit_ai_form_max_tokens" name="max_tokens" class="aipkit_form-input aipkit_range_slider" min="1" max="16383" step="1" value="<?php echo esc_attr($default_max_tokens); ?>" />
-                        <span id="aipkit_ai_form_max_tokens_value" class="aipkit_slider_value"><?php echo esc_html($default_max_tokens); ?></span>
+                <!-- Top P & Frequency Penalty Row -->
+                <div class="aipkit_form-row">
+                    <div class="aipkit_form-group aipkit_form-col">
+                        <label class="aipkit_form-label" for="aipkit_ai_form_top_p"><?php esc_html_e('Top P', 'gpt3-ai-content-generator'); ?></label>
+                        <div class="aipkit_slider_wrapper">
+                            <input type="range" id="aipkit_ai_form_top_p" name="top_p" class="aipkit_form-input aipkit_range_slider" min="0" max="1" step="0.01" value="<?php echo esc_attr($default_top_p); ?>" />
+                            <span id="aipkit_ai_form_top_p_value" class="aipkit_slider_value"><?php echo esc_html($default_top_p); ?></span>
+                        </div>
+                    </div>
+                    <div class="aipkit_form-group aipkit_form-col">
+                        <label class="aipkit_form-label" for="aipkit_ai_form_frequency_penalty"><?php esc_html_e('Frequency Penalty', 'gpt3-ai-content-generator'); ?></label>
+                        <div class="aipkit_slider_wrapper">
+                            <input type="range" id="aipkit_ai_form_frequency_penalty" name="frequency_penalty" class="aipkit_form-input aipkit_range_slider" min="0" max="2" step="0.1" value="<?php echo esc_attr($default_frequency_penalty); ?>" />
+                            <span id="aipkit_ai_form_frequency_penalty_value" class="aipkit_slider_value"><?php echo esc_html($default_frequency_penalty); ?></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Presence Penalty Row -->
+                <div class="aipkit_form-row">
+                     <div class="aipkit_form-group aipkit_form-col">
+                        <label class="aipkit_form-label" for="aipkit_ai_form_presence_penalty"><?php esc_html_e('Presence Penalty', 'gpt3-ai-content-generator'); ?></label>
+                        <div class="aipkit_slider_wrapper">
+                            <input type="range" id="aipkit_ai_form_presence_penalty" name="presence_penalty" class="aipkit_form-input aipkit_range_slider" min="0" max="2" step="0.1" value="<?php echo esc_attr($default_presence_penalty); ?>" />
+                            <span id="aipkit_ai_form_presence_penalty_value" class="aipkit_slider_value"><?php echo esc_html($default_presence_penalty); ?></span>
+                        </div>
+                    </div>
+                     <div class="aipkit_form-group aipkit_form-col">
+                        <!-- empty column for alignment -->
                     </div>
                 </div>
             </div>

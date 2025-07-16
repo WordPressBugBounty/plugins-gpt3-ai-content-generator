@@ -104,7 +104,7 @@ class Core
         $supported_post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
         // --- END MODIFICATION ---
         if ($screen && in_array($screen->post_type, $supported_post_types, true)) {
-            echo '<button type="button" id="aipkit_bulk_enhance_btn" class="button" disabled>' . esc_html__('Content Assistant', 'gpt3-ai-content-generator') . '</button>';
+            echo '<button type="button" id="aipkit_bulk_enhance_btn" class="button">' . esc_html__('Content Assistant', 'gpt3-ai-content-generator') . '</button>';
         }
     }
 

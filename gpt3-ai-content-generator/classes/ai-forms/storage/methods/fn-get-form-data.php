@@ -72,6 +72,9 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
 
     $form_temp = get_post_meta($form_id, '_aipkit_ai_form_temperature', true);
     $form_max_tokens = get_post_meta($form_id, '_aipkit_ai_form_max_tokens', true);
+    $form_top_p = get_post_meta($form_id, '_aipkit_ai_form_top_p', true);
+    $form_frequency_penalty = get_post_meta($form_id, '_aipkit_ai_form_frequency_penalty', true);
+    $form_presence_penalty = get_post_meta($form_id, '_aipkit_ai_form_presence_penalty', true);
 
     $data = [
         'id' => $form_id,
@@ -83,6 +86,9 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
         'ai_model' => get_post_meta($form_id, '_aipkit_ai_form_ai_model', true) ?: ($default_provider_config['model'] ?? ''),
         'temperature' => (is_numeric($form_temp) && $form_temp !== '') ? floatval($form_temp) : ($global_ai_params['temperature'] ?? 1.0),
         'max_tokens' => (is_numeric($form_max_tokens) && $form_max_tokens !== '') ? absint($form_max_tokens) : ($global_ai_params['max_completion_tokens'] ?? 2000),
+        'top_p' => (is_numeric($form_top_p) && $form_top_p !== '') ? floatval($form_top_p) : ($global_ai_params['top_p'] ?? 1.0),
+        'frequency_penalty' => (is_numeric($form_frequency_penalty) && $form_frequency_penalty !== '') ? floatval($form_frequency_penalty) : ($global_ai_params['frequency_penalty'] ?? 0.0),
+        'presence_penalty' => (is_numeric($form_presence_penalty) && $form_presence_penalty !== '') ? floatval($form_presence_penalty) : ($global_ai_params['presence_penalty'] ?? 0.0),
     ];
 
     // --- Add Vector Settings ---

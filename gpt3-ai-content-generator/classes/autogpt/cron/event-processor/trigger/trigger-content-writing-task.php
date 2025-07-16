@@ -82,6 +82,7 @@ function trigger_content_writing_task_logic(int $task_id, array $task_config): v
     $item_index = 0;
     foreach ($topics_to_queue as $index => $item_data) {
         $item_specific_config = ContentWritingModules\prepare_item_config_logic($item_data, $task_config, $scraped_contexts);
+        $item_specific_config['task_id'] = $task_id;
         if (empty($item_specific_config['content_title'])) {
             continue;
         }

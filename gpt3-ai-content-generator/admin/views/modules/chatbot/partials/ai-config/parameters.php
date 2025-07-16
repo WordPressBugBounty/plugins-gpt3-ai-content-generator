@@ -38,7 +38,7 @@ $saved_max_messages = isset($bot_settings['max_messages'])
 
 // Ensure they are clamped
 $saved_temperature = max(0.0, min($saved_temperature, 2.0));
-$saved_max_tokens = max(1, min($saved_max_tokens, 16383));
+$saved_max_tokens = max(1, min($saved_max_tokens, 128000));
 $saved_max_messages = max(1, min($saved_max_messages, 1024));
 
 ?>
@@ -86,7 +86,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_completion_tokens"
                     name="max_completion_tokens"
                     class="aipkit_form-input aipkit_range_slider"
-                    min="1" max="16383" step="1"
+                    min="1" max="128000" step="1"
                     value="<?php echo esc_attr($saved_max_tokens); ?>"
                 />
                 <span

@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/content-writer/partials/form-inputs/seo-settings.php
 // Status: MODIFIED
 // I have added a new checkbox for "Tags" and its corresponding prompt textarea.
@@ -50,6 +51,12 @@ $default_custom_tags_prompt = AIPKit_Content_Writer_Prompts::get_default_tags_pr
                     <input type="checkbox" id="aipkit_cw_generate_toc" name="generate_toc" class="aipkit_autosave_trigger" value="1">
                     <?php esc_html_e('Table of Contents', 'gpt3-ai-content-generator'); ?>
                 </label>
+                <!-- NEW: Checkbox for SEO Slug generation -->
+                <label class="aipkit_checkbox-label" for="aipkit_cw_generate_seo_slug">
+                    <input type="checkbox" id="aipkit_cw_generate_seo_slug" name="generate_seo_slug" class="aipkit_autosave_trigger" value="1">
+                    <?php esc_html_e('Optimize URL', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <!-- END NEW -->
             </div>
         </div>
         <hr class="aipkit_hr">

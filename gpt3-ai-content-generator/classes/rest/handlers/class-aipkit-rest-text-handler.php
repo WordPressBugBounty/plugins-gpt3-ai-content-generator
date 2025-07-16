@@ -136,7 +136,7 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler {
         $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
         $final_ai_params = array_merge($global_ai_params, $ai_params_override);
         if (isset($final_ai_params['temperature'])) $final_ai_params['temperature'] = max(0.0, min(2.0, floatval($final_ai_params['temperature'])));
-        if (isset($final_ai_params['max_completion_tokens'])) $final_ai_params['max_completion_tokens'] = max(1, min(16383, absint($final_ai_params['max_completion_tokens'])));
+        if (isset($final_ai_params['max_completion_tokens'])) $final_ai_params['max_completion_tokens'] = max(1, min(128000, absint($final_ai_params['max_completion_tokens'])));
         $instruction_context = ['base_instructions' => $system_instruction ?? ''];
         $instructions_processed = AIPKit_Instruction_Manager::build_instructions($instruction_context);
 

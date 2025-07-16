@@ -21,7 +21,7 @@ use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
 
 // --- END NEW ---
 
-// Ensure Activator and Role Manager classes are loaded as we need their static methods/constants
+// --- Core Plugin Includes ---
 require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator-activator.php';
 require_once WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_role_manager.php'; // Needed for update check
 
@@ -68,24 +68,11 @@ class WP_AI_Content_Generator
         // Check for plugin updates (version change)
         add_action('init', [$this, 'check_for_updates'], 10);
 
-        // Ensure DB tables exist for all users (new and existing) on page load.
-        add_action('plugins_loaded', [$this, 'ensure_tables_exist'], 15);
-
         // Define hooks using the new hook manager
         AIPKit_Hook_Manager::register_hooks($this->version);
 
         // Initialize modules using the new module initializer
         AIPKit_Module_Initializer::init($this->version);
-    }
-
-    /**
-     * Ensures all DB tables exist for the current site.
-     * Hooked to 'plugins_loaded', this check runs for existing users after an update,
-     * not just on first-time activation.
-     */
-    public function ensure_tables_exist()
-    {
-        WP_AI_Content_Generator_Activator::ensure_tables_for_current_site();
     }
 
     /**
@@ -106,7 +93,7 @@ class WP_AI_Content_Generator
         $current_version = $this->version;
         $saved_version = get_option(self::DB_VERSION_OPTION);
 
-        if ($saved_version !== $current_version) {
+        if (version_compare($saved_version, $current_version, '<')) {
             error_log("AIPKit: Plugin version changed from {$saved_version} to {$current_version}. Running update checks...");
 
             // Run DB table setup on version change to apply any schema updates.
