@@ -43,6 +43,7 @@ class AIPKit_Delete_Automated_Task_Queue_Items_By_Status_Action extends AIPKit_A
         if ($result === false) {
             $this->send_wp_error(new WP_Error('db_error_delete_queue_items', __('Failed to delete queue items.', 'gpt3-ai-content-generator')), 500);
         } else {
+            /* translators: %d: Number of deleted items */
             wp_send_json_success(['message' => sprintf(__('%d queue items deleted successfully.', 'gpt3-ai-content-generator'), $result)]);
         }
     }

@@ -94,7 +94,8 @@ class AIPKit_TTS_Google_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
             $error_msg = $this->parse_error_response($body, $status_code, 'Google TTS Speech');
             error_log("AIPKit Google TTS Speech API Error ({$status_code}): " . $error_msg);
             // --- Add status code to WP_Error data ---
-            return new WP_Error('google_tts_api_error', sprintf(__('Google Speech API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
+            /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+            return new WP_Error('google_tts_api_error', sprintf(__('Google Speech API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
 
         $decoded_response = $this->decode_json($body, 'Google TTS Speech');
@@ -153,9 +154,10 @@ class AIPKit_TTS_Google_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         $body = wp_remote_retrieve_body($response);
 
         if ($status_code !== 200) {
-             $error_msg = $this->parse_error_response($body, $status_code, 'Google TTS Voices');
-             error_log("AIPKit Google TTS Voices API Error ({$status_code}): " . $error_msg);
-             return new WP_Error('google_tts_api_error', sprintf(__('Google Voices API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
+            $error_msg = $this->parse_error_response($body, $status_code, 'Google TTS Voices');
+            error_log("AIPKit Google TTS Voices API Error ({$status_code}): " . $error_msg);
+            /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+            return new WP_Error('google_tts_api_error', sprintf(__('Google Voices API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
 
         $decoded = $this->decode_json($body, 'Google TTS Voices');

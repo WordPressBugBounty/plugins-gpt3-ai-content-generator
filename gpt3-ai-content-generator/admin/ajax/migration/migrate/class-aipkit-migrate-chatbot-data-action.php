@@ -126,6 +126,7 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
             }
 
             $this->update_category_status('chatbot_data', 'migrated');
+            /* translators: %1$d is the number of migrated bots, %2$d is the number of migrated token records */
             wp_send_json_success(['message' => sprintf(__('Chatbot data migrated: %1$d bots and %2$d token records migrated. Old logs were not migrated.', 'gpt3-ai-content-generator'), $processed_counts['custom_bots'], $processed_counts['chat_tokens']), 'category_status' => 'migrated']);
 
         } catch (\Exception $e) {

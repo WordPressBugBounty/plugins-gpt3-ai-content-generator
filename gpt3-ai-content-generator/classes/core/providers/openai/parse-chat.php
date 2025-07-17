@@ -36,6 +36,7 @@ function parse_chat_logic_for_response_parser(array $decoded_response): array|WP
          if ($content !== null) {
              $content .= sprintf(' (%s: %s)', __('Incomplete', 'gpt3-ai-content-generator'), $reason);
          } else {
+            /* translators: %s: The reason why the response was incomplete. */
             return new WP_Error('openai_incomplete_response_logic', sprintf(__('Response incomplete due to: %s', 'gpt3-ai-content-generator'), $reason));
          }
     }

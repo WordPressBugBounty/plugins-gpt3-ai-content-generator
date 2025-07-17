@@ -65,9 +65,11 @@ class AIPKit_Image_Provider_Strategy_Factory
                 require_once $strategy_file; // Load the strategy class itself
             } else {
                 error_log("AIPKit Image Error: Strategy file not found for provider '{$provider}' at path '{$strategy_file}'.");
+                /* translators: %s: The provider name that was attempted to be used for image generation. */
                 return new WP_Error('image_strategy_file_not_found', sprintf(__('Image Strategy file not found for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
             }
         } else {
+            /* translators: %s: The provider key that was attempted to be used for image generation. */
             return new WP_Error('unsupported_image_provider_key', sprintf(__('Provider key "%s" is not configured for image strategy loading.', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 
@@ -86,6 +88,7 @@ class AIPKit_Image_Provider_Strategy_Factory
             case 'Replicate':       $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_Replicate_Provider_Strategy';
                 break;
             default:
+                /* translators: %s: The provider name that was attempted to be used for image generation. */
                 return new WP_Error('unsupported_image_provider_strategy', sprintf(__('Image Generation Provider strategy "%s" is not supported.', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 
@@ -93,6 +96,7 @@ class AIPKit_Image_Provider_Strategy_Factory
             self::$instances[$provider] = new $class_name();
         } else {
             error_log("AIPKit Image Error: Failed to instantiate strategy class for provider '{$provider}'. Class '{$class_name}' might not exist or file was incorrect.");
+            /* translators: %s: The provider name that was attempted to be used for image generation. */
             return new WP_Error('image_strategy_instantiation_failed', sprintf(__('Failed to load Image Generation strategy for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 

@@ -152,10 +152,13 @@ class AIPKit_Vector_Post_Processor_Assets
                     'error_no_posts_selected' => __('Please select at least one post to index.', 'gpt3-ai-content-generator'),
                     'confirm_start_indexing' => __('Are you sure you want to index the selected content?', 'gpt3-ai-content-generator'),
                     'status_preparing' => __('Preparing content...', 'gpt3-ai-content-generator'),
+                    /* translators: %1$s is the file name, %2$s is the total number of files being indexed */
                     'status_uploading' => __('Uploading file %1$s of %2$s...', 'gpt3-ai-content-generator'),
                     'status_adding_files' => __('Adding files to vector store...', 'gpt3-ai-content-generator'),
                     'status_error' => __('An error occurred.', 'gpt3-ai-content-generator'),
+                    /* translators: %d is the number of items selected */
                     'items_selected_singular' => __('You have selected %d item to index.', 'gpt3-ai-content-generator'),
+                    /* translators: %d is the number of items selected */
                     'items_selected_plural' => __('You have selected %d items to index.', 'gpt3-ai-content-generator'),
                     'select_pinecone_index' => __('Select Pinecone Index', 'gpt3-ai-content-generator'),
                     'loading_indexes' => __('Loading indexes...', 'gpt3-ai-content-generator'),

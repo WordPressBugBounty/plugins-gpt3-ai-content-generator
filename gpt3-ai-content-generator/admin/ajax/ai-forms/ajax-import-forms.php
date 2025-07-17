@@ -70,32 +70,18 @@ function do_ajax_import_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instanc
 
         if (is_wp_error($result)) {
             $failed_count++;
-            $errors[] = sprintf(__('Failed to import form "%s": %s', 'gpt3-ai-content-generator'), esc_html($title), $result->get_error_message());
+            /* translators: 1: The form title. 2: The specific error message. */
+            $errors[] = sprintf(__('Failed to import form "%1$s": %2$s', 'gpt3-ai-content-generator'), esc_html($title), $result->get_error_message());
         } else {
             $imported_count++;
         }
     }
-
-    $message = sprintf(
-        _n(
-            '%d form was imported successfully.',
-            '%d forms were imported successfully.',
-            $imported_count,
-            'gpt3-ai-content-generator'
-        ),
-        $imported_count
-    );
+    /* translators: %d is the number of forms imported */
+    $message = sprintf(_n('%d form was imported successfully.', '%d forms were imported successfully.', $imported_count, 'gpt3-ai-content-generator'), $imported_count);
 
     if ($failed_count > 0) {
-        $message .= ' ' . sprintf(
-            _n(
-                '%d form failed to import.',
-                '%d forms failed to import.',
-                $failed_count,
-                'gpt3-ai-content-generator'
-            ),
-            $failed_count
-        );
+        /* translators: %d is the number of forms that failed to import */
+        $message .= ' ' . sprintf(_n('%d form failed to import.','%d forms failed to import.',$failed_count,'gpt3-ai-content-generator'),$failed_count);
         // Optionally log detailed errors for admin
         error_log('AI Forms Import Errors: ' . print_r($errors, true));
     }

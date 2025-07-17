@@ -51,7 +51,8 @@ function moderate_text_logic(OpenAIProviderStrategy $strategyInstance, string $t
     if ($status_code >= 400) {
         $error_message = OpenAIResponseParser::parse_error($response_body, $status_code);
         error_log("AIPKit OpenAI Moderation API Logic Error ({$status_code}): " . $error_message);
-        return new WP_Error('moderation_api_error_logic', sprintf(__('Moderation check failed (API %d): %s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_message)));
+        /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+        return new WP_Error('moderation_api_error_logic', sprintf(__('Moderation check failed (API %1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_message)));
     }
 
     $decoded = $strategyInstance->decode_json_public($response_body, 'OpenAI Moderation'); // Call public wrapper

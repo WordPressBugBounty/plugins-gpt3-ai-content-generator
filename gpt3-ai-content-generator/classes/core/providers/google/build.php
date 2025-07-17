@@ -1,6 +1,6 @@
 <?php
-// File: classes/core/providers/google/build.php
-// Status: NEW FILE (Content from GoogleUrlBuilder.php)
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/providers/google/build.php
+// Status: MODIFIED
 
 namespace WPAICG\Core\Providers\Google\Methods;
 
@@ -40,12 +40,14 @@ function build_logic_for_url_builder(string $operation, array $params): string|W
     $path_segment = $paths[$path_key] ?? null;
 
     if ($path_segment === null) {
+        /* translators: %s: The name of the API operation (e.g., 'chat'). */
         return new WP_Error('unsupported_operation_Google_logic', sprintf(__('Operation "%s" not supported for Google.', 'gpt3-ai-content-generator'), $operation));
     }
 
     $full_path = '/' . trim($api_version, '/') . $path_segment;
 
     if ($operation === 'chat' || $operation === 'stream' || $operation === 'embedContent') {
+        /* translators: %s: The name of the API endpoint path. */
         if (empty($model_id)) return new WP_Error('missing_google_model_logic', sprintf(__('Google model ID is required for the "%s" endpoint path.', 'gpt3-ai-content-generator'), $operation));
         
         $model_id_for_path = $model_id;

@@ -128,11 +128,13 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler {
         if (!is_string($input) && !is_array($input)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid parameter type: input (must be a string or array of strings)', 'gpt3-ai-content-generator'), ['status' => 400]));
         if (is_array($input)) {
             foreach ($input as $idx => $text) {
+                /* translators: %s is the index of the input array */
                 if (!is_string($text)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid input array item at index %d (must be a string)', 'gpt3-ai-content-generator'), $idx), ['status' => 400]));
             }
         }
 
         $provider = match(strtolower($provider_raw)) { 'openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', default => null, };
+        /* translators: %s is the provider name */
         if ($provider === null) { return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid provider specified for embeddings: %s', 'gpt3-ai-content-generator'), $provider_raw), ['status' => 400])); }
 
         if (!class_exists(AIPKit_AI_Caller::class)) { error_log("AIPKit REST API Error (Embeddings): Missing AIPKit_AI_Caller class."); return $this->send_wp_error_response(new WP_Error('rest_aipkit_internal_error', __('Internal server error.', 'gpt3-ai-content-generator'), ['status' => 500])); }

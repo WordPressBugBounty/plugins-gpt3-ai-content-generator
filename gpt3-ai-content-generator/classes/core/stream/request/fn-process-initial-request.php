@@ -116,7 +116,7 @@ function process_initial_request_logic(
         $cached_data_decoded_for_handler = ['user_message' => '', 'image_inputs' => null];
     }
 
-    error_log("SSERequestHandler Logic: Determined stream_context: '{$stream_context}'. Handler input data: " . substr(wp_json_encode($cached_data_decoded_for_handler), 0, 500) . "...");
+    // error_log("SSERequestHandler Logic: Determined stream_context: '{$stream_context}'. Handler input data: " . substr(wp_json_encode($cached_data_decoded_for_handler), 0, 500) . "...");
 
 
     // Route to specific context handlers

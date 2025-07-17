@@ -146,6 +146,7 @@ class AIPKit_Migrate_CPT_Data_Action extends AIPKit_Migration_Base_Ajax_Action
 
             $this->update_category_status('cpt_data', 'migrated');
             wp_send_json_success([
+                /* translators: %1$d is the number of forms, %2$d is the number of token records */
                 'message' => sprintf(__('AI Forms data migrated: %1$d forms and %2$d token records migrated. Other data in this category was not migrated.', 'gpt3-ai-content-generator'), $processed_counts['forms'], $processed_counts['form_tokens']),
                 'category_status' => 'migrated'
             ]);

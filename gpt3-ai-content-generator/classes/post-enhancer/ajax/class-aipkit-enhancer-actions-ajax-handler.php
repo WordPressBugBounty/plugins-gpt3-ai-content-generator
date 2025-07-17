@@ -32,18 +32,21 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
             [
                 'id' => 'rewrite-' . wp_generate_uuid4(),
                 'label' => __('Rewrite', 'gpt3-ai-content-generator'),
+                /* translators: %s: The text to be rewritten */
                 'prompt' => __('Rewrite this to improve clarity and engagement: "%s"', 'gpt3-ai-content-generator'),
                 'is_default' => true
             ],
             [
                 'id' => 'expand-' . wp_generate_uuid4(),
                 'label' => __('Expand', 'gpt3-ai-content-generator'),
+                /* translators: %s: The text to be expanded */
                 'prompt' => __('Expand on the following point: "%s"', 'gpt3-ai-content-generator'),
                 'is_default' => true
             ],
             [
                 'id' => 'fix_grammar-' . wp_generate_uuid4(),
                 'label' => __('Fix Grammar & Spelling', 'gpt3-ai-content-generator'),
+                /* translators: %s: The text to be corrected */
                 'prompt' => __('Correct any spelling and grammar mistakes in the following text: "%s"', 'gpt3-ai-content-generator'),
                 'is_default' => true
             ],

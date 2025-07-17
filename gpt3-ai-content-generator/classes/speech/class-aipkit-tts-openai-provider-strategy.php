@@ -104,7 +104,8 @@ class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
             // Try to parse error from body (likely JSON)
             $error_msg = $this->parse_error_response($body, $status_code, 'OpenAI TTS Speech');
             error_log("AIPKit OpenAI TTS Speech API Error ({$status_code}): " . $error_msg);
-            return new WP_Error('openai_tts_api_error', sprintf(__('OpenAI Speech API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
+            /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+            return new WP_Error('openai_tts_api_error', sprintf(__('OpenAI Speech API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
 
         if (empty($body)) {

@@ -36,6 +36,7 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
         $path_segment = $paths[$path_key] ?? null;
 
         if ($path_segment === null) {
+            /* translators: %s: The operation name (e.g., "chat", "models"). */
             return new WP_Error('unsupported_operation_DeepSeek', sprintf(__('Operation "%s" not supported for DeepSeek.', 'gpt3-ai-content-generator'), $operation));
         }
 

@@ -43,7 +43,7 @@ class DefaultBotSetup
             if (is_wp_error($result)) {
                 error_log("AIPKit Default Bot Setup: Failed to ensure default bot exists. Error: " . $result->get_error_message());
             } elseif ($result > 0) {
-                error_log("AIPKit Default Bot Setup: Default bot created/ensured with ID: " . $result);
+                // error_log("AIPKit Default Bot Setup: Default bot created/ensured with ID: " . $result);
             }
         } else {
             // Default bot exists. Check if it's marked correctly.
@@ -150,7 +150,7 @@ class DefaultBotSetup
 
         update_post_meta($post_id, '_aipkit_default_bot', '1');
         BotSettingsManager::set_initial_bot_settings($post_id, $botName); // Set defaults for new
-        error_log("AIPKit Default Bot Setup: Successfully created new default bot with ID: " . $post_id);
+        // error_log("AIPKit Default Bot Setup: Successfully created new default bot with ID: " . $post_id);
         return $post_id;
     }
 

@@ -112,6 +112,7 @@ function generate_suggestions_logic(string $type, \WP_Post $post, string $final_
     );
 
     if (empty($suggestions)) {
+        /* translators: %s: The type of suggestions that were expected */
         wp_send_json_error(['message' => sprintf(__('AI did not generate any valid %s suggestions.', 'gpt3-ai-content-generator'), $type)], 500);
         return;
     }

@@ -31,6 +31,7 @@ abstract class AIPKit_Vector_Base_Provider_Strategy implements AIPKit_Vector_Pro
         }
         $decoded = json_decode($json_string, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
+            /* translators: %1$s: The context of the API call (e.g., "OpenAI Models"), %2$s: The specific JSON error message from PHP. */
             $error_message = sprintf(__('Failed to parse JSON response from %1$s. Error: %2$s', 'gpt3-ai-content-generator'), $context, json_last_error_msg());
             error_log("AIPKit Vector Strategy Error ({$context} JSON Decode): " . json_last_error_msg() . " Body Snippet: " . substr($json_string, 0, 500));
             return new WP_Error('json_decode_error', $error_message);
@@ -46,7 +47,8 @@ abstract class AIPKit_Vector_Base_Provider_Strategy implements AIPKit_Vector_Pro
      * @return string User-friendly error message.
      */
     public function parse_error_response($response_body, int $status_code, string $context): string { // MODIFIED to public
-        $message = sprintf(__('An unknown error occurred with %s (HTTP %d).', 'gpt3-ai-content-generator'), $context, $status_code);
+        /* translators: %1$s: The context of the error (e.g., "OpenAI Image"), %2$d: The HTTP status code. */
+        $message = sprintf(__('An unknown error occurred with %1$s (HTTP %2$d).', 'gpt3-ai-content-generator'), $context, $status_code);
         $decoded = is_string($response_body) ? json_decode($response_body, true) : $response_body;
 
         if (is_array($decoded)) {

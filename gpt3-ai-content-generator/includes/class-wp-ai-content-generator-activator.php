@@ -184,7 +184,7 @@ class WP_AI_Content_Generator_Activator
             delete_option(self::MIGRATION_LAST_ERROR_OPTION);
             delete_option(self::MIGRATION_CATEGORY_STATUS_OPTION);
             delete_option(self::MIGRATION_ANALYSIS_RESULTS_OPTION);
-            error_log("AIPKit Migration Check: No old data detected. Migration status set to 'not_applicable'.");
+            //error_log("AIPKit Migration Check: No old data detected. Migration status set to 'not_applicable'.");
         }
     }
 

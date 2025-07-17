@@ -133,6 +133,7 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         // Handle cURL errors
         if ($curl_errno) {
             error_log("AIPKit OpenAI STT Error (cURL): [{$curl_errno}] {$curl_error}");
+            /* translators: %s: cURL error message. */
             return new WP_Error('openai_stt_curl_error', sprintf(__('Network error during transcription: %s', 'gpt3-ai-content-generator'), $curl_error), ['status' => 503]);
         }
 
@@ -141,7 +142,8 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
             error_log("AIPKit OpenAI STT Raw Error Response ({$status_code}): " . $body);
             $error_msg = $this->parse_error_response($body, $status_code, 'OpenAI STT');
             error_log("AIPKit OpenAI STT API Error ({$status_code}): " . $error_msg);
-            return new WP_Error('openai_stt_api_error', sprintf(__('OpenAI STT API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
+            /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+            return new WP_Error('openai_stt_api_error', sprintf(__('OpenAI STT API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
 
         // Parse successful response

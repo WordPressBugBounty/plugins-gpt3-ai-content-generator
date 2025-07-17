@@ -61,6 +61,7 @@ function get_user_token_usage_data_logic(\WPAICG\Shortcodes\AIPKit_Token_Usage_S
                         $data['chat'][] = [
                            'module' => 'chat', // NEW
                            'context_id' => $bot_id, // NEW
+                           /* translators: %d: Bot ID */
                            'title' => $bot_post->post_title ?: sprintf(__('Bot #%d', 'gpt3-ai-content-generator'), $bot_id),
                            'used' => $used_tokens,
                            'limit' => $limit,

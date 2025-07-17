@@ -26,13 +26,13 @@ function _aipkit_qdrant_ajax_create_collection_logic(AIPKit_Vector_Store_Qdrant_
     $vector_store_registry = $handler_instance->get_vector_store_registry();
 
     if (!$vector_store_manager || !$vector_store_registry) {
-        $error_message = 'Vector Store components not available for Qdrant Create.';
+        $error_message = __('Vector Store components not available for Qdrant Create.', 'gpt3-ai-content-generator');
         error_log("AIPKit Qdrant Create Error: " . $error_message);
         // Ensure $handler_instance is valid before calling send_wp_error
         if ($handler_instance && method_exists($handler_instance, 'send_wp_error')) {
-            $handler_instance->send_wp_error(new WP_Error('manager_not_ready_create_qdrant', __($error_message, 'gpt3-ai-content-generator'), ['status' => 500]));
+            $handler_instance->send_wp_error(new WP_Error('manager_not_ready_create_qdrant', $error_message, ['status' => 500]));
         } else {
-            wp_send_json_error(['message' => __($error_message, 'gpt3-ai-content-generator')], 500); // Fallback if handler is invalid
+            wp_send_json_error(['message' => $error_message], 500); // Fallback if handler is invalid
         }
         return;
     }
@@ -56,22 +56,22 @@ function _aipkit_qdrant_ajax_create_collection_logic(AIPKit_Vector_Store_Qdrant_
     error_log("AIPKit Qdrant Create: Input - Name: {$collection_name}, Dimension: {$dimension}, Metric: {$metric}");
 
     if (empty($collection_name)) {
-        $error_message = 'Collection name is required.';
+        $error_message = __('Collection name is required.', 'gpt3-ai-content-generator');
         error_log("AIPKit Qdrant Create Error: " . $error_message);
         if ($handler_instance && method_exists($handler_instance, 'send_wp_error')) {
-            $handler_instance->send_wp_error(new WP_Error('missing_name_qdrant_create', __($error_message, 'gpt3-ai-content-generator'), ['status' => 400]));
+            $handler_instance->send_wp_error(new WP_Error('missing_name_qdrant_create', $error_message, ['status' => 400]));
         } else {
-             wp_send_json_error(['message' => __($error_message, 'gpt3-ai-content-generator')], 400);
+             wp_send_json_error(['message' => $error_message], 400);
         }
         return;
     }
     if ($dimension <= 0) {
-        $error_message = 'Vector dimension must be a positive integer.';
+        $error_message = __('Vector dimension must be a positive integer.', 'gpt3-ai-content-generator');
         error_log("AIPKit Qdrant Create Error: " . $error_message);
         if ($handler_instance && method_exists($handler_instance, 'send_wp_error')) {
-            $handler_instance->send_wp_error(new WP_Error('invalid_dimension_qdrant_create', __($error_message, 'gpt3-ai-content-generator'), ['status' => 400]));
+            $handler_instance->send_wp_error(new WP_Error('invalid_dimension_qdrant_create', $error_message, ['status' => 400]));
         } else {
-             wp_send_json_error(['message' => __($error_message, 'gpt3-ai-content-generator')], 400);
+             wp_send_json_error(['message' => $error_message], 400);
         }
         return;
     }
@@ -106,16 +106,16 @@ function _aipkit_qdrant_ajax_create_collection_logic(AIPKit_Vector_Store_Qdrant_
     if (is_array($create_result) && isset($create_result['status']) && in_array($create_result['status'], ['green', 'yellow', 'red']) && isset($create_result['config'])) {
         $collection_name_from_response = $collection_name; // Qdrant describe doesn't return 'name' in the main body, use the one we tried to create/describe
         $vector_store_registry->add_registered_store('Qdrant', ['id' => $collection_name_from_response, 'name' => $collection_name_from_response]);
-        $log_message = 'Qdrant collection created/verified.';
+        $log_message = __('Qdrant collection created/verified.', 'gpt3-ai-content-generator');
         error_log("AIPKit Qdrant Create: " . $log_message);
         $handler_instance->_log_vector_data_source_entry([
             'vector_store_id' => $collection_name_from_response, 'vector_store_name' => $collection_name_from_response,
             'status' => 'success', 'message' => $log_message,
             'source_type_for_log' => 'action_create_collection'
         ]);
-        wp_send_json_success(['collection' => $create_result, 'message' => __($log_message, 'gpt3-ai-content-generator')]);
+        wp_send_json_success(['collection' => $create_result, 'message' => $log_message]);
     } else {
-        $log_message = 'Qdrant collection creation response was malformed.';
+        $log_message = __('Qdrant collection creation response was malformed.', 'gpt3-ai-content-generator');
         error_log("AIPKit Qdrant Create Error: " . $log_message . " Response: " . print_r($create_result, true));
         $handler_instance->_log_vector_data_source_entry([
             'vector_store_id' => $collection_name, 'vector_store_name' => $collection_name,
@@ -123,9 +123,9 @@ function _aipkit_qdrant_ajax_create_collection_logic(AIPKit_Vector_Store_Qdrant_
             'source_type_for_log' => 'action_create_collection'
         ]);
         if ($handler_instance && method_exists($handler_instance, 'send_wp_error')) {
-            $handler_instance->send_wp_error(new WP_Error('qdrant_create_malformed_response', __($log_message, 'gpt3-ai-content-generator')));
+            $handler_instance->send_wp_error(new WP_Error('qdrant_create_malformed_response', $log_message));
         } else {
-            wp_send_json_error(['message' => __($log_message, 'gpt3-ai-content-generator')], 500);
+            wp_send_json_error(['message' => $log_message], 500);
         }
     }
 }

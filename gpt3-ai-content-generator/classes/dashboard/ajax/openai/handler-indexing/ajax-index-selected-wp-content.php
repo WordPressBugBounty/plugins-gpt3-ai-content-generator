@@ -131,12 +131,11 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
         }
     }
 
-    $response_message = sprintf(
-        _n('%1$d post processed and submitted to vector store "%2$s".', '%1$d posts processed and submitted to vector store "%2$s".', $processed_count, 'gpt3-ai-content-generator'),
-        $processed_count,
-        esc_html($actual_store_name ?: $actual_store_id)
-    );
+    /* translators: %1$d: The number of posts processed, %2$s: The name of the vector store. */
+    $response_message = sprintf(_n('%1$d post processed and submitted to vector store "%2$s".', '%1$d posts processed and submitted to vector store "%2$s".', $processed_count, 'gpt3-ai-content-generator'), $processed_count, esc_html($actual_store_name ?: $actual_store_id));
+    
     if (!empty($failed_posts_log)) {
+        /* translators: %d: Number of failed posts */
         $response_message .= ' ' . sprintf(__('Some posts failed: %d. Check data source logs for details.', 'gpt3-ai-content-generator'), count($failed_posts_log));
         error_log("AIPKit Index WP Content: Failed Posts (Detailed): " . print_r($failed_posts_log, true));
     }

@@ -156,8 +156,8 @@ class AIPKit_WooCommerce_Integration
             update_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, $new_balance);
 
             $order->add_order_note(
-                sprintf(
-                    __('AI Power: Granted %s tokens to user. New balance: %s', 'gpt3-ai-content-generator'),
+                /* translators: 1: The number of tokens granted, 2: The user's new token balance. */
+                sprintf(__('AI Power: Granted %1$s tokens to user. New balance: %2$s', 'gpt3-ai-content-generator'),
                     number_format_i18n($total_tokens_to_grant),
                     number_format_i18n($new_balance)
                 )

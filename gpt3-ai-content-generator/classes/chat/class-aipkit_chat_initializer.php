@@ -1,6 +1,6 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/class-aipkit_chat_initializer.php
-// Status: MODIFIED
 
 namespace WPAICG\Chat;
 
@@ -13,8 +13,12 @@ use WPAICG\Chat\Utils;
 use WPAICG\Chat\Admin\Ajax;
 use WPAICG\Core\Stream\Handler\SSEHandler;
 
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
 // Require the new initializer method files
-$initializer_methods_path = __DIR__ . '/initializer/';
+$initializer_methods_path = WPAICG_PLUGIN_DIR . 'classes/chat/initializer/';
 require_once $initializer_methods_path . 'load-core-services.php';
 require_once $initializer_methods_path . 'load-admin-setup.php';
 require_once $initializer_methods_path . 'load-ajax-handlers.php';
@@ -27,21 +31,18 @@ require_once $initializer_methods_path . 'register-hooks-general-ajax.php';
 require_once $initializer_methods_path . 'register-hooks-sse-ajax.php';
 
 
-if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
-}
-
 /**
  * Initializes the AIPKit Chat functionality by loading dependencies and registering hooks.
  * Logic for methods is now in separate files under the Initializer namespace.
  */
-class Initializer {
-
+class Initializer
+{
     /**
      * Ensure dependencies specific to Chat module hooks are loaded.
      * Note: This is largely redundant if Chat_Dependencies_Loader has already run.
      */
-    public static function load_dependencies() {
+    public static function load_dependencies()
+    {
         // Call the externalized logic functions
         Initializer\load_core_services_logic();
         Initializer\load_admin_setup_logic();
@@ -55,7 +56,8 @@ class Initializer {
      * Register WordPress hooks conditionally.
      * Called by the main plugin class via Module_Initializer_Hooks_Registrar.
      */
-    public static function register_hooks() {
+    public static function register_hooks()
+    {
         // self::load_dependencies(); // Dependencies should be loaded by AIPKit_Hook_Manager or earlier
 
         // Instantiate handlers needed for hook registration
@@ -69,8 +71,8 @@ class Initializer {
 
 
         // Instantiate specific Admin AJAX Handlers
-        if (!class_exists(\WPAICG\Chat\Admin\Ajax\BaseAjaxHandler::class)) {
-             return;
+        if (!class_exists('\\WPAICG\\Chat\\Admin\\Ajax\\BaseAjaxHandler')) {
+            return;
         }
         $chatbot_ajax_handler = new Ajax\ChatbotAjaxHandler();
         $log_ajax_handler = new Ajax\LogAjaxHandler();
@@ -79,9 +81,9 @@ class Initializer {
         $chatbot_import_ajax_handler = new Ajax\ChatbotImportAjaxHandler();
         $chatbot_image_ajax_handler = null;
         if (class_exists(\WPAICG\Chat\Admin\Ajax\ChatbotImageAjaxHandler::class)) {
-             $chatbot_image_ajax_handler = new Ajax\ChatbotImageAjaxHandler();
+            $chatbot_image_ajax_handler = new Ajax\ChatbotImageAjaxHandler();
         } else {
-             //error_log('AIPKit Chat Init Error: ChatbotImageAjaxHandler class not found for instantiation.');
+            //error_log('AIPKit Chat Init Error: ChatbotImageAjaxHandler class not found for instantiation.');
         }
 
         // Call externalized hook registration logic

@@ -133,11 +133,8 @@ class AIPKit_Upload_Utils
         }
 
         if (empty($file_mime_type) || !in_array(strtolower($file_mime_type), array_map('strtolower', $allowed_mime_types), true)) {
-            return new WP_Error('invalid_file_type_vector', sprintf(
-                __('Invalid file type: %1$s. Allowed types: %2$s', 'gpt3-ai-content-generator'),
-                esc_html($file_mime_type ?: 'Unknown'),
-                esc_html(implode(', ', $allowed_mime_types))
-            ));
+            /* translators: %1$s is the detected MIME type, %2$s is the allowed types */
+            return new WP_Error('invalid_file_type_vector', sprintf(__('Invalid file type: %1$s. Allowed types: %2$s', 'gpt3-ai-content-generator'), esc_html($file_mime_type ?: 'Unknown'), esc_html(implode(', ', $allowed_mime_types))));
         }
 
         // Check file size
@@ -147,11 +144,8 @@ class AIPKit_Upload_Utils
         }
 
         if ($file_data['size'] > $max_size_bytes) {
-            return new WP_Error('file_too_large_vector', sprintf(
-                __('File is too large (%1$s). Maximum allowed size is %2$s.', 'gpt3-ai-content-generator'),
-                size_format($file_data['size']),
-                size_format($max_size_bytes)
-            ));
+            /* translators: %1$s is the actual file size, %2$s is the maximum allowed size */
+            return new WP_Error('file_too_large_vector', sprintf(__('File is too large (%1$s). Maximum allowed size is %2$s.', 'gpt3-ai-content-generator'),size_format($file_data['size']),size_format($max_size_bytes)));
         }
 
         return true;

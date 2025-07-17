@@ -16,12 +16,9 @@ if (!defined('ABSPATH')) {
 <div class="notice notice-warning" style="margin-top: 15px; padding-bottom: 15px;">
     <p><strong><?php esc_html_e('Action Required: Previous Data Detected', 'gpt3-ai-content-generator'); ?></strong></p>
     <p>
-        <?php
-        echo esc_html(sprintf(
-            __('AI Power has detected data from a previous version (%s). The new interactive migration tool needs to analyze this data before you can migrate or delete it.', 'gpt3-ai-content-generator'),
-            esc_html($aipkit_old_plugin_version)
-        ));
-        ?>
+        <?php 
+        /* translators: %s is the old plugin version */
+        echo esc_html(sprintf(__('AI Power has detected data from a previous version (%s). The new interactive migration tool needs to analyze this data before you can migrate or delete it.', 'gpt3-ai-content-generator'), esc_html($aipkit_old_plugin_version)));?>
     </p>
     <p style="color: red; font-weight: bold;">
         <?php esc_html_e('CRITICAL: It is STRONGLY recommended to back up your WordPress database before proceeding with any data operation.', 'gpt3-ai-content-generator'); ?>

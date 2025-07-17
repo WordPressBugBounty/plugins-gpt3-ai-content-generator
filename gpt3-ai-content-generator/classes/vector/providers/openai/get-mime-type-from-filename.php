@@ -30,5 +30,6 @@ function get_mime_type_from_filename_logic(AIPKit_Vector_OpenAI_Strategy $strate
         return $mime_map[$extension];
     }
 
+    /* translators: %s: File extension */
     return new WP_Error('unsupported_extension_for_mime', sprintf(__('File extension ".%s" is not explicitly mapped to a supported MIME type for OpenAI.', 'gpt3-ai-content-generator'), $extension));
 }

@@ -45,6 +45,7 @@ class GoogleImageUrlBuilder {
             } elseif (strpos($model_id, 'imagen') !== false) {
                 $endpoint_suffix = ':predict';
             } else {
+                /* translators: %s: The model ID that was attempted to be used for URL building. */
                 return new WP_Error('unsupported_google_image_model_for_url', sprintf(__('Unsupported Google image model for URL building: %s', 'gpt3-ai-content-generator'), $model_id));
             }
         }

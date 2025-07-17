@@ -34,6 +34,7 @@ function do_ajax_delete_all_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_ins
     } elseif ($deleted === false) {
         $handler_instance->send_wp_error(new WP_Error('delete_all_failed', __('Failed to delete all forms.', 'gpt3-ai-content-generator')), 500);
     } else {
+        /* translators: %d is the number of forms deleted */
         wp_send_json_success(['message' => sprintf(__('%d forms deleted successfully.', 'gpt3-ai-content-generator'), $deleted)]);
     }
 }

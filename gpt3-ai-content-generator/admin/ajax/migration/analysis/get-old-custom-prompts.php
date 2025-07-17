@@ -51,6 +51,7 @@ function get_old_custom_prompts_logic(): array
     return [
         'count' => $count,
         'prompts' => $prompts,
+        /* translators: %d is the number of custom prompts found */
         'summary' => sprintf(_n('%d custom prompt found.', '%d custom prompts found.', $count, 'gpt3-ai-content-generator'), $count),
         'details' => array_keys($prompts) // just for logging maybe
     ];

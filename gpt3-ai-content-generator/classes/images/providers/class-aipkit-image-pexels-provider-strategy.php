@@ -71,7 +71,8 @@ class AIPKit_Image_Pexels_Provider_Strategy extends AIPKit_Image_Base_Provider_S
                         ? $decoded_response->get_error_message()
                         : $this->parse_error_response($body, $status_code, 'Pexels');
             error_log("AIPKit Pexels API Error ({$status_code}): " . $error_msg);
-            return new WP_Error('pexels_api_error', sprintf(__('Pexels API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, $error_msg));
+            /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+            return new WP_Error('pexels_api_error', sprintf(__('Pexels API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg));
         }
 
         $images = [];

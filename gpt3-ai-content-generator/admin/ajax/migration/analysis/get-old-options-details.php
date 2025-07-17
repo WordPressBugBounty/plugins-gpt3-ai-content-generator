@@ -39,6 +39,7 @@ function get_old_options_details_logic(): array
     foreach ($old_options as $option_name) {
         if (get_option($option_name) !== false) {
             $count++;
+            /* translators: %s is the option name */
             $details[] = sprintf(__('Found option: %s', 'gpt3-ai-content-generator'), $option_name);
         }
     }

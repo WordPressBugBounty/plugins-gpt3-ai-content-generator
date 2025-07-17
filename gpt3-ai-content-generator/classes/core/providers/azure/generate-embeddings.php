@@ -1,6 +1,6 @@
 <?php
-// File: classes/core/providers/azure/generate-embeddings.php
-// Status: NEW FILE
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/providers/azure/generate-embeddings.php
+// Status: MODIFIED
 
 namespace WPAICG\Core\Providers\Azure\Methods;
 
@@ -67,7 +67,8 @@ function generate_embeddings_logic(
                     ? $decoded_response->get_error_message()
                     : AzureResponseParser::parse_error($body, $status_code); // Call static method
         error_log("AIPKit Azure Embeddings API Logic Error ({$status_code}): " . $error_msg);
-        return new WP_Error('azure_embedding_api_error_logic', sprintf(__('Azure Embeddings API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg)));
+        /* translators: %1$d: HTTP status code, %2$s: API error message. */
+        return new WP_Error('azure_embedding_api_error_logic', sprintf(__('Azure Embeddings API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg)));
     }
 
     return AzureResponseParser::parse_embeddings($decoded_response); // Call static method

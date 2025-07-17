@@ -114,6 +114,7 @@ function prepare_stream_data_logic(
         'azure_authoring_version' => ($provider === 'Azure') ? ($provData['api_version_authoring'] ?? '2023-03-15-preview') : '',
     ];
     if (empty($api_params_for_stream['api_key'])) {
+        /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
         return new WP_Error('missing_api_key_ai_forms_logic', sprintf(__('API key missing for %s (AI Forms).', 'gpt3-ai-content-generator'), $provider), ['status' => 400]);
     }
     if ($provider === 'Azure' && empty($api_params_for_stream['azure_endpoint'])) {

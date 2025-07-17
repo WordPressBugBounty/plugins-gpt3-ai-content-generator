@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 2.3.15\n"
+"Project-Id-Version: AI Power: Complete AI Pack 2.3.16\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-16T20:04:47+00:00\n"
+"POT-Creation-Date: 2025-07-17T14:32:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #. Description of the plugin
 #: gpt3-ai-content-generator.php
-msgid "Chatbot, ChatGPT, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more."
+msgid "ai, Chatbot, ChatGPT, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more."
 msgstr ""
 
 #. Author of the plugin
@@ -49,7 +49,8 @@ msgstr ""
 msgid "Failed to delete all forms."
 msgstr ""
 
-#: admin/ajax/ai-forms/ajax-delete-all-forms.php:37
+#. translators: %d is the number of forms deleted
+#: admin/ajax/ai-forms/ajax-delete-all-forms.php:38
 msgid "%d forms deleted successfully."
 msgstr ""
 
@@ -90,17 +91,20 @@ msgstr ""
 msgid "Invalid JSON data received for import."
 msgstr ""
 
-#: admin/ajax/ai-forms/ajax-import-forms.php:73
-msgid "Failed to import form \"%s\": %s"
+#. translators: 1: The form title. 2: The specific error message.
+#: admin/ajax/ai-forms/ajax-import-forms.php:74
+msgid "Failed to import form \"%1$s\": %2$s"
 msgstr ""
 
+#. translators: %d is the number of forms imported
 #: admin/ajax/ai-forms/ajax-import-forms.php:80
 msgid "%d form was imported successfully."
 msgid_plural "%d forms were imported successfully."
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/ajax/ai-forms/ajax-import-forms.php:91
+#. translators: %d is the number of forms that failed to import
+#: admin/ajax/ai-forms/ajax-import-forms.php:84
 msgid "%d form failed to import."
 msgid_plural "%d forms failed to import."
 msgstr[0] ""
@@ -224,7 +228,8 @@ msgstr ""
 msgid "Featured Image Prompt"
 msgstr ""
 
-#: admin/ajax/migration/analysis/get-old-custom-prompts.php:54
+#. translators: %d is the number of custom prompts found
+#: admin/ajax/migration/analysis/get-old-custom-prompts.php:55
 msgid "%d custom prompt found."
 msgid_plural "%d custom prompts found."
 msgstr[0] ""
@@ -242,13 +247,15 @@ msgstr ""
 msgid "RSS Feed URLs"
 msgstr ""
 
-#: admin/ajax/migration/analysis/get-old-integration-data.php:89
+#. translators: %d is the number of old integration settings found
+#: admin/ajax/migration/analysis/get-old-integration-data.php:90
 msgid "%d old integration setting found."
 msgid_plural "%d old integration settings found."
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/ajax/migration/analysis/get-old-options-details.php:42
+#. translators: %s is the option name
+#: admin/ajax/migration/analysis/get-old-options-details.php:43
 msgid "Found option: %s"
 msgstr ""
 
@@ -276,6 +283,7 @@ msgstr ""
 msgid "WooCommerce Focus Keyword Prompt"
 msgstr ""
 
+#. translators: %d is the number of custom WooCommerce prompts found
 #: admin/ajax/migration/analysis/get-old-woocommerce-prompts.php:44
 msgid "%d custom WooCommerce prompt found."
 msgid_plural "%d custom WooCommerce prompts found."
@@ -298,27 +306,33 @@ msgid_plural "%d legacy database tables with data found."
 msgstr[0] ""
 msgstr[1] ""
 
+#. translators: %1$d is the number of posts, %2$d is the number of tables
 #: admin/ajax/migration/delete/class-aipkit-delete-old-chatbot-data-action.php:68
-msgid "Old chatbot data deleted: %d posts and %d database tables removed."
+msgid "Old chatbot data deleted: %1$d posts and %2$d database tables removed."
 msgstr ""
 
+#. translators: %1$d is the number of posts, %2$d is the number of tables
 #: admin/ajax/migration/delete/class-aipkit-delete-old-cpt-data-action.php:73
-msgid "Old AI Forms & associated legacy data deleted: %d posts and %d database tables removed."
+msgid "Old AI Forms & associated legacy data deleted: %1$d posts and %2$d database tables removed."
 msgstr ""
 
+#. translators: %1$d is the number of options, %2$d is the number of tables
 #: admin/ajax/migration/delete/class-aipkit-delete-old-global-settings-action.php:77
-msgid "Old global settings deleted: %d options and %d database tables removed."
+msgid "Old global settings deleted: %1$d options and %2$d database tables removed."
 msgstr ""
 
+#. translators: %d is the number of posts deleted
 #: admin/ajax/migration/delete/class-aipkit-delete-old-indexed-data-action.php:53
 msgid "Old indexed data deleted: %d posts removed."
 msgstr ""
 
-#: admin/ajax/migration/migrate/class-aipkit-migrate-chatbot-data-action.php:129
+#. translators: %1$d is the number of migrated bots, %2$d is the number of migrated token records
+#: admin/ajax/migration/migrate/class-aipkit-migrate-chatbot-data-action.php:130
 msgid "Chatbot data migrated: %1$d bots and %2$d token records migrated. Old logs were not migrated."
 msgstr ""
 
-#: admin/ajax/migration/migrate/class-aipkit-migrate-cpt-data-action.php:149
+#. translators: %1$d is the number of forms, %2$d is the number of token records
+#: admin/ajax/migration/migrate/class-aipkit-migrate-cpt-data-action.php:150
 msgid "AI Forms data migrated: %1$d forms and %2$d token records migrated. Other data in this category was not migrated."
 msgstr ""
 
@@ -326,6 +340,7 @@ msgstr ""
 msgid "Global settings migrated successfully."
 msgstr ""
 
+#. translators: %1$d is the total number of indexed data found, %2$d is the number of successfully migrated items, %3$d is the number of failed migrations
 #: admin/ajax/migration/migrate/class-aipkit-migrate-indexed-data-action.php:119
 msgid "Indexed data migration complete. Processed: %1$d, Migrated: %2$d, Failed: %3$d."
 msgstr ""
@@ -343,7 +358,7 @@ msgid "Error saving form."
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:162
-#: admin/data/dashboard-localized-texts.php:123
+#: admin/data/dashboard-localized-texts.php:127
 msgid "Loading forms..."
 msgstr ""
 
@@ -397,7 +412,7 @@ msgid "Edit AI Form"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:176
-#: admin/data/dashboard-localized-texts.php:126
+#: admin/data/dashboard-localized-texts.php:130
 msgid "Create New AI Form"
 msgstr ""
 
@@ -413,68 +428,68 @@ msgid "No options configured"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:179
-#: admin/data/dashboard-localized-texts.php:141
+#: admin/data/dashboard-localized-texts.php:145
 msgid "Label Text"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:180
-#: admin/data/dashboard-localized-texts.php:142
+#: admin/data/dashboard-localized-texts.php:146
 msgid "Field Variable Name (for prompt)"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:181
-#: admin/data/dashboard-localized-texts.php:143
+#: admin/data/dashboard-localized-texts.php:147
 msgid "Use as {your_variable_name} in the Prompt Template. Must be unique and contain only letters, numbers, underscores."
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:182
-#: admin/data/dashboard-localized-texts.php:144
+#: admin/data/dashboard-localized-texts.php:148
 #: lib/admin/js/chatbot/triggers/ui-builder/renderFormElementEditorItem.js:75
 msgid "Placeholder Text"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:183
-#: admin/data/dashboard-localized-texts.php:145
+#: admin/data/dashboard-localized-texts.php:149
 #: lib/admin/js/chatbot/triggers/ui-builder/renderFormElementEditorItem.js:86
 msgid "Required Field"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:184
-#: admin/data/dashboard-localized-texts.php:146
+#: admin/data/dashboard-localized-texts.php:150
 msgid "Options (Value|Text)"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:185
-#: admin/data/dashboard-localized-texts.php:147
+#: admin/data/dashboard-localized-texts.php:151
 #: lib/views/chatbot/partials/triggers/trigger-builder-main.php:89
 msgid "Value"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:186
-#: admin/data/dashboard-localized-texts.php:148
+#: admin/data/dashboard-localized-texts.php:152
 msgid "Display Text"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:187
-#: admin/data/dashboard-localized-texts.php:149
+#: admin/data/dashboard-localized-texts.php:153
 #: lib/admin/js/chatbot/triggers/ui-builder/renderFormElementEditorItem.js:107
 msgid "Add Option"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:188
-#: admin/data/dashboard-localized-texts.php:150
+#: admin/data/dashboard-localized-texts.php:154
 #: lib/admin/js/chatbot/triggers/ui-builder/updateFormElementOptionControls.js:44
 msgid "Remove Option"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:189
-#: admin/data/dashboard-localized-texts.php:151
+#: admin/data/dashboard-localized-texts.php:155
 #: admin/views/modules/ai-forms/partials/form-editor.php:144
 msgid "Done"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:190
-#: admin/data/dashboard-localized-texts.php:153
+#: admin/data/dashboard-localized-texts.php:158
 msgid "Field Variable Name must be unique and valid (letters, numbers, underscores)."
 msgstr ""
 
@@ -547,18 +562,18 @@ msgid "Automatically generate and post replies to new comments."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:208
-#: admin/data/dashboard-localized-texts.php:106
+#: admin/data/dashboard-localized-texts.php:110
 msgid "Are you sure you want to delete this automated task? This action cannot be undone."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:209
-#: admin/data/dashboard-localized-texts.php:107
+#: admin/data/dashboard-localized-texts.php:111
 #: classes/autogpt/ajax/actions/save-task/validate-task-request.php:31
 msgid "Task name is required."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:210
-#: admin/data/dashboard-localized-texts.php:108
+#: admin/data/dashboard-localized-texts.php:112
 #: classes/autogpt/ajax/actions/save-task/validate-task-request.php:34
 msgid "Task type is required."
 msgstr ""
@@ -568,7 +583,7 @@ msgid "Please select a target vector store/index."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:212
-#: admin/data/dashboard-localized-texts.php:110
+#: admin/data/dashboard-localized-texts.php:114
 msgid "Please select at least one content type."
 msgstr ""
 
@@ -585,43 +600,43 @@ msgid "Content Title/Topic is required for this Content Writing task mode."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:216
-#: admin/data/dashboard-localized-texts.php:121
+#: admin/data/dashboard-localized-texts.php:125
 msgid "AI Provider and Model are required for Content Writing task."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:217
-#: admin/data/dashboard-localized-texts.php:111
+#: admin/data/dashboard-localized-texts.php:115
 msgid "Saving Task..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:218
-#: admin/data/dashboard-localized-texts.php:112
+#: admin/data/dashboard-localized-texts.php:116
 msgid "Deleting Task..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:219
-#: admin/data/dashboard-localized-texts.php:113
+#: admin/data/dashboard-localized-texts.php:117
 msgid "Initiating Run..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:220
-#: admin/data/dashboard-localized-texts.php:114
+#: admin/data/dashboard-localized-texts.php:118
 msgid "Pausing Task..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:221
-#: admin/data/dashboard-localized-texts.php:115
+#: admin/data/dashboard-localized-texts.php:119
 msgid "Resuming Task..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:222
-#: admin/data/dashboard-localized-texts.php:116
+#: admin/data/dashboard-localized-texts.php:120
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:91
 msgid "Save Task"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:223
-#: admin/data/dashboard-localized-texts.php:117
+#: admin/data/dashboard-localized-texts.php:121
 msgid "Create Task"
 msgstr ""
 
@@ -639,7 +654,7 @@ msgid "Loading stores..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:227
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:161
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:164
 msgid "Loading indexes..."
 msgstr ""
 
@@ -683,7 +698,7 @@ msgid "No automated tasks configured yet."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:237
-#: admin/assets/class-aipkit-post-enhancer-assets.php:218
+#: admin/assets/class-aipkit-post-enhancer-assets.php:219
 #: admin/js/ai-forms/list/render-table.js:174
 msgid "Edit"
 msgstr ""
@@ -705,7 +720,7 @@ msgid "Task must be active to run"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:242
-#: admin/assets/class-aipkit-post-enhancer-assets.php:219
+#: admin/assets/class-aipkit-post-enhancer-assets.php:220
 #: admin/views/migration-tool/partials/_status_analysis_results.php:86
 #: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:73
 #: admin/js/ai-forms/list/render-table.js:192
@@ -787,33 +802,37 @@ msgstr ""
 msgid "items"
 msgstr ""
 
+#. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:259
-#: includes/class-aipkit-shortcodes-manager.php:222
+#: includes/class-aipkit-shortcodes-manager.php:233
 #: admin/js/ai-training/wp/render-wp-content-list.js:131
 msgid "Page"
 msgstr ""
 
+#. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:260
-#: includes/class-aipkit-shortcodes-manager.php:222
+#: includes/class-aipkit-shortcodes-manager.php:233
 #: admin/js/ai-training/wp/render-wp-content-list.js:134
 msgid "of"
 msgstr ""
 
+#. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:261
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:83
 #: admin/views/modules/logs/partials/logs-table.php:188
 #: admin/views/modules/logs/partials/logs-table.php:195
-#: includes/class-aipkit-shortcodes-manager.php:222
+#: includes/class-aipkit-shortcodes-manager.php:233
 #: admin/js/ai-training/wp/render-wp-content-list.js:119
 msgid "Previous"
 msgstr ""
 
+#. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:262
-#: admin/data/dashboard-localized-texts.php:119
+#: admin/data/dashboard-localized-texts.php:123
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:88
 #: admin/views/modules/logs/partials/logs-table.php:211
 #: admin/views/modules/logs/partials/logs-table.php:218
-#: includes/class-aipkit-shortcodes-manager.php:222
+#: includes/class-aipkit-shortcodes-manager.php:233
 #: admin/js/ai-training/wp/render-wp-content-list.js:139
 msgid "Next"
 msgstr ""
@@ -822,45 +841,46 @@ msgstr ""
 msgid "Are you sure you want to remove this item from the queue?"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:264
+#. translators: %s is the status of the queue items, e.g. "Failed" or "Pending"
+#: admin/assets/class-aipkit-autogpt-assets.php:265
 msgid "Are you sure you want to delete all %s items from the queue? This cannot be undone."
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:265
+#: admin/assets/class-aipkit-autogpt-assets.php:266
 msgid "Are you sure you want to delete ALL items from the queue? This cannot be undone."
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:266
+#: admin/assets/class-aipkit-autogpt-assets.php:267
 msgid "Queue item deleted."
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:267
+#: admin/assets/class-aipkit-autogpt-assets.php:268
 msgid "Error deleting item:"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:268
+#: admin/assets/class-aipkit-autogpt-assets.php:269
 msgid "Error deleting items:"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:269
+#: admin/assets/class-aipkit-autogpt-assets.php:270
 msgid "Retry"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:270
+#: admin/assets/class-aipkit-autogpt-assets.php:271
 msgid "Item marked for retry. Queue processing will pick it up."
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:271
+#: admin/assets/class-aipkit-autogpt-assets.php:272
 msgid "Error retrying item:"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:272
-#: admin/data/dashboard-localized-texts.php:155
+#: admin/assets/class-aipkit-autogpt-assets.php:273
+#: admin/data/dashboard-localized-texts.php:160
 msgid "task"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:273
-#: admin/data/dashboard-localized-texts.php:156
+#: admin/assets/class-aipkit-autogpt-assets.php:274
+#: admin/data/dashboard-localized-texts.php:161
 msgid "tasks"
 msgstr ""
 
@@ -870,13 +890,13 @@ msgid "Error: Fullscreen functionality is unavailable."
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:208
-#: admin/data/dashboard-localized-texts.php:81
+#: admin/data/dashboard-localized-texts.php:85
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:117
 msgid "Copied!"
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:209
-#: admin/data/dashboard-localized-texts.php:82
+#: admin/data/dashboard-localized-texts.php:86
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:117
 msgid "Failed to copy"
 msgstr ""
@@ -886,12 +906,12 @@ msgid "Select OpenAI Store(s)"
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:211
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:160
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:163
 msgid "Select Pinecone Index"
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:212
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:165
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:168
 msgid "Select Qdrant Collection"
 msgstr ""
 
@@ -1055,65 +1075,68 @@ msgstr ""
 msgid "Click a tag set to apply:"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:214
+#. translators: %s is the name of the post type, e.g. "Post" or "Page"
+#: admin/assets/class-aipkit-post-enhancer-assets.php:215
 msgid "Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:215
+#. translators: %s is the name of the token, e.g. "OpenAI"
+#: admin/assets/class-aipkit-post-enhancer-assets.php:216
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:145
-#: includes/class-aipkit-shortcodes-manager.php:222
+#: includes/class-aipkit-shortcodes-manager.php:233
 msgid "Close"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:216
+#: admin/assets/class-aipkit-post-enhancer-assets.php:217
 msgid "Configure AI Actions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:217
+#: admin/assets/class-aipkit-post-enhancer-assets.php:218
 #: admin/views/modules/settings/partials/integrations/ai-assistant.php:55
 msgid "Add New"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:220
+#: admin/assets/class-aipkit-post-enhancer-assets.php:221
 msgid "Action Label"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:221
+#: admin/assets/class-aipkit-post-enhancer-assets.php:222
 msgid "Action Prompt"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:222
+#: admin/assets/class-aipkit-post-enhancer-assets.php:223
 msgid "Save Action"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:223
+#: admin/assets/class-aipkit-post-enhancer-assets.php:224
 #: admin/assets/class-aipkit-role-manager-assets.php:92
 #: admin/js/ai-forms/ajax/save-settings.js:39
 msgid "Saving..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:224
+#: admin/assets/class-aipkit-post-enhancer-assets.php:225
 msgid "Are you sure you want to delete this action? This cannot be undone."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:225
+#: admin/assets/class-aipkit-post-enhancer-assets.php:226
 #: admin/views/migration-tool/partials/_javascript.php:43
 msgid "Deleting..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:226
+#: admin/assets/class-aipkit-post-enhancer-assets.php:227
 msgid "Action deleted."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:227
+#: admin/assets/class-aipkit-post-enhancer-assets.php:228
 msgid "Action saved."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:228
+#: admin/assets/class-aipkit-post-enhancer-assets.php:229
 msgid "Loading actions..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:229
+#. translators: %s is the name of the post type, e.g. "Post" or "Page"
+#: admin/assets/class-aipkit-post-enhancer-assets.php:231
 msgid "Use %s as a placeholder for the selected text."
 msgstr ""
 
@@ -1135,7 +1158,7 @@ msgid "Add Content to Vector Store"
 msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:139
-#: admin/data/dashboard-localized-texts.php:35
+#: admin/data/dashboard-localized-texts.php:37
 #: admin/views/modules/ai-forms/index.php:123
 #: admin/views/modules/ai-forms/partials/labels-config.php:39
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:34
@@ -1196,51 +1219,54 @@ msgstr ""
 msgid "Preparing content..."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:155
+#. translators: %1$s is the file name, %2$s is the total number of files being indexed
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:156
 msgid "Uploading file %1$s of %2$s..."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:156
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:157
 msgid "Adding files to vector store..."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:157
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:158
 #: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:202
 #: public/class-wp-ai-content-generator-public.php:157
 msgid "An error occurred."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:158
+#. translators: %d is the number of items selected
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:160
 msgid "You have selected %d item to index."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:159
+#. translators: %d is the number of items selected
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:162
 msgid "You have selected %d items to index."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:162
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:165
 msgid "Error fetching indexes."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:163
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:166
 msgid "No Pinecone indexes found. Create one in AI Training or via Pinecone console."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:164
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:167
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:111
 msgid "Please select a Pinecone index."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:166
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:169
 msgid "No Qdrant collections found. Create one in AI Training."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:167
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:170
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:135
 msgid "Please select a Qdrant collection."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:168
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:171
 #: admin/views/modules/ai-forms/partials/vector-config.php:91
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:85
 #: admin/views/modules/chatbot/partials/accordion-context.php:371
@@ -1249,7 +1275,7 @@ msgstr ""
 msgid "Embedding Provider"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:169
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:172
 #: admin/views/modules/ai-forms/partials/vector-config.php:98
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:92
 #: admin/views/modules/chatbot/partials/accordion-context.php:384
@@ -1258,77 +1284,79 @@ msgstr ""
 msgid "Embedding Model"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:170
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:173
 msgid "Select Model"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:171
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:174
 #: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:41
 msgid "Embedding provider and model are required."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:172
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:175
 msgid "Ensure API key is set for the selected embedding provider in AI Settings."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:16
+#. translators: %s is the name of the module being loaded
+#: admin/data/dashboard-localized-texts.php:17
 msgid "Loading %s..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:17
+#: admin/data/dashboard-localized-texts.php:18
 msgid "Error Loading Module"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:18
+#. translators: %s is the name of the module that failed to load
+#: admin/data/dashboard-localized-texts.php:20
 msgid "An error occurred while loading the '%s' module. Please try again later or check the browser console for details."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:19
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:168
+#: admin/data/dashboard-localized-texts.php:21
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:157
 msgid "Details:"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:21
+#: admin/data/dashboard-localized-texts.php:23
 #: admin/views/modules/chatbot/index.php:95
 msgid "Select a bot to see the preview."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:22
+#: admin/data/dashboard-localized-texts.php:24
 #: admin/views/modules/chatbot/index.php:100
 #: admin/views/modules/chatbot/index.php:118
 msgid "Configure the new bot and save it to see the preview."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:23
+#: admin/data/dashboard-localized-texts.php:25
 msgid "Preview is not applicable for Chat Settings."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:24
+#: admin/data/dashboard-localized-texts.php:26
 msgid "Preview is not applicable for Chat Logs."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:25
+#: admin/data/dashboard-localized-texts.php:27
 msgid "No chatbots found. Create one to get started!"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:27
+#: admin/data/dashboard-localized-texts.php:29
 msgid "Chat Log Details"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:28
+#: admin/data/dashboard-localized-texts.php:30
 msgid "Loading log details..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:29
+#: admin/data/dashboard-localized-texts.php:31
 msgid "Error loading log details."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:30
+#: admin/data/dashboard-localized-texts.php:32
 msgid "Bot"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:31
-#: admin/data/dashboard-localized-texts.php:68
+#: admin/data/dashboard-localized-texts.php:33
+#: admin/data/dashboard-localized-texts.php:72
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:61
 #: admin/views/modules/logs/partials/logs-table.php:57
 #: admin/views/modules/user-credits/index.php:110
@@ -1336,19 +1364,19 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:32
+#: admin/data/dashboard-localized-texts.php:34
 msgid "Session ID"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:33
+#: admin/data/dashboard-localized-texts.php:35
 msgid "Started"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:34
+#: admin/data/dashboard-localized-texts.php:36
 msgid "Last Activity"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:36
+#: admin/data/dashboard-localized-texts.php:38
 #: admin/views/modules/ai-forms/index.php:124
 #: admin/views/modules/ai-forms/partials/labels-config.php:43
 #: admin/views/modules/autogpt/partials/community-engagement/ai-settings.php:26
@@ -1368,78 +1396,80 @@ msgstr ""
 msgid "Model"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:37
+#: admin/data/dashboard-localized-texts.php:39
 msgid "IP Address"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:38
+#: admin/data/dashboard-localized-texts.php:40
 msgid "No logs found matching your criteria."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:39
+#: admin/data/dashboard-localized-texts.php:41
 msgid "Export all messages matching current filters?"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:40
+#: admin/data/dashboard-localized-texts.php:42
 msgid "Export all messages? This might take a while for large datasets."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:41
-#: admin/data/dashboard-localized-texts.php:48
+#: admin/data/dashboard-localized-texts.php:43
+#: admin/data/dashboard-localized-texts.php:51
 msgid "Starting..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:42
+#. translators: %1$d is the current conversation number, %2$d is the total number of conversations
+#: admin/data/dashboard-localized-texts.php:45
 msgid "Exporting conversation %1$d / %2$d..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:43
-#: admin/data/dashboard-localized-texts.php:50
+#: admin/data/dashboard-localized-texts.php:46
+#: admin/data/dashboard-localized-texts.php:54
 msgid "Done!"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:44
+#: admin/data/dashboard-localized-texts.php:47
 msgid "Export failed:"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:45
+#: admin/data/dashboard-localized-texts.php:48
 msgid "No messages found to export."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:46
+#: admin/data/dashboard-localized-texts.php:49
 msgid "Delete all conversations matching current filters? This action cannot be undone."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:47
+#: admin/data/dashboard-localized-texts.php:50
 msgid "Delete ALL conversations? This will remove ALL chat history and cannot be undone."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:49
+#. translators: %1$d is the current conversation number, %2$d is the total number of conversations
+#: admin/data/dashboard-localized-texts.php:53
 msgid "Deleting conversation %1$d / %2$d..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:51
+#: admin/data/dashboard-localized-texts.php:55
 msgid "Deletion failed:"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:52
+#: admin/data/dashboard-localized-texts.php:56
 msgid "No conversations found to delete."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:53
+#: admin/data/dashboard-localized-texts.php:57
 #: admin/views/modules/content-writer/partials/template-controls.php:56
 msgid "Confirm"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:54
+#: admin/data/dashboard-localized-texts.php:58
 msgid "Confirm Delete Filtered"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:55
+#: admin/data/dashboard-localized-texts.php:59
 msgid "Confirm Delete ALL"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:56
+#: admin/data/dashboard-localized-texts.php:60
 #: admin/views/modules/ai-forms/partials/_form-editor-actions.php:23
 #: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:18
 #: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:22
@@ -1450,31 +1480,31 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:58
+#: admin/data/dashboard-localized-texts.php:62
 #: admin/views/modules/settings/partials/token-stats.php:114
 #: admin/views/modules/user-credits/index.php:89
 msgid "Loading chart data..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:59
+#: admin/data/dashboard-localized-texts.php:63
 msgid "Error loading chart data."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:60
+#: admin/data/dashboard-localized-texts.php:64
 msgid "No token usage data found for the selected period."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:62
+#: admin/data/dashboard-localized-texts.php:66
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:20
 msgid "Send Message"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:63
+#: admin/data/dashboard-localized-texts.php:67
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:21
 msgid "Sending..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:64
+#: admin/data/dashboard-localized-texts.php:68
 #: admin/views/modules/chatbot/partials/appearance/text-inputs.php:15
 #: admin/views/modules/chatbot/partials/appearance/text-inputs.php:81
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:22
@@ -1484,290 +1514,291 @@ msgstr ""
 msgid "Type your message..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:65
+#: admin/data/dashboard-localized-texts.php:69
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:23
 msgid "Thinking..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:66
+#: admin/data/dashboard-localized-texts.php:70
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:24
 msgid "Streaming..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:67
+#: admin/data/dashboard-localized-texts.php:71
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:25
 #: lib/admin/assets/class-aipkit-content-writer-pro-assets.php:70
 msgid "Error:"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:69
+#: admin/data/dashboard-localized-texts.php:73
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:27
 msgid "Clear Chat"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:70
+#: admin/data/dashboard-localized-texts.php:74
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:28
 msgid "Close Chat"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:71
+#: admin/data/dashboard-localized-texts.php:75
 #: admin/views/modules/chatbot/partials/appearance/feature-toggles.php:70
 #: admin/views/modules/chatbot/partials/context/feature-toggles.php:71
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:29
 msgid "Fullscreen"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:72
+#: admin/data/dashboard-localized-texts.php:76
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:30
 msgid "Exit Fullscreen"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:73
+#: admin/data/dashboard-localized-texts.php:77
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:31
 msgid "Download Transcript"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:74
+#: admin/data/dashboard-localized-texts.php:78
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:32
 msgid "Download TXT"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:75
+#: admin/data/dashboard-localized-texts.php:79
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:33
 msgid "Download PDF"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:76
+#: admin/data/dashboard-localized-texts.php:80
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:34
 msgid "Nothing to download."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:77
+#: admin/data/dashboard-localized-texts.php:81
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:35
 msgid "Could not generate PDF. jsPDF library might be missing."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:78
+#: admin/data/dashboard-localized-texts.php:82
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:36
 msgid "Stream error. Please try again."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:79
+#: admin/data/dashboard-localized-texts.php:83
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:37
 msgid "Connection error. Please try again."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:80
+#: admin/data/dashboard-localized-texts.php:84
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:118
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:47
 msgid "Copy response"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:83
+#: admin/data/dashboard-localized-texts.php:87
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:44
 msgid "Like response"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:84
+#: admin/data/dashboard-localized-texts.php:88
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:45
 msgid "Dislike response"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:85
+#: admin/data/dashboard-localized-texts.php:89
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:119
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:46
 msgid "Feedback submitted"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:86
+#: admin/data/dashboard-localized-texts.php:90
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:119
 msgid "Error saving feedback"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:87
+#: admin/data/dashboard-localized-texts.php:91
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:120
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:39
 msgid "Toggle Conversation Sidebar"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:88
+#: admin/data/dashboard-localized-texts.php:92
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:120
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:40
 msgid "New Chat"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:89
+#: admin/data/dashboard-localized-texts.php:93
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:41
 msgid "Conversations"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:90
+#: admin/data/dashboard-localized-texts.php:94
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:121
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:42
 msgid "History unavailable for guests."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:91
+#: admin/data/dashboard-localized-texts.php:95
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:121
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:43
 msgid "No past conversations."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:92
+#: admin/data/dashboard-localized-texts.php:96
 #: admin/views/modules/settings/index.php:66
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:22
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:31
 msgid "Consent Required"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:93
+#: admin/data/dashboard-localized-texts.php:97
 #: admin/views/modules/settings/index.php:67
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:23
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:32
 msgid "Before starting the conversation, please agree to our Terms of Service and Privacy Policy."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:94
+#: admin/data/dashboard-localized-texts.php:98
 #: admin/views/modules/settings/index.php:68
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:24
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:33
 msgid "I Agree"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:95
+#: admin/data/dashboard-localized-texts.php:99
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:122
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:51
 msgid "Play audio"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:96
+#: admin/data/dashboard-localized-texts.php:100
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:123
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:53
 msgid "Pause audio"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:98
+#: admin/data/dashboard-localized-texts.php:102
 #: admin/views/modules/user-credits/index.php:123
 msgid "Loading user credits..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:99
+#: admin/data/dashboard-localized-texts.php:103
 msgid "Error loading user credits."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:100
+#: admin/data/dashboard-localized-texts.php:104
 #: admin/views/modules/user-credits/index.php:138
 msgid "No user token data found."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:101
+#: admin/data/dashboard-localized-texts.php:105
 msgid "Edit Credits"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:102
+#: admin/data/dashboard-localized-texts.php:106
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:110
 #: admin/views/modules/chatbot/partials/accordion-token-management.php:132
 #: admin/views/modules/image-generator/partials/settings-token-management.php:71
 msgid "Reset Period"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:104
+#: admin/data/dashboard-localized-texts.php:108
 msgid "Searching vector store..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:109
+#: admin/data/dashboard-localized-texts.php:113
 msgid "Please select a target vector store."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:118
+#: admin/data/dashboard-localized-texts.php:122
 msgid "Edit generated post"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:120
+#: admin/data/dashboard-localized-texts.php:124
 msgid "Topic is required for Content Writing task."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:122
+#: admin/data/dashboard-localized-texts.php:126
 #: classes/content-writer/ajax/actions/class-aipkit-content-writer-create-task-action.php:117
 msgid "Your content writing task is queued. You can track it under the Automated Tasks tab."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:124
+#: admin/data/dashboard-localized-texts.php:128
 msgid "Error loading forms data."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:125
+#: admin/data/dashboard-localized-texts.php:129
 #: admin/views/modules/ai-forms/index.php:144
 msgid "No AI Forms have been created yet."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:127
+#: admin/data/dashboard-localized-texts.php:131
 #: admin/views/modules/ai-forms/partials/_form-editor-main-settings.php:57
 msgid "e.g., Product Description Generator"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:128
+#: admin/data/dashboard-localized-texts.php:132
 #: admin/views/modules/ai-forms/partials/_form-editor-main-settings.php:24
 msgid "Prompt Template"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:129
+#: admin/data/dashboard-localized-texts.php:133
 msgid "Craft your prompt. Use {user_input} as a placeholder for the user's text from the form."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:130
+#: admin/data/dashboard-localized-texts.php:134
 #: admin/views/modules/ai-forms/partials/_form-editor-actions.php:16
 msgid "Save Form"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:131
+#: admin/data/dashboard-localized-texts.php:135
 msgid "Creating Form..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:132
+#: admin/data/dashboard-localized-texts.php:136
 #: admin/views/modules/ai-forms/partials/form-editor.php:51
 #: lib/admin/js/chatbot/triggers/ui-builder/renderActionPayloadFields.js:87
 msgid "Form Elements"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:133
+#: admin/data/dashboard-localized-texts.php:137
 msgid "Form Designer"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:134
+#: admin/data/dashboard-localized-texts.php:138
 msgid "Drag Form Elements Here"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:135
+#: admin/data/dashboard-localized-texts.php:139
 #: admin/views/modules/ai-forms/partials/form-editor.php:56
 msgid "Text Input"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:136
+#: admin/data/dashboard-localized-texts.php:140
 #: admin/views/modules/ai-forms/partials/form-editor.php:60
 msgid "Text Area"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:137
+#: admin/data/dashboard-localized-texts.php:141
 #: admin/views/modules/ai-forms/partials/form-editor.php:64
 msgid "Dropdown"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:138
+#: admin/data/dashboard-localized-texts.php:142
 #: admin/views/modules/ai-forms/partials/form-editor.php:68
 msgid "Checkbox"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:139
+#: admin/data/dashboard-localized-texts.php:143
 msgid "Drag elements to the designer area."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:140
+#: admin/data/dashboard-localized-texts.php:144
 #: admin/views/modules/ai-forms/partials/form-editor.php:136
 msgid "Element Settings"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:152
+#. translators: %s is the type of form element, e.g. Text Input
+#: admin/data/dashboard-localized-texts.php:157
 msgid "(%s)"
 msgstr ""
 
@@ -1872,7 +1903,7 @@ msgid "Migrating..."
 msgstr ""
 
 #: admin/views/migration-tool/partials/_javascript.php:45
-#: admin/views/migration-tool/partials/_status_analysis_required.php:45
+#: admin/views/migration-tool/partials/_status_analysis_required.php:42
 msgid "Start Fresh"
 msgstr ""
 
@@ -1928,31 +1959,32 @@ msgstr ""
 msgid "Action Required: Previous Data Detected"
 msgstr ""
 
+#. translators: %s is the old plugin version
 #: admin/views/migration-tool/partials/_status_analysis_required.php:21
 msgid "AI Power has detected data from a previous version (%s). The new interactive migration tool needs to analyze this data before you can migrate or delete it."
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_required.php:27
+#: admin/views/migration-tool/partials/_status_analysis_required.php:24
 msgid "CRITICAL: It is STRONGLY recommended to back up your WordPress database before proceeding with any data operation."
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_required.php:33
+#: admin/views/migration-tool/partials/_status_analysis_required.php:30
 msgid "Option 1: Analyze & Migrate"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_required.php:34
+#: admin/views/migration-tool/partials/_status_analysis_required.php:31
 msgid "Scan your old data to see a detailed report. From there, you can choose to migrate or delete each data category individually."
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_required.php:36
+#: admin/views/migration-tool/partials/_status_analysis_required.php:33
 msgid "Analyze Legacy Data"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_required.php:42
+#: admin/views/migration-tool/partials/_status_analysis_required.php:39
 msgid "Option 2: Start Fresh"
 msgstr ""
 
-#: admin/views/migration-tool/partials/_status_analysis_required.php:43
+#: admin/views/migration-tool/partials/_status_analysis_required.php:40
 msgid "Choose this to ignore old data and start with default settings. You can delete the old data later from the migration dashboard if you change your mind."
 msgstr ""
 
@@ -2276,7 +2308,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/index.php:50
 #: admin/views/modules/user-credits/index.php:43
 #: classes/dashboard/class-aipkit_role_manager.php:45
-#: classes/shortcodes/token-usage/data/get_user_token_usage_data.php:106
+#: classes/shortcodes/token-usage/data/get_user_token_usage_data.php:107
 #: classes/shortcodes/token-usage/render/render_dashboard.php:105
 msgid "AI Forms"
 msgstr ""
@@ -3259,7 +3291,7 @@ msgstr ""
 #: admin/views/modules/content-writer/partials/form-inputs/seo-settings.php:92
 #: admin/views/modules/content-writer/partials/form-inputs/seo-settings.php:118
 #: admin/views/modules/content-writer/partials/form-inputs/seo-settings.php:144
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:40
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:41
 msgid "Expand"
 msgstr ""
 
@@ -4712,19 +4744,20 @@ msgstr ""
 msgid "Select a bot to edit"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/chatbot-main-selector.php:66
+#. translators: %s is the bot name
+#: admin/views/modules/chatbot/partials/chatbot-main-selector.php:68
 msgid "Edit settings for %s"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/chatbot-main-selector.php:69
+#: admin/views/modules/chatbot/partials/chatbot-main-selector.php:71
 msgid "Default Bot"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/chatbot-main-selector.php:78
+#: admin/views/modules/chatbot/partials/chatbot-main-selector.php:80
 msgid "Rename Chatbot"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/chatbot-main-selector.php:99
+#: admin/views/modules/chatbot/partials/chatbot-main-selector.php:101
 #: admin/views/modules/image-generator/index.php:33
 #: admin/views/modules/user-credits/index.php:26
 msgid "Click to copy shortcode"
@@ -4918,7 +4951,7 @@ msgstr ""
 #: admin/views/modules/image-generator/index.php:15
 #: admin/views/modules/user-credits/index.php:47
 #: classes/dashboard/class-aipkit_role_manager.php:46
-#: classes/shortcodes/token-usage/data/get_user_token_usage_data.php:85
+#: classes/shortcodes/token-usage/data/get_user_token_usage_data.php:86
 #: classes/shortcodes/token-usage/render/render_dashboard.php:83
 #: admin/js/dashboard/credits/credits-render.js:79
 msgid "Image Generator"
@@ -5842,7 +5875,8 @@ msgstr ""
 msgid "Failed to delete queue items."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-items-by-status-action.php:46
+#. translators: %d: Number of deleted items
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-items-by-status-action.php:47
 msgid "%d queue items deleted successfully."
 msgstr ""
 
@@ -5939,8 +5973,8 @@ msgstr ""
 #: classes/chat/admin/ajax/chatbot_ajax_handler.php:172
 #: classes/chat/admin/ajax/chatbot_ajax_handler.php:184
 #: classes/chat/admin/ajax/chatbot_ajax_handler.php:262
-#: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:138
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:133
+#: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:140
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:162
 msgid "Internal server error."
 msgstr ""
 
@@ -5984,7 +6018,8 @@ msgstr ""
 msgid "Failed to generate export data."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_export_ajax_handler.php:86
+#. translators: %d: The number of chatbots exported.
+#: classes/chat/admin/ajax/chatbot_export_ajax_handler.php:87
 msgid "%d chatbots exported successfully."
 msgstr ""
 
@@ -6016,29 +6051,35 @@ msgstr ""
 msgid "Invalid JSON structure: Expected an array of bots."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:107
+#. translators: %d: The numerical index of the bot in the import file.
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:108
 msgid "Skipped bot at index %d: Invalid data structure."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:116
+#. translators: %d: The numerical index of the bot in the import file.
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:118
 msgid "Skipped bot at index %d: Title cannot be empty."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:129
+#. translators: %1$s: The title of the chatbot. %2$s: The error message.
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:132
 msgid "Failed to create bot \"%1$s\": %2$s"
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:140
+#. translators: %1$s: The title of the chatbot. %2$d: The new bot's ID. %3$s: The error message.
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:144
 msgid "Created bot \"%1$s\" (ID: %2$d) but failed to save settings: %3$s"
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:148
+#. translators: %1$d: The number of chatbots imported.
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:151
 msgid "%1$d chatbot imported successfully."
 msgid_plural "%1$d chatbots imported successfully."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:158
+#. translators: %d: The number of chatbots that failed to import.
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:154
 msgid "%d bot failed."
 msgid_plural "%d bots failed."
 msgstr[0] ""
@@ -6151,7 +6192,8 @@ msgstr ""
 msgid "Voice playback is not enabled for this chatbot."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:423
+#. translators: %s: The name of the Text-to-Speech provider (e.g., Google, OpenAI).
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:424
 msgid "TTS failed: %s API Key is missing in main settings."
 msgstr ""
 
@@ -6180,7 +6222,7 @@ msgstr ""
 #: classes/core/stream/request/fn-process-initial-request.php:33
 #: classes/dashboard/ajax/class-aipkit-base-dashboard-ajax-handler.php:33
 #: classes/images/manager/ajax/ajax_generate_image.php:41
-#: classes/stt/class-aipkit-stt-manager.php:125
+#: classes/stt/class-aipkit-stt-manager.php:127
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:64
 msgid "Security check failed (nonce)."
 msgstr ""
@@ -6369,11 +6411,12 @@ msgstr ""
 msgid "Upload File (TXT, PDF)"
 msgstr ""
 
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:125
+#. translators: %s: The name of the uploaded file the user is currently interacting with.
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:126
 msgid "Chatting with: %s"
 msgstr ""
 
-#: classes/chat/frontend/assets/class-assets-enqueuer.php:126
+#: classes/chat/frontend/assets/class-assets-enqueuer.php:127
 msgid "Clear file context"
 msgstr ""
 
@@ -6458,7 +6501,7 @@ msgid "Open Chat"
 msgstr ""
 
 #: classes/chat/storage/class-aipkit-bot-settings-initializer.php:62
-#: classes/chat/storage/getter/fn-get-general-bot-settings.php:40
+#: classes/chat/storage/getter/fn-get-general-bot-settings.php:41
 msgid "You are a helpful AI Assistant. Please be friendly. Today's date is [date]."
 msgstr ""
 
@@ -6540,7 +6583,8 @@ msgstr ""
 msgid "Failed to delete conversation log."
 msgstr ""
 
-#: classes/chat/storage/getter/fn-get-general-bot-settings.php:37
+#. translators: %s: The bot's name.
+#: classes/chat/storage/getter/fn-get-general-bot-settings.php:38
 msgid "Hello! How can %s assist you?"
 msgstr ""
 
@@ -6890,64 +6934,71 @@ msgstr ""
 msgid "You are a helpful AI Assistant."
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:112
+#. translators: %s: The name of the AI provider (e.g., OpenAI, Google).
+#: classes/core/class-aipkit_ai_caller.php:113
 msgid "API key is missing for %s."
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:115
-#: classes/core/stream/contexts/chat/process/build-ai-request-data-for-stream.php:182
+#: classes/core/class-aipkit_ai_caller.php:116
+#: classes/core/stream/contexts/chat/process/build-ai-request-data-for-stream.php:183
 msgid "Azure endpoint is missing."
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:118
+#: classes/core/class-aipkit_ai_caller.php:119
 msgid "AI Model or Deployment Name is missing."
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:151
+#. translators: %s: The specific error message from the failed HTTP request.
+#: classes/core/class-aipkit_ai_caller.php:153
 msgid "HTTP request failed: %s"
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:160
+#. translators: %1$s: The AI provider name (e.g., OpenAI). %2$d: The HTTP status code. %3$s: The error message from the API.
+#: classes/core/class-aipkit_ai_caller.php:163
 msgid "%1$s API Error (HTTP %2$d): %3$s"
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:166
+#: classes/core/class-aipkit_ai_caller.php:169
 msgid "Failed to parse JSON from API response."
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:209
+#. translators: %s: The name of the AI provider (e.g., OpenAI, Google).
+#: classes/core/class-aipkit_ai_caller.php:213
 msgid "Embedding generation is not supported by the %s provider strategy."
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:223
+#. translators: %s: The name of the AI provider (e.g., OpenAI, Google).
+#: classes/core/class-aipkit_ai_caller.php:228
 msgid "API key is missing for %s embedding generation."
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:226
+#: classes/core/class-aipkit_ai_caller.php:231
 msgid "Azure endpoint is missing for embedding generation."
 msgstr ""
 
-#: classes/core/class-aipkit_ai_caller.php:229
+#: classes/core/class-aipkit_ai_caller.php:234
 msgid "Embedding model/deployment ID is required."
 msgstr ""
 
-#: classes/core/providers/azure/build.php:23
+#: classes/core/providers/azure/build.php:24
 msgid "Azure endpoint is required."
 msgstr ""
 
-#: classes/core/providers/azure/build.php:37
+#: classes/core/providers/azure/build.php:38
 msgid "Azure API Version is required."
 msgstr ""
 
-#: classes/core/providers/azure/build.php:49
+#. translators: %s: The name of the API operation (e.g., 'chat', 'embeddings').
+#: classes/core/providers/azure/build.php:51
 msgid "Operation \"%s\" not supported for Azure."
 msgstr ""
 
-#: classes/core/providers/azure/build.php:57
+#: classes/core/providers/azure/build.php:59
 msgid "Azure deployment name is required for this operation."
 msgstr ""
 
-#: classes/core/providers/azure/build.php:60
+#. translators: %s: The name of the API operation.
+#: classes/core/providers/azure/build.php:63
 msgid "Unhandled Azure operation path building for: %s"
 msgstr ""
 
@@ -6963,8 +7014,9 @@ msgstr ""
 msgid "HTTP error during Azure embedding generation."
 msgstr ""
 
-#: classes/core/providers/azure/generate-embeddings.php:70
-msgid "Azure Embeddings API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: API error message.
+#: classes/core/providers/azure/generate-embeddings.php:71
+msgid "Azure Embeddings API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/core/providers/azure/parse-chat.php:32
@@ -6986,7 +7038,7 @@ msgid "No embedding data found in Azure response."
 msgstr ""
 
 #: classes/core/providers/azure/parse-error.php:18
-#: classes/core/providers/deepseek-provider-strategy.php:67
+#: classes/core/providers/deepseek-provider-strategy.php:68
 #: classes/core/providers/google/parse-error.php:19
 #: classes/core/providers/openai/parse-error.php:15
 #: classes/core/providers/openrouter/parse-error.php:19
@@ -7000,12 +7052,15 @@ msgstr ""
 msgid "Warning: Content Filtered"
 msgstr ""
 
+#. translators: %1$s: The context of the API call (e.g., "OpenAI Models"), %2$s: The specific JSON error message from PHP.
+#. translators: %1$s: Context for the error (e.g., "OpenAI Image"), %2$s: JSON error message.
 #. translators: %1$s is the context label (e.g., provider name); %2$s is the JSON error message
-#: classes/core/providers/base-provider-strategy.php:32
-#: classes/images/class-aipkit-image-base-provider-strategy.php:30
+#. translators: %1$s is the context label (e.g., provider name); %2$s is the JSON error message.
+#: classes/core/providers/base-provider-strategy.php:33
+#: classes/images/class-aipkit-image-base-provider-strategy.php:31
 #: classes/speech/class-aipkit-tts-base-provider-strategy.php:33
 #: classes/stt/class-aipkit-stt-base-provider-strategy.php:29
-#: classes/vector/class-aipkit-vector-base-provider-strategy.php:34
+#: classes/vector/class-aipkit-vector-base-provider-strategy.php:35
 msgid "Failed to parse JSON response from %1$s. Error: %2$s"
 msgstr ""
 
@@ -7013,11 +7068,12 @@ msgstr ""
 msgid "DeepSeek Base URL is required."
 msgstr ""
 
-#: classes/core/providers/deepseek-provider-strategy.php:39
+#. translators: %s: The operation name (e.g., "chat", "models").
+#: classes/core/providers/deepseek-provider-strategy.php:40
 msgid "Operation \"%s\" not supported for DeepSeek."
 msgstr ""
 
-#: classes/core/providers/deepseek-provider-strategy.php:132
+#: classes/core/providers/deepseek-provider-strategy.php:133
 msgid "Dedicated embedding generation is not supported for DeepSeek via this strategy."
 msgstr ""
 
@@ -7049,11 +7105,13 @@ msgstr ""
 msgid "Google API key is required for URL construction."
 msgstr ""
 
-#: classes/core/providers/google/build.php:43
+#. translators: %s: The name of the API operation (e.g., 'chat').
+#: classes/core/providers/google/build.php:44
 msgid "Operation \"%s\" not supported for Google."
 msgstr ""
 
-#: classes/core/providers/google/build.php:49
+#. translators: %s: The name of the API endpoint path.
+#: classes/core/providers/google/build.php:51
 msgid "Google model ID is required for the \"%s\" endpoint path."
 msgstr ""
 
@@ -7070,27 +7128,31 @@ msgstr ""
 msgid "HTTP error during embedding generation."
 msgstr ""
 
-#: classes/core/providers/google/generate-embeddings.php:68
-msgid "Google Embeddings API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: API error message.
+#: classes/core/providers/google/generate-embeddings.php:69
+msgid "Google Embeddings API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/core/providers/google/get-models.php:25
 msgid "Google components for model listing are missing."
 msgstr ""
 
-#: classes/core/providers/google/parse-chat.php:29
+#. translators: %1$s: The reason the request was blocked (e.g., SAFETY). %2$s: A comma-separated list of details.
+#: classes/core/providers/google/parse-chat.php:30
 msgid "Request blocked by Google due to: %1$s. Details: %2$s"
 msgstr ""
 
-#: classes/core/providers/google/parse-chat.php:36
+#. translators: %s: The reason the response was filtered (e.g., 'SAFETY').
+#: classes/core/providers/google/parse-chat.php:38
 msgid "Response filtered by Google due to: %s."
 msgstr ""
 
-#: classes/core/providers/google/parse-chat.php:57
+#. translators: %s: The reason the AI stopped generating content (e.g., 'MAX_TOKENS').
+#: classes/core/providers/google/parse-chat.php:60
 msgid "No content returned from Google. Finish reason: %s"
 msgstr ""
 
-#: classes/core/providers/google/parse-chat.php:59
+#: classes/core/providers/google/parse-chat.php:62
 msgid "Unexpected response structure from Google API."
 msgstr ""
 
@@ -7115,32 +7177,35 @@ msgstr ""
 msgid "OpenAI API Version is required."
 msgstr ""
 
-#: classes/core/providers/openai/build.php:46
+#. translators: %s is the operation name (e.g. 'models', 'files')
+#: classes/core/providers/openai/build.php:47
 msgid "Operation \"%s\" not supported for OpenAI URL Builder."
 msgstr ""
 
-#: classes/core/providers/openai/build.php:51
+#: classes/core/providers/openai/build.php:52
 msgid "Vector Store ID is required for this operation."
 msgstr ""
 
-#: classes/core/providers/openai/build.php:55
+#: classes/core/providers/openai/build.php:56
 msgid "Batch ID is required for this operation."
 msgstr ""
 
-#: classes/core/providers/openai/build.php:59
+#: classes/core/providers/openai/build.php:60
 msgid "File ID is required for this operation."
 msgstr ""
 
-#: classes/core/providers/openai/generate-embeddings.php:63
-msgid "OpenAI Embeddings API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/core/providers/openai/generate-embeddings.php:64
+msgid "OpenAI Embeddings API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/core/providers/openai/moderate-text.php:45
 msgid "Moderation check failed (HTTP)."
 msgstr ""
 
-#: classes/core/providers/openai/moderate-text.php:54
-msgid "Moderation check failed (API %d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/core/providers/openai/moderate-text.php:55
+msgid "Moderation check failed (API %1$d): %2$s"
 msgstr ""
 
 #: classes/core/providers/openai/parse-chat.php:37
@@ -7148,11 +7213,12 @@ msgstr ""
 msgid "Incomplete"
 msgstr ""
 
-#: classes/core/providers/openai/parse-chat.php:39
+#. translators: %s: The reason why the response was incomplete.
+#: classes/core/providers/openai/parse-chat.php:40
 msgid "Response incomplete due to: %s"
 msgstr ""
 
-#: classes/core/providers/openai/parse-chat.php:53
+#: classes/core/providers/openai/parse-chat.php:54
 msgid "Unexpected response structure from OpenAI Responses API."
 msgstr ""
 
@@ -7185,19 +7251,23 @@ msgstr ""
 msgid "Unexpected response structure from OpenRouter API."
 msgstr ""
 
-#: classes/core/providers/provider-strategy-factory.php:67
+#. translators: %s: The name of the AI provider (e.g., 'OpenAI').
+#: classes/core/providers/provider-strategy-factory.php:68
 msgid "Strategy file not found for provider: %s"
 msgstr ""
 
-#: classes/core/providers/provider-strategy-factory.php:70
+#. translators: %s: The name of the AI provider.
+#: classes/core/providers/provider-strategy-factory.php:72
 msgid "Provider strategy for \"%s\" is not defined in loader map."
 msgstr ""
 
-#: classes/core/providers/provider-strategy-factory.php:100
+#. translators: %s: The name of the AI provider.
+#: classes/core/providers/provider-strategy-factory.php:103
 msgid "Provider strategy \"%s\" is not supported."
 msgstr ""
 
-#: classes/core/providers/provider-strategy-factory.php:105
+#. translators: %s: The name of the AI provider.
+#: classes/core/providers/provider-strategy-factory.php:109
 msgid "Failed to load strategy for provider: %s"
 msgstr ""
 
@@ -7229,11 +7299,12 @@ msgstr ""
 msgid "Form prompt template is not configured."
 msgstr ""
 
-#: classes/core/stream/contexts/ai-forms/process/prepare-stream-data.php:117
+#. translators: %s: The name of the AI provider (e.g., OpenAI, Google).
+#: classes/core/stream/contexts/ai-forms/process/prepare-stream-data.php:118
 msgid "API key missing for %s (AI Forms)."
 msgstr ""
 
-#: classes/core/stream/contexts/ai-forms/process/prepare-stream-data.php:120
+#: classes/core/stream/contexts/ai-forms/process/prepare-stream-data.php:121
 msgid "Azure endpoint is missing (AI Forms)."
 msgstr ""
 
@@ -7245,7 +7316,8 @@ msgstr ""
 msgid "User input values are missing for AI Forms stream."
 msgstr ""
 
-#: classes/core/stream/contexts/chat/process/build-ai-request-data-for-stream.php:179
+#. translators: %s: The name of the AI provider (e.g., OpenAI, Google).
+#: classes/core/stream/contexts/chat/process/build-ai-request-data-for-stream.php:180
 msgid "API key missing for %s."
 msgstr ""
 
@@ -7270,11 +7342,12 @@ msgstr ""
 msgid "Provider or Model is missing for content writer."
 msgstr ""
 
-#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:188
+#. translators: %s: The name of the AI provider (e.g., OpenAI, Google).
+#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:189
 msgid "API key missing for %s (Content Writer)."
 msgstr ""
 
-#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:205
+#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:206
 msgid "Azure endpoint is missing (Content Writer)."
 msgstr ""
 
@@ -7366,15 +7439,17 @@ msgstr ""
 msgid "Invalid provider selection."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:119
+#. translators: %s: The provider name that was attempted to be used for model sync.
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:120
 msgid "%s API key is required."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:123
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:124
 msgid "Qdrant URL is required to sync collections."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:238
+#. translators: %s: The provider name that was synced.
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:239
 msgid "%s synced successfully."
 msgstr ""
 
@@ -7508,18 +7583,20 @@ msgstr ""
 msgid "Error during file upload: Code "
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:74
-#: lib/vector-stores/file-upload/openai/fn-upload-add-direct.php:59
+#. translators: %s: Formatted upload limit (e.g., "10 MB").
+#. translators: %s is the formatted upload limit
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:75
+#: lib/vector-stores/file-upload/openai/fn-upload-add-direct.php:60
 msgid "File is too large (max %s)."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:87
-#: lib/vector-stores/file-upload/openai/fn-upload-add-direct.php:71
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:88
+#: lib/vector-stores/file-upload/openai/fn-upload-add-direct.php:72
 msgid "File upload component not available."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:123
-#: lib/vector-stores/file-upload/openai/fn-upload-add-direct.php:104
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:124
+#: lib/vector-stores/file-upload/openai/fn-upload-add-direct.php:105
 msgid "File uploaded and added to vector store. Processing is asynchronous."
 msgstr ""
 
@@ -7564,15 +7641,19 @@ msgstr ""
 msgid "Could not determine target vector store ID."
 msgstr ""
 
+#. translators: %1$d: The number of posts processed, %2$s: The name of the vector store.
+#. translators: %1$d is the number of posts processed, %2$s is the vector store identifier
 #: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:135
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:159
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:158
 msgid "%1$d post processed and submitted to vector store \"%2$s\"."
 msgid_plural "%1$d posts processed and submitted to vector store \"%2$s\"."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:140
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:164
+#. translators: %d: Number of failed posts
+#. translators: %d is the number of posts that failed to index
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:139
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:161
 msgid "Some posts failed: %d. Check data source logs for details."
 msgstr ""
 
@@ -7618,6 +7699,7 @@ msgid "Pinecone index name is required."
 msgstr ""
 
 #: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:47
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:69
 msgid "Vector dimension must be a positive integer."
 msgstr ""
 
@@ -7703,6 +7785,22 @@ msgstr ""
 
 #: classes/dashboard/ajax/qdrant/class-aipkit-vector-store-qdrant-ajax-handler.php:169
 msgid "File upload processing component for Qdrant is missing."
+msgstr ""
+
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:29
+msgid "Vector Store components not available for Qdrant Create."
+msgstr ""
+
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:59
+msgid "Collection name is required."
+msgstr ""
+
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:109
+msgid "Qdrant collection created/verified."
+msgstr ""
+
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:118
+msgid "Qdrant collection creation response was malformed."
 msgstr ""
 
 #: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:40
@@ -7874,25 +7972,32 @@ msgstr ""
 msgid "Database error fetching logs for daily stats."
 msgstr ""
 
-#: classes/images/class-aipkit-image-base-provider-strategy.php:45
-#: classes/speech/class-aipkit-tts-base-provider-strategy.php:49
-#: classes/stt/class-aipkit-stt-base-provider-strategy.php:44
+#. translators: %s: Context for the error (e.g., "OpenAI Image").
+#. translators: %s: Context for the error (e.g., "OpenAI TTS").
+#. translators: %s: Context for the error (e.g., "OpenAI STT").
+#: classes/images/class-aipkit-image-base-provider-strategy.php:47
+#: classes/speech/class-aipkit-tts-base-provider-strategy.php:50
+#: classes/stt/class-aipkit-stt-base-provider-strategy.php:45
 msgid "An unknown error occurred with %s."
 msgstr ""
 
-#: classes/images/class-aipkit-image-provider-strategy-factory.php:68
+#. translators: %s: The provider name that was attempted to be used for image generation.
+#: classes/images/class-aipkit-image-provider-strategy-factory.php:69
 msgid "Image Strategy file not found for provider: %s"
 msgstr ""
 
-#: classes/images/class-aipkit-image-provider-strategy-factory.php:71
+#. translators: %s: The provider key that was attempted to be used for image generation.
+#: classes/images/class-aipkit-image-provider-strategy-factory.php:73
 msgid "Provider key \"%s\" is not configured for image strategy loading."
 msgstr ""
 
-#: classes/images/class-aipkit-image-provider-strategy-factory.php:89
+#. translators: %s: The provider name that was attempted to be used for image generation.
+#: classes/images/class-aipkit-image-provider-strategy-factory.php:92
 msgid "Image Generation Provider strategy \"%s\" is not supported."
 msgstr ""
 
-#: classes/images/class-aipkit-image-provider-strategy-factory.php:96
+#. translators: %s: The provider name that was attempted to be used for image generation.
+#: classes/images/class-aipkit-image-provider-strategy-factory.php:100
 msgid "Failed to load Image Generation strategy for provider: %s"
 msgstr ""
 
@@ -7961,8 +8066,10 @@ msgstr ""
 msgid "Image prompt cannot be empty."
 msgstr ""
 
-#: classes/images/manager/ajax/ajax_generate_image.php:149
-#: classes/rest/handlers/class-aipkit-rest-image-handler.php:166
+#. translators: %d: Number of images generated.
+#. translators: %d is the count of images generated
+#: classes/images/manager/ajax/ajax_generate_image.php:150
+#: classes/rest/handlers/class-aipkit-rest-image-handler.php:167
 msgid "%d image generated successfully."
 msgid_plural "%d images generated successfully."
 msgstr[0] ""
@@ -7982,15 +8089,17 @@ msgstr ""
 msgid "Prompt:"
 msgstr ""
 
-#: classes/images/manager/generate_image.php:33
+#. translators: %s: The provider name that was attempted to be used for image generation.
+#: classes/images/manager/generate_image.php:34
 msgid "Image provider \"%s\" is not currently supported."
 msgstr ""
 
-#: classes/images/manager/generate_image.php:43
+#. translators: %s: The provider name that was attempted to be used for image generation.
+#: classes/images/manager/generate_image.php:45
 msgid "%s API Key is missing."
 msgstr ""
 
-#: classes/images/manager/generate_image.php:46
+#: classes/images/manager/generate_image.php:48
 msgid "Azure Endpoint/Region URL is required for image generation."
 msgstr ""
 
@@ -8019,8 +8128,9 @@ msgstr ""
 msgid "HTTP error during Google image generation."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:96
-msgid "Google Image API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:97
+msgid "Google Image API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/images/providers/class-aipkit-image-openai-provider-strategy.php:59
@@ -8035,11 +8145,12 @@ msgstr ""
 msgid "HTTP error during image generation."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-openai-provider-strategy.php:104
-msgid "OpenAI Image API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/images/providers/class-aipkit-image-openai-provider-strategy.php:105
+msgid "OpenAI Image API Error (%1$d): %2$s"
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-openai-provider-strategy.php:111
+#: classes/images/providers/class-aipkit-image-openai-provider-strategy.php:112
 msgid "OpenAI API returned success but image data structure is invalid."
 msgstr ""
 
@@ -8051,8 +8162,9 @@ msgstr ""
 msgid "HTTP error during Pexels API request."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-pexels-provider-strategy.php:74
-msgid "Pexels API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/images/providers/class-aipkit-image-pexels-provider-strategy.php:75
+msgid "Pexels API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/images/providers/class-aipkit-image-pixabay-provider-strategy.php:33
@@ -8063,8 +8175,9 @@ msgstr ""
 msgid "HTTP error during Pixabay API request."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-pixabay-provider-strategy.php:77
-msgid "Pixabay API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/images/providers/class-aipkit-image-pixabay-provider-strategy.php:78
+msgid "Pixabay API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/images/providers/class-aipkit-image-replicate-provider-strategy.php:64
@@ -8084,19 +8197,21 @@ msgstr ""
 msgid "No image data found in Google API response."
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageResponseParser.php:90
+#. translators: %s: The reason for blocking the image generation request.
+#: classes/images/providers/google/GoogleImageResponseParser.php:91
 msgid "Image generation request blocked by Google due to: %s"
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageResponseParser.php:93
+#. translators: %s: The reason for incomplete image generation.
+#: classes/images/providers/google/GoogleImageResponseParser.php:95
 msgid "Image generation incomplete. Finish reason: %s"
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageResponseParser.php:96
+#: classes/images/providers/google/GoogleImageResponseParser.php:98
 msgid "Google API returned text but no image data was extracted. Please check API response format or prompt."
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageResponseParser.php:109
+#: classes/images/providers/google/GoogleImageResponseParser.php:111
 msgid "An unknown Google API error occurred."
 msgstr ""
 
@@ -8104,7 +8219,8 @@ msgstr ""
 msgid "Google API key is required for image URL construction."
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageUrlBuilder.php:48
+#. translators: %s: The model ID that was attempted to be used for URL building.
+#: classes/images/providers/google/GoogleImageUrlBuilder.php:49
 msgid "Unsupported Google image model for URL building: %s"
 msgstr ""
 
@@ -8166,7 +8282,8 @@ msgstr ""
 msgid "You do not have permission to edit this post."
 msgstr ""
 
-#: classes/post-enhancer/ajax/base/enhancer-shared-utils.php:115
+#. translators: %s: The type of suggestions that were expected
+#: classes/post-enhancer/ajax/base/enhancer-shared-utils.php:116
 msgid "AI did not generate any valid %s suggestions."
 msgstr ""
 
@@ -8174,43 +8291,46 @@ msgstr ""
 msgid "Rewrite"
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:35
+#. translators: %s: The text to be rewritten
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:36
 msgid "Rewrite this to improve clarity and engagement: \"%s\""
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:41
+#. translators: %s: The text to be expanded
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:43
 msgid "Expand on the following point: \"%s\""
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:46
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:48
 msgid "Fix Grammar & Spelling"
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:47
+#. translators: %s: The text to be corrected
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:50
 msgid "Correct any spelling and grammar mistakes in the following text: \"%s\""
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:88
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:91
 msgid "Label and prompt are required."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:118
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:121
 msgid "You have reached the maximum of 20 actions."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:138
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:141
 msgid "Action saved successfully."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:157
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:160
 msgid "Action ID is required."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:163
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:166
 msgid "No actions to delete."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:172
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:175
 msgid "Action deleted successfully."
 msgstr ""
 
@@ -8280,7 +8400,7 @@ msgid "The ID of the bot that replied."
 msgstr ""
 
 #: classes/rest/handlers/class-aipkit-rest-chat-handler.php:93
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:96
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:99
 msgid "The model used for the response."
 msgstr ""
 
@@ -8342,7 +8462,7 @@ msgid "An array of embedding vectors (arrays of floats)."
 msgstr ""
 
 #: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:92
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:86
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:89
 msgid "Token usage information."
 msgstr ""
 
@@ -8355,12 +8475,12 @@ msgid "The provider used for the embeddings."
 msgstr ""
 
 #: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:125
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:123
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:128
 msgid "Missing required parameter: provider"
 msgstr ""
 
 #: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:126
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:124
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:131
 msgid "Missing required parameter: model"
 msgstr ""
 
@@ -8372,11 +8492,13 @@ msgstr ""
 msgid "Invalid parameter type: input (must be a string or array of strings)"
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:131
+#. translators: %s is the index of the input array
+#: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:132
 msgid "Invalid input array item at index %d (must be a string)"
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:136
+#. translators: %s is the provider name
+#: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:138
 msgid "Invalid provider specified for embeddings: %s"
 msgstr ""
 
@@ -8432,63 +8554,65 @@ msgstr ""
 msgid "Missing required parameter: prompt"
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:29
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:31
 msgid "The AI provider to use for text generation."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:35
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:37
 msgid "The specific text model or deployment ID."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:40
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:42
 msgid "An array of message objects (role/content)."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:52
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:54
 msgid "Whether to stream the response (currently not supported via this endpoint)."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:57
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:59
 msgid "Optional system instructions for the AI."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:61
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:63
 msgid "Optional AI parameters (temperature, max_tokens, etc.)."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:65
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:67
 msgid "API Key for accessing this endpoint (if required by settings). Send as parameter or Authorization: Bearer header."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:81
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:84
 msgid "The generated AI response content."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:101
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:104
 msgid "The provider used for the response."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:125
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:134
 msgid "Invalid or missing parameter: messages (must be an array)"
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:126
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:137
 msgid "Invalid parameter type: ai_params (must be an object)"
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:127
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:140
 msgid "Invalid parameter type: system_instruction (must be a string)"
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:130
+#. translators: %s is the invalid provider name
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:148
 msgid "Invalid provider specified: %s"
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:131
+#. translators: %d is the index of the message in the array
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:153
 msgid "Invalid message format at index %d."
 msgstr ""
 
-#: classes/rest/handlers/class-aipkit-rest-text-handler.php:132
+#: classes/rest/handlers/class-aipkit-rest-text-handler.php:158
 msgid "Streaming responses are not supported via this REST endpoint."
 msgstr ""
 
@@ -8581,7 +8705,8 @@ msgstr ""
 msgid "Chatbot ID is required."
 msgstr ""
 
-#: classes/shortcodes/token-usage/data/get_user_token_usage_data.php:64
+#. translators: %d: Bot ID
+#: classes/shortcodes/token-usage/data/get_user_token_usage_data.php:65
 msgid "Bot #%d"
 msgstr ""
 
@@ -8679,7 +8804,8 @@ msgstr ""
 msgid "Internal configuration error (Providers)."
 msgstr ""
 
-#: classes/speech/class-aipkit-speech-manager.php:114
+#. translators: %s: The provider name that was attempted to be used for TTS generation.
+#: classes/speech/class-aipkit-speech-manager.php:115
 msgid "API Key for %s provider is missing in main settings."
 msgstr ""
 
@@ -8697,36 +8823,39 @@ msgstr ""
 msgid "HTTP error during speech generation."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:94
-msgid "ElevenLabs Speech API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:95
+msgid "ElevenLabs Speech API Error (%1$d): %2$s"
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:99
+#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:100
 msgid "ElevenLabs API returned success but no audio data."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:116
+#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:117
 msgid "ElevenLabs API Key is required to fetch voices."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:131
+#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:132
 msgid "HTTP error fetching ElevenLabs voices."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:140
-msgid "ElevenLabs Voices API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:142
+msgid "ElevenLabs Voices API Error (%1$d): %2$s"
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:191
+#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:193
 msgid "ElevenLabs API Key is required to fetch models."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:206
+#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:208
 msgid "HTTP error fetching ElevenLabs models."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:215
-msgid "ElevenLabs Models API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:218
+msgid "ElevenLabs Models API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/speech/class-aipkit-tts-google-provider-strategy.php:35
@@ -8737,24 +8866,26 @@ msgstr ""
 msgid "Google Voice ID is required for speech generation."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-google-provider-strategy.php:97
-msgid "Google Speech API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/speech/class-aipkit-tts-google-provider-strategy.php:98
+msgid "Google Speech API Error (%1$d): %2$s"
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-google-provider-strategy.php:109
+#: classes/speech/class-aipkit-tts-google-provider-strategy.php:110
 msgid "Google API returned success but no audio data."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-google-provider-strategy.php:137
+#: classes/speech/class-aipkit-tts-google-provider-strategy.php:138
 msgid "Google API Key is required to fetch voices."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-google-provider-strategy.php:149
+#: classes/speech/class-aipkit-tts-google-provider-strategy.php:150
 msgid "HTTP error fetching Google voices."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-google-provider-strategy.php:158
-msgid "Google Voices API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/speech/class-aipkit-tts-google-provider-strategy.php:160
+msgid "Google Voices API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/speech/class-aipkit-tts-openai-provider-strategy.php:58
@@ -8774,64 +8905,71 @@ msgstr ""
 msgid "OpenAI URL Builder component is missing."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-openai-provider-strategy.php:107
-msgid "OpenAI Speech API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/speech/class-aipkit-tts-openai-provider-strategy.php:108
+msgid "OpenAI Speech API Error (%1$d): %2$s"
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-openai-provider-strategy.php:112
+#: classes/speech/class-aipkit-tts-openai-provider-strategy.php:113
 msgid "OpenAI API returned success but no audio data."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-provider-strategy-factory.php:53
+#. translators: %s: The provider name that was attempted to be used for TTS generation.
+#: classes/speech/class-aipkit-tts-provider-strategy-factory.php:54
 msgid "TTS Strategy file not found for provider: %s"
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-provider-strategy-factory.php:64
+#. translators: %s: The provider name that was attempted to be used for TTS generation.
+#: classes/speech/class-aipkit-tts-provider-strategy-factory.php:66
 msgid "TTS Provider strategy \"%s\" is not supported."
 msgstr ""
 
-#: classes/speech/class-aipkit-tts-provider-strategy-factory.php:71
+#. translators: %s: The provider name that was attempted to be used for TTS generation.
+#: classes/speech/class-aipkit-tts-provider-strategy-factory.php:74
 msgid "Failed to load TTS strategy for provider: %s"
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:35
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:38
 msgid "Azure Subscription Key is required."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:36
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:41
 msgid "Azure Endpoint/Region URL is required."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:37
+#. translators: %s is the audio format
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:45
 msgid "Audio format \"%s\" is not supported by Azure STT."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:38
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:48
 #: classes/stt/class-aipkit-stt-openai-provider-strategy.php:81
 msgid "Server configuration error (CURLFile missing)."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:42
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:54
 #: classes/stt/class-aipkit-stt-openai-provider-strategy.php:67
 msgid "Could not create temporary file for audio upload."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:43
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:58
 #: classes/stt/class-aipkit-stt-openai-provider-strategy.php:73
 msgid "Could not write audio data to temporary file."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:124
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:136
+#. translators: %s: cURL error message.
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:141
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:137
 msgid "Network error during transcription: %s"
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:132
-msgid "Azure STT API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: API error message.
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:150
+msgid "Azure STT API Error (%1$d): %2$s"
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:148
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:157
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:166
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:159
 msgid "Transcription successful but no text found in response."
 msgstr ""
 
@@ -8839,23 +8977,25 @@ msgstr ""
 msgid "Google STT not yet implemented."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-manager.php:93
+#. translators: %s is the STT provider name
+#: classes/stt/class-aipkit-stt-manager.php:94
 msgid "API Key for STT provider %s is missing."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-manager.php:97
+#: classes/stt/class-aipkit-stt-manager.php:98
 msgid "Azure Endpoint/Region URL is required for STT."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-manager.php:104
+#. translators: %1$s is the audio format, %2$s is the provider name
+#: classes/stt/class-aipkit-stt-manager.php:106
 msgid "Audio format \"%1$s\" is not supported by %2$s STT."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-manager.php:139
+#: classes/stt/class-aipkit-stt-manager.php:141
 msgid "Invalid or empty audio data received."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-manager.php:142
+#: classes/stt/class-aipkit-stt-manager.php:144
 msgid "Bot ID is required for transcription."
 msgstr ""
 
@@ -8863,43 +9003,52 @@ msgstr ""
 msgid "OpenAI API Key is required for transcription."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:144
-msgid "OpenAI STT API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:146
+msgid "OpenAI STT API Error (%1$d): %2$s"
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-provider-strategy-factory.php:52
+#. translators: %s: The provider name.
+#: classes/stt/class-aipkit-stt-provider-strategy-factory.php:53
 msgid "STT Strategy file not found for provider: %s"
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-provider-strategy-factory.php:63
+#. translators: %s: The provider name.
+#: classes/stt/class-aipkit-stt-provider-strategy-factory.php:65
 msgid "STT Provider strategy \"%s\" is not supported."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-provider-strategy-factory.php:70
+#. translators: %s: The provider name.
+#: classes/stt/class-aipkit-stt-provider-strategy-factory.php:73
 msgid "Failed to load STT strategy for provider: %s"
 msgstr ""
 
-#: classes/vector/class-aipkit-vector-base-provider-strategy.php:49
-msgid "An unknown error occurred with %s (HTTP %d)."
+#. translators: %1$s: The context of the error (e.g., "OpenAI Image"), %2$d: The HTTP status code.
+#: classes/vector/class-aipkit-vector-base-provider-strategy.php:51
+msgid "An unknown error occurred with %1$s (HTTP %2$d)."
 msgstr ""
 
-#: classes/vector/class-aipkit-vector-base-provider-strategy.php:75
+#: classes/vector/class-aipkit-vector-base-provider-strategy.php:77
 msgid "Listing indexes with pagination is not implemented in the base strategy."
 msgstr ""
 
-#: classes/vector/class-aipkit-vector-provider-strategy-factory.php:43
+#. translators: %s is the vector store provider name
+#: classes/vector/class-aipkit-vector-provider-strategy-factory.php:44
 msgid "Vector store provider \"%s\" is not supported."
 msgstr ""
 
-#: classes/vector/class-aipkit-vector-provider-strategy-factory.php:60
+#. translators: %s is the vector store provider name
+#: classes/vector/class-aipkit-vector-provider-strategy-factory.php:62
 msgid "Vector store provider strategy \"%s\" is not supported."
 msgstr ""
 
-#: classes/vector/class-aipkit-vector-provider-strategy-factory.php:78
+#. translators: %s is the vector store provider name
+#: classes/vector/class-aipkit-vector-provider-strategy-factory.php:81
 msgid "Vector Strategy file not found for provider: %s"
 msgstr ""
 
-#: classes/vector/class-aipkit-vector-provider-strategy-factory.php:86
+#. translators: %s is the vector store provider name
+#: classes/vector/class-aipkit-vector-provider-strategy-factory.php:90
 msgid "Failed to load Vector Store strategy for provider: %s"
 msgstr ""
 
@@ -8907,7 +9056,8 @@ msgstr ""
 msgid "Vector Provider Strategy Factory is not available."
 msgstr ""
 
-#: classes/vector/manager/get-connected-strategy.php:37
+#. translators: %s is the vector store provider name
+#: classes/vector/manager/get-connected-strategy.php:38
 msgid "Failed to connect to %s vector store."
 msgstr ""
 
@@ -9004,7 +9154,8 @@ msgstr ""
 msgid "Filename has no extension, cannot determine MIME type."
 msgstr ""
 
-#: classes/vector/providers/openai/get-mime-type-from-filename.php:33
+#. translators: %s: File extension
+#: classes/vector/providers/openai/get-mime-type-from-filename.php:34
 msgid "File extension \".%s\" is not explicitly mapped to a supported MIME type for OpenAI."
 msgstr ""
 
@@ -9029,8 +9180,9 @@ msgstr ""
 msgid "OpenAI API Key is not configured."
 msgstr ""
 
-#: classes/vector/providers/openai/_request.php:88
-msgid "OpenAI Vector API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: API error message.
+#: classes/vector/providers/openai/_request.php:89
+msgid "OpenAI Vector API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/vector/providers/pinecone/connect.php:23
@@ -9065,8 +9217,9 @@ msgstr ""
 msgid "Not connected to Pinecone. Call connect() first or provide index host URL."
 msgstr ""
 
-#: classes/vector/providers/pinecone/_request.php:71
-msgid "Pinecone API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/vector/providers/pinecone/_request.php:72
+msgid "Pinecone API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/vector/providers/qdrant/connect.php:22
@@ -9077,11 +9230,13 @@ msgstr ""
 msgid "Qdrant API Key is required for connection."
 msgstr ""
 
+#. translators: %1$s: The URL of the Qdrant instance, %2$s: The specific connection error message.
 #: classes/vector/providers/qdrant/connect.php:37
-msgid "Failed to connect to Qdrant at %s. Error: %s"
+msgid "Failed to connect to Qdrant at %1$s. Error: %2$s"
 msgstr ""
 
-#: classes/vector/providers/qdrant/connect.php:49
+#. translators: %s: The URL of the Qdrant instance.
+#: classes/vector/providers/qdrant/connect.php:46
 msgid "Unexpected response while connecting to Qdrant at %s. Please check URL and API key."
 msgstr ""
 
@@ -9105,8 +9260,9 @@ msgstr ""
 msgid "Qdrant URL not configured in strategy."
 msgstr ""
 
-#: classes/vector/providers/qdrant/_request.php:69
-msgid "Qdrant API Error (%d): %s"
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/vector/providers/qdrant/_request.php:70
+msgid "Qdrant API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/woocommerce/class-aipkit-woocommerce-integration.php:58
@@ -9121,43 +9277,51 @@ msgstr ""
 msgid "Tokens Granted:"
 msgstr ""
 
+#. translators: 1: The number of tokens granted, 2: The user's new token balance.
 #: classes/woocommerce/class-aipkit-woocommerce-integration.php:160
-msgid "AI Power: Granted %s tokens to user. New balance: %s"
+msgid "AI Power: Granted %1$s tokens to user. New balance: %2$s"
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:85
-msgid "AI Power Chatbot Error: This chatbot (legacy ID: "
+#. translators: %d: The legacy ID of the chatbot.
+#: includes/class-aipkit-shortcodes-manager.php:87
+msgid "AI Power Chatbot Error: This chatbot (legacy ID: %d) has not been migrated. Please run the migration tool."
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:100
-msgid "AI Power Form Error: This form (legacy ID: "
+#. translators: %d: The legacy ID of the form.
+#: includes/class-aipkit-shortcodes-manager.php:107
+msgid "AI Power Form Error: This form (legacy ID: %d) has not been migrated. Please run the migration tool."
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:222
+#. translators: %s is the name of the token, e.g. "OpenAI"
+#: includes/class-aipkit-shortcodes-manager.php:233
 msgid "Loading details..."
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:222
+#. translators: %s is the name of the token, e.g. "OpenAI"
+#: includes/class-aipkit-shortcodes-manager.php:233
 msgid "Error loading details."
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:222
+#. translators: %s is the name of the token, e.g. "OpenAI"
+#: includes/class-aipkit-shortcodes-manager.php:233
 msgid "Usage Details for %s"
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:235
+#: includes/class-aipkit-shortcodes-manager.php:246
 msgid "Searching..."
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:235
+#: includes/class-aipkit-shortcodes-manager.php:246
 msgid "An error occurred while searching."
 msgstr ""
 
+#. translators: %1$s is the detected MIME type, %2$s is the allowed types
 #: includes/class-aipkit-upload-utils.php:137
 msgid "Invalid file type: %1$s. Allowed types: %2$s"
 msgstr ""
 
-#: includes/class-aipkit-upload-utils.php:151
+#. translators: %1$s is the actual file size, %2$s is the maximum allowed size
+#: includes/class-aipkit-upload-utils.php:148
 msgid "File is too large (%1$s). Maximum allowed size is %2$s."
 msgstr ""
 
@@ -9213,7 +9377,8 @@ msgstr ""
 msgid "PDF parsing library is unavailable."
 msgstr ""
 
-#: lib/ai-forms/class-aipkit-ai-form-file-parser.php:74
+#. translators: %s is the MIME type
+#: lib/ai-forms/class-aipkit-ai-form-file-parser.php:75
 msgid "The file type \"%s\" is not supported for content extraction."
 msgstr ""
 
@@ -9277,15 +9442,15 @@ msgstr ""
 
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-pinecone-handler.php:146
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-qdrant-handler.php:204
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:94
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:93
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:95
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:94
 msgid "Could not read file content or file is empty."
 msgstr ""
 
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-pinecone-handler.php:165
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-qdrant-handler.php:219
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:111
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:110
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:112
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:111
 msgid "Failed to generate vector for file content."
 msgstr ""
 
@@ -9354,7 +9519,8 @@ msgstr ""
 msgid "Webhook request failed: "
 msgstr ""
 
-#: lib/chat/triggers/actions/AIPKit_Action_Call_Webhook.php:106
+#. translators: %d is the HTTP status code
+#: lib/chat/triggers/actions/AIPKit_Action_Call_Webhook.php:107
 msgid "Webhook call failed with HTTP status %d."
 msgstr ""
 
@@ -9390,7 +9556,8 @@ msgstr ""
 msgid "Log storage service is unavailable for storing form submission."
 msgstr ""
 
-#: lib/chat/triggers/class-aipkit-trigger-action-executor.php:95
+#. translators: %s is the action type
+#: lib/chat/triggers/class-aipkit-trigger-action-executor.php:96
 msgid "Unknown or unhandled action type: %s"
 msgstr ""
 
@@ -9406,7 +9573,8 @@ msgstr ""
 msgid "Trigger object must have a unique \"id\"."
 msgstr ""
 
-#: lib/chat/triggers/storage/class-aipkit-trigger-adder.php:43
+#. translators: %s is the trigger ID
+#: lib/chat/triggers/storage/class-aipkit-trigger-adder.php:44
 msgid "A trigger with ID \"%s\" already exists for this bot."
 msgstr ""
 
@@ -9414,7 +9582,8 @@ msgstr ""
 msgid "Trigger ID is required for update."
 msgstr ""
 
-#: lib/chat/triggers/storage/class-aipkit-trigger-updater.php:52
+#. translators: %s is the trigger ID
+#: lib/chat/triggers/storage/class-aipkit-trigger-updater.php:53
 msgid "Trigger with ID \"%s\" not found for this bot."
 msgstr ""
 
@@ -9506,11 +9675,12 @@ msgstr ""
 msgid "No file provided for Pinecone upload."
 msgstr ""
 
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:89
-msgid "Unsupported file type after validation (Pinecone). Given: "
+#. translators: %s is the MIME type
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:90
+msgid "Unsupported file type after validation (Pinecone). Given: %s"
 msgstr ""
 
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:146
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:147
 msgid "File content embedded and upserted to Pinecone successfully."
 msgstr ""
 
@@ -9522,11 +9692,12 @@ msgstr ""
 msgid "No file provided for Qdrant upload."
 msgstr ""
 
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:88
-msgid "Unsupported file type after validation (Qdrant). Given: "
+#. translators: %s is the MIME type
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:89
+msgid "Unsupported file type after validation (Qdrant). Given: %s"
 msgstr ""
 
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:145
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:146
 msgid "File content embedded and upserted to Qdrant successfully."
 msgstr ""
 

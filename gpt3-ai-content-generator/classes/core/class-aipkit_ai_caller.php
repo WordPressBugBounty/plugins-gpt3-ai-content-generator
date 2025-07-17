@@ -109,6 +109,7 @@ class AIPKit_AI_Caller
         ];
 
         if (empty($api_params['api_key'])) {
+            /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
             return new WP_Error('missing_api_key', sprintf(__('API key is missing for %s.', 'gpt3-ai-content-generator'), $provider), ['provider' => $provider, 'model' => $model]);
         }
         if ($provider === 'Azure' && empty($api_params['azure_endpoint'])) {
@@ -148,6 +149,7 @@ class AIPKit_AI_Caller
 
         if (is_wp_error($response)) {
             error_log("AIPKit AI Caller Error (wp_remote_request {$provider}): " . $response->get_error_message());
+            /* translators: %s: The specific error message from the failed HTTP request. */
             return new WP_Error('http_request_failed', sprintf(__('HTTP request failed: %s', 'gpt3-ai-content-generator'), $response->get_error_message()), ['request_payload' => $request_payload_log, 'provider' => $provider, 'model' => $model, 'status_code' => 503]);
         }
 
@@ -157,6 +159,7 @@ class AIPKit_AI_Caller
         if ($status_code >= 400) {
             $parsed_message = $strategy->parse_error_response($response_body_raw, $status_code);
             error_log("AIPKit AI Caller API Error ({$provider} {$status_code}): " . $parsed_message);
+            /* translators: %1$s: The AI provider name (e.g., OpenAI). %2$d: The HTTP status code. %3$s: The error message from the API. */
             return new WP_Error('api_error', sprintf(__('%1$s API Error (HTTP %2$d): %3$s', 'gpt3-ai-content-generator'), $provider, $status_code, $parsed_message), ['status_code' => $status_code, 'response_body_for_debug' => $response_body_raw, 'request_payload' => $request_payload_log, 'provider' => $provider, 'model' => $model]);
         }
 
@@ -206,6 +209,7 @@ class AIPKit_AI_Caller
             return new WP_Error($strategy->get_error_code(), $strategy->get_error_message(), ['provider' => $provider, 'model' => ($embedding_options['model'] ?? 'unknown'), 'status_code' => 500, 'operation' => 'get_strategy_embeddings']);
         }
         if (!method_exists($strategy, 'generate_embeddings')) {
+            /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
             return new WP_Error('method_not_supported', sprintf(__('Embedding generation is not supported by the %s provider strategy.', 'gpt3-ai-content-generator'), $provider), ['provider' => $provider, 'model' => ($embedding_options['model'] ?? 'unknown'), 'status_code' => 501, 'operation' => 'generate_embeddings_unsupported']);
         }
 
@@ -220,6 +224,7 @@ class AIPKit_AI_Caller
         }
 
         if (empty($api_params['api_key'])) {
+            /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
             return new WP_Error('missing_api_key', sprintf(__('API key is missing for %s embedding generation.', 'gpt3-ai-content-generator'), $provider), ['provider' => $provider, 'model' => ($embedding_options['model'] ?? 'unknown')]);
         }
         if ($provider === 'Azure' && empty($api_params['azure_endpoint'])) {

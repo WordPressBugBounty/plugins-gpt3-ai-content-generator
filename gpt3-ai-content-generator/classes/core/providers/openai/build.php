@@ -43,6 +43,7 @@ function build_logic_for_url_builder(string $operation, array $params): string|W
     $path_template = $paths[$operation] ?? null;
 
     if ($path_template === null) {
+        // translators: %s is the operation name (e.g. 'models', 'files')
         return new WP_Error('unsupported_operation_OpenAI_logic', sprintf(__('Operation "%s" not supported for OpenAI URL Builder.', 'gpt3-ai-content-generator'), esc_html($operation)));
     }
 

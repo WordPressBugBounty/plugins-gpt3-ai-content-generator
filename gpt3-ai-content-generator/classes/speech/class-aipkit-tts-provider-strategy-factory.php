@@ -50,6 +50,7 @@ class AIPKit_TTS_Provider_Strategy_Factory {
                  require_once $strategy_file;
              } else {
                  error_log("AIPKit TTS Error: Strategy file not found for provider '{$provider}' at path '{$strategy_file}'.");
+                 /* translators: %s: The provider name that was attempted to be used for TTS generation. */
                  return new WP_Error('tts_strategy_file_not_found', sprintf(__('TTS Strategy file not found for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
              }
         }
@@ -61,6 +62,7 @@ class AIPKit_TTS_Provider_Strategy_Factory {
             case 'Google':     $class_name = AIPKit_TTS_Google_Provider_Strategy::class; break;
             case 'ElevenLabs': $class_name = AIPKit_TTS_ElevenLabs_Provider_Strategy::class; break;
             default:
+                /* translators: %s: The provider name that was attempted to be used for TTS generation. */
                 return new WP_Error('unsupported_tts_provider_strategy', sprintf(__('TTS Provider strategy "%s" is not supported.', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 
@@ -68,6 +70,7 @@ class AIPKit_TTS_Provider_Strategy_Factory {
             self::$instances[$provider] = new $class_name();
         } else {
              error_log("AIPKit TTS Error: Failed to instantiate strategy class for provider '{$provider}'. Class '{$class_name}' might not exist or file was incorrect.");
+            /* translators: %s: The provider name that was attempted to be used for TTS generation. */
             return new WP_Error('tts_strategy_instantiation_failed', sprintf(__('Failed to load TTS strategy for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 

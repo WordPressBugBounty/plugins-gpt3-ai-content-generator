@@ -49,6 +49,7 @@ class AIPKit_STT_Provider_Strategy_Factory {
                  require_once $strategy_file;
              } else {
                  error_log("AIPKit STT Error: Strategy file not found for provider '{$provider}' at path '{$strategy_file}'.");
+                 /* translators: %s: The provider name. */
                  return new WP_Error('stt_strategy_file_not_found', sprintf(__('STT Strategy file not found for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
              }
         }
@@ -60,6 +61,7 @@ class AIPKit_STT_Provider_Strategy_Factory {
             case 'Google':     $class_name = AIPKit_STT_Google_Provider_Strategy::class; break;
             case 'Azure':      $class_name = AIPKit_STT_Azure_Provider_Strategy::class; break; // Added Azure class name
             default:
+                /* translators: %s: The provider name. */
                 return new WP_Error('unsupported_stt_provider_strategy', sprintf(__('STT Provider strategy "%s" is not supported.', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 
@@ -67,6 +69,7 @@ class AIPKit_STT_Provider_Strategy_Factory {
             self::$instances[$provider] = new $class_name();
         } else {
              error_log("AIPKit STT Error: Failed to instantiate strategy class for provider '{$provider}'. Class '{$class_name}' might not exist or file was incorrect.");
+            /* translators: %s: The provider name. */
             return new WP_Error('stt_strategy_instantiation_failed', sprintf(__('Failed to load STT strategy for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 

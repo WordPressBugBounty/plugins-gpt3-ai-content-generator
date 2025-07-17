@@ -73,11 +73,8 @@ class AIPKit_Delete_Old_Global_Settings_Action extends AIPKit_Migration_Base_Aja
             $this->update_category_status('global_settings', 'deleted');
 
             wp_send_json_success([
-                'message' => sprintf(
-                    __('Old global settings deleted: %d options and %d database tables removed.', 'gpt3-ai-content-generator'),
-                    $deleted_counts['options'],
-                    $deleted_counts['tables']
-                ),
+                /* translators: %1$d is the number of options, %2$d is the number of tables */
+                'message' => sprintf(__('Old global settings deleted: %1$d options and %2$d database tables removed.', 'gpt3-ai-content-generator'), $deleted_counts['options'], $deleted_counts['tables']),
                 'category_status' => 'deleted'
             ]);
 

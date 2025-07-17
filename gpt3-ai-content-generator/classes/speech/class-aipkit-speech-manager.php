@@ -110,8 +110,9 @@ class AIPKit_Speech_Manager {
         $api_params['api_version'] = $provider_data['api_version'] ?? null; // Pass API version if needed
 
         if (empty($api_params['api_key'])) {
-              error_log("AIPKit Speech Manager Error: API Key for TTS provider '{$provider}' is missing in main settings.");
-             return new WP_Error('missing_api_key', sprintf(__('API Key for %s provider is missing in main settings.', 'gpt3-ai-content-generator'), $provider), ['status' => 500]);
+            error_log("AIPKit Speech Manager Error: API Key for TTS provider '{$provider}' is missing in main settings.");
+            /* translators: %s: The provider name that was attempted to be used for TTS generation. */
+            return new WP_Error('missing_api_key', sprintf(__('API Key for %s provider is missing in main settings.', 'gpt3-ai-content-generator'), $provider), ['status' => 500]);
         }
 
 

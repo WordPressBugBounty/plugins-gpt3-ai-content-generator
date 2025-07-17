@@ -185,6 +185,7 @@ function process_content_writer_logic(
         'azure_authoring_version' => ($provider === 'Azure') ? ($provData['api_version_authoring'] ?? '2023-03-15-preview') : '',
     ];
     if (empty($api_params_for_stream['api_key'])) {
+        /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
         $error = new WP_Error('missing_api_key_cw_logic', sprintf(__('API key missing for %s (Content Writer).', 'gpt3-ai-content-generator'), $provider), ['status' => 400]);
         // --- MODIFIED: Conditional Trigger Manager usage ---
         if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {

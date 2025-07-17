@@ -90,6 +90,7 @@ class AIPKit_STT_Manager {
              'stt_model' => $options['stt_model'] ?? null
         ];
         if (empty($api_params['api_key'])) {
+            /* translators: %s is the STT provider name */
              return new WP_Error('missing_stt_api_key', sprintf(__('API Key for STT provider %s is missing.', 'gpt3-ai-content-generator'), $provider));
         }
         // Azure specific check
@@ -101,6 +102,7 @@ class AIPKit_STT_Manager {
         // 4. Validate format support
         $supported_formats = $strategy->get_supported_formats();
         if (!in_array(strtolower($audio_format), $supported_formats)) {
+            /* translators: %1$s is the audio format, %2$s is the provider name */
             return new WP_Error('unsupported_stt_format', sprintf(__('Audio format "%1$s" is not supported by %2$s STT.', 'gpt3-ai-content-generator'), $audio_format, $provider));
         }
 

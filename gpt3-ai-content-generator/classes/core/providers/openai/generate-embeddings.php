@@ -60,7 +60,8 @@ function generate_embeddings_logic(
                     ? $decoded_response->get_error_message()
                     : OpenAIResponseParser::parse_error($body, $status_code);
         error_log("AIPKit OpenAI Embeddings API Logic Error ({$status_code}): " . $error_msg);
-        return new WP_Error('openai_embedding_api_error_logic', sprintf(__('OpenAI Embeddings API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg)));
+        /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+        return new WP_Error('openai_embedding_api_error_logic', sprintf(__('OpenAI Embeddings API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg)));
     }
     return OpenAIResponseParser::parse_embeddings($decoded_response);
 }

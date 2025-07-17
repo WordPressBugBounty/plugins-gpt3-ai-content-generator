@@ -87,9 +87,11 @@ class GoogleImageResponseParser {
             $error_message = __('No image data found in Google API response.', 'gpt3-ai-content-generator');
             $error_code = 'no_images_in_google_response';
             if (isset($decoded_response['promptFeedback']['blockReason'])) {
+                /* translators: %s: The reason for blocking the image generation request. */
                 $error_message = sprintf(__('Image generation request blocked by Google due to: %s', 'gpt3-ai-content-generator'), $decoded_response['promptFeedback']['blockReason']);
                 $error_code = 'google_image_prompt_blocked';
             } elseif (isset($decoded_response['candidates'][0]['finishReason']) && $decoded_response['candidates'][0]['finishReason'] !== 'STOP') {
+                /* translators: %s: The reason for incomplete image generation. */
                 $error_message = sprintf(__('Image generation incomplete. Finish reason: %s', 'gpt3-ai-content-generator'), $decoded_response['candidates'][0]['finishReason']);
                 $error_code = 'google_image_generation_incomplete';
             } elseif ($has_text_part) {

@@ -71,6 +71,7 @@ function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_
         return;
     }
     if ($file['size'] > $upload_limits['limit_bytes']) {
+        /* translators: %s: Formatted upload limit (e.g., "10 MB"). */
         $handler_instance->send_wp_error(new WP_Error('file_too_large_direct_lib', sprintf(__('File is too large (max %s).', 'gpt3-ai-content-generator'), $upload_limits['formatted']), ['status' => 400]));
         return;
     }

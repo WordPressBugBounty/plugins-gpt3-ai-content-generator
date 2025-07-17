@@ -116,6 +116,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
 
         if (empty($api_params['api_key']) && in_array($provider, ['OpenAI', 'Azure', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'])) {
+            /* translators: %s: The provider name that was attempted to be used for model sync. */
             wp_send_json_error(['message' => sprintf(__('%s API key is required.', 'gpt3-ai-content-generator'), $provider_data_key)]);
             return;
         }
@@ -234,7 +235,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         }
 
         AIPKit_Providers::clear_model_caches();
-
+        /* translators: %s: The provider name that was synced. */
         wp_send_json_success(['message' => sprintf(__('%s synced successfully.', 'gpt3-ai-content-generator'), $provider_data_key), 'models'  => $response_models]);
     }
 }

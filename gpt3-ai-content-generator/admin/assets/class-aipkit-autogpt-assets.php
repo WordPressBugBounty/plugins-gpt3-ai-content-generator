@@ -261,6 +261,7 @@ class AIPKit_Autogpt_Assets
                 'previous_button' => __('Previous', 'gpt3-ai-content-generator'),
                 'next_button' => __('Next', 'gpt3-ai-content-generator'),
                 'confirm_delete_queue_item' => __('Are you sure you want to remove this item from the queue?', 'gpt3-ai-content-generator'),
+                /* translators: %s is the status of the queue items, e.g. "Failed" or "Pending" */
                 'confirmDeleteQueueByStatus' => __('Are you sure you want to delete all %s items from the queue? This cannot be undone.', 'gpt3-ai-content-generator'),
                 'confirmDeleteQueueAll' => __('Are you sure you want to delete ALL items from the queue? This cannot be undone.', 'gpt3-ai-content-generator'),
                 'queue_item_deleted' => __('Queue item deleted.', 'gpt3-ai-content-generator'),

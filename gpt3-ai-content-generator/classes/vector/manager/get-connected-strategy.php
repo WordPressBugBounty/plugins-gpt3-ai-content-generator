@@ -34,6 +34,7 @@ function get_connected_strategy_logic(string $provider, array $provider_config):
 
     $connect_result = $strategy->connect($provider_config);
     if (is_wp_error($connect_result) || $connect_result === false) {
+        /* translators: %s is the vector store provider name */
         return is_wp_error($connect_result) ? $connect_result : new WP_Error('connection_failed', sprintf(__('Failed to connect to %s vector store.', 'gpt3-ai-content-generator'), $provider));
     }
     return $strategy;

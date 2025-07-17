@@ -40,7 +40,7 @@ function get_old_woocommerce_prompts_logic(): array
             $details[] = 'WooCommerce Prompt found: ' . $label;
         }
     }
-
+    /* translators: %d is the number of custom WooCommerce prompts found */
     $summary = sprintf(_n('%d custom WooCommerce prompt found.', '%d custom WooCommerce prompts found.', $count, 'gpt3-ai-content-generator'), $count);
 
     return [

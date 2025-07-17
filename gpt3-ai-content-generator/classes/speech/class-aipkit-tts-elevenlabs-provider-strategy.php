@@ -91,7 +91,8 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
         if ($status_code !== 200) {
             $error_msg = $this->parse_error_response($body, $status_code, 'ElevenLabs TTS Speech');
             error_log("AIPKit ElevenLabs TTS Speech API Error ({$status_code}): " . $error_msg);
-            return new WP_Error('elevenlabs_tts_api_error', sprintf(__('ElevenLabs Speech API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
+            /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+            return new WP_Error('elevenlabs_tts_api_error', sprintf(__('ElevenLabs Speech API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
 
         if (empty($body)) {
@@ -137,7 +138,8 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
         if ($status_code !== 200) {
              $error_msg = $this->parse_error_response($body, $status_code, 'ElevenLabs Voices');
              error_log("AIPKit ElevenLabs Voices API Error ({$status_code}): " . $error_msg);
-             return new WP_Error('elevenlabs_tts_api_error', sprintf(__('ElevenLabs Voices API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
+             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+             return new WP_Error('elevenlabs_tts_api_error', sprintf(__('ElevenLabs Voices API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
 
         $decoded = $this->decode_json($body, 'ElevenLabs Voices');
@@ -212,7 +214,8 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
         if ($status_code !== 200) {
              $error_msg = $this->parse_error_response($body, $status_code, 'ElevenLabs Models');
              error_log("AIPKit ElevenLabs Models API Error ({$status_code}): " . $error_msg);
-             return new WP_Error('elevenlabs_tts_api_error', sprintf(__('ElevenLabs Models API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
+             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
+             return new WP_Error('elevenlabs_tts_api_error', sprintf(__('ElevenLabs Models API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
 
         $decoded_models = $this->decode_json($body, 'ElevenLabs Models');

@@ -34,6 +34,7 @@ function get_general_bot_settings_logic(int $bot_id, string $bot_name, callable 
     $settings['name'] = $bot_name;
     // --- END ADDED ---
 
+    /* translators: %s: The bot's name. */
     $default_greeting = sprintf(__('Hello! How can %s assist you?', 'gpt3-ai-content-generator'), esc_html($bot_name));
     $settings['greeting'] = $get_meta_fn('_aipkit_greeting_message', $default_greeting);
 

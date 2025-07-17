@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.15
+Stable tag: 2.3.16
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,6 +72,11 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 6. The Automate module, showing the task list and queue.
 
 == Changelog ==
+
+= 2.3.16 =
+
+- Freemius SDK update.
+- Bug fixes.
 
 = 2.3.15 =
 

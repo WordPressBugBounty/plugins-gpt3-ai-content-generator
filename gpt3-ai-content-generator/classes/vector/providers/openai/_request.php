@@ -85,7 +85,8 @@ function _request_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstance, string 
     if ($status_code >= 400) {
         $error_msg = $strategyInstance->parse_error_response($decoded_response ?: $response_body, $status_code, 'OpenAI Vector Store');
         error_log("AIPKit OpenAI Vector API Error ({$status_code}): " . $error_msg . " Body: " . $response_body);
-        return new WP_Error('openai_vector_api_error', sprintf(__('OpenAI Vector API Error (%d): %s', 'gpt3-ai-content-generator'), $status_code, $error_msg));
+        /* translators: %1$d: HTTP status code, %2$s: API error message. */
+        return new WP_Error('openai_vector_api_error', sprintf(__('OpenAI Vector API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg)));
     }
 
     if (is_wp_error($decoded_response)) {

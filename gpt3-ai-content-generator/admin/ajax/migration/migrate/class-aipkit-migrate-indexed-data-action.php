@@ -115,12 +115,8 @@ class AIPKit_Migrate_Indexed_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
             $this->update_category_status('indexed_data', 'migrated');
 
             wp_send_json_success([
-                'message' => sprintf(
-                    __('Indexed data migration complete. Processed: %1$d, Migrated: %2$d, Failed: %3$d.', 'gpt3-ai-content-generator'),
-                    $total_found,
-                    $migrated_count,
-                    $failed_count
-                ),
+                /* translators: %1$d is the total number of indexed data found, %2$d is the number of successfully migrated items, %3$d is the number of failed migrations */
+                'message' => sprintf(__('Indexed data migration complete. Processed: %1$d, Migrated: %2$d, Failed: %3$d.', 'gpt3-ai-content-generator'),$total_found,$migrated_count,$failed_count),
                 'category_status' => 'migrated'
             ]);
 

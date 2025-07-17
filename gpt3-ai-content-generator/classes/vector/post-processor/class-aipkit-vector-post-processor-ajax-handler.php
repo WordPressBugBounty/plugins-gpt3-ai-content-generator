@@ -154,13 +154,10 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
             wp_send_json_error(['message' => __('Unsupported provider or processor missing.', 'gpt3-ai-content-generator')], 400);
             return;
         }
-
-        $response_message = sprintf(
-            _n('%1$d post processed and submitted to vector store "%2$s".', '%1$d posts processed and submitted to vector store "%2$s".', $processed_count, 'gpt3-ai-content-generator'),
-            $processed_count,
-            esc_html($store_identifier_for_msg)
-        );
+        /* translators: %1$d is the number of posts processed, %2$s is the vector store identifier */
+        $response_message = sprintf(_n('%1$d post processed and submitted to vector store "%2$s".', '%1$d posts processed and submitted to vector store "%2$s".', $processed_count, 'gpt3-ai-content-generator'), $processed_count, esc_html($store_identifier_for_msg));
         if (!empty($failed_posts_log)) {
+            /* translators: %d is the number of posts that failed to index */
             $response_message .= ' ' . sprintf(__('Some posts failed: %d. Check data source logs for details.', 'gpt3-ai-content-generator'), count($failed_posts_log));
             error_log("AIPKit VPP AJAX Handler: Failed Posts (Detailed): " . print_r($failed_posts_log, true));
         }

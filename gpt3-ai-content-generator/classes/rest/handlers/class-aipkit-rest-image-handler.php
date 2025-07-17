@@ -163,6 +163,7 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
         $response_data = [
             'images' => $result['images'] ?? [],
             'usage' => $result['usage'] ?? null,
+            /* translators: %d is the count of images generated */
             'message' => sprintf(_n('%d image generated successfully.', '%d images generated successfully.', count($result['images'] ?? []), 'gpt3-ai-content-generator'), count($result['images'] ?? [])),
         ];
         return new WP_REST_Response($response_data, 200);

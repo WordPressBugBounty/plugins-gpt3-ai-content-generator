@@ -144,7 +144,7 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
             ],
             ['%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s']
         );
-        error_log("AIPKit Content Writer: Default template created for global user (ID {$user_id_for_default}).");
+        // error_log("AIPKit Content Writer: Default template created for global user (ID {$user_id_for_default}).");
     } else {
         // Default template exists, check if it needs updating with new fields.
         $config = json_decode($default_template->config, true);

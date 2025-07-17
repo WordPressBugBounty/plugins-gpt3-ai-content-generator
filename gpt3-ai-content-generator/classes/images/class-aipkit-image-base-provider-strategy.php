@@ -27,6 +27,7 @@ abstract class AIPKit_Image_Base_Provider_Strategy implements AIPKit_Image_Provi
         if (trim($json_string) === '') return [];
         $decoded = json_decode($json_string, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
+            /* translators: %1$s: Context for the error (e.g., "OpenAI Image"), %2$s: JSON error message. */
             $error_message = sprintf(__('Failed to parse JSON response from %1$s. Error: %2$s', 'gpt3-ai-content-generator'), $context, json_last_error_msg());
             error_log("AIPKit Image Strategy Error ({$context} JSON Decode): " . json_last_error_msg() . " Body Snippet: " . substr($json_string, 0, 500));
             return new WP_Error('json_decode_error', $error_message);
@@ -42,6 +43,7 @@ abstract class AIPKit_Image_Base_Provider_Strategy implements AIPKit_Image_Provi
      * @return string User-friendly error message.
      */
     protected function parse_error_response($response_body, int $status_code, string $context): string {
+        /* translators: %s: Context for the error (e.g., "OpenAI Image"). */
         $message = sprintf(__('An unknown error occurred with %s.', 'gpt3-ai-content-generator'), $context);
         $decoded = is_string($response_body) ? json_decode($response_body, true) : $response_body;
 

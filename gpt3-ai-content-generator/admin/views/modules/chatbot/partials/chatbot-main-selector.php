@@ -63,7 +63,9 @@ $all_bots_to_list = array_merge($all_bots_to_list, $other_bots_entries);
                             data-tab="chatbot-<?php echo esc_attr($bot_id); ?>"
                             data-bot-id="<?php echo esc_attr($bot_id); ?>"
                             data-tab-type="bot"
-                            title="<?php echo esc_attr(sprintf(__('Edit settings for %s', 'gpt3-ai-content-generator'), esc_html($bot_name))); ?>"
+                            title="<?php echo 
+                            /* translators: %s is the bot name */
+                            esc_attr(sprintf(__('Edit settings for %s', 'gpt3-ai-content-generator'), esc_html($bot_name))); ?>"
                         >
                             <?php if ($is_default): ?>
                                 <span class="dashicons dashicons-star-filled aipkit_tab_icon" style="color: #fbc02d;" title="<?php esc_attr_e('Default Bot', 'gpt3-ai-content-generator'); ?>"></span>

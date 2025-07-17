@@ -83,6 +83,7 @@ class ChatbotExportAjaxHandler extends BaseAjaxHandler {
         }
 
         wp_send_json_success([
+            /* translators: %d: The number of chatbots exported. */
             'message' => sprintf(__('%d chatbots exported successfully.', 'gpt3-ai-content-generator'), count($export_data)),
             'jsonData' => $json_data, // Send the JSON data back to JS
         ]);

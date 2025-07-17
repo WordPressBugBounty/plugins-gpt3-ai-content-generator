@@ -1,5 +1,6 @@
 <?php
 // File: classes/core/providers/azure/build.php
+// Status: MODIFIED
 
 namespace WPAICG\Core\Providers\Azure\Methods;
 
@@ -46,6 +47,7 @@ function build_logic_for_url_builder(string $operation, array $params): string|W
     $path_segment = $paths[$path_key] ?? null;
 
     if ($path_segment === null) {
+        /* translators: %s: The name of the API operation (e.g., 'chat', 'embeddings'). */
         return new WP_Error('unsupported_operation_Azure_logic', sprintf(__('Operation "%s" not supported for Azure.', 'gpt3-ai-content-generator'), $operation));
     }
 
@@ -57,6 +59,7 @@ function build_logic_for_url_builder(string $operation, array $params): string|W
         if (empty($deployment_name)) return new WP_Error('missing_azure_deployment_logic', __('Azure deployment name is required for this operation.', 'gpt3-ai-content-generator'));
         return $azure_endpoint . '/openai/deployments/' . urlencode($deployment_name) . $path_segment . $query_param;
     } else {
+        /* translators: %s: The name of the API operation. */
         return new WP_Error('unhandled_azure_operation_logic', sprintf(__('Unhandled Azure operation path building for: %s', 'gpt3-ai-content-generator'), $operation));
     }
 }

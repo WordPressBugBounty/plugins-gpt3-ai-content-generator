@@ -64,11 +64,8 @@ class AIPKit_Delete_Old_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_A
             $this->update_category_status('chatbot_data', 'deleted');
 
             wp_send_json_success([
-                'message' => sprintf(
-                    __('Old chatbot data deleted: %d posts and %d database tables removed.', 'gpt3-ai-content-generator'),
-                    $deleted_counts['cpt_posts'],
-                    $deleted_counts['tables']
-                ),
+                /* translators: %1$d is the number of posts, %2$d is the number of tables */
+                'message' => sprintf(__('Old chatbot data deleted: %1$d posts and %2$d database tables removed.', 'gpt3-ai-content-generator'), $deleted_counts['cpt_posts'], $deleted_counts['tables']),
                 'category_status' => 'deleted'
             ]);
 

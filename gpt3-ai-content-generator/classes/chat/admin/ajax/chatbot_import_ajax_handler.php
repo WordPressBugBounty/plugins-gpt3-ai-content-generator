@@ -104,6 +104,7 @@ class ChatbotImportAjaxHandler extends BaseAjaxHandler {
         foreach ($import_data as $index => $bot_data) {
             if (!is_array($bot_data) || !isset($bot_data['title']) || !isset($bot_data['settings']) || !is_array($bot_data['settings'])) {
                 $failed_count++;
+                /* translators: %d: The numerical index of the bot in the import file. */
                 $errors[] = sprintf(__('Skipped bot at index %d: Invalid data structure.', 'gpt3-ai-content-generator'), $index);
                 continue;
             }
@@ -113,6 +114,7 @@ class ChatbotImportAjaxHandler extends BaseAjaxHandler {
 
             if (empty($bot_title)) {
                  $failed_count++;
+                 /* translators: %d: The numerical index of the bot in the import file. */
                  $errors[] = sprintf(__('Skipped bot at index %d: Title cannot be empty.', 'gpt3-ai-content-generator'), $index);
                  continue;
             }
@@ -126,6 +128,7 @@ class ChatbotImportAjaxHandler extends BaseAjaxHandler {
 
             if (is_wp_error($create_result)) {
                 $failed_count++;
+                /* translators: %1$s: The title of the chatbot. %2$s: The error message. */
                 $errors[] = sprintf(__('Failed to create bot "%1$s": %2$s', 'gpt3-ai-content-generator'), $import_title, $create_result->get_error_message());
                 continue;
             }
@@ -137,32 +140,18 @@ class ChatbotImportAjaxHandler extends BaseAjaxHandler {
 
             if (is_wp_error($save_result)) {
                  $failed_count++;
+                 /* translators: %1$s: The title of the chatbot. %2$d: The new bot's ID. %3$s: The error message. */
                  $errors[] = sprintf(__('Created bot "%1$s" (ID: %2$d) but failed to save settings: %3$s', 'gpt3-ai-content-generator'), $import_title, $new_bot_id, $save_result->get_error_message());
                  // Optionally delete the partially created bot? For now, leave it.
             } else {
                  $imported_count++;
             }
         } // End foreach loop
-
-        $message = sprintf(
-            _n(
-                '%1$d chatbot imported successfully.',
-                '%1$d chatbots imported successfully.',
-                $imported_count,
-                'gpt3-ai-content-generator'
-            ),
-            $imported_count
-        );
+        /* translators: %1$d: The number of chatbots imported. */
+        $message = sprintf(_n('%1$d chatbot imported successfully.', '%1$d chatbots imported successfully.', $imported_count, 'gpt3-ai-content-generator'), $imported_count);
         if ($failed_count > 0) {
-            $message .= ' ' . sprintf(
-                _n(
-                    '%d bot failed.',
-                    '%d bots failed.',
-                    $failed_count,
-                    'gpt3-ai-content-generator'
-                ),
-                $failed_count
-            );
+            /* translators: %d: The number of chatbots that failed to import. */
+            $message .= ' ' . sprintf(_n('%d bot failed.', '%d bots failed.', $failed_count, 'gpt3-ai-content-generator'), $failed_count);
              // Add detailed errors to the main message if any occurred
              if (!empty($errors)) {
                  $message .= ' ' . __('Details:', 'gpt3-ai-content-generator') . ' ' . implode('; ', $errors);

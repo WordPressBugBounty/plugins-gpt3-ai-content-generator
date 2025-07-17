@@ -211,6 +211,7 @@ class PostEnhancerAssets
                     'error_updating_tags' => __('Error updating tags.', 'gpt3-ai-content-generator'),
                     'no_suggestions_tags' => __('No tag suggestions generated or AI Error.', 'gpt3-ai-content-generator'),
                     'select_tags' => __('Click a tag set to apply:', 'gpt3-ai-content-generator'),
+                    /* translators: %s is the name of the post type, e.g. "Post" or "Page" */
                     'loading_info_template' => __('Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)', 'gpt3-ai-content-generator'),
                     'close' => __('Close', 'gpt3-ai-content-generator'),
                     'config_modal_title' => __('Configure AI Actions', 'gpt3-ai-content-generator'),
@@ -226,6 +227,7 @@ class PostEnhancerAssets
                     'action_deleted' => __('Action deleted.', 'gpt3-ai-content-generator'),
                     'action_saved' => __('Action saved.', 'gpt3-ai-content-generator'),
                     'loading_actions' => __('Loading actions...', 'gpt3-ai-content-generator'),
+                    /* translators: %s is the name of the post type, e.g. "Post" or "Page" */
                     'prompt_placeholder_info' => __('Use %s as a placeholder for the selected text.', 'gpt3-ai-content-generator'),
                 ],
                 'settings_url' => admin_url('admin.php?page=wpaicg#settings'),

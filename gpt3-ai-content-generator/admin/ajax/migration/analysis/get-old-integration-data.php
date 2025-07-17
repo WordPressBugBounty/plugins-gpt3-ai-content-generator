@@ -86,6 +86,7 @@ function get_old_integration_data_logic(): array
     return [
         'count' => $count,
         'integrations' => $integrations,
+        /* translators: %d is the number of old integration settings found */
         'summary' => sprintf(_n('%d old integration setting found.', '%d old integration settings found.', $count, 'gpt3-ai-content-generator'), $count),
         'details' => $details
     ];

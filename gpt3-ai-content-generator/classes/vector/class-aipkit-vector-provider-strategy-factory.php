@@ -40,6 +40,7 @@ class AIPKit_Vector_Provider_Strategy_Factory {
         ];
 
         if (!isset($strategies_map[$provider])) {
+            /* translators: %s is the vector store provider name */
             return new WP_Error('unsupported_vector_provider', sprintf(__('Vector store provider "%s" is not supported.', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 
@@ -57,6 +58,7 @@ class AIPKit_Vector_Provider_Strategy_Factory {
                 $class_name = \WPAICG\Vector\Providers\AIPKit_Vector_OpenAI_Strategy::class;
                 break;
             default:
+            /* translators: %s is the vector store provider name */
                 return new WP_Error('unsupported_vector_provider_strategy', sprintf(__('Vector store provider strategy "%s" is not supported.', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 
@@ -75,6 +77,7 @@ class AIPKit_Vector_Provider_Strategy_Factory {
                 require_once $strategy_file;
             } else {
                 error_log("AIPKit Vector Factory Error: Strategy file not found for provider '{$provider}' at path '{$strategy_file}'.");
+                /* translators: %s is the vector store provider name */
                 return new WP_Error('vector_strategy_file_not_found', sprintf(__('Vector Strategy file not found for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
             }
         }
@@ -83,6 +86,7 @@ class AIPKit_Vector_Provider_Strategy_Factory {
             self::$instances[$provider] = new $class_name();
         } else {
             error_log("AIPKit Vector Factory Error: Failed to instantiate strategy class '{$class_name}' for provider '{$provider}'.");
+            /* translators: %s is the vector store provider name */
             return new WP_Error('vector_strategy_instantiation_failed', sprintf(__('Failed to load Vector Store strategy for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
         }
 

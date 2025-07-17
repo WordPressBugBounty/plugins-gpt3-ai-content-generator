@@ -49,10 +49,8 @@ class AIPKit_Delete_Old_Indexed_Data_Action extends AIPKit_Migration_Base_Ajax_A
             $this->update_category_status('indexed_data', 'deleted');
 
             wp_send_json_success([
-                'message' => sprintf(
-                    __('Old indexed data deleted: %d posts removed.', 'gpt3-ai-content-generator'),
-                    $deleted_counts['posts']
-                ),
+                /* translators: %d is the number of posts deleted */
+                'message' => sprintf(__('Old indexed data deleted: %d posts removed.', 'gpt3-ai-content-generator'), $deleted_counts['posts']),
                 'category_status' => 'deleted'
             ]);
 

@@ -1,5 +1,7 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/ai-forms/admin/class-aipkit-ai-form-defaults.php
+// Purpose: This file ensures that default, pre-built AI Forms are created for the user upon plugin activation or update.
+// I have replaced the deprecated `get_page_by_title` function with a `WP_Query` to prevent PHP warnings and adhere to modern WordPress standards.
 
 namespace WPAICG\AIForms\Admin;
 
@@ -35,11 +37,21 @@ class AIPKit_AI_Form_Defaults
             }
 
             // To avoid duplicates, also check by title.
-            $existing = get_page_by_title($form_data['title'], OBJECT, AIPKit_AI_Form_Admin_Setup::POST_TYPE);
-            if ($existing) {
-                update_option($option_name, $existing->ID, 'no');
+            // FIX: Replaced deprecated get_page_by_title with WP_Query.
+            $query = new \WP_Query([
+                'post_type'      => AIPKit_AI_Form_Admin_Setup::POST_TYPE,
+                'title'          => $form_data['title'],
+                'post_status'    => 'publish',
+                'posts_per_page' => 1,
+                'no_found_rows'  => true,
+            ]);
+
+            if ($query->have_posts()) {
+                $existing_post = $query->posts[0];
+                update_option($option_name, $existing_post->ID, 'no');
                 continue;
             }
+            // --- END FIX ---
 
             $new_form_id_or_error = $form_storage->create_form($form_data['title'], $form_data['settings']);
 

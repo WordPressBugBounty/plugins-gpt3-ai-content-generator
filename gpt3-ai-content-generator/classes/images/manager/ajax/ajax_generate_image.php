@@ -146,6 +146,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         $managerInstance->send_wp_error($result);
     } else {
         wp_send_json_success([
+            /* translators: %d: Number of images generated. */
             'message' => sprintf(_n('%d image generated successfully.', '%d images generated successfully.', count($images_array), 'gpt3-ai-content-generator'), count($images_array)),
             'images' => $images_array
         ]);

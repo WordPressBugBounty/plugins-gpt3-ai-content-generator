@@ -420,6 +420,7 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             $error_message = $result->get_error_message();
             $status_code = 400;
             if ($error_code === 'missing_api_key') {
+                /* translators: %s: The name of the Text-to-Speech provider (e.g., Google, OpenAI). */
                  $error_message = sprintf(__('TTS failed: %s API Key is missing in main settings.', 'gpt3-ai-content-generator'), $tts_provider);
                  $status_code = 500;
             } elseif (str_contains($error_code, '_http_error') || str_contains($error_code, 'dependency_missing')) {

@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/rest/handlers/class-aipkit-rest-text-handler.php
 
 namespace WPAICG\REST\Handlers;
@@ -18,12 +19,13 @@ if (!defined('ABSPATH')) {
 /**
  * Handles REST API requests for text generation.
  */
-class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler {
-
+class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
+{
     /**
      * Define arguments for the TEXT generation endpoint.
      */
-    public function get_endpoint_args(): array {
+    public function get_endpoint_args(): array
+    {
         return array(
             'provider' => array(
                 'description' => __('The AI provider to use for text generation.', 'gpt3-ai-content-generator'),
@@ -71,38 +73,39 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler {
     /**
      * Define the schema for the TEXT generation response.
      */
-    public function get_item_schema(): array {
-         return array(
-            '$schema'    => 'http://json-schema.org/draft-04/schema#',
-            'title'      => 'aipkit_generate_response',
-            'type'       => 'object',
-            'properties' => array(
-                'content' => array(
-                    'description' => esc_html__( 'The generated AI response content.', 'gpt3-ai-content-generator' ),
-                    'type'        => 'string',
-                    'readonly'    => true,
-                ),
-                'usage' => array(
-                    'description' => esc_html__( 'Token usage information.', 'gpt3-ai-content-generator' ),
-                    'type'        => ['object', 'null'],
-                    'properties' => array(
-                        'input_tokens' => array( 'type' => 'integer' ),
-                        'output_tokens' => array( 'type' => 'integer' ),
-                        'total_tokens' => array( 'type' => 'integer' ),
-                    ),
-                    'readonly' => true,
-                ),
-                'model' => array(
-                    'description' => esc_html__( 'The model used for the response.', 'gpt3-ai-content-generator' ),
-                    'type'        => 'string',
-                    'readonly'    => true,
-                ),
-                 'provider' => array(
-                    'description' => esc_html__( 'The provider used for the response.', 'gpt3-ai-content-generator' ),
-                    'type'        => 'string',
-                    'readonly'    => true,
-                ),
-            ),
+    public function get_item_schema(): array
+    {
+        return array(
+           '$schema'    => 'http://json-schema.org/draft-04/schema#',
+           'title'      => 'aipkit_generate_response',
+           'type'       => 'object',
+           'properties' => array(
+               'content' => array(
+                   'description' => esc_html__('The generated AI response content.', 'gpt3-ai-content-generator'),
+                   'type'        => 'string',
+                   'readonly'    => true,
+               ),
+               'usage' => array(
+                   'description' => esc_html__('Token usage information.', 'gpt3-ai-content-generator'),
+                   'type'        => ['object', 'null'],
+                   'properties' => array(
+                       'input_tokens' => array( 'type' => 'integer' ),
+                       'output_tokens' => array( 'type' => 'integer' ),
+                       'total_tokens' => array( 'type' => 'integer' ),
+                   ),
+                   'readonly' => true,
+               ),
+               'model' => array(
+                   'description' => esc_html__('The model used for the response.', 'gpt3-ai-content-generator'),
+                   'type'        => 'string',
+                   'readonly'    => true,
+               ),
+                'provider' => array(
+                   'description' => esc_html__('The provider used for the response.', 'gpt3-ai-content-generator'),
+                   'type'        => 'string',
+                   'readonly'    => true,
+               ),
+           ),
         );
     }
 
@@ -111,7 +114,8 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler {
      * @param WP_REST_Request $request Full details about the request.
      * @return WP_REST_Response|WP_Error Response object on success, or WP_Error on failure.
      */
-    public function handle_request(WP_REST_Request $request): WP_REST_Response|WP_Error {
+    public function handle_request(WP_REST_Request $request): WP_REST_Response|WP_Error
+    {
         $params = $request->get_params();
         $provider_raw = $params['provider'] ?? null;
         $model = $params['model'] ?? null;
@@ -120,23 +124,53 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler {
         $system_instruction = $params['system_instruction'] ?? null;
         $ai_params_override = $params['ai_params'] ?? [];
 
-        if (empty($provider_raw)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: provider', 'gpt3-ai-content-generator'), ['status' => 400]));
-        if (empty($model)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: model', 'gpt3-ai-content-generator'), ['status' => 400]));
-        if (empty($messages) || !is_array($messages)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid or missing parameter: messages (must be an array)', 'gpt3-ai-content-generator'), ['status' => 400]));
-        if (!is_array($ai_params_override)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid parameter type: ai_params (must be an object)', 'gpt3-ai-content-generator'), ['status' => 400]));
-        if ($system_instruction !== null && !is_string($system_instruction)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid parameter type: system_instruction (must be a string)', 'gpt3-ai-content-generator'), ['status' => 400]));
+        if (empty($provider_raw)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: provider', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
+        if (empty($model)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: model', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
+        if (empty($messages) || !is_array($messages)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid or missing parameter: messages (must be an array)', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
+        if (!is_array($ai_params_override)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid parameter type: ai_params (must be an object)', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
+        if ($system_instruction !== null && !is_string($system_instruction)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid parameter type: system_instruction (must be a string)', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
 
-        $provider = match(strtolower($provider_raw)) { 'openai' => 'OpenAI', 'azure' => 'Azure', 'google' => 'Google', 'openrouter' => 'OpenRouter', 'deepseek' => 'DeepSeek', default => null, };
-        if ($provider === null) { return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid provider specified: %s', 'gpt3-ai-content-generator'), $provider_raw), ['status' => 400])); }
-        foreach ($messages as $index => $msg) { if (!is_array($msg) || empty($msg['role']) || !in_array($msg['role'], ['system', 'user', 'assistant']) || !isset($msg['content']) || !is_string($msg['content'])) { return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_message_format', sprintf(__('Invalid message format at index %d.', 'gpt3-ai-content-generator'), $index), ['status' => 400])); } $messages[$index]['role'] = sanitize_key($msg['role']); $messages[$index]['content'] = sanitize_textarea_field($msg['content']); }
-        if ($stream) { return $this->send_wp_error_response(new WP_Error('rest_aipkit_streaming_not_supported', __('Streaming responses are not supported via this REST endpoint.', 'gpt3-ai-content-generator'), ['status' => 400])); }
-        if (!class_exists(AIPKit_AI_Caller::class) || !class_exists(AIPKit_Instruction_Manager::class) || !class_exists(AIPKit_Providers::class) || !class_exists(AIPKIT_AI_Settings::class)) { error_log("AIPKit REST API Error: Missing core AI classes."); return $this->send_wp_error_response(new WP_Error('rest_aipkit_internal_error', __('Internal server error.', 'gpt3-ai-content-generator'), ['status' => 500])); }
+        $provider = match(strtolower($provider_raw)) {
+            'openai' => 'OpenAI', 'azure' => 'Azure', 'google' => 'Google', 'openrouter' => 'OpenRouter', 'deepseek' => 'DeepSeek', default => null,
+        };
+        if ($provider === null) {
+            /* translators: %s is the invalid provider name */
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid provider specified: %s', 'gpt3-ai-content-generator'), $provider_raw), ['status' => 400]));
+        }
+        foreach ($messages as $index => $msg) {
+            if (!is_array($msg) || empty($msg['role']) || !in_array($msg['role'], ['system', 'user', 'assistant']) || !isset($msg['content']) || !is_string($msg['content'])) {
+                /* translators: %d is the index of the message in the array */
+                return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_message_format', sprintf(__('Invalid message format at index %d.', 'gpt3-ai-content-generator'), $index), ['status' => 400]));
+            } $messages[$index]['role'] = sanitize_key($msg['role']);
+            $messages[$index]['content'] = sanitize_textarea_field($msg['content']);
+        }
+        if ($stream) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_streaming_not_supported', __('Streaming responses are not supported via this REST endpoint.', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
+        if (!class_exists(AIPKit_AI_Caller::class) || !class_exists(AIPKit_Instruction_Manager::class) || !class_exists(AIPKit_Providers::class) || !class_exists(AIPKIT_AI_Settings::class)) {
+            error_log("AIPKit REST API Error: Missing core AI classes.");
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_internal_error', __('Internal server error.', 'gpt3-ai-content-generator'), ['status' => 500]));
+        }
 
         $ai_caller = new AIPKit_AI_Caller();
         $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
         $final_ai_params = array_merge($global_ai_params, $ai_params_override);
-        if (isset($final_ai_params['temperature'])) $final_ai_params['temperature'] = max(0.0, min(2.0, floatval($final_ai_params['temperature'])));
-        if (isset($final_ai_params['max_completion_tokens'])) $final_ai_params['max_completion_tokens'] = max(1, min(128000, absint($final_ai_params['max_completion_tokens'])));
+        if (isset($final_ai_params['temperature'])) {
+            $final_ai_params['temperature'] = max(0.0, min(2.0, floatval($final_ai_params['temperature'])));
+        }
+        if (isset($final_ai_params['max_completion_tokens'])) {
+            $final_ai_params['max_completion_tokens'] = max(1, min(128000, absint($final_ai_params['max_completion_tokens'])));
+        }
         $instruction_context = ['base_instructions' => $system_instruction ?? ''];
         $instructions_processed = AIPKit_Instruction_Manager::build_instructions($instruction_context);
 
@@ -148,7 +182,9 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler {
         }
 
         $response_data = [ 'content' => $result['content'] ?? '', 'usage' => $result['usage'] ?? null, 'provider' => $provider, 'model' => $model ];
-        if (isset($response_data['usage']['provider_raw'])) unset($response_data['usage']['provider_raw']);
+        if (isset($response_data['usage']['provider_raw'])) {
+            unset($response_data['usage']['provider_raw']);
+        }
         return new WP_REST_Response($response_data, 200);
     }
 }

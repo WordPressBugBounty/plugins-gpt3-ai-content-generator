@@ -33,11 +33,8 @@ function connect_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, array $c
     $test_connection = _request_logic($strategyInstance, 'GET', '/collections');
 
     if (is_wp_error($test_connection)) {
-        $error_message = sprintf(
-            __('Failed to connect to Qdrant at %s. Error: %s', 'gpt3-ai-content-generator'),
-            esc_html($strategyInstance->get_qdrant_url()),
-            $test_connection->get_error_message()
-        );
+        /* translators: %1$s: The URL of the Qdrant instance, %2$s: The specific connection error message. */
+        $error_message = sprintf(__('Failed to connect to Qdrant at %1$s. Error: %2$s', 'gpt3-ai-content-generator'), esc_html($strategyInstance->get_qdrant_url()), $test_connection->get_error_message());
         return new WP_Error('qdrant_connection_failed', $error_message, $test_connection->get_error_data());
     }
     if (isset($test_connection['collections']) && is_array($test_connection['collections'])) {
@@ -45,9 +42,7 @@ function connect_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, array $c
         return true;
     }
 
-    $error_message = sprintf(
-        __('Unexpected response while connecting to Qdrant at %s. Please check URL and API key.', 'gpt3-ai-content-generator'),
-        esc_html($strategyInstance->get_qdrant_url())
-    );
+    /* translators: %s: The URL of the Qdrant instance. */
+    $error_message = sprintf(__('Unexpected response while connecting to Qdrant at %s. Please check URL and API key.', 'gpt3-ai-content-generator'), esc_html($strategyInstance->get_qdrant_url()));
     return new WP_Error('qdrant_connection_unexpected_response', $error_message);
 }

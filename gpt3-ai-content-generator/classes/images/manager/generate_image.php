@@ -30,6 +30,7 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
     };
 
     if (!in_array($provider_normalized, ['OpenAI', 'Azure', 'Google', 'Pexels', 'Pixabay', 'Replicate'])) {
+        /* translators: %s: The provider name that was attempted to be used for image generation. */
         return new WP_Error('unsupported_image_provider', sprintf(__('Image provider "%s" is not currently supported.', 'gpt3-ai-content-generator'), esc_html($provider_raw)), ['status' => 400]);
     }
 
@@ -40,6 +41,7 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
 
     $api_params = AIPKit_Providers::get_provider_data($provider_normalized);
     if (empty($api_params['api_key'])) {
+        /* translators: %s: The provider name that was attempted to be used for image generation. */
         return new WP_Error('missing_api_key', sprintf(__('%s API Key is missing.', 'gpt3-ai-content-generator'), $provider_normalized), ['status' => 400]);
     }
     if ($provider_normalized === 'Azure' && empty($api_params['endpoint'])) {

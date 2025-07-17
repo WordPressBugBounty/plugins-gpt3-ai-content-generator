@@ -13,8 +13,10 @@ if (! defined('ABSPATH')) {
 
 return [
     // General / Loader
+    /* translators: %s is the name of the module being loaded */
     'loading'                   => __('Loading %s...', 'gpt3-ai-content-generator'),
     'errorLoadingModuleTitle'   => __('Error Loading Module', 'gpt3-ai-content-generator'),
+    /* translators: %s is the name of the module that failed to load */
     'errorLoadingModuleMsg'     => __('An error occurred while loading the \'%s\' module. Please try again later or check the browser console for details.', 'gpt3-ai-content-generator'),
     'errorDetails'              => __('Details:', 'gpt3-ai-content-generator'),
     // Chat Preview Placeholders
@@ -39,6 +41,7 @@ return [
     'logExportFilteredConfirmMsg' => __('Export all messages matching current filters?', 'gpt3-ai-content-generator'),
     'logExportAllConfirmMsg'    => __('Export all messages? This might take a while for large datasets.', 'gpt3-ai-content-generator'),
     'logExportStarting'         => __('Starting...', 'gpt3-ai-content-generator'),
+    /* translators: %1$d is the current conversation number, %2$d is the total number of conversations */
     'logExportProgress' 		=> __('Exporting conversation %1$d / %2$d...', 'gpt3-ai-content-generator'),
     'logExportComplete'         => __('Done!', 'gpt3-ai-content-generator'),
     'logExportError'            => __('Export failed:', 'gpt3-ai-content-generator'),
@@ -46,6 +49,7 @@ return [
     'logDeleteFilteredConfirmMsg' => __('Delete all conversations matching current filters? This action cannot be undone.', 'gpt3-ai-content-generator'),
     'logDeleteAllConfirmMsg'    => __('Delete ALL conversations? This will remove ALL chat history and cannot be undone.', 'gpt3-ai-content-generator'),
     'logDeleteStarting'         => __('Starting...', 'gpt3-ai-content-generator'),
+    /* translators: %1$d is the current conversation number, %2$d is the total number of conversations */
     'logDeleteProgress' 		=> __('Deleting conversation %1$d / %2$d...', 'gpt3-ai-content-generator'),
     'logDeleteComplete'         => __('Done!', 'gpt3-ai-content-generator'),
     'logDeleteError'            => __('Deletion failed:', 'gpt3-ai-content-generator'),
@@ -149,6 +153,7 @@ return [
     'settingsAddOption'           => __('Add Option', 'gpt3-ai-content-generator'),
     'settingsRemoveOption'        => __('Remove Option', 'gpt3-ai-content-generator'),
     'settingsDoneButton'          => __('Done', 'gpt3-ai-content-generator'),
+    /* translators: %s is the type of form element, e.g. Text Input */
     'settingsPanelElementType'    => __('(%s)', 'gpt3-ai-content-generator'), // e.g. (Text Input)
     'errorUniqueFieldId'          => __('Field Variable Name must be unique and valid (letters, numbers, underscores).', 'gpt3-ai-content-generator'),
     // --- END MODIFIED ---

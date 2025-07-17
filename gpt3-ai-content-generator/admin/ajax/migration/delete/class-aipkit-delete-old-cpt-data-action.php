@@ -69,11 +69,8 @@ class AIPKit_Delete_Old_CPT_Data_Action extends AIPKit_Migration_Base_Ajax_Actio
             $this->update_category_status('cpt_data', 'deleted');
 
             wp_send_json_success([
-                'message' => sprintf(
-                    __('Old AI Forms & associated legacy data deleted: %d posts and %d database tables removed.', 'gpt3-ai-content-generator'),
-                    $deleted_counts['cpt_posts'],
-                    $deleted_counts['tables']
-                ),
+                /* translators: %1$d is the number of posts, %2$d is the number of tables */
+                'message' => sprintf(__('Old AI Forms & associated legacy data deleted: %1$d posts and %2$d database tables removed.', 'gpt3-ai-content-generator'), $deleted_counts['cpt_posts'], $deleted_counts['tables']),
                 'category_status' => 'deleted'
             ]);
 
