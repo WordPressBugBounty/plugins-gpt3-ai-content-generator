@@ -18,24 +18,24 @@ if (!defined('ABSPATH')) {
         <label class="aipkit_form-label" for="cts_input_bg_color_<?php echo esc_attr($bot_id); ?>">
             <?php esc_html_e('Input Bar Background', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input type="color" id="cts_input_bg_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[input_area_bg_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('input_area_bg_color'); ?>">
+        <input type="color" id="cts_input_bg_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[input_area_bg_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('input_area_bg_color'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>">
     </div>
     <div class="aipkit_form-group aipkit_form-col">
         <label class="aipkit_form-label" for="cts_input_text_color_<?php echo esc_attr($bot_id); ?>">
             <?php esc_html_e('Input Text Color', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input type="color" id="cts_input_text_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[input_text_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('input_text_color'); ?>">
+        <input type="color" id="cts_input_text_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[input_text_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('input_text_color'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>">
     </div>
     <div class="aipkit_form-group aipkit_form-col">
         <label class="aipkit_form-label" for="cts_input_wrapper_bg_color_<?php echo esc_attr($bot_id); ?>">
             <?php esc_html_e('Textarea Background', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input type="color" id="cts_input_wrapper_bg_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[input_wrapper_bg_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('input_wrapper_bg_color'); ?>">
+        <input type="color" id="cts_input_wrapper_bg_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[input_wrapper_bg_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('input_wrapper_bg_color'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>">
     </div>
      <div class="aipkit_form-group aipkit_form-col">
         <label class="aipkit_form-label" for="cts_input_wrapper_border_color_<?php echo esc_attr($bot_id); ?>">
             <?php esc_html_e('Textarea Border Color', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input type="color" id="cts_input_wrapper_border_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[input_wrapper_border_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('input_wrapper_border_color'); ?>">
+        <input type="color" id="cts_input_wrapper_border_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[input_wrapper_border_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('input_wrapper_border_color'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>">
     </div>
 </div>

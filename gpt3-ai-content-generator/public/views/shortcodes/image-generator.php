@@ -32,7 +32,7 @@ $google_models_display = [
 $theme_class = 'aipkit-theme-' . esc_attr($theme);
 
 ?>
-<div class="aipkit_shortcode_container aipkit_image_generator_public_wrapper <?php echo $theme_class; ?>" id="aipkit_public_image_generator" data-allowed-models="<?php echo esc_attr($allowed_models); ?>">
+<div class="aipkit_shortcode_container aipkit_image_generator_public_wrapper <?php echo esc_attr($theme_class); ?>" id="aipkit_public_image_generator" data-allowed-models="<?php echo esc_attr($allowed_models); ?>">
     <div class="aipkit_shortcode_body">
         <div class="aipkit_image_generator_input_bar">
             <div class="aipkit_form-group aipkit_image_generator_prompt_area">

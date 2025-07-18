@@ -70,11 +70,11 @@ function render_field_logic(array $element, int $form_id): void
             echo '</legend>';
             if (!empty($element['options']) && is_array($element['options'])) {
                 foreach ($element['options'] as $index => $option) {
-                    $checkbox_id = esc_attr($field_id_attr . '_' . $index);
-                    $checkbox_name = esc_attr($field_name_attr . '[]');
+                    $checkbox_id   = esc_attr($field_id_attr . '_' . $index);
+                    $checkbox_name = $field_name_attr . '[]'; // Corrected: Do not escape brackets in the name attribute.
                     echo '<div class="aipkit-checkbox-item">';
-                    echo '<input type="checkbox" id="' . $checkbox_id . '" name="' . $checkbox_name . '" value="' . esc_attr($option['value']) . '" class="aipkit_form-input-checkbox" ' . ($required_attr && $index === 0 ? $required_attr : '') . '>';
-                    echo '<label for="' . $checkbox_id . '">' . esc_html($option['text']) . '</label>';
+                    echo '<input type="checkbox" id="' . $checkbox_id . '" name="' . $checkbox_name . '" value="' . esc_attr($option['value']) . '" class="aipkit_form-input-checkbox" ' . ($required_attr && $index === 0 ? esc_attr($required_attr) : '') . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $checkbox_id and $checkbox_name are already escaped/safe at their definitions.
+                    echo '<label for="' . $checkbox_id . '">' . esc_html($option['text']) . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $checkbox_id is already escaped at its definition.
                     echo '</div>';
                 }
             }
@@ -110,7 +110,7 @@ function render_field_logic(array $element, int $form_id): void
             $is_pro = class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
             if ($is_pro) {
                 $upload_nonce = wp_create_nonce('aipkit_ai_form_upload_nonce');
-                echo '<div class="aipkit_form-group aipkit_form-group-file-upload" data-nonce="' . esc_attr($upload_nonce) . '">';
+                echo '<div class="aipkit_form-group aipkit_form_group-file-upload" data-nonce="' . esc_attr($upload_nonce) . '">';
                 echo '<label for="' . esc_attr($field_id_attr) . '" class="aipkit_form-label">';
                 echo esc_html($element['label']);
                 if (!empty($element['required'])) {

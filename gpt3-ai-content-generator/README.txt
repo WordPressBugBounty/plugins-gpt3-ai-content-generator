@@ -4,19 +4,19 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.16
+Stable tag: 2.3.17
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 A complete AI toolkit for WordPress. Includes a content writer, chatbot, image generator, AI forms, automation, AI training, and more.
 
-[Documentation](https://docs.aipower.org/) 
-
 == Description ==
 
 AI Power is a comprehensive set of artificial intelligence tools that works directly inside your WordPress dashboard. It is a collection of interconnected modules designed to help you with content creation, site management, and user interaction.
 
-This plugin operates on a "Bring Your Own API Key" model. You need to have an API key from your preferred AI provider (like OpenAI, Google, etc.) to use the features.
+[Documentation](https://docs.aipower.org/) 
+
+Our plugin operates on a "Bring Your Own API Key" model. You need to have an API key from your preferred AI provider (like OpenAI, Google, etc.) to use the features.
 
 **Key Features:**
 
@@ -72,6 +72,12 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 6. The Automate module, showing the task list and queue.
 
 == Changelog ==
+
+= 2.3.17 =
+
+- Fixed Vector DB selection in Automated Tasks
+- Updated Freemius vendor path
+- Minor bug fixes
 
 = 2.3.16 =
 

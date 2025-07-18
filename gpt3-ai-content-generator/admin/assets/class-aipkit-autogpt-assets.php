@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-autogpt-assets.php
 // Status: MODIFIED
-// I have added the default content writer prompts and cron job frequencies to the localized data for the AutoGPT form.
+// I have updated the localized text for embedding provider/model errors to be more generic and accurate for both Pinecone and Qdrant.
 
 namespace WPAICG\Admin\Assets;
 
@@ -210,8 +210,8 @@ class AIPKit_Autogpt_Assets
                 'task_type_required' => __('Task type is required.', 'gpt3-ai-content-generator'),
                 'target_store_required' => __('Please select a target vector store/index.', 'gpt3-ai-content-generator'),
                 'content_type_required' => __('Please select at least one content type.', 'gpt3-ai-content-generator'),
-                'embedding_provider_required' => __('Embedding provider is required for Pinecone.', 'gpt3-ai-content-generator'),
-                'embedding_model_required' => __('Embedding model is required for Pinecone.', 'gpt3-ai-content-generator'),
+                'embedding_provider_required' => __('Embedding provider is required for this vector database.', 'gpt3-ai-content-generator'),
+                'embedding_model_required' => __('Embedding model is required for this vector database.', 'gpt3-ai-content-generator'),
                 'content_title_required_cw_task' => __('Content Title/Topic is required for this Content Writing task mode.', 'gpt3-ai-content-generator'),
                 'ai_config_required_cw_task' => __('AI Provider and Model are required for Content Writing task.', 'gpt3-ai-content-generator'),
                 'saving_task' => __('Saving Task...', 'gpt3-ai-content-generator'),

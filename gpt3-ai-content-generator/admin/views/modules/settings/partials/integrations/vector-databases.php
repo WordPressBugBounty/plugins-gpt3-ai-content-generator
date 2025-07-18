@@ -54,7 +54,7 @@ if (!defined('ABSPATH')) {
                             if ($is_selected) {
                                 $found_current = true;
                             }
-                            echo '<option value="' . esc_attr($index_name) . '" ' . $is_selected . '>' . esc_html($index_name) . '</option>';
+                            echo '<option value="' . esc_attr($index_name) . '" ' . $is_selected . '>' . esc_html($index_name) . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $is_selected contains the result of the WP `selected()` function, which is safe for output.
                         }
                         if (!$found_current && !empty($current_pinecone_default_index)) {
                             echo '<option value="' . esc_attr($current_pinecone_default_index) . '" selected>' . esc_html($current_pinecone_default_index) . ' (Manual/Not Synced)</option>';

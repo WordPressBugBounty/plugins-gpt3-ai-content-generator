@@ -115,8 +115,9 @@ class AIPKit_Migrate_CPT_Data_Action extends AIPKit_Migration_Base_Ajax_Action
 
             // --- Migrate AI Forms Tokens ---
             $old_tokens_table = $wpdb->prefix . 'wpaicg_formtokens';
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table check for migration.
             if ($wpdb->get_var("SHOW TABLES LIKE '" . esc_sql($old_tokens_table) . "'") === $old_tokens_table) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only migration
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only migration from legacy table.
                 $old_tokens_data = $wpdb->get_results("SELECT * FROM " . esc_sql($old_tokens_table), ARRAY_A);
                 $aggregated_tokens = [];
                 foreach ($old_tokens_data as $token_row) {
@@ -136,6 +137,7 @@ class AIPKit_Migrate_CPT_Data_Action extends AIPKit_Migration_Base_Ajax_Action
                     } elseif (strpos($context_key, 'guest_') === 0) {
                         $sid = str_replace('guest_', '', $context_key);
                         if (!empty($sid)) {
+                            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for migration.
                             $wpdb->replace($wpdb->prefix . GuestTableConstants::GUEST_TABLE_NAME_SUFFIX, ['session_id' => $sid, 'bot_id' => GuestTableConstants::AI_FORMS_GUEST_CONTEXT_ID, 'tokens_used' => $data['tokens'], 'last_reset_timestamp' => $data['first_ts'], 'last_updated_at' => current_time('mysql', 1)]);
                         }
                     }

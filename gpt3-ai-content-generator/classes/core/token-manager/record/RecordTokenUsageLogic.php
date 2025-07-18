@@ -154,6 +154,7 @@ function RecordTokenUsageLogic(
         $guest_table_name = $managerInstance->get_guest_table_name();
         $new_usage = 0;
         if ($is_guest && $guest_context_table_id !== null) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $guest_row = $wpdb->get_row($wpdb->prepare("SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d", $session_id, $guest_context_table_id), ARRAY_A);
             $current_usage = $guest_row ? (int) $guest_row['tokens_used'] : 0;
             $last_reset = $guest_row ? (int) $guest_row['last_reset_timestamp'] : 0;
@@ -161,6 +162,7 @@ function RecordTokenUsageLogic(
             if ($last_reset === 0 && $reset_period !== 'never') {
                 $last_reset = time();
             } // Set initial reset time if not set
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $upsert_result = $wpdb->replace($guest_table_name, ['session_id' => $session_id, 'bot_id' => $guest_context_table_id, 'tokens_used' => $new_usage, 'last_reset_timestamp' => $last_reset, 'last_updated_at' => current_time('mysql', 1)], ['%s', '%d', '%d', '%d', '%s']);
             if ($upsert_result === false) {
                 error_log("AIPKit Token Record Logic: Failed to update guest usage for Guest {$session_id}, Context ID {$guest_context_table_id}. Error: " . $wpdb->last_error);

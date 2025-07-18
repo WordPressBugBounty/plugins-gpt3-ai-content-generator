@@ -18,19 +18,19 @@ if (!defined('ABSPATH')) {
         <label class="aipkit_form-label" for="cts_action_button_bg_color_<?php echo esc_attr($bot_id); ?>">
             <?php esc_html_e('Background', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input type="color" id="cts_action_button_bg_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_bg_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_bg_color'); ?>">
+        <input type="color" id="cts_action_button_bg_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_bg_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_bg_color'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>">
     </div>
     <div class="aipkit_form-group aipkit_form-col">
         <label class="aipkit_form-label" for="cts_action_button_color_<?php echo esc_attr($bot_id); ?>">
             <?php esc_html_e('Icon/Text Color', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input type="color" id="cts_action_button_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_color'); ?>">
+        <input type="color" id="cts_action_button_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_color'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>">
     </div>
      <div class="aipkit_form-group aipkit_form-col">
         <label class="aipkit_form-label" for="cts_action_button_border_color_<?php echo esc_attr($bot_id); ?>">
             <?php esc_html_e('Border Color', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input type="color" id="cts_action_button_border_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_border_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_border_color'); ?>">
+        <input type="color" id="cts_action_button_border_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_border_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_border_color'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>">
     </div>
 </div>
  <div class="aipkit_form-row">
@@ -38,12 +38,12 @@ if (!defined('ABSPATH')) {
         <label class="aipkit_form-label" for="cts_action_button_hover_bg_color_<?php echo esc_attr($bot_id); ?>">
             <?php esc_html_e('Hover Background', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input type="color" id="cts_action_button_hover_bg_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_hover_bg_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_hover_bg_color'); ?>">
+        <input type="color" id="cts_action_button_hover_bg_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_hover_bg_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_hover_bg_color'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>">
     </div>
     <div class="aipkit_form-group aipkit_form-col">
         <label class="aipkit_form-label" for="cts_action_button_hover_color_<?php echo esc_attr($bot_id); ?>">
             <?php esc_html_e('Hover Icon/Text Color', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input type="color" id="cts_action_button_hover_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_hover_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_hover_color'); ?>">
+        <input type="color" id="cts_action_button_hover_color_<?php echo esc_attr($bot_id); ?>" name="custom_theme_settings[action_button_hover_color]" class="aipkit_form-input aipkit_color_picker_input" value="<?php echo $esc_cts_val_attr('action_button_hover_color'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>">
     </div>
 </div>

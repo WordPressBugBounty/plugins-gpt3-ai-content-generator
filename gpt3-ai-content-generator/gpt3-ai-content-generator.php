@@ -10,8 +10,8 @@
  *
  * @wordpress-plugin
  * Plugin Name:       AI Power: Complete AI Pack
- * Description:       ai, Chatbot, ChatGPT, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more.
- * Version:           2.3.16
+ * Description:       ai, chatbot, chatgpt, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more.
+ * Version:           2.3.17
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -22,7 +22,7 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.3.16' );
+define( 'WPAICG_VERSION', '2.3.17' );
 define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );
@@ -32,13 +32,16 @@ if ( function_exists( 'wpaicg_gacg_fs' ) ) {
 } else {
     // DO NOT REMOVE THIS IF — it ensures `function_exists()` is reliable
     if ( !function_exists( 'wpaicg_gacg_fs' ) ) {
+        // Create a helper function for easy SDK access.
         function wpaicg_gacg_fs() {
             global $wpaicg_gacg_fs;
             if ( !isset( $wpaicg_gacg_fs ) ) {
+                // Activate multisite network integration.
                 if ( !defined( 'WP_FS__PRODUCT_11606_MULTISITE' ) ) {
                     define( 'WP_FS__PRODUCT_11606_MULTISITE', true );
                 }
-                require_once dirname( __FILE__ ) . '/freemius/start.php';
+                // Include Freemius SDK.
+                require_once dirname( __FILE__ ) . '/vendor/freemius/start.php';
                 $wpaicg_gacg_fs = fs_dynamic_init( array(
                     'id'             => '11606',
                     'slug'           => 'gpt3-ai-content-generator',
@@ -59,8 +62,9 @@ if ( function_exists( 'wpaicg_gacg_fs' ) ) {
             return $wpaicg_gacg_fs;
         }
 
-        // Initialize Freemius
+        // Init Freemius.
         wpaicg_gacg_fs();
+        // Signal that SDK was initiated.
         do_action( 'wpaicg_gacg_fs_loaded' );
     }
 }

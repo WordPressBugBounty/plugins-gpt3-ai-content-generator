@@ -247,7 +247,7 @@ if (class_exists(AIPKit_Providers::class)) {
                                 $file_count_display = ($file_count_total !== null) ? " ({$file_count_total} " . _n('File', 'Files', (int)$file_count_total, 'gpt3-ai-content-generator') . ")" : ' (Files: N/A)';
                                 $option_text = esc_html($store_name . $file_count_display);
                                 $is_selected_attr = in_array($store_id_val, $openai_vector_store_ids_saved, true) ? 'selected="selected"' : '';
-                                echo '<option value="' . esc_attr($store_id_val) . '" ' . $is_selected_attr . '>' . $option_text . ' (ID: ' . esc_html(substr($store_id_val,0,15)).'...)</option>';
+                                echo '<option value="' . esc_attr($store_id_val) . '" ' . $is_selected_attr . '>' . $option_text . ' (ID: ' . esc_html(substr($store_id_val,0,15)).'...)</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $is_selected_attr is a safe hardcoded attribute and $option_text is pre-escaped with esc_html().
                             }
                         }
                         foreach ($openai_vector_store_ids_saved as $saved_id) {
@@ -291,7 +291,7 @@ if (class_exists(AIPKit_Providers::class)) {
                                                         ? sprintf(' (Vectors: %s)', number_format_i18n($index['total_vector_count']))
                                                         : (($index['total_vector_count'] ?? '') === 'Error' || ($index['total_vector_count'] ?? '') === 'No Host' ? ' (Stats Err)' : ' (Vectors: ?)');
                                 $option_text = esc_html($index_display_name . $vector_count_display);
-                                echo '<option value="' . esc_attr($index_id_val) . '" ' . selected($pinecone_index_name, $index_id_val, false) . '>' . $option_text . '</option>';
+                                echo '<option value="' . esc_attr($index_id_val) . '" ' . selected($pinecone_index_name, $index_id_val, false) . '>' . $option_text . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $option_text is pre-escaped with esc_html().
                             }
                         }
                         if (!empty($pinecone_index_name) && (empty($pinecone_indexes) || !in_array($pinecone_index_name, array_column($pinecone_indexes, 'name')))) {

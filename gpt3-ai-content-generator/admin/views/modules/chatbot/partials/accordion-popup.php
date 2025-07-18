@@ -176,10 +176,10 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
                         $icon_checked = ($popup_icon_type === 'default' && $popup_icon_value === $icon_key);
                         $radio_id = 'aipkit_bot_' . esc_attr($bot_id) . '_popup_icon_' . esc_attr($icon_key);
                         ?>
-                    <label class="aipkit_popup_icon_default_option" for="<?php echo $radio_id; ?>" title="<?php echo esc_attr(ucfirst(str_replace('-', ' ', $icon_key))); ?>">
+                    <label class="aipkit_popup_icon_default_option" for="<?php echo $radio_id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $radio_id is pre-escaped at its definition. ?>" title="<?php echo esc_attr(ucfirst(str_replace('-', ' ', $icon_key))); ?>">
                         <input
                             type="radio"
-                            id="<?php echo $radio_id; ?>"
+                            id="<?php echo $radio_id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $radio_id is pre-escaped at its definition. ?>"
                             name="popup_icon_default"
                             value="<?php echo esc_attr($icon_key); ?>"
                             <?php checked($icon_checked); ?>

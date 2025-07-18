@@ -16,13 +16,8 @@ if (!defined('ABSPATH')) {
     <textarea id="aipkit_cw_url_list" name="url_list" class="aipkit_form-input" rows="5" placeholder="<?php esc_attr_e('Enter one website URL per line...', 'gpt3-ai-content-generator'); ?>"></textarea>
     <p class="aipkit_form-help">
         <?php
-        $placeholders_link = '<a href="https://aipower.org/docs/placeholders/" target="_blank" rel="noopener">' . esc_html__('placeholders', 'gpt3-ai-content-generator') . '</a>';
-// translators: %s is the link to the placeholders documentation.
-printf(
-    esc_html__('The content from each URL will be fetched and used as context for the {url_content} placeholder in your prompt.', 'gpt3-ai-content-generator'),
-    $placeholders_link
-);
-?>
+        printf(esc_html__('The content from each URL will be fetched and used as context for the {url_content} placeholder in your prompt.', 'gpt3-ai-content-generator'));
+        ?>
     </p>
 </div>
 

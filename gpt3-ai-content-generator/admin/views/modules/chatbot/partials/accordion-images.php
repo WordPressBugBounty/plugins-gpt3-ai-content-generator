@@ -56,25 +56,26 @@ if (isset($replicate_model_list) && is_array($replicate_model_list) && !empty($r
                     >
                         <?php
                         $found_current_model = false;
-foreach ($available_image_models as $provider_group => $models) {
-    $is_disabled_group = ($provider_group === 'Replicate' && !$replicate_addon_active);
-    echo '<optgroup label="' . esc_attr($provider_group) . '">';
-    foreach ($models as $model) {
-        $is_selected = selected($chat_image_model_id, $model['id'], false);
-        if (strpos($is_selected, 'selected') !== false) {
-            $found_current_model = true;
-        }
-        $disabled_attr = $is_disabled_group ? 'disabled' : '';
-        $disabled_text = $is_disabled_group ? ' (' . esc_html__('Addon Disabled', 'gpt3-ai-content-generator') . ')' : '';
-        echo '<option value="' . esc_attr($model['id']) . '" ' . $is_selected . ' ' . $disabled_attr . '>' . esc_html($model['name']) . $disabled_text . '</option>';
-    }
-    echo '</optgroup>';
-}
-// If the saved model is not in the list (e.g., custom or old value), add it as selected
-if (!$found_current_model && !empty($chat_image_model_id)) {
-    echo '<option value="' . esc_attr($chat_image_model_id) . '" selected="selected">' . esc_html($chat_image_model_id) . ' (Manual/Current)</option>';
-}
-?>
+                        foreach ($available_image_models as $provider_group => $models) {
+                            $is_disabled_group = ($provider_group === 'Replicate' && !$replicate_addon_active);
+                            echo '<optgroup label="' . esc_attr($provider_group) . '">';
+                            foreach ($models as $model) {
+                                $is_selected = selected($chat_image_model_id, $model['id'], false);
+                                if (strpos($is_selected, 'selected') !== false) {
+                                    $found_current_model = true;
+                                }
+                                $disabled_attr = $is_disabled_group ? 'disabled' : '';
+                                $disabled_text = $is_disabled_group ? ' (' . esc_html__('Addon Disabled', 'gpt3-ai-content-generator') . ')' : '';
+                                // The following line is safe. $is_selected is from WP's `selected()` and $disabled_text is pre-escaped.
+                                echo '<option value="' . esc_attr($model['id']) . '" ' . $is_selected . ' ' . esc_attr($disabled_attr) . '>' . esc_html($model['name']) . $disabled_text . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $is_selected is output of selected(), $disabled_text is pre-escaped.
+                            }
+                            echo '</optgroup>';
+                        }
+                        // If the saved model is not in the list (e.g., custom or old value), add it as selected
+                        if (!$found_current_model && !empty($chat_image_model_id)) {
+                            echo '<option value="' . esc_attr($chat_image_model_id) . '" selected="selected">' . esc_html($chat_image_model_id) . ' (Manual/Current)</option>';
+                        }
+                        ?>
                     </select>
                     <div class="aipkit_form-help">
                         <?php esc_html_e('Select the model to use.', 'gpt3-ai-content-generator'); ?>
@@ -93,7 +94,7 @@ if (!$found_current_model && !empty($chat_image_model_id)) {
                     <input
                         type="text"
                         id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_image_triggers"
-                        name="image_triggers" <?php // Name used in FormData?>
+                        name="image_triggers"
                         class="aipkit_form-input"
                         value="<?php echo esc_attr($image_triggers); ?>"
                         placeholder="/image, /generate, /img"

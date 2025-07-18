@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 2.3.16\n"
+"Project-Id-Version: AI Power: Complete AI Pack 2.3.17\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-17T14:32:22+00:00\n"
+"POT-Creation-Date: 2025-07-18T06:51:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #. Description of the plugin
 #: gpt3-ai-content-generator.php
-msgid "ai, Chatbot, ChatGPT, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more."
+msgid "ai, chatbot, chatgpt, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more."
 msgstr ""
 
 #. Author of the plugin
@@ -332,7 +332,7 @@ msgid "Chatbot data migrated: %1$d bots and %2$d token records migrated. Old log
 msgstr ""
 
 #. translators: %1$d is the number of forms, %2$d is the number of token records
-#: admin/ajax/migration/migrate/class-aipkit-migrate-cpt-data-action.php:150
+#: admin/ajax/migration/migrate/class-aipkit-migrate-cpt-data-action.php:152
 msgid "AI Forms data migrated: %1$d forms and %2$d token records migrated. Other data in this category was not migrated."
 msgstr ""
 
@@ -341,7 +341,7 @@ msgid "Global settings migrated successfully."
 msgstr ""
 
 #. translators: %1$d is the total number of indexed data found, %2$d is the number of successfully migrated items, %3$d is the number of failed migrations
-#: admin/ajax/migration/migrate/class-aipkit-migrate-indexed-data-action.php:119
+#: admin/ajax/migration/migrate/class-aipkit-migrate-indexed-data-action.php:121
 msgid "Indexed data migration complete. Processed: %1$d, Migrated: %2$d, Failed: %3$d."
 msgstr ""
 
@@ -588,11 +588,11 @@ msgid "Please select at least one content type."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:213
-msgid "Embedding provider is required for Pinecone."
+msgid "Embedding provider is required for this vector database."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:214
-msgid "Embedding model is required for Pinecone."
+msgid "Embedding model is required for this vector database."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:215
@@ -4100,15 +4100,15 @@ msgstr ""
 msgid "Addon Disabled"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:80
+#: admin/views/modules/chatbot/partials/accordion-images.php:81
 msgid "Select the model to use."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:91
+#: admin/views/modules/chatbot/partials/accordion-images.php:92
 msgid "Image Generation Triggers"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:102
+#: admin/views/modules/chatbot/partials/accordion-images.php:103
 msgid "Comma-separated commands (e.g., /image, /generate) to trigger."
 msgstr ""
 
@@ -4857,19 +4857,15 @@ msgid "Enter one website URL per line..."
 msgstr ""
 
 #: admin/views/modules/content-writer/partials/form-inputs/mode-url.php:19
-msgid "placeholders"
-msgstr ""
-
-#: admin/views/modules/content-writer/partials/form-inputs/mode-url.php:22
 msgid "The content from each URL will be fetched and used as context for the {url_content} placeholder in your prompt."
 msgstr ""
 
-#: admin/views/modules/content-writer/partials/form-inputs/mode-url.php:31
+#: admin/views/modules/content-writer/partials/form-inputs/mode-url.php:26
 #: lib/views/shared/content-writing/input-mode-url.php:41
 msgid "Test First URL"
 msgstr ""
 
-#: admin/views/modules/content-writer/partials/form-inputs/mode-url.php:37
+#: admin/views/modules/content-writer/partials/form-inputs/mode-url.php:32
 #: lib/views/shared/content-writing/input-mode-url.php:46
 msgid "Fetched Content (Preview)"
 msgstr ""

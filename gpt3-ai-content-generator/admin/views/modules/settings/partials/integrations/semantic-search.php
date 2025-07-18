@@ -74,7 +74,7 @@ foreach ($google_embedding_models as $m) { $all_embedding_models_map[$m['id']] =
                             if ($is_selected) {
                                 $found_saved = true;
                             }
-                            echo '<option value="' . esc_attr($item_name) . '" ' . $is_selected . '>' . esc_html($item_name) . '</option>';
+                            echo '<option value="' . esc_attr($item_name) . '" ' . $is_selected . '>' . esc_html($item_name) . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $is_selected contains the result of the WP `selected()` function, which is safe for output.
                         }
                     }
                     // If saved value is not in list, show it

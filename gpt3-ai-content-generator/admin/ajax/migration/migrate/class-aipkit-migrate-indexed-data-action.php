@@ -51,6 +51,7 @@ class AIPKit_Migrate_Indexed_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
                     $post_id = $post->ID;
 
                     // Skip if already migrated in a previous run
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time migration check.
                     $existing_log = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$data_source_table_name} WHERE post_id = %d AND file_id = %s", $post_id, (string)$post_id));
                     if ($existing_log) {
                         continue;
@@ -101,6 +102,7 @@ class AIPKit_Migrate_Indexed_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
                         'embedding_model' => get_post_meta($post_id, 'wpaicg_model', true) ?: 'text-embedding-ada-002',
                     ];
 
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time migration write.
                     $inserted = $wpdb->insert($data_source_table_name, $log_data);
                     if ($inserted === false) {
                         $failed_count++;

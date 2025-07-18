@@ -39,7 +39,7 @@ if (!defined('ABSPATH')) {
             id="cts_bubble_border_radius_<?php echo esc_attr($bot_id); ?>"
             name="custom_theme_settings[bubble_border_radius]"
             class="aipkit_form-input"
-            value="<?php echo $esc_cts_val_attr('bubble_border_radius'); ?>"
+            value="<?php echo $esc_cts_val_attr('bubble_border_radius'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $esc_cts_val_attr is a helper closure that retrieves and escapes the value. ?>"
             min="0" max="50" step="1"
             placeholder="<?php echo esc_attr($custom_theme_defaults['bubble_border_radius_placeholder']); ?>"
         />
