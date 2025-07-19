@@ -19,7 +19,6 @@ if (!defined('ABSPATH')) {
  */
 function get_google_grounding_settings_logic(array $settings, array $feature_flags): array {
     if (!class_exists(BotSettingsManager::class)) {
-        error_log("AIPKit Configurator (Grounding Flags): BotSettingsManager class not found for constants.");
         return [
             'allowGoogleSearchGrounding' => false,
             'googleGroundingMode' => 'DEFAULT_MODE',

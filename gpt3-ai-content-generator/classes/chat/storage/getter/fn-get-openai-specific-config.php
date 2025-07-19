@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/chat/storage/getter/fn-get-openai-specific-config.php
 // Status: NEW FILE
 
@@ -17,15 +18,17 @@ if (!defined('ABSPATH')) {
  * @param callable $get_meta_fn A function to retrieve post meta.
  * @return array Associative array of OpenAI-specific settings.
  */
-function get_openai_specific_config_logic(int $bot_id, callable $get_meta_fn): array {
+function get_openai_specific_config_logic(int $bot_id, callable $get_meta_fn): array
+{
     $settings = [];
 
     if (!class_exists(BotSettingsManager::class)) {
         $bsm_path = dirname(__DIR__) . '/class-aipkit_bot_settings_manager.php';
-        if (file_exists($bsm_path)) require_once $bsm_path;
-        else error_log("AIPKit Getter (OpenAI Specific): BotSettingsManager class not found for constants.");
+        if (file_exists($bsm_path)) {
+            require_once $bsm_path;
+        }
     }
-    
+
     $settings['openai_conversation_state_enabled'] = in_array(
         $get_meta_fn('_aipkit_openai_conversation_state_enabled', BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED),
         ['0', '1']

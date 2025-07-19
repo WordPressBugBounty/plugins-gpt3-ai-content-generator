@@ -38,7 +38,6 @@ class AIPKit_Bot_Settings_Saver {
     public function save(int $botId, array $raw_settings): bool|WP_Error {
         // Check if SiteWideBotManager was successfully initialized
         if (!$this->site_wide_manager) {
-            error_log('AIPKit_Bot_Settings_Saver Error: SiteWideBotManager not initialized. Cannot save settings.');
             return new WP_Error('dependency_missing_saver', __('Site-wide manager component is missing.', 'gpt3-ai-content-generator'));
         }
 

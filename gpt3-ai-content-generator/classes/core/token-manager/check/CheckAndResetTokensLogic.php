@@ -111,7 +111,6 @@ function CheckAndResetTokensLogic(
     }
 
     if ($guest_context_table_id === null && $is_guest) {
-        error_log("AIPKit Token Check Logic: Guest context table ID is null for guest user, module: {$module_context}. This might lead to incorrect guest token tracking.");
         return true; // Or error, based on policy. For now, allow if this unlikely scenario happens.
     }
 
@@ -198,7 +197,6 @@ function CheckAndResetTokensLogic(
         if (\WPAICG\Core\TokenManager\Reset\IsResetDueLogic($last_reset_time, $reset_period)) { // Call the reset due logic
             $log_context_str = $is_guest ? "Guest {$session_id}" : "User {$user_id}";
             $log_module_str = ($module_context === 'chat') ? "Bot {$context_id_or_bot_id}" : "Module {$module_context}";
-            error_log("AIPKit Token Check Logic: Fail-safe reset for {$log_context_str} on {$log_module_str}");
 
             $current_usage = 0;
             $last_reset_time_new = time(); // Use a different var name for new reset time

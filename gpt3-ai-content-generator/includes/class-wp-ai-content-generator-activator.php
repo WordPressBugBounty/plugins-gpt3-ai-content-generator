@@ -172,7 +172,6 @@ class WP_AI_Content_Generator_Activator
                 // Store the old version for informational purposes.
                 $old_plugin_version = get_option('wpaicg_version', '1.9.x');
                 update_option(self::MIGRATION_OLD_VERSION_OPTION, sanitize_text_field($old_plugin_version), 'no');
-                error_log("AIPKit Migration Check: Old data detected. Initializing migration process. Status set to 'analysis_required'.");
             }
             // If status is already 'analysis_required', 'analysis_complete', etc., do nothing here to preserve state.
 
@@ -184,7 +183,6 @@ class WP_AI_Content_Generator_Activator
             delete_option(self::MIGRATION_LAST_ERROR_OPTION);
             delete_option(self::MIGRATION_CATEGORY_STATUS_OPTION);
             delete_option(self::MIGRATION_ANALYSIS_RESULTS_OPTION);
-            //error_log("AIPKit Migration Check: No old data detected. Migration status set to 'not_applicable'.");
         }
     }
 
@@ -195,11 +193,9 @@ class WP_AI_Content_Generator_Activator
         if (is_multisite() && $blog_id !== null && get_current_blog_id() !== $blog_id) {
             switch_to_blog($blog_id);
             $switched = true;
-            error_log("AIPKit Activator: Switched to blog {$blog_id} for table setup.");
         }
         $db_schema_path = WPAICG_PLUGIN_DIR . 'includes/database-schema.php';
         if (!file_exists($db_schema_path)) {
-            error_log('AIPKit Activation Error: includes/database-schema.php not found during table setup.');
             if ($switched) {
                 restore_current_blog();
             }
@@ -209,48 +205,30 @@ class WP_AI_Content_Generator_Activator
 
         if (function_exists('aipkit_create_logs_table')) {
             aipkit_create_logs_table();
-        } else {
-            error_log('AIPKit Activation Error: Function aipkit_create_logs_table not found.');
         }
         if (function_exists('aipkit_create_guest_token_usage_table')) {
             aipkit_create_guest_token_usage_table();
-        } else {
-            error_log('AIPKit Activation Error: Function aipkit_create_guest_token_usage_table not found.');
         }
         if (function_exists('aipkit_create_sse_message_cache_table')) {
             aipkit_create_sse_message_cache_table();
-        } else {
-            error_log('AIPKit Activation Error: Function aipkit_create_sse_message_cache_table not found.');
         }
         if (function_exists('aipkit_create_vector_data_source_table')) {
             aipkit_create_vector_data_source_table();
-        } else {
-            error_log('AIPKit Activation Error: Function aipkit_create_vector_data_source_table not found.');
         }
         if (function_exists('aipkit_create_automated_tasks_table')) {
             aipkit_create_automated_tasks_table();
-        } else {
-            error_log('AIPKit Activation Error: Function aipkit_create_automated_tasks_table not found.');
         }
         if (function_exists('aipkit_create_automated_task_queue_table')) {
             aipkit_create_automated_task_queue_table();
-        } else {
-            error_log('AIPKit Activation Error: Function aipkit_create_automated_task_queue_table not found.');
         }
         if (function_exists('aipkit_create_content_writer_templates_table')) {
             aipkit_create_content_writer_templates_table();
-        } else {
-            error_log('AIPKit Activation Error: Function aipkit_create_content_writer_templates_table not found.');
         }
         if (function_exists('aipkit_create_rss_history_table')) {
             aipkit_create_rss_history_table();
-        } else {
-            error_log('AIPKit Activation Error: Function aipkit_create_rss_history_table not found.');
         }
-        error_log("AIPKit Activator: Database table check/creation completed for blog " . ($blog_id ?: get_current_blog_id()) . ".");
         if ($switched) {
             restore_current_blog();
-            error_log("AIPKit Activator: Restored previous blog context.");
         }
     }
 
@@ -258,7 +236,6 @@ class WP_AI_Content_Generator_Activator
     {
         $blog_id = is_object($blog) ? $blog->blog_id : (is_array($blog) ? $blog['blog_id'] : 0);
         if ($blog_id > 0) {
-            error_log("AIPKit Activator: New blog detected (ID: {$blog_id}). Running table setup...");
             self::setup_tables_for_blog($blog_id);
             switch_to_blog($blog_id);
             if (class_exists('\\WPAICG\\Chat\\Storage\\DefaultBotSetup')) {
@@ -268,8 +245,6 @@ class WP_AI_Content_Generator_Activator
                 AIPKit_Content_Writer_Template_Manager::ensure_default_template_exists();
             }
             restore_current_blog();
-        } else {
-            error_log("AIPKit Activator: setup_new_blog hook fired with invalid blog ID.");
         }
     }
 
@@ -293,7 +268,6 @@ class WP_AI_Content_Generator_Activator
             $timestamp = wp_next_scheduled($hook_name);
             if ($timestamp) {
                 wp_unschedule_event($timestamp, $hook_name);
-                error_log("AIPKit Migration: Unscheduled old cron hook '{$hook_name}'.");
             }
             // Ensure any recurring schedules are also cleared
             wp_clear_scheduled_hook($hook_name);
@@ -305,7 +279,5 @@ class WP_AI_Content_Generator_Activator
         // If wpaicg_task_event_{task_id} was a known pattern, we'd need a way to list old task IDs.
         // For now, clearing the generic wpaicg_cron and wpaicg_builder should prevent new items from those tasks.
         // For a more thorough cleanup, one might need to iterate over get_option('cron').
-
-        error_log("AIPKit Migration: Attempted to unschedule known old cron hooks.");
     }
 }

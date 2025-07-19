@@ -41,8 +41,6 @@ class AIPKit_Vector_Store_Manager {
             $factory_path = __DIR__ . '/class-aipkit-vector-provider-strategy-factory.php';
             if (file_exists($factory_path)) {
                 require_once $factory_path;
-            } else {
-                error_log('AIPKit Vector Store Manager Error: Provider Strategy Factory class file not found.');
             }
         }
     }

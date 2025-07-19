@@ -1,7 +1,7 @@
 <?php
 
 // File: classes/core/stream/vector/build-context/resolve-openai-context.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Core\Stream\Vector\BuildContext;
 
@@ -47,14 +47,12 @@ function resolve_openai_context_logic(
             if (file_exists($providers_path)) {
                 require_once $providers_path;
             } else {
-                error_log("ResolveOpenAIContext Logic: AIPKit_Providers class file not found.");
                 return "";
             }
         }
         $openai_api_config = AIPKit_Providers::get_provider_data('OpenAI');
-        if (empty($openai_api_config['api_key'])) {
-            error_log("ResolveOpenAIContext Logic: OpenAI API key missing for vector pre-search.");
-        } else {
+        // Only proceed if the OpenAI API key is available for the pre-search.
+        if (!empty($openai_api_config['api_key'])) {
             $total_results_added = 0;
             foreach ($final_openai_vector_store_ids as $current_vs_id) {
                 if (empty($current_vs_id)) {
@@ -62,7 +60,6 @@ function resolve_openai_context_logic(
                 }
 
                 $search_query_vector = ['query_text' => $user_message];
-                error_log("ResolveOpenAIContext Logic: Pre-searching OpenAI vector store ID {$current_vs_id} for main provider {$main_provider}. Query: " . esc_html(substr($user_message, 0, 100)) . "...");
                 $search_results = $vector_store_manager->query_vectors('OpenAI', $current_vs_id, $search_query_vector, $vector_top_k, [], $openai_api_config);
 
                 if (!is_wp_error($search_results) && !empty($search_results)) {
@@ -79,12 +76,7 @@ function resolve_openai_context_logic(
                     if (!empty($current_store_results)) {
                         $openai_results .= "Context from Store ID {$current_vs_id}:\n" . $current_store_results . "\n";
                     }
-                } elseif (is_wp_error($search_results)) {
-                    error_log("ResolveOpenAIContext Logic: Error during OpenAI vector pre-search for store {$current_vs_id}: " . $search_results->get_error_message());
                 }
-            }
-            if (!empty($openai_results)) {
-                error_log("ResolveOpenAIContext Logic: Added {$total_results_added} total vector search results from " . count($final_openai_vector_store_ids) . " OpenAI store(s) to instruction context.");
             }
         }
     }

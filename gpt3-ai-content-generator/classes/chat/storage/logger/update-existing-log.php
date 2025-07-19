@@ -34,7 +34,6 @@ function update_existing_log_logic(
     $conversation_data = $messages_json ? json_decode($messages_json, true) : null;
 
     if (!is_array($conversation_data) || !isset($conversation_data['parent_id']) || !isset($conversation_data['messages'])) {
-        error_log("AIPKit ConversationLogger: Invalid or old messages JSON structure for log ID {$log_id}. Re-initializing structure.");
         $parent_id = generate_parent_id_logic(); // Call namespaced function
         $messages_array = [];
     } else {
@@ -88,7 +87,6 @@ function update_existing_log_logic(
     );
 
     if ($updated === false) {
-        error_log("AIPKit ConversationLogger: Failed to update conversation log ID {$log_id}. Error: " . $wpdb->last_error . " Data: " . print_r($data_to_update, true));
         return false;
     }
     return ['log_id' => $log_id, 'message_id' => $new_message['message_id']];

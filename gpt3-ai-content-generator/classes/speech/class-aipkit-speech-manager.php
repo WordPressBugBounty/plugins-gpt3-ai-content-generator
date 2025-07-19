@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/speech/class-aipkit_speech_manager.php
 // MODIFIED FILE
 
@@ -19,22 +20,25 @@ if (!defined('ABSPATH')) {
  * Main class for handling Text-to-Speech (TTS) functionality.
  * UPDATED: Passes openai_model_id to OpenAI strategy.
  */
-class AIPKit_Speech_Manager {
-
-    public function __construct() {
+class AIPKit_Speech_Manager
+{
+    public function __construct()
+    {
         // Potentially load required dependencies or setup initial state
         // Ensure ChatUtils class is loaded if not using autoloading
         if (!class_exists(ChatUtils::class)) {
-             $utils_path = WPAICG_PLUGIN_DIR . 'classes/chat/utils/class-aipkit_chat_utils.php';
-             if (file_exists($utils_path)) require_once $utils_path;
-             else error_log('AIPKit Speech Manager Error: ChatUtils class file not found.');
+            $utils_path = WPAICG_PLUGIN_DIR . 'classes/chat/utils/class-aipkit_chat_utils.php';
+            if (file_exists($utils_path)) {
+                require_once $utils_path;
+            }
         }
     }
 
     /**
      * Register hooks for AJAX actions, etc.
      */
-    public function init_hooks() {
+    public function init_hooks()
+    {
         // The AJAX handler is now in ConversationAjaxHandler
     }
 
@@ -50,10 +54,11 @@ class AIPKit_Speech_Manager {
      *                       For OpenAI, can also contain 'openai_model_id'.
      * @return string|WP_Error Base64 encoded audio data string or WP_Error on failure.
      */
-    public function text_to_speech(string $text, array $options = []): string|WP_Error {
+    public function text_to_speech(string $text, array $options = []): string|WP_Error
+    {
         // 1. Check if the 'voice_playback' addon is active
         if (!aipkit_dashboard::is_addon_active('voice_playback')) {
-             return new WP_Error('addon_inactive', __('Voice Playback addon is not active.', 'gpt3-ai-content-generator'));
+            return new WP_Error('addon_inactive', __('Voice Playback addon is not active.', 'gpt3-ai-content-generator'));
         }
 
         // 2. Get required options
@@ -72,36 +77,37 @@ class AIPKit_Speech_Manager {
             return new WP_Error('missing_tts_options', __('TTS Provider and Voice ID are required.', 'gpt3-ai-content-generator'));
         }
         if (empty($text)) {
-             return new WP_Error('empty_tts_text', __('Text cannot be empty for speech generation.', 'gpt3-ai-content-generator'));
+            return new WP_Error('empty_tts_text', __('Text cannot be empty for speech generation.', 'gpt3-ai-content-generator'));
         }
 
         // --- Clean the text before sending to TTS API ---
         if (class_exists(ChatUtils::class)) {
-             $cleaned_text = ChatUtils::aipkit_clean_text_for_tts($text);
-             if (empty($cleaned_text)) {
-                 return new WP_Error('empty_cleaned_tts_text', __('Text became empty after cleaning formatting.', 'gpt3-ai-content-generator'));
-             }
+            $cleaned_text = ChatUtils::aipkit_clean_text_for_tts($text);
+            if (empty($cleaned_text)) {
+                return new WP_Error('empty_cleaned_tts_text', __('Text became empty after cleaning formatting.', 'gpt3-ai-content-generator'));
+            }
         } else {
-             $cleaned_text = $text; // Fallback if utils class missing
-             error_log('AIPKit Speech Manager Warning: ChatUtils class not available for TTS text cleaning.');
+            $cleaned_text = $text; // Fallback if utils class missing
         }
         // --- End: Clean Text ---
 
 
         // 3. Get provider strategy
         $strategy = AIPKit_TTS_Provider_Strategy_Factory::get_strategy($provider);
-        if (is_wp_error($strategy)) { return $strategy; }
+        if (is_wp_error($strategy)) {
+            return $strategy;
+        }
 
         // 4. Get API credentials and specific settings
         $api_params = [];
         // Ensure Providers class is loaded
         if (!class_exists(\WPAICG\AIPKit_Providers::class)) {
-             $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
-             if (file_exists($providers_path)) require_once $providers_path;
-             else {
-                 error_log('AIPKit Speech Manager Error: AIPKit_Providers class not found.');
-                 return new WP_Error('dependency_missing', __('Internal configuration error (Providers).', 'gpt3-ai-content-generator'));
-             }
+            $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
+            if (file_exists($providers_path)) {
+                require_once $providers_path;
+            } else {
+                return new WP_Error('dependency_missing', __('Internal configuration error (Providers).', 'gpt3-ai-content-generator'));
+            }
         }
         // Fetch provider data using the loaded class
         $provider_data = AIPKit_Providers::get_provider_data($provider);
@@ -110,7 +116,6 @@ class AIPKit_Speech_Manager {
         $api_params['api_version'] = $provider_data['api_version'] ?? null; // Pass API version if needed
 
         if (empty($api_params['api_key'])) {
-            error_log("AIPKit Speech Manager Error: API Key for TTS provider '{$provider}' is missing in main settings.");
             /* translators: %s: The provider name that was attempted to be used for TTS generation. */
             return new WP_Error('missing_api_key', sprintf(__('API Key for %s provider is missing in main settings.', 'gpt3-ai-content-generator'), $provider), ['status' => 500]);
         }
@@ -141,8 +146,7 @@ class AIPKit_Speech_Manager {
 
         // 7. Handle result (strategy should return base64 string or WP_Error)
         if (is_wp_error($result)) {
-             error_log("AIPKit Speech Manager Error ({$provider}): " . $result->get_error_message());
-             return $result;
+            return $result;
         }
 
         return $result;

@@ -82,8 +82,6 @@ class Initializer
         $chatbot_image_ajax_handler = null;
         if (class_exists(\WPAICG\Chat\Admin\Ajax\ChatbotImageAjaxHandler::class)) {
             $chatbot_image_ajax_handler = new Ajax\ChatbotImageAjaxHandler();
-        } else {
-            //error_log('AIPKit Chat Init Error: ChatbotImageAjaxHandler class not found for instantiation.');
         }
 
         // Call externalized hook registration logic

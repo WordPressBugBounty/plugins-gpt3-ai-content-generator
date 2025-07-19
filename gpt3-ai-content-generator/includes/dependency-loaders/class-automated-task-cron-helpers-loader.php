@@ -6,8 +6,10 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Automated_Task_Cron_Helpers_Loader {
-    public static function load() {
+class Automated_Task_Cron_Helpers_Loader
+{
+    public static function load()
+    {
         $cron_base_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/';
         $cron_helpers = [
             'class-aipkit-automated-task-scheduler.php',
@@ -16,8 +18,9 @@ class Automated_Task_Cron_Helpers_Loader {
         ];
         foreach ($cron_helpers as $file) {
             $full_path = $cron_base_path . $file;
-            if (file_exists($full_path)) { require_once $full_path; }
-            else { error_log("AIPKit Dependency Error: Automated Task Cron Helper file {$file} not found at {$full_path}"); }
+            if (file_exists($full_path)) {
+                require_once $full_path;
+            }
         }
     }
 }

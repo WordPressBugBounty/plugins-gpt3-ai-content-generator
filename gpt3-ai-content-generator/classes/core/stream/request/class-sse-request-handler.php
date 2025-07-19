@@ -59,81 +59,54 @@ class SSERequestHandler
         $this->log_storage = $log_storage_passed;
         if (!$this->log_storage && class_exists(\WPAICG\Chat\Storage\LogStorage::class)) {
             $this->log_storage = new \WPAICG\Chat\Storage\LogStorage();
-        } elseif (!$this->log_storage) {
-            error_log('SSERequestHandler Error: LogStorage class not found and not passed.');
         }
 
         $this->sse_message_cache = class_exists(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache::class)
             ? new \WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache()
             : null;
-        if (!$this->sse_message_cache) {
-            error_log('SSERequestHandler Error: AIPKit_SSE_Message_Cache class not found.');
-        }
 
         $this->token_manager = class_exists(\WPAICG\Core\TokenManager\AIPKit_Token_Manager::class)
             ? new \WPAICG\Core\TokenManager\AIPKit_Token_Manager()
             : null;
-        if (!$this->token_manager) {
-            error_log('SSERequestHandler Error: AIPKit_Token_Manager class not found.');
-        }
 
         $this->ai_caller = class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)
             ? new \WPAICG\Core\AIPKit_AI_Caller()
             : null;
-        if (!$this->ai_caller) {
-            error_log('SSERequestHandler Error: AIPKit_AI_Caller class not found.');
-        }
 
         $this->vector_store_manager = class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)
             ? new \WPAICG\Vector\AIPKit_Vector_Store_Manager()
             : null;
-        if (!$this->vector_store_manager) {
-            error_log('SSERequestHandler Error: AIPKit_Vector_Store_Manager class not found.');
-        }
 
         // --- MODIFIED: Instantiate new PostProcessors ---
         $this->pinecone_post_processor = class_exists(\WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor::class)
             ? new \WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor()
             : null;
-        if (!$this->pinecone_post_processor) {
-            error_log('SSERequestHandler Error: PineconePostProcessor class not found.');
-        }
 
         $this->qdrant_post_processor = class_exists(\WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor::class)
             ? new \WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor()
             : null;
-        if (!$this->qdrant_post_processor) {
-            error_log('SSERequestHandler Error: QdrantPostProcessor class not found.');
-        }
+
         // --- END MODIFICATION ---
 
         $this->sse_vector_context_helper = (class_exists(\WPAICG\Core\Stream\Vector\SSEVectorContextHelper::class) && $this->ai_caller && $this->vector_store_manager)
             ? new \WPAICG\Core\Stream\Vector\SSEVectorContextHelper($this->ai_caller, $this->vector_store_manager, $this->pinecone_post_processor, $this->qdrant_post_processor)
             : null;
-        if (!$this->sse_vector_context_helper) {
-            error_log('SSERequestHandler Error: SSEVectorContextHelper or its dependencies missing.');
-        }
 
         $this->ai_form_storage = class_exists(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage::class)
             ? new \WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage()
             : null;
-        if (!$this->ai_form_storage) {
-            error_log('SSERequestHandler Error: AIPKit_AI_Form_Storage class not found.');
-        }
 
         // Instantiate Context Handlers
         $bot_storage_for_chat_handler = class_exists(\WPAICG\Chat\Storage\BotStorage::class) ? new \WPAICG\Chat\Storage\BotStorage() : null;
         if ($this->log_storage && $this->token_manager && $bot_storage_for_chat_handler && class_exists(\WPAICG\Core\Stream\Contexts\Chat\SSEChatStreamContextHandler::class)) {
             $this->chat_context_handler = new \WPAICG\Core\Stream\Contexts\Chat\SSEChatStreamContextHandler($bot_storage_for_chat_handler, $this->log_storage, $this->token_manager, $this->sse_vector_context_helper);
         } else {
-            error_log('SSERequestHandler Error: Dependencies missing for SSEChatStreamContextHandler. LogStorage: ' . ($this->log_storage ? 'OK' : 'FAIL') . ', TokenManager: ' . ($this->token_manager ? 'OK' : 'FAIL') . ', BotStorage: ' . ($bot_storage_for_chat_handler ? 'OK' : 'FAIL'));
             $this->chat_context_handler = null;
         }
 
         if ($this->log_storage && class_exists(\WPAICG\Core\Stream\Contexts\ContentWriter\SSEContentWriterStreamContextHandler::class)) {
             $this->content_writer_context_handler = new \WPAICG\Core\Stream\Contexts\ContentWriter\SSEContentWriterStreamContextHandler($this->log_storage);
         } else {
-            error_log('SSERequestHandler Error: LogStorage missing or SSEContentWriterStreamContextHandler class not found.');
             $this->content_writer_context_handler = null;
         }
 
@@ -149,10 +122,6 @@ class SSERequestHandler
             $this->vector_store_manager
         )
           : null;
-
-        if (!$this->ai_forms_context_handler) {
-            error_log('SSERequestHandler Error: Dependencies missing for SSEAIFormsStreamContextHandler.');
-        }
     }
 
     // Getters for externalized logic

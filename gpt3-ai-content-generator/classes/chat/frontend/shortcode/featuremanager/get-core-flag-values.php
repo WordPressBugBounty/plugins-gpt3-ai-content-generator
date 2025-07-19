@@ -21,7 +21,6 @@ function get_core_flag_values_logic(array $settings): array {
     if (!class_exists(BotSettingsManager::class)) {
         // This is a critical dependency for defaults. If it's not loaded,
         // the behavior might be unexpected. Consider logging an error.
-        error_log("AIPKit FeatureManager (Core Flags): BotSettingsManager class not found for constants.");
         // Provide hardcoded fallbacks if class is missing, though this indicates a deeper issue.
         $defaults = [
             'DEFAULT_ENABLE_COPY_BUTTON' => '1',

@@ -134,7 +134,6 @@ function process_content_writing_item_logic(array $item_config): array
         $image_result = $image_handler->generate_and_prepare_images($item_config, $final_title, $keywords_for_images, $item_config['content_title']);
 
         if (is_wp_error($image_result)) {
-            error_log('AutoGPT Image Gen Failed: ' . $image_result->get_error_message());
             // Don't stop the whole process, just log the error and continue without images.
         } else {
             $image_data = $image_result;
@@ -173,8 +172,6 @@ function process_content_writing_item_logic(array $item_config): array
                 $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
                 $final_keywords = $focus_keyword; // Use this new keyword for other SEO prompts
                 $keyword_usage = $keyword_result['usage'] ?? null;
-            } else {
-                error_log('AutoGPT Focus Keyword Gen Failed: ' . (is_wp_error($keyword_result) ? $keyword_result->get_error_message() : 'Empty response'));
             }
         } elseif (!empty($final_keywords)) {
             $focus_keyword = explode(',', $final_keywords)[0]; // Use first provided keyword as focus keyword
@@ -196,8 +193,6 @@ function process_content_writing_item_logic(array $item_config): array
             if (!is_wp_error($excerpt_result) && !empty($excerpt_result['content'])) {
                 $excerpt = trim(str_replace(['"', "'"], '', $excerpt_result['content']));
                 $excerpt_usage = $excerpt_result['usage'] ?? null;
-            } else {
-                error_log('AutoGPT Excerpt Gen Failed: ' . (is_wp_error($excerpt_result) ? $excerpt_result->get_error_message() : 'Empty response'));
             }
         }
 
@@ -218,8 +213,6 @@ function process_content_writing_item_logic(array $item_config): array
             if (!is_wp_error($tags_result) && !empty($tags_result['content'])) {
                 $tags = trim(str_replace(['"', "'"], '', $tags_result['content']));
                 $tags_usage = $tags_result['usage'] ?? null;
-            } else {
-                error_log('AutoGPT Tags Gen Failed: ' . (is_wp_error($tags_result) ? $tags_result->get_error_message() : 'Empty response'));
             }
         }
         // --- END ADDED ---
@@ -241,8 +234,6 @@ function process_content_writing_item_logic(array $item_config): array
             if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
                 $meta_description = trim(str_replace(['"', "'"], '', $meta_result['content']));
                 $meta_usage = $meta_result['usage'] ?? null;
-            } else {
-                error_log('AutoGPT Meta Gen Failed: ' . (is_wp_error($meta_result) ? $meta_result->get_error_message() : 'Empty response'));
             }
         }
     }
@@ -297,12 +288,8 @@ function process_content_writing_item_logic(array $item_config): array
                         $item_config['gsheets_row_index'],
                         $status_to_write
                     );
-                    error_log("AIPKit GSheets Processor: Marked row {$item_config['gsheets_row_index']} as '{$status_to_write}' in sheet {$item_config['gsheets_sheet_id']}.");
-                } else {
-                    error_log("AIPKit GSheets Processor: Cannot update sheet status for row {$item_config['gsheets_row_index']}, credentials not found in item config.");
                 }
             } catch (\Exception $e) {
-                error_log("AIPKit GSheets Processor: Failed to instantiate parser or update sheet for row {$item_config['gsheets_row_index']}. Error: " . $e->getMessage());
                 // Don't fail the whole post generation for this. Just log the error.
             }
         }
@@ -345,8 +332,6 @@ function process_content_writing_item_logic(array $item_config): array
             'response_data'     => ['post_id' => $new_post_id, 'title' => $final_title, 'meta' => $meta_description, 'keyword' => $focus_keyword, 'excerpt' => $excerpt, 'tags' => $tags] // ADDED tags
         ];
         $log_storage->log_message($log_data);
-    } else {
-        error_log("AIPKit Cron Processor: LogStorage class not found, cannot log automated content generation.");
     }
 
     return ['status' => 'success', 'message' => 'Content generated and post created (ID: ' . $new_post_id . ').'];

@@ -18,7 +18,6 @@ if (!defined('ABSPATH')) {
  */
 function get_tts_settings_logic(array $settings): array {
     if (!class_exists(BotSettingsManager::class)) {
-        error_log("AIPKit Configurator (TTS Settings): BotSettingsManager class not found for constants.");
         return [
             'tts_provider' => 'Google',
             'tts_voice_id' => '',

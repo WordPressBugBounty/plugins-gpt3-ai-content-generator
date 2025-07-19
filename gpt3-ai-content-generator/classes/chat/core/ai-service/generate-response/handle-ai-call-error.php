@@ -1,7 +1,7 @@
 <?php
 
 // File: classes/chat/core/ai-service/generate-response/handle-ai-call-error.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Chat\Core\AIService\GenerateResponse;
 
@@ -34,15 +34,13 @@ function handle_ai_call_error_logic(
     string $model,
     ?int $bot_id
 ): void {
-    error_log("AIPKit AIService Execute AI Call Logic Error: AI Call Failed. Provider: {$main_provider}, Model: {$model}. Error: " . $ai_call_error_result->get_error_message() . " Data: " . print_r($ai_call_error_result->get_error_data(), true));
 
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
 
     if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
-        if (!$log_storage_for_triggers) {
-            error_log("AIPKit Handle AI Call Error Logic: LogStorage not available for system_error_occurred trigger. AI Error: " . $ai_call_error_result->get_error_message());
-        } else {
+        // Only proceed if log storage is available for the trigger manager
+        if ($log_storage_for_triggers) {
             $error_data_from_caller = $ai_call_error_result->get_error_data() ?? [];
             $error_event_context = [
                 'error_code'    => $ai_call_error_result->get_error_code(),

@@ -55,13 +55,11 @@ function resolve_qdrant_context_logic(
         if (file_exists($providers_path)) {
             require_once $providers_path;
         } else {
-            error_log("ResolveQdrantContext Logic: AIPKit_Providers class file not found.");
             return "";
         }
     }
     $qdrant_api_config = AIPKit_Providers::get_provider_data('Qdrant');
     if (empty($qdrant_api_config['url']) || empty($qdrant_api_config['api_key'])) {
-        error_log("ResolveQdrantContext Logic: Qdrant URL or API key missing for vector pre-search.");
         return "";
     }
 
@@ -93,7 +91,6 @@ function resolve_qdrant_context_logic(
             ]
         ];
         $query_vector_for_file_context = ['vector' => $query_vector_values];
-        error_log("ResolveQdrantContext Logic: Querying Qdrant collection '{$collection_to_query}' for file-specific context ID '{$frontend_active_qdrant_file_upload_context_id}'. Query: " . esc_html(substr($user_message, 0, 100)) . "...");
         $file_search_results = $vector_store_manager->query_vectors('Qdrant', $collection_to_query, $query_vector_for_file_context, $vector_top_k, $file_specific_filter, $qdrant_api_config);
 
         if (!is_wp_error($file_search_results) && !empty($file_search_results)) {
@@ -108,10 +105,7 @@ function resolve_qdrant_context_logic(
             }
             if (!empty($formatted_file_results)) {
                 $qdrant_results_this_pass .= "Context from Uploaded File (Collection {$collection_to_query}, File Context ID: {$frontend_active_qdrant_file_upload_context_id}):\n" . $formatted_file_results . "\n";
-                error_log("ResolveQdrantContext Logic: Added {$file_results_added} Qdrant search results from file-specific context '{$frontend_active_qdrant_file_upload_context_id}'.");
             }
-        } elseif (is_wp_error($file_search_results)) {
-            error_log("ResolveQdrantContext Logic: Error Qdrant file-specific search: " . $file_search_results->get_error_message());
         }
     }
 
@@ -126,7 +120,6 @@ function resolve_qdrant_context_logic(
     }
 
     $query_vector_for_general_context = ['vector' => $query_vector_values];
-    error_log("ResolveQdrantContext Logic: Querying Qdrant collection '{$collection_to_query}' for general knowledge. Query: " . esc_html(substr($user_message, 0, 100)) . "...");
     $general_search_results = $vector_store_manager->query_vectors('Qdrant', $collection_to_query, $query_vector_for_general_context, $vector_top_k, $general_knowledge_filter, $qdrant_api_config);
 
     if (!is_wp_error($general_search_results) && !empty($general_search_results)) {
@@ -147,10 +140,7 @@ function resolve_qdrant_context_logic(
         }
         if (!empty($formatted_general_results)) {
             $qdrant_results_this_pass .= "General Knowledge from Bot (Collection {$collection_to_query}):\n" . $formatted_general_results . "\n";
-            error_log("ResolveQdrantContext Logic: Added {$general_results_added} Qdrant search results from general bot context.");
         }
-    } elseif (is_wp_error($general_search_results)) {
-        error_log("ResolveQdrantContext Logic: Error Qdrant general context search: " . $general_search_results->get_error_message());
     }
 
     if (!empty($qdrant_results_this_pass)) {

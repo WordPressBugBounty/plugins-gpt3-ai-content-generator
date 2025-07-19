@@ -56,7 +56,6 @@ class AIPKit_Migrate_CPT_Data_Action extends AIPKit_Migration_Base_Ajax_Action
                     ];
                     $new_form_id = wp_insert_post($new_post_args, true);
                     if (is_wp_error($new_form_id)) {
-                        error_log("AIPKit Migration (AI Forms): Failed to create new form post for old form ID {$old_form_post->ID}. Error: " . $new_form_id->get_error_message());
                         continue;
                     }
                     $new_settings = [];

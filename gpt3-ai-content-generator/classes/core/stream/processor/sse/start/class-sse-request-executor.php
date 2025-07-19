@@ -60,9 +60,6 @@ class SSERequestExecutor {
         $curl_error_num  = curl_errno($ch);
         $curl_error_msg  = curl_error($ch);
         curl_close($ch);
-
-        error_log("SSERequestExecutor: cURL execution finished. HTTP Code: {$final_http_code}, Error: {$curl_error_num} ({$curl_error_msg}), Chunks: {$this->processorInstance->get_curl_chunk_counter()}, DataSent: {$this->processorInstance->get_data_sent_to_frontend_status()}, ErrorSent: {$this->processorInstance->get_error_occurred_status()}, Conv: {$this->processorInstance->get_current_conversation_uuid()}, MsgId: {$this->processorInstance->get_current_bot_message_id()}.");
-
         return [
             'final_http_code' => $final_http_code,
             'curl_error_num'  => $curl_error_num,

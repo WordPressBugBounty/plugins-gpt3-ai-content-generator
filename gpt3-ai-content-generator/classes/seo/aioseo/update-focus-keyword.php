@@ -62,7 +62,6 @@ function update_focus_keyword_logic(int $post_id, string $keyword): bool
     if ($table_exists) {
         $keyphrases_json = wp_json_encode($keyphrases_data);
         if (is_wp_error($keyphrases_json)) {
-            error_log("AIPKit AIOSEO Handler: Failed to encode keyphrase data for post #{$post_id}. Error: " . $keyphrases_json->get_error_message());
             return false;
         }
 

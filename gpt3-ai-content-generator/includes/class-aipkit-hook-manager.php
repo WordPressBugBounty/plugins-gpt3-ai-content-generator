@@ -126,8 +126,6 @@ class AIPKit_Hook_Manager
         $chat_form_submission_ajax_handler = null;
         if (class_exists(ChatFormSubmissionAjaxHandler::class)) {
             $chat_form_submission_ajax_handler = new ChatFormSubmissionAjaxHandler();
-        } else {
-            error_log('AIPKit Hook Manager Critical Error: ChatFormSubmissionAjaxHandler class NOT found. Form submission AJAX endpoint will not work.');
         }
 
         // --- MODIFIED: Conditional instantiation and error logging for LibChatFileUploadAjaxDispatcher ---
@@ -141,15 +139,9 @@ class AIPKit_Hook_Manager
                 // Pro plan is active and file_upload addon is active, so the class is expected.
                 if (class_exists(LibChatFileUploadAjaxDispatcher::class)) {
                     $chat_file_upload_ajax_dispatcher = new LibChatFileUploadAjaxDispatcher();
-                } else {
-                    // Only log an error if it's Pro and the addon is active, because then the class *should* be there.
-                    error_log('AIPKit Hook Manager ERROR: LibChatFileUploadAjaxDispatcher (Pro) class NOT found, but Pro plan and file_upload addon are active. Chat file upload AJAX endpoint will not work.');
                 }
             }
             // If not Pro or addon not active, $chat_file_upload_ajax_dispatcher remains null and no warning is logged.
-        } else {
-            // Log if aipkit_dashboard or its methods are missing, as this indicates a deeper issue
-            error_log('AIPKit Hook Manager Warning: \WPAICG\aipkit_dashboard class or its methods (is_pro_plan, is_addon_active) not found. Cannot determine Pro status for LibChatFileUploadAjaxDispatcher.');
         }
         // --- END MODIFICATION ---
 
@@ -166,14 +158,10 @@ class AIPKit_Hook_Manager
                 $stt_manager,
                 $image_manager
             );
-        } else {
-            error_log('AIPKit Hook Manager: Core_Hooks_Registrar class not found.');
         }
 
         if (class_exists(Admin_Asset_Hooks_Registrar::class)) {
             Admin_Asset_Hooks_Registrar::register();
-        } else {
-            error_log('AIPKit Hook Manager: Admin_Asset_Hooks_Registrar class not found.');
         }
 
         // --- MODIFIED: Add $semantic_search_ajax_handler and check all handlers ---
@@ -214,16 +202,12 @@ class AIPKit_Hook_Manager
                 $models_ajax_handler,
                 $semantic_search_ajax_handler // ADDED
             );
-        } else {
-            error_log('AIPKit Hook Manager Critical Error: Ajax_Hooks_Registrar class or one of its CRITICAL dependencies (including AIFormSettingsAjaxHandler and SemanticSearchAjaxHandler) not found/instantiated. Some AJAX hooks may not be registered.');
         }
         // --- END MODIFICATION ---
 
 
         if (class_exists(Rest_Api_Hooks_Registrar::class)) {
             Rest_Api_Hooks_Registrar::register($rest_controller);
-        } else {
-            error_log('AIPKit Hook Manager: Rest_Api_Hooks_Registrar class not found.');
         }
 
         if (class_exists(Module_Initializer_Hooks_Registrar::class)) {
@@ -231,8 +215,6 @@ class AIPKit_Hook_Manager
                 // null, // ChatInitializer uses static methods
                 // $automated_task_cron // No longer pass instance
             );
-        } else {
-            error_log('AIPKit Hook Manager: Module_Initializer_Hooks_Registrar class not found.');
         }
     }
 }

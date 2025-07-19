@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/getter/fn-get-trigger-config.php
 // Status: MODIFIED
 
@@ -16,7 +17,8 @@ if (!defined('ABSPATH')) {
  * @param callable $get_meta_fn A function to retrieve post meta (used to get the trigger meta key).
  * @return array Associative array containing 'triggers_json'.
  */
-function get_trigger_config_logic(int $bot_id, callable $get_meta_fn): array {
+function get_trigger_config_logic(int $bot_id, callable $get_meta_fn): array
+{
     $settings = [];
 
     // --- MODIFIED: Conditional access to Trigger Storage META_KEY ---
@@ -25,9 +27,6 @@ function get_trigger_config_logic(int $bot_id, callable $get_meta_fn): array {
 
     if (class_exists($trigger_storage_class_name)) {
         $trigger_meta_key = $trigger_storage_class_name::META_KEY;
-    } else {
-        // Optional: Log that the Pro class wasn't found, using fallback.
-        // error_log("AIPKit Getter (Trigger Config): {$trigger_storage_class_name} class not found. Using fallback meta key.");
     }
     // --- END MODIFICATION ---
 
@@ -47,9 +46,6 @@ function get_trigger_config_logic(int $bot_id, callable $get_meta_fn): array {
         $settings['triggers_json'] = wp_json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); // Not pretty printing here for brevity
     } else {
         $settings['triggers_json'] = '[]'; // Default to empty array string if decode fails or not an array
-        if ($triggers_json_string !== '[]') { // Only log if it wasn't already the default empty array
-            error_log("AIPKit Getter (Trigger Config): Invalid or non-array JSON found in meta for bot ID {$bot_id}. Defaulting to empty array string. Value: " . $triggers_json_string);
-        }
     }
     return $settings;
 }

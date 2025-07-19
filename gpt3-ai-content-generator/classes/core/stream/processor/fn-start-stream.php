@@ -82,7 +82,6 @@ function start_stream_logic(
         );
 
         if (empty($processorInstance->get_current_bot_message_id())) {
-             error_log("AIPKit SSE Processor Logic FATAL: bot_message_id missing in base_log_data!");
              throw new \Exception('Internal error: Missing bot message ID for stream.');
         }
 
@@ -166,7 +165,6 @@ function start_stream_logic(
 
         if ($curl_error_num) {
             $error_message = "Connection Error: {$curl_error_msg}";
-            error_log("SSEStreamProcessor Logic: cURL Error ({$curl_error_num}) => {$curl_error_msg}");
             if (!$processorInstance->get_error_occurred_status()) { $formatter->send_sse_error($error_message, false); $processorInstance->set_error_occurred_status(true); }
             log_bot_error_logic($processorInstance, $error_message);
             if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
@@ -220,12 +218,10 @@ function start_stream_logic(
         } else {
              $formatter->send_sse_done(); 
         }
-        error_log("SSEStreamProcessor Logic: Done. Provider={$provider}, Context={$processorInstance->get_current_stream_context()}, HTTP={$final_http_code}, Chunks={$processorInstance->get_curl_chunk_counter()}, DataSent={$processorInstance->get_data_sent_to_frontend_status()}, ErrorSent={$processorInstance->get_error_occurred_status()}, Conv={$conversation_uuid}, MsgId={$processorInstance->get_current_bot_message_id()}.");
 
     } catch (\Exception $e) { 
         $error_message_final = $e->getMessage();
         $error_code_final = is_int($e->getCode()) && $e->getCode() !== 0 ? $e->getCode() : 500;
-        error_log("SSEStreamProcessor Logic Exception: " . $error_message_final);
         $formatter->set_sse_headers(); 
         $formatter->send_sse_error($error_message_final);
         

@@ -26,17 +26,11 @@ class WP_AI_Content_Generator_Deactivator
         // --- MODIFIED: Use new Token Manager namespace ---
         if (class_exists('\\WPAICG\\Core\\TokenManager\\AIPKit_Token_Manager')) {
             AIPKit_Token_Manager::unschedule_token_reset_event();
-            error_log('AIPKit Deactivation: Token reset unscheduling attempted via new TokenManager.');
-        } else {
-            error_log('AIPKit Deactivation Error: New AIPKit_Token_Manager class not found during deactivation.');
         }
         // --- END MODIFICATION ---
 
         if (class_exists('\\WPAICG\\Core\\Stream\\Cache\\AIPKit_SSE_Message_Cache')) {
             AIPKit_SSE_Message_Cache::unschedule_cleanup_event();
-            error_log('AIPKit Deactivation: SSE cache cleanup unscheduling attempted.');
-        } else {
-            error_log('AIPKit Deactivation Error: AIPKit_SSE_Message_Cache class not found during deactivation.');
         }
 
         $automated_task_scheduler_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/class-aipkit-automated-task-scheduler.php';
@@ -52,9 +46,6 @@ class WP_AI_Content_Generator_Deactivator
         if (class_exists('\\WPAICG\\AutoGPT\\Cron\\AIPKit_Automated_Task_Scheduler') && class_exists('\\WPAICG\\AutoGPT\\Cron\\AIPKit_Automated_Task_Event_Processor')) {
             AIPKit_Automated_Task_Scheduler::clear_all_task_events();
             wp_clear_scheduled_hook(AIPKit_Automated_Task_Event_Processor::MAIN_CRON_HOOK);
-            error_log('AIPKit Deactivation: Automated Task cron jobs unscheduling attempted using new scheduler.');
-        } else {
-            error_log('AIPKit Deactivation Error: AIPKit_Automated_Task_Scheduler or AIPKit_Automated_Task_Event_Processor class not found during deactivation.');
         }
     }
 }

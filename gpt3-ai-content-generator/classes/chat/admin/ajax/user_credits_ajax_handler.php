@@ -35,7 +35,6 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
     {
         // --- MODIFIED: Ensure New Token Manager is loaded ---
         if (!class_exists(\WPAICG\Core\TokenManager\AIPKit_Token_Manager::class)) {
-            error_log('AIPKit Error: AIPKit_Token_Manager class not found during UserCreditsAjaxHandler construction.');
             return;
         }
         $this->token_manager = new AIPKit_Token_Manager();

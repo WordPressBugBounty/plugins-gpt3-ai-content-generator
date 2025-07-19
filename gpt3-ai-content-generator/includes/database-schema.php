@@ -57,9 +57,6 @@ function aipkit_create_logs_table()
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-
-    // Optional: Add logging
-    error_log("AIPKit DB Check: Chat logs table '{$table_name}' schema ensured (includes 'module' column).");
 }
 
 /**
@@ -88,9 +85,6 @@ function aipkit_create_guest_token_usage_table()
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-
-    // Optional: Add logging
-    error_log("AIPKit DB Check: Guest token usage table '{$table_name}' schema ensured.");
 }
 
 /**
@@ -114,9 +108,6 @@ function aipkit_create_sse_message_cache_table()
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-
-    // Optional: Add logging
-    error_log("AIPKit DB Check: SSE Message Cache table '{$table_name}' schema ensured.");
 }
 
 /**
@@ -158,8 +149,6 @@ function aipkit_create_vector_data_source_table()
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-
-    error_log("AIPKit DB Check: Vector Data Source table '{$table_name}' schema ensured (replaces vector_indexing_logs).");
 }
 
 
@@ -190,7 +179,6 @@ function aipkit_create_automated_tasks_table()
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-    error_log("AIPKit DB Check: Automated Tasks table '{$table_name}' schema ensured (includes 'task_type' column).");
 }
 
 /**
@@ -222,7 +210,6 @@ function aipkit_create_automated_task_queue_table()
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-    error_log("AIPKit DB Check: Automated Task Queue table '{$table_name}' schema ensured.");
 }
 
 /**
@@ -260,7 +247,6 @@ function aipkit_create_content_writer_templates_table()
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-    error_log("AIPKit DB Check: Content Writer Templates table '{$table_name}' schema ensured (includes post settings, removed tags).");
 }
 
 /**
@@ -284,5 +270,4 @@ function aipkit_create_rss_history_table()
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-    error_log("AIPKit DB Check: RSS History table '{$table_name}' schema ensured.");
 }

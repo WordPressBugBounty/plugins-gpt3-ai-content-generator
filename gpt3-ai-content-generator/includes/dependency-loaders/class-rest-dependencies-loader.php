@@ -18,8 +18,6 @@ class Rest_Dependencies_Loader
         $base_handler_path = $rest_base_path . 'handlers/class-aipkit-rest-base-handler.php';
         if (file_exists($base_handler_path)) {
             require_once $base_handler_path;
-        } else {
-            error_log('AIPKit Core Loader Error: REST Base Handler file not found.');
         }
         $handlers_to_load = [
             'class-aipkit-rest-text-handler.php',
@@ -32,15 +30,11 @@ class Rest_Dependencies_Loader
             $full_path = $rest_base_path . 'handlers/' . $handler_file;
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit Core Loader Error: REST Handler file '{$handler_file}' not found.");
             }
         }
         $rest_controller_path = $rest_base_path . 'class-aipkit-rest-controller.php';
         if (file_exists($rest_controller_path)) {
             require_once $rest_controller_path;
-        } else {
-            error_log('AIPKit Core Loader Error: REST Controller file not found.');
         }
     }
 }

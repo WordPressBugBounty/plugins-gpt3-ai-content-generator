@@ -23,7 +23,6 @@ if (!defined('ABSPATH')) {
 function get_connected_strategy_logic(string $provider, array $provider_config): AIPKit_Vector_Provider_Strategy_Interface|WP_Error {
     if (!class_exists(AIPKit_Vector_Provider_Strategy_Factory::class)) {
         // This should ideally be caught by the main class constructor or dependency loader
-        error_log('AIPKit Vector Manager (get_connected_strategy_logic): AIPKit_Vector_Provider_Strategy_Factory class not found.');
         return new WP_Error('factory_missing', __('Vector Provider Strategy Factory is not available.', 'gpt3-ai-content-generator'));
     }
 

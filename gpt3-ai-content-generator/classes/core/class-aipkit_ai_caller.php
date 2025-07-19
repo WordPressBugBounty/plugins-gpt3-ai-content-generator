@@ -57,7 +57,6 @@ class AIPKit_AI_Caller
             if (file_exists($manager_path)) {
                 require_once $manager_path;
             } else {
-                error_log('AIPKit AICaller Error: InstructionManager class file not found.');
                 return new WP_Error(
                     'internal_error_instruction_manager',
                     'Instruction processing component missing.',
@@ -89,7 +88,6 @@ class AIPKit_AI_Caller
             if (class_exists(GoogleSettingsHandler::class)) {
                 $final_ai_params['safety_settings'] = GoogleSettingsHandler::get_safety_settings();
             } else {
-                error_log("AIPKit AI Caller Warning: GoogleSettingsHandler class not found. Cannot apply safety settings.");
                 $final_ai_params['safety_settings'] = [];
             }
         } elseif ($provider === 'OpenAI' && !isset($final_ai_params['store_conversation'])) {
@@ -148,7 +146,6 @@ class AIPKit_AI_Caller
         $response = wp_remote_request($url, array_merge($options, ['headers' => $headers, 'body' => $request_body_json, 'data_format' => 'body']));
 
         if (is_wp_error($response)) {
-            error_log("AIPKit AI Caller Error (wp_remote_request {$provider}): " . $response->get_error_message());
             /* translators: %s: The specific error message from the failed HTTP request. */
             return new WP_Error('http_request_failed', sprintf(__('HTTP request failed: %s', 'gpt3-ai-content-generator'), $response->get_error_message()), ['request_payload' => $request_payload_log, 'provider' => $provider, 'model' => $model, 'status_code' => 503]);
         }
@@ -158,14 +155,12 @@ class AIPKit_AI_Caller
 
         if ($status_code >= 400) {
             $parsed_message = $strategy->parse_error_response($response_body_raw, $status_code);
-            error_log("AIPKit AI Caller API Error ({$provider} {$status_code}): " . $parsed_message);
             /* translators: %1$s: The AI provider name (e.g., OpenAI). %2$d: The HTTP status code. %3$s: The error message from the API. */
             return new WP_Error('api_error', sprintf(__('%1$s API Error (HTTP %2$d): %3$s', 'gpt3-ai-content-generator'), $provider, $status_code, $parsed_message), ['status_code' => $status_code, 'response_body_for_debug' => $response_body_raw, 'request_payload' => $request_payload_log, 'provider' => $provider, 'model' => $model]);
         }
 
         $decoded_response = json_decode($response_body_raw, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("AIPKit AI Caller Error ({$provider} JSON Decode): " . json_last_error_msg() . " Body: " . substr($response_body_raw, 0, 500));
             return new WP_Error('json_decode_error', __('Failed to parse JSON from API response.', 'gpt3-ai-content-generator'), ['response_body_for_debug' => $response_body_raw, 'request_payload' => $request_payload_log, 'provider' => $provider, 'model' => $model, 'status_code' => 500]);
         }
 

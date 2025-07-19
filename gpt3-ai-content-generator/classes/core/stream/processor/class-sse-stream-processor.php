@@ -62,8 +62,6 @@ class SSEStreamProcessor {
             $token_manager_path = WPAICG_PLUGIN_DIR . 'classes/core/token-manager/AIPKit_Token_Manager.php';
             if (file_exists($token_manager_path)) {
                 require_once $token_manager_path;
-            } else {
-                error_log('SSEStreamProcessor Error: New AIPKit_Token_Manager class file not found at ' . $token_manager_path);
             }
         }
         if (class_exists(\WPAICG\Core\TokenManager\AIPKit_Token_Manager::class)) {
@@ -96,8 +94,6 @@ class SSEStreamProcessor {
                 if (!class_exists($full_class_name)) {
                      require_once $file_path;
                 }
-            } else {
-                error_log("SSEStreamProcessor Error: Missing SSE Start helper file: {$helper_file}");
             }
         }
     }
@@ -154,7 +150,6 @@ class SSEStreamProcessor {
      */
     public function start_stream(string $provider, string $model, string $user_message, array $history, string $system_instruction_filtered, array $api_params, array $ai_params, string $conversation_uuid, array $base_log_data) {
         if (!function_exists(__NAMESPACE__ . '\start_stream_logic')) {
-            error_log("SSEStreamProcessor Error: start_stream_logic function not found. Path: " . __DIR__ . "/fn-start-stream.php");
             if ($this->formatter) {
                 $this->formatter->send_sse_error(__('Critical error: Stream processing cannot start.', 'gpt3-ai-content-generator'));
                 $this->formatter->send_sse_done();
@@ -166,7 +161,6 @@ class SSEStreamProcessor {
 
     public function curl_stream_callback_public_wrapper($ch, string $chunk): int {
         if (!function_exists(__NAMESPACE__ . '\curl_stream_callback_logic')) {
-            error_log("SSEStreamProcessor Error: curl_stream_callback_logic function not found.");
             return 0; 
         }
         return curl_stream_callback_logic($this, $ch, $chunk);

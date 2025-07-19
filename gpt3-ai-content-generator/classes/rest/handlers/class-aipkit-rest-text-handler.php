@@ -158,7 +158,6 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_streaming_not_supported', __('Streaming responses are not supported via this REST endpoint.', 'gpt3-ai-content-generator'), ['status' => 400]));
         }
         if (!class_exists(AIPKit_AI_Caller::class) || !class_exists(AIPKit_Instruction_Manager::class) || !class_exists(AIPKit_Providers::class) || !class_exists(AIPKIT_AI_Settings::class)) {
-            error_log("AIPKit REST API Error: Missing core AI classes.");
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_internal_error', __('Internal server error.', 'gpt3-ai-content-generator'), ['status' => 500]));
         }
 
@@ -177,7 +176,6 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
         $result = $ai_caller->make_standard_call($provider, $model, $messages, $final_ai_params, $instructions_processed);
 
         if (is_wp_error($result)) {
-            error_log("AIPKit REST API Error: AI call failed. Provider: {$provider}, Model: {$model}. Error: " . $result->get_error_message());
             return $this->send_wp_error_response($result);
         }
 

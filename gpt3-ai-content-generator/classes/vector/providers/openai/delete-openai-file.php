@@ -41,7 +41,6 @@ function delete_openai_file_object_logic(AIPKit_Vector_OpenAI_Strategy $strategy
         // OpenAI DELETE file endpoint is /v1/files/{file_id}
         $version_segment = '/' . trim($strategyInstance->get_api_version(), '/');
         $url = $strategyInstance->get_base_url() . $version_segment . '/files/' . urlencode($file_id);
-        error_log("AIPKit OpenAI Vector (Delete File Logic): URL Builder did not support 'files_id' for DELETE, used direct: " . $url);
     }
 
     $response = _request_logic($strategyInstance, 'DELETE', $url);
@@ -50,7 +49,6 @@ function delete_openai_file_object_logic(AIPKit_Vector_OpenAI_Strategy $strategy
     if (isset($response['deleted']) && $response['deleted'] === true && isset($response['id']) && $response['id'] === $file_id) {
         return true;
     } else {
-        error_log("AIPKit OpenAI Vector: Failed to delete file object {$file_id}. Response: " . print_r($response, true));
         return new WP_Error('file_object_delete_failed', __('OpenAI API did not confirm file object deletion.', 'gpt3-ai-content-generator'));
     }
 }

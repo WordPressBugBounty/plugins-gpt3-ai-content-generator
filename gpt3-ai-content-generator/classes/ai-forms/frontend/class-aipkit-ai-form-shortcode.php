@@ -34,7 +34,6 @@ class AIPKit_AI_Form_Shortcode
         if (class_exists(AIPKit_AI_Form_Storage::class)) {
             $this->form_storage = new AIPKit_AI_Form_Storage();
         } else {
-            error_log('AIPKit_AI_Form_Shortcode Error: AIPKit_AI_Form_Storage class not found.');
             $this->form_storage = null;
         }
     }

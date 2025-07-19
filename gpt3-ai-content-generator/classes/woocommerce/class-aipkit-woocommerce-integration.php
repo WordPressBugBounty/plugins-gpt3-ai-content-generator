@@ -132,7 +132,6 @@ class AIPKit_WooCommerce_Integration
 
         $user_id = $order->get_user_id();
         if (!$user_id) {
-            error_log("AIPKit Token Grant: Order #{$order_id} completed but has no associated user ID. Cannot grant tokens.");
             return;
         }
 
@@ -162,7 +161,6 @@ class AIPKit_WooCommerce_Integration
                     number_format_i18n($new_balance)
                 )
             );
-            error_log("AIPKit Token Grant: Granted {$total_tokens_to_grant} tokens to user #{$user_id} from order #{$order_id}. New balance: {$new_balance}.");
         }
     }
 }

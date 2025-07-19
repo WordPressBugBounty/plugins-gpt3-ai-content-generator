@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/class-aipkit-openai-wp-content-indexing-ajax-handler.php
 // Status: MODIFIED
 
@@ -23,8 +24,8 @@ if (!defined('ABSPATH')) {
 /**
  * Handles AJAX requests for fetching and indexing WordPress content into OpenAI Vector Stores.
  */
-class AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler extends BaseDashboardAjaxHandler {
-
+class AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler extends BaseDashboardAjaxHandler
+{
     private $vector_store_manager;
     private $vector_store_registry;
     // --- MODIFIED: Type hint for new PostProcessor ---
@@ -34,15 +35,17 @@ class AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler extends BaseDashboardAjaxHa
     private $wpdb;
 
 
-    public function __construct() {
+    public function __construct()
+    {
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
 
         if (!class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) {
             $manager_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-manager.php';
-            if (file_exists($manager_path)) require_once $manager_path;
-            else error_log('AIPKit OpenAI WP Indexing AJAX Error: AIPKit_Vector_Store_Manager class file not found.');
+            if (file_exists($manager_path)) {
+                require_once $manager_path;
+            }
         }
         if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) {
             $this->vector_store_manager = new \WPAICG\Vector\AIPKit_Vector_Store_Manager();
@@ -50,8 +53,9 @@ class AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler extends BaseDashboardAjaxHa
 
         if (!class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Registry::class)) {
             $registry_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-registry.php';
-            if (file_exists($registry_path)) require_once $registry_path;
-            else error_log('AIPKit OpenAI WP Indexing AJAX Error: AIPKit_Vector_Store_Registry class file not found.');
+            if (file_exists($registry_path)) {
+                require_once $registry_path;
+            }
         }
         if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Registry::class)) {
             $this->vector_store_registry = new \WPAICG\Vector\AIPKit_Vector_Store_Registry();
@@ -60,8 +64,9 @@ class AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler extends BaseDashboardAjaxHa
         // --- MODIFIED: Ensure and instantiate new PostProcessor ---
         if (!class_exists(\WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor::class)) {
             $processor_path = WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/openai/class-openai-post-processor.php';
-            if (file_exists($processor_path)) require_once $processor_path;
-            else error_log('AIPKit OpenAI WP Indexing AJAX Error: OpenAIPostProcessor class file not found.');
+            if (file_exists($processor_path)) {
+                require_once $processor_path;
+            }
         }
         if (class_exists(\WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor::class)) {
             $this->openai_post_processor = new \WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor();
@@ -73,30 +78,40 @@ class AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler extends BaseDashboardAjaxHa
      * Wrapper for the logging function, to be called from the standalone logic files.
      * @param array $log_data
      */
-    public function log_vector_data_source_entry_wrapper(array $log_data): void {
+    public function log_vector_data_source_entry_wrapper(array $log_data): void
+    {
         // Call the general OpenAI logging function
         if (function_exists('\WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_files_log_vector_data_source_entry')) {
             \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_files_log_vector_data_source_entry($this->wpdb, $this->data_source_table_name, $log_data);
-        } else {
-            error_log("AIPKit OpenAI WP Indexing AJAX: Logging function _aipkit_openai_vs_files_log_vector_data_source_entry not found.");
         }
     }
 
     // --- Getter methods for dependencies needed by the new standalone functions ---
     // --- MODIFIED: Getter for new PostProcessor ---
-    public function get_openai_post_processor(): ?\WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor { return $this->openai_post_processor; }
+    public function get_openai_post_processor(): ?\WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor
+    {
+        return $this->openai_post_processor;
+    }
     // --- END MODIFICATION ---
-    public function get_vector_store_manager(): ?\WPAICG\Vector\AIPKit_Vector_Store_Manager { return $this->vector_store_manager; }
-    public function get_vector_store_registry(): ?\WPAICG\Vector\AIPKit_Vector_Store_Registry { return $this->vector_store_registry; }
+    public function get_vector_store_manager(): ?\WPAICG\Vector\AIPKit_Vector_Store_Manager
+    {
+        return $this->vector_store_manager;
+    }
+    public function get_vector_store_registry(): ?\WPAICG\Vector\AIPKit_Vector_Store_Registry
+    {
+        return $this->vector_store_registry;
+    }
     // --- End Getters ---
 
 
-    public function ajax_fetch_wp_content_for_indexing() {
+    public function ajax_fetch_wp_content_for_indexing()
+    {
         require_once __DIR__ . '/handler-indexing/ajax-fetch-wp-content-for-indexing.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerIndexing\do_ajax_fetch_wp_content_for_indexing_logic($this);
     }
 
-    public function ajax_index_selected_wp_content() {
+    public function ajax_index_selected_wp_content()
+    {
         require_once __DIR__ . '/handler-indexing/ajax-index-selected-wp-content.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerIndexing\do_ajax_index_selected_wp_content_logic($this);
     }

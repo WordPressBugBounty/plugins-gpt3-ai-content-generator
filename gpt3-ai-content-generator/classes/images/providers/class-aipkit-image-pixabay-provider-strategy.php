@@ -64,7 +64,6 @@ class AIPKit_Image_Pixabay_Provider_Strategy extends AIPKit_Image_Base_Provider_
         $response = wp_remote_get($url, $request_args);
 
         if (is_wp_error($response)) {
-            error_log("AIPKit Pixabay API Error (wp_remote_get): " . $response->get_error_message());
             return new WP_Error('pixabay_http_error', __('HTTP error during Pixabay API request.', 'gpt3-ai-content-generator'));
         }
 
@@ -73,7 +72,6 @@ class AIPKit_Image_Pixabay_Provider_Strategy extends AIPKit_Image_Base_Provider_
 
         if ($status_code !== 200) {
             $error_msg = $this->parse_error_response($body, $status_code, 'Pixabay');
-            error_log("AIPKit Pixabay API Error ({$status_code}): " . $error_msg);
             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
             return new WP_Error('pixabay_api_error', sprintf(__('Pixabay API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg));
         }

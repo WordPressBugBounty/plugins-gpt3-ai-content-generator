@@ -49,7 +49,6 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
 
                     $new_bot_id = wp_insert_post(['post_title' => $old_bot->post_title, 'post_type' => ChatAdminSetup::POST_TYPE, 'post_status' => $old_bot->post_status, 'post_author' => $old_bot->post_author], true);
                     if (is_wp_error($new_bot_id)) {
-                        error_log("AIPKit Migration (Chatbot): FAILED to create new post for old bot ID: " . $old_bot->ID . ". Error: " . $new_bot_id->get_error_message());
                         continue;
                     }
 
@@ -57,24 +56,19 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
 
                     // 1. Gather all old settings from meta and content
                     $all_old_settings = $this->gather_all_old_settings($old_bot);
-                    error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Gathered " . count($all_old_settings) . " old setting keys.");
 
                     // 2. Map old settings to the new structure
                     $new_bot_settings = $this->map_old_to_new_settings($all_old_settings);
-                    error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Mapped settings prepared for saving: " . print_r($new_bot_settings, true));
 
                     // 3. Save the new settings
                     $settings_manager->save_bot_settings($new_bot_id, $new_bot_settings);
-                    error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Saved settings for new bot ID: {$new_bot_id}.");
 
                     // 4. Handle default/site-wide flags
                     if (get_post_meta($old_bot->ID, '_wpaicg_default_bot', true) === '1' || $old_bot->post_title === 'Default') {
                         update_post_meta($new_bot_id, '_aipkit_default_bot', '1');
-                        error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Marked new bot ID {$new_bot_id} as default.");
                     }
                     if (get_post_meta($old_bot->ID, '_wpaicg_site_wide_enabled', true) === '1') {
                         update_post_meta($new_bot_id, '_aipkit_site_wide_enabled', '1');
-                        error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Marked new bot ID {$new_bot_id} as site-wide.");
                     }
 
                     $processed_counts['custom_bots']++;
@@ -83,12 +77,9 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
             }
 
             if (!empty($migrated_id_map)) {
-                error_log("AIPKit Migration (Chatbot): Built migrated ID map: " . print_r($migrated_id_map, true));
                 $existing_map = get_option('aipkit_bot_id_map', []);
-                error_log("AIPKit Migration (Chatbot): Existing bot ID map from options: " . print_r($existing_map, true));
                 $final_map = $migrated_id_map + $existing_map;
                 update_option('aipkit_bot_id_map', $final_map, 'no');
-                error_log("AIPKit Migration (Chatbot): Saved bot ID map. Map: " . print_r($final_map, true));
             }
 
             // Chat Log migration is explicitly disabled
@@ -146,31 +137,21 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
         foreach ($meta_settings as $key => $value) {
             $flat_meta[$key] = maybe_unserialize($value[0] ?? '');
         }
-        error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Found " . count($flat_meta) . " meta fields.");
 
         $content_settings = [];
         if (!empty($old_bot->post_content)) {
-            error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Raw post_content length: " . strlen($old_bot->post_content));
             $unslashed_content = wp_unslash($old_bot->post_content);
-            error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Unslashed post_content length: " . strlen($unslashed_content));
             $decoded = json_decode($unslashed_content, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Initial JSON decode failed. Error: " . json_last_error_msg() . ". Attempting fallback repair.");
                 $repaired_json_string = $this->repair_json_string($unslashed_content);
                 if ($repaired_json_string) {
                     $decoded = json_decode($repaired_json_string, true);
-                    if (json_last_error() === JSON_ERROR_NONE) {
-                        error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Successfully decoded JSON using string repair fallback.");
-                    }
                 }
             }
 
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                 $content_settings = $decoded;
-                error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): Successfully decoded JSON from post_content with " . count($content_settings) . " keys.");
-            } else {
-                error_log("AIPKit Migration (Chatbot ID: {$old_bot->ID}): FAILED to decode JSON from post_content even after repair attempt. Error: " . json_last_error_msg() . ". Content snippet: " . substr($unslashed_content, 0, 200));
             }
         }
         return array_merge($flat_meta, $content_settings);
@@ -186,7 +167,6 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
         $key_marker = '"chat_addition_text":"';
         $start_pos = strpos($json_string, $key_marker);
         if ($start_pos === false) {
-            error_log("AIPKit Migration (Chatbot Repair): Could not find the key '{$key_marker}'. Cannot repair.");
             return null;
         }
         $value_start_pos = $start_pos + strlen($key_marker);
@@ -199,7 +179,6 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
         }
 
         if ($end_pos === -1) {
-            error_log("AIPKit Migration (Chatbot Repair): Could not find a reliable end marker for the value. Cannot repair.");
             return null;
         }
 
@@ -210,7 +189,6 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
         // Escape double quotes that are NOT already escaped.
         $escaped_value = preg_replace('/(?<!\\\\)"/', '\"', $value_to_fix);
         $repaired_json = $prefix . $escaped_value . $suffix;
-        error_log("AIPKit Migration (Chatbot Repair): JSON repair complete. Original length: " . strlen($json_string) . ", Repaired length: " . strlen($repaired_json));
         return $repaired_json;
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/class-aipkit-vector-store-qdrant-ajax-handler.php
 // Status: MODIFIED
 
@@ -22,22 +23,25 @@ if (!defined('ABSPATH')) {
  * Handles AJAX requests for Qdrant Vector Store operations.
  * Delegates logic to namespaced functions.
  */
-class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler {
+class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
+{
     private $vector_store_manager;
     private $vector_store_registry;
     private $ai_caller;
     private $data_source_table_name;
     private $wpdb;
 
-    public function __construct() {
+    public function __construct()
+    {
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
 
         if (!class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) {
             $manager_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-manager.php';
-            if (file_exists($manager_path)) require_once $manager_path;
-            else error_log('AIPKit Qdrant AJAX Error: AIPKit_Vector_Store_Manager class file not found.');
+            if (file_exists($manager_path)) {
+                require_once $manager_path;
+            }
         }
         if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) {
             $this->vector_store_manager = new \WPAICG\Vector\AIPKit_Vector_Store_Manager();
@@ -45,8 +49,9 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler {
 
         if (!class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Registry::class)) {
             $registry_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-registry.php';
-            if (file_exists($registry_path)) require_once $registry_path;
-            else error_log('AIPKit Qdrant AJAX Error: AIPKit_Vector_Store_Registry class file not found.');
+            if (file_exists($registry_path)) {
+                require_once $registry_path;
+            }
         }
         if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Registry::class)) {
             $this->vector_store_registry = new \WPAICG\Vector\AIPKit_Vector_Store_Registry();
@@ -54,8 +59,9 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler {
 
         if (!class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
             $ai_caller_path = WPAICG_PLUGIN_DIR . 'classes/core/class-aipkit_ai_caller.php';
-            if (file_exists($ai_caller_path)) require_once $ai_caller_path;
-            else error_log('AIPKit Qdrant AJAX Error: AIPKit_AI_Caller class file not found.');
+            if (file_exists($ai_caller_path)) {
+                require_once $ai_caller_path;
+            }
         }
         if (class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
             $this->ai_caller = new \WPAICG\Core\AIPKit_AI_Caller();
@@ -63,20 +69,27 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler {
 
         if (!class_exists(\WPAICG\Includes\AIPKit_Upload_Utils::class)) {
             $upload_utils_path = WPAICG_PLUGIN_DIR . 'includes/class-aipkit-upload-utils.php';
-            if (file_exists($upload_utils_path)) require_once $upload_utils_path;
-            else error_log('AIPKit Qdrant AJAX Error: AIPKit_Upload_Utils class file not found.');
+            if (file_exists($upload_utils_path)) {
+                require_once $upload_utils_path;
+            }
         }
-         if (!class_exists(aipkit_dashboard::class)) {
+        if (!class_exists(aipkit_dashboard::class)) {
             $dashboard_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_dashboard.php';
-            if (file_exists($dashboard_path)) require_once $dashboard_path;
+            if (file_exists($dashboard_path)) {
+                require_once $dashboard_path;
+            }
         }
     }
 
-    public function _get_qdrant_config(): array|WP_Error {
+    public function _get_qdrant_config(): array|WP_Error
+    {
         if (!class_exists(\WPAICG\AIPKit_Providers::class)) {
-             $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
-             if (file_exists($providers_path)) require_once $providers_path;
-             else return new WP_Error('dependency_missing', 'AIPKit_Providers class not found for Qdrant config.');
+            $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
+            if (file_exists($providers_path)) {
+                require_once $providers_path;
+            } else {
+                return new WP_Error('dependency_missing', 'AIPKit_Providers class not found for Qdrant config.');
+            }
         }
         $qdrant_data = AIPKit_Providers::get_provider_data('Qdrant');
         if (empty($qdrant_data['url'])) {
@@ -92,7 +105,8 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler {
      * Wrapper for the logging function, to be called from the standalone logic files.
      * @param array $log_data
      */
-    public function _log_vector_data_source_entry(array $log_data): void {
+    public function _log_vector_data_source_entry(array $log_data): void
+    {
         // Ensure the log function file is loaded before calling it
         $log_fn_path = __DIR__ . '/handler-collections/ajax-get-vector-data-source-logs.php'; // Corrected path
         if (file_exists($log_fn_path)) {
@@ -105,44 +119,65 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler {
                 $this->data_source_table_name,
                 $log_data
             );
-        } else {
-            error_log("AIPKit Qdrant AJAX Handler: Logging function file not found at {$log_fn_path}");
         }
     }
 
 
-    public function ajax_list_collections_qdrant() {
+    public function ajax_list_collections_qdrant()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-collections/ajax-list-collections.php';
         \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_list_collections_logic($this);
     }
 
-    public function ajax_create_collection_qdrant() {
+    public function ajax_create_collection_qdrant()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-collections/ajax-create-collection.php';
         \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_create_collection_logic($this);
     }
 
-    public function ajax_delete_collection_qdrant() {
+    public function ajax_delete_collection_qdrant()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-collections/ajax-delete-collection.php';
         \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_delete_collection_logic($this);
     }
 
-    public function ajax_upsert_to_qdrant_collection() {
+    public function ajax_upsert_to_qdrant_collection()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-collections/ajax-upsert-to-collection.php';
         \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_upsert_to_collection_logic($this);
     }
 
-    public function ajax_upload_file_and_upsert_to_qdrant() {
+    public function ajax_upload_file_and_upsert_to_qdrant()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
-        if (!$this->vector_store_manager || !$this->ai_caller || !class_exists(\WPAICG\Includes\AIPKit_Upload_Utils::class)) { $this->send_wp_error(new WP_Error('deps_missing_qdrant_upload', __('Required components for Qdrant file upload are missing.', 'gpt3-ai-content-generator'), ['status' => 500])); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+        if (!$this->vector_store_manager || !$this->ai_caller || !class_exists(\WPAICG\Includes\AIPKit_Upload_Utils::class)) {
+            $this->send_wp_error(new WP_Error('deps_missing_qdrant_upload', __('Required components for Qdrant file upload are missing.', 'gpt3-ai-content-generator'), ['status' => 500]));
+            return;
+        }
 
         // --- Pro Check ---
         if (!aipkit_dashboard::is_pro_plan()) {
@@ -152,7 +187,10 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler {
         // --- End Pro Check ---
 
         $qdrant_config = $this->_get_qdrant_config();
-        if (is_wp_error($qdrant_config)) { $this->send_wp_error($qdrant_config); return; }
+        if (is_wp_error($qdrant_config)) {
+            $this->send_wp_error($qdrant_config);
+            return;
+        }
 
         $fn_file_path = WPAICG_LIB_DIR . 'vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php';
         if (file_exists($fn_file_path)) {
@@ -186,32 +224,59 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler {
         }
     }
 
-    public function ajax_search_qdrant_collection() {
+    public function ajax_search_qdrant_collection()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-collections/ajax-search-collection.php';
         \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_search_collection_logic($this);
     }
 
-    public function ajax_get_qdrant_collection_stats() {
+    public function ajax_get_qdrant_collection_stats()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-collections/ajax-get-collection-stats.php';
         \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_get_collection_stats_logic($this);
     }
 
-    public function ajax_get_vector_data_source_logs_for_store() {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce'); 
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+    public function ajax_get_vector_data_source_logs_for_store()
+    {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-collections/ajax-get-vector-data-source-logs.php';
         \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_get_vector_data_source_logs_logic($this);
     }
 
     // Getter methods for dependencies needed by the new standalone functions
-    public function get_vector_store_manager(): ?\WPAICG\Vector\AIPKit_Vector_Store_Manager { return $this->vector_store_manager; }
-    public function get_ai_caller(): ?\WPAICG\Core\AIPKit_AI_Caller { return $this->ai_caller; }
-    public function get_wpdb(): \wpdb { return $this->wpdb; }
-    public function get_data_source_table_name(): string { return $this->data_source_table_name; }
-    public function get_vector_store_registry(): ?\WPAICG\Vector\AIPKit_Vector_Store_Registry { return $this->vector_store_registry; }
+    public function get_vector_store_manager(): ?\WPAICG\Vector\AIPKit_Vector_Store_Manager
+    {
+        return $this->vector_store_manager;
+    }
+    public function get_ai_caller(): ?\WPAICG\Core\AIPKit_AI_Caller
+    {
+        return $this->ai_caller;
+    }
+    public function get_wpdb(): \wpdb
+    {
+        return $this->wpdb;
+    }
+    public function get_data_source_table_name(): string
+    {
+        return $this->data_source_table_name;
+    }
+    public function get_vector_store_registry(): ?\WPAICG\Vector\AIPKit_Vector_Store_Registry
+    {
+        return $this->vector_store_registry;
+    }
 
 }

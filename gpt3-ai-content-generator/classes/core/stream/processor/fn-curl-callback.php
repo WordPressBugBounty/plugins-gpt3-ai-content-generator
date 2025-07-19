@@ -29,7 +29,6 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
     $formatter = $processorInstance->get_formatter();
 
     if (!$formatter) { 
-        error_log("AIPKit SSE Callback Logic: Formatter not available. Cannot process stream.");
         return -1; 
     }
 
@@ -38,7 +37,6 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
         return $chunk_len;
     }
     if ($http_code >= 400 && $data_sent_to_frontend) {
-         error_log("AIPKit SSE Callback Logic: Received HTTP {$http_code} after data was already sent. Chunk: " . substr($chunk, 0, 100));
          return $chunk_len;
     }
 
@@ -58,7 +56,6 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
     }
 
     if ($parsed['is_error'] && $parsed['delta']) {
-         error_log("AIPKit SSE Callback Logic: Fatal error from parser: {$parsed['delta']}");
          if (!$processorInstance->get_error_occurred_status()) {
             $formatter->send_sse_error($parsed['delta'], false);
             $processorInstance->set_error_occurred_status(true);
@@ -67,7 +64,6 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
          return -1; // Signal error to cURL
     }
     if ($parsed['is_warning'] && $parsed['delta']) {
-         error_log("AIPKit SSE Callback Logic: Warning from parser: {$parsed['delta']}");
          $formatter->send_sse_error($parsed['delta'], true);
          $processorInstance->append_to_full_bot_response($parsed['delta']);
          $processorInstance->set_data_sent_to_frontend_status(true);
@@ -80,7 +76,6 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
 
     if (connection_aborted()) {
         $abort_message = "Connection aborted by client.";
-        error_log("AIPKit SSE Callback Logic: {$abort_message}");
         if (!$processorInstance->get_error_occurred_status()) { // Only set error if not already set
             $processorInstance->set_error_occurred_status(true); 
             // Note: log_bot_error_logic will be called by ConnectionValidator if this error is passed to it.

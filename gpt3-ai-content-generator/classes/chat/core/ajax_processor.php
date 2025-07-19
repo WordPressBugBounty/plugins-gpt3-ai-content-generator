@@ -58,7 +58,6 @@ class AjaxProcessor
         if ($this->token_manager) {
             $this->message_validator = new ChatMessageValidator($this->token_manager);
         } else {
-            error_log("AjaxProcessor Error: TokenManager not initialized, ChatMessageValidator cannot be created.");
             $this->message_validator = null;
         }
 
@@ -67,35 +66,30 @@ class AjaxProcessor
         if ($this->log_storage) {
             $this->trigger_runner = new ChatTriggerRunner($this->log_storage);
         } else {
-            error_log("AjaxProcessor Error: LogStorage not initialized, ChatTriggerRunner cannot be created.");
             $this->trigger_runner = null;
         }
 
         if ($this->bot_storage) {
             $this->context_builder = new ChatContextBuilder($this->bot_storage);
         } else {
-            error_log("AjaxProcessor Error: BotStorage not initialized, ChatContextBuilder cannot be created.");
             $this->context_builder = null;
         }
 
         if ($this->log_storage) {
             $this->history_manager = new ChatHistoryManager($this->log_storage);
         } else {
-            error_log("AjaxProcessor Error: LogStorage not initialized, ChatHistoryManager cannot be created.");
             $this->history_manager = null;
         }
 
         if ($this->ai_service) {
             $this->ai_request_runner = new ChatAIRequestRunner($this->ai_service);
         } else {
-            error_log("AjaxProcessor Error: AIService not initialized, ChatAIRequestRunner cannot be created.");
             $this->ai_request_runner = null;
         }
 
         if ($this->log_storage && $this->token_manager) {
             $this->response_logger = new ChatResponseLogger($this->log_storage, $this->token_manager);
         } else {
-            error_log("AjaxProcessor Error: LogStorage or TokenManager not initialized, ChatResponseLogger cannot be created.");
             $this->response_logger = null;
         }
     }
@@ -176,7 +170,6 @@ class AjaxProcessor
         if (!$this->message_validator || !$this->image_processor || !$this->trigger_runner ||
             !$this->context_builder || !$this->history_manager || !$this->ai_request_runner ||
             !$this->response_logger) {
-            error_log("AIPKit AjaxProcessor: One or more sub-processors not initialized. Aborting ajax_frontend_chat_message.");
             wp_send_json_error(['message' => __('Chat processing service is currently unavailable.', 'gpt3-ai-content-generator')], 503);
             return;
         }

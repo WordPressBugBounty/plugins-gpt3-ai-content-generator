@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/chat/storage/getter/fn-get-token-management-config.php
 // Status: NEW FILE
 
@@ -17,13 +18,15 @@ if (!defined('ABSPATH')) {
  * @param callable $get_meta_fn A function to retrieve post meta.
  * @return array Associative array of token management settings.
  */
-function get_token_management_config_logic(int $bot_id, callable $get_meta_fn): array {
+function get_token_management_config_logic(int $bot_id, callable $get_meta_fn): array
+{
     $settings = [];
 
     if (!class_exists(BotSettingsManager::class)) {
         $bsm_path = dirname(__DIR__) . '/class-aipkit_bot_settings_manager.php';
-        if (file_exists($bsm_path)) require_once $bsm_path;
-        else error_log("AIPKit Getter (Token Mgmt): BotSettingsManager class not found for constants.");
+        if (file_exists($bsm_path)) {
+            require_once $bsm_path;
+        }
     }
 
     $settings['token_limit_mode'] = $get_meta_fn('_aipkit_token_limit_mode', BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE);
@@ -45,7 +48,7 @@ function get_token_management_config_logic(int $bot_id, callable $get_meta_fn): 
     if (!in_array($settings['token_reset_period'], ['never', 'daily', 'weekly', 'monthly'])) {
         $settings['token_reset_period'] = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
     }
-    
+
     $default_limit_message = __('You have reached your token limit for this period.', 'gpt3-ai-content-generator');
     $settings['token_limit_message'] = $get_meta_fn('_aipkit_token_limit_message', $default_limit_message);
     if (empty($settings['token_limit_message'])) {

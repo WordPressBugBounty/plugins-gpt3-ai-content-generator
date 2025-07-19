@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/providers/openai/prepare-parameters-and-history.php
 // Status: NEW FILE
 
@@ -24,7 +25,6 @@ function prepare_parameters_and_history_logic(
         if (file_exists($providers_path)) {
             require_once $providers_path;
         } else {
-            error_log('OpenAIStatefulConversationHelper Logic Error: AIPKit_Providers class file not found.');
             return ['ai_params' => $ai_params, 'history' => $history];
         }
     }
@@ -55,8 +55,6 @@ function prepare_parameters_and_history_logic(
             $latest_user_message_obj = end($history);
             if ($latest_user_message_obj && ($latest_user_message_obj['role'] === 'user' || $latest_user_message_obj['role'] === 'customer')) {
                 $history = [$latest_user_message_obj];
-            } else {
-                error_log("OpenAIStatefulConversationHelper Logic: Stateful mode, but last history item not 'user' or 'customer'. Original history will be used. Last item: " . print_r($latest_user_message_obj, true));
             }
         }
     }

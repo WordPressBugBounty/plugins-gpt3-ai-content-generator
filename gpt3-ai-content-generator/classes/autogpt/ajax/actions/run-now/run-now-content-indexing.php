@@ -23,7 +23,5 @@ function run_now_content_indexing_logic(int $task_id, array $task_config): void
     if (class_exists(AIPKit_Automated_Task_Content_Queuer::class)) {
         // For "Run Now", we want to queue all existing content that matches, ignoring last run time.
         AIPKit_Automated_Task_Content_Queuer::maybe_queue_initial_indexing_content($task_id, $task_config, true);
-    } else {
-        error_log("AIPKit Run Now (Content Indexing): AIPKit_Automated_Task_Content_Queuer class not found.");
     }
 }

@@ -63,7 +63,6 @@ class ProviderStrategyFactory {
              if (file_exists($strategy_file)) {
                  require_once $strategy_file;
              } else {
-                 error_log("AIPKit Error: Strategy file not found for provider '{$provider}' at path '{$strategy_file}'.");
                  /* translators: %s: The name of the AI provider (e.g., 'OpenAI'). */
                  return new WP_Error('strategy_file_not_found', sprintf(__('Strategy file not found for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
              }
@@ -104,7 +103,6 @@ class ProviderStrategyFactory {
         }
 
         if (!isset(self::$instances[$provider])) {
-            error_log("AIPKit Error: Failed to instantiate strategy class for provider '{$provider}'. Class might not exist or file was incorrect.");
             /* translators: %s: The name of the AI provider. */
             return new WP_Error('strategy_instantiation_failed', sprintf(__('Failed to load strategy for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
         }

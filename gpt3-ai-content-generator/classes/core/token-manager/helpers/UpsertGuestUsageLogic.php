@@ -39,8 +39,4 @@ function UpsertGuestUsageLogic(
         ],
         ['%s', '%d', '%d', '%d', '%s']
     );
-
-    if ($upsert_result === false) {
-        error_log("AIPKit Token Manager Helper: Failed to update guest usage for Guest {$session_id}, Context ID {$guest_context_table_id}. Error: " . $wpdb->last_error);
-    }
 }

@@ -57,7 +57,6 @@ function do_ajax_list_vector_stores_openai_logic(AIPKit_OpenAI_Vector_Stores_Aja
             // Only include stores that are not 'expired'.
             // Assume stores without a status or with other statuses (e.g., 'in_progress', 'completed') should be included.
             if (isset($store_item['status']) && $store_item['status'] === 'expired') {
-                error_log("AIPKit OpenAI VS List Logic: Skipping expired vector store ID {$store_item['id']}");
                 continue;
             }
             $active_stores_data[] = $store_item;
@@ -72,7 +71,6 @@ function do_ajax_list_vector_stores_openai_logic(AIPKit_OpenAI_Vector_Stores_Aja
     $is_full_sync_attempt = (empty($after) && empty($before) && $limit >= 100);
     if (isset($response['data']) && is_array($response['data']) && $is_full_sync_attempt) {
         $vector_store_registry->update_registered_stores_for_provider('OpenAI', $response['data']);
-        error_log("AIPKit Vector Store OpenAI AJAX (List Stores Logic): Registry updated after fetching stores (OpenAI). Filtered count: " . count($response['data']));
     }
 
     wp_send_json_success([

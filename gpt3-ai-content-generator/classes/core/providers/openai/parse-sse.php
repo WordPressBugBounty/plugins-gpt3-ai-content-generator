@@ -88,8 +88,6 @@ function parse_sse_chunk_logic_for_response_parser(string $sse_chunk, string &$c
                         break;
                     // Ignore other event types like response.created, response.in_progress, etc.
                 }
-            } else {
-                error_log("AIPKit OpenAI SSE Parser Logic: Failed to decode JSON data for event '{$event_type}': {$event_data_json}");
             }
         }
     }

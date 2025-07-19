@@ -23,7 +23,6 @@ function load_instruction_manager_logic(): bool|WP_Error
         if (file_exists($manager_path)) {
             require_once $manager_path;
         } else {
-            error_log('AIPKit Load Instruction Manager Logic Error: InstructionManager class file not found.');
             return new WP_Error('internal_error_im_load', 'Instruction processing component missing (load logic).');
         }
     }

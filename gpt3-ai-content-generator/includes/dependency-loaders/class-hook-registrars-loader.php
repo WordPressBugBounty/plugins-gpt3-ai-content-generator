@@ -30,8 +30,6 @@ class Hook_Registrars_Loader {
             $full_path = $registrars_path . $file;
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit Hook Registrars Loader Error: File {$file} not found at {$full_path}");
             }
         }
     }

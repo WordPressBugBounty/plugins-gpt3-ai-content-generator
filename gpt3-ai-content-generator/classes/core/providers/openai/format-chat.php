@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/providers/openai/format-chat.php
 // Status: NEW FILE
 
@@ -26,8 +27,9 @@ function format_chat_logic_for_payload_formatter(
         if ($last_message && $last_message['role'] === 'user') {
             $input_array[] = ['role' => 'user', 'content' => trim($last_message['content'])];
         } else {
-            error_log("OpenAIPayloadFormatter (Chat Logic): using previous_response_id but last message not 'user'. History: " . print_r($history, true));
-            if (empty($instructions)) $input_array[] = ['role' => 'system', 'content' => 'Continue the conversation.'];
+            if (empty($instructions)) {
+                $input_array[] = ['role' => 'system', 'content' => 'Continue the conversation.'];
+            }
         }
         if (!empty($instructions)) {
             if (empty($input_array) || $input_array[0]['role'] !== 'system') {
@@ -42,7 +44,9 @@ function format_chat_logic_for_payload_formatter(
             $role = ($msg['role'] === 'bot') ? 'assistant' : $msg['role'];
             $content = isset($msg['content']) ? trim($msg['content']) : '';
             if ($content !== '' && in_array($role, ['system', 'user', 'assistant'], true)) {
-                 if ($role === 'system' && !empty($instructions)) continue;
+                if ($role === 'system' && !empty($instructions)) {
+                    continue;
+                }
                 $input_array[] = ['role' => $role, 'content' => $content];
             }
         }
@@ -64,7 +68,7 @@ function format_chat_logic_for_payload_formatter(
             }
             $new_content_parts = [];
             if (!empty($user_text_content) || empty($ai_params['image_inputs'])) {
-                 $new_content_parts[] = ['type' => 'input_text', 'text' => $user_text_content];
+                $new_content_parts[] = ['type' => 'input_text', 'text' => $user_text_content];
             }
             foreach ($ai_params['image_inputs'] as $image_input) {
                 if (isset($image_input['base64']) && isset($image_input['type'])) {
@@ -74,12 +78,12 @@ function format_chat_logic_for_payload_formatter(
                     ];
                 }
             }
-             if (!empty($new_content_parts)) {
+            if (!empty($new_content_parts)) {
                 $input_array[$last_message_key]['content'] = $new_content_parts;
-             } elseif (empty($user_text_content) && !empty($ai_params['image_inputs'])) {
-                 if (empty($input_array[$last_message_key]['content']) && !empty($ai_params['image_inputs'])) {
+            } elseif (empty($user_text_content) && !empty($ai_params['image_inputs'])) {
+                if (empty($input_array[$last_message_key]['content']) && !empty($ai_params['image_inputs'])) {
                     $input_array[$last_message_key]['content'] = [['type' => 'input_text', 'text' => '']];
-                     foreach ($ai_params['image_inputs'] as $image_input) {
+                    foreach ($ai_params['image_inputs'] as $image_input) {
                         if (isset($image_input['base64']) && isset($image_input['type'])) {
                             $input_array[$last_message_key]['content'][] = [
                                 'type' => 'input_image',
@@ -87,8 +91,8 @@ function format_chat_logic_for_payload_formatter(
                             ];
                         }
                     }
-                 }
-             }
+                }
+            }
         }
     }
 
@@ -115,7 +119,7 @@ function format_chat_logic_for_payload_formatter(
         isset($ai_params['vector_store_tool_config']['vector_store_ids']) &&
         is_array($ai_params['vector_store_tool_config']['vector_store_ids']) &&
         !empty($ai_params['vector_store_tool_config']['vector_store_ids'])
-        ) {
+    ) {
         $tools[] = [
             'type' => 'file_search',
             'vector_store_ids' => $ai_params['vector_store_tool_config']['vector_store_ids'],
@@ -137,16 +141,21 @@ function format_chat_logic_for_payload_formatter(
             }
         }
         $tools[] = $web_search_tool;
-        error_log("OpenAIPayloadFormatter (Chat Logic): Web Search tool added to payload.");
     }
 
     if (!empty($tools)) {
         $body_data['tools'] = $tools;
     }
 
-    if (isset($ai_params['temperature'])) $body_data['temperature'] = floatval($ai_params['temperature']);
-    if (isset($ai_params['max_completion_tokens'])) $body_data['max_output_tokens'] = absint($ai_params['max_completion_tokens']);
-    if (isset($ai_params['top_p'])) $body_data['top_p'] = floatval($ai_params['top_p']);
+    if (isset($ai_params['temperature'])) {
+        $body_data['temperature'] = floatval($ai_params['temperature']);
+    }
+    if (isset($ai_params['max_completion_tokens'])) {
+        $body_data['max_output_tokens'] = absint($ai_params['max_completion_tokens']);
+    }
+    if (isset($ai_params['top_p'])) {
+        $body_data['top_p'] = floatval($ai_params['top_p']);
+    }
 
     return $body_data;
 }

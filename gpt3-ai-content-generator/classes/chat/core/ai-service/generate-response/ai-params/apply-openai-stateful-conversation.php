@@ -44,8 +44,6 @@ function apply_openai_stateful_conversation_logic(
             $latest_user_message_obj = end($messages_payload_ref);
             if ($latest_user_message_obj && ($latest_user_message_obj['role'] === 'user')) {
                 $messages_payload_ref = [$latest_user_message_obj];
-            } else {
-                error_log("ApplyOpenAIStatefulConversation Logic: OpenAI stateful mode, but latest user message not found or not 'user'. Original messages payload will be used.");
             }
         }
     }

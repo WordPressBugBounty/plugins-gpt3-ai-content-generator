@@ -89,7 +89,6 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                 'vector_store_ids' => $openai_vector_store_ids,
                 'max_num_results'  => $vector_store_top_k,
             ];
-            error_log("AIPKit Bulk Enhancer: Adding OpenAI vector_store_tool_config to AI params for Post #{$post->ID}.");
         }
         // --- END MODIFICATION ---
 
@@ -152,8 +151,6 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
         if ($vector_store_enabled) {
             if (class_exists(AIPKit_Vector_Store_Manager::class)) {
                 $vector_store_manager = new AIPKit_Vector_Store_Manager();
-            } else {
-                error_log('AIPKit Bulk Enhancer: Vector Store Manager class not found.');
             }
 
             if ($vector_store_manager && function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
@@ -173,7 +170,6 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
         }
         if (!empty($vector_context)) {
             $system_instruction = "## Relevant information from knowledge base:\n" . trim($vector_context) . "\n##\n\n" . $system_instruction;
-            error_log("AIPKit Bulk Enhancer: Added vector context to system prompt for Post #{$post->ID}.");
         }
         // --- END: Vector Context Logic ---
 

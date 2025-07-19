@@ -28,8 +28,6 @@ if (!defined('ABSPATH')) {
  */
 function process_session_start_trigger_logic(array $context): array|WP_Error
 {
-    error_log("AIPKit ChatStreamContextHandler: New session detected for bot ID {$context['bot_id']}, conv UUID {$context['base_log_data']['conversation_uuid']}. Processing 'session_started' triggers.");
-
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
     $trigger_function_name = '\WPAICG\Lib\Chat\Triggers\process_chat_triggers';
@@ -84,7 +82,6 @@ function process_session_start_trigger_logic(array $context): array|WP_Error
         return new WP_Error('trigger_blocked', $session_trigger_result['message_to_user'] ?? __('Session blocked by system.', 'gpt3-ai-content-generator'), ['status' => 400, 'is_trigger_response' => true, 'message_id' => $block_message_id]);
     }
     if (isset($session_trigger_result['display_form_event_data']) && is_array($session_trigger_result['display_form_event_data'])) {
-        error_log("AIPKit ProcessSessionStartTrigger: 'session_started' trigger resulted in display_form event.");
         return new WP_Error('trigger_display_form', __('Form display requested by trigger.', 'gpt3-ai-content-generator'), ['status' => 200, 'display_form_event_data' => $session_trigger_result['display_form_event_data']]);
     }
     if (isset($session_trigger_result['message_to_user']) && ($session_trigger_result['stop_ai_processing'] ?? false)) {

@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/providers/openai/format-sse.php
 // Status: NEW FILE
 
@@ -27,8 +28,9 @@ function format_sse_logic_for_payload_formatter(
         if ($last_message && $last_message['role'] === 'user') {
             $input_array[] = ['role' => 'user', 'content' => trim($last_message['content'])];
         } else {
-            error_log("OpenAIPayloadFormatter (SSE Logic): using previous_response_id but last message not 'user'. Messages: " . print_r($messages, true));
-            if (empty($instructions_text)) $input_array[] = ['role' => 'system', 'content' => 'Continue the conversation.'];
+            if (empty($instructions_text)) {
+                $input_array[] = ['role' => 'system', 'content' => 'Continue the conversation.'];
+            }
         }
         if (!empty($instructions_text)) {
             if (empty($input_array) || $input_array[0]['role'] !== 'system') {
@@ -44,7 +46,9 @@ function format_sse_logic_for_payload_formatter(
             $content = isset($msg['content']) ? trim($msg['content']) : '';
             $api_role = ($role === 'bot') ? 'assistant' : $role;
             if ($content !== '' && in_array($api_role, ['system', 'assistant', 'user'], true)) {
-                 if ($api_role === 'system' && !empty($instructions_text)) continue;
+                if ($api_role === 'system' && !empty($instructions_text)) {
+                    continue;
+                }
                 $input_array[] = ['role' => $api_role, 'content' => $content];
             }
         }
@@ -66,7 +70,7 @@ function format_sse_logic_for_payload_formatter(
             }
             $new_content_parts = [];
             if (!empty($user_text_content) || empty($ai_params['image_inputs'])) {
-                 $new_content_parts[] = ['type' => 'input_text', 'text' => $user_text_content];
+                $new_content_parts[] = ['type' => 'input_text', 'text' => $user_text_content];
             }
             foreach ($ai_params['image_inputs'] as $image_input) {
                 if (isset($image_input['base64']) && isset($image_input['type'])) {
@@ -79,9 +83,9 @@ function format_sse_logic_for_payload_formatter(
             if (!empty($new_content_parts)) {
                 $input_array[$last_message_key]['content'] = $new_content_parts;
             } elseif (empty($user_text_content) && !empty($ai_params['image_inputs'])) {
-                 if (empty($input_array[$last_message_key]['content']) && !empty($ai_params['image_inputs'])) {
+                if (empty($input_array[$last_message_key]['content']) && !empty($ai_params['image_inputs'])) {
                     $input_array[$last_message_key]['content'] = [['type' => 'input_text', 'text' => '']];
-                     foreach ($ai_params['image_inputs'] as $image_input) {
+                    foreach ($ai_params['image_inputs'] as $image_input) {
                         if (isset($image_input['base64']) && isset($image_input['type'])) {
                             $input_array[$last_message_key]['content'][] = [
                                 'type' => 'input_image',
@@ -89,8 +93,8 @@ function format_sse_logic_for_payload_formatter(
                             ];
                         }
                     }
-                 }
-             }
+                }
+            }
         }
     }
 
@@ -118,7 +122,7 @@ function format_sse_logic_for_payload_formatter(
         isset($ai_params['vector_store_tool_config']['vector_store_ids']) &&
         is_array($ai_params['vector_store_tool_config']['vector_store_ids']) &&
         !empty($ai_params['vector_store_tool_config']['vector_store_ids'])
-       ) {
+    ) {
         $tools[] = [
             'type' => 'file_search',
             'vector_store_ids' => $ai_params['vector_store_tool_config']['vector_store_ids'],
@@ -136,22 +140,27 @@ function format_sse_logic_for_payload_formatter(
         if (isset($ai_params['web_search_tool_config']['user_location']) && is_array($ai_params['web_search_tool_config']['user_location']) && !empty(array_filter($ai_params['web_search_tool_config']['user_location']))) {
             $web_search_tool_sse['user_location'] = array_filter($ai_params['web_search_tool_config']['user_location']);
             if (!isset($web_search_tool_sse['user_location']['type'])) {
-                 $web_search_tool_sse['user_location']['type'] = 'approximate';
+                $web_search_tool_sse['user_location']['type'] = 'approximate';
             }
         }
         $tools[] = $web_search_tool_sse;
-        error_log("OpenAIPayloadFormatter (SSE Logic): Web Search tool added to payload.");
     }
 
     if (!empty($tools)) {
         $body_data['tools'] = $tools;
     }
 
-    if (isset($ai_params['temperature'])) $body_data['temperature'] = floatval($ai_params['temperature']);
-    if (isset($ai_params['max_completion_tokens'])) $body_data['max_output_tokens'] = absint($ai_params['max_completion_tokens']);
-    if (isset($ai_params['top_p'])) $body_data['top_p'] = floatval($ai_params['top_p']);
+    if (isset($ai_params['temperature'])) {
+        $body_data['temperature'] = floatval($ai_params['temperature']);
+    }
+    if (isset($ai_params['max_completion_tokens'])) {
+        $body_data['max_output_tokens'] = absint($ai_params['max_completion_tokens']);
+    }
+    if (isset($ai_params['top_p'])) {
+        $body_data['top_p'] = floatval($ai_params['top_p']);
+    }
     if (!empty($system_instruction) && is_array($system_instruction)) { // System instruction can be an object for Responses API
-         $body_data['instructions'] = $system_instruction;
+        $body_data['instructions'] = $system_instruction;
     }
 
     return $body_data;

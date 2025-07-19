@@ -32,7 +32,6 @@ class AIPKit_PostEnhancer_Update_Title extends AIPKit_Post_Enhancer_Base_Ajax_Ac
 
         $update_result = wp_update_post(['ID' => $post->ID, 'post_title' => $new_title], true);
         if (is_wp_error($update_result)) {
-            error_log("AIPKit Post Enhancer: Error updating title for post {$post->ID}. Error: " . $update_result->get_error_message());
             wp_send_json_error(['message' => 'Failed to update post title: ' . $update_result->get_error_message()], 500);
         } else {
             wp_send_json_success(['message' => __('Post title updated successfully.', 'gpt3-ai-content-generator')]);

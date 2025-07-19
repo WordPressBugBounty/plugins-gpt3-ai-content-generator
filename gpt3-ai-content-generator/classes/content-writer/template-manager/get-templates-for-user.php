@@ -64,7 +64,6 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
                     if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_creds)) {
                         // It was a JSON string, replace it with the decoded array.
                         $config['gsheets_credentials'] = $decoded_creds;
-                        error_log("AIPKit Get Templates: Decoded a stringified gsheets_credentials for template ID {$raw_template['id']}.");
                     }
                 }
             }

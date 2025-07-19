@@ -44,7 +44,6 @@ class AIPKit_OpenAI_Moderation_Checker {
 
         // 3. OpenAI Moderation only applies if the selected provider is OpenAI
         if ($current_provider !== 'OpenAI') {
-            // error_log("AIPKit OpenAI Moderation Checker: Skipping OpenAI Moderation as provider is not OpenAI ({$current_provider}).");
             return null;
         }
 

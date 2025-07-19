@@ -47,9 +47,6 @@ $saved_model = $bot_settings['model'] ?? '';
                     $triggers_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-triggers.php'; // New path
                     if (file_exists($triggers_accordion_path)) {
                         include $triggers_accordion_path;
-                    } else {
-                        // Optional: error_log or a placeholder if file missing in Pro
-                        error_log("AIPKit Error: Triggers accordion partial missing in /lib/ for Pro plan at {$triggers_accordion_path}");
                     }
                 }
 // --- END MODIFICATION ---

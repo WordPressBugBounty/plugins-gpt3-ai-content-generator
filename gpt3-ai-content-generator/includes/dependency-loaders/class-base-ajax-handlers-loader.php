@@ -25,24 +25,18 @@ class Base_Ajax_Handlers_Loader
             $full_trait_path = $traits_path . $trait_file;
             if (file_exists($full_trait_path)) {
                 require_once $full_trait_path;
-            } else {
-                error_log("AIPKit Core Loader Error: Trait file {$trait_file} not found at {$full_trait_path}.");
             }
         }
         // Now load the base handler class that uses these traits
         $base_chat_ajax_handler_path = WPAICG_PLUGIN_DIR . 'classes/chat/admin/ajax/base_ajax_handler.php';
         if (file_exists($base_chat_ajax_handler_path)) {
             require_once $base_chat_ajax_handler_path;
-        } else {
-            error_log('AIPKit Core Loader Error: BaseAjaxHandler (Chat) class file not found.');
         }
 
         // Continue loading other base handlers if any
         $base_dashboard_ajax_handler_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/ajax/class-aipkit-base-dashboard-ajax-handler.php';
         if (file_exists($base_dashboard_ajax_handler_path)) {
             require_once $base_dashboard_ajax_handler_path;
-        } else {
-            error_log('AIPKit Core Loader Error: BaseDashboardAjaxHandler class file not found.');
         }
 
         // --- ADDED: Load Dashboard specific AJAX handlers here ---
@@ -50,14 +44,10 @@ class Base_Ajax_Handlers_Loader
         $settings_ajax_handler_path = $dashboard_ajax_path . 'class-aipkit-settings-ajax-handler.php';
         if (file_exists($settings_ajax_handler_path)) {
             require_once $settings_ajax_handler_path;
-        } else {
-            error_log('AIPKit Base AJAX Loader Error: SettingsAjaxHandler class file not found.');
         }
         $models_ajax_handler_path = $dashboard_ajax_path . 'class-aipkit-models-ajax-handler.php';
         if (file_exists($models_ajax_handler_path)) {
             require_once $models_ajax_handler_path;
-        } else {
-            error_log('AIPKit Base AJAX Loader Error: ModelsAjaxHandler class file not found.');
         }
         // --- END ADDED ---
 
@@ -65,16 +55,12 @@ class Base_Ajax_Handlers_Loader
         $core_ajax_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/ajax/class-aipkit-core-ajax-handler.php';
         if (file_exists($core_ajax_handler_path)) {
             require_once $core_ajax_handler_path;
-        } else {
-            error_log('AIPKit Core Loader Error: AIPKit_Core_Ajax_Handler class file not found.');
         }
 
         // --- NEW: Load Semantic Search AJAX Handler ---
         $semantic_search_ajax_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php';
         if (file_exists($semantic_search_ajax_handler_path)) {
             require_once $semantic_search_ajax_handler_path;
-        } else {
-            error_log('AIPKit Core Loader Error: AIPKit_Semantic_Search_Ajax_Handler class file not found.');
         }
         // --- END NEW ---
     }

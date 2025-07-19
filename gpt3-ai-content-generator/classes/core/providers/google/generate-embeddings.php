@@ -52,7 +52,6 @@ function generate_embeddings_logic(
     $response = wp_remote_post($url, array_merge($request_options, ['headers' => $headers, 'body' => $request_body_json]));
 
     if (is_wp_error($response)) {
-        error_log("AIPKit Google Embeddings Logic Error (wp_remote_request): " . $response->get_error_message());
         return new WP_Error('google_embedding_http_error_logic', __('HTTP error during embedding generation.', 'gpt3-ai-content-generator'));
     }
 
@@ -64,7 +63,6 @@ function generate_embeddings_logic(
         $error_msg = is_wp_error($decoded_response)
                     ? $decoded_response->get_error_message()
                     : GoogleResponseParser::parse_error($body, $status_code);
-        error_log("AIPKit Google Embeddings API Logic Error ({$status_code}): " . $error_msg);
         /* translators: %1$d: HTTP status code, %2$s: API error message. */
         return new WP_Error('google_embedding_api_error_logic', sprintf(__('Google Embeddings API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg)));
     }

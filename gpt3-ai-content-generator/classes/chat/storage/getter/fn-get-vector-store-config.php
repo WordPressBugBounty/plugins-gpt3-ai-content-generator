@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/chat/storage/getter/fn-get-vector-store-config.php
 // Status: NEW FILE
 
@@ -17,13 +18,15 @@ if (!defined('ABSPATH')) {
  * @param callable $get_meta_fn A function to retrieve post meta.
  * @return array Associative array of vector store settings.
  */
-function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): array {
+function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): array
+{
     $settings = [];
 
     if (!class_exists(BotSettingsManager::class)) {
         $bsm_path = dirname(__DIR__) . '/class-aipkit_bot_settings_manager.php';
-        if (file_exists($bsm_path)) require_once $bsm_path;
-        else error_log("AIPKit Getter (Vector): BotSettingsManager class not found for constants.");
+        if (file_exists($bsm_path)) {
+            require_once $bsm_path;
+        }
     }
 
     $settings['enable_vector_store'] = in_array($get_meta_fn('_aipkit_enable_vector_store', BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE), ['0','1'])
@@ -39,12 +42,9 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
     $openai_vs_ids_array = json_decode($openai_vs_ids_json, true);
     if (!is_array($openai_vs_ids_array)) {
         $openai_vs_ids_array = [];
-        if ($openai_vs_ids_json !== '' && $openai_vs_ids_json !== '[]') {
-            error_log("AIPKit Getter (Vector): Invalid JSON for _aipkit_openai_vector_store_ids for bot ID {$bot_id}. Value: " . $openai_vs_ids_json);
-        }
     }
     $settings['openai_vector_store_ids'] = $openai_vs_ids_array;
-    
+
     // Delete old singular OpenAI store ID meta if it exists
     if (get_post_meta($bot_id, '_aipkit_openai_vector_store_id', true) !== false) {
         delete_post_meta($bot_id, '_aipkit_openai_vector_store_id');
@@ -52,7 +52,7 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
 
     $settings['pinecone_index_name'] = $get_meta_fn('_aipkit_pinecone_index_name', BotSettingsManager::DEFAULT_PINECONE_INDEX_NAME);
     $settings['qdrant_collection_name'] = $get_meta_fn('_aipkit_qdrant_collection_name', BotSettingsManager::DEFAULT_QDRANT_COLLECTION_NAME);
-    
+
     $settings['vector_embedding_provider'] = $get_meta_fn('_aipkit_vector_embedding_provider', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
     if (!in_array($settings['vector_embedding_provider'], ['openai', 'google', 'azure'])) {
         $settings['vector_embedding_provider'] = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;

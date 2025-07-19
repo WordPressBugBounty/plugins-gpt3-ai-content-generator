@@ -24,7 +24,6 @@ function get_google_grounding_flags_logic(array $settings, bool $allow_google_se
 
     if (!class_exists(BotSettingsManager::class)) {
         // Fallback if BotSettingsManager is not available for defaults
-        error_log("AIPKit FeatureManager (Google Grounding): BotSettingsManager class not found for constants.");
         $defaults = [
             'DEFAULT_GOOGLE_GROUNDING_MODE' => 'DEFAULT_MODE',
             'DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD' => 0.3,

@@ -102,7 +102,6 @@ function prepare_stream_data_logic(
             'vector_store_ids' => $form_config['openai_vector_store_ids'],
             'max_num_results'  => $vector_top_k,
         ];
-        error_log("AIPKit AI Forms Prepare Stream: Added vector_store_tool_config for OpenAI. VS IDs: " . implode(', ', $form_config['openai_vector_store_ids']));
     }
     // --- FIX ENDS HERE ---
 

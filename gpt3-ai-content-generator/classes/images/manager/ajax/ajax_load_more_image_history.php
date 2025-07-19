@@ -28,6 +28,7 @@ function ajax_load_more_image_history_logic(): void
         'author'         => $user_id,
         'posts_per_page' => 20, // Keep this consistent with render_image_history
         'paged'          => $page,
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
         'meta_query'     => [
             [
                 'key'     => '_aipkit_generated_image',
@@ -54,6 +55,7 @@ function ajax_load_more_image_history_logic(): void
             ?>
             <div class="aipkit-image-history-item">
                 <a href="<?php echo esc_url($full_url); ?>" target="_blank" rel="noopener noreferrer">
+                    <?php // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function (e.g., `wp_get_attachment_image_url`). The `<img>` tag is constructed manually to build a custom HTML structure with specific wrappers, classes, or attributes that are not achievable with the standard `wp_get_attachment_image()` function. ?>
                     <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr($prompt ?: 'AI Generated Image'); ?>">
                 </a>
                 <button type="button" class="aipkit-image-history-delete-btn" data-attachment-id="<?php echo esc_attr($attachment_id); ?>" title="<?php esc_attr_e('Delete Image', 'gpt3-ai-content-generator'); ?>">

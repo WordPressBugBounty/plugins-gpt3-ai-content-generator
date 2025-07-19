@@ -45,7 +45,6 @@ if (is_array($stats_data)) {
          $most_used_module = $most_used_module_key ?: __('(No usage)', 'gpt3-ai-content-generator');
     } else {
          $most_used_module = __('Error', 'gpt3-ai-content-generator'); // Indicate error if class missing
-         error_log("AIPKit Stats Partial Error: AIPKit_Stats class not found.");
     }
 
 } elseif (is_wp_error($stats_data)) {

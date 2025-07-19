@@ -26,7 +26,5 @@ function run_now_content_enhancement_logic(int $task_id, array $task_config): vo
     if (function_exists('\WPAICG\AutoGPT\Cron\EventProcessor\Trigger\trigger_content_enhancement_task_logic')) {
         // For "Run Now", we always pass null for last_run_time to get all posts matching criteria.
         Trigger\trigger_content_enhancement_task_logic($task_id, $task_config, null);
-    } else {
-        error_log("AIPKit Run Now (Content Enhancement): trigger_content_enhancement_task_logic function not found.");
     }
 }

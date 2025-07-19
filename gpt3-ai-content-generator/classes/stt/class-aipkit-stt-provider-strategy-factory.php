@@ -48,7 +48,6 @@ class AIPKit_STT_Provider_Strategy_Factory {
 
                  require_once $strategy_file;
              } else {
-                 error_log("AIPKit STT Error: Strategy file not found for provider '{$provider}' at path '{$strategy_file}'.");
                  /* translators: %s: The provider name. */
                  return new WP_Error('stt_strategy_file_not_found', sprintf(__('STT Strategy file not found for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
              }
@@ -68,7 +67,6 @@ class AIPKit_STT_Provider_Strategy_Factory {
         if (class_exists($class_name)) {
             self::$instances[$provider] = new $class_name();
         } else {
-             error_log("AIPKit STT Error: Failed to instantiate strategy class for provider '{$provider}'. Class '{$class_name}' might not exist or file was incorrect.");
             /* translators: %s: The provider name. */
             return new WP_Error('stt_strategy_instantiation_failed', sprintf(__('Failed to load STT strategy for provider: %s', 'gpt3-ai-content-generator'), esc_html($provider)));
         }

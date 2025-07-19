@@ -27,12 +27,7 @@ class Core_Moderation_Dependencies_Loader {
             $full_path = $moderation_base_path . $file;
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit Core Moderation Loader Error: File {$file} not found at {$full_path}.");
             }
         }
-
-        // The facade class `AIPKit_Content_Moderator` is already loaded by `Core_Services_Loader`.
-        // No need to load it again here.
     }
 }

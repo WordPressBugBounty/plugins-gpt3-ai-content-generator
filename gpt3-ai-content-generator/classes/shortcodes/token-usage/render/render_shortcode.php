@@ -28,8 +28,6 @@ function render_shortcode_logic(\WPAICG\Shortcodes\AIPKit_Token_Usage_Shortcode 
         if (!\WPAICG\AIPKit_Role_Manager::user_can_access_module('token_usage_shortcode')) {
             return '<p class="aipkit-permission-denied">' . esc_html__('You do not have permission to view token usage.', 'gpt3-ai-content-generator') . '</p>';
         }
-    } else {
-        error_log('AIPKit Token Usage Shortcode Warning: AIPKit_Role_Manager class not found. Skipping permission check.');
     }
 
     $default_atts = [

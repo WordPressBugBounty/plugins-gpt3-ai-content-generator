@@ -63,9 +63,6 @@ if (!defined('ABSPATH')) {
                     $moderation_partial_path = WPAICG_LIB_DIR . 'views/settings/partials/settings-advanced-moderation.php';
                     if (file_exists($moderation_partial_path)) {
                         include $moderation_partial_path;
-                    } else {
-                        // Optional: error_log or display admin notice if file is expected but missing
-                        // error_log('AIPKit Settings: Pro moderation view partial not found at ' . $moderation_partial_path);
                     }
 ?>
                 <?php endif; ?>
@@ -82,9 +79,6 @@ if (!defined('ABSPATH')) {
                 $consent_partial_path = WPAICG_LIB_DIR . 'views/settings/partials/settings-advanced-consent.php';
             if (file_exists($consent_partial_path)) {
                 include $consent_partial_path;
-            } else {
-                // Optional: error_log or display admin notice
-                // error_log('AIPKit Settings: Pro consent view partial not found at ' . $consent_partial_path);
             }
 ?>
             </div>

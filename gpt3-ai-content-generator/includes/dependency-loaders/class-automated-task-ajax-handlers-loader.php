@@ -27,8 +27,6 @@ class Automated_Task_Ajax_Handlers_Loader
             $full_path = $ajax_base_path . $file;
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit Dependency Error: Automated Task AJAX Action file {$file} not found at {$full_path}");
             }
         }
     }

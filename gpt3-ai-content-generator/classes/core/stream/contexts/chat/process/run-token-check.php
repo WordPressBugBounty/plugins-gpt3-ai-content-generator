@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/contexts/chat/process/run-token-check.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Core\Stream\Contexts\Chat\Process;
 
@@ -45,9 +45,8 @@ function run_token_check_logic(
         }
 
         if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
-            if (!$log_storage) {
-                error_log("AIPKit Token Check Logic: LogStorage not available for system_error_occurred trigger. Token error: " . $token_check_result->get_error_message());
-            } else {
+            // Only proceed if log storage is available for the trigger manager
+            if ($log_storage) {
                 $error_data = $token_check_result->get_error_data() ?: [];
                 $error_event_context = [
                     'error_code'    => $token_check_result->get_error_code(),
@@ -64,7 +63,7 @@ function run_token_check_logic(
                     $trigger_manager = new $trigger_manager_class($trigger_storage, $log_storage);
                     $trigger_manager->process_event($bot_id, 'system_error_occurred', $error_event_context);
                 } catch (\Exception $e) {
-                    error_log("AIPKit Token Check Logic: Exception while dispatching system_error_occurred trigger: " . $e->getMessage());
+                    // Exception is caught and ignored to prevent fatal errors.
                 }
             }
         }

@@ -21,7 +21,6 @@ function write_to_sse_cache_logic(array $data_to_cache): string|WP_Error
     $cache_key_result = $sse_message_cache->set(wp_json_encode($data_to_cache));
 
     if (is_wp_error($cache_key_result)) {
-        error_log("AIPKit Content Writer AJAX (Cache): Cache Error: " . $cache_key_result->get_error_message());
         return $cache_key_result;
     }
     return $cache_key_result;

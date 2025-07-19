@@ -118,7 +118,6 @@ function trigger_content_writing_task_logic(int $task_id, array $task_config): v
                 $start_datetime->modify($offset_string);
                 $scheduled_gmt_time = $start_datetime->format('Y-m-d H:i:s');
             } catch (\Exception $e) {
-                error_log("AIPKit CW Task Trigger: Invalid smart schedule date format. " . $e->getMessage());
             }
         }
 

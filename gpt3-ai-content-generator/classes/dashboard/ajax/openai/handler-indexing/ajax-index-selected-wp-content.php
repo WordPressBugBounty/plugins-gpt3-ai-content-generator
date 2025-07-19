@@ -137,7 +137,6 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
     if (!empty($failed_posts_log)) {
         /* translators: %d: Number of failed posts */
         $response_message .= ' ' . sprintf(__('Some posts failed: %d. Check data source logs for details.', 'gpt3-ai-content-generator'), count($failed_posts_log));
-        error_log("AIPKit Index WP Content: Failed Posts (Detailed): " . print_r($failed_posts_log, true));
     }
 
     wp_send_json_success([

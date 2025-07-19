@@ -15,9 +15,6 @@ if (!defined('ABSPATH')) {
 function ScheduleTokenResetEventLogic(string $cronHook): void {
     if (!wp_next_scheduled($cronHook)) {
         wp_schedule_event(time(), 'daily', $cronHook);
-        error_log('AIPKit Token Manager (Cron Logic): Scheduled daily token reset event.');
-    } else {
-         error_log('AIPKit Token Manager (Cron Logic): Daily token reset event already scheduled.');
     }
 
     // Ensure the action is hooked (can be called multiple times, add_action handles duplicates)

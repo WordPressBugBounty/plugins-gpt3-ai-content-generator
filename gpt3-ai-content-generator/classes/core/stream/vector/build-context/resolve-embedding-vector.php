@@ -32,7 +32,6 @@ function resolve_embedding_vector_logic(
 
     if (is_wp_error($embedding_result) || empty($embedding_result['embeddings'][0])) {
         $error_message = is_wp_error($embedding_result) ? $embedding_result->get_error_message() : 'No embeddings returned.';
-        error_log("BuildContext (resolve_embedding_vector_logic): Failed to generate embedding for query. Provider: {$embedding_provider_normalized}, Model: {$embedding_model}. Error: " . $error_message);
         return new WP_Error('embedding_failed_for_query', $error_message);
     }
 

@@ -29,7 +29,6 @@ function ajax_sync_google_tts_voices_logic(string $option_name) {
     }
 
     if (!class_exists(\WPAICG\AIPKit_Providers::class)) {
-         error_log('AIPKit Google TTS Sync Logic: AIPKit_Providers class not found.');
          wp_send_json_error(['message' => __('Provider configuration missing.', 'gpt3-ai-content-generator')], 500);
          return;
     }
@@ -41,7 +40,6 @@ function ajax_sync_google_tts_voices_logic(string $option_name) {
     }
 
     if (!class_exists(\WPAICG\Speech\AIPKit_TTS_Provider_Strategy_Factory::class)) {
-        error_log('AIPKit Google TTS Sync Logic: TTS Factory class not found.');
         wp_send_json_error(['message' => __('TTS components missing.', 'gpt3-ai-content-generator')], 500);
         return;
     }

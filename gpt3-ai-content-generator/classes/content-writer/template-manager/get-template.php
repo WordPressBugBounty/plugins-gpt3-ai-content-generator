@@ -43,7 +43,6 @@ function get_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template
     $config = json_decode($template['config'], true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         $template['config'] = [];
-        error_log("AIPKit Content Writer: Corrupted JSON config for template ID {$template_id}.");
     } else {
         // Handle Google Sheets credentials if they exist
         if (isset($config['gsheets_credentials'])) {
@@ -55,7 +54,6 @@ function get_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_creds)) {
                     // It was a JSON string, replace it with the decoded array.
                     $config['gsheets_credentials'] = $decoded_creds;
-                    error_log("AIPKit Get Template: Decoded a stringified gsheets_credentials for template ID {$template_id}.");
                 }
             }
         }

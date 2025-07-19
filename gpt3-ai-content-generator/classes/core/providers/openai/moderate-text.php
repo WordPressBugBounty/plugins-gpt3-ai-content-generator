@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/core/providers/openai/moderate-text.php
 // Status: NEW FILE
 
@@ -22,7 +23,8 @@ if (!defined('ABSPATH')) {
  * @param array $api_params API connection parameters.
  * @return bool|WP_Error True if flagged, false if not, WP_Error on API error.
  */
-function moderate_text_logic(OpenAIProviderStrategy $strategyInstance, string $text, array $api_params): bool|WP_Error {
+function moderate_text_logic(OpenAIProviderStrategy $strategyInstance, string $text, array $api_params): bool|WP_Error
+{
     // URL Builder requires base_url and api_version to be passed from $api_params
     $url_builder_params = [
         'base_url' => $api_params['base_url'] ?? 'https://api.openai.com',
@@ -41,7 +43,6 @@ function moderate_text_logic(OpenAIProviderStrategy $strategyInstance, string $t
     $response = wp_remote_post($url, array_merge($options, ['headers' => $headers, 'body' => $payload_json]));
 
     if (is_wp_error($response)) {
-        error_log("AIPKit OpenAI Moderation Logic Error (wp_remote_request): " . $response->get_error_message());
         return new WP_Error('moderation_http_request_failed_logic', __('Moderation check failed (HTTP).', 'gpt3-ai-content-generator'));
     }
 
@@ -50,7 +51,6 @@ function moderate_text_logic(OpenAIProviderStrategy $strategyInstance, string $t
 
     if ($status_code >= 400) {
         $error_message = OpenAIResponseParser::parse_error($response_body, $status_code);
-        error_log("AIPKit OpenAI Moderation API Logic Error ({$status_code}): " . $error_message);
         /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
         return new WP_Error('moderation_api_error_logic', sprintf(__('Moderation check failed (API %1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_message)));
     }
@@ -71,7 +71,6 @@ function moderate_text_logic(OpenAIProviderStrategy $strategyInstance, string $t
                 }
             }
         }
-        error_log("AIPKit OpenAI Moderation Logic: Input flagged. Categories: " . implode(', ', $flagged_categories) . ". Input snippet: " . esc_html(substr($text, 0, 100)));
     }
     return $is_flagged;
 }

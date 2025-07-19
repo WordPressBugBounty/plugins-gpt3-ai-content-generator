@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/frontend/asset_registrars/class-chat-feature-handler-registrar.php
 // Status: MODIFIED
 
@@ -8,8 +9,10 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Chat_Feature_Handler_Registrar {
-    public static function register(string $version, string $public_chat_js_url, array $dependencies = [], string $plugin_base_url = '', string $plugin_dir = ''): array {
+class Chat_Feature_Handler_Registrar
+{
+    public static function register(string $version, string $public_chat_js_url, array $dependencies = [], string $plugin_base_url = '', string $plugin_dir = ''): array
+    {
         $public_chat_message_actions_js_url = $public_chat_js_url . 'message-actions/';
         $public_chat_popup_js_url = $public_chat_js_url . 'popup/';
         $public_chat_tts_js_url = $public_chat_js_url . 'tts/';
@@ -17,7 +20,7 @@ class Chat_Feature_Handler_Registrar {
 
         $lib_js_chat_consent_url = $plugin_base_url . 'lib/js/chat/consent/';
         $lib_js_chat_consent_dir = $plugin_dir . 'lib/js/chat/consent/';
-        
+
         $final_registered_handles = []; // Store only successfully registered handles
 
         $base_handles_map = [ // Map keys to actual handle names
@@ -39,7 +42,7 @@ class Chat_Feature_Handler_Registrar {
             'consent' => 'aipkit-chat-ui-consent-init',
             'moderation' => 'aipkit-chat-ui-moderation',
             // Message action sub-components
-            'extract-text-from-bubble'=> 'aipkit-chat-extract-text-from-bubble',
+            'extract-text-from-bubble' => 'aipkit-chat-extract-text-from-bubble',
             'show-success-icon'       => 'aipkit-chat-show-success-icon',
             'handle-copy-action'      => 'aipkit-chat-handle-copy-action',
             'handle-feedback-action'  => 'aipkit-chat-handle-feedback-action',
@@ -96,7 +99,7 @@ class Chat_Feature_Handler_Registrar {
             list($path, $deps_keys) = $script_info;
             $handle = $base_handles_map[$key] ?? null;
             if ($handle && !wp_script_is($handle, 'registered')) {
-                $actual_deps = array_map(function($dep_key) use ($base_handles_map) {
+                $actual_deps = array_map(function ($dep_key) use ($base_handles_map) {
                     return $base_handles_map[$dep_key] ?? $dep_key; // Resolve keys to actual handles
                 }, $deps_keys);
                 wp_register_script($handle, $public_chat_js_url . $path, array_filter($actual_deps), $version, true);
@@ -140,8 +143,6 @@ class Chat_Feature_Handler_Registrar {
                 if (in_array($key, ['consent-show', 'consent-hide', 'consent-agree'])) {
                     $registered_consent_handles_for_main_init[] = $current_handle;
                 }
-            } elseif (!file_exists($file_full_path)) {
-                 error_log("AIPKit Chat Feature Handler: Consent JS file '{$filename}' not found in /lib/. Handle '{$current_handle}' NOT registered.");
             }
         }
         // Specifically register the main 'consent' init script ('aipkit-chat-ui-consent-init')
@@ -165,11 +166,7 @@ class Chat_Feature_Handler_Registrar {
                 if ($all_direct_deps_are_registered) {
                     wp_register_script($main_consent_init_handle, $lib_js_chat_consent_url . 'init-consent-ui.js', array_filter(array_unique($actual_main_consent_deps)), $version, true);
                     $final_registered_handles['consent'] = $main_consent_init_handle;
-                } else {
-                     error_log("AIPKit Chat Feature Handler: Not all direct dependencies for '{$main_consent_init_handle}' were registered. Main consent init script NOT registered.");
                 }
-            } else {
-                 error_log("AIPKit Chat Feature Handler: Main consent init JS file 'init-consent-ui.js' not found in /lib/. Handle '{$main_consent_init_handle}' NOT registered.");
             }
         }
 

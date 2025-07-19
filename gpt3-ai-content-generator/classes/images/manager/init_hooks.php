@@ -21,7 +21,5 @@ function init_hooks_logic(AIPKit_Image_Manager $managerInstance): void
     $settings_ajax_handler = $managerInstance->get_settings_ajax_handler();
     if ($settings_ajax_handler && method_exists($settings_ajax_handler, 'ajax_save_image_settings')) {
         add_action('wp_ajax_aipkit_save_image_settings', [$settings_ajax_handler, 'ajax_save_image_settings']);
-    } else {
-        error_log('AIPKit Image Manager Warning: Could not register save settings AJAX action.');
     }
 }

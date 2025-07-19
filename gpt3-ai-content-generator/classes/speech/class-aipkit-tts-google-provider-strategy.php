@@ -55,7 +55,6 @@ class AIPKit_TTS_Google_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         $language_code = substr($voice_id, 0, strpos($voice_id, '-', strpos($voice_id, '-') + 1) ?: 5); // Basic extraction
         if (empty($language_code)) {
             $language_code = 'en-US'; // Fallback language
-            error_log("AIPKit Google TTS: Could not extract language code from voice ID '{$voice_id}', defaulting to 'en-US'.");
         }
 
         $url = 'https://texttospeech.googleapis.com/v1/text:synthesize?key=' . urlencode($api_key);
@@ -82,7 +81,6 @@ class AIPKit_TTS_Google_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         $response = wp_remote_post($url, $request_args);
 
         if (is_wp_error($response)) {
-            error_log("AIPKit Google TTS Speech Error (wp_remote_post): " . $response->get_error_message());
             // --- Add status code to WP_Error data ---
             return new WP_Error('google_tts_http_error', __('HTTP error during speech generation.', 'gpt3-ai-content-generator'), ['status' => 503]); // 503 Service Unavailable
         }
@@ -92,7 +90,6 @@ class AIPKit_TTS_Google_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
 
         if ($status_code !== 200) {
             $error_msg = $this->parse_error_response($body, $status_code, 'Google TTS Speech');
-            error_log("AIPKit Google TTS Speech API Error ({$status_code}): " . $error_msg);
             // --- Add status code to WP_Error data ---
             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
             return new WP_Error('google_tts_api_error', sprintf(__('Google Speech API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
@@ -105,23 +102,14 @@ class AIPKit_TTS_Google_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         }
 
         if (empty($decoded_response['audioContent'])) {
-            error_log("AIPKit Google TTS Speech Error: API response successful but missing 'audioContent'. Response: " . $body);
             // --- Add status code to WP_Error data ---
             return new WP_Error('google_tts_no_audio', __('Google API returned success but no audio data.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
 
         // --- REVISED: Return base64 data directly ---
         $base64_audio_data = $decoded_response['audioContent'];
-        error_log("AIPKit Google TTS Storage: Returning base64 audio data (length: " . strlen($base64_audio_data) . ")");
         return $base64_audio_data;
         // --- END REVISION ---
-
-        // --- REMOVED: File storage logic ---
-        // $audio_data = base64_decode($decoded_response['audioContent']);
-        // if ($audio_data === false) { ... }
-        // $store_result = $this->store_audio_file($audio_data, $output_format);
-        // if (is_wp_error($store_result)) { ... }
-        // return $store_result; // Return the URL
     }
 
     // --- REMOVED: Private store_audio_file method ---
@@ -146,7 +134,6 @@ class AIPKit_TTS_Google_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         $response = wp_remote_get($url, $request_args);
 
         if (is_wp_error($response)) {
-            error_log("AIPKit Google TTS Voices Error (wp_remote_get): " . $response->get_error_message());
             return new WP_Error('google_tts_http_error', __('HTTP error fetching Google voices.', 'gpt3-ai-content-generator'), ['status' => 503]); // Use 503 for network/http error
         }
 
@@ -155,7 +142,6 @@ class AIPKit_TTS_Google_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
 
         if ($status_code !== 200) {
             $error_msg = $this->parse_error_response($body, $status_code, 'Google TTS Voices');
-            error_log("AIPKit Google TTS Voices API Error ({$status_code}): " . $error_msg);
             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
             return new WP_Error('google_tts_api_error', sprintf(__('Google Voices API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }

@@ -30,7 +30,6 @@ function parse_sse_chunk_logic(
             require_once $parser_bootstrap;
         } else {
             // This should not happen if ProviderDependenciesLoader is correct.
-            error_log('AzureProviderStrategy: AzureResponseParser class not found for SSE chunk parsing.');
             return ['delta' => null, 'usage' => null, 'is_error' => true, 'is_warning' => false, 'is_done' => true];
         }
     }

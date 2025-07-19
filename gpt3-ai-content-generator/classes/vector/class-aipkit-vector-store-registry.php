@@ -81,7 +81,6 @@ class AIPKit_Vector_Store_Registry {
             $store_data['id'] = $store_data['name'];
         }
         if (!isset($store_data['id'])) {
-            error_log("AIPKit Vector Registry: Cannot add store for provider '{$provider}' without an ID.");
             return;
         }
 

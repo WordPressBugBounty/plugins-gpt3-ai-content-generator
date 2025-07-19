@@ -119,16 +119,12 @@ class Ajax_Hooks_Registrar
                 add_action('wp_ajax_aipkit_dismiss_migration_notice', [$settings_ajax_handler, 'ajax_dismiss_migration_notice']);
             }
             // --- END ADDED ---
-        } else {
-            error_log('AIPKit AJAX Registrar: SettingsAjaxHandler instance is null. Settings-related AJAX hooks not registered.');
         }
 
         if ($models_ajax_handler) {
             if (method_exists($models_ajax_handler, 'ajax_sync_models')) {
                 add_action('wp_ajax_aipkit_sync_models', [$models_ajax_handler, 'ajax_sync_models']);
             }
-        } else {
-            error_log('AIPKit AJAX Registrar: ModelsAjaxHandler instance is null. Model sync AJAX hook not registered.');
         }
         // --- END MODIFICATION ---
 
@@ -136,11 +132,7 @@ class Ajax_Hooks_Registrar
             $migration_handler = new AIPKit_Migration_Handler();
             if (method_exists($migration_handler, 'register_ajax_hooks')) {
                 $migration_handler->register_ajax_hooks();
-            } else {
-                error_log('AIPKit AJAX Registrar Error: Migration Handler class is missing register_ajax_hooks method.');
             }
-        } else {
-            error_log('AIPKit AJAX Registrar Error: Migration Handler class not found.');
         }
 
         if (class_exists(AIPKit_Analyze_Old_Data_Action::class)) {
@@ -270,24 +262,15 @@ class Ajax_Hooks_Registrar
 
         if ($ai_form_ajax_handler && method_exists($ai_form_ajax_handler, 'register_ajax_hooks')) {
             $ai_form_ajax_handler->register_ajax_hooks();
-        } elseif ($ai_form_ajax_handler) {
-            error_log('AIPKit Hook Manager: AIPKit_AI_Form_Ajax_Handler does not have a register_ajax_hooks method.');
         }
 
         if ($chat_form_submission_ajax_handler && method_exists($chat_form_submission_ajax_handler, 'ajax_handle_form_submission')) {
             add_action('wp_ajax_aipkit_handle_form_submission', [$chat_form_submission_ajax_handler, 'ajax_handle_form_submission']);
             add_action('wp_ajax_nopriv_aipkit_handle_form_submission', [$chat_form_submission_ajax_handler, 'ajax_handle_form_submission']);
-        } elseif ($chat_form_submission_ajax_handler) {
-            error_log('AIPKit AJAX Registrar Error: ChatFormSubmissionAjaxHandler instance provided, but method ajax_handle_form_submission does NOT exist.');
-        } else {
-            error_log('AIPKit AJAX Registrar Error: ChatFormSubmissionAjaxHandler instance is NULL. Cannot register aipkit_handle_form_submission AJAX actions.');
         }
-
         if ($chat_file_upload_ajax_dispatcher && method_exists($chat_file_upload_ajax_dispatcher, 'ajax_handle_frontend_file_upload')) {
             add_action('wp_ajax_aipkit_frontend_chat_upload_file', [$chat_file_upload_ajax_dispatcher, 'ajax_handle_frontend_file_upload']);
             add_action('wp_ajax_nopriv_aipkit_frontend_chat_upload_file', [$chat_file_upload_ajax_dispatcher, 'ajax_handle_frontend_file_upload']);
-        } elseif ($chat_file_upload_ajax_dispatcher) {
-            error_log('AIPKit AJAX Registrar Error: LibChatFileUploadAjaxDispatcher instance provided, but method ajax_handle_frontend_file_upload does NOT exist.');
         }
 
         // --- NEW: Register Enhancer Actions AJAX hooks ---

@@ -37,8 +37,6 @@ if (class_exists(AIPKit_SVG_Icons::class)) {
         'plus' => AIPKit_SVG_Icons::get_plus_svg(),
         'question-mark' => AIPKit_SVG_Icons::get_question_mark_svg(),
     ];
-} else {
-    error_log("AIPKit accordion-popup.php Warning: AIPKit_SVG_Icons class not found. Default icons will be missing.");
 }
 // --- END UPDATE ---
 

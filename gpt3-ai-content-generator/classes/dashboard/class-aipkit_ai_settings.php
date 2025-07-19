@@ -58,8 +58,6 @@ if (!class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
             $google_settings_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/google/GoogleSettingsHandler.php';
             if (!class_exists(GoogleSettingsHandler::class) && file_exists($google_settings_handler_path)) {
                  require_once $google_settings_handler_path;
-            } elseif (!class_exists(GoogleSettingsHandler::class)) {
-                 error_log("AIPKit AI Settings Init Error: GoogleSettingsHandler class file not found at {$google_settings_handler_path}");
             }
 
             // Initialize Google safety settings via the handler if available

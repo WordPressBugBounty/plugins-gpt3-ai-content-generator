@@ -54,8 +54,6 @@ class Chat_Download_Asset_Registrar {
                 wp_register_script($pdf_download_handle, $pdf_download_script_url, $pdf_script_actual_deps, $version, true);
             }
             $final_registered_handles['download-as-pdf'] = $pdf_download_handle; // Add only if registered
-        } else {
-            error_log("AIPKit Chat Download Registrar: PDF download script not found at {$pdf_download_script_path} (Pro feature). Handle '{$pdf_download_handle}' NOT registered.");
         }
         
         return $final_registered_handles; 

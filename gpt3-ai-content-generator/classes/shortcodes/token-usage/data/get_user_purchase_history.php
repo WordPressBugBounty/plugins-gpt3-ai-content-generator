@@ -79,7 +79,6 @@ function get_user_purchase_history_logic(int $user_id, int $limit = 10): array
         return $purchase_history;
 
     } catch (Exception $e) {
-        error_log('AIPKit Purchase History Error: ' . $e->getMessage());
         return [];
     }
 }

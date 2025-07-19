@@ -24,7 +24,6 @@ class ChatImageInputProcessor {
 
         $decoded_frontend_data = json_decode($image_inputs_json, true);
         if (!is_array($decoded_frontend_data)) {
-            error_log('AIPKit ChatImageInputProcessor: Failed to decode image_inputs JSON: ' . $image_inputs_json);
             return null;
         }
 
@@ -35,8 +34,6 @@ class ChatImageInputProcessor {
             if (strpos($item['mime_type'], 'image/') === 0) {
                 // AIService expects an array of image objects
                 return [['type' => $item['mime_type'], 'base64' => $item['base64_data']]];
-            } else {
-                error_log('AIPKit ChatImageInputProcessor: Invalid mime_type in image_inputs: ' . $item['mime_type']);
             }
         }
         return null;

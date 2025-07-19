@@ -6,8 +6,10 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Admin_Asset_Handlers_Loader {
-    public static function load() {
+class Admin_Asset_Handlers_Loader
+{
+    public static function load()
+    {
         require_once WPAICG_PLUGIN_DIR . 'admin/assets/class-aipkit-dashboard-assets.php';
         require_once WPAICG_PLUGIN_DIR . 'admin/assets/class-aipkit-settings-assets.php';
         require_once WPAICG_PLUGIN_DIR . 'admin/assets/class-aipkit-user-credits-assets.php';
@@ -19,7 +21,8 @@ class Admin_Asset_Handlers_Loader {
         require_once WPAICG_PLUGIN_DIR . 'admin/assets/class-aipkit-ai-training-assets.php';
         require_once WPAICG_PLUGIN_DIR . 'admin/assets/class-aipkit-vector-post-processor-assets.php';
         $autogpt_assets_path = WPAICG_PLUGIN_DIR . 'admin/assets/class-aipkit-autogpt-assets.php';
-        if (file_exists($autogpt_assets_path)) { require_once $autogpt_assets_path; }
-        else { error_log('AIPKit Core Loader Error: AIPKit_Autogpt_Assets class file not found.'); }
+        if (file_exists($autogpt_assets_path)) {
+            require_once $autogpt_assets_path;
+        }
     }
 }

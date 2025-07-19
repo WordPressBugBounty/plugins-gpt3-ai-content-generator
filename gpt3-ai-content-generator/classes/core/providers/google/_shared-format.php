@@ -64,10 +64,6 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
             // Ensure role is either 'user' or 'model' before adding to contents
             if ($role === 'user' || $role === 'model') {
                 $contents[] = ['role' => $role, 'parts' => $content_parts];
-            } else {
-                 // This else block might be unreachable now due to the 'system' role skip above.
-                 // Kept for robustness in case $msg['role'] could be something else unexpected.
-                 error_log("AIPKit Google SharedFormat: Skipped message with unmapped role '{$msg['role']}'. Original content: " . print_r($msg, true));
             }
         }
     }
@@ -140,15 +136,12 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
                         ]
                     ]
                 ];
-                error_log("AIPKit Google SharedFormat: Adding 'google_search_retrieval' (MODE_DYNAMIC, threshold: {$dynamic_threshold}) for model {$model_name_for_grounding}.");
             } else { 
                 $tools[] = ['google_search_retrieval' => new \stdClass()];
-                error_log("AIPKit Google SharedFormat: Adding 'google_search_retrieval' (default/always on) for model {$model_name_for_grounding}.");
             }
         } elseif (strpos($model_name_for_grounding, 'gemini-pro') !== false || strpos($model_name_for_grounding, 'gemini-1.5-pro') !== false || strpos($model_name_for_grounding, 'gemini-2.0') !== false) {
             // Other Gemini Pro / 1.5 Pro / 2.0 models use google_search (Search as a tool)
             $tools[] = ['google_search' => new \stdClass()];
-            error_log("AIPKit Google SharedFormat: Adding 'google_search' tool for model {$model_name_for_grounding}.");
         }
         // --- END FIXED ---
         

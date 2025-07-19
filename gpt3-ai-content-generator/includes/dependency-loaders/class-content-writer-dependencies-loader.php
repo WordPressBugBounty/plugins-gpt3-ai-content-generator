@@ -49,8 +49,6 @@ class Content_Writer_Dependencies_Loader
         foreach ($files_to_load as $full_path) {
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit Dependency Error: Content Writer file not found at {$full_path}");
             }
         }
     }

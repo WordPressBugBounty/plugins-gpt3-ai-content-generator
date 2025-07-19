@@ -27,9 +27,6 @@ class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
             $url_builder_file = $openai_core_provider_path . 'OpenAIUrlBuilder.php';
             if (file_exists($url_builder_file)) {
                 require_once $url_builder_file;
-            } else {
-                error_log("AIPKit TTS OpenAI Strategy Error: OpenAIUrlBuilder.php file not found at " . $url_builder_file);
-                // Optionally throw an exception or handle the error
             }
         }
     }
@@ -93,7 +90,6 @@ class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         $response = wp_remote_post($url, $request_args);
 
         if (is_wp_error($response)) {
-            error_log("AIPKit OpenAI TTS Speech Error (wp_remote_post): " . $response->get_error_message());
             return new WP_Error('openai_tts_http_error', __('HTTP error during speech generation.', 'gpt3-ai-content-generator'), ['status' => 503]);
         }
 
@@ -103,13 +99,11 @@ class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         if ($status_code !== 200) {
             // Try to parse error from body (likely JSON)
             $error_msg = $this->parse_error_response($body, $status_code, 'OpenAI TTS Speech');
-            error_log("AIPKit OpenAI TTS Speech API Error ({$status_code}): " . $error_msg);
             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
             return new WP_Error('openai_tts_api_error', sprintf(__('OpenAI Speech API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
 
         if (empty($body)) {
-             error_log("AIPKit OpenAI TTS Speech Error: API response successful but body is empty.");
              return new WP_Error('openai_tts_no_audio', __('OpenAI API returned success but no audio data.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
 

@@ -19,7 +19,6 @@ if (!defined('ABSPATH')) {
 function FetchChatbotSettingsLogic(AIPKit_Token_Manager $managerInstance, int $bot_id): array {
     $bot_storage = $managerInstance->get_bot_storage();
     if (!$bot_storage) {
-        error_log("AIPKit Token Manager Helper: BotStorage not available when fetching settings for bot ID {$bot_id}.");
         return []; // Return empty array if storage not available
     }
     return $bot_storage->get_chatbot_settings($bot_id);

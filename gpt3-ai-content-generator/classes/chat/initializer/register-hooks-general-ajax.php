@@ -42,8 +42,6 @@ function register_hooks_general_ajax_logic(
     if ($ajax_processor) {
         add_action('wp_ajax_aipkit_frontend_chat_message', [$ajax_processor, 'ajax_frontend_chat_message']);
         add_action('wp_ajax_nopriv_aipkit_frontend_chat_message', [$ajax_processor, 'ajax_frontend_chat_message']);
-    } else {
-        error_log('AIPKit Chat Initializer: AjaxProcessor not instantiated, frontend_chat_message hooks not registered.');
     }
 
     // Hooks for image generation within chat

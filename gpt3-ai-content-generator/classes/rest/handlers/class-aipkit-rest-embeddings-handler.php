@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/rest/handlers/class-aipkit-rest-embeddings-handler.php
 
 namespace WPAICG\REST\Handlers;
@@ -15,12 +16,13 @@ if (!defined('ABSPATH')) {
 /**
  * Handles REST API requests for generating embeddings.
  */
-class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler {
-
+class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
+{
     /**
      * Define arguments for the EMBEDDINGS generation endpoint.
      */
-    public function get_endpoint_args(): array {
+    public function get_endpoint_args(): array
+    {
         return array(
             'provider' => array(
                 'description' => __('The AI provider for embeddings (OpenAI, Google, or Azure).', 'gpt3-ai-content-generator'),
@@ -76,7 +78,8 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler {
     /**
      * Define the schema for the EMBEDDINGS generation response.
      */
-    public function get_item_schema(): array {
+    public function get_item_schema(): array
+    {
         return array(
             '$schema'    => 'http://json-schema.org/draft-04/schema#',
             'title'      => 'aipkit_embeddings_response',
@@ -116,28 +119,45 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler {
      * @param WP_REST_Request $request Full details about the request.
      * @return WP_REST_Response|WP_Error Response object on success, or WP_Error on failure.
      */
-    public function handle_request(WP_REST_Request $request): WP_REST_Response|WP_Error {
+    public function handle_request(WP_REST_Request $request): WP_REST_Response|WP_Error
+    {
         $params = $request->get_params();
         $provider_raw = $params['provider'] ?? null;
         $model = $params['model'] ?? null;
         $input = $params['input'] ?? null;
 
-        if (empty($provider_raw)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: provider', 'gpt3-ai-content-generator'), ['status' => 400]));
-        if (empty($model)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: model', 'gpt3-ai-content-generator'), ['status' => 400]));
-        if (empty($input)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: input', 'gpt3-ai-content-generator'), ['status' => 400]));
-        if (!is_string($input) && !is_array($input)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid parameter type: input (must be a string or array of strings)', 'gpt3-ai-content-generator'), ['status' => 400]));
+        if (empty($provider_raw)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: provider', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
+        if (empty($model)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: model', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
+        if (empty($input)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_param', __('Missing required parameter: input', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
+        if (!is_string($input) && !is_array($input)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid parameter type: input (must be a string or array of strings)', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
         if (is_array($input)) {
             foreach ($input as $idx => $text) {
                 /* translators: %s is the index of the input array */
-                if (!is_string($text)) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid input array item at index %d (must be a string)', 'gpt3-ai-content-generator'), $idx), ['status' => 400]));
+                if (!is_string($text)) {
+                    return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid input array item at index %d (must be a string)', 'gpt3-ai-content-generator'), $idx), ['status' => 400]));
+                }
             }
         }
 
-        $provider = match(strtolower($provider_raw)) { 'openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', default => null, };
+        $provider = match(strtolower($provider_raw)) {
+            'openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', default => null,
+        };
         /* translators: %s is the provider name */
-        if ($provider === null) { return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid provider specified for embeddings: %s', 'gpt3-ai-content-generator'), $provider_raw), ['status' => 400])); }
+        if ($provider === null) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid provider specified for embeddings: %s', 'gpt3-ai-content-generator'), $provider_raw), ['status' => 400]));
+        }
 
-        if (!class_exists(AIPKit_AI_Caller::class)) { error_log("AIPKit REST API Error (Embeddings): Missing AIPKit_AI_Caller class."); return $this->send_wp_error_response(new WP_Error('rest_aipkit_internal_error', __('Internal server error.', 'gpt3-ai-content-generator'), ['status' => 500])); }
+        if (!class_exists(AIPKit_AI_Caller::class)) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_internal_error', __('Internal server error.', 'gpt3-ai-content-generator'), ['status' => 500]));
+        }
 
         $ai_caller = new AIPKit_AI_Caller();
         $embedding_options = [
@@ -145,19 +165,28 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler {
         ];
 
         if ($provider === 'OpenAI' || $provider === 'Azure') {
-            if (isset($params['dimensions'])) $embedding_options['dimensions'] = absint($params['dimensions']);
-            if (isset($params['user'])) $embedding_options['user'] = sanitize_text_field($params['user']);
-            if ($provider === 'OpenAI' && isset($params['encoding_format'])) $embedding_options['encoding_format'] = sanitize_key($params['encoding_format']);
+            if (isset($params['dimensions'])) {
+                $embedding_options['dimensions'] = absint($params['dimensions']);
+            }
+            if (isset($params['user'])) {
+                $embedding_options['user'] = sanitize_text_field($params['user']);
+            }
+            if ($provider === 'OpenAI' && isset($params['encoding_format'])) {
+                $embedding_options['encoding_format'] = sanitize_key($params['encoding_format']);
+            }
         }
         if ($provider === 'Google') {
-            if (isset($params['task_type'])) $embedding_options['taskType'] = sanitize_key($params['task_type']);
-            if (isset($params['output_dimensionality'])) $embedding_options['outputDimensionality'] = absint($params['output_dimensionality']);
+            if (isset($params['task_type'])) {
+                $embedding_options['taskType'] = sanitize_key($params['task_type']);
+            }
+            if (isset($params['output_dimensionality'])) {
+                $embedding_options['outputDimensionality'] = absint($params['output_dimensionality']);
+            }
         }
 
         $result = $ai_caller->generate_embeddings($provider, $input, $embedding_options);
 
         if (is_wp_error($result)) {
-            error_log("AIPKit REST API Error: Embeddings call failed. Provider: {$provider}, Model: {$model}. Error: " . $result->get_error_message());
             return $this->send_wp_error_response($result);
         }
 

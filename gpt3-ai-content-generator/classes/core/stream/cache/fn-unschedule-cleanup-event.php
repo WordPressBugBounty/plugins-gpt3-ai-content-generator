@@ -17,7 +17,6 @@ function unschedule_cleanup_event_logic(string $cron_hook_const): void {
     $timestamp = wp_next_scheduled($cron_hook_const);
     if ($timestamp) {
         wp_unschedule_event($timestamp, $cron_hook_const);
-        error_log('AIPKit SSE Cache (unschedule_cleanup_event_logic): Unscheduled cleanup event.');
     }
     remove_action($cron_hook_const, ['WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache', 'run_db_cleanup_static_wrapper']);
 }

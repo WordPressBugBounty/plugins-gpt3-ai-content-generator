@@ -106,7 +106,6 @@ class AIPKit_Migrate_Indexed_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
                     $inserted = $wpdb->insert($data_source_table_name, $log_data);
                     if ($inserted === false) {
                         $failed_count++;
-                        error_log("AIPKit Migration (Indexed Data): Failed to insert log for old post ID {$post_id}. DB Error: " . $wpdb->last_error);
                     } else {
                         $migrated_count++;
                     }

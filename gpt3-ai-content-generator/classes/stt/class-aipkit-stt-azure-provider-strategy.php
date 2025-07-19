@@ -88,9 +88,6 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
         // Add model identifier if provided in options/api_params
         if (!empty($azure_model_id)) {
             $definition['model'] = ['self' => $azure_model_id]; // Assuming it's a full model URI, adjust if it's just an ID
-            error_log("AIPKit Azure STT: Using model ID: " . $azure_model_id);
-        } else {
-            error_log("AIPKit Azure STT: Using default model for endpoint/locale.");
         }
         $definition_json = wp_json_encode($definition);
 
@@ -123,9 +120,6 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
         ]);
         // --- End Prepare cURL Request ---
 
-        error_log("AIPKit Azure STT Request: URL: " . $url);
-        // error_log("AIPKit Azure STT Request: Definition JSON: " . $definition_json); // Debugging
-
         // Execute cURL request
         $body = curl_exec($ch);
         $curl_errno = curl_errno($ch);
@@ -136,16 +130,13 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
 
         // Handle cURL errors
         if ($curl_errno) {
-            error_log("AIPKit Azure STT Error (cURL): [{$curl_errno}] {$curl_error}");
             /* translators: %s: cURL error message. */
             return new WP_Error('azure_stt_curl_error', sprintf(__('Network error during transcription: %s', 'gpt3-ai-content-generator'), $curl_error), ['status' => 503]);
         }
 
         // Handle API errors (non-200/202 status)
         if ($status_code < 200 || $status_code >= 300) {
-            error_log("AIPKit Azure STT Raw Error Response ({$status_code}): " . $body);
             $error_msg = $this->parse_error_response($body, $status_code, 'Azure STT');
-            error_log("AIPKit Azure STT API Error ({$status_code}): " . $error_msg);
             /* translators: %1$d: HTTP status code, %2$s: API error message. */
             return new WP_Error('azure_stt_api_error', sprintf(__('Azure STT API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
@@ -162,7 +153,6 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
         if ($transcribed_text !== null) {
             return trim($transcribed_text);
         } else {
-            error_log("AIPKit Azure STT Error: Transcription text ('combinedPhrases[0].text') missing in successful API response. Response: " . $body);
             return new WP_Error('azure_stt_no_text', __('Transcription successful but no text found in response.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
     }

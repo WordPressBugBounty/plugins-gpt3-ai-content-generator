@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/core/token-manager/reset/PerformTokenResetLogic.php
 
 namespace WPAICG\Core\TokenManager\Reset;
@@ -18,8 +19,8 @@ if (!defined('ABSPATH')) {
  *
  * @param AIPKit_Token_Manager $managerInstance The instance of AIPKit_Token_Manager.
  */
-function PerformTokenResetLogic(AIPKit_Token_Manager $managerInstance): void {
-    error_log('AIPKit Token Manager (Reset Logic): Running scheduled token reset...');
+function PerformTokenResetLogic(AIPKit_Token_Manager $managerInstance): void
+{
     global $wpdb;
     $current_time = time();
     $current_day_of_week = date('N', $current_time);
@@ -38,38 +39,44 @@ function PerformTokenResetLogic(AIPKit_Token_Manager $managerInstance): void {
                 $settings = $bot_storage->get_chatbot_settings($bot_id);
                 $reset_period = $settings['token_reset_period'] ?? 'never';
 
-                if ($reset_period === 'never') continue;
+                if ($reset_period === 'never') {
+                    continue;
+                }
 
                 $reset_needed = IsResetDueLogic($current_time, $reset_period, (int)get_user_meta(0, MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX . $bot_id, true)); // Check generic last reset for logic, though actual meta is per-user
                 // More accurately, the cron should just trigger the reset, and individual check_and_reset_tokens handles if it's due *per user*
                 // For a global cron, we reset all.
 
                 $reset_needed_for_cron = false;
-                if ($reset_period === 'daily') $reset_needed_for_cron = true;
-                elseif ($reset_period === 'weekly' && $current_day_of_week == get_option('start_of_week', 1)) $reset_needed_for_cron = true;
-                elseif ($reset_period === 'monthly' && $current_day_of_month == 1) $reset_needed_for_cron = true;
+                if ($reset_period === 'daily') {
+                    $reset_needed_for_cron = true;
+                } elseif ($reset_period === 'weekly' && $current_day_of_week == get_option('start_of_week', 1)) {
+                    $reset_needed_for_cron = true;
+                } elseif ($reset_period === 'monthly' && $current_day_of_month == 1) {
+                    $reset_needed_for_cron = true;
+                }
 
 
                 if ($reset_needed_for_cron) {
                     $meta_key_usage = MetaKeysConstants::CHAT_USAGE_META_KEY_PREFIX . $bot_id;
                     $meta_key_reset = MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX . $bot_id;
-
+                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
                     $deleted_user_usage_meta = $wpdb->delete($wpdb->usermeta, ['meta_key' => $meta_key_usage], ['%s']);
+                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
                     $deleted_user_reset_meta = $wpdb->delete($wpdb->usermeta, ['meta_key' => $meta_key_reset], ['%s']);
 
-                    if($deleted_user_usage_meta !== false) $users_reset_chat += $deleted_user_usage_meta; // Count affected rows (approx users)
+                    if ($deleted_user_usage_meta !== false) {
+                        $users_reset_chat += $deleted_user_usage_meta;
+                    } // Count affected rows (approx users)
 
                     $guest_table_name = $managerInstance->get_guest_table_name();
                     $deleted_guests = $wpdb->delete($guest_table_name, ['bot_id' => $bot_id], ['%d']);
-                    if ($deleted_guests !== false) $guests_reset_chat += $deleted_guests;
-                    else error_log("AIPKit Token Manager (Reset Logic): Error deleting guest usage for Chat Bot ID {$bot_id}. Error: " . $wpdb->last_error);
-                    error_log("AIPKit Token Manager (Reset Logic): Reset usage counters for chatbot ID {$bot_id} (Period: {$reset_period}).");
+                    if ($deleted_guests !== false) {
+                        $guests_reset_chat += $deleted_guests;
+                    }
                 }
             }
         }
-        error_log("AIPKit Token Manager (Reset Logic): Chatbot reset complete. User meta rows deleted: {$users_reset_chat}, Guest rows deleted: {$guests_reset_chat}.");
-    } else {
-        error_log('AIPKit Token Manager (Reset Logic): BotStorage not initialized, cannot perform reset for chatbots.');
     }
 
     // --- 2. Image Generator Token Reset ---
@@ -82,25 +89,29 @@ function PerformTokenResetLogic(AIPKit_Token_Manager $managerInstance): void {
 
         if ($img_reset_period !== 'never') {
             $img_reset_needed_for_cron = false;
-            if ($img_reset_period === 'daily') $img_reset_needed_for_cron = true;
-            elseif ($img_reset_period === 'weekly' && $current_day_of_week == get_option('start_of_week', 1)) $img_reset_needed_for_cron = true;
-            elseif ($img_reset_period === 'monthly' && $current_day_of_month == 1) $img_reset_needed_for_cron = true;
+            if ($img_reset_period === 'daily') {
+                $img_reset_needed_for_cron = true;
+            } elseif ($img_reset_period === 'weekly' && $current_day_of_week == get_option('start_of_week', 1)) {
+                $img_reset_needed_for_cron = true;
+            } elseif ($img_reset_period === 'monthly' && $current_day_of_month == 1) {
+                $img_reset_needed_for_cron = true;
+            }
 
             if ($img_reset_needed_for_cron) {
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
                 $deleted_user_img_usage_meta = $wpdb->delete($wpdb->usermeta, ['meta_key' => MetaKeysConstants::IMG_USAGE_META_KEY], ['%s']);
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
                 $deleted_user_img_reset_meta = $wpdb->delete($wpdb->usermeta, ['meta_key' => MetaKeysConstants::IMG_RESET_META_KEY], ['%s']);
-                if($deleted_user_img_usage_meta !== false) $users_reset_img += $deleted_user_img_usage_meta;
+                if ($deleted_user_img_usage_meta !== false) {
+                    $users_reset_img += $deleted_user_img_usage_meta;
+                }
 
                 $guest_table_name = $managerInstance->get_guest_table_name();
                 $deleted_img_guests = $wpdb->delete($guest_table_name, ['bot_id' => GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID], ['%d']);
-                if ($deleted_img_guests !== false) $guests_reset_img += $deleted_img_guests;
-                else error_log("AIPKit Token Manager (Reset Logic): Error deleting guest usage for Image Generator. Error: " . $wpdb->last_error);
-                error_log("AIPKit Token Manager (Reset Logic): Reset usage counters for Image Generator module (Period: {$img_reset_period}).");
+                if ($deleted_img_guests !== false) {
+                    $guests_reset_img += $deleted_img_guests;
+                }
             }
         }
-        error_log("AIPKit Token Manager (Reset Logic): Image Generator reset complete. User meta rows cleared: {$users_reset_img}, Guest rows deleted for image gen: {$guests_reset_img}.");
-    } else {
-        error_log('AIPKit Token Manager (Reset Logic): Image Settings Handler class not found, cannot perform reset for Image Generator.');
     }
-    error_log('AIPKit Token Manager (Reset Logic): Scheduled token reset process finished.');
 }

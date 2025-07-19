@@ -27,7 +27,5 @@ function run_now_comment_reply_logic(int $task_id, array $task_config, ?string $
     // It checks for comments created since the last run time.
     if (function_exists('\WPAICG\AutoGPT\Cron\EventProcessor\Trigger\trigger_comment_reply_task_logic')) {
         Trigger\trigger_comment_reply_task_logic($task_id, $task_config, $last_run_time);
-    } else {
-        error_log("AIPKit Run Now (Comment Reply): trigger_comment_reply_task_logic function not found.");
     }
 }

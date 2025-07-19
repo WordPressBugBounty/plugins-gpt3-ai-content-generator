@@ -26,22 +26,16 @@ class Module_Initializer_Hooks_Registrar {
         // Chat Initializer
         if (class_exists(ChatInitializer::class) && method_exists(ChatInitializer::class, 'register_hooks')) { // Added method_exists check for safety
             ChatInitializer::register_hooks();
-        } else {
-            error_log('AIPKit Hook Registrar: ChatInitializer class or its register_hooks method not found.');
         }
 
         // Automated Task Cron - Called Statically
         if (class_exists(AIPKit_Automated_Task_Cron::class) && method_exists(AIPKit_Automated_Task_Cron::class, 'init')) {
             AIPKit_Automated_Task_Cron::init(); // Call statically
-        } else {
-            error_log('AIPKit Hook Registrar: AIPKit_Automated_Task_Cron class or its static init method not found.');
         }
 
         // AI Forms Initializer
         if (class_exists(AIPKit_AI_Form_Initializer::class) && method_exists(AIPKit_AI_Form_Initializer::class, 'register_hooks')) {
             AIPKit_AI_Form_Initializer::register_hooks();
-        } else {
-            error_log('AIPKit Hook Registrar: AIPKit_AI_Form_Initializer class or its register_hooks method not found.');
         }
     }
 }

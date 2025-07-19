@@ -44,16 +44,12 @@ function set_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInst
     );
 
     if ($inserted === false) {
-        error_log("AIPKit SSE Cache (set_logic): DB insert failed for key {$key}. Error: " . $wpdb->last_error);
         return new WP_Error('sse_cache_db_insert_failed', __('Failed to store message in database cache.', 'gpt3-ai-content-generator'));
     }
 
     // Also try to set in the object cache for performance, but don't fail if it doesn't work.
     if ($cacheInstance->is_using_object_cache()) {
         $set_obj_cache = wp_cache_set($key, $message, $cacheInstance::CACHE_GROUP, $cacheInstance::EXPIRY_SECONDS);
-        if (!$set_obj_cache) {
-            error_log("AIPKit SSE Cache (set_logic): wp_cache_set failed for key {$key}, but DB write succeeded. Proceeding.");
-        }
     }
 
     return $key; // Return the key since the DB write succeeded.

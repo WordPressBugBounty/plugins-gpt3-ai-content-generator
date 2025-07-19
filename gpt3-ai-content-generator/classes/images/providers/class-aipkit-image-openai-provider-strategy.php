@@ -30,18 +30,12 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
         $openai_image_dir = __DIR__ . '/openai/';
         if (!class_exists(OpenAIImageUrlBuilder::class) && file_exists($openai_image_dir . 'OpenAIImageUrlBuilder.php')) {
             require_once $openai_image_dir . 'OpenAIImageUrlBuilder.php';
-        } elseif(!class_exists(OpenAIImageUrlBuilder::class)) {
-            error_log("AIPKit Image OpenAI Strategy Error: OpenAIImageUrlBuilder.php file not found at " . $openai_image_dir . 'OpenAIImageUrlBuilder.php');
         }
         if (!class_exists(OpenAIPayloadFormatter::class) && file_exists($openai_image_dir . 'OpenAIPayloadFormatter.php')) {
             require_once $openai_image_dir . 'OpenAIPayloadFormatter.php';
-        } elseif(!class_exists(OpenAIPayloadFormatter::class)) {
-             error_log("AIPKit Image OpenAI Strategy Error: OpenAIPayloadFormatter.php file not found at " . $openai_image_dir . 'OpenAIPayloadFormatter.php');
         }
         if (!class_exists(OpenAIImageResponseParser::class) && file_exists($openai_image_dir . 'OpenAIImageResponseParser.php')) {
             require_once $openai_image_dir . 'OpenAIImageResponseParser.php';
-        } elseif(!class_exists(OpenAIImageResponseParser::class)) {
-            error_log("AIPKit Image OpenAI Strategy Error: OpenAIImageResponseParser.php file not found at " . $openai_image_dir . 'OpenAIImageResponseParser.php');
         }
         // --- END NEW ---
     }

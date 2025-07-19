@@ -31,7 +31,6 @@ class DataProvider {
 
         // Ensure BotStorage facade is available
         if (!class_exists(\WPAICG\Chat\Storage\BotStorage::class)) {
-            error_log('AIPKit Shortcode DataProvider Error: BotStorage facade class not found.');
             return new \WP_Error('internal_error', 'Cannot load bot data.');
         }
         // Instantiate BotStorage facade locally

@@ -24,7 +24,6 @@ if (!class_exists(GoogleSettingsHandler::class) && file_exists($google_settings_
     require_once $google_settings_handler_path;
 } elseif (!class_exists(GoogleSettingsHandler::class)) {
     echo '<div class="notice notice-error"><p>Error: Google Settings component failed to load. Safety settings cannot be displayed.</p></div>';
-    error_log("AIPKit Settings View Error: GoogleSettingsHandler class file not found at {$google_settings_handler_path}");
 }
 
 // --- Variable Definitions ---
@@ -131,12 +130,10 @@ if (class_exists('\\WPAICG\\Stats\\AIPKit_Stats')) {
     $stats_data = $stats_calculator->get_token_stats_last_days(30);
     if (is_wp_error($stats_data)) {
         $stats_error_message = $stats_data->get_error_message();
-        error_log("AIPKit Settings: Error fetching stats - " . $stats_error_message);
         $stats_data = null;
     }
 } else {
     $stats_error_message = __('Statistics component is unavailable.', 'gpt3-ai-content-generator');
-    error_log("AIPKit Settings: Stats class \WPAICG\Stats\AIPKit_Stats not found.");
 }
 
 $deepseek_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('deepseek');

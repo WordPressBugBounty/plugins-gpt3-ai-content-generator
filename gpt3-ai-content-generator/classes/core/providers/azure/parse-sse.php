@@ -65,8 +65,6 @@ function parse_sse_chunk_logic_for_response_parser(string $sse_chunk, string &$c
                         $result['is_warning'] = true;
                     }
                 }
-            } else {
-                error_log("AIPKit Azure SSE Parser Logic: Failed to decode JSON data: {$event_data_json}");
             }
         }
     }

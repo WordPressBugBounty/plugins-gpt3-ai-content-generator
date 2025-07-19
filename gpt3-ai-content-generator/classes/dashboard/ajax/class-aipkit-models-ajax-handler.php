@@ -33,8 +33,6 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             $manager_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-manager.php';
             if (file_exists($manager_path)) {
                 require_once $manager_path;
-            } else {
-                error_log('AIPKit Models AJAX Handler: Vector_Store_Manager class file not found.');
             }
         }
         if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) {
@@ -45,8 +43,6 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             $registry_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-registry.php';
             if (file_exists($registry_path)) {
                 require_once $registry_path;
-            } else {
-                error_log('AIPKit Models AJAX Handler: Vector_Store_Registry class file not found.');
             }
         }
         if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Registry::class)) {

@@ -44,7 +44,6 @@ function list_indexes_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, ?
             // Fetch full details for each index
             $index_detail = describe_index_logic($strategyInstance, $index_name);
             if (is_wp_error($index_detail)) {
-                error_log("AIPKit Pinecone Strategy: Error describing index '{$index_name}' during list_indexes: " . $index_detail->get_error_message());
                 $formatted_indexes[] = ['id' => $index_name, 'name' => $index_name, 'status' => 'Error fetching details'];
                 continue;
             }
@@ -56,11 +55,9 @@ function list_indexes_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, ?
                 if (!is_wp_error($stats_response) && isset($stats_response['totalVectorCount'])) {
                     $total_vector_count = (int) $stats_response['totalVectorCount'];
                 } else {
-                    error_log("AIPKit Pinecone Strategy: Error fetching stats for index '{$index_name}': " . (is_wp_error($stats_response) ? $stats_response->get_error_message() : 'Stats not found in response.'));
                     $total_vector_count = 'Error';
                 }
             } else {
-                error_log("AIPKit Pinecone Strategy: Host not found for index '{$index_name}' when trying to fetch stats.");
                 $total_vector_count = 'No Host';
             }
 

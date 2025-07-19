@@ -43,11 +43,9 @@ class AssetsRequireFlags {
             if ($dashboard_path && file_exists($dashboard_path)) {
                 require_once $dashboard_path;
             } else {
-                 error_log("AIPKit AssetsRequireFlags: aipkit_dashboard class not found and could not be loaded. Addon-dependent flags may not be set correctly.");
                  // Return early or set defaults if dashboard class is critical and missing
                  // For now, we'll proceed with a warning if class_exists check fails after attempt.
                  if (!class_exists(aipkit_dashboard::class)) {
-                     error_log("AIPKit AssetsRequireFlags: Critical - aipkit_dashboard class still not available after load attempt.");
                      return;
                  }
             }

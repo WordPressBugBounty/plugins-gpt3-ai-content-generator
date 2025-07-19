@@ -185,7 +185,6 @@ class AIPKit_Role_Manager
                         if (!in_array($role_slug, $final_permissions[$new_module_slug], true)) {
                             $final_permissions[$new_module_slug][] = $role_slug;
                             $changed = true;
-                            error_log("AIPKit Role Migration: Granted '{$new_module_slug}' to role '{$role_slug}' (from old cap '{$old_cap}').");
                         }
                     } else {
                         $final_permissions[$new_module_slug] = [$role_slug];
@@ -193,7 +192,6 @@ class AIPKit_Role_Manager
                             $final_permissions[$new_module_slug][] = 'administrator';
                         }
                         $changed = true;
-                        error_log("AIPKit Role Migration: Initialized and granted '{$new_module_slug}' to role '{$role_slug}' (from old cap '{$old_cap}').");
                     }
                 }
             }
@@ -215,9 +213,6 @@ class AIPKit_Role_Manager
         if ($changed) {
             update_option(self::OPTION_NAME, $final_permissions, 'no');
             self::$permission_cache = []; // Clear cache
-            error_log("AIPKit Role Migration: Role permissions option updated.");
-        } else {
-            error_log("AIPKit Role Migration: No changes to role permissions option required.");
         }
     }
 

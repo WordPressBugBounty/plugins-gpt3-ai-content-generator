@@ -31,7 +31,6 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
 
     if (!class_exists(BotSettingsManager::class)) {
         // Fallback defaults if class is missing
-        error_log("AIPKit Saver (Sanitize): BotSettingsManager class not found for constants.");
         $custom_theme_defaults = [
              'font_family' => 'inherit', 'bubble_border_radius' => 18,
              'container_bg_color' => '#FFFFFF', /* ... other minimal defaults */

@@ -20,7 +20,6 @@ function get_image_settings_logic(AIPKit_Image_Manager $managerInstance): array
             $settings_cache = AIPKit_Image_Settings_Ajax_Handler::get_settings();
         } else {
             $settings_cache = AIPKit_Image_Settings_Ajax_Handler::get_default_settings();
-            error_log("AIPKit Image Manager: Settings AJAX Handler not available, using default image settings.");
         }
         $managerInstance->set_image_settings_cache($settings_cache);
         return $settings_cache;

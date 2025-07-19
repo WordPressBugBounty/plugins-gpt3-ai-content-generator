@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/providers/google/parse-chat.php
 // Status: MODIFIED
 
@@ -17,7 +18,8 @@ if (!defined('ABSPATH')) {
  * @param array $decoded_response The decoded JSON response.
  * @return array|WP_Error ['content' => string, 'usage' => array|null, 'grounding_metadata' => array|null] or WP_Error.
  */
-function parse_chat_logic_for_response_parser(array $decoded_response): array|WP_Error {
+function parse_chat_logic_for_response_parser(array $decoded_response): array|WP_Error
+{
     $content = null;
     $usage = null;
     $grounding_metadata = null;
@@ -25,10 +27,9 @@ function parse_chat_logic_for_response_parser(array $decoded_response): array|WP
     if (!empty($decoded_response['promptFeedback']['blockReason'])) {
         $block_reason = $decoded_response['promptFeedback']['blockReason'];
         $safety_ratings = $decoded_response['promptFeedback']['safetyRatings'] ?? [];
-        $details = array_map(fn($r) => ($r['category'] ?? 'Unknown') . ': ' . ($r['probability'] ?? 'N/A'), $safety_ratings);
+        $details = array_map(fn ($r) => ($r['category'] ?? 'Unknown') . ': ' . ($r['probability'] ?? 'N/A'), $safety_ratings);
         /* translators: %1$s: The reason the request was blocked (e.g., SAFETY). %2$s: A comma-separated list of details. */
         $error_message = sprintf(__('Request blocked by Google due to: %1$s. Details: %2$s', 'gpt3-ai-content-generator'), $block_reason, implode(', ', $details));
-        error_log("AIPKit Google Parser Logic: Content blocked: " . $error_message);
         return new WP_Error('google_content_blocked_logic', $error_message);
     }
 
@@ -59,7 +60,7 @@ function parse_chat_logic_for_response_parser(array $decoded_response): array|WP
         /* translators: %s: The reason the AI stopped generating content (e.g., 'MAX_TOKENS'). */
         return new WP_Error('google_no_content_logic', sprintf(__('No content returned from Google. Finish reason: %s', 'gpt3-ai-content-generator'), $decoded_response['candidates'][0]['finishReason']));
     } elseif ($content === null) {
-         return new WP_Error('invalid_response_structure_google_logic', __('Unexpected response structure from Google API.', 'gpt3-ai-content-generator'));
+        return new WP_Error('invalid_response_structure_google_logic', __('Unexpected response structure from Google API.', 'gpt3-ai-content-generator'));
     }
 
     $return_data = ['content' => $content, 'usage' => $usage];

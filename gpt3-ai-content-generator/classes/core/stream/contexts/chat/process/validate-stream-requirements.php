@@ -37,7 +37,6 @@ function validate_stream_requirements_logic(
         if (file_exists($admin_setup_path)) {
             require_once $admin_setup_path;
         } else {
-            error_log("AIPKit ValidateStreamRequirements Logic Error: AdminSetup class file not found for post type check.");
             return new WP_Error(
                 'dependency_missing_validator_logic',
                 __('Chat system component (AdminSetup) missing.', 'gpt3-ai-content-generator'),

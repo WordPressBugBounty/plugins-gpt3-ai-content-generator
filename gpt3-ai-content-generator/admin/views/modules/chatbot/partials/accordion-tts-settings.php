@@ -51,32 +51,23 @@ $tts_providers = ['Google', 'OpenAI', 'ElevenLabs'];
 $google_tts_voices = [];
 if (class_exists(GoogleSettingsHandler::class)) {
     $google_tts_voices = GoogleSettingsHandler::get_synced_google_tts_voices();
-} else {
-     error_log("AIPKit Chat TTS Settings Error: GoogleSettingsHandler class not found.");
 }
 
 // Fetch synced ElevenLabs Voices
 $elevenlabs_tts_voices = [];
 if (class_exists(AIPKit_Providers::class)) {
     $elevenlabs_tts_voices = AIPKit_Providers::get_elevenlabs_voices();
-} else {
-    error_log("AIPKit Chat TTS Settings Error: AIPKit_Providers class not found for ElevenLabs voices.");
 }
 
 // Fetch synced ElevenLabs Models
 $elevenlabs_tts_models = [];
 if (class_exists(AIPKit_Providers::class)) {
     $elevenlabs_tts_models = AIPKit_Providers::get_elevenlabs_models();
-} else {
-    error_log("AIPKit Chat TTS Settings Error: AIPKit_Providers class not found for ElevenLabs models.");
 }
-
 // Fetch synced OpenAI TTS Models
 $openai_tts_models = [];
 if (class_exists(AIPKit_Providers::class)) {
     $openai_tts_models = AIPKit_Providers::get_openai_tts_models(); // Use the new getter
-} else {
-    error_log("AIPKit Chat TTS Settings Error: AIPKit_Providers class not found for OpenAI TTS models.");
 }
 
 // Hardcoded OpenAI voices

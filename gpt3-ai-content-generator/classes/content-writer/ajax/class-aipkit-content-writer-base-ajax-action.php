@@ -27,17 +27,11 @@ abstract class AIPKit_Content_Writer_Base_Ajax_Action extends BaseDashboardAjaxH
         // Ensure LogStorage is available
         if (class_exists(\WPAICG\Chat\Storage\LogStorage::class)) {
             $this->log_storage = new LogStorage();
-        } else {
-            error_log('AIPKit Content Writer Base AJAX Error: LogStorage class not found.');
-            // Optionally, throw an exception or handle this fatal dependency issue
         }
 
         // Ensure AICaller is available
         if (class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
             $this->ai_caller = new AIPKit_AI_Caller();
-        } else {
-            error_log('AIPKit Content Writer Base AJAX Error: AIPKit_AI_Caller class not found.');
-            // Optionally, throw an exception or handle this fatal dependency issue
         }
     }
 

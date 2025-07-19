@@ -34,7 +34,6 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
 
     if (!$request_handler || !$stream_processor) {
         $error_message = __('Server error: Stream processing components not ready.', 'gpt3-ai-content-generator');
-        error_log("AIPKit SSEHandler Logic: request_handler or stream_processor not initialized.");
         $response_formatter->send_sse_error($error_message);
         if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
              $bot_id = isset($_GET['bot_id']) ? absint($_GET['bot_id']) : null; 
@@ -89,13 +88,11 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
             }
 
             if ($error_code === 'trigger_blocked') {
-                error_log("AIPKit SSEHandler Logic: Message blocked by trigger. Reason: " . $user_facing_message);
                 $response_formatter->send_sse_error($user_facing_message, false); 
                 $response_formatter->send_sse_done();
                 exit;
             } elseif ($error_code === 'trigger_direct_reply') {
                 $reply_bot_message_id = is_array($error_data) && isset($error_data['message_id']) ? $error_data['message_id'] : ('trigger-reply-' . uniqid());
-                error_log("AIPKit SSEHandler Logic: AI processing stopped by trigger. Sending direct reply: " . substr($user_facing_message, 0, 100));
                 $response_formatter->send_sse_event('message_start', ['message_id' => $reply_bot_message_id]);
                 $response_formatter->send_sse_data(['delta' => $user_facing_message]); 
                 $response_formatter->send_sse_done();
@@ -103,10 +100,8 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
             } elseif ($error_code === 'trigger_display_form') {
                 $form_event_data = $error_data['display_form_event_data'] ?? null;
                 if ($form_event_data) {
-                    error_log("AIPKit SSEHandler Logic: Trigger requested form display. Sending 'display_form_event'.");
                     $response_formatter->send_sse_event('display_form_event', $form_event_data);
                 } else {
-                    error_log("AIPKit SSEHandler Logic: Trigger requested form display, but 'display_form_event_data' was missing from WP_Error.");
                     $response_formatter->send_sse_error(__('Form display requested but data is missing.', 'gpt3-ai-content-generator'), false);
                 }
                 $response_formatter->send_sse_done(); 
@@ -119,7 +114,6 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
         if (isset($processed_data['initial_trigger_reply_data']) && is_array($processed_data['initial_trigger_reply_data'])) {
             $initial_reply = $processed_data['initial_trigger_reply_data'];
             if (!empty($initial_reply['message_id']) && !empty($initial_reply['message'])) {
-                error_log("AIPKit SSEHandler Logic: Sending initial trigger reply (ID: {$initial_reply['message_id']}) before main AI stream.");
                 $response_formatter->send_sse_event('message_start', ['message_id' => $initial_reply['message_id']]);
                 $response_formatter->send_sse_data(['delta' => $initial_reply['message']]);
             }
@@ -147,7 +141,6 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
     } catch (\Exception $e) {
         $error_code_http = is_int($e->getCode()) && $e->getCode() >= 400 ? $e->getCode() : 500;
         $error_message_final = $e->getMessage();
-        error_log("AIPKit SSEHandler Logic Exception [Code: {$error_code_http}]: " . $error_message_final);
         if (!$response_formatter->get_headers_sent_status()) $response_formatter->set_sse_headers();
         $response_formatter->send_sse_error($error_message_final);
         

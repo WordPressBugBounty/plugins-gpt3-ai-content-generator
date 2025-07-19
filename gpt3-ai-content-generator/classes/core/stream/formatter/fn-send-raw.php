@@ -21,7 +21,5 @@ function send_raw_logic(string $output): void {
             ob_flush();
         }
         flush();
-    } else {
-        error_log("AIPKit SSE Formatter (send_raw_logic): Connection aborted. Could not send: " . trim($output));
     }
 }

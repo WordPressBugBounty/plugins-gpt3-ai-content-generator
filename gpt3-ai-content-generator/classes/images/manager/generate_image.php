@@ -77,7 +77,6 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
     $result_from_strategy = $strategy->generate_image($prompt, $api_params, $final_options);
 
     if (is_wp_error($result_from_strategy)) {
-        error_log("AIPKit Image Manager Error ({$provider_normalized}): " . $result_from_strategy->get_error_message());
         return $result_from_strategy;
     }
 
@@ -93,16 +92,11 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
             if (!is_wp_error($attachment_id_or_error) && $attachment_id_or_error) {
                 $image_item['attachment_id'] = $attachment_id_or_error;
                 $image_item['media_library_url'] = wp_get_attachment_url($attachment_id_or_error);
-            } elseif (is_wp_error($attachment_id_or_error)) {
-                error_log("AIPKit Image Manager: Error saving image to media library - " . $attachment_id_or_error->get_error_message());
             }
             $saved_image_data[] = $image_item;
         }
         $result_from_strategy['images'] = $saved_image_data;
-    } elseif ($wp_user_id !== null && !class_exists(AIPKit_Image_Storage_Helper::class)) {
-        error_log("AIPKit Image Manager: ImageStorageHelper class not found. Cannot save image to media library.");
     }
 
-    error_log("AIPKit Image Manager: Successfully generated image(s) using {$provider_normalized}. Model: " . ($final_options['model'] ?? 'Default'));
     return $result_from_strategy;
 }

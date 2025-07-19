@@ -170,7 +170,6 @@ function process_content_writer_logic(
                     'vector_store_ids' => $openai_vs_ids,
                     'max_num_results'  => $vector_top_k,
                 ];
-                error_log("AIPKit Content Writer SSE: Added vector_store_tool_config for OpenAI. VS IDs: " . implode(', ', $openai_vs_ids));
             }
         }
     }

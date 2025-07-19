@@ -99,8 +99,6 @@ class Chat_Dependencies_Loader
                 } elseif (substr($file, -4) !== '.php') {
                     require_once $full_path;
                 }
-            } else {
-                error_log("AIPKit Dependency Error: Chat file {$file} not found at {$full_path}.");
             }
         }
     }

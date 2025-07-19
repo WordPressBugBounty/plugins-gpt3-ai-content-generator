@@ -81,8 +81,6 @@ function parse_sse_chunk_logic_for_response_parser(string $sse_chunk, string &$c
                         // Wait for [DONE] or actual error to stop.
                     }
                 }
-            } else {
-                error_log("AIPKit OpenRouter SSE Parser Logic: Failed to decode JSON data: {$event_data_json}");
             }
         }
     } // End while loop processing blocks

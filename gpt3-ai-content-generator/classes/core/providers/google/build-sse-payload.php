@@ -33,7 +33,6 @@ function build_sse_payload_logic(
         if (file_exists($formatter_bootstrap)) {
             require_once $formatter_bootstrap;
         } else {
-            error_log('GoogleProviderStrategy: GooglePayloadFormatter class not found for SSE payload.');
             return []; 
         }
     }

@@ -53,9 +53,6 @@ class AIPKit_Vector_OpenAI_Strategy extends AIPKit_Vector_Base_Provider_Strategy
             $url_builder_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/openai/OpenAIUrlBuilder.php';
             if (file_exists($url_builder_path)) {
                 require_once $url_builder_path;
-            } else {
-                error_log('AIPKit_Vector_OpenAI_Strategy: OpenAIUrlBuilder class file not found.');
-                // Consider throwing an exception or setting an error state
             }
         }
     }

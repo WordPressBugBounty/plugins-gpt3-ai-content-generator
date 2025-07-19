@@ -29,7 +29,6 @@ function check_prerequisites_logic(
     }
 
     if (!$ai_caller || !$vector_store_manager) {
-        error_log("BuildContext (check_prerequisites_logic): AI Caller or Vector Store Manager not available.");
         return false;
     }
     return true;

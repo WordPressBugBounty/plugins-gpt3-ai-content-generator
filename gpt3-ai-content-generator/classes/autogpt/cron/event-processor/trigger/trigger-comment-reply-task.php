@@ -63,7 +63,9 @@ function trigger_comment_reply_task_logic(int $task_id, array $task_config, ?str
         // Also check if we've already replied to this comment to prevent loops
         $existing_reply = get_comments([
             'parent' => $comment_id,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
             'meta_key' => '_aipkit_automated_reply',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
             'meta_value' => $task_id,
             'count' => true
         ]);

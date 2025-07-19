@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/chat/storage/saver/handle-openai-specific-settings-logic.php
 // Status: NEW FILE
 
@@ -18,19 +19,16 @@ if (!defined('ABSPATH')) {
  * @param array $sanitized_settings The array of sanitized settings for the bot.
  * @return void
  */
-function handle_openai_specific_settings_logic(int $botId, array $sanitized_settings): void {
+function handle_openai_specific_settings_logic(int $botId, array $sanitized_settings): void
+{
     if (isset($sanitized_settings['provider']) && $sanitized_settings['provider'] === 'OpenAI' &&
-        isset($sanitized_settings['openai_conversation_state_enabled']) && $sanitized_settings['openai_conversation_state_enabled'] === '1')
-    {
+        isset($sanitized_settings['openai_conversation_state_enabled']) && $sanitized_settings['openai_conversation_state_enabled'] === '1') {
         if (class_exists(\WPAICG\AIPKit_Providers::class)) {
             $openai_global_settings = AIPKit_Providers::get_provider_data('OpenAI');
             if (($openai_global_settings['store_conversation'] ?? '0') !== '1') {
                 $openai_global_settings['store_conversation'] = '1';
                 AIPKit_Providers::save_provider_data('OpenAI', $openai_global_settings);
-                error_log("AIPKit BotSettingsSaver: Forced global OpenAI 'Store Conversation' to true for bot ID {$botId} due to conversation state being enabled.");
             }
-        } else {
-            error_log("AIPKit BotSettingsSaver Warning: AIPKit_Providers class not available. Cannot force global OpenAI 'Store Conversation' setting.");
         }
     }
 }

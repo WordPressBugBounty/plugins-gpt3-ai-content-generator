@@ -61,11 +61,7 @@ class Core
                     add_action('wp_ajax_aipkit_save_enhancer_action', [$ajax_handler, 'ajax_save_enhancer_action']);
                     add_action('wp_ajax_aipkit_delete_enhancer_action', [$ajax_handler, 'ajax_delete_enhancer_action']);
                     // --- END NEW ---
-                } else {
-                    error_log('AIPKit Post Enhancer: AjaxHandler class not found after require.');
                 }
-            } else {
-                error_log('AIPKit Post Enhancer: AJAX handler file not found.');
             }
 
             // --- MODIFICATION: Dynamically support all public post types by default ---

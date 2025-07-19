@@ -40,7 +40,6 @@ function do_ajax_get_indexing_logs_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handl
     );
 
     if ($wpdb->last_error) {
-        error_log("AIPKit Pinecone AJAX (Get Logs Logic): DB Error fetching indexing logs. Query: " . $wpdb->last_query . " Error: " . $wpdb->last_error);
         $handler_instance->send_wp_error(new WP_Error('db_query_error_pinecone_logs', __('Failed to fetch Pinecone indexing logs.', 'gpt3-ai-content-generator'), ['status' => 500]));
         return;
     }

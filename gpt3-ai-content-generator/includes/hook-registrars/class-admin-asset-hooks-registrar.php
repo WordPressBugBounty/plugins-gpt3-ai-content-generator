@@ -49,8 +49,6 @@ class Admin_Asset_Hooks_Registrar
         $autogpt_assets = null;
         if (class_exists(AIPKit_Autogpt_Assets::class)) {
             $autogpt_assets = new AIPKit_Autogpt_Assets();
-        } else {
-            error_log('AIPKit Admin Assets Registrar: AutoGPT Assets class not found.');
         }
         // --- ADDED: Instantiate AI Forms Assets ---
         $ai_forms_assets = null;
@@ -61,11 +59,7 @@ class Admin_Asset_Hooks_Registrar
             }
             if (class_exists(AIPKit_AI_Forms_Assets::class)) {
                 $ai_forms_assets = new AIPKit_AI_Forms_Assets();
-            } else {
-                error_log('AIPKit Admin Assets Registrar: AI Forms Assets class not found after include.');
             }
-        } else {
-            error_log('AIPKit Admin Assets Registrar: AI Forms Assets class file not found at ' . $ai_forms_assets_path);
         }
         // --- END ADDED ---
         // --- ADDED: Instantiate WooCommerce Writer Assets ---
@@ -77,11 +71,7 @@ class Admin_Asset_Hooks_Registrar
             }
             if (class_exists(AIPKit_Woocommerce_Writer_Assets::class)) {
                 $woocommerce_writer_assets = new AIPKit_Woocommerce_Writer_Assets();
-            } else {
-                error_log('AIPKit Admin Assets Registrar: WooCommerce Writer Assets class not found after include.');
             }
-        } else {
-            error_log('AIPKit Admin Assets Registrar: WooCommerce Writer Assets class file not found at ' . $woo_writer_assets_path);
         }
         // --- END ADDED ---
 

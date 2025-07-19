@@ -64,9 +64,6 @@ abstract class AIPKit_Vector_Post_Processor_Base
         unset($data_to_insert['source_type_for_log']);
 
         $result = $wpdb->insert($this->data_source_table_name, $data_to_insert);
-        if ($result === false) {
-            error_log("AIPKit Vector Post Processor Base: Failed to insert vector data source log. Error: " . $wpdb->last_error . " Data: " . print_r($data_to_insert, true));
-        }
     }
 
     /**
@@ -216,8 +213,6 @@ abstract class AIPKit_Vector_Post_Processor_Base
         $final_temp_file_path = dirname($temp_file_path) . '/' . basename($temp_file_path, '.tmp') . '.txt';
         if (rename($temp_file_path, $final_temp_file_path)) {
             $temp_file_path = $final_temp_file_path;
-        } else {
-            error_log("AIPKit Vector Post Processor: Could not rename temp file from {$temp_file_path} to {$final_temp_file_path}. Using original .tmp path.");
         }
         $bytes_written = file_put_contents($temp_file_path, $content_string);
         if ($bytes_written === false) {

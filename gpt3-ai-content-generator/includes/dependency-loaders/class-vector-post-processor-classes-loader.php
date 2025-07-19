@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/dependency-loaders/class-vector-post-processor-classes-loader.php
 // Status: MODIFIED
 
@@ -8,16 +9,16 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Vector_Post_Processor_Classes_Loader {
-    public static function load() {
+class Vector_Post_Processor_Classes_Loader
+{
+    public static function load()
+    {
         $vpp_base_path = WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/';
 
         // Load the Base Class first
         $base_class_path = $vpp_base_path . 'base/class-aipkit-vector-post-processor-base.php';
         if (file_exists($base_class_path) && !class_exists(\WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base::class)) {
             require_once $base_class_path;
-        } elseif (!file_exists($base_class_path)) {
-            error_log("AIPKit VPP Loader Error: Base Post Processor class file not found at {$base_class_path}.");
         }
 
         // Load provider-specific directories and their components
@@ -34,8 +35,6 @@ class Vector_Post_Processor_Classes_Loader {
             $config_class_name = '\\WPAICG\\Vector\\PostProcessor\\' . ucfirst($provider_dir) . '\\' . ucfirst($provider_dir) . 'Config';
             if (file_exists($config_full_path) && !class_exists($config_class_name)) {
                 require_once $config_full_path;
-            } elseif (!file_exists($config_full_path)) {
-                 error_log("AIPKit VPP Loader Error: Config file '{$class_config_file}' not found in '{$provider_path}'.");
             }
 
             // Embedding Handler (not all providers have one)
@@ -44,8 +43,6 @@ class Vector_Post_Processor_Classes_Loader {
                 $embed_class_name = '\\WPAICG\\Vector\\PostProcessor\\' . ucfirst($provider_dir) . '\\' . ucfirst($provider_dir) . 'EmbeddingHandler';
                 if (file_exists($embed_full_path) && !class_exists($embed_class_name)) {
                     require_once $embed_full_path;
-                } elseif (!file_exists($embed_full_path)) {
-                     error_log("AIPKit VPP Loader Error: Embedding Handler file '{$class_embedding_handler_file}' not found in '{$provider_path}'.");
                 }
             }
 
@@ -54,8 +51,6 @@ class Vector_Post_Processor_Classes_Loader {
             $processor_class_name = '\\WPAICG\\Vector\\PostProcessor\\' . ucfirst($provider_dir) . '\\' . ucfirst($provider_dir) . 'PostProcessor';
             if (file_exists($processor_full_path) && !class_exists($processor_class_name)) {
                 require_once $processor_full_path;
-            } elseif (!file_exists($processor_full_path)) {
-                 error_log("AIPKit VPP Loader Error: Processor file '{$class_processor_file}' not found in '{$provider_path}'.");
             }
         }
 
@@ -63,8 +58,6 @@ class Vector_Post_Processor_Classes_Loader {
         $ajax_handler_path = WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php';
         if (file_exists($ajax_handler_path) && !class_exists(\WPAICG\Vector\AIPKit_Vector_Post_Processor_Ajax_Handler::class)) {
             require_once $ajax_handler_path;
-        } elseif (!file_exists($ajax_handler_path)) {
-            error_log("AIPKit VPP Loader Error: Main AJAX Handler file not found at {$ajax_handler_path}.");
         }
     }
 }

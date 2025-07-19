@@ -89,12 +89,9 @@ trait ChatCompletionsSSEParserTrait {
                             $result['is_warning'] = true;
                         } elseif ($finish_reason !== null && $finish_reason !== 'stop') {
                              // Other reasons like length, tool_calls etc. - treat as potential end signal for parsing but not necessarily fatal error
-                             // error_log("AIPKit SSE Parser: Finish Reason '{$finish_reason}' received.");
                              // We might not need to mark 'is_done' here, let [DONE] handle it.
                         }
                     }
-                } else {
-                    error_log("AIPKit SSE Parser: Failed to decode JSON data: {$event_data_json}");
                 }
             }
         } // End while loop processing blocks

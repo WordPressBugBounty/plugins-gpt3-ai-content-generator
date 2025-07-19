@@ -48,7 +48,6 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                     $sanitized[$key] = \WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler::process_credentials($config[$key]);
                 } else {
                     $sanitized[$key] = null;
-                    error_log('AIPKit Template Saver: Google Credentials Handler utility not found.');
                 }
             } elseif ($key === 'ai_temperature') {
                 $sanitized[$key] = (string)floatval($config[$key]);

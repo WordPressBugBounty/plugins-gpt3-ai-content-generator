@@ -24,8 +24,6 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
         $decoded_structure = json_decode($structure_json, true);
         if (is_array($decoded_structure)) {
             update_post_meta($form_id, '_aipkit_ai_form_structure', wp_kses_post($structure_json));
-        } else {
-            error_log("AIPKit AI Form Storage: Invalid JSON provided for form_structure for form ID {$form_id}.");
         }
     }
     if (isset($settings['ai_provider'])) {

@@ -36,7 +36,6 @@ function create_form_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $stora
     $form_id = wp_insert_post($post_data, true);
 
     if (is_wp_error($form_id)) {
-        error_log("AIPKit AI Form Storage Logic: Failed to create form CPT '{$title}'. Error: " . $form_id->get_error_message());
         return $form_id;
     }
 

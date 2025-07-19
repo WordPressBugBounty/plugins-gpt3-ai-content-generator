@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/pinecone/class-aipkit-vector-store-pinecone-ajax-handler.php
 // Status: MODIFIED
 
@@ -22,23 +23,25 @@ if (!defined('ABSPATH')) {
  * Handles AJAX requests for Pinecone Vector Store operations.
  * Delegates logic to namespaced functions within handler-indexes directory.
  */
-class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler {
-
+class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
+{
     private $vector_store_manager;
     private $vector_store_registry;
     private $ai_caller;
     private $data_source_table_name;
     private $wpdb;
 
-    public function __construct() {
+    public function __construct()
+    {
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
 
         if (!class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) {
             $manager_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-manager.php';
-            if (file_exists($manager_path)) require_once $manager_path;
-            else error_log('AIPKit Pinecone AJAX Error: AIPKit_Vector_Store_Manager class file not found.');
+            if (file_exists($manager_path)) {
+                require_once $manager_path;
+            }
         }
         if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) {
             $this->vector_store_manager = new \WPAICG\Vector\AIPKit_Vector_Store_Manager();
@@ -46,8 +49,9 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
         if (!class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Registry::class)) {
             $registry_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-registry.php';
-            if (file_exists($registry_path)) require_once $registry_path;
-            else error_log('AIPKit Pinecone AJAX Error: AIPKit_Vector_Store_Registry class file not found.');
+            if (file_exists($registry_path)) {
+                require_once $registry_path;
+            }
         }
         if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Registry::class)) {
             $this->vector_store_registry = new \WPAICG\Vector\AIPKit_Vector_Store_Registry();
@@ -55,8 +59,9 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
         if (!class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
             $ai_caller_path = WPAICG_PLUGIN_DIR . 'classes/core/class-aipkit_ai_caller.php';
-            if (file_exists($ai_caller_path)) require_once $ai_caller_path;
-            else error_log('AIPKit Pinecone AJAX Error: AIPKit_AI_Caller class file not found.');
+            if (file_exists($ai_caller_path)) {
+                require_once $ai_caller_path;
+            }
         }
         if (class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
             $this->ai_caller = new \WPAICG\Core\AIPKit_AI_Caller();
@@ -64,20 +69,27 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
         if (!class_exists(\WPAICG\Includes\AIPKit_Upload_Utils::class)) {
             $upload_utils_path = WPAICG_PLUGIN_DIR . 'includes/class-aipkit-upload-utils.php';
-            if (file_exists($upload_utils_path)) require_once $upload_utils_path;
-            else error_log('AIPKit Pinecone AJAX Error: AIPKit_Upload_Utils class file not found.');
+            if (file_exists($upload_utils_path)) {
+                require_once $upload_utils_path;
+            }
         }
         if (!class_exists(aipkit_dashboard::class)) {
             $dashboard_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_dashboard.php';
-            if (file_exists($dashboard_path)) require_once $dashboard_path;
+            if (file_exists($dashboard_path)) {
+                require_once $dashboard_path;
+            }
         }
     }
 
-    public function _get_pinecone_config(): array|WP_Error {
+    public function _get_pinecone_config(): array|WP_Error
+    {
         if (!class_exists(\WPAICG\AIPKit_Providers::class)) {
-             $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
-             if (file_exists($providers_path)) require_once $providers_path;
-             else return new WP_Error('dependency_missing', 'AIPKit_Providers class not found for Pinecone config.');
+            $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
+            if (file_exists($providers_path)) {
+                require_once $providers_path;
+            } else {
+                return new WP_Error('dependency_missing', 'AIPKit_Providers class not found for Pinecone config.');
+            }
         }
         $pinecone_data = AIPKit_Providers::get_provider_data('Pinecone');
         if (empty($pinecone_data['api_key'])) {
@@ -86,7 +98,8 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
         return ['api_key' => $pinecone_data['api_key']];
     }
 
-    public function _log_vector_data_source_entry(array $log_data): void {
+    public function _log_vector_data_source_entry(array $log_data): void
+    {
         $defaults = [
             'user_id' => get_current_user_id(), 'timestamp' => current_time('mysql', 1),
             'provider' => 'Pinecone',
@@ -112,50 +125,83 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
         unset($data_to_insert['source_type_for_log']);
 
         $result = $this->wpdb->insert($this->data_source_table_name, $data_to_insert);
-        if ($result === false) {
-            error_log("AIPKit Pinecone AJAX Handler: Failed to insert vector data source log. Error: " . $this->wpdb->last_error . " Data: " . print_r($data_to_insert, true));
-        }
+
     }
 
     // --- Getter methods for dependencies needed by the new standalone functions ---
-    public function get_vector_store_manager(): ?\WPAICG\Vector\AIPKit_Vector_Store_Manager { return $this->vector_store_manager; }
-    public function get_vector_store_registry(): ?\WPAICG\Vector\AIPKit_Vector_Store_Registry { return $this->vector_store_registry; }
-    public function get_ai_caller(): ?\WPAICG\Core\AIPKit_AI_Caller { return $this->ai_caller; }
-    public function get_wpdb(): \wpdb { return $this->wpdb; }
-    public function get_data_source_table_name(): string { return $this->data_source_table_name; }
+    public function get_vector_store_manager(): ?\WPAICG\Vector\AIPKit_Vector_Store_Manager
+    {
+        return $this->vector_store_manager;
+    }
+    public function get_vector_store_registry(): ?\WPAICG\Vector\AIPKit_Vector_Store_Registry
+    {
+        return $this->vector_store_registry;
+    }
+    public function get_ai_caller(): ?\WPAICG\Core\AIPKit_AI_Caller
+    {
+        return $this->ai_caller;
+    }
+    public function get_wpdb(): \wpdb
+    {
+        return $this->wpdb;
+    }
+    public function get_data_source_table_name(): string
+    {
+        return $this->data_source_table_name;
+    }
     // --- End Getters ---
 
-    public function ajax_list_indexes_pinecone() {
+    public function ajax_list_indexes_pinecone()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-indexes/ajax-list-indexes.php'; // MODIFIED PATH
         \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_list_indexes_logic($this);
     }
 
-    public function ajax_create_index_pinecone() {
+    public function ajax_create_index_pinecone()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-indexes/ajax-create-index.php'; // MODIFIED PATH
         \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_create_index_logic($this);
     }
 
-    public function ajax_upsert_to_pinecone_index() {
+    public function ajax_upsert_to_pinecone_index()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-indexes/ajax-upsert-to-index.php'; // MODIFIED PATH
         \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_upsert_to_index_logic($this);
     }
 
-    public function ajax_search_pinecone_index() {
+    public function ajax_search_pinecone_index()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-indexes/ajax-search-index.php'; // MODIFIED PATH
         \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_search_index_logic($this);
     }
 
-    public function ajax_upload_file_and_upsert_to_pinecone() {
+    public function ajax_upload_file_and_upsert_to_pinecone()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
 
         // --- Pro Check ---
         if (!aipkit_dashboard::is_pro_plan()) {
@@ -188,16 +234,24 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
         }
     }
 
-    public function ajax_get_pinecone_indexing_logs() {
+    public function ajax_get_pinecone_indexing_logs()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-indexes/ajax-get-indexing-logs.php'; // MODIFIED PATH
         \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_get_indexing_logs_logic($this);
     }
 
-    public function ajax_delete_index_pinecone() {
+    public function ajax_delete_index_pinecone()
+    {
         $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-indexes/ajax-delete-index.php'; // MODIFIED PATH
         \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_delete_index_logic($this);
     }

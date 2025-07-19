@@ -55,9 +55,7 @@ function _aipkit_qdrant_ajax_delete_collection_logic(AIPKit_Vector_Store_Qdrant_
 
     $vector_store_registry->remove_registered_store('Qdrant', $collection_name);
     $wpdb->delete($data_source_table_name, ['provider' => 'Qdrant', 'vector_store_id' => $collection_name], ['%s', '%s']);
-    if ($wpdb->last_error) {
-        error_log("AIPKit Qdrant AJAX Delete Logic: Failed to delete data source entries for collection {$collection_name}. Error: " . $wpdb->last_error);
-    }
+
     $handler_instance->_log_vector_data_source_entry([
         'vector_store_id' => $collection_name, 'vector_store_name' => $collection_name,
         'status' => 'success',

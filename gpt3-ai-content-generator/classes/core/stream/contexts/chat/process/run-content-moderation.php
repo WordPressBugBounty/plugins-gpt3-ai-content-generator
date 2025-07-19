@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/contexts/chat/process/run-content-moderation.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Core\Stream\Contexts\Chat\Process;
 
@@ -42,7 +42,6 @@ function run_content_moderation_logic(
     }
 
     if (!class_exists(AIPKit_Content_Moderator::class)) {
-        error_log("AIPKit Content Moderation Logic: AIPKit_Content_Moderator class not found.");
         return true; // Fail open if moderator class is missing.
     }
 
@@ -58,9 +57,8 @@ function run_content_moderation_logic(
         }
 
         if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
-            if (!$log_storage) {
-                error_log("AIPKit Content Moderation Logic: LogStorage not available for system_error_occurred trigger. Moderation error: " . $moderation_check->get_error_message());
-            } else {
+            // Only proceed if log storage is available for the trigger manager
+            if ($log_storage) {
                 $error_data = $moderation_check->get_error_data() ?: [];
                 $error_event_context = [
                     'error_code'    => $moderation_check->get_error_code(),
@@ -77,7 +75,7 @@ function run_content_moderation_logic(
                     $trigger_manager = new $trigger_manager_class($trigger_storage, $log_storage);
                     $trigger_manager->process_event($bot_id, 'system_error_occurred', $error_event_context);
                 } catch (\Exception $e) {
-                     error_log("AIPKit Content Moderation Logic: Exception while dispatching system_error_occurred trigger: " . $e->getMessage());
+                     // Exception is caught and ignored to prevent fatal errors.
                 }
             }
         }

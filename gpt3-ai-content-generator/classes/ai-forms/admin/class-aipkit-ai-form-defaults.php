@@ -59,8 +59,6 @@ class AIPKit_AI_Form_Defaults
                 update_option($option_name, $new_form_id_or_error, 'no');
                 // Also add meta to the post itself for easier identification if needed later
                 update_post_meta($new_form_id_or_error, '_aipkit_is_default_form', '1');
-            } else {
-                error_log("AIPKit AI Form Defaults: Failed to create default form '{$form_data['title']}'. Error: " . $new_form_id_or_error->get_error_message());
             }
         }
     }

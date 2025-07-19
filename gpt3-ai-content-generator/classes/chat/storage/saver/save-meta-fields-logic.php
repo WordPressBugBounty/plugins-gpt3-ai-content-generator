@@ -169,16 +169,12 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
 
     if (class_exists($trigger_storage_class_name)) {
         $trigger_meta_key = $trigger_storage_class_name::META_KEY;
-    } else {
-        // Optional: Log that the Pro class wasn't found, using fallback.
-        // error_log("AIPKit BotSettingsSaver (Save Meta): {$trigger_storage_class_name} class not found. Using fallback meta key for triggers.");
     }
     // --- END MODIFICATION ---
 
     $triggers_json_string = $sanitized_settings['triggers_json'] ?? '[]';
     $decoded_triggers_for_validation = json_decode($triggers_json_string, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log("AIPKit BotSettingsSaver (Save Meta): Invalid JSON received for triggers (meta key: " . $trigger_meta_key . ") for bot ID {$botId}. JSON: " . $triggers_json_string);
         return new WP_Error('invalid_trigger_json_meta', __('Invalid JSON format for triggers. Triggers were not saved.', 'gpt3-ai-content-generator'));
     }
     if (!is_array($decoded_triggers_for_validation)) {

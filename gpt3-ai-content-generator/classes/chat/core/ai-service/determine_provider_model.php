@@ -30,7 +30,6 @@ function determine_provider_model(?\WPAICG\Chat\Core\AIService $serviceInstance,
             if (file_exists($providers_path)) {
                 require_once $providers_path;
             } else {
-                error_log('AIPKit AIService Determine Provider Logic Error: AIPKit_Providers class file not found.');
                 return ['provider' => 'OpenAI', 'model' => '']; // Fallback
             }
         }

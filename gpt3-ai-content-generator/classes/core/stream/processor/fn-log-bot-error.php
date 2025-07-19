@@ -29,7 +29,6 @@ function log_bot_error_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor $p
     $grounding_metadata = $processorInstance->get_grounding_metadata();
 
     if (!$log_storage) { 
-        error_log("AIPKit SSE Processor (log_bot_error_logic): LogStorage not available. Cannot log bot error for MsgID: {$current_bot_message_id}. Error: {$error_message}");
         return;
     }
 
@@ -53,8 +52,5 @@ function log_bot_error_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor $p
             $log_error_data['grounding_metadata'] = $grounding_metadata;
         }
          $log_storage->log_message($log_error_data);
-         error_log("AIPKit SSE Processor (log_bot_error_logic): Logged error (Module: {$current_stream_context}, MsgID: {$current_bot_message_id}) for conv {$current_conversation_uuid}: {$error_message}");
-    } elseif (empty($current_bot_message_id)) {
-        error_log("AIPKit SSE Processor Error (log_bot_error_logic): Cannot log bot error, current_bot_message_id is empty.");
     }
 }

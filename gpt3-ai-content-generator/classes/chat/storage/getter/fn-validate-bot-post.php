@@ -24,24 +24,20 @@ function validate_bot_post_logic(int $bot_id): WP_Post|WP_Error {
         if (file_exists($admin_setup_path)) {
             require_once $admin_setup_path;
         } else {
-            error_log("AIPKit BotSettingsGetter (Validate): AdminSetup class file not found for post type check.");
             return new WP_Error('dependency_missing_validator', __('AdminSetup class missing.', 'gpt3-ai-content-generator'));
         }
     }
 
     $post = get_post($bot_id);
     if (!$post) {
-        error_log("AIPKit BotSettingsGetter (Validate): Post with ID {$bot_id} not found.");
         return new WP_Error('post_not_found_validator', __('Chatbot post not found.', 'gpt3-ai-content-generator'));
     }
 
     if ($post->post_type !== AdminSetup::POST_TYPE) {
-        error_log("AIPKit BotSettingsGetter (Validate): Post ID {$bot_id} is not of type " . AdminSetup::POST_TYPE . ". Actual type: " . $post->post_type);
         return new WP_Error('invalid_post_type_validator', __('Invalid chatbot post type.', 'gpt3-ai-content-generator'));
     }
 
     if (!in_array($post->post_status, ['publish', 'draft'], true)) {
-        error_log("AIPKit BotSettingsGetter (Validate): Post ID {$bot_id} has invalid status: " . $post->post_status);
         return new WP_Error('invalid_post_status_validator', __('Chatbot post has an invalid status.', 'gpt3-ai-content-generator'));
     }
     return $post;

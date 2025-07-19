@@ -151,7 +151,4 @@ function log_enhancer_interaction_logic(int $post_id, string $type, string $prom
 
     $log_result = $log_storage->log_message($log_data);
 
-    if ($log_result === false) {
-        error_log("AIPKit Post Enhancer: Failed to log {$type} interaction for Post ID {$post_id}.");
-    }
 }

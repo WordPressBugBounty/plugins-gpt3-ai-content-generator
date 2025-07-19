@@ -51,7 +51,6 @@ function RecordTokenUsageLogic(
             $new_balance = $current_balance - $deducted_from_balance;
             update_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, $new_balance);
             $tokens_left_to_deduct -= $deducted_from_balance;
-            error_log("AIPKit Token Record Logic: Deducted {$deducted_from_balance} tokens from balance for User #{$user_id}. New balance: {$new_balance}. Tokens left to deduct from periodic: {$tokens_left_to_deduct}.");
         }
     }
 
@@ -64,20 +63,16 @@ function RecordTokenUsageLogic(
 
     // Validation
     if ($module_context === 'chat' && empty($context_id_or_bot_id)) {
-        error_log("AIPKit Token Record Logic: Cannot record usage for 'chat', missing bot ID.");
         return;
     }
     if ($module_context === 'image_generator' && $context_id_or_bot_id === null) {
-        error_log("AIPKit Token Record Logic: Cannot record usage for 'image_generator', context ID missing.");
         return;
     }
     if ($module_context === 'ai_forms' && $context_id_or_bot_id === null && !$user_id) {
-        error_log("AIPKit Token Record Logic: Cannot record guest usage for 'ai_forms', context ID missing.");
         return;
     }
 
     if (!$user_id && empty($session_id)) {
-        error_log("AIPKit Token Record Logic: Cannot record usage, missing User/Session ID.");
         return;
     }
 
@@ -91,11 +86,9 @@ function RecordTokenUsageLogic(
     if ($module_context === 'chat') {
         $bot_storage = $managerInstance->get_bot_storage();
         if (!$bot_storage) {
-            error_log('AIPKit Token Record Logic: BotStorage not initialized for recording.');
             return;
         }
         if ($guest_context_table_id === null) {
-            error_log('AIPKit Token Record Logic: Bot ID is null for chat context, cannot record tokens.');
             return;
         }
         $settings = $bot_storage->get_chatbot_settings($guest_context_table_id);
@@ -103,7 +96,6 @@ function RecordTokenUsageLogic(
         $reset_key = MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX . $guest_context_table_id;
     } elseif ($module_context === 'image_generator') {
         if (!class_exists(AIPKit_Image_Settings_Ajax_Handler::class)) {
-            error_log('AIPKit Token Record Logic: Image Settings Handler not available for recording.');
             return;
         }
         $img_settings_all = AIPKit_Image_Settings_Ajax_Handler::get_settings();
@@ -113,7 +105,6 @@ function RecordTokenUsageLogic(
         $guest_context_table_id = GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
     } elseif ($module_context === 'ai_forms') {
         if (!class_exists(AIPKit_AI_Form_Settings_Ajax_Handler::class)) {
-            error_log('AIPKit Token Record Logic: AI Forms Settings Handler not available for recording.');
             return;
         }
         $aiforms_settings_all = AIPKit_AI_Form_Settings_Ajax_Handler::get_settings();
@@ -122,12 +113,10 @@ function RecordTokenUsageLogic(
         $reset_key = MetaKeysConstants::AIFORMS_RESET_META_KEY;
         $guest_context_table_id = GuestTableConstants::AI_FORMS_GUEST_CONTEXT_ID;
     } else {
-        error_log("AIPKit Token Record Logic: Token recording for module '{$module_context}' is not currently supported or settings not found.");
         return;
     }
 
     if ($guest_context_table_id === null && $is_guest) {
-        error_log("AIPKit Token Record Logic: Guest context table ID is null for guest user, module: {$module_context}. Cannot record guest tokens.");
         return;
     }
 
@@ -164,9 +153,6 @@ function RecordTokenUsageLogic(
             } // Set initial reset time if not set
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $upsert_result = $wpdb->replace($guest_table_name, ['session_id' => $session_id, 'bot_id' => $guest_context_table_id, 'tokens_used' => $new_usage, 'last_reset_timestamp' => $last_reset, 'last_updated_at' => current_time('mysql', 1)], ['%s', '%d', '%d', '%d', '%s']);
-            if ($upsert_result === false) {
-                error_log("AIPKit Token Record Logic: Failed to update guest usage for Guest {$session_id}, Context ID {$guest_context_table_id}. Error: " . $wpdb->last_error);
-            }
         } elseif (!$is_guest) {
             $current_usage = (int) get_user_meta($user_id, $usage_key, true);
             $new_usage = $current_usage + $tokens_left_to_deduct; // Use remaining tokens
@@ -179,10 +165,8 @@ function RecordTokenUsageLogic(
         }
         $log_context_str = $is_guest ? "Guest {$session_id}" : "User {$user_id}";
         $log_module_str = ($module_context === 'chat') ? "Bot {$context_id_or_bot_id}" : "Module {$module_context}";
-        error_log("AIPKit Token Record Logic: Recorded {$tokens_left_to_deduct} tokens for {$log_context_str} on {$log_module_str}. New periodic total: {$new_usage}.");
     } else {
         $log_context_str = $is_guest ? "Guest {$session_id}" : "User {$user_id}";
         $log_module_str = ($module_context === 'chat') ? "Bot {$context_id_or_bot_id}" : "Module {$module_context}";
-        error_log("AIPKit Token Record Logic: Skipped recording {$tokens_left_to_deduct} tokens for {$log_context_str} on {$log_module_str} (limit likely disabled/0).");
     }
 }

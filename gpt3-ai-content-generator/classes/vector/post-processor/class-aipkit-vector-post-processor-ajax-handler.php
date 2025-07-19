@@ -34,20 +34,14 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
         // Ensure classes are loaded by DependencyLoader, then instantiate
         if (class_exists(OpenAIPostProcessor::class)) {
             $this->openai_processor = new OpenAIPostProcessor();
-        } else {
-            error_log('AIPKit VPP AJAX Error: OpenAIPostProcessor class not found.');
         }
 
         if (class_exists(PineconePostProcessor::class)) {
             $this->pinecone_processor = new PineconePostProcessor();
-        } else {
-            error_log('AIPKit VPP AJAX Error: PineconePostProcessor class not found.');
         }
 
         if (class_exists(QdrantPostProcessor::class)) {
             $this->qdrant_processor = new QdrantPostProcessor();
-        } else {
-            error_log('AIPKit VPP AJAX Error: QdrantPostProcessor class not found.');
         }
     }
 
@@ -159,7 +153,6 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
         if (!empty($failed_posts_log)) {
             /* translators: %d is the number of posts that failed to index */
             $response_message .= ' ' . sprintf(__('Some posts failed: %d. Check data source logs for details.', 'gpt3-ai-content-generator'), count($failed_posts_log));
-            error_log("AIPKit VPP AJAX Handler: Failed Posts (Detailed): " . print_r($failed_posts_log, true));
         }
 
         wp_send_json_success([

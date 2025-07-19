@@ -66,9 +66,6 @@ function do_ajax_delete_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Aj
     ]);
 
     $wpdb->delete($data_source_table_name, ['provider' => 'OpenAI', 'vector_store_id' => $store_id], ['%s', '%s']);
-    if ($wpdb->last_error) {
-        error_log("AIPKit OpenAI VS Delete Logic: Failed to delete data source entries for store {$store_id}. Error: " . $wpdb->last_error);
-    }
 
     wp_send_json_success(['message' => __('Vector Store deleted successfully.', 'gpt3-ai-content-generator')]);
 }

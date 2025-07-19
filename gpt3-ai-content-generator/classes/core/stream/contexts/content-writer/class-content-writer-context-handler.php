@@ -29,14 +29,10 @@ class SSEContentWriterStreamContextHandler
         // No late require_once calls here.
         if (class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
             $this->ai_caller = new AIPKit_AI_Caller();
-        } else {
-            error_log('SSEContentWriterStreamContextHandler Error: AIPKit_AI_Caller class not found.');
         }
 
         if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) {
             $this->vector_store_manager = new AIPKit_Vector_Store_Manager();
-        } else {
-            error_log('SSEContentWriterStreamContextHandler Error: AIPKit_Vector_Store_Manager class not found.');
         }
     }
 

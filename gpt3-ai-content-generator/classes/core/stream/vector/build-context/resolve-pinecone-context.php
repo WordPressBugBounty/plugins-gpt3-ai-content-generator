@@ -53,13 +53,11 @@ function resolve_pinecone_context_logic(
         if (file_exists($providers_path)) {
             require_once $providers_path;
         } else {
-            error_log("ResolvePineconeContext Logic: AIPKit_Providers class file not found.");
             return "";
         }
     }
     $pinecone_api_config = AIPKit_Providers::get_provider_data('Pinecone');
     if (empty($pinecone_api_config['api_key'])) {
-        error_log("ResolvePineconeContext Logic: Pinecone API key missing for vector pre-search.");
         return "";
     }
 
@@ -95,8 +93,6 @@ function resolve_pinecone_context_logic(
             if (!empty($formatted_file_results)) {
                 $pinecone_results_this_pass .= "Context from Uploaded File (Index {$index_to_query}, Namespace: {$frontend_active_pinecone_namespace}):\n" . $formatted_file_results . "\n";
             }
-        } elseif (is_wp_error($file_search_results)) {
-            error_log("ResolvePineconeContext Logic: Error Pinecone file-specific search: " . $file_search_results->get_error_message());
         }
     }
 
@@ -124,8 +120,6 @@ function resolve_pinecone_context_logic(
         if (!empty($formatted_general_results)) {
             $pinecone_results_this_pass .= "General Knowledge from Bot (Index {$index_to_query}):\n" . $formatted_general_results . "\n";
         }
-    } elseif (is_wp_error($general_search_results)) {
-        error_log("ResolvePineconeContext Logic: Error Pinecone general context search: " . $general_search_results->get_error_message());
     }
 
     if (!empty($pinecone_results_this_pass)) {

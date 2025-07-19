@@ -10,8 +10,8 @@
  *
  * @wordpress-plugin
  * Plugin Name:       AI Power: Complete AI Pack
- * Description:       ai, chatbot, chatgpt, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more.
- * Version:           2.3.17
+ * Description:       AI, Chatbot, ChatGPT, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more.
+ * Version:           2.3.18
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -22,7 +22,7 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.3.17' );
+define( 'WPAICG_VERSION', '2.3.18' );
 define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );
@@ -72,8 +72,6 @@ if ( function_exists( 'wpaicg_gacg_fs' ) ) {
 $aipkit_dashboard_class_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_dashboard.php';
 if ( file_exists( $aipkit_dashboard_class_path ) ) {
     require_once $aipkit_dashboard_class_path;
-} else {
-    error_log( 'AIPKit Critical Error: The core dashboard class (class-aipkit_dashboard.php) is missing.' );
 }
 // --- End Load Core Dashboard Class ---
 // --- Load Pro Features ---
@@ -81,8 +79,6 @@ if ( file_exists( $aipkit_dashboard_class_path ) ) {
 $pro_loader_path = WPAICG_LIB_DIR . 'wpaicg__premium_only.php';
 if ( file_exists( $pro_loader_path ) ) {
     require_once $pro_loader_path;
-} else {
-    // error_log('AIPKit Warning: The Pro library loader file (/lib/wpaicg__premium_only.php) is missing.');
 }
 // --- Core Plugin Includes ---
 require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator.php';

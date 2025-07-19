@@ -55,7 +55,4 @@ function _aipkit_openai_vs_stores_log_vector_store_event_logic(\wpdb $wpdb, stri
     unset($data_to_insert['source_type_for_log']);
 
     $result = $wpdb->insert($data_source_table_name, $data_to_insert);
-    if ($result === false) {
-        error_log("AIPKit OpenAI VS Stores AJAX (fn-stores-log-entry): Failed to insert vector data source log. Error: " . $wpdb->last_error . " Data: " . print_r($data_to_insert, true));
-    }
 }

@@ -25,8 +25,6 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
     {
         if (class_exists(AIPKit_AI_Form_Storage::class)) {
             $this->form_storage = new AIPKit_AI_Form_Storage();
-        } else {
-            error_log('AIPKit_AI_Form_Ajax_Handler Error: AIPKit_AI_Form_Storage class not found.');
         }
     }
 

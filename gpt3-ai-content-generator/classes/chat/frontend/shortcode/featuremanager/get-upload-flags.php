@@ -28,8 +28,6 @@ function get_upload_flags_logic(array $core_flags): array {
         $dashboard_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_dashboard.php';
         if (file_exists($dashboard_path)) {
             require_once $dashboard_path;
-        } else {
-            error_log("AIPKit FeatureManager (Upload Flags): aipkit_dashboard class file not found.");
         }
     }
 

@@ -24,7 +24,6 @@ class AIPKit_STT_Manager {
         // Load dependencies or setup initial state if needed
         // Ensure BotStorage exists and instantiate
         if (!class_exists(\WPAICG\Chat\Storage\BotStorage::class)) {
-            error_log('AIPKit Error: BotStorage class not found during STTManager construction.');
             return;
         }
         $this->bot_storage = new BotStorage();
@@ -70,7 +69,6 @@ class AIPKit_STT_Manager {
         $valid_stt_providers = ['OpenAI', 'Azure']; // Add Azure
         if (!in_array($provider, $valid_stt_providers)) {
             $provider = 'OpenAI'; // Fallback to OpenAI if invalid provider selected for STT
-            error_log("AIPKit STT Manager: Invalid STT provider '{$provider}' requested. Falling back to OpenAI.");
         }
 
         // 2. Get Provider Strategy
@@ -109,11 +107,6 @@ class AIPKit_STT_Manager {
         // 5. Call strategy's transcribe method, passing $options which now includes the model ID if applicable
         // The strategy implementation will use the relevant keys from $api_params and $options
         $result = $strategy->transcribe_audio($audio_data, $audio_format, $api_params, $options);
-
-        // 6. Handle result
-        if (is_wp_error($result)) {
-            error_log("AIPKit STT Manager Error ({$provider}): " . $result->get_error_message());
-        }
 
         return $result;
     }

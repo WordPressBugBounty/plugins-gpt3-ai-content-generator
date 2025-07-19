@@ -27,8 +27,6 @@ function get_addon_status_logic(): array {
         $pdf_addon_active      = aipkit_dashboard::is_addon_active('pdf_download');
         $tts_addon_active      = aipkit_dashboard::is_addon_active('voice_playback');
         $is_pro_plan           = aipkit_dashboard::is_pro_plan();
-    } else {
-        error_log("AIPKit FeatureManager (Addon Status): aipkit_dashboard class not found. Addon features may be unavailable.");
     }
 
     return [

@@ -50,9 +50,6 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
             $this->send_wp_error(new WP_Error('ai_caller_missing', __('AI processing component is unavailable.', 'gpt3-ai-content-generator')), 500);
             return;
         }
-        if (!$this->log_storage) {
-            error_log('AIPKit Content Writer Standard Gen: LogStorage not available. Logging will be skipped.');
-        }
 
         // 3. Build prompts
         $prompts = Shared\build_prompts_logic($validated_params);

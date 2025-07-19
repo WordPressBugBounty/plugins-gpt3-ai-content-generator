@@ -86,11 +86,9 @@ function do_ajax_fetch_wp_content_for_indexing_logic(AIPKit_OpenAI_WP_Content_In
                             'edit_link' => $post_item['edit_link']
                         ];
                     } else {
-                        error_log("AIPKit WP Indexing: Error fetching content for post ID {$post_id}: " . $content_string_or_error->get_error_message());
                         $posts_content_map[$post_id] = ['content' => 'Error: Could not retrieve content.', 'title' => $post_item['title']];
                     }
                 } else {
-                    error_log("AIPKit WP Indexing: OpenAIPostProcessor or get_post_content_as_string method not available.");
                     $posts_content_map[$post_id] = ['content' => 'Error: Content processing component missing.', 'title' => $post_item['title']];
                 }
             }

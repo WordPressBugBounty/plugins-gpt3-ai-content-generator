@@ -41,8 +41,6 @@ function delete_all_forms_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $
         $deleted = wp_delete_post($form_id, true); // true to force delete, bypassing trash
         if ($deleted) {
             $deleted_count++;
-        } else {
-            error_log("AIPKit AI Form Storage: Failed to delete form ID {$form_id}.");
         }
     }
 

@@ -33,7 +33,6 @@ function validate_atts_logic(array $atts, array &$rendered_form_ids): int|WP_Err
     }
 
     if (!class_exists(AIPKit_AI_Form_Admin_Setup::class)) {
-        error_log('AIPKit AI Form Validator: AIPKit_AI_Form_Admin_Setup class not found.');
         return new WP_Error('internal_error', 'AI Form system component is missing.');
     }
     $form_post = get_post($form_id);

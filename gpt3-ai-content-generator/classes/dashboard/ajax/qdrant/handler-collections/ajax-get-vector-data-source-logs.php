@@ -43,7 +43,6 @@ function _aipkit_qdrant_ajax_get_vector_data_source_logs_logic(AIPKit_Vector_Sto
     );
 
     if ($wpdb->last_error) {
-        error_log("AIPKit Qdrant HandlerCollections AJAX (Get Logs Logic): DB Error fetching data source logs. Query: " . $wpdb->last_query . " Error: " . $wpdb->last_error);
         $handler_instance->send_wp_error(new WP_Error('db_query_error_qdrant_logs', __('Failed to fetch indexing logs for Qdrant.', 'gpt3-ai-content-generator'), ['status' => 500]));
         return;
     }
@@ -90,7 +89,4 @@ function _aipkit_qdrant_log_vector_data_source_entry_logic(\wpdb $wpdb, string $
     unset($data_to_insert['source_type_for_log']);
 
     $result = $wpdb->insert($data_source_table_name, $data_to_insert);
-    if ($result === false) {
-        error_log("AIPKit Qdrant HandlerCollections AJAX (Log Entry Logic): Failed to insert vector data source log. Error: " . $wpdb->last_error . " Data: " . print_r($data_to_insert, true));
-    }
 }

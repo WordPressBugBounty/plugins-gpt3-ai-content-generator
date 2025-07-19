@@ -60,8 +60,6 @@ class Initializer
         $user_credits_handler_path = WPAICG_PLUGIN_DIR . 'classes/chat/admin/ajax/user_credits_ajax_handler.php';
         if (file_exists($user_credits_handler_path)) {
             require_once $user_credits_handler_path;
-        } else {
-            error_log('AIPKit Dashboard Init Error: UserCreditsAjaxHandler class file not found.');
         }
 
         // GoogleSettingsHandler (and its AJAX logic file) is loaded by ProviderDependenciesLoader.
@@ -85,17 +83,12 @@ class Initializer
             if (!has_action(\WPAICG\Core\TokenManager\Constants\CronHookConstant::CRON_HOOK, [$token_manager, 'perform_token_reset'])) {
                 add_action(\WPAICG\Core\TokenManager\Constants\CronHookConstant::CRON_HOOK, [$token_manager, 'perform_token_reset']);
             }
-        } else {
-            error_log('AIPKit Dashboard Init Error: \WPAICG\Core\TokenManager\AIPKit_Token_Manager class not found. Cannot register cron action.');
         }
         // --- END MODIFICATION ---
 
         if (class_exists('\\WPAICG\\AIPKit_Role_Manager') && method_exists('\\WPAICG\\AIPKit_Role_Manager', 'init')) {
             \WPAICG\AIPKit_Role_Manager::init();
-        } else {
-            error_log('AIPKit Dashboard Init Warning: AIPKit_Role_Manager or its init method not found.');
         }
-
         // SettingsAjaxHandler and ModelsAjaxHandler are instantiated in Ajax_Hooks_Registrar
         // if (class_exists('\\WPAICG\\Dashboard\\Ajax\\BaseDashboardAjaxHandler')) { // This check is not enough, needs specific handlers
         // SettingsAjaxHandler hooks are now in Ajax_Hooks_Registrar
@@ -106,12 +99,7 @@ class Initializer
             if (!has_action('wp_ajax_aipkit_sync_google_tts_voices', ['\WPAICG\Core\Providers\Google\GoogleSettingsHandler', 'ajax_sync_google_tts_voices'])) {
                 add_action('wp_ajax_aipkit_sync_google_tts_voices', ['\WPAICG\Core\Providers\Google\GoogleSettingsHandler', 'ajax_sync_google_tts_voices']);
             }
-        } else {
-            error_log('AIPKit Dashboard Init Warning: GoogleSettingsHandler or ajax_sync_google_tts_voices method not available for hook registration.');
         }
-        // } else {
-        //     error_log('AIPKit Dashboard Init Error: BaseDashboardAjaxHandler class not found. Cannot register AJAX actions.');
-        // }
 
         if (class_exists('\\WPAICG\\Chat\\Admin\\Ajax\\UserCreditsAjaxHandler')) {
             $user_credits_handler = new UserCreditsAjaxHandler();
@@ -123,8 +111,6 @@ class Initializer
                 add_action('wp_ajax_aipkit_admin_update_token_balance', [$user_credits_handler, 'ajax_admin_update_token_balance']);
             }
             // --- END NEW ---
-        } else {
-            error_log('AIPKit Dashboard Init Error: UserCreditsAjaxHandler class not found. Cannot register User Credits AJAX action.');
         }
 
         if (class_exists('\\WPAICG\\aipkit_dashboard') && method_exists('\\WPAICG\\aipkit_dashboard', 'init')) {
@@ -142,8 +128,6 @@ class Initializer
         // The check is idempotent and will exit early if not needed.
         if (class_exists(WP_AI_Content_Generator_Activator::class)) {
             WP_AI_Content_Generator_Activator::check_for_old_data_and_set_migration_status();
-        } else {
-            error_log('AIPKit Dashboard: WP_AI_Content_Generator_Activator class not found for migration check on admin_init.');
         }
     }
     // --- END ADDED ---
@@ -183,7 +167,6 @@ class Initializer
             return true;
         }
         if (!class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
-            error_log("AIPKit Dashboard Warning: AIPKit_Role_Manager class not found in can_user_access_dashboard. Denying access.");
             return false;
         }
         $manageable_modules = AIPKit_Role_Manager::get_manageable_modules();
@@ -204,7 +187,6 @@ class Initializer
             include $dashboard_path;
         } else {
             echo '<div class="wrap"><h2>Error</h2><p>Dashboard view file not found: ' . esc_html($dashboard_path) . '</p></div>';
-            error_log("AIPKit Dashboard Render Error: Dashboard view file not found at {$dashboard_path}");
         }
     }
     public function render_role_manager_page()
@@ -219,7 +201,6 @@ class Initializer
             echo '</div>';
         } else {
             echo '<div class="wrap"><h2>Error</h2><p>Role Manager view file not found: ' . esc_html($role_manager_path) . '</p></div>';
-            error_log("AIPKit Dashboard Render Error: Role Manager view file not found at {$role_manager_path}");
         }
     }
 
@@ -236,7 +217,6 @@ class Initializer
             echo '</div>';
         } else {
             echo '<div class="wrap"><h2>Error</h2><p>Migration Tool view file not found: ' . esc_html($migration_tool_path) . '</p></div>';
-            error_log("AIPKit Migration Tool Render Error: View file not found at {$migration_tool_path}");
         }
     }
     // --- END ADDED ---

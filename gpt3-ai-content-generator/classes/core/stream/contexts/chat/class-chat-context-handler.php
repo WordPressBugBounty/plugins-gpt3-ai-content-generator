@@ -55,8 +55,6 @@ class SSEChatStreamContextHandler
             $ai_service_path = WPAICG_PLUGIN_DIR . 'classes/chat/core/ai_service.php';
             if (file_exists($ai_service_path)) {
                 require_once $ai_service_path;
-            } else {
-                error_log('SSEChatStreamContextHandler Error: AIService class file not found.');
             }
         }
         if (class_exists(ChatAIService::class)) {
@@ -78,8 +76,6 @@ class SSEChatStreamContextHandler
         foreach ($process_chat_dependencies as $class => $path) {
             if (!class_exists($class) && file_exists($path)) {
                 require_once $path;
-            } elseif (!class_exists($class)) {
-                error_log("SSEChatStreamContextHandler Warning: Dependency {$class} not found at {$path}. May cause issues in fn-process-chat.php.");
             }
         }
     }

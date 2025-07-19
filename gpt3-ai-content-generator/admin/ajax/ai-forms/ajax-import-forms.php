@@ -82,8 +82,6 @@ function do_ajax_import_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instanc
     if ($failed_count > 0) {
         /* translators: %d is the number of forms that failed to import */
         $message .= ' ' . sprintf(_n('%d form failed to import.','%d forms failed to import.',$failed_count,'gpt3-ai-content-generator'),$failed_count);
-        // Optionally log detailed errors for admin
-        error_log('AI Forms Import Errors: ' . print_r($errors, true));
     }
 
     wp_send_json_success(['message' => $message, 'imported_count' => $imported_count, 'failed_count' => $failed_count]);

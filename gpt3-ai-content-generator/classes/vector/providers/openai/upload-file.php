@@ -46,7 +46,6 @@ function upload_file_for_vector_store_logic(AIPKit_Vector_OpenAI_Strategy $strat
     // Let's assume it's correctly externalized and can be called.
     $mime_type = get_mime_type_from_filename_logic($strategyInstance, $original_filename);
     if (is_wp_error($mime_type)) {
-        error_log("AIPKit OpenAI Strategy (Upload File Logic): " . $mime_type->get_error_message() . ". Defaulting to application/octet-stream.");
         $mime_type = 'application/octet-stream';
     }
 

@@ -1,4 +1,6 @@
-<?php // File: classes/dashboard/ajax/openai/fn-temp-file.php
+<?php
+
+// File: classes/dashboard/ajax/openai/fn-temp-file.php
 // Status: NEW FILE
 
 namespace WPAICG\Dashboard\Ajax\OpenAI;
@@ -16,7 +18,8 @@ if (!defined('ABSPATH')) {
  * @param string $filename_prefix Prefix for the temporary filename.
  * @return string|WP_Error The path to the temporary file or WP_Error on failure.
  */
-function _aipkit_openai_vs_files_create_temp_file_from_string(string $content_string, string $filename_prefix = 'aipkit-content'): string|\WP_Error {
+function _aipkit_openai_vs_files_create_temp_file_from_string(string $content_string, string $filename_prefix = 'aipkit-content'): string|\WP_Error
+{
     $temp_file_path = wp_tempnam($filename_prefix, get_temp_dir());
     if ($temp_file_path === false) {
         return new WP_Error('temp_file_creation_failed', __('Could not create temporary file for content.', 'gpt3-ai-content-generator'));
@@ -24,9 +27,8 @@ function _aipkit_openai_vs_files_create_temp_file_from_string(string $content_st
     $final_temp_file_path = dirname($temp_file_path) . '/' . basename($temp_file_path, '.tmp') . '.txt';
     if (rename($temp_file_path, $final_temp_file_path)) {
         $temp_file_path = $final_temp_file_path;
-    } else {
-        error_log("AIPKit OpenAI VS Files AJAX (fn-temp-file): Could not rename temp file from {$temp_file_path} to {$final_temp_file_path}. Using original temp path.");
     }
+    
     $bytes_written = file_put_contents($temp_file_path, $content_string);
     if ($bytes_written === false) {
         @unlink($temp_file_path);

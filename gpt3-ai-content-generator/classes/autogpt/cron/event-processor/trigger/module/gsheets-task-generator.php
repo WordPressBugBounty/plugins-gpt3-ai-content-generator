@@ -37,13 +37,11 @@ function gsheets_mode_generate_items_logic(int $task_id, array $task_config): ar
         $topics_from_sheet = $sheets_parser->get_rows_from_sheet($sheet_id);
 
         if (is_wp_error($topics_from_sheet)) {
-            error_log("AIPKit GSheets Generator: Error fetching from Google Sheet for task {$task_id}: " . $topics_from_sheet->get_error_message());
             return $topics_from_sheet;
         }
 
         return $topics_from_sheet;
     } catch (\Exception $e) {
-        error_log("AIPKit GSheets Generator: Exception while parsing Google Sheet for task {$task_id}: " . $e->getMessage());
         return new WP_Error('gsheets_parser_exception', 'Error processing Google Sheet: ' . $e->getMessage(), ['status' => 500]);
     }
 }

@@ -60,7 +60,6 @@ function get_models_logic(OpenAIProviderStrategy $strategyInstance, array $api_p
          $models_api_path = WPAICG_PLUGIN_DIR . 'classes/core/models_api.php';
          if(file_exists($models_api_path)) { require_once $models_api_path; }
          else {
-             error_log("AIPKit OpenAI get_models_logic: AIPKit_Models_API class not found. This might affect other parts if not loaded.");
              // Fallback to base formatter if AIPKit_Models_API is critical for some reason (it's not for this function's direct output)
              return $strategyInstance->format_model_list($raw_models);
          }

@@ -33,7 +33,6 @@ abstract class AIPKit_Vector_Base_Provider_Strategy implements AIPKit_Vector_Pro
         if (json_last_error() !== JSON_ERROR_NONE) {
             /* translators: %1$s: The context of the API call (e.g., "OpenAI Models"), %2$s: The specific JSON error message from PHP. */
             $error_message = sprintf(__('Failed to parse JSON response from %1$s. Error: %2$s', 'gpt3-ai-content-generator'), $context, json_last_error_msg());
-            error_log("AIPKit Vector Strategy Error ({$context} JSON Decode): " . json_last_error_msg() . " Body Snippet: " . substr($json_string, 0, 500));
             return new WP_Error('json_decode_error', $error_message);
         }
         return is_array($decoded) ? $decoded : [];

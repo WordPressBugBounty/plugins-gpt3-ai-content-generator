@@ -45,10 +45,6 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
             } elseif ($format_from_options === 'mp3') {
                 // If generic 'mp3' is passed, use a default specific mp3 format
                 $output_format = 'mp3_44100_128'; // Or another mp3_... from the list
-            } else {
-                // If an unrecognized format is passed, log a warning and use default.
-                // This case should ideally not happen if manager defaults to 'mp3'.
-                error_log("AIPKit ElevenLabs TTS: Unrecognized format '{$format_from_options}' received. Using default '{$output_format}'.");
             }
         }
         // --- END: Format Handling ---
@@ -81,7 +77,6 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
         $response = wp_remote_post($url, $request_args);
 
         if (is_wp_error($response)) {
-            error_log("AIPKit ElevenLabs TTS Speech Error (wp_remote_post): " . $response->get_error_message());
             return new WP_Error('elevenlabs_tts_http_error', __('HTTP error during speech generation.', 'gpt3-ai-content-generator'), ['status' => 503]);
         }
 
@@ -90,13 +85,11 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
 
         if ($status_code !== 200) {
             $error_msg = $this->parse_error_response($body, $status_code, 'ElevenLabs TTS Speech');
-            error_log("AIPKit ElevenLabs TTS Speech API Error ({$status_code}): " . $error_msg);
             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
             return new WP_Error('elevenlabs_tts_api_error', sprintf(__('ElevenLabs Speech API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
 
         if (empty($body)) {
-            error_log("AIPKit ElevenLabs TTS Speech Error: API response successful but body is empty.");
             return new WP_Error('elevenlabs_tts_no_audio', __('ElevenLabs API returned success but no audio data.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
 
@@ -128,7 +121,6 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
         $response = wp_remote_get($url, $request_args);
 
         if (is_wp_error($response)) {
-            error_log("AIPKit ElevenLabs Voices Error (wp_remote_get): " . $response->get_error_message());
             return new WP_Error('elevenlabs_tts_http_error', __('HTTP error fetching ElevenLabs voices.', 'gpt3-ai-content-generator'), ['status' => 503]);
         }
 
@@ -137,7 +129,6 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
 
         if ($status_code !== 200) {
              $error_msg = $this->parse_error_response($body, $status_code, 'ElevenLabs Voices');
-             error_log("AIPKit ElevenLabs Voices API Error ({$status_code}): " . $error_msg);
              /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
              return new WP_Error('elevenlabs_tts_api_error', sprintf(__('ElevenLabs Voices API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
@@ -204,7 +195,6 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
         $response = wp_remote_get($url, $request_args);
 
         if (is_wp_error($response)) {
-            error_log("AIPKit ElevenLabs Models Error (wp_remote_get): " . $response->get_error_message());
             return new WP_Error('elevenlabs_tts_http_error', __('HTTP error fetching ElevenLabs models.', 'gpt3-ai-content-generator'), ['status' => 503]);
         }
 
@@ -213,7 +203,6 @@ class AIPKit_TTS_ElevenLabs_Provider_Strategy extends AIPKit_TTS_Base_Provider_S
 
         if ($status_code !== 200) {
              $error_msg = $this->parse_error_response($body, $status_code, 'ElevenLabs Models');
-             error_log("AIPKit ElevenLabs Models API Error ({$status_code}): " . $error_msg);
              /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
              return new WP_Error('elevenlabs_tts_api_error', sprintf(__('ElevenLabs Models API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }

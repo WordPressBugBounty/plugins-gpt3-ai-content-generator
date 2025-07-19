@@ -31,13 +31,9 @@ class AIPKit_AI_Form_Processor
     {
         if (class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
             $this->ai_caller = new \WPAICG\Core\AIPKit_AI_Caller();
-        } else {
-            error_log('AIPKit_AI_Form_Processor Error: AIPKit_AI_Caller class not found.');
         }
         if (class_exists(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage::class)) {
             $this->form_storage = new \WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage();
-        } else {
-            error_log('AIPKit_AI_Form_Processor Error: AIPKit_AI_Form_Storage class not found.');
         }
     }
 

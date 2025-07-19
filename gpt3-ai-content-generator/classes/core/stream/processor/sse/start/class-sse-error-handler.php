@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/processor/sse/start/class-sse-error-handler.php
 // Status: MODIFIED
 
@@ -18,14 +19,15 @@ if (!defined('ABSPATH')) {
 /**
  * Handles SSE errors, logs them, sends SSE error events, and dispatches system error triggers.
  */
-class SSEErrorHandler {
-
+class SSEErrorHandler
+{
     private $processorInstance;
     private $formatter;
     private $botIdForTrigger;
     private $log_storage; // Added LogStorage instance
 
-    public function __construct(SSEStreamProcessor $processorInstance, SSEResponseFormatter $formatter, ?int $botIdForTrigger = 0, ?LogStorage $log_storage = null) {
+    public function __construct(SSEStreamProcessor $processorInstance, SSEResponseFormatter $formatter, ?int $botIdForTrigger = 0, ?LogStorage $log_storage = null)
+    {
         $this->processorInstance = $processorInstance;
         $this->formatter = $formatter;
         $this->botIdForTrigger = $botIdForTrigger ?: ($processorInstance->get_log_base_data()['bot_id'] ?? 0);
@@ -39,13 +41,15 @@ class SSEErrorHandler {
         if ($triggers_addon_active) {
             if (!class_exists('\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage')) {
                 $path = WPAICG_LIB_DIR . 'chat/triggers/class-aipkit-trigger-storage.php';
-                if (file_exists($path)) require_once $path;
-                else error_log('AIPKit SSEErrorHandler: AIPKit_Trigger_Storage class file missing.');
+                if (file_exists($path)) {
+                    require_once $path;
+                }
             }
             if (!class_exists('\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager')) {
                 $path = WPAICG_LIB_DIR . 'chat/triggers/class-aipkit-trigger-manager.php';
-                if (file_exists($path)) require_once $path;
-                else error_log('AIPKit SSEErrorHandler: AIPKit_Trigger_Manager class file missing.');
+                if (file_exists($path)) {
+                    require_once $path;
+                }
             }
         }
     }
@@ -58,13 +62,12 @@ class SSEErrorHandler {
      *                               Should include 'provider', 'model', 'operation', 'module'.
      *                               Optional: 'http_code'.
      */
-    public function handle_error(WP_Error $error, array $trigger_context): void {
+    public function handle_error(WP_Error $error, array $trigger_context): void
+    {
         $error_message = $error->get_error_message();
         $error_code = $error->get_error_code();
         $error_data_payload = $error->get_error_data();
-
-        error_log("AIPKit SSE Error Handler: Code='{$error_code}', Message='{$error_message}', Context=" . print_r($trigger_context, true));
-
+        
         if ($this->formatter && !$this->processorInstance->get_error_occurred_status()) {
             $this->formatter->send_sse_error($error_message, false);
             $this->processorInstance->set_error_occurred_status(true);
@@ -99,7 +102,7 @@ class SSEErrorHandler {
                 // --- END MODIFICATION ---
                 $trigger_manager->process_event($this->botIdForTrigger, 'system_error_occurred', $error_event_context);
             } catch (\Exception $e) {
-                error_log("AIPKit SSE Error Handler: Exception while processing system_error_occurred trigger: " . $e->getMessage());
+                // AIPKit SSE Error Handler: Exception while processing system_error_occurred trigger: " . $e->getMessage());
             }
         }
     }

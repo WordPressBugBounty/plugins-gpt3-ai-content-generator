@@ -54,7 +54,6 @@ function _request_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, string 
     $response = wp_remote_request($url, $request_args);
 
     if (is_wp_error($response)) {
-        error_log("AIPKit Qdrant Request Error (wp_remote_request): " . $response->get_error_message());
         return $response;
     }
 
@@ -65,13 +64,11 @@ function _request_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, string 
 
     if ($status_code >= 400) {
         $error_msg = $strategyInstance->parse_error_response_public_wrapper($decoded_response ?: $response_body_raw, $status_code, 'Qdrant Vector Store');
-        error_log("AIPKit Qdrant API Error ({$status_code}): " . $error_msg . " Body: " . $response_body_raw);
         /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
         return new WP_Error('qdrant_api_error', sprintf(__('Qdrant API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
     }
 
     if (is_wp_error($decoded_response)) {
-        error_log("AIPKit Qdrant JSON Decode Error on non-error HTTP status: " . $decoded_response->get_error_message() . " Body: " . $response_body_raw);
         return $decoded_response;
     }
 

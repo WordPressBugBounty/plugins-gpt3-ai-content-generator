@@ -41,8 +41,6 @@ function url_mode_generate_items_logic(int $task_id, array $task_config): array|
         if (!is_wp_error($scraped_content)) {
             $topics[] = ['title' => $url, 'link' => $url]; // Mimic RSS item structure
             $contexts[$url] = $scraped_content;
-        } else {
-            error_log("AIPKit URL Generator: Failed to scrape '{$url}'. Error: " . $scraped_content->get_error_message());
         }
     }
 

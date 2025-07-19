@@ -25,8 +25,6 @@ class AIPKit_Content_Writer_Template_Ajax_Handler extends AIPKit_Content_Writer_
         parent::__construct();
         if (class_exists(AIPKit_Content_Writer_Template_Manager::class)) {
             $this->template_manager = new AIPKit_Content_Writer_Template_Manager();
-        } else {
-            error_log('AIPKit Content Writer Template AJAX Error: Template Manager class not found.');
         }
     }
 

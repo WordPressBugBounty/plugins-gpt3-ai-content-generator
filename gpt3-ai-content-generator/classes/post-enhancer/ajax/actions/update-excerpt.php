@@ -19,7 +19,6 @@ class AIPKit_PostEnhancer_Update_Excerpt extends AIPKit_Post_Enhancer_Base_Ajax_
         
         $update_result = wp_update_post(['ID' => $post->ID, 'post_excerpt' => $new_excerpt], true);
         if (is_wp_error($update_result)) {
-            error_log("AIPKit Post Enhancer: Error updating excerpt for post {$post->ID}. Error: " . $update_result->get_error_message());
             wp_send_json_error(['message' => 'Failed to update post excerpt: ' . $update_result->get_error_message()], 500);
         } else {
             wp_send_json_success(['message' => __('Post excerpt updated successfully.', 'gpt3-ai-content-generator')]);

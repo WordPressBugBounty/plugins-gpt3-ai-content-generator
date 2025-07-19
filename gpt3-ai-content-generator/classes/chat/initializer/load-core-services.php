@@ -24,8 +24,6 @@ function load_core_services_logic(): void {
         $full_path = $base_path . $file;
         if (file_exists($full_path) && !class_exists($class_name)) {
             require_once $full_path;
-        } elseif (!file_exists($full_path)) {
-            error_log("AIPKit Chat Initializer: Core service file {$file} not found.");
         }
     }
 }

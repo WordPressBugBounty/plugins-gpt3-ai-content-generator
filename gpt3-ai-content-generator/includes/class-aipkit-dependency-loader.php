@@ -63,16 +63,12 @@ class AIPKit_Dependency_Loader
         $toc_generator_path = WPAICG_PLUGIN_DIR . 'includes/utils/class-aipkit-toc-generator.php';
         if (file_exists($toc_generator_path)) {
             require_once $toc_generator_path;
-        } else {
-            error_log('AIPKit Dependency Loader Error: TOC Generator class file not found at ' . $toc_generator_path);
         }
         // --- END ADDED ---
         // --- ADDED: Load new Identifier Utils class ---
         $identifier_utils_path = WPAICG_PLUGIN_DIR . 'includes/utils/class-aipkit-identifier-utils.php';
         if (file_exists($identifier_utils_path)) {
             require_once $identifier_utils_path;
-        } else {
-            error_log('AIPKit Dependency Loader Error: Identifier Utils class file not found at ' . $identifier_utils_path);
         }
         // --- END ADDED ---
 

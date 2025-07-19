@@ -2,7 +2,6 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/shortcodes/class-aipkit-shortcodes-manager.php
 // Status: MODIFIED
-// I have added a legacy shortcode handler for 'wpaicg_form' to map to the new 'aipkit_ai_form' shortcode.
 
 namespace WPAICG\Shortcodes;
 
@@ -42,8 +41,6 @@ class AIPKit_Shortcodes_Manager
             $dashboard_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_dashboard.php';
             if (file_exists($dashboard_path)) {
                 require_once $dashboard_path;
-            } else {
-                error_log('AIPKit Shortcode Manager Error: Dashboard class file not found.');
             }
         }
         if (class_exists('\\WPAICG\\aipkit_dashboard')) {
@@ -222,6 +219,43 @@ class AIPKit_Shortcodes_Manager
                 $this->is_public_main_js_enqueued_by_shortcodes = true;
             }
         }
+
+        // --- START FIX: Localize data for Image Generator shortcode ---
+        if (($image_generator_present || $force_load_image_gen) && wp_script_is($public_main_js_handle, 'enqueued')) {
+            static $image_gen_localized = false;
+            if (!$image_gen_localized) {
+                if (!class_exists('\\WPAICG\\AIPKit_Providers')) {
+                    $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
+                    if (file_exists($providers_path)) {
+                        require_once $providers_path;
+                    }
+                }
+                wp_localize_script($public_main_js_handle, 'aipkit_image_generator_config_public', [
+                    'ajaxUrl' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('aipkit_image_generator_nonce'),
+                    'text' => [
+                        'generating' => __('Generating...', 'gpt3-ai-content-generator'),
+                        'error'      => __('Error generating image.', 'gpt3-ai-content-generator'),
+                        'generateButton' => __('Generate Image', 'gpt3-ai-content-generator'),
+                        'noPrompt' => __('Please enter a prompt.', 'gpt3-ai-content-generator'),
+                        'initialPlaceholder' => __('Generated images will appear here.', 'gpt3-ai-content-generator'),
+                        'viewFullImage' => __('Click to view full image', 'gpt3-ai-content-generator'),
+                    ],
+                    'openai_models' => [
+                        ['id' => 'gpt-image-1', 'name' => 'GPT Image 1'],
+                        ['id' => 'dall-e-3', 'name' => 'DALL-E 3'],
+                        ['id' => 'dall-e-2', 'name' => 'DALL-E 2'],
+                    ],
+                    'google_models' => [
+                        ['id' => 'gemini-2.0-flash-preview-image-generation', 'name' => 'Gemini 2.0 Flash (Image)'],
+                        ['id' => 'imagen-3.0-generate-002', 'name' => 'Imagen 3.0'],
+                    ],
+                    'replicate_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_replicate_models() : []
+                ]);
+                $image_gen_localized = true;
+            }
+        }
+        // --- END FIX ---
 
         // Localize data for each shortcode if present and script is enqueued
         if ($this->is_token_management_active && has_shortcode($content, 'aipkit_token_usage') && wp_script_is($public_main_js_handle, 'enqueued')) {

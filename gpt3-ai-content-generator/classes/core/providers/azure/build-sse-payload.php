@@ -34,7 +34,6 @@ function build_sse_payload_logic(
             require_once $formatter_bootstrap;
         } else {
             // This should not happen if ProviderDependenciesLoader is correct.
-            error_log('AzureProviderStrategy: AzurePayloadFormatter class not found for SSE.');
             return []; // Or throw an error
         }
     }

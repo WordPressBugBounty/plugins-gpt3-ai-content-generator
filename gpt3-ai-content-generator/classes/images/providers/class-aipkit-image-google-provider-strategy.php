@@ -79,7 +79,6 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
         $response = wp_remote_post($url, $request_args);
 
         if (is_wp_error($response)) {
-            error_log("AIPKit Google Image Gen Error (wp_remote_post): " . $response->get_error_message());
             return new WP_Error('google_image_http_error', __('HTTP error during Google image generation.', 'gpt3-ai-content-generator'));
         }
 
@@ -92,7 +91,6 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
             $error_msg = is_wp_error($decoded_response)
                         ? $decoded_response->get_error_message()
                         : GoogleImageResponseParser::parse_error($body, $status_code);
-            error_log("AIPKit Google Image Gen API Error ({$status_code}): " . $error_msg);
             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
             return new WP_Error('google_image_api_error', sprintf(__('Google Image API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg));
         }

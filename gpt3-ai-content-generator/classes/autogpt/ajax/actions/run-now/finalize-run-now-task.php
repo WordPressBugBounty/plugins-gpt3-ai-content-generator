@@ -37,7 +37,5 @@ function finalize_run_now_task_logic(int $task_id): void
         // Schedule a one-off event to start processing the queue almost immediately.
         // This decouples the potentially long-running queue processing from the AJAX request.
         wp_schedule_single_event(time() + 5, AIPKit_Automated_Task_Event_Processor::MAIN_CRON_HOOK);
-    } else {
-        error_log("AIPKit Run Now (Finalize): AIPKit_Automated_Task_Event_Processor class not found. Cannot schedule queue processing.");
     }
 }

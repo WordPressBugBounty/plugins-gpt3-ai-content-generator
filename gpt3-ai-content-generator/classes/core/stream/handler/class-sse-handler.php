@@ -35,11 +35,6 @@ class SSEHandler {
             ? new \WPAICG\Chat\Storage\LogStorage()
             : null;
 
-        if (!$log_storage_instance) {
-            error_log('SSEHandler Error: LogStorage class not found or failed to instantiate.');
-            // Further initializations might fail, leading to null properties.
-        }
-
         $this->response_formatter = class_exists(\WPAICG\Core\Stream\Formatter\SSEResponseFormatter::class)
             ? new \WPAICG\Core\Stream\Formatter\SSEResponseFormatter()
             : null;
@@ -51,10 +46,6 @@ class SSEHandler {
         $this->stream_processor = ($this->response_formatter && $log_storage_instance && class_exists(\WPAICG\Core\Stream\Processor\SSEStreamProcessor::class))
             ? new \WPAICG\Core\Stream\Processor\SSEStreamProcessor($this->response_formatter, $log_storage_instance)
             : null;
-
-        if (!$this->response_formatter || !$this->request_handler || !$this->stream_processor) {
-            error_log('SSEHandler Error: Failed to initialize one or more core SSE components. Check class availability and constructor logic.');
-        }
     }
 
     // Getters for externalized logic

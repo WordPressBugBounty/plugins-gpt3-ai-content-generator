@@ -37,6 +37,5 @@ function apply_openai_vector_tool_config_logic(
             'vector_store_ids' => $vector_store_ids_to_use_for_tool,
             'max_num_results'  => $vector_top_k_openai
         ];
-        error_log("ApplyOpenAIVectorToolConfig Logic: Added vector_store_tool_config. VS IDs: " . implode(', ', $vector_store_ids_to_use_for_tool));
     }
 }

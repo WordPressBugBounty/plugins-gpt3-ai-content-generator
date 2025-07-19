@@ -120,8 +120,6 @@ class PostEnhancerAssets
         // --- MODIFIED: Call static localization from DashboardAssets ---
         if (class_exists(DashboardAssets::class) && method_exists(DashboardAssets::class, 'localize_core_data')) {
             DashboardAssets::localize_core_data($this->version);
-        } else {
-            error_log("AIPKit Post Enhancer Assets Error: DashboardAssets class or localize_core_data method not found. Global JS object 'aipkit_dashboard' might be missing.");
         }
         // --- END MODIFICATION ---
 

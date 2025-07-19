@@ -48,7 +48,6 @@ function _request_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, strin
     $response = wp_remote_request($url, $request_args);
 
     if (is_wp_error($response)) {
-        error_log("AIPKit Pinecone Request Error (wp_remote_request): " . $response->get_error_message());
         return $response;
     }
 
@@ -67,13 +66,11 @@ function _request_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, strin
 
     if ($status_code >= 400) {
         $error_msg = $strategyInstance->parse_error_response($decoded_response ?: $response_body, $status_code, 'Pinecone Vector Store'); // MODIFIED: Call public method
-        error_log("AIPKit Pinecone API Error ({$status_code}): " . $error_msg . " Body: " . $response_body);
         /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
         return new WP_Error('pinecone_api_error', sprintf(__('Pinecone API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg));
     }
 
     if (is_wp_error($decoded_response)) {
-         error_log("AIPKit Pinecone API Error (JSON Decode): " . $decoded_response->get_error_message() . " Body: " . $response_body);
         return $decoded_response;
     }
     return $decoded_response;

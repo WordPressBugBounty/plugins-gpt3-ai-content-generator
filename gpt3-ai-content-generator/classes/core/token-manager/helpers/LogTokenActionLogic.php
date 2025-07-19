@@ -16,8 +16,6 @@ if (!defined('ABSPATH')) {
  * @param array $details Additional details about the action.
  */
 function LogTokenActionLogic(string $action, array $details = []): void {
-    // Example logging structure:
-    // error_log("AIPKit Token Manager Log - Action: {$action} - Details: " . print_r($details, true));
 
     // For now, this is a placeholder as specific logging is done within
     // PerformTokenResetLogic, CheckAndResetTokensLogic, and RecordTokenUsageLogic.

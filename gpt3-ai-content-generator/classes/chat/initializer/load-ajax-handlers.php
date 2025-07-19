@@ -53,8 +53,6 @@ function load_ajax_handlers_logic(): void {
 
         if (file_exists($full_path) && !class_exists($class_name)) {
             require_once $full_path;
-        } elseif (!file_exists($full_path)) {
-            error_log("AIPKit Chat Initializer: AJAX handler file {$handler_path_relative} not found.");
         }
     }
 }

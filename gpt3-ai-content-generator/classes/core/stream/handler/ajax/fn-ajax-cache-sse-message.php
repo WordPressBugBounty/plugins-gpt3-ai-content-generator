@@ -71,7 +71,6 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     ];
     if ($active_openai_vs_id) {
         $data_to_cache_structured['active_openai_vs_id'] = $active_openai_vs_id;
-        error_log("AIPKit SSE Cache Logic: Adding active_openai_vs_id '{$active_openai_vs_id}' to cached data.");
     }
     $data_to_cache = wp_json_encode($data_to_cache_structured);
 
@@ -93,7 +92,6 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     $cache_key_result = $sse_message_cache->set($data_to_cache);
 
     if (is_wp_error($cache_key_result)) {
-        error_log("AIPKit SSEHandler Cache Logic Error: " . $cache_key_result->get_error_message());
         $error_data_for_response = [
             'message' => $cache_key_result->get_error_message(),
             'code'    => $cache_key_result->get_error_code()

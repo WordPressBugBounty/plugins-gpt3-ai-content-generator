@@ -30,7 +30,6 @@ class DefaultBotSetup
             if (file_exists($settings_path)) {
                 require_once $settings_path;
             } else {
-                error_log("AIPKit Default Bot Setup Error: BotSettingsManager class not found when ensuring default bot.");
                 return;
             }
         }
@@ -40,22 +39,13 @@ class DefaultBotSetup
         if (!$existing) {
             // No bot marked as default found, try to create one
             $result = self::create_default_bot(); // This also calls set_initial_bot_settings on creation
-            if (is_wp_error($result)) {
-                error_log("AIPKit Default Bot Setup: Failed to ensure default bot exists. Error: " . $result->get_error_message());
-            } elseif ($result > 0) {
-                // error_log("AIPKit Default Bot Setup: Default bot created/ensured with ID: " . $result);
-            }
         } else {
             // Default bot exists. Check if it's marked correctly.
             $is_marked = get_post_meta($existing->ID, '_aipkit_default_bot', true);
             if ($is_marked !== '1') {
-                error_log("AIPKit Default Bot Setup: Default bot (ID: {$existing->ID}) found but was missing its marker. Re-marking.");
                 update_post_meta($existing->ID, '_aipkit_default_bot', '1');
                 // Optionally reset settings ONLY if marker was missing
                 // BotSettingsManager::set_initial_bot_settings($existing->ID, $existing->post_title); // <--- Uncomment to reset if marker was missing
-                // error_log("AIPKit Default Bot Setup: Reset settings for default bot (ID: {$existing->ID}) because marker was missing.");
-            } else {
-                error_log("AIPKit Default Bot Setup: Default bot already exists and is marked (ID: {$existing->ID}). Settings NOT reset.");
             }
         }
     }
@@ -70,7 +60,6 @@ class DefaultBotSetup
             if (file_exists($admin_setup_path)) {
                 require_once $admin_setup_path;
             } else {
-                error_log("AIPKit Default Bot Setup Error: AdminSetup class not found in get_default_bot.");
                 return null;
             }
         }
@@ -79,6 +68,7 @@ class DefaultBotSetup
             'post_type'      => AdminSetup::POST_TYPE,
             'post_status'    => 'publish',
             'posts_per_page' => 1,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
             'meta_query' => array(
                 array(
                     'key'   => '_aipkit_default_bot',
@@ -123,17 +113,6 @@ class DefaultBotSetup
         }
 
         $botName = 'Default';
-        // --- FIX START: Removed the check for existing bot by title.
-        // The calling function `ensure_default_chatbot` already checks for a bot marked
-        // with the meta key, which is the correct way. Relying on the title is fragile.
-        // $existing_bot = get_page_by_title($botName, OBJECT, AdminSetup::POST_TYPE);
-        // if ($existing_bot && $existing_bot->post_status === 'publish') {
-        //      update_post_meta($existing_bot->ID, '_aipkit_default_bot', '1');
-        //      BotSettingsManager::set_initial_bot_settings($existing_bot->ID, $botName); // Set defaults for existing
-        //      error_log("AIPKit Default Bot Setup: Found existing bot named '{$botName}' (ID: {$existing_bot->ID}). Marked as default and set initial settings.");
-        //      return $existing_bot->ID;
-        // }
-        // --- FIX END ---
 
         $post_data = array(
             'post_title'  => $botName,
@@ -144,13 +123,11 @@ class DefaultBotSetup
         $post_id = wp_insert_post($post_data, true);
         if (is_wp_error($post_id) || $post_id === 0) {
             $error_message = is_wp_error($post_id) ? $post_id->get_error_message() : 'wp_insert_post returned 0';
-            error_log("AIPKit Default Bot Setup: Failed to create default bot post. Error: " . $error_message);
             return new WP_Error('creation_failed', __('Error creating default chatbot post.', 'gpt3-ai-content-generator'));
         }
 
         update_post_meta($post_id, '_aipkit_default_bot', '1');
         BotSettingsManager::set_initial_bot_settings($post_id, $botName); // Set defaults for new
-        // error_log("AIPKit Default Bot Setup: Successfully created new default bot with ID: " . $post_id);
         return $post_id;
     }
 
@@ -204,8 +181,6 @@ class DefaultBotSetup
                 $site_wide_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/class-aipkit_site_wide_bot_manager.php';
                 if (file_exists($site_wide_path)) {
                     require_once $site_wide_path;
-                } else {
-                    error_log("AIPKit Default Bot Setup Warning: SiteWideBotManager class not found for cache clearing during reset.");
                 }
             }
             if (class_exists('\\WPAICG\\Chat\\Storage\\SiteWideBotManager')) {

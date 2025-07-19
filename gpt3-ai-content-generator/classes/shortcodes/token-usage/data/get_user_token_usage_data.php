@@ -34,7 +34,6 @@ function get_user_token_usage_data_logic(\WPAICG\Shortcodes\AIPKit_Token_Usage_S
 
     // Ensure dependencies exist
     if (!class_exists('\\WPAICG\\Chat\\Storage\\BotStorage')) {
-        error_log('AIPKit Token Usage Shortcode Error: BotStorage class not found.');
         return $data;
     }
 
@@ -89,8 +88,6 @@ function get_user_token_usage_data_logic(\WPAICG\Shortcodes\AIPKit_Token_Usage_S
                 ];
             }
         }
-    } else {
-        error_log('AIPKit Token Usage Shortcode: AIPKit_Image_Settings_Ajax_Handler not found.');
     }
 
     if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Settings_Ajax_Handler')) {
@@ -110,8 +107,6 @@ function get_user_token_usage_data_logic(\WPAICG\Shortcodes\AIPKit_Token_Usage_S
                 ];
             }
         }
-    } else {
-        error_log('AIPKit Token Usage Shortcode: AIPKit_AI_Form_Settings_Ajax_Handler not found.');
     }
 
     return $data;

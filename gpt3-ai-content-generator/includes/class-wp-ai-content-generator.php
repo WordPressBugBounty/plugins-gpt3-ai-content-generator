@@ -94,7 +94,6 @@ class WP_AI_Content_Generator
         $saved_version = get_option(self::DB_VERSION_OPTION);
 
         if (version_compare($saved_version, $current_version, '<')) {
-            error_log("AIPKit: Plugin version changed from {$saved_version} to {$current_version}. Running update checks...");
 
             // Run DB table setup on version change to apply any schema updates.
             WP_AI_Content_Generator_Activator::setup_tables_for_blog();
@@ -102,29 +101,21 @@ class WP_AI_Content_Generator
             // Ensure Role Manager Permissions are Updated/Initialized
             if (class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
                 \WPAICG\AIPKit_Role_Manager::update_permissions_on_activation();
-            } else {
-                error_log("AIPKit Update Error: AIPKit_Role_Manager class not found during version update check.");
             }
 
             // Ensure Default Chatbot exists
             if (class_exists('\\WPAICG\\Chat\\Storage\\DefaultBotSetup')) {
                 \WPAICG\Chat\Storage\DefaultBotSetup::ensure_default_chatbot();
-            } else {
-                error_log("AIPKit Update Error: DefaultBotSetup class not found during version update check.");
             }
 
             // Ensure Default Content Writer Template exists
             if (class_exists('\\WPAICG\\ContentWriter\\AIPKit_Content_Writer_Template_Manager')) {
                 \WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager::ensure_default_template_exists();
-            } else {
-                error_log("AIPKit Update Error: AIPKit_Content_Writer_Template_Manager class not found during version update check.");
             }
 
             // Ensure Default AI Forms exist
             if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Defaults')) {
                 \WPAICG\AIForms\Admin\AIPKit_AI_Form_Defaults::ensure_default_forms_exist();
-            } else {
-                error_log("AIPKit Update Error: AIPKit_AI_Form_Defaults class not found during version update check.");
             }
 
             // Ensure Cron Jobs are scheduled

@@ -21,7 +21,6 @@ function ensure_sse_cache_available_logic(): bool|WP_Error
         if (file_exists($sse_cache_path)) {
             require_once $sse_cache_path;
         } else {
-            error_log('AIPKit Content Writer Stream Init Error: AIPKit_SSE_Message_Cache class file not found.');
             return new WP_Error('dependency_missing', __('SSE Caching component is missing.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
     }

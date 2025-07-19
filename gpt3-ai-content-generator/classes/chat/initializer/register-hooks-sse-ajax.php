@@ -23,7 +23,5 @@ function register_hooks_sse_ajax_logic(?SSEHandler $sse_handler): void {
         add_action('wp_ajax_nopriv_aipkit_cache_sse_message', [$sse_handler, 'ajax_cache_sse_message']);
         add_action('wp_ajax_aipkit_frontend_chat_stream', [$sse_handler, 'ajax_frontend_chat_stream']);
         add_action('wp_ajax_nopriv_aipkit_frontend_chat_stream', [$sse_handler, 'ajax_frontend_chat_stream']);
-    } else {
-        error_log('AIPKit Chat Initializer: SSEHandler instance not available. SSE AJAX actions not registered.');
     }
 }

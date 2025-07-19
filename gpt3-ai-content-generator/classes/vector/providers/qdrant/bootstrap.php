@@ -24,8 +24,6 @@ foreach ($method_files as $file) {
     $file_path = __DIR__ . '/' . $file;
     if (file_exists($file_path)) {
         require_once $file_path;
-    } else {
-        error_log("AIPKit_Vector_Qdrant_Strategy Bootstrap Error: Method file '{$file}' not found at '{$file_path}'.");
     }
 }
 

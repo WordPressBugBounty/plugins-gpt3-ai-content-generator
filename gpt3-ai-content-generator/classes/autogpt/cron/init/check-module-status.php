@@ -26,7 +26,6 @@ function check_module_status_logic(string $main_cron_hook): bool
         // Only clear the cron if it was previously active and is now disabled.
         if ($was_autogpt_active && wp_next_scheduled($main_cron_hook)) {
             wp_clear_scheduled_hook($main_cron_hook);
-            //error_log("AIPKit Automated Task Cron: Cleared main queue processing event because AutoGPT module is now inactive.");
         }
         update_option($option_key_autogpt_active, false, 'no');
         return false; // Stop further initialization

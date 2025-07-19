@@ -22,8 +22,6 @@ class Migration_Ajax_Handlers_Loader
         $main_handler_path = WPAICG_PLUGIN_DIR . 'admin/class-aipkit-migration-handler.php';
         if (file_exists($main_handler_path)) {
             require_once $main_handler_path;
-        } else {
-            error_log("AIPKit Migration AJAX Handlers Loader Error: Main handler file not found at {$main_handler_path}");
         }
         // --- END ADDED ---
 
@@ -48,8 +46,6 @@ class Migration_Ajax_Handlers_Loader
             $full_path = $migration_ajax_path . $file;
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit Migration AJAX Handlers Loader Error: File {$file} not found at {$full_path}");
             }
         }
     }

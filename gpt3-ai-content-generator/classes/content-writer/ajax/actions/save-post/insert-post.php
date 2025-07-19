@@ -111,7 +111,6 @@ function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $imag
     $post_id_or_error = wp_insert_post($postarr, true);
 
     if (is_wp_error($post_id_or_error)) {
-        error_log("AIPKit Save Post Logic: Failed wp_insert_post. Error: " . $post_id_or_error->get_error_message());
         return $post_id_or_error;
     }
 

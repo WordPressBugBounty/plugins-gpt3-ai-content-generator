@@ -22,5 +22,4 @@ function log_cron_error_logic(string $message, ?int $itemId = null): void
     if ($itemId !== null) {
         $log_message .= " (Queue Item ID: {$itemId})";
     }
-    error_log($log_message);
 }

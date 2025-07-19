@@ -35,8 +35,6 @@ class Woocommerce_Writer_Loader
         $woo_writer_path = $woo_base_path . 'class-aipkit-woocommerce-writer.php';
         if (file_exists($woo_writer_path)) {
             require_once $woo_writer_path;
-        } else {
-            error_log('AIPKit Warning: WooCommerce Writer class file not found.');
         }
 
         // Load new Token Package Integration files
@@ -46,8 +44,6 @@ class Woocommerce_Writer_Loader
 
             // Get the singleton instance to register hooks
             \WPAICG\WooCommerce\AIPKit_WooCommerce_Integration::get_instance();
-        } else {
-            error_log('AIPKit Warning: WooCommerce Integration class file not found.');
         }
     }
 }

@@ -6,8 +6,10 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Speech_Dependencies_Loader {
-    public static function load() {
+class Speech_Dependencies_Loader
+{
+    public static function load()
+    {
         $speech_base_path = WPAICG_PLUGIN_DIR . 'classes/speech/';
         $paths = [
             'class-aipkit-speech-manager.php', 'interface-aipkit-tts-provider-strategy.php',
@@ -15,10 +17,11 @@ class Speech_Dependencies_Loader {
             'class-aipkit-tts-openai-provider-strategy.php', 'class-aipkit-tts-google-provider-strategy.php',
             'class-aipkit-tts-elevenlabs-provider-strategy.php',
         ];
-        foreach($paths as $file) {
-             $full_path = $speech_base_path . $file;
-             if (file_exists($full_path)) require_once $full_path;
-             else error_log("AIPKit Dependency Error: Speech file {$file} not found.");
+        foreach ($paths as $file) {
+            $full_path = $speech_base_path . $file;
+            if (file_exists($full_path)) {
+                require_once $full_path;
+            }
         }
     }
 }

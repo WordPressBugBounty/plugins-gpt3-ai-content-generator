@@ -15,8 +15,6 @@ class Core_Services_Loader {
         $token_manager_path = $core_path . 'token-manager/AIPKit_Token_Manager.php';
         if (file_exists($token_manager_path)) {
             require_once $token_manager_path;
-        } else {
-            error_log('AIPKit Core Loader Error: Token Manager class file not found at ' . $token_manager_path);
         }
         // --- END MODIFICATION ---
         require_once $core_path . 'class-aipkit_ai_caller.php';
@@ -40,8 +38,6 @@ class Core_Services_Loader {
         foreach ($sse_classes_to_load as $sse_class_file) {
             if (file_exists($sse_class_file)) {
                 require_once $sse_class_file;
-            } else {
-                error_log("AIPKit Core Loader Error: SSE component file not found: {$sse_class_file}");
             }
         }
     }

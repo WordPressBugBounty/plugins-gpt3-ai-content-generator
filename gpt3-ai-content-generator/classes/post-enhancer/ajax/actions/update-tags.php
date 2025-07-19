@@ -30,7 +30,6 @@ class AIPKit_PostEnhancer_Update_Tags extends AIPKit_Post_Enhancer_Base_Ajax_Act
         $result = wp_set_post_tags($post->ID, $new_tags, false);
 
         if (is_wp_error($result)) {
-            error_log("AIPKit Post Enhancer: Error updating tags for post {$post->ID}. Error: " . $result->get_error_message());
             wp_send_json_error(['message' => 'Failed to update post tags: ' . $result->get_error_message()], 500);
         } else {
             wp_send_json_success(['message' => __('Post tags updated successfully.', 'gpt3-ai-content-generator')]);

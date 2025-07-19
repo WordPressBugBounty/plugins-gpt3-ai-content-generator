@@ -19,6 +19,5 @@ function send_sse_error_logic(\WPAICG\Core\Stream\Formatter\SSEResponseFormatter
     $event_type = $non_fatal ? 'warning' : 'error';
     $error_data = ['error' => $message];
     $error_id   = 'err-' . time();
-    error_log("AIPKit SSE Formatter (send_sse_error_logic): Sending {$event_type} - {$message}");
     $formatterInstance->send_sse_event($event_type, $error_data, $error_id);
 }

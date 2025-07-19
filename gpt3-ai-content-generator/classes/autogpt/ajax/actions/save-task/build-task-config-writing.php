@@ -64,7 +64,6 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                         $content_writer_config[$key] = \WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler::process_credentials($post_data[$key]);
                     } else {
                         $content_writer_config[$key] = null;
-                        error_log('AIPKit Create Task: Google Credentials Handler utility not found.');
                     }
                 } elseif ($key === 'ai_provider' || $key === 'image_provider') {
                     $provider_raw = sanitize_text_field(wp_unslash($post_data[$key]));

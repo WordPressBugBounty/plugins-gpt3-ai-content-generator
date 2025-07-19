@@ -28,7 +28,6 @@ function ConstructorLogic(AIPKit_Token_Manager $managerInstance): void {
         if (file_exists($bot_storage_path)) {
             require_once $bot_storage_path;
         } else {
-            error_log('AIPKit Token Manager Constructor Logic: BotStorage facade class file not found at ' . $bot_storage_path);
             $managerInstance->set_bot_storage(null);
             // return; // Early return if critical dependency is missing
         }
@@ -46,8 +45,6 @@ function ConstructorLogic(AIPKit_Token_Manager $managerInstance): void {
          $image_settings_handler_path = WPAICG_PLUGIN_DIR . 'classes/images/class-aipkit-image-settings-ajax-handler.php';
          if (file_exists($image_settings_handler_path)) {
              require_once $image_settings_handler_path;
-         } else {
-             error_log('AIPKit Token Manager Constructor Logic: AIPKit_Image_Settings_Ajax_Handler class file not found. Image generator token reset might fail.');
          }
     }
 }

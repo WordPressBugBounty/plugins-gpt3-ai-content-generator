@@ -149,7 +149,6 @@ class LogManager
             $select_ids_query = $this->wpdb->prepare($select_ids_query, $query_parts['params']);
         }
         if (!$select_ids_query) {
-            error_log("AIPKit LogManager Delete: Failed to prepare SELECT IDs query. Error: " . $this->wpdb->last_error);
             return false;
         }
         $log_ids_to_delete = $this->wpdb->get_col($select_ids_query);
@@ -160,7 +159,6 @@ class LogManager
         $delete_query = "DELETE FROM {$this->table_name} WHERE id IN ($ids_placeholder)";
         $delete_query_prepared = $this->wpdb->prepare($delete_query, $log_ids_to_delete);
         if (!$delete_query_prepared) {
-            error_log("AIPKit LogManager Delete: Failed to prepare DELETE query. Error: " . $this->wpdb->last_error);
             return false;
         }
         return $this->wpdb->query($delete_query_prepared);
@@ -293,17 +291,14 @@ class LogManager
         $deleted_rows = $this->wpdb->query($query);
 
         if ($deleted_rows === false) {
-            error_log("AIPKit LogManager Delete Single: Failed DB delete for Conv UUID: {$conversation_uuid}. Error: " . $this->wpdb->last_error);
             return new WP_Error('db_delete_failed', __('Failed to delete conversation log.', 'gpt3-ai-content-generator'));
         }
 
         if ($deleted_rows === 0) {
-            error_log("AIPKit LogManager Delete Single: No rows found to delete for Conv UUID: {$conversation_uuid}, User/Session: " . ($user_id ?: $session_id));
             // Not necessarily an error, might have been deleted already or IDs didn't match
             return true; // Return true as the state is now "deleted"
         }
 
-        error_log("AIPKit LogManager Delete Single: Successfully deleted {$deleted_rows} row(s) for Conv UUID: {$conversation_uuid}, User/Session: " . ($user_id ?: $session_id));
         return true;
     }
 }

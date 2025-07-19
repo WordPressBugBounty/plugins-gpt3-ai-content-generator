@@ -46,8 +46,6 @@ class AIPKit_Instruction_Manager {
                 $content_aware_path = WPAICG_PLUGIN_DIR . 'classes/chat/core/class-aipkit_content_aware.php';
                 if (file_exists($content_aware_path)) {
                     require_once $content_aware_path;
-                } else {
-                    error_log("AIPKit InstructionManager Error: AIPKit_Content_Aware class file not found.");
                 }
             }
 
@@ -55,8 +53,6 @@ class AIPKit_Instruction_Manager {
                 $content_snippet = AIPKit_Content_Aware::get_content_snippet($post_id);
                 if ($content_snippet !== null) {
                     $prepended_context .= $content_snippet . "\n\n"; // Add snippet and spacing
-                } else {
-                     error_log("AIPKit InstructionManager: Content Aware enabled, but snippet not retrieved for post ID {$post_id}.");
                 }
             }
         }
@@ -67,13 +63,6 @@ class AIPKit_Instruction_Manager {
              $prepended_context .= "## Relevant information from knowledge base:\n" . trim($vector_search_results) . "\n##\n\n";
         }
         // --- END NEW ---
-
-
-        // --- Other Future Context Injection Points ---
-        // Example: Search Results
-        // if (!empty($context['include_search_results'])) { ... $prepended_context .= ...; }
-        // Example: Vector Data (already handled above)
-        // --- End Future Context ---
 
         // Process base instructions (date placeholder, default text)
         $processed_base = self::process_base_instructions($base_instructions);

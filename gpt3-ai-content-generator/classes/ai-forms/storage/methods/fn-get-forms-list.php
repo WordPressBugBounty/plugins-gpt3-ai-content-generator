@@ -59,6 +59,7 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
         // WP_Query can handle a single meta_key for sorting directly.
         // If we also have a filter, we need to use a more complex meta_query.
         $sort_key = '_aipkit_ai_form_ai_' . $args['orderby'];
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
         $query_args['meta_key'] = $sort_key;
         $query_args['orderby'] = 'meta_value';
     }
@@ -68,6 +69,7 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
         if (count($meta_query) > 1) {
             $meta_query['relation'] = 'AND';
         }
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
         $query_args['meta_query'] = $meta_query;
     }
 

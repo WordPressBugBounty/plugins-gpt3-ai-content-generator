@@ -48,7 +48,6 @@ function process_initial_request_logic(
     $cached_content_result = $sse_message_cache->get($cache_key);
 
     if (is_wp_error($cached_content_result)) {
-        error_log("SSERequestHandler Logic: Failed to get message from cache. Key: {$cache_key}. Error: " . $cached_content_result->get_error_message());
         $error_data = $cached_content_result->get_error_data() ?: [];
         $error_data['failed_module'] = $error_data['failed_module'] ?? 'sse_cache';
         $error_data['failed_operation'] = $error_data['failed_operation'] ?? 'get_cached_message';
@@ -116,9 +115,6 @@ function process_initial_request_logic(
         $cached_data_decoded_for_handler = ['user_message' => '', 'image_inputs' => null];
     }
 
-    // error_log("SSERequestHandler Logic: Determined stream_context: '{$stream_context}'. Handler input data: " . substr(wp_json_encode($cached_data_decoded_for_handler), 0, 500) . "...");
-
-
     // Route to specific context handlers
     if ($stream_context === 'chat') {
         $chat_handler = $handlerInstance->get_chat_context_handler();
@@ -151,7 +147,6 @@ function process_initial_request_logic(
         }
         return $ai_forms_handler->process($cached_data_decoded_for_handler, $get_params);
     } else {
-        error_log("SSERequestHandler Logic: Unsupported stream context '{$stream_context}'. Cached: " . substr(is_string($cached_content_result) ? $cached_content_result : wp_json_encode($cached_content_result), 0, 200));
         return new WP_Error(
             'unsupported_stream_context',
             __('Unsupported stream context.', 'gpt3-ai-content-generator'),

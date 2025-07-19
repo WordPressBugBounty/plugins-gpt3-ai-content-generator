@@ -29,7 +29,6 @@ function apply_openai_web_search_logic(
         if (file_exists($bsm_path)) {
             require_once $bsm_path;
         } else {
-            error_log("ApplyOpenAIWebSearch Logic: BotSettingsManager not found for defaults.");
             return;
         }
     }
@@ -53,8 +52,5 @@ function apply_openai_web_search_logic(
             }
         }
         $final_ai_params['frontend_web_search_active'] = $frontend_openai_web_search_active;
-        if ($frontend_openai_web_search_active) {
-            error_log("ApplyOpenAIWebSearch Logic: OpenAI Web Search tool *eligible* due to bot settings AND frontend toggle.");
-        }
     }
 }

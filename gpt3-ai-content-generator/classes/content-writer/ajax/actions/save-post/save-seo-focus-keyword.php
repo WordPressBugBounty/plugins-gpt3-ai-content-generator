@@ -14,8 +14,6 @@ if (!class_exists('\WPAICG\SEO\AIPKit_SEO_Helper')) {
     $seo_helper_path = WPAICG_PLUGIN_DIR . 'classes/seo/seo-helper.php';
     if (file_exists($seo_helper_path)) {
         require_once $seo_helper_path;
-    } else {
-        error_log("AIPKit Save SEO Focus Keyword Logic: seo-helper.php file not found.");
     }
 }
 

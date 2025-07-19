@@ -28,16 +28,12 @@ class SSEStreamInitializer {
             $google_bootstrap_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/google/bootstrap-settings-handler.php';
             if (file_exists($google_bootstrap_path)) {
                 require_once $google_bootstrap_path;
-            } else {
-                error_log('AIPKit SSEStreamInitializer Error: GoogleSettingsHandler bootstrap file not found.');
             }
         }
         if (!class_exists(AIPKit_Payload_Sanitizer::class)) {
             $sanitizer_path = WPAICG_PLUGIN_DIR . 'classes/core/class-aipkit-payload-sanitizer.php';
             if (file_exists($sanitizer_path)) {
                 require_once $sanitizer_path;
-            } else {
-                error_log('AIPKit SSEStreamInitializer Error: AIPKit_Payload_Sanitizer class file not found.');
             }
         }
     }

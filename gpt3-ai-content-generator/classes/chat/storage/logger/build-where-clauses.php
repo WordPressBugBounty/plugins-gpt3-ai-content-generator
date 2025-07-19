@@ -43,7 +43,6 @@ function build_where_clauses_logic(
         if (empty($session_id)) {
             // This case should ideally be caught by validation in log_message
             // but adding a safeguard here.
-            error_log("AIPKit Logger (Build Where): Session ID is empty for a guest log attempt. Conv UUID: {$conversation_uuid}, Module: {$module}");
             // Fallback to a condition that won't match anything safely or throw an error.
             // For now, let it proceed, log_message should have caught it.
             $where_clauses[] = "1=0"; // Will not match

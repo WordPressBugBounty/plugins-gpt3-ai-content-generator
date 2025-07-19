@@ -32,7 +32,6 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
             require_once $bsm_path;
             $custom_theme_defaults = BotSettingsManager::get_custom_theme_defaults();
         } else {
-            error_log("AIPKit Getter (Appearance): BotSettingsManager class not found for constants.");
             // Define minimal defaults if class is missing to avoid undefined index errors later
             $custom_theme_defaults = [
                  'font_family' => 'inherit', 'bubble_border_radius' => 18,

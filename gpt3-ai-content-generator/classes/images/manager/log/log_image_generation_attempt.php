@@ -64,7 +64,4 @@ function log_image_generation_attempt_logic(
         'request_payload'    => $logged_request_payload, 'response_data'      => $response_data_for_log,
     ];
     $log_result = $log_storage->log_message($log_data);
-    if ($log_result === false) {
-        error_log("AIPKit Image Manager: Failed to log image generation interaction for UUID {$conversation_uuid}.");
-    }
 }

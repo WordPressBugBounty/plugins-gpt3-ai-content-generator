@@ -53,32 +53,22 @@ class AIPKit_REST_Controller extends WP_REST_Controller
         // Instantiate handlers
         if (class_exists(AIPKit_REST_Text_Handler::class)) {
             $this->text_handler = new AIPKit_REST_Text_Handler();
-        } else {
-            error_log('AIPKit REST Controller Error: AIPKit_REST_Text_Handler class not found.');
         }
 
         if (class_exists(AIPKit_REST_Image_Handler::class)) {
             $this->image_handler = new AIPKit_REST_Image_Handler();
-        } else {
-            error_log('AIPKit REST Controller Error: AIPKit_REST_Image_Handler class not found.');
         }
 
         if (class_exists(AIPKit_REST_Embeddings_Handler::class)) {
             $this->embeddings_handler = new AIPKit_REST_Embeddings_Handler();
-        } else {
-            error_log('AIPKit REST Controller Error: AIPKit_REST_Embeddings_Handler class not found.');
         }
         
         if (class_exists(AIPKit_REST_Chat_Handler::class)) {
             $this->chat_handler = new AIPKit_REST_Chat_Handler();
-        } else {
-            error_log('AIPKit REST Controller Error: AIPKit_REST_Chat_Handler class not found.');
         }
-        
+
         if (class_exists(AIPKit_REST_Vector_Store_Handler::class)) {
             $this->vector_store_handler = new AIPKit_REST_Vector_Store_Handler();
-        } else {
-            error_log('AIPKit REST Controller Error: AIPKit_REST_Vector_Store_Handler class not found.');
         }
 
         if ($this->text_handler) {
@@ -93,7 +83,6 @@ class AIPKit_REST_Controller extends WP_REST_Controller
     public function register_routes()
     {
         if (!$this->text_handler || !$this->image_handler || !$this->embeddings_handler || !$this->chat_handler || !$this->vector_store_handler || !$this->base_handler) {
-            error_log('AIPKit REST Controller: One or more handlers failed to instantiate. Routes not registered.');
             return;
         }
 

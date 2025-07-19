@@ -40,11 +40,9 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
     {
         // Instantiate dependencies
         if (!class_exists(LogStorage::class)) {
-            error_log('AIPKit Chatbot Image AJAX Error: LogStorage class not found.');
             return;
         }
         if (!class_exists(AIPKit_Image_Manager::class)) {
-            error_log('AIPKit Chatbot Image AJAX Error: AIPKit_Image_Manager class not found.');
             return;
         }
         // --- MODIFIED: Ensure New Token Manager is loaded ---
@@ -53,7 +51,6 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             if (file_exists($token_manager_path)) {
                 require_once $token_manager_path;
             } else {
-                error_log('AIPKit Chatbot Image AJAX Error: New AIPKit_Token_Manager class file not found at ' . $token_manager_path);
                 return;
             }
         }
@@ -63,7 +60,6 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             if (file_exists($bot_storage_path)) {
                 require_once $bot_storage_path;
             } else {
-                error_log('AIPKit Chatbot Image AJAX Error: BotStorage class not found.');
                 return;
             }
         }
@@ -296,8 +292,5 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             'request_payload'    => $logged_request_payload, 'response_data'      => $response_data,
         ];
         $log_result = $this->log_storage->log_message($log_data);
-        if ($log_result === false) {
-            error_log("AIPKit Chatbot Image AJAX: Failed to log image generation interaction for Bot Msg ID {$bot_response_message_id}.");
-        }
     }
 }

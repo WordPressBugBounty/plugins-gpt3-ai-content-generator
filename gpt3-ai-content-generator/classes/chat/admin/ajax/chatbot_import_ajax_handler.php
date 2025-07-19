@@ -23,15 +23,12 @@ class ChatbotImportAjaxHandler extends BaseAjaxHandler {
     public function __construct() {
         // Ensure dependencies exist and instantiate
         if (!class_exists(\WPAICG\Chat\Storage\BotStorage::class)) {
-            error_log('AIPKit Error: BotStorage class not found during ChatbotImportAjaxHandler construction.');
             return;
         }
         if (!class_exists(\WPAICG\Chat\Storage\BotLifecycleManager::class)) {
-            error_log('AIPKit Error: BotLifecycleManager class not found during ChatbotImportAjaxHandler construction.');
             return;
         }
          if (!class_exists(\WPAICG\Chat\Storage\BotSettingsManager::class)) {
-            error_log('AIPKit Error: BotSettingsManager class not found during ChatbotImportAjaxHandler construction.');
             return;
         }
         $this->bot_storage = new BotStorage();

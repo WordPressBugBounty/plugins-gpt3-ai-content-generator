@@ -132,7 +132,6 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
      */
     public function handle_request(WP_REST_Request $request): WP_REST_Response|WP_Error {
         if (!class_exists(AIPKit_Image_Manager::class)) {
-             error_log("AIPKit REST API Error: AIPKit_Image_Manager class not found.");
              return $this->send_wp_error_response(new WP_Error('rest_aipkit_internal_error', __('Internal server error: Image generation component not loaded.', 'gpt3-ai-content-generator'), ['status' => 500]));
         }
 
@@ -157,7 +156,6 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
         $result = $image_manager->generate_image($prompt, $options);
 
         if (is_wp_error($result)) {
-            error_log("AIPKit REST API Error: Image Generation Failed. Provider: {$options['provider']}. Error: " . $result->get_error_message());
             return $this->send_wp_error_response($result);
         }
         $response_data = [

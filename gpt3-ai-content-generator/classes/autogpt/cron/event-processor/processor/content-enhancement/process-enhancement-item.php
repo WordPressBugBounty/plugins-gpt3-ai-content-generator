@@ -102,8 +102,6 @@ function process_enhancement_item_logic(array $item, array $item_config): array
     if (($item_config['enable_vector_store'] ?? '0') === '1') {
         if (class_exists(AIPKit_Vector_Store_Manager::class)) {
             $vector_store_manager = new AIPKit_Vector_Store_Manager();
-        } else {
-            error_log('AIPKit Bulk Enhancer: Vector Store Manager class not found.');
         }
 
         if ($vector_store_manager && function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
@@ -123,7 +121,6 @@ function process_enhancement_item_logic(array $item, array $item_config): array
     }
     if (!empty($vector_context)) {
         $system_instruction = "## Relevant information from knowledge base:\n" . trim($vector_context) . "\n##\n\n" . $system_instruction;
-        error_log("AIPKit Bulk Enhancer: Added vector context to system prompt for Post #{$post->ID}.");
     }
     // --- END: Vector Context Logic ---
 

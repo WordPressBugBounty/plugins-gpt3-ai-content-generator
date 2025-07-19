@@ -28,8 +28,6 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
             $url_builder_file = $openai_core_provider_path . 'OpenAIUrlBuilder.php';
             if (file_exists($url_builder_file)) {
                 require_once $url_builder_file;
-            } else {
-                error_log("AIPKit STT OpenAI Strategy Error: OpenAIUrlBuilder.php file not found at " . $url_builder_file);
             }
         }
     }
@@ -63,12 +61,10 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         // --- Prepare temporary file ---
         $tmp_filename = wp_tempnam('openai_stt_upload');
         if ($tmp_filename === false) {
-             error_log("AIPKit OpenAI STT Error: Could not create temporary file.");
              return new WP_Error('stt_tmp_file_error', __('Could not create temporary file for audio upload.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
         $write_result = file_put_contents($tmp_filename, $audio_data);
         if ($write_result === false) {
-             error_log("AIPKit OpenAI STT Error: Could not write audio data to temporary file: " . $tmp_filename);
              @unlink($tmp_filename); // Clean up
              return new WP_Error('stt_tmp_write_error', __('Could not write audio data to temporary file.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
@@ -76,7 +72,6 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         $effective_filename = 'audio.' . strtolower($audio_format);
 
         if (!class_exists('\CURLFile')) {
-             error_log("AIPKit OpenAI STT Error: CURLFile class not found. Cannot perform multipart upload.");
              @unlink($tmp_filename);
              return new WP_Error('stt_curlfile_missing', __('Server configuration error (CURLFile missing).', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
@@ -119,9 +114,6 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         ]);
         // --- End Prepare cURL Request ---
 
-        error_log("AIPKit OpenAI STT cURL Request Body Keys: " . print_r(array_keys($post_fields), true));
-        error_log("AIPKit OpenAI STT cURL Request Model Used: " . $stt_model); // Log the actual model used
-
         // Execute cURL request
         $body = curl_exec($ch);
         $curl_errno = curl_errno($ch);
@@ -132,16 +124,13 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
 
         // Handle cURL errors
         if ($curl_errno) {
-            error_log("AIPKit OpenAI STT Error (cURL): [{$curl_errno}] {$curl_error}");
             /* translators: %s: cURL error message. */
             return new WP_Error('openai_stt_curl_error', sprintf(__('Network error during transcription: %s', 'gpt3-ai-content-generator'), $curl_error), ['status' => 503]);
         }
 
         // Handle API errors (non-200 status)
         if ($status_code !== 200) {
-            error_log("AIPKit OpenAI STT Raw Error Response ({$status_code}): " . $body);
             $error_msg = $this->parse_error_response($body, $status_code, 'OpenAI STT');
-            error_log("AIPKit OpenAI STT API Error ({$status_code}): " . $error_msg);
             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
             return new WP_Error('openai_stt_api_error', sprintf(__('OpenAI STT API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg), ['status' => $status_code]);
         }
@@ -155,7 +144,6 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         if (isset($decoded_response['text'])) {
             return $decoded_response['text'];
         } else {
-             error_log("AIPKit OpenAI STT Error: 'text' field missing in successful API response. Response: " . $body);
              return new WP_Error('openai_stt_no_text', __('Transcription successful but no text found in response.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
     }

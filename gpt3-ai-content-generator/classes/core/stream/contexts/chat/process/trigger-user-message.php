@@ -88,7 +88,6 @@ function process_user_message_trigger_logic(array $context): array|WP_Error
         return new WP_Error('trigger_blocked', $user_message_trigger_result['message_to_user'] ?? __('Message blocked.', 'gpt3-ai-content-generator'), ['status' => 400, 'is_trigger_response' => true, 'message_id' => $block_message_id]);
     }
     if (isset($user_message_trigger_result['display_form_event_data']) && is_array($user_message_trigger_result['display_form_event_data'])) {
-        error_log("AIPKit ProcessUserMessageTrigger: 'user_message_received' trigger resulted in display_form event.");
         return new WP_Error('trigger_display_form', __('Form display requested by trigger.', 'gpt3-ai-content-generator'), ['status' => 200, 'display_form_event_data' => $user_message_trigger_result['display_form_event_data']]);
     }
     if (isset($user_message_trigger_result['message_to_user']) && ($user_message_trigger_result['stop_ai_processing'] ?? false)) {

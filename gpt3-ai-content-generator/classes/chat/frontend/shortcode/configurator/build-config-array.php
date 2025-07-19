@@ -43,16 +43,12 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         $bsm_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/class-aipkit_bot_settings_manager.php';
         if (file_exists($bsm_path)) {
             require_once $bsm_path;
-        } else {
-            error_log("AIPKit Configurator (Build Config): BotSettingsManager class not found for constants.");
         }
     }
     if (!class_exists(AIPKit_Providers::class)) {
         $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
         if (file_exists($providers_path)) {
             require_once $providers_path;
-        } else {
-            error_log("AIPKit Configurator (Build Config): AIPKit_Providers class not found.");
         }
     }
     if (!class_exists(AIPKit_Consent_Compliance::class)) {
@@ -65,8 +61,6 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         $dashboard_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_dashboard.php';
         if (file_exists($dashboard_path)) {
             require_once $dashboard_path;
-        } else {
-            error_log("AIPKit Configurator (Build Config): aipkit_dashboard class not found.");
         }
     }
 
@@ -81,8 +75,6 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
     $consent_required = false;
     if (class_exists(AIPKit_Consent_Compliance::class)) {
         $consent_required = AIPKit_Consent_Compliance::is_required();
-    } elseif (class_exists(aipkit_dashboard::class) && aipkit_dashboard::is_pro_plan() && aipkit_dashboard::is_addon_active('consent_compliance')) {
-        error_log('AIPKit Configurator (Build Config) Warning: Consent Compliance addon is active, but its class was not found. Consent will be treated as not required.');
     }
 
     $current_post_id = 0;

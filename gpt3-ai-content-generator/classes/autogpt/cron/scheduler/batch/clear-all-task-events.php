@@ -28,7 +28,5 @@ function clear_all_task_events_logic(): void
         foreach ($task_ids as $task_id) {
             Schedule\clear_task_event_logic(absint($task_id));
         }
-    } else {
-        // error_log("AIPKit Automated Tasks Scheduler (Logic): No tasks found to clear cron events for.");
     }
 }

@@ -45,8 +45,6 @@ function do_ajax_export_all_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_ins
             unset($form_data['id']);
             unset($form_data['status']);
             $exported_forms[] = $form_data;
-        } else {
-            error_log("AI Forms Export All: Could not get data for form ID {$form_id}. Error: " . $form_data->get_error_message());
         }
     }
 

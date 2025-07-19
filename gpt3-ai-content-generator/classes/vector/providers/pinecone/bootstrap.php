@@ -25,11 +25,6 @@ foreach ($method_files as $file) {
     $file_path = __DIR__ . '/' . $file;
     if (file_exists($file_path)) {
         require_once $file_path;
-    } else {
-        // Log an error if a method file is missing. This could prevent the class from being defined.
-        error_log("AIPKit_Vector_Pinecone_Strategy Bootstrap Error: Method file '{$file}' not found at '{$file_path}'.");
-        // Optionally, you could return or throw an error here if a critical file is missing,
-        // but for now, logging will help identify the issue.
     }
 }
 

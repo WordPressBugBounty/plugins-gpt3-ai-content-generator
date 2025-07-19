@@ -41,7 +41,6 @@ function get_site_wide_bot_id_logic(bool $force_refresh = false): ?int {
         if (file_exists($admin_setup_path)) {
             require_once $admin_setup_path;
         } else {
-            error_log("AIPKit SiteWideBotManager (get_site_wide_bot_id_logic): AdminSetup class file not found.");
             return null; // Cannot proceed without post type
         }
     }
@@ -51,6 +50,7 @@ function get_site_wide_bot_id_logic(bool $force_refresh = false): ?int {
         'post_status'    => 'publish',
         'posts_per_page' => 1,
         'fields'         => 'ids',
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
         'meta_query'     => array(
             'relation' => 'AND',
             array('key' => '_aipkit_site_wide_enabled', 'value' => '1', 'compare' => '='),

@@ -37,7 +37,6 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler {
             $limits = AIPKit_Upload_Utils::get_upload_limits();
             wp_send_json_success($limits);
         } else {
-             error_log("AIPKit Core AJAX: AIPKit_Upload_Utils class not found.");
             wp_send_json_error(['message' => __('Upload utility not available.', 'gpt3-ai-content-generator')], 500);
         }
     }
@@ -85,7 +84,6 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler {
         }
 
         if (!class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
-            error_log("AIPKit Core AJAX (Embeddings): AIPKit_AI_Caller class not found.");
             $this->send_wp_error(new WP_Error('internal_error_embedding', __('Embedding service component not available.', 'gpt3-ai-content-generator')));
             return;
         }

@@ -17,7 +17,6 @@ if (!defined('ABSPATH')) {
 function attach_main_hook_action_logic(string $main_cron_hook): void
 {
     if (!class_exists(AIPKit_Automated_Task_Event_Processor::class)) {
-        error_log('AIPKit Automated Task Cron (Attach Main Action): Event Processor class not found.');
         return;
     }
 

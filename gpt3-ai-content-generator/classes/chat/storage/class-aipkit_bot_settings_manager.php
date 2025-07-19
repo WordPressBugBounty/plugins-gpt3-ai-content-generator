@@ -148,8 +148,6 @@ class BotSettingsManager
             $site_wide_path = __DIR__ . '/class-aipkit_site_wide_bot_manager.php';
             if (file_exists($site_wide_path)) {
                 require_once $site_wide_path;
-            } else {
-                error_log('AIPKit BotSettingsManager Error: SiteWideBotManager class file not found.');
             }
         }
         if (class_exists(SiteWideBotManager::class)) {
@@ -161,14 +159,10 @@ class BotSettingsManager
         if (!class_exists(AIPKit_Bot_Settings_Saver::class)) {
             if (file_exists($saver_path)) {
                 require_once $saver_path;
-            } else {
-                error_log('AIPKit BotSettingsManager Error: AIPKit_Bot_Settings_Saver class file not found.');
             }
         }
         if (class_exists(AIPKit_Bot_Settings_Saver::class) && $this->site_wide_manager) {
             $this->settings_saver = new AIPKit_Bot_Settings_Saver($this->site_wide_manager);
-        } elseif (class_exists(AIPKit_Bot_Settings_Saver::class) && !$this->site_wide_manager) {
-            error_log('AIPKit BotSettingsManager Error: SiteWideBotManager not available for SettingsSaver.');
         }
     }
 
@@ -179,7 +173,6 @@ class BotSettingsManager
             if (file_exists($getter_path)) {
                 require_once $getter_path;
             } else {
-                error_log("AIPKit BotSettingsManager Error: Getter class file not found.");
                 return [];
             }
         }
@@ -189,7 +182,6 @@ class BotSettingsManager
     public function save_bot_settings(int $botId, array $settings): bool|\WP_Error
     {
         if (!$this->settings_saver) {
-            error_log('AIPKit BotSettingsManager Error: Settings Saver not initialized. Cannot save settings.');
             return new \WP_Error('dependency_missing_manager_save', __('Settings saving component is missing.', 'gpt3-ai-content-generator'));
         }
         return $this->settings_saver->save($botId, $settings);
@@ -202,7 +194,6 @@ class BotSettingsManager
             if (file_exists($initializer_path)) {
                 require_once $initializer_path;
             } else {
-                error_log("AIPKit BotSettingsManager Error: Initializer class file not found.");
                 return;
             }
         }

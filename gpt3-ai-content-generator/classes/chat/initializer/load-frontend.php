@@ -29,8 +29,6 @@ function load_frontend_logic(): void {
         $full_path = $base_path . $file;
         if (file_exists($full_path) && !class_exists($class_name)) {
             require_once $full_path;
-        } elseif (!file_exists($full_path)) {
-            error_log("AIPKit Chat Initializer: Frontend file {$file} not found.");
         }
     }
 }

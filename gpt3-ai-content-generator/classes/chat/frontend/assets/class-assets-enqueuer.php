@@ -41,7 +41,6 @@ class AssetsEnqueuer
                 AssetsDependencyRegistrar::register(); // This registers all public chat JS handles
                 AssetsOrchestrator::$assets_registered = true;
             } else {
-                error_log("AIPKit AssetsEnqueuer: AssetsDependencyRegistrar class or register method not found.");
                 return;
             }
         }
@@ -78,7 +77,6 @@ class AssetsEnqueuer
         // So, just check if it's registered before trying to enqueue.
         if (!wp_script_is($public_main_js_handle, 'registered')) {
             // Fallback registration if somehow missed, without jspdf
-            error_log("AIPKit AssetsEnqueuer: Fallback registration for {$public_main_js_handle}. This indicates an issue in the primary registration flow.");
             wp_register_script(
                 $public_main_js_handle,
                 WPAICG_PLUGIN_URL . 'dist/js/public-main.bundle.js',
@@ -99,10 +97,7 @@ class AssetsEnqueuer
             if (AssetsOrchestrator::$jspdf_needed && wp_script_is('aipkit_jspdf', 'registered')) {
                 if (!wp_script_is('aipkit_jspdf', 'enqueued')) {
                     wp_enqueue_script('aipkit_jspdf');
-                    // error_log("AIPKit AssetsEnqueuer: Enqueued 'aipkit_jspdf' because jspdf_needed is true.");
                 }
-            } elseif (AssetsOrchestrator::$jspdf_needed && !wp_script_is('aipkit_jspdf', 'registered')) {
-                error_log("AIPKit AssetsEnqueuer: 'jspdf_needed' is true, but 'aipkit_jspdf' script is not registered. PDF download might fail.");
             }
             // --- END MODIFICATION ---
 

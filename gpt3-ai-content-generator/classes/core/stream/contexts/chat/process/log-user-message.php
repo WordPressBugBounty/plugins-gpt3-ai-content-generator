@@ -34,8 +34,6 @@ function log_user_message_logic(
         $ip_anon_path = WPAICG_PLUGIN_DIR . 'classes/addons/class-aipkit-ip-anonymization.php';
         if (file_exists($ip_anon_path)) {
             require_once $ip_anon_path;
-        } else {
-            error_log('AIPKit Log User Message Logic Error: AIPKit_IP_Anonymization class file not found.');
         }
     }
 
@@ -63,7 +61,6 @@ function log_user_message_logic(
     $user_log_result = $log_storage->log_message($log_user_data);
 
     if ($user_log_result === false) {
-        error_log("AIPKit Log User Message Logic: Failed to log user message for Conv UUID: " . ($base_log_data['conversation_uuid'] ?? 'N/A'));
         return new WP_Error('user_log_failed_logic', __('Failed to log user message.', 'gpt3-ai-content-generator'), ['status' => 500]);
     }
     return $user_log_result; // Contains ['log_id', 'message_id', 'is_new_session']

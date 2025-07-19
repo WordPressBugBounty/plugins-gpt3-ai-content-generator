@@ -35,7 +35,6 @@ function insert_task_into_db_logic(string $task_name, string $task_type, array $
     $inserted = $wpdb->insert($tasks_table_name, $task_data, $task_formats);
 
     if ($inserted === false) {
-        error_log("AIPKit Create CW Task Logic: Failed to insert task into database. DB Error: " . $wpdb->last_error);
         return new WP_Error('db_insert_error', __('Failed to create automated task.', 'gpt3-ai-content-generator'), ['status' => 500]);
     }
     return $wpdb->insert_id;

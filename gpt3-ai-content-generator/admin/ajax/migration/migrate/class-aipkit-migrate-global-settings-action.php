@@ -39,20 +39,12 @@ class AIPKit_Migrate_Global_Settings_Action extends AIPKit_Migration_Base_Ajax_A
             // --- 1. Fetch Old Data ---
             $old_table_data = [];
             $old_wpaicg_table_name = $wpdb->prefix . 'wpaicg';
-            error_log("AIPKit Migration (Global Settings): Checking for old table '{$old_wpaicg_table_name}'...");
             if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $old_wpaicg_table_name)) === $old_wpaicg_table_name) {
-                error_log("AIPKit Migration (Global Settings): Found table '{$old_wpaicg_table_name}'. Querying for 'wpaicg_settings' row...");
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $old_table_row = $wpdb->get_row("SELECT * FROM " . esc_sql($old_wpaicg_table_name) . " WHERE name = 'wpaicg_settings'", ARRAY_A);
                 if ($old_table_row) {
-                    error_log("AIPKit Migration (Global Settings): Found 'wpaicg_settings' row. Assigning row data directly.");
                     $old_table_data = $old_table_row;
-                    error_log("AIPKit Migration (Global Settings): Data loaded from table. Found " . count($old_table_data) . " columns/keys.");
-                } else {
-                    error_log("AIPKit Migration (Global Settings): 'wpaicg_settings' row not found in table.");
                 }
-            } else {
-                error_log("AIPKit Migration (Global Settings): Old table '{$old_wpaicg_table_name}' not found.");
             }
 
             // --- 2. Ensure New Classes are Loaded & Initialize New Settings ---
@@ -79,7 +71,6 @@ class AIPKit_Migrate_Global_Settings_Action extends AIPKit_Migration_Base_Ajax_A
             };
 
             $new_opts['providers']['OpenAI']['api_key'] = $old_table_data['api_key'] ?? '';
-            error_log("AIPKit Migration (Global Settings): Migrating OpenAI API Key. Found in old table data: " . (isset($old_table_data['api_key']) ? 'Yes (' . substr($new_opts['providers']['OpenAI']['api_key'], 0, 5) . '...)' : 'No'));
             $new_opts['providers']['Azure']['api_key'] = get_option('wpaicg_azure_api_key', '');
             $new_opts['providers']['Azure']['endpoint'] = get_option('wpaicg_azure_endpoint', '');
             $new_opts['providers']['Google']['api_key'] = get_option('wpaicg_google_model_api_key', '');
@@ -144,10 +135,7 @@ class AIPKit_Migrate_Global_Settings_Action extends AIPKit_Migration_Base_Ajax_A
                     $new_token_settings['token_limit_mode'] = 'general';
                     $new_token_settings['token_role_limits'] = '[]';
                     update_option(\WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler::SETTINGS_OPTION_NAME, $new_forms_settings, 'no');
-                    error_log("AIPKit Migration (Global Settings): Migrated AI Forms token settings.");
                 }
-            } else {
-                error_log("AIPKit Migration (Global Settings): AI Forms Settings handler not found, skipping token settings migration.");
             }
             // --- END ---
 
@@ -173,10 +161,7 @@ class AIPKit_Migrate_Global_Settings_Action extends AIPKit_Migration_Base_Ajax_A
                     // Merge new defaults with migrated custom actions
                     $final_actions = array_merge($new_default_actions, $migrated_actions);
                     update_option('aipkit_enhancer_actions', $final_actions, 'no');
-                    error_log("AIPKit Migration (Global Settings): Migrated " . count($migrated_actions) . " custom AI Assistant actions.");
                 }
-            } else {
-                error_log("AIPKit Migration (Global Settings): AIPKit_Enhancer_Actions_Ajax_Handler class not found, skipping AI Assistant actions migration.");
             }
             // --- END: Migrate AI Assistant ---
 

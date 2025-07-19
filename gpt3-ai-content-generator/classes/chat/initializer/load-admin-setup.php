@@ -18,7 +18,5 @@ function load_admin_setup_logic(): void {
 
     if (file_exists($admin_setup_path) && !class_exists(\WPAICG\Chat\Admin\AdminSetup::class)) {
         require_once $admin_setup_path;
-    } elseif (!file_exists($admin_setup_path)) {
-        error_log('AIPKit Chat Initializer: chat_admin_setup.php not found.');
     }
 }

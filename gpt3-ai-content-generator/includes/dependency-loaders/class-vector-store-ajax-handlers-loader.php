@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/dependency-loaders/class-vector-store-ajax-handlers-loader.php
 // Status: MODIFIED
 
@@ -8,8 +9,10 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Vector_Store_Ajax_Handlers_Loader {
-    public static function load() {
+class Vector_Store_Ajax_Handlers_Loader
+{
+    public static function load()
+    {
         $ajax_handlers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/ajax/';
         $openai_ajax_base_path = $ajax_handlers_path . 'openai/';
         // $pinecone_ajax_path = $ajax_handlers_path . 'pinecone/'; // No longer needed for direct fn-* requires
@@ -23,8 +26,9 @@ class Vector_Store_Ajax_Handlers_Loader {
         ];
         foreach ($openai_handler_classes_to_load as $handler_file) {
             $full_path = $openai_ajax_base_path . $handler_file;
-            if (file_exists($full_path)) require_once $full_path;
-            else error_log("AIPKit Core Loader Error: OpenAI Handler Class file '{$handler_file}' not found at {$full_path}.");
+            if (file_exists($full_path)) {
+                require_once $full_path;
+            }
         }
 
         // Load Pinecone and Qdrant main handler classes from their new locations
@@ -34,8 +38,9 @@ class Vector_Store_Ajax_Handlers_Loader {
         ];
         foreach ($other_handlers_to_load as $handler_file_rel_path) {
             $full_path = $ajax_handlers_path . $handler_file_rel_path;
-            if (file_exists($full_path)) require_once $full_path;
-            else error_log("AIPKit Core Loader Error: Vector Store AJAX Handler file '{$handler_file_rel_path}' not found at {$full_path}.");
+            if (file_exists($full_path)) {
+                require_once $full_path;
+            }
         }
 
         // REMOVED loading of old fn-*.php files for OpenAI, Pinecone, and Qdrant.
@@ -46,16 +51,14 @@ class Vector_Store_Ajax_Handlers_Loader {
         // Load OpenAI helper function files (these were in the old fn-*.php structure but might still be needed as general utils within OpenAI Ajax scope)
         // These are loaded here because they are used across different OpenAI handler methods.
         $openai_utility_functions_to_load = [
-            'fn-log-entry.php', 
+            'fn-log-entry.php',
             'fn-temp-file.php',
-            'fn-stores-log-entry.php', 
+            'fn-stores-log-entry.php',
         ];
-        foreach($openai_utility_functions_to_load as $util_fn_file) {
+        foreach ($openai_utility_functions_to_load as $util_fn_file) {
             $full_path = $openai_ajax_base_path . $util_fn_file;
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit Vector Store AJAX Loader Error: OpenAI utility function file '{$util_fn_file}' not found at {$full_path}.");
             }
         }
     }

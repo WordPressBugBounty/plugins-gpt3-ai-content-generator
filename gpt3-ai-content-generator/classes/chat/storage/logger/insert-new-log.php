@@ -80,7 +80,6 @@ function insert_new_log_logic(
     $inserted = $wpdb->insert($table_name, $data_to_insert, $formats_to_use);
 
     if ($inserted === false) {
-        error_log("AIPKit ConversationLogger: Failed to insert new conversation log. Error: " . $wpdb->last_error . " Data: " . print_r($data_to_insert, true));
         return false;
     }
     $new_log_id = $wpdb->insert_id;

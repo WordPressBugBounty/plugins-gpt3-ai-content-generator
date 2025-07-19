@@ -180,11 +180,6 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                     !class_exists('\\WPAICG\\Chat\\Storage\\DefaultBotSetup') ||
                     !class_exists('\\WPAICG\\Chat\\Storage\\SiteWideBotManager') ||
                     !class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Registry')) {
-                    error_log("AIPKit Dashboard (Load Chatbot): One or more core Chatbot dependencies not found. This indicates an issue with the main plugin loader.");
-                }
-            } elseif ($module === 'content-writer') {
-                if (!class_exists('\\WPAICG\\AIPKit_Providers') || !class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
-                    error_log("AIPKit Dashboard (Load Content Writer): One or more core Content Writer dependencies not found. This indicates an issue with the main plugin loader.");
                 }
             }
 
@@ -195,7 +190,6 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
             if ($modules_base_path === false || $real_module_file_path === false || strpos($real_module_file_path, $modules_base_path) !== 0) {
                 wp_send_json_error(['message' => 'Invalid module path. Attempted path: ' . esc_html($module_file)], 400);
-                error_log("AIPKit Module Load Error: Invalid path traversal attempt. Base: {$modules_base_path}, Target: {$module_file}, Real Target: {$real_module_file_path}");
                 return;
             }
 
@@ -237,7 +231,6 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 if (is_array($php_error->get_error_data())) {
                     $error_details .= " (File: " . ($php_error->get_error_data()['file'] ?? 'unknown') . ", Line: " . ($php_error->get_error_data()['line'] ?? 'unknown') . ")";
                 }
-                error_log("AIPKit Module Load Error: PHP error during include for module ('{$module}'). Error: " . $error_details);
                 wp_send_json_error([
                     'message' => 'A server error occurred while loading the module content. Please check the PHP error log for details.',
                     'debug_error' => $php_error->get_error_code() . ': ' . $php_error->get_error_message()
@@ -245,7 +238,6 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 return;
             }
             if (headers_sent($file, $line)) {
-                error_log("AIPKit Module Load Error: Headers already sent by {$file} at line {$line} before module '{$module}' JSON response.");
                 die();
             }
 
@@ -343,7 +335,6 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             $stats_class_name = '\\WPAICG\\Stats\\AIPKit_Stats';
             if (!class_exists($stats_class_name)) {
                 wp_send_json_error(['message' => 'Statistics component unavailable.'], 500);
-                error_log('AIPKit Dashboard Error: ' . $stats_class_name . ' class not found for chart data.');
                 return;
             }
 

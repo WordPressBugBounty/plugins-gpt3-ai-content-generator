@@ -276,8 +276,8 @@ class AIPKit_Image_Injector
         $final_classes = esc_attr(implode(' ', $class_list));
 
         // Assemble the final <img> tag
-        return sprintf(
-            '<img class="%s" src="%s" alt="%s"%s%s />',
+        // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function (e.g., `wp_get_attachment_image_url`). The `<img>` tag is constructed manually to build a custom HTML structure with specific wrappers, classes, or attributes that are not achievable with the standard `wp_get_attachment_image()` function.
+        return sprintf('<img class="%s" src="%s" alt="%s"%s%s />',
             $final_classes,
             $url,
             $alt_text,

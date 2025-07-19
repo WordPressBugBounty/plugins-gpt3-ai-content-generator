@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/chat/storage/getter/fn-get-stt-config.php
 // Status: NEW FILE
 
@@ -17,13 +18,15 @@ if (!defined('ABSPATH')) {
  * @param callable $get_meta_fn A function to retrieve post meta.
  * @return array Associative array of STT settings.
  */
-function get_stt_config_logic(int $bot_id, callable $get_meta_fn): array {
+function get_stt_config_logic(int $bot_id, callable $get_meta_fn): array
+{
     $settings = [];
 
     if (!class_exists(BotSettingsManager::class)) {
         $bsm_path = dirname(__DIR__) . '/class-aipkit_bot_settings_manager.php';
-        if (file_exists($bsm_path)) require_once $bsm_path;
-        else error_log("AIPKit Getter (STT): BotSettingsManager class not found for constants.");
+        if (file_exists($bsm_path)) {
+            require_once $bsm_path;
+        }
     }
 
     $settings['enable_voice_input'] = in_array($get_meta_fn('_aipkit_enable_voice_input', BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT), ['0','1'])

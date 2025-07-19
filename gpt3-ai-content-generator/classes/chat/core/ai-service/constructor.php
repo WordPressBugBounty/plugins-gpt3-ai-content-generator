@@ -25,7 +25,6 @@ if (!defined('ABSPATH')) {
  */
 function constructor(\WPAICG\Chat\Core\AIService $serviceInstance): void {
     if (!class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
-        error_log('AIPKit AIService Constructor Logic Error: AIPKit_AI_Caller class not found.');
         // Set properties to null or handle error appropriately
         $serviceInstance->set_ai_caller(null);
         $serviceInstance->set_log_storage(null);
@@ -37,7 +36,6 @@ function constructor(\WPAICG\Chat\Core\AIService $serviceInstance): void {
     $serviceInstance->set_ai_caller(new AIPKit_AI_Caller());
 
     if (!class_exists(\WPAICG\Chat\Storage\LogStorage::class)) {
-         error_log('AIPKit AIService Constructor Logic Error: LogStorage class not found.');
          $serviceInstance->set_log_storage(null);
     } else {
         $serviceInstance->set_log_storage(new LogStorage());
@@ -49,8 +47,6 @@ function constructor(\WPAICG\Chat\Core\AIService $serviceInstance): void {
         $manager_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-manager.php';
         if (file_exists($manager_path) && !class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) { // Check if not already loaded
             require_once $manager_path;
-        } else if (!file_exists($manager_path)) {
-            error_log('AIPKit AIService Constructor Logic Error: AIPKit_Vector_Store_Manager class file not found.');
         }
     }
     if (class_exists(\WPAICG\Vector\AIPKit_Vector_Store_Manager::class)) {
@@ -63,7 +59,6 @@ function constructor(\WPAICG\Chat\Core\AIService $serviceInstance): void {
     if (class_exists(\WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor::class)) {
         $serviceInstance->set_pinecone_post_processor(new \WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor());
     } else {
-        error_log('AIPKit AIService Constructor Logic Error: PineconePostProcessor class not found. It should be loaded by Vector_Post_Processor_Classes_Loader.');
         $serviceInstance->set_pinecone_post_processor(null);
     }
 
@@ -71,7 +66,6 @@ function constructor(\WPAICG\Chat\Core\AIService $serviceInstance): void {
     if (class_exists(\WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor::class)) {
         $serviceInstance->set_qdrant_post_processor(new \WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor());
     } else {
-         error_log('AIPKit AIService Constructor Logic Error: QdrantPostProcessor class not found. It should be loaded by Vector_Post_Processor_Classes_Loader.');
          $serviceInstance->set_qdrant_post_processor(null);
     }
 }

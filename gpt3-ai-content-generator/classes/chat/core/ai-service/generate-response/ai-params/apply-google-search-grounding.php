@@ -29,7 +29,6 @@ function apply_google_search_grounding_logic(
         if (file_exists($bsm_path)) {
             require_once $bsm_path;
         } else {
-            error_log("ApplyGoogleSearchGrounding Logic: BotSettingsManager not found for defaults.");
             return;
         }
     }
@@ -42,8 +41,5 @@ function apply_google_search_grounding_logic(
             $final_ai_params['google_grounding_dynamic_threshold'] = isset($bot_settings['google_grounding_dynamic_threshold']) ? floatval($bot_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
         }
         $final_ai_params['frontend_google_search_grounding_active'] = $frontend_google_search_grounding_active;
-        if ($frontend_google_search_grounding_active) {
-            error_log("ApplyGoogleSearchGrounding Logic: Google Search Grounding *eligible* due to bot settings AND frontend toggle.");
-        }
     }
 }

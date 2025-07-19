@@ -27,8 +27,6 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
         $bsm_path = dirname(__DIR__) . '/class-aipkit_bot_settings_manager.php';
         if (file_exists($bsm_path)) {
             require_once $bsm_path;
-        } else {
-            error_log("AIPKit Getter (Contextual): BotSettingsManager class not found for constants.");
         }
     }
 

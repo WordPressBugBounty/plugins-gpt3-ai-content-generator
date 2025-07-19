@@ -28,7 +28,6 @@ class ChatFormSubmissionAjaxHandler {
         if (class_exists(\WPAICG\Chat\Storage\BotStorage::class)) {
             $this->bot_storage = new \WPAICG\Chat\Storage\BotStorage();
         } else {
-            error_log('AIPKit ChatFormSubmissionAjaxHandler Error: BotStorage class not found.');
             $this->bot_storage = null;
         }
     }
@@ -40,7 +39,6 @@ class ChatFormSubmissionAjaxHandler {
 
         $permission_check = $this->check_frontend_permissions();
         if (is_wp_error($permission_check)) {
-            error_log("AIPKit ChatFormSubmissionAjaxHandler: Permission check failed. Error Code: " . $permission_check->get_error_code() . " Error Message: " . $permission_check->get_error_message());
             $this->send_wp_error($permission_check);
             return;
         }
@@ -90,7 +88,6 @@ class ChatFormSubmissionAjaxHandler {
         $trigger_handler_function = '\WPAICG\Lib\Chat\Triggers\process_chat_triggers';
 
         if (!$triggers_addon_active || !class_exists($trigger_storage_class) || !class_exists($trigger_manager_class) || !function_exists($trigger_handler_function)) {
-            error_log("AIPKit ChatFormSubmissionAjaxHandler: Triggers inactive or components missing. Sending success with note.");
             wp_send_json_success(['message' => __('Form submitted.', 'gpt3-ai-content-generator') . ' (' . __('Triggers not active or fully available.', 'gpt3-ai-content-generator') . ')']);
             return;
         }
@@ -159,15 +156,12 @@ class ChatFormSubmissionAjaxHandler {
             ];
 
             if ($result['status'] === 'blocked') {
-                error_log("AIPKit ChatFormSubmissionAjaxHandler: Trigger blocked form submission. Sending error response.");
                 wp_send_json_error($response_data, 400);
             } else {
-                error_log("AIPKit ChatFormSubmissionAjaxHandler: Form submission processed by triggers. Sending success response.");
                 wp_send_json_success($response_data);
             }
 
         } catch (\Exception $e) {
-            error_log("AIPKit ChatFormSubmissionAjaxHandler Exception: " . $e->getMessage());
             $this->send_wp_error(new WP_Error('trigger_processing_error', __('Error processing form submission triggers.', 'gpt3-ai-content-generator'), ['status' => 500]));
         }
     }

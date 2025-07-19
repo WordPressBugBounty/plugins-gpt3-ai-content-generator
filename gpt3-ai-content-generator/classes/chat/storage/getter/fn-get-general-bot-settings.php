@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/chat/storage/getter/fn-get-general-bot-settings.php
 // Status: MODIFIED
 
@@ -19,14 +20,16 @@ if (!defined('ABSPATH')) {
  * @param callable $get_meta_fn A function to retrieve post meta.
  * @return array Associative array of general settings.
  */
-function get_general_bot_settings_logic(int $bot_id, string $bot_name, callable $get_meta_fn): array {
+function get_general_bot_settings_logic(int $bot_id, string $bot_name, callable $get_meta_fn): array
+{
     $settings = [];
 
     // Ensure BotSettingsManager is loaded for constants
     if (!class_exists(BotSettingsManager::class)) {
         $bsm_path = dirname(__DIR__) . '/class-aipkit_bot_settings_manager.php'; // Path relative to getter directory
-        if (file_exists($bsm_path)) require_once $bsm_path;
-        else error_log("AIPKit Getter (General): BotSettingsManager class not found for constants.");
+        if (file_exists($bsm_path)) {
+            require_once $bsm_path;
+        }
     }
 
     // --- ADDED: Explicitly add bot_id and name ---

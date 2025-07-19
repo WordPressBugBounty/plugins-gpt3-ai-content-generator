@@ -21,7 +21,6 @@ class AIPKit_Bot_Settings_Initializer
             if (file_exists($providers_path)) {
                 require_once $providers_path;
             } else {
-                error_log("AIPKit BotSettingsInitializer Error: AIPKit_Providers class file not found.");
                 return;
             }
         }
@@ -30,7 +29,6 @@ class AIPKit_Bot_Settings_Initializer
             if (file_exists($manager_path)) {
                 require_once $manager_path;
             } else {
-                error_log("AIPKit BotSettingsInitializer Error: BotSettingsManager class not found for constants.");
                 return;
             }
         }
@@ -39,9 +37,6 @@ class AIPKit_Bot_Settings_Initializer
         $trigger_meta_key = '_aipkit_chatbot_triggers'; // Fallback key
         if (class_exists('\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage')) { // Check for the class in its new Pro location
             $trigger_meta_key = \WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage::META_KEY;
-        } else {
-            // Optional: Log that the Pro class wasn't found, using fallback.
-            // error_log("AIPKit BotSettingsInitializer: \WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage class not found. Using fallback meta key for triggers.");
         }
         // --- END MODIFICATION ---
 

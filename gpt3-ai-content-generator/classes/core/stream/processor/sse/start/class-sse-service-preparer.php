@@ -23,9 +23,6 @@ class SSEServicePreparer {
             $factory_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/provider-strategy-factory.php';
             if (file_exists($factory_path)) {
                 require_once $factory_path;
-            } else {
-                error_log('AIPKit SSEServicePreparer Error: ProviderStrategyFactory class file not found.');
-                // This error will propagate as a WP_Error from prepare_strategy if Factory is critical
             }
         }
     }

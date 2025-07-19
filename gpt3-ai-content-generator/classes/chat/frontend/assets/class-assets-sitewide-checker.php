@@ -34,7 +34,6 @@ class AssetsSiteWideChecker {
             !class_exists(aipkit_dashboard::class) ||
             !class_exists(BotStorage::class) ||
             !class_exists(BotSettingsManager::class)) {
-            error_log("AIPKit AssetsSiteWideChecker: Missing one or more required storage/dashboard classes.");
             return;
         }
 

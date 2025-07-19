@@ -46,8 +46,6 @@ function trigger_content_enhancement_task_logic(int $task_id, array $task_config
                 'inclusive' => false,
             ],
         ];
-    } else {
-        //error_log("AIPKit Cron Trigger (Content Enhancement): Querying for all matching posts (no last_run_time) for task ID {$task_id}.");
     }
 
     // --- FIX START: Use tax_query for better cross-post-type compatibility ---
@@ -65,6 +63,7 @@ function trigger_content_enhancement_task_logic(int $task_id, array $task_config
         if (count($tax_queries) > 1) {
             $tax_queries['relation'] = 'AND';
         }
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
         $args['tax_query'] = $tax_queries;
     }
     // --- FIX END ---

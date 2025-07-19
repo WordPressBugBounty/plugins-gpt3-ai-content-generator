@@ -1,4 +1,5 @@
 <?php
+
 // File: classes/chat/storage/getter/fn-get-ai-configuration.php
 // Status: NEW FILE
 
@@ -20,24 +21,28 @@ if (!defined('ABSPATH')) {
  * @param callable $get_meta_fn A function to retrieve post meta.
  * @return array Associative array of AI configuration settings.
  */
-function get_ai_configuration_logic(int $bot_id, ?string $current_provider_from_main_settings, callable $get_meta_fn): array {
+function get_ai_configuration_logic(int $bot_id, ?string $current_provider_from_main_settings, callable $get_meta_fn): array
+{
     $settings = [];
 
     // Ensure dependencies are loaded for defaults
     if (!class_exists(AIPKit_Providers::class)) {
         $path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
-        if (file_exists($path)) require_once $path;
-        else error_log("AIPKit Getter (AI Config): AIPKit_Providers class not found.");
+        if (file_exists($path)) {
+            require_once $path;
+        }
     }
     if (!class_exists(AIPKIT_AI_Settings::class)) {
         $path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_ai_settings.php';
-        if (file_exists($path)) require_once $path;
-        else error_log("AIPKit Getter (AI Config): AIPKIT_AI_Settings class not found.");
+        if (file_exists($path)) {
+            require_once $path;
+        }
     }
     if (!class_exists(BotSettingsManager::class)) {
         $bsm_path = dirname(__DIR__) . '/class-aipkit_bot_settings_manager.php';
-        if (file_exists($bsm_path)) require_once $bsm_path;
-        else error_log("AIPKit Getter (AI Config): BotSettingsManager class not found for constants.");
+        if (file_exists($bsm_path)) {
+            require_once $bsm_path;
+        }
     }
 
     $default_provider = $current_provider_from_main_settings ?: (class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_current_provider() : 'OpenAI');
@@ -66,7 +71,7 @@ function get_ai_configuration_logic(int $bot_id, ?string $current_provider_from_
         ? $default_max_messages
         : absint($max_msgs_val);
     $settings['max_messages'] = max(1, min($settings['max_messages'], 1024));
-    
+
     $settings['stream_enabled'] = in_array($get_meta_fn('_aipkit_stream_enabled', '0'), ['0','1'])
         ? $get_meta_fn('_aipkit_stream_enabled', '0')
         : '0';

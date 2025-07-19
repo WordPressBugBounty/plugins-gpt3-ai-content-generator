@@ -21,15 +21,12 @@ function constructor_logic(AIPKit_Image_Manager $managerInstance): void
         $log_storage_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/class-aipkit_chat_log_storage.php';
         if (file_exists($log_storage_path)) {
             require_once $log_storage_path;
-        } else {
-            error_log('AIPKit Image Manager Error: LogStorage class file not found.');
         }
     }
     if (class_exists(LogStorage::class)) {
         $managerInstance->set_log_storage(new LogStorage());
     } else {
         $managerInstance->set_log_storage(null);
-        error_log('AIPKit Image Manager Error: Failed to instantiate LogStorage.');
     }
 
     if (!class_exists(AIPKit_Image_Settings_Ajax_Handler::class)) {
@@ -37,7 +34,6 @@ function constructor_logic(AIPKit_Image_Manager $managerInstance): void
         if (file_exists($settings_handler_path)) {
             require_once $settings_handler_path;
         } else {
-            error_log('AIPKit Image Manager Error: Settings AJAX handler class file not found.');
             return;
         }
     }
@@ -45,14 +41,11 @@ function constructor_logic(AIPKit_Image_Manager $managerInstance): void
         $managerInstance->set_settings_ajax_handler(new AIPKit_Image_Settings_Ajax_Handler());
     } else {
         $managerInstance->set_settings_ajax_handler(null);
-        error_log('AIPKit Image Manager Error: Failed to instantiate Settings AJAX Handler.');
     }
     if (!class_exists(AIPKit_Image_Storage_Helper::class)) {
         $storage_helper_path = WPAICG_PLUGIN_DIR . 'classes/images/class-aipkit-image-storage-helper.php';
         if (file_exists($storage_helper_path)) {
             require_once $storage_helper_path;
-        } else {
-            error_log('AIPKit Image Manager Error: ImageStorageHelper class not found.');
         }
     }
 
@@ -60,14 +53,11 @@ function constructor_logic(AIPKit_Image_Manager $managerInstance): void
         $token_manager_path = WPAICG_PLUGIN_DIR . 'classes/core/token-manager/AIPKit_Token_Manager.php';
         if (file_exists($token_manager_path)) {
             require_once $token_manager_path;
-        } else {
-            error_log('AIPKit Image Manager Error: New AIPKit_Token_Manager class file not found.');
         }
     }
     if (class_exists(\WPAICG\Core\TokenManager\AIPKit_Token_Manager::class)) {
         $managerInstance->set_token_manager(new \WPAICG\Core\TokenManager\AIPKit_Token_Manager());
     } else {
         $managerInstance->set_token_manager(null);
-        error_log('AIPKit Image Manager Error: Failed to instantiate new AIPKit_Token_Manager.');
     }
 }

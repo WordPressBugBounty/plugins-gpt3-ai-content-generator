@@ -31,7 +31,6 @@ function parse_sse_chunk_logic(
         if (file_exists($parser_bootstrap)) {
             require_once $parser_bootstrap;
         } else {
-            error_log('OpenRouterProviderStrategy: OpenRouterResponseParser class not found for SSE chunk parsing.');
             return ['delta' => null, 'usage' => null, 'is_error' => true, 'is_warning' => false, 'is_done' => true];
         }
     }

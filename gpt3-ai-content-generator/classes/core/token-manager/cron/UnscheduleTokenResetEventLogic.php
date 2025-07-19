@@ -16,7 +16,6 @@ function UnscheduleTokenResetEventLogic(string $cronHook): void {
     $timestamp = wp_next_scheduled($cronHook);
     if ($timestamp) {
         wp_unschedule_event($timestamp, $cronHook);
-        error_log('AIPKit Token Manager (Cron Logic): Unscheduled token reset event.');
     }
 
     // Similar to scheduling, removing the action hook is typically done

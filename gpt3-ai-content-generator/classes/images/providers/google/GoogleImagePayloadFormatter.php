@@ -45,8 +45,6 @@ class GoogleImagePayloadFormatter {
                 ],
                 'parameters' => $parameters
             ];
-        } else {
-            error_log("AIPKit Google Image Payload: Unsupported model ID for formatting: {$model_id}");
         }
 
         return $payload;

@@ -42,7 +42,6 @@ function prepare_vector_search_context_logic(
     ?string $frontend_active_qdrant_file_upload_context_id = null
 ): string {
     if (!$ai_caller || !$vector_store_manager) {
-        error_log("AIService (prepare_vector_search_context_logic): AI Caller or Vector Store Manager not available.");
         return "";
     }
 

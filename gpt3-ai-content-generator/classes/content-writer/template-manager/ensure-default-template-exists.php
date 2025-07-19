@@ -37,7 +37,6 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
 
     if (!$default_template) {
         if (!class_exists(AIPKit_Providers::class) || !class_exists(AIPKIT_AI_Settings::class)) {
-            error_log("AIPKit Content Writer Default Template: Missing Providers or AI Settings class.");
             return;
         }
 
@@ -144,7 +143,6 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
             ],
             ['%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s']
         );
-        // error_log("AIPKit Content Writer: Default template created for global user (ID {$user_id_for_default}).");
     } else {
         // Default template exists, check if it needs updating with new fields.
         $config = json_decode($default_template->config, true);
@@ -181,7 +179,6 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
                 ['%s'],
                 ['%d']
             );
-            error_log("AIPKit Content Writer: Updated existing default template with new fields.");
         }
     }
 }

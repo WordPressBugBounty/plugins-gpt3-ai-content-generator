@@ -47,8 +47,6 @@ class AIPKit_AI_Form_Initializer
             $full_path = $base_path . $file;
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit AI Forms Init Error: Dependency file {$file} not found at {$full_path}.");
             }
         }
     }
@@ -66,8 +64,6 @@ class AIPKit_AI_Form_Initializer
         if (class_exists(AIPKit_AI_Form_Admin_Setup::class)) {
             $admin_setup = new AIPKit_AI_Form_Admin_Setup();
             add_action('init', [$admin_setup, 'register_cpt']);
-        } else {
-            error_log('AIPKit AI Forms Init Error: AIPKit_AI_Form_Admin_Setup class not found. CPT will not be registered.');
         }
 
         // The default form creation is now called from the main plugin activator to ensure it runs
@@ -76,8 +72,6 @@ class AIPKit_AI_Form_Initializer
         if (class_exists(AIPKit_AI_Form_Shortcode::class)) {
             $shortcode_handler = new AIPKit_AI_Form_Shortcode();
             add_shortcode('aipkit_ai_form', [$shortcode_handler, 'render_shortcode']);
-        } else {
-            error_log('AIPKit AI Forms Init Error: AIPKit_AI_Form_Shortcode class not found. Shortcode will not work.');
         }
 
         // AJAX action hooks for form submissions (frontend)
@@ -87,8 +81,6 @@ class AIPKit_AI_Form_Initializer
             add_action('wp_ajax_aipkit_ai_form_upload_and_parse_file', [$form_processor, 'ajax_upload_and_parse_file']);
             add_action('wp_ajax_nopriv_aipkit_ai_form_upload_and_parse_file', [$form_processor, 'ajax_upload_and_parse_file']);
             add_action('wp_ajax_aipkit_ai_form_save_as_post', [$form_processor, 'ajax_save_as_post']);
-        } else {
-            error_log('AIPKit AI Forms Init Error: AIPKit_AI_Form_Processor class not found. Form submissions will not work.');
         }
 
         // --- ADDED: AJAX action hooks for form management (admin) ---
@@ -100,14 +92,7 @@ class AIPKit_AI_Form_Initializer
             // Let's assume it has a register_ajax_hooks() method as per the guide.
             if (method_exists($form_ajax_handler, 'register_ajax_hooks')) {
                 $form_ajax_handler->register_ajax_hooks();
-            } else {
-                error_log('AIPKit AI Forms Init Error: AIPKit_AI_Form_Ajax_Handler exists but missing register_ajax_hooks method.');
             }
-        } else {
-            error_log('AIPKit AI Forms Init Error: AIPKit_AI_Form_Ajax_Handler class not found. Admin form management will not work.');
         }
-        // --- END ADDED ---
-
-        // error_log('AIPKit AI Forms: Hooks registered.');
     }
 }

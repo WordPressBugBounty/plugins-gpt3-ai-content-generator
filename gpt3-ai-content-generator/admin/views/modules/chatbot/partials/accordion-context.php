@@ -80,24 +80,18 @@ $vector_store_top_k = max(1, min($vector_store_top_k, 20));
 $openai_vector_stores = [];
 if (class_exists(AIPKit_Vector_Store_Registry::class)) {
     $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
-} else {
-    error_log("AIPKit Chatbot Context Settings: AIPKit_Vector_Store_Registry class not found.");
 }
 
 // Fetch available Pinecone indexes
 $pinecone_indexes = [];
 if (class_exists(AIPKit_Providers::class)) {
     $pinecone_indexes = AIPKit_Providers::get_pinecone_indexes();
-} else {
-     error_log("AIPKit Chatbot Context Settings: AIPKit_Providers class not found for Pinecone indexes.");
 }
 
 // --- NEW: Fetch available Qdrant Collections ---
 $qdrant_collections = [];
 if (class_exists(AIPKit_Providers::class)) {
     $qdrant_collections = AIPKit_Providers::get_qdrant_collections();
-} else {
-     error_log("AIPKit Chatbot Context Settings: AIPKit_Providers class not found for Qdrant collections.");
 }
 // --- END NEW ---
 
@@ -108,10 +102,7 @@ $google_embedding_models = [];
 if (class_exists(AIPKit_Providers::class)) {
     $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
     $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
-} else {
-    error_log("AIPKit Chatbot Context Settings: AIPKit_Providers class not found for embedding models.");
 }
-
 
 ?>
 <div class="aipkit_accordion">

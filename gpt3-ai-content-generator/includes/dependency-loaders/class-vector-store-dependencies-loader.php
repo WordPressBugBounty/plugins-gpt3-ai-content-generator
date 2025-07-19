@@ -6,8 +6,10 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Vector_Store_Dependencies_Loader {
-    public static function load() {
+class Vector_Store_Dependencies_Loader
+{
+    public static function load()
+    {
         $vector_base_path = WPAICG_PLUGIN_DIR . 'classes/vector/';
         $providers_path = $vector_base_path . 'providers/'; // Base path for provider strategies
         $manager_methods_path = $vector_base_path . 'manager/'; // NEW: Path for manager methods
@@ -22,8 +24,9 @@ class Vector_Store_Dependencies_Loader {
         ];
 
         foreach ($core_paths as $path) {
-            if (file_exists($path)) require_once $path;
-            else error_log("AIPKit Vector Store Loader Error: Core file not found at {$path}");
+            if (file_exists($path)) {
+                require_once $path;
+            }
         }
 
         // Provider-specific strategy bootstrap files
@@ -36,8 +39,6 @@ class Vector_Store_Dependencies_Loader {
         foreach ($provider_bootstraps as $bootstrap_file) {
             if (file_exists($bootstrap_file)) {
                 require_once $bootstrap_file;
-            } else {
-                error_log("AIPKit Vector Store Loader Error: Provider bootstrap file not found at {$bootstrap_file}");
             }
         }
     }

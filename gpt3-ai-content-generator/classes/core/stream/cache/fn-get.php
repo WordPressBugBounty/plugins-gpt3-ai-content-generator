@@ -34,8 +34,6 @@ function get_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInst
             // Found in object cache, return it.
             return $message;
         }
-        // If not found in object cache, don't return an error yet. Fall through to check the DB.
-        error_log("AIPKit SSE Cache (get_logic): Object cache miss for key {$key}. Falling back to DB.");
     }
 
     // DB fallback logic (for non-object-cache environments OR object cache misses)

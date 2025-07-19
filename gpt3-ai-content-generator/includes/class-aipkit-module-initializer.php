@@ -30,13 +30,7 @@ class AIPKit_Module_Initializer {
             }
             if (class_exists(DashboardInitializer::class)) {
                 DashboardInitializer::init($plugin_version);
-            } else {
-                error_log('AIPKit Module Init Error: DashboardInitializer class not found after include.');
             }
-        } else {
-            error_log('AIPKit Module Init Error: Dashboard Initializer file not found.');
         }
-
-        // Add other module initializations here if needed
     }
 }

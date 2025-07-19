@@ -62,18 +62,10 @@ class WP_AI_Content_Generator_Public
                         if (class_exists(ChatAssetsOrchestrator::class)) {
                             $chat_assets = new ChatAssetsOrchestrator();
                             $chat_assets->register_hooks();
-                        } else {
-                            error_log("AIPKit Public Init Error: ChatAssetsOrchestrator class not found after include from {$chat_assets_orchestrator_path}.");
                         }
-                    } else {
-                        error_log("AIPKit Public Init Error: Chat Assets orchestrator file not found at {$chat_assets_orchestrator_path}.");
                     }
                 }
-            } else {
-                error_log("AIPKit Public Init Error: aipkit_dashboard class not found.");
             }
-        } else {
-            error_log("AIPKit Public Init Error: aipkit_dashboard class file not found.");
         }
     }
 

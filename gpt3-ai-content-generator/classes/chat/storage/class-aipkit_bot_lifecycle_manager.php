@@ -9,21 +9,18 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class BotLifecycleManager {
-
+class BotLifecycleManager
+{
     private $default_setup;
     private $site_wide_manager;
 
-    public function __construct() {
-        // Instantiate dependencies or receive them via constructor injection
-        if (!class_exists(DefaultBotSetup::class)) {
-            error_log('AIPKit BotLifecycleManager Error: DefaultBotSetup class not found.');
-        } else {
-            $this->default_setup = new DefaultBotSetup(); // Instantiating locally for simplicity
+    public function __construct()
+    {
+        // Instantiate dependencies if the classes exist.
+        if (class_exists(DefaultBotSetup::class)) {
+            $this->default_setup = new DefaultBotSetup();
         }
-        if (!class_exists(SiteWideBotManager::class)) {
-            error_log('AIPKit BotLifecycleManager Error: SiteWideBotManager class not found.');
-        } else {
+        if (class_exists(SiteWideBotManager::class)) {
             $this->site_wide_manager = new SiteWideBotManager();
         }
     }
@@ -35,17 +32,21 @@ class BotLifecycleManager {
      * @param string $botName The desired name for the new bot.
      * @return array|WP_Error ['bot_id' => int, 'bot_name' => string, 'bot_settings' => array] on success, WP_Error on failure.
      */
-    public function create_bot(string $botName): array|WP_Error {
+    public function create_bot(string $botName): array|WP_Error
+    {
         if (empty($botName)) {
             return new WP_Error('empty_name', __('Chatbot name cannot be empty.', 'gpt3-ai-content-generator'));
         }
         // Ensure BotSettingsManager is loaded before calling its static method
         $settings_path = __DIR__ . '/class-aipkit_bot_settings_manager.php';
-         if (!class_exists(BotSettingsManager::class)) {
-            if (file_exists($settings_path)) require_once $settings_path;
-             else return new WP_Error('dependency_missing', 'BotSettingsManager class not found for bot creation.');
+        if (!class_exists(BotSettingsManager::class)) {
+            if (file_exists($settings_path)) {
+                require_once $settings_path;
+            } else {
+                return new WP_Error('dependency_missing', 'BotSettingsManager class not found for bot creation.');
+            }
         }
-        
+
         $post_data = array(
             'post_title'  => $botName,
             'post_type'   => AdminSetup::POST_TYPE,
@@ -56,7 +57,6 @@ class BotLifecycleManager {
         $post_id = wp_insert_post($post_data, true);
         if (is_wp_error($post_id) || $post_id === 0) {
             $error_message = is_wp_error($post_id) ? $post_id->get_error_message() : 'wp_insert_post returned 0';
-            error_log("AIPKit BotLifecycleManager: Failed to create bot '{$botName}'. Error: " . $error_message);
             return new WP_Error('creation_failed', __('Error creating chatbot post.', 'gpt3-ai-content-generator'));
         }
 
@@ -76,24 +76,24 @@ class BotLifecycleManager {
      * @param int $botId The ID of the bot to delete.
      * @return bool|WP_Error True on success, WP_Error on failure.
      */
-    public function delete_bot(int $botId): bool|WP_Error {
+    public function delete_bot(int $botId): bool|WP_Error
+    {
         // Ensure AdminSetup class is loaded for POST_TYPE constant
         if (!class_exists(AdminSetup::class)) {
-             error_log('AIPKit BotLifecycleManager Error: AdminSetup class not found for delete_bot.');
-             return new WP_Error('dependency_missing', 'AdminSetup class not available.');
+            return new WP_Error('dependency_missing', 'AdminSetup class not available.');
         }
 
         if (empty($botId) || get_post_type($botId) !== AdminSetup::POST_TYPE) {
             return new WP_Error('invalid_bot_id_delete', __('Invalid chatbot ID provided for deletion.', 'gpt3-ai-content-generator'));
         }
         if (!$this->site_wide_manager) {
-             return new WP_Error('missing_dependency', __('SiteWideBotManager not initialized for deletion.', 'gpt3-ai-content-generator'));
+            return new WP_Error('missing_dependency', __('SiteWideBotManager not initialized for deletion.', 'gpt3-ai-content-generator'));
         }
 
         // Check if it's the default bot using the static method
         $default_bot_id = DefaultBotSetup::get_default_bot_id();
         if ($botId === $default_bot_id) {
-             return new WP_Error('cannot_delete_default', __('The default chatbot cannot be deleted.', 'gpt3-ai-content-generator'));
+            return new WP_Error('cannot_delete_default', __('The default chatbot cannot be deleted.', 'gpt3-ai-content-generator'));
         }
 
         $was_site_wide = (get_post_meta($botId, '_aipkit_site_wide_enabled', true) === '1');

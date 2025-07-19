@@ -17,8 +17,6 @@ class Image_Dependencies_Loader
         $image_settings_ajax_handler_path = $images_base_path . 'class-aipkit-image-settings-ajax-handler.php';
         if (file_exists($image_settings_ajax_handler_path)) {
             require_once $image_settings_ajax_handler_path;
-        } else {
-            error_log('AIPKit Core Loader Error: Image Settings AJAX Handler file not found.');
         }
         $paths = [
             'interface-aipkit-image-provider-strategy.php', 'class-aipkit-image-base-provider-strategy.php',
@@ -34,8 +32,6 @@ class Image_Dependencies_Loader
             $full_path = $images_base_path . $file;
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit Dependency Error: Image file {$file} not found.");
             }
         }
         $openai_image_dir = $images_base_path . 'providers/openai/';

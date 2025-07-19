@@ -43,7 +43,6 @@ abstract class AIPKit_REST_Base_Handler {
 
         // If no key is configured in settings, deny access.
         if (empty($stored_key)) {
-            error_log("AIPKit REST Permission Check: Denied (No stored key configured).");
             return new WP_Error(
                 'rest_aipkit_no_api_key_configured',
                 __('Public API access is not configured. Please set an API key in AIPKit settings.', 'gpt3-ai-content-generator'),
@@ -56,11 +55,7 @@ abstract class AIPKit_REST_Base_Handler {
         if (!empty($auth_header) && strpos(strtolower($auth_header), 'bearer ') === 0) {
             $submitted_key_header = trim(substr($auth_header, 7));
             if (hash_equals($stored_key, $submitted_key_header)) {
-                // error_log("AIPKit REST Permission Check: Granted (Header Match)."); // Optional: less verbose
                 return true;
-            } else {
-                error_log("AIPKit REST Permission Check: Denied (Header Mismatch).");
-                // Fall through to check parameter if header key was invalid
             }
         }
 
@@ -68,14 +63,10 @@ abstract class AIPKit_REST_Base_Handler {
         $submitted_key_param = $request->get_param('aipkit_api_key');
         if (!empty($submitted_key_param) && is_string($submitted_key_param)) {
             if (hash_equals($stored_key, $submitted_key_param)) {
-                // error_log("AIPKit REST Permission Check: Granted (Parameter Match)."); // Optional: less verbose
                 return true;
-            } else {
-                error_log("AIPKit REST Permission Check: Denied (Parameter Mismatch).");
             }
         }
 
-        error_log("AIPKit REST Permission Check: Denied (No valid key provided or match failed). Header present: " . !empty($auth_header) . ", Param present: " . !empty($submitted_key_param));
         return new WP_Error(
             'rest_aipkit_invalid_api_key',
             __('Invalid or missing API Key.', 'gpt3-ai-content-generator'),

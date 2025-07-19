@@ -31,7 +31,6 @@ abstract class AIPKit_TTS_Base_Provider_Strategy implements AIPKit_TTS_Provider_
         if (json_last_error() !== JSON_ERROR_NONE) {
             // translators: %1$s is the context label (e.g., provider name); %2$s is the JSON error message
             $error_message = sprintf(__('Failed to parse JSON response from %1$s. Error: %2$s', 'gpt3-ai-content-generator'), $context, json_last_error_msg());
-            error_log("AIPKit TTS Strategy Error ({$context} JSON Decode): " . json_last_error_msg() . " Body Snippet: " . substr($json_string, 0, 500));
             return new WP_Error('json_decode_error', $error_message);
         }
         // Ensure it's an array, even if JSON was valid but not an object/array (e.g. "true")

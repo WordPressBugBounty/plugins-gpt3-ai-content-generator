@@ -61,10 +61,8 @@ function get_conversation_thread_history_logic(
     if (is_array($conversation_data) && isset($conversation_data['parent_id']) && isset($conversation_data['messages']) && is_array($conversation_data['messages'])) {
         $messages_array = $conversation_data['messages'];
     } elseif (is_array($conversation_data)) { // Assume old structure (simple array) for backward compatibility
-        error_log("AIPKit ConversationReader Logic: Found old message structure for conv {$conversation_uuid}.");
         $messages_array = $conversation_data;
     } else {
-        error_log("AIPKit ConversationReader Logic: JSON decode error or invalid structure for conv {$conversation_uuid}.");
         return [];
     }
 

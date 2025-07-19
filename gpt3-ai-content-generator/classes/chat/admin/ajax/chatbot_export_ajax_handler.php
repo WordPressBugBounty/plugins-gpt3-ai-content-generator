@@ -23,14 +23,12 @@ class ChatbotExportAjaxHandler extends BaseAjaxHandler {
     public function __construct() {
         // Ensure BotStorage exists and instantiate
         if (!class_exists(\WPAICG\Chat\Storage\BotStorage::class)) {
-            error_log('AIPKit Error: BotStorage class not found during ChatbotExportAjaxHandler construction.');
             return;
         }
         $this->bot_storage = new BotStorage();
 
         // Ensure DefaultBotSetup exists and instantiate
         if (!class_exists(\WPAICG\Chat\Storage\DefaultBotSetup::class)) {
-            error_log('AIPKit Error: DefaultBotSetup class not found during ChatbotExportAjaxHandler construction.');
             return;
         }
         $this->default_setup = new DefaultBotSetup();
@@ -77,7 +75,6 @@ class ChatbotExportAjaxHandler extends BaseAjaxHandler {
         $json_data = wp_json_encode($export_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("AIPKit Chatbot Export Error: Failed to encode JSON. Error: " . json_last_error_msg());
             $this->send_wp_error(new WP_Error('json_encode_failed', __('Failed to generate export data.', 'gpt3-ai-content-generator'), ['status' => 500]));
             return;
         }

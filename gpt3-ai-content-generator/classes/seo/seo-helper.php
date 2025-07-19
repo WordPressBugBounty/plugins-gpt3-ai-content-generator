@@ -101,7 +101,6 @@ class AIPKit_SEO_Helper
             }
         }
 
-        error_log("AIPKit SEO Helper: Could not load handler for active plugin '{$plugin}'.");
         return null;
     }
 
@@ -242,7 +241,6 @@ class AIPKit_SEO_Helper
         ], true); // true to return WP_Error on failure
 
         if (is_wp_error($update_result)) {
-            error_log("AIPKit SEO Helper: Failed to update slug for post #{$post_id}. Error: " . $update_result->get_error_message());
             return false;
         }
 

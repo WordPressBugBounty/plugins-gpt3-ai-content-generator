@@ -31,19 +31,16 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
 
     public function __construct() {
         if (!class_exists(\WPAICG\Chat\Storage\LogStorage::class)) {
-            error_log('AIPKit Error: LogStorage class not found during ConversationAjaxHandler construction.');
             return;
         }
         $this->log_storage = new LogStorage();
 
         if (!class_exists(\WPAICG\Chat\Storage\FeedbackManager::class)) {
-             error_log('AIPKit Error: FeedbackManager class not found during ConversationAjaxHandler construction.');
              return;
         }
         $this->feedback_manager = new FeedbackManager();
 
         if (!class_exists(\WPAICG\Speech\AIPKit_Speech_Manager::class)) {
-             error_log('AIPKit Error: AIPKit_Speech_Manager class not found during ConversationAjaxHandler construction.');
              $this->speech_manager = null;
         } else {
             $this->speech_manager = new AIPKit_Speech_Manager();
@@ -218,7 +215,6 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             $where_sql .= " AND bot_id = %d";
             $params[] = absint($bot_id_raw);
         } else {
-            error_log("AIPKit Log Detail Query: Received unexpected bot_id format: " . print_r($bot_id_raw, true) . ". Assuming IS NULL.");
              $where_sql .= " AND bot_id IS NULL";
         }
 
@@ -231,7 +227,6 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             $where_sql .= " AND user_id = %d AND is_guest = 0";
             $params[] = $user_id_from_log;
         } else {
-            error_log("AIPKit Log Detail Query Error: Cannot determine user/guest from provided IDs. UserID: {$user_id_from_log}, SessionID: {$session_id_from_log}");
             wp_send_json_error(['message' => __('Internal error: Invalid user/session identifier combination.', 'gpt3-ai-content-generator')], 500);
             return;
         }
@@ -309,12 +304,9 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
      */
     public function ajax_delete_single_conversation()
     {
-        error_log("AIPKit ConversationAjaxHandler: ajax_delete_single_conversation triggered.");
-
         // Use frontend nonce check
         $permission_check = $this->check_frontend_permissions();
         if (is_wp_error($permission_check)) {
-            error_log("AIPKit ConversationAjaxHandler: Permission check failed: " . $permission_check->get_error_message());
             $this->send_wp_error($permission_check);
             return;
         }
@@ -324,17 +316,13 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0; // Expect bot ID for the conversation
         $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key($_POST['conversation_uuid']) : '';
 
-        error_log("AIPKit ConversationAjaxHandler: Request params - UserID: {$user_id}, SessionID: {$session_id}, BotID: {$bot_id}, ConvUUID: {$conversation_uuid}");
-
         // Validation
         if (empty($bot_id) || empty($conversation_uuid)) {
-            error_log("AIPKit ConversationAjaxHandler: Validation failed - Bot ID or Conversation ID is empty.");
             wp_send_json_error(['message' => __('Bot ID and Conversation ID are required.', 'gpt3-ai-content-generator')], 400);
             return;
         }
         // Ensure we have an identifier for the current user/guest requesting deletion
         if (!$user_id && empty($session_id)) {
-            error_log("AIPKit ConversationAjaxHandler: Validation failed - Cannot identify user or session.");
             wp_send_json_error(['message' => __('Cannot identify user or session.', 'gpt3-ai-content-generator')], 400);
             return;
         }
@@ -346,8 +334,6 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             $bot_id,
             $conversation_uuid
         );
-
-        error_log("AIPKit ConversationAjaxHandler: Deletion result: " . (is_wp_error($result) ? $result->get_error_message() : 'Success'));
 
         if (is_wp_error($result)) {
             $this->send_wp_error($result);
@@ -426,7 +412,6 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             } elseif (str_contains($error_code, '_http_error') || str_contains($error_code, 'dependency_missing')) {
                 $status_code = 500;
             }
-            error_log("AIPKit TTS Error (AJAX Handler): Code='{$error_code}', Message='{$error_message}', Status={$status_code}");
              $this->send_wp_error(new WP_Error($error_code, $error_message, ['status' => $status_code]));
         } else {
              wp_send_json_success(['audio_data_base64' => $result, 'mime_type' => $mime_type]);

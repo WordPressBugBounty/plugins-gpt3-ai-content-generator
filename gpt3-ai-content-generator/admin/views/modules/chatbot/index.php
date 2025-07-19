@@ -28,8 +28,6 @@ use WPAICG\Lib\Addons\AIPKit_Consent_Compliance;
 $svg_icons_util_path = WPAICG_PLUGIN_DIR . 'classes/chat/utils/class-aipkit-svg-icons.php';
 if (file_exists($svg_icons_util_path) && !class_exists('\\WPAICG\\Chat\\Utils\\AIPKit_SVG_Icons')) {
     require_once $svg_icons_util_path;
-} elseif (!class_exists('\\WPAICG\\Chat\\Utils\\AIPKit_SVG_Icons')) {
-    error_log("AIPKit Chatbot View Error: AIPKit_SVG_Icons class file not found at {$svg_icons_util_path}");
 }
 // --- END ADDED ---
 

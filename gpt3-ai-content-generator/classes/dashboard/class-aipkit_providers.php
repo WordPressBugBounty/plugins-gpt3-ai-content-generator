@@ -317,7 +317,6 @@ class AIPKit_Providers
      */
     public static function clear_model_caches(): void
     {
-        error_log("AIPKit_Providers: Clearing all model list caches.");
         self::$cached_model_lists = []; // Clear static cache
         foreach (array_keys(self::$model_list_options) as $provider_key) {
             $transient_key = 'aipkit_' . strtolower($provider_key) . '_models_cache';

@@ -36,11 +36,7 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
     $token_manager = $processorInstance->get_token_manager();
 
     if (!$log_storage) {
-        error_log("AIPKit SSE Processor (log_bot_response_logic): LogStorage not available. Cannot log bot response for MsgID: {$current_bot_message_id}.");
         return;
-    }
-    if (!$token_manager) {
-        error_log("AIPKit SSE Processor (log_bot_response_logic): TokenManager not available. Cannot record token usage for MsgID: {$current_bot_message_id}.");
     }
 
 
@@ -68,7 +64,6 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
             $log_bot_data['grounding_metadata'] = $grounding_metadata;
         }
         $log_storage->log_message($log_bot_data);
-        error_log("AIPKit SSE Processor (log_bot_response_logic): Logged final response (Module: {$current_stream_context}, MsgID: {$current_bot_message_id}, " . strlen($full_bot_response) . " chars) for conv {$current_conversation_uuid}.");
 
         $tokens_consumed = $final_usage_data['total_tokens'] ?? 0;
         if ($token_manager && $tokens_consumed > 0) { // Check if token_manager is available
@@ -100,19 +95,14 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
                     $tokens_consumed,
                     $module_for_tokens
                 );
-            } else {
-                error_log("AIPKit SSE Processor (log_bot_response_logic): Could not determine context_id for guest token recording. Module: {$module_for_tokens}, Conv: {$current_conversation_uuid}.");
             }
-        } elseif ($tokens_consumed > 0 && !$token_manager) {
-            error_log("AIPKit SSE Processor (log_bot_response_logic): Tokens ({$tokens_consumed}) consumed for context '{$current_stream_context}', but Token Manager is not available. Bot ID: " . ($log_base_data['bot_id'] ?? 'N/A'));
         }
 
     } elseif (empty($current_bot_message_id)) {
-        error_log("AIPKit SSE Processor Error (log_bot_response_logic): Cannot log bot response, current_bot_message_id is empty.");
+        // Cannot log bot response because current_bot_message_id is empty. This indicates an internal error state.
     } elseif ($error_occurred) {
-        error_log("AIPKit SSE Processor (log_bot_response_logic): Skipped logging successful response due to previous error flag.");
+        // Skipped logging a successful response because an error was flagged earlier in the process.
     } elseif (empty($full_bot_response)) {
-        error_log("AIPKit SSE Processor (log_bot_response_logic): Skipped logging successful response as full_bot_response was empty.");
         if (function_exists(__NAMESPACE__ . '\log_bot_error_logic')) {
             log_bot_error_logic($processorInstance, "(Empty Response)");
         }

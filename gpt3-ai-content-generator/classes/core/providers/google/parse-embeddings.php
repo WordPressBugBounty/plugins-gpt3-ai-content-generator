@@ -30,10 +30,6 @@ function parse_embeddings_logic_for_response_parser(array $decoded_response): ar
         }
     }
 
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log("AIPKit Google Embeddings Response Logic: " . print_r($decoded_response, true));
-    }
-
     if (empty($embeddings)) {
         return new WP_Error('google_embedding_no_data_logic', __('No embedding data found in Google response.', 'gpt3-ai-content-generator'));
     }

@@ -18,21 +18,15 @@ class Post_Enhancer_Core_Loader
 
         if (file_exists($post_enhancer_core_path)) {
             require_once $post_enhancer_core_path;
-        } else {
-            error_log('AIPKit Error: Post Enhancer Core file not found.');
         }
 
         if (file_exists($post_enhancer_ajax_path)) {
             require_once $post_enhancer_ajax_path;
-        } else {
-            error_log('AIPKit Error: Post Enhancer AJAX file not found.');
         }
 
         // --- ADDED: Require new handler class file ---
         if (file_exists($post_enhancer_actions_ajax_path)) {
             require_once $post_enhancer_actions_ajax_path;
-        } else {
-            error_log('AIPKit Error: Post Enhancer Actions AJAX Handler file not found.');
         }
         // --- END ADDED ---
     }

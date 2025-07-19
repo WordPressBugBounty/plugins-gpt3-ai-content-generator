@@ -20,7 +20,6 @@ function ensure_dashboard_loaded_logic(): bool
         if (file_exists($dashboard_path)) {
             require_once $dashboard_path;
         } else {
-            error_log('AIPKit Automated Task Cron Error: aipkit_dashboard class file not found.');
             return false;
         }
     }

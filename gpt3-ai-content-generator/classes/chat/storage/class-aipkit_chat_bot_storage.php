@@ -71,14 +71,6 @@ class BotStorage
         if (class_exists(BotSettingsManager::class)) {
             $this->settings_manager = new BotSettingsManager();
         }
-
-        // Error check if managers couldn't be instantiated
-        if (!$this->lifecycle_manager) {
-            error_log('AIPKit BotStorage Error: Failed to instantiate BotLifecycleManager.');
-        }
-        if (!$this->settings_manager) {
-            error_log('AIPKit BotStorage Error: Failed to instantiate BotSettingsManager.');
-        }
     }
 
     /**
@@ -90,7 +82,6 @@ class BotStorage
     public function get_chatbots(): array
     {
         if (!class_exists(AdminSetup::class)) {
-            error_log('AIPKit BotStorage Error: AdminSetup class not available for get_chatbots.');
             return [];
         }
         $args = array(
@@ -132,7 +123,6 @@ class BotStorage
 
             // Ensure AIPKit_Bot_Settings_Getter is loaded and class exists
             if (!class_exists(AIPKit_Bot_Settings_Getter::class)) {
-                error_log("BotStorage: AIPKit_Bot_Settings_Getter class not loaded when trying to get settings for bot ID {$bot_post->ID}.");
                 continue; // Skip this bot if getter isn't available
             }
 
@@ -142,8 +132,6 @@ class BotStorage
                     'post' => $bot_post,
                     'settings' => $settings,
                 ];
-            } else {
-                error_log("BotStorage: Failed to get settings for bot ID {$bot_post->ID}: " . $settings->get_error_message());
             }
         }
         return $bots_with_settings;
@@ -227,7 +215,6 @@ class BotStorage
     public function ensure_default_chatbot(): void
     {
         if (!$this->default_setup) {
-            error_log('AIPKit BotStorage Error: Cannot ensure default bot, DefaultBotSetup not available.');
             return;
         }
         // DefaultBotSetup::ensure_default_chatbot() is static now

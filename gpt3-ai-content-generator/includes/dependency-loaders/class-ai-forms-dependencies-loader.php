@@ -37,8 +37,6 @@ class AI_Forms_Dependencies_Loader
             $full_path = $ai_forms_base_path . $file;
             if (file_exists($full_path)) {
                 require_once $full_path;
-            } else {
-                error_log("AIPKit AI Forms Dependency Error: File {$file} not found at {$full_path}.");
             }
         }
     }

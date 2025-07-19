@@ -12,7 +12,6 @@ if (!class_exists(BaseProviderStrategy::class)) {
     if (file_exists($base_strategy_path)) {
         require_once $base_strategy_path;
     } else {
-        error_log('AIPKit OpenAI Provider Strategy Error: BaseProviderStrategy class file not found.');
         // This is a critical error, the class cannot be defined.
         return;
     }

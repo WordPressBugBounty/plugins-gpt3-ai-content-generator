@@ -42,8 +42,6 @@ class SSEConnectionValidator {
         if (!$this->processorInstance->get_error_occurred_status() && !empty($this->processorInstance->get_full_bot_response())) {
             if (function_exists('\WPAICG\Core\Stream\Processor\log_bot_response_logic')) {
                 \WPAICG\Core\Stream\Processor\log_bot_response_logic($this->processorInstance);
-            } else {
-                error_log("SSEConnectionValidator Error: log_bot_response_logic function not found.");
             }
         }
 

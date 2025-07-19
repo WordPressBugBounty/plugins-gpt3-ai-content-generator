@@ -38,10 +38,6 @@ function _aipkit_qdrant_ajax_upsert_to_collection_logic(AIPKit_Vector_Store_Qdra
     $embedding_model = isset($_POST['embedding_model']) ? sanitize_text_field($_POST['embedding_model']) : null;
     $original_text_content = isset($_POST['original_text_content']) ? wp_kses_post(wp_unslash($_POST['original_text_content'])) : null;
 
-    if (defined('WP_DEBUG') && WP_DEBUG === true) {
-        error_log("AIPKit Qdrant AJAX Upsert Logic: Received original_text_content length: " . (is_string($original_text_content) ? mb_strlen($original_text_content) : 'N/A'));
-    }
-
     if (empty($collection_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_collection_name_qdrant_upsert', __('Qdrant collection name is required.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;

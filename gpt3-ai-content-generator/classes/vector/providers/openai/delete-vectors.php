@@ -40,17 +40,14 @@ function delete_vectors_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstance, s
         $url = OpenAIUrlBuilder::build('vector_stores_id_files_id', $url_params);
         if (is_wp_error($url)) {
             $all_successful = false;
-            error_log("AIPKit OpenAI Vector: Error building URL to delete file {$file_id} from store {$vector_store_id}: " . $url->get_error_message());
             continue;
         }
 
         $response = _request_logic($strategyInstance, 'DELETE', $url);
         if (is_wp_error($response)) {
             $all_successful = false;
-            error_log("AIPKit OpenAI Vector: Error deleting file {$file_id} from store {$vector_store_id}: " . $response->get_error_message());
         } elseif (!isset($response['deleted']) || $response['deleted'] !== true) {
             $all_successful = false;
-            error_log("AIPKit OpenAI Vector: API reported failure to delete file {$file_id} from store {$vector_store_id}. Response: " . print_r($response, true));
         }
     }
     return $all_successful ? true : new WP_Error('partial_delete_failure', __('Some files could not be deleted from the vector store.', 'gpt3-ai-content-generator'));

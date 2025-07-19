@@ -19,7 +19,6 @@ if (!defined('ABSPATH')) {
 function attach_individual_task_hooks_logic(\wpdb $wpdb, string $tasks_table_name): void
 {
     if (!class_exists(AIPKit_Automated_Task_Scheduler::class) || !class_exists(AIPKit_Automated_Task_Event_Processor::class)) {
-        error_log('AIPKit Automated Task Cron (Individual Hooks): Scheduler or Event Processor class not found.');
         return;
     }
 

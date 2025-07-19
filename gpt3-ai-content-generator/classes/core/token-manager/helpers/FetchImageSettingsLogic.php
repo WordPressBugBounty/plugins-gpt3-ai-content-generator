@@ -16,7 +16,6 @@ if (!defined('ABSPATH')) {
  */
 function FetchImageSettingsLogic(): array {
     if (!class_exists(AIPKit_Image_Settings_Ajax_Handler::class)) {
-        error_log('AIPKit Token Manager Helper: AIPKit_Image_Settings_Ajax_Handler class not found when fetching image settings.');
         return []; // Return empty array if handler not available
     }
     $img_settings_all = AIPKit_Image_Settings_Ajax_Handler::get_settings();

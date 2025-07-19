@@ -17,10 +17,8 @@ if (!defined('ABSPATH')) {
  * @return void
  */
 function run_db_cleanup_logic(): void {
-    error_log('AIPKit SSE Cache Cleanup (run_db_cleanup_logic): Cron job triggered.');
 
     if (wp_using_ext_object_cache()) {
-        error_log('AIPKit SSE Cache Cleanup (run_db_cleanup_logic): Skipped DB cleanup (using object cache).');
         return;
     }
 
@@ -30,9 +28,4 @@ function run_db_cleanup_logic(): void {
     $now_utc = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
     $deleted_count = $wpdb->query($wpdb->prepare("DELETE FROM {$table} WHERE expires_at <= %s", $now_utc));
 
-    if ($deleted_count === false) {
-        error_log('AIPKit SSE Cache Cleanup (run_db_cleanup_logic): Error deleting expired entries from DB. Error: ' . $wpdb->last_error);
-    } else {
-        error_log("AIPKit SSE Cache Cleanup (run_db_cleanup_logic): Deleted {$deleted_count} expired entries from DB table.");
-    }
 }

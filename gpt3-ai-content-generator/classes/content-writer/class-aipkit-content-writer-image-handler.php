@@ -24,7 +24,6 @@ class AIPKit_Content_Writer_Image_Handler
             if (file_exists($manager_path)) {
                 require_once $manager_path;
             } else {
-                error_log('AIPKit Content Writer Image Handler Error: AIPKit_Image_Manager class file not found.');
                 $this->image_manager = null;
                 return;
             }
@@ -95,7 +94,6 @@ class AIPKit_Content_Writer_Image_Handler
                     $this->pexels_image_cache = $stock_result['images']; // Reusing this cache variable name for simplicity
                 } else {
                     $error_msg = is_wp_error($stock_result) ? $stock_result->get_error_message() : "No images returned from {$image_provider} API.";
-                    error_log("AIPKit CW Image Handler: {$image_provider} search failed for query '{$prompt_for_main_images}'. Error: {$error_msg}");
                 }
             }
 
@@ -139,7 +137,6 @@ class AIPKit_Content_Writer_Image_Handler
                         $final_image_data['in_content_images'][] = $result['images'][0];
                     } else {
                         $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No images returned from API.';
-                        error_log("AIPKit CW Image Handler: Image generation loop failed on iteration {$i}. Error: {$error_msg}");
                     }
                 }
             } else { // Models that support n > 1
@@ -154,7 +151,6 @@ class AIPKit_Content_Writer_Image_Handler
                     $final_image_data['in_content_images'] = array_merge($final_image_data['in_content_images'], $result['images']);
                 } else {
                     $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No images returned from API.';
-                    error_log("AIPKit CW Image Handler: Multi-image generation failed. Error: {$error_msg}");
                 }
             }
         }
@@ -196,7 +192,6 @@ class AIPKit_Content_Writer_Image_Handler
                 $final_image_data['featured_image_id'] = $result['images'][0]['attachment_id'];
             } else {
                 $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No featured image attachment ID returned.';
-                error_log("AIPKit CW Image Handler: Featured image generation/search failed. Error: {$error_msg}");
             }
         }
 

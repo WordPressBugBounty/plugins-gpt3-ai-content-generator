@@ -52,7 +52,6 @@ function get_all_conversation_data_logic(
 
     $summaries = $wpdb->get_results($query, ARRAY_A);
     if ($summaries === null) {
-        error_log("AIPKit ConversationReader Logic DB error: " . $wpdb->last_error);
         return null;
     }
     if (empty($summaries)) {

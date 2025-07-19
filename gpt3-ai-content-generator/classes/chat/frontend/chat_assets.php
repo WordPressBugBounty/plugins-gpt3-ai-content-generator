@@ -59,8 +59,6 @@ class Assets {
             $path = $assets_sub_dir . $file;
             if (file_exists($path)) {
                 require_once $path;
-            } else {
-                error_log("AIPKit Chat Assets Orchestrator: Failed to load dependency file {$file}");
             }
         }
 
@@ -68,10 +66,6 @@ class Assets {
         $this->hooks_handler = class_exists(AssetsHooks::class) ? new AssetsHooks($this) : null;
         $this->sitewide_checker_handler = class_exists(AssetsSiteWideChecker::class) ? new AssetsSiteWideChecker() : null;
         $this->enqueuer_handler = class_exists(AssetsEnqueuer::class) ? new AssetsEnqueuer() : null;
-
-        if (!$this->hooks_handler || !$this->sitewide_checker_handler || !$this->enqueuer_handler) {
-            error_log("AIPKit Chat Assets Orchestrator: Failed to initialize one or more sub-component handlers.");
-        }
     }
 
     /**
@@ -80,8 +74,6 @@ class Assets {
     public function register_hooks() {
         if ($this->hooks_handler && method_exists($this->hooks_handler, 'register')) {
             $this->hooks_handler->register();
-        } else {
-            error_log("AIPKit Chat Assets Orchestrator: Hooks handler not available or register method missing.");
         }
     }
 
@@ -92,8 +84,6 @@ class Assets {
     public function check_for_site_wide_bot_public_wrapper() {
         if ($this->sitewide_checker_handler && method_exists($this->sitewide_checker_handler, 'check')) {
             $this->sitewide_checker_handler->check();
-        } else {
-             error_log("AIPKit Chat Assets Orchestrator: Site-wide checker handler not available or check method missing.");
         }
     }
 
@@ -124,8 +114,6 @@ class Assets {
                 $needs_feedback, $needs_tts, $needs_stt, $needs_image_gen, $needs_chat_image_upload,
                 $needs_chat_file_upload 
             );
-        } else {
-             error_log("AIPKit Chat Assets Orchestrator: AssetsRequireFlags class or set_flags method not found.");
         }
     }
 
@@ -136,8 +124,6 @@ class Assets {
     public function register_and_enqueue_frontend_assets_public_wrapper() {
         if ($this->enqueuer_handler && method_exists($this->enqueuer_handler, 'process_assets')) {
             $this->enqueuer_handler->process_assets();
-        } else {
-            error_log("AIPKit Chat Assets Orchestrator: Enqueuer handler not available or process_assets method missing.");
         }
     }
 
@@ -148,8 +134,6 @@ class Assets {
     public static function register_public_chat_dependencies() {
         if (class_exists(AssetsDependencyRegistrar::class) && method_exists(AssetsDependencyRegistrar::class, 'register')) {
             AssetsDependencyRegistrar::register();
-        } else {
-            error_log("AIPKit Chat Assets Orchestrator: AssetsDependencyRegistrar class or register method not found.");
         }
     }
 }

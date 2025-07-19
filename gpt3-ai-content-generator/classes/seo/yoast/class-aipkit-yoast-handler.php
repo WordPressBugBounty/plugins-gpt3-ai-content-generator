@@ -24,7 +24,6 @@ class AIPKit_Yoast_Handler implements AIPKit_SEO_Handler_Interface
             require_once $file_path;
             return update_meta_description_logic($post_id, $description);
         }
-        error_log('AIPKit Yoast Handler: update-meta-description.php not found.');
         return false;
     }
 
@@ -35,7 +34,6 @@ class AIPKit_Yoast_Handler implements AIPKit_SEO_Handler_Interface
             require_once $file_path;
             return update_focus_keyword_logic($post_id, $keyword);
         }
-        error_log('AIPKit Yoast Handler: update-focus-keyword.php not found.');
         return false;
     }
 
@@ -46,7 +44,6 @@ class AIPKit_Yoast_Handler implements AIPKit_SEO_Handler_Interface
             require_once $file_path;
             return get_focus_keyword_logic($post_id);
         }
-        error_log('AIPKit Yoast Handler: get-focus-keyword.php not found.');
         return null;
     }
 }

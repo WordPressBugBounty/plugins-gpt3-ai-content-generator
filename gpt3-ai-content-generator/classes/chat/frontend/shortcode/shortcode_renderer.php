@@ -38,8 +38,6 @@ class Renderer {
             $svg_util_path = WPAICG_PLUGIN_DIR . 'classes/chat/utils/class-aipkit-svg-icons.php';
             if (file_exists($svg_util_path)) {
                 require_once $svg_util_path;
-            } else {
-                error_log('AIPKit Renderer Error: AIPKit_SVG_Icons class file not found.');
             }
         }
     }
@@ -59,8 +57,6 @@ class Renderer {
             $flags_path = WPAICG_PLUGIN_DIR . 'classes/chat/frontend/assets/class-assets-require-flags.php';
             if (file_exists($flags_path)) {
                 require_once $flags_path;
-            } else {
-                error_log('AIPKit Renderer Error: AssetsRequireFlags class file not found. Assets may not load correctly.');
             }
         }
         // --- MODIFIED: Call the static method on the new class ---

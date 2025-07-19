@@ -17,7 +17,6 @@ if (!defined('ABSPATH')) {
  */
 function get_consent_settings_logic(): array {
     if (!class_exists(AIPKIT_AI_Settings::class)) {
-        error_log("AIPKit Configurator (Consent Settings): AIPKIT_AI_Settings class not found.");
         return [
             'consent_title' => __('Consent Required', 'gpt3-ai-content-generator'),
             'consent_message' => __('Before starting the conversation, please agree to our Terms of Service and Privacy Policy.', 'gpt3-ai-content-generator'),

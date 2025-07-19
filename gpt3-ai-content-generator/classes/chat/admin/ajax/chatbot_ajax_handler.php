@@ -30,8 +30,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
     {
         // Ensure BotStorage exists and instantiate
         if (!class_exists(\WPAICG\Chat\Storage\BotStorage::class)) {
-            error_log('AIPKit Error: BotStorage class not found during ChatbotAjaxHandler construction.');
-            // Optionally throw an exception or handle the error appropriately
             return;
         }
         $this->bot_storage = new BotStorage();
@@ -41,8 +39,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
             if (file_exists($providers_path)) {
                 require_once $providers_path;
-            } else {
-                error_log('AIPKit ChatbotAjaxHandler Error: AIPKit_Providers class file not found.');
             }
         }
     }
@@ -108,8 +104,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
                         $openai_global_settings['store_conversation'] = '1';
                         AIPKit_Providers::save_provider_data('OpenAI', $openai_global_settings);
                     }
-                } else {
-                    error_log("AIPKit ChatbotAjaxHandler Warning: AIPKit_Providers class not available. Cannot force global OpenAI 'Store Conversation' setting.");
                 }
             }
             // --- END: Check and update global OpenAI store_conversation setting ---
@@ -168,7 +162,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         // Ensure AdminSetup class is available
         if (!class_exists(AdminSetup::class)) {
-            error_log("AIPKit ajax_get_chatbot_shortcode Error: AdminSetup class not found.");
             wp_send_json_error(['message' => __('Internal server error.', 'gpt3-ai-content-generator')], 500);
             return;
         }
@@ -180,7 +173,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         try {
             // Ensure Shortcode class is available
             if (!class_exists(Shortcode::class)) {
-                error_log("AIPKit ajax_get_chatbot_shortcode Error: Shortcode class not found.");
                 wp_send_json_error(['message' => __('Internal server error.', 'gpt3-ai-content-generator')], 500);
                 return;
             }
@@ -192,13 +184,11 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
                 return;
             }
             if (!is_string($shortcode_html)) {
-                error_log("AIPKit ajax_get_chatbot_shortcode: render_chatbot_shortcode did not return a string for bot ID {$bot_id}.");
                 wp_send_json_error(['message' => __('Error generating shortcode HTML (non-string result).', 'gpt3-ai-content-generator')], 500);
                 return;
             }
             // Basic UTF-8 check (optional but good practice)
             if (!mb_check_encoding($shortcode_html, 'UTF-8')) {
-                error_log("AIPKit ajax_get_chatbot_shortcode: Shortcode HTML is not valid UTF-8 for bot ID {$bot_id}.");
                 $shortcode_html = mb_convert_encoding($shortcode_html, 'UTF-8', mb_detect_encoding($shortcode_html));
                 if (!$shortcode_html) {
                     wp_send_json_error(['message' => __('Error generating shortcode HTML (encoding issue).', 'gpt3-ai-content-generator')], 500);
@@ -207,7 +197,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             }
             wp_send_json_success(['html' => $shortcode_html]);
         } catch (\Throwable $e) {
-            error_log("AIPKit ajax_get_chatbot_shortcode: Fatal error during shortcode rendering for bot ID {$bot_id}. Error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
             wp_send_json_error(['message' => __('Internal server error generating preview.', 'gpt3-ai-content-generator')], 500);
         }
     }
@@ -258,7 +247,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         // Ensure AdminSetup class is available
         if (!class_exists(AdminSetup::class)) {
-            error_log("AIPKit ajax_rename_chatbot Error: AdminSetup class not found.");
             wp_send_json_error(['message' => __('Internal server error.', 'gpt3-ai-content-generator')], 500);
             return;
         }
@@ -297,7 +285,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $updated_post_id = wp_update_post($update_args, true); // Pass true to get WP_Error on failure
 
         if (is_wp_error($updated_post_id)) {
-            error_log("AIPKit Rename Bot Error: Failed wp_update_post for Bot ID {$bot_id}. Error: " . $updated_post_id->get_error_message());
             wp_send_json_error(['message' => __('Failed to update chatbot name.', 'gpt3-ai-content-generator')], 500);
         } else {
             wp_send_json_success([

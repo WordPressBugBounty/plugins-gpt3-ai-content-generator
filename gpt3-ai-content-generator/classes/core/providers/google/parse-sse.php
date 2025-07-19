@@ -67,8 +67,6 @@ function parse_sse_chunk_logic_for_response_parser(string $sse_chunk, string &$c
             if (isset($decoded['candidates'][0]['groundingMetadata'])) {
                 $result['grounding_metadata'] = $decoded['candidates'][0]['groundingMetadata'];
             }
-        } else {
-            error_log("AIPKit Google SSE Parser Logic: Failed to decode JSON data: {$jsonLine}");
         }
     }
 

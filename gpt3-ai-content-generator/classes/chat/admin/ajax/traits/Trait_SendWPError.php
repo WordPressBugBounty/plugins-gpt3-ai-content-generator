@@ -26,8 +26,6 @@ trait Trait_SendWPError {
                        ? $wp_error_internal_data['status']
                        : 400; // Default to 400 Bad Request if not specified
 
-        error_log("AIPKit Trait_SendWPError: Sending JSON error. Status: {$status_code}, Data for JSON: " . print_r($error_data_for_json_response, true) . ", WP_Error internal data: " . print_r($wp_error_internal_data, true));
-
         wp_send_json_error($error_data_for_json_response, $status_code);
     }
 }

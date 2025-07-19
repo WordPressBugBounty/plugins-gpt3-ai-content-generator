@@ -75,6 +75,12 @@ class AIService
     {
         return $this->vector_store_manager;
     }
+    // --- ADDED: Missing getter for log_storage ---
+    public function get_log_storage(): ?\WPAICG\Chat\Storage\LogStorage
+    {
+        return $this->log_storage;
+    }
+    // --- END ADDED ---
     // --- MODIFIED: Corrected type hints for PostProcessor getters ---
     public function get_pinecone_post_processor(): ?\WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor
     {

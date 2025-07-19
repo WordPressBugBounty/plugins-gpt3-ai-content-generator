@@ -54,9 +54,7 @@ function do_ajax_delete_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
 
     $vector_store_registry->remove_registered_store('Pinecone', $index_name);
     $wpdb->delete($data_source_table_name, ['provider' => 'Pinecone', 'vector_store_id' => $index_name], ['%s', '%s']);
-    if ($wpdb->last_error) {
-        error_log("AIPKit Pinecone AJAX Delete Logic: Failed to delete data source entries for index {$index_name}. Error: " . $wpdb->last_error);
-    }
+
     $handler_instance->_log_vector_data_source_entry([
         'vector_store_id' => $index_name, 'vector_store_name' => $index_name,
         'status' => 'success', 'message' => 'Pinecone index deleted.',

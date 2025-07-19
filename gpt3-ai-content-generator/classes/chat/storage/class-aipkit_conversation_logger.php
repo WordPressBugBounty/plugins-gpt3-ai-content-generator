@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/class-aipkit_conversation_logger.php
 // Status: MODIFIED
 
@@ -18,12 +19,13 @@ if (!defined('ABSPATH')) {
  * Manages the JSON structure within the 'messages' column.
  * This class now delegates its core logic to namespaced functions.
  */
-class ConversationLogger {
-
+class ConversationLogger
+{
     private $wpdb;
     private $table_name;
 
-    public function __construct() {
+    public function __construct()
+    {
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->table_name = $wpdb->prefix . 'aipkit_chat_logs';
@@ -33,8 +35,6 @@ class ConversationLogger {
             $ip_anon_path = WPAICG_PLUGIN_DIR . 'classes/addons/class-aipkit-ip-anonymization.php';
             if (file_exists($ip_anon_path)) {
                 require_once $ip_anon_path;
-            } else {
-                error_log('AIPKit ConversationLogger Error: AIPKit_IP_Anonymization class file not found.');
             }
         }
     }
@@ -53,13 +53,13 @@ class ConversationLogger {
      *                           openai_response_id, used_previous_response_id.
      * @return array|false ['log_id' => int, 'message_id' => string, 'is_new_session' => bool] on success, false on failure.
      */
-    public function log_message(array $log_data): array|false {
+    public function log_message(array $log_data): array|false
+    {
         // --- 1. Basic Validation ---
         if (empty($log_data['conversation_uuid']) || empty($log_data['message_role']) ||
             !isset($log_data['message_content']) || empty($log_data['module']) ||
             (!isset($log_data['user_id']) && empty($log_data['session_id']))
-           ) {
-            error_log("AIPKit ConversationLogger::log_message: Missing required data (module, conv_uuid, role, content, user/session). Data: " . print_r($log_data, true));
+        ) {
             return false;
         }
 
@@ -96,14 +96,20 @@ class ConversationLogger {
             $this->wpdb->prepare(
                 "SELECT id, messages FROM {$this->table_name} WHERE {$where_parts['where_sql']} LIMIT 1",
                 $where_parts['params']
-            ), ARRAY_A
+            ),
+            ARRAY_A
         );
 
         // --- 6. Update or Insert ---
         if ($existing_log_row) {
             $update_result = LoggerMethods\update_existing_log_logic(
-                $this->wpdb, $this->table_name, $existing_log_row, $new_message,
-                $current_timestamp, $ip_to_store, $user_wp_role
+                $this->wpdb,
+                $this->table_name,
+                $existing_log_row,
+                $new_message,
+                $current_timestamp,
+                $ip_to_store,
+                $user_wp_role
             );
             if (is_array($update_result)) {
                 $update_result['is_new_session'] = false; // It's an update to an existing log
@@ -112,9 +118,18 @@ class ConversationLogger {
         } else {
             // insert_new_log_logic already sets 'is_new_session' => true
             return LoggerMethods\insert_new_log_logic(
-                $this->wpdb, $this->table_name, $bot_id, $user_id, $session_id,
-                $conversation_uuid, $module, $is_guest, $new_message,
-                $current_timestamp, $ip_to_store, $user_wp_role
+                $this->wpdb,
+                $this->table_name,
+                $bot_id,
+                $user_id,
+                $session_id,
+                $conversation_uuid,
+                $module,
+                $is_guest,
+                $new_message,
+                $current_timestamp,
+                $ip_to_store,
+                $user_wp_role
             );
         }
     }
