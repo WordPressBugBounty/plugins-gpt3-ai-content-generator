@@ -78,6 +78,7 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
      */
     public function ajax_chat_generate_image()
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing  -- Nonce is checked by $this->check_frontend_permissions() at the start of the method.
         $permission_check = $this->check_frontend_permissions();
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
@@ -86,7 +87,7 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
 
         $user_id = get_current_user_id();
         $is_logged_in = $user_id > 0;
-        $client_ip = $_SERVER['REMOTE_ADDR'] ?? null;
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? filter_var(wp_unslash($_SERVER['REMOTE_ADDR']), FILTER_VALIDATE_IP) : null;
         $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
         $session_id_from_post = isset($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
         $session_id = $is_logged_in ? null : $session_id_from_post;

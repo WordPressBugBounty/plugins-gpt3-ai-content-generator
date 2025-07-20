@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/admin/ajax/conversation_ajax_handler.php
-// MODIFIED FILE - Pass through openai_response_id in history.
+// Status: MODIFIED
 
 namespace WPAICG\Chat\Admin\Ajax;
 
@@ -58,32 +58,43 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         }
         $table = $wpdb->prefix . 'aipkit_chat_logs';
 
-        $where_sql = "conversation_uuid = %s";
-        $params = [$conversation_uuid];
+        // --- ADDED: Caching logic for conversation metadata ---
+        $cache_key = 'conv_meta_' . $conversation_uuid;
+        $cache_group = 'aipkit_chat_logs';
+        $meta_row = wp_cache_get($cache_key, $cache_group);
 
-        if ($bot_id !== null) {
-            $where_sql .= " AND bot_id = %d";
-            $params[] = $bot_id;
-        } else {
-             $where_sql .= " AND bot_id IS NULL";
+        if (false === $meta_row) {
+            $where_sql = "conversation_uuid = %s";
+            $params = [$conversation_uuid];
+
+            if ($bot_id !== null) {
+                $where_sql .= " AND bot_id = %d";
+                $params[] = $bot_id;
+            } else {
+                $where_sql .= " AND bot_id IS NULL";
+            }
+
+            if ($user_id) {
+                $where_sql .= " AND user_id = %d";
+                $params[] = $user_id;
+            } elseif ($session_id) {
+                $where_sql .= " AND user_id IS NULL AND session_id = %s AND is_guest = 1";
+                $params[] = $session_id;
+            } else {
+                return []; // Cannot identify user/session
+            }
+
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $meta_row = $wpdb->get_row(
+                $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table is safe (from $wpdb->prefix), and $where_sql is built with placeholders.
+                    "SELECT user_id, session_id, ip_address, is_guest, first_message_ts, last_message_ts, bot_id, module FROM {$table} WHERE {$where_sql} LIMIT 1",
+                    $params
+                ), ARRAY_A
+            );
+            wp_cache_set($cache_key, $meta_row, $cache_group, HOUR_IN_SECONDS);
         }
-
-        if ($user_id) {
-            $where_sql .= " AND user_id = %d";
-            $params[] = $user_id;
-        } elseif ($session_id) {
-            $where_sql .= " AND user_id IS NULL AND session_id = %s AND is_guest = 1";
-            $params[] = $session_id;
-        } else {
-             return []; // Cannot identify user/session
-        }
-
-        $meta_row = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT user_id, session_id, ip_address, is_guest, first_message_ts, last_message_ts, bot_id, module FROM {$table} WHERE {$where_sql} LIMIT 1",
-                $params
-            ), ARRAY_A
-        );
+        // --- END: Caching logic ---
 
         if(!$meta_row) return [];
 
@@ -129,9 +140,10 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         $permission_check = $this->check_frontend_permissions();
         if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
 
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_frontend_permissions() method.
         $user_id = get_current_user_id();
         $session_id = isset($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
-        $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
+        $bot_id = isset($_POST['bot_id']) ? absint(wp_unslash($_POST['bot_id'])) : 0;
 
         if (empty($bot_id)) { wp_send_json_error(['message' => __('Bot ID is required.', 'gpt3-ai-content-generator')], 400); return; }
         if (!$user_id && empty($session_id)) { wp_send_json_error(['message' => __('User or Session ID is required.', 'gpt3-ai-content-generator')], 400); return; }
@@ -159,10 +171,11 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         $permission_check = $this->check_frontend_permissions();
         if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
 
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_frontend_permissions() method.
         $user_id = get_current_user_id();
         $session_id = isset($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
-        $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
-        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key($_POST['conversation_uuid']) : '';
+        $bot_id = isset($_POST['bot_id']) ? absint(wp_unslash($_POST['bot_id'])) : 0;
+        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key(wp_unslash($_POST['conversation_uuid'])) : '';
 
         if (empty($bot_id) || empty($conversation_uuid)) {
             wp_send_json_error(['message' => __('Bot ID and Conversation ID are required.', 'gpt3-ai-content-generator')], 400); return;
@@ -181,6 +194,7 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         );
 
         wp_send_json_success(['history' => $history]);
+        // phpcs:enable
     }
 
      /**
@@ -191,11 +205,11 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         $permission_check = $this->check_module_access_permissions('logs');
         if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
 
-        // Get identifiers from the POST data (sent by the log viewer JS)
-        $user_id_from_log = isset($_POST['user_id']) && !empty($_POST['user_id']) ? absint($_POST['user_id']) : null;
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_module_access_permissions() method.
+        $user_id_from_log = isset($_POST['user_id']) && !empty($_POST['user_id']) ? absint(wp_unslash($_POST['user_id'])) : null;
         $session_id_from_log = isset($_POST['session_id']) && !empty($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
-        $bot_id_raw = isset($_POST['bot_id']) ? $_POST['bot_id'] : null; // Keep raw value (could be null, '', '0', or ID string)
-        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key($_POST['conversation_uuid']) : '';
+        $bot_id_raw = isset($_POST['bot_id']) ? wp_unslash($_POST['bot_id']) : null; // Keep raw value (could be null, '', '0', or ID string)
+        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key(wp_unslash($_POST['conversation_uuid'])) : '';
 
         if (empty($conversation_uuid)) {
             wp_send_json_error(['message' => __('Conversation ID is required.', 'gpt3-ai-content-generator')], 400); return;
@@ -206,33 +220,43 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'aipkit_chat_logs';
-        $where_sql = "conversation_uuid = %s";
-        $params = [$conversation_uuid];
 
-        if ($bot_id_raw === null || $bot_id_raw === '' || $bot_id_raw === '0') {
-            $where_sql .= " AND bot_id IS NULL";
-        } elseif (ctype_digit((string)$bot_id_raw) && absint($bot_id_raw) > 0) {
-            $where_sql .= " AND bot_id = %d";
-            $params[] = absint($bot_id_raw);
-        } else {
-             $where_sql .= " AND bot_id IS NULL";
+        // --- ADDED: Caching logic for the full log row ---
+        $cache_key = 'conv_full_log_' . $conversation_uuid;
+        $cache_group = 'aipkit_chat_logs';
+        $log_data = wp_cache_get($cache_key, $cache_group);
+
+        if (false === $log_data) {
+            $where_sql = "conversation_uuid = %s";
+            $params = [$conversation_uuid];
+
+            if ($bot_id_raw === null || $bot_id_raw === '' || $bot_id_raw === '0') {
+                $where_sql .= " AND bot_id IS NULL";
+            } elseif (ctype_digit((string)$bot_id_raw) && absint($bot_id_raw) > 0) {
+                $where_sql .= " AND bot_id = %d";
+                $params[] = absint($bot_id_raw);
+            } else {
+                $where_sql .= " AND bot_id IS NULL";
+            }
+
+            $is_guest_log = ($user_id_from_log === 0 || $user_id_from_log === null) && !empty($session_id_from_log);
+
+            if ($is_guest_log) {
+                $where_sql .= " AND user_id IS NULL AND session_id = %s AND is_guest = 1";
+                $params[] = $session_id_from_log;
+            } elseif ($user_id_from_log > 0) {
+                $where_sql .= " AND user_id = %d AND is_guest = 0";
+                $params[] = $user_id_from_log;
+            } else {
+                wp_send_json_error(['message' => __('Internal error: Invalid user/session identifier combination.', 'gpt3-ai-content-generator')], 500);
+                return;
+            }
+
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $log_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE {$where_sql} LIMIT 1", $params), ARRAY_A);
+            wp_cache_set($cache_key, $log_data, $cache_group, HOUR_IN_SECONDS);
         }
-
-        $is_guest_log = ($user_id_from_log === 0 || $user_id_from_log === null) && !empty($session_id_from_log);
-
-        if ($is_guest_log) {
-            $where_sql .= " AND user_id IS NULL AND session_id = %s AND is_guest = 1";
-            $params[] = $session_id_from_log;
-        } elseif ($user_id_from_log > 0) {
-            $where_sql .= " AND user_id = %d AND is_guest = 0";
-            $params[] = $user_id_from_log;
-        } else {
-            wp_send_json_error(['message' => __('Internal error: Invalid user/session identifier combination.', 'gpt3-ai-content-generator')], 500);
-            return;
-        }
-
-        $prepared_sql = $wpdb->prepare("SELECT * FROM {$table_name} WHERE {$where_sql} LIMIT 1", $params);
-        $log_data = $wpdb->get_row($prepared_sql, ARRAY_A);
+        // --- END: Caching logic ---
 
         if (!$log_data) {
             wp_send_json_error(['message' => __('Log entry not found.', 'gpt3-ai-content-generator')], 404);
@@ -270,12 +294,13 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         $permission_check = $this->check_frontend_permissions();
         if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
 
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_frontend_permissions() method.
         $user_id = get_current_user_id();
         $session_id = isset($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
-        $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
-        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key($_POST['conversation_uuid']) : '';
-        $message_id = isset($_POST['message_id']) ? sanitize_key($_POST['message_id']) : '';
-        $feedback_type = isset($_POST['feedback_type']) ? sanitize_key($_POST['feedback_type']) : '';
+        $bot_id = isset($_POST['bot_id']) ? absint(wp_unslash($_POST['bot_id'])) : 0;
+        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key(wp_unslash($_POST['conversation_uuid'])) : '';
+        $message_id = isset($_POST['message_id']) ? sanitize_key(wp_unslash($_POST['message_id'])) : '';
+        $feedback_type = isset($_POST['feedback_type']) ? sanitize_key(wp_unslash($_POST['feedback_type'])) : '';
 
         if (!$this->feedback_manager) {
              wp_send_json_error(['message' => __('Feedback service unavailable.', 'gpt3-ai-content-generator')], 500); return;
@@ -292,6 +317,12 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         if (is_wp_error($result)) {
             $this->send_wp_error($result);
         } else {
+            // --- ADDED: Invalidate cache after feedback is stored ---
+            if ($conversation_uuid) {
+                wp_cache_delete('conv_full_log_' . $conversation_uuid, 'aipkit_chat_logs');
+                wp_cache_delete('conv_meta_' . $conversation_uuid, 'aipkit_chat_logs');
+            }
+            // --- END: Invalidate cache ---
             wp_send_json_success(['message' => __('Feedback saved.', 'gpt3-ai-content-generator')]);
         }
     }
@@ -311,10 +342,11 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             return;
         }
 
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_frontend_permissions() method.
         $user_id = get_current_user_id();
         $session_id = isset($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
-        $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0; // Expect bot ID for the conversation
-        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key($_POST['conversation_uuid']) : '';
+        $bot_id = isset($_POST['bot_id']) ? absint(wp_unslash($_POST['bot_id'])) : 0; // Expect bot ID for the conversation
+        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key(wp_unslash($_POST['conversation_uuid'])) : '';
 
         // Validation
         if (empty($bot_id) || empty($conversation_uuid)) {
@@ -338,6 +370,12 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         if (is_wp_error($result)) {
             $this->send_wp_error($result);
         } else {
+             // --- ADDED: Invalidate cache after conversation is deleted ---
+            if ($conversation_uuid) {
+                wp_cache_delete('conv_full_log_' . $conversation_uuid, 'aipkit_chat_logs');
+                wp_cache_delete('conv_meta_' . $conversation_uuid, 'aipkit_chat_logs');
+            }
+            // --- END: Invalidate cache ---
             wp_send_json_success(['message' => __('Conversation deleted.', 'gpt3-ai-content-generator')]);
         }
     }
@@ -353,6 +391,7 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         $permission_check = $this->check_frontend_permissions('aipkit_frontend_chat_nonce');
         if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
 
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_frontend_permissions() method.
         if (!$this->speech_manager) {
             wp_send_json_error(['message' => __('Text-to-Speech service is unavailable.', 'gpt3-ai-content-generator')], 503);
             return;
@@ -363,13 +402,13 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         }
 
         $text = isset($_POST['text']) ? sanitize_textarea_field(wp_unslash($_POST['text'])) : '';
-        $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
+        $bot_id = isset($_POST['bot_id']) ? absint(wp_unslash($_POST['bot_id'])) : 0;
 
         if (empty($text)) { wp_send_json_error(['message' => __('Text cannot be empty.', 'gpt3-ai-content-generator')], 400); return; }
         if (empty($bot_id)) { wp_send_json_error(['message' => __('Bot ID is required.', 'gpt3-ai-content-generator')], 400); return; }
 
         if (!class_exists(\WPAICG\Chat\Storage\BotStorage::class)) {
-             wp_send_json_error(['message' => __('Internal error: Cannot load bot storage.', 'gpt3-ai-content-generator')], 500); return;
+             wp_send_json_error(['message' => __('Internal error: Cannot load bot storage.', 'gpt3-ai-content-generator')], 500);
          }
         $bot_storage = new \WPAICG\Chat\Storage\BotStorage();
         $bot_settings = $bot_storage->get_chatbot_settings($bot_id);
@@ -380,7 +419,6 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
 
         $tts_provider = $bot_settings['tts_provider'] ?? 'Google';
         $tts_voice_id = $bot_settings['tts_voice_id'] ?? '';
-        // $tts_auto_play = ($bot_settings['tts_auto_play'] ?? BotSettingsManager::DEFAULT_TTS_AUTO_PLAY) === '1'; // Not needed for this AJAX
 
         $format = 'mp3';
         $mime_type = 'audio/mpeg';

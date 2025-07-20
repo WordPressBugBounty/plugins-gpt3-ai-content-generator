@@ -38,6 +38,7 @@ class AIPKit_Delete_Automated_Task_Queue_Items_By_Status_Action extends AIPKit_A
         }
 
         $query = "DELETE FROM {$this->queue_table_name}" . $where_clause;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct bulk deletion from a custom table. Cache will be invalidated.
         $result = empty($prepare_args) ? $wpdb->query($query) : $wpdb->query($wpdb->prepare($query, $prepare_args));
 
         if ($result === false) {

@@ -33,6 +33,7 @@ function set_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInst
     $expires_at->modify('+' . $cacheInstance::EXPIRY_SECONDS . ' seconds');
     $expires_at_str = $expires_at->format('Y-m-d H:i:s');
 
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Direct insertion into a custom table is necessary. Cache is set below.
     $inserted = $wpdb->insert(
         $cacheInstance->get_db_table_name(),
         [

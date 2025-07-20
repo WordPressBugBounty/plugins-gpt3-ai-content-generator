@@ -43,7 +43,7 @@ function schedule_task_event_logic(int $task_id, string $frequency, string $stat
         $next_run_timestamp = wp_next_scheduled($hook, $current_schedule_args);
         // The DB `datetime` column should store in UTC. `wp_next_scheduled` returns a UTC timestamp.
         $next_run_datetime_gmt = $next_run_timestamp ? date('Y-m-d H:i:s', $next_run_timestamp) : null;
-
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
         $wpdb->update(
             $tasks_table_name,
             ['next_run_time' => $next_run_datetime_gmt],

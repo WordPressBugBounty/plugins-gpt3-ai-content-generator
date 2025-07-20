@@ -28,12 +28,13 @@ function do_ajax_import_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instanc
         return;
     }
 
-    if (empty($_POST['forms_json'])) {
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling class method.
+    $forms_json = isset($_POST['forms_json']) ? wp_kses_post(wp_unslash($_POST['forms_json'])) : '{}';
+    if (empty($forms_json)) {
         $handler_instance->send_wp_error(new WP_Error('no_data_import', __('No form data received for import.', 'gpt3-ai-content-generator')), 400);
         return;
     }
 
-    $forms_json = wp_unslash($_POST['forms_json']);
     $forms_to_import = json_decode($forms_json, true);
 
     if (json_last_error() !== JSON_ERROR_NONE || !is_array($forms_to_import)) {

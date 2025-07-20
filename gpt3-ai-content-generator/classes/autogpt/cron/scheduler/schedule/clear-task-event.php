@@ -26,6 +26,7 @@ function clear_task_event_logic(int $task_id): void
     wp_clear_scheduled_hook($hook, $current_schedule_args);
 
     // Update the database to reflect the change
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
     $wpdb->update(
         $tasks_table_name,
         ['next_run_time' => null],

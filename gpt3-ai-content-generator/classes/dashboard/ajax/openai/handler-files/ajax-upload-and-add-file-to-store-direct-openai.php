@@ -48,7 +48,6 @@ function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_
         return;
     }
 
-    // Logic from /lib/vector-stores/file-upload/openai/fn-upload-add-direct.php
     $target_store_id = isset($_POST['target_store_id']) ? sanitize_text_field($_POST['target_store_id']) : '';
     $source_type = isset($_POST['source_type']) ? sanitize_key($_POST['source_type']) : 'file_upload_global_form';
 

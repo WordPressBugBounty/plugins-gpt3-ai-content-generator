@@ -140,8 +140,8 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
         }
         if (is_array($input)) {
             foreach ($input as $idx => $text) {
-                /* translators: %s is the index of the input array */
                 if (!is_string($text)) {
+                    /* translators: %s is the index of the input array */
                     return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid input array item at index %d (must be a string)', 'gpt3-ai-content-generator'), $idx), ['status' => 400]));
                 }
             }
@@ -150,8 +150,8 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
         $provider = match(strtolower($provider_raw)) {
             'openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', default => null,
         };
-        /* translators: %s is the provider name */
         if ($provider === null) {
+            /* translators: %s is the provider name */
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid provider specified for embeddings: %s', 'gpt3-ai-content-generator'), $provider_raw), ['status' => 400]));
         }
 

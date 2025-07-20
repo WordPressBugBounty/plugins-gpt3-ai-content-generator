@@ -39,9 +39,8 @@ class AIPKit_Migrate_Global_Settings_Action extends AIPKit_Migration_Base_Ajax_A
             // --- 1. Fetch Old Data ---
             $old_table_data = [];
             $old_wpaicg_table_name = $wpdb->prefix . 'wpaicg';
-            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $old_wpaicg_table_name)) === $old_wpaicg_table_name) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                $old_table_row = $wpdb->get_row("SELECT * FROM " . esc_sql($old_wpaicg_table_name) . " WHERE name = 'wpaicg_settings'", ARRAY_A);
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Reason: Direct query to check if the table exists.
+            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $old_wpaicg_table_name)) === $old_wpaicg_table_name) {$old_table_row = $wpdb->get_row("SELECT * FROM " . esc_sql($old_wpaicg_table_name) . " WHERE name = 'wpaicg_settings'", ARRAY_A);
                 if ($old_table_row) {
                     $old_table_data = $old_table_row;
                 }

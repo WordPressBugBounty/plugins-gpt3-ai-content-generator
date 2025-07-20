@@ -28,6 +28,7 @@ function delete_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheI
 
     // Always try to delete from the database.
     global $wpdb;
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Direct deletion from custom table is necessary. Cache is invalidated below.
     $deleted_db = $wpdb->delete(
         $cacheInstance->get_db_table_name(),
         ['cache_key' => $key],

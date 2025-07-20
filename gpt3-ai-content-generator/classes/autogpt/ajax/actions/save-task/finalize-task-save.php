@@ -51,6 +51,7 @@ function finalize_task_save_logic(int $task_id, array $task_config, string $task
         global $wpdb;
         $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
         $task_config['enhance_existing_now_flag'] = '0';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table is necessary to update task state.
         $wpdb->update(
             $tasks_table_name,
             ['task_config' => wp_json_encode($task_config)],

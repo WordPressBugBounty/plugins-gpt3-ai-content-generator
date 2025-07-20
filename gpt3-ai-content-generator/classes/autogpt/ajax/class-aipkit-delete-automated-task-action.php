@@ -27,7 +27,9 @@ class AIPKit_Delete_Automated_Task_Action extends AIPKit_Automated_Task_Base_Aja
         if (class_exists(AIPKit_Automated_Task_Scheduler::class)) {
              AIPKit_Automated_Task_Scheduler::clear_task_event($task_id);
         }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct deletion from a custom table. Caches will be invalidated.
         $wpdb->delete($this->queue_table_name, ['task_id' => $task_id], ['%d']);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct deletion from a custom table. Caches will be invalidated.
         $result = $wpdb->delete($this->tasks_table_name, ['id' => $task_id], ['%d']);
 
         if ($result === false) {

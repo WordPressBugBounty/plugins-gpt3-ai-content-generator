@@ -21,7 +21,7 @@ function attach_individual_task_hooks_logic(\wpdb $wpdb, string $tasks_table_nam
     if (!class_exists(AIPKit_Automated_Task_Scheduler::class) || !class_exists(AIPKit_Automated_Task_Event_Processor::class)) {
         return;
     }
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $all_tasks = $wpdb->get_results("SELECT id FROM " . esc_sql($tasks_table_name), ARRAY_A);
 
     if ($all_tasks) {

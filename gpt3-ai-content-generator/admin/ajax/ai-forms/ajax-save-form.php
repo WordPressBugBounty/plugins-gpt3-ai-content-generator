@@ -26,10 +26,13 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         return;
     }
 
-    $form_id = isset($_POST['form_id']) && !empty($_POST['form_id']) ? absint($_POST['form_id']) : null;
-    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
-    $prompt_template = isset($_POST['prompt_template']) ? sanitize_textarea_field(wp_unslash($_POST['prompt_template'])) : '';
-    $form_structure_json = isset($_POST['form_structure']) ? wp_kses_post(wp_unslash($_POST['form_structure'])) : '[]';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling class method.
+    $post_data = wp_unslash($_POST);
+
+    $form_id = isset($post_data['form_id']) && !empty($post_data['form_id']) ? absint($post_data['form_id']) : null;
+    $title = isset($post_data['title']) ? sanitize_text_field($post_data['title']) : '';
+    $prompt_template = isset($post_data['prompt_template']) ? sanitize_textarea_field($post_data['prompt_template']) : '';
+    $form_structure_json = isset($post_data['form_structure']) ? wp_kses_post($post_data['form_structure']) : '[]';
 
     // Process labels - now receiving as a JSON string from JavaScript
     $default_labels = [
@@ -43,8 +46,8 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     ];
 
     $submitted_labels = [];
-    if (isset($_POST['labels']) && !empty($_POST['labels'])) {
-        $labels_json = wp_unslash($_POST['labels']);
+    if (isset($post_data['labels']) && !empty($post_data['labels'])) {
+        $labels_json = $post_data['labels'];
         $decoded_labels = json_decode($labels_json, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_labels)) {
             $submitted_labels = $decoded_labels;
@@ -60,23 +63,23 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
 
 
     // --- Get AI config fields from POST ---
-    $ai_provider = isset($_POST['ai_provider']) ? sanitize_text_field(wp_unslash($_POST['ai_provider'])) : null;
-    $ai_model = isset($_POST['ai_model']) ? sanitize_text_field(wp_unslash($_POST['ai_model'])) : null;
-    $temperature = isset($_POST['temperature']) ? sanitize_text_field(wp_unslash($_POST['temperature'])) : null;
-    $max_tokens = isset($_POST['max_tokens']) ? absint($_POST['max_tokens']) : null;
-    $top_p = isset($_POST['top_p']) ? sanitize_text_field(wp_unslash($_POST['top_p'])) : null;
-    $frequency_penalty = isset($_POST['frequency_penalty']) ? sanitize_text_field(wp_unslash($_POST['frequency_penalty'])) : null;
-    $presence_penalty = isset($_POST['presence_penalty']) ? sanitize_text_field(wp_unslash($_POST['presence_penalty'])) : null;
+    $ai_provider = isset($post_data['ai_provider']) ? sanitize_text_field($post_data['ai_provider']) : null;
+    $ai_model = isset($post_data['ai_model']) ? sanitize_text_field($post_data['ai_model']) : null;
+    $temperature = isset($post_data['temperature']) ? sanitize_text_field($post_data['temperature']) : null;
+    $max_tokens = isset($post_data['max_tokens']) ? absint($post_data['max_tokens']) : null;
+    $top_p = isset($post_data['top_p']) ? sanitize_text_field($post_data['top_p']) : null;
+    $frequency_penalty = isset($post_data['frequency_penalty']) ? sanitize_text_field($post_data['frequency_penalty']) : null;
+    $presence_penalty = isset($post_data['presence_penalty']) ? sanitize_text_field($post_data['presence_penalty']) : null;
 
     // --- Get Vector config fields from POST ---
-    $enable_vector_store = isset($_POST['enable_vector_store']) && $_POST['enable_vector_store'] === '1' ? '1' : '0';
-    $vector_store_provider = isset($_POST['vector_store_provider']) ? sanitize_key($_POST['vector_store_provider']) : 'openai';
-    $openai_vector_store_ids = isset($_POST['openai_vector_store_ids']) && is_array($_POST['openai_vector_store_ids']) ? array_map('sanitize_text_field', $_POST['openai_vector_store_ids']) : [];
-    $pinecone_index_name = isset($_POST['pinecone_index_name']) ? sanitize_text_field($_POST['pinecone_index_name']) : '';
-    $qdrant_collection_name = isset($_POST['qdrant_collection_name']) ? sanitize_text_field($_POST['qdrant_collection_name']) : '';
-    $vector_embedding_provider = isset($_POST['vector_embedding_provider']) ? sanitize_key($_POST['vector_embedding_provider']) : 'openai';
-    $vector_embedding_model = isset($_POST['vector_embedding_model']) ? sanitize_text_field($_POST['vector_embedding_model']) : '';
-    $vector_store_top_k = isset($_POST['vector_store_top_k']) ? absint($_POST['vector_store_top_k']) : 3;
+    $enable_vector_store = isset($post_data['enable_vector_store']) && $post_data['enable_vector_store'] === '1' ? '1' : '0';
+    $vector_store_provider = isset($post_data['vector_store_provider']) ? sanitize_key($post_data['vector_store_provider']) : 'openai';
+    $openai_vector_store_ids = isset($post_data['openai_vector_store_ids']) && is_array($post_data['openai_vector_store_ids']) ? array_map('sanitize_text_field', $post_data['openai_vector_store_ids']) : [];
+    $pinecone_index_name = isset($post_data['pinecone_index_name']) ? sanitize_text_field($post_data['pinecone_index_name']) : '';
+    $qdrant_collection_name = isset($post_data['qdrant_collection_name']) ? sanitize_text_field($post_data['qdrant_collection_name']) : '';
+    $vector_embedding_provider = isset($post_data['vector_embedding_provider']) ? sanitize_key($post_data['vector_embedding_provider']) : 'openai';
+    $vector_embedding_model = isset($post_data['vector_embedding_model']) ? sanitize_text_field($post_data['vector_embedding_model']) : '';
+    $vector_store_top_k = isset($post_data['vector_store_top_k']) ? absint($post_data['vector_store_top_k']) : 3;
 
     $decoded_structure = json_decode($form_structure_json, true);
     if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded_structure)) {

@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php
-// Status: MODIFIED (Logic moved here)
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\OpenAI\HandlerStores;
 
@@ -65,6 +65,11 @@ function do_ajax_delete_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Aj
         'source_type_for_log' => 'action_delete_store'
     ]);
 
+    // Invalidate the cache for this store's logs before deleting
+    $cache_key = 'openai_logs_' . sanitize_key($store_id);
+    wp_cache_delete($cache_key, 'aipkit_vector_logs');
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Necessary delete operation on a custom table after an API action. Cache was invalidated above.
     $wpdb->delete($data_source_table_name, ['provider' => 'OpenAI', 'vector_store_id' => $store_id], ['%s', '%s']);
 
     wp_send_json_success(['message' => __('Vector Store deleted successfully.', 'gpt3-ai-content-generator')]);

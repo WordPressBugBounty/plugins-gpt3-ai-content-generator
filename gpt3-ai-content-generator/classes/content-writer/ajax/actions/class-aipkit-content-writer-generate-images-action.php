@@ -27,9 +27,13 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
         $settings = isset($_POST) ? wp_unslash($_POST) : [];
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
         $final_title = isset($settings['final_title']) ? sanitize_text_field($settings['final_title']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
         $final_keywords = isset($settings['keywords']) ? sanitize_text_field($settings['keywords']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
         $original_topic = isset($settings['original_topic']) ? sanitize_text_field($settings['original_topic']) : $final_title;
 
         if (!class_exists(AIPKit_Content_Writer_Image_Handler::class)) {

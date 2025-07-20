@@ -38,17 +38,26 @@ function get_conversation_thread_history_logic(
     $wpdb = $readerInstance->get_wpdb();
     $table_name = $readerInstance->get_table_name();
 
-    $where_sql = "bot_id = %d AND conversation_uuid = %s AND ";
-    $params = [$bot_id, $conversation_uuid];
-    if ($user_id) {
-        $where_sql .= "user_id = %d";
-        $params[] = $user_id;
-    } else {
-        $where_sql .= "(user_id IS NULL AND session_id = %s AND is_guest = 1)";
-        $params[] = $session_id;
-    }
+    // --- ADDED: Caching logic ---
+    $cache_key = 'conv_history_' . $conversation_uuid;
+    $cache_group = 'aipkit_chat_logs';
+    $messages_json = wp_cache_get($cache_key, $cache_group);
 
-    $messages_json = $wpdb->get_var($wpdb->prepare("SELECT messages FROM {$table_name} WHERE {$where_sql} LIMIT 1", $params));
+    if (false === $messages_json) {
+        $where_sql = "bot_id = %d AND conversation_uuid = %s AND ";
+        $params = [$bot_id, $conversation_uuid];
+        if ($user_id) {
+            $where_sql .= "user_id = %d";
+            $params[] = $user_id;
+        } else {
+            $where_sql .= "(user_id IS NULL AND session_id = %s AND is_guest = 1)";
+            $params[] = $session_id;
+        }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $messages_json = $wpdb->get_var($wpdb->prepare("SELECT messages FROM {$table_name} WHERE {$where_sql} LIMIT 1", $params));
+        wp_cache_set($cache_key, $messages_json, $cache_group, HOUR_IN_SECONDS);
+    }
+    // --- END: Caching logic ---
 
     if (empty($messages_json)) {
         return [];

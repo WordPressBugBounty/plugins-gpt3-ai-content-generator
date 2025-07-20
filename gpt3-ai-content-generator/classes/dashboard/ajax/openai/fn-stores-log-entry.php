@@ -1,5 +1,6 @@
-<?php // File: classes/dashboard/ajax/openai/fn-stores-log-entry.php
-// Status: NEW FILE
+<?php 
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/fn-stores-log-entry.php
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\OpenAI;
 
@@ -54,5 +55,12 @@ function _aipkit_openai_vs_stores_log_vector_store_event_logic(\wpdb $wpdb, stri
     }
     unset($data_to_insert['source_type_for_log']);
 
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Necessary insert operation into a custom table for logging. Cache is invalidated below.
     $result = $wpdb->insert($data_source_table_name, $data_to_insert);
+
+    // Invalidate the log list cache for this store after a new entry is added.
+    if ($result && !empty($data_to_insert['vector_store_id'])) {
+        $cache_key = 'openai_logs_' . sanitize_key($data_to_insert['vector_store_id']);
+        wp_cache_delete($cache_key, 'aipkit_vector_logs');
+    }
 }

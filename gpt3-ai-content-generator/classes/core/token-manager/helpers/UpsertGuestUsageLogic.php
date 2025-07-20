@@ -28,6 +28,7 @@ function UpsertGuestUsageLogic(
     global $wpdb;
     $guest_table_name = $managerInstance->get_guest_table_name();
 
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching is not applicable for a write operation (REPLACE). Cache is invalidated below.
     $upsert_result = $wpdb->replace(
         $guest_table_name,
         [
@@ -39,4 +40,11 @@ function UpsertGuestUsageLogic(
         ],
         ['%s', '%d', '%d', '%d', '%s']
     );
+
+    // After a successful database write, invalidate the corresponding object cache entry
+    // to ensure the next read fetches fresh data.
+    if ($upsert_result !== false) {
+        $cache_key = "aipkit_guest_usage_{$session_id}_{$guest_context_table_id}";
+        wp_cache_delete($cache_key, 'aipkit_token_usage');
+    }
 }

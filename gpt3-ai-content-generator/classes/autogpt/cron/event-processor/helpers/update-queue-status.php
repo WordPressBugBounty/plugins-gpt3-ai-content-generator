@@ -43,12 +43,13 @@ function update_queue_status_logic(int $itemId, string $status, ?string $errorMe
             $formats[] = '%s';
         } elseif ($status === 'failed' || $status === 'error') {
             $update_data['error_message'] = $errorMessage;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
             $wpdb->query($wpdb->prepare("UPDATE " . esc_sql($queue_table_name) . " SET attempts = attempts + 1 WHERE id = %d", $itemId));
             $formats[] = '%s';
         }
     }
     // --- END MODIFICATION ---
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
     $wpdb->update(
         $queue_table_name,
         $update_data,

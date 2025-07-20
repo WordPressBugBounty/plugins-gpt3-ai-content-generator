@@ -34,11 +34,11 @@ function update_focus_keyword_logic(int $post_id, string $keyword): bool
     $existing_row = null;
 
     // Check if the AIOSEO table exists
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $table_exists = ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name);
 
     if ($table_exists) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
         $existing_row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE post_id = %d", $post_id));
         if ($existing_row && !empty($existing_row->keyphrases)) {
             $keyphrases_data = json_decode($existing_row->keyphrases, true);
@@ -67,6 +67,7 @@ function update_focus_keyword_logic(int $post_id, string $keyword): bool
 
         if ($existing_row) {
             // Update existing row
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
             $result = $wpdb->update(
                 $table_name,
                 ['keyphrases' => $keyphrases_json, 'updated' => current_time('mysql', 1)],
@@ -76,6 +77,7 @@ function update_focus_keyword_logic(int $post_id, string $keyword): bool
             );
         } else {
             // Insert new row
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table. Caches will be invalidated.
             $result = $wpdb->insert(
                 $table_name,
                 [

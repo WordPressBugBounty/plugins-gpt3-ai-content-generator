@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/reader/get-all-conversation-data.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Chat\Storage\ReaderMethods;
 
@@ -36,21 +36,33 @@ function get_all_conversation_data_logic(
     $table_name = $readerInstance->get_table_name();
     $query_helper = $readerInstance->get_query_helper();
 
-    $filters = ['bot_id' => $bot_id];
-    if ($user_id) {
-        $filters['user_id'] = $user_id;
-    } else {
-        $filters['session_id'] = $session_id;
-        $filters['user_id'] = null; // Explicitly set user_id to null for guest session_id queries
-    }
+    // --- ADDED: Caching logic ---
+    $cache_key_identifier = $user_id ? "user_{$user_id}" : "guest_{$session_id}";
+    $cache_key = "conv_list_{$bot_id}_{$cache_key_identifier}";
+    $cache_group = 'aipkit_chat_logs';
+    $summaries = wp_cache_get($cache_key, $cache_group);
 
-    $query_parts = $query_helper->build_conversation_query_parts($filters, 'last_message_ts', 'DESC', 0, 0, true);
-    $query = "SELECT {$query_parts['select_sql']} FROM {$table_name} {$query_parts['join_sql']} WHERE {$query_parts['where_sql']} ORDER BY {$query_parts['orderby']} {$query_parts['order']}";
-    if (!empty($query_parts['params'])) {
-        $query = $wpdb->prepare($query, $query_parts['params']);
-    }
+    if (false === $summaries) {
+        $filters = ['bot_id' => $bot_id];
+        if ($user_id) {
+            $filters['user_id'] = $user_id;
+        } else {
+            $filters['session_id'] = $session_id;
+            $filters['user_id'] = null; // Explicitly set user_id to null for guest session_id queries
+        }
 
-    $summaries = $wpdb->get_results($query, ARRAY_A);
+        $query_parts = $query_helper->build_conversation_query_parts($filters, 'last_message_ts', 'DESC', 0, 0, true);
+        $query = "SELECT {$query_parts['select_sql']} FROM {$table_name} {$query_parts['join_sql']} WHERE {$query_parts['where_sql']} ORDER BY {$query_parts['orderby']} {$query_parts['order']}";
+        if (!empty($query_parts['params'])) {
+            $query = $wpdb->prepare($query, $query_parts['params']);
+        }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $summaries = $wpdb->get_results($query, ARRAY_A);
+        wp_cache_set($cache_key, $summaries, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
+    }
+    // --- END: Caching logic ---
+
+
     if ($summaries === null) {
         return null;
     }

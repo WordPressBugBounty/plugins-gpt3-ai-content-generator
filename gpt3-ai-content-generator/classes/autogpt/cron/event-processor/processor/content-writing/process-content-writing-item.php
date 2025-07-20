@@ -251,6 +251,7 @@ function process_content_writing_item_logic(array $item_config): array
     if (isset($item_config['rss_item_guid']) && !empty($item_config['rss_item_guid']) && isset($item_config['task_id'])) {
         global $wpdb;
         $history_table_name = $wpdb->prefix . 'aipkit_rss_history';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table. Caches will be invalidated.
         $wpdb->insert(
             $history_table_name,
             [

@@ -77,6 +77,7 @@ function insert_new_log_logic(
         }
     }
 
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Necessary insert operation into a custom table.
     $inserted = $wpdb->insert($table_name, $data_to_insert, $formats_to_use);
 
     if ($inserted === false) {

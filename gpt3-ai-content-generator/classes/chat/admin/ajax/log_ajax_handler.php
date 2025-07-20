@@ -45,15 +45,14 @@ class LogAjaxHandler extends BaseAjaxHandler
         if (isset($post_data['filter_message_like']) && $post_data['filter_message_like'] !== '') {
             $filters['message_like'] = sanitize_text_field(wp_unslash($post_data['filter_message_like']));
         }
-        // if (isset($post_data['filter_module']) && $post_data['filter_module'] !== '') { // REMOVED
-        //     $filters['module'] = sanitize_key(wp_unslash($post_data['filter_module'])); // REMOVED
-        // } // REMOVED
+
         return $filters;
     }
 
     /** Converts an array into a CSV-formatted string line. */
     private function array_to_csv_line(array $fields): string
     {
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Reason: Using php://memory stream which is not a direct filesystem operation. WP_Filesystem is not applicable here.
         $f = fopen('php://memory', 'r+');
         if (fputcsv($f, $fields) === false) {
             fclose($f);
@@ -77,6 +76,7 @@ class LogAjaxHandler extends BaseAjaxHandler
             return;
         }
 
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_module_access_permissions() method.
         $current_page = isset($_POST['log_page']) ? absint($_POST['log_page']) : 1;
         $logs_per_page = 20;
         $offset = ($current_page - 1) * $logs_per_page;
@@ -113,9 +113,6 @@ class LogAjaxHandler extends BaseAjaxHandler
     /**
      * AJAX: Handles exporting chat messages based on filters.
      * Iterates through messages within each conversation.
-     * **REVISED**: Includes Usage and Feedback columns in export.
-     * **FIXED**: Defined $offset before use.
-     * REMOVED: 'module' from exported columns.
      */
     public function ajax_export_chat_logs()
     {
@@ -125,6 +122,7 @@ class LogAjaxHandler extends BaseAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_module_access_permissions() method.
         $page = isset($_POST['page']) ? absint($_POST['page']) : 0;
         $batch_size = 50;
         $total_conversations_known = isset($_POST['total_count']) ? absint($_POST['total_count']) : 0;
@@ -198,7 +196,7 @@ class LogAjaxHandler extends BaseAjaxHandler
 
                         $csv_row = [
                            $parent_id, $msg['message_id'] ?? '', $conversation_uuid, $bot_name, // $module_name removed
-                           $user_id, $user_display_name, $session_id, isset($msg['timestamp']) ? date('Y-m-d H:i:s', $msg['timestamp']) : '',
+                           $user_id, $user_display_name, $session_id, isset($msg['timestamp']) ? wp_date('Y-m-d H:i:s', $msg['timestamp']) : '',
                            $msg['role'] ?? '', $msg['content'] ?? '', $msg['provider'] ?? '', $msg['model'] ?? '',
                            $ip_address, $msg['feedback'] ?? '', $input_tokens, $output_tokens, $total_tokens,
                            $usage_details_json,
@@ -233,6 +231,7 @@ class LogAjaxHandler extends BaseAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_module_access_permissions() method.
         $page = isset($_POST['page']) ? absint($_POST['page']) : 0;
         $batch_size = 100;
         $total_count_known = isset($_POST['total_count']) ? absint($_POST['total_count']) : 0;

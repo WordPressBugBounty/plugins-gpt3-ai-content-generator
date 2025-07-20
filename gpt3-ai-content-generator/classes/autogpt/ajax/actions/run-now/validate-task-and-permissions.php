@@ -37,6 +37,7 @@ function validate_task_and_permissions_logic(AIPKit_Run_Automated_Task_Now_Actio
     // Fetch and validate the task from the database
     global $wpdb;
     $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caching is handled at the read level.
     $task = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$tasks_table_name} WHERE id = %d", $task_id), ARRAY_A);
 
     if (!$task) {

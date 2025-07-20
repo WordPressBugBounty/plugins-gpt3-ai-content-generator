@@ -22,9 +22,8 @@ function table_exists_and_has_rows_logic(array $table_names): array
 
     foreach ($table_names as $table_name) {
         $full_table_name = $wpdb->prefix . $table_name;
-        if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $full_table_name)) === $full_table_name) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- This is a read-only analysis tool.
-            $row_count = $wpdb->get_var("SELECT COUNT(*) FROM " . esc_sql($full_table_name));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- This is a read-only analysis tool.
+        if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $full_table_name)) === $full_table_name) { $row_count = $wpdb->get_var("SELECT COUNT(*) FROM " . esc_sql($full_table_name));
             if ($row_count > 0) {
                 $tables_with_rows_count++;
                 // translators: %1$d is the number of rows, %2$s is the table name.

@@ -1,7 +1,7 @@
 <?php
 
 // File: classes/core/stream/vector/build-context/resolve-pinecone-context.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Core\Stream\Vector\BuildContext;
 
@@ -81,7 +81,16 @@ function resolve_pinecone_context_logic(
             foreach ($file_search_results as $item) {
                 $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
                 if (empty($content_snippet) && isset($item['id'])) {
-                    $log_entry = $wpdb->get_row($wpdb->prepare("SELECT indexed_content FROM {$data_source_table_name} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s AND file_id = %s ORDER BY timestamp DESC LIMIT 1", 'Pinecone', $index_to_query, $frontend_active_pinecone_namespace, $item['id']), ARRAY_A);
+                    $cache_key = 'aipkit_vds_content_' . md5('pinecone_file_' . $index_to_query . $frontend_active_pinecone_namespace . $item['id']);
+                    $cache_group = 'aipkit_vector_source_content';
+                    $log_entry = wp_cache_get($cache_key, $cache_group);
+
+                    if (false === $log_entry) {
+                        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                        $log_entry = $wpdb->get_row($wpdb->prepare("SELECT indexed_content FROM {$data_source_table_name} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s AND file_id = %s ORDER BY timestamp DESC LIMIT 1", 'Pinecone', $index_to_query, $frontend_active_pinecone_namespace, $item['id']), ARRAY_A);
+                        wp_cache_set($cache_key, $log_entry, $cache_group, HOUR_IN_SECONDS);
+                    }
+
                     if ($log_entry && !empty($log_entry['indexed_content'])) {
                         $content_snippet = $log_entry['indexed_content'];
                     }
@@ -108,7 +117,16 @@ function resolve_pinecone_context_logic(
             }
             $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
             if (empty($content_snippet) && isset($item['id'])) {
-                $log_entry = $wpdb->get_row($wpdb->prepare("SELECT indexed_content FROM {$data_source_table_name} WHERE provider = %s AND vector_store_id = %s AND (batch_id IS NULL OR batch_id = '') AND file_id = %s ORDER BY timestamp DESC LIMIT 1", 'Pinecone', $index_to_query, $item['id']), ARRAY_A);
+                $cache_key = 'aipkit_vds_content_' . md5('pinecone_general_' . $index_to_query . $item['id']);
+                $cache_group = 'aipkit_vector_source_content';
+                $log_entry = wp_cache_get($cache_key, $cache_group);
+
+                if (false === $log_entry) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $log_entry = $wpdb->get_row($wpdb->prepare("SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Pinecone' AND vector_store_id = %s AND (batch_id IS NULL OR batch_id = '') AND file_id = %s ORDER BY timestamp DESC LIMIT 1", $index_to_query, $item['id']), ARRAY_A);
+                    wp_cache_set($cache_key, $log_entry, $cache_group, HOUR_IN_SECONDS);
+                }
+
                 if ($log_entry && !empty($log_entry['indexed_content'])) {
                     $content_snippet = $log_entry['indexed_content'];
                 }

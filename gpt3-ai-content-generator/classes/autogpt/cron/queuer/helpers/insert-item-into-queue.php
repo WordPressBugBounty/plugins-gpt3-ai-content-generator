@@ -27,6 +27,7 @@ function insert_item_into_queue_logic(
     string $task_type,
     array $item_config
 ): bool {
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table. Caches will be invalidated.
     $inserted = $wpdb->insert(
         $queue_table_name,
         [

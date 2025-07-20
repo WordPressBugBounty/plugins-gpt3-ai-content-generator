@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php
-// Status: NEW
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections;
 
@@ -54,6 +54,13 @@ function _aipkit_qdrant_ajax_delete_collection_logic(AIPKit_Vector_Store_Qdrant_
     }
 
     $vector_store_registry->remove_registered_store('Qdrant', $collection_name);
+
+    // Invalidate the cache for this collection's logs before deleting
+    $cache_key = 'qdrant_logs_' . sanitize_key($collection_name);
+    $cache_group = 'aipkit_vector_logs';
+    wp_cache_delete($cache_key, $cache_group);
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $wpdb->delete($data_source_table_name, ['provider' => 'Qdrant', 'vector_store_id' => $collection_name], ['%s', '%s']);
 
     $handler_instance->_log_vector_data_source_entry([

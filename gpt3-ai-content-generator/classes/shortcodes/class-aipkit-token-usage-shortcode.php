@@ -81,7 +81,18 @@ class AIPKit_Token_Usage_Shortcode
         }
 
         $where_sql = implode(' AND ', $where_clauses);
-        $conversations = $wpdb->get_results($wpdb->prepare("SELECT messages FROM {$table_name} WHERE {$where_sql}", $params), ARRAY_A);
+
+        // --- Caching for token usage details query ---
+        $cache_key = 'aipkit_token_usage_details_' . md5(serialize($params));
+        $cache_group = 'aipkit_token_usage';
+        $conversations = wp_cache_get($cache_key, $cache_group);
+
+        if (false === $conversations) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Necessary for fetching and processing usage data from the custom logs table. Caching is implemented.
+            $conversations = $wpdb->get_results($wpdb->prepare("SELECT messages FROM {$table_name} WHERE {$where_sql}", $params), ARRAY_A);
+            wp_cache_set($cache_key, $conversations, $cache_group, MINUTE_IN_SECONDS); // Cache for 1 minute
+        }
+        // --- End Caching ---
 
         $usage_details = [];
         if (!empty($conversations)) {

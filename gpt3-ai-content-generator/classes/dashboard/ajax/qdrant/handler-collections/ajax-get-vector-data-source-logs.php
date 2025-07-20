@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php
-// Status: NEW
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections;
 
@@ -30,17 +30,26 @@ function _aipkit_qdrant_ajax_get_vector_data_source_logs_logic(AIPKit_Vector_Sto
         return;
     }
 
-    $logs = $wpdb->get_results(
-        $wpdb->prepare(
-            "SELECT timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id
-             FROM {$data_source_table_name}
-             WHERE provider = %s AND vector_store_id = %s
-             ORDER BY timestamp DESC LIMIT 20",
-            $provider,
-            $store_id
-        ),
-        ARRAY_A
-    );
+    $cache_key = strtolower($provider) . '_logs_' . sanitize_key($store_id);
+    $cache_group = 'aipkit_vector_logs';
+    $logs = wp_cache_get($cache_key, $cache_group);
+
+    if (false === $logs) {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $logs = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id
+                 FROM {$data_source_table_name}
+                 WHERE provider = %s AND vector_store_id = %s
+                 ORDER BY timestamp DESC LIMIT 20",
+                $provider,
+                $store_id
+            ),
+            ARRAY_A
+        );
+        wp_cache_set($cache_key, $logs, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
+    }
+
 
     if ($wpdb->last_error) {
         $handler_instance->send_wp_error(new WP_Error('db_query_error_qdrant_logs', __('Failed to fetch indexing logs for Qdrant.', 'gpt3-ai-content-generator'), ['status' => 500]));
@@ -88,5 +97,17 @@ function _aipkit_qdrant_log_vector_data_source_entry_logic(\wpdb $wpdb, string $
     }
     unset($data_to_insert['source_type_for_log']);
 
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
     $result = $wpdb->insert($data_source_table_name, $data_to_insert);
+
+    // Invalidate cache after successful insert
+    if ($result) {
+        $provider = $log_data['provider'] ?? 'Qdrant';
+        $store_id = $log_data['vector_store_id'] ?? null;
+        if ($store_id) {
+            $cache_key = strtolower($provider) . '_logs_' . sanitize_key($store_id);
+            $cache_group = 'aipkit_vector_logs';
+            wp_cache_delete($cache_key, $cache_group);
+        }
+    }
 }

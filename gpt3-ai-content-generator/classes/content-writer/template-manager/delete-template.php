@@ -34,7 +34,7 @@ function delete_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
     if ($template['is_default']) {
         return new WP_Error('cannot_delete_default', __('The default template cannot be deleted.', 'gpt3-ai-content-generator'));
     }
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $result = $wpdb->delete(
         $table_name,
         ['id' => $template_id, 'user_id' => $user_id, 'is_default' => 0],

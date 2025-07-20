@@ -55,7 +55,7 @@ class Utils {
      */
     public static function aipkit_clean_text_for_tts(string $text): string {
         // 1. Strip HTML tags
-        $cleaned_text = strip_tags($text);
+        $cleaned_text = wp_strip_all_tags($text);
 
         // 2. Remove Markdown Images: ![alt text](url)
         $cleaned_text = preg_replace('/!\[[^\]]*\]\([^)]+\)/', '', $cleaned_text);

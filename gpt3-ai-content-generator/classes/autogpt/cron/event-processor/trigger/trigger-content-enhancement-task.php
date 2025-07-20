@@ -82,6 +82,7 @@ function trigger_content_enhancement_task_logic(int $task_id, array $task_config
     if ($query->have_posts()) {
         foreach ($query->posts as $post_id) {
             // Check if this post is already in the queue for this task
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
             $existing_item = $wpdb->get_var($wpdb->prepare(
                 "SELECT id FROM {$queue_table_name} WHERE task_id = %d AND target_identifier = %s",
                 $task_id,
@@ -94,6 +95,7 @@ function trigger_content_enhancement_task_logic(int $task_id, array $task_config
             }
 
             // The item_config for enhancement tasks is just the main task config
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Direct insert to a custom table.
             $inserted = $wpdb->insert(
                 $queue_table_name,
                 [

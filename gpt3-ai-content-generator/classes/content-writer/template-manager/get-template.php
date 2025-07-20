@@ -29,11 +29,8 @@ function get_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template
     if (!$user_id && $user_id_override !== 0) {
         return new WP_Error('not_logged_in_get', __('User must be logged in to get templates.', 'gpt3-ai-content-generator'));
     }
-
-    $template = $wpdb->get_row(
-        $wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d AND user_id = %d", $template_id, $user_id),
-        ARRAY_A
-    );
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
+    $template = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d AND user_id = %d", $template_id, $user_id), ARRAY_A);
 
     if (!$template) {
         return new WP_Error('template_not_found', __('Template not found or access denied.', 'gpt3-ai-content-generator'));

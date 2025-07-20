@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php
-// Status: MODIFIED (Logic moved here)
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles;
 
@@ -61,13 +61,22 @@ function do_ajax_list_files_in_vector_store_openai_logic(AIPKit_OpenAI_Vector_St
     if (!empty($files_response) && is_array($files_response)) {
         foreach ($files_response as $file) {
             if (isset($file['id'])) {
-                $log_entry = $wpdb->get_row(
-                    $wpdb->prepare(
-                        "SELECT user_id, post_id, post_title, indexed_content FROM {$data_source_table_name} WHERE file_id = %s ORDER BY timestamp DESC LIMIT 1",
-                        $file['id']
-                    ),
-                    ARRAY_A
-                );
+                $cache_key = 'openai_log_entry_' . $file['id'];
+                $cache_group = 'aipkit_vector_logs';
+                $log_entry = wp_cache_get($cache_key, $cache_group);
+
+                if (false === $log_entry) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $log_entry = $wpdb->get_row(
+                        $wpdb->prepare(
+                            "SELECT user_id, post_id, post_title, indexed_content FROM {$data_source_table_name} WHERE file_id = %s ORDER BY timestamp DESC LIMIT 1",
+                            $file['id']
+                        ),
+                        ARRAY_A
+                    );
+                    wp_cache_set($cache_key, $log_entry, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
+                }
+
                 if ($log_entry) {
                     $file['user_display_name'] = __('N/A', 'gpt3-ai-content-generator');
                     if (!empty($log_entry['user_id'])) {

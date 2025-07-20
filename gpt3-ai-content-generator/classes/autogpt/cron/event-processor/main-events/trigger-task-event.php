@@ -33,7 +33,7 @@ function trigger_task_event_logic(int $task_id): void
 {
     global $wpdb;
     $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $task = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . esc_sql($tasks_table_name) . " WHERE id = %d AND status = 'active'", $task_id), ARRAY_A);
     if (!$task) {
         Helpers\log_cron_error_logic("Task ID {$task_id} not found or not active for cron trigger.");
@@ -68,7 +68,7 @@ function trigger_task_event_logic(int $task_id): void
     $args = [$task_id];
     $next_timestamp = wp_next_scheduled($hook, $args);
     $next_run_datetime_gmt = $next_timestamp ? date('Y-m-d H:i:s', $next_timestamp) : null;
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
     $wpdb->update(
         $tasks_table_name,
         [

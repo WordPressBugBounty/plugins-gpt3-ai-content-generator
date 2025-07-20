@@ -23,6 +23,7 @@ class AIPKit_Retry_Automated_Task_Queue_Item_Action extends AIPKit_Automated_Tas
         $item_id = isset($_POST['item_id']) ? absint($_POST['item_id']) : 0;
         if (empty($item_id)) { $this->send_wp_error(new WP_Error('missing_item_id_retry', __('Queue item ID is required.', 'gpt3-ai-content-generator')), 400); return; }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Cache will be invalidated.
         $result = $wpdb->update(
             $this->queue_table_name,
             ['status' => 'pending', 'last_attempt_time' => null, 'error_message' => null, 'attempts' => 0],

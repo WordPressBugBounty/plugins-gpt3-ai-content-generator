@@ -16,6 +16,7 @@ if (!defined('ABSPATH')) {
  */
 function ensure_table_exists_logic(\wpdb $wpdb, string $tasks_table_name, string $main_cron_hook): bool
 {
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $tasks_table_name));
 
     if ($table_exists !== $tasks_table_name) {

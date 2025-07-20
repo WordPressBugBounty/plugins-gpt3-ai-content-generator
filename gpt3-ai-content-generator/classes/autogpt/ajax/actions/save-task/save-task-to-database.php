@@ -33,6 +33,7 @@ function save_task_to_database_logic(string $task_name, string $task_type, array
     $formats = ['%s', '%s', '%s', '%s', '%s'];
 
     if ($task_id > 0) {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caching is handled at the read level.
         $result = $wpdb->update($tasks_table_name, $data, ['id' => $task_id], $formats, ['%d']);
         if ($result === false) {
             return new WP_Error('db_error_update_task', __('Failed to update task.', 'gpt3-ai-content-generator'), ['status' => 500]);
@@ -41,6 +42,7 @@ function save_task_to_database_logic(string $task_name, string $task_type, array
     } else {
         $data['created_at'] = current_time('mysql', 1);
         $formats[] = '%s';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Direct insert into a custom table.
         $result = $wpdb->insert($tasks_table_name, $data, $formats);
         if ($result === false) {
             return new WP_Error('db_error_insert_task', __('Failed to save new task.', 'gpt3-ai-content-generator'), ['status' => 500]);

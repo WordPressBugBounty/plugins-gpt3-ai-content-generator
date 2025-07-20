@@ -135,11 +135,17 @@ function CheckAndResetTokensLogic(
         } // Unlimited for this context
 
         if ($guest_context_table_id !== null) {
-            $guest_row = $wpdb->get_row($wpdb->prepare(
-                "SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d",
-                $session_id,
-                $guest_context_table_id
-            ), ARRAY_A);
+            $cache_key = "aipkit_guest_usage_{$session_id}_{$guest_context_table_id}";
+            $guest_row = wp_cache_get($cache_key, 'aipkit_token_usage');
+            if (false === $guest_row) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table query; unavoidable.
+                $guest_row = $wpdb->get_row($wpdb->prepare(
+                    "SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d",
+                    $session_id,
+                    $guest_context_table_id
+                ), ARRAY_A);
+                wp_cache_set($cache_key, $guest_row, 'aipkit_token_usage', 300); // Cache for 5 minutes
+            }
             if ($guest_row) {
                 $current_usage = (int) $guest_row['tokens_used'];
                 $last_reset_time = (int) $guest_row['last_reset_timestamp'];
@@ -201,7 +207,11 @@ function CheckAndResetTokensLogic(
             $current_usage = 0;
             $last_reset_time_new = time(); // Use a different var name for new reset time
             if ($is_guest && $guest_context_table_id !== null) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching is not applicable for a write operation (REPLACE). Cache is invalidated after.
                 $wpdb->replace($guest_table_name, ['session_id' => $session_id, 'bot_id' => $guest_context_table_id, 'tokens_used' => 0, 'last_reset_timestamp' => $last_reset_time_new, 'last_updated_at' => current_time('mysql', 1)], ['%s', '%d', '%d', '%d', '%s']);
+                // Invalidate cache after write
+                $cache_key = "aipkit_guest_usage_{$session_id}_{$guest_context_table_id}";
+                wp_cache_delete($cache_key, 'aipkit_token_usage');
             } elseif (!$is_guest) {
                 update_user_meta($user_id, $usage_key, 0);
                 update_user_meta($user_id, $reset_key, $last_reset_time_new);

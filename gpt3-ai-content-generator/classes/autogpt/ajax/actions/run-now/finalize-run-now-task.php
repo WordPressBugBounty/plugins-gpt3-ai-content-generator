@@ -24,6 +24,7 @@ function finalize_run_now_task_logic(int $task_id): void
     $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
 
     // Update last_run_time for the main task
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table is necessary for this action.
     $wpdb->update(
         $tasks_table_name,
         ['last_run_time' => current_time('mysql', 1)],

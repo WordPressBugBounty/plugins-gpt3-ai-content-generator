@@ -128,7 +128,16 @@ function resolve_qdrant_context_logic(
         foreach ($general_search_results as $item) {
             $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
             if (empty($content_snippet) && isset($item['id'])) {
-                $log_entry = $wpdb->get_row($wpdb->prepare("SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Qdrant' AND vector_store_id = %s AND file_id = %s AND (batch_id IS NULL OR batch_id = '' OR batch_id NOT LIKE %s) ORDER BY timestamp DESC LIMIT 1", $collection_to_query, $item['id'], 'qdrant_chat_file_%'), ARRAY_A);
+                $cache_key = 'aipkit_vds_content_' . md5('qdrant_general_' . $collection_to_query . $item['id']);
+                $cache_group = 'aipkit_vector_source_content';
+                $log_entry = wp_cache_get($cache_key, $cache_group);
+
+                if (false === $log_entry) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $log_entry = $wpdb->get_row($wpdb->prepare("SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Qdrant' AND vector_store_id = %s AND file_id = %s AND (batch_id IS NULL OR batch_id = '' OR batch_id NOT LIKE %s) ORDER BY timestamp DESC LIMIT 1", $collection_to_query, $item['id'], 'qdrant_chat_file_%'), ARRAY_A);
+                    wp_cache_set($cache_key, $log_entry, $cache_group, HOUR_IN_SECONDS);
+                }
+                
                 if ($log_entry && !empty($log_entry['indexed_content'])) {
                     $content_snippet = $log_entry['indexed_content'];
                 }

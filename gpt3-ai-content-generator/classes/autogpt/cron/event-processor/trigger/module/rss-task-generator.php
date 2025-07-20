@@ -53,7 +53,7 @@ function rss_mode_generate_items_logic(int $task_id, array $task_config, ?string
         array_merge([$task_id], $item_guids_to_check)
     );
 
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Direct query to a custom table. Caches will be invalidated.
     $processed_guids = $wpdb->get_col($sql);
     $processed_guids_set = array_flip($processed_guids);
 

@@ -25,7 +25,8 @@ function do_ajax_delete_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance
         return;
     }
 
-    $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling class method.
+    $form_id = isset($_POST['form_id']) ? absint(wp_unslash($_POST['form_id'])) : 0;
     if (empty($form_id)) {
         $handler_instance->send_wp_error(new WP_Error('id_required', __('Form ID is required for deletion.', 'gpt3-ai-content-generator')), 400);
         return;

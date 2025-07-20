@@ -23,7 +23,7 @@ function process_task_queue_event_logic(): void
     $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
 
     Helpers\load_required_classes_logic();
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $items_to_process = $wpdb->get_results(
         $wpdb->prepare("SELECT * FROM " . esc_sql($queue_table_name) . " WHERE status = %s ORDER BY added_at ASC LIMIT %d", 'pending', 5), // Process 5 items per run
         ARRAY_A

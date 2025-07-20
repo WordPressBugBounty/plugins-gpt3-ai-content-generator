@@ -63,9 +63,8 @@ class AIPKit_Delete_Old_Global_Settings_Action extends AIPKit_Migration_Base_Aja
 
             // Drop old settings table
             $old_table_name = $wpdb->prefix . 'wpaicg';
-            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $old_table_name)) === $old_table_name) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                $wpdb->query("DROP TABLE IF EXISTS " . esc_sql($old_table_name));
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Reason: Direct query to check if the table exists.
+            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $old_table_name)) === $old_table_name) {$wpdb->query("DROP TABLE IF EXISTS " . esc_sql($old_table_name));
                 $deleted_counts['tables']++;
             }
 

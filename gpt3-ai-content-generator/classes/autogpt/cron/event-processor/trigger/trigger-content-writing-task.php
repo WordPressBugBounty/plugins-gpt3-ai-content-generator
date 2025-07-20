@@ -35,6 +35,7 @@ function trigger_content_writing_task_logic(int $task_id, array $task_config): v
     global $wpdb;
 
     // Check if there are already pending or processing items for this task
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $existing_items_count = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM {$wpdb->prefix}aipkit_automated_task_queue WHERE task_id = %d AND (status = 'pending' OR status = 'processing')",
         $task_id
@@ -51,6 +52,7 @@ function trigger_content_writing_task_logic(int $task_id, array $task_config): v
     // 1. Generate items based on the generation mode
     switch ($generation_mode) {
         case 'rss':
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
             $last_run_time_from_db = $wpdb->get_var($wpdb->prepare("SELECT last_run_time FROM {$wpdb->prefix}aipkit_automated_tasks WHERE id = %d", $task_id));
             $topics_to_queue = ContentWritingModules\rss_mode_generate_items_logic($task_id, $task_config, $last_run_time_from_db);
             break;

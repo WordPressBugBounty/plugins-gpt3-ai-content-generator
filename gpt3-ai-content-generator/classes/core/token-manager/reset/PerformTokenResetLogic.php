@@ -1,6 +1,7 @@
 <?php
 
 // File: classes/core/token-manager/reset/PerformTokenResetLogic.php
+// Status: MODIFIED
 
 namespace WPAICG\Core\TokenManager\Reset;
 
@@ -60,9 +61,9 @@ function PerformTokenResetLogic(AIPKit_Token_Manager $managerInstance): void
                 if ($reset_needed_for_cron) {
                     $meta_key_usage = MetaKeysConstants::CHAT_USAGE_META_KEY_PREFIX . $bot_id;
                     $meta_key_reset = MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX . $bot_id;
-                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: Bulk deletion for a cron job. More efficient than individual API calls. Caching is not applicable here.
                     $deleted_user_usage_meta = $wpdb->delete($wpdb->usermeta, ['meta_key' => $meta_key_usage], ['%s']);
-                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: Bulk deletion for a cron job. More efficient than individual API calls. Caching is not applicable here.
                     $deleted_user_reset_meta = $wpdb->delete($wpdb->usermeta, ['meta_key' => $meta_key_reset], ['%s']);
 
                     if ($deleted_user_usage_meta !== false) {
@@ -70,6 +71,7 @@ function PerformTokenResetLogic(AIPKit_Token_Manager $managerInstance): void
                     } // Count affected rows (approx users)
 
                     $guest_table_name = $managerInstance->get_guest_table_name();
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Bulk deletion on a custom table for a cron job. Caching is not applicable.
                     $deleted_guests = $wpdb->delete($guest_table_name, ['bot_id' => $bot_id], ['%d']);
                     if ($deleted_guests !== false) {
                         $guests_reset_chat += $deleted_guests;
@@ -98,15 +100,16 @@ function PerformTokenResetLogic(AIPKit_Token_Manager $managerInstance): void
             }
 
             if ($img_reset_needed_for_cron) {
-                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: Bulk deletion for a cron job. More efficient than individual API calls. Caching is not applicable here.
                 $deleted_user_img_usage_meta = $wpdb->delete($wpdb->usermeta, ['meta_key' => MetaKeysConstants::IMG_USAGE_META_KEY], ['%s']);
-                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: Bulk deletion for a cron job. More efficient than individual API calls. Caching is not applicable here.
                 $deleted_user_img_reset_meta = $wpdb->delete($wpdb->usermeta, ['meta_key' => MetaKeysConstants::IMG_RESET_META_KEY], ['%s']);
                 if ($deleted_user_img_usage_meta !== false) {
                     $users_reset_img += $deleted_user_img_usage_meta;
                 }
 
                 $guest_table_name = $managerInstance->get_guest_table_name();
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Bulk deletion on a custom table for a cron job. Caching is not applicable.
                 $deleted_img_guests = $wpdb->delete($guest_table_name, ['bot_id' => GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID], ['%d']);
                 if ($deleted_img_guests !== false) {
                     $guests_reset_img += $deleted_img_guests;

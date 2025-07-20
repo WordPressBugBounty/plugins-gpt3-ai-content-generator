@@ -78,6 +78,7 @@ function update_existing_log_logic(
         return ['log_id' => $log_id, 'message_id' => $new_message['message_id']];
     }
 
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table is necessary. Cache is invalidated by the calling function.
     $updated = $wpdb->update(
         $table_name,
         $data_to_update,
@@ -89,5 +90,23 @@ function update_existing_log_logic(
     if ($updated === false) {
         return false;
     }
+
+    // --- ADDED: Invalidate cache after update ---
+    if (isset($existing_log_row['conversation_uuid'])) {
+        $conversation_uuid = $existing_log_row['conversation_uuid'];
+        $cache_group = 'aipkit_chat_logs';
+        wp_cache_delete('conv_history_' . $conversation_uuid, $cache_group);
+        wp_cache_delete('conv_full_log_' . $conversation_uuid, $cache_group);
+        wp_cache_delete('conv_meta_' . $conversation_uuid, $cache_group);
+        // Invalidate the list cache as well, as it contains summary data
+        $user_id_for_list = $existing_log_row['user_id'] ?: null;
+        $session_id_for_list = $existing_log_row['session_id'] ?: null;
+        $bot_id_for_list = $existing_log_row['bot_id'] ?: 0;
+        $cache_key_identifier = $user_id_for_list ? "user_{$user_id_for_list}" : "guest_{$session_id_for_list}";
+        $list_cache_key = "conv_list_{$bot_id_for_list}_{$cache_key_identifier}";
+        wp_cache_delete($list_cache_key, $cache_group);
+    }
+    // --- END: Invalidate cache ---
+
     return ['log_id' => $log_id, 'message_id' => $new_message['message_id']];
 }

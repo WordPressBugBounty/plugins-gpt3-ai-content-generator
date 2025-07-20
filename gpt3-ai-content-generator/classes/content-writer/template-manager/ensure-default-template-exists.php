@@ -27,9 +27,8 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
 
     $current_user_id = get_current_user_id();
     $user_id_for_default = 0;
-
-    $default_template = $wpdb->get_row(
-        $wpdb->prepare(
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
+    $default_template = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM {$table_name} WHERE user_id = %d AND is_default = 1 AND template_type = 'content_writer' LIMIT 1",
             $user_id_for_default
         )
@@ -124,7 +123,7 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
         'vector_embedding_model' => 'text-embedding-3-small',
         'vector_store_top_k' => '3',
         ];
-
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table. Caches will be invalidated.
         $wpdb->insert(
             $table_name,
             [
@@ -170,9 +169,8 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
             $needs_update = true;
         }
         // --- END ADDED ---
-
-        if ($needs_update) {
-            $wpdb->update(
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
+        if ($needs_update) {$wpdb->update(
                 $table_name,
                 ['config' => wp_json_encode($config)],
                 ['id' => $default_template->id],

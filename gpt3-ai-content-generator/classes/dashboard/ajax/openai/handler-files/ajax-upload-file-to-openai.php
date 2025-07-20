@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
  * @return void
  */
 function do_ajax_upload_file_to_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void {
-    // Permission check already done by the handler calling this
+    // Permission and nonce checks are already done by the handler calling this
 
     // --- Pro Check ---
     if (!aipkit_dashboard::is_pro_plan()) {
@@ -30,14 +30,12 @@ function do_ajax_upload_file_to_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Aj
     }
     // --- End Pro Check ---
 
-    // Logic from /lib/vector-stores/file-upload/openai/fn-upload-file.php is now inlined here,
-    // as per the "one-function-per-file" rule for the core AJAX action.
-    // The Pro check above Gatekeeps this function.
-
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by the calling handler method.
     if (!isset($_FILES['aipkit_file_to_upload'])) {
         $handler_instance->send_wp_error(new WP_Error('no_file', __('No file provided.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
     }
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by the calling handler method.
     $file = $_FILES['aipkit_file_to_upload'];
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $handler_instance->send_wp_error(new WP_Error('upload_error', __('Error during file upload: Code ', 'gpt3-ai-content-generator') . $file['error'], ['status' => 400]));
@@ -56,8 +54,10 @@ function do_ajax_upload_file_to_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Aj
         return;
     }
     $strategy->connect($openai_config);
-    $purpose = isset($_POST['purpose']) ? sanitize_text_field($_POST['purpose']) : 'assistants_file';
-    $upload_result = $strategy->upload_file_for_vector_store($file['tmp_name'], $file['name'], $purpose);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by the calling handler method.
+    $purpose = isset($_POST['purpose']) ? sanitize_text_field(wp_unslash($_POST['purpose'])) : 'assistants_file';
+    $sanitized_filename = sanitize_file_name($file['name']);
+    $upload_result = $strategy->upload_file_for_vector_store($file['tmp_name'], $sanitized_filename, $purpose);
 
     if (is_wp_error($upload_result)) {
         $handler_instance->send_wp_error($upload_result);

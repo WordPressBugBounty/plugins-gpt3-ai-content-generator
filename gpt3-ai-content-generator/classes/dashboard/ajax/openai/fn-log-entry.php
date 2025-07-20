@@ -1,5 +1,6 @@
-<?php // File: classes/dashboard/ajax/openai/fn-log-entry.php
-// Status: NEW FILE
+<?php 
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/fn-log-entry.php
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\OpenAI;
 
@@ -46,5 +47,12 @@ function _aipkit_openai_vs_files_log_vector_data_source_entry(\wpdb $wpdb, strin
     }
     unset($data_to_insert['source_type_for_log']);
 
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Necessary insert operation into a custom table for logging. Cache is invalidated below.
     $result = $wpdb->insert($data_source_table_name, $data_to_insert);
+
+    // Invalidate cache for this specific file entry after insert
+    if ($result && !empty($data_to_insert['file_id'])) {
+        $cache_key = 'openai_log_entry_' . $data_to_insert['file_id'];
+        wp_cache_delete($cache_key, 'aipkit_vector_logs');
+    }
 }

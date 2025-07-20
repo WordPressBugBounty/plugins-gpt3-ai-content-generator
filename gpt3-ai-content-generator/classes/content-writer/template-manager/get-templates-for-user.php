@@ -28,18 +28,16 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
     if (!$user_id) {
         return [];
     }
-
-    $user_templates_raw = $wpdb->get_results(
-        $wpdb->prepare(
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
+    $user_templates_raw = $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM {$table_name} WHERE user_id = %d AND is_default = 0 AND template_type = %s ORDER BY template_name ASC",
             $user_id,
             $type
         ),
         ARRAY_A
     );
-
-    $default_template_raw = $wpdb->get_row(
-        $wpdb->prepare(
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
+    $default_template_raw = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM {$table_name} WHERE user_id = 0 AND is_default = 1 AND template_type = %s LIMIT 1",
             $type
         ),

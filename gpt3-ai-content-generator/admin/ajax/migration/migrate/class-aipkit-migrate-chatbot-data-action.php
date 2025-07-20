@@ -86,7 +86,9 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
             $processed_counts['chat_logs'] = 0;
 
             $old_tokens_table = $wpdb->prefix . 'wpaicg_chattokens';
-            if ($wpdb->get_var("SHOW TABLES LIKE '" . esc_sql($old_tokens_table) . "'") === $old_tokens_table) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: This is a custom table created by the plugin, and we are checking its existence
+            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $old_tokens_table)) === $old_tokens_table) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reading from a legacy table during a one-time migration. Table name is constructed safely.
                 $old_tokens_data = $wpdb->get_results("SELECT * FROM " . esc_sql($old_tokens_table), ARRAY_A);
                 $aggregated_tokens = [];
                 foreach ($old_tokens_data as $token_row) {
@@ -109,6 +111,7 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
                     } elseif (strpos($user_part, 'guest_') === 0 && $bot_id_for_meta !== null) {
                         $sid = str_replace('guest_', '', $user_part);
                         if (!empty($sid)) {
+                            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time migration write to a new table. Table name is constructed safely.
                             $wpdb->replace($wpdb->prefix . GuestTableConstants::GUEST_TABLE_NAME_SUFFIX, ['session_id' => $sid, 'bot_id' => $bot_id_for_meta, 'tokens_used' => $data['tokens'], 'last_reset_timestamp' => $data['first_ts'], 'last_updated_at' => current_time('mysql', 1)]);
                         }
                     }
@@ -126,7 +129,7 @@ class AIPKit_Migrate_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_Acti
     }
 
     /**
-     * Gathers all settings from an old bot post, combining post_meta and post_content JSON.
+     * Gathers all old settings from an old bot post, combining post_meta and post_content JSON.
      * @param \WP_Post $old_bot The old chatbot post object.
      * @return array An associative array of all found old settings.
      */

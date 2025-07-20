@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes;
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_delete_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance): void {
+function do_ajax_delete_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance): void
+{
     $vector_store_manager = $handler_instance->get_vector_store_manager();
     $vector_store_registry = $handler_instance->get_vector_store_registry();
     $wpdb = $handler_instance->get_wpdb();
@@ -53,6 +55,13 @@ function do_ajax_delete_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
     }
 
     $vector_store_registry->remove_registered_store('Pinecone', $index_name);
+
+    // Invalidate the cache for this index's logs before deleting
+    $cache_key = 'pinecone_logs_' . sanitize_key($index_name);
+    $cache_group = 'aipkit_vector_logs';
+    wp_cache_delete($cache_key, $cache_group);
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $wpdb->delete($data_source_table_name, ['provider' => 'Pinecone', 'vector_store_id' => $index_name], ['%s', '%s']);
 
     $handler_instance->_log_vector_data_source_entry([

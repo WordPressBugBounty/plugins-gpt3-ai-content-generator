@@ -62,7 +62,7 @@ abstract class AIPKit_Vector_Post_Processor_Base
             $data_to_insert['indexed_content'] = mb_substr($data_to_insert['indexed_content'], 0, 997) . '...';
         }
         unset($data_to_insert['source_type_for_log']);
-
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table. Caches will be invalidated.
         $result = $wpdb->insert($this->data_source_table_name, $data_to_insert);
     }
 
@@ -180,7 +180,7 @@ abstract class AIPKit_Vector_Post_Processor_Base
                 }
             }
         } elseif (has_excerpt($post)) { // Fallback for other post types
-            $content_body .= "Excerpt: " . strip_tags(get_the_excerpt($post)) . "\n\n";
+            $content_body .= "Excerpt: " . wp_strip_all_tags(get_the_excerpt($post)) . "\n\n";
         }
         // --- END MODIFICATION ---
 

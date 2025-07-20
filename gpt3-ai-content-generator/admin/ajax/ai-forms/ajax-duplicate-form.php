@@ -28,7 +28,8 @@ function do_ajax_duplicate_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_insta
         return;
     }
 
-    $form_id_to_duplicate = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling class method.
+    $form_id_to_duplicate = isset($_POST['form_id']) ? absint(wp_unslash($_POST['form_id'])) : 0;
     if (empty($form_id_to_duplicate)) {
         $handler_instance->send_wp_error(new WP_Error('id_required', __('Form ID is required for duplication.', 'gpt3-ai-content-generator')), 400);
         return;

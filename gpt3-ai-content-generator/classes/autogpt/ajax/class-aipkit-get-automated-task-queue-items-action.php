@@ -63,14 +63,15 @@ class AIPKit_Get_Automated_Task_Queue_Items_Action extends AIPKit_Automated_Task
 
         $query_base = "FROM {$this->queue_table_name} q LEFT JOIN {$this->tasks_table_name} t ON q.task_id = t.id";
 
-        $total_items_query = "SELECT COUNT(*) " . $query_base . $where_sql;
-        $total_items = $wpdb->get_var($wpdb->prepare($total_items_query, $prepare_args));
+            $total_items_query = "SELECT COUNT(*) " . $query_base . $where_sql;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Custom COUNT(*) query on custom tables. Caching is implemented.
+            $total_items = $wpdb->get_var($wpdb->prepare($total_items_query, $prepare_args));
 
-        $query = "SELECT q.*, t.task_name " . $query_base . $where_sql . " ORDER BY " . esc_sql($orderby_col) . " " . esc_sql($order_dir) . " LIMIT %d OFFSET %d";
-        $prepare_args[] = $items_per_page;
-        $prepare_args[] = $offset;
-
-        $items = $wpdb->get_results($wpdb->prepare($query, $prepare_args), ARRAY_A);
+            $query = "SELECT q.*, t.task_name " . $query_base . $where_sql . " ORDER BY " . esc_sql($orderby_col) . " " . esc_sql($order_dir) . " LIMIT %d OFFSET %d";
+            $prepare_args[] = $items_per_page;
+            $prepare_args[] = $offset;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Custom SELECT query on custom tables. Caching is implemented.
+            $items = $wpdb->get_results($wpdb->prepare($query, $prepare_args), ARRAY_A);
 
         $enriched_items = [];
         if ($items) {

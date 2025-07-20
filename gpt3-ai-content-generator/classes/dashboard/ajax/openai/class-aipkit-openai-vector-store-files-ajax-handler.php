@@ -119,6 +119,11 @@ class AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler extends BaseDashboardAjaxHan
 
     public function ajax_upload_file_to_openai()
     {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_nonce_openai');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-files/ajax-upload-file-to-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles\do_ajax_upload_file_to_openai_logic($this);
     }

@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 
 /**
  * Retrieves a message from the cache using its key.
- * MODIFIED: If object cache is enabled but returns a miss, it now falls back to checking the database.
+ * Implemented WP Object Cache to resolve direct database query warnings.
  *
  * @param \WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInstance The instance of the cache class.
  * @param string $key The cache key.
@@ -27,18 +27,22 @@ function get_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInst
         return new WP_Error('sse_cache_empty_key', __('Cache key cannot be empty.', 'gpt3-ai-content-generator'));
     }
 
-    // First, try the object cache if it's enabled.
-    if ($cacheInstance->is_using_object_cache()) {
-        $message = wp_cache_get($key, $cacheInstance::CACHE_GROUP);
-        if ($message !== false) {
-            // Found in object cache, return it.
-            return $message;
-        }
+    $cache_group = 'aipkit_sse_cache';
+    $content_cache_key = 'sse_content_' . $key;
+
+    // 1. Try to get the content from the cache.
+    $cached_result = wp_cache_get($content_cache_key, $cache_group);
+
+    if (false !== $cached_result) {
+        // Cache hit. Return the cached result, which might be content or an error object.
+        return $cached_result;
     }
 
-    // DB fallback logic (for non-object-cache environments OR object cache misses)
+    // 2. Cache miss, so query the database.
     global $wpdb;
     $now_utc = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $row = $wpdb->get_row(
         $wpdb->prepare(
             "SELECT message_content FROM {$cacheInstance->get_db_table_name()} WHERE cache_key = %s AND expires_at > %s LIMIT 1",
@@ -48,15 +52,25 @@ function get_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInst
         ARRAY_A
     );
 
-    if ($row) {
-        return $row['message_content'];
+    $result_to_cache = null;
+
+    if ($row && isset($row['message_content'])) {
+        // 3a. Found valid content.
+        $result_to_cache = $row['message_content'];
     } else {
-        // If it's not in the DB either, then it's truly not found or expired.
+        // 4a. Not found or expired. Check if the key exists at all to differentiate the error.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $exists = $wpdb->get_var($wpdb->prepare("SELECT 1 FROM {$cacheInstance->get_db_table_name()} WHERE cache_key = %s LIMIT 1", $key));
         if ($exists) {
-            return new WP_Error('sse_cache_expired', __('Cached message has expired.', 'gpt3-ai-content-generator'));
+            $result_to_cache = new WP_Error('sse_cache_expired', __('Cached message has expired.', 'gpt3-ai-content-generator'));
         } else {
-            return new WP_Error('sse_cache_not_found', __('Message not found in cache.', 'gpt3-ai-content-generator'));
+            $result_to_cache = new WP_Error('sse_cache_not_found', __('Message not found in cache.', 'gpt3-ai-content-generator'));
         }
     }
+
+    // 5. Store the result (either content or a WP_Error) in the cache.
+    // This prevents repeated DB queries for non-existent or expired keys within the same request or if using a persistent cache.
+    wp_cache_set($content_cache_key, $result_to_cache, $cache_group, $cacheInstance::EXPIRY_SECONDS);
+
+    return $result_to_cache;
 }

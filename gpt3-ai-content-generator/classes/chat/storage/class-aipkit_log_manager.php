@@ -36,12 +36,14 @@ class LogManager
      * Includes 'module' in the results.
      * Changed default sort order.
      */
-    public function get_logs(array $filters = [], int $limit = 50, int $offset = 0, string $orderby = 'last_message_ts', string $order = 'DESC'): array // Default orderby changed to 'last_message_ts'
+    public function get_logs(array $filters = [], int $limit = 50, int $offset = 0, string $orderby = 'id', string $order = 'DESC'): array // Default orderby changed to 'last_message_ts'
     {$query_parts = $this->query_helper->build_conversation_query_parts($filters, $orderby, $order, $limit, $offset, true); // Select messages JSON and module
         $query = "SELECT {$query_parts['select_sql']} FROM {$this->table_name} {$query_parts['join_sql']} WHERE {$query_parts['where_sql']} ORDER BY {$query_parts['orderby']} {$query_parts['order']} {$query_parts['limit_sql']}";
         if (!empty($query_parts['params'])) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $this->wpdb->prepare is safe to use here.
             $query = $this->wpdb->prepare($query, $query_parts['params']);
         }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log retrieval.
         $results = $this->wpdb->get_results($query, ARRAY_A);
 
         if ($results) {
@@ -117,8 +119,10 @@ class LogManager
         $query_parts = $this->query_helper->build_conversation_count_query_parts($filters);
         $query = $query_parts['count_sql'];
         if (!empty($query_parts['params'])) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $this->wpdb->prepare is safe to use here.
             $query = $this->wpdb->prepare($query, $query_parts['params']);
         }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log counting.
         return (int) $this->wpdb->get_var($query);
     }
 
@@ -131,6 +135,7 @@ class LogManager
             return 0;
         }
         $timestamp_threshold = time() - ($days * DAY_IN_SECONDS);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Bulk deletion on a custom table for a cron job. Caching is not applicable. $this->table_name is safe.
         return $this->wpdb->query($this->wpdb->prepare("DELETE FROM {$this->table_name} WHERE last_message_ts < %d", $timestamp_threshold));
     }
 
@@ -146,21 +151,26 @@ class LogManager
         $query_parts = $this->query_helper->build_conversation_query_parts($filters, 'id', 'ASC', $limit, 0, false);
         $select_ids_query = "SELECT {$this->table_name}.id FROM {$this->table_name} {$query_parts['join_sql']} WHERE {$query_parts['where_sql']} ORDER BY {$query_parts['orderby']} {$query_parts['order']} {$query_parts['limit_sql']}";
         if (!empty($query_parts['params'])) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $this->wpdb->prepare is safe to use here.
             $select_ids_query = $this->wpdb->prepare($select_ids_query, $query_parts['params']);
         }
         if (!$select_ids_query) {
             return false;
         }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log deletion.
         $log_ids_to_delete = $this->wpdb->get_col($select_ids_query);
         if (empty($log_ids_to_delete)) {
             return 0;
         }
         $ids_placeholder = implode(', ', array_fill(0, count($log_ids_to_delete), '%d'));
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $this->table_name is safe. $ids_placeholder is an array of %d.
         $delete_query = "DELETE FROM {$this->table_name} WHERE id IN ($ids_placeholder)";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $this->wpdb->prepare is safe to use here.
         $delete_query_prepared = $this->wpdb->prepare($delete_query, $log_ids_to_delete);
         if (!$delete_query_prepared) {
             return false;
         }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log deletion.
         return $this->wpdb->query($delete_query_prepared);
     }
 
@@ -171,7 +181,7 @@ class LogManager
      */
     public function get_raw_conversations_for_export(array $filters = [], int $limit = 100, int $offset = 0): array
     {
-        $query_parts = $this->query_helper->build_conversation_query_parts($filters, 'id', 'ASC', $limit, $offset, true);
+        $query_parts = $this->query_helper->build_message_query_parts($filters, 'id', 'ASC', $limit, $offset);
 
         $query = "SELECT {$query_parts['select_sql']}
                    FROM {$this->table_name}
@@ -181,8 +191,10 @@ class LogManager
                    {$query_parts['limit_sql']}";
 
         if (!empty($query_parts['params'])) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $this->wpdb->prepare is safe to use here.
             $query = $this->wpdb->prepare($query, $query_parts['params']);
         }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log retrieval.
         $results = $this->wpdb->get_results($query, ARRAY_A) ?: [];
 
         if ($results) {
@@ -222,6 +234,7 @@ class LogManager
         if (empty($log_id)) {
             return null;
         }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Reason: $this->table_name is safe.
         $log_row = $this->wpdb->get_row($this->wpdb->prepare("SELECT id, bot_id, user_id, session_id, conversation_uuid, module, is_guest, message_count, first_message_ts, last_message_ts, ip_address, user_wp_role, created_at, updated_at FROM {$this->table_name} WHERE id = %d", $log_id), ARRAY_A);
         if (!$log_row) {
             return null;
@@ -286,8 +299,10 @@ class LogManager
         }
 
         $where_sql = implode(" AND ", $where_clauses);
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $this->table_name is safe. $where_sql contains placeholders for the prepare method.
         $query = $this->wpdb->prepare("DELETE FROM {$this->table_name} WHERE {$where_sql}", $params);
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log deletion.
         $deleted_rows = $this->wpdb->query($query);
 
         if ($deleted_rows === false) {

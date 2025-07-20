@@ -53,9 +53,8 @@ class AIPKit_Delete_Old_Chatbot_Data_Action extends AIPKit_Migration_Base_Ajax_A
             $old_tables = ['wpaicg_chatlogs', 'wpaicg_chattokens'];
             foreach ($old_tables as $table_suffix) {
                 $table_name = $wpdb->prefix . $table_suffix;
-                if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                    $wpdb->query("DROP TABLE IF EXISTS " . esc_sql($table_name));
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Reason: Direct query to check if the table exists.
+                if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name) {$wpdb->query("DROP TABLE IF EXISTS " . esc_sql($table_name));
                     $deleted_counts['tables']++;
                 }
             }

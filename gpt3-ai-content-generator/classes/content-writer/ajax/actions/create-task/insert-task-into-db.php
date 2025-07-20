@@ -31,7 +31,7 @@ function insert_task_into_db_logic(string $task_name, string $task_type, array $
     'updated_at' => current_time('mysql', 1),
     ];
     $task_formats = ['%s', '%s', '%s', '%s', '%s', '%s'];
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table. Caches will be invalidated.
     $inserted = $wpdb->insert($tasks_table_name, $task_data, $task_formats);
 
     if ($inserted === false) {

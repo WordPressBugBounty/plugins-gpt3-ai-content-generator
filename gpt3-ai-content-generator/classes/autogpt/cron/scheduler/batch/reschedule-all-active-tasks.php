@@ -18,11 +18,11 @@ function reschedule_all_active_tasks_logic(): void
 {
     global $wpdb;
     $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     if ($wpdb->get_var("SHOW TABLES LIKE '" . esc_sql($tasks_table_name) . "'") != $tasks_table_name) {
         return;
     }
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $active_tasks = $wpdb->get_results("SELECT id, task_config, task_type FROM " . esc_sql($tasks_table_name) . " WHERE status = 'active'", ARRAY_A);
     if ($active_tasks) {
         foreach ($active_tasks as $task) {

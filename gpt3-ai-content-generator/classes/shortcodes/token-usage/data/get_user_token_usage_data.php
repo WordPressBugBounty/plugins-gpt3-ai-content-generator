@@ -38,11 +38,23 @@ function get_user_token_usage_data_logic(\WPAICG\Shortcodes\AIPKit_Token_Usage_S
     }
 
     $usage_meta_prefix = MetaKeysConstants::CHAT_USAGE_META_KEY_PREFIX;
-    $meta_keys = $wpdb->get_col($wpdb->prepare(
-        "SELECT meta_key FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_key LIKE %s",
-        $user_id,
-        $wpdb->esc_like($usage_meta_prefix) . '%'
-    ));
+
+    // --- Caching for meta_keys query ---
+    $cache_key = 'aipkit_token_usage_meta_keys_' . $user_id;
+    $cache_group = 'aipkit_token_usage';
+    $meta_keys = wp_cache_get($cache_key, $cache_group);
+
+    if (false === $meta_keys) {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Necessary for fetching meta keys with a LIKE condition, which standard WP functions do not support. Caching is implemented.
+        $meta_keys = $wpdb->get_col($wpdb->prepare(
+            "SELECT meta_key FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_key LIKE %s",
+            $user_id,
+            $wpdb->esc_like($usage_meta_prefix) . '%'
+        ));
+        wp_cache_set($cache_key, $meta_keys, $cache_group, MINUTE_IN_SECONDS); // Cache for 1 minute
+    }
+    // --- End Caching ---
+
 
     if (!empty($meta_keys)) {
         $bot_storage = new BotStorage();

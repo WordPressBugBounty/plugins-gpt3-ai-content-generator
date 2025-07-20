@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes;
 
@@ -28,16 +28,25 @@ function do_ajax_get_indexing_logs_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handl
         return;
     }
 
-    $logs = $wpdb->get_results(
-        $wpdb->prepare(
-            "SELECT timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id
-             FROM {$data_source_table_name}
-             WHERE provider = 'Pinecone' AND vector_store_id = %s
-             ORDER BY timestamp DESC LIMIT 20",
-            $index_name
-        ),
-        ARRAY_A
-    );
+    $cache_key = 'pinecone_logs_' . sanitize_key($index_name);
+    $cache_group = 'aipkit_vector_logs';
+    $logs = wp_cache_get($cache_key, $cache_group);
+
+    if (false === $logs) {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $logs = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id
+                 FROM {$data_source_table_name}
+                 WHERE provider = 'Pinecone' AND vector_store_id = %s
+                 ORDER BY timestamp DESC LIMIT 20",
+                $index_name
+            ),
+            ARRAY_A
+        );
+        wp_cache_set($cache_key, $logs, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
+    }
+
 
     if ($wpdb->last_error) {
         $handler_instance->send_wp_error(new WP_Error('db_query_error_pinecone_logs', __('Failed to fetch Pinecone indexing logs.', 'gpt3-ai-content-generator'), ['status' => 500]));

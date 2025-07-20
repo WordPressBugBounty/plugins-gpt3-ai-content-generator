@@ -85,22 +85,37 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
     $meta_map = [];
     if (!empty($post_ids)) {
         global $wpdb;
-        // Construct the placeholders for the IN clause
-        $id_placeholders = implode(', ', array_fill(0, count($post_ids), '%d'));
-        $meta_keys_to_fetch = ['_aipkit_ai_form_ai_provider', '_aipkit_ai_form_ai_model'];
-        $meta_key_placeholders = implode(', ', array_fill(0, count($meta_keys_to_fetch), '%s'));
 
-        // Prepare the query to fetch all meta data in one go
-        $meta_query_sql = $wpdb->prepare(
-            "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ($id_placeholders) AND meta_key IN ($meta_key_placeholders)",
-            array_merge($post_ids, $meta_keys_to_fetch)
-        );
+        // --- Caching for post meta query ---
+        $cache_key = 'aipkit_ai_forms_list_meta_' . md5(implode(',', $post_ids));
+        $cache_group = 'aipkit_ai_forms';
+        $all_meta_results = wp_cache_get($cache_key, $cache_group);
 
-        $all_meta_results = $wpdb->get_results($meta_query_sql, ARRAY_A);
+        if (false === $all_meta_results) {
+            // Construct the placeholders for the IN clause
+            $id_placeholders = implode(', ', array_fill(0, count($post_ids), '%d'));
+            $meta_keys_to_fetch = ['_aipkit_ai_form_ai_provider', '_aipkit_ai_form_ai_model'];
+            $meta_key_placeholders = implode(', ', array_fill(0, count($meta_keys_to_fetch), '%s'));
+
+            // Prepare the query to fetch all meta data in one go
+            $meta_query_sql = $wpdb->prepare(
+                "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ($id_placeholders) AND meta_key IN ($meta_key_placeholders)",
+                array_merge($post_ids, $meta_keys_to_fetch)
+            );
+
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Efficiently fetching specific meta for a list of posts, a valid use case for a direct query. Caching is implemented.
+            $all_meta_results = $wpdb->get_results($meta_query_sql, ARRAY_A);
+
+            // Cache the result for a short period (e.g., 1 minute)
+            wp_cache_set($cache_key, $all_meta_results, $cache_group, MINUTE_IN_SECONDS);
+        }
+        // --- End Caching ---
 
         // Map the results for easy lookup
-        foreach ($all_meta_results as $meta_row) {
-            $meta_map[$meta_row['post_id']][$meta_row['meta_key']] = $meta_row['meta_value'];
+        if (is_array($all_meta_results)) {
+            foreach ($all_meta_results as $meta_row) {
+                $meta_map[$meta_row['post_id']][$meta_row['meta_key']] = $meta_row['meta_value'];
+            }
         }
     }
 

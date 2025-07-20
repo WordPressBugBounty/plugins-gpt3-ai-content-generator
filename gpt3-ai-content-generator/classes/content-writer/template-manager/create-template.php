@@ -37,7 +37,7 @@ function create_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
     if (empty($template_name)) {
         return new WP_Error('empty_template_name', __('Template name cannot be empty.', 'gpt3-ai-content-generator'));
     }
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $existing = $wpdb->get_var($wpdb->prepare(
         "SELECT id FROM {$table_name} WHERE user_id = %d AND template_name = %s AND template_type = %s",
         $user_id,
@@ -50,7 +50,7 @@ function create_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
 
     $sanitized_config = sanitize_config_logic($managerInstance, $config);
     $post_schedule_datetime = calculate_schedule_datetime_logic($sanitized_config['post_schedule_date'] ?? '', $sanitized_config['post_schedule_time'] ?? '');
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table. Caches will be invalidated.
     $result = $wpdb->insert(
         $table_name,
         [

@@ -19,6 +19,7 @@ function is_duplicate_topic_logic(int $task_id, string $target_identifier): bool
 {
     global $wpdb;
     $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $existing_item = $wpdb->get_var($wpdb->prepare(
         "SELECT id FROM {$queue_table_name} WHERE task_id = %d AND target_identifier = %s",
         $task_id,
@@ -128,6 +129,7 @@ function insert_topic_into_queue_logic(int $task_id, string $target_identifier, 
 {
     global $wpdb;
     $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Direct query to a custom table.
     $inserted = $wpdb->insert(
         $queue_table_name,
         [

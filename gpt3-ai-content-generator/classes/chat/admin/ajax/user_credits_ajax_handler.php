@@ -145,13 +145,21 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
         } else {
             // Not Searching: Find user IDs with EITHER chat OR image usage OR balance meta
             $chat_usage_like = $wpdb->esc_like($chat_usage_prefix) . '%';
-            $user_ids_with_any_usage = $wpdb->get_col($wpdb->prepare(
-                "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s ORDER BY user_id",
-                $chat_usage_like,
-                $img_usage_key, // Exact match
-                $img_reset_key,  // Exact match (for users who might only have reset data initially)
-                $balance_key // NEW: Also include users with a balance
-            ));
+            $cache_key_user_ids = 'aipkit_credits_all_user_ids';
+            $cache_group_user_ids = 'aipkit_user_credits';
+            $user_ids_with_any_usage = wp_cache_get($cache_key_user_ids, $cache_group_user_ids);
+
+            if (false === $user_ids_with_any_usage) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $user_ids_with_any_usage = $wpdb->get_col($wpdb->prepare(
+                    "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s ORDER BY user_id",
+                    $chat_usage_like,
+                    $img_usage_key,
+                    $img_reset_key,
+                    $balance_key
+                ));
+                wp_cache_set($cache_key_user_ids, $user_ids_with_any_usage, $cache_group_user_ids, MINUTE_IN_SECONDS);
+            }
 
             if (empty($user_ids_with_any_usage)) {
                 return ['users_data' => [], 'pagination' => ['total_users' => 0, 'total_pages' => 0, 'current_page' => 1, 'per_page' => $number], 'bot_titles' => []];
@@ -185,13 +193,22 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
                 $img_reset_key,
                 $balance_key // NEW
             ];
-            $all_meta = $wpdb->get_results(
-                $wpdb->prepare(
-                    "SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id IN ($user_ids_placeholder) AND (meta_key LIKE %s OR meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s)",
-                    array_merge($user_ids, $meta_keys_to_fetch_patterns)
-                ),
-                ARRAY_A
-            );
+
+            $cache_key_meta = 'aipkit_credits_meta_' . md5(implode(',', $user_ids));
+            $cache_group_meta = 'aipkit_user_credits';
+            $all_meta = wp_cache_get($cache_key_meta, $cache_group_meta);
+
+            if (false === $all_meta) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $all_meta = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id IN ($user_ids_placeholder) AND (meta_key LIKE %s OR meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s)",
+                        array_merge($user_ids, $meta_keys_to_fetch_patterns)
+                    ),
+                    ARRAY_A
+                );
+                wp_cache_set($cache_key_meta, $all_meta, $cache_group_meta, MINUTE_IN_SECONDS);
+            }
             // --- End Fetch Meta ---
 
             // --- Process Meta Data ---

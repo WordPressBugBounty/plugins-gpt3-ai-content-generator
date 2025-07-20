@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 function evaluate_status_flags_logic(\wpdb $wpdb, string $tasks_table_name): array
 {
     $option_key_tasks_exist = 'aipkit_active_tasks_exist';
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $active_task_count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE status = %s", $tasks_table_name, 'active'));
     $did_active_tasks_exist = (bool) get_option($option_key_tasks_exist, false);
 

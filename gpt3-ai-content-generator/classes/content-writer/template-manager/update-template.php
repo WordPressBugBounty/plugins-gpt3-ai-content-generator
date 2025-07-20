@@ -42,7 +42,7 @@ function update_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
     if ($template['is_default']) {
         return new WP_Error('cannot_update_default', __('The default template cannot be modified.', 'gpt3-ai-content-generator'));
     }
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $existing = $wpdb->get_var($wpdb->prepare(
         "SELECT id FROM {$table_name} WHERE user_id = %d AND template_name = %s AND id != %d",
         $user_id,
@@ -55,7 +55,7 @@ function update_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
 
     $sanitized_config = sanitize_config_logic($managerInstance, $config);
     $post_schedule_datetime = calculate_schedule_datetime_logic($sanitized_config['post_schedule_date'] ?? '', $sanitized_config['post_schedule_time'] ?? '');
-
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
     $result = $wpdb->update(
         $table_name,
         [
