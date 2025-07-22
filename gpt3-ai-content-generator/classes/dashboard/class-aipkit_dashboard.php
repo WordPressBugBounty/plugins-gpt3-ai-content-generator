@@ -50,6 +50,7 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
            'ip_anonymization'           => false,
            'openai_moderation'          => false,
            'pdf_download'               => false,
+           'realtime_voice'             => false,
            'replicate'                  => false,
            'semantic_search'            => false,
            'stock_images'               => false,
@@ -307,7 +308,7 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             }
 
             $isActive = ($active === '1');
-            $pro_addons = ['pdf_download', 'consent_compliance', 'openai_moderation', 'file_upload', 'triggers'];
+            $pro_addons = ['pdf_download', 'consent_compliance', 'openai_moderation', 'file_upload', 'triggers', 'realtime_voice'];
             if ($isActive && in_array($addonKey, $pro_addons) && !self::is_pro_plan()) {
                 wp_send_json_error(['message' => 'Pro plan required to activate this addon.'], 403);
                 return;

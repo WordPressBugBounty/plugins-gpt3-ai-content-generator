@@ -57,6 +57,7 @@ use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Cron_Jobs_Action;
 use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
 // --- ADDED: Use statement for Semantic Search handler ---
 use WPAICG\Core\Ajax\AIPKit_Semantic_Search_Ajax_Handler;
+use WPAICG\Lib\Chat\Frontend\Ajax\Handlers\AIPKit_Realtime_Session_Ajax_Handler;
 
 // --- END ADDED ---
 
@@ -93,6 +94,7 @@ class Ajax_Hooks_Registrar
         ?LibChatFileUploadAjaxDispatcher $chat_file_upload_ajax_dispatcher = null,
         ?SettingsAjaxHandler $settings_ajax_handler = null,
         ?ModelsAjaxHandler $models_ajax_handler = null,
+        ?AIPKit_Realtime_Session_Ajax_Handler $realtime_session_ajax_handler = null,
         ?AIPKit_Semantic_Search_Ajax_Handler $semantic_search_ajax_handler = null // ADDED
     ) {
         // --- MODIFIED: Instantiate new SEO action classes ---
@@ -271,6 +273,11 @@ class Ajax_Hooks_Registrar
         if ($chat_file_upload_ajax_dispatcher && method_exists($chat_file_upload_ajax_dispatcher, 'ajax_handle_frontend_file_upload')) {
             add_action('wp_ajax_aipkit_frontend_chat_upload_file', [$chat_file_upload_ajax_dispatcher, 'ajax_handle_frontend_file_upload']);
             add_action('wp_ajax_nopriv_aipkit_frontend_chat_upload_file', [$chat_file_upload_ajax_dispatcher, 'ajax_handle_frontend_file_upload']);
+        }
+
+        if ($realtime_session_ajax_handler && method_exists($realtime_session_ajax_handler, 'ajax_create_session')) {
+            add_action('wp_ajax_aipkit_create_realtime_session', [$realtime_session_ajax_handler, 'ajax_create_session']);
+            add_action('wp_ajax_nopriv_aipkit_create_realtime_session', [$realtime_session_ajax_handler, 'ajax_create_session']);
         }
 
         // --- NEW: Register Enhancer Actions AJAX hooks ---

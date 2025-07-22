@@ -92,6 +92,13 @@ $addons = [
         'description' => __('Enable a frontend shortcode for users to perform semantic search on your custom knowledge base.', 'gpt3-ai-content-generator'),
         'pro' => false, 'category' => 'content'
     ],
+    [
+        'key' => 'realtime_voice',
+        'title' => __('Realtime Voice Agent', 'gpt3-ai-content-generator'),
+        'description' => __('Enable low-latency, speech-to-speech conversational experiences using OpenAI\'s Realtime API.', 'gpt3-ai-content-generator'),
+        'pro' => true,
+        'category' => 'chat'
+    ],
 ];
 
 // Sort addons alphabetically by title

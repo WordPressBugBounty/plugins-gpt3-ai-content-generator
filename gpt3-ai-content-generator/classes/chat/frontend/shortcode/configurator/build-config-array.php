@@ -26,7 +26,7 @@ require_once __DIR__ . '/get-text-labels.php';
  * Main orchestrator function to build the frontend configuration array.
  * This replaces the body of the original Configurator::prepare_config().
  * UPDATED: Include custom theme settings.
- * ADDED: Logging for bubble_border_radius in custom theme settings.
+ * ADDED: Logging and a defensive fix for bubble_border_radius in custom theme settings.
  * ADDED: fileUploadEnabledUI flag.
  * MODIFIED: Added vectorStoreProvider to the returned config.
  *
@@ -134,6 +134,8 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'ttsOpenAIModelId' => $tts_settings['tts_openai_model_id'],
         'ttsElevenLabsModelId' => $tts_settings['tts_elevenlabs_model_id'],
         'enableVoiceInputUI' => $feature_flags['enable_voice_input_ui'] ?? false,
+        'enableRealtimeVoiceUI' => $feature_flags['enable_realtime_voice_ui'] ?? false,
+        'realtimeModel' => $settings['realtime_model'] ?? 'gpt-4o-realtime-preview',
         'sttProvider' => $settings['stt_provider'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_STT_PROVIDER : 'OpenAI'),
         'imageTriggers' => $image_triggers,
         'fileUploadEnabledUI' => $feature_flags['file_upload_ui_enabled'] ?? false,

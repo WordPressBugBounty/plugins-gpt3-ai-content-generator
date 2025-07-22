@@ -56,7 +56,7 @@ use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
 // Migration action classes are handled by AIPKit_Migration_Handler, so no need for `use` statements for them here.
 // --- ADDED: Use statement for new Semantic Search handler ---
 use WPAICG\Core\Ajax\AIPKit_Semantic_Search_Ajax_Handler;
-
+use WPAICG\Lib\Chat\Frontend\Ajax\Handlers\AIPKit_Realtime_Session_Ajax_Handler;
 use WPAICG\REST\AIPKit_REST_Controller;
 // --- END ADDED ---
 
@@ -145,6 +145,13 @@ class AIPKit_Hook_Manager
         }
         // --- END MODIFICATION ---
 
+        $realtime_session_ajax_handler = null;
+        if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('realtime_voice')) {
+            if (class_exists(AIPKit_Realtime_Session_Ajax_Handler::class)) {
+                $realtime_session_ajax_handler = new AIPKit_Realtime_Session_Ajax_Handler();
+            }
+        }
+
         // --- End Instantiations ---
 
         // --- Call Specialized Registrars ---
@@ -200,6 +207,7 @@ class AIPKit_Hook_Manager
                 $chat_file_upload_ajax_dispatcher,
                 $settings_ajax_handler,
                 $models_ajax_handler,
+                $realtime_session_ajax_handler,
                 $semantic_search_ajax_handler // ADDED
             );
         }

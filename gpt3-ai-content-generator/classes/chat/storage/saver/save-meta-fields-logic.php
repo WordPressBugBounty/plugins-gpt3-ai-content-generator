@@ -163,6 +163,17 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         }
     }
 
+    // --- ADDED: Save Realtime Voice Agent settings ---
+    update_post_meta($botId, '_aipkit_enable_realtime_voice', $sanitized_settings['enable_realtime_voice']);
+    update_post_meta($botId, '_aipkit_realtime_model', $sanitized_settings['realtime_model']);
+    update_post_meta($botId, '_aipkit_realtime_voice', $sanitized_settings['realtime_voice']);
+    update_post_meta($botId, '_aipkit_turn_detection', $sanitized_settings['turn_detection']);
+    update_post_meta($botId, '_aipkit_speed', (string)$sanitized_settings['speed']);
+    update_post_meta($botId, '_aipkit_input_audio_format', $sanitized_settings['input_audio_format']);
+    update_post_meta($botId, '_aipkit_output_audio_format', $sanitized_settings['output_audio_format']);
+    update_post_meta($botId, '_aipkit_input_audio_noise_reduction', $sanitized_settings['input_audio_noise_reduction']);
+    // --- END ADDED ---
+
     // --- MODIFIED: Conditional access to Trigger Storage META_KEY ---
     $trigger_meta_key = '_aipkit_chatbot_triggers'; // Fallback key
     $trigger_storage_class_name = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage'; // New Pro location/namespace

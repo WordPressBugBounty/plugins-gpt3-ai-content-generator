@@ -23,6 +23,7 @@ function render_input_area_html_logic(array $frontend_config, bool $is_inline = 
     $file_upload_ui_enabled = $feature_flags['file_upload_ui_enabled'] ?? false;
     $image_upload_ui_enabled = $feature_flags['image_upload_ui_enabled'] ?? false;
     $voice_input_enabled_ui = $feature_flags['enable_voice_input_ui'] ?? false;
+    $realtime_voice_enabled_ui = $feature_flags['enable_realtime_voice_ui'] ?? false;
     $bot_id = $frontend_config['botId'] ?? 'default';
 
     $initial_icon_class = 'dashicons-paperclip';
@@ -94,6 +95,15 @@ function render_input_area_html_logic(array $frontend_config, bool $is_inline = 
                     <?php endif; ?>
                 </div>
                 <div class="aipkit_chat_input_actions_right">
+                    <button
+                        class="aipkit_input_action_btn aipkit_realtime_voice_agent_btn"
+                        aria-label="<?php esc_attr_e('Start Voice Conversation', 'gpt3-ai-content-generator'); ?>"
+                        title="<?php esc_attr_e('Start Voice Conversation', 'gpt3-ai-content-generator'); ?>"
+                        type="button"
+                        style="display: <?php echo $realtime_voice_enabled_ui ? 'inline-flex' : 'none'; ?>;"
+                    >
+                        <span class="dashicons dashicons-controls-volumeon"></span>
+                    </button>
                     <button
                         class="aipkit_input_action_btn aipkit_voice_input_btn"
                         aria-label="<?php esc_attr_e('Voice input', 'gpt3-ai-content-generator'); ?>"

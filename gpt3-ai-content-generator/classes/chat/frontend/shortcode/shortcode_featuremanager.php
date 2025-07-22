@@ -16,6 +16,7 @@ require_once $featuremanager_methods_path . 'get-ui-flags.php';
 require_once $featuremanager_methods_path . 'get-upload-flags.php';
 require_once $featuremanager_methods_path . 'get-web-search-flag.php';
 require_once $featuremanager_methods_path . 'get-google-grounding-flags.php';
+require_once $featuremanager_methods_path . 'get-realtime-voice-flag.php';
 require_once $featuremanager_methods_path . 'compute-derived-flags.php';
 
 
@@ -72,7 +73,11 @@ class FeatureManager {
         $google_grounding_flags = FeatureManagerMethods\get_google_grounding_flags_logic($settings, $core_flags['allow_google_search_grounding_setting']);
         $flags = array_merge($flags, $google_grounding_flags);
 
-        // 7. Compute derived flags
+        // 7. Determine Realtime Voice flag
+        $realtime_voice_flag = FeatureManagerMethods\get_realtime_voice_flag_logic($core_flags, $addon_statuses);
+        $flags = array_merge($flags, $realtime_voice_flag);
+
+        // 8. Compute derived flags
         $derived_flags = FeatureManagerMethods\compute_derived_flags_logic($flags);
         $flags = array_merge($flags, $derived_flags);
 

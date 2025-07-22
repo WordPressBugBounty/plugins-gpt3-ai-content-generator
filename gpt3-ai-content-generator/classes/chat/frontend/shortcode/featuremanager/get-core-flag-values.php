@@ -1,10 +1,11 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/frontend/shortcode/featuremanager/get-core-flag-values.php
-// Status: NEW FILE
+
+// File: classes/chat/frontend/shortcode/featuremanager/get-core-flag-values.php
+// Status: MODIFIED
 
 namespace WPAICG\Chat\Frontend\Shortcode\FeatureManagerMethods;
 
-use WPAICG\Chat\Storage\BotSettingsManager;
+use WPAICG\Chat\Storage\BotSettingsManager; // For default constants
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -65,6 +66,7 @@ function get_core_flag_values_logic(array $settings): array {
         'enable_tts_setting'      => ($settings['tts_enabled'] ?? $defaults['DEFAULT_TTS_ENABLED']) === '1',
         'enable_file_upload_setting'  => ($settings['enable_file_upload'] ?? $defaults['DEFAULT_ENABLE_FILE_UPLOAD']) === '1',
         'enable_image_upload_setting' => ($settings['enable_image_upload'] ?? $defaults['DEFAULT_ENABLE_IMAGE_UPLOAD']) === '1',
+        'enable_realtime_voice_setting' => ($settings['enable_realtime_voice'] ?? '0') === '1',
         'allow_openai_web_search_tool_setting'  => ($settings['openai_web_search_enabled'] ?? $defaults['DEFAULT_OPENAI_WEB_SEARCH_ENABLED']) === '1',
         'allow_google_search_grounding_setting' => ($settings['google_search_grounding_enabled'] ?? $defaults['DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED']) === '1',
     ];

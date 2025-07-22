@@ -168,6 +168,17 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $raw_google_threshold = isset($raw_settings['google_grounding_dynamic_threshold']) ? floatval($raw_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
     $sanitized['google_grounding_dynamic_threshold'] = max(0.0, min($raw_google_threshold, 1.0));
 
+    // --- ADDED: Sanitize Realtime Voice Agent settings ---
+    $sanitized['enable_realtime_voice'] = isset($raw_settings['enable_realtime_voice']) ? '1' : '0';
+    $sanitized['realtime_model'] = isset($raw_settings['realtime_model']) && in_array($raw_settings['realtime_model'], ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime']) ? $raw_settings['realtime_model'] : 'gpt-4o-realtime-preview';
+    $sanitized['realtime_voice'] = isset($raw_settings['realtime_voice']) && in_array($raw_settings['realtime_voice'], ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'shimmer', 'verse']) ? $raw_settings['realtime_voice'] : 'alloy';
+    $sanitized['turn_detection'] = isset($raw_settings['turn_detection']) && in_array($raw_settings['turn_detection'], ['none', 'server_vad', 'semantic_vad']) ? $raw_settings['turn_detection'] : 'server_vad';
+    $sanitized['speed'] = isset($raw_settings['speed']) ? max(0.25, min(1.5, floatval($raw_settings['speed']))) : 1.0;
+    $sanitized['input_audio_format'] = isset($raw_settings['input_audio_format']) && $raw_settings['input_audio_format'] === 'pcm16' ? 'pcm16' : 'pcm16'; // Only one option for now
+    $sanitized['output_audio_format'] = isset($raw_settings['output_audio_format']) && $raw_settings['output_audio_format'] === 'pcm16' ? 'pcm16' : 'pcm16'; // Only one option for now
+    $sanitized['input_audio_noise_reduction'] = isset($raw_settings['input_audio_noise_reduction']) ? '1' : '0';
+    // --- END ADDED ---
+
     // --- Sanitize Custom Theme Settings ---
     $custom_theme_settings_raw = $raw_settings['custom_theme_settings'] ?? [];
     $custom_theme_settings_sanitized = [];

@@ -38,6 +38,7 @@ class Assets {
     public static $image_gen_needed = false;
     public static $chat_image_upload_needed = false;
     public static $chat_file_upload_needed = false; 
+    public static $realtime_voice_needed = false;
     // --- End Static Flags ---
 
     private $hooks_handler;
@@ -101,18 +102,19 @@ class Assets {
      * @param bool $needs_image_gen
      * @param bool $needs_chat_image_upload
      * @param bool $needs_chat_file_upload 
+     * @param bool $needs_realtime_voice
      */
     public static function require_assets(
         bool $needs_pdf = false, bool $needs_copy = false, bool $needs_starters = false,
         bool $needs_sidebar = false, bool $needs_feedback = false, bool $needs_tts = false,
         bool $needs_stt = false, bool $needs_image_gen = false, bool $needs_chat_image_upload = false,
-        bool $needs_chat_file_upload = false 
+        bool $needs_chat_file_upload = false, bool $needs_realtime_voice = false
     ) {
         if (class_exists(AssetsRequireFlags::class) && method_exists(AssetsRequireFlags::class, 'set_flags')) {
             AssetsRequireFlags::set_flags(
                 $needs_pdf, $needs_copy, $needs_starters, $needs_sidebar,
                 $needs_feedback, $needs_tts, $needs_stt, $needs_image_gen, $needs_chat_image_upload,
-                $needs_chat_file_upload 
+                $needs_chat_file_upload, $needs_realtime_voice
             );
         }
     }

@@ -4,11 +4,11 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.20
+Stable tag: 2.3.21
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A complete AI toolkit for WordPress. Includes a content writer, chatbot, image generator, AI forms, automation, AI training, and more.
+A complete AI toolkit for WordPress. Includes a content writer, chatbot, realtime voice agents, image generator, AI forms, automation, AI training, and more.
 
 == Description ==
 
@@ -72,6 +72,12 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 6. The Automate module, showing the task list and queue.
 
 == Changelog ==
+
+= 2.3.21 =
+
+- NEW: Realtime Voice Agents (OpenAI only) feature added to the chatbot module, enabling fully interactive voice conversations.  
+
+[Learn more in the documentation](https://docs.aipower.org/docs/voice-features)
 
 = 2.3.20 =
 

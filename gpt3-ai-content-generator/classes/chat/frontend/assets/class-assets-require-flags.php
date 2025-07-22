@@ -29,12 +29,13 @@ class AssetsRequireFlags {
      * @param bool $needs_image_gen
      * @param bool $needs_chat_image_upload
      * @param bool $needs_chat_file_upload 
+     * @param bool $needs_realtime_voice
      */
     public static function set_flags(
         bool $needs_pdf = false, bool $needs_copy = false, bool $needs_starters = false,
         bool $needs_sidebar = false, bool $needs_feedback = false, bool $needs_tts = false,
         bool $needs_stt = false, bool $needs_image_gen = false, bool $needs_chat_image_upload = false,
-        bool $needs_chat_file_upload = false 
+        bool $needs_chat_file_upload = false, bool $needs_realtime_voice = false
     ): void {
         // Ensure aipkit_dashboard is available for addon checks
         if (!class_exists(aipkit_dashboard::class)) {
@@ -74,6 +75,9 @@ class AssetsRequireFlags {
         // --- Set file upload flag if Pro and addon active ---
         if ($needs_chat_file_upload && aipkit_dashboard::is_pro_plan() && aipkit_dashboard::is_addon_active('file_upload')) {
              AssetsOrchestrator::$chat_file_upload_needed = true;
+        }
+        if ($needs_realtime_voice && aipkit_dashboard::is_pro_plan() && aipkit_dashboard::is_addon_active('realtime_voice')) {
+            AssetsOrchestrator::$realtime_voice_needed = true;
         }
         // --- END ---
     }

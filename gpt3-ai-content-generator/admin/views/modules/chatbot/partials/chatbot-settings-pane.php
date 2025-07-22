@@ -37,6 +37,16 @@ $saved_model = $bot_settings['model'] ?? '';
                 <?php if ($is_voice_playback_active) {
                     include __DIR__ . '/accordion-tts-settings.php';
                 } ?>
+                <?php
+                // --- ADDED: Conditional include for Voice Agent accordion ---
+                if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('realtime_voice')) {
+                    $voice_agent_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-voice-agent.php';
+                    if (file_exists($voice_agent_accordion_path)) {
+                        include $voice_agent_accordion_path;
+                    }
+                }
+                // --- END ADDED ---
+                ?>
                 <?php if ($is_token_management_active) {
                     include __DIR__ . '/accordion-token-management.php';
                 } ?>
