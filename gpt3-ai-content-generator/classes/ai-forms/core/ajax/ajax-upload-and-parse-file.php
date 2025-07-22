@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/ai-forms/core/ajax/ajax-upload-and-parse-file.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\AIForms\Core\Ajax;
 
@@ -30,11 +30,13 @@ function upload_and_parse_file_logic(AIPKit_AI_Form_Processor $processorInstance
     }
 
     // 2. File Validation
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is verified above.
     if (!isset($_FILES['file'])) {
         wp_send_json_error(['message' => __('No file received.', 'gpt3-ai-content-generator')], 400);
         return;
     }
 
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: $_FILES is validated by AIPKit_Upload_Utils::validate_vector_upload_file below.
     $file_data = $_FILES['file'];
 
     if (!class_exists('\\WPAICG\\Includes\\AIPKit_Upload_Utils')) {

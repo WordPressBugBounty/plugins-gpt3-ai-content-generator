@@ -81,7 +81,8 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             return;
         }
 
-        $provider = isset($_POST['provider']) ? sanitize_text_field($_POST['provider']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
+        $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
         $valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'];
         if (!in_array($provider, $valid_providers, true)) {
             wp_send_json_error(['message' => __('Invalid provider selection.', 'gpt3-ai-content-generator')]);

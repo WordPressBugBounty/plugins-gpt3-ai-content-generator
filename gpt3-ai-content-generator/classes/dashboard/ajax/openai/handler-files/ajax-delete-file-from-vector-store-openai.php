@@ -38,8 +38,12 @@ function do_ajax_delete_file_from_vector_store_openai_logic(AIPKit_OpenAI_Vector
     }
 
     // Logic from old _aipkit_openai_vs_files_ajax_delete_file_from_vector_store_openai_logic
-    $store_id = isset($_POST['store_id']) ? sanitize_text_field($_POST['store_id']) : '';
-    $file_id = isset($_POST['file_id']) ? sanitize_text_field($_POST['file_id']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $store_id = isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $file_id = isset($post_data['file_id']) ? sanitize_text_field($post_data['file_id']) : '';
     if (empty($store_id) || empty($file_id)) {
         $handler_instance->send_wp_error(new WP_Error('missing_ids', __('Vector Store ID and File ID are required.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;

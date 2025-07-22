@@ -31,6 +31,7 @@ abstract class AIPKit_Post_Enhancer_Base_Ajax_Action
 
     protected function get_post(): \WP_Post|\WP_Error
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_permissions.
         $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
         if (!$post_id) {
             return new WP_Error('missing_post_id', __('Missing post ID.', 'gpt3-ai-content-generator'), ['status' => 400]);

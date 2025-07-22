@@ -26,15 +26,21 @@ class AIPKit_Get_Automated_Task_Queue_Items_Action extends AIPKit_Automated_Task
         }
 
         global $wpdb;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions method
         $current_page = isset($_POST['page']) ? absint($_POST['page']) : 1;
         $items_per_page = 15;
         $offset = ($current_page - 1) * $items_per_page;
 
         // Search, Filter, and Sort parameters
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions method
         $search_term = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
-        $status_filter = isset($_POST['status_filter']) ? sanitize_key($_POST['status_filter']) : '';
-        $orderby_col = isset($_POST['orderby']) ? sanitize_key($_POST['orderby']) : 'q.added_at';
-        $order_dir = isset($_POST['order']) && in_array(strtoupper($_POST['order']), ['ASC', 'DESC']) ? strtoupper($_POST['order']) : 'DESC';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions method
+        $status_filter = isset($_POST['status_filter']) ? sanitize_key(wp_unslash($_POST['status_filter'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions method
+        $orderby_col = isset($_POST['orderby']) ? sanitize_key(wp_unslash($_POST['orderby'])) : 'q.added_at';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions method
+        $order_dir_raw = isset($_POST['order']) ? sanitize_key(wp_unslash($_POST['order'])) : 'DESC';
+        $order_dir = in_array(strtoupper($order_dir_raw), ['ASC', 'DESC'], true) ? strtoupper($order_dir_raw) : 'DESC';
 
         // Whitelist columns for ordering to prevent SQL injection
         $allowed_orderby = ['t.task_name', 'q.task_type', 'q.status', 'q.attempts', 'q.added_at', 'q.last_attempt_time'];
@@ -61,17 +67,16 @@ class AIPKit_Get_Automated_Task_Queue_Items_Action extends AIPKit_Automated_Task
             $where_sql = " WHERE " . implode(' AND ', $where_clauses);
         }
 
-        $query_base = "FROM {$this->queue_table_name} q LEFT JOIN {$this->tasks_table_name} t ON q.task_id = t.id";
+        $total_items_query = "SELECT COUNT(*) FROM {$this->queue_table_name} q LEFT JOIN {$this->tasks_table_name} t ON q.task_id = t.id" . $where_sql;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: This is a direct query for counting, caching is not applicable here.
+        $total_items = $wpdb->get_var($wpdb->prepare($total_items_query, $prepare_args));
 
-            $total_items_query = "SELECT COUNT(*) " . $query_base . $where_sql;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Custom COUNT(*) query on custom tables. Caching is implemented.
-            $total_items = $wpdb->get_var($wpdb->prepare($total_items_query, $prepare_args));
-
-            $query = "SELECT q.*, t.task_name " . $query_base . $where_sql . " ORDER BY " . esc_sql($orderby_col) . " " . esc_sql($order_dir) . " LIMIT %d OFFSET %d";
-            $prepare_args[] = $items_per_page;
-            $prepare_args[] = $offset;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Custom SELECT query on custom tables. Caching is implemented.
-            $items = $wpdb->get_results($wpdb->prepare($query, $prepare_args), ARRAY_A);
+        $prepare_args_for_select = $prepare_args;
+        $prepare_args_for_select[] = $items_per_page;
+        $prepare_args_for_select[] = $offset;
+        $query = "SELECT q.*, t.task_name FROM {$this->queue_table_name} q LEFT JOIN {$this->tasks_table_name} t ON q.task_id = t.id" . $where_sql . " ORDER BY " . esc_sql($orderby_col) . " " . esc_sql($order_dir) . " LIMIT %d OFFSET %d";
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: This is a direct query for selecting items, caching is not applicable here.
+        $items = $wpdb->get_results($wpdb->prepare($query, $prepare_args_for_select), ARRAY_A);
 
         $enriched_items = [];
         if ($items) {

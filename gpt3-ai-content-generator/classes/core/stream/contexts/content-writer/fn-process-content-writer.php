@@ -1,5 +1,8 @@
 <?php
 
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/contexts/content-writer/fn-process-content-writer.php
+// Status: MODIFIED
+
 namespace WPAICG\Core\Stream\Contexts\ContentWriter;
 
 use WPAICG\AIPKit_Providers;
@@ -39,7 +42,7 @@ function process_content_writer_logic(
     $provider           = $cached_data['provider'] ?? '';
     $model              = $cached_data['model'] ?? '';
     $ai_params_from_cache = $cached_data['ai_params'] ?? [];
-    $client_ip          = $_SERVER['REMOTE_ADDR'] ?? null;
+    $client_ip          = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
     $user_wp_role       = $user_id ? implode(', ', wp_get_current_user()->roles) : null;
 
     // --- MODIFIED: Extract new SEO-related fields from cache ---

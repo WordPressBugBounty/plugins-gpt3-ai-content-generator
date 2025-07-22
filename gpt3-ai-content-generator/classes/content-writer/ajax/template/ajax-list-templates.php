@@ -26,7 +26,7 @@ function ajax_list_templates_logic(AIPKit_Content_Writer_Template_Ajax_Handler $
         $handler->send_wp_error(new WP_Error('manager_missing', 'Template manager unavailable.'), 500);
         return;
     }
-
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
     $template_type = isset($_POST['template_type']) ? sanitize_key($_POST['template_type']) : 'content_writer';
     $templates = $handler->get_template_manager()->get_templates_for_user($template_type);
     wp_send_json_success(['templates' => $templates]);

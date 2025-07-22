@@ -2,7 +2,9 @@
 
 namespace WPAICG;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (! defined('ABSPATH')) {
+    exit;
+}
 
 /**
  * Define the internationalization functionality.
@@ -14,20 +16,21 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @subpackage Wp_Ai_Content_Generator/includes
  * @author     Senol Sahin <senols@gmail.com>
  */
-class WP_AI_Content_Generator_i18n {
-
-	/**
-	 * Load the plugin text domain for translation.
-	 * Hooked to 'init'.
-	 *
-	 * @since    1.9.15
-	 * @updated  NEXT_VERSION - Changed hook from 'plugins_loaded' to 'init'
-	 */
-	public function init_hooks() { // Method name remains init_hooks, but its action hook changes
-		load_plugin_textdomain(
-			'gpt3-ai-content-generator', // Correct text domain
-			false,
-			dirname( WPAICG_PLUGIN_DIR ) . '/gpt3-ai-content-generator/languages/' // Use constant for path base
-		);
-	}
+class WP_AI_Content_Generator_i18n
+{
+    /**
+     * Load the plugin text domain for translation.
+     * Hooked to 'init'.
+     *
+     * @since    1.9.15
+     * @updated  NEXT_VERSION - Changed hook from 'plugins_loaded' to 'init'
+     */
+    public function init_hooks() // Method name remains init_hooks, but its action hook changes
+    {
+        load_plugin_textdomain(
+            'gpt3-ai-content-generator',
+            false,
+            dirname(WPAICG_PLUGIN_DIR) . '/gpt3-ai-content-generator/languages/'
+        );
+    }
 }

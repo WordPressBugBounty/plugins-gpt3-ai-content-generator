@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes;
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_create_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance): void {
+function do_ajax_create_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance): void
+{
     $vector_store_manager = $handler_instance->get_vector_store_manager();
     $vector_store_registry = $handler_instance->get_vector_store_registry();
 
@@ -33,11 +35,13 @@ function do_ajax_create_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
         return;
     }
 
-    $index_name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
-    $dimension = isset($_POST['dimension']) ? absint($_POST['dimension']) : 0;
-    $metric = isset($_POST['metric']) ? sanitize_text_field($_POST['metric']) : 'cosine';
-    $spec_cloud = isset($_POST['spec_cloud']) ? sanitize_text_field($_POST['spec_cloud']) : 'aws';
-    $spec_region = isset($_POST['spec_region']) ? sanitize_text_field($_POST['spec_region']) : 'us-east-1';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    $index_name = isset($post_data['name']) ? sanitize_text_field($post_data['name']) : '';
+    $dimension = isset($post_data['dimension']) ? absint($post_data['dimension']) : 0;
+    $metric = isset($post_data['metric']) ? sanitize_text_field($post_data['metric']) : 'cosine';
+    $spec_cloud = isset($post_data['spec_cloud']) ? sanitize_text_field($post_data['spec_cloud']) : 'aws';
+    $spec_region = isset($post_data['spec_region']) ? sanitize_text_field($post_data['spec_region']) : 'us-east-1';
 
     if (empty($index_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_name_pinecone_create', __('Pinecone index name is required.', 'gpt3-ai-content-generator'), ['status' => 400]));
@@ -47,7 +51,9 @@ function do_ajax_create_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
         $handler_instance->send_wp_error(new WP_Error('invalid_dimension_pinecone_create', __('Vector dimension must be a positive integer.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
     }
-    if (!in_array(strtolower($metric), ['cosine', 'euclidean', 'dotproduct'], true)) $metric = 'cosine';
+    if (!in_array(strtolower($metric), ['cosine', 'euclidean', 'dotproduct'], true)) {
+        $metric = 'cosine';
+    }
 
     $index_create_config = [
         'dimension' => $dimension,

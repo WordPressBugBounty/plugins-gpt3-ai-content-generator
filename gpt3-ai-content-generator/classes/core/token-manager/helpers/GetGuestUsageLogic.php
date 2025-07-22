@@ -32,9 +32,8 @@ function GetGuestUsageLogic(AIPKit_Token_Manager $managerInstance, string $sessi
 
     if (false === $guest_row) {
         // Cache miss: Query the database.
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table query; unavoidable for this functionality.
-        $guest_row = $wpdb->get_row($wpdb->prepare(
-            "SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d",
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Custom table query; unavoidable for this functionality.
+        $guest_row = $wpdb->get_row($wpdb->prepare("SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d",
             $session_id, $guest_context_table_id
         ), ARRAY_A);
 

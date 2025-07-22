@@ -18,13 +18,11 @@ if (!defined('ABSPATH')) {
 */
 function validate_task_request_logic(AIPKit_Save_Automated_Task_Action $handler, array $post_data): array|WP_Error
 {
-    $permission_check = $handler->check_module_access_permissions('autogpt', $handler::NONCE_ACTION);
-    if (is_wp_error($permission_check)) {
-        return $permission_check;
-    }
+    // Permission and nonce checks are now handled by the caller.
+    // This function now only validates the presence and format of required parameters.
 
     $task_id = isset($post_data['task_id']) && !empty($post_data['task_id']) ? absint($post_data['task_id']) : 0;
-    $task_name = isset($post_data['task_name']) ? sanitize_text_field(wp_unslash($post_data['task_name'])) : '';
+    $task_name = isset($post_data['task_name']) ? sanitize_text_field($post_data['task_name']) : '';
     $task_type = isset($post_data['task_type']) ? sanitize_key($post_data['task_type']) : '';
 
     if (empty($task_name)) {
@@ -35,8 +33,8 @@ function validate_task_request_logic(AIPKit_Save_Automated_Task_Action $handler,
     }
 
     return [
-    'task_id' => $task_id,
-    'task_name' => $task_name,
-    'task_type' => $task_type,
+        'task_id' => $task_id,
+        'task_name' => $task_name,
+        'task_type' => $task_type,
     ];
 }

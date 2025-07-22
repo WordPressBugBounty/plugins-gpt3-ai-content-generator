@@ -128,7 +128,7 @@ function log_enhancer_interaction_logic(int $post_id, string $type, string $prom
     $log_storage = new LogStorage();
     $user_id = get_current_user_id();
     $user_wp_role = $user_id ? implode(', ', wp_get_current_user()->roles) : null;
-    $ip_address = $_SERVER['REMOTE_ADDR'] ?? null;
+    $ip_address = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
     $conversation_uuid = 'enhancer-' . $type . '-' . $post_id . '-' . time();
 
     $log_data = [

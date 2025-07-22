@@ -53,7 +53,7 @@ function get_conversation_thread_history_logic(
             $where_sql .= "(user_id IS NULL AND session_id = %s AND is_guest = 1)";
             $params[] = $session_id;
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: This is a prepared query with parameters.
         $messages_json = $wpdb->get_var($wpdb->prepare("SELECT messages FROM {$table_name} WHERE {$where_sql} LIMIT 1", $params));
         wp_cache_set($cache_key, $messages_json, $cache_group, HOUR_IN_SECONDS);
     }

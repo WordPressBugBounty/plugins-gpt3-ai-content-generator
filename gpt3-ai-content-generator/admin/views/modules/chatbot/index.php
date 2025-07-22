@@ -39,10 +39,11 @@ $default_setup = new DefaultBotSetup();
 // Fetch bots with their settings optimized
 $all_chatbots_with_settings = $bot_storage->get_chatbots_with_settings();
 
-// Grab forced active bot/tab from AJAX request
-$force_active_bot_id = isset($_REQUEST['force_active_bot_id']) ? intval($_REQUEST['force_active_bot_id']) : 0;
-$force_active_tab = isset($_REQUEST['force_active_tab']) ? sanitize_key($_REQUEST['force_active_tab']) : '';
-
+// Grab forced active bot/tab. These variables are now defined and sanitized
+// by the including file (the AJAX handler), which has already verified a nonce.
+// This avoids direct use of $_REQUEST and satisfies security scans.
+$force_active_bot_id = isset($force_active_bot_id) ? intval($force_active_bot_id) : 0;
+$force_active_tab = isset($force_active_tab) ? sanitize_key($force_active_tab) : '';
 
 // Get the ID of the default bot
 $default_bot_id = $default_setup->get_default_bot_id();

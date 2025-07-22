@@ -1,7 +1,6 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/ajax/actions/shared/log-initial-request.php
-// Status: NEW FILE
 
 namespace WPAICG\ContentWriter\Ajax\Actions\Shared;
 
@@ -32,6 +31,8 @@ function log_initial_request_logic(AIPKit_Content_Writer_Base_Ajax_Action $handl
         'content_max_tokens' => $request_data['content_max_tokens'] ?? null,
     ];
 
+    $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
+
     $handler->log_storage->log_message([
         'bot_id'            => null,
         'user_id'           => get_current_user_id(),
@@ -40,7 +41,7 @@ function log_initial_request_logic(AIPKit_Content_Writer_Base_Ajax_Action $handl
         'module'            => 'content_writer',
         'is_guest'          => 0,
         'role'              => implode(', ', wp_get_current_user()->roles),
-        'ip_address'        => AIPKit_IP_Anonymization::maybe_anonymize($_SERVER['REMOTE_ADDR'] ?? null),
+        'ip_address'        => AIPKit_IP_Anonymization::maybe_anonymize($client_ip),
         'message_role'      => 'user',
         'message_content'   => "Content Writer Request ({$request_type}): " . esc_html($request_data['content_title']),
         'timestamp'         => time(),

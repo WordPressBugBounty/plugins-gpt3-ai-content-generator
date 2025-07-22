@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php
-// Status: NEW
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections;
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance
  * @return void
  */
-function _aipkit_qdrant_ajax_search_collection_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void {
+function _aipkit_qdrant_ajax_search_collection_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void
+{
     $vector_store_manager = $handler_instance->get_vector_store_manager();
     $ai_caller = $handler_instance->get_ai_caller();
 
@@ -33,12 +35,15 @@ function _aipkit_qdrant_ajax_search_collection_logic(AIPKit_Vector_Store_Qdrant_
         return;
     }
 
-    $collection_id = isset($_POST['collection_id']) ? sanitize_text_field($_POST['collection_id']) : '';
-    $query_text = isset($_POST['query_text']) ? sanitize_textarea_field(wp_unslash($_POST['query_text'])) : '';
-    $top_k = isset($_POST['top_k']) ? absint($_POST['top_k']) : 3;
-    $filter_json = isset($_POST['filter']) ? wp_unslash($_POST['filter']) : null;
-    $embedding_provider_key = isset($_POST['embedding_provider']) ? sanitize_key($_POST['embedding_provider']) : 'openai';
-    $embedding_model = isset($_POST['embedding_model']) ? sanitize_text_field($_POST['embedding_model']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    $collection_id = isset($post_data['collection_id']) ? sanitize_text_field($post_data['collection_id']) : '';
+    $query_text = isset($post_data['query_text']) ? sanitize_textarea_field($post_data['query_text']) : '';
+    $top_k = isset($post_data['top_k']) ? absint($post_data['top_k']) : 3;
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string, decoded and validated below.
+    $filter_json = isset($post_data['filter']) ? $post_data['filter'] : null;
+    $embedding_provider_key = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : 'openai';
+    $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : '';
 
     if (empty($collection_id)) {
         $handler_instance->send_wp_error(new WP_Error('missing_collection_id_qdrant_search', __('Qdrant collection name is required.', 'gpt3-ai-content-generator'), ['status' => 400]));

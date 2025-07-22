@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.19
+Stable tag: 2.3.20
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,6 +72,10 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 6. The Automate module, showing the task list and queue.
 
 == Changelog ==
+
+= 2.3.20 =
+
+- Bug fixes and performance improvements.
 
 = 2.3.19 =
 

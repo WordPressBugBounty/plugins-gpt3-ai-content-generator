@@ -25,9 +25,9 @@ function get_focus_keyword_logic(int $post_id): ?string
     global $wpdb;
     $table_name = $wpdb->prefix . 'aioseo_posts';
 
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: This is a one-time read operation.
     if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: This is a one-time read operation.
         $keyphrases_json = $wpdb->get_var($wpdb->prepare("SELECT keyphrases FROM {$table_name} WHERE post_id = %d", $post_id));
         if (!empty($keyphrases_json)) {
             $keyphrases_data = json_decode($keyphrases_json, true);

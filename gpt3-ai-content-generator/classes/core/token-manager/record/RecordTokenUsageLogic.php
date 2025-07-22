@@ -143,7 +143,7 @@ function RecordTokenUsageLogic(
         $guest_table_name = $managerInstance->get_guest_table_name();
         $new_usage = 0;
         if ($is_guest && $guest_context_table_id !== null) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
             $guest_row = $wpdb->get_row($wpdb->prepare("SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d", $session_id, $guest_context_table_id), ARRAY_A);
             $current_usage = $guest_row ? (int) $guest_row['tokens_used'] : 0;
             $last_reset = $guest_row ? (int) $guest_row['last_reset_timestamp'] : 0;

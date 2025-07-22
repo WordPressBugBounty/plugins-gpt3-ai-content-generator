@@ -24,6 +24,7 @@ class AIPKit_PostEnhancer_Update_Title extends AIPKit_Post_Enhancer_Base_Ajax_Ac
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_permissions.
         $new_title = isset($_POST['new_value']) ? sanitize_text_field(wp_unslash($_POST['new_value'])) : '';
         if (empty($new_title)) {
             $this->send_error_response(new WP_Error('empty_title', __('New title cannot be empty.', 'gpt3-ai-content-generator'), ['status' => 400]));

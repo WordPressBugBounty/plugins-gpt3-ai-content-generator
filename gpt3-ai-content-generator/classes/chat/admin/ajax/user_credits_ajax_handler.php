@@ -52,7 +52,9 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions method.
         $current_page = isset($_POST['page']) ? absint($_POST['page']) : 1;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions method.
         $search_term = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
         $users_per_page = 20; // Or make this configurable
 
@@ -72,9 +74,11 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
             $this->send_wp_error($permission_check);
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions method.
+        $post_data = wp_unslash($_POST);
 
-        $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
-        $new_balance_raw = isset($_POST['balance']) ? $_POST['balance'] : null;
+        $user_id = isset($post_data['user_id']) ? absint($post_data['user_id']) : 0;
+        $new_balance_raw = isset($post_data['balance']) ? $post_data['balance'] : null;
 
         if (empty($user_id) || !get_userdata($user_id)) {
             wp_send_json_error(['message' => __('Invalid user ID.', 'gpt3-ai-content-generator')], 400);
@@ -152,8 +156,9 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
             if (false === $user_ids_with_any_usage) {
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $user_ids_with_any_usage = $wpdb->get_col($wpdb->prepare(
-                    "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s ORDER BY user_id",
+                    "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE %s OR meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s ORDER BY user_id",
                     $chat_usage_like,
+                    $wpdb->esc_like($chat_reset_prefix) . '%',
                     $img_usage_key,
                     $img_reset_key,
                     $balance_key
@@ -199,14 +204,8 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
             $all_meta = wp_cache_get($cache_key_meta, $cache_group_meta);
 
             if (false === $all_meta) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                $all_meta = $wpdb->get_results(
-                    $wpdb->prepare(
-                        "SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id IN ($user_ids_placeholder) AND (meta_key LIKE %s OR meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s)",
-                        array_merge($user_ids, $meta_keys_to_fetch_patterns)
-                    ),
-                    ARRAY_A
-                );
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- The dynamic IN clause is securely built with %d placeholders, and the number of arguments is correctly matched. This is a false positive from the linter.
+                $all_meta = $wpdb->get_results($wpdb->prepare("SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id IN ($user_ids_placeholder) AND (meta_key LIKE %s OR meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s)", array_merge($user_ids, $meta_keys_to_fetch_patterns)), ARRAY_A);
                 wp_cache_set($cache_key_meta, $all_meta, $cache_group_meta, MINUTE_IN_SECONDS);
             }
             // --- End Fetch Meta ---

@@ -88,16 +88,21 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
         $user_id = get_current_user_id();
         $is_logged_in = $user_id > 0;
         $client_ip = isset($_SERVER['REMOTE_ADDR']) ? filter_var(wp_unslash($_SERVER['REMOTE_ADDR']), FILTER_VALIDATE_IP) : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_frontend_permissions method.
         $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_frontend_permissions method.
         $session_id_from_post = isset($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
         $session_id = $is_logged_in ? null : $session_id_from_post;
         if (!$is_logged_in && empty($session_id) && class_exists('\WPAICG\Chat\Frontend\Shortcode\Configurator')) {
             $session_id = \WPAICG\Chat\Frontend\Shortcode\Configurator::get_guest_uuid();
         }
-
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_frontend_permissions method.
         $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key($_POST['conversation_uuid']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in
         $prompt = isset($_POST['prompt']) ? sanitize_textarea_field(wp_unslash($_POST['prompt'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in
         $original_user_text = isset($_POST['original_user_text']) ? sanitize_textarea_field(wp_unslash($_POST['original_user_text'])) : $prompt;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in
         $user_message_id_from_post = isset($_POST['user_message_id']) ? sanitize_key($_POST['user_message_id']) : ('aipkit-client-umsg-' . wp_generate_password(12, false));
 
         $request_time = time();

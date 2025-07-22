@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes;
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_upsert_to_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance): void {
+function do_ajax_upsert_to_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance): void
+{
     $vector_store_manager = $handler_instance->get_vector_store_manager();
 
     if (!$vector_store_manager) {
@@ -32,11 +34,14 @@ function do_ajax_upsert_to_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler
         return;
     }
 
-    $index_name = isset($_POST['index_name']) ? sanitize_text_field($_POST['index_name']) : '';
-    $vectors_json = isset($_POST['vectors']) ? wp_unslash($_POST['vectors']) : '';
-    $embedding_provider = isset($_POST['embedding_provider']) ? sanitize_key($_POST['embedding_provider']) : null;
-    $embedding_model = isset($_POST['embedding_model']) ? sanitize_text_field($_POST['embedding_model']) : null;
-    $original_text_content = isset($_POST['original_text_content']) ? wp_kses_post(wp_unslash($_POST['original_text_content'])) : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    $index_name = isset($post_data['index_name']) ? sanitize_text_field($post_data['index_name']) : '';
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string, decoded and validated below.
+    $vectors_json = isset($post_data['vectors']) ? $post_data['vectors'] : '';
+    $embedding_provider = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : null;
+    $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : null;
+    $original_text_content = isset($post_data['original_text_content']) ? wp_kses_post($post_data['original_text_content']) : null;
 
     if (empty($index_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_index_name_pinecone', __('Pinecone index name is required.', 'gpt3-ai-content-generator'), ['status' => 400]));
@@ -66,7 +71,7 @@ function do_ajax_upsert_to_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler
         $content_for_log = $original_text_content;
     } elseif (in_array($source_type_for_log, ['text_entry_global_form', 'file_upload_global_form', 'text_entry_pinecone_direct']) && $original_text_content !== null) {
         $content_for_log = $original_text_content;
-         if ($source_type_for_log === 'file_upload_global_form' && isset($vectors[0]['metadata']['filename'])) {
+        if ($source_type_for_log === 'file_upload_global_form' && isset($vectors[0]['metadata']['filename'])) {
             $wp_post_title_for_log = sanitize_file_name($vectors[0]['metadata']['filename']);
         }
     }

@@ -21,6 +21,7 @@ class AIPKit_Delete_Automated_Task_Action extends AIPKit_Automated_Task_Base_Aja
         if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
 
         global $wpdb;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $task_id = isset($_POST['task_id']) ? absint($_POST['task_id']) : 0;
         if (empty($task_id)) { $this->send_wp_error(new WP_Error('missing_task_id_delete', __('Task ID is required.', 'gpt3-ai-content-generator')), 400); return; }
 

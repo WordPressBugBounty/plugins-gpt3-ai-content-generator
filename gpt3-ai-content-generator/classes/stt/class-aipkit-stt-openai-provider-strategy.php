@@ -1,5 +1,6 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/stt/class-aipkit-stt-openai-provider-strategy.php
+
+// File: /classes/stt/class-aipkit-stt-openai-provider-strategy.php
 // MODIFIED FILE - Use dynamic STT model from options.
 
 namespace WPAICG\STT; // Use new STT namespace
@@ -17,12 +18,13 @@ if (!defined('ABSPATH')) {
  * Allows specifying the transcription model via options.
  * USES NATIVE cURL for multipart request reliability.
  */
-class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strategy {
-
-     /**
-     * Constructor. Ensures necessary component classes are loaded.
-     */
-    public function __construct() {
+class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strategy
+{
+    /**
+    * Constructor. Ensures necessary component classes are loaded.
+    */
+    public function __construct()
+    {
         $openai_core_provider_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/openai/';
         if (!class_exists(OpenAIUrlBuilder::class)) {
             $url_builder_file = $openai_core_provider_path . 'OpenAIUrlBuilder.php';
@@ -41,13 +43,16 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
      * @param array $options Transcription options (e.g., language, stt_model).
      * @return string|WP_Error The transcribed text or WP_Error on failure.
      */
-    public function transcribe_audio(string $audio_data, string $audio_format, array $api_params, array $options = []): string|WP_Error {
+    public function transcribe_audio(string $audio_data, string $audio_format, array $api_params, array $options = []): string|WP_Error
+    {
         $api_key = $api_params['api_key'] ?? null;
-        if (empty($api_key)) return new WP_Error('openai_stt_missing_key', __('OpenAI API Key is required for transcription.', 'gpt3-ai-content-generator'));
+        if (empty($api_key)) {
+            return new WP_Error('openai_stt_missing_key', __('OpenAI API Key is required for transcription.', 'gpt3-ai-content-generator'));
+        }
 
         // Ensure URL builder is loaded
         if (!class_exists(OpenAIUrlBuilder::class)) {
-             return new WP_Error('openai_stt_dependency_missing', __('OpenAI URL Builder component is missing.', 'gpt3-ai-content-generator'), ['status' => 500]);
+            return new WP_Error('openai_stt_dependency_missing', __('OpenAI URL Builder component is missing.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
 
         // Build URL using the builder
@@ -56,26 +61,28 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
             'api_version' => $api_params['api_version'] ?? 'v1',
         ];
         $url = OpenAIUrlBuilder::build('audio/transcriptions', $url_builder_params); // Use correct operation key
-        if (is_wp_error($url)) return $url;
+        if (is_wp_error($url)) {
+            return $url;
+        }
 
         // --- Prepare temporary file ---
         $tmp_filename = wp_tempnam('openai_stt_upload');
         if ($tmp_filename === false) {
-             return new WP_Error('stt_tmp_file_error', __('Could not create temporary file for audio upload.', 'gpt3-ai-content-generator'), ['status' => 500]);
+            return new WP_Error('stt_tmp_file_error', __('Could not create temporary file for audio upload.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
         $write_result = file_put_contents($tmp_filename, $audio_data);
         if ($write_result === false) {
-             @unlink($tmp_filename); // Clean up
-             return new WP_Error('stt_tmp_write_error', __('Could not write audio data to temporary file.', 'gpt3-ai-content-generator'), ['status' => 500]);
+            wp_delete_file($tmp_filename); // Clean up
+            return new WP_Error('stt_tmp_write_error', __('Could not write audio data to temporary file.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
 
         $effective_filename = 'audio.' . strtolower($audio_format);
 
         if (!class_exists('\CURLFile')) {
-             @unlink($tmp_filename);
-             return new WP_Error('stt_curlfile_missing', __('Server configuration error (CURLFile missing).', 'gpt3-ai-content-generator'), ['status' => 500]);
+            wp_delete_file($tmp_filename);
+            return new WP_Error('stt_curlfile_missing', __('Server configuration error (CURLFile missing).', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
-         $cfile = new \CURLFile($tmp_filename, mime_content_type($tmp_filename) ?: 'application/octet-stream', $effective_filename);
+        $cfile = new \CURLFile($tmp_filename, mime_content_type($tmp_filename) ?: 'application/octet-stream', $effective_filename);
         // --- End temporary file ---
 
 
@@ -90,7 +97,7 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
             'model' => $stt_model, // *** Use dynamic model ***
         ];
         if (!empty($options['language'])) {
-             $post_fields['language'] = sanitize_text_field($options['language']);
+            $post_fields['language'] = sanitize_text_field($options['language']);
         }
 
         $headers_array = $this->get_api_headers($api_key, 'transcribe'); // Get base headers (Authorization)
@@ -98,8 +105,9 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         $curl_headers = $this->format_headers_for_curl($headers_array); // Format for cURL
 
         $request_options = $this->get_request_options('transcribe'); // Get base options
-
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
         $ch = curl_init();
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt_array -- Reason: Using cURL for streaming.
         curl_setopt_array($ch, [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -115,12 +123,17 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         // --- End Prepare cURL Request ---
 
         // Execute cURL request
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_exec -- Reason: Using cURL for streaming.
         $body = curl_exec($ch);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_errno -- Reason: Using cURL for streaming.
         $curl_errno = curl_errno($ch);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
         $curl_error = curl_error($ch);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_close -- Reason: Using cURL for streaming.
         curl_close($ch);
-        @unlink($tmp_filename); // Clean up temporary file
+        wp_delete_file($tmp_filename); // Clean up temporary file
 
         // Handle cURL errors
         if ($curl_errno) {
@@ -138,20 +151,21 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         // Parse successful response
         $decoded_response = $this->decode_json($body, 'OpenAI STT');
         if (is_wp_error($decoded_response)) {
-             return new WP_Error($decoded_response->get_error_code(), $decoded_response->get_error_message(), ['status' => 500]);
+            return new WP_Error($decoded_response->get_error_code(), $decoded_response->get_error_message(), ['status' => 500]);
         }
 
         if (isset($decoded_response['text'])) {
             return $decoded_response['text'];
         } else {
-             return new WP_Error('openai_stt_no_text', __('Transcription successful but no text found in response.', 'gpt3-ai-content-generator'), ['status' => 500]);
+            return new WP_Error('openai_stt_no_text', __('Transcription successful but no text found in response.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
     }
 
     /**
      * Get supported audio input formats for OpenAI STT.
      */
-    public function get_supported_formats(): array {
+    public function get_supported_formats(): array
+    {
         // Based on OpenAI Whisper documentation (subject to change)
         return ['flac', 'm4a', 'mp3', 'mp4', 'mpeg', 'mpga', 'oga', 'ogg', 'wav', 'webm'];
     }
@@ -160,10 +174,11 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
      * Get API headers required for OpenAI STT requests.
      * Content-Type is handled by cURL for multipart.
      */
-    public function get_api_headers(string $api_key, string $operation): array {
-         return [
-             'Authorization' => 'Bearer ' . $api_key,
-         ];
+    public function get_api_headers(string $api_key, string $operation): array
+    {
+        return [
+            'Authorization' => 'Bearer ' . $api_key,
+        ];
     }
 
     /**
@@ -174,7 +189,8 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
      * @param array $headers Associative array of headers.
      * @return array Indexed array of header strings.
      */
-    public function format_headers_for_curl(array $headers): array {
+    public function format_headers_for_curl(array $headers): array
+    {
         $result = [];
         foreach ($headers as $k => $v) {
             $result[] = $k . ': ' . $v;

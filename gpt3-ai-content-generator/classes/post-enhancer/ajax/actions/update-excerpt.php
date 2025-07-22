@@ -15,6 +15,7 @@ class AIPKit_PostEnhancer_Update_Excerpt extends AIPKit_Post_Enhancer_Base_Ajax_
         $post = $this->get_post();
         if (is_wp_error($post)) { $this->send_error_response($post); return; }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the base class.
         $new_excerpt = isset($_POST['new_value']) ? wp_kses_post(wp_unslash($_POST['new_value'])) : '';
         
         $update_result = wp_update_post(['ID' => $post->ID, 'post_excerpt' => $new_excerpt], true);

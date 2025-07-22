@@ -158,6 +158,7 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         // 2. Get and validate form_id
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is verified in check_module_access_permissions() above.
         $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
         if (empty($form_id)) {
             $this->send_wp_error(new \WP_Error('id_required', __('Form ID is required for preview.', 'gpt3-ai-content-generator'), ['status' => 400]));

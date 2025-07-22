@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php
 // Status: MODIFIED (Logic moved here)
 
@@ -25,6 +26,7 @@ if (!defined('ABSPATH')) {
  */
 function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void {
     // Permission check already done by the handler calling this
+
     $vector_store_manager = $handler_instance->get_vector_store_manager();
     $vector_store_registry = $handler_instance->get_vector_store_registry();
     $wpdb = $handler_instance->get_wpdb();
@@ -47,15 +49,20 @@ function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_
         $handler_instance->send_wp_error($openai_config);
         return;
     }
-
-    $target_store_id = isset($_POST['target_store_id']) ? sanitize_text_field($_POST['target_store_id']) : '';
-    $source_type = isset($_POST['source_type']) ? sanitize_key($_POST['source_type']) : 'file_upload_global_form';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in the calling handler method; superglobals are sanitized below.
+    $post_data = wp_unslash($_POST);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in the calling handler method; superglobals are sanitized below.
+    $files_data = wp_unslash($_FILES);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in the calling handler method; superglobals are sanitized below.
+    $target_store_id = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in the calling handler method; superglobals are sanitized below.
+    $source_type = isset($post_data['source_type']) ? sanitize_key($post_data['source_type']) : 'file_upload_global_form';
 
     if (empty($target_store_id) || $target_store_id === '_create_new_') {
         $handler_instance->send_wp_error(new WP_Error('no_target_store_direct_lib', __('Please select an existing store for direct file upload.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
     }
-    if (!isset($_FILES['aipkit_vs_global_file_to_submit'])) {
+    if (!isset($files_data['aipkit_vs_global_file_to_submit'])) {
         $handler_instance->send_wp_error(new WP_Error('no_file_sent_direct_lib', __('No file was sent for upload.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
     }
@@ -63,7 +70,7 @@ function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_
         $handler_instance->send_wp_error(new WP_Error('upload_util_missing_lib', __('Upload utility is missing.', 'gpt3-ai-content-generator'), ['status' => 500]));
         return;
     }
-    $file = $_FILES['aipkit_vs_global_file_to_submit'];
+    $file = $files_data['aipkit_vs_global_file_to_submit'];
     $upload_limits = \WPAICG\Includes\AIPKit_Upload_Utils::get_effective_upload_limit_summary();
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $handler_instance->send_wp_error(new WP_Error('upload_error_direct_lib', __('Error during file upload: Code ', 'gpt3-ai-content-generator') . $file['error'], ['status' => 400]));

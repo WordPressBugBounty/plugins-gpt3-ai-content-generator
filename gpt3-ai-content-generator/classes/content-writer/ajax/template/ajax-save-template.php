@@ -26,11 +26,15 @@ function ajax_save_template_logic(AIPKit_Content_Writer_Template_Ajax_Handler $h
         $handler->send_wp_error(new WP_Error('manager_missing', 'Template manager unavailable.'), 500);
         return;
     }
-
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
     $template_id = isset($_POST['template_id']) && !empty($_POST['template_id']) ? absint($_POST['template_id']) : 0;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
     $template_name = isset($_POST['template_name']) ? sanitize_text_field(wp_unslash($_POST['template_name'])) : '';
-    $config_json = isset($_POST['config']) ? wp_unslash($_POST['config']) : '{}';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $config_json = isset($_POST['config']) ? wp_kses_post(wp_unslash($_POST['config'])) : '{}';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
     $template_type = isset($_POST['template_type']) ? sanitize_key($_POST['template_type']) : 'content_writer';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
     $config = json_decode($config_json, true);
 
     if (empty($template_name)) {

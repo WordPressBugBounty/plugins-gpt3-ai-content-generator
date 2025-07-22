@@ -95,6 +95,7 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by check_module_access_permissions() above.
         $post_data = wp_unslash($_POST);
         $current_settings = self::get_settings();
         $new_settings = $current_settings; // Start with current settings as a base

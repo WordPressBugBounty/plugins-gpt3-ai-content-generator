@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-stores/ajax-list-vector-stores-openai.php
 // Status: MODIFIED
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_list_vector_stores_openai_logic(AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance): void {
+function do_ajax_list_vector_stores_openai_logic(AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance): void
+{
     // Permission check already done by the handler calling this
 
     $vector_store_manager = $handler_instance->get_vector_store_manager();
@@ -35,11 +37,16 @@ function do_ajax_list_vector_stores_openai_logic(AIPKit_OpenAI_Vector_Stores_Aja
         return;
     }
 
-    // Logic from old _aipkit_openai_vs_ajax_list_vector_stores_logic
-    $limit  = isset($_POST['limit']) ? absint($_POST['limit']) : 20;
-    $order  = isset($_POST['order']) && in_array($_POST['order'], ['asc', 'desc']) ? sanitize_key($_POST['order']) : 'desc';
-    $after  = isset($_POST['after']) && !empty($_POST['after']) ? sanitize_text_field($_POST['after']) : null;
-    $before = isset($_POST['before']) && !empty($_POST['before']) ? sanitize_text_field($_POST['before']) : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $limit  = isset($post_data['limit']) ? absint($post_data['limit']) : 20;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $order  = isset($post_data['order']) && in_array($post_data['order'], ['asc', 'desc']) ? sanitize_key($post_data['order']) : 'desc';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $after  = isset($post_data['after']) && !empty($post_data['after']) ? sanitize_text_field($post_data['after']) : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $before = isset($post_data['before']) && !empty($post_data['before']) ? sanitize_text_field($post_data['before']) : null;
     $limit = max(1, min($limit, 100));
 
     $response = $vector_store_manager->list_all_indexes('OpenAI', $openai_config, $limit, $order, $after, $before);

@@ -20,6 +20,7 @@ class AIPKit_Retry_Automated_Task_Queue_Item_Action extends AIPKit_Automated_Tas
         $permission_check = $this->check_module_access_permissions('autogpt', self::NONCE_ACTION);
         if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
         global $wpdb;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $item_id = isset($_POST['item_id']) ? absint($_POST['item_id']) : 0;
         if (empty($item_id)) { $this->send_wp_error(new WP_Error('missing_item_id_retry', __('Queue item ID is required.', 'gpt3-ai-content-generator')), 400); return; }
 

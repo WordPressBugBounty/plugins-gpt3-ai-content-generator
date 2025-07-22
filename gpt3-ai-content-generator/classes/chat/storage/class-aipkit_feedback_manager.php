@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/class-aipkit_feedback_manager.php
-// NEW FILE
+// Status: NEW FILE
 
 namespace WPAICG\Chat\Storage;
 
@@ -56,7 +56,10 @@ class FeedbackManager
             $params[] = $session_id;
         }
 
-        $log_row = $this->wpdb->get_row($this->wpdb->prepare("SELECT id, messages FROM {$this->table_name} WHERE {$where_sql} LIMIT 1", $params), ARRAY_A);
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $this->table_name is safe (from $wpdb->prefix), and $where_sql contains placeholders.
+        $sql = "SELECT id, messages FROM {$this->table_name} WHERE {$where_sql} LIMIT 1";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $this->wpdb->prepare is used below.
+        $log_row = $this->wpdb->get_row($this->wpdb->prepare($sql, $params), ARRAY_A); 
 
         if (!$log_row) {
             return new \WP_Error('conversation_not_found', __('Conversation not found.', 'gpt3-ai-content-generator'), ['status' => 404]);

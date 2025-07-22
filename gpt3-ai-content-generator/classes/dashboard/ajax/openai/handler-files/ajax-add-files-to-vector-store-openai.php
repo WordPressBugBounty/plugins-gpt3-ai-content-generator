@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php
-// Status: MODIFIED (Logic moved here)
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles;
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_add_files_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void {
+function do_ajax_add_files_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void
+{
     // Permission check already done by the handler calling this
 
     $vector_store_manager = $handler_instance->get_vector_store_manager();
@@ -37,9 +39,11 @@ function do_ajax_add_files_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Sto
         return;
     }
 
-    // Logic from old _aipkit_openai_vs_files_ajax_add_files_to_vector_store_openai_logic
-    $store_id = isset($_POST['store_id']) ? sanitize_text_field($_POST['store_id']) : '';
-    $file_ids_raw = isset($_POST['file_ids']) ? $_POST['file_ids'] : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    $store_id = isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '';
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized in a loop below.
+    $file_ids_raw = isset($post_data['file_ids']) ? $post_data['file_ids'] : '';
     if (empty($store_id)) {
         $handler_instance->send_wp_error(new WP_Error('missing_store_id', __('Vector Store ID is required.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
@@ -48,8 +52,10 @@ function do_ajax_add_files_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Sto
         $handler_instance->send_wp_error(new WP_Error('missing_file_ids', __('File IDs are required.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
     }
-    $file_ids_array = is_array($file_ids_raw) ? $file_ids_raw : array_map('trim', explode(',', (string)$file_ids_raw));
-    $file_ids_array = array_filter($file_ids_array, function($id) { return preg_match('/^file-[a-zA-Z0-9]+$/', $id); });
+    $file_ids_array = is_array($file_ids_raw) ? array_map('sanitize_text_field', $file_ids_raw) : array_map('sanitize_text_field', array_map('trim', explode(',', (string) $file_ids_raw)));
+    $file_ids_array = array_filter($file_ids_array, function ($id) {
+        return preg_match('/^file-[a-zA-Z0-9]+$/', $id);
+    });
     if (empty($file_ids_array)) {
         $handler_instance->send_wp_error(new WP_Error('invalid_file_ids', __('No valid File IDs provided.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;

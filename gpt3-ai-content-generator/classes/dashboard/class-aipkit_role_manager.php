@@ -231,6 +231,7 @@ class AIPKit_Role_Manager
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The array is sanitized inside the loop.
         $permissions_input = isset($_POST['permissions']) ? wp_unslash($_POST['permissions']) : [];
         $sanitized_permissions = [];
         $valid_modules = array_keys(self::get_manageable_modules());

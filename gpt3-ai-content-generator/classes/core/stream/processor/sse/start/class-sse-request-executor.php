@@ -37,28 +37,43 @@ class SSERequestExecutor {
         }
 
         $curl_options_base = $strategy->get_request_options('stream');
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
         $ch = curl_init();
-
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_URL, $endpoint_url);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_POST, true);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_POSTFIELDS, $curl_post_json);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_WRITEFUNCTION, [$this->processorInstance, 'curl_stream_callback_public_wrapper']);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_TIMEOUT, $curl_options_base['timeout'] ?? 120);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $curl_options_base['sslverify'] ?? true);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, ($curl_options_base['sslverify'] ?? true) ? 2 : 0);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_NOPROGRESS, false);
         if (!empty($curl_options_base['user-agent'])) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
             curl_setopt($ch, CURLOPT_USERAGENT, $curl_options_base['user-agent']);
         }
-
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_exec -- Reason: Using cURL for streaming.
         curl_exec($ch);
-
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
         $final_http_code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_errno -- Reason: Using cURL for streaming.
         $curl_error_num  = curl_errno($ch);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
         $curl_error_msg  = curl_error($ch);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_close -- Reason: Using cURL for streaming.
         curl_close($ch);
         return [
             'final_http_code' => $final_http_code,

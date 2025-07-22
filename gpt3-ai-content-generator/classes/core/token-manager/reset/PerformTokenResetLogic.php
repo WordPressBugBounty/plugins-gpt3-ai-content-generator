@@ -1,6 +1,6 @@
 <?php
 
-// File: classes/core/token-manager/reset/PerformTokenResetLogic.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/token-manager/reset/PerformTokenResetLogic.php
 // Status: MODIFIED
 
 namespace WPAICG\Core\TokenManager\Reset;
@@ -24,8 +24,8 @@ function PerformTokenResetLogic(AIPKit_Token_Manager $managerInstance): void
 {
     global $wpdb;
     $current_time = time();
-    $current_day_of_week = date('N', $current_time);
-    $current_day_of_month = date('j', $current_time);
+    $current_day_of_week = wp_date('w', $current_time); // 0 (for Sunday) through 6 (for Saturday)
+    $current_day_of_month = wp_date('j', $current_time);
 
     // --- 1. Chatbot Token Reset ---
     $bot_storage = $managerInstance->get_bot_storage();
@@ -43,10 +43,6 @@ function PerformTokenResetLogic(AIPKit_Token_Manager $managerInstance): void
                 if ($reset_period === 'never') {
                     continue;
                 }
-
-                $reset_needed = IsResetDueLogic($current_time, $reset_period, (int)get_user_meta(0, MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX . $bot_id, true)); // Check generic last reset for logic, though actual meta is per-user
-                // More accurately, the cron should just trigger the reset, and individual check_and_reset_tokens handles if it's due *per user*
-                // For a global cron, we reset all.
 
                 $reset_needed_for_cron = false;
                 if ($reset_period === 'daily') {

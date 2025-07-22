@@ -92,13 +92,12 @@ class ConversationLogger
 
         // --- 5. Find Existing Conversation Row ---
         $where_parts = LoggerMethods\build_where_clauses_logic($conversation_uuid, $module, $bot_id, $user_id, $session_id);
-        $existing_log_row = $this->wpdb->get_row(
-            $this->wpdb->prepare(
-                "SELECT id, messages FROM {$this->table_name} WHERE {$where_parts['where_sql']} LIMIT 1",
-                $where_parts['params']
-            ),
-            ARRAY_A
-        );
+        
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $this->table_name is safe (from $wpdb->prefix), and $where_parts['where_sql'] contains placeholders for the prepare method.
+        $sql = "SELECT id, messages FROM {$this->table_name} WHERE {$where_parts['where_sql']} LIMIT 1";
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $sql is constructed with placeholders and safe variables, and is prepared here.
+        $existing_log_row = $this->wpdb->get_row($this->wpdb->prepare($sql, $where_parts['params']), ARRAY_A);
 
         // --- 6. Update or Insert ---
         if ($existing_log_row) {

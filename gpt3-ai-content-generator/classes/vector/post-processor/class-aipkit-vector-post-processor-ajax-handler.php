@@ -59,10 +59,13 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
             return;
         }
 
-        $post_ids_raw = isset($_POST['post_ids']) && is_array($_POST['post_ids']) ? $_POST['post_ids'] : [];
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $post_data = wp_unslash($_POST);
+
+        $post_ids_raw = isset($post_data['post_ids']) && is_array($post_data['post_ids']) ? $post_data['post_ids'] : [];
         $post_ids = array_map('absint', $post_ids_raw);
         $post_ids = array_filter($post_ids, function ($id) { return $id > 0; });
-        $provider = isset($_POST['provider']) ? sanitize_key($_POST['provider']) : '';
+        $provider = isset($post_data['provider']) ? sanitize_key($post_data['provider']) : '';
 
         if (empty($post_ids)) {
             wp_send_json_error(['message' => __('No posts selected for indexing.', 'gpt3-ai-content-generator')], 400);
@@ -80,7 +83,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
         $new_store_id = null; // This is specific to OpenAI when creating a new store, not used by Pinecone/Qdrant here
 
         if ($provider === 'openai' && $this->openai_processor) {
-            $target_store_id = isset($_POST['target_store_id']) ? sanitize_text_field($_POST['target_store_id']) : '';
+            $target_store_id = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : '';
             if (empty($target_store_id)) {
                 wp_send_json_error(['message' => __('Please select an existing OpenAI vector store.', 'gpt3-ai-content-generator')], 400);
                 return;
@@ -97,9 +100,9 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
                 }
             }
         } elseif ($provider === 'pinecone' && $this->pinecone_processor) {
-            $target_index_id = isset($_POST['target_index_id']) ? sanitize_text_field($_POST['target_index_id']) : '';
-            $embedding_provider_key = isset($_POST['embedding_provider']) ? sanitize_key($_POST['embedding_provider']) : '';
-            $embedding_model = isset($_POST['embedding_model']) ? sanitize_text_field($_POST['embedding_model']) : '';
+            $target_index_id = isset($post_data['target_index_id']) ? sanitize_text_field($post_data['target_index_id']) : '';
+            $embedding_provider_key = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : '';
+            $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : '';
 
             if (empty($target_index_id)) {
                 wp_send_json_error(['message' => __('Please select a Pinecone index.', 'gpt3-ai-content-generator')], 400);
@@ -121,9 +124,9 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
                 }
             }
         } elseif ($provider === 'qdrant' && $this->qdrant_processor) { // ADDED Qdrant case
-            $target_collection_name = isset($_POST['target_collection_name']) ? sanitize_text_field($_POST['target_collection_name']) : '';
-            $embedding_provider_key = isset($_POST['embedding_provider']) ? sanitize_key($_POST['embedding_provider']) : '';
-            $embedding_model = isset($_POST['embedding_model']) ? sanitize_text_field($_POST['embedding_model']) : '';
+            $target_collection_name = isset($post_data['target_collection_name']) ? sanitize_text_field($post_data['target_collection_name']) : '';
+            $embedding_provider_key = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : '';
+            $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : '';
 
             if (empty($target_collection_name)) {
                 wp_send_json_error(['message' => __('Please select a Qdrant collection.', 'gpt3-ai-content-generator')], 400);

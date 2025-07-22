@@ -49,21 +49,35 @@ class LogAjaxHandler extends BaseAjaxHandler
         return $filters;
     }
 
-    /** Converts an array into a CSV-formatted string line. */
+    /**
+     * Converts an array into a CSV-formatted string line.
+     * Uses a memory stream which is the standard and efficient way to use fputcsv
+     * without creating a physical file. WP_Filesystem is not applicable for php://memory.
+     */
     private function array_to_csv_line(array $fields): string
     {
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Reason: Using php://memory stream which is not a direct filesystem operation. WP_Filesystem is not applicable here.
-        $f = fopen('php://memory', 'r+');
-        if (fputcsv($f, $fields) === false) {
-            fclose($f);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+        $handle = fopen('php://memory', 'w');
+        if (false === $handle) {
             return '';
         }
-        rewind($f);
-        $csv_line = stream_get_contents($f);
-        fclose($f);
-        if ($csv_line === false) {
+
+        if (fputcsv($handle, $fields) === false) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Reason: fclose is safe here
+            fclose($handle);
             return '';
         }
+        
+        rewind($handle);
+        $csv_line = stream_get_contents($handle);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Reason: fclose is safe here
+        fclose($handle);
+
+        if (false === $csv_line) {
+            return '';
+        }
+
+        // fputcsv appends a system-specific newline. rtrim and adding a consistent \n handles this.
         return rtrim($csv_line) . "\n";
     }
 
@@ -122,7 +136,7 @@ class LogAjaxHandler extends BaseAjaxHandler
             return;
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_module_access_permissions() method.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $page = isset($_POST['page']) ? absint($_POST['page']) : 0;
         $batch_size = 50;
         $total_conversations_known = isset($_POST['total_count']) ? absint($_POST['total_count']) : 0;

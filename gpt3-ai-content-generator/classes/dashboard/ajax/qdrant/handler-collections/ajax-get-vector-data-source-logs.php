@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php
 // Status: MODIFIED
 
@@ -18,12 +19,15 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance
  * @return void
  */
-function _aipkit_qdrant_ajax_get_vector_data_source_logs_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void {
+function _aipkit_qdrant_ajax_get_vector_data_source_logs_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void
+{
     $wpdb = $handler_instance->get_wpdb();
     $data_source_table_name = $handler_instance->get_data_source_table_name();
 
-    $provider = isset($_POST['provider']) ? sanitize_key($_POST['provider']) : '';
-    $store_id = isset($_POST['store_id']) ? sanitize_text_field($_POST['store_id']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    $provider = isset($post_data['provider']) ? sanitize_key($post_data['provider']) : '';
+    $store_id = isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '';
 
     if (empty($provider) || empty($store_id)) {
         $handler_instance->send_wp_error(new WP_Error('missing_params_logs_qdrant', __('Provider and Store/Index/Collection ID are required to fetch logs.', 'gpt3-ai-content-generator'), ['status' => 400]));
@@ -35,18 +39,8 @@ function _aipkit_qdrant_ajax_get_vector_data_source_logs_logic(AIPKit_Vector_Sto
     $logs = wp_cache_get($cache_key, $cache_group);
 
     if (false === $logs) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $logs = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id
-                 FROM {$data_source_table_name}
-                 WHERE provider = %s AND vector_store_id = %s
-                 ORDER BY timestamp DESC LIMIT 20",
-                $provider,
-                $store_id
-            ),
-            ARRAY_A
-        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $data_source_table_name is safe.
+        $logs = $wpdb->get_results($wpdb->prepare("SELECT timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id FROM {$data_source_table_name} WHERE provider = %s AND vector_store_id = %s ORDER BY timestamp DESC LIMIT 20", $provider, $store_id), ARRAY_A);
         wp_cache_set($cache_key, $logs, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
     }
 
@@ -66,7 +60,8 @@ function _aipkit_qdrant_ajax_get_vector_data_source_logs_logic(AIPKit_Vector_Sto
  * @param string $data_source_table_name The name of the data source log table.
  * @param array $log_data Data for the log entry.
  */
-function _aipkit_qdrant_log_vector_data_source_entry_logic(\wpdb $wpdb, string $data_source_table_name, array $log_data): void {
+function _aipkit_qdrant_log_vector_data_source_entry_logic(\wpdb $wpdb, string $data_source_table_name, array $log_data): void
+{
     $defaults = [
         'user_id' => get_current_user_id(),
         'timestamp' => current_time('mysql', 1),

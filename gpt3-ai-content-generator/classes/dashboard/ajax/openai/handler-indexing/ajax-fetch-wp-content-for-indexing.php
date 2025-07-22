@@ -20,17 +20,20 @@ if (!defined('ABSPATH')) {
  * @return void
  */
 function do_ajax_fetch_wp_content_for_indexing_logic(AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler $handler_instance): void {
-    // Permission check already done by the handler calling this
-
-    $post_types    = isset($_POST['post_types']) && is_array($_POST['post_types']) ? array_map('sanitize_key', $_POST['post_types']) : ['post'];
-    $post_status   = isset($_POST['post_status']) ? sanitize_key($_POST['post_status']) : 'publish';
-    $paged         = isset($_POST['paged']) ? absint($_POST['paged']) : 1;
-    $target_store_id = isset($_POST['target_store_id']) ? sanitize_text_field($_POST['target_store_id']) : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_types    = isset($post_data['post_types']) && is_array($post_data['post_types']) ? array_map('sanitize_key', $post_data['post_types']) : ['post'];
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_status   = isset($post_data['post_status']) ? sanitize_key($post_data['post_status']) : 'publish';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $paged         = isset($post_data['paged']) ? absint($post_data['paged']) : 1;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $target_store_id = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
     $posts_per_page = 15;
-
-    $get_content_for_ids = isset($_POST['get_content_for_ids']) && is_array($_POST['get_content_for_ids'])
-        ? array_map('absint', $_POST['get_content_for_ids'])
-        : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $get_content_for_ids = isset($post_data['get_content_for_ids']) && is_array($post_data['get_content_for_ids']) ? array_map('absint', $post_data['get_content_for_ids']) : null;
 
     $args = [
         'post_type'      => $post_types,

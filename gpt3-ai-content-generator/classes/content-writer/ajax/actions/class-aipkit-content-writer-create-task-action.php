@@ -36,6 +36,7 @@ class AIPKit_Content_Writer_Create_Task_Action extends AIPKit_Content_Writer_Bas
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in validate_permissions_logic.
         $raw_settings = isset($_POST) ? wp_unslash($_POST) : [];
 
         // --- NEW: Google Sheets Logic ---

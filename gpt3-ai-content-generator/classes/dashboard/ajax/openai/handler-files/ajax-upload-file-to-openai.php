@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php
-// Status: MODIFIED (Logic moved here)
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles;
 
@@ -20,7 +21,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_upload_file_to_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void {
+function do_ajax_upload_file_to_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void
+{
     // Permission and nonce checks are already done by the handler calling this
 
     // --- Pro Check ---
@@ -30,12 +32,12 @@ function do_ajax_upload_file_to_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Aj
     }
     // --- End Pro Check ---
 
-    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by the calling handler method.
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked in handler; file data is validated below.
     if (!isset($_FILES['aipkit_file_to_upload'])) {
         $handler_instance->send_wp_error(new WP_Error('no_file', __('No file provided.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
     }
-    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by the calling handler method.
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked in handler; file data is validated below.
     $file = $_FILES['aipkit_file_to_upload'];
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $handler_instance->send_wp_error(new WP_Error('upload_error', __('Error during file upload: Code ', 'gpt3-ai-content-generator') . $file['error'], ['status' => 400]));

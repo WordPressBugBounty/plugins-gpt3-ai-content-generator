@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-chat-admin-assets.php
 // Status: MODIFIED
 
@@ -196,9 +197,14 @@ class ChatAdminAssets
             $is_triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
         }
 
+        // --- FIX: Correctly sanitize the IP address ---
+        // This addresses both the MissingUnslash and InputNotSanitized warnings.
+        $user_ip_sanitized = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
+        // --- END FIX ---
+
         $preview_config_for_js = [
             'nonce' => $aipkit_frontend_nonce, 'ajaxUrl' => admin_url('admin-ajax.php'),
-            'userIp' => $_SERVER['REMOTE_ADDR'] ?? null, 'requireConsentCompliance' => false,
+            'userIp' => $user_ip_sanitized, 'requireConsentCompliance' => false,
             'openaiVectorStores' => $openai_vector_stores, 'pineconeIndexes' => $pinecone_indexes,
             'qdrantCollections' => $qdrant_collections, 'openaiEmbeddingModels' => $openai_embedding_models,
             'googleEmbeddingModels' => $google_embedding_models, 'isProPlan' => $is_pro_plan,

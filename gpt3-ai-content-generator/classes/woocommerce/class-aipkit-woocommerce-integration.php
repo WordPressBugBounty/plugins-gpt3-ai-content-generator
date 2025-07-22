@@ -79,7 +79,7 @@ class AIPKit_WooCommerce_Integration
         echo '<input type="checkbox" id="aipkit_is_token_package" name="_aipkit_is_token_package" value="yes" ' . checked($is_token_package, 'yes', false) . ' onchange="document.getElementById(\'aipkit_tokens_amount_wrapper\').style.display = this.checked ? \'block\' : \'none\';" />';
         esc_html_e(' This is a token package product', 'gpt3-ai-content-generator');
         echo '</label></p>';
-        
+
         echo '<div id="aipkit_tokens_amount_wrapper" style="display:' . ($is_token_package === 'yes' ? 'block' : 'none') . ';">';
         echo '<p><label for="aipkit_tokens_amount">' . esc_html__('Tokens Granted:', 'gpt3-ai-content-generator') . '</label>';
         echo '<input type="number" id="aipkit_tokens_amount" name="_aipkit_tokens_amount" value="' . esc_attr($tokens_amount) . '" class="short" min="0" step="1" placeholder="e.g., 100000" />';
@@ -94,9 +94,12 @@ class AIPKit_WooCommerce_Integration
      */
     public function save_token_package_meta_box_data($post_id)
     {
-        if (!isset($_POST['aipkit_token_package_nonce']) || !wp_verify_nonce($_POST['aipkit_token_package_nonce'], 'aipkit_save_token_package_meta')) {
+        // --- FIX: Unslash and sanitize POST data before use ---
+        $post_data = wp_unslash($_POST);
+        if (!isset($post_data['aipkit_token_package_nonce']) || !wp_verify_nonce(sanitize_key($post_data['aipkit_token_package_nonce']), 'aipkit_save_token_package_meta')) {
             return;
         }
+        // --- END FIX ---
 
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return;
@@ -105,12 +108,12 @@ class AIPKit_WooCommerce_Integration
         if (!current_user_can('edit_post', $post_id)) {
             return;
         }
-        
-        $is_token_package = isset($_POST['_aipkit_is_token_package']) ? 'yes' : 'no';
+
+        $is_token_package = isset($post_data['_aipkit_is_token_package']) ? 'yes' : 'no';
         update_post_meta($post_id, '_aipkit_is_token_package', $is_token_package);
 
-        if ($is_token_package === 'yes' && isset($_POST['_aipkit_tokens_amount'])) {
-            $tokens_amount = absint($_POST['_aipkit_tokens_amount']);
+        if ($is_token_package === 'yes' && isset($post_data['_aipkit_tokens_amount'])) {
+            $tokens_amount = absint($post_data['_aipkit_tokens_amount']);
             update_post_meta($post_id, '_aipkit_tokens_amount', $tokens_amount);
         } else {
             // Delete the tokens amount if it's no longer a token package

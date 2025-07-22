@@ -67,7 +67,7 @@ function trigger_task_event_logic(int $task_id): void
     $hook = AIPKit_Automated_Task_Scheduler::get_task_specific_cron_hook($task_id);
     $args = [$task_id];
     $next_timestamp = wp_next_scheduled($hook, $args);
-    $next_run_datetime_gmt = $next_timestamp ? date('Y-m-d H:i:s', $next_timestamp) : null;
+    $next_run_datetime_gmt = $next_timestamp ? gmdate('Y-m-d H:i:s', $next_timestamp) : null;
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
     $wpdb->update(
         $tasks_table_name,

@@ -2,7 +2,6 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/template-manager/get-templates-for-user.php
 // Status: MODIFIED
-// I have added a `$type` parameter to filter the templates by their type.
 
 namespace WPAICG\ContentWriter\TemplateManagerMethods;
 
@@ -28,18 +27,15 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
     if (!$user_id) {
         return [];
     }
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
-    $user_templates_raw = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$table_name} WHERE user_id = %d AND is_default = 0 AND template_type = %s ORDER BY template_name ASC",
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+    $user_templates_raw = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE user_id = %d AND is_default = 0 AND template_type = %s ORDER BY template_name ASC",
             $user_id,
             $type
         ),
         ARRAY_A
     );
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
-    $default_template_raw = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM {$table_name} WHERE user_id = 0 AND is_default = 1 AND template_type = %s LIMIT 1",
-            $type
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+    $default_template_raw = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE user_id = 0 AND is_default = 1 AND template_type = %s LIMIT 1", $type
         ),
         ARRAY_A
     );
@@ -97,8 +93,8 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
         }
         if (isset($raw_template['post_schedule']) && $raw_template['post_schedule'] !== null && $raw_template['post_schedule'] !== '0000-00-00 00:00:00') {
             $ts = strtotime($raw_template['post_schedule']);
-            $raw_template['config']['post_schedule_date'] = date('Y-m-d', $ts);
-            $raw_template['config']['post_schedule_time'] = date('H:i', $ts);
+            $raw_template['config']['post_schedule_date'] = wp_date('Y-m-d', $ts);
+            $raw_template['config']['post_schedule_time'] = wp_date('H:i', $ts);
         } else {
             $raw_template['config']['post_schedule_date'] = '';
             $raw_template['config']['post_schedule_time'] = '';

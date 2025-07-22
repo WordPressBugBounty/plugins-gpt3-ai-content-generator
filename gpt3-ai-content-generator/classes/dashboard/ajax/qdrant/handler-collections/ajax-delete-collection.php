@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php
 // Status: MODIFIED
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance
  * @return void
  */
-function _aipkit_qdrant_ajax_delete_collection_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void {
+function _aipkit_qdrant_ajax_delete_collection_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void
+{
     $vector_store_manager = $handler_instance->get_vector_store_manager();
     $vector_store_registry = $handler_instance->get_vector_store_registry();
     $wpdb = $handler_instance->get_wpdb();
@@ -35,7 +37,8 @@ function _aipkit_qdrant_ajax_delete_collection_logic(AIPKit_Vector_Store_Qdrant_
         return;
     }
 
-    $collection_name = isset($_POST['collection_name']) ? sanitize_text_field($_POST['collection_name']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $collection_name = isset($_POST['collection_name']) ? sanitize_text_field(wp_unslash($_POST['collection_name'])) : '';
     if (empty($collection_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_name_delete_qdrant', __('Collection name is required for deletion.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;

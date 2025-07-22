@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php
 // Status: MODIFIED
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_delete_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance): void {
+function do_ajax_delete_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance): void
+{
     // Permission check already done by the handler calling this
 
     $vector_store_manager = $handler_instance->get_vector_store_manager();
@@ -38,8 +40,10 @@ function do_ajax_delete_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Aj
         return;
     }
 
-    // Logic from old _aipkit_openai_vs_ajax_delete_vector_store_logic
-    $store_id = isset($_POST['store_id']) ? sanitize_text_field($_POST['store_id']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $store_id = isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '';
     if (empty($store_id)) {
         $handler_instance->send_wp_error(new WP_Error('missing_store_id', __('Vector Store ID is required.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;

@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php
-// Status: MODIFIED (Logic moved here)
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles;
 
@@ -19,8 +20,23 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_add_text_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void {
+function do_ajax_add_text_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void
+{
     // Permission check already done by the handler calling this
+
+    // --- START FIX: Initialize WP_Filesystem ---
+    if (!function_exists('WP_Filesystem')) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+    WP_Filesystem();
+    global $wp_filesystem;
+
+    if (is_wp_error($wp_filesystem) || !$wp_filesystem) {
+        $error = is_wp_error($wp_filesystem) ? $wp_filesystem : new WP_Error('filesystem_init_failed', __('Could not initialize the WordPress filesystem.', 'gpt3-ai-content-generator'));
+        $handler_instance->send_wp_error($error, 500);
+        return;
+    }
+    // --- END FIX ---
 
     $vector_store_manager = $handler_instance->get_vector_store_manager();
     $vector_store_registry = $handler_instance->get_vector_store_registry();
@@ -39,9 +55,14 @@ function do_ajax_add_text_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stor
     }
 
     // Logic from old _aipkit_openai_vs_files_ajax_add_text_to_vector_store_openai_logic
-    $target_store_id = isset($_POST['target_store_id']) ? sanitize_text_field($_POST['target_store_id']) : '';
-    $text_content = isset($_POST['text_content']) ? wp_kses_post(wp_unslash($_POST['text_content'])) : '';
-    $source_type = isset($_POST['source_type']) ? sanitize_key($_POST['source_type']) : 'text_entry_global_form';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $target_store_id = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $text_content = isset($post_data['text_content']) ? wp_kses_post(wp_unslash($post_data['text_content'])) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $source_type = isset($post_data['source_type']) ? sanitize_key($post_data['source_type']) : 'text_entry_global_form';
 
     if (empty($target_store_id) || $target_store_id === '_create_new_') {
         $handler_instance->send_wp_error(new WP_Error('no_target_store_text_direct', __('Please select an existing store for text content.', 'gpt3-ai-content-generator'), ['status' => 400]));
@@ -68,13 +89,17 @@ function do_ajax_add_text_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stor
 
     $strategy = AIPKit_Vector_Provider_Strategy_Factory::get_strategy('OpenAI');
     if (is_wp_error($strategy) || !method_exists($strategy, 'upload_file_for_vector_store')) {
-        @unlink($temp_file_path);
+        // --- START FIX: Use WP_Filesystem::delete() instead of unlink() ---
+        $wp_filesystem->delete($temp_file_path);
+        // --- END FIX ---
         $handler_instance->send_wp_error(new WP_Error('strategy_error_text_direct', __('File upload component not available for text content.', 'gpt3-ai-content-generator'), ['status' => 500]));
         return;
     }
     $strategy->connect($openai_config);
     $upload_result = $strategy->upload_file_for_vector_store($temp_file_path, basename($temp_file_path), 'user_data');
-    @unlink($temp_file_path);
+    // --- START FIX: Use WP_Filesystem::delete() instead of unlink() ---
+    $wp_filesystem->delete($temp_file_path);
+    // --- END FIX ---
 
     if (is_wp_error($upload_result) || !isset($upload_result['id'])) {
         $err_msg = is_wp_error($upload_result) ? $upload_result->get_error_message() : 'Missing file ID in upload response for text.';

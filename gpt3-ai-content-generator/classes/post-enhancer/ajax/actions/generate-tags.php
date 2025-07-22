@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/ajax/actions/generate-tags.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\PostEnhancer\Ajax\Actions;
 
@@ -28,15 +28,12 @@ class AIPKit_PostEnhancer_Generate_Tags extends AIPKit_Post_Enhancer_Base_Ajax_A
         $original_title = trim($post->post_title);
         $post_content_snippet = get_post_content_snippet_logic($post);
 
-        $prompt_template = (<<<PROMPT
-Generate exactly 5 suggestions for a comma-separated list of tags for a blog post based on the following information.
-Each suggestion should be on a new line. Each suggestion should contain 5-10 relevant tags.
-Return ONLY the 5 comma-separated lists.
-Do NOT include any introduction, explanation, numbering, or markdown formatting (like **).
-
-Original title: "{title}"
-Post content snippet: "{content}"
-PROMPT);
+        $prompt_template = 'Generate exactly 5 suggestions for a comma-separated list of tags for a blog post based on the following information.' . "\n" .
+                           'Each suggestion should be on a new line. Each suggestion should contain 5-10 relevant tags.' . "\n" .
+                           'Return ONLY the 5 comma-separated lists.' . "\n" .
+                           'Do NOT include any introduction, explanation, numbering, or markdown formatting (like **).' . "\n\n" .
+                           'Original title: "{title}"' . "\n" .
+                           'Post content snippet: "{content}"';
 
         $prompt = str_replace(['{title}', '{content}'], [$original_title, $post_content_snippet], $prompt_template);
         $final_prompt = apply_filters('aipkit_post_enhancer_tags_prompt', $prompt, $post->ID);

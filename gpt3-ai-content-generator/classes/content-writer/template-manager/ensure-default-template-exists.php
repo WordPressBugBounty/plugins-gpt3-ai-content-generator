@@ -27,12 +27,8 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
 
     $current_user_id = get_current_user_id();
     $user_id_for_default = 0;
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
-    $default_template = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM {$table_name} WHERE user_id = %d AND is_default = 1 AND template_type = 'content_writer' LIMIT 1",
-            $user_id_for_default
-        )
-    );
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+    $default_template = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE user_id = %d AND is_default = 1 AND template_type = 'content_writer' LIMIT 1", $user_id_for_default));
 
     if (!$default_template) {
         if (!class_exists(AIPKit_Providers::class) || !class_exists(AIPKIT_AI_Settings::class)) {

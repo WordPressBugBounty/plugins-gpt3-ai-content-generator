@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 2.3.19\n"
+"Project-Id-Version: AI Power: Complete AI Pack 2.3.20\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-20T10:29:41+00:00\n"
+"POT-Creation-Date: 2025-07-22T10:14:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -145,7 +145,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:29
 #: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:98
 #: admin/views/modules/content-writer/partials/template-controls.php:48
-#: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:201
+#: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:202
 #: classes/ai-forms/storage/methods/fn-get-form-data.php:120
 #: public/class-wp-ai-content-generator-public.php:150
 #: public/js/ai-forms/actions/sse/event-handlers.js:118
@@ -568,13 +568,13 @@ msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:209
 #: admin/data/dashboard-localized-texts.php:111
-#: classes/autogpt/ajax/actions/save-task/validate-task-request.php:31
+#: classes/autogpt/ajax/actions/save-task/validate-task-request.php:29
 msgid "Task name is required."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:210
 #: admin/data/dashboard-localized-texts.php:112
-#: classes/autogpt/ajax/actions/save-task/validate-task-request.php:34
+#: classes/autogpt/ajax/actions/save-task/validate-task-request.php:32
 msgid "Task type is required."
 msgstr ""
 
@@ -740,7 +740,7 @@ msgid "Not Scheduled"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:245
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-action.php:38
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-action.php:39
 msgid "Task deleted successfully."
 msgstr ""
 
@@ -786,10 +786,10 @@ msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:256
 #: admin/views/modules/settings/partials/token-stats.php:29
-#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:81
-#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:86
-#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:90
-#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:91
+#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:98
+#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:103
+#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:107
+#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:108
 #: admin/js/dashboard/credits/credits-render.js:139
 msgid "N/A"
 msgstr ""
@@ -884,58 +884,58 @@ msgstr ""
 msgid "tasks"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:207
+#: admin/assets/class-aipkit-chat-admin-assets.php:213
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:111
 msgid "Error: Fullscreen functionality is unavailable."
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:208
+#: admin/assets/class-aipkit-chat-admin-assets.php:214
 #: admin/data/dashboard-localized-texts.php:85
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:112
 msgid "Copied!"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:209
+#: admin/assets/class-aipkit-chat-admin-assets.php:215
 #: admin/data/dashboard-localized-texts.php:86
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:112
 msgid "Failed to copy"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:210
+#: admin/assets/class-aipkit-chat-admin-assets.php:216
 msgid "Select OpenAI Store(s)"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:211
+#: admin/assets/class-aipkit-chat-admin-assets.php:217
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:163
 msgid "Select Pinecone Index"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:212
+#: admin/assets/class-aipkit-chat-admin-assets.php:218
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:168
 msgid "Select Qdrant Collection"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:213
+#: admin/assets/class-aipkit-chat-admin-assets.php:219
 msgid "Select Embedding Provider"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:214
+#: admin/assets/class-aipkit-chat-admin-assets.php:220
 msgid "Select Embedding Model"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:215
+#: admin/assets/class-aipkit-chat-admin-assets.php:221
 msgid "No OpenAI Stores Found (Sync in AI Training)"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:216
+#: admin/assets/class-aipkit-chat-admin-assets.php:222
 msgid "No Pinecone Indexes Found (Sync in AI Settings)"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:217
+#: admin/assets/class-aipkit-chat-admin-assets.php:223
 msgid "No Qdrant Collections Found (Sync in AI Settings)"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:218
+#: admin/assets/class-aipkit-chat-admin-assets.php:224
 msgid "No Models (Select Provider or Sync)"
 msgstr ""
 
@@ -1187,7 +1187,7 @@ msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:144
 #: admin/views/migration-tool/partials/_javascript.php:41
-#: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:199
+#: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:200
 #: public/class-wp-ai-content-generator-public.php:148
 #: admin/js/post-enhancer/block-editor-enhancer-plugin.js:56
 msgid "Processing..."
@@ -1235,7 +1235,7 @@ msgid "Adding files to vector store..."
 msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:158
-#: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:200
+#: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:201
 #: public/class-wp-ai-content-generator-public.php:149
 msgid "An error occurred."
 msgstr ""
@@ -1259,7 +1259,7 @@ msgid "No Pinecone indexes found. Create one in AI Training or via Pinecone cons
 msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:167
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:105
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:108
 msgid "Please select a Pinecone index."
 msgstr ""
 
@@ -1268,7 +1268,7 @@ msgid "No Qdrant collections found. Create one in AI Training."
 msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:170
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:129
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:132
 msgid "Please select a Qdrant collection."
 msgstr ""
 
@@ -1318,18 +1318,18 @@ msgid "An error occurred while loading the '%s' module. Please try again later o
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:21
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:154
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:156
 msgid "Details:"
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:23
-#: admin/views/modules/chatbot/index.php:93
+#: admin/views/modules/chatbot/index.php:94
 msgid "Select a bot to see the preview."
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:24
-#: admin/views/modules/chatbot/index.php:98
-#: admin/views/modules/chatbot/index.php:116
+#: admin/views/modules/chatbot/index.php:99
+#: admin/views/modules/chatbot/index.php:117
 msgid "Configure the new bot and save it to see the preview."
 msgstr ""
 
@@ -1724,7 +1724,7 @@ msgid "Topic is required for Content Writing task."
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:126
-#: classes/content-writer/ajax/actions/class-aipkit-content-writer-create-task-action.php:117
+#: classes/content-writer/ajax/actions/class-aipkit-content-writer-create-task-action.php:118
 msgid "Your content writing task is queued. You can track it under the Automated Tasks tab."
 msgstr ""
 
@@ -3990,13 +3990,13 @@ msgstr ""
 msgid "Added At"
 msgstr ""
 
-#: admin/views/modules/chatbot/index.php:102
-#: admin/views/modules/chatbot/index.php:108
-#: admin/views/modules/chatbot/index.php:112
+#: admin/views/modules/chatbot/index.php:103
+#: admin/views/modules/chatbot/index.php:109
+#: admin/views/modules/chatbot/index.php:113
 msgid "Loading preview..."
 msgstr ""
 
-#: admin/views/modules/chatbot/index.php:121
+#: admin/views/modules/chatbot/index.php:122
 #: admin/views/modules/chatbot/partials/chatbot-main-selector.php:36
 msgid "New Bot"
 msgstr ""
@@ -4770,7 +4770,7 @@ msgid "Click to copy shortcode"
 msgstr ""
 
 #: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:67
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:139
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:142
 #: classes/chat/storage/class-aipkit_bot_lifecycle_manager.php:96
 msgid "The default chatbot cannot be deleted."
 msgstr ""
@@ -5095,16 +5095,16 @@ msgstr ""
 
 #: admin/views/modules/logs/partials/logs-table.php:125
 #: admin/views/modules/logs/partials/logs-table.php:126
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:110
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:120
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:271
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:283
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:106
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:116
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:268
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:280
 msgid "(Unknown)"
 msgstr ""
 
 #: admin/views/modules/logs/partials/logs-table.php:126
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:115
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:278
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:111
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:275
 #: classes/chat/storage/class-aipkit_log_manager.php:65
 #: classes/chat/storage/class-aipkit_log_manager.php:215
 #: classes/chat/storage/class-aipkit_log_manager.php:254
@@ -5287,7 +5287,7 @@ msgstr ""
 
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:23
 #: classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php:65
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:385
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:386
 msgid "No results found."
 msgstr ""
 
@@ -5724,21 +5724,21 @@ msgstr ""
 msgid "No AI Forms found in Trash."
 msgstr ""
 
-#: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:163
+#: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:164
 msgid "Form ID is required for preview."
 msgstr ""
 
-#: classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php:188
+#: classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php:189
 msgid "AI Forms settings saved."
 msgstr ""
 
-#: classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php:190
+#: classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php:191
 msgid "Failed to save AI Forms settings."
 msgstr ""
 
-#: classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php:193
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:66
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:181
+#: classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php:194
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:67
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:182
 msgid "No changes detected."
 msgstr ""
 
@@ -5764,17 +5764,17 @@ msgstr ""
 msgid "Post saved as draft!"
 msgstr ""
 
-#: classes/ai-forms/core/ajax/ajax-upload-and-parse-file.php:34
+#: classes/ai-forms/core/ajax/ajax-upload-and-parse-file.php:35
 msgid "No file received."
 msgstr ""
 
-#: classes/ai-forms/core/ajax/ajax-upload-and-parse-file.php:41
-#: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:48
+#: classes/ai-forms/core/ajax/ajax-upload-and-parse-file.php:43
+#: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:51
 #: lib/chat/frontend/ajax/utils/class-chat-upload-validator.php:42
 msgid "File validation component is missing."
 msgstr ""
 
-#: classes/ai-forms/core/ajax/ajax-upload-and-parse-file.php:57
+#: classes/ai-forms/core/ajax/ajax-upload-and-parse-file.php:59
 msgid "File parsing component is unavailable."
 msgstr ""
 
@@ -5798,17 +5798,17 @@ msgstr ""
 msgid "No new or valid items found in the source to generate content for."
 msgstr ""
 
-#: classes/autogpt/ajax/actions/run-now/validate-task-and-permissions.php:34
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-action.php:25
+#: classes/autogpt/ajax/actions/run-now/validate-task-and-permissions.php:35
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-action.php:26
 msgid "Task ID is required."
 msgstr ""
 
-#: classes/autogpt/ajax/actions/run-now/validate-task-and-permissions.php:44
-#: classes/autogpt/ajax/class-aipkit-update-automated-task-status-action.php:38
+#: classes/autogpt/ajax/actions/run-now/validate-task-and-permissions.php:45
+#: classes/autogpt/ajax/class-aipkit-update-automated-task-status-action.php:40
 msgid "Task not found."
 msgstr ""
 
-#: classes/autogpt/ajax/actions/run-now/validate-task-and-permissions.php:48
+#: classes/autogpt/ajax/actions/run-now/validate-task-and-permissions.php:49
 msgid "Task must be active to run now."
 msgstr ""
 
@@ -5852,45 +5852,45 @@ msgstr ""
 msgid "Failed to save new task."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-action.php:36
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-action.php:37
 msgid "Failed to delete task."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-item-action.php:23
-#: classes/autogpt/ajax/class-aipkit-retry-automated-task-queue-item-action.php:24
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-item-action.php:24
+#: classes/autogpt/ajax/class-aipkit-retry-automated-task-queue-item-action.php:25
 msgid "Queue item ID is required."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-item-action.php:28
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-item-action.php:29
 msgid "Failed to delete queue item."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-item-action.php:30
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-item-action.php:31
 msgid "Queue item deleted successfully."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-items-by-status-action.php:28
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-items-by-status-action.php:29
 msgid "Status filter is required."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-items-by-status-action.php:45
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-items-by-status-action.php:46
 msgid "Failed to delete queue items."
 msgstr ""
 
 #. translators: %d: Number of deleted items
-#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-items-by-status-action.php:48
+#: classes/autogpt/ajax/class-aipkit-delete-automated-task-queue-items-by-status-action.php:49
 msgid "%d queue items deleted successfully."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-retry-automated-task-queue-item-action.php:36
+#: classes/autogpt/ajax/class-aipkit-retry-automated-task-queue-item-action.php:37
 msgid "Failed to mark item for retry."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-retry-automated-task-queue-item-action.php:38
+#: classes/autogpt/ajax/class-aipkit-retry-automated-task-queue-item-action.php:39
 msgid "Item not found or not in a failed state."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-retry-automated-task-queue-item-action.php:43
+#: classes/autogpt/ajax/class-aipkit-retry-automated-task-queue-item-action.php:44
 msgid "Queue item marked for retry."
 msgstr ""
 
@@ -5902,23 +5902,23 @@ msgstr ""
 msgid "Task run initiated. Check queue for progress."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-save-automated-task-action.php:55
+#: classes/autogpt/ajax/class-aipkit-save-automated-task-action.php:64
 msgid "The specified task type is not supported."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-save-automated-task-action.php:82
+#: classes/autogpt/ajax/class-aipkit-save-automated-task-action.php:91
 msgid "Task saved successfully."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-update-automated-task-status-action.php:32
+#: classes/autogpt/ajax/class-aipkit-update-automated-task-status-action.php:34
 msgid "Task ID and status are required."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-update-automated-task-status-action.php:47
+#: classes/autogpt/ajax/class-aipkit-update-automated-task-status-action.php:49
 msgid "Failed to update task status."
 msgstr ""
 
-#: classes/autogpt/ajax/class-aipkit-update-automated-task-status-action.php:56
+#: classes/autogpt/ajax/class-aipkit-update-automated-task-status-action.php:58
 msgid "Task status updated successfully."
 msgstr ""
 
@@ -5927,7 +5927,7 @@ msgid "License is not active."
 msgstr ""
 
 #: classes/autogpt/cron/event-processor/trigger/module/gsheets-task-generator.php:25
-#: classes/content-writer/ajax/actions/class-aipkit-content-writer-create-task-action.php:71
+#: classes/content-writer/ajax/actions/class-aipkit-content-writer-create-task-action.php:72
 msgid "Google Sheets integration is a Pro feature or its components are missing."
 msgstr ""
 
@@ -5947,68 +5947,68 @@ msgstr ""
 msgid "No URLs were provided for scraping."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:57
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:274
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:58
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:278
 #: classes/chat/storage/class-aipkit_bot_lifecycle_manager.php:38
 msgid "Chatbot name cannot be empty."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:67
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:68
 msgid "Chatbot created successfully!"
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:88
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:128
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:215
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:257
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:91
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:131
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:218
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:261
 msgid "Invalid Chatbot ID."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:112
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:115
 msgid "Chatbot settings saved successfully."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:148
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:151
 msgid "Chatbot deleted successfully."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:165
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:176
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:250
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:168
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:179
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:254
 #: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:159
 #: classes/rest/handlers/class-aipkit-rest-text-handler.php:161
 msgid "Internal server error."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:169
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:172
 msgid "Invalid Chatbot ID provided."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:187
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:190
 msgid "Error generating shortcode HTML (non-string result)."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:194
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:197
 msgid "Error generating shortcode HTML (encoding issue)."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:200
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:203
 msgid "Internal server error generating preview."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:228
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:231
 msgid "Chatbot settings reset to defaults."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:268
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:272
 msgid "The default chatbot cannot be renamed."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:288
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:292
 msgid "Failed to update chatbot name."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_ajax_handler.php:291
+#: classes/chat/admin/ajax/chatbot_ajax_handler.php:295
 msgid "Success!"
 msgstr ""
 
@@ -6029,202 +6029,201 @@ msgstr ""
 msgid "Required components for import are missing."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:56
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:58
 msgid "No import file provided."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:64
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:66
 msgid "Error uploading file: Code "
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:72
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:74
 msgid "Invalid file type. Please upload a JSON file ending with .json."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:80
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:82
 msgid "Could not read import file."
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:87
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:89
 msgid "Invalid JSON file. Error: "
 msgstr ""
 
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:93
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:95
 msgid "Invalid JSON structure: Expected an array of bots."
 msgstr ""
 
 #. translators: %d: The numerical index of the bot in the import file.
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:105
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:107
 msgid "Skipped bot at index %d: Invalid data structure."
 msgstr ""
 
 #. translators: %d: The numerical index of the bot in the import file.
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:115
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:117
 msgid "Skipped bot at index %d: Title cannot be empty."
 msgstr ""
 
 #. translators: %1$s: The title of the chatbot. %2$s: The error message.
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:129
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:131
 msgid "Failed to create bot \"%1$s\": %2$s"
 msgstr ""
 
 #. translators: %1$s: The title of the chatbot. %2$d: The new bot's ID. %3$s: The error message.
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:141
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:143
 msgid "Created bot \"%1$s\" (ID: %2$d) but failed to save settings: %3$s"
 msgstr ""
 
 #. translators: %1$d: The number of chatbots imported.
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:148
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:150
 msgid "%1$d chatbot imported successfully."
 msgid_plural "%1$d chatbots imported successfully."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: The number of chatbots that failed to import.
-#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:151
+#: classes/chat/admin/ajax/chatbot_import_ajax_handler.php:153
 msgid "%d bot failed."
 msgid_plural "%d bots failed."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:107
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:148
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:408
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:57
+#: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:112
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:144
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:405
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:58
 msgid "Bot ID is required."
 msgstr ""
 
-#: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:111
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:215
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:60
+#: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:116
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:212
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:61
 msgid "Conversation ID is required."
 msgstr ""
 
-#: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:115
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:64
+#: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:120
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:65
 #: classes/core/stream/contexts/chat/process/validate-stream-requirements.php:55
 msgid "Session ID is missing for guest."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:103
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:267
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:99
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:264
 #: classes/chat/storage/class-aipkit_log_manager.php:53
 #: classes/chat/storage/class-aipkit_log_manager.php:203
 #: classes/chat/storage/class-aipkit_log_manager.php:243
 msgid "(Deleted Bot)"
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:107
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:103
 msgid "(No Bot/Module)"
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:113
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:276
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:109
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:273
 #: classes/chat/storage/class-aipkit_log_manager.php:63
 #: classes/chat/storage/class-aipkit_log_manager.php:213
 #: classes/chat/storage/class-aipkit_log_manager.php:252
 msgid "(Deleted User)"
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:149
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:145
 msgid "User or Session ID is required."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:158
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:154
 msgid "Could not retrieve conversation data."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:181
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:353
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:177
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:350
 msgid "Bot ID and Conversation ID are required."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:184
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:180
 msgid "Session ID is required for guest history."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:218
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:215
 msgid "User or Session ID must be provided from log data."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:251
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:248
 msgid "Internal error: Invalid user/session identifier combination."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:262
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:259
 msgid "Log entry not found."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:306
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:303
 msgid "Feedback service unavailable."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:326
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:323
 msgid "Feedback saved."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:358
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:355
 msgid "Cannot identify user or session."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:379
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:376
 msgid "Conversation deleted."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:396
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:393
 msgid "Text-to-Speech service is unavailable."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:400
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:397
 #: classes/speech/class-aipkit-speech-manager.php:61
 msgid "Voice Playback addon is not active."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:407
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:404
 #: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:55
 #: classes/speech/class-aipkit-tts-openai-provider-strategy.php:57
 msgid "Text cannot be empty."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:411
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:408
 msgid "Internal error: Cannot load bot storage."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:417
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:414
 msgid "Voice playback is not enabled for this chatbot."
 msgstr ""
 
 #. translators: %s: The name of the Text-to-Speech provider (e.g., Google, OpenAI).
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:448
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:445
 msgid "TTS failed: %s API Key is missing in main settings."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:170
+#: classes/chat/admin/ajax/log_ajax_handler.php:184
 msgid "(Unknown Bot)"
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:172
+#: classes/chat/admin/ajax/log_ajax_handler.php:186
 #: classes/chat/storage/class-aipkit_log_manager.php:67
 #: classes/chat/storage/class-aipkit_log_manager.php:217
 #: classes/chat/storage/class-aipkit_log_manager.php:259
 msgid "(Unknown User)"
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:258
+#: classes/chat/admin/ajax/log_ajax_handler.php:272
 msgid "Database error during log deletion."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:266
+#: classes/chat/admin/ajax/log_ajax_handler.php:280
 msgid "Deletion error:"
 msgstr ""
 
 #: classes/chat/admin/ajax/traits/Trait_CheckAdminPermissions.php:24
 #: classes/chat/admin/ajax/traits/Trait_CheckFrontendPermissions.php:23
 #: classes/chat/admin/ajax/traits/Trait_CheckModuleAccess.php:26
-#: classes/core/stream/request/fn-process-initial-request.php:33
 #: classes/dashboard/ajax/class-aipkit-base-dashboard-ajax-handler.php:33
-#: classes/images/manager/ajax/ajax_generate_image.php:41
-#: classes/stt/class-aipkit-stt-manager.php:120
+#: classes/images/manager/ajax/ajax_generate_image.php:45
+#: classes/stt/class-aipkit-stt-manager.php:125
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:58
 msgid "Security check failed (nonce)."
 msgstr ""
@@ -6236,20 +6235,20 @@ msgstr ""
 #: classes/chat/admin/ajax/traits/Trait_CheckModuleAccess.php:31
 #: classes/core/providers/google/ajax-sync-tts-voices.php:23
 #: classes/dashboard/ajax/class-aipkit-base-dashboard-ajax-handler.php:38
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:404
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:405
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:54
 msgid "You do not have permission to perform this action."
 msgstr ""
 
-#: classes/chat/admin/ajax/user_credits_ajax_handler.php:80
+#: classes/chat/admin/ajax/user_credits_ajax_handler.php:84
 msgid "Invalid user ID."
 msgstr ""
 
-#: classes/chat/admin/ajax/user_credits_ajax_handler.php:84
+#: classes/chat/admin/ajax/user_credits_ajax_handler.php:88
 msgid "Invalid balance amount. Please provide a number."
 msgstr ""
 
-#: classes/chat/admin/ajax/user_credits_ajax_handler.php:91
+#: classes/chat/admin/ajax/user_credits_ajax_handler.php:95
 msgid "Token balance updated successfully."
 msgstr ""
 
@@ -6326,34 +6325,39 @@ msgstr ""
 msgid "Chatbot AI Model or Deployment Name is missing in settings."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:38
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:31
+#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:32
+msgid "Security check failed. Please refresh the page and try again."
+msgstr ""
+
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:49
 msgid "Chat processing service is currently unavailable (core components missing)."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:50
-#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:96
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:61
+#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:105
 msgid "Chat system (storage) not ready."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:55
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:66
 #: classes/core/stream/contexts/chat/fn-process-chat.php:74
 msgid "Could not load chatbot configuration."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:67
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:68
 #: classes/core/stream/contexts/chat/process/validate-stream-requirements.php:58
 msgid "Message or image cannot be empty."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:71
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:72
 msgid "Both Pinecone index name and namespace must be provided if one is set."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:74
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:75
 msgid "Both Qdrant collection name and file context ID must be provided if one is set."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:83
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:84
 #: classes/core/stream/contexts/chat/process/validate-stream-requirements.php:49
 msgid "Invalid chatbot specified."
 msgstr ""
@@ -6377,35 +6381,35 @@ msgstr ""
 msgid "Chat processing service is currently unavailable."
 msgstr ""
 
-#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:64
+#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:73
 msgid "Missing required parameters (bot, form, or conversation ID)."
 msgstr ""
 
-#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:70
+#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:79
 msgid "Invalid submitted form data."
 msgstr ""
 
-#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:75
+#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:84
 msgid "User or Session ID is required for guests."
 msgstr ""
 
-#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:91
+#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:100
 msgid "Form submitted."
 msgstr ""
 
-#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:91
+#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:100
 msgid "Triggers not active or fully available."
 msgstr ""
 
-#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:101
+#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:110
 msgid "Chatbot configuration not found."
 msgstr ""
 
-#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:152
+#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:161
 msgid "Form processed."
 msgstr ""
 
-#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:165
+#: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:174
 msgid "Error processing form submission triggers."
 msgstr ""
 
@@ -6551,19 +6555,19 @@ msgstr ""
 msgid "User or Session ID is required for feedback."
 msgstr ""
 
-#: classes/chat/storage/class-aipkit_feedback_manager.php:62
+#: classes/chat/storage/class-aipkit_feedback_manager.php:65
 msgid "Conversation not found."
 msgstr ""
 
-#: classes/chat/storage/class-aipkit_feedback_manager.php:70
+#: classes/chat/storage/class-aipkit_feedback_manager.php:73
 msgid "Error processing conversation data."
 msgstr ""
 
-#: classes/chat/storage/class-aipkit_feedback_manager.php:87
+#: classes/chat/storage/class-aipkit_feedback_manager.php:90
 msgid "Message not found within the conversation."
 msgstr ""
 
-#: classes/chat/storage/class-aipkit_feedback_manager.php:105
+#: classes/chat/storage/class-aipkit_feedback_manager.php:108
 msgid "Failed to save feedback."
 msgstr ""
 
@@ -6623,8 +6627,8 @@ msgstr ""
 msgid "%s ago"
 msgstr ""
 
-#: classes/content-writer/ajax/actions/class-aipkit-content-writer-create-task-action.php:49
-#: lib/content-writer/ajax/actions/class-aipkit-content-writer-verify-gsheets-action.php:39
+#: classes/content-writer/ajax/actions/class-aipkit-content-writer-create-task-action.php:50
+#: lib/content-writer/ajax/actions/class-aipkit-content-writer-verify-gsheets-action.php:40
 msgid "Google Sheet ID and Credentials are required."
 msgstr ""
 
@@ -6635,11 +6639,11 @@ msgstr ""
 msgid "You do not have permission to use this feature."
 msgstr ""
 
-#: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:35
+#: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:36
 #: classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php:42
 #: classes/core/providers/google/ajax-sync-tts-voices.php:27
-#: classes/dashboard/class-aipkit_dashboard.php:158
-#: classes/dashboard/class-aipkit_dashboard.php:330
+#: classes/dashboard/class-aipkit_dashboard.php:159
+#: classes/dashboard/class-aipkit_dashboard.php:334
 #: classes/dashboard/class-aipkit_role_manager.php:226
 #: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:24
 #: lib/content-writer/ajax/actions/class-aipkit-content-writer-scrape-url-action.php:27
@@ -6647,11 +6651,11 @@ msgstr ""
 msgid "Security check failed."
 msgstr ""
 
-#: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:41
+#: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:43
 msgid "No CSV file was received."
 msgstr ""
 
-#: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:79
+#: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:83
 msgid "Could not open the uploaded CSV file."
 msgstr ""
 
@@ -6659,7 +6663,7 @@ msgstr ""
 msgid "Post saved successfully!"
 msgstr ""
 
-#: classes/content-writer/ajax/actions/class-aipkit-content-writer-standard-generation-action.php:50
+#: classes/content-writer/ajax/actions/class-aipkit-content-writer-standard-generation-action.php:51
 #: classes/content-writer/ajax/actions/generate-title/validate-and-normalize-input.php:30
 msgid "AI processing component is unavailable."
 msgstr ""
@@ -6728,15 +6732,15 @@ msgstr ""
 msgid "AI model selection is required."
 msgstr ""
 
-#: classes/content-writer/ajax/template/ajax-delete-template.php:36
+#: classes/content-writer/ajax/template/ajax-delete-template.php:37
 msgid "Template deleted successfully."
 msgstr ""
 
-#: classes/content-writer/ajax/template/ajax-save-template.php:57
+#: classes/content-writer/ajax/template/ajax-save-template.php:61
 msgid "Template updated successfully."
 msgstr ""
 
-#: classes/content-writer/ajax/template/ajax-save-template.php:57
+#: classes/content-writer/ajax/template/ajax-save-template.php:61
 msgid "Template saved successfully."
 msgstr ""
 
@@ -6836,11 +6840,11 @@ msgstr ""
 msgid "Template name cannot be empty."
 msgstr ""
 
-#: classes/content-writer/template-manager/create-template.php:48
+#: classes/content-writer/template-manager/create-template.php:47
 msgid "A template with this name already exists for your account."
 msgstr ""
 
-#: classes/content-writer/template-manager/create-template.php:74
+#: classes/content-writer/template-manager/create-template.php:73
 msgid "Failed to save template."
 msgstr ""
 
@@ -6856,7 +6860,7 @@ msgstr ""
 msgid "Failed to delete template."
 msgstr ""
 
-#: classes/content-writer/template-manager/ensure-default-template-exists.php:131
+#: classes/content-writer/template-manager/ensure-default-template-exists.php:127
 msgid "Default Template"
 msgstr ""
 
@@ -6876,35 +6880,35 @@ msgstr ""
 msgid "The default template cannot be modified."
 msgstr ""
 
-#: classes/content-writer/template-manager/update-template.php:53
+#: classes/content-writer/template-manager/update-template.php:48
 msgid "Another template with this name already exists."
 msgstr ""
 
-#: classes/content-writer/template-manager/update-template.php:77
+#: classes/content-writer/template-manager/update-template.php:72
 msgid "Failed to update template."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:40
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:41
 msgid "Upload utility not available."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:65
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:72
 msgid "Content to embed cannot be empty."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:69
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:76
 msgid "Embedding provider is required."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:73
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:80
 msgid "Embedding model is required."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:82
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:89
 msgid "Invalid embedding provider specified."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:87
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:94
 msgid "Embedding service component not available."
 msgstr ""
 
@@ -7281,11 +7285,11 @@ msgstr ""
 msgid "Cache key cannot be empty."
 msgstr ""
 
-#: classes/core/stream/cache/fn-get.php:65
+#: classes/core/stream/cache/fn-get.php:67
 msgid "Cached message has expired."
 msgstr ""
 
-#: classes/core/stream/cache/fn-get.php:67
+#: classes/core/stream/cache/fn-get.php:69
 msgid "Message not found in cache."
 msgstr ""
 
@@ -7336,40 +7340,40 @@ msgstr ""
 msgid "Conversation ID is missing."
 msgstr ""
 
-#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:60
+#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:63
 msgid "Content writer prompt cannot be empty."
 msgstr ""
 
-#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:77
+#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:80
 msgid "Provider or Model is missing for content writer."
 msgstr ""
 
 #. translators: %s: The name of the AI provider (e.g., OpenAI, Google).
-#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:188
+#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:191
 msgid "API key missing for %s (Content Writer)."
 msgstr ""
 
-#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:205
+#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:208
 msgid "Azure endpoint is missing (Content Writer)."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:26
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:27
 msgid "Your session has expired or the request is invalid. Please refresh the page and try again."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:60
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:63
 msgid "Data to cache (message or image) cannot be empty."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:84
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:87
 msgid "Cache component missing."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:36
+#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:49
 msgid "Server error: Stream processing components not ready."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:105
+#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:118
 msgid "Form display requested but data is missing."
 msgstr ""
 
@@ -7385,11 +7389,11 @@ msgstr ""
 msgid "Critical error: Stream processing cannot start."
 msgstr ""
 
-#: classes/core/stream/request/fn-process-initial-request.php:42
+#: classes/core/stream/request/fn-process-initial-request.php:38
 msgid "Message cache key is missing."
 msgstr ""
 
-#: classes/core/stream/request/fn-process-initial-request.php:152
+#: classes/core/stream/request/fn-process-initial-request.php:148
 msgid "Unsupported stream context."
 msgstr ""
 
@@ -7433,180 +7437,189 @@ msgstr ""
 msgid "Access disabled for guests."
 msgstr ""
 
-#: classes/core/token-manager/check/CheckAndResetTokensLogic.php:191
+#: classes/core/token-manager/check/CheckAndResetTokensLogic.php:190
 msgid "Access disabled for your account/role."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:87
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:88
 msgid "Invalid provider selection."
 msgstr ""
 
 #. translators: %s: The provider name that was attempted to be used for model sync.
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:116
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:117
 msgid "%s API key is required."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:120
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:121
 msgid "Qdrant URL is required to sync collections."
 msgstr ""
 
 #. translators: %s: The provider name that was synced.
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:235
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:236
 msgid "%s synced successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:60
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:61
 msgid "Settings saved successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:412
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:413
 msgid "\"Start Fresh\" option processed. Old data will be ignored."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:417
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:418
 msgid "Data migration will be available soon."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:419
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:420
 msgid "Invalid migration choice."
 msgstr ""
 
 #: classes/dashboard/ajax/openai/class-aipkit-openai-vector-store-files-ajax-handler.php:91
 #: classes/dashboard/ajax/openai/class-aipkit-openai-vector-stores-ajax-handler.php:72
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:62
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:66
 #: classes/vector/post-processor/openai/class-openai-config.php:27
 msgid "OpenAI API Key is not configured in global settings."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/fn-temp-file.php:25
-#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:211
+#: classes/dashboard/ajax/openai/fn-temp-file.php:34
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:35
+msgid "Could not initialize the WordPress filesystem."
+msgstr ""
+
+#: classes/dashboard/ajax/openai/fn-temp-file.php:40
+#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:217
 msgid "Could not create temporary file for content."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/fn-temp-file.php:35
-#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:220
+#: classes/dashboard/ajax/openai/fn-temp-file.php:51
+msgid "Could not rename temporary file."
+msgstr ""
+
+#: classes/dashboard/ajax/openai/fn-temp-file.php:61
+#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:228
 msgid "Could not write content to temporary file."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:30
-#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:30
-#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:31
-#: classes/dashboard/ajax/openai/handler-stores/ajax-list-vector-stores-openai.php:28
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:32
+#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:32
+#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:33
+#: classes/dashboard/ajax/openai/handler-stores/ajax-list-vector-stores-openai.php:30
 msgid "Vector Store Manager or Registry not available."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:44
-#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:42
-#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:44
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:48
+#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:45
+#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:48
 msgid "Vector Store ID is required."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:48
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:52
 msgid "File IDs are required."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:54
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:60
 msgid "No valid File IDs provided."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:81
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:87
 msgid "Files added to vector store batch successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:31
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:47
 #: classes/dashboard/ajax/openai/handler-files/ajax-delete-file-from-vector-store-openai.php:30
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:34
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:26
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:36
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:28
 #: classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php:30
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:28
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:30
 msgid "Vector Store components not available."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:47
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:68
 msgid "Please select an existing store for text content."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:51
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:72
 msgid "Text content cannot be empty."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:72
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:95
 msgid "File upload component not available for text content."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:108
+#: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:133
 msgid "Text content uploaded and added to vector store. Processing is asynchronous."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-delete-file-from-vector-store-openai.php:44
+#: classes/dashboard/ajax/openai/handler-files/ajax-delete-file-from-vector-store-openai.php:48
 msgid "Vector Store ID and File ID are required."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-delete-file-from-vector-store-openai.php:67
+#: classes/dashboard/ajax/openai/handler-files/ajax-delete-file-from-vector-store-openai.php:71
 msgid "File deleted from vector store successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:29
-#: classes/dashboard/ajax/openai/handler-stores/ajax-search-vector-store-openai.php:27
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:25
+#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:30
+#: classes/dashboard/ajax/openai/handler-stores/ajax-search-vector-store-openai.php:29
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:27
 msgid "Vector Store Manager not available."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:84
+#: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:101
 msgid "Deleted User"
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:40
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:42
 msgid "Direct file upload and add to OpenAI store is a Pro feature. Please upgrade."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:55
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:62
 msgid "Please select an existing store for direct file upload."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:59
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:66
 msgid "No file was sent for upload."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:63
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:70
 #: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:54
 #: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:54
 msgid "Upload utility is missing."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:69
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:41
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:76
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:43
 #: includes/class-aipkit-upload-utils.php:120
 msgid "Error during file upload: Code "
 msgstr ""
 
 #. translators: %s: Formatted upload limit (e.g., "10 MB").
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:74
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:81
 msgid "File is too large (max %s)."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:87
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:94
 msgid "File upload component not available."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:123
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:130
 msgid "File uploaded and added to vector store. Processing is asynchronous."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:28
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:30
 msgid "File upload to OpenAI is a Pro feature. Please upgrade."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:35
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:37
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-handler.php:54
 msgid "No file provided."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:53
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:55
 msgid "File upload component not available for OpenAI."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:65
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:67
 msgid "File uploaded successfully."
 msgstr ""
 
@@ -7614,27 +7627,27 @@ msgstr ""
 msgid "Vector processing components are missing."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:48
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:68
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:52
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:71
 msgid "No posts selected for indexing."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:52
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:56
 msgid "Please select an existing vector store or provide a name for a new OpenAI store."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:56
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:60
 msgid "Currently, only OpenAI vector stores are supported for WordPress content indexing from this UI."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:107
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:111
 msgid "Could not determine target vector store ID."
 msgstr ""
 
 #. translators: %1$d: The number of posts processed, %2$s: The name of the vector store.
 #. translators: %1$d is the number of posts processed, %2$s is the vector store identifier
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:135
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:152
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:139
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:155
 msgid "%1$d post processed and submitted to vector store \"%2$s\"."
 msgid_plural "%1$d posts processed and submitted to vector store \"%2$s\"."
 msgstr[0] ""
@@ -7642,30 +7655,30 @@ msgstr[1] ""
 
 #. translators: %d: Number of failed posts
 #. translators: %d is the number of posts that failed to index
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:139
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:155
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:143
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:158
 msgid "Some posts failed: %d. Check data source logs for details."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:47
+#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:50
 msgid "Vector Store name is required."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:67
+#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:70
 msgid "Vector Store created/verified successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:75
+#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:79
 msgid "Vector Store deleted successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-stores/ajax-search-vector-store-openai.php:43
+#: classes/dashboard/ajax/openai/handler-stores/ajax-search-vector-store-openai.php:49
 msgid "Vector Store ID is required for search."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-stores/ajax-search-vector-store-openai.php:47
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:48
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:48
+#: classes/dashboard/ajax/openai/handler-stores/ajax-search-vector-store-openai.php:53
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:51
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:53
 msgid "Search query text cannot be empty."
 msgstr ""
 
@@ -7682,38 +7695,38 @@ msgstr ""
 msgid "File upload processing component for Pinecone is missing."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:43
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:44
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:42
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:47
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:47
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:47
 msgid "Pinecone index name is required."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:47
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:60
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:51
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:64
 msgid "Vector dimension must be a positive integer."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:81
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:87
 msgid "Pinecone index created/verified successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:88
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:94
 msgid "Malformed response after Pinecone index creation."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php:42
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php:43
 msgid "Pinecone index name is required for deletion."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php:72
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php:73
 msgid "Pinecone index deleted successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:27
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:28
 msgid "Pinecone index name is required to fetch logs."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:52
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:43
 msgid "Failed to fetch Pinecone indexing logs."
 msgstr ""
 
@@ -7725,32 +7738,32 @@ msgstr ""
 msgid "Pinecone indexes synced successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:26
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:28
 msgid "Vector Store or AI components not available."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:52
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:52
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:55
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:57
 msgid "Embedding model must be specified for search."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:63
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:66
 msgid "Failed to generate query vector for Pinecone search."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:79
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:82
 msgid "Pinecone search complete."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:46
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:51
 msgid "Vectors data is required for Pinecone upsert."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:51
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:56
 msgid "Invalid or empty vectors JSON format."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:95
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:100
 msgid "Vectors upserted to Pinecone successfully."
 msgstr ""
 
@@ -7777,47 +7790,47 @@ msgstr ""
 msgid "File upload processing component for Qdrant is missing."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:26
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:28
 msgid "Vector Store components not available for Qdrant Create."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:51
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:55
 msgid "Collection name is required."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:95
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:99
 msgid "Qdrant collection created/verified."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:103
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:107
 msgid "Qdrant collection creation response was malformed."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:40
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:43
 msgid "Collection name is required for deletion."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:72
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:75
 msgid "Qdrant collection deleted successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-collection-stats.php:25
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-collection-stats.php:27
 msgid "Vector Store Manager not available for Qdrant stats."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-collection-stats.php:37
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-collection-stats.php:40
 msgid "Collection name is required to get stats."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-collection-stats.php:47
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-collection-stats.php:50
 msgid "Qdrant collection details fetched."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php:29
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php:33
 msgid "Provider and Store/Index/Collection ID are required to fetch logs."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php:55
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php:49
 msgid "Failed to fetch indexing logs for Qdrant."
 msgstr ""
 
@@ -7829,48 +7842,48 @@ msgstr ""
 msgid "Qdrant collections synced successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:26
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:28
 msgid "Vector Store or AI components not available for Qdrant search."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:44
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:42
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:49
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:47
 msgid "Qdrant collection name is required."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:60
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:65
 msgid "Invalid JSON format for Qdrant filter."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:71
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:76
 msgid "Failed to generate query vector for Qdrant search."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:84
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-search-collection.php:89
 msgid "Qdrant search complete."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:25
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:27
 msgid "Vector Store Manager not available for Qdrant upsert."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:46
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:51
 msgid "Points data is required for Qdrant upsert."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:52
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:57
 msgid "Invalid or empty points JSON format for Qdrant."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:108
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php:113
 msgid "Points upserted to Qdrant successfully."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_dashboard.php:173
+#: classes/dashboard/class-aipkit_dashboard.php:174
 msgid "You do not have permission to access this module."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_dashboard.php:326
+#: classes/dashboard/class-aipkit_dashboard.php:330
 msgid "Unauthorized access."
 msgstr ""
 
@@ -7937,28 +7950,28 @@ msgstr ""
 msgid "You do not have permission to manage roles."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_role_manager.php:240
+#: classes/dashboard/class-aipkit_role_manager.php:241
 msgid "Invalid input format."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_role_manager.php:275
+#: classes/dashboard/class-aipkit_role_manager.php:276
 msgid "Role permissions saved successfully."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_role_manager.php:277
+#: classes/dashboard/class-aipkit_role_manager.php:278
 msgid "Permissions are up to date."
 msgstr ""
 
 #: classes/dashboard/class-aipkit_stats.php:41
-#: classes/dashboard/class-aipkit_stats.php:123
+#: classes/dashboard/class-aipkit_stats.php:121
 msgid "Number of days must be positive."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_stats.php:63
+#: classes/dashboard/class-aipkit_stats.php:61
 msgid "Database error fetching logs for stats."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_stats.php:143
+#: classes/dashboard/class-aipkit_stats.php:139
 msgid "Database error fetching logs for daily stats."
 msgstr ""
 
@@ -7991,11 +8004,11 @@ msgstr ""
 msgid "Failed to load Image Generation strategy for provider: %s"
 msgstr ""
 
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:176
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:177
 msgid "Image Generator settings saved."
 msgstr ""
 
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:178
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:179
 #: admin/js/ai-forms/ajax/save-settings.js:61
 msgid "Failed to save settings."
 msgstr ""
@@ -8012,15 +8025,15 @@ msgstr ""
 msgid "Downloaded image content is empty."
 msgstr ""
 
-#: classes/images/class-aipkit-image-storage-helper.php:93
+#: classes/images/class-aipkit-image-storage-helper.php:94
 msgid "No image URL or base64 data provided."
 msgstr ""
 
-#: classes/images/class-aipkit-image-storage-helper.php:101
+#: classes/images/class-aipkit-image-storage-helper.php:102
 msgid "Failed to upload image: "
 msgstr ""
 
-#: classes/images/class-aipkit-image-storage-helper.php:105
+#: classes/images/class-aipkit-image-storage-helper.php:106
 msgid "AI Generated Image"
 msgstr ""
 
@@ -8048,17 +8061,17 @@ msgstr ""
 msgid "Image deleted successfully."
 msgstr ""
 
-#: classes/images/manager/ajax/ajax_generate_image.php:48
+#: classes/images/manager/ajax/ajax_generate_image.php:52
 msgid "You do not have permission to use the Image Generator."
 msgstr ""
 
-#: classes/images/manager/ajax/ajax_generate_image.php:56
+#: classes/images/manager/ajax/ajax_generate_image.php:60
 msgid "Image prompt cannot be empty."
 msgstr ""
 
 #. translators: %d: Number of images generated.
 #. translators: %d is the count of images generated
-#: classes/images/manager/ajax/ajax_generate_image.php:150
+#: classes/images/manager/ajax/ajax_generate_image.php:154
 #: classes/rest/handlers/class-aipkit-rest-image-handler.php:165
 msgid "%d image generated successfully."
 msgid_plural "%d images generated successfully."
@@ -8227,48 +8240,48 @@ msgstr ""
 msgid "Operation \"%s\" not supported for OpenAI Image URL Builder."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/bulk-process-single.php:52
+#: classes/post-enhancer/ajax/actions/bulk-process-single.php:53
 msgid "No enhancements were selected."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/process-text.php:35
+#: classes/post-enhancer/ajax/actions/process-text.php:37
 msgid "Text and a prompt are required."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/update-excerpt.php:24
+#: classes/post-enhancer/ajax/actions/update-excerpt.php:25
 msgid "Post excerpt updated successfully."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/update-meta.php:22
+#: classes/post-enhancer/ajax/actions/update-meta.php:23
 msgid "Meta description is too long."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/update-meta.php:27
+#: classes/post-enhancer/ajax/actions/update-meta.php:28
 msgid "Meta description updated successfully."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/update-tags.php:35
+#: classes/post-enhancer/ajax/actions/update-tags.php:36
 msgid "Post tags updated successfully."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/update-title.php:29
+#: classes/post-enhancer/ajax/actions/update-title.php:30
 msgid "New title cannot be empty."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/update-title.php:37
+#: classes/post-enhancer/ajax/actions/update-title.php:38
 msgid "Post title updated successfully."
 msgstr ""
 
-#: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:36
+#: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:37
 msgid "Missing post ID."
 msgstr ""
 
-#: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:40
+#: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:41
 #: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:81
 msgid "Post not found."
 msgstr ""
 
-#: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:43
+#: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:44
 msgid "You do not have permission to edit this post."
 msgstr ""
 
@@ -8300,27 +8313,27 @@ msgstr ""
 msgid "Correct any spelling and grammar mistakes in the following text: \"%s\""
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:91
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:94
 msgid "Label and prompt are required."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:121
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:124
 msgid "You have reached the maximum of 20 actions."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:141
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:144
 msgid "Action saved successfully."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:160
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:164
 msgid "Action ID is required."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:166
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:170
 msgid "No actions to delete."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:175
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:179
 msgid "Action deleted successfully."
 msgstr ""
 
@@ -8891,7 +8904,7 @@ msgid "Invalid OpenAI voice selected."
 msgstr ""
 
 #: classes/speech/class-aipkit-tts-openai-provider-strategy.php:64
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:50
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:55
 msgid "OpenAI URL Builder component is missing."
 msgstr ""
 
@@ -8933,33 +8946,33 @@ msgid "Audio format \"%s\" is not supported by Azure STT."
 msgstr ""
 
 #: classes/stt/class-aipkit-stt-azure-provider-strategy.php:48
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:76
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:83
 msgid "Server configuration error (CURLFile missing)."
 msgstr ""
 
 #: classes/stt/class-aipkit-stt-azure-provider-strategy.php:54
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:64
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:71
 msgid "Could not create temporary file for audio upload."
 msgstr ""
 
 #: classes/stt/class-aipkit-stt-azure-provider-strategy.php:58
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:69
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:76
 msgid "Could not write audio data to temporary file."
 msgstr ""
 
 #. translators: %s: cURL error message.
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:134
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:128
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:140
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:141
 msgid "Network error during transcription: %s"
 msgstr ""
 
 #. translators: %1$d: HTTP status code, %2$s: API error message.
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:141
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:147
 msgid "Azure STT API Error (%1$d): %2$s"
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:156
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:147
+#: classes/stt/class-aipkit-stt-azure-provider-strategy.php:162
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:160
 msgid "Transcription successful but no text found in response."
 msgstr ""
 
@@ -8968,33 +8981,33 @@ msgid "Google STT not yet implemented."
 msgstr ""
 
 #. translators: %s is the STT provider name
-#: classes/stt/class-aipkit-stt-manager.php:92
+#: classes/stt/class-aipkit-stt-manager.php:96
 msgid "API Key for STT provider %s is missing."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-manager.php:96
+#: classes/stt/class-aipkit-stt-manager.php:100
 msgid "Azure Endpoint/Region URL is required for STT."
 msgstr ""
 
 #. translators: %1$s is the audio format, %2$s is the provider name
-#: classes/stt/class-aipkit-stt-manager.php:104
+#: classes/stt/class-aipkit-stt-manager.php:108
 msgid "Audio format \"%1$s\" is not supported by %2$s STT."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-manager.php:134
+#: classes/stt/class-aipkit-stt-manager.php:143
 msgid "Invalid or empty audio data received."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-manager.php:137
+#: classes/stt/class-aipkit-stt-manager.php:147
 msgid "Bot ID is required for transcription."
 msgstr ""
 
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:46
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:50
 msgid "OpenAI API Key is required for transcription."
 msgstr ""
 
 #. translators: %1$d: HTTP status code, %2$s: Error message from the API.
-#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:135
+#: classes/stt/class-aipkit-stt-openai-provider-strategy.php:148
 msgid "OpenAI STT API Error (%1$d): %2$s"
 msgstr ""
 
@@ -9055,37 +9068,37 @@ msgstr ""
 msgid "Listing files is not supported by this provider strategy."
 msgstr ""
 
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:72
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:75
 msgid "Vector store provider is required."
 msgstr ""
 
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:85
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:88
 msgid "Please select an existing OpenAI vector store."
 msgstr ""
 
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:109
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:112
 msgid "Embedding provider and model are required for Pinecone."
 msgstr ""
 
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:133
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:136
 #: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:50
 msgid "Embedding provider and model are required for Qdrant."
 msgstr ""
 
-#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:148
+#: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:151
 msgid "Unsupported provider or processor missing."
 msgstr ""
 
-#: classes/vector/post-processor/openai/class-openai-post-processor.php:61
+#: classes/vector/post-processor/openai/class-openai-post-processor.php:68
 msgid "OpenAI processing components not available."
 msgstr ""
 
-#: classes/vector/post-processor/openai/class-openai-post-processor.php:75
+#: classes/vector/post-processor/openai/class-openai-post-processor.php:82
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-openai-handler.php:73
 msgid "OpenAI file processing strategy not available."
 msgstr ""
 
-#: classes/vector/post-processor/openai/class-openai-post-processor.php:107
+#: classes/vector/post-processor/openai/class-openai-post-processor.php:114
 msgid "Post content is empty."
 msgstr ""
 
@@ -9165,13 +9178,13 @@ msgstr ""
 msgid "File IDs are required for upserting to OpenAI Vector Store."
 msgstr ""
 
-#: classes/vector/providers/openai/_request.php:27
+#: classes/vector/providers/openai/_request.php:29
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-openai-handler.php:47
 msgid "OpenAI API Key is not configured."
 msgstr ""
 
 #. translators: %1$d: HTTP status code, %2$s: API error message.
-#: classes/vector/providers/openai/_request.php:86
+#: classes/vector/providers/openai/_request.php:101
 msgid "OpenAI Vector API Error (%1$d): %2$s"
 msgstr ""
 
@@ -9268,7 +9281,7 @@ msgid "Tokens Granted:"
 msgstr ""
 
 #. translators: 1: The number of tokens granted, 2: The user's new token balance.
-#: classes/woocommerce/class-aipkit-woocommerce-integration.php:159
+#: classes/woocommerce/class-aipkit-woocommerce-integration.php:162
 msgid "AI Power: Granted %1$s tokens to user. New balance: %2$s"
 msgstr ""
 
@@ -9585,15 +9598,15 @@ msgstr ""
 msgid "Please provide a URL to scrape."
 msgstr ""
 
-#: lib/content-writer/ajax/actions/class-aipkit-content-writer-verify-gsheets-action.php:44
+#: lib/content-writer/ajax/actions/class-aipkit-content-writer-verify-gsheets-action.php:45
 msgid "The provided credentials are not in a valid JSON format."
 msgstr ""
 
-#: lib/content-writer/ajax/actions/class-aipkit-content-writer-verify-gsheets-action.php:50
+#: lib/content-writer/ajax/actions/class-aipkit-content-writer-verify-gsheets-action.php:51
 msgid "Google Sheets parser component is missing."
 msgstr ""
 
-#: lib/content-writer/ajax/actions/class-aipkit-content-writer-verify-gsheets-action.php:64
+#: lib/content-writer/ajax/actions/class-aipkit-content-writer-verify-gsheets-action.php:65
 msgid "Connection successful."
 msgstr ""
 

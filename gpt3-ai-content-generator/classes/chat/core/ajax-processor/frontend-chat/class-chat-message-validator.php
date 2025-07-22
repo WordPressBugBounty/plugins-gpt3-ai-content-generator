@@ -41,6 +41,7 @@ class ChatMessageValidator
         // 2. Basic Parameter Validation
         $bot_id            = isset($post_data['bot_id']) ? absint($post_data['bot_id']) : 0;
         // --- MODIFIED SANITIZATION for user_message_text ---
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in BaseAjaxHandler
         $user_message_text = isset($_POST['message']) ? trim(wp_strip_all_tags(wp_unslash($_POST['message']))) : '';
         // --- END MODIFICATION ---
         $session_id        = isset($post_data['session_id']) ? sanitize_text_field(wp_unslash($post_data['session_id'])) : '';

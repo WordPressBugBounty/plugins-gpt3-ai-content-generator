@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php
 // Status: MODIFIED
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance
  * @return void
  */
-function _aipkit_qdrant_ajax_create_collection_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void {
+function _aipkit_qdrant_ajax_create_collection_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void
+{
     $vector_store_manager = $handler_instance->get_vector_store_manager();
     $vector_store_registry = $handler_instance->get_vector_store_registry();
 
@@ -43,16 +45,18 @@ function _aipkit_qdrant_ajax_create_collection_logic(AIPKit_Vector_Store_Qdrant_
         return;
     }
 
-    $collection_name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
-    $dimension = isset($_POST['dimension']) ? absint($_POST['dimension']) : 0;
-    $metric = isset($_POST['metric']) ? sanitize_text_field($_POST['metric']) : 'Cosine'; // Default metric
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    $collection_name = isset($post_data['name']) ? sanitize_text_field($post_data['name']) : '';
+    $dimension = isset($post_data['dimension']) ? absint($post_data['dimension']) : 0;
+    $metric = isset($post_data['metric']) ? sanitize_text_field($post_data['metric']) : 'Cosine'; // Default metric
 
     if (empty($collection_name)) {
         $error_message = __('Collection name is required.', 'gpt3-ai-content-generator');
         if ($handler_instance && method_exists($handler_instance, 'send_wp_error')) {
             $handler_instance->send_wp_error(new WP_Error('missing_name_qdrant_create', $error_message, ['status' => 400]));
         } else {
-             wp_send_json_error(['message' => $error_message], 400);
+            wp_send_json_error(['message' => $error_message], 400);
         }
         return;
     }
@@ -61,7 +65,7 @@ function _aipkit_qdrant_ajax_create_collection_logic(AIPKit_Vector_Store_Qdrant_
         if ($handler_instance && method_exists($handler_instance, 'send_wp_error')) {
             $handler_instance->send_wp_error(new WP_Error('invalid_dimension_qdrant_create', $error_message, ['status' => 400]));
         } else {
-             wp_send_json_error(['message' => $error_message], 400);
+            wp_send_json_error(['message' => $error_message], 400);
         }
         return;
     }

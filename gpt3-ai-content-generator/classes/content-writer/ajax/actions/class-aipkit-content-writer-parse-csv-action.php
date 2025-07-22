@@ -27,6 +27,7 @@ class AIPKit_Content_Writer_Parse_Csv_Action extends AIPKit_Content_Writer_Base_
         }
 
         // Manual nonce check for either page's nonce
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Nonce is verified directly with wp_verify_nonce().
         $nonce = $_POST['_ajax_nonce'] ?? '';
         if (
             !wp_verify_nonce($nonce, 'aipkit_content_writer_nonce') &&
@@ -37,11 +38,13 @@ class AIPKit_Content_Writer_Parse_Csv_Action extends AIPKit_Content_Writer_Base_
         }
 
         // --- Task 2.2: File Validation ---
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES data is validated by AIPKit_Upload_Utils::validate_vector_upload_file().
         if (!isset($_FILES['file'])) {
             $this->send_wp_error(new WP_Error('no_file_received', __('No CSV file was received.', 'gpt3-ai-content-generator')), 400);
             return;
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES data is validated by AIPKit_Upload_Utils::validate_vector_upload_file().
         $file_data = $_FILES['file'];
 
         if (!class_exists(AIPKit_Upload_Utils::class)) {
@@ -62,7 +65,7 @@ class AIPKit_Content_Writer_Parse_Csv_Action extends AIPKit_Content_Writer_Base_
         $csv_file_path = $file_data['tmp_name'];
         $formatted_data = '';
         $tasks_found = 0;
-
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Reading from a temporary uploaded file is a standard and safe use case for these functions.
         if (($handle = fopen($csv_file_path, "r")) !== false) {
             while (($row = fgetcsv($handle)) !== false) {
                 // Skip empty rows
@@ -74,6 +77,7 @@ class AIPKit_Content_Writer_Parse_Csv_Action extends AIPKit_Content_Writer_Base_
                 $formatted_data .= implode('|', $row) . "\n";
                 $tasks_found++;
             }
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Reading from a temporary uploaded file is a standard and safe use case for these functions.
             fclose($handle);
         } else {
             $this->send_wp_error(new WP_Error('csv_read_error', __('Could not open the uploaded CSV file.', 'gpt3-ai-content-generator')), 500);

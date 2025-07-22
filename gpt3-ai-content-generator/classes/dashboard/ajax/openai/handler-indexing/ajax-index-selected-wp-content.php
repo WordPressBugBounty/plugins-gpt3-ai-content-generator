@@ -33,16 +33,20 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
         $handler_instance->send_wp_error(new WP_Error('processor_missing', __('Vector processing components are missing.', 'gpt3-ai-content-generator'), ['status' => 500]));
         return;
     }
-
-    $post_ids_raw = isset($_POST['post_ids']) && is_array($_POST['post_ids']) ? $_POST['post_ids'] : [];
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_ids_raw = isset($post_data['post_ids']) && is_array($post_data['post_ids']) ? $post_data['post_ids'] : [];
     $post_ids = array_map('absint', $post_ids_raw);
     $post_ids = array_filter($post_ids, function ($id) {
         return $id > 0;
     });
-
-    $target_store_id = isset($_POST['target_store_id']) ? sanitize_text_field($_POST['target_store_id']) : '';
-    $new_store_name = isset($_POST['new_store_name_openai']) ? sanitize_text_field($_POST['new_store_name_openai']) : '';
-    $provider = isset($_POST['provider']) ? sanitize_key($_POST['provider']) : 'openai';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $target_store_id = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $new_store_name = isset($post_data['new_store_name_openai']) ? sanitize_text_field($post_data['new_store_name_openai']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $provider = isset($post_data['provider']) ? sanitize_key($post_data['provider']) : 'openai';
 
     if (empty($post_ids)) {
         wp_send_json_error(['message' => __('No posts selected for indexing.', 'gpt3-ai-content-generator')], 400);
@@ -133,7 +137,7 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
 
     /* translators: %1$d: The number of posts processed, %2$s: The name of the vector store. */
     $response_message = sprintf(_n('%1$d post processed and submitted to vector store "%2$s".', '%1$d posts processed and submitted to vector store "%2$s".', $processed_count, 'gpt3-ai-content-generator'), $processed_count, esc_html($actual_store_name ?: $actual_store_id));
-    
+
     if (!empty($failed_posts_log)) {
         /* translators: %d: Number of failed posts */
         $response_message .= ' ' . sprintf(__('Some posts failed: %d. Check data source logs for details.', 'gpt3-ai-content-generator'), count($failed_posts_log));

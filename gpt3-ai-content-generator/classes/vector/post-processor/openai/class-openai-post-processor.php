@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/vector/post-processor/openai/class-openai-post-processor.php
 // Status: NEW FILE
 
@@ -16,23 +17,28 @@ if (!defined('ABSPATH')) {
 /**
  * Handles indexing WordPress post content into OpenAI Vector Stores.
  */
-class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base {
-
+class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
+{
     private $vector_store_manager;
     private $config_handler;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         if (!class_exists(AIPKit_Vector_Store_Manager::class)) {
             $manager_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-manager.php';
-            if (file_exists($manager_path)) require_once $manager_path;
+            if (file_exists($manager_path)) {
+                require_once $manager_path;
+            }
         }
         if (class_exists(AIPKit_Vector_Store_Manager::class)) {
             $this->vector_store_manager = new AIPKit_Vector_Store_Manager();
         }
         if (!class_exists(OpenAIConfig::class)) {
             $config_path = __DIR__ . '/class-openai-config.php';
-            if (file_exists($config_path)) require_once $config_path;
+            if (file_exists($config_path)) {
+                require_once $config_path;
+            }
         }
         if (class_exists(OpenAIConfig::class)) {
             $this->config_handler = new OpenAIConfig();
@@ -48,7 +54,8 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base {
      * @param bool $force_reindex If true, will attempt to delete an existing file for this post in the store before re-indexing.
      * @return array ['status' => 'success'|'error', 'message' => string, 'file_id' => string|null, 'batch_id' => string|null]
      */
-    public function index_single_post_to_store(int $post_id, string $vector_store_id, ?string $vector_store_name_for_log = null, bool $force_reindex = false): array {
+    public function index_single_post_to_store(int $post_id, string $vector_store_id, ?string $vector_store_name_for_log = null, bool $force_reindex = false): array
+    {
         $post_obj = get_post($post_id);
         $post_title_for_log = $post_obj ? $post_obj->post_title : 'N/A';
         $log_entry_base = [
@@ -117,7 +124,7 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base {
         }
 
         $upload_result = $strategy->upload_file_for_vector_store($temp_file_result, basename($temp_file_result), 'user_data'); // Call strategy method
-        @unlink($temp_file_result);
+        wp_delete_file($temp_file_result);
 
         if (is_wp_error($upload_result) || !isset($upload_result['id'])) {
             $err_msg = is_wp_error($upload_result) ? $upload_result->get_error_message() : 'Missing file ID in response.';

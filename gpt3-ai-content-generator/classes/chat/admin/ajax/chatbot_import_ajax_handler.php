@@ -52,12 +52,14 @@ class ChatbotImportAjaxHandler extends BaseAjaxHandler {
         }
 
         // Check if file was uploaded
-        if (!isset($_FILES['aipkit_import_file']) || empty($_FILES['aipkit_import_file']['tmp_name'])) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $files_data = wp_unslash($_FILES);
+        if (!isset($files_data['aipkit_import_file']) || empty($files_data['aipkit_import_file']['tmp_name'])) {
             $this->send_wp_error(new WP_Error('no_file', __('No import file provided.', 'gpt3-ai-content-generator'), ['status' => 400]));
             return;
         }
 
-        $file = $_FILES['aipkit_import_file'];
+        $file = $files_data['aipkit_import_file'];
 
         // Check for upload errors
         if ($file['error'] !== UPLOAD_ERR_OK) {

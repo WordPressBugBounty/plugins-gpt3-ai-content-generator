@@ -22,7 +22,8 @@ class AIPKit_Delete_Automated_Task_Queue_Items_By_Status_Action extends AIPKit_A
         }
 
         global $wpdb;
-        $status = isset($_POST['status']) ? sanitize_key($_POST['status']) : 'all';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions method
+        $status = isset($_POST['status']) ? sanitize_key(wp_unslash($_POST['status'])) : 'all';
 
         if (empty($status)) {
             $this->send_wp_error(new WP_Error('missing_status', __('Status filter is required.', 'gpt3-ai-content-generator')), 400);
@@ -38,8 +39,8 @@ class AIPKit_Delete_Automated_Task_Queue_Items_By_Status_Action extends AIPKit_A
         }
 
         $query = "DELETE FROM {$this->queue_table_name}" . $where_clause;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct bulk deletion from a custom table. Cache will be invalidated.
-        $result = empty($prepare_args) ? $wpdb->query($query) : $wpdb->query($wpdb->prepare($query, $prepare_args));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: This is a direct query for deletion, caching is not applicable here.
+        $result = $wpdb->query($wpdb->prepare($query, $prepare_args));
 
         if ($result === false) {
             $this->send_wp_error(new WP_Error('db_error_delete_queue_items', __('Failed to delete queue items.', 'gpt3-ai-content-generator')), 500);

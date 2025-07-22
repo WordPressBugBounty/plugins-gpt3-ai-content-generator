@@ -32,6 +32,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $post_data = wp_unslash($_POST);
 
         // Store initial states to detect if any actual change occurred

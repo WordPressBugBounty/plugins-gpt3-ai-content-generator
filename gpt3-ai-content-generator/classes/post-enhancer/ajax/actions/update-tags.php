@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/ajax/actions/update-tags.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\PostEnhancer\Ajax\Actions;
 
@@ -24,6 +24,7 @@ class AIPKit_PostEnhancer_Update_Tags extends AIPKit_Post_Enhancer_Base_Ajax_Act
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_permissions.
         $new_tags = isset($_POST['new_value']) ? sanitize_text_field(wp_unslash($_POST['new_value'])) : '';
 
         // wp_set_post_tags replaces existing tags by default.

@@ -163,6 +163,7 @@ class SSEStreamProcessor {
         if (!function_exists(__NAMESPACE__ . '\curl_stream_callback_logic')) {
             return 0; 
         }
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_stream_callback_logic -- Reason: Using cURL for streaming.
         return curl_stream_callback_logic($this, $ch, $chunk);
     }
 }

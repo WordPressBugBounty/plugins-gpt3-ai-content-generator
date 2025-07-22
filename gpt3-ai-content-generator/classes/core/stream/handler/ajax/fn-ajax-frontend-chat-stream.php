@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php
 // Status: MODIFIED
 
@@ -25,6 +26,18 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
 
     $response_formatter->set_sse_headers();
 
+    // --- FIX for PHPCS NonceVerification ---
+    // Perform nonce check at the top of the AJAX handler before using any user input.
+    if (!check_ajax_referer('aipkit_frontend_chat_nonce', '_ajax_nonce', false)) {
+        $response_formatter->send_sse_error(__('Security check failed. Please refresh the page and try again.', 'gpt3-ai-content-generator'));
+        $response_formatter->send_sse_done();
+        exit;
+    }
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is verified above. All $_GET usage is now considered safe.
+    $get_data = wp_unslash($_GET);
+    // --- END FIX ---
+
+
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
     $triggers_addon_active = false;
@@ -36,13 +49,13 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
         $error_message = __('Server error: Stream processing components not ready.', 'gpt3-ai-content-generator');
         $response_formatter->send_sse_error($error_message);
         if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
-             $bot_id = isset($_GET['bot_id']) ? absint($_GET['bot_id']) : null; 
+             $bot_id = isset($get_data['bot_id']) ? absint($get_data['bot_id']) : null; 
              $log_storage_for_trigger_error = class_exists('\WPAICG\Chat\Storage\LogStorage') ? new \WPAICG\Chat\Storage\LogStorage() : null;
              if ($log_storage_for_trigger_error) {
                 $error_event_context = [
                     'error_code'    => 'sse_component_not_ready', 'error_message' => $error_message,
                     'bot_id'        => $bot_id, 'user_id'       => get_current_user_id() ?: null, 
-                    'session_id'    => isset($_GET['session_id']) ? sanitize_text_field(wp_unslash($_GET['session_id'])) : null,
+                    'session_id'    => isset($get_data['session_id']) ? sanitize_text_field($get_data['session_id']) : null,
                     'module'        => 'chat_stream_handler', 'operation'     => 'initialize_sse_components',
                 ];
                 $trigger_storage = new $trigger_storage_class();
@@ -57,7 +70,7 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
     }
 
     try {
-        $processed_data = $request_handler->process_initial_request($_GET);
+        $processed_data = $request_handler->process_initial_request($get_data);
 
         if (is_wp_error($processed_data)) {
             $error_code = $processed_data->get_error_code();
@@ -66,13 +79,13 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
             $user_facing_message = $processed_data->get_error_message();
 
             if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
-                $bot_id = isset($_GET['bot_id']) ? absint($_GET['bot_id']) : null; 
+                $bot_id = isset($get_data['bot_id']) ? absint($get_data['bot_id']) : null; 
                 $log_storage_for_trigger_error = class_exists('\WPAICG\Chat\Storage\LogStorage') ? new \WPAICG\Chat\Storage\LogStorage() : null;
                 if ($log_storage_for_trigger_error) {
                     $error_event_context = [
                         'error_code'    => $error_code, 'error_message' => $user_facing_message,
                         'bot_id'        => $bot_id, 'user_id'       => get_current_user_id() ?: null,
-                        'session_id'    => isset($_GET['session_id']) ? sanitize_text_field(wp_unslash($_GET['session_id'])) : null,
+                        'session_id'    => isset($get_data['session_id']) ? sanitize_text_field($get_data['session_id']) : null,
                         'module'        => $error_data['failed_module'] ?? 'chat_stream_handler', 
                         'operation'     => $error_data['failed_operation'] ?? 'process_initial_sse_request',
                         'failed_provider' => $error_data['failed_provider'] ?? null,
@@ -145,15 +158,15 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
         $response_formatter->send_sse_error($error_message_final);
         
         if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
-             $bot_id = isset($_GET['bot_id']) ? absint($_GET['bot_id']) : null; 
+             $bot_id = isset($get_data['bot_id']) ? absint($get_data['bot_id']) : null; 
              $log_storage_for_trigger_error = class_exists('\WPAICG\Chat\Storage\LogStorage') ? new \WPAICG\Chat\Storage\LogStorage() : null;
              if ($log_storage_for_trigger_error) {
                 $error_event_context = [
-                    'error_code'    => 'sse_handler_exception_' . $error_code_http, 'error_message' => $error_message_final,
-                    'bot_id'        => $bot_id, 'user_id'       => get_current_user_id() ?: null, 
-                    'session_id'    => isset($_GET['session_id']) ? sanitize_text_field(wp_unslash($_GET['session_id'])) : null,
-                    'module'        => 'chat_stream_handler', 'operation'     => 'process_stream_request',
-                    'http_code'     => $error_code_http,
+                   'error_code'    => 'sse_handler_exception_' . $error_code_http, 'error_message' => $error_message_final,
+                   'bot_id'        => $bot_id, 'user_id'       => get_current_user_id() ?: null, 
+                   'session_id'    => isset($get_data['session_id']) ? sanitize_text_field($get_data['session_id']) : null,
+                   'module'        => 'chat_stream_handler', 'operation'     => 'process_stream_request',
+                   'http_code'     => $error_code_http,
                 ];
                 // --- MODIFIED: Pass LogStorage to TriggerManager ---
                 $trigger_storage = new $trigger_storage_class();

@@ -16,6 +16,7 @@ class AIPKit_PostEnhancer_Update_Meta extends AIPKit_Post_Enhancer_Base_Ajax_Act
         $post = $this->get_post();
         if (is_wp_error($post)) { $this->send_error_response($post); return; }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_permissions.
         $new_meta_desc = isset($_POST['new_value']) ? sanitize_text_field(wp_unslash($_POST['new_value'])) : '';
 
         if (strlen($new_meta_desc) > 300) {

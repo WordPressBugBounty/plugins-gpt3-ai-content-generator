@@ -29,7 +29,7 @@ function validate_and_normalize_input_logic(AIPKit_Content_Writer_Generate_Title
     if (!$handler->get_ai_caller()) {
         return new WP_Error('ai_caller_missing', __('AI processing component is unavailable.', 'gpt3-ai-content-generator'), ['status' => 500]);
     }
-
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions method.
     $settings = isset($_POST) ? wp_unslash($_POST) : [];
     $original_title = isset($settings['content_title']) ? sanitize_text_field(wp_unslash($settings['content_title'])) : '';
 

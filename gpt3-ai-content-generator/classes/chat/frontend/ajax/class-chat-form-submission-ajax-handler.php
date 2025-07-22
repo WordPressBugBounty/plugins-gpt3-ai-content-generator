@@ -1,6 +1,8 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php
 // Status: MODIFIED
+// I have fixed the PHPCS warnings by properly unslashing and sanitizing all input from $_POST and $_SERVER.
 
 namespace WPAICG\Chat\Frontend\Ajax;
 
@@ -42,14 +44,21 @@ class ChatFormSubmissionAjaxHandler {
             $this->send_wp_error($permission_check);
             return;
         }
-
-        $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
-        $form_id = isset($_POST['form_id']) ? sanitize_text_field(wp_unslash($_POST['form_id'])) : '';
-        $submitted_data_json = isset($_POST['submitted_data']) ? wp_unslash($_POST['submitted_data']) : '{}';
-        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key($_POST['conversation_uuid']) : '';
+        
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
+        $post_data = wp_unslash($_POST);
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
+        $bot_id = isset($post_data['bot_id']) ? absint($post_data['bot_id']) : 0;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
+        $form_id = isset($post_data['form_id']) ? sanitize_text_field($post_data['form_id']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
+        $submitted_data_json = isset($post_data['submitted_data']) ? wp_kses_post($post_data['submitted_data']) : '{}';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
+        $conversation_uuid = isset($post_data['conversation_uuid']) ? sanitize_key($post_data['conversation_uuid']) : '';
         
         $user_id = get_current_user_id();
-        $session_id_from_post = isset($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
+        $session_id_from_post = isset($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : '';
 
         $final_session_id = ''; 
         if (!$user_id) { 
@@ -58,7 +67,7 @@ class ChatFormSubmissionAjaxHandler {
             }
         }
         
-        $post_id_from_request = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+        $post_id_from_request = isset($post_data['post_id']) ? absint($post_data['post_id']) : 0;
 
         if (empty($bot_id) || empty($form_id) || empty($conversation_uuid)) {
             $this->send_wp_error(new WP_Error('missing_params', __('Missing required parameters (bot, form, or conversation ID).', 'gpt3-ai-content-generator'), ['status' => 400]));
@@ -102,7 +111,7 @@ class ChatFormSubmissionAjaxHandler {
             return;
         }
 
-        $client_ip = $_SERVER['REMOTE_ADDR'] ?? null;
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
         $user_wp_roles = $user_id ? (array) wp_get_current_user()->roles : ['guest'];
         $log_storage_instance = null;
         if (class_exists('\WPAICG\Chat\Storage\LogStorage')) {

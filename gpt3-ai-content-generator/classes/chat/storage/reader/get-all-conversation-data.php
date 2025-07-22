@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/reader/get-all-conversation-data.php
 // Status: MODIFIED
 
@@ -54,9 +55,10 @@ function get_all_conversation_data_logic(
         $query_parts = $query_helper->build_conversation_query_parts($filters, 'last_message_ts', 'DESC', 0, 0, true);
         $query = "SELECT {$query_parts['select_sql']} FROM {$table_name} {$query_parts['join_sql']} WHERE {$query_parts['where_sql']} ORDER BY {$query_parts['orderby']} {$query_parts['order']}";
         if (!empty($query_parts['params'])) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: This is a prepared query with parameters.
             $query = $wpdb->prepare($query, $query_parts['params']);
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: This is a prepared query with parameters.
         $summaries = $wpdb->get_results($query, ARRAY_A);
         wp_cache_set($cache_key, $summaries, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
     }

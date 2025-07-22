@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php
 // Status: MODIFIED
 
@@ -18,9 +19,9 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_list_files_in_vector_store_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void {
+function do_ajax_list_files_in_vector_store_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void
+{
     // Permission check already done by the handler calling this
-
     $vector_store_manager = $handler_instance->get_vector_store_manager();
     $wpdb = $handler_instance->get_wpdb();
     $data_source_table_name = $handler_instance->get_data_source_table_name();
@@ -36,19 +37,41 @@ function do_ajax_list_files_in_vector_store_openai_logic(AIPKit_OpenAI_Vector_St
         return;
     }
 
-    // Logic from old _aipkit_openai_vs_files_ajax_list_files_in_vector_store_openai_logic
-    $store_id = isset($_POST['store_id']) ? sanitize_text_field($_POST['store_id']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $store_id = isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '';
     if (empty($store_id)) {
         $handler_instance->send_wp_error(new WP_Error('missing_store_id', __('Vector Store ID is required.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
     }
 
     $query_params = [];
-    if (isset($_POST['limit']) && is_numeric($_POST['limit'])) $query_params['limit'] = absint($_POST['limit']);
-    if (isset($_POST['order']) && in_array($_POST['order'], ['asc', 'desc'])) $query_params['order'] = sanitize_key($_POST['order']);
-    if (isset($_POST['after']) && !empty($_POST['after'])) $query_params['after'] = sanitize_text_field($_POST['after']);
-    if (isset($_POST['before']) && !empty($_POST['before'])) $query_params['before'] = sanitize_text_field($_POST['before']);
-    if (isset($_POST['filter']) && in_array($_POST['filter'], ['in_progress', 'completed', 'failed', 'cancelled'])) $query_params['filter'] = sanitize_key($_POST['filter']);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    if (isset($post_data['limit']) && is_numeric($post_data['limit'])) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+        $query_params['limit'] = absint($post_data['limit']);
+    }
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    if (isset($post_data['order']) && in_array($post_data['order'], ['asc', 'desc'])) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+        $query_params['order'] = sanitize_key($post_data['order']);
+    }
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    if (isset($post_data['after']) && !empty($post_data['after'])) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+        $query_params['after'] = sanitize_text_field($post_data['after']);
+    }
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    if (isset($post_data['before']) && !empty($post_data['before'])) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+        $query_params['before'] = sanitize_text_field($post_data['before']);
+    }
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    if (isset($post_data['filter']) && in_array($post_data['filter'], ['in_progress', 'completed', 'failed', 'cancelled'])) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+        $query_params['filter'] = sanitize_key($post_data['filter']);
+    }
 
     $files_response = $vector_store_manager->list_files_in_store('OpenAI', $store_id, $openai_config, $query_params);
 
@@ -66,14 +89,8 @@ function do_ajax_list_files_in_vector_store_openai_logic(AIPKit_OpenAI_Vector_St
                 $log_entry = wp_cache_get($cache_key, $cache_group);
 
                 if (false === $log_entry) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                    $log_entry = $wpdb->get_row(
-                        $wpdb->prepare(
-                            "SELECT user_id, post_id, post_title, indexed_content FROM {$data_source_table_name} WHERE file_id = %s ORDER BY timestamp DESC LIMIT 1",
-                            $file['id']
-                        ),
-                        ARRAY_A
-                    );
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $data_source_table_name is safe.
+                    $log_entry = $wpdb->get_row($wpdb->prepare("SELECT user_id, post_id, post_title, indexed_content FROM {$data_source_table_name} WHERE file_id = %s ORDER BY timestamp DESC LIMIT 1", $file['id']), ARRAY_A);
                     wp_cache_set($cache_key, $log_entry, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
                 }
 

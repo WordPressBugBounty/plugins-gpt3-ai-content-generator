@@ -22,7 +22,7 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
 
     $processorInstance->set_curl_callback_invoked_status(true);
     $processorInstance->increment_curl_chunk_counter();
-
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $data_sent_to_frontend = $processorInstance->get_data_sent_to_frontend_status();
     $incomplete_sse_buffer_ref = $processorInstance->get_incomplete_sse_buffer(); // Get initial value

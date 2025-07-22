@@ -22,7 +22,8 @@ function do_ajax_get_indexing_logs_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handl
     $wpdb = $handler_instance->get_wpdb();
     $data_source_table_name = $handler_instance->get_data_source_table_name();
 
-    $index_name = isset($_POST['index_name']) ? sanitize_text_field($_POST['index_name']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $index_name = isset($_POST['index_name']) ? sanitize_text_field(wp_unslash($_POST['index_name'])) : '';
     if (empty($index_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_index_name_logs', __('Pinecone index name is required to fetch logs.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
@@ -33,20 +34,10 @@ function do_ajax_get_indexing_logs_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handl
     $logs = wp_cache_get($cache_key, $cache_group);
 
     if (false === $logs) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $logs = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id
-                 FROM {$data_source_table_name}
-                 WHERE provider = 'Pinecone' AND vector_store_id = %s
-                 ORDER BY timestamp DESC LIMIT 20",
-                $index_name
-            ),
-            ARRAY_A
-        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $data_source_table_name is safe.
+        $logs = $wpdb->get_results($wpdb->prepare("SELECT timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id FROM {$data_source_table_name} WHERE provider = 'Pinecone' AND vector_store_id = %s ORDER BY timestamp DESC LIMIT 20", $index_name), ARRAY_A);
         wp_cache_set($cache_key, $logs, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
     }
-
 
     if ($wpdb->last_error) {
         $handler_instance->send_wp_error(new WP_Error('db_query_error_pinecone_logs', __('Failed to fetch Pinecone indexing logs.', 'gpt3-ai-content-generator'), ['status' => 500]));

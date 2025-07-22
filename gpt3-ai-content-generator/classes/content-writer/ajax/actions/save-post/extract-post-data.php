@@ -17,6 +17,7 @@ if (!defined('ABSPATH')) {
  */
 function extract_post_data_logic(): array
 {
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by the calling handler in validate_permissions_logic().
     $raw_data = isset($_POST) ? wp_unslash($_POST) : [];
 
     $sanitized = [];

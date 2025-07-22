@@ -83,8 +83,11 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
         $action_id = isset($_POST['id']) && !empty($_POST['id']) ? sanitize_text_field(wp_unslash($_POST['id'])) : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
         $label = isset($_POST['label']) ? sanitize_text_field(wp_unslash($_POST['label'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
         $prompt = isset($_POST['prompt']) ? sanitize_textarea_field(wp_unslash($_POST['prompt'])) : '';
 
         if (empty($label) || empty($prompt)) {
@@ -154,6 +157,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
         $action_id_to_delete = isset($_POST['id']) ? sanitize_text_field(wp_unslash($_POST['id'])) : null;
 
         if (empty($action_id_to_delete)) {

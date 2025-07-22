@@ -54,7 +54,7 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
             return new WP_Error('stt_tmp_file_error', __('Could not create temporary file for audio upload.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
         if (file_put_contents($tmp_filename, $audio_data) === false) {
-            @unlink($tmp_filename);
+            wp_delete_file($tmp_filename);
             return new WP_Error('stt_tmp_write_error', __('Could not write audio data to temporary file.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
         $effective_filename = 'audio.' . strtolower($audio_format);
@@ -76,7 +76,7 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
 
         // --- Prepare Request Definition (JSON part of multipart) ---
         $definition = [
-            'displayName' => 'AIPKit Transcription ' . date('Y-m-d H:i:s'),
+            'displayName' => 'AIPKit Transcription ' . current_time('mysql', 1),
             'description' => 'Transcription requested by AIPKit plugin.',
             'locale' => !empty($options['language']) ? sanitize_text_field($options['language']) : 'en-US',
             'properties' => [
@@ -104,8 +104,9 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
         // Note: Content-Type for multipart/form-data is set automatically by cURL
 
         $request_options = $this->get_request_options('transcribe');
-
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
         $ch = curl_init();
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt_array -- Reason: Using cURL for streaming.
         curl_setopt_array($ch, [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -121,12 +122,17 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
         // --- End Prepare cURL Request ---
 
         // Execute cURL request
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_exec -- Reason: Using cURL for streaming.
         $body = curl_exec($ch);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_errno -- Reason: Using cURL for streaming.
         $curl_errno = curl_errno($ch);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
         $curl_error = curl_error($ch);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_close -- Reason: Using cURL for streaming.
         curl_close($ch);
-        @unlink($tmp_filename); // Clean up temporary file
+        wp_delete_file($tmp_filename); // Clean up temporary file
 
         // Handle cURL errors
         if ($curl_errno) {

@@ -22,7 +22,7 @@ function ajax_load_template_logic(AIPKit_Content_Writer_Template_Ajax_Handler $h
         $handler->send_wp_error(new WP_Error('manager_missing', 'Template manager unavailable.'), 500);
         return;
     }
-
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
     $template_id = isset($_POST['template_id']) ? absint($_POST['template_id']) : 0;
     if (empty($template_id)) {
         $handler->send_wp_error(new WP_Error('missing_id', 'Template ID is required.'), 400);

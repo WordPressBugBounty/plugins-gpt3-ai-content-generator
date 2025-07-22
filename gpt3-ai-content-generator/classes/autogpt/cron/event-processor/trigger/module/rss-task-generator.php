@@ -48,12 +48,10 @@ function rss_mode_generate_items_logic(int $task_id, array $task_config, ?string
     }
 
     $placeholders = implode(', ', array_fill(0, count($item_guids_to_check), '%s'));
-    $sql = $wpdb->prepare(
-        "SELECT item_guid FROM {$history_table_name} WHERE task_id = %d AND item_guid IN ({$placeholders})",
-        array_merge([$task_id], $item_guids_to_check)
-    );
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+    $sql = $wpdb->prepare("SELECT item_guid FROM {$history_table_name} WHERE task_id = %d AND item_guid IN ({$placeholders})", array_merge([$task_id], $item_guids_to_check));
 
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Direct query to a custom table. Caches will be invalidated.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
     $processed_guids = $wpdb->get_col($sql);
     $processed_guids_set = array_flip($processed_guids);
 

@@ -27,13 +27,9 @@ function process_initial_request_logic(
     \WPAICG\Core\Stream\Request\SSERequestHandler $handlerInstance,
     array $get_params
 ): array|WP_Error {
-    if (!check_ajax_referer('aipkit_frontend_chat_nonce', '_ajax_nonce', false)) {
-        return new WP_Error(
-            'nonce_failure',
-            __('Security check failed (nonce).', 'gpt3-ai-content-generator'),
-            ['status' => 403, 'failed_module' => 'sse_handler', 'failed_operation' => 'nonce_check']
-        );
-    }
+    // --- NONCE CHECK REMOVED: Now handled by the calling AJAX handler logic ---
+    // if (!check_ajax_referer('aipkit_frontend_chat_nonce', '_ajax_nonce', false)) { ... }
+    // --- END NONCE CHECK REMOVAL ---
 
     $cache_key = isset($get_params['cache_key']) ? sanitize_key($get_params['cache_key']) : '';
     if (empty($cache_key)) {

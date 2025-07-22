@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/handler-collections/ajax-get-collection-stats.php
-// Status: NEW
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections;
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance
  * @return void
  */
-function _aipkit_qdrant_ajax_get_collection_stats_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void {
+function _aipkit_qdrant_ajax_get_collection_stats_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void
+{
     $vector_store_manager = $handler_instance->get_vector_store_manager();
 
     if (!$vector_store_manager) {
@@ -32,7 +34,8 @@ function _aipkit_qdrant_ajax_get_collection_stats_logic(AIPKit_Vector_Store_Qdra
         return;
     }
 
-    $collection_name = isset($_POST['collection_name']) ? sanitize_text_field($_POST['collection_name']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $collection_name = isset($_POST['collection_name']) ? sanitize_text_field(wp_unslash($_POST['collection_name'])) : '';
     if (empty($collection_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_name_stats_qdrant', __('Collection name is required to get stats.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;

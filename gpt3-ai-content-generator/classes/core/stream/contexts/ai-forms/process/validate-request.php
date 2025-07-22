@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/contexts/ai-forms/process/validate-request.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Core\Stream\Contexts\AIForms\Process;
 
@@ -61,6 +61,6 @@ function validate_request_logic(
         'user_input_values' => $user_input_values,
         'conversation_uuid' => $conversation_uuid,
         'session_id'        => $session_id,
-        'client_ip'         => $_SERVER['REMOTE_ADDR'] ?? null,
+        'client_ip'         => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
     ];
 }

@@ -51,12 +51,10 @@ class AIPKit_Stats
 
         // Query to fetch conversation logs within the date range based on last_message_ts
         // Select 'messages' and 'module' columns
-        $query = $this->wpdb->prepare(
-            "SELECT messages, module FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d",
-            $timestamp_threshold_start,
-            $timestamp_threshold_end
-        );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Using prepare to safely insert timestamps
+        $query = $this->wpdb->prepare("SELECT messages, module FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d", $timestamp_threshold_start, $timestamp_threshold_end);
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: Using prepare to safely insert timestamps
         $results = $this->wpdb->get_results($query, ARRAY_A);
 
         if ($this->wpdb->last_error) {
@@ -132,11 +130,9 @@ class AIPKit_Stats
         $timestamp_threshold_end = $end_datetime->getTimestamp();
 
         // Fetch logs within the range, including 'module' and 'messages'
-        $query = $this->wpdb->prepare(
-            "SELECT messages, module FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d",
-            $timestamp_threshold_start,
-            $timestamp_threshold_end
-        );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Using prepare to safely insert timestamps
+        $query = $this->wpdb->prepare("SELECT messages, module FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d", $timestamp_threshold_start, $timestamp_threshold_end);
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: Using prepare to safely insert timestamps
         $results = $this->wpdb->get_results($query, ARRAY_A);
 
         if ($this->wpdb->last_error) {

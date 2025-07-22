@@ -35,6 +35,7 @@ class AIPKit_Content_Writer_Init_Stream_Action extends AIPKit_Content_Writer_Bas
     */
     public function handle()
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in Shared\validate_and_normalize_input_logic().
         $settings = isset($_POST) ? wp_unslash($_POST) : [];
 
         // 1. Validate permissions and normalize input

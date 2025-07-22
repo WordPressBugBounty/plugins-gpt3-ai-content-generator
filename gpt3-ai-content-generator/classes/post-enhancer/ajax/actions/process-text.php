@@ -27,8 +27,10 @@ class AIPKit_PostEnhancer_Process_Text extends AIPKit_Post_Enhancer_Base_Ajax_Ac
         }
 
         // --- MODIFIED: Expect final_prompt instead of process_action ---
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_permissions.
         $final_prompt = isset($_POST['final_prompt']) ? wp_kses_post(wp_unslash($_POST['final_prompt'])) : '';
         // text_to_process is still useful for context but the prompt is king
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_permissions.
         $text_to_process = isset($_POST['text_to_process']) ? wp_kses_post(wp_unslash($_POST['text_to_process'])) : '';
 
         if (empty($text_to_process) || empty($final_prompt)) {

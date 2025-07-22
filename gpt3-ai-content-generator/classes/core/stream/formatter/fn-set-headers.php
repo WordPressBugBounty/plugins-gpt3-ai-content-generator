@@ -27,6 +27,7 @@ function set_sse_headers_logic(\WPAICG\Core\Stream\Formatter\SSEResponseFormatte
     header('Content-Type: text/event-stream; charset=utf-8');
     header('X-Accel-Buffering: no');
     header('Connection: keep-alive');
+    // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- This is an SSE endpoint which requires a long-running script.
     set_time_limit(0);
     $formatterInstance->set_headers_sent_status(true);
 }

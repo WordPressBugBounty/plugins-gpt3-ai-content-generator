@@ -66,7 +66,8 @@ class AIPKit_Image_Storage_Helper
                 return new WP_Error('image_download_empty', __('Downloaded image content is empty.', 'gpt3-ai-content-generator'));
             }
             // Try to determine extension from URL or Content-Type header
-            $url_path = parse_url($image_data_item['url'], PHP_URL_PATH);
+            $url_parts = wp_parse_url($image_data_item['url']);
+            $url_path = $url_parts['path'] ?? '';
             $url_extension = pathinfo($url_path, PATHINFO_EXTENSION);
             if (!empty($url_extension) && in_array(strtolower($url_extension), ['png', 'jpg', 'jpeg', 'webp', 'gif'])) {
                 $extension = strtolower($url_extension);
@@ -117,7 +118,7 @@ class AIPKit_Image_Storage_Helper
         // Insert attachment
         $attach_id = wp_insert_attachment($attachment, $upload['file']);
         if (is_wp_error($attach_id)) {
-            @unlink($upload['file']); // Clean up uploaded file
+            wp_delete_file($upload['file']); // Clean up uploaded file
             return $attach_id;
         }
 

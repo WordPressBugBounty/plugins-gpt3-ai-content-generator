@@ -29,7 +29,7 @@ function get_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template
     if (!$user_id && $user_id_override !== 0) {
         return new WP_Error('not_logged_in_get', __('User must be logged in to get templates.', 'gpt3-ai-content-generator'));
     }
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
     $template = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d AND user_id = %d", $template_id, $user_id), ARRAY_A);
 
     if (!$template) {
@@ -85,8 +85,8 @@ function get_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template
     }
     if (isset($template['post_schedule']) && $template['post_schedule'] !== null && $template['post_schedule'] !== '0000-00-00 00:00:00') {
         $schedule_timestamp = strtotime($template['post_schedule']);
-        $template['config']['post_schedule_date'] = date('Y-m-d', $schedule_timestamp);
-        $template['config']['post_schedule_time'] = date('H:i', $schedule_timestamp);
+        $template['config']['post_schedule_date'] = wp_date('Y-m-d', $schedule_timestamp);
+        $template['config']['post_schedule_time'] = wp_date('H:i', $schedule_timestamp);
     } else {
         $template['config']['post_schedule_date'] = '';
         $template['config']['post_schedule_time'] = '';

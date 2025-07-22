@@ -1,7 +1,6 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/ajax/actions/init-stream/log-stream-init.php
-// Status: MODIFIED
 
 namespace WPAICG\ContentWriter\Ajax\Actions\InitStream;
 
@@ -22,6 +21,8 @@ if (!defined('ABSPATH')) {
 function log_stream_init_logic(AIPKit_Content_Writer_Init_Stream_Action $handler, array $cached_data): void
 {
     if ($handler->log_storage) {
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
+
         $handler->log_storage->log_message([
         'bot_id' => null,
         'user_id' => get_current_user_id(),
@@ -30,7 +31,7 @@ function log_stream_init_logic(AIPKit_Content_Writer_Init_Stream_Action $handler
         'module' => 'content_writer',
         'is_guest' => 0,
         'role' => implode(', ', wp_get_current_user()->roles),
-        'ip_address' => class_exists(AIPKit_IP_Anonymization::class) ? AIPKit_IP_Anonymization::maybe_anonymize($_SERVER['REMOTE_ADDR'] ?? null) : ($_SERVER['REMOTE_ADDR'] ?? null),
+        'ip_address' => class_exists(AIPKit_IP_Anonymization::class) ? AIPKit_IP_Anonymization::maybe_anonymize($client_ip) : $client_ip,
         'message_role' => 'user',
         'message_content' => "Content Writer Request (Stream Init): " . esc_html($cached_data['initial_request_details']['title'] ?? 'Untitled'),
         'timestamp' => time(),

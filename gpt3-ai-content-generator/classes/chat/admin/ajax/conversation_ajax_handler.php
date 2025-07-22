@@ -86,12 +86,8 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
 
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $meta_row = $wpdb->get_row(
-                $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table is safe (from $wpdb->prefix), and $where_sql is built with placeholders.
-                    "SELECT user_id, session_id, ip_address, is_guest, first_message_ts, last_message_ts, bot_id, module FROM {$table} WHERE {$where_sql} LIMIT 1",
-                    $params
-                ), ARRAY_A
-            );
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $table is safe (from $wpdb->prefix), and $where_sql is built with placeholders. This is a false positive.
+            $wpdb->prepare("SELECT user_id, session_id, ip_address, is_guest, first_message_ts, last_message_ts, bot_id, module FROM {$table} WHERE {$where_sql} LIMIT 1", $params), ARRAY_A);
             wp_cache_set($cache_key, $meta_row, $cache_group, HOUR_IN_SECONDS);
         }
         // --- END: Caching logic ---
@@ -206,10 +202,11 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
 
         // phpcs:disable WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_module_access_permissions() method.
-        $user_id_from_log = isset($_POST['user_id']) && !empty($_POST['user_id']) ? absint(wp_unslash($_POST['user_id'])) : null;
-        $session_id_from_log = isset($_POST['session_id']) && !empty($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
-        $bot_id_raw = isset($_POST['bot_id']) ? wp_unslash($_POST['bot_id']) : null; // Keep raw value (could be null, '', '0', or ID string)
-        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key(wp_unslash($_POST['conversation_uuid'])) : '';
+        $post_data = wp_unslash($_POST);
+        $user_id_from_log = isset($post_data['user_id']) && !empty($post_data['user_id']) ? absint($post_data['user_id']) : null;
+        $session_id_from_log = isset($post_data['session_id']) && !empty($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : null;
+        $bot_id_raw = isset($post_data['bot_id']) ? $post_data['bot_id'] : null; // Keep raw value (could be null, '', '0', or ID string)
+        $conversation_uuid = isset($post_data['conversation_uuid']) ? sanitize_key($post_data['conversation_uuid']) : '';
 
         if (empty($conversation_uuid)) {
             wp_send_json_error(['message' => __('Conversation ID is required.', 'gpt3-ai-content-generator')], 400); return;
@@ -252,7 +249,7 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
                 return;
             }
 
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
             $log_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE {$where_sql} LIMIT 1", $params), ARRAY_A);
             wp_cache_set($cache_key, $log_data, $cache_group, HOUR_IN_SECONDS);
         }

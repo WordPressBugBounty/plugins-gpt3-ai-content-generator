@@ -21,6 +21,7 @@ if (!defined('ABSPATH')) {
 function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $handlerInstance): void
 {
     // --- MODIFICATION: Improved Nonce Check and Error Reporting ---
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_POST['_ajax_nonce'] is sanitized with sanitize_key before use.
     if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce(sanitize_key($_POST['_ajax_nonce']), 'aipkit_frontend_chat_nonce')) {
         $error_data_for_response = [
             'message' => __('Your session has expired or the request is invalid. Please refresh the page and try again.', 'gpt3-ai-content-generator'),
@@ -31,14 +32,16 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     }
     // --- END MODIFICATION ---
 
-    $user_message = isset($_POST['message']) ? wp_unslash($_POST['message']) : '';
-    $image_inputs_json = isset($_POST['image_inputs']) ? wp_unslash($_POST['image_inputs']) : null;
-    $image_inputs_data = null;
-    $client_user_message_id = isset($_POST['user_client_message_id']) ? sanitize_key($_POST['user_client_message_id']) : null;
-
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+    $user_message = isset($_POST['message']) ? sanitize_textarea_field(wp_unslash($_POST['message'])) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+    $image_inputs_json = isset($_POST['image_inputs']) ? wp_kses_post(wp_unslash($_POST['image_inputs'])) : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+    $client_user_message_id = isset($_POST['user_client_message_id']) ? sanitize_key(wp_unslash($_POST['user_client_message_id'])) : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
     $active_openai_vs_id = isset($_POST['active_openai_vs_id']) ? sanitize_text_field(wp_unslash($_POST['active_openai_vs_id'])) : null;
 
-
+    $image_inputs_data = null;
     if ($image_inputs_json) {
         $decoded_outer_array = json_decode($image_inputs_json, true);
         if (is_array($decoded_outer_array) && isset($decoded_outer_array[0]) && is_array($decoded_outer_array[0])) {

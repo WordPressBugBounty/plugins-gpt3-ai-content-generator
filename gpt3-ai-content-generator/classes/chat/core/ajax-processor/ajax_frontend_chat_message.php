@@ -25,6 +25,17 @@ if (!defined('ABSPATH')) {
  */
 function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorInstance): void
 {
+    // --- 0. Security Check ---
+    if (!check_ajax_referer('aipkit_frontend_chat_nonce', '_ajax_nonce', false)) {
+        wp_send_json_error(
+            ['message' => __('Security check failed. Please refresh the page and try again.', 'gpt3-ai-content-generator')],
+            403
+        );
+        return;
+    }
+    // Unslash all POST data at once.
+    $post_data = wp_unslash($_POST);
+
     // --- 0. Get Sub-Processors ---
     $validator = $processorInstance->get_message_validator();
     $image_processor = $processorInstance->get_image_processor();
@@ -40,10 +51,10 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
     }
 
     // --- 1. Initial Parameter Extraction and Validation ---
-    $client_ip = $_SERVER['REMOTE_ADDR'] ?? null;
-    $post_id_from_request = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
-    $bot_id_from_request = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
-    $frontend_active_openai_vs_id_from_post = isset($_POST['active_openai_vs_id']) ? sanitize_text_field(wp_unslash($_POST['active_openai_vs_id'])) : null;
+    $client_ip = isset($_SERVER['REMOTE_ADDR']) ? filter_var(wp_unslash($_SERVER['REMOTE_ADDR']), FILTER_VALIDATE_IP) : null;
+    $post_id_from_request = isset($post_data['post_id']) ? absint($post_data['post_id']) : 0;
+    $bot_id_from_request = isset($post_data['bot_id']) ? absint($post_data['bot_id']) : 0;
+    $frontend_active_openai_vs_id_from_post = isset($post_data['active_openai_vs_id']) ? sanitize_text_field($post_data['active_openai_vs_id']) : null;
 
     $bot_storage = $processorInstance->get_bot_storage();
     if (!$bot_storage) {
@@ -56,7 +67,7 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
         return;
     }
 
-    $validation_result = $validator->validate($_POST, $client_ip, $initial_bot_settings_for_validation);
+    $validation_result = $validator->validate($post_data, $client_ip, $initial_bot_settings_for_validation);
     if (is_wp_error($validation_result)) {
         $status_code = is_array($validation_result->get_error_data()) && isset($validation_result->get_error_data()['status'])
                        ? $validation_result->get_error_data()['status']
@@ -114,9 +125,9 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
     $final_system_instruction_for_ai = $trigger_processing_result['final_system_instruction_for_ai'];
 
     // --- 8. Make AI Call ---
-    $frontend_previous_openai_response_id = isset($_POST['previous_openai_response_id']) ? sanitize_text_field($_POST['previous_openai_response_id']) : null;
-    $frontend_openai_web_search_active = isset($_POST['frontend_web_search_active']) && $_POST['frontend_web_search_active'] === 'true';
-    $frontend_google_search_grounding_active = isset($_POST['frontend_google_search_grounding_active']) && $_POST['frontend_google_search_grounding_active'] === 'true';
+    $frontend_previous_openai_response_id = isset($post_data['previous_openai_response_id']) ? sanitize_text_field($post_data['previous_openai_response_id']) : null;
+    $frontend_openai_web_search_active = isset($post_data['frontend_web_search_active']) && $post_data['frontend_web_search_active'] === 'true';
+    $frontend_google_search_grounding_active = isset($post_data['frontend_google_search_grounding_active']) && $post_data['frontend_google_search_grounding_active'] === 'true';
 
     $ai_result = $ai_request_runner->run_ai_request(
         $final_user_message_for_ai,

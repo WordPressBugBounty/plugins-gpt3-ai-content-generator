@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/ajax/actions/generate-excerpt.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\PostEnhancer\Ajax\Actions;
 
@@ -19,14 +20,11 @@ class AIPKit_PostEnhancer_Generate_Excerpt extends AIPKit_Post_Enhancer_Base_Aja
         $original_title = trim($post->post_title);
         $post_content_snippet = get_post_content_snippet_logic($post, 800);
 
-        $prompt_template = (<<<PROMPT
-Generate exactly 5 short, compelling excerpt suggestions (about 1-2 sentences each) for a blog post based on the following information.
-Return ONLY the 5 excerpts, each on a new line.
-Do NOT include any introduction, explanation, numbering, or markdown formatting (like **).
-
-Post title: "{title}"
-Post content snippet: "{content}"
-PROMPT);
+        $prompt_template = 'Generate exactly 5 short, compelling excerpt suggestions (about 1-2 sentences each) for a blog post based on the following information.' . "\n" .
+                           'Return ONLY the 5 excerpts, each on a new line.' . "\n" .
+                           'Do NOT include any introduction, explanation, numbering, or markdown formatting (like **).' . "\n\n" .
+                           'Post title: "{title}"' . "\n" .
+                           'Post content snippet: "{content}"';
 
         $prompt = str_replace(['{title}', '{content}'], [$original_title, $post_content_snippet], $prompt_template);
         $final_prompt = apply_filters('aipkit_post_enhancer_excerpt_prompt', $prompt, $post->ID);

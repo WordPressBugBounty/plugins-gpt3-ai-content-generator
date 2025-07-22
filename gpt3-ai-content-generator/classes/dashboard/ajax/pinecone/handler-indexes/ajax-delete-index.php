@@ -37,7 +37,8 @@ function do_ajax_delete_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
         return;
     }
 
-    $index_name = isset($_POST['index_name']) ? sanitize_text_field($_POST['index_name']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $index_name = isset($_POST['index_name']) ? sanitize_text_field(wp_unslash($_POST['index_name'])) : '';
     if (empty($index_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_index_name_delete_pinecone', __('Pinecone index name is required for deletion.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;

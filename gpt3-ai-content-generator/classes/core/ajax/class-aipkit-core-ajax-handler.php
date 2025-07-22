@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/ajax/class-aipkit-core-ajax-handler.php
-// MODIFIED FILE
+// Status: MODIFIED
 
 namespace WPAICG\Core\Ajax;
 
@@ -56,10 +57,16 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler {
             $this->send_wp_error($permission_check);
             return;
         }
-
-        $content_to_embed = isset($_POST['content_to_embed']) ? wp_kses_post(wp_unslash($_POST['content_to_embed'])) : '';
-        $embedding_provider_key = isset($_POST['embedding_provider']) ? sanitize_key($_POST['embedding_provider']) : '';
-        $embedding_model = isset($_POST['embedding_model']) ? sanitize_text_field($_POST['embedding_model']) : '';
+        
+        // Unslash the POST array at once.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by check_module_access_permissions().
+        $post_data = wp_unslash($_POST);
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by check_module_access_permissions().
+        $content_to_embed = isset($post_data['content_to_embed']) ? wp_kses_post($post_data['content_to_embed']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by check_module_access_permissions().
+        $embedding_provider_key = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by check_module_access_permissions().
+        $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : '';
 
         if (empty($content_to_embed)) {
             $this->send_wp_error(new WP_Error('missing_content', __('Content to embed cannot be empty.', 'gpt3-ai-content-generator')));

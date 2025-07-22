@@ -114,31 +114,43 @@ class AIPKit_Providers
 
     public static function get_all_providers()
     {
-        $opts = get_option('aipkit_options', array());
-        $providers_changed = false;
+        $opts = get_option('aipkit_options', []);
+
+        // Check if the providers data is missing or corrupted (not an array).
         if (!isset($opts['providers']) || !is_array($opts['providers'])) {
-            $opts['providers'] = array();
-            $providers_changed = true;
-        }
-        $providers = & $opts['providers'];
-        foreach (self::$provider_defaults as $provider_name => $defaults) {
-            if (!isset($providers[$provider_name]) || !is_array($providers[$provider_name])) {
-                $providers[$provider_name] = $defaults;
-                $providers_changed = true;
-            } else {
-                // Ensure all default keys are present and prune obsolete ones
-                $merged = array_merge($defaults, $providers[$provider_name]);
-                $final_settings_for_provider = array_intersect_key($merged, $defaults); // Use keys from defaults as the master list
-                if ($final_settings_for_provider !== $providers[$provider_name]) {
-                    $providers[$provider_name] = $final_settings_for_provider;
-                    $providers_changed = true;
-                }
+            // Data is corrupt or missing. Return a default structure for this request only.
+            // Crucially, DO NOT save this back to the database. This prevents a temporary read error
+            // from causing a permanent wipe of all saved API keys. The next successful save
+            // from the settings page will restore the correct structure.
+            $temporary_providers = [];
+            foreach (self::$provider_defaults as $provider_name => $defaults) {
+                $temporary_providers[$provider_name] = $defaults;
             }
+            return $temporary_providers;
         }
-        if ($providers_changed) {
+
+        // Data from DB is a valid array. Proceed with normal initialization/pruning.
+        $providers_from_db = $opts['providers'];
+        $final_providers = [];
+        $changed = false;
+
+        // Loop through the master list of defaults to ensure structure is always correct.
+        foreach (self::$provider_defaults as $provider_name => $defaults) {
+            $current_settings = $providers_from_db[$provider_name] ?? [];
+            if (!is_array($current_settings)) {
+                $current_settings = []; // Treat a corrupted entry for a single provider as empty
+            }
+            // Merge defaults with current settings (current values take precedence).
+            $merged = array_merge($defaults, $current_settings);
+            // Prune any obsolete settings that are not in the defaults.
+            $final_providers[$provider_name] = array_intersect_key($merged, $defaults);
+        }
+
+        if (wp_json_encode($providers_from_db) !== wp_json_encode($final_providers)) {
+            $opts['providers'] = $final_providers;
             update_option('aipkit_options', $opts, 'no');
         }
-        return $providers;
+        return $final_providers;
     }
 
     public static function get_provider_data($provider)

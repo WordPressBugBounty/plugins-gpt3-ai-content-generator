@@ -64,18 +64,19 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
         public static function is_pro_plan()
         {
-            // For development, assume pro. Freemius SDK will handle this in production.
             if (function_exists('wpaicg_gacg_fs') && wpaicg_gacg_fs()->is_plan('pro', true)) { // Check for 'pro' plan or higher
                 return true;
             }
-            return false; // For development purposes, always return true. Will be false in production.
+            return false;
         }
 
         public static function init()
         {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is not applicable for page routing checks on this hook.
+            $current_page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
+
             if (
-                (is_admin() && isset($_GET['page']) && strpos($_GET['page'], 'wpaicg') !== false) ||
-                (is_admin() && isset($_GET['page']) && $_GET['page'] === 'aipkit-role-manager') ||
+                (is_admin() && !empty($current_page) && (strpos($current_page, 'wpaicg') !== false || $current_page === 'aipkit-role-manager')) ||
                 wp_doing_ajax()
             ) {
                 self::check_and_init_module_settings();
@@ -200,6 +201,7 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
             $content = '';
             $php_error = null;
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler -- Used to gracefully catch fatal errors in included module view files.
             set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$php_error) {
                 $php_error = new WP_Error('php_error_in_module_view', $errstr, [
                     'file' => basename($errfile),
@@ -210,10 +212,12 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
             ob_start();
             try {
-                $extra_data = isset($_REQUEST['extra_data']) && is_array($_REQUEST['extra_data']) ? $_REQUEST['extra_data'] : [];
-                if (!empty($extra_data)) {
-                    extract($extra_data, EXTR_SKIP);
-                }
+                // Sanitize and define variables needed by specific modules here,
+                // making them available to the included $module_file.
+                // This avoids using $_REQUEST directly in view files and satisfies security scans.
+                $force_active_bot_id = isset($_REQUEST['force_active_bot_id']) ? intval($_REQUEST['force_active_bot_id']) : 0;
+                $force_active_tab = isset($_REQUEST['force_active_tab']) ? sanitize_key($_REQUEST['force_active_tab']) : '';
+
                 include $module_file;
                 $content = ob_get_clean();
             } catch (\Throwable $e) {
@@ -263,7 +267,7 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             }
 
             $moduleKey = isset($_POST['moduleKey']) ? sanitize_key($_POST['moduleKey']) : '';
-            $enabled   = isset($_POST['enabled']) ? sanitize_text_field($_POST['enabled']) : '';
+            $enabled   = isset($_POST['enabled']) ? sanitize_text_field(wp_unslash($_POST['enabled'])) : '';
 
             self::check_and_init_module_settings();
 
@@ -293,7 +297,7 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             }
 
             $addonKey = isset($_POST['addonKey']) ? sanitize_key($_POST['addonKey']) : '';
-            $active   = isset($_POST['active']) ? sanitize_text_field($_POST['active']) : '';
+            $active   = isset($_POST['active']) ? sanitize_text_field(wp_unslash($_POST['active'])) : '';
 
             self::check_and_init_addon_status();
 

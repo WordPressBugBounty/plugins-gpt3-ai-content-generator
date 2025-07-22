@@ -1,6 +1,7 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes;
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_search_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance): void {
+function do_ajax_search_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $handler_instance): void
+{
     $vector_store_manager = $handler_instance->get_vector_store_manager();
     $ai_caller = $handler_instance->get_ai_caller();
 
@@ -32,13 +34,14 @@ function do_ajax_search_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
         $handler_instance->send_wp_error($pinecone_config);
         return;
     }
-
-    $index_id = isset($_POST['index_id']) ? sanitize_text_field($_POST['index_id']) : '';
-    $query_text = isset($_POST['query_text']) ? sanitize_textarea_field(wp_unslash($_POST['query_text'])) : '';
-    $top_k = isset($_POST['top_k']) ? absint($_POST['top_k']) : 3;
-    $namespace = isset($_POST['namespace']) ? sanitize_text_field($_POST['namespace']) : ''; // Get namespace
-    $embedding_provider_key = isset($_POST['embedding_provider']) ? sanitize_key($_POST['embedding_provider']) : 'openai';
-    $embedding_model = isset($_POST['embedding_model']) ? sanitize_text_field($_POST['embedding_model']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    $index_id = isset($post_data['index_id']) ? sanitize_text_field($post_data['index_id']) : '';
+    $query_text = isset($post_data['query_text']) ? sanitize_textarea_field($post_data['query_text']) : '';
+    $top_k = isset($post_data['top_k']) ? absint($post_data['top_k']) : 3;
+    $namespace = isset($post_data['namespace']) ? sanitize_text_field($post_data['namespace']) : ''; // Get namespace
+    $embedding_provider_key = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : 'openai';
+    $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : '';
 
     if (empty($index_id)) {
         $handler_instance->send_wp_error(new WP_Error('missing_index_id_pinecone_search', __('Pinecone index name is required.', 'gpt3-ai-content-generator'), ['status' => 400]));

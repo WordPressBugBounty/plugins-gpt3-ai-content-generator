@@ -138,9 +138,8 @@ function CheckAndResetTokensLogic(
             $cache_key = "aipkit_guest_usage_{$session_id}_{$guest_context_table_id}";
             $guest_row = wp_cache_get($cache_key, 'aipkit_token_usage');
             if (false === $guest_row) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table query; unavoidable.
-                $guest_row = $wpdb->get_row($wpdb->prepare(
-                    "SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d",
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table query; unavoidable.
+                $guest_row = $wpdb->get_row($wpdb->prepare("SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d",
                     $session_id,
                     $guest_context_table_id
                 ), ARRAY_A);

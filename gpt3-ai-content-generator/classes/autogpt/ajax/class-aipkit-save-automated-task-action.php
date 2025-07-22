@@ -28,9 +28,18 @@ class AIPKit_Save_Automated_Task_Action extends AIPKit_Automated_Task_Base_Ajax_
 {
     public function handle_request()
     {
+        // 1. Validate permissions and nonce first
+        $permission_check = $this->check_module_access_permissions('autogpt', self::NONCE_ACTION);
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // Nonce is verified, now we can process $_POST data
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $post_data = wp_unslash($_POST);
 
-        // 1. Validate the basic request
+        // 2. Validate the basic request parameters
         $validated_request = SaveTask\validate_task_request_logic($this, $post_data);
         if (is_wp_error($validated_request)) {
             $this->send_wp_error($validated_request);
@@ -41,7 +50,7 @@ class AIPKit_Save_Automated_Task_Action extends AIPKit_Automated_Task_Base_Ajax_
         $task_type = $validated_request['task_type'];
         $is_new_task = ($task_id === 0);
 
-        // 2. Build task-specific configuration
+        // 3. Build task-specific configuration
         $task_config_or_error = null;
         if ($task_type === 'content_indexing') {
             $task_config_or_error = SaveTask\build_task_config_indexing_logic($post_data);
@@ -64,10 +73,10 @@ class AIPKit_Save_Automated_Task_Action extends AIPKit_Automated_Task_Base_Ajax_
         // Add task_type to config for later reference in cron jobs
         $task_config['task_type'] = $task_type;
 
-        // 3. Get task status from POST
+        // 4. Get task status from POST
         $task_status = isset($post_data['task_status']) && in_array($post_data['task_status'], ['active', 'paused']) ? sanitize_key($post_data['task_status']) : 'active';
 
-        // 4. Save the task to the database
+        // 5. Save the task to the database
         $saved_task_id_or_error = SaveTask\save_task_to_database_logic($task_name, $task_type, $task_config, $task_status, $task_id);
         if (is_wp_error($saved_task_id_or_error)) {
             $this->send_wp_error($saved_task_id_or_error);
@@ -75,10 +84,10 @@ class AIPKit_Save_Automated_Task_Action extends AIPKit_Automated_Task_Base_Ajax_
         }
         $final_task_id = $saved_task_id_or_error;
 
-        // 5. Finalize the save (scheduling, etc.)
+        // 6. Finalize the save (scheduling, etc.)
         SaveTask\finalize_task_save_logic($final_task_id, $task_config, $task_status, $is_new_task);
 
-        // 6. Send success response
+        // 7. Send success response
         wp_send_json_success(['message' => __('Task saved successfully.', 'gpt3-ai-content-generator'), 'task_id' => $final_task_id]);
     }
 }

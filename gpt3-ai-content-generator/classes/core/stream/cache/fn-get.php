@@ -42,9 +42,11 @@ function get_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInst
     global $wpdb;
     $now_utc = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
     $row = $wpdb->get_row(
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
         $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
             "SELECT message_content FROM {$cacheInstance->get_db_table_name()} WHERE cache_key = %s AND expires_at > %s LIMIT 1",
             $key,
             $now_utc
@@ -59,7 +61,7 @@ function get_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInst
         $result_to_cache = $row['message_content'];
     } else {
         // 4a. Not found or expired. Check if the key exists at all to differentiate the error.
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
         $exists = $wpdb->get_var($wpdb->prepare("SELECT 1 FROM {$cacheInstance->get_db_table_name()} WHERE cache_key = %s LIMIT 1", $key));
         if ($exists) {
             $result_to_cache = new WP_Error('sse_cache_expired', __('Cached message has expired.', 'gpt3-ai-content-generator'));

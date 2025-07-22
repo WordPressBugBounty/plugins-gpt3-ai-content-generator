@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/contexts/chat/process/extract-request-params.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Core\Stream\Contexts\Chat\Process;
 
@@ -26,7 +26,7 @@ function extract_request_params_logic(array $cached_data, array $get_params): ar
         'post_id'            => isset($get_params['post_id']) ? absint($get_params['post_id']) : 0,
         'user_message_text'  => $cached_data['user_message'] ?? '',
         'image_inputs'       => $cached_data['image_inputs'] ?? null,
-        'client_ip'          => $_SERVER['REMOTE_ADDR'] ?? null,
+        'client_ip'          => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
         'frontend_previous_openai_response_id' => isset($get_params['previous_openai_response_id']) ? sanitize_text_field($get_params['previous_openai_response_id']) : null,
         'frontend_openai_web_search_active' => (isset($get_params['frontend_web_search_active']) && $get_params['frontend_web_search_active'] === 'true'),
         'frontend_google_search_grounding_active' => (isset($get_params['frontend_google_search_grounding_active']) && $get_params['frontend_google_search_grounding_active'] === 'true'),

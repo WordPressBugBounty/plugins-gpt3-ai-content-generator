@@ -52,6 +52,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $botName = isset($_POST['bot_name']) ? sanitize_text_field(wp_unslash($_POST['bot_name'])) : '';
         if (empty($botName)) {
             wp_send_json_error(['message' => __('Chatbot name cannot be empty.', 'gpt3-ai-content-generator')], 400);
@@ -81,7 +82,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $botId = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $settings = isset($_POST) ? wp_unslash($_POST) : array(); // Use unslashed $_POST
 
         if (empty($botId)) {
@@ -122,7 +125,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $this->send_wp_error($permission_check);
             return;
         }
-
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $botId = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
         if (empty($botId)) {
             wp_send_json_error(['message' => __('Invalid Chatbot ID.', 'gpt3-ai-content-generator')], 400);
@@ -157,7 +160,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $this->send_wp_error($permission_check);
             return;
         }
-
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $bot_id = isset($_REQUEST['bot_id']) ? absint($_REQUEST['bot_id']) : 0;
 
         // Ensure AdminSetup class is available
@@ -209,7 +212,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $this->send_wp_error($permission_check);
             return;
         }
-
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $botId = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
         if (empty($botId)) {
             wp_send_json_error(['message' => __('Invalid Chatbot ID.', 'gpt3-ai-content-generator')], 400);
@@ -241,8 +244,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $this->send_wp_error($permission_check);
             return;
         }
-
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $new_name = isset($_POST['new_name']) ? sanitize_text_field(wp_unslash($_POST['new_name'])) : '';
 
         // Ensure AdminSetup class is available

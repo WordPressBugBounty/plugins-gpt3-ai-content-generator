@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\AIForms\Admin;
 
@@ -102,6 +102,7 @@ class AIPKit_AI_Form_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is verified in check_module_access_permissions() above.
         $post_data = wp_unslash($_POST);
         $current_settings = self::get_settings();
         $new_settings = $current_settings; // Start with current settings as a base

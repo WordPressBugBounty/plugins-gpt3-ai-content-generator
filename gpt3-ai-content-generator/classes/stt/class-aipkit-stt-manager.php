@@ -1,5 +1,6 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/stt/class-aipkit-stt-manager.php
+
+// File: /classes/stt/class-aipkit-stt-manager.php
 // MODIFIED FILE - Pass STT model ID from options to strategy.
 
 namespace WPAICG\STT; // Use new STT namespace
@@ -16,11 +17,12 @@ if (!defined('ABSPATH')) {
  * AIPKit_STT_Manager
  * Main class for handling Speech-to-Text (STT) functionality.
  */
-class AIPKit_STT_Manager {
-
+class AIPKit_STT_Manager
+{
     private $bot_storage;
 
-    public function __construct() {
+    public function __construct()
+    {
         // Load dependencies or setup initial state if needed
         // Ensure BotStorage exists and instantiate
         if (!class_exists(\WPAICG\Chat\Storage\BotStorage::class)) {
@@ -32,7 +34,8 @@ class AIPKit_STT_Manager {
     /**
      * Register hooks (e.g., for AJAX actions related to STT).
      */
-    public function init_hooks() {
+    public function init_hooks()
+    {
         add_action('wp_ajax_aipkit_transcribe_audio', [$this, 'ajax_transcribe_audio']);
         add_action('wp_ajax_nopriv_aipkit_transcribe_audio', [$this, 'ajax_transcribe_audio']);
     }
@@ -46,7 +49,8 @@ class AIPKit_STT_Manager {
      *                       May also contain 'stt_openai_model_id', 'stt_azure_model_id'.
      * @return string|WP_Error Transcribed text string or WP_Error on failure.
      */
-    public function speech_to_text(string $audio_data, string $audio_format, array $options = []): string|WP_Error {
+    public function speech_to_text(string $audio_data, string $audio_format, array $options = []): string|WP_Error
+    {
         // 1. Determine Provider (from options or bot setting or global setting)
         $stt_provider = null;
         $bot_settings = [];
@@ -57,7 +61,7 @@ class AIPKit_STT_Manager {
             if (($stt_provider === 'OpenAI' || $options['provider'] === 'OpenAI') && isset($bot_settings['stt_openai_model_id'])) {
                 $options['stt_model'] = $bot_settings['stt_openai_model_id'];
             }
-             if (($stt_provider === 'Azure' || $options['provider'] === 'Azure') && isset($bot_settings['stt_azure_model_id'])) {
+            if (($stt_provider === 'Azure' || $options['provider'] === 'Azure') && isset($bot_settings['stt_azure_model_id'])) {
                 $options['stt_model'] = $bot_settings['stt_azure_model_id']; // Pass Azure model/deployment ID
             }
             // --- END ---
@@ -89,11 +93,11 @@ class AIPKit_STT_Manager {
         ];
         if (empty($api_params['api_key'])) {
             /* translators: %s is the STT provider name */
-             return new WP_Error('missing_stt_api_key', sprintf(__('API Key for STT provider %s is missing.', 'gpt3-ai-content-generator'), $provider));
+            return new WP_Error('missing_stt_api_key', sprintf(__('API Key for STT provider %s is missing.', 'gpt3-ai-content-generator'), $provider));
         }
         // Azure specific check
         if ($provider === 'Azure' && empty($api_params['azure_endpoint'])) {
-             return new WP_Error('missing_stt_endpoint', __('Azure Endpoint/Region URL is required for STT.', 'gpt3-ai-content-generator'));
+            return new WP_Error('missing_stt_endpoint', __('Azure Endpoint/Region URL is required for STT.', 'gpt3-ai-content-generator'));
         }
 
 
@@ -114,34 +118,41 @@ class AIPKit_STT_Manager {
     /**
      * AJAX handler for transcription requests from the frontend.
      */
-    public function ajax_transcribe_audio() {
+    public function ajax_transcribe_audio()
+    {
         // Use frontend nonce check as this is called from chat UI
-         if (!check_ajax_referer('aipkit_frontend_chat_nonce', '_ajax_nonce', false)) {
-             wp_send_json_error(['message' => __('Security check failed (nonce).', 'gpt3-ai-content-generator')], 403); return;
-         }
+        if (!check_ajax_referer('aipkit_frontend_chat_nonce', '_ajax_nonce', false)) {
+            wp_send_json_error(['message' => __('Security check failed (nonce).', 'gpt3-ai-content-generator')], 403);
+            return;
+        }
 
-        $audio_base64 = isset($_POST['audio_data']) ? $_POST['audio_data'] : '';
-        $audio_format = isset($_POST['audio_format']) ? sanitize_text_field($_POST['audio_format']) : 'webm'; // Default or get from client
+        // Base64 data; strict decode is used for validation later.
+        // --- FIX: Sanitize the base64 data URI using esc_url_raw ---
+        $audio_base64 = isset($_POST['audio_data']) ? esc_url_raw(wp_unslash($_POST['audio_data'])) : '';
+        // --- END FIX ---
+        $audio_format = isset($_POST['audio_format']) ? sanitize_text_field(wp_unslash($_POST['audio_format'])) : 'webm'; // Default or get from client
         $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0; // Get bot ID to read its STT provider setting
 
         // Decode Base64 audio data
         if (strpos($audio_base64, 'base64,') !== false) {
-             $audio_base64 = substr($audio_base64, strpos($audio_base64, 'base64,') + 7);
+            $audio_base64 = substr($audio_base64, strpos($audio_base64, 'base64,') + 7);
         }
         $audio_data_binary = base64_decode($audio_base64, true); // Use strict mode
 
         if (empty($audio_data_binary)) {
-             wp_send_json_error(['message' => __('Invalid or empty audio data received.', 'gpt3-ai-content-generator')], 400); return;
+            wp_send_json_error(['message' => __('Invalid or empty audio data received.', 'gpt3-ai-content-generator')], 400);
+            return;
         }
         if (empty($bot_id)) {
-             wp_send_json_error(['message' => __('Bot ID is required for transcription.', 'gpt3-ai-content-generator')], 400); return;
+            wp_send_json_error(['message' => __('Bot ID is required for transcription.', 'gpt3-ai-content-generator')], 400);
+            return;
         }
 
         // Pass bot_id in options so the STT provider and potentially model ID can be determined correctly
         $options = ['bot_id' => $bot_id];
         // Optionally pass language if sent from client
         if (isset($_POST['language'])) {
-             $options['language'] = sanitize_text_field($_POST['language']);
+            $options['language'] = sanitize_text_field(wp_unslash($_POST['language']));
         }
 
 

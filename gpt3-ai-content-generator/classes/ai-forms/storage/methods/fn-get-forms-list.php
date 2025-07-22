@@ -98,12 +98,10 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
             $meta_key_placeholders = implode(', ', array_fill(0, count($meta_keys_to_fetch), '%s'));
 
             // Prepare the query to fetch all meta data in one go
-            $meta_query_sql = $wpdb->prepare(
-                "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ($id_placeholders) AND meta_key IN ($meta_key_placeholders)",
-                array_merge($post_ids, $meta_keys_to_fetch)
-            );
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- This is the correct and safe way to handle a dynamic number of items in an IN clause. The placeholders are generated correctly before being passed to prepare().
+            $meta_query_sql = $wpdb->prepare("SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ($id_placeholders) AND meta_key IN ($meta_key_placeholders)", array_merge($post_ids, $meta_keys_to_fetch));
 
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Efficiently fetching specific meta for a list of posts, a valid use case for a direct query. Caching is implemented.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Efficiently fetching specific meta for a list of posts. Caching is implemented and the query is prepared on the line above.
             $all_meta_results = $wpdb->get_results($meta_query_sql, ARRAY_A);
 
             // Cache the result for a short period (e.g., 1 minute)

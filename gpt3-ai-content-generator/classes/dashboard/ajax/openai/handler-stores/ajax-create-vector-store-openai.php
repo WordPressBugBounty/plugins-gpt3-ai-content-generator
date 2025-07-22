@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php
 // Status: MODIFIED (Logic moved here)
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_create_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance): void {
+function do_ajax_create_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Ajax_Handler $handler_instance): void
+{
     // Permission check already done by the handler calling this
 
     $vector_store_manager = $handler_instance->get_vector_store_manager();
@@ -37,11 +39,12 @@ function do_ajax_create_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Aj
         return;
     }
 
-    // Logic from old _aipkit_openai_vs_ajax_create_vector_store_logic
-    $store_name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
-    $source_type = isset($_POST['source_type']) && is_string($_POST['source_type']) && !empty(trim($_POST['source_type']))
-                   ? sanitize_text_field(trim($_POST['source_type']))
-                   : 'backend_ai_training_panel_create';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $store_name = isset($post_data['name']) ? sanitize_text_field($post_data['name']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $source_type = isset($post_data['source_type']) ? sanitize_key($post_data['source_type']) : 'backend_ai_training_panel_create';
 
     if (empty($store_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_name', __('Vector Store name is required.', 'gpt3-ai-content-generator'), ['status' => 400]));

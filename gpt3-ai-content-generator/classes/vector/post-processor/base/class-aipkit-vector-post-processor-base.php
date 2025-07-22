@@ -206,17 +206,25 @@ abstract class AIPKit_Vector_Post_Processor_Base
      */
     protected function create_temp_file_from_string(string $content_string, string $filename_prefix = 'aipkit-content'): string|WP_Error
     {
+        global $wp_filesystem;
+        if (empty($wp_filesystem)) {
+            require_once ABSPATH . '/wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+
         $temp_file_path = wp_tempnam($filename_prefix);
         if ($temp_file_path === false) {
             return new WP_Error('temp_file_creation_failed', __('Could not create temporary file for content.', 'gpt3-ai-content-generator'));
         }
+
         $final_temp_file_path = dirname($temp_file_path) . '/' . basename($temp_file_path, '.tmp') . '.txt';
-        if (rename($temp_file_path, $final_temp_file_path)) {
+        if ($wp_filesystem->move($temp_file_path, $final_temp_file_path, true)) { // true to overwrite
             $temp_file_path = $final_temp_file_path;
         }
-        $bytes_written = file_put_contents($temp_file_path, $content_string);
+
+        $bytes_written = $wp_filesystem->put_contents($temp_file_path, $content_string);
         if ($bytes_written === false) {
-            @unlink($temp_file_path);
+            wp_delete_file($temp_file_path);
             return new WP_Error('temp_file_write_failed', __('Could not write content to temporary file.', 'gpt3-ai-content-generator'));
         }
         return $temp_file_path;

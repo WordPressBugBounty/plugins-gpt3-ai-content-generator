@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/handler-collections/ajax-upsert-to-collection.php
 // Status: MODIFIED
 
@@ -18,7 +19,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance
  * @return void
  */
-function _aipkit_qdrant_ajax_upsert_to_collection_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void {
+function _aipkit_qdrant_ajax_upsert_to_collection_logic(AIPKit_Vector_Store_Qdrant_Ajax_Handler $handler_instance): void
+{
     $vector_store_manager = $handler_instance->get_vector_store_manager();
 
     if (!$vector_store_manager) {
@@ -32,11 +34,14 @@ function _aipkit_qdrant_ajax_upsert_to_collection_logic(AIPKit_Vector_Store_Qdra
         return;
     }
 
-    $collection_name = isset($_POST['collection_name']) ? sanitize_text_field($_POST['collection_name']) : '';
-    $vectors_json = isset($_POST['vectors']) ? wp_unslash($_POST['vectors']) : '';
-    $embedding_provider = isset($_POST['embedding_provider']) ? sanitize_key($_POST['embedding_provider']) : null;
-    $embedding_model = isset($_POST['embedding_model']) ? sanitize_text_field($_POST['embedding_model']) : null;
-    $original_text_content = isset($_POST['original_text_content']) ? wp_kses_post(wp_unslash($_POST['original_text_content'])) : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
+    $post_data = wp_unslash($_POST);
+    $collection_name = isset($post_data['collection_name']) ? sanitize_text_field($post_data['collection_name']) : '';
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string, decoded and validated below.
+    $vectors_json = isset($post_data['vectors']) ? $post_data['vectors'] : '';
+    $embedding_provider = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : null;
+    $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : null;
+    $original_text_content = isset($post_data['original_text_content']) ? wp_kses_post($post_data['original_text_content']) : null;
 
     if (empty($collection_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_collection_name_qdrant_upsert', __('Qdrant collection name is required.', 'gpt3-ai-content-generator'), ['status' => 400]));
@@ -76,7 +81,7 @@ function _aipkit_qdrant_ajax_upsert_to_collection_logic(AIPKit_Vector_Store_Qdra
         $content_for_log = $original_text_content; // For WP posts, the full content was passed as original_text_content
     } elseif (in_array($source_type_for_log, ['text_entry_global_form', 'file_upload_global_form', 'text_entry_qdrant_direct']) && $original_text_content !== null) {
         $content_for_log = $original_text_content;
-         if ($source_type_for_log === 'file_upload_global_form' && isset($points[0]['metadata']['filename'])) { // JS sends filename in metadata
+        if ($source_type_for_log === 'file_upload_global_form' && isset($points[0]['metadata']['filename'])) { // JS sends filename in metadata
             $wp_post_title_for_log = sanitize_file_name($points[0]['metadata']['filename']);
         } elseif ($source_type_for_log === 'file_upload_global_form' && isset($points[0]['payload']['filename'])) { // Fallback check
             $wp_post_title_for_log = sanitize_file_name($points[0]['payload']['filename']);
