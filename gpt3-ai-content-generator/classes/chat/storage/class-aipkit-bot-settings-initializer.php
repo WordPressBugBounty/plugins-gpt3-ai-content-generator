@@ -125,6 +125,18 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_google_grounding_mode', BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE);
         update_post_meta($post_id, '_aipkit_google_grounding_dynamic_threshold', (string)BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD);
 
+        // --- NEW: Initialize Realtime Voice Agent settings ---
+        update_post_meta($post_id, '_aipkit_enable_realtime_voice', BotSettingsManager::DEFAULT_ENABLE_REALTIME_VOICE);
+        update_post_meta($post_id, '_aipkit_direct_voice_mode', BotSettingsManager::DEFAULT_DIRECT_VOICE_MODE);
+        update_post_meta($post_id, '_aipkit_realtime_model', BotSettingsManager::DEFAULT_REALTIME_MODEL);
+        update_post_meta($post_id, '_aipkit_realtime_voice', BotSettingsManager::DEFAULT_REALTIME_VOICE);
+        update_post_meta($post_id, '_aipkit_turn_detection', BotSettingsManager::DEFAULT_TURN_DETECTION);
+        update_post_meta($post_id, '_aipkit_speed', (string)BotSettingsManager::DEFAULT_SPEED);
+        update_post_meta($post_id, '_aipkit_input_audio_format', BotSettingsManager::DEFAULT_INPUT_AUDIO_FORMAT);
+        update_post_meta($post_id, '_aipkit_output_audio_format', BotSettingsManager::DEFAULT_OUTPUT_AUDIO_FORMAT);
+        update_post_meta($post_id, '_aipkit_input_audio_noise_reduction', BotSettingsManager::DEFAULT_INPUT_AUDIO_NOISE_REDUCTION);
+        // --- END NEW ---
+
         $custom_theme_defaults = BotSettingsManager::get_custom_theme_defaults();
         foreach ($custom_theme_defaults as $key => $default_value) {
             if (strpos($key, '_placeholder') === false) {

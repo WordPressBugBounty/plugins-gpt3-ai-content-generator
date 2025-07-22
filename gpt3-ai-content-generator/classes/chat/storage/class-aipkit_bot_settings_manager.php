@@ -77,6 +77,16 @@ class BotSettingsManager
     public const DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED = '0'; // Master switch for bot
     public const DEFAULT_GOOGLE_GROUNDING_MODE = 'DEFAULT_MODE'; // Default: use Search as Tool for Gemini 2.0+, Retrieval for 1.5 Flash
     public const DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD = 0.3;
+    // --- NEW: Realtime Voice Agent Defaults ---
+    public const DEFAULT_ENABLE_REALTIME_VOICE = '0';
+    public const DEFAULT_DIRECT_VOICE_MODE = '0';
+    public const DEFAULT_REALTIME_MODEL = 'gpt-4o-realtime-preview';
+    public const DEFAULT_REALTIME_VOICE = 'alloy';
+    public const DEFAULT_TURN_DETECTION = 'server_vad';
+    public const DEFAULT_SPEED = 1.0;
+    public const DEFAULT_INPUT_AUDIO_FORMAT = 'pcm16';
+    public const DEFAULT_OUTPUT_AUDIO_FORMAT = 'pcm16';
+    public const DEFAULT_INPUT_AUDIO_NOISE_REDUCTION = '1';
 
     // --- NEW: Custom Theme Defaults ---
     public const DEFAULT_CUSTOM_THEME_FONT_FAMILY = 'inherit';

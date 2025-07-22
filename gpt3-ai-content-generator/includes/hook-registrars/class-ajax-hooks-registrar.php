@@ -279,6 +279,13 @@ class Ajax_Hooks_Registrar
             add_action('wp_ajax_aipkit_create_realtime_session', [$realtime_session_ajax_handler, 'ajax_create_session']);
             add_action('wp_ajax_nopriv_aipkit_create_realtime_session', [$realtime_session_ajax_handler, 'ajax_create_session']);
         }
+        
+        // --- ADDED: Register new Realtime Session logging AJAX action ---
+        if ($realtime_session_ajax_handler && method_exists($realtime_session_ajax_handler, 'ajax_log_session_turn')) {
+            add_action('wp_ajax_aipkit_log_realtime_session_turn', [$realtime_session_ajax_handler, 'ajax_log_session_turn']);
+            add_action('wp_ajax_nopriv_aipkit_log_realtime_session_turn', [$realtime_session_ajax_handler, 'ajax_log_session_turn']);
+        }
+        // --- END ADDED ---
 
         // --- NEW: Register Enhancer Actions AJAX hooks ---
         if ($enhancer_actions_ajax_handler) {

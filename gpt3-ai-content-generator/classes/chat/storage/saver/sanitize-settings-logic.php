@@ -170,12 +170,14 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
 
     // --- ADDED: Sanitize Realtime Voice Agent settings ---
     $sanitized['enable_realtime_voice'] = isset($raw_settings['enable_realtime_voice']) ? '1' : '0';
+    $sanitized['direct_voice_mode'] = isset($raw_settings['direct_voice_mode']) ? '1' : '0';
     $sanitized['realtime_model'] = isset($raw_settings['realtime_model']) && in_array($raw_settings['realtime_model'], ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime']) ? $raw_settings['realtime_model'] : 'gpt-4o-realtime-preview';
     $sanitized['realtime_voice'] = isset($raw_settings['realtime_voice']) && in_array($raw_settings['realtime_voice'], ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'shimmer', 'verse']) ? $raw_settings['realtime_voice'] : 'alloy';
     $sanitized['turn_detection'] = isset($raw_settings['turn_detection']) && in_array($raw_settings['turn_detection'], ['none', 'server_vad', 'semantic_vad']) ? $raw_settings['turn_detection'] : 'server_vad';
     $sanitized['speed'] = isset($raw_settings['speed']) ? max(0.25, min(1.5, floatval($raw_settings['speed']))) : 1.0;
-    $sanitized['input_audio_format'] = isset($raw_settings['input_audio_format']) && $raw_settings['input_audio_format'] === 'pcm16' ? 'pcm16' : 'pcm16'; // Only one option for now
-    $sanitized['output_audio_format'] = isset($raw_settings['output_audio_format']) && $raw_settings['output_audio_format'] === 'pcm16' ? 'pcm16' : 'pcm16'; // Only one option for now
+    $valid_audio_formats = ['pcm16', 'g711_ulaw', 'g711_alaw'];
+    $sanitized['input_audio_format'] = isset($raw_settings['input_audio_format']) && in_array($raw_settings['input_audio_format'], $valid_audio_formats) ? $raw_settings['input_audio_format'] : 'pcm16';
+    $sanitized['output_audio_format'] = isset($raw_settings['output_audio_format']) && in_array($raw_settings['output_audio_format'], $valid_audio_formats) ? $raw_settings['output_audio_format'] : 'pcm16';
     $sanitized['input_audio_noise_reduction'] = isset($raw_settings['input_audio_noise_reduction']) ? '1' : '0';
     // --- END ADDED ---
 

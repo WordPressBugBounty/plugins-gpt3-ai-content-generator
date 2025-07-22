@@ -165,6 +165,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
 
     // --- ADDED: Save Realtime Voice Agent settings ---
     update_post_meta($botId, '_aipkit_enable_realtime_voice', $sanitized_settings['enable_realtime_voice']);
+    update_post_meta($botId, '_aipkit_direct_voice_mode', $sanitized_settings['direct_voice_mode']);
     update_post_meta($botId, '_aipkit_realtime_model', $sanitized_settings['realtime_model']);
     update_post_meta($botId, '_aipkit_realtime_voice', $sanitized_settings['realtime_voice']);
     update_post_meta($botId, '_aipkit_turn_detection', $sanitized_settings['turn_detection']);

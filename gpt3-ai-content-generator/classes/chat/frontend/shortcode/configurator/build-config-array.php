@@ -101,6 +101,12 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         });
     }
     // --- END ---
+    
+    // --- ADDED: Direct Voice Mode flag ---
+    $direct_voice_mode_flag = ($feature_flags['popup_enabled'] ?? false) &&
+                              ($feature_flags['enable_realtime_voice_ui'] ?? false) &&
+                              (($settings['direct_voice_mode'] ?? '0') === '1');
+    // --- END ADDED ---
 
     return [
         'botId' => $bot_id,
@@ -135,6 +141,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'ttsElevenLabsModelId' => $tts_settings['tts_elevenlabs_model_id'],
         'enableVoiceInputUI' => $feature_flags['enable_voice_input_ui'] ?? false,
         'enableRealtimeVoiceUI' => $feature_flags['enable_realtime_voice_ui'] ?? false,
+        'directVoiceMode' => $direct_voice_mode_flag,
         'realtimeModel' => $settings['realtime_model'] ?? 'gpt-4o-realtime-preview',
         'sttProvider' => $settings['stt_provider'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_STT_PROVIDER : 'OpenAI'),
         'imageTriggers' => $image_triggers,
