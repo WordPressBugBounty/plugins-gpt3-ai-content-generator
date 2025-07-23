@@ -41,6 +41,17 @@ function generate_title_logic(array $cw_config, AIPKit_AI_Caller $ai_caller): ar
     $final_keywords_for_prompt = !empty($cw_config['inline_keywords']) ? $cw_config['inline_keywords'] : ($cw_config['content_keywords'] ?? '');
     $user_prompt_for_title = str_replace('{keywords}', $final_keywords_for_prompt, $user_prompt_for_title);
 
+    // --- NEW: Add URL Scraped Content and Source URL placeholders for Title Prompt ---
+    $url_content = $cw_config['url_content_context'] ?? '';
+    if (!empty($url_content) && strpos($user_prompt_for_title, '{url_content}') !== false) {
+        $user_prompt_for_title = str_replace('{url_content}', trim($url_content), $user_prompt_for_title);
+    }
+    $source_url = $cw_config['source_url'] ?? '';
+    if (!empty($source_url) && strpos($user_prompt_for_title, '{source_url}') !== false) {
+        $user_prompt_for_title = str_replace('{source_url}', trim($source_url), $user_prompt_for_title);
+    }
+    // --- END NEW ---
+
     $title_ai_params = [
         'temperature' => floatval($cw_config['ai_temperature'] ?? 1),
         'max_completion_tokens' => 60, // Keep title generation short

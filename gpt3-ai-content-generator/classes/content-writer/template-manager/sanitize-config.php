@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/template-manager/sanitize-config.php
 // Status: MODIFIED
-// I have added the 'tags' key to the array in the elseif block to ensure it is properly sanitized and saved for Content Enhancer templates.
+// I have added 'tags' to the list of allowed config keys to fix a bug where the enhancer template would not save the state of the 'Tags' checkbox.
 
 namespace WPAICG\ContentWriter\TemplateManagerMethods;
 
@@ -55,14 +55,12 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                 $sanitized[$key] = absint($config[$key]);
             } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store', 'update_title', 'update_excerpt', 'update_content', 'update_meta'], true)) {
                 $sanitized[$key] = ($config[$key] === '1' || $config[$key] === true || $config[$key] === 1) ? '1' : '0';
-            } elseif (in_array($key, ['post_type', 'post_status', 'ai_provider', 'prompt_mode', 'cw_generation_mode', 'image_provider', 'image_model', 'image_placement', 'image_alignment', 'image_size', 'vector_store_provider', 'vector_embedding_provider', 'pexels_orientation', 'pexels_size', 'pexels_color', 'pixabay_orientation', 'pixabay_image_type', 'pixabay_category'], true)) {
+            } elseif (in_array($key, ['post_type', 'post_status', 'ai_provider', 'prompt_mode', 'cw_generation_mode', 'image_provider', 'image_placement', 'image_alignment', 'image_size', 'vector_store_provider', 'vector_embedding_provider', 'pexels_orientation', 'pexels_size', 'pexels_color', 'pixabay_orientation', 'pixabay_image_type', 'pixabay_category'], true)) {
                 $sanitized[$key] = sanitize_key($config[$key]);
-            } elseif ($key === 'post_author') {
-                $sanitized[$key] = absint($config[$key]);
-            } elseif ($key === 'post_categories' || $key === 'openai_vector_store_ids') {
-                $sanitized[$key] = is_array($config[$key]) ? array_map('sanitize_text_field', $config[$key]) : [];
-            } else {
+            } elseif (is_string($config[$key])) {
                 $sanitized[$key] = sanitize_text_field(wp_unslash($config[$key]));
+            } else {
+                $sanitized[$key] = $config[$key];
             }
         }
     }

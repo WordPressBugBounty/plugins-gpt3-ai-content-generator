@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.22
+Stable tag: 2.3.23
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,6 +72,16 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 6. The Automate module, showing the task list and queue.
 
 == Changelog ==
+
+= 2.3.23 =
+
+- Improved: Added support for deleting individual records from vector indexes.
+- Fixed: Writer templates were not being triggered during plugin activation in some cases. Added a more reliable mechanism to ensure required tables are created.
+- Fixed: Fixed an issue in Automated Tasks where the {url_content} placeholder was not recognized during title generation.
+- Fixed: Fixed an issue in the Write module where saving the selected image model was not working correctly.
+- Fixed: Prevented in-content images from being generated when the option was not selected in the Write module.
+- Fixed: Fixed a loop issue that caused meta description, tags, and excerpt to be generated multiple times.
+- Fixed: Addressed an issue in Automated Tasks where featured images or content images were being generated even when disabled.
 
 = 2.3.22 =
 

@@ -93,7 +93,11 @@ class WP_AI_Content_Generator
         $current_version = $this->version;
         $saved_version = get_option(self::DB_VERSION_OPTION);
 
-        if (version_compare($saved_version, $current_version, '<')) {
+        // --- NEW: Check if any tables are missing as a fallback for incomplete activations/updates ---
+        $tables_are_missing = $this->are_plugin_tables_missing();
+        // --- END NEW ---
+
+        if (version_compare((string)$saved_version, $current_version, '<') || $tables_are_missing) { // MODIFIED to include table check
 
             // Run DB table setup on version change to apply any schema updates.
             WP_AI_Content_Generator_Activator::setup_tables_for_blog();
@@ -133,6 +137,36 @@ class WP_AI_Content_Generator
             update_option(self::DB_VERSION_OPTION, $current_version, 'no'); // Use autoload 'no'
         }
     }
+
+    /**
+     * NEW: Helper function to check if any of our custom tables are missing.
+     * This adds robustness to the update process.
+     * @return bool True if one or more tables are missing.
+     */
+    private function are_plugin_tables_missing(): bool
+    {
+        global $wpdb;
+        $required_tables = [
+            'aipkit_chat_logs',
+            'aipkit_guest_token_usage',
+            'aipkit_sse_message_cache',
+            'aipkit_vector_data_source',
+            'aipkit_automated_tasks',
+            'aipkit_automated_task_queue',
+            'aipkit_content_writer_templates',
+            'aipkit_rss_history'
+        ];
+
+        foreach ($required_tables as $table_suffix) {
+            $table_name = $wpdb->prefix . $table_suffix;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Necessary check for table existence during plugin initialization/update.
+            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) !== $table_name) {
+                return true; // Found a missing table
+            }
+        }
+        return false;
+    }
+
 
     public function get_plugin_name(): string
     {

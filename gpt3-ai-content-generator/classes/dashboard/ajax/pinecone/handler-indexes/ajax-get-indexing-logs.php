@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php
 // Status: MODIFIED
 
@@ -35,7 +36,7 @@ function do_ajax_get_indexing_logs_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handl
 
     if (false === $logs) {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $data_source_table_name is safe.
-        $logs = $wpdb->get_results($wpdb->prepare("SELECT timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id FROM {$data_source_table_name} WHERE provider = 'Pinecone' AND vector_store_id = %s ORDER BY timestamp DESC LIMIT 20", $index_name), ARRAY_A);
+        $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id FROM {$data_source_table_name} WHERE provider = 'Pinecone' AND vector_store_id = %s ORDER BY timestamp DESC LIMIT 20", $index_name), ARRAY_A);
         wp_cache_set($cache_key, $logs, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
     }
 

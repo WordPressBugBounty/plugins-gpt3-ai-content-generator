@@ -1,7 +1,6 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/class-aipkit-content-writer-image-handler.php
-// Status: MODIFIED
 
 namespace WPAICG\ContentWriter;
 
@@ -37,6 +36,7 @@ class AIPKit_Content_Writer_Image_Handler
             return new WP_Error('image_manager_missing', 'Image Manager dependency is not available.');
         }
 
+        $generate_in_content = ($settings['generate_images_enabled'] ?? '0') === '1';
         $image_count = absint($settings['image_count'] ?? 1);
         $image_provider = strtolower($settings['image_provider'] ?? 'openai');
         $generate_featured = ($settings['generate_featured_image'] ?? '0') === '1';
@@ -69,7 +69,10 @@ class AIPKit_Content_Writer_Image_Handler
         $current_user_id = get_current_user_id() ?: 1;
 
         if ($image_provider === 'pexels' || $image_provider === 'pixabay') {
-            $num_to_fetch = $image_count;
+            $num_to_fetch = 0;
+            if ($generate_in_content) {
+                $num_to_fetch += $image_count;
+            }
             if ($generate_featured) {
                 $num_to_fetch++;
             }
@@ -98,7 +101,7 @@ class AIPKit_Content_Writer_Image_Handler
             }
 
             // Populate in-content images from cache
-            if ($image_count > 0) {
+            if ($generate_in_content && $image_count > 0) {
                 $final_image_data['in_content_images'] = array_splice($this->pexels_image_cache, 0, $image_count);
             }
 
@@ -115,7 +118,7 @@ class AIPKit_Content_Writer_Image_Handler
 
         // --- Original AI Generation Logic (for OpenAI, Google, etc.) ---
         // Main image generation
-        if ($image_count > 0 && !empty($prompt_for_main_images)) {
+        if ($generate_in_content && $image_count > 0 && !empty($prompt_for_main_images)) {
             $image_model = $settings['image_model'] ?? 'gpt-image-1';
             $generation_options = [
                 'provider' => strtolower($settings['image_provider'] ?? 'openai'),

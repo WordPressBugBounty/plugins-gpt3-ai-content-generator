@@ -214,6 +214,9 @@ class Ajax_Hooks_Registrar
         if (method_exists($core_ajax_handler, 'ajax_generate_embedding')) {
             add_action('wp_ajax_aipkit_generate_embedding', [$core_ajax_handler, 'ajax_generate_embedding']);
         }
+        if (method_exists($core_ajax_handler, 'ajax_delete_vector_data_source_entry')) {
+            add_action('wp_ajax_aipkit_delete_vector_data_source_entry', [$core_ajax_handler, 'ajax_delete_vector_data_source_entry']);
+        }
 
         if (method_exists($automated_task_manager, 'init_ajax_hooks')) {
             $automated_task_manager->init_ajax_hooks();

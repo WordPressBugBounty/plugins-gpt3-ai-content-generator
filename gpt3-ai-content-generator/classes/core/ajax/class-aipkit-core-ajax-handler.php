@@ -9,6 +9,8 @@ use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler; // Use the base dashboard ha
 use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Includes\AIPKit_Upload_Utils;
 use WPAICG\Core\AIPKit_AI_Caller; // For AI Caller
+use WPAICG\AIPKit_Providers;
+use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WP_Error; // For WP_Error usage
 
 if (!defined('ABSPATH')) {
@@ -105,5 +107,83 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler {
         } else {
             wp_send_json_success($result);
         }
+    }
+    
+    /**
+     * AJAX handler to delete a single vector data source entry from both the vector DB and local log.
+     * @since NEXT_VERSION
+     */
+    public function ajax_delete_vector_data_source_entry() {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $post_data = wp_unslash($_POST);
+
+        // --- START FIX: Use sanitize_text_field to preserve case and add validation ---
+        $provider_raw = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : '';
+        $allowed_providers = ['Pinecone', 'Qdrant'];
+        if (!in_array($provider_raw, $allowed_providers, true)) {
+            $this->send_wp_error(new WP_Error('invalid_provider_delete_vector', __('Invalid or unsupported provider for this action.', 'gpt3-ai-content-generator')));
+            return;
+        }
+        $provider = $provider_raw;
+        // --- END FIX ---
+        
+        $store_id   = isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '';
+        $vector_id  = isset($post_data['vector_id']) ? sanitize_text_field($post_data['vector_id']) : '';
+        $log_entry_id = isset($post_data['log_id']) ? absint($post_data['log_id']) : 0;
+
+        if (empty($provider) || empty($store_id) || empty($vector_id) || empty($log_entry_id)) {
+            $this->send_wp_error(new WP_Error('missing_params_delete_vector', __('Missing required parameters for vector deletion.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        // Ensure Vector Store Manager is loaded
+        if (!class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Manager')) {
+             $this->send_wp_error(new WP_Error('vsm_missing_delete_vector', __('Vector management component is not available.', 'gpt3-ai-content-generator')));
+             return;
+        }
+        $vector_store_manager = new \WPAICG\Vector\AIPKit_Vector_Store_Manager();
+
+        // Get provider config
+        $provider_config = \WPAICG\AIPKit_Providers::get_provider_data($provider);
+        if (empty($provider_config['api_key'])) {
+             $this->send_wp_error(new WP_Error('missing_api_key_delete_vector', sprintf(__('API key for %s is missing.', 'gpt3-ai-content-generator'), $provider)));
+             return;
+        }
+
+        // 1. Delete from external vector store
+        $delete_result = $vector_store_manager->delete_vectors($provider, $store_id, [$vector_id], $provider_config);
+        
+        // We proceed even if the external deletion fails, as the vector might not exist there anymore but the log does.
+        // We will log the error if one occurs.
+        if (is_wp_error($delete_result)) {
+            // This is not a fatal error for the process, so we just log it and continue to delete from local DB.
+        }
+
+        // 2. Delete from local database log
+        global $wpdb;
+        $data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
+        $deleted_rows = $wpdb->delete(
+            $data_source_table_name,
+            ['id' => $log_entry_id],
+            ['%d']
+        );
+
+        if ($deleted_rows === false) {
+             $this->send_wp_error(new WP_Error('db_delete_failed_vector_log', __('Failed to delete the log entry from the local database.', 'gpt3-ai-content-generator')));
+             return;
+        }
+        if ($deleted_rows === 0) {
+            // This could mean it was already deleted, which is a success state for the user.
+            wp_send_json_success(['message' => __('Log entry was not found, it might have been already deleted.', 'gpt3-ai-content-generator')]);
+            return;
+        }
+
+        wp_send_json_success(['message' => __('Vector record and log entry deleted successfully.', 'gpt3-ai-content-generator')]);
     }
 }

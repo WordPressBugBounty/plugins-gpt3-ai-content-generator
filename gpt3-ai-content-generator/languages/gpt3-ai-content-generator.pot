@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 2.3.22\n"
+"Project-Id-Version: AI Power: Complete AI Pack 2.3.23\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-22T19:04:47+00:00\n"
+"POT-Creation-Date: 2025-07-23T10:58:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -6904,28 +6904,56 @@ msgstr ""
 msgid "Failed to update template."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:41
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:43
 msgid "Upload utility not available."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:72
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:74
 msgid "Content to embed cannot be empty."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:76
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:78
 msgid "Embedding provider is required."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:80
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:82
 msgid "Embedding model is required."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:89
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:91
 msgid "Invalid embedding provider specified."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:94
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:96
 msgid "Embedding service component not available."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:130
+msgid "Invalid or unsupported provider for this action."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:141
+msgid "Missing required parameters for vector deletion."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:147
+msgid "Vector management component is not available."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:155
+msgid "API key for %s is missing."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:178
+msgid "Failed to delete the log entry from the local database."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:183
+msgid "Log entry was not found, it might have been already deleted."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:187
+msgid "Vector record and log entry deleted successfully."
 msgstr ""
 
 #: classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php:47
@@ -7738,11 +7766,11 @@ msgstr ""
 msgid "Pinecone index deleted successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:28
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:29
 msgid "Pinecone index name is required to fetch logs."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:43
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:44
 msgid "Failed to fetch Pinecone indexing logs."
 msgstr ""
 

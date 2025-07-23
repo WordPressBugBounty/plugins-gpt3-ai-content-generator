@@ -43,7 +43,7 @@ if (!defined('ABSPATH')) {
                     <th class="aipkit-sortable-col" data-sort-by="q.status"><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></th>
                     <th class="aipkit-sortable-col" data-sort-by="q.attempts"><?php esc_html_e('Attempts', 'gpt3-ai-content-generator'); ?></th>
                     <th class="aipkit-sortable-col" data-sort-by="q.added_at"><?php esc_html_e('Added At', 'gpt3-ai-content-generator'); ?></th>
-                    <th><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></th>
+                    <th style="text-align: right;"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></th>
                 </tr>
             </thead>
             <tbody id="aipkit_automated_task_queue_tbody">
