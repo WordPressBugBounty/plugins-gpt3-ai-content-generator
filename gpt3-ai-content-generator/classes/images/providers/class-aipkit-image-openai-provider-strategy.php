@@ -100,7 +100,7 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
         }
 
         // --- Parse response using image-specific parser ---
-        $parsed_data = OpenAIImageResponseParser::parse($decoded_response);
+        $parsed_data = OpenAIImageResponseParser::parse($decoded_response, $options['model'] ?? 'dall-e-3', $prompt);
         if (!isset($parsed_data['images']) || !is_array($parsed_data['images'])) { // Check if 'images' key exists and is an array
 
             return new WP_Error('openai_image_no_data_parsed', __('OpenAI API returned success but image data structure is invalid.', 'gpt3-ai-content-generator'));

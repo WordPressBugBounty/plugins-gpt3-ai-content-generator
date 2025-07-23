@@ -45,6 +45,9 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             'frontend_display' => [
                 'allowed_providers' => '',
                 'allowed_models' => '',
+            ],
+            'replicate' => [
+                'disable_safety_checker' => true, // Default to disabled safety check to avoid false positives
             ]
         ];
     }
@@ -81,6 +84,15 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             $saved['frontend_display'] = array_merge($defaults['frontend_display'], $saved['frontend_display']);
         }
         $saved['frontend_display'] = array_intersect_key($saved['frontend_display'], $defaults['frontend_display']);
+        
+        // Handle Replicate settings
+        if (!isset($saved['replicate']) || !is_array($saved['replicate'])) {
+            $saved['replicate'] = $defaults['replicate'];
+        } else {
+            $saved['replicate'] = array_merge($defaults['replicate'], $saved['replicate']);
+        }
+        $saved['replicate'] = array_intersect_key($saved['replicate'], $defaults['replicate']);
+        
         return $saved;
     }
 
@@ -170,6 +182,13 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             $new_frontend_settings['allowed_models'] = implode(', ', array_filter($models_arr));
         }
         $new_settings['frontend_display'] = $new_frontend_settings;
+
+        // Handle Replicate settings
+        $replicate_defaults = $defaults['replicate'];
+        $new_replicate_settings = $new_settings['replicate'] ?? $replicate_defaults;
+        // Handle checkbox: when unchecked, POST data won't contain the field, so treat as false
+        $new_replicate_settings['disable_safety_checker'] = isset($post_data['replicate_disable_safety_checker']) && ($post_data['replicate_disable_safety_checker'] === '1');
+        $new_settings['replicate'] = $new_replicate_settings;
 
         if (wp_json_encode($current_settings) !== wp_json_encode($new_settings)) {
             $updated = update_option(self::SETTINGS_OPTION_NAME, $new_settings, 'no');

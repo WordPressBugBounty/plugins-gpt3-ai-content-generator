@@ -114,10 +114,28 @@ class AIPKit_Image_Replicate_Provider_Strategy extends AIPKit_Image_Base_Provide
         }
 
         // 1. Create Prediction (using sync mode via headers)
+        $input_params = ['prompt' => $prompt];
+        
+        // Get Replicate settings to check for disable_safety_checker
+        if (class_exists('\WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler')) {
+            $image_settings = \WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler::get_settings();
+            $replicate_settings = $image_settings['replicate'] ?? [];
+            $disable_safety_checker = $replicate_settings['disable_safety_checker'] ?? true;
+            
+            // Add disable_safety_checker to input if enabled
+            if ($disable_safety_checker) {
+                $input_params['disable_safety_checker'] = true;
+            }
+        } else {
+            // Fallback: disable safety checker by default if settings class not available
+            $input_params['disable_safety_checker'] = true;
+        }
+        
         $create_payload = [
             'version' => explode(':', $options['model'])[1] ?? $options['model'],
-            'input' => ['prompt' => $prompt]
+            'input' => $input_params
         ];
+    
         $create_url = 'https://api.replicate.com/v1/predictions';
         $create_headers = $this->get_api_headers($api_key, 'create_prediction');
         $create_options = $this->get_request_options('create_prediction');

@@ -25,8 +25,13 @@ $openai_models_display = [ // For display in dropdown
     'dall-e-2' => 'DALL-E 2',
 ];
 $google_models_display = [
-    'gemini-2.0-flash-preview-image-generation' => 'Gemini 2.0 Flash',
-    'imagen-3.0-generate-002'                 => 'Imagen 3.0',
+    'image' => [
+        'gemini-2.0-flash-preview-image-generation' => 'Gemini 2.0 Flash',
+        'imagen-3.0-generate-002' => 'Imagen 3.0',
+    ],
+    'video' => [
+        'veo-3.0-generate-preview' => 'Veo 3 (Video)',
+    ]
 ];
 
 $theme_class = 'aipkit-theme-' . esc_attr($theme);
@@ -98,12 +103,25 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
                                         <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
                                      <?php endif; ?>
                                  <?php elseif ($final_provider === 'Google'): ?>
-                                     <?php foreach ($google_models_display as $id => $name): ?>
-                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($final_model, $id); ?>>
-                                            <?php echo esc_html($name); ?>
-                                        </option>
+                                     <?php foreach ($google_models_display as $type => $models_array): ?>
+                                        <optgroup label="<?php echo esc_attr(ucfirst($type) . ' Models'); ?>">
+                                            <?php foreach ($models_array as $id => $name): ?>
+                                                <option value="<?php echo esc_attr($id); ?>" <?php selected($final_model, $id); ?>>
+                                                    <?php echo esc_html($name); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </optgroup>
                                      <?php endforeach; ?>
-                                      <?php if ($final_model && !array_key_exists($final_model, $google_models_display)) : ?>
+                                     <?php 
+                                     // Check if final_model exists in any of the optgroups
+                                     $model_found = false;
+                                     foreach ($google_models_display as $type => $models_array) {
+                                         if (array_key_exists($final_model, $models_array)) {
+                                             $model_found = true;
+                                             break;
+                                         }
+                                     }
+                                     if ($final_model && !$model_found) : ?>
                                         <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
                                      <?php endif; ?>
                                  <?php else: ?>

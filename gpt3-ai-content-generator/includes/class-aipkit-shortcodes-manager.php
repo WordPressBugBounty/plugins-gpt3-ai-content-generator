@@ -230,9 +230,18 @@ class AIPKit_Shortcodes_Manager
                         require_once $providers_path;
                     }
                 }
+
+                // Get attributes from the shortcode class
+                $image_gen_atts = class_exists('\\WPAICG\\Shortcodes\\AIPKit_Image_Generator_Shortcode')
+                                  ? AIPKit_Image_Generator_Shortcode::get_current_attributes()
+                                  : [];
+                $allowed_models_str = $image_gen_atts['allowed_models'] ?? null;
+
+
                 wp_localize_script($public_main_js_handle, 'aipkit_image_generator_config_public', [
                     'ajaxUrl' => admin_url('admin-ajax.php'),
                     'nonce' => wp_create_nonce('aipkit_image_generator_nonce'),
+                    'allowed_models' => $allowed_models_str,
                     'text' => [
                         'generating' => __('Generating...', 'gpt3-ai-content-generator'),
                         'error'      => __('Error generating image.', 'gpt3-ai-content-generator'),
@@ -247,8 +256,13 @@ class AIPKit_Shortcodes_Manager
                         ['id' => 'dall-e-2', 'name' => 'DALL-E 2'],
                     ],
                     'google_models' => [
-                        ['id' => 'gemini-2.0-flash-preview-image-generation', 'name' => 'Gemini 2.0 Flash (Image)'],
-                        ['id' => 'imagen-3.0-generate-002', 'name' => 'Imagen 3.0'],
+                        'image' => [
+                            ['id' => 'gemini-2.0-flash-preview-image-generation', 'name' => 'Gemini 2.0 Flash (Image)'],
+                            ['id' => 'imagen-3.0-generate-002', 'name' => 'Imagen 3.0'],
+                        ],
+                        'video' => [
+                             ['id' => 'veo-3.0-generate-preview', 'name' => 'Veo 3.0 (Video)'],
+                        ]
                     ],
                     'replicate_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_replicate_models() : []
                 ]);

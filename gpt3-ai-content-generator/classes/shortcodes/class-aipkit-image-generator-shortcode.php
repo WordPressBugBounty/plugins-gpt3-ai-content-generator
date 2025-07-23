@@ -24,6 +24,7 @@ if (!defined('ABSPATH')) {
  */
 class AIPKit_Image_Generator_Shortcode
 {
+    private static $current_atts = [];
     /**
      * Render the shortcode output.
      *
@@ -42,6 +43,11 @@ class AIPKit_Image_Generator_Shortcode
      */
     public function render_shortcode($atts = [])
     {
+        // 0. Store attributes for localization
+        self::$current_atts = shortcode_atts([
+            'allowed_models' => null,
+        ], $atts, 'aipkit_image_generator');
+
         // 1. Check if the main module is active
         $module_settings = aipkit_dashboard::get_module_settings();
         if (empty($module_settings['image_generator'])) {
@@ -63,7 +69,10 @@ class AIPKit_Image_Generator_Shortcode
         $image_gen_settings = AIPKit_Image_Settings_Ajax_Handler::get_settings();
         $frontend_display_settings = $image_gen_settings['frontend_display'] ?? [];
         $allowed_providers_str = $frontend_display_settings['allowed_providers'] ?? '';
-        $allowed_models_str = $frontend_display_settings['allowed_models'] ?? '';
+        $allowed_models_from_settings = $frontend_display_settings['allowed_models'] ?? '';
+
+        // Prioritize shortcode attribute over global settings
+        $final_allowed_models_str = self::$current_atts['allowed_models'] ?? $allowed_models_from_settings;
         // --- End Get Settings ---
 
         // 3. Parse Attributes
@@ -124,7 +133,7 @@ class AIPKit_Image_Generator_Shortcode
             'show_history'   => $show_history, // NEW: Pass to view
             'image_history_html' => ($show_history && is_user_logged_in()) ? $this->render_image_history() : '', // NEW: Render history HTML
             'allowed_providers' => $allowed_providers_str,
-            'allowed_models' => $allowed_models_str,
+            'allowed_models' => $final_allowed_models_str,
         ];
 
         // 7. Include the partial view
@@ -137,6 +146,11 @@ class AIPKit_Image_Generator_Shortcode
             echo '<p style="color:red;">Image Generator UI cannot be loaded.</p>';
         }
         return ob_get_clean();
+    }
+
+    public static function get_current_attributes()
+    {
+        return self::$current_atts;
     }
 
     /**
@@ -156,13 +170,20 @@ class AIPKit_Image_Generator_Shortcode
             'post_status'    => 'inherit',
             'author'         => $user_id,
             'posts_per_page' => 20,
+            // Updated meta query to include both images and videos
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Reason: The meta/tax query is essential for the feature's functionality. Its performance impact is considered acceptable as the query is highly specific, paginated, cached, or runs in a non-critical admin/cron context.
             'meta_query'     => [
+                'relation' => 'OR',
                 [
                     'key'     => '_aipkit_generated_image',
                     'value'   => '1',
                     'compare' => '=',
                 ],
+                [
+                    'key'     => '_aipkit_generated_video',
+                    'value'   => '1',
+                    'compare' => '=',
+                ]
             ],
             'orderby'        => 'date',
             'order'          => 'DESC',
@@ -171,41 +192,98 @@ class AIPKit_Image_Generator_Shortcode
 
         ob_start();
         if (!$query->have_posts()) {
-            echo '<p class="aipkit-image-history-empty">' . esc_html__('You have not generated any images yet.', 'gpt3-ai-content-generator') . '</p>';
+            echo '<p class="aipkit-image-history-empty">' . esc_html__('You have not generated any images or videos yet.', 'gpt3-ai-content-generator') . '</p>';
         } else {
             ?>
             <div class="aipkit-image-history-grid">
                 <?php while ($query->have_posts()) : $query->the_post();
                     $attachment_id = get_the_ID();
-                    $thumbnail_url = wp_get_attachment_image_url($attachment_id, 'thumbnail'); // Or other size
                     $full_url = wp_get_attachment_url($attachment_id);
-                    $prompt = get_post_meta($attachment_id, '_aipkit_image_prompt', true);
-                    $provider = get_post_meta($attachment_id, '_aipkit_image_provider', true);
-                    $model = get_post_meta($attachment_id, '_aipkit_image_model', true);
-                    $size = get_post_meta($attachment_id, '_aipkit_image_size', true);
-                    ?>
-                    <div class="aipkit-image-history-item">
-                        <a href="<?php echo esc_url($full_url); ?>" target="_blank" rel="noopener noreferrer">
-                            <?php // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function (e.g., `wp_get_attachment_image_url`). The `<img>` tag is constructed manually to build a custom HTML structure with specific wrappers, classes, or attributes that are not achievable with the standard `wp_get_attachment_image()` function. ?>
-                            <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr($prompt ?: 'AI Generated Image'); ?>">
-                        </a>
-                        <button type="button" class="aipkit-image-history-delete-btn" data-attachment-id="<?php echo esc_attr($attachment_id); ?>" title="<?php esc_attr_e('Delete Image', 'gpt3-ai-content-generator'); ?>">
-                            <span class="dashicons dashicons-trash"></span>
-                        </button>
-                        <div class="aipkit-image-history-info">
-                            <?php if ($prompt): ?>
-                                <p class="aipkit-image-history-prompt" title="<?php echo esc_attr($prompt); ?>">
-                                    <strong><?php esc_html_e('Prompt:', 'gpt3-ai-content-generator'); ?></strong> <?php echo esc_html(wp_trim_words($prompt, 10, '...')); ?>
+                    $mime_type = get_post_mime_type($attachment_id);
+                    
+                    // Check if this is an image or video
+                    $is_video = (get_post_meta($attachment_id, '_aipkit_generated_video', true) === '1');
+                    $is_image = (get_post_meta($attachment_id, '_aipkit_generated_image', true) === '1');
+                    
+                    if ($is_video) {
+                        // Handle video display
+                        $prompt = get_post_meta($attachment_id, '_aipkit_video_prompt', true);
+                        $provider = get_post_meta($attachment_id, '_aipkit_video_provider', true);
+                        $model = get_post_meta($attachment_id, '_aipkit_video_model', true);
+                        $size = get_post_meta($attachment_id, '_aipkit_video_size', true);
+                        $duration = get_post_meta($attachment_id, '_aipkit_video_duration', true);
+                        
+                        // Format duration for display
+                        $duration_display = '';
+                        if ($duration) {
+                            $duration_display = sprintf(__('Duration: %ds', 'gpt3-ai-content-generator'), intval($duration));
+                        }
+                        
+                        ?>
+                        <div class="aipkit-image-history-item aipkit-video-history-item">
+                            <div class="aipkit-video-preview">
+                                <video controls preload="metadata" style="width: 100%; max-width: 200px; height: auto;">
+                                    <source src="<?php echo esc_url($full_url); ?>" type="video/mp4">
+                                    <?php esc_html_e('Your browser does not support the video tag.', 'gpt3-ai-content-generator'); ?>
+                                </video>
+                                <div class="aipkit-video-overlay">
+                                    <span class="aipkit-media-type-badge"><?php esc_html_e('VIDEO', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                            </div>
+                            <button type="button" class="aipkit-image-history-delete-btn" data-attachment-id="<?php echo esc_attr($attachment_id); ?>" title="<?php esc_attr_e('Delete Video', 'gpt3-ai-content-generator'); ?>">
+                                <span class="dashicons dashicons-trash"></span>
+                            </button>
+                            <div class="aipkit-image-history-info">
+                                <?php if ($prompt): ?>
+                                    <p class="aipkit-image-history-prompt" title="<?php echo esc_attr($prompt); ?>">
+                                        <strong><?php esc_html_e('Prompt:', 'gpt3-ai-content-generator'); ?></strong> <?php echo esc_html(wp_trim_words($prompt, 10, '...')); ?>
+                                    </p>
+                                <?php endif; ?>
+                                <p class="aipkit-image-history-meta">
+                                    <?php 
+                                    $meta_parts = array_filter([$provider, $model, $size, $duration_display]);
+                                    echo esc_html(implode(' / ', $meta_parts)); 
+                                    ?>
                                 </p>
-                            <?php endif; ?>
-                            <?php if ($model): ?>
-                                 <p class="aipkit-image-history-meta">
-                                    <?php echo esc_html($provider . ' / ' . $model . ' / ' . $size); ?>
-                                 </p>
-                            <?php endif; ?>
+                            </div>
                         </div>
-                    </div>
-                <?php endwhile; ?>
+                        <?php
+                        
+                    } elseif ($is_image) {
+                        // Handle image display (existing logic)
+                        $thumbnail_url = wp_get_attachment_image_url($attachment_id, 'thumbnail');
+                        $prompt = get_post_meta($attachment_id, '_aipkit_image_prompt', true);
+                        $provider = get_post_meta($attachment_id, '_aipkit_image_provider', true);
+                        $model = get_post_meta($attachment_id, '_aipkit_image_model', true);
+                        $size = get_post_meta($attachment_id, '_aipkit_image_size', true);
+                        ?>
+                        <div class="aipkit-image-history-item">
+                            <a href="<?php echo esc_url($full_url); ?>" target="_blank" rel="noopener noreferrer">
+                                <?php // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function (e.g., `wp_get_attachment_image_url`). The `<img>` tag is constructed manually to build a custom HTML structure with specific wrappers, classes, or attributes that are not achievable with the standard `wp_get_attachment_image()` function. ?>
+                                <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr($prompt ?: 'AI Generated Image'); ?>">
+                                <div class="aipkit-image-overlay">
+                                    <span class="aipkit-media-type-badge"><?php esc_html_e('IMAGE', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                            </a>
+                            <button type="button" class="aipkit-image-history-delete-btn" data-attachment-id="<?php echo esc_attr($attachment_id); ?>" title="<?php esc_attr_e('Delete Image', 'gpt3-ai-content-generator'); ?>">
+                                <span class="dashicons dashicons-trash"></span>
+                            </button>
+                            <div class="aipkit-image-history-info">
+                                <?php if ($prompt): ?>
+                                    <p class="aipkit-image-history-prompt" title="<?php echo esc_attr($prompt); ?>">
+                                        <strong><?php esc_html_e('Prompt:', 'gpt3-ai-content-generator'); ?></strong> <?php echo esc_html(wp_trim_words($prompt, 10, '...')); ?>
+                                    </p>
+                                <?php endif; ?>
+                                <?php if ($model): ?>
+                                     <p class="aipkit-image-history-meta">
+                                        <?php echo esc_html($provider . ' / ' . $model . ' / ' . $size); ?>
+                                     </p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php
+                    }
+                endwhile; ?>
             </div>
             <?php if ($query->max_num_pages > 1): ?>
                 <div class="aipkit-image-history-load-more-container">

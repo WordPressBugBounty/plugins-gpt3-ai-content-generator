@@ -117,13 +117,44 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
 
     $result = $managerInstance->generate_image($prompt, $runtime_options, $is_logged_in ? $user_id : null);
     $images_array = [];
+    $videos_array = [];
     $usage_data = null;
 
     if (!is_wp_error($result)) {
+        // Check if this is an async video operation
+        if (isset($result['status']) && $result['status'] === 'processing') {
+            
+            // Log the attempt as processing
+            $managerInstance->log_image_generation_attempt(
+                $conversation_uuid,
+                $prompt,
+                $runtime_options,
+                $result,
+                null, // No usage data yet
+                $user_id,
+                $session_id_for_guest,
+                $client_ip,
+                null,
+                !$is_logged_in ? null : implode(', ', wp_get_current_user()->roles),
+                $bot_response_message_id
+            );
+            
+            // Return async operation info
+            wp_send_json_success([
+                'status' => 'processing',
+                'operation_name' => $result['operation_name'],
+                'message' => $result['message']
+            ]);
+            return;
+        }
+        
+        // Handle completed generation (images or videos)
         $images_array = $result['images'] ?? [];
+        $videos_array = $result['videos'] ?? [];
         $usage_data = $result['usage'] ?? null;
-        $images_generated_count = count($images_array);
-        $tokens_to_record = $usage_data['total_tokens'] ?? ($images_generated_count * $managerInstance::TOKENS_PER_IMAGE);
+        
+        $media_generated_count = count($images_array) + count($videos_array);
+        $tokens_to_record = $usage_data['total_tokens'] ?? ($media_generated_count * $managerInstance::TOKENS_PER_IMAGE);
 
         if (aipkit_dashboard::is_addon_active('token_management') && $tokens_to_record > 0 && $token_manager) {
             $context_id_for_token_record = $is_logged_in ? GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
@@ -149,10 +180,19 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     if (is_wp_error($result)) {
         $managerInstance->send_wp_error($result);
     } else {
-        wp_send_json_success([
-            /* translators: %d: Number of images generated. */
-            'message' => sprintf(_n('%d image generated successfully.', '%d images generated successfully.', count($images_array), 'gpt3-ai-content-generator'), count($images_array)),
-            'images' => $images_array
-        ]);
+        // Return appropriate success response
+        if (!empty($videos_array)) {
+            wp_send_json_success([
+                /* translators: %d: Number of videos generated. */
+                'message' => sprintf(_n('%d video generated successfully.', '%d videos generated successfully.', count($videos_array), 'gpt3-ai-content-generator'), count($videos_array)),
+                'videos' => $videos_array
+            ]);
+        } else {
+            wp_send_json_success([
+                /* translators: %d: Number of images generated. */
+                'message' => sprintf(_n('%d image generated successfully.', '%d images generated successfully.', count($images_array), 'gpt3-ai-content-generator'), count($images_array)),
+                'images' => $images_array
+            ]);
+        }
     }
 }

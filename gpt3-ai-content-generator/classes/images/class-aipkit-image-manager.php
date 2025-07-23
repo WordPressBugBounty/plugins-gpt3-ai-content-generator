@@ -20,6 +20,7 @@ require_once $manager_path . 'generate_image.php';
 require_once $manager_path . 'ajax/ajax_generate_image.php';
 require_once $manager_path . 'ajax/ajax_delete_generated_image.php';
 require_once $manager_path . 'ajax/ajax_load_more_image_history.php';
+require_once $manager_path . 'ajax/ajax_check_video_status.php';
 require_once $manager_path . 'log/log_image_generation_attempt.php';
 require_once $manager_path . 'utils/send_wp_error.php';
 
@@ -72,6 +73,11 @@ class AIPKit_Image_Manager
     public function ajax_load_more_image_history()
     {
         Manager\Ajax\ajax_load_more_image_history_logic();
+    }
+
+    public function ajax_check_video_status()
+    {
+        Manager\Ajax\ajax_check_video_status_logic($this);
     }
 
     public function log_image_generation_attempt(

@@ -29,10 +29,6 @@ class Validator {
             return new WP_Error('invalid_id', sprintf('[AIPKit Chatbot Error: Invalid Chatbot ID: %s]', esc_html($atts['id'])));
         }
 
-        if (isset($rendered_bot_ids[$bot_id])) {
-            return new WP_Error('already_rendered', sprintf('[AIPKit Chatbot Notice: Bot ID %d already rendered on this page.]', $bot_id));
-        }
-
         $bot_post = get_post($bot_id);
         if (!$bot_post || $bot_post->post_type !== AdminSetup::POST_TYPE || !in_array($bot_post->post_status, ['publish', 'draft'])) {
             return new WP_Error('not_found', sprintf('[AIPKit Chatbot Error: Invalid or non-existent Chatbot ID: %d]', $bot_id));

@@ -28,10 +28,6 @@ function validate_atts_logic(array $atts, array &$rendered_form_ids): int|WP_Err
         return new WP_Error('invalid_id', '[AIPKit AI Form Error: Missing or invalid form ID.]');
     }
 
-    if (isset($rendered_form_ids[$form_id])) {
-        return new WP_Error('already_rendered', sprintf('[AIPKit AI Form Notice: Form ID %d already rendered on this page.]', $form_id));
-    }
-
     if (!class_exists(AIPKit_AI_Form_Admin_Setup::class)) {
         return new WP_Error('internal_error', 'AI Form system component is missing.');
     }

@@ -25,6 +25,9 @@ $settings_nonce = wp_create_nonce('aipkit_image_generator_settings_nonce');
 // Check if Token Management addon is active
 $is_token_management_active = aipkit_dashboard::is_addon_active('token_management');
 
+// Check if Replicate addon is active
+$is_replicate_addon_active = aipkit_dashboard::is_addon_active('replicate');
+
 ?>
 <div class="aipkit_container-body aipkit_settings_container_body"> <?php // Added settings container body class?>
     <form id="aipkit_image_generator_settings_form" onsubmit="return false;" style="max-width: 700px;">
@@ -47,6 +50,20 @@ $is_token_management_active = aipkit_dashboard::is_addon_active('token_managemen
                 </div>
             <?php endif; ?>
             <!-- END NEW -->
+
+            <!-- Replicate Settings Accordion (Conditional) -->
+            <?php if ($is_replicate_addon_active): ?>
+                <div class="aipkit_accordion">
+                    <div class="aipkit_accordion-header">
+                        <span class="dashicons dashicons-admin-tools"></span>
+                        <?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?>
+                    </div>
+                    <div class="aipkit_accordion-content">
+                        <?php include __DIR__ . '/settings-replicate.php'; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <!-- END Replicate Settings -->
 
              <!-- Common Settings Accordion -->
             <div class="aipkit_accordion">

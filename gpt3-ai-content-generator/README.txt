@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.23
+Stable tag: 2.3.24
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,6 +72,14 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 6. The Automate module, showing the task list and queue.
 
 == Changelog ==
+
+= 2.3.24 =
+
+- **Added**: Google Veo 3 video generation support in the Image Generator module.
+- **Added**: Option to enable or disable the safety checker for Replicate image models.
+- **Improved**: Enhanced shortcode validation for Chatbot and AI Forms modules.
+
+[Veo 3](https://docs.aipower.org/docs/image-generator)
 
 = 2.3.23 =
 

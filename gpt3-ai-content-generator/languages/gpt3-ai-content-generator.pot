@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 2.3.23\n"
+"Project-Id-Version: AI Power: Complete AI Pack 2.3.24\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-23T10:58:46+00:00\n"
+"POT-Creation-Date: 2025-07-23T18:59:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -115,7 +115,7 @@ msgstr[1] ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:15
 #: admin/views/modules/content-writer/partials/form-inputs/generation-mode.php:122
 #: classes/ai-forms/storage/methods/fn-get-form-data.php:117
-#: public/views/shortcodes/image-generator.php:121
+#: public/views/shortcodes/image-generator.php:139
 msgid "Generate"
 msgstr ""
 
@@ -804,14 +804,14 @@ msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:259
-#: includes/class-aipkit-shortcodes-manager.php:267
+#: includes/class-aipkit-shortcodes-manager.php:281
 #: admin/js/ai-training/wp/render-wp-content-list.js:131
 msgid "Page"
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:260
-#: includes/class-aipkit-shortcodes-manager.php:267
+#: includes/class-aipkit-shortcodes-manager.php:281
 #: admin/js/ai-training/wp/render-wp-content-list.js:134
 msgid "of"
 msgstr ""
@@ -821,7 +821,7 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:83
 #: admin/views/modules/logs/partials/logs-table.php:188
 #: admin/views/modules/logs/partials/logs-table.php:195
-#: includes/class-aipkit-shortcodes-manager.php:267
+#: includes/class-aipkit-shortcodes-manager.php:281
 #: admin/js/ai-training/wp/render-wp-content-list.js:119
 msgid "Previous"
 msgstr ""
@@ -832,7 +832,7 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:88
 #: admin/views/modules/logs/partials/logs-table.php:211
 #: admin/views/modules/logs/partials/logs-table.php:218
-#: includes/class-aipkit-shortcodes-manager.php:267
+#: includes/class-aipkit-shortcodes-manager.php:281
 #: admin/js/ai-training/wp/render-wp-content-list.js:139
 msgid "Next"
 msgstr ""
@@ -940,32 +940,32 @@ msgid "No Models (Select Provider or Sync)"
 msgstr ""
 
 #: admin/assets/class-aipkit-image-generator-assets.php:146
-#: includes/class-aipkit-shortcodes-manager.php:237
+#: includes/class-aipkit-shortcodes-manager.php:246
 msgid "Generating..."
 msgstr ""
 
 #: admin/assets/class-aipkit-image-generator-assets.php:147
-#: includes/class-aipkit-shortcodes-manager.php:238
+#: includes/class-aipkit-shortcodes-manager.php:247
 msgid "Error generating image."
 msgstr ""
 
 #: admin/assets/class-aipkit-image-generator-assets.php:148
-#: includes/class-aipkit-shortcodes-manager.php:239
+#: includes/class-aipkit-shortcodes-manager.php:248
 msgid "Generate Image"
 msgstr ""
 
 #: admin/assets/class-aipkit-image-generator-assets.php:149
-#: includes/class-aipkit-shortcodes-manager.php:240
+#: includes/class-aipkit-shortcodes-manager.php:249
 msgid "Please enter a prompt."
 msgstr ""
 
 #: admin/assets/class-aipkit-image-generator-assets.php:150
-#: includes/class-aipkit-shortcodes-manager.php:241
+#: includes/class-aipkit-shortcodes-manager.php:250
 msgid "Generated images will appear here."
 msgstr ""
 
 #: admin/assets/class-aipkit-image-generator-assets.php:151
-#: includes/class-aipkit-shortcodes-manager.php:242
+#: includes/class-aipkit-shortcodes-manager.php:251
 msgid "Click to view full image"
 msgstr ""
 
@@ -1089,7 +1089,7 @@ msgstr ""
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-post-enhancer-assets.php:214
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:145
-#: includes/class-aipkit-shortcodes-manager.php:267
+#: includes/class-aipkit-shortcodes-manager.php:281
 msgid "Close"
 msgstr ""
 
@@ -1169,7 +1169,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:39
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:34
 #: admin/views/modules/content-writer/partials/form-inputs/ai-settings.php:27
-#: public/views/shortcodes/image-generator.php:51
+#: public/views/shortcodes/image-generator.php:56
 msgid "Provider"
 msgstr ""
 
@@ -1398,7 +1398,7 @@ msgstr ""
 #: admin/views/modules/settings/partials/settings-models.php:61
 #: admin/views/modules/settings/partials/settings-models.php:109
 #: admin/views/modules/settings/partials/settings-models.php:189
-#: public/views/shortcodes/image-generator.php:72
+#: public/views/shortcodes/image-generator.php:77
 msgid "Model"
 msgstr ""
 
@@ -2140,7 +2140,7 @@ msgstr ""
 #: admin/views/modules/addons/index.php:31
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:81
 #: admin/views/modules/chatbot/partials/accordion-token-management.php:45
-#: admin/views/modules/image-generator/partials/settings-image-generator.php:42
+#: admin/views/modules/image-generator/partials/settings-image-generator.php:45
 msgid "Token Management"
 msgstr ""
 
@@ -2532,7 +2532,7 @@ msgstr ""
 
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:152
 #: admin/views/modules/image-generator/index.php:78
-#: admin/views/modules/image-generator/partials/settings-image-generator.php:55
+#: admin/views/modules/image-generator/partials/settings-image-generator.php:72
 msgid "Custom CSS"
 msgstr ""
 
@@ -2550,7 +2550,7 @@ msgid "Add your custom CSS to style forms using the \"custom\" theme. Target the
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:179
-#: admin/views/modules/image-generator/partials/settings-image-generator.php:66
+#: admin/views/modules/image-generator/partials/settings-image-generator.php:83
 msgid "Provider & Model Filtering"
 msgstr ""
 
@@ -3644,6 +3644,7 @@ msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:39
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:47
+#: admin/views/modules/image-generator/partials/settings-image-generator.php:59
 #: admin/views/modules/settings/partials/integrations/replicate.php:19
 msgid "Replicate"
 msgstr ""
@@ -5027,8 +5028,20 @@ msgstr ""
 msgid "e.g., dall-e-3, imagen-3.0-generate-002, stability-ai/sdxl"
 msgstr ""
 
-#: admin/views/modules/image-generator/partials/settings-image-generator.php:83
+#: admin/views/modules/image-generator/partials/settings-image-generator.php:100
 msgid "Save Image Settings"
+msgstr ""
+
+#: admin/views/modules/image-generator/partials/settings-replicate.php:16
+msgid "Configure settings specific to Replicate image generation. By default, the safety checker is disabled to avoid false positives that may block legitimate prompts."
+msgstr ""
+
+#: admin/views/modules/image-generator/partials/settings-replicate.php:30
+msgid "Disable Safety Checker"
+msgstr ""
+
+#: admin/views/modules/image-generator/partials/settings-replicate.php:34
+msgid "When enabled, this disables Replicate's built-in safety checker to prevent false positives that may block legitimate image generation prompts. Only disable this if you have other content moderation measures in place."
 msgstr ""
 
 #: admin/views/modules/image-generator/partials/settings-token-management.php:46
@@ -5748,7 +5761,7 @@ msgstr ""
 
 #: classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php:194
 #: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:67
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:182
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:201
 msgid "No changes detected."
 msgstr ""
 
@@ -6232,6 +6245,7 @@ msgstr ""
 #: classes/chat/admin/ajax/traits/Trait_CheckFrontendPermissions.php:23
 #: classes/chat/admin/ajax/traits/Trait_CheckModuleAccess.php:26
 #: classes/dashboard/ajax/class-aipkit-base-dashboard-ajax-handler.php:33
+#: classes/images/manager/ajax/ajax_check_video_status.php:29
 #: classes/images/manager/ajax/ajax_generate_image.php:45
 #: classes/stt/class-aipkit-stt-manager.php:125
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:58
@@ -7092,7 +7106,7 @@ msgstr ""
 #: classes/core/providers/google/parse-error.php:19
 #: classes/core/providers/openai/parse-error.php:15
 #: classes/core/providers/openrouter/parse-error.php:19
-#: classes/images/providers/openai/OpenAIImageResponseParser.php:48
+#: classes/images/providers/openai/OpenAIImageResponseParser.php:102
 msgid "An unknown API error occurred."
 msgstr ""
 
@@ -8048,11 +8062,11 @@ msgstr ""
 msgid "Failed to load Image Generation strategy for provider: %s"
 msgstr ""
 
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:177
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:196
 msgid "Image Generator settings saved."
 msgstr ""
 
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:179
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:198
 #: admin/js/ai-forms/ajax/save-settings.js:61
 msgid "Failed to save settings."
 msgstr ""
@@ -8081,28 +8095,82 @@ msgstr ""
 msgid "AI Generated Image"
 msgstr ""
 
+#: classes/images/manager/ajax/ajax_check_video_status.php:35
+msgid "You do not have permission to check video status."
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_check_video_status.php:45
+msgid "Missing required parameters for video status check."
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_check_video_status.php:58
+msgid "Provider configuration not available."
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_check_video_status.php:65
+msgid "Google API Key is not configured."
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_check_video_status.php:101
+msgid "Video response parser not available."
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_check_video_status.php:106
+msgid "Video URL builder not available."
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_check_video_status.php:171
+msgid "Video generation completed successfully!"
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_check_video_status.php:175
+msgid "Unknown video generation status."
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_check_video_status.php:179
+msgid "Unexpected response format from video status check."
+msgstr ""
+
 #: classes/images/manager/ajax/ajax_delete_generated_image.php:18
-msgid "You must be logged in to delete images."
+msgid "You must be logged in to delete media."
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_delete_generated_image.php:23
-msgid "Invalid image ID."
+msgid "Invalid media ID."
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_delete_generated_image.php:30
-msgid "You do not have permission to delete this image."
+msgid "You do not have permission to delete this media."
 msgstr ""
 
-#: classes/images/manager/ajax/ajax_delete_generated_image.php:37
-msgid "This image was not generated by AI Power."
+#: classes/images/manager/ajax/ajax_delete_generated_image.php:40
+msgid "This media was not generated by AI Power."
 msgstr ""
 
-#: classes/images/manager/ajax/ajax_delete_generated_image.php:44
-msgid "Failed to delete the image from the media library."
+#: classes/images/manager/ajax/ajax_delete_generated_image.php:47
+msgid "video"
 msgstr ""
 
-#: classes/images/manager/ajax/ajax_delete_generated_image.php:46
-msgid "Image deleted successfully."
+#: classes/images/manager/ajax/ajax_delete_generated_image.php:47
+msgid "image"
+msgstr ""
+
+#. translators: %s: media type (image or video)
+#: classes/images/manager/ajax/ajax_delete_generated_image.php:49
+msgid "Failed to delete the %s from the media library."
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_delete_generated_image.php:51
+msgid "Video"
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_delete_generated_image.php:51
+msgid "Image"
+msgstr ""
+
+#. translators: %s: media type (Image or Video)
+#: classes/images/manager/ajax/ajax_delete_generated_image.php:53
+msgid "%s deleted successfully."
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_generate_image.php:52
@@ -8113,9 +8181,16 @@ msgstr ""
 msgid "Image prompt cannot be empty."
 msgstr ""
 
+#. translators: %d: Number of videos generated.
+#: classes/images/manager/ajax/ajax_generate_image.php:187
+msgid "%d video generated successfully."
+msgid_plural "%d videos generated successfully."
+msgstr[0] ""
+msgstr[1] ""
+
 #. translators: %d: Number of images generated.
 #. translators: %d is the count of images generated
-#: classes/images/manager/ajax/ajax_generate_image.php:154
+#: classes/images/manager/ajax/ajax_generate_image.php:193
 #: classes/rest/handlers/class-aipkit-rest-image-handler.php:165
 msgid "%d image generated successfully."
 msgid_plural "%d images generated successfully."
@@ -8126,14 +8201,41 @@ msgstr[1] ""
 msgid "You must be logged in to view history."
 msgstr ""
 
-#: classes/images/manager/ajax/ajax_load_more_image_history.php:61
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:192
-msgid "Delete Image"
+#: classes/images/manager/ajax/ajax_load_more_image_history.php:74
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:219
+msgid "Duration: %ds"
 msgstr ""
 
-#: classes/images/manager/ajax/ajax_load_more_image_history.php:67
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:198
+#: classes/images/manager/ajax/ajax_load_more_image_history.php:82
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:227
+msgid "Your browser does not support the video tag."
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_load_more_image_history.php:85
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:230
+msgid "VIDEO"
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_load_more_image_history.php:88
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:233
+msgid "Delete Video"
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_load_more_image_history.php:94
+#: classes/images/manager/ajax/ajax_load_more_image_history.php:129
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:239
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:274
 msgid "Prompt:"
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_load_more_image_history.php:120
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:265
+msgid "IMAGE"
+msgstr ""
+
+#: classes/images/manager/ajax/ajax_load_more_image_history.php:123
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:268
+msgid "Delete Image"
 msgstr ""
 
 #. translators: %s: The provider name that was attempted to be used for image generation.
@@ -8150,38 +8252,58 @@ msgstr ""
 msgid "Azure Endpoint/Region URL is required for image generation."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:50
-msgid "Google API Key is required for image generation."
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:66
+msgid "Google API Key is required for generation."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:51
-msgid "Google image model ID is required."
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:67
+msgid "Google model ID is required."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:52
-#: classes/images/providers/class-aipkit-image-openai-provider-strategy.php:54
-msgid "Prompt cannot be empty for image generation."
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:68
+msgid "Prompt cannot be empty for generation."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:56
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:77
 msgid "Google image generation components are missing."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:66
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:87
 msgid "Failed to format payload for Google image model: "
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:82
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:103
 msgid "HTTP error during Google image generation."
 msgstr ""
 
 #. translators: %1$d: HTTP status code, %2$s: Error message from the API.
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:95
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:116
 msgid "Google Image API Error (%1$d): %2$s"
+msgstr ""
+
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:146
+msgid "Google video generation components are missing."
+msgstr ""
+
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:158
+msgid "Failed to format payload for Google video model: "
+msgstr ""
+
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:175
+msgid "HTTP error during Google video generation."
+msgstr ""
+
+#. translators: %1$d: HTTP status code, %2$s: Error message from the API.
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:188
+msgid "Google Video API Error (%1$d): %2$s"
 msgstr ""
 
 #: classes/images/providers/class-aipkit-image-openai-provider-strategy.php:53
 msgid "OpenAI API Key is required for image generation."
+msgstr ""
+
+#: classes/images/providers/class-aipkit-image-openai-provider-strategy.php:54
+msgid "Prompt cannot be empty for image generation."
 msgstr ""
 
 #: classes/images/providers/class-aipkit-image-openai-provider-strategy.php:58
@@ -8266,9 +8388,91 @@ msgstr ""
 msgid "Google API key is required for image URL construction."
 msgstr ""
 
+#. translators: %s: The model ID that was attempted to be used for image URL building.
+#: classes/images/providers/google/GoogleImageUrlBuilder.php:39
+msgid "Video model %s should use GoogleVideoUrlBuilder instead."
+msgstr ""
+
 #. translators: %s: The model ID that was attempted to be used for URL building.
-#: classes/images/providers/google/GoogleImageUrlBuilder.php:49
+#: classes/images/providers/google/GoogleImageUrlBuilder.php:55
 msgid "Unsupported Google image model for URL building: %s"
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:35
+msgid "No operation name found in Google Video API response."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:43
+msgid "Video generation started. Please wait..."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:88
+msgid "No video samples found in API response."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:110
+msgid "No video data found in completed Google Video API response."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:116
+msgid "Unknown error occurred during video generation."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:124
+msgid "Video generation in progress..."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:151
+msgid "HTTP error during Google Video API polling."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:160
+msgid "Google Video API polling error (%d)."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:190
+msgid "Failed to download video from Google API."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:196
+msgid "Video download failed with status %d."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:203
+msgid "Downloaded video data is empty."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:212
+msgid "Insufficient memory to process video file."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:220
+msgid "Upload directory error: "
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:225
+msgid "Upload directory is not writable."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:235
+msgid "Failed to save video file to uploads directory."
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoResponseParser.php:306
+msgid "Google Video API returned status %d"
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoUrlBuilder.php:31
+msgid "Google API key is required for video URL construction."
+msgstr ""
+
+#. translators: %s: The model ID that was attempted to be used for video URL building.
+#: classes/images/providers/google/GoogleVideoUrlBuilder.php:41
+msgid "Unsupported Google video model for URL building: %s"
+msgstr ""
+
+#: classes/images/providers/google/GoogleVideoUrlBuilder.php:55
+msgid "Unsupported video operation: %s"
 msgstr ""
 
 #: classes/images/providers/openai/OpenAIImageUrlBuilder.php:31
@@ -8715,20 +8919,19 @@ msgstr ""
 msgid "The number of returned embeddings does not match the number of input texts."
 msgstr ""
 
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:49
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:55
 msgid "AIPKit Image Generator Shortcode: Module is disabled in settings."
 msgstr ""
 
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:57
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:63
 msgid "AIPKit Image Generator Shortcode: Current user role lacks permission."
 msgstr ""
 
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:174
-#: public/views/shortcodes/image-generator.php:141
-msgid "You have not generated any images yet."
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:195
+msgid "You have not generated any images or videos yet."
 msgstr ""
 
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:212
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:290
 msgid "Load More"
 msgstr ""
 
@@ -9340,25 +9543,25 @@ msgid "AI Power Form Error: This form (legacy ID: %d) has not been migrated. Ple
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: includes/class-aipkit-shortcodes-manager.php:267
+#: includes/class-aipkit-shortcodes-manager.php:281
 msgid "Loading details..."
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: includes/class-aipkit-shortcodes-manager.php:267
+#: includes/class-aipkit-shortcodes-manager.php:281
 msgid "Error loading details."
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: includes/class-aipkit-shortcodes-manager.php:267
+#: includes/class-aipkit-shortcodes-manager.php:281
 msgid "Usage Details for %s"
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:280
+#: includes/class-aipkit-shortcodes-manager.php:294
 msgid "Searching..."
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:280
+#: includes/class-aipkit-shortcodes-manager.php:294
 msgid "An error occurred while searching."
 msgstr ""
 
@@ -9949,16 +10152,20 @@ msgstr ""
 msgid "The content from each URL will be fetched and used as context for the %1$s placeholder in your %2$s."
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:44
+#: public/views/shortcodes/image-generator.php:49
 msgid "Describe the image you want to generate..."
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:110
+#: public/views/shortcodes/image-generator.php:128
 msgid "(Select Provider)"
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:134
+#: public/views/shortcodes/image-generator.php:152
 msgid "Your Images"
+msgstr ""
+
+#: public/views/shortcodes/image-generator.php:159
+msgid "You have not generated any images yet."
 msgstr ""
 
 #: admin/js/ai-forms/actions/validate-prompt.js:89
