@@ -1,14 +1,14 @@
-=== AI Power: Complete AI Pack ===
+=== AIP: Complete AI Pack (formerly AI Power) ===
 Contributors: senols
 Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.24
+Stable tag: 2.3.25
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A complete AI toolkit for WordPress. Includes a content writer, chatbot, realtime voice agents, image generator, AI forms, automation, AI training, and more.
+A complete AI toolkit for WordPress: Chatbot, writer, voice agents, forms, automation, image & vector.
 
 == Description ==
 
@@ -64,14 +64,24 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 
 == Screenshots ==
 
-1. The main dashboard where you configure AI providers and general settings.
-2. The Content Writer interface for generating single or bulk articles.
-3. The Chatbot builder, showing the various configuration accordions.
-4. The AI Forms module, with the drag-and-drop form builder.
-5. The AI Training module, for managing your custom knowledge bases.
-6. The Automate module, showing the task list and queue.
+1. The main dashboard with quick access to all AI modules and settings.
+2. The Addons page to enable/disable optional features like automation or training.
+3. The Chatbot builder interface with configuration panels and test preview.
+4. The Content Writer module for generating single, bulk, or RSS-based articles.
+5. The Automated Tasks manager for scheduling background AI tasks.
+6. The AI Forms builder using drag-and-drop blocks and custom prompts.
+7. The Image Generator supporting OpenAI, Google Veo, and Replicate models.
+8. The AI Training module for managing vector database knowledge sources.
+9. The User Credits (Token Management) system with per-role usage limits.
+10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.25 =
+
+- **Improved**: Improved syncing of indexes across OpenAI, Pinecone, and Qdrant vector databases.
+- **Fixed**: The block_message trigger now consistently blocks all subsequent user messages within the same session, as intended in the chatbot.
+- **Note**: Renamed plugin from AI Power to AIP to begin the transition to the new branding.
 
 = 2.3.24 =
 

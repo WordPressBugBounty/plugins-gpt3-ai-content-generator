@@ -161,6 +161,18 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
         require_once __DIR__ . '/handler-indexes/ajax-list-indexes.php'; // MODIFIED PATH
         \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_list_indexes_logic($this);
     }
+    
+    // NEW AJAX ACTION
+    public function ajax_get_pinecone_index_details()
+    {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+        require_once __DIR__ . '/handler-indexes/ajax-get-index-details.php';
+        \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_get_index_details_logic($this);
+    }
 
     public function ajax_create_index_pinecone()
     {

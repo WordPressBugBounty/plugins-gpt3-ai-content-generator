@@ -2,21 +2,21 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Power: Complete AI Pack 2.3.24\n"
+"Project-Id-Version: AIP: Complete AI Pack (formerly AI Power) 2.3.25\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-23T18:59:28+00:00\n"
+"POT-Creation-Date: 2025-07-24T11:06:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
 
 #. Plugin Name of the plugin
 #: gpt3-ai-content-generator.php
-msgid "AI Power: Complete AI Pack"
+msgid "AIP: Complete AI Pack (formerly AI Power)"
 msgstr ""
 
 #. Description of the plugin
@@ -7619,6 +7619,7 @@ msgstr ""
 
 #: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:30
 #: classes/dashboard/ajax/openai/handler-stores/ajax-search-vector-store-openai.php:29
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-index-details.php:24
 #: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:27
 msgid "Vector Store Manager not available."
 msgstr ""
@@ -7745,11 +7746,11 @@ msgstr ""
 msgid "Pinecone API Key is not configured in global settings."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/class-aipkit-vector-store-pinecone-ajax-handler.php:208
+#: classes/dashboard/ajax/pinecone/class-aipkit-vector-store-pinecone-ajax-handler.php:220
 msgid "File upload to Pinecone is a Pro feature. Please upgrade."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/class-aipkit-vector-store-pinecone-ajax-handler.php:233
+#: classes/dashboard/ajax/pinecone/class-aipkit-vector-store-pinecone-ajax-handler.php:245
 msgid "File upload processing component for Pinecone is missing."
 msgstr ""
 
@@ -7778,6 +7779,14 @@ msgstr ""
 
 #: classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php:73
 msgid "Pinecone index deleted successfully."
+msgstr ""
+
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-index-details.php:37
+msgid "Pinecone index name is required to get details."
+msgstr ""
+
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-index-details.php:49
+msgid "Pinecone index details fetched."
 msgstr ""
 
 #: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:29
@@ -9774,6 +9783,7 @@ msgid "File processed and context established for Qdrant."
 msgstr ""
 
 #: lib/chat/triggers/actions/AIPKit_Action_Block_Message.php:27
+#: lib/chat/triggers/manager/event-processor/process_trigger_event.php:218
 msgid "Your message could not be processed at this time."
 msgstr ""
 
@@ -9845,10 +9855,6 @@ msgstr ""
 
 #: lib/chat/triggers/class-aipkit-trigger-manager.php:126
 msgid "Trigger system internal error."
-msgstr ""
-
-#: lib/chat/triggers/manager/event-processor/process_trigger_event.php:232
-msgid "Your message could not be processed."
 msgstr ""
 
 #: lib/chat/triggers/storage/class-aipkit-trigger-adder.php:35
