@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.25
+Stable tag: 2.3.26
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,14 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.26 =
+
+- **Fixed**: Fixed an issue where pasting long code snippets into the chatbot would fail.
+- **Improved**: Chatbot shortcode can now be embedded inside modal windows.
+- **Improved**: Enhanced chatbot text area for better touch interaction.
+- **Improved**: Improved vector database syncing on the post list screen.
+- **Improved**: UI refinements for the Content Assistant module.
 
 = 2.3.25 =
 

@@ -42,7 +42,11 @@ class ChatMessageValidator
         $bot_id            = isset($post_data['bot_id']) ? absint($post_data['bot_id']) : 0;
         // --- MODIFIED SANITIZATION for user_message_text ---
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in BaseAjaxHandler
-        $user_message_text = isset($_POST['message']) ? trim(wp_strip_all_tags(wp_unslash($_POST['message']))) : '';
+        $raw_user_message = isset($_POST['message']) ? wp_unslash($_POST['message']) : '';
+        // Custom sanitization for code content - preserve code structure while ensuring security
+        $user_message_text = wp_check_invalid_utf8($raw_user_message);
+        $user_message_text = str_replace(chr(0), '', $user_message_text); // Remove null bytes
+        $user_message_text = trim($user_message_text);
         // --- END MODIFICATION ---
         $session_id        = isset($post_data['session_id']) ? sanitize_text_field(wp_unslash($post_data['session_id'])) : '';
         $conversation_uuid = isset($post_data['conversation_uuid']) ? sanitize_key($post_data['conversation_uuid']) : '';

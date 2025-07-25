@@ -34,12 +34,27 @@ class AIPKit_Vector_Post_Processor_Assets
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
     }
 
+    /**
+     * NEW: Adds the "Index" button to the post list screens via a PHP action.
+     */
+    public function add_vpp_button()
+    {
+        $screen = get_current_screen();
+        if ($screen && $screen->base === 'edit') {
+            echo '<button type="button" id="aipkit_add_to_vector_store_btn" class="button button-secondary aipkit_vpp_button" style="margin-right: 5px;">' . esc_html__('Index', 'gpt3-ai-content-generator') . '</button>';
+        }
+    }
+
     public function enqueue_assets($hook_suffix)
     {
         $screen = get_current_screen();
         $is_post_list_screen = $screen && $screen->base === 'edit';
 
         if ($is_post_list_screen && AIPKit_Role_Manager::user_can_access_module(self::MODULE_SLUG)) {
+            // --- NEW: Hook to add the button via PHP ---
+            add_action('restrict_manage_posts', [$this, 'add_vpp_button']);
+            // --- END NEW ---
+            
             $this->enqueue_styles();
             $this->enqueue_scripts($screen->post_type); // Pass post_type to enqueue_scripts
 
@@ -108,14 +123,14 @@ class AIPKit_Vector_Post_Processor_Assets
         if (!$vpp_localized && wp_script_is($admin_main_js_handle, 'enqueued')) { // Ensure script is enqueued
             $openai_vector_stores = [];
             $pinecone_indexes = [];
-            $qdrant_collections = []; // ADDED
+            $qdrant_collections = [];
             $openai_embedding_models = [];
             $google_embedding_models = [];
 
             if (class_exists(AIPKit_Vector_Store_Registry::class)) {
                 $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
                 $pinecone_indexes = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Pinecone');
-                $qdrant_collections = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Qdrant'); // ADDED
+                $qdrant_collections = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Qdrant');
             }
             if (class_exists(AIPKit_Providers::class)) {
                 $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
@@ -125,13 +140,10 @@ class AIPKit_Vector_Post_Processor_Assets
             wp_localize_script($admin_main_js_handle, 'aipkit_vpp_config', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce_index_posts' => wp_create_nonce('aipkit_index_posts_to_vector_store_nonce'),
-                'nonce_fetch_openai_stores' => wp_create_nonce('aipkit_vector_store_nonce_openai'),
-                'nonce_fetch_pinecone_indexes' => wp_create_nonce('aipkit_vector_store_pinecone_nonce'),
-                'nonce_fetch_qdrant_collections' => wp_create_nonce('aipkit_vector_store_qdrant_nonce'), // ADDED
                 'post_type' => $post_type,
                 'openai_vector_stores' => $openai_vector_stores,
                 'pinecone_indexes' => $pinecone_indexes,
-                'qdrant_collections' => $qdrant_collections, // ADDED
+                'qdrant_collections' => $qdrant_collections,
                 'openaiEmbeddingModels' => $openai_embedding_models,
                 'googleEmbeddingModels' => $google_embedding_models,
                 'text' => [
@@ -145,7 +157,7 @@ class AIPKit_Vector_Post_Processor_Assets
                     'close' => __('Close', 'gpt3-ai-content-generator'),
                     'stop' => __('Stop', 'gpt3-ai-content-generator'),
                     'stopping' => __('Stopping...', 'gpt3-ai-content-generator'),
-                    'indexing_progress' => __('Processing: ', 'gpt3-ai-content-generator'),
+                    'indexing_progress' => __('Processing: %1$d/%2$d', 'gpt3-ai-content-generator'),
                     'indexing_complete' => __('Indexing complete!', 'gpt3-ai-content-generator'),
                     'error_fetching_stores' => __('Error fetching vector stores.', 'gpt3-ai-content-generator'),
                     'error_no_store_selected_vpp' => __('Please select an existing OpenAI store.', 'gpt3-ai-content-generator'),
@@ -165,9 +177,9 @@ class AIPKit_Vector_Post_Processor_Assets
                     'error_fetching_indexes' => __('Error fetching indexes.', 'gpt3-ai-content-generator'),
                     'no_pinecone_indexes_found' => __('No Pinecone indexes found. Create one in AI Training or via Pinecone console.', 'gpt3-ai-content-generator'),
                     'error_no_pinecone_index_selected' => __('Please select a Pinecone index.', 'gpt3-ai-content-generator'),
-                    'select_qdrant_collection' => __('Select Qdrant Collection', 'gpt3-ai-content-generator'), // ADDED
-                    'no_qdrant_collections_found' => __('No Qdrant collections found. Create one in AI Training.', 'gpt3-ai-content-generator'), // ADDED
-                    'error_no_qdrant_collection_selected' => __('Please select a Qdrant collection.', 'gpt3-ai-content-generator'), // ADDED
+                    'select_qdrant_collection' => __('Select Qdrant Collection', 'gpt3-ai-content-generator'),
+                    'no_qdrant_collections_found' => __('No Qdrant collections found. Create one in AI Training.', 'gpt3-ai-content-generator'),
+                    'error_no_qdrant_collection_selected' => __('Please select a Qdrant collection.', 'gpt3-ai-content-generator'),
                     'embedding_provider_label' => __('Embedding Provider', 'gpt3-ai-content-generator'),
                     'embedding_model_label' => __('Embedding Model', 'gpt3-ai-content-generator'),
                     'select_model' => __('Select Model', 'gpt3-ai-content-generator'),

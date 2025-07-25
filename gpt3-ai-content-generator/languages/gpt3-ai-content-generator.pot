@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Pack (formerly AI Power) 2.3.25\n"
+"Project-Id-Version: AIP: Complete AI Pack (formerly AI Power) 2.3.26\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-24T11:06:20+00:00\n"
+"POT-Creation-Date: 2025-07-25T09:09:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -120,7 +120,7 @@ msgid "Generate"
 msgstr ""
 
 #: admin/ajax/ai-forms/ajax-save-form.php:40
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:146
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:158
 #: admin/views/modules/ai-forms/partials/labels-config.php:18
 #: admin/views/modules/ai-forms/partials/labels-config.php:19
 #: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:81
@@ -649,12 +649,12 @@ msgid "Create New Automated Task"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:226
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:142
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:154
 msgid "Loading stores..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:227
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:164
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:176
 msgid "Loading indexes..."
 msgstr ""
 
@@ -906,12 +906,12 @@ msgid "Select OpenAI Store(s)"
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:217
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:163
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:175
 msgid "Select Pinecone Index"
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:218
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:168
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:180
 msgid "Select Qdrant Collection"
 msgstr ""
 
@@ -1088,7 +1088,7 @@ msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-post-enhancer-assets.php:214
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:145
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:157
 #: includes/class-aipkit-shortcodes-manager.php:281
 msgid "Close"
 msgstr ""
@@ -1159,11 +1159,17 @@ msgstr ""
 msgid "Failed to save permissions."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:138
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:44
+#: admin/views/modules/chatbot/partials/accordion-context.php:268
+#: admin/views/modules/settings/partials/integrations/semantic-search.php:53
+msgid "Index"
+msgstr ""
+
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:150
 msgid "Add Content to Vector Store"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:139
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:151
 #: admin/data/dashboard-localized-texts.php:37
 #: admin/views/modules/ai-forms/index.php:123
 #: admin/views/modules/ai-forms/partials/labels-config.php:39
@@ -1173,19 +1179,19 @@ msgstr ""
 msgid "Provider"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:140
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:152
 msgid "Select OpenAI Store"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:141
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:153
 msgid "No OpenAI stores found. Create one in AI Training > Knowledge Base."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:143
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:155
 msgid "Start Indexing"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:144
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:156
 #: admin/views/migration-tool/partials/_javascript.php:41
 #: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:200
 #: public/class-wp-ai-content-generator-public.php:148
@@ -1193,86 +1199,86 @@ msgstr ""
 msgid "Processing..."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:147
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:159
 msgid "Stopping..."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:148
-msgid "Processing: "
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:160
+msgid "Processing: %1$d/%2$d"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:149
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:161
 msgid "Indexing complete!"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:150
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:162
 msgid "Error fetching vector stores."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:151
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:163
 msgid "Please select an existing OpenAI store."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:152
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:164
 msgid "Please select at least one post to index."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:153
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:165
 msgid "Are you sure you want to index the selected content?"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:154
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:166
 msgid "Preparing content..."
 msgstr ""
 
 #. translators: %1$s is the file name, %2$s is the total number of files being indexed
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:156
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:168
 msgid "Uploading file %1$s of %2$s..."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:157
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:169
 msgid "Adding files to vector store..."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:158
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:170
 #: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:201
 #: public/class-wp-ai-content-generator-public.php:149
 msgid "An error occurred."
 msgstr ""
 
 #. translators: %d is the number of items selected
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:160
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:172
 msgid "You have selected %d item to index."
 msgstr ""
 
 #. translators: %d is the number of items selected
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:162
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:174
 msgid "You have selected %d items to index."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:165
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:177
 msgid "Error fetching indexes."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:166
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:178
 msgid "No Pinecone indexes found. Create one in AI Training or via Pinecone console."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:167
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:179
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:108
 msgid "Please select a Pinecone index."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:169
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:181
 msgid "No Qdrant collections found. Create one in AI Training."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:170
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:182
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:132
 msgid "Please select a Qdrant collection."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:171
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:183
 #: admin/views/modules/ai-forms/partials/vector-config.php:91
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:85
 #: admin/views/modules/chatbot/partials/accordion-context.php:362
@@ -1281,7 +1287,7 @@ msgstr ""
 msgid "Embedding Provider"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:172
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:184
 #: admin/views/modules/ai-forms/partials/vector-config.php:98
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:92
 #: admin/views/modules/chatbot/partials/accordion-context.php:375
@@ -1290,16 +1296,16 @@ msgstr ""
 msgid "Embedding Model"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:173
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:185
 msgid "Select Model"
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:174
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:186
 #: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:50
 msgid "Embedding provider and model are required."
 msgstr ""
 
-#: admin/assets/class-aipkit-vector-post-processor-assets.php:175
+#: admin/assets/class-aipkit-vector-post-processor-assets.php:187
 msgid "Ensure API key is set for the selected embedding provider in AI Settings."
 msgstr ""
 
@@ -2178,7 +2184,6 @@ msgstr ""
 #: admin/views/modules/settings/partials/integrations/ai-assistant.php:19
 #: classes/post-enhancer/class-aipkit-post-enhancer-core.php:103
 #: admin/js/post-enhancer/block-editor-enhancer-plugin.js:119
-#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:146
 msgid "Content Assistant"
 msgstr ""
 
@@ -4080,11 +4085,6 @@ msgstr[1] ""
 
 #: admin/views/modules/chatbot/partials/accordion-context.php:256
 msgid "-- No Stores Found (Sync in AI Training) --"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/accordion-context.php:268
-#: admin/views/modules/settings/partials/integrations/semantic-search.php:53
-msgid "Index"
 msgstr ""
 
 #: admin/views/modules/chatbot/partials/accordion-context.php:292
@@ -6113,18 +6113,18 @@ msgstr[1] ""
 #: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:112
 #: classes/chat/admin/ajax/conversation_ajax_handler.php:144
 #: classes/chat/admin/ajax/conversation_ajax_handler.php:405
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:58
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:62
 msgid "Bot ID is required."
 msgstr ""
 
 #: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:116
 #: classes/chat/admin/ajax/conversation_ajax_handler.php:212
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:61
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:65
 msgid "Conversation ID is required."
 msgstr ""
 
 #: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:120
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:65
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:69
 #: classes/core/stream/contexts/chat/process/validate-stream-requirements.php:55
 msgid "Session ID is missing for guest."
 msgstr ""
@@ -6369,20 +6369,20 @@ msgstr ""
 msgid "Could not load chatbot configuration."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:68
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:72
 #: classes/core/stream/contexts/chat/process/validate-stream-requirements.php:58
 msgid "Message or image cannot be empty."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:72
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:76
 msgid "Both Pinecone index name and namespace must be provided if one is set."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:75
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:79
 msgid "Both Qdrant collection name and file context ID must be provided if one is set."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:84
+#: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:88
 #: classes/core/stream/contexts/chat/process/validate-stream-requirements.php:49
 msgid "Invalid chatbot specified."
 msgstr ""
@@ -7419,11 +7419,15 @@ msgstr ""
 msgid "Your session has expired or the request is invalid. Please refresh the page and try again."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:63
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:68
 msgid "Data to cache (message or image) cannot be empty."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:87
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:88
+msgid "Failed to encode data for caching. The message may contain invalid characters."
+msgstr ""
+
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:102
 msgid "Cache component missing."
 msgstr ""
 
@@ -10357,6 +10361,10 @@ msgstr ""
 
 #: admin/js/post-enhancer/block-editor-enhancer-plugin.js:106
 msgid "An error occurred:"
+msgstr ""
+
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:162
+msgid "AIP Content Assistant"
 msgstr ""
 
 #: lib/admin/js/chatbot/triggers/ui-builder/renderActionPayloadFields.js:90

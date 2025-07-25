@@ -33,7 +33,12 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     // --- END MODIFICATION ---
 
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
-    $user_message = isset($_POST['message']) ? sanitize_textarea_field(wp_unslash($_POST['message'])) : '';
+    $raw_user_message = isset($_POST['message']) ? wp_unslash($_POST['message']) : '';
+    
+    // Custom sanitization for code content - preserve code structure while ensuring security
+    $user_message = wp_check_invalid_utf8($raw_user_message);
+    $user_message = str_replace(chr(0), '', $user_message); // Remove null bytes
+    
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
     $image_inputs_json = isset($_POST['image_inputs']) ? wp_kses_post(wp_unslash($_POST['image_inputs'])) : null;
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
@@ -75,7 +80,17 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     if ($active_openai_vs_id) {
         $data_to_cache_structured['active_openai_vs_id'] = $active_openai_vs_id;
     }
+    
     $data_to_cache = wp_json_encode($data_to_cache_structured);
+
+    if ($data_to_cache === false) {
+        $error_data_for_response = [
+            'message' => __('Failed to encode data for caching. The message may contain invalid characters.', 'gpt3-ai-content-generator'),
+            'code' => 'json_encode_failed'
+        ];
+        wp_send_json_error($error_data_for_response, 400);
+        return;
+    }
 
 
     if (!class_exists(AIPKit_SSE_Message_Cache::class)) {
@@ -92,6 +107,7 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
         }
     }
     $sse_message_cache = new AIPKit_SSE_Message_Cache();
+    
     $cache_key_result = $sse_message_cache->set($data_to_cache);
 
     if (is_wp_error($cache_key_result)) {
