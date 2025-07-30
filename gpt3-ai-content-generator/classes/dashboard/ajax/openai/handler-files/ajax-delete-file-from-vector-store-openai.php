@@ -60,13 +60,5 @@ function do_ajax_delete_file_from_vector_store_openai_logic(AIPKit_OpenAI_Vector
         $vector_store_registry->add_registered_store('OpenAI', $updated_store_data);
     }
 
-    \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_files_log_vector_data_source_entry($wpdb, $data_source_table_name, [
-        'vector_store_id' => $store_id,
-        'status' => 'file_deleted',
-        'message' => 'File deleted from store.',
-        'file_id' => $file_id,
-        'source_type_for_log' => 'action_delete_file'
-    ]);
-
     wp_send_json_success(['message' => __('File deleted from vector store successfully.', 'gpt3-ai-content-generator')]);
 }

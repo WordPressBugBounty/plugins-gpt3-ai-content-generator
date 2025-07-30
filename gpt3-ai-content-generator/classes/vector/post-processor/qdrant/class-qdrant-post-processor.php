@@ -1,5 +1,4 @@
 <?php
-
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/vector/post-processor/qdrant/class-qdrant-post-processor.php
 // Status: MODIFIED
 
@@ -66,9 +65,10 @@ class QdrantPostProcessor extends AIPKit_Vector_Post_Processor_Base
      * @return array ['status' => 'success'|'error', 'message' => string]
      */
     public function index_single_post_to_collection(int $post_id, string $collection_name, string $embedding_provider_key, string $embedding_model): array
-    {
+    {        
         $post_obj = get_post($post_id);
         $post_title_for_log = $post_obj ? $post_obj->post_title : 'N/A';
+        
         $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure'];
         $embedding_provider_normalized = $provider_map[strtolower($embedding_provider_key)] ?? ucfirst($embedding_provider_key);
         // --- MODIFIED: Use wp_generate_uuid4() for Qdrant point ID ---
@@ -86,35 +86,30 @@ class QdrantPostProcessor extends AIPKit_Vector_Post_Processor_Base
 
         if (!$this->embedding_handler || !$this->vector_store_manager || !$this->config_handler) {
             $error_msg = __('Qdrant processing components not available.', 'gpt3-ai-content-generator');
-            $this->log_event(array_merge($log_entry_base, ['status' => 'config_error', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
 
         $qdrant_api_config = $this->config_handler->get_config();
         if (is_wp_error($qdrant_api_config)) {
             $error_msg = $qdrant_api_config->get_error_message();
-            $this->log_event(array_merge($log_entry_base, ['status' => 'config_error', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
 
         $content_string_or_error = $this->get_post_content_as_string($post_id);
         if (is_wp_error($content_string_or_error)) {
             $error_msg = 'Content retrieval error: ' . $content_string_or_error->get_error_message();
-            $this->log_event(array_merge($log_entry_base, ['status' => 'content_error', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
         $log_entry_base['indexed_content'] = $content_string_or_error;
 
         if (empty(trim($content_string_or_error))) {
             $error_msg = __('Post content is empty for Qdrant.', 'gpt3-ai-content-generator');
-            $this->log_event(array_merge($log_entry_base, ['status' => 'content_error', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
-
+        
         $embedding_result = $this->embedding_handler->generate_embedding($content_string_or_error, $embedding_provider_normalized, $embedding_model);
         if (is_wp_error($embedding_result)) {
             $error_msg = 'Embedding failed: ' . $embedding_result->get_error_message();
-            $this->log_event(array_merge($log_entry_base, ['status' => 'failed', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
         $vector_values = $embedding_result['embeddings'][0];
@@ -134,13 +129,13 @@ class QdrantPostProcessor extends AIPKit_Vector_Post_Processor_Base
         $upsert_result = $this->vector_store_manager->upsert_vectors('Qdrant', $collection_name, ['points' => $points_to_upsert], $qdrant_api_config);
         if (is_wp_error($upsert_result)) {
             $error_msg = 'Upsert to Qdrant failed: ' . $upsert_result->get_error_message();
-            $this->log_event(array_merge($log_entry_base, ['status' => 'failed', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
-
-        $this->log_event(array_merge($log_entry_base, ['status' => 'success', 'message' => 'Post content indexed to Qdrant. Point ID: ' . $qdrant_point_id]));
+        
+        $this->log_event(array_merge($log_entry_base, ['status' => 'indexed', 'message' => 'WordPress post content submitted for indexing.']));
         update_post_meta($post_id, '_aipkit_indexed_to_vs_' . sanitize_key($collection_name), '1');
         update_post_meta($post_id, '_aipkit_vector_id_for_vs_' . sanitize_key($collection_name), $qdrant_point_id);
+        
         return ['status' => 'success', 'message' => 'Post content indexed to Qdrant.'];
     }
 }

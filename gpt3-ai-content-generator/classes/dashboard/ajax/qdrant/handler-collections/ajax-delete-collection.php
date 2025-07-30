@@ -46,12 +46,6 @@ function _aipkit_qdrant_ajax_delete_collection_logic(AIPKit_Vector_Store_Qdrant_
 
     $delete_result = $vector_store_manager->delete_index('Qdrant', $collection_name, $qdrant_config);
     if (is_wp_error($delete_result)) {
-        $handler_instance->_log_vector_data_source_entry([
-            'vector_store_id' => $collection_name, 'vector_store_name' => $collection_name,
-            'status' => 'failed',
-            'message' => 'Collection deletion failed: ' . $delete_result->get_error_message(),
-            'source_type_for_log' => 'action_delete_collection'
-        ]);
         $handler_instance->send_wp_error($delete_result);
         return;
     }
@@ -66,11 +60,5 @@ function _aipkit_qdrant_ajax_delete_collection_logic(AIPKit_Vector_Store_Qdrant_
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $wpdb->delete($data_source_table_name, ['provider' => 'Qdrant', 'vector_store_id' => $collection_name], ['%s', '%s']);
 
-    $handler_instance->_log_vector_data_source_entry([
-        'vector_store_id' => $collection_name, 'vector_store_name' => $collection_name,
-        'status' => 'success',
-        'message' => 'Qdrant collection deleted.',
-        'source_type_for_log' => 'action_delete_collection'
-    ]);
     wp_send_json_success(['message' => __('Qdrant collection deleted successfully.', 'gpt3-ai-content-generator')]);
 }

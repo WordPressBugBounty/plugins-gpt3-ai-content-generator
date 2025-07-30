@@ -6,6 +6,7 @@
 namespace WPAICG\PostEnhancer\Ajax\Actions;
 
 use WPAICG\PostEnhancer\Ajax\Base\AIPKit_Post_Enhancer_Base_Ajax_Action;
+use WPAICG\SEO\AIPKit_SEO_Helper;
 use WP_Error;
 
 class AIPKit_PostEnhancer_Update_Tags extends AIPKit_Post_Enhancer_Base_Ajax_Action
@@ -27,11 +28,11 @@ class AIPKit_PostEnhancer_Update_Tags extends AIPKit_Post_Enhancer_Base_Ajax_Act
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_permissions.
         $new_tags = isset($_POST['new_value']) ? sanitize_text_field(wp_unslash($_POST['new_value'])) : '';
 
-        // wp_set_post_tags replaces existing tags by default.
-        $result = wp_set_post_tags($post->ID, $new_tags, false);
+        // Use the SEO helper to correctly set tags for any post type
+        $result = AIPKit_SEO_Helper::update_tags($post->ID, $new_tags);
 
-        if (is_wp_error($result)) {
-            wp_send_json_error(['message' => 'Failed to update post tags: ' . $result->get_error_message()], 500);
+        if ($result === false) {
+            wp_send_json_error(['message' => 'Failed to update post tags.'], 500);
         } else {
             wp_send_json_success(['message' => __('Post tags updated successfully.', 'gpt3-ai-content-generator')]);
         }

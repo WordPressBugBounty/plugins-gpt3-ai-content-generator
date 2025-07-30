@@ -88,6 +88,29 @@ $enable_voice_input = isset($bot_settings['enable_voice_input'])
                 rows="5"
                 placeholder="<?php esc_attr_e('e.g., You are a helpful AI Assistant. Please be friendly.', 'gpt3-ai-content-generator'); ?>"
             ><?php echo esc_textarea($saved_instructions); ?></textarea>
+            
+            <!-- NEW: Index Content Button -->
+            <div class="aipkit_form-help" style="margin-top: 8px;">
+                <button 
+                    type="button" 
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_index_content_btn"
+                    class="aipkit_btn aipkit_btn-secondary aipkit_index_content_trigger"
+                    data-bot-id="<?php echo esc_attr($bot_id); ?>"
+                >
+                    <span class="dashicons dashicons-database-add"></span>
+                    <?php esc_html_e('Add Content', 'gpt3-ai-content-generator'); ?>
+                </button>
+                <span class="aipkit_form-help-text"><?php esc_html_e('Make your site content available to this chatbot.', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            
+            <!-- NEW: Inline Index Setup Container -->
+            <div 
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_index_setup_container"
+                class="aipkit_index_setup_container"
+                style="display: none; margin-top: 15px; padding: 15px; border: 1px solid var(--aipkit_container-border); border-radius: 4px; background-color: #f9f9f9;"
+            >
+                <!-- Content will be populated by JavaScript -->
+            </div>
         </div>
         <!-- END NEW -->
         

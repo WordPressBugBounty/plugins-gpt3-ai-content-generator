@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Pack (formerly AI Power) 2.3.26\n"
+"Project-Id-Version: AIP: Complete AI Pack (formerly AI Power) 2.3.27\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-25T09:09:48+00:00\n"
+"POT-Creation-Date: 2025-07-30T17:37:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -123,7 +123,7 @@ msgstr ""
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:158
 #: admin/views/modules/ai-forms/partials/labels-config.php:18
 #: admin/views/modules/ai-forms/partials/labels-config.php:19
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:81
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:209
 #: admin/views/modules/content-writer/partials/form-inputs/generation-mode.php:126
 #: classes/ai-forms/storage/methods/fn-get-form-data.php:118
 #: public/js/ai-forms/actions/sse/ui-manager.js:57
@@ -358,7 +358,7 @@ msgid "Error saving form."
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:162
-#: admin/data/dashboard-localized-texts.php:127
+#: admin/data/dashboard-localized-texts.php:128
 msgid "Loading forms..."
 msgstr ""
 
@@ -412,7 +412,7 @@ msgid "Edit AI Form"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:176
-#: admin/data/dashboard-localized-texts.php:130
+#: admin/data/dashboard-localized-texts.php:131
 msgid "Create New AI Form"
 msgstr ""
 
@@ -428,68 +428,68 @@ msgid "No options configured"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:179
-#: admin/data/dashboard-localized-texts.php:145
+#: admin/data/dashboard-localized-texts.php:146
 msgid "Label Text"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:180
-#: admin/data/dashboard-localized-texts.php:146
+#: admin/data/dashboard-localized-texts.php:147
 msgid "Field Variable Name (for prompt)"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:181
-#: admin/data/dashboard-localized-texts.php:147
+#: admin/data/dashboard-localized-texts.php:148
 msgid "Use as {your_variable_name} in the Prompt Template. Must be unique and contain only letters, numbers, underscores."
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:182
-#: admin/data/dashboard-localized-texts.php:148
+#: admin/data/dashboard-localized-texts.php:149
 #: lib/admin/js/chatbot/triggers/ui-builder/renderFormElementEditorItem.js:75
 msgid "Placeholder Text"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:183
-#: admin/data/dashboard-localized-texts.php:149
+#: admin/data/dashboard-localized-texts.php:150
 #: lib/admin/js/chatbot/triggers/ui-builder/renderFormElementEditorItem.js:86
 msgid "Required Field"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:184
-#: admin/data/dashboard-localized-texts.php:150
+#: admin/data/dashboard-localized-texts.php:151
 msgid "Options (Value|Text)"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:185
-#: admin/data/dashboard-localized-texts.php:151
+#: admin/data/dashboard-localized-texts.php:152
 #: lib/views/chatbot/partials/triggers/trigger-builder-main.php:86
 msgid "Value"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:186
-#: admin/data/dashboard-localized-texts.php:152
+#: admin/data/dashboard-localized-texts.php:153
 msgid "Display Text"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:187
-#: admin/data/dashboard-localized-texts.php:153
+#: admin/data/dashboard-localized-texts.php:154
 #: lib/admin/js/chatbot/triggers/ui-builder/renderFormElementEditorItem.js:107
 msgid "Add Option"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:188
-#: admin/data/dashboard-localized-texts.php:154
+#: admin/data/dashboard-localized-texts.php:155
 #: lib/admin/js/chatbot/triggers/ui-builder/updateFormElementOptionControls.js:44
 msgid "Remove Option"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:189
-#: admin/data/dashboard-localized-texts.php:155
+#: admin/data/dashboard-localized-texts.php:156
 #: admin/views/modules/ai-forms/partials/form-editor.php:144
 msgid "Done"
 msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:190
-#: admin/data/dashboard-localized-texts.php:158
+#: admin/data/dashboard-localized-texts.php:159
 msgid "Field Variable Name must be unique and valid (letters, numbers, underscores)."
 msgstr ""
 
@@ -562,18 +562,18 @@ msgid "Automatically generate and post replies to new comments."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:208
-#: admin/data/dashboard-localized-texts.php:110
+#: admin/data/dashboard-localized-texts.php:111
 msgid "Are you sure you want to delete this automated task? This action cannot be undone."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:209
-#: admin/data/dashboard-localized-texts.php:111
+#: admin/data/dashboard-localized-texts.php:112
 #: classes/autogpt/ajax/actions/save-task/validate-task-request.php:29
 msgid "Task name is required."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:210
-#: admin/data/dashboard-localized-texts.php:112
+#: admin/data/dashboard-localized-texts.php:113
 #: classes/autogpt/ajax/actions/save-task/validate-task-request.php:32
 msgid "Task type is required."
 msgstr ""
@@ -583,7 +583,7 @@ msgid "Please select a target vector store/index."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:212
-#: admin/data/dashboard-localized-texts.php:114
+#: admin/data/dashboard-localized-texts.php:115
 msgid "Please select at least one content type."
 msgstr ""
 
@@ -600,43 +600,43 @@ msgid "Content Title/Topic is required for this Content Writing task mode."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:216
-#: admin/data/dashboard-localized-texts.php:125
+#: admin/data/dashboard-localized-texts.php:126
 msgid "AI Provider and Model are required for Content Writing task."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:217
-#: admin/data/dashboard-localized-texts.php:115
+#: admin/data/dashboard-localized-texts.php:116
 msgid "Saving Task..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:218
-#: admin/data/dashboard-localized-texts.php:116
+#: admin/data/dashboard-localized-texts.php:117
 msgid "Deleting Task..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:219
-#: admin/data/dashboard-localized-texts.php:117
+#: admin/data/dashboard-localized-texts.php:118
 msgid "Initiating Run..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:220
-#: admin/data/dashboard-localized-texts.php:118
+#: admin/data/dashboard-localized-texts.php:119
 msgid "Pausing Task..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:221
-#: admin/data/dashboard-localized-texts.php:119
+#: admin/data/dashboard-localized-texts.php:120
 msgid "Resuming Task..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:222
-#: admin/data/dashboard-localized-texts.php:120
+#: admin/data/dashboard-localized-texts.php:121
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:91
 msgid "Save Task"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:223
-#: admin/data/dashboard-localized-texts.php:121
+#: admin/data/dashboard-localized-texts.php:122
 msgid "Create Task"
 msgstr ""
 
@@ -676,6 +676,7 @@ msgid "Loading models..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:232
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:91
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:34
 #: admin/views/modules/chatbot/partials/accordion-context.php:382
 msgid "-- Select Model --"
@@ -722,6 +723,7 @@ msgstr ""
 #: admin/assets/class-aipkit-autogpt-assets.php:242
 #: admin/assets/class-aipkit-post-enhancer-assets.php:218
 #: admin/views/migration-tool/partials/_status_analysis_results.php:86
+#: admin/views/modules/ai-training/partials/knowledge-base-details.php:30
 #: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:80
 #: admin/js/ai-forms/list/render-table.js:192
 #: admin/js/ai-forms/ui/render-dropped-element.js:189
@@ -805,6 +807,7 @@ msgstr ""
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:259
 #: includes/class-aipkit-shortcodes-manager.php:281
+#: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:70
 #: admin/js/ai-training/wp/render-wp-content-list.js:131
 msgid "Page"
 msgstr ""
@@ -812,6 +815,7 @@ msgstr ""
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:260
 #: includes/class-aipkit-shortcodes-manager.php:281
+#: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:73
 #: admin/js/ai-training/wp/render-wp-content-list.js:134
 msgid "of"
 msgstr ""
@@ -822,17 +826,19 @@ msgstr ""
 #: admin/views/modules/logs/partials/logs-table.php:188
 #: admin/views/modules/logs/partials/logs-table.php:195
 #: includes/class-aipkit-shortcodes-manager.php:281
+#: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:57
 #: admin/js/ai-training/wp/render-wp-content-list.js:119
 msgid "Previous"
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:262
-#: admin/data/dashboard-localized-texts.php:123
+#: admin/data/dashboard-localized-texts.php:124
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:88
 #: admin/views/modules/logs/partials/logs-table.php:211
 #: admin/views/modules/logs/partials/logs-table.php:218
 #: includes/class-aipkit-shortcodes-manager.php:281
+#: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:79
 #: admin/js/ai-training/wp/render-wp-content-list.js:139
 msgid "Next"
 msgstr ""
@@ -875,12 +881,12 @@ msgid "Error retrying item:"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:273
-#: admin/data/dashboard-localized-texts.php:160
+#: admin/data/dashboard-localized-texts.php:161
 msgid "task"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:274
-#: admin/data/dashboard-localized-texts.php:161
+#: admin/data/dashboard-localized-texts.php:162
 msgid "tasks"
 msgstr ""
 
@@ -890,13 +896,13 @@ msgid "Error: Fullscreen functionality is unavailable."
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:214
-#: admin/data/dashboard-localized-texts.php:85
+#: admin/data/dashboard-localized-texts.php:86
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:112
 msgid "Copied!"
 msgstr ""
 
 #: admin/assets/class-aipkit-chat-admin-assets.php:215
-#: admin/data/dashboard-localized-texts.php:86
+#: admin/data/dashboard-localized-texts.php:87
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:112
 msgid "Failed to copy"
 msgstr ""
@@ -1162,6 +1168,7 @@ msgstr ""
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:44
 #: admin/views/modules/chatbot/partials/accordion-context.php:268
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:53
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:360
 msgid "Index"
 msgstr ""
 
@@ -1170,7 +1177,7 @@ msgid "Add Content to Vector Store"
 msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:151
-#: admin/data/dashboard-localized-texts.php:37
+#: admin/data/dashboard-localized-texts.php:38
 #: admin/views/modules/ai-forms/index.php:123
 #: admin/views/modules/ai-forms/partials/labels-config.php:39
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:34
@@ -1328,67 +1335,71 @@ msgstr ""
 msgid "Details:"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:23
+#: admin/data/dashboard-localized-texts.php:22
+msgid "No knowledge bases found. Click \"Add Content\" to create one."
+msgstr ""
+
+#: admin/data/dashboard-localized-texts.php:24
 #: admin/views/modules/chatbot/index.php:94
 msgid "Select a bot to see the preview."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:24
+#: admin/data/dashboard-localized-texts.php:25
 #: admin/views/modules/chatbot/index.php:99
 #: admin/views/modules/chatbot/index.php:117
 msgid "Configure the new bot and save it to see the preview."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:25
+#: admin/data/dashboard-localized-texts.php:26
 msgid "Preview is not applicable for Chat Settings."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:26
+#: admin/data/dashboard-localized-texts.php:27
 msgid "Preview is not applicable for Chat Logs."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:27
+#: admin/data/dashboard-localized-texts.php:28
 msgid "No chatbots found. Create one to get started!"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:29
+#: admin/data/dashboard-localized-texts.php:30
 msgid "Chat Log Details"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:30
+#: admin/data/dashboard-localized-texts.php:31
 msgid "Loading log details..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:31
+#: admin/data/dashboard-localized-texts.php:32
 msgid "Error loading log details."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:32
+#: admin/data/dashboard-localized-texts.php:33
 msgid "Bot"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:33
-#: admin/data/dashboard-localized-texts.php:72
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:61
+#: admin/data/dashboard-localized-texts.php:34
+#: admin/data/dashboard-localized-texts.php:73
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:96
 #: admin/views/modules/logs/partials/logs-table.php:57
 #: admin/views/modules/user-credits/index.php:110
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:26
 msgid "User"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:34
+#: admin/data/dashboard-localized-texts.php:35
 msgid "Session ID"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:35
+#: admin/data/dashboard-localized-texts.php:36
 msgid "Started"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:36
+#: admin/data/dashboard-localized-texts.php:37
 msgid "Last Activity"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:38
+#: admin/data/dashboard-localized-texts.php:39
 #: admin/views/modules/ai-forms/index.php:124
 #: admin/views/modules/ai-forms/partials/labels-config.php:43
 #: admin/views/modules/autogpt/partials/community-engagement/ai-settings.php:26
@@ -1408,115 +1419,116 @@ msgstr ""
 msgid "Model"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:39
+#: admin/data/dashboard-localized-texts.php:40
 msgid "IP Address"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:40
+#: admin/data/dashboard-localized-texts.php:41
 msgid "No logs found matching your criteria."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:41
+#: admin/data/dashboard-localized-texts.php:42
 msgid "Export all messages matching current filters?"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:42
+#: admin/data/dashboard-localized-texts.php:43
 msgid "Export all messages? This might take a while for large datasets."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:43
-#: admin/data/dashboard-localized-texts.php:51
+#: admin/data/dashboard-localized-texts.php:44
+#: admin/data/dashboard-localized-texts.php:52
 msgid "Starting..."
 msgstr ""
 
 #. translators: %1$d is the current conversation number, %2$d is the total number of conversations
-#: admin/data/dashboard-localized-texts.php:45
+#: admin/data/dashboard-localized-texts.php:46
 msgid "Exporting conversation %1$d / %2$d..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:46
-#: admin/data/dashboard-localized-texts.php:54
+#: admin/data/dashboard-localized-texts.php:47
+#: admin/data/dashboard-localized-texts.php:55
 msgid "Done!"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:47
+#: admin/data/dashboard-localized-texts.php:48
 msgid "Export failed:"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:48
+#: admin/data/dashboard-localized-texts.php:49
 msgid "No messages found to export."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:49
+#: admin/data/dashboard-localized-texts.php:50
 msgid "Delete all conversations matching current filters? This action cannot be undone."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:50
+#: admin/data/dashboard-localized-texts.php:51
 msgid "Delete ALL conversations? This will remove ALL chat history and cannot be undone."
 msgstr ""
 
 #. translators: %1$d is the current conversation number, %2$d is the total number of conversations
-#: admin/data/dashboard-localized-texts.php:53
+#: admin/data/dashboard-localized-texts.php:54
 msgid "Deleting conversation %1$d / %2$d..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:55
+#: admin/data/dashboard-localized-texts.php:56
 msgid "Deletion failed:"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:56
+#: admin/data/dashboard-localized-texts.php:57
 msgid "No conversations found to delete."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:57
+#: admin/data/dashboard-localized-texts.php:58
 #: admin/views/modules/content-writer/partials/template-controls.php:56
 msgid "Confirm"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:58
+#: admin/data/dashboard-localized-texts.php:59
 msgid "Confirm Delete Filtered"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:59
+#: admin/data/dashboard-localized-texts.php:60
 msgid "Confirm Delete ALL"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:60
+#: admin/data/dashboard-localized-texts.php:61
 #: admin/views/modules/ai-forms/partials/_form-editor-actions.php:23
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:18
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:22
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:22
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:212
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:26
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:35
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:35
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:86
 #: admin/views/modules/content-writer/partials/template-controls.php:49
 #: admin/views/modules/content-writer/partials/template-controls.php:57
 msgid "Cancel"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:62
+#: admin/data/dashboard-localized-texts.php:63
 #: admin/views/modules/settings/partials/token-stats.php:113
 #: admin/views/modules/user-credits/index.php:89
 msgid "Loading chart data..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:63
+#: admin/data/dashboard-localized-texts.php:64
 msgid "Error loading chart data."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:64
+#: admin/data/dashboard-localized-texts.php:65
 msgid "No token usage data found for the selected period."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:66
+#: admin/data/dashboard-localized-texts.php:67
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:20
 msgid "Send Message"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:67
+#: admin/data/dashboard-localized-texts.php:68
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:21
 msgid "Sending..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:68
+#: admin/data/dashboard-localized-texts.php:69
 #: admin/views/modules/chatbot/partials/appearance/text-inputs.php:15
 #: admin/views/modules/chatbot/partials/appearance/text-inputs.php:81
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:22
@@ -1526,291 +1538,291 @@ msgstr ""
 msgid "Type your message..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:69
+#: admin/data/dashboard-localized-texts.php:70
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:23
 msgid "Thinking..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:70
+#: admin/data/dashboard-localized-texts.php:71
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:24
 msgid "Streaming..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:71
+#: admin/data/dashboard-localized-texts.php:72
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:25
 #: lib/admin/assets/class-aipkit-content-writer-pro-assets.php:70
 msgid "Error:"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:73
+#: admin/data/dashboard-localized-texts.php:74
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:27
 msgid "Clear Chat"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:74
+#: admin/data/dashboard-localized-texts.php:75
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:28
 msgid "Close Chat"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:75
+#: admin/data/dashboard-localized-texts.php:76
 #: admin/views/modules/chatbot/partials/appearance/feature-toggles.php:70
 #: admin/views/modules/chatbot/partials/context/feature-toggles.php:71
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:29
 msgid "Fullscreen"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:76
+#: admin/data/dashboard-localized-texts.php:77
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:30
 msgid "Exit Fullscreen"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:77
+#: admin/data/dashboard-localized-texts.php:78
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:31
 msgid "Download Transcript"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:78
+#: admin/data/dashboard-localized-texts.php:79
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:32
 msgid "Download TXT"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:79
+#: admin/data/dashboard-localized-texts.php:80
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:33
 msgid "Download PDF"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:80
+#: admin/data/dashboard-localized-texts.php:81
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:34
 msgid "Nothing to download."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:81
+#: admin/data/dashboard-localized-texts.php:82
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:35
 msgid "Could not generate PDF. jsPDF library might be missing."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:82
+#: admin/data/dashboard-localized-texts.php:83
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:36
 msgid "Stream error. Please try again."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:83
+#: admin/data/dashboard-localized-texts.php:84
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:37
 msgid "Connection error. Please try again."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:84
+#: admin/data/dashboard-localized-texts.php:85
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:113
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:47
 msgid "Copy response"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:87
+#: admin/data/dashboard-localized-texts.php:88
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:44
 msgid "Like response"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:88
+#: admin/data/dashboard-localized-texts.php:89
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:45
 msgid "Dislike response"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:89
+#: admin/data/dashboard-localized-texts.php:90
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:114
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:46
 msgid "Feedback submitted"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:90
+#: admin/data/dashboard-localized-texts.php:91
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:114
 msgid "Error saving feedback"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:91
+#: admin/data/dashboard-localized-texts.php:92
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:115
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:39
 msgid "Toggle Conversation Sidebar"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:92
+#: admin/data/dashboard-localized-texts.php:93
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:115
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:40
 msgid "New Chat"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:93
+#: admin/data/dashboard-localized-texts.php:94
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:41
 msgid "Conversations"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:94
+#: admin/data/dashboard-localized-texts.php:95
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:116
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:42
 msgid "History unavailable for guests."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:95
+#: admin/data/dashboard-localized-texts.php:96
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:116
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:43
 msgid "No past conversations."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:96
+#: admin/data/dashboard-localized-texts.php:97
 #: admin/views/modules/settings/index.php:65
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:21
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:30
 msgid "Consent Required"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:97
+#: admin/data/dashboard-localized-texts.php:98
 #: admin/views/modules/settings/index.php:66
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:22
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:31
 msgid "Before starting the conversation, please agree to our Terms of Service and Privacy Policy."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:98
+#: admin/data/dashboard-localized-texts.php:99
 #: admin/views/modules/settings/index.php:67
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:23
 #: classes/chat/frontend/shortcode/configurator/get-consent-settings.php:32
 msgid "I Agree"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:99
+#: admin/data/dashboard-localized-texts.php:100
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:117
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:51
 msgid "Play audio"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:100
+#: admin/data/dashboard-localized-texts.php:101
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:118
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:53
 msgid "Pause audio"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:102
+#: admin/data/dashboard-localized-texts.php:103
 #: admin/views/modules/user-credits/index.php:123
 msgid "Loading user credits..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:103
+#: admin/data/dashboard-localized-texts.php:104
 msgid "Error loading user credits."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:104
+#: admin/data/dashboard-localized-texts.php:105
 #: admin/views/modules/user-credits/index.php:138
 msgid "No user token data found."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:105
+#: admin/data/dashboard-localized-texts.php:106
 msgid "Edit Credits"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:106
+#: admin/data/dashboard-localized-texts.php:107
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:110
 #: admin/views/modules/chatbot/partials/accordion-token-management.php:132
 #: admin/views/modules/image-generator/partials/settings-token-management.php:71
 msgid "Reset Period"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:108
+#: admin/data/dashboard-localized-texts.php:109
 msgid "Searching vector store..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:113
+#: admin/data/dashboard-localized-texts.php:114
 msgid "Please select a target vector store."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:122
+#: admin/data/dashboard-localized-texts.php:123
 msgid "Edit generated post"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:124
+#: admin/data/dashboard-localized-texts.php:125
 msgid "Topic is required for Content Writing task."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:126
+#: admin/data/dashboard-localized-texts.php:127
 #: classes/content-writer/ajax/actions/class-aipkit-content-writer-create-task-action.php:118
 msgid "Your content writing task is queued. You can track it under the Automated Tasks tab."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:128
+#: admin/data/dashboard-localized-texts.php:129
 msgid "Error loading forms data."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:129
+#: admin/data/dashboard-localized-texts.php:130
 #: admin/views/modules/ai-forms/index.php:144
 msgid "No AI Forms have been created yet."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:131
+#: admin/data/dashboard-localized-texts.php:132
 #: admin/views/modules/ai-forms/partials/_form-editor-main-settings.php:57
 msgid "e.g., Product Description Generator"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:132
+#: admin/data/dashboard-localized-texts.php:133
 #: admin/views/modules/ai-forms/partials/_form-editor-main-settings.php:24
 msgid "Prompt Template"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:133
+#: admin/data/dashboard-localized-texts.php:134
 msgid "Craft your prompt. Use {user_input} as a placeholder for the user's text from the form."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:134
+#: admin/data/dashboard-localized-texts.php:135
 #: admin/views/modules/ai-forms/partials/_form-editor-actions.php:16
 msgid "Save Form"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:135
+#: admin/data/dashboard-localized-texts.php:136
 msgid "Creating Form..."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:136
+#: admin/data/dashboard-localized-texts.php:137
 #: admin/views/modules/ai-forms/partials/form-editor.php:51
 #: lib/admin/js/chatbot/triggers/ui-builder/renderActionPayloadFields.js:87
 msgid "Form Elements"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:137
+#: admin/data/dashboard-localized-texts.php:138
 msgid "Form Designer"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:138
+#: admin/data/dashboard-localized-texts.php:139
 msgid "Drag Form Elements Here"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:139
+#: admin/data/dashboard-localized-texts.php:140
 #: admin/views/modules/ai-forms/partials/form-editor.php:56
 msgid "Text Input"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:140
+#: admin/data/dashboard-localized-texts.php:141
 #: admin/views/modules/ai-forms/partials/form-editor.php:60
 msgid "Text Area"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:141
+#: admin/data/dashboard-localized-texts.php:142
 #: admin/views/modules/ai-forms/partials/form-editor.php:64
 msgid "Dropdown"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:142
+#: admin/data/dashboard-localized-texts.php:143
 #: admin/views/modules/ai-forms/partials/form-editor.php:68
 msgid "Checkbox"
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:143
+#: admin/data/dashboard-localized-texts.php:144
 msgid "Drag elements to the designer area."
 msgstr ""
 
-#: admin/data/dashboard-localized-texts.php:144
+#: admin/data/dashboard-localized-texts.php:145
 #: admin/views/modules/ai-forms/partials/form-editor.php:136
 msgid "Element Settings"
 msgstr ""
 
 #. translators: %s is the type of form element, e.g. Text Input
-#: admin/data/dashboard-localized-texts.php:157
+#: admin/data/dashboard-localized-texts.php:158
 msgid "(%s)"
 msgstr ""
 
@@ -1843,7 +1855,6 @@ msgid "Images"
 msgstr ""
 
 #: admin/views/dashboard.php:50
-#: admin/views/modules/ai-training/index.php:17
 msgid "Train"
 msgstr ""
 
@@ -2032,8 +2043,8 @@ msgid "Analysis Details"
 msgstr ""
 
 #: admin/views/migration-tool/partials/_status_analysis_results.php:34
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:53
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:63
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:175
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:42
 #: admin/views/modules/autogpt/partials/content-writing/post-settings.php:42
 #: admin/views/modules/autogpt/partials/task-form-setup.php:42
 #: admin/views/modules/autogpt/partials/task-list.php:29
@@ -2043,7 +2054,8 @@ msgstr ""
 
 #: admin/views/migration-tool/partials/_status_analysis_results.php:35
 #: admin/views/modules/ai-forms/index.php:126
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:66
+#: admin/views/modules/ai-training/partials/knowledge-base-details.php:22
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:46
 #: admin/views/modules/autogpt/partials/task-list.php:32
 #: admin/views/modules/autogpt/partials/task-queue.php:46
 #: admin/views/modules/settings/partials/integrations/ai-assistant.php:46
@@ -2274,6 +2286,7 @@ msgstr ""
 #: admin/views/modules/addons/index.php:113
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:73
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:40
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:337
 msgid "Content"
 msgstr ""
 
@@ -2302,6 +2315,7 @@ msgid "Filter by Category:"
 msgstr ""
 
 #: admin/views/modules/addons/index.php:171
+#: admin/views/modules/ai-training/partials/settings.php:29
 #: admin/js/ai-forms/list/render-table.js:56
 msgid "Pro"
 msgstr ""
@@ -2357,6 +2371,7 @@ msgid "Delete All"
 msgstr ""
 
 #: admin/views/modules/ai-forms/index.php:82
+#: admin/views/modules/ai-training/index.php:30
 #: admin/views/modules/image-generator/index.php:25
 #: admin/js/ai-forms/ui/render-dropped-element.js:183
 msgid "Settings"
@@ -2381,6 +2396,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/index.php:122
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:65
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:26
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:335
 msgid "Title"
 msgstr ""
 
@@ -2475,6 +2491,7 @@ msgid "User Limit Type"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:98
+#: admin/views/modules/ai-training/partials/settings.php:42
 #: admin/views/modules/chatbot/partials/accordion-ai-config.php:67
 #: admin/views/modules/image-generator/partials/settings-token-management.php:59
 msgid "General"
@@ -2591,6 +2608,7 @@ msgid "Enter the exact model IDs. This will filter models across all selected pr
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:220
+#: admin/views/modules/ai-training/partials/settings.php:69
 msgid "Save Settings"
 msgstr ""
 
@@ -2767,350 +2785,407 @@ msgstr ""
 msgid "Context"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:12
+#: admin/views/modules/ai-training/index.php:17
+#: classes/dashboard/class-aipkit_role_manager.php:47
+msgid "AI Training"
+msgstr ""
+
+#: admin/views/modules/ai-training/index.php:20
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:20
+#: admin/views/modules/chatbot/partials/accordion-ai-config.php:101
+msgid "Add Content"
+msgstr ""
+
+#: admin/views/modules/ai-training/index.php:22
+msgid "Sync and fetch all indexes from OpenAI, Pinecone, and Qdrant providers"
+msgstr ""
+
+#: admin/views/modules/ai-training/index.php:24
+#: admin/views/modules/settings/partials/settings-models.php:48
+#: admin/views/modules/settings/partials/settings-models.php:96
+#: admin/views/modules/settings/partials/settings-models.php:134
+#: admin/views/modules/settings/partials/settings-models.php:174
+#: admin/views/modules/settings/partials/settings-models.php:211
+msgid "Sync"
+msgstr ""
+
+#: admin/views/modules/ai-training/index.php:29
+#: admin/views/modules/autogpt/index.php:51
+msgid "Knowledge Base"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:76
+msgid "Knowledge Base Cards"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:86
+msgid "View details for %s knowledge base"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:94
+msgid "User uploaded knowledge base from chat interface"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:102
+msgid "Knowledge base statistics"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:104
+msgid "Documents"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:106
+msgid "Loading document count..."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:114
+msgid "Expires"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:115
+msgid "Updated"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:125
+msgid "Loading last updated..."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:133
+msgid "Manage"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-details.php:18
+msgid "Back"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-details.php:27
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:77
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:85
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:85
+#: admin/views/modules/user-credits/index.php:101
+#: classes/shortcodes/class-aipkit-semantic-search-shortcode.php:46
+msgid "Search"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/settings.php:27
+msgid "Content Indexing Controls"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/settings.php:33
+msgid "Select which custom fields, product data, and taxonomies to include when indexing content. If a post type is not configured here, all of its public data will be indexed by default."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/settings.php:55
+msgid "Hide User-Uploaded Files"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/settings.php:58
+msgid "Hide vector stores created by users via the chatbot file upload feature from the main list."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store.php:63
+msgid "Manage your knowledge bases and populate them with your site content, files, or text to build a knowledge base for your AI."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:30
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:45
 msgid "Source"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:14
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:38
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:63
 msgid "Text"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:15
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:39
+msgid "Paste or type content directly"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:47
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:64
 msgid "Files"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:16
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:48
+msgid "Upload PDF, DOC, TXT files"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:56
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:65
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:160
 msgid "Site Content"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:20
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:57
+msgid "Select from your WordPress posts"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:76
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:46
 msgid "Vector DB"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:30
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:88
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:32
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:91
 msgid "Embedding"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:32
-msgid "-- Select Embedding Model --"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:37
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:99
 msgid "Target Store"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:40
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:103
 msgid "-- Select Target --"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:43
-msgid "Sync Stores/Indexes/Collections"
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:107
+msgid "Sync Stores"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:47
-msgid "Create New OpenAI Store"
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:111
+msgid "Create New Store"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:50
-msgid "Create New Pinecone Index"
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:114
+msgid "Create New Index"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/form-controls-row.php:53
-msgid "Create New Qdrant Collection"
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:117
+msgid "Create New Collection"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:10
-msgid "New Store Name"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:11
-msgid "Support FAQ"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:15
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:19
-msgid "Create"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:10
-msgid "New Index Name"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:11
-msgid "e.g., my-pinecone-index"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:14
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:14
-msgid "Dimension"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:15
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:15
-msgid "e.g., 1536"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:19
-msgid "Create Index"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:10
-msgid "New Collection Name"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:11
-msgid "e.g., my-docs"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:26
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:138
 #: lib/admin/js/chatbot/triggers/ui-builder/renderFormElementEditorItem.js:68
 msgid "Text Content"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:27
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:140
 msgid "Paste or type your content here..."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:30
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:146
 msgid "Select File"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:42
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:165
 msgid "Post Types"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:50
-msgid "Ctrl/Cmd + click to select multiple."
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:55
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:177
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:51
 msgid "Published"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:56
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:178
 #: admin/views/modules/autogpt/index.php:79
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:52
 #: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:40
 msgid "Draft"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:57
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:179
 msgid "Any"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:62
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:183
+#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:54
+msgid "Action"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:185
 msgid "Load Content"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:68
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:192
 msgid "Select criteria and click \"Load Content\"."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/layout/left-panel.php:77
-msgid "Add Content"
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:204
+msgid "Add"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:23
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:14
+msgid "New Store Name"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:16
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:17
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:17
+msgid "Support FAQ"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:21
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:30
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:30
+msgid "Create"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:15
+msgid "New Index Name"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:22
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:22
+msgid "Dimension"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:15
+msgid "New Collection Name"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:18
 msgid "OpenAI API Key is not set in global settings. OpenAI Vector Store management will not be available."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:24
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:30
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:19
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:28
 msgid "Configure API Key"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:34
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:29
 msgid "Store Details"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:36
-msgid "Select a vector store from the \"Store\" dropdown in the \"Add Content\" form above to view its details and manage files, or select \"Create New\" to make a new one."
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:31
+msgid "Select a vector store from the \"Target Store\" dropdown in the \"Add Content\" form above to view its details and manage files, or select \"Create New\" to make a new one."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:42
-msgid "Store Files"
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:40
+msgid "Time"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:44
-msgid "View Store Metadata"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:47
-msgid "Search This Store"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:50
-msgid "Delete This Vector Store"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:60
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:41
 msgid "File ID"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:62
-msgid "Source Post"
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:43
+#: admin/views/modules/autogpt/partials/content-writing/post-settings.php:18
+#: admin/views/modules/autogpt/partials/task-form-setup.php:28
+#: admin/views/modules/autogpt/partials/task-list.php:27
+#: admin/views/modules/autogpt/partials/task-queue.php:42
+msgid "Type"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:64
-msgid "Bytes"
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:44
+msgid "Message"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:65
-msgid "Created"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:80
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:61
 msgid "Search Vector Store"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:81
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:84
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:82
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:62
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:65
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:65
 msgid "Close Search"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:88
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:69
 msgid "Search Query"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:89
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:70
 msgid "Enter your search query..."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:92
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:100
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:94
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:73
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:81
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:77
 msgid "Number of Results (Top K)"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:96
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:104
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:102
-#: admin/views/modules/user-credits/index.php:101
-#: classes/shortcodes/class-aipkit-semantic-search-shortcode.php:46
-msgid "Search"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:29
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:27
 msgid "Pinecone API Key is not set in global settings. Pinecone management will not be available."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:40
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:38
 msgid "Pinecone Index Details"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:42
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:40
 msgid "Select a Pinecone index from the \"Target Index\" dropdown in the \"Add Content\" form above to view its details and manage it."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:48
-msgid "Manage Index"
-msgstr ""
-
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:51
-msgid "View Index Metadata"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:54
-msgid "Search This Index"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:57
-msgid "Delete This Index"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:71
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:72
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:54
 msgid "Recent Indexing Activity:"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:53
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:55
+msgid "Loading records..."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:64
+msgid "Search Pinecone Index"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:72
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:72
+msgid "Search Query Text"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:73
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:73
-#: admin/views/modules/logs/index.php:48
-msgid "Loading logs..."
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:83
-msgid "Search Pinecone Index"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:91
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:89
-msgid "Search Query Text"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:92
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:90
 msgid "Enter text to search with (will be embedded)..."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:93
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:91
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:74
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:74
 msgid "This text will be embedded using the model selected in the \"Add Content\" form above."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:96
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:77
 msgid "Namespace (Optional)"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:97
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:78
 msgid "Enter namespace if applicable"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:29
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:28
 msgid "Qdrant URL and API Key are not set in global settings. Qdrant management will not be available."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:31
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:30
 msgid "Qdrant URL is not set in global settings. Qdrant management will not be available."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:33
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:32
 msgid "Qdrant API Key is not set in global settings. Qdrant management will not be available."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:36
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:35
 msgid "Configure Now"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:44
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:43
 msgid "Qdrant Collection Details"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:46
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:45
 msgid "Select a Qdrant collection from the \"Target Collection\" dropdown in the \"Add Content\" form above to view its details and manage it, or use the \"+\" button next to the dropdown to create a new one."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:51
-msgid "Manage Collection"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:53
-msgid "View Collection Info"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:56
-msgid "Search This Collection"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:59
-msgid "Delete This Collection"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:81
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:64
 msgid "Search Qdrant Collection"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:98
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:81
 msgid "Filter (JSON - Optional)"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:99
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:82
 msgid "e.g., { \"must\": [{ \"key\": \"source\", \"match\": { \"value\": \"wordpress_post\" }}]}"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/_empty-state.php:15
+msgid "No Knowledge Bases Found"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/_empty-state.php:16
+msgid "Get started by creating your first knowledge base. Click the \"Add Content\" button above to populate it with your site content, files, or text."
 msgstr ""
 
 #: admin/views/modules/autogpt/index.php:48
@@ -3123,10 +3198,6 @@ msgstr ""
 
 #: admin/views/modules/autogpt/index.php:50
 msgid "Update Existing Content"
-msgstr ""
-
-#: admin/views/modules/autogpt/index.php:51
-msgid "Knowledge Base"
 msgstr ""
 
 #: admin/views/modules/autogpt/index.php:52
@@ -3386,6 +3457,7 @@ msgstr ""
 #: admin/views/modules/content-writer/partials/form-inputs/seo-settings.php:44
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:54
 #: admin/views/modules/content-writer/partials/output-area.php:33
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:336
 msgid "Excerpt"
 msgstr ""
 
@@ -3502,13 +3574,6 @@ msgstr ""
 msgid "Use placeholders: {topic}, {keywords}."
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/content-writing/post-settings.php:18
-#: admin/views/modules/autogpt/partials/task-form-setup.php:28
-#: admin/views/modules/autogpt/partials/task-list.php:27
-#: admin/views/modules/autogpt/partials/task-queue.php:42
-msgid "Type"
-msgstr ""
-
 #: admin/views/modules/autogpt/partials/content-writing/post-settings.php:26
 msgid "Author"
 msgstr ""
@@ -3564,6 +3629,7 @@ msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:24
 #: admin/views/modules/chatbot/partials/accordion-context.php:153
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:355
 msgid "Vector Store"
 msgstr ""
 
@@ -4025,6 +4091,10 @@ msgstr ""
 msgid "e.g., You are a helpful AI Assistant. Please be friendly."
 msgstr ""
 
+#: admin/views/modules/chatbot/partials/accordion-ai-config.php:103
+msgid "Make your site content available to this chatbot."
+msgstr ""
+
 #: admin/views/modules/chatbot/partials/accordion-appearance.php:43
 msgid "Appearance"
 msgstr ""
@@ -4092,6 +4162,7 @@ msgid "-- No Indexes Found (Sync in AI Settings) --"
 msgstr ""
 
 #: admin/views/modules/chatbot/partials/accordion-context.php:303
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:360
 msgid "Collection"
 msgstr ""
 
@@ -5052,6 +5123,10 @@ msgstr ""
 msgid "Role-Based Image Limits"
 msgstr ""
 
+#: admin/views/modules/logs/index.php:48
+msgid "Loading logs..."
+msgstr ""
+
 #: admin/views/modules/logs/index.php:88
 msgid "Log Details"
 msgstr ""
@@ -5485,14 +5560,6 @@ msgstr ""
 msgid "(Sync to load models)"
 msgstr ""
 
-#: admin/views/modules/settings/partials/settings-models.php:48
-#: admin/views/modules/settings/partials/settings-models.php:96
-#: admin/views/modules/settings/partials/settings-models.php:134
-#: admin/views/modules/settings/partials/settings-models.php:174
-#: admin/views/modules/settings/partials/settings-models.php:211
-msgid "Sync"
-msgstr ""
-
 #: admin/views/modules/settings/partials/settings-models.php:169
 msgid "(Sync to load deployments)"
 msgstr ""
@@ -5565,7 +5632,7 @@ msgid "Error"
 msgstr ""
 
 #: admin/views/modules/settings/partials/token-stats.php:58
-msgid "AI Usage Overview"
+msgid "Usage Overview"
 msgstr ""
 
 #. translators: %s is the error message explaining why stats could not be calculated
@@ -6337,6 +6404,51 @@ msgstr ""
 msgid "No chatbots found in Trash."
 msgstr ""
 
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:109
+msgid "Invalid bot ID."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:139
+msgid "Invalid parameters."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:147
+msgid "An indexing process is already running for this bot."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:174
+msgid "Invalid process ID."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:199
+msgid "Process ID is required to cancel."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:204
+msgid "Indexing process cancellation requested."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:258
+msgid "Process not found or expired."
+msgstr ""
+
+#. translators: %1$d: Number of posts indexed, %2$d: Total number of posts in the plan.
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:304
+msgid "⏹️ Process stopped. Indexed %1$d of %2$d items. The chatbot is now configured to use the partially indexed content."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:342
+msgid "No indexable content types found."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:388
+msgid "No vector store provider API key found. Please configure OpenAI, Pinecone, or Qdrant in AI Settings."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:411
+msgid "No embedding provider API key found. Please configure OpenAI or Google API key in AI Settings -> Providers."
+msgstr ""
+
 #: classes/chat/core/ai-service/generate-response/validate-request.php:33
 msgid "User message or image cannot be empty."
 msgstr ""
@@ -6918,56 +7030,117 @@ msgstr ""
 msgid "Failed to update template."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:43
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:74
 msgid "Upload utility not available."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:74
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:106
 msgid "Content to embed cannot be empty."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:78
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:110
 msgid "Embedding provider is required."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:82
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:114
 msgid "Embedding model is required."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:91
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:123
 msgid "Invalid embedding provider specified."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:96
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:128
 msgid "Embedding service component not available."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:130
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:163
 msgid "Invalid or unsupported provider for this action."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:141
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:174
 msgid "Missing required parameters for vector deletion."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:147
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:180
 msgid "Vector management component is not available."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:155
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:188
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:259
 msgid "API key for %s is missing."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:178
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:211
 msgid "Failed to delete the log entry from the local database."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:183
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:216
 msgid "Log entry was not found, it might have been already deleted."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:187
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:220
 msgid "Vector record and log entry deleted successfully."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:246
+msgid "Missing required parameters for re-indexing."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:252
+msgid "Vector processing components are not available."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:279
+msgid "Embedding provider and model are required for Pinecone re-indexing."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:286
+msgid "Embedding provider and model are required for Qdrant re-indexing."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:292
+msgid "Invalid provider for re-indexing."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:297
+msgid "Content successfully re-indexed."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:299
+msgid "An unknown error occurred during re-indexing."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:334
+msgid "Source URL"
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:343
+msgid "SKU"
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:344
+msgid "Price"
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:345
+msgid "Stock Status"
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:346
+msgid "Weight & Dimensions"
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:347
+msgid "Product Attributes"
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:377
+msgid "Invalid settings format."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:446
+msgid "Indexing settings saved successfully."
 msgstr ""
 
 #: classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php:47
@@ -7539,6 +7712,7 @@ msgstr ""
 
 #: classes/dashboard/ajax/openai/class-aipkit-openai-vector-store-files-ajax-handler.php:91
 #: classes/dashboard/ajax/openai/class-aipkit-openai-vector-stores-ajax-handler.php:72
+#: classes/dashboard/ajax/openai/class-aipkit-openai-wp-content-indexing-ajax-handler.php:82
 #: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:66
 #: classes/vector/post-processor/openai/class-openai-config.php:27
 msgid "OpenAI API Key is not configured in global settings."
@@ -7550,7 +7724,7 @@ msgid "Could not initialize the WordPress filesystem."
 msgstr ""
 
 #: classes/dashboard/ajax/openai/fn-temp-file.php:40
-#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:217
+#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:304
 msgid "Could not create temporary file for content."
 msgstr ""
 
@@ -7559,20 +7733,20 @@ msgid "Could not rename temporary file."
 msgstr ""
 
 #: classes/dashboard/ajax/openai/fn-temp-file.php:61
-#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:228
+#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:315
 msgid "Could not write content to temporary file."
 msgstr ""
 
 #: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:32
-#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:32
-#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:33
+#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:31
+#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:32
 #: classes/dashboard/ajax/openai/handler-stores/ajax-list-vector-stores-openai.php:30
 msgid "Vector Store Manager or Registry not available."
 msgstr ""
 
 #: classes/dashboard/ajax/openai/handler-files/ajax-add-files-to-vector-store-openai.php:48
 #: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:45
-#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:48
+#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:47
 msgid "Vector Store ID is required."
 msgstr ""
 
@@ -7590,7 +7764,7 @@ msgstr ""
 
 #: classes/dashboard/ajax/openai/handler-files/ajax-add-text-to-vector-store-openai.php:47
 #: classes/dashboard/ajax/openai/handler-files/ajax-delete-file-from-vector-store-openai.php:30
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:36
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:37
 #: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:28
 #: classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php:30
 #: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:30
@@ -7617,8 +7791,16 @@ msgstr ""
 msgid "Vector Store ID and File ID are required."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-delete-file-from-vector-store-openai.php:71
+#: classes/dashboard/ajax/openai/handler-files/ajax-delete-file-from-vector-store-openai.php:63
 msgid "File deleted from vector store successfully."
+msgstr ""
+
+#: classes/dashboard/ajax/openai/handler-files/ajax-get-indexing-logs.php:35
+msgid "OpenAI Vector Store ID is required to fetch logs."
+msgstr ""
+
+#: classes/dashboard/ajax/openai/handler-files/ajax-get-indexing-logs.php:60
+msgid "Failed to fetch OpenAI indexing logs."
 msgstr ""
 
 #: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:30
@@ -7632,40 +7814,45 @@ msgstr ""
 msgid "Deleted User"
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:42
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:43
 msgid "Direct file upload and add to OpenAI store is a Pro feature. Please upgrade."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:62
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:63
 msgid "Please select an existing store for direct file upload."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:66
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:67
 msgid "No file was sent for upload."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:70
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:71
 #: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:54
 #: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:54
 msgid "Upload utility is missing."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:76
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:77
 #: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:43
 #: includes/class-aipkit-upload-utils.php:120
 msgid "Error during file upload: Code "
 msgstr ""
 
 #. translators: %s: Formatted upload limit (e.g., "10 MB").
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:81
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:82
 msgid "File is too large (max %s)."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:94
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:95
 msgid "File upload component not available."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:130
+#. translators: 1: The file type (e.g., application/pdf), 2: The filename.
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:118
+msgid "Binary file content (%1$s) not stored in local. Filename: %2$s"
+msgstr ""
+
+#: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:145
 msgid "File uploaded and added to vector store. Processing is asynchronous."
 msgstr ""
 
@@ -7703,13 +7890,13 @@ msgstr ""
 msgid "Currently, only OpenAI vector stores are supported for WordPress content indexing from this UI."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:111
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:99
 msgid "Could not determine target vector store ID."
 msgstr ""
 
 #. translators: %1$d: The number of posts processed, %2$s: The name of the vector store.
 #. translators: %1$d is the number of posts processed, %2$s is the vector store identifier
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:139
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:127
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:155
 msgid "%1$d post processed and submitted to vector store \"%2$s\"."
 msgid_plural "%1$d posts processed and submitted to vector store \"%2$s\"."
@@ -7718,20 +7905,20 @@ msgstr[1] ""
 
 #. translators: %d: Number of failed posts
 #. translators: %d is the number of posts that failed to index
-#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:143
+#: classes/dashboard/ajax/openai/handler-indexing/ajax-index-selected-wp-content.php:131
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:158
 msgid "Some posts failed: %d. Check data source logs for details."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:50
+#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:49
 msgid "Vector Store name is required."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:70
+#: classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php:62
 msgid "Vector Store created/verified successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:79
+#: classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php:66
 msgid "Vector Store deleted successfully."
 msgstr ""
 
@@ -7760,7 +7947,7 @@ msgstr ""
 
 #: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:47
 #: classes/dashboard/ajax/pinecone/handler-indexes/ajax-search-index.php:47
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:47
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:46
 msgid "Pinecone index name is required."
 msgstr ""
 
@@ -7769,11 +7956,11 @@ msgstr ""
 msgid "Vector dimension must be a positive integer."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:87
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:77
 msgid "Pinecone index created/verified successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:94
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-create-index.php:79
 msgid "Malformed response after Pinecone index creation."
 msgstr ""
 
@@ -7781,7 +7968,7 @@ msgstr ""
 msgid "Pinecone index name is required for deletion."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php:73
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-delete-index.php:63
 msgid "Pinecone index deleted successfully."
 msgstr ""
 
@@ -7793,11 +7980,11 @@ msgstr ""
 msgid "Pinecone index details fetched."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:29
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:34
 msgid "Pinecone index name is required to fetch logs."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:44
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-get-indexing-logs.php:59
 msgid "Failed to fetch Pinecone indexing logs."
 msgstr ""
 
@@ -7826,11 +8013,11 @@ msgstr ""
 msgid "Pinecone search complete."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:51
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:50
 msgid "Vectors data is required for Pinecone upsert."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:56
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-upsert-to-index.php:55
 msgid "Invalid or empty vectors JSON format."
 msgstr ""
 
@@ -7869,11 +8056,11 @@ msgstr ""
 msgid "Collection name is required."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:99
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:94
 msgid "Qdrant collection created/verified."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:107
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-create-collection.php:97
 msgid "Qdrant collection creation response was malformed."
 msgstr ""
 
@@ -7881,7 +8068,7 @@ msgstr ""
 msgid "Collection name is required for deletion."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:75
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-delete-collection.php:63
 msgid "Qdrant collection deleted successfully."
 msgstr ""
 
@@ -7897,19 +8084,19 @@ msgstr ""
 msgid "Qdrant collection details fetched."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php:33
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php:37
 msgid "Provider and Store/Index/Collection ID are required to fetch logs."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php:49
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-get-vector-data-source-logs.php:62
 msgid "Failed to fetch indexing logs for Qdrant."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-list-collections.php:26
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-list-collections.php:27
 msgid "Vector Store components not available for Qdrant."
 msgstr ""
 
-#: classes/dashboard/ajax/qdrant/handler-collections/ajax-list-collections.php:49
+#: classes/dashboard/ajax/qdrant/handler-collections/ajax-list-collections.php:64
 msgid "Qdrant collections synced successfully."
 msgstr ""
 
@@ -7983,10 +8170,6 @@ msgstr ""
 
 #: classes/dashboard/class-aipkit_role_manager.php:44
 msgid "Auto Content Indexing (AutoGPT)"
-msgstr ""
-
-#: classes/dashboard/class-aipkit_role_manager.php:47
-msgid "AI Training"
 msgstr ""
 
 #: classes/dashboard/class-aipkit_role_manager.php:48
@@ -8521,7 +8704,7 @@ msgstr ""
 msgid "Meta description updated successfully."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/update-tags.php:36
+#: classes/post-enhancer/ajax/actions/update-tags.php:37
 msgid "Post tags updated successfully."
 msgstr ""
 
@@ -8538,7 +8721,7 @@ msgid "Missing post ID."
 msgstr ""
 
 #: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:41
-#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:81
+#: classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php:82
 msgid "Post not found."
 msgstr ""
 
@@ -9349,24 +9532,24 @@ msgstr ""
 msgid "Unsupported provider or processor missing."
 msgstr ""
 
-#: classes/vector/post-processor/openai/class-openai-post-processor.php:68
+#: classes/vector/post-processor/openai/class-openai-post-processor.php:69
 msgid "OpenAI processing components not available."
 msgstr ""
 
-#: classes/vector/post-processor/openai/class-openai-post-processor.php:82
+#: classes/vector/post-processor/openai/class-openai-post-processor.php:81
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-openai-handler.php:73
 msgid "OpenAI file processing strategy not available."
 msgstr ""
 
-#: classes/vector/post-processor/openai/class-openai-post-processor.php:114
+#: classes/vector/post-processor/openai/class-openai-post-processor.php:98
 msgid "Post content is empty."
 msgstr ""
 
-#: classes/vector/post-processor/pinecone/class-pinecone-post-processor.php:76
+#: classes/vector/post-processor/pinecone/class-pinecone-post-processor.php:78
 msgid "Pinecone processing components not available."
 msgstr ""
 
-#: classes/vector/post-processor/pinecone/class-pinecone-post-processor.php:97
+#: classes/vector/post-processor/pinecone/class-pinecone-post-processor.php:96
 msgid "Post content is empty for Pinecone."
 msgstr ""
 
@@ -9374,7 +9557,7 @@ msgstr ""
 msgid "Qdrant processing components not available."
 msgstr ""
 
-#: classes/vector/post-processor/qdrant/class-qdrant-post-processor.php:109
+#: classes/vector/post-processor/qdrant/class-qdrant-post-processor.php:106
 msgid "Post content is empty for Qdrant."
 msgstr ""
 
@@ -9505,6 +9688,10 @@ msgstr ""
 
 #: classes/vector/providers/qdrant/create-index-if-not-exists.php:48
 msgid "Unknown error creating Qdrant collection."
+msgstr ""
+
+#: classes/vector/providers/qdrant/describe-index.php:33
+msgid "Malformed response when describing Qdrant collection."
 msgstr ""
 
 #: classes/vector/providers/qdrant/query-vectors.php:28
@@ -10437,10 +10624,6 @@ msgstr ""
 
 #: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:52
 msgid "Add Condition"
-msgstr ""
-
-#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:54
-msgid "Action"
 msgstr ""
 
 #: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:56

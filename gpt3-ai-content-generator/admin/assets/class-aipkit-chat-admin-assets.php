@@ -225,5 +225,12 @@ class ChatAdminAssets
             ])
         ];
         wp_localize_script($public_main_js_handle, 'aipkit_chat_config', $preview_config_for_js);
+
+        // --- NEW: Add global nonce for Index Content functionality ---
+        if (wp_script_is('aipkit-admin-main', 'enqueued')) {
+            $index_content_nonce = wp_create_nonce('aipkit_chatbot_index_content_nonce');
+            wp_add_inline_script('aipkit-admin-main', 'window.aipkit_index_content_nonce = "' . esc_js($index_content_nonce) . '";', 'before');
+        }
+        // --- END NEW ---
     }
 }

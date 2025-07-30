@@ -46,11 +46,6 @@ function do_ajax_delete_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
 
     $delete_result = $vector_store_manager->delete_index('Pinecone', $index_name, $pinecone_config);
     if (is_wp_error($delete_result)) {
-        $handler_instance->_log_vector_data_source_entry([
-            'vector_store_id' => $index_name, 'vector_store_name' => $index_name,
-            'status' => 'failed', 'message' => 'Index deletion failed: ' . $delete_result->get_error_message(),
-            'source_type_for_log' => 'action_delete_index'
-        ]);
         $handler_instance->send_wp_error($delete_result);
         return;
     }
@@ -65,10 +60,5 @@ function do_ajax_delete_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $wpdb->delete($data_source_table_name, ['provider' => 'Pinecone', 'vector_store_id' => $index_name], ['%s', '%s']);
 
-    $handler_instance->_log_vector_data_source_entry([
-        'vector_store_id' => $index_name, 'vector_store_name' => $index_name,
-        'status' => 'success', 'message' => 'Pinecone index deleted.',
-        'source_type_for_log' => 'action_delete_index'
-    ]);
     wp_send_json_success(['message' => __('Pinecone index deleted successfully.', 'gpt3-ai-content-generator')]);
 }

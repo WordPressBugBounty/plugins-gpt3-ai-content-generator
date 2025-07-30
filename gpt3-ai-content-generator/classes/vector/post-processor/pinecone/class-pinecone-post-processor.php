@@ -58,8 +58,10 @@ class PineconePostProcessor extends AIPKit_Vector_Post_Processor_Base {
      * @return array ['status' => 'success'|'error', 'message' => string]
      */
     public function index_single_post_to_index(int $post_id, string $index_name, string $embedding_provider_key, string $embedding_model): array {
+        
         $post_obj = get_post($post_id);
         $post_title_for_log = $post_obj ? $post_obj->post_title : 'N/A';
+        
         $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure'];
         $embedding_provider_normalized = $provider_map[strtolower($embedding_provider_key)] ?? ucfirst($embedding_provider_key);
         $pinecone_vector_id = 'wp_post_' . $post_id;
@@ -74,52 +76,47 @@ class PineconePostProcessor extends AIPKit_Vector_Post_Processor_Base {
 
         if (!$this->embedding_handler || !$this->vector_store_manager || !$this->config_handler) {
             $error_msg = __('Pinecone processing components not available.', 'gpt3-ai-content-generator');
-            $this->log_event(array_merge($log_entry_base, ['status' => 'config_error', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
 
         $pinecone_api_config = $this->config_handler->get_config();
         if (is_wp_error($pinecone_api_config)) {
             $error_msg = $pinecone_api_config->get_error_message();
-            $this->log_event(array_merge($log_entry_base, ['status' => 'config_error', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
-
+        
         $content_string_or_error = $this->get_post_content_as_string($post_id);
         if (is_wp_error($content_string_or_error)) {
             $error_msg = 'Content retrieval error: ' . $content_string_or_error->get_error_message();
-            $this->log_event(array_merge($log_entry_base, ['status' => 'content_error', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
         $log_entry_base['indexed_content'] = $content_string_or_error;
 
         if (empty(trim($content_string_or_error))) {
             $error_msg = __('Post content is empty for Pinecone.', 'gpt3-ai-content-generator');
-            $this->log_event(array_merge($log_entry_base, ['status' => 'content_error', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
-
+        
         $embedding_result = $this->embedding_handler->generate_embedding($content_string_or_error, $embedding_provider_normalized, $embedding_model);
         if (is_wp_error($embedding_result)) {
             $error_msg = 'Embedding failed: ' . $embedding_result->get_error_message();
-            $this->log_event(array_merge($log_entry_base, ['status' => 'failed', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
         $vector_values = $embedding_result['embeddings'][0];
-
+        
         $metadata = ['source' => 'wordpress_post', 'post_id' => (string)$post_id, 'title' => $post_title_for_log, 'type' => get_post_type($post_id), 'url' => get_permalink($post_id), 'vector_id' => $pinecone_vector_id];
         $vectors_to_upsert = [['id' => $pinecone_vector_id, 'values' => $vector_values, 'metadata' => $metadata]];
 
         $upsert_result = $this->vector_store_manager->upsert_vectors('Pinecone', $index_name, ['vectors' => $vectors_to_upsert], $pinecone_api_config);
         if (is_wp_error($upsert_result)) {
             $error_msg = 'Upsert to Pinecone failed: ' . $upsert_result->get_error_message();
-            $this->log_event(array_merge($log_entry_base, ['status' => 'failed', 'message' => $error_msg]));
             return ['status' => 'error', 'message' => $error_msg];
         }
-
-        $this->log_event(array_merge($log_entry_base, ['status' => 'success', 'message' => 'Post content indexed to Pinecone. Vector ID: ' . $pinecone_vector_id]));
+        
+        $this->log_event(array_merge($log_entry_base, ['status' => 'indexed', 'message' => 'WordPress post content submitted for indexing.']));
         update_post_meta($post_id, '_aipkit_indexed_to_vs_' . sanitize_key($index_name), '1');
         update_post_meta($post_id, '_aipkit_vector_id_for_vs_' . sanitize_key($index_name), $pinecone_vector_id);
+        
         return ['status' => 'success', 'message' => 'Post content indexed to Pinecone.'];
     }
 }

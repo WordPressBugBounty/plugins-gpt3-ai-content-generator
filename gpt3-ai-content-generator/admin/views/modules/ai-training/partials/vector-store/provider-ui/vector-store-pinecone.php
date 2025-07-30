@@ -1,11 +1,9 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php
-// Status: NEW FILE
+
 /**
  * Partial: AI Training - Pinecone Vector Store MANAGEMENT UI
  * Displays details and actions for a selected Pinecone index.
- * UPDATED: Added a container for indexing logs.
- * UPDATED: Removed sync button from panel header actions, delete button is now enabled by default.
  */
 
 if (!defined('ABSPATH')) {
@@ -43,35 +41,18 @@ $pinecone_nonce = wp_create_nonce('aipkit_vector_store_pinecone_nonce');
             </div>
 
             <!-- Index Details & Management Panel (Initially Hidden, shown by JS) -->
-            <div id="aipkit_manage_selected_pinecone_index_panel" class="aipkit_ai_training_section_wrapper aipkit_file_management_panel aipkit_openai_vs_content_section" style="display:none;">
-                <div class="aipkit_ai_training_section_header">
-                    <h5 id="aipkit_manage_pinecone_index_panel_title"><?php esc_html_e('Manage Index', 'gpt3-ai-content-generator'); ?></h5>
-                    <div class="aipkit_panel_header_actions">
-                        <?php // REMOVED: Refresh Global List Button (aipkit_refresh_pinecone_indexes_btn) from here. It is now part of the global form controls. ?>
-                        <button type="button" id="aipkit_toggle_pinecone_index_metadata_btn" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn" title="<?php esc_attr_e('View Index Metadata', 'gpt3-ai-content-generator'); ?>">
-                            <span class="dashicons dashicons-info-outline"></span>
-                        </button>
-                        <button type="button" id="aipkit_panel_search_this_pinecone_index_btn" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn" title="<?php esc_attr_e('Search This Index', 'gpt3-ai-content-generator'); ?>">
-                            <span class="dashicons dashicons-search"></span>
-                        </button>
-                        <button type="button" id="aipkit_delete_selected_pinecone_index_btn" class="aipkit_btn aipkit_btn-danger aipkit_icon_btn" title="<?php esc_attr_e('Delete This Index', 'gpt3-ai-content-generator'); ?>">
-                            <span class="dashicons dashicons-trash"></span>
-                        </button>
-                    </div>
-                </div>
+            <div id="aipkit_manage_selected_pinecone_index_panel" class="aipkit_file_management_panel" style="display:none;">
                 <div class="aipkit_panel_body">
-                    <div id="aipkit_pinecone_index_metadata_display" class="aipkit_store_metadata_display" style="display:none;">
-                        <!-- Metadata populated by JS -->
-                    </div>
                     <div id="aipkit_pinecone_index_content_area">
                         <?php // Content might include vector count, namespace management etc. later ?>
                     </div>
                      <!-- NEW: Container for Indexing Logs -->
-                    <div id="aipkit_pinecone_index_logs_container" style="margin-top: 15px;">
+                    <div id="aipkit_pinecone_index_logs_container">
                         <h6 style="margin-bottom: 8px;"><?php esc_html_e('Recent Indexing Activity:', 'gpt3-ai-content-generator'); ?></h6>
                         <!-- Logs will be populated by JS -->
-                         <p class="aipkit_text-center" style="padding: 10px;"><em><?php esc_html_e('Loading logs...', 'gpt3-ai-content-generator'); ?></em></p>
+                         <p class="aipkit_text-center" style="padding: 10px;"><em><?php esc_html_e('Loading records...', 'gpt3-ai-content-generator'); ?></em></p>
                     </div>
+                    <div id="aipkit_pinecone_logs_pagination" class="aipkit_logs_pagination_container"></div>
                     <!-- END NEW -->
                     <div id="aipkit_manage_pinecone_index_panel_status" class="aipkit_form-help"></div>
                 </div>

@@ -2,7 +2,6 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/hook-registrars/class-ajax-hooks-registrar.php
 // Status: MODIFIED
-// I have added a new hook for the 'generate_tags' AJAX action.
 
 namespace WPAICG\Includes\HookRegistrars;
 
@@ -58,6 +57,8 @@ use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
 // --- ADDED: Use statement for Semantic Search handler ---
 use WPAICG\Core\Ajax\AIPKit_Semantic_Search_Ajax_Handler;
 use WPAICG\Lib\Chat\Frontend\Ajax\Handlers\AIPKit_Realtime_Session_Ajax_Handler;
+use WPAICG\Chat\Ajax\AIPKit_Chatbot_Index_Content_Ajax_Handler;
+
 
 // --- END ADDED ---
 
@@ -187,11 +188,13 @@ class Ajax_Hooks_Registrar
         add_action('wp_ajax_aipkit_delete_file_from_vector_store_openai', [$openai_vs_files_ajax_handler, 'ajax_delete_file_from_vector_store_openai']);
         add_action('wp_ajax_aipkit_add_text_to_vector_store_openai', [$openai_vs_files_ajax_handler, 'ajax_add_text_to_vector_store_openai']);
         add_action('wp_ajax_aipkit_upload_and_add_file_to_store_direct_openai', [$openai_vs_files_ajax_handler, 'ajax_upload_and_add_file_to_store_direct_openai']);
+        add_action('wp_ajax_aipkit_get_openai_indexing_logs', [$openai_vs_files_ajax_handler, 'ajax_get_openai_indexing_logs']);
 
         add_action('wp_ajax_aipkit_fetch_wp_content_for_indexing', [$openai_wp_content_indexing_ajax_handler, 'ajax_fetch_wp_content_for_indexing']);
         add_action('wp_ajax_aipkit_index_selected_wp_content', [$openai_wp_content_indexing_ajax_handler, 'ajax_index_selected_wp_content']);
 
         add_action('wp_ajax_aipkit_list_indexes_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_list_indexes_pinecone']);
+        add_action('wp_ajax_aipkit_get_pinecone_index_details', [$pinecone_vector_store_ajax_handler, 'ajax_get_pinecone_index_details']);
         add_action('wp_ajax_aipkit_create_index_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_create_index_pinecone']);
         add_action('wp_ajax_aipkit_upsert_to_pinecone_index', [$pinecone_vector_store_ajax_handler, 'ajax_upsert_to_pinecone_index']);
         add_action('wp_ajax_aipkit_search_pinecone_index', [$pinecone_vector_store_ajax_handler, 'ajax_search_pinecone_index']);
@@ -217,6 +220,41 @@ class Ajax_Hooks_Registrar
         if (method_exists($core_ajax_handler, 'ajax_delete_vector_data_source_entry')) {
             add_action('wp_ajax_aipkit_delete_vector_data_source_entry', [$core_ajax_handler, 'ajax_delete_vector_data_source_entry']);
         }
+        if (method_exists($core_ajax_handler, 'ajax_reindex_vector_data_source_entry')) {
+            add_action('wp_ajax_aipkit_reindex_vector_data_source_entry', [$core_ajax_handler, 'ajax_reindex_vector_data_source_entry']);
+        }
+        if (method_exists($core_ajax_handler, 'ajax_get_cpt_indexing_options')) {
+            add_action('wp_ajax_aipkit_get_cpt_indexing_options', [$core_ajax_handler, 'ajax_get_cpt_indexing_options']);
+        }
+        if (method_exists($core_ajax_handler, 'ajax_save_cpt_indexing_options')) {
+            add_action('wp_ajax_aipkit_save_cpt_indexing_options', [$core_ajax_handler, 'ajax_save_cpt_indexing_options']);
+        }
+        // NEW: AJAX action for fetching knowledge base stats
+        if (method_exists($core_ajax_handler, 'ajax_get_knowledge_base_stats')) {
+            add_action('wp_ajax_aipkit_get_knowledge_base_stats', [$core_ajax_handler, 'ajax_get_knowledge_base_stats']);
+        }
+        // NEW: AJAX action for SYNCING knowledge base stats
+        if (method_exists($core_ajax_handler, 'ajax_sync_knowledge_base_stats')) {
+            add_action('wp_ajax_aipkit_sync_knowledge_base_stats', [$core_ajax_handler, 'ajax_sync_knowledge_base_stats']);
+        }
+        // NEW: AJAX action for refreshing knowledge base cards
+        if (method_exists($core_ajax_handler, 'ajax_refresh_knowledge_base_cards')) {
+            add_action('wp_ajax_aipkit_refresh_knowledge_base_cards', [$core_ajax_handler, 'ajax_refresh_knowledge_base_cards']);
+        }
+
+        // --- NEW: Chatbot Index Content AJAX Handlers ---
+        if (class_exists('\WPAICG\Chat\Ajax\AIPKit_Chatbot_Index_Content_Ajax_Handler')) {
+            $chatbot_index_content_ajax_handler = new \WPAICG\Chat\Ajax\AIPKit_Chatbot_Index_Content_Ajax_Handler();
+            add_action('wp_ajax_aipkit_check_indexing_status', [$chatbot_index_content_ajax_handler, 'ajax_check_indexing_status']);
+            add_action('wp_ajax_aipkit_analyze_express_setup', [$chatbot_index_content_ajax_handler, 'ajax_analyze_express_setup']);
+            add_action('wp_ajax_aipkit_start_content_indexing', [$chatbot_index_content_ajax_handler, 'ajax_start_content_indexing']);
+            add_action('wp_ajax_aipkit_cancel_content_indexing', [$chatbot_index_content_ajax_handler, 'ajax_cancel_content_indexing']);
+            add_action('wp_ajax_aipkit_get_indexing_progress', [$chatbot_index_content_ajax_handler, 'ajax_get_indexing_progress']);
+            
+            // Register cron action for background processing
+            add_action('aipkit_process_content_indexing', ['\WPAICG\Chat\Ajax\AIPKit_Chatbot_Index_Content_Ajax_Handler', 'process_content_indexing']);
+        }
+        // --- END NEW ---
 
         if (method_exists($automated_task_manager, 'init_ajax_hooks')) {
             $automated_task_manager->init_ajax_hooks();

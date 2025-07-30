@@ -74,16 +74,18 @@ class AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler extends BaseDashboardAjaxHa
         // --- END MODIFICATION ---
     }
 
-    /**
-     * Wrapper for the logging function, to be called from the standalone logic files.
-     * @param array $log_data
-     */
-    public function log_vector_data_source_entry_wrapper(array $log_data): void
+    /** Helper to get OpenAI API configuration. */
+    public function _get_openai_config(): array|WP_Error
     {
-        // Call the general OpenAI logging function
-        if (function_exists('\WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_files_log_vector_data_source_entry')) {
-            \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_files_log_vector_data_source_entry($this->wpdb, $this->data_source_table_name, $log_data);
+        $openai_data = AIPKit_Providers::get_provider_data('OpenAI');
+        if (empty($openai_data['api_key'])) {
+            return new WP_Error('missing_openai_key', __('OpenAI API Key is not configured in global settings.', 'gpt3-ai-content-generator'));
         }
+        return [
+            'api_key' => $openai_data['api_key'],
+            'base_url' => $openai_data['base_url'] ?? 'https://api.openai.com',
+            'api_version' => $openai_data['api_version'] ?? 'v1',
+        ];
     }
 
     // --- Getter methods for dependencies needed by the new standalone functions ---

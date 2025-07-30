@@ -49,7 +49,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
      * AJAX handler for indexing selected posts to the chosen vector store.
      */
     public function ajax_index_posts_to_vector_store()
-    {
+    {        
         if (!AIPKit_Role_Manager::user_can_access_module('vector_content_indexer')) {
             wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'gpt3-ai-content-generator')], 403);
             return;
@@ -66,7 +66,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
         $post_ids = array_map('absint', $post_ids_raw);
         $post_ids = array_filter($post_ids, function ($id) { return $id > 0; });
         $provider = isset($post_data['provider']) ? sanitize_key($post_data['provider']) : '';
-
+        
         if (empty($post_ids)) {
             wp_send_json_error(['message' => __('No posts selected for indexing.', 'gpt3-ai-content-generator')], 400);
             return;
@@ -89,7 +89,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
                 return;
             }
             $store_identifier_for_msg = $target_store_id;
-
+            
             foreach ($post_ids as $post_id) {
                 $result = $this->openai_processor->index_single_post_to_store($post_id, $target_store_id);
                 if ($result['status'] === 'success') {
@@ -113,7 +113,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
                 return;
             }
             $store_identifier_for_msg = $target_index_id;
-
+            
             foreach ($post_ids as $post_id) {
                 $result = $this->pinecone_processor->index_single_post_to_index($post_id, $target_index_id, $embedding_provider_key, $embedding_model);
                 if ($result['status'] === 'success') {
@@ -137,7 +137,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
                 return;
             }
             $store_identifier_for_msg = $target_collection_name;
-
+            
             foreach ($post_ids as $post_id) {
                 $result = $this->qdrant_processor->index_single_post_to_collection($post_id, $target_collection_name, $embedding_provider_key, $embedding_model);
                 if ($result['status'] === 'success') {

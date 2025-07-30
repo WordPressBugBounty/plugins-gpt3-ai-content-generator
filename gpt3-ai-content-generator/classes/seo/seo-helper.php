@@ -154,6 +154,47 @@ class AIPKit_SEO_Helper
     }
 
     /**
+     * Updates the tags for a post, automatically detecting the correct non-hierarchical taxonomy.
+     *
+     * @param int $post_id The ID of the post.
+     * @param string $tags_string A comma-separated string of tags.
+     * @return bool True on success, false on failure.
+     */
+    public static function update_tags(int $post_id, string $tags_string): bool
+    {
+        $post = get_post($post_id);
+        if (!$post) {
+            return false;
+        }
+
+        $tag_taxonomy = 'post_tag'; // Default
+
+        // Check for WooCommerce product_tag first
+        if ($post->post_type === 'product' && taxonomy_exists('product_tag') && is_object_in_taxonomy($post->post_type, 'product_tag')) {
+            $tag_taxonomy = 'product_tag';
+        }
+        // If the default 'post_tag' is not associated, find the first non-hierarchical one
+        elseif (!is_object_in_taxonomy($post->post_type, 'post_tag')) {
+            $taxonomies = get_object_taxonomies($post->post_type, 'objects');
+            $found_taxonomy = false;
+            if (!empty($taxonomies)) {
+                foreach ($taxonomies as $taxonomy) {
+                    if (!$taxonomy->hierarchical) {
+                        $tag_taxonomy = $taxonomy->name;
+                        $found_taxonomy = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        $result = wp_set_object_terms($post_id, $tags_string, $tag_taxonomy, false);
+
+        return !is_wp_error($result) && $result !== false;
+    }
+
+
+    /**
      * Generates an SEO-friendly slug and updates the post.
      *
      * @param int $post_id The ID of the post to update.

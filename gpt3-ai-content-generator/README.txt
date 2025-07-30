@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.26
+Stable tag: 2.3.27
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,17 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.27 =
+
+- Added: Advanced Content Indexing Controls. You can now select which custom post types, fields, labels and taxonomies for vector indexing.
+
+[Advanced Content Indexing Controls](https://docs.aipower.org/docs/ai-training/intro#advanced-content-indexing-controls)
+
+- Fixed: Fixed a bug in "Update Existing Content" category in automated tasks.
+- Fixed: Fixed a bug in Tag generation feature in the Content Assistant.
+- Improved: Clear wp object caching after plugin update.
+
 
 = 2.3.26 =
 

@@ -1,7 +1,6 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-enhancement/process-enhancement-item.php
-// Status: MODIFIED
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentEnhancement;
 
@@ -31,30 +30,34 @@ if (file_exists($vector_logic_base_path . 'fn-build-vector-search-context.php'))
  */
 function process_enhancement_item_logic(array $item, array $item_config): array
 {
+
     $post_id = absint($item['target_identifier']);
     $post = get_post($post_id);
 
-    if (!$post || $post->post_status !== 'publish') {
-        return ['status' => 'success', 'message' => "Skipped post #{$post_id}: Post not found or is not published."];
+    if (!$post || !in_array($post->post_status, $item_config['post_statuses'] ?? ['publish'])) {
+        $log_message = "Skipped post #{$post_id}: Post not found or does not match status criteria.";
+        return ['status' => 'success', 'message' => $log_message];
     }
 
     $ai_caller = new AIPKit_AI_Caller();
     $ai_params = ['temperature' => floatval($item_config['ai_temperature'] ?? 1.0)];
-    $user_max_tokens = absint($item_config['content_max_tokens'] ?? 250);
-    $system_instruction = 'You are an expert SEO copywriter. You follow instructions precisely. Your response must contain ONLY the generated text, with no introductory phrases, labels, or quotation marks.';
+    $user_max_tokens = absint($item_config['content_max_tokens'] ?? 4000);
+    $system_instruction = 'You are an expert SEO copywriter and editor. You follow instructions precisely. Your response must contain ONLY the generated text, with no introductory phrases, labels, or quotation marks.';
     $changes_made = [];
 
     // --- Start: Gather all possible placeholders ---
     $original_meta = get_post_meta($post->ID, '_yoast_wpseo_metadesc', true) ?: (get_post_meta($post->ID, '_aioseo_description', true) ?: '');
+    if (empty($original_meta)) {
+        $original_meta = $post->post_excerpt; // Fallback to excerpt
+    }
     $original_focus_keyword = AIPKit_SEO_Helper::get_focus_keyword($post->ID);
     $placeholders = [
         '{original_title}' => $post->post_title,
-        '{original_content}' => wp_strip_all_tags($post->post_content),
+        '{original_content}' => wp_strip_all_tags(strip_shortcodes(apply_filters('the_content', $post->post_content))),
         '{original_excerpt}' => $post->post_excerpt,
         '{original_meta_description}' => $original_meta,
         '{original_focus_keyword}' => $original_focus_keyword ?: '',
     ];
-
     if ($post->post_type === 'product' && class_exists('WooCommerce')) {
         $product = wc_get_product($post->ID);
         if ($product) {
@@ -124,61 +127,33 @@ function process_enhancement_item_logic(array $item, array $item_config): array
     }
     // --- END: Vector Context Logic ---
 
-    // --- REORDERED LOGIC START ---
+    // --- REVISED LOGIC START ---
     $fields_to_enhance = [];
-    if (isset($item_config['update_title']) && $item_config['update_title'] === '1') {
-        $fields_to_enhance[] = 'title';
-    }
-    if (isset($item_config['update_excerpt']) && $item_config['update_excerpt'] === '1') {
-        $fields_to_enhance[] = 'excerpt';
-    }
-    if (isset($item_config['update_content']) && $item_config['update_content'] === '1') {
-        $fields_to_enhance[] = 'content';
-    }
-    if (isset($item_config['update_meta']) && $item_config['update_meta'] === '1') {
-        $fields_to_enhance[] = 'meta';
-    }
-    if (isset($item_config['update_keyword']) && $item_config['update_keyword'] === '1') {
-        $fields_to_enhance[] = 'keyword';
-    } // Assuming 'update_keyword' is the form field name
+    if (!empty($item_config['update_title']) && $item_config['update_title'] === '1') $fields_to_enhance[] = 'title';
+    if (!empty($item_config['update_excerpt']) && $item_config['update_excerpt'] === '1') $fields_to_enhance[] = 'excerpt';
+    if (!empty($item_config['update_content']) && $item_config['update_content'] === '1') $fields_to_enhance[] = 'content';
+    if (!empty($item_config['update_meta']) && $item_config['update_meta'] === '1') $fields_to_enhance[] = 'meta';
 
-    // 1. Process keyword first if requested
-    if (in_array('keyword', $fields_to_enhance) && !empty($item_config['keyword_prompt'])) {
-        $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config['keyword_prompt']);
-        $ai_params_kw = array_merge($ai_params, ['max_completion_tokens' => min($user_max_tokens, 20)]);
-        $keyword_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $ai_params_kw, $system_instruction);
-
-        if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
-            $new_keyword = trim(str_replace('"', '', $keyword_result['content']));
-            AIPKit_SEO_Helper::update_focus_keyword($post->ID, $new_keyword);
-            $placeholders['{original_focus_keyword}'] = $new_keyword; // UPDATE placeholder for subsequent calls
-            $changes_made[] = 'focus keyword';
-        }
-    }
-
-    // 2. Process other fields
+    // Process fields
     foreach ($fields_to_enhance as $field) {
-        if ($field === 'keyword') {
-            continue; // Already processed
-        }
+        $prompt_key = $field . '_prompt'; // ** THE FIX IS HERE **
+        if (!empty($item_config[$prompt_key])) {
 
-        if (!empty($item_config[$field]['prompt'])) {
-            $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config[$field]['prompt']);
+            $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config[$prompt_key]);
             $current_ai_params = $ai_params;
 
-            if ($field === 'title') {
-                $current_ai_params['max_completion_tokens'] = 150;
-            }
-            if ($field === 'excerpt') {
-                $current_ai_params['max_completion_tokens'] = 300;
-            }
-            if ($field === 'meta') {
-                $current_ai_params['max_completion_tokens'] = 250;
-            }
+            if ($field === 'title') $current_ai_params['max_completion_tokens'] = 150;
+            if ($field === 'excerpt') $current_ai_params['max_completion_tokens'] = 300;
+            if ($field === 'meta') $current_ai_params['max_completion_tokens'] = 250;
+            if ($field === 'content') $current_ai_params['max_completion_tokens'] = $user_max_tokens;
 
             $ai_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $current_ai_params, $system_instruction);
 
-            if (!is_wp_error($ai_result) && !empty($ai_result['content'])) {
+            if (is_wp_error($ai_result)) {
+                continue; // Skip to the next field on error
+            }
+
+            if (!empty($ai_result['content'])) {
                 $new_value = trim(str_replace('"', '', $ai_result['content']));
                 switch ($field) {
                     case 'title':
@@ -190,7 +165,15 @@ function process_enhancement_item_logic(array $item, array $item_config): array
                         $changes_made[] = 'excerpt';
                         break;
                     case 'content':
-                        wp_update_post(['ID' => $post->ID, 'post_content' => wp_kses_post($new_value)]);
+                        $html_content = $new_value;
+                        $html_content = preg_replace('/^#\s+(.*)$/m', '<h1>$1</h1>', $html_content);
+                        $html_content = preg_replace('/^##\s+(.*)$/m', '<h2>$1</h2>', $html_content);
+                        $html_content = preg_replace('/^###\s+(.*)$/m', '<h3>$1</h3>', $html_content);
+                        $html_content = preg_replace('/^####\s+(.*)$/m', '<h4>$1</h4>', $html_content);
+                        $html_content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html_content);
+                        $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
+                        $html_content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $html_content);
+                        wp_update_post(['ID' => $post->ID, 'post_content' => wp_kses_post($html_content)]);
                         $changes_made[] = 'content';
                         break;
                     case 'meta':
@@ -199,13 +182,15 @@ function process_enhancement_item_logic(array $item, array $item_config): array
                         break;
                 }
             }
-        }
+        } 
     }
-    // --- REORDERED LOGIC END ---
+    // --- REVISED LOGIC END ---
 
     if (empty($changes_made)) {
-        return ['status' => 'success', 'message' => "No enhancements were enabled or all AI calls failed for post #{$post_id}."];
+        $log_message = "No valid enhancements were processed for post #{$post_id}. This could be due to empty prompts or AI errors.";
+        return ['status' => 'success', 'message' => $log_message];
     } else {
-        return ['status' => 'success', 'message' => "Post #{$post_id} enhanced. Updated: " . implode(', ', $changes_made) . "."];
+        $log_message = "Post #{$post_id} enhanced. Updated: " . implode(', ', $changes_made) . ".";
+        return ['status' => 'success', 'message' => $log_message];
     }
 }

@@ -1,6 +1,5 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php
-// Status: NEW FILE
 
 /**
  * Partial: AI Training - Qdrant Vector Store MANAGEMENT UI
@@ -46,32 +45,16 @@ $qdrant_api_key_is_set = !empty($qdrant_data['api_key']);
                 <p class="aipkit_text-center" style="padding: 20px;"><?php esc_html_e('Select a Qdrant collection from the "Target Collection" dropdown in the "Add Content" form above to view its details and manage it, or use the "+" button next to the dropdown to create a new one.', 'gpt3-ai-content-generator'); ?></p>
             </div>
 
-            <div id="aipkit_manage_selected_qdrant_collection_panel" class="aipkit_ai_training_section_wrapper aipkit_file_management_panel aipkit_openai_vs_content_section" style="display:none;">
-                <div class="aipkit_ai_training_section_header">
-                    <h5 id="aipkit_manage_qdrant_collection_panel_title"><?php esc_html_e('Manage Collection', 'gpt3-ai-content-generator'); ?></h5>
-                    <div class="aipkit_panel_header_actions">
-                        <button type="button" id="aipkit_toggle_qdrant_collection_metadata_btn" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn" title="<?php esc_attr_e('View Collection Info', 'gpt3-ai-content-generator'); ?>">
-                            <span class="dashicons dashicons-info-outline"></span>
-                        </button>
-                        <button type="button" id="aipkit_panel_search_this_qdrant_collection_btn" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn" title="<?php esc_attr_e('Search This Collection', 'gpt3-ai-content-generator'); ?>">
-                            <span class="dashicons dashicons-search"></span>
-                        </button>
-                        <button type="button" id="aipkit_delete_selected_qdrant_collection_btn" class="aipkit_btn aipkit_btn-danger aipkit_icon_btn" title="<?php esc_attr_e('Delete This Collection', 'gpt3-ai-content-generator'); ?>">
-                            <span class="dashicons dashicons-trash"></span>
-                        </button>
-                    </div>
-                </div>
+            <div id="aipkit_manage_selected_qdrant_collection_panel" class="aipkit_file_management_panel" style="display:none;">
                 <div class="aipkit_panel_body">
-                    <div id="aipkit_qdrant_collection_metadata_display" class="aipkit_store_metadata_display" style="display:none;">
-                        {-- Metadata populated by JS --}
-                    </div>
                     <div id="aipkit_qdrant_collection_content_area">
                         <?php // Future: Points list, sample points, etc. Currently, only logs are displayed.?>
                     </div>
-                    <div id="aipkit_qdrant_collection_logs_container" style="margin-top: 15px;">
+                    <div id="aipkit_qdrant_collection_logs_container">
                         <h6 style="margin-bottom: 8px;"><?php esc_html_e('Recent Indexing Activity:', 'gpt3-ai-content-generator'); ?></h6>
-                         <p class="aipkit_text-center" style="padding: 10px;"><em><?php esc_html_e('Loading logs...', 'gpt3-ai-content-generator'); ?></em></p>
+                         <p class="aipkit_text-center" style="padding: 10px;"><em><?php esc_html_e('Loading records...', 'gpt3-ai-content-generator'); ?></em></p>
                     </div>
+                    <div id="aipkit_qdrant_logs_pagination" class="aipkit_logs_pagination_container"></div>
                     <div id="aipkit_manage_qdrant_collection_panel_status" class="aipkit_form-help"></div>
                 </div>
             </div>

@@ -1,5 +1,4 @@
 <?php
-
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-stores/ajax-create-vector-store-openai.php
 // Status: MODIFIED (Logic moved here)
 
@@ -60,12 +59,5 @@ function do_ajax_create_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Aj
     }
 
     $vector_store_registry->add_registered_store('OpenAI', $store_result);
-    \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_stores_log_vector_store_event_logic($wpdb, $data_source_table_name, [
-        'vector_store_id' => $store_result['id'] ?? 'N/A',
-        'vector_store_name' => $store_result['name'] ?? $store_name,
-        'status' => 'success',
-        'message' => 'Vector store created/verified.',
-        'source_type_for_log' => 'action_create_store'
-    ]);
     wp_send_json_success(['store' => $store_result, 'message' => __('Vector Store created/verified successfully.', 'gpt3-ai-content-generator')]);
 }

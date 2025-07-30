@@ -1,4 +1,5 @@
 <?php
+
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/qdrant/handler-collections/ajax-list-collections.php
 // Status: NEW
 
@@ -39,12 +40,26 @@ function _aipkit_qdrant_ajax_list_collections_logic(AIPKit_Vector_Store_Qdrant_A
         return;
     }
 
+    // --- FIX: Fetch full details for each collection ---
+    $detailed_collections = [];
     if (is_array($response)) {
-        // Qdrant list_all_indexes now returns array of objects [{name, id}, ...]
-        // No further processing of $response['collections'] needed, $response itself is the array
-        wp_cache_delete('aipkit_qdrant_collection_list', 'options');
-        update_option('aipkit_qdrant_collection_list', $response, 'no');
-        $vector_store_registry->update_registered_stores_for_provider('Qdrant', $response);
+        foreach ($response as $collection_summary) {
+            $collection_name = $collection_summary['name'] ?? null;
+            if ($collection_name) {
+                $details = $vector_store_manager->describe_single_index('Qdrant', $collection_name, $qdrant_config);
+                if (!is_wp_error($details)) {
+                    $detailed_collections[] = $details;
+                }
+            }
+        }
     }
-    wp_send_json_success(['collections' => $response, 'message' => __('Qdrant collections synced successfully.', 'gpt3-ai-content-generator')]);
+    // --- END FIX ---
+
+    if (!empty($detailed_collections)) {
+        wp_cache_delete('aipkit_qdrant_collection_list', 'options');
+        update_option('aipkit_qdrant_collection_list', $detailed_collections, 'no');
+        $vector_store_registry->update_registered_stores_for_provider('Qdrant', $detailed_collections);
+    }
+    
+    wp_send_json_success(['collections' => $detailed_collections, 'message' => __('Qdrant collections synced successfully.', 'gpt3-ai-content-generator')]);
 }

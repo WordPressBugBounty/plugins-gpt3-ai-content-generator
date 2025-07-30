@@ -99,6 +99,10 @@ class WP_AI_Content_Generator
 
         if (version_compare((string)$saved_version, $current_version, '<') || $tables_are_missing) { // MODIFIED to include table check
 
+            // --- ADDED: Clear caches first to ensure users get new assets ---
+            $this->clear_external_caches();
+            // --- END ADDED ---
+
             // Run DB table setup on version change to apply any schema updates.
             WP_AI_Content_Generator_Activator::setup_tables_for_blog();
 
@@ -165,6 +169,82 @@ class WP_AI_Content_Generator
             }
         }
         return false;
+    }
+
+    /**
+     * NEW: Clears caches from popular caching plugins.
+     * This helps prevent issues with outdated assets after a plugin update.
+     */
+    private function clear_external_caches()
+    {
+        if (false === apply_filters('aipkit_auto_clear_caches_on_update', true)) {
+            return;
+        }
+
+        // WP Rocket
+        if (function_exists('rocket_clean_domain')) {
+            rocket_clean_domain();
+        }
+
+        // W3 Total Cache
+        // if (function_exists('w3tc_flush_all')) {
+        //     w3tc_flush_all();
+        //     error_log('AIPKIT DEBUG: W3 Total Cache cleared.');
+        // }
+
+        // WP Super Cache
+        // if (function_exists('wp_cache_clear_cache')) {
+        //     wp_cache_clear_cache();
+        //     error_log('AIPKIT DEBUG: WP Super Cache cleared.');
+        // }
+
+        // LiteSpeed Cache
+        // if (class_exists('LiteSpeed_Cache_API') && method_exists('LiteSpeed_Cache_API', 'purge_all')) {
+        //     \LiteSpeed_Cache_API::purge_all();
+        //     error_log('AIPKIT DEBUG: LiteSpeed Cache cleared via API.');
+        // } elseif (has_action('litespeed_purge_all')) {
+        //     do_action('litespeed_purge_all');
+        //     error_log('AIPKIT DEBUG: LiteSpeed Cache cleared via action.');
+        // }
+
+        // WP Fastest Cache
+        // if (function_exists('wpfc_clear_all_cache')) {
+        //     wpfc_clear_all_cache(true); // true for silent mode
+        //     error_log('AIPKIT DEBUG: WP Fastest Cache cleared.');
+        // }
+
+        // SG Optimizer (SiteGround)
+        // if (function_exists('sg_cachepress_purge_cache')) {
+        //     sg_cachepress_purge_cache();
+        //     error_log('AIPKIT DEBUG: SG Optimizer cache cleared.');
+        // }
+
+        // Hummingbird
+        // if (class_exists('\Hummingbird\Core\Modules\Caching\Page') && method_exists('\Hummingbird\Core\Modules\Caching\Page', 'clear_cache')) {
+        //     \Hummingbird\Core\Modules\Caching\Page::clear_cache();
+        //     error_log('AIPKIT DEBUG: Hummingbird cache cleared.');
+        // }
+
+        // Autoptimize
+        // if (class_exists('autoptimizeCache') && method_exists('autoptimizeCache', 'clearall')) {
+        //     \autoptimizeCache::clearall();
+        //     error_log('AIPKIT DEBUG: Autoptimize cache cleared.');
+        // }
+
+        // WP Engine
+        // if (class_exists('WpeCommon')) {
+        //     if (method_exists('WpeCommon', 'purge_memcached')) {
+        //         \WpeCommon::purge_memcached();
+        //         error_log('AIPKIT DEBUG: WP Engine memcached purged.');
+        //     }
+        //     if (method_exists('WpeCommon', 'purge_varnish_cache')) {
+        //         \WpeCommon::purge_varnish_cache();
+        //         error_log('AIPKIT DEBUG: WP Engine Varnish cache purged.');
+        //     }
+        // }
+
+        // Clear WordPress's core object cache
+        wp_cache_flush();
     }
 
 

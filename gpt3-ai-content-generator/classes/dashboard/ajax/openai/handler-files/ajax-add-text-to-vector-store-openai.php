@@ -117,8 +117,8 @@ function do_ajax_add_text_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stor
     \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_files_log_vector_data_source_entry($wpdb, $data_source_table_name, [
         'vector_store_id' => $actual_store_id,
         'vector_store_name' => $final_store_name,
-        'status' => 'text_added_to_batch',
-        'message' => 'Text content uploaded and added to batch from global form.',
+        'status' => 'indexed',
+        'message' => 'Text content submitted for indexing.',
         'indexed_content' => $text_content,
         'file_id' => $file_id_to_add,
         'batch_id' => $batch_result['id'] ?? null,

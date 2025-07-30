@@ -1,13 +1,8 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php
-// Status: NEW FILE
 
 /**
  * Partial: AI Training - OpenAI Vector Store MANAGEMENT UI (Revised)
- * REVISED: Single-pane layout. Content (placeholder, files, search) dynamically shown based on global dropdown.
- * REVISED: Removed the "+" button and its associated file upload tool from the file management panel.
- * UPDATED: Added "Info" button to toggle metadata display.
- * UPDATED: Added "User" and "Post" columns to the files table.
  */
 
 if (!defined('ABSPATH')) {
@@ -33,43 +28,29 @@ if (!defined('ABSPATH')) {
              <div class="aipkit_ai_training_section_header">
                 <h5><?php esc_html_e('Store Details', 'gpt3-ai-content-generator'); ?></h5>
             </div>
-            <p class="aipkit_text-center" style="padding: 20px;"><?php esc_html_e('Select a vector store from the "Store" dropdown in the "Add Content" form above to view its details and manage files, or select "Create New" to make a new one.', 'gpt3-ai-content-generator'); ?></p>
+            <p class="aipkit_text-center" style="padding: 20px;"><?php esc_html_e('Select a vector store from the "Target Store" dropdown in the "Add Content" form above to view its details and manage files, or select "Create New" to make a new one.', 'gpt3-ai-content-generator'); ?></p>
         </div>
 
         <!-- File Management Panel (Initially Hidden) -->
-        <div id="aipkit_manage_files_panel_openai" class="aipkit_ai_training_section_wrapper aipkit_file_management_panel aipkit_openai_vs_content_section" style="display:none;">
-            <div class="aipkit_ai_training_section_header">
-                <h5 id="aipkit_manage_files_panel_title_openai"><?php esc_html_e('Store Files', 'gpt3-ai-content-generator'); ?></h5>
-                <div class="aipkit_panel_header_actions">
-                    <button type="button" id="aipkit_toggle_store_metadata_btn_openai" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn" title="<?php esc_attr_e('View Store Metadata', 'gpt3-ai-content-generator'); ?>">
-                        <span class="dashicons dashicons-info-outline"></span> <?php // Changed icon ?>
-                    </button>
-                    <button type="button" id="aipkit_panel_search_this_store_btn_openai" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn" title="<?php esc_attr_e('Search This Store', 'gpt3-ai-content-generator'); ?>">
-                        <span class="dashicons dashicons-search"></span>
-                    </button>
-                    <button type="button" id="aipkit_delete_selected_store_btn_openai" class="aipkit_btn aipkit_btn-danger aipkit_icon_btn" title="<?php esc_attr_e('Delete This Vector Store', 'gpt3-ai-content-generator'); ?>">
-                        <span class="dashicons dashicons-trash"></span>
-                    </button>
-                </div>
-            </div>
+        <div id="aipkit_manage_files_panel_openai" class="aipkit_file_management_panel" style="display:none;">
             <div class="aipkit_panel_body">
-                <div id="aipkit_vector_store_metadata_display_openai" class="aipkit_store_metadata_display" style="display:none;"></div>
-                <div id="aipkit_manage_files_list_wrapper_openai" class="aipkit_data-table">
-                    <table id="aipkit_vector_store_files_table_openai">
+                <div id="aipkit_manage_files_list_wrapper_openai" class="aipkit_data-table aipkit_index_logs_table">
+                    <table>
                         <thead><tr>
+                            <th><?php esc_html_e('Time', 'gpt3-ai-content-generator'); ?></th>
                             <th><?php esc_html_e('File ID', 'gpt3-ai-content-generator'); ?></th>
-                            <th><?php esc_html_e('User', 'gpt3-ai-content-generator'); ?></th>
-                            <th><?php esc_html_e('Source Post', 'gpt3-ai-content-generator'); ?></th>
                             <th><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></th>
-                            <th class="aipkit_text-right"><?php esc_html_e('Bytes', 'gpt3-ai-content-generator'); ?></th>
-                            <th><?php esc_html_e('Created', 'gpt3-ai-content-generator'); ?></th>
-                            <th class="aipkit_text-right"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></th>
+                            <th><?php esc_html_e('Type', 'gpt3-ai-content-generator'); ?></th>
+                            <th><?php esc_html_e('Message', 'gpt3-ai-content-generator'); ?></th>
+                            <th><?php esc_html_e('Source', 'gpt3-ai-content-generator'); ?></th>
+                            <th style="text-align: right;"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></th>
                         </tr></thead>
                         <tbody id="aipkit_vector_store_files_table_body_openai">
-                            <!-- File rows populated by JS -->
+                            <!-- Log rows populated by JS -->
                         </tbody>
                     </table>
                 </div>
+                <div id="aipkit_openai_logs_pagination" class="aipkit_logs_pagination_container"></div>
                 <div id="aipkit_manage_files_panel_status_openai" class="aipkit_form-help"></div>
             </div>
         </div>

@@ -20,5 +20,30 @@ if (!defined('ABSPATH')) {
  */
 function describe_index_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $index_name): array|WP_Error {
     $path = '/indexes/' . urlencode($index_name);
-    return _request_logic($strategyInstance, 'GET', $path);
+    $description = _request_logic($strategyInstance, 'GET', $path);
+    if (is_wp_error($description)) {
+        return $description;
+    }
+
+    // Now get stats from the data plane
+    $host = $description['host'] ?? null;
+    if (empty($host)) {
+        // This is not a fatal error, just means we can't get stats. Return what we have.
+        $description['total_vector_count'] = 'No Host';
+        return $description;
+    }
+
+    // The stats endpoint is /describe_index_stats
+    $stats_response = _request_logic($strategyInstance, 'POST', '/describe_index_stats', [], 'https://' . $host);
+    if (is_wp_error($stats_response)) {
+        $description['total_vector_count'] = 'Error';
+    } else {
+        // Merge stats into the description object
+        $description['total_vector_count'] = $stats_response['totalVectorCount'] ?? $stats_response['total_vector_count'] ?? 0;
+        if (isset($stats_response['namespaces'])) {
+            $description['namespaces'] = $stats_response['namespaces'];
+        }
+    }
+
+    return $description;
 }

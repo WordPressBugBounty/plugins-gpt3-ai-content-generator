@@ -55,7 +55,7 @@ if (is_array($stats_data)) {
 ?>
 <div class="aipkit_settings_column aipkit_settings_column-right aipkit_sub_container">
     <div class="aipkit_sub_container_header">
-        <div class="aipkit_sub_container_title"><?php echo esc_html__('AI Usage Overview', 'gpt3-ai-content-generator'); // Changed Title ?></div>
+        <div class="aipkit_sub_container_title"><?php echo esc_html__('Usage Overview', 'gpt3-ai-content-generator'); // Changed Title ?></div>
     </div>
     <div class="aipkit_sub_container_body">
         <?php if ($stats_error_message): ?>

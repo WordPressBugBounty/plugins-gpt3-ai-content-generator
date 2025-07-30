@@ -33,7 +33,6 @@ function do_ajax_upsert_to_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler
         $handler_instance->send_wp_error($pinecone_config);
         return;
     }
-
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
     $post_data = wp_unslash($_POST);
     $index_name = isset($post_data['index_name']) ? sanitize_text_field($post_data['index_name']) : '';
@@ -76,6 +75,7 @@ function do_ajax_upsert_to_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler
         }
     }
 
+
     if (is_wp_error($result)) {
         $handler_instance->_log_vector_data_source_entry([
             'vector_store_id' => $index_name, 'vector_store_name' => $index_name,
@@ -91,7 +91,7 @@ function do_ajax_upsert_to_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler
         $handler_instance->_log_vector_data_source_entry([
             'vector_store_id' => $index_name, 'vector_store_name' => $index_name,
             'post_id' => $wp_post_id_for_log, 'post_title' => $wp_post_title_for_log,
-            'status' => 'success', 'message' => 'Vectors upserted. Count: ' . ($result['upserted_count'] ?? count($vectors)),
+            'status' => 'indexed', 'message' => 'Vectors upserted. Count: ' . ($result['upserted_count'] ?? count($vectors)),
             'embedding_provider' => $embedding_provider, 'embedding_model' => $embedding_model,
             'indexed_content' => $content_for_log,
             'file_id' => $pinecone_vector_id,

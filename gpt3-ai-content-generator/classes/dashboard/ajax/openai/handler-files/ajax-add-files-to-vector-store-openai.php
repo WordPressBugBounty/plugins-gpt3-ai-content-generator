@@ -73,8 +73,8 @@ function do_ajax_add_files_to_vector_store_openai_logic(AIPKit_OpenAI_Vector_Sto
     \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_files_log_vector_data_source_entry($wpdb, $data_source_table_name, [
         'vector_store_id' => $store_id,
         'vector_store_name' => $store_name_for_log,
-        'status' => 'files_added_to_batch',
-        'message' => 'Files added to batch. ID: ' . ($batch_result['id'] ?? 'N/A'),
+        'status' => 'indexed',
+        'message' => 'Files submitted to store for indexing. Batch ID: ' . ($batch_result['id'] ?? 'N/A'),
         'file_id' => implode(', ', $file_ids_array),
         'batch_id' => $batch_result['id'] ?? null,
         'source_type_for_log' => 'file_batch_addition'

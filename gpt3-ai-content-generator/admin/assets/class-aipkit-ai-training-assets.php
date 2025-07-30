@@ -7,6 +7,7 @@ namespace WPAICG\Admin\Assets;
 
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\AIPKit_Providers;
+use WPAICG\aipkit_dashboard; // Added for is_pro_plan check
 
 if (! defined('ABSPATH')) {
     exit;
@@ -123,7 +124,7 @@ class AITrainingAssets
                 'initialStores' => $initial_openai_stores,
                 'apiKeyIsSet' => !empty(AIPKit_Providers::get_provider_data('OpenAI')['api_key']),
                 'openaiEmbeddingModels' => $openai_embedding_models,
-                'googleEmbeddingModels' => $google_embedding_models
+                'googleEmbeddingModels' => $google_embedding_models,
             ]);
         }
 
@@ -132,8 +133,8 @@ class AITrainingAssets
 
         if (!$already_localized_pinecone) {
             $initial_pinecone_indexes = [];
-            if (class_exists(AIPKit_Providers::class)) {
-                $initial_pinecone_indexes = AIPKit_Providers::get_pinecone_indexes();
+            if (class_exists(AIPKit_Vector_Store_Registry::class)) {
+                $initial_pinecone_indexes = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Pinecone');
             }
             wp_localize_script($admin_main_js_handle, 'aipkit_pinecone_vs_config', [
                 'initialIndexes' => $initial_pinecone_indexes,
@@ -147,9 +148,9 @@ class AITrainingAssets
         if (!$already_localized_qdrant) {
             $initial_qdrant_collections = [];
             $qdrant_config_data = ['urlIsSet' => false, 'apiKeyIsSet' => false];
-            if (class_exists(AIPKit_Providers::class)) {
-                $initial_qdrant_collections = AIPKit_Providers::get_qdrant_collections();
-                $qdrant_provider_settings = AIPKit_Providers::get_provider_data('Qdrant');
+            if (class_exists(AIPKit_Vector_Store_Registry::class) && class_exists(AIPKit_Providers::class)) {
+                $initial_qdrant_collections = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Qdrant');
+                $qdrant_provider_settings   = AIPKit_Providers::get_provider_data('Qdrant');
                 $qdrant_config_data = [
                     'urlIsSet' => !empty($qdrant_provider_settings['url']),
                     'apiKeyIsSet' => !empty($qdrant_provider_settings['api_key']),
@@ -161,5 +162,16 @@ class AITrainingAssets
                 'apiKeyIsSet'        => $qdrant_config_data['apiKeyIsSet'],
             ]);
         }
+        
+        // --- NEW: Dedicated localization for settings tab ---
+        $script_data_settings = wp_scripts()->get_data($admin_main_js_handle, 'data');
+        $already_localized_settings = is_string($script_data_settings) && strpos($script_data_settings, 'var aipkit_ai_training_settings_config =') !== false;
+        if (!$already_localized_settings) {
+            wp_localize_script($admin_main_js_handle, 'aipkit_ai_training_settings_config', [
+                'settings_nonce' => wp_create_nonce('aipkit_ai_training_settings_nonce'),
+                'isPro' => aipkit_dashboard::is_pro_plan() // Pass pro status
+            ]);
+        }
+        // --- END NEW ---
     }
 }

@@ -12,6 +12,7 @@ class Dashboard_Base_Classes_Loader {
         require_once $dashboard_path . 'class-aipkit_providers.php';
         require_once $dashboard_path . 'class-aipkit_ai_settings.php';
         require_once $dashboard_path . 'class-aipkit_dashboard.php';
+        require_once $dashboard_path . 'class-aipkit_role_manager.php';
         require_once WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_stats.php';
     }
 }

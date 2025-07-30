@@ -19,6 +19,7 @@ return [
     /* translators: %s is the name of the module that failed to load */
     'errorLoadingModuleMsg'     => __('An error occurred while loading the \'%s\' module. Please try again later or check the browser console for details.', 'gpt3-ai-content-generator'),
     'errorDetails'              => __('Details:', 'gpt3-ai-content-generator'),
+    'noKnowledgeBasesFound' => __('No knowledge bases found. Click "Add Content" to create one.', 'gpt3-ai-content-generator'),
     // Chat Preview Placeholders
     'previewPlaceholderSelect'  => __('Select a bot to see the preview.', 'gpt3-ai-content-generator'),
     'previewPlaceholderCreate'  => __('Configure the new bot and save it to see the preview.', 'gpt3-ai-content-generator'),

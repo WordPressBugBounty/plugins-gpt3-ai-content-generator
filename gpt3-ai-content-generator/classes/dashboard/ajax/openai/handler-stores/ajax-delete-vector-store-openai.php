@@ -1,5 +1,4 @@
 <?php
-
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-stores/ajax-delete-vector-store-openai.php
 // Status: MODIFIED
 
@@ -51,23 +50,11 @@ function do_ajax_delete_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Aj
 
     $delete_result = $vector_store_manager->delete_index('OpenAI', $store_id, $openai_config);
     if (is_wp_error($delete_result)) {
-        \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_stores_log_vector_store_event_logic($wpdb, $data_source_table_name, [
-            'vector_store_id' => $store_id,
-            'status' => 'failed',
-            'message' => 'Store deletion failed: ' . $delete_result->get_error_message(),
-            'source_type_for_log' => 'action_delete_store'
-        ]);
         $handler_instance->send_wp_error($delete_result);
         return;
     }
 
     $vector_store_registry->remove_registered_store('OpenAI', $store_id);
-    \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_stores_log_vector_store_event_logic($wpdb, $data_source_table_name, [
-        'vector_store_id' => $store_id,
-        'status' => 'success',
-        'message' => 'Vector store deleted.',
-        'source_type_for_log' => 'action_delete_store'
-    ]);
 
     // Invalidate the cache for this store's logs before deleting
     $cache_key = 'openai_logs_' . sanitize_key($store_id);

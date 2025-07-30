@@ -75,12 +75,6 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
         $index_config = ['metadata' => ['source_type' => 'wp_content_ai_training']];
         $create_result = $vector_store_manager->create_index_if_not_exists('OpenAI', $new_store_name, $index_config, $openai_config);
         if (is_wp_error($create_result)) {
-            $handler_instance->log_vector_data_source_entry_wrapper([
-                'provider' => 'OpenAI', 'vector_store_name' => $new_store_name,
-                'status' => 'failed', 'message' => 'Store creation failed (WP Content): ' . $create_result->get_error_message(),
-                'embedding_provider' => null, 'embedding_model' => null,
-                'source_type_for_log' => 'action_create_store'
-            ]);
             wp_send_json_error(['message' => 'Failed to create new vector store: ' . $create_result->get_error_message()], 500);
             return;
         }
@@ -91,12 +85,6 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
             if ($vector_store_registry) {
                 $vector_store_registry->add_registered_store('OpenAI', $create_result);
             }
-            $handler_instance->log_vector_data_source_entry_wrapper([
-                'provider' => 'OpenAI', 'vector_store_id' => $actual_store_id, 'vector_store_name' => $actual_store_name,
-                'status' => 'success', 'message' => 'AI Training: New vector store created.',
-                'embedding_provider' => null, 'embedding_model' => null,
-                'source_type_for_log' => 'action_create_store'
-            ]);
         } else {
             wp_send_json_error(['message' => 'Failed to create or identify vector store ID after creation attempt.'], 500);
             return;
@@ -118,7 +106,7 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
 
     foreach ($post_ids as $post_id) {
         // --- FIXED: Changed 4th argument from $openai_config (array) to true (bool) ---
-        $result = $openai_post_processor->index_single_post_to_store($post_id, $actual_store_id, $actual_store_name, true);
+        $result = $openai_post_processor->index_single_post_to_store($post_id, $actual_store_id, $actual_store_name);
         // --- END FIX ---
         if ($result['status'] === 'success') {
             $successful_posts[] = $post_id;

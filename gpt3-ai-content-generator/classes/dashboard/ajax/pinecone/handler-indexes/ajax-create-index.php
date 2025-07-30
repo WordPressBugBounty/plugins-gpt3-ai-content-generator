@@ -68,29 +68,14 @@ function do_ajax_create_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
 
     $create_result = $vector_store_manager->create_index_if_not_exists('Pinecone', $index_name, $index_create_config, $pinecone_config);
     if (is_wp_error($create_result)) {
-        $handler_instance->_log_vector_data_source_entry([
-            'vector_store_id' => $index_name, 'vector_store_name' => $index_name,
-            'status' => 'failed', 'message' => 'Pinecone index creation failed: ' . $create_result->get_error_message(),
-            'source_type_for_log' => 'action_create_index'
-        ]);
         $handler_instance->send_wp_error($create_result);
         return;
     }
 
     if (is_array($create_result) && isset($create_result['name'])) {
         $vector_store_registry->add_registered_store('Pinecone', $create_result);
-        $handler_instance->_log_vector_data_source_entry([
-            'vector_store_id' => $create_result['name'], 'vector_store_name' => $create_result['name'],
-            'status' => 'success', 'message' => 'Pinecone index created/verified: ' . $create_result['name'],
-            'source_type_for_log' => 'action_create_index'
-        ]);
         wp_send_json_success(['index' => $create_result, 'message' => __('Pinecone index created/verified successfully.', 'gpt3-ai-content-generator')]);
     } else {
-        $handler_instance->_log_vector_data_source_entry([
-            'vector_store_id' => $index_name, 'vector_store_name' => $index_name,
-            'status' => 'failed', 'message' => 'Pinecone index creation response was malformed.',
-            'source_type_for_log' => 'action_create_index'
-        ]);
         $handler_instance->send_wp_error(new WP_Error('pinecone_create_malformed_response', __('Malformed response after Pinecone index creation.', 'gpt3-ai-content-generator')));
     }
 }

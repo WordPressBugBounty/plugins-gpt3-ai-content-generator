@@ -104,7 +104,7 @@ function _aipkit_qdrant_ajax_upsert_to_collection_logic(AIPKit_Vector_Store_Qdra
         $handler_instance->_log_vector_data_source_entry([
             'vector_store_id' => $collection_name, 'vector_store_name' => $collection_name,
             'post_id' => $wp_post_id_for_log, 'post_title' => $wp_post_title_for_log,
-            'status' => 'success', 'message' => 'Points upserted to Qdrant. Status: ' . ($result['status'] ?? 'unknown'),
+            'status' => 'indexed', 'message' => 'Points upserted to Qdrant. Status: ' . ($result['status'] ?? 'unknown'),
             'embedding_provider' => $embedding_provider, 'embedding_model' => $embedding_model,
             'indexed_content' => $content_for_log,
             'file_id' => $qdrant_point_id,

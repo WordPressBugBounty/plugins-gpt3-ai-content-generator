@@ -257,8 +257,12 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                             $changes_made[] = 'content';
                             break;
                         case 'tags':
-                            wp_set_post_tags($post->ID, sanitize_text_field($new_value), false);
-                            $changes_made[] = 'tags';
+                            if (class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+                                $result = \WPAICG\SEO\AIPKit_SEO_Helper::update_tags($post->ID, sanitize_text_field($new_value));
+                                if ($result) {
+                                    $changes_made[] = 'tags';
+                                }
+                            }
                             break;
                         case 'meta':
                             AIPKit_SEO_Helper::update_meta_description($post->ID, sanitize_text_field($new_value));

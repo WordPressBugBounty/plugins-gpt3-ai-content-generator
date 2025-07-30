@@ -130,30 +130,66 @@ class AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler extends BaseDashboardAjaxHan
 
     public function ajax_add_files_to_vector_store_openai()
     {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_nonce_openai');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-files/ajax-add-files-to-vector-store-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles\do_ajax_add_files_to_vector_store_openai_logic($this);
     }
 
     public function ajax_list_files_in_vector_store_openai()
     {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_nonce_openai');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-files/ajax-list-files-in-vector-store-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles\do_ajax_list_files_in_vector_store_openai_logic($this);
     }
 
+    public function ajax_get_openai_indexing_logs()
+    {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_nonce_openai');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+        require_once __DIR__ . '/handler-files/ajax-get-indexing-logs.php';
+        \WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles\do_ajax_get_indexing_logs_logic($this);
+    }
+
     public function ajax_delete_file_from_vector_store_openai()
     {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_nonce_openai');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-files/ajax-delete-file-from-vector-store-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles\do_ajax_delete_file_from_vector_store_openai_logic($this);
     }
 
     public function ajax_add_text_to_vector_store_openai()
     {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_nonce_openai');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-files/ajax-add-text-to-vector-store-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles\do_ajax_add_text_to_vector_store_openai_logic($this);
     }
 
     public function ajax_upload_and_add_file_to_store_direct_openai()
     {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_nonce_openai');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles\do_ajax_upload_and_add_file_to_store_direct_openai_logic($this);
     }

@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php
-// Status: MODIFIED (Logic moved here)
+// Status: MODIFIED
 
 namespace WPAICG\Dashboard\Ajax\OpenAI\HandlerFiles;
 
@@ -24,7 +24,8 @@ if (!defined('ABSPATH')) {
  * @param AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance
  * @return void
  */
-function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void {
+function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $handler_instance): void
+{
     // Permission check already done by the handler calling this
 
     $vector_store_manager = $handler_instance->get_vector_store_manager();
@@ -102,7 +103,21 @@ function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_
         return;
     }
     $file_id_to_add = $upload_result['id'];
-    $file_content_for_log = file_get_contents($file['tmp_name']); // Read before it might be moved/deleted
+
+    // --- FIX START: Conditionally read file content for logging ---
+    $file_content_for_log = '';
+    $file_type = wp_check_filetype($file['name']);
+    $file_extension = $file_type['ext'] ?? '';
+
+    if (in_array($file_extension, ['txt', 'md', 'json', 'html', 'css', 'js', 'php', 'py', 'c', 'cpp', 'java', 'cs', 'go', 'rb', 'sh', 'tex', 'ts', 'xml', 'log', 'csv', 'rtf'], true)) {
+        // Only read content for known plain text formats
+        $file_content_for_log = file_get_contents($file['tmp_name']);
+    } else {
+        // For binary files like PDF, DOCX, etc., store a placeholder instead of raw content.
+        /* translators: 1: The file type (e.g., application/pdf), 2: The filename. */
+        $file_content_for_log = sprintf(__('Binary file content (%1$s) not stored in local. Filename: %2$s', 'gpt3-ai-content-generator'), esc_html($file['type']), esc_html($file['name']));
+    }
+    // --- FIX END ---
 
     $batch_result = $vector_store_manager->upsert_vectors('OpenAI', $actual_store_id, ['file_ids' => [$file_id_to_add]], $openai_config);
     if (is_wp_error($batch_result)) {
@@ -113,8 +128,8 @@ function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_
     \WPAICG\Dashboard\Ajax\OpenAI\_aipkit_openai_vs_files_log_vector_data_source_entry($wpdb, $data_source_table_name, [
         'vector_store_id' => $actual_store_id,
         'vector_store_name' => $final_store_name,
-        'status' => 'file_added_to_batch',
-        'message' => 'File uploaded and added to batch from global form. Original Filename: ' . sanitize_file_name($file['name']),
+        'status' => 'indexed',
+        'message' => 'File content submitted for indexing. Original Filename: ' . sanitize_file_name($file['name']),
         'indexed_content' => $file_content_for_log ?: 'Content not available for logging',
         'post_title' => sanitize_file_name($file['name']),
         'file_id' => $file_id_to_add,

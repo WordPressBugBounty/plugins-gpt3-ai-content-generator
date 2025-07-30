@@ -76,7 +76,7 @@ if (!function_exists('\WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_
 // --- END ADDED ---
 
 // --- ADDED: Load SEO Helper for slug generation ---
-if (!class_exists('\WPAICG\SEO\AIPKit_SEO_Helper')) {
+if (!class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
     $seo_helper_path = WPAICG_PLUGIN_DIR . 'classes/seo/seo-helper.php';
     if (file_exists($seo_helper_path)) {
         require_once $seo_helper_path;
@@ -263,11 +263,12 @@ function process_content_writing_item_logic(array $item_config): array
     }
     // --- END ADDED ---
 
-    // --- ADDED: Save Tags ---
-    if (!empty($tags) && function_exists('\WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_logic')) {
-        \WPAICG\ContentWriter\Ajax\Actions\SavePost\set_post_tags_logic($new_post_id, $tags);
+    // --- MODIFIED: Save Tags using the new helper ---
+    if (!empty($tags) && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+        \WPAICG\SEO\AIPKit_SEO_Helper::update_tags($new_post_id, $tags);
     }
-    // --- END ADDED ---
+    // --- END MODIFICATION ---
+
 
     // --- NEW: Update Slug based on checkbox ---
     if (isset($item_config['generate_seo_slug']) && $item_config['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {

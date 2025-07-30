@@ -31,5 +31,5 @@ function process_openai_indexing_logic(array $item, array $item_config): array
         return ['status' => 'error', 'message' => "Target Store ID is missing for OpenAI indexing task."];
     }
 
-    return $processor->index_single_post_to_store($post_id_to_index, $target_store_id, null, true);
+    return $processor->index_single_post_to_store($post_id_to_index, $target_store_id, null);
 }
