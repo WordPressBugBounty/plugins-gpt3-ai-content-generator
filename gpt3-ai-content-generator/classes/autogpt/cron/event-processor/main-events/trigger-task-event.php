@@ -42,6 +42,9 @@ function trigger_task_event_logic(int $task_id): void
 
     $task_config = json_decode($task['task_config'], true) ?: [];
     $task_type = $task['task_type'];
+    $frequency = $task_type === 'content_indexing'
+        ? ($task_config['indexing_frequency'] ?? 'daily')
+        : ($task_config['task_frequency'] ?? 'daily');
 
     if (str_starts_with($task_type, 'content_writing')) {
         Trigger\trigger_content_writing_task_logic($task_id, $task_config);
@@ -59,6 +62,11 @@ function trigger_task_event_logic(int $task_id): void
         // Schedule a one-off event to start processing the queue almost immediately,
         // instead of calling it directly and risking a timeout before the parent cron can update its run times.
         wp_schedule_single_event(time() + 10, AIPKit_Automated_Task_Event_Processor::MAIN_CRON_HOOK);
+        
+        // For one-time tasks, also ensure the main hourly cron stays scheduled while there are pending items
+        if ($frequency === 'one-time' && !wp_next_scheduled(AIPKit_Automated_Task_Event_Processor::MAIN_CRON_HOOK)) {
+            wp_schedule_event(time(), 'hourly', AIPKit_Automated_Task_Event_Processor::MAIN_CRON_HOOK);
+        }
     } else {
         Helpers\log_cron_error_logic("Could not schedule queue processor for task ID {$task_id}: AIPKit_Automated_Task_Event_Processor class not found.");
     }
@@ -68,15 +76,24 @@ function trigger_task_event_logic(int $task_id): void
     $args = [$task_id];
     $next_timestamp = wp_next_scheduled($hook, $args);
     $next_run_datetime_gmt = $next_timestamp ? gmdate('Y-m-d H:i:s', $next_timestamp) : null;
+
+    $update_data = [
+        'last_run_time' => current_time('mysql', 1),
+        'next_run_time' => $next_run_datetime_gmt,
+    ];
+    $update_formats = ['%s', '%s'];
+
+    if ($frequency === 'one-time') {
+        $update_data['status'] = 'paused';
+        $update_formats[] = '%s';
+    }
+
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
     $wpdb->update(
         $tasks_table_name,
-        [
-            'last_run_time' => current_time('mysql', 1),
-            'next_run_time' => $next_run_datetime_gmt,
-        ],
+        $update_data,
         ['id' => $task_id],
-        ['%s', '%s'],
+        $update_formats,
         ['%d']
     );
 }

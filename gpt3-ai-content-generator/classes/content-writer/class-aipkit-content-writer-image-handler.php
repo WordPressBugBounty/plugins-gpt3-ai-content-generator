@@ -140,6 +140,8 @@ class AIPKit_Content_Writer_Image_Handler
                         $final_image_data['in_content_images'][] = $result['images'][0];
                     } else {
                         $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No images returned from API.';
+                        // Log the error for debugging bulk mode issues
+                        error_log("AIPKit Image Generation Error (Image #" . ($i + 1) . "): " . $error_msg . " | Model: " . $image_model . " | Provider: " . ($generation_options['provider'] ?? 'unknown'));
                     }
                 }
             } else { // Models that support n > 1
@@ -154,6 +156,8 @@ class AIPKit_Content_Writer_Image_Handler
                     $final_image_data['in_content_images'] = array_merge($final_image_data['in_content_images'], $result['images']);
                 } else {
                     $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No images returned from API.';
+                    // Log the error for debugging bulk mode issues
+                    error_log("AIPKit Image Generation Error (Batch): " . $error_msg . " | Model: " . $image_model . " | Provider: " . ($generation_options['provider'] ?? 'unknown') . " | Count: " . $image_count);
                 }
             }
         }
@@ -195,6 +199,8 @@ class AIPKit_Content_Writer_Image_Handler
                 $final_image_data['featured_image_id'] = $result['images'][0]['attachment_id'];
             } else {
                 $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No featured image attachment ID returned.';
+                // Log the error for debugging
+                error_log("AIPKit Featured Image Generation Error: " . $error_msg . " | Model: " . ($generation_options['model'] ?? 'unknown') . " | Provider: " . ($generation_options['provider'] ?? 'unknown'));
             }
         }
 

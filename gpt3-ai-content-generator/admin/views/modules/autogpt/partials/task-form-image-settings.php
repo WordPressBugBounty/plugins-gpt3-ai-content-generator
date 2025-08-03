@@ -35,6 +35,7 @@ $stock_images_addon_active = aipkit_dashboard::is_addon_active('stock_images');
                 <select id="aipkit_task_cw_image_provider" name="image_provider" class="aipkit_form-input">
                     <option value="openai" selected>OpenAI</option>
                     <option value="google">Google</option>
+                    <option value="azure">Azure</option>
                     <option value="replicate" <?php disabled(!$replicate_addon_active); ?>>
                         <?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?>
                          <?php if (!$replicate_addon_active): ?>

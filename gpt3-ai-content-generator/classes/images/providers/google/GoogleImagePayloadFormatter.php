@@ -35,9 +35,10 @@ class GoogleImagePayloadFormatter {
                     'responseModalities' => ['TEXT', 'IMAGE'],
                 ]
             ];
-        } elseif ($model_id === 'imagen-3.0-generate-002') {
+            // imagen-3.0-generate-002 and imagen-4.0-generate-preview-06-06 and imagen-4.0-ultra-generate-preview-06-06 
+        } elseif ($model_id === 'imagen-3.0-generate-002' || $model_id === 'imagen-4.0-generate-preview-06-06' || $model_id === 'imagen-4.0-ultra-generate-preview-06-06') {
             $parameters = [
-                'sampleCount' => isset($options['n']) ? max(1, min(intval($options['n']), 4)) : 1,
+                'sampleCount' => $options['n'] ?? 1,
             ];
             $payload = [
                 'instances' => [

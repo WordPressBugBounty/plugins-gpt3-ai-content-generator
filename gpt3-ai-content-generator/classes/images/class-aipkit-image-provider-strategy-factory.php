@@ -37,7 +37,7 @@ class AIPKit_Image_Provider_Strategy_Factory
 
         $strategies_to_load = [
             'OpenAI'          => 'class-aipkit-image-openai-provider-strategy.php',
-            'Google'          => 'class-aipkit-image-google-provider-strategy.php',
+            'Azure' => 'class-aipkit-image-azure-provider-strategy.php', 'Google'          => 'class-aipkit-image-google-provider-strategy.php',
             'Pexels'          => 'class-aipkit-image-pexels-provider-strategy.php',
             'Pixabay'         => 'class-aipkit-image-pixabay-provider-strategy.php',
             'Replicate'       => 'class-aipkit-image-replicate-provider-strategy.php',
@@ -77,6 +77,8 @@ class AIPKit_Image_Provider_Strategy_Factory
         switch ($provider) {
             // Use fully qualified class names with the Providers sub-namespace
             case 'OpenAI':          $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_OpenAI_Provider_Strategy';
+                break;
+            case 'Azure': $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_Azure_Provider_Strategy';
                 break;
             case 'Google':          $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_Google_Provider_Strategy';
                 break;

@@ -62,7 +62,7 @@ class AIPKit_Automated_Task_Cron
         $status_flags = Init\evaluate_status_flags_logic($wpdb, $tasks_table_name);
 
         // 5. Register or un-register the main hourly cron hook based on flags
-        Init\register_main_cron_hook_logic(self::MAIN_CRON_HOOK, $status_flags['active_task_count'], $status_flags['did_active_tasks_exist']);
+        Init\register_main_cron_hook_logic(self::MAIN_CRON_HOOK, $status_flags['active_task_count'], $status_flags['pending_queue_count'], $status_flags['did_active_tasks_exist']);
 
         // 6. Attach the action for the main queue processing hook
         Init\attach_main_hook_action_logic(self::MAIN_CRON_HOOK);

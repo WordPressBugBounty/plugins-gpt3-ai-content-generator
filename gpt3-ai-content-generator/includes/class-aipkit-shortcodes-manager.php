@@ -255,10 +255,14 @@ class AIPKit_Shortcodes_Manager
                         ['id' => 'dall-e-3', 'name' => 'DALL-E 3'],
                         ['id' => 'dall-e-2', 'name' => 'DALL-E 2'],
                     ],
+                    'azure_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_azure_image_models() : [],
                     'google_models' => [
                         'image' => [
                             ['id' => 'gemini-2.0-flash-preview-image-generation', 'name' => 'Gemini 2.0 Flash (Image)'],
                             ['id' => 'imagen-3.0-generate-002', 'name' => 'Imagen 3.0'],
+                            ['id' => 'imagen-4.0-generate-preview-06-06', 'name' => 'Imagen 4.0 Preview'],
+                            ['id' => 'imagen-4.0-ultra-generate-preview-06-06', 'name' => 'Imagen 4.0 Ultra Preview'],
+
                         ],
                         'video' => [
                              ['id' => 'veo-3.0-generate-preview', 'name' => 'Veo 3.0 (Video)'],

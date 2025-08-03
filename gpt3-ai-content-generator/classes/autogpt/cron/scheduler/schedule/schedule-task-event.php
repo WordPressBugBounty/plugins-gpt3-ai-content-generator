@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 * Only clears and reschedules if the status or frequency requires it.
 *
 * @param int $task_id The ID of the task.
-* @param string $frequency The desired frequency (e.g., 'hourly', 'daily').
+* @param string $frequency The desired frequency (e.g., 'hourly', 'daily', 'one-time').
 * @param string $status The current status of the task ('active' or 'paused').
 * @return void
 */
@@ -38,8 +38,13 @@ function schedule_task_event_logic(int $task_id, string $frequency, string $stat
         $should_reschedule = ($current_event_timestamp === false || $current_frequency !== $frequency);
         if ($should_reschedule) {
             wp_clear_scheduled_hook($hook, $current_schedule_args);
-            // wp_schedule_event's first run is immediate unless a timestamp is provided. Let's add a small delay.
-            wp_schedule_event(time() + (MINUTE_IN_SECONDS / 2), $frequency, $hook, $current_schedule_args);
+            if ($frequency === 'one-time') {
+                // Schedule to run once, very soon.
+                wp_schedule_single_event(time() + 10, $hook, $current_schedule_args);
+            } else {
+                // wp_schedule_event's first run is immediate unless a timestamp is provided. Let's add a small delay.
+                wp_schedule_event(time() + (MINUTE_IN_SECONDS / 2), $frequency, $hook, $current_schedule_args);
+            }
         }
 
         // Always update the next_run_time column after scheduling/checking

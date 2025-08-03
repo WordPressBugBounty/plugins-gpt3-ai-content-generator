@@ -52,6 +52,7 @@ $task_categories = [
     'community_engagement' => __('Engagement', 'gpt3-ai-content-generator'),
 ];
 $frequencies = [
+    'one-time' => __('One-time', 'gpt3-ai-content-generator'),
     'aipkit_five_minutes' => __('Every 5 Minutes', 'gpt3-ai-content-generator'),
     'aipkit_fifteen_minutes' => __('Every 15 Minutes', 'gpt3-ai-content-generator'),
     'aipkit_thirty_minutes' => __('Every 30 Minutes', 'gpt3-ai-content-generator'),

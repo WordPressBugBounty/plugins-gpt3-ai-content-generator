@@ -43,6 +43,7 @@ $replicate_addon_active = aipkit_dashboard::is_addon_active('replicate');
                     <select id="aipkit_cw_image_provider" name="image_provider" class="aipkit_form-input aipkit_autosave_trigger">
                         <option value="openai" selected>OpenAI</option>
                         <option value="google">Google</option>
+                        <option value="azure">Azure</option>
                         <option value="replicate" <?php disabled(!$replicate_addon_active); ?>>
                             <?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?>
                              <?php if (!$replicate_addon_active): ?>
@@ -164,7 +165,7 @@ echo wp_kses($html, ['code' => ['class' => true, 'title' => true]]);
 
             <div class="aipkit_form-row">
                 <div class="aipkit_form-group aipkit_form-col">
-                    <label class="aipkit_form-label" for="aipkit_cw_image_count"><?php esc_html_e('Number of Images', 'gpt3-ai-content-generator'); ?></label>
+                    <label class="aipkit_form-label" for="aipkit_cw_image_count"><?php esc_html_e('Images', 'gpt3-ai-content-generator'); ?></label>
                     <input type="number" id="aipkit_cw_image_count" name="image_count" class="aipkit_form-input aipkit_autosave_trigger" value="1" min="1" max="10">
                 </div>
                 <div class="aipkit_form-group aipkit_form-col">

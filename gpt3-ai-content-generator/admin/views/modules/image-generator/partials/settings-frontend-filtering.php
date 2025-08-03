@@ -22,7 +22,7 @@ $allowed_models_str = $frontend_display_settings['allowed_models'] ?? '';
         name="frontend_providers"
         class="aipkit_form-input aipkit_settings_input"
         rows="2"
-        placeholder="<?php esc_attr_e('e.g., OpenAI, Google, Replicate', 'gpt3-ai-content-generator'); ?>"
+        placeholder="<?php esc_attr_e('e.g., OpenAI, Google, Azure, Replicate', 'gpt3-ai-content-generator'); ?>"
     ><?php echo esc_textarea($allowed_providers_str); ?></textarea>
      <div class="aipkit_form-help">
         <?php esc_html_e('Enter provider names exactly as they appear in the UI (OpenAI, Google, Replicate).', 'gpt3-ai-content-generator'); ?>

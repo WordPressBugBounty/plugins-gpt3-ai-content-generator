@@ -204,7 +204,10 @@ class DashboardAssets
                 'google' => [
                     ['id' => 'gemini-2.0-flash-preview-image-generation', 'name' => 'Gemini 2.0 Flash (Image)'],
                     ['id' => 'imagen-3.0-generate-002', 'name' => 'Imagen 3.0'],
+                    ['id' => 'imagen-4.0-generate-preview-06-06', 'name' => 'Imagen 4.0 Preview'],
+                    ['id' => 'imagen-4.0-ultra-generate-preview-06-06', 'name' => 'Imagen 4.0 Ultra Preview'],
                 ],
+                'azure' => AIPKit_Providers::get_azure_image_models(),
                 'replicate' => AIPKit_Providers::get_replicate_models(),
             ],
             'text' => $dashboard_texts,

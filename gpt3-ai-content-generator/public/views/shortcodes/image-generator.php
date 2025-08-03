@@ -28,6 +28,8 @@ $google_models_display = [
     'image' => [
         'gemini-2.0-flash-preview-image-generation' => 'Gemini 2.0 Flash',
         'imagen-3.0-generate-002' => 'Imagen 3.0',
+        'imagen-4.0-generate-preview-06-06' => 'Imagen 4.0 Preview',
+        'imagen-4.0-ultra-generate-preview-06-06' => 'Imagen 4.0 Ultra Preview',
     ],
     'video' => [
         'veo-3.0-generate-preview' => 'Veo 3 (Video)',
@@ -56,7 +58,7 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
                             <label class="aipkit_form-label" for="aipkit_public_image_provider"><?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?></label>
                             <select id="aipkit_public_image_provider" name="image_provider" class="aipkit_form-input">
                                 <?php
-                                $all_providers = ['OpenAI', 'Google'];
+                                $all_providers = ['OpenAI', 'Google', 'Azure'];
                         if (aipkit_dashboard::is_addon_active('replicate')) {
                             $all_providers[] = 'Replicate';
                         }
@@ -117,6 +119,28 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
                                      $model_found = false;
                                      foreach ($google_models_display as $type => $models_array) {
                                          if (array_key_exists($final_model, $models_array)) {
+                                             $model_found = true;
+                                             break;
+                                         }
+                                     }
+                                     if ($final_model && !$model_found) : ?>
+                                        <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
+                                     <?php endif; ?>
+                                 <?php elseif ($final_provider === 'Azure'): ?>
+                                     <?php 
+                                     // Azure models handling
+                                     $azure_models_display = AIPKit_Providers::get_azure_image_models();
+                                     ?>
+                                     <?php foreach ($azure_models_display as $model): ?>
+                                        <option value="<?php echo esc_attr($model['id']); ?>" <?php selected($final_model, $model['id']); ?>>
+                                            <?php echo esc_html($model['name']); ?>
+                                        </option>
+                                     <?php endforeach; ?>
+                                     <?php 
+                                     // Check if final_model exists in azure models
+                                     $model_found = false;
+                                     foreach ($azure_models_display as $model) {
+                                         if ($model['id'] === $final_model) {
                                              $model_found = true;
                                              break;
                                          }

@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.27
+Stable tag: 2.3.28
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,16 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.28 =
+
+- **Added**: Support for Google’s latest image models (Imagen 4.0 Preview and Imagen 4.0 Ultra Preview) across the Content Writer, Automated Tasks, Chatbot, and Image Generator modules.
+- **Added**: Support for Azure OpenAI DALL·E image generation models across all modules. You can now use Azure-deployed DALL·E models for image generation in the Content Writer, Automated Tasks, Chatbot, and Image Generator.
+- **Added**: A new “One-time” frequency option for Automated Tasks in both the AutoGPT and Content Writer modules. Tasks set to “One-time” will automatically pause after completion.
+- **Fixed**: An issue where real-time voice agents were not respecting token limits, allowing guests and users with a 0-token limit to start voice sessions.
+- **Fixed**: An issue in the Automated Tasks module where the “X Value” and “Image Size” settings for Content Writing tasks were not correctly loaded when editing a task.
+- **Fixed**: An issue in the Content Writer's “Single” generation mode where requesting multiple images from stock photo providers like Pexels or Pixabay resulted in duplicate images. It now fetches unique images.
+- **Fixed**: An issue where the “Run Now” button for the “Auto-Reply to Comments” task did not process all eligible comments—only those created since the last scheduled run.
 
 = 2.3.27 =
 

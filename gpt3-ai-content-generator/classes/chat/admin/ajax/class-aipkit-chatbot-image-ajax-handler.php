@@ -190,8 +190,21 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             }
         }
 
-        if (in_array($selected_image_model, ['gemini-2.0-flash-preview-image-generation', 'imagen-3.0-generate-002'])) {
+        // Get Azure image models for detection
+        $azure_model_ids = [];
+        if (class_exists('\WPAICG\AIPKit_Providers')) {
+            $azure_models = \WPAICG\AIPKit_Providers::get_azure_image_models();
+            if (!empty($azure_models)) {
+                $azure_model_ids = wp_list_pluck($azure_models, 'id');
+            }
+        }
+
+        // imagen-4.0-generate-preview-06-06 and imagen-4.0-ultra-generate-preview-06-06 
+        if (in_array($selected_image_model, ['gemini-2.0-flash-preview-image-generation', 'imagen-3.0-generate-002'
+            , 'imagen-4.0-generate-preview-06-06', 'imagen-4.0-ultra-generate-preview-06-06'], true)) {
             $provider_for_image = 'Google';
+        } elseif (in_array($selected_image_model, $azure_model_ids, true)) {
+            $provider_for_image = 'Azure';
         } elseif (in_array($selected_image_model, $replicate_model_ids, true)) {
             $provider_for_image = 'Replicate';
         }

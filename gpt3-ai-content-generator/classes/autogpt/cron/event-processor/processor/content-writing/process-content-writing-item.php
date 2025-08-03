@@ -135,6 +135,9 @@ function process_content_writing_item_logic(array $item_config): array
 
         if (is_wp_error($image_result)) {
             // Don't stop the whole process, just log the error and continue without images.
+            $error_details = $image_result->get_error_message();
+            $error_code = $image_result->get_error_code();
+            error_log("AIPKit AutoGPT Image Generation Failed: [{$error_code}] {$error_details} | Title: {$final_title} | Provider: " . ($item_config['image_provider'] ?? 'unknown') . " | Model: " . ($item_config['image_model'] ?? 'unknown'));
         } else {
             $image_data = $image_result;
             // The image handler does not currently return usage data.

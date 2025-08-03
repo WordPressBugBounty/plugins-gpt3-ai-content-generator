@@ -1,7 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/ajax/actions/create-task/normalize-task-settings.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\ContentWriter\Ajax\Actions\CreateTask;
 
@@ -24,7 +24,7 @@ function normalize_task_settings_logic(array $settings): array
         $task_name = 'Automated Content: ' . sanitize_text_field(wp_unslash($first_title_line));
     }
 
-    $task_frequency = isset($settings['task_frequency']) && in_array($settings['task_frequency'], ['hourly', 'twicedaily', 'daily', 'weekly'])
+    $task_frequency = isset($settings['task_frequency']) && in_array($settings['task_frequency'], ['one-time', 'aipkit_five_minutes', 'aipkit_fifteen_minutes', 'aipkit_thirty_minutes', 'hourly', 'twicedaily', 'daily', 'weekly'])
     ? sanitize_key($settings['task_frequency'])
     : 'daily';
 

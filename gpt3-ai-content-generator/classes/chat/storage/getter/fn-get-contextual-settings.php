@@ -48,7 +48,17 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
     }
 
     $settings['chat_image_model_id'] = $get_meta_fn('_aipkit_chat_image_model_id', BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID);
-    $valid_image_models = ['gpt-image-1', 'dall-e-3', 'dall-e-2', 'gemini-2.0-flash-preview-image-generation', 'imagen-3.0-generate-002'];
+    // imagen-4.0-generate-preview-06-06 and imagen-4.0-ultra-generate-preview-06-06
+    $valid_image_models = ['gpt-image-1', 'dall-e-3', 'dall-e-2', 'gemini-2.0-flash-preview-image-generation', 'imagen-3.0-generate-002', 'imagen-4.0-generate-preview-06-06', 'imagen-4.0-ultra-generate-preview-06-06'];
+
+    // Add Azure image models to validation list
+    if (class_exists('\WPAICG\AIPKit_Providers')) {
+        $azure_models = \WPAICG\AIPKit_Providers::get_azure_image_models();
+        if (!empty($azure_models)) {
+            $azure_model_ids = wp_list_pluck($azure_models, 'id');
+            $valid_image_models = array_merge($valid_image_models, $azure_model_ids);
+        }
+    }
 
     // Check if replicate addon is active before adding its models to validation list
     $replicate_addon_active = false;

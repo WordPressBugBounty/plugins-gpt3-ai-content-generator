@@ -23,6 +23,7 @@ class Image_Dependencies_Loader
             'class-aipkit-image-manager.php', 'class-aipkit-image-provider-strategy-factory.php',
             'class-aipkit-image-storage-helper.php',
             'providers/class-aipkit-image-openai-provider-strategy.php',
+            'providers/class-aipkit-image-azure-provider-strategy.php',
             'providers/class-aipkit-image-google-provider-strategy.php',
             'providers/class-aipkit-image-pexels-provider-strategy.php',
             'providers/class-aipkit-image-pixabay-provider-strategy.php',

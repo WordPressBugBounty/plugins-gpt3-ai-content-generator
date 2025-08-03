@@ -1,8 +1,6 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-writing/insert-post.php
-// Status: MODIFIED
-// I have added a preg_replace call to convert markdown-style links into HTML <a> tags before the content is saved.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
@@ -80,7 +78,11 @@ function insert_post_logic(string $final_title, string $generated_content, array
     $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
     // Convert links: [text](url) -> <a href="url">text</a>
     $html_content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $html_content);
-    // --- END: Convert markdown to HTML ---
+
+    // --- START FIX: Apply wpautop to create paragraph tags for image injector ---
+    // This is the key fix. It ensures <p> tags exist for the image injector to work with.
+    $html_content = wpautop($html_content);
+    // --- END FIX ---
 
     // Inject in-content images before ToC generation
     if (!empty($image_data['in_content_images']) && class_exists(AIPKit_Image_Injector::class)) {
@@ -90,8 +92,8 @@ function insert_post_logic(string $final_title, string $generated_content, array
         $html_content = $image_injector->inject_images(
             $html_content,
             $image_data['in_content_images'],
-            $cw_config['image_placement'] ?? 'after_first_h2',
-            absint($cw_config['image_placement_param_x'] ?? 2),
+            $image_data['placement_settings']['placement'] ?? 'after_first_h2',
+            absint($image_data['placement_settings']['param_x'] ?? 2),
             $image_alignment,
             $image_size
         );
@@ -153,13 +155,19 @@ function insert_post_logic(string $final_title, string $generated_content, array
         }
     }
 
-    if (!empty($meta_description) && class_exists('\WPAICG\SEO\AIPKit_SEO_Helper')) {
+    if (!empty($meta_description) && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
         \WPAICG\SEO\AIPKit_SEO_Helper::update_meta_description($new_post_id, $meta_description);
     }
 
-    if (!empty($focus_keyword) && class_exists('\WPAICG\SEO\AIPKit_SEO_Helper')) {
+    if (!empty($focus_keyword) && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
         \WPAICG\SEO\AIPKit_SEO_Helper::update_focus_keyword($new_post_id, $focus_keyword);
     }
+    
+    // --- NEW: Update Slug based on checkbox ---
+    if (isset($cw_config['generate_seo_slug']) && $cw_config['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+        \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($new_post_id);
+    }
+    // --- END NEW ---
 
     return $new_post_id;
 }

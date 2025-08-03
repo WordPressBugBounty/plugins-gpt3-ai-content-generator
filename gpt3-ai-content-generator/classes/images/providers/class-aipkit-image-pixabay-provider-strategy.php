@@ -23,7 +23,7 @@ class AIPKit_Image_Pixabay_Provider_Strategy extends AIPKit_Image_Base_Provider_
      *
      * @param string $prompt The search query.
      * @param array $api_params API connection parameters.
-     * @param array $options Generation options (orientation, image_type, category, n).
+     * @param array $options Generation options (orientation, image_type, category, n, page).
      * @return array|WP_Error Array of image data objects or WP_Error on failure.
      */
     public function generate_image(string $prompt, array $api_params, array $options = []): array|WP_Error
@@ -43,7 +43,10 @@ class AIPKit_Image_Pixabay_Provider_Strategy extends AIPKit_Image_Base_Provider_
             'per_page' => $per_page_for_api,
             'safesearch' => 'true', // Always use safesearch
         ];
-
+        
+        if (isset($options['page']) && $options['page'] > 0) {
+            $query_args['page'] = absint($options['page']);
+        }
         if (!empty($options['orientation']) && $options['orientation'] !== 'all') {
             $query_args['orientation'] = $options['orientation'];
         }

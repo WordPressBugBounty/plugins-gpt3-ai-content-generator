@@ -15,7 +15,7 @@ use WPAICG\Chat\Storage\BotSettingsManager; // Use for constants
 $image_triggers = $bot_settings['image_triggers'] ?? BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
 $chat_image_model_id = $bot_settings['chat_image_model_id'] ?? BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
 
-// Define available Image models (OpenAI and Google)
+// Define available Image models (OpenAI, Azure and Google)
 $replicate_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('replicate');
 $available_image_models = [
     'OpenAI' => [
@@ -23,9 +23,13 @@ $available_image_models = [
         ['id' => 'dall-e-3',    'name' => 'DALL-E 3'],
         ['id' => 'dall-e-2',    'name' => 'DALL-E 2'],
     ],
+    'Azure' => \WPAICG\AIPKit_Providers::get_azure_image_models(),
     'Google' => [
         ['id' => 'gemini-2.0-flash-preview-image-generation', 'name' => 'Gemini 2.0 Flash'],
         ['id' => 'imagen-3.0-generate-002',                   'name' => 'Imagen 3.0'],
+        // imagen-4.0-generate-preview-06-06 and imagen-4.0-ultra-generate-preview-06-06
+        ['id' => 'imagen-4.0-generate-preview-06-06',         'name' => 'Imagen 4.0 Preview'],
+        ['id' => 'imagen-4.0-ultra-generate-preview-06-06',   'name' => 'Imagen 4.0 Ultra Preview'],
     ],
 ];
 if (isset($replicate_model_list) && is_array($replicate_model_list) && !empty($replicate_model_list)) {

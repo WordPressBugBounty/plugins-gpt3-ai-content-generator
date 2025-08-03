@@ -35,6 +35,7 @@ class AIPKit_Providers
         'Azure' => [
             'api_key' => '', 'model' => '', 'endpoint' => '', 'embeddings' => '',
             'api_version_authoring' => '2023-03-15-preview', 'api_version_inference' => '2025-01-01-preview',
+            'api_version_images' => '2024-04-01-preview'
         ],
         'DeepSeek' => [
             'api_key' => '', 'model' => '',
@@ -75,7 +76,7 @@ class AIPKit_Providers
             ['id' => 'models/text-embedding-004', 'name' => 'Embedding 004 (768)'],
             ['id' => 'models/embedding-001', 'name' => 'Embedding 001 (768)'],
         ],
-        'Azure' => [], 'DeepSeek' => ['deepseek-chat', 'deepseek-coder'],
+        'Azure' => [], 'AzureImage' => [], 'DeepSeek' => ['deepseek-chat', 'deepseek-coder'],
         'ElevenLabs' => [], 'ElevenLabsModels' => ['eleven_multilingual_v2'],
         'OpenAITTS' => [['id' => 'tts-1', 'name' => 'TTS-1'], ['id' => 'tts-1-hd', 'name' => 'TTS-1-HD']],
         'OpenAISTT' => [['id' => 'whisper-1', 'name' => 'Whisper-1']],
@@ -91,7 +92,7 @@ class AIPKit_Providers
         'Google'           => 'aipkit_google_model_list',
         'GoogleEmbedding'  => 'aipkit_google_embedding_model_list',
         'Azure'            => 'aipkit_azure_deployment_list',
-        'DeepSeek'         => 'aipkit_deepseek_model_list',
+        'AzureImage' => 'aipkit_azure_image_model_list', 'DeepSeek'         => 'aipkit_deepseek_model_list',
         'ElevenLabs'       => 'aipkit_elevenlabs_voice_list',
         'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
         'OpenAITTS'        => 'aipkit_openai_tts_model_list',
@@ -360,6 +361,10 @@ class AIPKit_Providers
     public static function get_azure_deployments(): array
     {
         return self::get_model_list('Azure');
+    }
+    public static function get_azure_image_models(): array
+    {
+        return self::get_model_list('AzureImage');
     }
     public static function get_deepseek_models(): array
     {

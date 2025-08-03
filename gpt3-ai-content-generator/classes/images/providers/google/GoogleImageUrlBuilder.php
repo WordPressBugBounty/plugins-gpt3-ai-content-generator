@@ -42,7 +42,8 @@ class GoogleImageUrlBuilder {
         $endpoint_suffix = '';
         if ($model_id === 'gemini-2.0-flash-preview-image-generation') {
             $endpoint_suffix = ':generateContent';
-        } elseif ($model_id === 'imagen-3.0-generate-002') {
+            // imagen-3.0-generate-002 and imagen-4.0-generate-preview-06-06 and imagen-4.0-ultra-generate-preview-06-06  
+        } elseif ($model_id === 'imagen-3.0-generate-002' || $model_id === 'imagen-4.0-generate-preview-06-06' || $model_id === 'imagen-4.0-ultra-generate-preview-06-06') {
             $endpoint_suffix = ':predict'; // Imagen models typically use :predict
         } else {
              // Fallback if model ID is not explicitly known, try to guess

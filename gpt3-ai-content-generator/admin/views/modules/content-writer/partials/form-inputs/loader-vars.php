@@ -45,6 +45,10 @@ $post_statuses = [
 
 $wp_categories = get_categories(['hide_empty' => false]);
 $task_frequencies = [
+    'one-time' => __('One-time', 'gpt3-ai-content-generator'),
+    'aipkit_five_minutes' => __('Every 5 Minutes', 'gpt3-ai-content-generator'),
+    'aipkit_fifteen_minutes' => __('Every 15 Minutes', 'gpt3-ai-content-generator'),
+    'aipkit_thirty_minutes' => __('Every 30 Minutes', 'gpt3-ai-content-generator'),
     'hourly' => __('Hourly', 'gpt3-ai-content-generator'),
     'twicedaily' => __('Twice Daily', 'gpt3-ai-content-generator'),
     'daily' => __('Daily', 'gpt3-ai-content-generator'),

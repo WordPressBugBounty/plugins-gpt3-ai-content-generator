@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Pack (formerly AI Power) 2.3.27\n"
+"Project-Id-Version: AIP: Complete AI Pack (formerly AI Power) 2.3.28\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-30T17:37:56+00:00\n"
+"POT-Creation-Date: 2025-08-03T08:23:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -115,7 +115,7 @@ msgstr[1] ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:15
 #: admin/views/modules/content-writer/partials/form-inputs/generation-mode.php:122
 #: classes/ai-forms/storage/methods/fn-get-form-data.php:117
-#: public/views/shortcodes/image-generator.php:139
+#: public/views/shortcodes/image-generator.php:163
 msgid "Generate"
 msgstr ""
 
@@ -224,7 +224,7 @@ msgid "In-Content Image Prompt"
 msgstr ""
 
 #: admin/ajax/migration/analysis/get-old-custom-prompts.php:45
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:211
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:212
 msgid "Featured Image Prompt"
 msgstr ""
 
@@ -806,7 +806,7 @@ msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:259
-#: includes/class-aipkit-shortcodes-manager.php:281
+#: includes/class-aipkit-shortcodes-manager.php:285
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:70
 #: admin/js/ai-training/wp/render-wp-content-list.js:131
 msgid "Page"
@@ -814,7 +814,7 @@ msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:260
-#: includes/class-aipkit-shortcodes-manager.php:281
+#: includes/class-aipkit-shortcodes-manager.php:285
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:73
 #: admin/js/ai-training/wp/render-wp-content-list.js:134
 msgid "of"
@@ -825,7 +825,7 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:83
 #: admin/views/modules/logs/partials/logs-table.php:188
 #: admin/views/modules/logs/partials/logs-table.php:195
-#: includes/class-aipkit-shortcodes-manager.php:281
+#: includes/class-aipkit-shortcodes-manager.php:285
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:57
 #: admin/js/ai-training/wp/render-wp-content-list.js:119
 msgid "Previous"
@@ -837,7 +837,7 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:88
 #: admin/views/modules/logs/partials/logs-table.php:211
 #: admin/views/modules/logs/partials/logs-table.php:218
-#: includes/class-aipkit-shortcodes-manager.php:281
+#: includes/class-aipkit-shortcodes-manager.php:285
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:79
 #: admin/js/ai-training/wp/render-wp-content-list.js:139
 msgid "Next"
@@ -1095,7 +1095,7 @@ msgstr ""
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-post-enhancer-assets.php:214
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:157
-#: includes/class-aipkit-shortcodes-manager.php:281
+#: includes/class-aipkit-shortcodes-manager.php:285
 msgid "Close"
 msgstr ""
 
@@ -1182,7 +1182,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:39
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:34
 #: admin/views/modules/content-writer/partials/form-inputs/ai-settings.php:27
-#: public/views/shortcodes/image-generator.php:56
+#: public/views/shortcodes/image-generator.php:58
 msgid "Provider"
 msgstr ""
 
@@ -1405,7 +1405,7 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/community-engagement/ai-settings.php:26
 #: admin/views/modules/autogpt/partials/content-enhancement/ai-and-prompts.php:57
 #: admin/views/modules/autogpt/partials/content-writing/model-settings.php:30
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:59
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:60
 #: admin/views/modules/chatbot/partials/ai-config/provider-model.php:70
 #: admin/views/modules/chatbot/partials/ai-config/provider-model.php:178
 #: admin/views/modules/chatbot/partials/ai-config/provider-model.php:266
@@ -1415,7 +1415,7 @@ msgstr ""
 #: admin/views/modules/settings/partials/settings-models.php:61
 #: admin/views/modules/settings/partials/settings-models.php:109
 #: admin/views/modules/settings/partials/settings-models.php:189
-#: public/views/shortcodes/image-generator.php:77
+#: public/views/shortcodes/image-generator.php:79
 msgid "Model"
 msgstr ""
 
@@ -1838,7 +1838,7 @@ msgid "Write"
 msgstr ""
 
 #: admin/views/dashboard.php:35
-#: admin/views/modules/autogpt/index.php:95
+#: admin/views/modules/autogpt/index.php:96
 msgid "Automate"
 msgstr ""
 
@@ -1848,8 +1848,9 @@ msgid "Forms"
 msgstr ""
 
 #: admin/views/dashboard.php:45
-#: admin/views/modules/chatbot/partials/accordion-images.php:39
+#: admin/views/modules/chatbot/partials/accordion-images.php:43
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:22
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:168
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:82
 msgid "Images"
 msgstr ""
@@ -2303,10 +2304,10 @@ msgid "Privacy & Compliance"
 msgstr ""
 
 #: admin/views/modules/addons/index.php:120
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:144
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:152
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:117
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:125
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:145
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:153
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:118
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:126
 msgid "All"
 msgstr ""
 
@@ -2508,17 +2509,17 @@ msgid "General User Limit"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:113
-#: admin/views/modules/autogpt/index.php:60
+#: admin/views/modules/autogpt/index.php:61
 #: admin/views/modules/chatbot/partials/accordion-token-management.php:143
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:50
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:54
 #: admin/views/modules/image-generator/partials/settings-token-management.php:74
 msgid "Daily"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:114
-#: admin/views/modules/autogpt/index.php:61
+#: admin/views/modules/autogpt/index.php:62
 #: admin/views/modules/chatbot/partials/accordion-token-management.php:146
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:51
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:55
 #: admin/views/modules/image-generator/partials/settings-token-management.php:75
 msgid "Weekly"
 msgstr ""
@@ -2978,7 +2979,7 @@ msgid "Published"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:178
-#: admin/views/modules/autogpt/index.php:79
+#: admin/views/modules/autogpt/index.php:80
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:52
 #: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:40
 msgid "Draft"
@@ -3205,56 +3206,64 @@ msgid "Engagement"
 msgstr ""
 
 #: admin/views/modules/autogpt/index.php:55
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:48
+msgid "One-time"
+msgstr ""
+
+#: admin/views/modules/autogpt/index.php:56
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:49
 #: includes/hook-registrars/class-core-hooks-registrar.php:63
 msgid "Every 5 Minutes"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:56
+#: admin/views/modules/autogpt/index.php:57
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:50
 #: includes/hook-registrars/class-core-hooks-registrar.php:67
 msgid "Every 15 Minutes"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:57
+#: admin/views/modules/autogpt/index.php:58
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:51
 #: includes/hook-registrars/class-core-hooks-registrar.php:71
 msgid "Every 30 Minutes"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:58
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:48
+#: admin/views/modules/autogpt/index.php:59
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:52
 msgid "Hourly"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:59
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:49
+#: admin/views/modules/autogpt/index.php:60
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:53
 msgid "Twice Daily"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:80
+#: admin/views/modules/autogpt/index.php:81
 #: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:41
 msgid "Publish"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:81
+#: admin/views/modules/autogpt/index.php:82
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:53
 #: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:42
 msgid "Pending Review"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:82
+#: admin/views/modules/autogpt/index.php:83
 #: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:43
 msgid "Private"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:87
+#: admin/views/modules/autogpt/index.php:88
 #: lib/views/chatbot/partials/triggers/trigger-builder-main.php:68
 msgid "Active"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:88
+#: admin/views/modules/autogpt/index.php:89
 msgid "Paused"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:99
+#: admin/views/modules/autogpt/index.php:100
 msgid "Add New Task"
 msgstr ""
 
@@ -3288,14 +3297,14 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/task-form-config-seo.php:102
 #: admin/views/modules/autogpt/partials/task-form-config-seo.php:128
 #: admin/views/modules/autogpt/partials/task-form-config-seo.php:154
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:182
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:202
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:183
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:203
 #: admin/views/modules/content-writer/partials/form-inputs/ai-settings.php:88
 #: admin/views/modules/content-writer/partials/form-inputs/ai-settings.php:114
 #: admin/views/modules/content-writer/partials/form-inputs/generation-mode.php:37
 #: admin/views/modules/content-writer/partials/form-inputs/generation-mode.php:60
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:155
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:220
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:156
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:221
 #: admin/views/modules/content-writer/partials/form-inputs/seo-settings.php:79
 #: admin/views/modules/content-writer/partials/form-inputs/seo-settings.php:105
 #: admin/views/modules/content-writer/partials/form-inputs/seo-settings.php:131
@@ -3567,10 +3576,10 @@ msgstr ""
 
 #: admin/views/modules/autogpt/partials/content-writing/model-settings.php:73
 #: admin/views/modules/autogpt/partials/content-writing/model-settings.php:100
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:176
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:196
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:177
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:197
 #: admin/views/modules/content-writer/partials/form-inputs/ai-settings.php:82
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:214
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:215
 msgid "Use placeholders: {topic}, {keywords}."
 msgstr ""
 
@@ -3713,291 +3722,291 @@ msgstr ""
 msgid "Featured Image"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:39
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:47
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:40
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:48
 #: admin/views/modules/image-generator/partials/settings-image-generator.php:59
 #: admin/views/modules/settings/partials/integrations/replicate.php:19
 msgid "Replicate"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:41
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:47
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:53
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:49
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:55
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:61
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:42
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:48
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:54
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:50
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:56
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:62
 msgid "(Addon Disabled)"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:45
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:53
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:46
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:54
 msgid "Pexels"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:51
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:59
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:52
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:60
 msgid "Pixabay"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:65
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:66
 msgid "Number"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:69
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:171
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:70
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:172
 msgid "Placement"
-msgstr ""
-
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:71
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:173
-msgid "After 1st H2 Heading"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:72
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:174
-msgid "After 1st H3 Heading"
+msgid "After 1st H2 Heading"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:73
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:175
-msgid "After every X H2 headings"
+msgid "After 1st H3 Heading"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:74
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:176
-msgid "After every X H3 headings"
+msgid "After every X H2 headings"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:75
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:177
-msgid "After every X paragraphs"
+msgid "After every X H3 headings"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:76
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:178
+msgid "After every X paragraphs"
+msgstr ""
+
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:77
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:179
 msgid "End of Content"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:80
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:182
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:81
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:183
 msgid "X Value"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:84
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:113
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:85
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:189
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:85
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:114
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:86
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:190
 msgid "Size"
-msgstr ""
-
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:86
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:116
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:88
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:191
-msgid "Large"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:87
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:117
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:89
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:192
-msgid "Medium"
+msgid "Large"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:88
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:118
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:90
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:193
-msgid "Thumbnail"
+msgid "Medium"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:89
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:194
+msgid "Thumbnail"
+msgstr ""
+
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:90
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:195
 msgid "Full Size"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:93
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:198
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:94
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:199
 msgid "Alignment"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:95
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:106
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:115
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:78
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:87
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:200
-msgid "None"
-msgstr ""
-
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:96
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:107
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:116
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:79
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:88
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:201
-msgid "Left"
+msgid "None"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:97
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:202
-msgid "Center"
+msgid "Left"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:98
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:203
+msgid "Center"
+msgstr ""
+
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:99
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:204
 msgid "Right"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:104
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:142
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:76
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:115
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:105
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:143
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:77
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:116
 msgid "Orientation"
-msgstr ""
-
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:107
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:79
-msgid "Landscape"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:108
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:80
-msgid "Portrait"
+msgid "Landscape"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:109
-#: admin/views/modules/chatbot/partials/accordion-popup.php:148
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:81
+msgid "Portrait"
+msgstr ""
+
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:110
+#: admin/views/modules/chatbot/partials/accordion-popup.php:148
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:82
 msgid "Square"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:118
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:90
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:119
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:91
 msgid "Small"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:122
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:94
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:123
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:95
 msgid "Color"
-msgstr ""
-
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:124
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:96
-msgid "Any Color"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:125
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:97
-msgid "Red"
+msgid "Any Color"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:126
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:98
-msgid "Orange"
+msgid "Red"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:127
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:99
-msgid "Yellow"
+msgid "Orange"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:128
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:100
-msgid "Green"
+msgid "Yellow"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:129
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:101
-msgid "Turquoise"
+msgid "Green"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:130
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:102
-msgid "Blue"
+msgid "Turquoise"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:131
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:103
-msgid "Violet"
+msgid "Blue"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:132
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:104
-msgid "Pink"
+msgid "Violet"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:133
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:105
-msgid "Brown"
+msgid "Pink"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:134
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:106
-msgid "Black"
+msgid "Brown"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:135
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:107
-msgid "Gray"
+msgid "Black"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:136
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:108
-msgid "White"
+msgid "Gray"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:145
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:118
-msgid "Horizontal"
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:137
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:109
+msgid "White"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:146
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:119
+msgid "Horizontal"
+msgstr ""
+
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:147
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:120
 msgid "Vertical"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:150
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:123
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:151
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:124
 msgid "Image Type"
-msgstr ""
-
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:153
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:126
-msgid "Photo"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:154
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:127
-msgid "Illustration"
+msgid "Photo"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:155
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:128
+msgid "Illustration"
+msgstr ""
+
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:156
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:129
 msgid "Vector"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:159
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:160
 #: admin/views/modules/autogpt/partials/task-form-setup.php:20
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:132
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:133
 msgid "Category"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:161
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:134
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:162
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:135
 msgid "Any Category"
-msgstr ""
-
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:173
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:146
-msgid "Image Prompt"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:174
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:147
+msgid "Image Prompt"
+msgstr ""
+
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:175
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:148
 msgid "e.g., A photo of a freshly baked chocolate cake on a wooden table."
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:193
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:194
 msgid "Featured Image Prompt (Optional)"
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-image-settings.php:194
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:212
+#: admin/views/modules/autogpt/partials/task-form-image-settings.php:195
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:213
 msgid "Leave blank to use the main image prompt."
 msgstr ""
 
@@ -4180,23 +4189,23 @@ msgstr ""
 msgid "-- Select Provider or Sync Models --"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:50
+#: admin/views/modules/chatbot/partials/accordion-images.php:54
 msgid "Image Generation Model"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:68
+#: admin/views/modules/chatbot/partials/accordion-images.php:72
 msgid "Addon Disabled"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:81
+#: admin/views/modules/chatbot/partials/accordion-images.php:85
 msgid "Select the model to use."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:92
+#: admin/views/modules/chatbot/partials/accordion-images.php:96
 msgid "Image Generation Triggers"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:103
+#: admin/views/modules/chatbot/partials/accordion-images.php:107
 msgid "Comma-separated commands (e.g., /image, /generate) to trigger."
 msgstr ""
 
@@ -4923,16 +4932,12 @@ msgstr ""
 msgid "Image Provider"
 msgstr ""
 
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:67
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:68
 msgid "Image Model"
 msgstr ""
 
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:149
+#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:150
 msgid "Use placeholders: {topic}, {keywords}, {excerpt}, {post_title}."
-msgstr ""
-
-#: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:167
-msgid "Number of Images"
 msgstr ""
 
 #: admin/views/modules/content-writer/partials/form-inputs/mode-rss.php:19
@@ -5088,7 +5093,7 @@ msgid "Control which AI providers and models are available to users on the front
 msgstr ""
 
 #: admin/views/modules/image-generator/partials/settings-frontend-filtering.php:25
-msgid "e.g., OpenAI, Google, Replicate"
+msgid "e.g., OpenAI, Google, Azure, Replicate"
 msgstr ""
 
 #: admin/views/modules/image-generator/partials/settings-frontend-filtering.php:28
@@ -7690,7 +7695,7 @@ msgid "Qdrant URL is required to sync collections."
 msgstr ""
 
 #. translators: %s: The provider name that was synced.
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:236
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:251
 msgid "%s synced successfully."
 msgstr ""
 
@@ -8249,12 +8254,12 @@ msgid "Provider key \"%s\" is not configured for image strategy loading."
 msgstr ""
 
 #. translators: %s: The provider name that was attempted to be used for image generation.
-#: classes/images/class-aipkit-image-provider-strategy-factory.php:91
+#: classes/images/class-aipkit-image-provider-strategy-factory.php:93
 msgid "Image Generation Provider strategy \"%s\" is not supported."
 msgstr ""
 
 #. translators: %s: The provider name that was attempted to be used for image generation.
-#: classes/images/class-aipkit-image-provider-strategy-factory.php:98
+#: classes/images/class-aipkit-image-provider-strategy-factory.php:100
 msgid "Failed to load Image Generation strategy for provider: %s"
 msgstr ""
 
@@ -8448,6 +8453,26 @@ msgstr ""
 msgid "Azure Endpoint/Region URL is required for image generation."
 msgstr ""
 
+#: classes/images/providers/class-aipkit-image-azure-provider-strategy.php:34
+msgid "Azure Endpoint is required."
+msgstr ""
+
+#: classes/images/providers/class-aipkit-image-azure-provider-strategy.php:37
+msgid "Azure Deployment Name (model) is required."
+msgstr ""
+
+#: classes/images/providers/class-aipkit-image-azure-provider-strategy.php:55
+msgid "Azure API Key is required for image generation."
+msgstr ""
+
+#: classes/images/providers/class-aipkit-image-azure-provider-strategy.php:96
+msgid "HTTP error during Azure image generation."
+msgstr ""
+
+#: classes/images/providers/class-aipkit-image-azure-provider-strategy.php:105
+msgid "Azure Image API Error (%1$d): %2$s"
+msgstr ""
+
 #: classes/images/providers/class-aipkit-image-google-provider-strategy.php:66
 msgid "Google API Key is required for generation."
 msgstr ""
@@ -8523,12 +8548,12 @@ msgstr ""
 msgid "Pexels API Key is required."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-pexels-provider-strategy.php:61
+#: classes/images/providers/class-aipkit-image-pexels-provider-strategy.php:64
 msgid "HTTP error during Pexels API request."
 msgstr ""
 
 #. translators: %1$d: HTTP status code, %2$s: Error message from the API.
-#: classes/images/providers/class-aipkit-image-pexels-provider-strategy.php:73
+#: classes/images/providers/class-aipkit-image-pexels-provider-strategy.php:76
 msgid "Pexels API Error (%1$d): %2$s"
 msgstr ""
 
@@ -8536,12 +8561,12 @@ msgstr ""
 msgid "Pixabay API Key is required."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-pixabay-provider-strategy.php:67
+#: classes/images/providers/class-aipkit-image-pixabay-provider-strategy.php:70
 msgid "HTTP error during Pixabay API request."
 msgstr ""
 
 #. translators: %1$d: HTTP status code, %2$s: Error message from the API.
-#: classes/images/providers/class-aipkit-image-pixabay-provider-strategy.php:76
+#: classes/images/providers/class-aipkit-image-pixabay-provider-strategy.php:79
 msgid "Pixabay API Error (%1$d): %2$s"
 msgstr ""
 
@@ -8554,29 +8579,29 @@ msgstr ""
 msgid "Replicate model/version ID is required."
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageResponseParser.php:83
+#: classes/images/providers/google/GoogleImageResponseParser.php:88
 msgid "Unsupported Google image model for response parsing."
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageResponseParser.php:87
+#: classes/images/providers/google/GoogleImageResponseParser.php:93
 msgid "No image data found in Google API response."
 msgstr ""
 
 #. translators: %s: The reason for blocking the image generation request.
-#: classes/images/providers/google/GoogleImageResponseParser.php:91
+#: classes/images/providers/google/GoogleImageResponseParser.php:98
 msgid "Image generation request blocked by Google due to: %s"
 msgstr ""
 
 #. translators: %s: The reason for incomplete image generation.
-#: classes/images/providers/google/GoogleImageResponseParser.php:95
+#: classes/images/providers/google/GoogleImageResponseParser.php:102
 msgid "Image generation incomplete. Finish reason: %s"
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageResponseParser.php:98
+#: classes/images/providers/google/GoogleImageResponseParser.php:105
 msgid "Google API returned text but no image data was extracted. Please check API response format or prompt."
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageResponseParser.php:111
+#: classes/images/providers/google/GoogleImageResponseParser.php:119
 msgid "An unknown Google API error occurred."
 msgstr ""
 
@@ -8590,7 +8615,7 @@ msgid "Video model %s should use GoogleVideoUrlBuilder instead."
 msgstr ""
 
 #. translators: %s: The model ID that was attempted to be used for URL building.
-#: classes/images/providers/google/GoogleImageUrlBuilder.php:55
+#: classes/images/providers/google/GoogleImageUrlBuilder.php:56
 msgid "Unsupported Google image model for URL building: %s"
 msgstr ""
 
@@ -9743,25 +9768,25 @@ msgid "AI Power Form Error: This form (legacy ID: %d) has not been migrated. Ple
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: includes/class-aipkit-shortcodes-manager.php:281
+#: includes/class-aipkit-shortcodes-manager.php:285
 msgid "Loading details..."
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: includes/class-aipkit-shortcodes-manager.php:281
+#: includes/class-aipkit-shortcodes-manager.php:285
 msgid "Error loading details."
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: includes/class-aipkit-shortcodes-manager.php:281
+#: includes/class-aipkit-shortcodes-manager.php:285
 msgid "Usage Details for %s"
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:294
+#: includes/class-aipkit-shortcodes-manager.php:298
 msgid "Searching..."
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:294
+#: includes/class-aipkit-shortcodes-manager.php:298
 msgid "An error occurred while searching."
 msgstr ""
 
@@ -9844,23 +9869,27 @@ msgstr ""
 msgid "Realtime voice is not enabled for this chatbot."
 msgstr ""
 
-#: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:105
-msgid "OpenAI API key is not configured in main settings."
+#: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:78
+msgid "Token management service is not available."
 msgstr ""
 
 #: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:130
+msgid "OpenAI API key is not configured in main settings."
+msgstr ""
+
+#: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:155
 msgid "Failed to create a session."
 msgstr ""
 
-#: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:136
+#: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:161
 msgid "Invalid response from OpenAI: client_secret missing."
 msgstr ""
 
-#: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:157
+#: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:182
 msgid "Logging service is not available."
 msgstr ""
 
-#: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:171
+#: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:196
 msgid "Missing required parameters for logging."
 msgstr ""
 
@@ -10349,19 +10378,19 @@ msgstr ""
 msgid "The content from each URL will be fetched and used as context for the %1$s placeholder in your %2$s."
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:49
+#: public/views/shortcodes/image-generator.php:51
 msgid "Describe the image you want to generate..."
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:128
+#: public/views/shortcodes/image-generator.php:152
 msgid "(Select Provider)"
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:152
+#: public/views/shortcodes/image-generator.php:176
 msgid "Your Images"
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:159
+#: public/views/shortcodes/image-generator.php:183
 msgid "You have not generated any images yet."
 msgstr ""
 

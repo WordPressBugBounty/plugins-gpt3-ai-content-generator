@@ -23,7 +23,7 @@ class AIPKit_Image_Pexels_Provider_Strategy extends AIPKit_Image_Base_Provider_S
      *
      * @param string $prompt The search query.
      * @param array $api_params API connection parameters.
-     * @param array $options Generation options (orientation, size, color, n).
+     * @param array $options Generation options (orientation, size, color, n, page).
      * @return array|WP_Error Array of image data objects or WP_Error on failure.
      */
     public function generate_image(string $prompt, array $api_params, array $options = []): array|WP_Error
@@ -38,6 +38,9 @@ class AIPKit_Image_Pexels_Provider_Strategy extends AIPKit_Image_Base_Provider_S
             'per_page' => isset($options['n']) ? absint($options['n']) : 1,
         ];
 
+        if (isset($options['page']) && $options['page'] > 0) {
+            $query_args['page'] = absint($options['page']);
+        }
         if (!empty($options['orientation']) && $options['orientation'] !== 'none' && in_array($options['orientation'], ['landscape', 'portrait', 'square'])) {
             $query_args['orientation'] = $options['orientation'];
         }

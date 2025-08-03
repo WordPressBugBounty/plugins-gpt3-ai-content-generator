@@ -54,18 +54,23 @@ class GoogleImageResponseParser {
                 ];
             }
         } elseif (strpos($model_id, 'imagen') !== false) { // Handling for Imagen models
+            
             if (isset($decoded_response['predictions']) && is_array($decoded_response['predictions'])) {
-                foreach ($decoded_response['predictions'] as $prediction) {
+                
+                foreach ($decoded_response['predictions'] as $index => $prediction) {
+                    
                     if (isset($prediction['bytesBase64Encoded']) && !empty($prediction['bytesBase64Encoded'])) {
                         $images[] = ['b64_json' => $prediction['bytesBase64Encoded']];
                     }
+                    
                     if (isset($prediction['text']) && !empty(trim($prediction['text']))) {
                         $has_text_part = true;
                     }
                 }
-            }
+            } 
             // Calculate hardcoded token usage for Imagen models
             $num_images_generated = count($images);
+            
             if ($num_images_generated > 0) {
                 $total_tokens_for_imagen = $num_images_generated * self::IMAGEN_TOKENS_PER_IMAGE;
                 $usage = [
@@ -84,8 +89,10 @@ class GoogleImageResponseParser {
         }
 
         if (empty($images)) {
+            
             $error_message = __('No image data found in Google API response.', 'gpt3-ai-content-generator');
             $error_code = 'no_images_in_google_response';
+            
             if (isset($decoded_response['promptFeedback']['blockReason'])) {
                 /* translators: %s: The reason for blocking the image generation request. */
                 $error_message = sprintf(__('Image generation request blocked by Google due to: %s', 'gpt3-ai-content-generator'), $decoded_response['promptFeedback']['blockReason']);
@@ -98,6 +105,7 @@ class GoogleImageResponseParser {
                 $error_message = __('Google API returned text but no image data was extracted. Please check API response format or prompt.', 'gpt3-ai-content-generator');
                 $error_code = 'google_image_text_but_no_image_extracted';
             }
+            
             return new WP_Error($error_code, $error_message);
         }
 

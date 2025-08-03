@@ -173,8 +173,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         $option_map = [
             'OpenAI' => 'aipkit_openai_model_list', 'OpenRouter' => 'aipkit_openrouter_model_list',
-            'Google' => 'aipkit_google_model_list', 'Azure' => 'aipkit_azure_deployment_list',
-            'DeepSeek' => 'aipkit_deepseek_model_list', 'ElevenLabs' => 'aipkit_elevenlabs_voice_list',
+            'Google' => 'aipkit_google_model_list', 'Azure' => 'aipkit_azure_deployment_list', 'AzureImage' => 'aipkit_azure_image_model_list', 'DeepSeek' => 'aipkit_deepseek_model_list', 'ElevenLabs' => 'aipkit_elevenlabs_voice_list',
             'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
             'PineconeIndexes' => 'aipkit_pinecone_index_list',
             'QdrantCollections' => 'aipkit_qdrant_collection_list',
@@ -223,6 +222,22 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 $value_to_save = $chat_models;
                 $response_models = $value_to_save; // Set response to just the chat models
                 update_option('aipkit_google_embedding_model_list', $embedding_models, 'no');
+            } elseif ($provider === 'Azure') {
+                $chat_deployments = [];
+                $image_deployments = [];
+                if (is_array($result)) {
+                    foreach ($result as $deployment) {
+                        $model_name = strtolower($deployment['name'] ?? '');
+                        if (strpos($model_name, 'dall-e') !== false) {
+                            $image_deployments[] = $deployment;
+                        } else {
+                            $chat_deployments[] = $deployment;
+                        }
+                    }
+                }
+                update_option('aipkit_azure_image_model_list', $image_deployments, 'no');
+                $value_to_save = $chat_deployments;
+                $response_models = $chat_deployments;
             } elseif ($provider === 'PineconeIndexes' && $this->vector_store_registry) {
                 $this->vector_store_registry->update_registered_stores_for_provider('Pinecone', $value_to_save);
             } elseif ($provider === 'QdrantCollections' && $this->vector_store_registry) {
