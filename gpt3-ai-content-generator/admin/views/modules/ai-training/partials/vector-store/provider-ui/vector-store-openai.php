@@ -19,67 +19,67 @@ if (!defined('ABSPATH')) {
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg#providers')); ?>"><?php esc_html_e('Configure API Key', 'gpt3-ai-content-generator'); ?></a>
             </p>
         </div>
-    <?php return; endif; ?>
-
-    <!-- Main Content Area for OpenAI Vector Store Management -->
-    <div id="aipkit_openai_vs_main_content_area" class="aipkit_openai_vs_main_content_area">
-        <!-- Placeholder for when no store is selected or initially -->
-        <div class="aipkit_ai_training_section_wrapper aipkit_openai_vs_content_section" id="aipkit_openai_vs_right_col_placeholder" style="display: flex;">
-             <div class="aipkit_ai_training_section_header">
-                <h5><?php esc_html_e('Store Details', 'gpt3-ai-content-generator'); ?></h5>
-            </div>
-            <p class="aipkit_text-center" style="padding: 20px;"><?php esc_html_e('Select a vector store from the "Target Store" dropdown in the "Add Content" form above to view its details and manage files, or select "Create New" to make a new one.', 'gpt3-ai-content-generator'); ?></p>
-        </div>
-
-        <!-- File Management Panel (Initially Hidden) -->
-        <div id="aipkit_manage_files_panel_openai" class="aipkit_file_management_panel" style="display:none;">
-            <div class="aipkit_panel_body">
-                <div id="aipkit_manage_files_list_wrapper_openai" class="aipkit_data-table aipkit_index_logs_table">
-                    <table>
-                        <thead><tr>
-                            <th><?php esc_html_e('Time', 'gpt3-ai-content-generator'); ?></th>
-                            <th><?php esc_html_e('File ID', 'gpt3-ai-content-generator'); ?></th>
-                            <th><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></th>
-                            <th><?php esc_html_e('Type', 'gpt3-ai-content-generator'); ?></th>
-                            <th><?php esc_html_e('Message', 'gpt3-ai-content-generator'); ?></th>
-                            <th><?php esc_html_e('Source', 'gpt3-ai-content-generator'); ?></th>
-                            <th style="text-align: right;"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></th>
-                        </tr></thead>
-                        <tbody id="aipkit_vector_store_files_table_body_openai">
-                            <!-- Log rows populated by JS -->
-                        </tbody>
-                    </table>
+    <?php else: ?>
+        <!-- Main Content Area for OpenAI Vector Store Management -->
+        <div id="aipkit_openai_vs_main_content_area" class="aipkit_openai_vs_main_content_area">
+            <!-- Placeholder for when no store is selected or initially -->
+            <div class="aipkit_ai_training_section_wrapper aipkit_openai_vs_content_section" id="aipkit_openai_vs_right_col_placeholder" style="display: flex;">
+                 <div class="aipkit_ai_training_section_header">
+                    <h5><?php esc_html_e('Store Details', 'gpt3-ai-content-generator'); ?></h5>
                 </div>
-                <div id="aipkit_openai_logs_pagination" class="aipkit_logs_pagination_container"></div>
-                <div id="aipkit_manage_files_panel_status_openai" class="aipkit_form-help"></div>
+                <p class="aipkit_text-center" style="padding: 20px;"><?php esc_html_e('Select a vector store from the "Target Store" dropdown in the "Add Content" form above to view its details and manage files, or select "Create New" to make a new one.', 'gpt3-ai-content-generator'); ?></p>
             </div>
-        </div>
 
-        <!-- Search Form & Results Area (Initially Hidden) -->
-        <div id="aipkit_search_store_form_openai_wrapper_modal_placeholder" class="aipkit_ai_training_section_wrapper aipkit_openai_vs_content_section" style="display:none;">
-             <div class="aipkit_ai_training_section_header">
-                <h5 id="aipkit_search_store_form_title_openai"><?php esc_html_e('Search Vector Store', 'gpt3-ai-content-generator'); ?></h5>
-                <button type="button" id="aipkit_close_search_panel_btn_openai" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small" title="<?php esc_attr_e('Close Search', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-no-alt"></span>
-                </button>
+            <!-- File Management Panel (Initially Hidden) -->
+            <div id="aipkit_manage_files_panel_openai" class="aipkit_file_management_panel" style="display:none;">
+                <div class="aipkit_panel_body">
+                    <div id="aipkit_manage_files_list_wrapper_openai" class="aipkit_data-table aipkit_index_logs_table">
+                        <table>
+                            <thead><tr>
+                                <th><?php esc_html_e('Time', 'gpt3-ai-content-generator'); ?></th>
+                                <th><?php esc_html_e('File ID', 'gpt3-ai-content-generator'); ?></th>
+                                <th><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></th>
+                                <th><?php esc_html_e('Type', 'gpt3-ai-content-generator'); ?></th>
+                                <th><?php esc_html_e('Message', 'gpt3-ai-content-generator'); ?></th>
+                                <th><?php esc_html_e('Source', 'gpt3-ai-content-generator'); ?></th>
+                                <th style="text-align: right;"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></th>
+                            </tr></thead>
+                            <tbody id="aipkit_vector_store_files_table_body_openai">
+                                <!-- Log rows populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="aipkit_openai_logs_pagination" class="aipkit_logs_pagination_container"></div>
+                    <div id="aipkit_manage_files_panel_status_openai" class="aipkit_form-help"></div>
+                </div>
             </div>
-            <div class="aipkit_panel_body">
-                <input type="hidden" id="aipkit_search_vector_store_id_openai" value="">
-                <div class="aipkit_form-group">
-                    <label class="aipkit_form-label" for="aipkit_search_query_text_openai"><?php esc_html_e('Search Query', 'gpt3-ai-content-generator'); ?></label>
-                    <textarea id="aipkit_search_query_text_openai" class="aipkit_form-input" rows="3" placeholder="<?php esc_attr_e('Enter your search query...', 'gpt3-ai-content-generator'); ?>"></textarea>
+
+            <!-- Search Form & Results Area (Initially Hidden) -->
+            <div id="aipkit_search_store_form_openai_wrapper_modal_placeholder" class="aipkit_ai_training_section_wrapper aipkit_openai_vs_content_section" style="display:none;">
+                 <div class="aipkit_ai_training_section_header">
+                    <h5 id="aipkit_search_store_form_title_openai"><?php esc_html_e('Search Vector Store', 'gpt3-ai-content-generator'); ?></h5>
+                    <button type="button" id="aipkit_close_search_panel_btn_openai" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small" title="<?php esc_attr_e('Close Search', 'gpt3-ai-content-generator'); ?>">
+                        <span class="dashicons dashicons-no-alt"></span>
+                    </button>
                 </div>
-                <div class="aipkit_form-group">
-                    <label class="aipkit_form-label" for="aipkit_search_top_k_openai"><?php esc_html_e('Number of Results (Top K)', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="number" id="aipkit_search_top_k_openai" class="aipkit_form-input" value="3" min="1" max="20" style="max-width: 80px;">
+                <div class="aipkit_panel_body">
+                    <input type="hidden" id="aipkit_search_vector_store_id_openai" value="">
+                    <div class="aipkit_form-group">
+                        <label class="aipkit_form-label" for="aipkit_search_query_text_openai"><?php esc_html_e('Search Query', 'gpt3-ai-content-generator'); ?></label>
+                        <textarea id="aipkit_search_query_text_openai" class="aipkit_form-input" rows="3" placeholder="<?php esc_attr_e('Enter your search query...', 'gpt3-ai-content-generator'); ?>"></textarea>
+                    </div>
+                    <div class="aipkit_form-group">
+                        <label class="aipkit_form-label" for="aipkit_search_top_k_openai"><?php esc_html_e('Number of Results (Top K)', 'gpt3-ai-content-generator'); ?></label>
+                        <input type="number" id="aipkit_search_top_k_openai" class="aipkit_form-input" value="3" min="1" max="20" style="max-width: 80px;">
+                    </div>
+                    <button type="button" id="aipkit_search_vector_store_btn_openai" class="aipkit_btn aipkit_btn-primary">
+                        <span class="aipkit_btn-text"><?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_spinner"></span>
+                    </button>
+                    <div id="aipkit_search_vector_store_form_status_openai" class="aipkit_form-help"></div>
+                    <div id="aipkit_search_results_area_openai" class="aipkit_search_results_area"></div>
                 </div>
-                <button type="button" id="aipkit_search_vector_store_btn_openai" class="aipkit_btn aipkit_btn-primary">
-                    <span class="aipkit_btn-text"><?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?></span>
-                    <span class="aipkit_spinner"></span>
-                </button>
-                <div id="aipkit_search_vector_store_form_status_openai" class="aipkit_form-help"></div>
-                <div id="aipkit_search_results_area_openai" class="aipkit_search_results_area"></div>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
 </div>

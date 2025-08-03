@@ -1,6 +1,6 @@
 <?php
 
-// File: /classes/stt/class-aipkit-stt-manager.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/stt/class-aipkit-stt-manager.php
 // MODIFIED FILE - Pass STT model ID from options to strategy.
 
 namespace WPAICG\STT; // Use new STT namespace
@@ -126,11 +126,8 @@ class AIPKit_STT_Manager
             return;
         }
 
-        // Base64 data; strict decode is used for validation later.
-        // --- FIX: Sanitize the base64 data URI using esc_url_raw ---
-        $audio_base64 = isset($_POST['audio_data']) ? esc_url_raw(wp_unslash($_POST['audio_data'])) : '';
-        // --- END FIX ---
-        $audio_format = isset($_POST['audio_format']) ? sanitize_text_field(wp_unslash($_POST['audio_format'])) : 'webm'; // Default or get from client
+        $audio_base64 = isset($_POST['audio_data']) ? $_POST['audio_data'] : '';
+        $audio_format = isset($_POST['audio_format']) ? sanitize_text_field($_POST['audio_format']) : 'webm'; // Default or get from client
         $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0; // Get bot ID to read its STT provider setting
 
         // Decode Base64 audio data
@@ -152,7 +149,7 @@ class AIPKit_STT_Manager
         $options = ['bot_id' => $bot_id];
         // Optionally pass language if sent from client
         if (isset($_POST['language'])) {
-            $options['language'] = sanitize_text_field(wp_unslash($_POST['language']));
+            $options['language'] = sanitize_text_field($_POST['language']);
         }
 
 

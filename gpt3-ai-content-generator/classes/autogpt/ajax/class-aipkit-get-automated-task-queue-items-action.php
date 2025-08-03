@@ -43,7 +43,7 @@ class AIPKit_Get_Automated_Task_Queue_Items_Action extends AIPKit_Automated_Task
         $order_dir = in_array(strtoupper($order_dir_raw), ['ASC', 'DESC'], true) ? strtoupper($order_dir_raw) : 'DESC';
 
         // Whitelist columns for ordering to prevent SQL injection
-        $allowed_orderby = ['t.task_name', 'q.task_type', 'q.status', 'q.attempts', 'q.added_at', 'q.last_attempt_time'];
+        $allowed_orderby = ['t.task_name', 'q.task_type', 'q.status', 'q.attempts', 'q.added_at', 'q.last_attempt_time', 'q.target_identifier'];
         if (!in_array($orderby_col, $allowed_orderby)) {
             $orderby_col = 'q.added_at';
         }

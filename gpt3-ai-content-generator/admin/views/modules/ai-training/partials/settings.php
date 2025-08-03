@@ -30,6 +30,14 @@ $is_pro = aipkit_dashboard::is_pro_plan();
                     <?php endif; ?>
                 </div>
                 <div class="aipkit_accordion-content aipkit_active">
+                    <?php if (!$is_pro): ?>
+                        <div class="aipkit_notice aipkit_notice-info" style="margin-bottom: 15px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #0073aa; border-radius: 4px;">
+                            <p style="margin: 0 0 10px 0;"><?php esc_html_e('Fine-tune indexing settings to control which custom fields, taxonomies, and product data to include when training your AI. Enable/disable specific fields and customize labels for better AI context.', 'gpt3-ai-content-generator'); ?></p>
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="button button-primary" style="margin-top: 5px;">
+                                <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
                     <p class="aipkit_form-help"><?php esc_html_e('Select which custom fields, product data, and taxonomies to include when indexing content. If a post type is not configured here, all of its public data will be indexed by default.', 'gpt3-ai-content-generator'); ?></p>
                     <div id="aipkit_indexing_settings_form_container">
                         <!-- Accordions will be dynamically generated here by JS -->
@@ -48,7 +56,6 @@ $is_pro = aipkit_dashboard::is_pro_plan();
                                 type="checkbox"
                                 id="aipkit_hide_user_uploads_checkbox"
                                 name="hide_user_uploads"
-                                class="aipkit_autosave_trigger"
                                 value="1"
                                 <?php checked($hide_user_uploads_checked); ?>
                             >

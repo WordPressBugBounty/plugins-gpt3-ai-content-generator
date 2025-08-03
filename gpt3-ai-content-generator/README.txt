@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gpt, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.28
+Stable tag: 2.3.29
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,12 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.29 =
+
+- **Added**: You can now sort task queue entries in the Automated Tasks module by Name, Type, Status, Attempt, and Time columns.
+- **Fixed**: An issue on the AI Train page where the Settings tab failed to load in certain cases.
+- **Fixed**: Fixed a bug that prevented voice recording from working properly in the Chatbot module.
 
 = 2.3.28 =
 
