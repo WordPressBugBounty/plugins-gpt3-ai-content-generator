@@ -68,7 +68,7 @@ $addons = [
         'pro' => false, 'category' => 'training'
     ],
     [
-        'key' => 'file_upload', 'title' => __('File Upload (OpenAI)', 'gpt3-ai-content-generator'),
+        'key' => 'file_upload', 'title' => __('File Upload', 'gpt3-ai-content-generator'),
         'description' => __('Allow users to upload files (PDF, TXT) for context in OpenAI chatbots and manage files in AI Training.', 'gpt3-ai-content-generator'),
         'pro' => true, 'category' => 'chat'
     ],
@@ -96,6 +96,13 @@ $addons = [
         'key' => 'realtime_voice',
         'title' => __('Realtime Voice Agent', 'gpt3-ai-content-generator'),
         'description' => __('Enable low-latency, speech-to-speech conversational experiences using OpenAI\'s Realtime API.', 'gpt3-ai-content-generator'),
+        'pro' => true,
+        'category' => 'chat'
+    ],
+    [
+        'key' => 'embed_anywhere',
+        'title' => __('Embed Anywhere', 'gpt3-ai-content-generator'),
+        'description' => __('Embed your chatbots on any external website with a simple HTML snippet.', 'gpt3-ai-content-generator'),
         'pro' => true,
         'category' => 'chat'
     ],

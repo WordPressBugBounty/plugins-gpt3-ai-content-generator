@@ -39,6 +39,7 @@ class Assets {
     public static $chat_image_upload_needed = false;
     public static $chat_file_upload_needed = false; 
     public static $realtime_voice_needed = false;
+    public static $is_embed = false; // NEW: Flag for embed mode
     // --- End Static Flags ---
 
     private $hooks_handler;

@@ -9,6 +9,23 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+use WPAICG\aipkit_dashboard; // Required for checking addon status
+// --- Global Settings Dependencies for "Chat Settings" tab ---
+use WPAICG\AIPKIT_AI_Settings;
+use WPAICG\AIPKit_Providers;
+use WPAICG\Lib\Addons\AIPKit_OpenAI_Moderation;
+use WPAICG\Lib\Addons\AIPKit_Consent_Compliance;
+
+// --- End Global Settings Dependencies ---
+
+// --- ADDED: Ensure SVG Icons utility class is loaded ---
+$svg_icons_util_path = WPAICG_PLUGIN_DIR . 'classes/chat/utils/class-aipkit-svg-icons.php';
+if (file_exists($svg_icons_util_path) && !class_exists('\\WPAICG\\Chat\\Utils\\AIPKit_SVG_Icons')) {
+    require_once $svg_icons_util_path;
+}
+// --- END ADDED ---
+
+
 // Variables passed from parent (chatbot/index.php loop):
 // $bot_post, $bot_id, $bot_name, $bot_settings, $active_class, $is_default
 // Also, all variables needed by the included accordion partials must be available in this scope:
@@ -34,9 +51,12 @@ $saved_model = $bot_settings['model'] ?? '';
                 <?php include __DIR__ . '/accordion-appearance.php'; ?>
                 <?php include __DIR__ . '/accordion-popup.php'; ?>
                 <?php include __DIR__ . '/accordion-images.php'; ?>
-                <?php if ($is_voice_playback_active) {
+                <?php
+                $is_voice_playback_active = aipkit_dashboard::is_addon_active('voice_playback');
+                if ($is_voice_playback_active) {
                     include __DIR__ . '/accordion-tts-settings.php';
-                } ?>
+                }
+                ?>
                 <?php
                 // --- ADDED: Conditional include for Voice Agent accordion ---
                 if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('realtime_voice')) {
@@ -47,10 +67,23 @@ $saved_model = $bot_settings['model'] ?? '';
                 }
                 // --- END ADDED ---
                 ?>
-                <?php if ($is_token_management_active) {
+                <?php
+                $is_token_management_active = aipkit_dashboard::is_addon_active('token_management');
+                if ($is_token_management_active) {
                     include __DIR__ . '/accordion-token-management.php';
-                } ?>
+                }
+                ?>
                 <?php include __DIR__ . '/accordion-context.php'; ?>
+                <?php
+                // --- MODIFIED: Conditional include for Embed Anywhere accordion ---
+                if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')) {
+                    $embed_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-embed.php';
+                    if (file_exists($embed_accordion_path)) {
+                        include $embed_accordion_path;
+                    }
+                }
+                // --- END MODIFICATION ---
+                ?>
                 <?php
                 // --- MODIFIED: Conditional include for Triggers accordion ---
                 if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('triggers')) {

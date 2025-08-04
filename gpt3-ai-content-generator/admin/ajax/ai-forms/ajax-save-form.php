@@ -81,6 +81,22 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $vector_embedding_model = isset($post_data['vector_embedding_model']) ? sanitize_text_field($post_data['vector_embedding_model']) : '';
     $vector_store_top_k = isset($post_data['vector_store_top_k']) ? absint($post_data['vector_store_top_k']) : 3;
 
+    // --- Get Web Search config fields from POST ---
+    $openai_web_search_enabled = isset($post_data['openai_web_search_enabled']) && $post_data['openai_web_search_enabled'] === '1' ? '1' : '0';
+    $google_search_grounding_enabled = isset($post_data['google_search_grounding_enabled']) && $post_data['google_search_grounding_enabled'] === '1' ? '1' : '0';
+    
+    // OpenAI Web Search sub-settings
+    $openai_web_search_context_size = isset($post_data['openai_web_search_context_size']) ? sanitize_text_field($post_data['openai_web_search_context_size']) : 'medium';
+    $openai_web_search_loc_type = isset($post_data['openai_web_search_loc_type']) ? sanitize_text_field($post_data['openai_web_search_loc_type']) : 'none';
+    $openai_web_search_loc_country = isset($post_data['openai_web_search_loc_country']) ? sanitize_text_field($post_data['openai_web_search_loc_country']) : '';
+    $openai_web_search_loc_city = isset($post_data['openai_web_search_loc_city']) ? sanitize_text_field($post_data['openai_web_search_loc_city']) : '';
+    $openai_web_search_loc_region = isset($post_data['openai_web_search_loc_region']) ? sanitize_text_field($post_data['openai_web_search_loc_region']) : '';
+    $openai_web_search_loc_timezone = isset($post_data['openai_web_search_loc_timezone']) ? sanitize_text_field($post_data['openai_web_search_loc_timezone']) : '';
+    
+    // Google Search Grounding sub-settings
+    $google_grounding_mode = isset($post_data['google_grounding_mode']) ? sanitize_text_field($post_data['google_grounding_mode']) : 'DEFAULT_MODE';
+    $google_grounding_dynamic_threshold = isset($post_data['google_grounding_dynamic_threshold']) ? floatval($post_data['google_grounding_dynamic_threshold']) : 0.30;
+
     $decoded_structure = json_decode($form_structure_json, true);
     if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded_structure)) {
         $handler_instance->send_wp_error(new WP_Error('invalid_structure_json', __('Invalid form structure data submitted.', 'gpt3-ai-content-generator')), 400);
@@ -115,6 +131,19 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'vector_embedding_provider' => $vector_embedding_provider,
         'vector_embedding_model' => $vector_embedding_model,
         'vector_store_top_k' => $vector_store_top_k,
+        // Web Search settings
+        'openai_web_search_enabled' => $openai_web_search_enabled,
+        'google_search_grounding_enabled' => $google_search_grounding_enabled,
+        // OpenAI Web Search sub-settings
+        'openai_web_search_context_size' => $openai_web_search_context_size,
+        'openai_web_search_loc_type' => $openai_web_search_loc_type,
+        'openai_web_search_loc_country' => $openai_web_search_loc_country,
+        'openai_web_search_loc_city' => $openai_web_search_loc_city,
+        'openai_web_search_loc_region' => $openai_web_search_loc_region,
+        'openai_web_search_loc_timezone' => $openai_web_search_loc_timezone,
+        // Google Search Grounding sub-settings
+        'google_grounding_mode' => $google_grounding_mode,
+        'google_grounding_dynamic_threshold' => $google_grounding_dynamic_threshold,
         // Labels
         'labels' => $final_labels,
     ];

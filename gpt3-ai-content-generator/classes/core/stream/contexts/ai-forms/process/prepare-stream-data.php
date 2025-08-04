@@ -23,6 +23,7 @@ if (!defined('ABSPATH')) {
  * @param array $validated_params Validated request parameters.
  * @param array $form_config The configuration of the form.
  * @param string $final_user_prompt The final constructed user prompt.
+ * @param string $system_instruction The system instruction, potentially with vector context.
  * @return array|WP_Error The structured data for the SSE processor, or a WP_Error on failure.
  */
 function prepare_stream_data_logic(
@@ -88,12 +89,12 @@ function prepare_stream_data_logic(
     }
     $ai_params_for_payload['model_id_for_grounding'] = $model;
 
-    // --- FIX STARTS HERE: Add OpenAI Vector Store Tool Config if applicable ---
+    // Vector Store Tool Config (OpenAI)
     $is_vector_enabled = ($form_config['enable_vector_store'] ?? '0') === '1';
-    $is_openai_provider = ($form_config['vector_store_provider'] ?? '') === 'openai';
+    $is_openai_vector_provider = ($form_config['vector_store_provider'] ?? '') === 'openai';
     $has_vector_store_ids = !empty($form_config['openai_vector_store_ids']) && is_array($form_config['openai_vector_store_ids']);
 
-    if ($provider === 'OpenAI' && $is_vector_enabled && $is_openai_provider && $has_vector_store_ids) {
+    if ($provider === 'OpenAI' && $is_vector_enabled && $is_openai_vector_provider && $has_vector_store_ids) {
         $vector_top_k = isset($form_config['vector_store_top_k']) ? absint($form_config['vector_store_top_k']) : 3;
         $vector_top_k = max(1, min($vector_top_k, 20));
 
@@ -103,15 +104,26 @@ function prepare_stream_data_logic(
             'max_num_results'  => $vector_top_k,
         ];
     }
-    // --- FIX ENDS HERE ---
 
-    $provData = AIPKit_Providers::get_provider_data($provider);
+    // --- NEW: Add Web Search & Grounding Params ---
+    if ($provider === 'OpenAI' && ($form_config['openai_web_search_enabled'] ?? '0') === '1') {
+        $ai_params_for_payload['web_search_tool_config'] = ['enabled' => true];
+        // For AI Forms, web search is implicitly active if the form setting is enabled.
+        $ai_params_for_payload['frontend_web_search_active'] = true;
+    }
+    if ($provider === 'Google' && ($form_config['google_search_grounding_enabled'] ?? '0') === '1') {
+        // For AI Forms, grounding is implicitly active if the form setting is enabled.
+        $ai_params_for_payload['frontend_google_search_grounding_active'] = true;
+    }
+    // --- END NEW ---
+
+        $provData = AIPKit_Providers::get_provider_data($provider);
     $api_params_for_stream = [
         'api_key' => $provData['api_key'] ?? '', 'base_url' => $provData['base_url'] ?? '', 'api_version' => $provData['api_version'] ?? '',
         'azure_endpoint' => ($provider === 'Azure') ? ($provData['endpoint'] ?? '') : '',
-        'azure_inference_version' => ($provider === 'Azure') ? ($provData['api_version_inference'] ?? '2025-01-01-preview') : '',
-        'azure_authoring_version' => ($provider === 'Azure') ? ($provData['api_version_authoring'] ?? '2023-03-15-preview') : '',
+        'stream' => true,
     ];
+
     if (empty($api_params_for_stream['api_key'])) {
         /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
         return new WP_Error('missing_api_key_ai_forms_logic', sprintf(__('API key missing for %s (AI Forms).', 'gpt3-ai-content-generator'), $provider), ['status' => 400]);

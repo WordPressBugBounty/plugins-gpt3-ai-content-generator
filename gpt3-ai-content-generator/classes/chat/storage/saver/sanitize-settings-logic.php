@@ -1,6 +1,6 @@
 <?php
 
-// File: classes/chat/storage/saver/sanitize-settings-logic.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/saver/sanitize-settings-logic.php
 // Status: MODIFIED
 
 namespace WPAICG\Chat\Storage\SaverMethods;
@@ -168,7 +168,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $raw_google_threshold = isset($raw_settings['google_grounding_dynamic_threshold']) ? floatval($raw_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
     $sanitized['google_grounding_dynamic_threshold'] = max(0.0, min($raw_google_threshold, 1.0));
 
-    // --- ADDED: Sanitize Realtime Voice Agent settings ---
+    // --- Sanitize Realtime Voice Agent settings ---
     $sanitized['enable_realtime_voice'] = isset($raw_settings['enable_realtime_voice']) ? '1' : '0';
     $sanitized['direct_voice_mode'] = isset($raw_settings['direct_voice_mode']) ? '1' : '0';
     $sanitized['realtime_model'] = isset($raw_settings['realtime_model']) && in_array($raw_settings['realtime_model'], ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime']) ? $raw_settings['realtime_model'] : 'gpt-4o-realtime-preview';
@@ -179,9 +179,22 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['input_audio_format'] = isset($raw_settings['input_audio_format']) && in_array($raw_settings['input_audio_format'], $valid_audio_formats) ? $raw_settings['input_audio_format'] : 'pcm16';
     $sanitized['output_audio_format'] = isset($raw_settings['output_audio_format']) && in_array($raw_settings['output_audio_format'], $valid_audio_formats) ? $raw_settings['output_audio_format'] : 'pcm16';
     $sanitized['input_audio_noise_reduction'] = isset($raw_settings['input_audio_noise_reduction']) ? '1' : '0';
-    // --- END ADDED ---
+    // --- END Sanitize Realtime Voice Agent settings ---
 
-    // --- Sanitize Custom Theme Settings ---
+    // --- Sanitize Embed Allowed Domains ---
+    $raw_domains = isset($raw_settings['embed_allowed_domains']) ? trim($raw_settings['embed_allowed_domains']) : '';
+    $domains_array = preg_split('/[\s,]+/', $raw_domains, -1, PREG_SPLIT_NO_EMPTY);
+    $sanitized_domains = [];
+    foreach ($domains_array as $domain) {
+        $sanitized_url = esc_url_raw(trim($domain));
+        if (!empty($sanitized_url)) {
+            $sanitized_domains[] = rtrim($sanitized_url, '/');
+        }
+    }
+    $sanitized['embed_allowed_domains'] = implode("\n", array_unique($sanitized_domains));
+    // --- END Sanitize Embed Allowed Domains ---
+
+    // Sanitize Custom Theme Settings
     $custom_theme_settings_raw = $raw_settings['custom_theme_settings'] ?? [];
     $custom_theme_settings_sanitized = [];
 
@@ -213,22 +226,16 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
                    $key === 'popup_height' ||
                    $key === 'popup_min_height'
         ) {
-            // PX based dimension settings (allow empty for default)
             $custom_theme_settings_sanitized[$key] = ($value === '' || !is_numeric($value)) ? '' : (string)max(0, absint($value));
         } elseif ($key === 'container_max_height' || $key === 'popup_max_height') {
-            // VH based dimension settings (allow empty for default)
             $custom_theme_settings_sanitized[$key] = ($value === '' || !is_numeric($value)) ? '' : (string)max(1, min(absint($value), 100));
         } else {
             $custom_theme_settings_sanitized[$key] = sanitize_text_field($value);
         }
     }
     $sanitized['custom_theme_settings'] = $custom_theme_settings_sanitized;
-    // --- END Sanitize Custom Theme Settings ---
-
-    // --- NEW: Sanitize Triggers JSON string ---
-    // We pass the raw string for now; validation and conversion to array will happen in save_meta_fields_logic
+    
     $sanitized['triggers_json'] = isset($raw_settings['triggers_json']) ? trim(wp_unslash($raw_settings['triggers_json'])) : '[]';
-    // --- END NEW ---
-
+    
     return $sanitized;
 }

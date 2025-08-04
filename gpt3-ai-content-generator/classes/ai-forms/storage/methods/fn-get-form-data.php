@@ -1,4 +1,6 @@
 <?php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/ai-forms/storage/methods/fn-get-form-data.php
+// Status: MODIFIED
 
 namespace WPAICG\AIForms\Storage\Methods;
 
@@ -106,6 +108,22 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $data['vector_embedding_model'] = get_post_meta($form_id, '_aipkit_ai_form_vector_embedding_model', true) ?: '';
     $data['vector_store_top_k'] = get_post_meta($form_id, '_aipkit_ai_form_vector_store_top_k', true) ?: 3;
     // --- END ---
+
+    // --- NEW: Get Web Search & Grounding Settings ---
+    $data['openai_web_search_enabled'] = get_post_meta($form_id, '_aipkit_ai_form_openai_web_search_enabled', true) ?: '0';
+    $data['google_search_grounding_enabled'] = get_post_meta($form_id, '_aipkit_ai_form_google_search_grounding_enabled', true) ?: '0';
+    
+    // OpenAI Web Search sub-settings
+    $data['openai_web_search_context_size'] = get_post_meta($form_id, '_aipkit_ai_form_openai_web_search_context_size', true) ?: 'medium';
+    $data['openai_web_search_loc_type'] = get_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_type', true) ?: 'none';
+    $data['openai_web_search_loc_country'] = get_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_country', true) ?: '';
+    $data['openai_web_search_loc_city'] = get_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_city', true) ?: '';
+    $data['openai_web_search_loc_region'] = get_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_region', true) ?: '';
+    $data['openai_web_search_loc_timezone'] = get_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_timezone', true) ?: '';
+    
+    // Google Search Grounding sub-settings
+    $data['google_grounding_mode'] = get_post_meta($form_id, '_aipkit_ai_form_google_grounding_mode', true) ?: 'DEFAULT_MODE';
+    $data['google_grounding_dynamic_threshold'] = get_post_meta($form_id, '_aipkit_ai_form_google_grounding_dynamic_threshold', true) ?: 0.30;
 
     // --- Add Labels ---
     $labels_json = get_post_meta($form_id, '_aipkit_ai_form_labels', true);

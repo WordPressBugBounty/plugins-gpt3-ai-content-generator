@@ -1,10 +1,10 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/ai-forms/partials/vector-config.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 /**
- * Partial: AI Form Editor - Vector Configuration
- * Contains settings for enabling and configuring vector store integration for the form.
+ * Partial: AI Form Editor - Vector & Context Configuration
+ * Contains settings for enabling and configuring vector store and web search integration.
  */
 if (!defined('ABSPATH')) {
     exit;
@@ -13,20 +13,46 @@ if (!defined('ABSPATH')) {
 // $openai_vector_stores, $pinecone_indexes, $qdrant_collections
 // $openai_embedding_models, $google_embedding_models
 ?>
-<div class="aipkit_form-group">
-    <label class="aipkit_form-label aipkit_checkbox-label" for="aipkit_ai_form_enable_vector_store">
-        <input
-            type="checkbox"
-            id="aipkit_ai_form_enable_vector_store"
-            name="enable_vector_store"
-            class="aipkit_toggle_switch aipkit_ai_form_vector_store_toggle"
-            value="1"
-        >
-        <?php esc_html_e('Enable Vector Store', 'gpt3-ai-content-generator'); ?>
-    </label>
-    <div class="aipkit_form-help">
-        <?php esc_html_e('Allow this form to query a vector store for context before generating a response.', 'gpt3-ai-content-generator'); ?>
+<div class="aipkit_form-row aipkit_checkbox-row">
+    <div class="aipkit_form-group">
+        <label class="aipkit_form-label aipkit_checkbox-label" for="aipkit_ai_form_enable_vector_store">
+            <input
+                type="checkbox"
+                id="aipkit_ai_form_enable_vector_store"
+                name="enable_vector_store"
+                class="aipkit_toggle_switch aipkit_ai_form_vector_store_toggle"
+                value="1"
+            >
+            <?php esc_html_e('Vector Store', 'gpt3-ai-content-generator'); ?>
+        </label>
     </div>
+    <div class="aipkit_form-group">
+        <label class="aipkit_form-label aipkit_checkbox-label" for="aipkit_ai_form_openai_web_search_enabled">
+            <input
+                type="checkbox"
+                id="aipkit_ai_form_openai_web_search_enabled"
+                name="openai_web_search_enabled"
+                class="aipkit_toggle_switch aipkit_ai_form_openai_web_search_toggle"
+                value="1"
+            >
+            <?php esc_html_e('OpenAI Web Search', 'gpt3-ai-content-generator'); ?>
+        </label>
+    </div>
+    <div class="aipkit_form-group">
+        <label class="aipkit_form-label aipkit_checkbox-label" for="aipkit_ai_form_google_search_grounding_enabled">
+            <input
+                type="checkbox"
+                id="aipkit_ai_form_google_search_grounding_enabled"
+                name="google_search_grounding_enabled"
+                class="aipkit_toggle_switch aipkit_ai_form_google_search_grounding_toggle"
+                value="1"
+            >
+            <?php esc_html_e('Google Search', 'gpt3-ai-content-generator'); ?>
+        </label>
+    </div>
+</div>
+<div class="aipkit_form-help">
+    <?php esc_html_e('Provide additional context to the AI by enabling a knowledge base or real-time web search. Visibility of these options depends on the selected AI Provider.', 'gpt3-ai-content-generator'); ?>
 </div>
 
 <div class="aipkit_ai_form_vector_store_conditional_settings" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--aipkit_container-border);">
@@ -111,5 +137,78 @@ if (!defined('ABSPATH')) {
             <span id="aipkit_ai_form_vector_store_top_k_value" class="aipkit_slider_value">3</span>
         </div>
         <p class="aipkit_form-help"><?php esc_html_e('Max relevant results from vector store. Applies per OpenAI store if multiple are selected.', 'gpt3-ai-content-generator'); ?></p>
+    </div>
+</div>
+
+<!-- OpenAI Web Search Settings -->
+<div class="aipkit_ai_form_openai_web_search_settings" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--aipkit_container-border);">
+    <p class="aipkit_form-help" style="margin-top: 0;"><?php esc_html_e('Configure real-time web search for OpenAI models.', 'gpt3-ai-content-generator'); ?></p>
+    
+    <div class="aipkit_form-row">
+        <div class="aipkit_form-group aipkit_form-col">
+            <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_context_size"><?php esc_html_e('Search Context Size', 'gpt3-ai-content-generator'); ?></label>
+            <select id="aipkit_ai_form_openai_web_search_context_size" name="openai_web_search_context_size" class="aipkit_form-input">
+                <option value="low"><?php esc_html_e('Low', 'gpt3-ai-content-generator'); ?></option>
+                <option value="medium" selected><?php esc_html_e('Medium (Default)', 'gpt3-ai-content-generator'); ?></option>
+                <option value="high"><?php esc_html_e('High', 'gpt3-ai-content-generator'); ?></option>
+            </select>
+        </div>
+        <div class="aipkit_form-group aipkit_form-col">
+            <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_type"><?php esc_html_e('User Location', 'gpt3-ai-content-generator'); ?></label>
+            <select id="aipkit_ai_form_openai_web_search_loc_type" name="openai_web_search_loc_type" class="aipkit_form-input aipkit_ai_form_openai_web_search_loc_type_select">
+                <option value="none" selected><?php esc_html_e('None (Default)', 'gpt3-ai-content-generator'); ?></option>
+                <option value="approximate"><?php esc_html_e('Approximate', 'gpt3-ai-content-generator'); ?></option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="aipkit_ai_form_openai_web_search_location_details" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+        <div class="aipkit_form-row">
+            <div class="aipkit_form-group aipkit_form-col">
+                <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_country"><?php esc_html_e('Country (ISO Code)', 'gpt3-ai-content-generator'); ?></label>
+                <input type="text" id="aipkit_ai_form_openai_web_search_loc_country" name="openai_web_search_loc_country" class="aipkit_form-input" placeholder="<?php esc_attr_e('e.g., US, GB', 'gpt3-ai-content-generator'); ?>" maxlength="2">
+            </div>
+            <div class="aipkit_form-group aipkit_form-col">
+                <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_city"><?php esc_html_e('City', 'gpt3-ai-content-generator'); ?></label>
+                <input type="text" id="aipkit_ai_form_openai_web_search_loc_city" name="openai_web_search_loc_city" class="aipkit_form-input" placeholder="<?php esc_attr_e('e.g., London', 'gpt3-ai-content-generator'); ?>">
+            </div>
+        </div>
+        <div class="aipkit_form-row">
+            <div class="aipkit_form-group aipkit_form-col">
+                <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_region"><?php esc_html_e('Region/State', 'gpt3-ai-content-generator'); ?></label>
+                <input type="text" id="aipkit_ai_form_openai_web_search_loc_region" name="openai_web_search_loc_region" class="aipkit_form-input" placeholder="<?php esc_attr_e('e.g., California', 'gpt3-ai-content-generator'); ?>">
+            </div>
+            <div class="aipkit_form-group aipkit_form-col">
+                <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_timezone"><?php esc_html_e('Timezone (IANA)', 'gpt3-ai-content-generator'); ?></label>
+                <input type="text" id="aipkit_ai_form_openai_web_search_loc_timezone" name="openai_web_search_loc_timezone" class="aipkit_form-input" placeholder="<?php esc_attr_e('e.g., America/Chicago', 'gpt3-ai-content-generator'); ?>">
+            </div>
+        </div>
+        <div class="aipkit_form-help"><?php esc_html_e('Leave location fields blank if not applicable. Country code is 2-letter ISO (e.g., US).', 'gpt3-ai-content-generator'); ?></div>
+    </div>
+</div>
+
+<!-- Google Search Grounding Settings -->
+<div class="aipkit_ai_form_google_search_grounding_settings" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--aipkit_container-border);">
+    <p class="aipkit_form-help" style="margin-top: 0;"><?php esc_html_e('Configure Google Search grounding for supported Gemini models.', 'gpt3-ai-content-generator'); ?></p>
+    <p class="aipkit_form-help" style="margin-top: 0;"><?php esc_html_e('Supported models: Gemini 2.5 Pro, Gemini 2.5 Flash, Gemini 2.0 Flash, Gemini 1.5 Pro, Gemini 1.5 Flash.', 'gpt3-ai-content-generator'); ?></p>
+
+    <div class="aipkit_form-row">
+        <div class="aipkit_form-group aipkit_form-col">
+            <label class="aipkit_form-label" for="aipkit_ai_form_google_grounding_mode"><?php esc_html_e('Grounding Mode', 'gpt3-ai-content-generator'); ?></label>
+            <select id="aipkit_ai_form_google_grounding_mode" name="google_grounding_mode" class="aipkit_form-input aipkit_ai_form_google_grounding_mode_select">
+                <option value="DEFAULT_MODE" selected><?php esc_html_e('Default (Model Decides/Search as Tool)', 'gpt3-ai-content-generator'); ?></option>
+                <option value="MODE_DYNAMIC"><?php esc_html_e('Dynamic Retrieval (Gemini 1.5 Flash only)', 'gpt3-ai-content-generator'); ?></option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="aipkit_ai_form_google_grounding_dynamic_threshold_container" style="display: none; margin-top: 10px;">
+        <div class="aipkit_form-group aipkit_form-col">
+            <label class="aipkit_form-label" for="aipkit_ai_form_google_grounding_dynamic_threshold"><?php esc_html_e('Dynamic Retrieval Threshold', 'gpt3-ai-content-generator'); ?></label>
+            <div class="aipkit_slider_wrapper" style="max-width: 400px;">
+                <input type="range" id="aipkit_ai_form_google_grounding_dynamic_threshold" name="google_grounding_dynamic_threshold" class="aipkit_form-input aipkit_range_slider" min="0.0" max="1.0" step="0.01" value="0.30">
+                <span id="aipkit_ai_form_google_grounding_dynamic_threshold_value" class="aipkit_slider_value">0.30</span>
+            </div>
+        </div>
     </div>
 </div>

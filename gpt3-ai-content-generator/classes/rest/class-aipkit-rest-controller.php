@@ -16,6 +16,8 @@ use WPAICG\REST\Handlers\AIPKit_REST_Embeddings_Handler;
 use WPAICG\REST\Handlers\AIPKit_REST_Chat_Handler;
 use WPAICG\REST\Handlers\AIPKit_REST_Vector_Store_Handler;
 use WPAICG\REST\Handlers\AIPKit_REST_Base_Handler; // For permission callback
+use WPAICG\REST\Handlers\AIPKit_REST_Chatbot_Embed_Handler; // NEW: Embed handler
+
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -33,12 +35,14 @@ class AIPKit_REST_Controller extends WP_REST_Controller
     protected $rest_base_embeddings = 'embeddings';
     protected $rest_base_chat = 'chat';
     protected $rest_base_vectors = 'vector-stores';
+    protected $rest_base_chatbot_embed = 'chatbots'; // NEW
 
     private $text_handler;
     private $image_handler;
     private $embeddings_handler;
     private $chat_handler;
     private $vector_store_handler;
+    private $chatbot_embed_handler; // NEW
     private $base_handler; // For permission check
 
     public function __construct()
@@ -49,6 +53,7 @@ class AIPKit_REST_Controller extends WP_REST_Controller
         $this->rest_base_embeddings = 'embeddings';
         $this->rest_base_chat = 'chat';
         $this->rest_base_vectors = 'vector-stores';
+        $this->rest_base_chatbot_embed = 'chatbots'; // NEW
 
         // Instantiate handlers
         if (class_exists(AIPKit_REST_Text_Handler::class)) {
@@ -70,6 +75,11 @@ class AIPKit_REST_Controller extends WP_REST_Controller
         if (class_exists(AIPKit_REST_Vector_Store_Handler::class)) {
             $this->vector_store_handler = new AIPKit_REST_Vector_Store_Handler();
         }
+        
+        // NEW: Instantiate embed handler
+        if (class_exists(AIPKit_REST_Chatbot_Embed_Handler::class)) {
+            $this->chatbot_embed_handler = new AIPKit_REST_Chatbot_Embed_Handler();
+        }
 
         if ($this->text_handler) {
             $this->base_handler = $this->text_handler;
@@ -82,9 +92,21 @@ class AIPKit_REST_Controller extends WP_REST_Controller
      */
     public function register_routes()
     {
-        if (!$this->text_handler || !$this->image_handler || !$this->embeddings_handler || !$this->chat_handler || !$this->vector_store_handler || !$this->base_handler) {
+        if (!$this->text_handler || !$this->image_handler || !$this->embeddings_handler || !$this->chat_handler || !$this->vector_store_handler || !$this->base_handler || !$this->chatbot_embed_handler) {
             return;
         }
+        
+        // NEW: Register Chatbot Embed Config route
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base_chatbot_embed . '/(?P<bot_id>\d+)/embed-config',
+            array(
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => array($this->chatbot_embed_handler, 'handle_request'),
+                'permission_callback' => '__return_true', // Publicly accessible
+                'args'                => $this->chatbot_embed_handler->get_endpoint_args(),
+            )
+        );
 
         register_rest_route(
             $this->namespace,

@@ -557,6 +557,22 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         $details = $this->vector_store_manager->describe_single_index($provider, $store_id, $provider_config);
         if (is_wp_error($details)) {
+            // Handle 404 errors gracefully - the store no longer exists
+            if ($details->get_error_code() === 'openai_vector_api_error' && 
+                strpos($details->get_error_message(), '404') !== false) {
+                
+                // Remove the store from registry since it doesn't exist anymore
+                AIPKit_Vector_Store_Registry::remove_registered_store($provider, $store_id);
+                
+                // Return 'Not Found' status instead of error
+                wp_send_json_success([
+                    'document_count' => 'NA',
+                    'last_updated' => 'NA'
+                ]);
+                return;
+            }
+            
+            // For other errors, send the error as before
             $this->send_wp_error($details);
         }
 

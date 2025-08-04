@@ -1,4 +1,6 @@
 <?php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/ai-forms/storage/methods/fn-save-form-settings.php
+// Status: MODIFIED
 
 namespace WPAICG\AIForms\Storage\Methods;
 
@@ -74,10 +76,49 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     if (isset($settings['vector_store_top_k'])) {
         update_post_meta($form_id, '_aipkit_ai_form_vector_store_top_k', absint($settings['vector_store_top_k']));
     }
+    // --- END Vector Settings ---
+
+    // --- NEW: Save Web Search & Grounding Settings ---
+    if (isset($settings['openai_web_search_enabled'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openai_web_search_enabled', $settings['openai_web_search_enabled'] === '1' ? '1' : '0');
+    }
+    if (isset($settings['google_search_grounding_enabled'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_google_search_grounding_enabled', $settings['google_search_grounding_enabled'] === '1' ? '1' : '0');
+    }
+    
+    // --- Save OpenAI Web Search Sub-Settings ---
+    if (isset($settings['openai_web_search_context_size'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openai_web_search_context_size', sanitize_text_field($settings['openai_web_search_context_size']));
+    }
+    if (isset($settings['openai_web_search_loc_type'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_type', sanitize_text_field($settings['openai_web_search_loc_type']));
+    }
+    if (isset($settings['openai_web_search_loc_country'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_country', sanitize_text_field($settings['openai_web_search_loc_country']));
+    }
+    if (isset($settings['openai_web_search_loc_city'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_city', sanitize_text_field($settings['openai_web_search_loc_city']));
+    }
+    if (isset($settings['openai_web_search_loc_region'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_region', sanitize_text_field($settings['openai_web_search_loc_region']));
+    }
+    if (isset($settings['openai_web_search_loc_timezone'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_timezone', sanitize_text_field($settings['openai_web_search_loc_timezone']));
+    }
+    
+    // --- Save Google Search Grounding Sub-Settings ---
+    if (isset($settings['google_grounding_mode'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_google_grounding_mode', sanitize_text_field($settings['google_grounding_mode']));
+    }
+    if (isset($settings['google_grounding_dynamic_threshold'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_google_grounding_dynamic_threshold', floatval($settings['google_grounding_dynamic_threshold']));
+    }
+    // --- END NEW ---
+
 
     // --- Save Labels ---
     if (isset($settings['labels']) && is_array($settings['labels'])) {
-        $sanitized_labels = [];
+            $sanitized_labels = [];
         $allowed_keys = ['generate_button', 'stop_button', 'download_button', 'save_button', 'copy_button', 'provider_label', 'model_label'];
         foreach ($settings['labels'] as $key => $value) {
             if (in_array($key, $allowed_keys, true)) {

@@ -1,6 +1,6 @@
 <?php
 
-// File: classes/chat/storage/saver/save-meta-fields-logic.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/saver/save-meta-fields-logic.php
 // Status: MODIFIED
 
 namespace WPAICG\Chat\Storage\SaverMethods;
@@ -163,7 +163,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         }
     }
 
-    // --- ADDED: Save Realtime Voice Agent settings ---
+    // --- Save Realtime Voice Agent settings ---
     update_post_meta($botId, '_aipkit_enable_realtime_voice', $sanitized_settings['enable_realtime_voice']);
     update_post_meta($botId, '_aipkit_direct_voice_mode', $sanitized_settings['direct_voice_mode']);
     update_post_meta($botId, '_aipkit_realtime_model', $sanitized_settings['realtime_model']);
@@ -173,16 +173,18 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_input_audio_format', $sanitized_settings['input_audio_format']);
     update_post_meta($botId, '_aipkit_output_audio_format', $sanitized_settings['output_audio_format']);
     update_post_meta($botId, '_aipkit_input_audio_noise_reduction', $sanitized_settings['input_audio_noise_reduction']);
+    // --- END ---
+    
+    // --- ADDED: Save embed allowed domains ---
+    update_post_meta($botId, '_aipkit_embed_allowed_domains', $sanitized_settings['embed_allowed_domains']);
     // --- END ADDED ---
 
-    // --- MODIFIED: Conditional access to Trigger Storage META_KEY ---
     $trigger_meta_key = '_aipkit_chatbot_triggers'; // Fallback key
-    $trigger_storage_class_name = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage'; // New Pro location/namespace
+    $trigger_storage_class_name = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
 
     if (class_exists($trigger_storage_class_name)) {
         $trigger_meta_key = $trigger_storage_class_name::META_KEY;
     }
-    // --- END MODIFICATION ---
 
     $triggers_json_string = $sanitized_settings['triggers_json'] ?? '[]';
     $decoded_triggers_for_validation = json_decode($triggers_json_string, true);

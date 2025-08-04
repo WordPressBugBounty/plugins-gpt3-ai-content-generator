@@ -2,21 +2,21 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Pack (formerly AI Power) 2.3.29\n"
+"Project-Id-Version: AIP: Complete AI Toolkit (formerly AI Power) 2.3.30\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-03T12:37:48+00:00\n"
+"POT-Creation-Date: 2025-08-04T21:23:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
 
 #. Plugin Name of the plugin
 #: gpt3-ai-content-generator.php
-msgid "AIP: Complete AI Pack (formerly AI Power)"
+msgid "AIP: Complete AI Toolkit (formerly AI Power)"
 msgstr ""
 
 #. Description of the plugin
@@ -114,7 +114,7 @@ msgstr[1] ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:14
 #: admin/views/modules/ai-forms/partials/labels-config.php:15
 #: admin/views/modules/content-writer/partials/form-inputs/generation-mode.php:122
-#: classes/ai-forms/storage/methods/fn-get-form-data.php:117
+#: classes/ai-forms/storage/methods/fn-get-form-data.php:135
 #: public/views/shortcodes/image-generator.php:163
 msgid "Generate"
 msgstr ""
@@ -125,7 +125,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:19
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:209
 #: admin/views/modules/content-writer/partials/form-inputs/generation-mode.php:126
-#: classes/ai-forms/storage/methods/fn-get-form-data.php:118
+#: classes/ai-forms/storage/methods/fn-get-form-data.php:136
 #: public/js/ai-forms/actions/sse/ui-manager.js:57
 msgid "Stop"
 msgstr ""
@@ -135,7 +135,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:25
 #: admin/views/modules/chatbot/partials/appearance/feature-toggles.php:88
 #: admin/views/modules/chatbot/partials/context/feature-toggles.php:89
-#: classes/ai-forms/storage/methods/fn-get-form-data.php:119
+#: classes/ai-forms/storage/methods/fn-get-form-data.php:137
 #: public/js/ai-forms/actions/sse/event-handlers.js:140
 msgid "Download"
 msgstr ""
@@ -143,10 +143,10 @@ msgstr ""
 #: admin/ajax/ai-forms/ajax-save-form.php:42
 #: admin/views/modules/ai-forms/partials/labels-config.php:28
 #: admin/views/modules/ai-forms/partials/labels-config.php:29
-#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:108
+#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:141
 #: admin/views/modules/content-writer/partials/template-controls.php:48
 #: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:202
-#: classes/ai-forms/storage/methods/fn-get-form-data.php:120
+#: classes/ai-forms/storage/methods/fn-get-form-data.php:138
 #: public/class-wp-ai-content-generator-public.php:150
 #: public/js/ai-forms/actions/sse/event-handlers.js:118
 msgid "Save"
@@ -159,7 +159,7 @@ msgstr ""
 #: admin/views/modules/chatbot/partials/context/feature-toggles.php:112
 #: admin/views/modules/content-writer/partials/output-area.php:70
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:136
-#: classes/ai-forms/storage/methods/fn-get-form-data.php:121
+#: classes/ai-forms/storage/methods/fn-get-form-data.php:139
 #: public/js/ai-forms/actions/sse/event-handlers.js:158
 msgid "Copy"
 msgstr ""
@@ -170,36 +170,36 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/community-engagement/ai-settings.php:18
 #: admin/views/modules/autogpt/partials/content-enhancement/ai-and-prompts.php:49
 #: admin/views/modules/autogpt/partials/content-writing/model-settings.php:22
-#: classes/ai-forms/storage/methods/fn-get-form-data.php:122
+#: classes/ai-forms/storage/methods/fn-get-form-data.php:140
 msgid "AI Provider"
 msgstr ""
 
 #: admin/ajax/ai-forms/ajax-save-form.php:45
 #: admin/views/modules/ai-forms/partials/labels-config.php:44
 #: admin/views/modules/ai-forms/partials/_form-editor-main-settings.php:83
-#: classes/ai-forms/storage/methods/fn-get-form-data.php:123
+#: classes/ai-forms/storage/methods/fn-get-form-data.php:141
 msgid "AI Model"
 msgstr ""
 
-#: admin/ajax/ai-forms/ajax-save-form.php:86
+#: admin/ajax/ai-forms/ajax-save-form.php:102
 msgid "Invalid form structure data submitted."
 msgstr ""
 
-#: admin/ajax/ai-forms/ajax-save-form.php:91
+#: admin/ajax/ai-forms/ajax-save-form.php:107
 #: classes/ai-forms/storage/methods/fn-create-form.php:23
 msgid "Form title cannot be empty."
 msgstr ""
 
-#: admin/ajax/ai-forms/ajax-save-form.php:95
+#: admin/ajax/ai-forms/ajax-save-form.php:111
 #: admin/assets/class-aipkit-ai-forms-assets.php:174
 msgid "Prompt template is required."
 msgstr ""
 
-#: admin/ajax/ai-forms/ajax-save-form.php:133
+#: admin/ajax/ai-forms/ajax-save-form.php:162
 msgid "Form updated successfully."
 msgstr ""
 
-#: admin/ajax/ai-forms/ajax-save-form.php:139
+#: admin/ajax/ai-forms/ajax-save-form.php:168
 msgid "Form created successfully."
 msgstr ""
 
@@ -724,7 +724,7 @@ msgstr ""
 #: admin/assets/class-aipkit-post-enhancer-assets.php:218
 #: admin/views/migration-tool/partials/_status_analysis_results.php:86
 #: admin/views/modules/ai-training/partials/knowledge-base-details.php:30
-#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:80
+#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:113
 #: admin/js/ai-forms/list/render-table.js:192
 #: admin/js/ai-forms/ui/render-dropped-element.js:189
 msgid "Delete"
@@ -1286,7 +1286,7 @@ msgid "Please select a Qdrant collection."
 msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:183
-#: admin/views/modules/ai-forms/partials/vector-config.php:91
+#: admin/views/modules/ai-forms/partials/vector-config.php:117
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:85
 #: admin/views/modules/chatbot/partials/accordion-context.php:362
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:87
@@ -1295,7 +1295,7 @@ msgid "Embedding Provider"
 msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:184
-#: admin/views/modules/ai-forms/partials/vector-config.php:98
+#: admin/views/modules/ai-forms/partials/vector-config.php:124
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:92
 #: admin/views/modules/chatbot/partials/accordion-context.php:375
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:94
@@ -1827,7 +1827,7 @@ msgid "(%s)"
 msgstr ""
 
 #: admin/views/dashboard.php:25
-#: admin/views/modules/addons/index.php:112
+#: admin/views/modules/addons/index.php:119
 #: admin/views/modules/logs/index.php:124
 #: admin/views/modules/logs/index.php:131
 msgid "Chat"
@@ -1874,7 +1874,7 @@ msgid "Dashboard"
 msgstr ""
 
 #: admin/views/dashboard.php:112
-#: admin/views/modules/addons/index.php:124
+#: admin/views/modules/addons/index.php:131
 msgid "Add-ons"
 msgstr ""
 
@@ -2229,7 +2229,10 @@ msgid "Connect to Pinecone and Qdrant vector databases for advanced AI Training 
 msgstr ""
 
 #: admin/views/modules/addons/index.php:71
-msgid "File Upload (OpenAI)"
+#: admin/views/modules/ai-forms/partials/form-editor.php:77
+#: admin/views/modules/ai-forms/partials/form-editor.php:82
+#: admin/views/modules/chatbot/partials/accordion-context.php:180
+msgid "File Upload"
 msgstr ""
 
 #: admin/views/modules/addons/index.php:72
@@ -2280,30 +2283,39 @@ msgstr ""
 msgid "Enable low-latency, speech-to-speech conversational experiences using OpenAI's Realtime API."
 msgstr ""
 
-#: admin/views/modules/addons/index.php:111
+#: admin/views/modules/addons/index.php:104
+#: lib/views/chatbot/partials/accordion-embed.php:37
+msgid "Embed Anywhere"
+msgstr ""
+
+#: admin/views/modules/addons/index.php:105
+msgid "Embed your chatbots on any external website with a simple HTML snippet."
+msgstr ""
+
+#: admin/views/modules/addons/index.php:118
 msgid "Core"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:113
+#: admin/views/modules/addons/index.php:120
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:73
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:40
 #: classes/core/ajax/class-aipkit-core-ajax-handler.php:337
 msgid "Content"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:114
+#: admin/views/modules/addons/index.php:121
 msgid "AI Training & Data"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:115
+#: admin/views/modules/addons/index.php:122
 msgid "Security & Moderation"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:116
+#: admin/views/modules/addons/index.php:123
 msgid "Privacy & Compliance"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:120
+#: admin/views/modules/addons/index.php:127
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:145
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:153
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:118
@@ -2311,34 +2323,34 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:130
+#: admin/views/modules/addons/index.php:137
 msgid "Filter by Category:"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:171
+#: admin/views/modules/addons/index.php:178
 #: admin/views/modules/ai-training/partials/settings.php:29
 #: admin/js/ai-forms/list/render-table.js:56
 msgid "Pro"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:177
+#: admin/views/modules/addons/index.php:184
 msgid "Category:"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:190
+#: admin/views/modules/addons/index.php:197
 msgid "Deactivate"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:190
+#: admin/views/modules/addons/index.php:197
 msgid "Activate"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:195
+#: admin/views/modules/addons/index.php:202
 #: admin/views/modules/ai-training/partials/settings.php:37
 msgid "Upgrade to Pro"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:204
+#: admin/views/modules/addons/index.php:211
 msgid "No add-ons match the current filter."
 msgstr ""
 
@@ -2409,12 +2421,6 @@ msgstr ""
 
 #: admin/views/modules/ai-forms/partials/form-editor.php:72
 msgid "Radio Buttons"
-msgstr ""
-
-#: admin/views/modules/ai-forms/partials/form-editor.php:77
-#: admin/views/modules/ai-forms/partials/form-editor.php:82
-#: admin/views/modules/chatbot/partials/accordion-context.php:180
-msgid "File Upload"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/form-editor.php:80
@@ -2614,43 +2620,51 @@ msgstr ""
 msgid "Save Settings"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:25
-#: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:21
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:23
-#: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:24
-msgid "Enable Vector Store"
+#: admin/views/modules/ai-forms/partials/vector-config.php:26
+#: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:24
+#: admin/views/modules/chatbot/partials/accordion-context.php:153
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:355
+msgid "Vector Store"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:28
-msgid "Allow this form to query a vector store for context before generating a response."
+#: admin/views/modules/ai-forms/partials/vector-config.php:38
+msgid "OpenAI Web Search"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:35
+#: admin/views/modules/ai-forms/partials/vector-config.php:50
+msgid "Google Search"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:55
+msgid "Provide additional context to the AI by enabling a knowledge base or real-time web search. Visibility of these options depends on the selected AI Provider."
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:61
 msgid "Vector Store Provider"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:45
+#: admin/views/modules/ai-forms/partials/vector-config.php:71
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:43
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:45
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:46
 msgid "OpenAI Vector Stores"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:52
+#: admin/views/modules/ai-forms/partials/vector-config.php:78
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:50
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:52
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:53
 msgid "No stores found (Sync in AI Training)"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:58
+#: admin/views/modules/ai-forms/partials/vector-config.php:84
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:55
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:57
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:58
 msgid "Pinecone Index"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:60
+#: admin/views/modules/ai-forms/partials/vector-config.php:86
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:57
 #: admin/views/modules/chatbot/partials/accordion-context.php:275
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:59
@@ -2658,21 +2672,21 @@ msgstr ""
 msgid "-- Select Index --"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:66
+#: admin/views/modules/ai-forms/partials/vector-config.php:92
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:63
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:65
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:66
 msgid "No indexes found (Sync in AI Settings)"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:72
+#: admin/views/modules/ai-forms/partials/vector-config.php:98
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:68
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:70
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:71
 msgid "Qdrant Collection"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:74
+#: admin/views/modules/ai-forms/partials/vector-config.php:100
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:70
 #: admin/views/modules/chatbot/partials/accordion-context.php:310
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:72
@@ -2681,29 +2695,141 @@ msgstr ""
 msgid "-- Select Collection --"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:80
+#: admin/views/modules/ai-forms/partials/vector-config.php:106
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:76
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:78
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:79
 msgid "No collections found (Sync in AI Settings)"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:100
+#: admin/views/modules/ai-forms/partials/vector-config.php:126
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:94
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:96
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:97
 msgid "Select Provider First"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:108
+#: admin/views/modules/ai-forms/partials/vector-config.php:134
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:36
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:38
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:39
 msgid "Results Limit"
 msgstr ""
 
-#: admin/views/modules/ai-forms/partials/vector-config.php:113
+#: admin/views/modules/ai-forms/partials/vector-config.php:139
 msgid "Max relevant results from vector store. Applies per OpenAI store if multiple are selected."
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:145
+msgid "Configure real-time web search for OpenAI models."
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:149
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:133
+msgid "Search Context Size"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:151
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:135
+msgid "Low"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:152
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:136
+msgid "Medium (Default)"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:153
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:137
+msgid "High"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:157
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:141
+msgid "User Location"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:159
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:143
+msgid "None (Default)"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:160
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:144
+msgid "Approximate"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:168
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:150
+msgid "Country (ISO Code)"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:169
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:150
+msgid "e.g., US, GB"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:172
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:151
+msgid "City"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:173
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:151
+msgid "e.g., London"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:178
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:154
+msgid "Region/State"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:179
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:154
+msgid "e.g., California"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:182
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:155
+msgid "Timezone (IANA)"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:183
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:155
+msgid "e.g., America/Chicago"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:186
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:157
+msgid "Leave location fields blank if not applicable. Country code is 2-letter ISO (e.g., US)."
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:192
+msgid "Configure Google Search grounding for supported Gemini models."
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:193
+msgid "Supported models: Gemini 2.5 Pro, Gemini 2.5 Flash, Gemini 2.0 Flash, Gemini 1.5 Pro, Gemini 1.5 Flash."
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:197
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:163
+msgid "Grounding Mode"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:199
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:165
+msgid "Default (Model Decides/Search as Tool)"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:200
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:166
+msgid "Dynamic Retrieval (Gemini 1.5 Flash only)"
+msgstr ""
+
+#: admin/views/modules/ai-forms/partials/vector-config.php:207
+#: admin/views/modules/chatbot/partials/ai-config/parameters.php:173
+msgid "Dynamic Retrieval Threshold"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/_form-editor-actions.php:20
@@ -3566,6 +3692,12 @@ msgstr ""
 msgid "e.g., review, update"
 msgstr ""
 
+#: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:21
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:23
+#: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:24
+msgid "Enable Vector Store"
+msgstr ""
+
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:23
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:25
 msgid "Use a knowledge base to provide context for generation."
@@ -3639,12 +3771,6 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/content-writing/post-settings.php:90
 #: admin/views/modules/content-writer/partials/form-inputs/post-settings.php:103
 msgid "Append | YYYY-MM-DD HH:MM to the end of each line in your Bulk/CSV/URL/Sheets input to schedule posts individually."
-msgstr ""
-
-#: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:24
-#: admin/views/modules/chatbot/partials/accordion-context.php:153
-#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:355
-msgid "Vector Store"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:26
@@ -4410,86 +4536,6 @@ msgstr ""
 msgid "Max Messages"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:133
-msgid "Search Context Size"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:135
-msgid "Low"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:136
-msgid "Medium (Default)"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:137
-msgid "High"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:141
-msgid "User Location"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:143
-msgid "None (Default)"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:144
-msgid "Approximate"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:150
-msgid "Country (ISO Code)"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:150
-msgid "e.g., US, GB"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:151
-msgid "City"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:151
-msgid "e.g., London"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:154
-msgid "Region/State"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:154
-msgid "e.g., California"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:155
-msgid "Timezone (IANA)"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:155
-msgid "e.g., America/Chicago"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:157
-msgid "Leave location fields blank if not applicable. Country code is 2-letter ISO (e.g., US)."
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:163
-msgid "Grounding Mode"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:165
-msgid "Default (Model Decides/Search as Tool)"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:166
-msgid "Dynamic Retrieval (Gemini 1.5 Flash only)"
-msgstr ""
-
-#: admin/views/modules/chatbot/partials/ai-config/parameters.php:173
-msgid "Dynamic Retrieval Threshold"
-msgstr ""
-
 #: admin/views/modules/chatbot/partials/ai-config/provider-model.php:40
 #: admin/views/modules/settings/partials/settings-provider-select.php:14
 msgid "Engine"
@@ -4729,7 +4775,7 @@ msgid "Reset all custom theme settings to their defaults."
 msgstr ""
 
 #: admin/views/modules/chatbot/partials/appearance/custom-theme/reset-theme-button.php:28
-#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:90
+#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:123
 msgid "Reset"
 msgstr ""
 
@@ -4865,7 +4911,7 @@ msgstr ""
 msgid "Click to copy shortcode"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:77
+#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:110
 #: classes/chat/admin/ajax/chatbot_ajax_handler.php:142
 #: classes/chat/storage/class-aipkit_bot_lifecycle_manager.php:96
 msgid "The default chatbot cannot be deleted."
@@ -5700,7 +5746,7 @@ msgid "Modules to Show"
 msgstr ""
 
 #: admin/views/modules/user-credits/index.php:39
-#: classes/chat/storage/class-aipkit-bot-settings-getter.php:77
+#: classes/chat/storage/class-aipkit-bot-settings-getter.php:78
 #: classes/shortcodes/token-usage/render/render_dashboard.php:60
 #: classes/shortcodes/token-usage/render/render_dashboard.php:64
 #: classes/shortcodes/token-usage/render/render_dashboard.php:70
@@ -6561,6 +6607,8 @@ msgid "Error processing form submission triggers."
 msgstr ""
 
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:119
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:45
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:142
 msgid "Upload File (TXT, PDF)"
 msgstr ""
 
@@ -6595,7 +6643,7 @@ msgid "Please provide a description after the image command (e.g., /image a cat 
 msgstr ""
 
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:54
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:74
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:84
 msgid "Toggle Web Search"
 msgstr ""
 
@@ -6604,12 +6652,12 @@ msgid "Web Search Active"
 msgstr ""
 
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:56
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:75
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:85
 msgid "Web Search Inactive"
 msgstr ""
 
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:57
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:87
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:97
 msgid "Toggle Google Search Grounding"
 msgstr ""
 
@@ -6618,38 +6666,33 @@ msgid "Google Search Grounding Active"
 msgstr ""
 
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:59
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:88
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:98
 msgid "Google Search Grounding Inactive"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:30
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:40
 msgid "Attach files or use tools"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:35
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:132
-msgid "Upload PDF"
-msgstr ""
-
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:39
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:49
 msgid "Upload Image"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:51
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:61
 msgid "Chat message input"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:100
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:101
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:110
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:111
 msgid "Start Voice Conversation"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:109
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:110
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:119
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:120
 msgid "Voice input"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:135
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:145
 msgid "Upload image"
 msgstr ""
 
@@ -6766,7 +6809,7 @@ msgstr ""
 msgid "Chatbot post has an invalid status."
 msgstr ""
 
-#: classes/chat/storage/saver/save-meta-fields-logic.php:190
+#: classes/chat/storage/saver/save-meta-fields-logic.php:192
 msgid "Invalid JSON format for triggers. Triggers were not saved."
 msgstr ""
 
@@ -6794,8 +6837,8 @@ msgstr ""
 #: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:36
 #: classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php:42
 #: classes/core/providers/google/ajax-sync-tts-voices.php:27
-#: classes/dashboard/class-aipkit_dashboard.php:160
-#: classes/dashboard/class-aipkit_dashboard.php:335
+#: classes/dashboard/class-aipkit_dashboard.php:161
+#: classes/dashboard/class-aipkit_dashboard.php:336
 #: classes/dashboard/class-aipkit_role_manager.php:226
 #: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:24
 #: lib/content-writer/ajax/actions/class-aipkit-content-writer-scrape-url-action.php:27
@@ -7547,11 +7590,11 @@ msgid "Form prompt template is not configured."
 msgstr ""
 
 #. translators: %s: The name of the AI provider (e.g., OpenAI, Google).
-#: classes/core/stream/contexts/ai-forms/process/prepare-stream-data.php:117
+#: classes/core/stream/contexts/ai-forms/process/prepare-stream-data.php:129
 msgid "API key missing for %s (AI Forms)."
 msgstr ""
 
-#: classes/core/stream/contexts/ai-forms/process/prepare-stream-data.php:120
+#: classes/core/stream/contexts/ai-forms/process/prepare-stream-data.php:132
 msgid "Azure endpoint is missing (AI Forms)."
 msgstr ""
 
@@ -8147,11 +8190,11 @@ msgstr ""
 msgid "Points upserted to Qdrant successfully."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_dashboard.php:175
+#: classes/dashboard/class-aipkit_dashboard.php:176
 msgid "You do not have permission to access this module."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_dashboard.php:331
+#: classes/dashboard/class-aipkit_dashboard.php:332
 msgid "Unauthorized access."
 msgstr ""
 
@@ -8895,6 +8938,26 @@ msgstr ""
 
 #: classes/rest/handlers/class-aipkit-rest-chat-handler.php:131
 msgid "The specified chatbot was not found."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-chatbot-embed-handler.php:33
+msgid "The ID of the chatbot to get the configuration for."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-chatbot-embed-handler.php:55
+msgid "The frontend JavaScript configuration object for the chatbot."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-chatbot-embed-handler.php:60
+msgid "The fully rendered HTML for the chatbot container."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-chatbot-embed-handler.php:83
+msgid "The specified chatbot was not found or is not published."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-chatbot-embed-handler.php:123
+msgid "This domain is not permitted to embed the chatbot."
 msgstr ""
 
 #: classes/rest/handlers/class-aipkit-rest-embeddings-handler.php:28
@@ -10210,6 +10273,30 @@ msgstr ""
 msgid "File content embedded and upserted to Qdrant successfully."
 msgstr ""
 
+#: lib/views/chatbot/partials/accordion-embed.php:40
+msgid "Copy and paste this code snippet into any website's HTML where you want the chatbot to appear (e.g., before the closing </body> tag). This allows you to use your chatbot on non-WordPress sites."
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-embed.php:44
+msgid "Embed Code"
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-embed.php:58
+msgid "Copy Code"
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-embed.php:66
+msgid "Allowed Domains"
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-embed.php:73
+msgid "e.g., https://example.com, https://www.another-domain.org"
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-embed.php:76
+msgid "Enter the full domains (including https://) that are allowed to embed this chatbot, separated by commas or new lines. Leave empty to allow all domains (less secure)."
+msgstr ""
+
 #: lib/views/chatbot/partials/accordion-triggers.php:47
 msgid "Use the UI above to configure triggers."
 msgstr ""
@@ -10525,7 +10612,7 @@ msgstr ""
 msgid "Loading form details..."
 msgstr ""
 
-#: admin/js/ai-forms/ui/show-form-editor.js:500
+#: admin/js/ai-forms/ui/show-form-editor.js:594
 msgid "Could not load form data."
 msgstr ""
 

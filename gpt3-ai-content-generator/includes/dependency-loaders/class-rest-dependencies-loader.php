@@ -24,7 +24,8 @@ class Rest_Dependencies_Loader
             'class-aipkit-rest-image-handler.php',
             'class-aipkit-rest-embeddings-handler.php',
             'class-aipkit-rest-chat-handler.php',
-            'class-aipkit-rest-vector-store-handler.php'
+            'class-aipkit-rest-vector-store-handler.php',
+            'class-aipkit-rest-chatbot-embed-handler.php' // NEW: Embed handler
         ];
         foreach ($handlers_to_load as $handler_file) {
             $full_path = $rest_base_path . 'handlers/' . $handler_file;

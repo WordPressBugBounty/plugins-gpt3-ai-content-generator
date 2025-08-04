@@ -1,10 +1,10 @@
-=== AIP: Complete AI Pack (formerly AI Power) ===
+=== AIP: Complete AI Toolkit (formerly AI Power) ===
 Contributors: senols
-Tags: ai, chatbot, openai, gpt, chatgpt
+Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.29
+Stable tag: 2.3.30
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,16 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.30 =
+
+- **New Feature**: Embed Anywhere. You can now embed your chatbots on any external, non-WP website using a simple HTML snippet.
+
+[Read more about this new feature here](https://docs.aipower.org/docs/chat#embed-anywhere-external-sites)
+
+- **Added**: Web search support in AI Forms. You can now enable web search using either OpenAI or Google directly within your AI forms.
+- **Improved**: The last selected chatbot from the dropdown is now automatically remembered and loaded when returning to the Chatbot page.
+- **Fixed**: An issue in the AI Training module where console errors appeared when vector stores were deleted from the provider but still referenced locally.
 
 = 2.3.29 =
 

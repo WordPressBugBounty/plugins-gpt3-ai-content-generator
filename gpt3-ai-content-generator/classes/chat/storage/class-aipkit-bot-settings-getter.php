@@ -1,6 +1,6 @@
 <?php
 
-// File: classes/chat/storage/class-aipkit-bot-settings-getter.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/class-aipkit-bot-settings-getter.php
 // Status: MODIFIED
 
 namespace WPAICG\Chat\Storage;
@@ -26,7 +26,8 @@ require_once $getter_logic_path . 'fn-get-token-management-config.php';
 require_once $getter_logic_path . 'fn-get-openai-specific-config.php';
 require_once $getter_logic_path . 'fn-get-google-specific-config.php';
 require_once $getter_logic_path . 'fn-get-trigger-config.php';
-require_once $getter_logic_path . 'fn-get-voice-agent-config.php'; // ADDED
+require_once $getter_logic_path . 'fn-get-voice-agent-config.php';
+require_once $getter_logic_path . 'fn-get-embed-settings.php'; // ADDED
 
 
 if (!defined('ABSPATH')) {
@@ -91,9 +92,8 @@ class AIPKit_Bot_Settings_Getter
         $settings = array_merge($settings, GetterMethods\get_openai_specific_config_logic($bot_id, $get_meta_fn));
         $settings = array_merge($settings, GetterMethods\get_google_specific_config_logic($bot_id, $get_meta_fn));
         $settings = array_merge($settings, GetterMethods\get_trigger_config_logic($bot_id, $get_meta_fn));
-        // --- ADDED: Merge Voice Agent settings ---
         $settings = array_merge($settings, GetterMethods\get_voice_agent_config_logic($bot_id, $get_meta_fn));
-        // --- END ADDED ---
+        $settings = array_merge($settings, GetterMethods\get_embed_settings_logic($bot_id, $get_meta_fn)); // ADDED
 
         return $settings;
     }
