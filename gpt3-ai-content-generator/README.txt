@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.30
+Stable tag: 2.3.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,7 +20,7 @@ Our plugin operates on a "Bring Your Own API Key" model. You need to have an API
 
 **Key Features:**
 
-*   **AI Chatbot**: Build custom chatbots and deploy them anywhere on your site using a shortcode or as a popup. Train the chatbot on your own content, enable web search, set usage limits, and create automated triggers for advanced interactions. Supports voice input and playback.
+*   **AI Chatbot**: Build custom chatbots and deploy them anywhere on your site or an external site using a shortcode or as a popup. Train the chatbot on your own content, enable web search, set usage limits, and create automated triggers for advanced interactions. Supports voice input and playback.
 *   **Content Writer**: Generate high-quality articles, product descriptions, or any other text content. Input ideas from a list, CSV file, RSS feeds, or a list of URLs.
 *   **AI Forms**: A drag-and-drop form builder that uses AI to process user input. Create custom tools that can generate anything from a blog post outline to a customer support reply based on what your users enter.
 *   **Automation Engine**: Schedule AI tasks to run in the background. Automate content creation, update existing posts, index your content into a knowledge base, and automatically reply to blog comments.
@@ -76,6 +76,15 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.31 =
+
+- **New Feature**: Embed Anywhere. You can now embed your chatbots on any external, non-WP website using a simple HTML snippet.
+
+[Read more about this new feature here](https://docs.aipower.org/docs/chat#embed-anywhere-external-sites)
+
+- **Fixed**: Fixed an issue where chatbot assets failed to load when the shortcode was placed inside a modal or other dynamically loaded content.
+- **Improved**: The Default Template in Content Writer is now fully editable. Admins can view, edit, rename, and delete all templates. Your last-used template is now auto-loaded during the same browser session.
 
 = 2.3.30 =
 

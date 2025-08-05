@@ -71,6 +71,14 @@ class AIPKit_Dependency_Loader
             require_once $identifier_utils_path;
         }
         // --- END ADDED ---
+        // --- ADDED: Load new CORS Manager class ---
+        $cors_manager_path = WPAICG_PLUGIN_DIR . 'includes/utils/class-aipkit-cors-manager.php';
+        if (file_exists($cors_manager_path)) {
+            require_once $cors_manager_path;
+            // Initialize the CORS manager
+            \WPAICG\Utils\AIPKit_CORS_Manager::init();
+        }
+        // --- END ADDED ---
 
 
         // --- Load the new specialized loader class files ---

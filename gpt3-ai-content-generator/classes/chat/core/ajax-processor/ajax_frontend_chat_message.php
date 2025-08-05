@@ -7,6 +7,7 @@ namespace WPAICG\Chat\Core\AjaxProcessor;
 
 use WPAICG\Chat\Storage\BotStorage; // Needed by context builder
 use WPAICG\Core\AIPKit_Content_Moderator; // For moderation, used by validator
+use WPAICG\Utils\AIPKit_CORS_Manager; // For CORS handling
 use WP_Error;
 // Ensure dependencies for logic file are loaded if not by main loader
 use WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage;
@@ -25,6 +26,40 @@ if (!defined('ABSPATH')) {
  */
 function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorInstance): void
 {
+    // --- Handle preflight OPTIONS request ---
+    AIPKit_CORS_Manager::handle_preflight_request();
+
+    // --- Extract bot_id early for CORS check ---
+    $post_data = wp_unslash($_POST);
+    $bot_id_from_request = isset($post_data['bot_id']) ? absint($post_data['bot_id']) : 0;
+
+    // --- CORS Check ---
+    if ($bot_id_from_request > 0) {
+        // Check if embed feature is available before allowing external access
+        if (class_exists('\WPAICG\aipkit_dashboard') && 
+            \WPAICG\aipkit_dashboard::is_pro_plan() && 
+            \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')) {
+            
+            $origin_allowed = AIPKit_CORS_Manager::check_and_set_cors_headers($bot_id_from_request);
+            if (!$origin_allowed) {
+                wp_send_json_error(
+                    ['message' => __('This domain is not permitted to access the chatbot.', 'gpt3-ai-content-generator')],
+                    403
+                );
+                return;
+            }
+        } else {
+            // If embed feature is not available, check if this is a cross-origin request
+            if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+                wp_send_json_error(
+                    ['message' => __('Embed feature is not available with your current plan.', 'gpt3-ai-content-generator')],
+                    403
+                );
+                return;
+            }
+        }
+    }
+
     // --- 0. Security Check ---
     if (!check_ajax_referer('aipkit_frontend_chat_nonce', '_ajax_nonce', false)) {
         wp_send_json_error(
@@ -33,7 +68,7 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
         );
         return;
     }
-    // Unslash all POST data at once.
+    // Unslash all POST data at once (already done above, but keeping for clarity)
     $post_data = wp_unslash($_POST);
 
     // --- 0. Get Sub-Processors ---

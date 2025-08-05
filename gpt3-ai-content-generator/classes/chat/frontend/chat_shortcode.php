@@ -9,6 +9,7 @@ use WPAICG\Chat\Frontend\Shortcode\FeatureManager;
 use WPAICG\Chat\Frontend\Shortcode\Configurator;
 use WPAICG\Chat\Frontend\Shortcode\Renderer;
 use WPAICG\Chat\Frontend\Shortcode\SiteWideHandler;
+use WPAICG\Chat\Frontend\Assets\AssetsEnqueuer; // Import the enqueuer class
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -77,13 +78,20 @@ class Shortcode {
         // 4. Prepare Frontend Config
         $frontend_config = Configurator::prepare_config($bot_id, $bot_post, $bot_settings, $feature_flags);
 
-        // 5. Signal Assets Needed
+        // 5. Signal Assets Needed AND Force Enqueue
         Assets::require_assets(
             $feature_flags['pdf_ui_enabled'],
             $feature_flags['enable_copy_button'],
             $feature_flags['starters_ui_enabled'],
             $feature_flags['sidebar_ui_enabled']
         );
+
+        // --- THE FIX: Manually trigger the enqueuer logic ---
+        // This ensures assets are loaded even if the `wp_enqueue_scripts` hook has already run.
+        if (class_exists(AssetsEnqueuer::class)) {
+            (new AssetsEnqueuer())->process_assets();
+        }
+        // --- END FIX ---
 
         // 6. Mark as rendered *before* generating HTML
         self::$rendered_bot_ids[$bot_id] = true;

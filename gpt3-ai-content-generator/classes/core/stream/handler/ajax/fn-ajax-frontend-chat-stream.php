@@ -6,6 +6,7 @@
 namespace WPAICG\Core\Stream\Handler\Ajax;
 
 use WPAICG\Core\Stream\Handler\SSEHandler; 
+use WPAICG\Utils\AIPKit_CORS_Manager; // For CORS handling
 use WP_Error; 
 
 
@@ -23,6 +24,25 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
     $response_formatter = $handlerInstance->get_response_formatter();
     $request_handler    = $handlerInstance->get_request_handler();
     $stream_processor   = $handlerInstance->get_stream_processor();
+
+    // --- Handle preflight OPTIONS request ---
+    AIPKit_CORS_Manager::handle_preflight_request();
+
+    // --- CORS Check ---
+    $bot_id = 0;
+    if (isset($_GET['bot_id'])) {
+        $bot_id = absint(wp_unslash($_GET['bot_id']));
+    }
+
+    if ($bot_id > 0) {
+        $origin_allowed = AIPKit_CORS_Manager::check_and_set_cors_headers($bot_id);
+        if (!$origin_allowed) {
+            $response_formatter->set_sse_headers();
+            $response_formatter->send_sse_error(__('This domain is not permitted to access the chatbot.', 'gpt3-ai-content-generator'));
+            $response_formatter->send_sse_done();
+            exit;
+        }
+    }
 
     $response_formatter->set_sse_headers();
 

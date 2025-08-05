@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/template-manager/ensure-default-template-exists.php
 // Status: MODIFIED
-// I have added logic to update the existing default template with the new "Tags" prompt fields if they are missing.
+// I have updated this file to create a personal, editable "Default Template" for each user instead of a single, global, un-editable one.
 
 namespace WPAICG\ContentWriter\TemplateManagerMethods;
 
@@ -15,8 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 /**
-* Logic for ensuring the default template exists.
-* UPDATED: Removed guided mode fields (tone, length) and hardcoded prompt_mode to 'custom'.
+* Logic for ensuring a user-specific default template exists.
 *
 * @param \WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager $managerInstance The instance of the template manager.
 */
@@ -26,9 +25,11 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
     $table_name = $managerInstance->get_table_name();
 
     $current_user_id = get_current_user_id();
-    $user_id_for_default = 0;
+    if (!$current_user_id) {
+        return; // Do not create default templates for logged-out users/processes
+    }
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
-    $default_template = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE user_id = %d AND is_default = 1 AND template_type = 'content_writer' LIMIT 1", $user_id_for_default));
+    $default_template = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE user_id = %d AND is_default = 1 AND template_type = 'content_writer' LIMIT 1", $current_user_id));
 
     if (!$default_template) {
         if (!class_exists(AIPKit_Providers::class) || !class_exists(AIPKIT_AI_Settings::class)) {
@@ -38,7 +39,6 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
         $default_provider_config = AIPKit_Providers::get_default_provider_config();
         $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 
-        // --- START MODIFICATION ---
         $provider_for_template = $default_provider_config['provider'] ?? 'OpenAI';
 
         $model_for_template = '';
@@ -55,15 +55,13 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
             case 'azure':
             case 'deepseek':
             default:
-                // For Azure and DeepSeek, use the model specified in their respective provider settings.
                 $model_for_template = $default_provider_config['model'] ?? '';
                 break;
         }
-        // --- END MODIFICATION ---
 
         $default_config = [
-        'ai_provider' => $provider_for_template, // Use the determined provider
-        'ai_model' => $model_for_template, // Use the determined model
+        'ai_provider' => $provider_for_template,
+        'ai_model' => $model_for_template,
         'content_title' => '',
         'content_keywords' => '',
         'ai_temperature' => (string)($ai_parameters['temperature'] ?? 1.0),
@@ -87,8 +85,8 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
         'custom_tags_prompt' => AIPKit_Content_Writer_Prompts::get_default_tags_prompt(),
         'cw_generation_mode' => 'single',
         'rss_feeds' => '',
-        'rss_include_keywords' => '', // ADDED
-        'rss_exclude_keywords' => '', // ADDED
+        'rss_include_keywords' => '',
+        'rss_exclude_keywords' => '',
         'gsheets_sheet_id' => '',
         'gsheets_credentials' => '',
         'url_list' => '',
@@ -123,7 +121,7 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
         $wpdb->insert(
             $table_name,
             [
-            'user_id' => $user_id_for_default,
+            'user_id' => $current_user_id,
             'template_name' => __('Default Template', 'gpt3-ai-content-generator'),
             'template_type' => 'content_writer',
             'config' => wp_json_encode($default_config),
@@ -143,28 +141,24 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
         $config = json_decode($default_template->config, true);
         $needs_update = false;
 
-        // Check for 'generate_tags'
         if (!isset($config['generate_tags'])) {
-            $config['generate_tags'] = '1'; // default value
+            $config['generate_tags'] = '1';
             $needs_update = true;
         }
 
-        // Check for 'custom_tags_prompt'
         if (!isset($config['custom_tags_prompt'])) {
             $config['custom_tags_prompt'] = AIPKit_Content_Writer_Prompts::get_default_tags_prompt();
             $needs_update = true;
         }
 
-        // --- ADDED: Also check for excerpt, as it was added recently too ---
         if (!isset($config['generate_excerpt'])) {
-            $config['generate_excerpt'] = '1'; // default value
+            $config['generate_excerpt'] = '1';
             $needs_update = true;
         }
         if (!isset($config['custom_excerpt_prompt'])) {
             $config['custom_excerpt_prompt'] = AIPKit_Content_Writer_Prompts::get_default_excerpt_prompt();
             $needs_update = true;
         }
-        // --- END ADDED ---
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
         if ($needs_update) {$wpdb->update(
                 $table_name,

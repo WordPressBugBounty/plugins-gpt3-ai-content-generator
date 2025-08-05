@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Toolkit (formerly AI Power) 2.3.30\n"
+"Project-Id-Version: AIP: Complete AI Toolkit (formerly AI Power) 2.3.31\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-04T21:23:44+00:00\n"
+"POT-Creation-Date: 2025-08-05T17:49:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -6365,7 +6365,7 @@ msgid "Deletion error:"
 msgstr ""
 
 #: classes/chat/admin/ajax/traits/Trait_CheckAdminPermissions.php:24
-#: classes/chat/admin/ajax/traits/Trait_CheckFrontendPermissions.php:23
+#: classes/chat/admin/ajax/traits/Trait_CheckFrontendPermissions.php:49
 #: classes/chat/admin/ajax/traits/Trait_CheckModuleAccess.php:26
 #: classes/dashboard/ajax/class-aipkit-base-dashboard-ajax-handler.php:33
 #: classes/images/manager/ajax/ajax_check_video_status.php:29
@@ -6377,6 +6377,13 @@ msgstr ""
 
 #: classes/chat/admin/ajax/traits/Trait_CheckAdminPermissions.php:27
 msgid "Permission denied."
+msgstr ""
+
+#: classes/chat/admin/ajax/traits/Trait_CheckFrontendPermissions.php:42
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:46
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:42
+#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:41
+msgid "This domain is not permitted to access the chatbot."
 msgstr ""
 
 #: classes/chat/admin/ajax/traits/Trait_CheckModuleAccess.php:31
@@ -6517,21 +6524,26 @@ msgstr ""
 msgid "Chatbot AI Model or Deployment Name is missing in settings."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:31
-#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:32
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:55
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:51
+msgid "Embed feature is not available with your current plan."
+msgstr ""
+
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:66
+#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:52
 msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:49
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:84
 msgid "Chat processing service is currently unavailable (core components missing)."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:61
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:96
 #: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:105
 msgid "Chat system (storage) not ready."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:66
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:101
 #: classes/core/stream/contexts/chat/fn-process-chat.php:74
 #: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:66
 msgid "Could not load chatbot configuration."
@@ -7031,7 +7043,7 @@ msgid "User must be logged in to create templates."
 msgstr ""
 
 #: classes/content-writer/template-manager/create-template.php:38
-#: classes/content-writer/template-manager/update-template.php:35
+#: classes/content-writer/template-manager/update-template.php:37
 msgid "Template name cannot be empty."
 msgstr ""
 
@@ -7043,19 +7055,19 @@ msgstr ""
 msgid "Failed to save template."
 msgstr ""
 
-#: classes/content-writer/template-manager/delete-template.php:27
+#: classes/content-writer/template-manager/delete-template.php:29
 msgid "User must be logged in to delete templates."
 msgstr ""
 
-#: classes/content-writer/template-manager/delete-template.php:35
-msgid "The default template cannot be deleted."
+#: classes/content-writer/template-manager/delete-template.php:47
+msgid "Failed to delete template from the database."
 msgstr ""
 
-#: classes/content-writer/template-manager/delete-template.php:45
-msgid "Failed to delete template."
+#: classes/content-writer/template-manager/delete-template.php:51
+msgid "Template not found or you do not have permission to delete it."
 msgstr ""
 
-#: classes/content-writer/template-manager/ensure-default-template-exists.php:127
+#: classes/content-writer/template-manager/ensure-default-template-exists.php:125
 msgid "Default Template"
 msgstr ""
 
@@ -7067,19 +7079,23 @@ msgstr ""
 msgid "Template not found or access denied."
 msgstr ""
 
-#: classes/content-writer/template-manager/update-template.php:32
+#: classes/content-writer/template-manager/update-template.php:34
 msgid "User must be logged in to update templates."
 msgstr ""
 
-#: classes/content-writer/template-manager/update-template.php:43
-msgid "The default template cannot be modified."
+#: classes/content-writer/template-manager/update-template.php:45
+msgid "Template not found."
 msgstr ""
 
-#: classes/content-writer/template-manager/update-template.php:48
-msgid "Another template with this name already exists."
+#: classes/content-writer/template-manager/update-template.php:53
+msgid "You do not have permission to update this template."
 msgstr ""
 
-#: classes/content-writer/template-manager/update-template.php:72
+#: classes/content-writer/template-manager/update-template.php:66
+msgid "Another template with this name already exists for the owner of this template."
+msgstr ""
+
+#: classes/content-writer/template-manager/update-template.php:95
 msgid "Failed to update template."
 msgstr ""
 
@@ -7641,27 +7657,27 @@ msgstr ""
 msgid "Azure endpoint is missing (Content Writer)."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:27
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:63
 msgid "Your session has expired or the request is invalid. Please refresh the page and try again."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:68
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:104
 msgid "Data to cache (message or image) cannot be empty."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:88
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:124
 msgid "Failed to encode data for caching. The message may contain invalid characters."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:102
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:138
 msgid "Cache component missing."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:49
+#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:69
 msgid "Server error: Stream processing components not ready."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:118
+#: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:138
 msgid "Form display requested but data is missing."
 msgstr ""
 

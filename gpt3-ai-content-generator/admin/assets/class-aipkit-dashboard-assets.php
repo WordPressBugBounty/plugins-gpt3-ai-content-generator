@@ -2,6 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-dashboard-assets.php
 // Status: MODIFIED
+// I have added the 'isAdmin' flag to the localized data, making the current user's role available to the frontend JavaScript.
 
 namespace WPAICG\Admin\Assets;
 
@@ -130,26 +131,20 @@ class DashboardAssets
 
         $admin_main_js_handle = 'aipkit-admin-main';
 
-        // Ensure the script is at least registered before localizing
         if (!wp_script_is($admin_main_js_handle, 'registered')) {
-            // This case implies that register_core_admin_assets() hasn't run or failed,
-            // which shouldn't happen if an asset manager is active.
-            // However, to be safe, re-register if needed.
             $dist_js_url = WPAICG_PLUGIN_URL . 'dist/js/';
             wp_register_script(
                 $admin_main_js_handle,
                 $dist_js_url . 'admin-main.bundle.js',
                 ['wp-i18n', 'aipkit_markdown-it'],
-                $plugin_version, // Use passed version
+                $plugin_version,
                 true
             );
         }
 
-        // Check if already localized by another call for this handle, even if our static flag is false
-        // This ensures we don't add duplicate `aipkit_dashboard` objects to the same handle.
         $script_data_check = wp_scripts()->get_data($admin_main_js_handle, 'data');
         if (is_string($script_data_check) && strpos($script_data_check, 'var aipkit_dashboard =') !== false) {
-            self::$is_core_data_localized = true; // Mark as localized even if done by another mechanism.
+            self::$is_core_data_localized = true;
             return;
         }
 
@@ -182,6 +177,7 @@ class DashboardAssets
             'ajaxurl'    => admin_url('admin-ajax.php'),
             'nonce'      => $aipkit_nonce,
             'isProPlan'  => $is_pro_plan,
+            'isAdmin'    => current_user_can('manage_options'),
             'addons'     => $addon_status,
             'modulesUrl' => WPAICG_PLUGIN_URL . 'admin/views/modules/',
             'upgradeUrl' => admin_url('admin.php?page=wpaicg-pricing'),

@@ -53,7 +53,14 @@ $frontend_stream_nonce = wp_create_nonce('aipkit_frontend_chat_nonce');
 
                 <!-- Right Column: Status Display -->
                 <div class="aipkit_content_writer_column aipkit_content_writer_templates">
-                    <?php include __DIR__ . '/partials/status-display.php'; ?>
+                    <!-- Status Display Container -->
+                    <div id="aipkit_cw_status_display_container">
+                        <div id="aipkit_content_writer_form_status"></div>
+                        <?php include __DIR__ . '/partials/generation-status-indicators.php'; ?>
+                        <div class="aipkit_content_writer_progress_bar_container" style="display: none;">
+                            <div class="aipkit_content_writer_progress_bar"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>

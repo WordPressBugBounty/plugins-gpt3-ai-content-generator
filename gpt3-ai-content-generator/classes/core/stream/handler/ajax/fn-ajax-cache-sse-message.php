@@ -6,6 +6,7 @@
 namespace WPAICG\Core\Stream\Handler\Ajax;
 
 use WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache; // Corrected namespace for Cache
+use WPAICG\Utils\AIPKit_CORS_Manager; // For CORS handling
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -20,6 +21,41 @@ if (!defined('ABSPATH')) {
 */
 function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $handlerInstance): void
 {
+    // --- Handle preflight OPTIONS request ---
+    AIPKit_CORS_Manager::handle_preflight_request();
+
+    // --- CORS Check ---
+    $bot_id = 0;
+    if (isset($_POST['bot_id'])) {
+        $bot_id = absint(wp_unslash($_POST['bot_id']));
+    }
+
+    if ($bot_id > 0) {
+        // Check if embed feature is available before allowing external access
+        if (class_exists('\WPAICG\aipkit_dashboard') && 
+            \WPAICG\aipkit_dashboard::is_pro_plan() && 
+            \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')) {
+            
+            $origin_allowed = AIPKit_CORS_Manager::check_and_set_cors_headers($bot_id);
+            if (!$origin_allowed) {
+                wp_send_json_error([
+                    'message' => __('This domain is not permitted to access the chatbot.', 'gpt3-ai-content-generator'),
+                    'code'    => 'cors_denied'
+                ], 403);
+                return;
+            }
+        } else {
+            // If embed feature is not available, check if this is a cross-origin request
+            if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+                wp_send_json_error([
+                    'message' => __('Embed feature is not available with your current plan.', 'gpt3-ai-content-generator'),
+                    'code'    => 'embed_not_available'
+                ], 403);
+                return;
+            }
+        }
+    }
+
     // --- MODIFICATION: Improved Nonce Check and Error Reporting ---
     // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_POST['_ajax_nonce'] is sanitized with sanitize_key before use.
     if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce(sanitize_key($_POST['_ajax_nonce']), 'aipkit_frontend_chat_nonce')) {
