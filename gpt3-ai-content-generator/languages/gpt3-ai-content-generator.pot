@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Toolkit (formerly AI Power) 2.3.31\n"
+"Project-Id-Version: AIP: Complete AI Toolkit (formerly AI Power) 2.3.32\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-05T17:49:29+00:00\n"
+"POT-Creation-Date: 2025-08-06T06:57:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -6380,8 +6380,8 @@ msgid "Permission denied."
 msgstr ""
 
 #: classes/chat/admin/ajax/traits/Trait_CheckFrontendPermissions.php:42
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:46
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:42
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:63
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:59
 #: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:41
 msgid "This domain is not permitted to access the chatbot."
 msgstr ""
@@ -6524,26 +6524,26 @@ msgstr ""
 msgid "Chatbot AI Model or Deployment Name is missing in settings."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:55
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:51
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:71
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:67
 msgid "Embed feature is not available with your current plan."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:66
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:83
 #: classes/core/stream/handler/ajax/fn-ajax-frontend-chat-stream.php:52
 msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:84
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:101
 msgid "Chat processing service is currently unavailable (core components missing)."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:96
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:113
 #: classes/chat/frontend/ajax/class-chat-form-submission-ajax-handler.php:105
 msgid "Chat system (storage) not ready."
 msgstr ""
 
-#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:101
+#: classes/chat/core/ajax-processor/ajax_frontend_chat_message.php:118
 #: classes/core/stream/contexts/chat/fn-process-chat.php:74
 #: lib/chat/frontend/ajax/handlers/class-aipkit-realtime-session-ajax-handler.php:66
 msgid "Could not load chatbot configuration."
@@ -7657,19 +7657,19 @@ msgstr ""
 msgid "Azure endpoint is missing (Content Writer)."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:63
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:80
 msgid "Your session has expired or the request is invalid. Please refresh the page and try again."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:104
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:121
 msgid "Data to cache (message or image) cannot be empty."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:124
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:141
 msgid "Failed to encode data for caching. The message may contain invalid characters."
 msgstr ""
 
-#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:138
+#: classes/core/stream/handler/ajax/fn-ajax-cache-sse-message.php:155
 msgid "Cache component missing."
 msgstr ""
 

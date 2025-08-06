@@ -117,11 +117,6 @@ class AIPKit_CORS_Manager
      */
     public static function check_and_set_cors_headers(int $bot_id, ?BotStorage $bot_storage = null): bool
     {
-        // First check if embed feature is still available (prevents abuse after plan cancellation)
-        if (!self::is_embed_feature_available()) {
-            return false;
-        }
-
         // Get the Origin header from the request
         $request_origin = null;
         if (isset($_SERVER['HTTP_ORIGIN'])) {
@@ -131,6 +126,28 @@ class AIPKit_CORS_Manager
         // If no origin header, this is likely a same-origin request, allow it
         if (empty($request_origin)) {
             return true;
+        }
+
+        // Check if this is actually a cross-origin request
+        $is_cross_origin = false;
+        $site_url = get_site_url();
+        $site_parsed = parse_url($site_url);
+        $origin_parsed = parse_url($request_origin);
+        
+        if ($origin_parsed && $site_parsed && 
+            ($origin_parsed['host'] !== $site_parsed['host'] || 
+             ($origin_parsed['scheme'] ?? 'http') !== ($site_parsed['scheme'] ?? 'http'))) {
+            $is_cross_origin = true;
+        }
+
+        // If this is not a cross-origin request, allow it (same domain)
+        if (!$is_cross_origin) {
+            return true;
+        }
+
+        // For cross-origin requests, check if embed feature is available
+        if (!self::is_embed_feature_available()) {
+            return false;
         }
 
         // Get bot storage if not provided

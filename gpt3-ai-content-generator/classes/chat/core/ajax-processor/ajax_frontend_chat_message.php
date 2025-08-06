@@ -35,22 +35,38 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
 
     // --- CORS Check ---
     if ($bot_id_from_request > 0) {
-        // Check if embed feature is available before allowing external access
-        if (class_exists('\WPAICG\aipkit_dashboard') && 
-            \WPAICG\aipkit_dashboard::is_pro_plan() && 
-            \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')) {
+        // Check if this is a cross-origin request (actual embed usage)
+        $is_cross_origin = false;
+        if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+            $origin = $_SERVER['HTTP_ORIGIN'];
+            $site_url = get_site_url();
+            $site_parsed = parse_url($site_url);
+            $origin_parsed = parse_url($origin);
             
-            $origin_allowed = AIPKit_CORS_Manager::check_and_set_cors_headers($bot_id_from_request);
-            if (!$origin_allowed) {
-                wp_send_json_error(
-                    ['message' => __('This domain is not permitted to access the chatbot.', 'gpt3-ai-content-generator')],
-                    403
-                );
-                return;
+            // Check if origin is different from site domain
+            if ($origin_parsed && $site_parsed && 
+                ($origin_parsed['host'] !== $site_parsed['host'] || 
+                 ($origin_parsed['scheme'] ?? 'http') !== ($site_parsed['scheme'] ?? 'http'))) {
+                $is_cross_origin = true;
             }
-        } else {
-            // If embed feature is not available, check if this is a cross-origin request
-            if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+        }
+        
+        if ($is_cross_origin) {
+            // This is a cross-origin request, check embed feature availability
+            if (class_exists('\WPAICG\aipkit_dashboard') && 
+                \WPAICG\aipkit_dashboard::is_pro_plan() && 
+                \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')) {
+                
+                $origin_allowed = AIPKit_CORS_Manager::check_and_set_cors_headers($bot_id_from_request);
+                if (!$origin_allowed) {
+                    wp_send_json_error(
+                        ['message' => __('This domain is not permitted to access the chatbot.', 'gpt3-ai-content-generator')],
+                        403
+                    );
+                    return;
+                }
+            } else {
+                // Embed feature not available but this is a cross-origin request
                 wp_send_json_error(
                     ['message' => __('Embed feature is not available with your current plan.', 'gpt3-ai-content-generator')],
                     403
@@ -58,6 +74,7 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
                 return;
             }
         }
+        // For same-origin requests, no additional CORS checks needed
     }
 
     // --- 0. Security Check ---

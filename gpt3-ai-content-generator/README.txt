@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.31
+Stable tag: 2.3.32
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,16 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.32 =
+
+- **New Feature**: Embed Anywhere. You can now embed your chatbots on any external, non-WP website using a simple HTML snippet.
+
+[Read more about this new feature here](https://docs.aipower.org/docs/chat#embed-anywhere-external-sites)
+
+- **Fixed**: Fixed an issue where chatbot assets failed to load when the shortcode was placed inside a modal or other dynamically loaded content.
+- **Improved**: The Default Template in Content Writer is now fully editable. Admins can view, edit, rename, and delete all templates. Your last-used template is now auto-loaded during the same browser session.
+
 
 = 2.3.31 =
 
