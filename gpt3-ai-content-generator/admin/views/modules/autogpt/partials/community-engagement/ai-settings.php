@@ -46,9 +46,25 @@ if (!defined('ABSPATH')) {
         <div class="aipkit_form-group aipkit_form-col">
             <label class="aipkit_form-label" for="aipkit_task_cc_content_max_tokens"><?php esc_html_e('Max Tokens', 'gpt3-ai-content-generator'); ?></label>
             <div class="aipkit_slider_wrapper">
-                <input type="range" id="aipkit_task_cc_content_max_tokens" name="cc_content_max_tokens" class="aipkit_form-input aipkit_range_slider" min="10" max="1024" step="10" value="250">
-                <span id="aipkit_task_cc_content_max_tokens_value" class="aipkit_slider_value">250</span>
+                <input type="range" id="aipkit_task_cc_content_max_tokens" name="cc_content_max_tokens" class="aipkit_form-input aipkit_range_slider" min="10" max="128000" step="10" value="4000">
+                <span id="aipkit_task_cc_content_max_tokens_value" class="aipkit_slider_value">4000</span>
             </div>
+        </div>
+    </div>
+    <!-- Reasoning Effort (Conditional) -->
+    <div class="aipkit_form-row aipkit_task_cc_reasoning_effort_field" style="display: none;">
+        <div class="aipkit_form-group aipkit_form-col">
+            <label class="aipkit_form-label" for="aipkit_task_cc_reasoning_effort"><?php esc_html_e('Reasoning Effort', 'gpt3-ai-content-generator'); ?></label>
+            <select id="aipkit_task_cc_reasoning_effort" name="cc_reasoning_effort" class="aipkit_form-input">
+                <option value="low"><?php esc_html_e('Low (Default)', 'gpt3-ai-content-generator'); ?></option>
+                <option value="minimal"><?php esc_html_e('Minimal', 'gpt3-ai-content-generator'); ?></option>
+                <option value="medium"><?php esc_html_e('Medium', 'gpt3-ai-content-generator'); ?></option>
+                <option value="high"><?php esc_html_e('High', 'gpt3-ai-content-generator'); ?></option>
+            </select>
+            <p class="aipkit_form-help"><?php esc_html_e('For o-series and gpt-5 models. Controls the amount of reasoning performed.', 'gpt3-ai-content-generator'); ?></p>
+        </div>
+        <div class="aipkit_form-group aipkit_form-col">
+            <!-- empty column for alignment -->
         </div>
     </div>
 </div>

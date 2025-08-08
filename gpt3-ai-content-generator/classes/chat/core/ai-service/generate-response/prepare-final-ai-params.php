@@ -14,6 +14,9 @@ require_once $ai_params_logic_path . 'apply-openai-stateful-conversation.php';
 require_once $ai_params_logic_path . 'apply-openai-vector-tool-config.php';
 require_once $ai_params_logic_path . 'apply-openai-web-search.php';
 require_once $ai_params_logic_path . 'apply-google-search-grounding.php';
+// --- NEW: Require reasoning logic file ---
+require_once $ai_params_logic_path . 'apply-openai-reasoning.php';
+// --- END NEW ---
 
 
 if (!defined('ABSPATH')) {
@@ -83,6 +86,13 @@ function prepare_final_ai_params_logic(
             $bot_settings,
             $frontend_openai_web_search_active
         );
+        // --- NEW: Call reasoning logic ---
+        AiParams\apply_openai_reasoning_logic(
+            $final_ai_params,
+            $bot_settings,
+            $model
+        );
+        // --- END NEW ---
     } elseif ($main_provider === 'Google') {
         AiParams\apply_google_search_grounding_logic(
             $final_ai_params,

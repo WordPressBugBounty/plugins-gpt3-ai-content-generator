@@ -169,7 +169,7 @@ function process_content_writing_item_logic(array $item_config): array
         if ($generate_keyword && empty($final_keywords)) { // Only generate if not provided
             $custom_keyword_prompt = $item_config['custom_keyword_prompt'] ?? null;
             $keyword_user_prompt = AIPKit_Content_Writer_Keyword_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_keyword_prompt);
-            $keyword_ai_params = ['max_completion_tokens' => 20, 'temperature' => 0.2];
+            $keyword_ai_params = ['max_completion_tokens' => 4000, 'temperature' => 0.2];
             $keyword_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $keyword_user_prompt]], $keyword_ai_params, 'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.');
             if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
                 $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
@@ -184,7 +184,7 @@ function process_content_writing_item_logic(array $item_config): array
             $custom_excerpt_prompt = $item_config['custom_excerpt_prompt'] ?? null;
             $excerpt_user_prompt = AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $final_keywords, $prompt_mode, $custom_excerpt_prompt);
             $excerpt_system_instruction = 'You are an expert copywriter. Your task is to provide an engaging excerpt for a piece of content.';
-            $excerpt_ai_params = ['max_completion_tokens' => 200, 'temperature' => 1];
+            $excerpt_ai_params = ['max_completion_tokens' => 4000, 'temperature' => 1];
 
             $excerpt_result = $ai_caller->make_standard_call(
                 $item_config['ai_provider'],
@@ -204,7 +204,7 @@ function process_content_writing_item_logic(array $item_config): array
             $custom_tags_prompt = $item_config['custom_tags_prompt'] ?? null;
             $tags_user_prompt = AIPKit_Content_Writer_Tags_Prompt_Builder::build($final_title, $content_summary, $final_keywords, $prompt_mode, $custom_tags_prompt);
             $tags_system_instruction = 'You are an SEO expert. Your task is to provide a comma-separated list of relevant tags for a piece of content.';
-            $tags_ai_params = ['max_completion_tokens' => 100, 'temperature' => 0.5];
+            $tags_ai_params = ['max_completion_tokens' => 4000, 'temperature' => 0.5];
 
             $tags_result = $ai_caller->make_standard_call(
                 $item_config['ai_provider'],
@@ -224,7 +224,7 @@ function process_content_writing_item_logic(array $item_config): array
             $custom_meta_prompt = $item_config['custom_meta_prompt'] ?? null;
             $meta_user_prompt = AIPKit_Content_Writer_Meta_Prompt_Builder::build($final_title, $content_summary, $final_keywords, $prompt_mode, $custom_meta_prompt);
             $meta_system_instruction = 'You are an SEO expert specializing in writing meta descriptions.';
-            $meta_ai_params = ['max_completion_tokens' => 100, 'temperature' => 1];
+            $meta_ai_params = ['max_completion_tokens' => 4000, 'temperature' => 1];
 
             $meta_result = $ai_caller->make_standard_call(
                 $item_config['ai_provider'],

@@ -141,6 +141,19 @@ if (!defined('ABSPATH')) {
                         <!-- empty column for alignment -->
                     </div>
                 </div>
+                <!-- Reasoning Effort (Conditional) -->
+                <div class="aipkit_form-row aipkit_ai_form_reasoning_effort_field" style="display: none;">
+                    <div class="aipkit_form-group aipkit_form-col">
+                        <label class="aipkit_form-label" for="aipkit_ai_form_reasoning_effort"><?php esc_html_e('Reasoning Effort', 'gpt3-ai-content-generator'); ?></label>
+                        <select id="aipkit_ai_form_reasoning_effort" name="reasoning_effort" class="aipkit_form-input">
+                            <option value="low"><?php esc_html_e('Low (Default)', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="minimal"><?php esc_html_e('Minimal', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="medium"><?php esc_html_e('Medium', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="high"><?php esc_html_e('High', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
+                        <p class="aipkit_form-help"><?php esc_html_e('For select o-series and gpt-5 models. Controls the amount of reasoning performed.', 'gpt3-ai-content-generator'); ?></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

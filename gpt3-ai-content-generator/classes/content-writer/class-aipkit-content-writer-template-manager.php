@@ -58,7 +58,8 @@ class AIPKit_Content_Writer_Template_Manager
         // --- ADDED: Enhancer-specific config keys ---
         'update_title', 'update_excerpt', 'update_content', 'update_meta',
         'title_prompt', 'excerpt_prompt', 'content_prompt', 'meta_prompt',
-        'title', 'excerpt', 'content', 'meta', 'keyword', 'tags' // These are the keys for bulk enhancer templates
+        'title', 'excerpt', 'content', 'meta', 'keyword', 'tags', // These are the keys for bulk enhancer templates
+        'reasoning_effort' // For o1 models reasoning effort setting
     ];
 
 

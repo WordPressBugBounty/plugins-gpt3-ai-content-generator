@@ -94,7 +94,7 @@ function get_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template
 
     if (!isset($template['config']['content_max_tokens']) && class_exists(AIPKIT_AI_Settings::class)) {
         $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
-        $template['config']['content_max_tokens'] = (string)($ai_parameters['max_completion_tokens'] ?? 1500);
+        $template['config']['content_max_tokens'] = (string)($ai_parameters['max_completion_tokens'] ?? 4000);
     }
 
     return $template;

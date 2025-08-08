@@ -2,7 +2,6 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/class-aipkit_dashboard.php
 // Status: MODIFIED
-// I have added the 'semantic_search' addon to the default status list.
 
 namespace WPAICG;
 
@@ -97,7 +96,12 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
         private static function check_and_init_module_settings()
         {
-            $opts = get_option('aipkit_options', array());
+            // --- FIX: Safely retrieve options ---
+            $opts = get_option('aipkit_options');
+            if (!is_array($opts)) {
+                $opts = [];
+            }
+            // --- END FIX ---
 
             if (!isset($opts['module_settings']) || !is_array($opts['module_settings'])) {
                 $opts['module_settings'] = self::$default_module_settings;
@@ -116,7 +120,12 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
         private static function check_and_init_addon_status()
         {
-            $opts = get_option('aipkit_options', array());
+            // --- FIX: Safely retrieve options ---
+            $opts = get_option('aipkit_options');
+            if (!is_array($opts)) {
+                $opts = [];
+            }
+            // --- END FIX ---
 
             if (!isset($opts['addons_status']) || !is_array($opts['addons_status'])) {
                 $opts['addons_status'] = self::$default_addon_status;
@@ -280,7 +289,14 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
             $isEnabled = ($enabled === '1');
             self::$module_settings[$moduleKey] = $isEnabled;
-            $opts = get_option('aipkit_options', array());
+
+            // --- FIX: Safely retrieve options before updating ---
+            $opts = get_option('aipkit_options');
+            if (!is_array($opts)) {
+                $opts = [];
+            }
+            // --- END FIX ---
+
             $opts['module_settings'] = self::$module_settings;
             update_option('aipkit_options', $opts, 'no');
 
@@ -316,7 +332,12 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             }
 
             self::$addon_status[$addonKey] = $isActive;
-            $opts = get_option('aipkit_options', array());
+            // --- FIX: Safely retrieve options before updating ---
+            $opts = get_option('aipkit_options');
+            if (!is_array($opts)) {
+                $opts = [];
+            }
+            // --- END FIX ---
             if (!isset($opts['addons_status']) || !is_array($opts['addons_status'])) {
                 $opts['addons_status'] = [];
             }

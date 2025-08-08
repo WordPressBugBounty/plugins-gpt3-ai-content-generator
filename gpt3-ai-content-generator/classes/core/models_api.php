@@ -43,12 +43,14 @@ class AIPKit_Models_API {
      */
     public static function group_openai_models($models) {
          $groups = [
-            'GPT-4o'     => [],
-            'GPT-4 Turbo'=> [],
-            'GPT-4'      => [],
-            'GPT-3.5'    => [],
-            'Fine-tuned' => [],
-            'Other'      => [],
+            'gpt-5 models'      => [],
+            'gpt-4 models'      => [],
+            'gpt-3.5 models'    => [],
+            'fine-tuned models' => [],
+            'o1 models'         => [],
+            'o3 models'         => [],
+            'o4 models'         => [],
+            'others'            => [],
         ];
         if (empty($models) || !is_array($models)) {
             return $groups;
@@ -63,17 +65,21 @@ class AIPKit_Models_API {
 
              // Grouping logic based on ID prefixes/contents
              if (strpos($id, 'ft:') === 0 || strpos($id, ':ft-') !== false) { // More robust fine-tune check
-                $groups['Fine-tuned'][] = $model;
-            } elseif (strpos($idLower, 'gpt-4o') !== false) {
-                $groups['GPT-4o'][] = $model;
-            } elseif (strpos($idLower, 'gpt-4-turbo') !== false || strpos($idLower, 'gpt-4-1106') !== false || strpos($idLower, 'gpt-4-0125') !== false) {
-                 $groups['GPT-4 Turbo'][] = $model;
-            } elseif (strpos($idLower, 'gpt-4') !== false) { // Catch remaining GPT-4s (including vision)
-                $groups['GPT-4'][] = $model;
+                $groups['fine-tuned models'][] = $model;
+            } elseif (strpos($idLower, 'gpt-5') !== false) {
+                $groups['gpt-5 models'][] = $model;
+            } elseif (strpos($idLower, 'gpt-4') !== false) { // All GPT-4 variants (4o, turbo, vision, etc.)
+                $groups['gpt-4 models'][] = $model;
             } elseif (strpos($idLower, 'gpt-3.5') !== false) {
-                $groups['GPT-3.5'][] = $model;
+                $groups['gpt-3.5 models'][] = $model;
+            } elseif (strpos($idLower, 'o1') !== false) {
+                $groups['o1 models'][] = $model;
+            } elseif (strpos($idLower, 'o3') !== false) {
+                $groups['o3 models'][] = $model;
+            } elseif (strpos($idLower, 'o4') !== false) {
+                $groups['o4 models'][] = $model;
             } else {
-                $groups['Other'][] = $model; // Catch-all for unexpected future models
+                $groups['others'][] = $model; // Catch-all for unexpected future models
             }
         }
         // Clean empty groups
@@ -87,7 +93,7 @@ class AIPKit_Models_API {
 
         // Ensure specific order of groups
         $ordered_groups = [];
-        $order = ['GPT-4o', 'GPT-4 Turbo', 'GPT-4', 'GPT-3.5', 'Fine-tuned', 'Other'];
+        $order = ['o1 models', 'o3 models', 'o4 models', 'gpt-3.5 models', 'gpt-4 models', 'gpt-5 models', 'fine-tuned models', 'others'];
         foreach($order as $key) {
             if (isset($groups[$key])) {
                 $ordered_groups[$key] = $groups[$key];

@@ -107,7 +107,7 @@ function build_ai_request_data_for_stream_logic(
     $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
     $ai_params_for_payload = [
         'temperature' => isset($bot_settings['temperature']) ? floatval($bot_settings['temperature']) : floatval($global_ai_params['temperature'] ?? 1.0),
-        'max_completion_tokens' => isset($bot_settings['max_completion_tokens']) ? absint($bot_settings['max_completion_tokens']) : absint($global_ai_params['max_completion_tokens'] ?? 1500),
+        'max_completion_tokens' => isset($bot_settings['max_completion_tokens']) ? absint($bot_settings['max_completion_tokens']) : absint($global_ai_params['max_completion_tokens'] ?? 4000),
     ];
     $global_only_keys = ['top_p', 'stop'];
     foreach ($global_only_keys as $k) {
@@ -157,6 +157,11 @@ function build_ai_request_data_for_stream_logic(
             }
             $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;
         }
+        // --- NEW: Add reasoning parameter ---
+        if (isset($bot_settings['reasoning_effort']) && !empty($bot_settings['reasoning_effort']) && (strpos($model_id_for_ai, 'gpt-5') !== false || strpos($model_id_for_ai, 'o1') !== false || strpos($model_id_for_ai, 'o3') !== false || strpos($model_id_for_ai, 'o4') !== false)) {
+            $ai_params_for_payload['reasoning'] = ['effort' => $bot_settings['reasoning_effort']];
+        }
+        // --- END NEW ---
     } elseif ($main_provider_for_ai === 'Google') {
         if (($bot_settings['google_search_grounding_enabled'] ?? '0') === '1') {
             $ai_params_for_payload['google_grounding_mode'] = $bot_settings['google_grounding_mode'] ?? BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;

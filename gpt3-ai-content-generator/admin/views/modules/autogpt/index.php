@@ -71,7 +71,7 @@ if (aipkit_dashboard::is_addon_active('deepseek')) {
 }
 $cw_ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 $cw_default_temperature = $cw_ai_parameters['temperature'] ?? 1.0;
-$cw_default_max_tokens = $cw_ai_parameters['max_completion_tokens'] ?? 1500;
+$cw_default_max_tokens = $cw_ai_parameters['max_completion_tokens'] ?? 4000;
 $cw_available_post_types = get_post_types(['public' => true], 'objects');
 unset($cw_available_post_types['attachment']);
 $cw_current_user_id = get_current_user_id();

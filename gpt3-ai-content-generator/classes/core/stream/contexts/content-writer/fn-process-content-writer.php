@@ -123,7 +123,7 @@ function process_content_writer_logic(
     $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
     $ai_params_for_payload = array_merge($global_ai_params, $ai_params_from_cache);
     $ai_params_for_payload['temperature'] = $ai_params_for_payload['temperature'] ?? 1.0;
-    $ai_params_for_payload['max_completion_tokens'] = $ai_params_for_payload['max_completion_tokens'] ?? 2000;
+    $ai_params_for_payload['max_completion_tokens'] = $ai_params_for_payload['max_completion_tokens'] ?? 4000;
 
     if ($provider === 'Google' && class_exists(GoogleSettingsHandler::class)) {
         $ai_params_for_payload['safety_settings'] = GoogleSettingsHandler::get_safety_settings();

@@ -2,7 +2,6 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/ajax/actions/save-task/build-task-config-writing.php
 // Status: MODIFIED
-// I have added the new scheduling-related fields to the allowed keys and sanitization logic.
 
 namespace WPAICG\AutoGPT\Ajax\Actions\SaveTask;
 
@@ -52,6 +51,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
             'pinecone_index_name', 'qdrant_collection_name', 'vector_embedding_provider',
             'vector_embedding_model', 'vector_store_top_k',
             'rss_include_keywords', 'rss_exclude_keywords',
+            'reasoning_effort',
         ];
 
         foreach ($allowed_keys_from_template_manager as $key) {
@@ -81,7 +81,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                     $content_writer_config[$key] = (string)floatval($post_data[$key]);
                 } elseif ($key === 'openai_vector_store_ids' && is_array($post_data[$key])) {
                     $content_writer_config[$key] = array_map('sanitize_text_field', $post_data[$key]);
-                } elseif ($key === 'schedule_mode' || $key === 'smart_schedule_interval_unit') {
+                } elseif (in_array($key, ['schedule_mode', 'smart_schedule_interval_unit', 'reasoning_effort'], true)) {
                     $content_writer_config[$key] = sanitize_key($post_data[$key]);
                 } elseif (is_string($post_data[$key])) {
                     $content_writer_config[$key] = sanitize_text_field(wp_unslash($post_data[$key]));

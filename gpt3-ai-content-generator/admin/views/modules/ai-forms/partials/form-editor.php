@@ -25,7 +25,7 @@ if (class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
     $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
 }
 $default_temp = $global_ai_params['temperature'] ?? 1.0;
-$default_max_tokens = $global_ai_params['max_completion_tokens'] ?? 2000;
+$default_max_tokens = $global_ai_params['max_completion_tokens'] ?? 4000;
 $default_top_p = $global_ai_params['top_p'] ?? 1.0;
 $default_frequency_penalty = $global_ai_params['frequency_penalty'] ?? 0.0;
 $default_presence_penalty = $global_ai_params['presence_penalty'] ?? 0.0;

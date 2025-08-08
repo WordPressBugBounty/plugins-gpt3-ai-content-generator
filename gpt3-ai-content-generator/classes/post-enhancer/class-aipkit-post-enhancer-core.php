@@ -52,6 +52,9 @@ class Core
                     // --- END NEW ---
                     // --- NEW: Add Bulk Process hook ---
                     add_action('wp_ajax_aipkit_bulk_process_single_post', [$ajax_handler, 'ajax_bulk_process_single_post']);
+                    // --- NEW: Add individual field processing hooks ---
+                    add_action('wp_ajax_aipkit_bulk_process_single_field', [$ajax_handler, 'ajax_bulk_process_single_field']);
+                    add_action('wp_ajax_aipkit_bulk_update_seo_slug', [$ajax_handler, 'ajax_bulk_update_seo_slug']);
                     // --- END NEW ---
                     // --- ADDED: Register new text processing hook ---
                     add_action('wp_ajax_aipkit_process_enhancer_text', [$ajax_handler, 'ajax_process_enhancer_text']);

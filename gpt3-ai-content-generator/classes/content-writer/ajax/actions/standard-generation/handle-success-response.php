@@ -79,7 +79,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
             $validated_params['provider'],
             $validated_params['model'],
             [['role' => 'user', 'content' => $keyword_user_prompt]],
-            ['max_completion_tokens' => 20, 'temperature' => 0.2],
+            ['max_completion_tokens' => 4000, 'temperature' => 0.2],
             'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.'
         );
         if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
@@ -95,7 +95,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
     // 2. Generate Excerpt
     if (($validated_params['generate_excerpt'] ?? '0') === '1' && !empty($content)) {
         $excerpt_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_excerpt_prompt']);
-        $excerpt_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $excerpt_user_prompt]], ['max_completion_tokens' => 200, 'temperature' => 1]);
+        $excerpt_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $excerpt_user_prompt]], ['max_completion_tokens' => 4000, 'temperature' => 1]);
         if (!is_wp_error($excerpt_result) && !empty($excerpt_result['content'])) {
             $excerpt = trim(str_replace(['"', "'"], '', $excerpt_result['content']));
         }
@@ -104,7 +104,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
     // 3. Generate Tags
     if (($validated_params['generate_tags'] ?? '0') === '1' && !empty($content)) {
         $tags_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_tags_prompt']);
-        $tags_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $tags_user_prompt]], ['max_completion_tokens' => 100, 'temperature' => 0.5]);
+        $tags_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $tags_user_prompt]], ['max_completion_tokens' => 4000, 'temperature' => 0.5]);
         if (!is_wp_error($tags_result) && !empty($tags_result['content'])) {
             $tags = trim(str_replace(['"', "'"], '', $tags_result['content']));
         }
@@ -113,7 +113,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
     // 4. Generate Meta Description
     if (($validated_params['generate_meta_description'] ?? '0') === '1' && !empty($content)) {
         $meta_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Meta_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_meta_prompt']);
-        $meta_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $meta_user_prompt]], ['max_completion_tokens' => 100, 'temperature' => 1]);
+        $meta_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $meta_user_prompt]], ['max_completion_tokens' => 4000, 'temperature' => 1]);
         if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
             $meta_description = trim(str_replace(['"', "'"], '', $meta_result['content']));
         }

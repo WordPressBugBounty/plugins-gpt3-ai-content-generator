@@ -109,13 +109,23 @@ class AIPKit_Providers
 
     public static function get_current_provider()
     {
-        $opts = get_option('aipkit_options', array());
+        // --- FIX: Safely retrieve options ---
+        $opts = get_option('aipkit_options');
+        if (!is_array($opts)) {
+            $opts = [];
+        }
+        // --- END FIX ---
         return isset($opts['provider']) ? $opts['provider'] : 'OpenAI';
     }
 
     public static function get_all_providers()
     {
-        $opts = get_option('aipkit_options', []);
+        // --- FIX: Safely retrieve options ---
+        $opts = get_option('aipkit_options');
+        if (!is_array($opts)) {
+            $opts = [];
+        }
+        // --- END FIX ---
 
         // Check if the providers data is missing or corrupted (not an array).
         if (!isset($opts['providers']) || !is_array($opts['providers'])) {
@@ -191,7 +201,13 @@ class AIPKit_Providers
 
     public static function save_provider_data($provider, $data)
     {
-        $opts = get_option('aipkit_options', array());
+        // --- FIX: Safely retrieve options ---
+        $opts = get_option('aipkit_options');
+        if (!is_array($opts)) {
+            $opts = [];
+        }
+        // --- END FIX ---
+
         if (!isset($opts['providers']) || !is_array($opts['providers'])) {
             $opts['providers'] = array();
         }
@@ -236,7 +252,13 @@ class AIPKit_Providers
 
     public static function save_current_provider($provider)
     {
-        $opts = get_option('aipkit_options', array());
+        // --- FIX: Safely retrieve options ---
+        $opts = get_option('aipkit_options');
+        if (!is_array($opts)) {
+            $opts = [];
+        }
+        // --- END FIX ---
+
         $valid_providers = array_keys(self::$provider_defaults);
         if (!in_array($provider, $valid_providers, true) || in_array($provider, ['ElevenLabs', 'Pinecone', 'Qdrant'])) {
             $provider = 'OpenAI';
@@ -292,19 +314,25 @@ class AIPKit_Providers
                 if (class_exists(AIPKit_Models_API::class)) {
                     $processed_model_list = AIPKit_Models_API::group_openai_models($formatted_list);
                 } else {
-                    $fb_groups = ['GPT-4o' => [], 'GPT-4 Turbo' => [], 'GPT-4' => [], 'GPT-3.5' => [], 'Other' => []];
+                    $fb_groups = ['gpt-5 models' => [], 'gpt-4 models' => [], 'gpt-3.5 models' => [], 'fine-tuned models' => [], 'o1 models' => [], 'o3 models' => [], 'o4 models' => [], 'others' => []];
                     foreach ($formatted_list as $item) {
                         $idL = strtolower($item['id']);
-                        if (strpos($idL, 'gpt-4o') !== false) {
-                            $fb_groups['GPT-4o'][] = $item;
-                        } elseif (strpos($idL, 'gpt-4-turbo') !== false || strpos($idL, 'gpt-4-1106') !== false || strpos($idL, 'gpt-4-0125') !== false) {
-                            $fb_groups['GPT-4 Turbo'][] = $item;
+                        if (strpos($item['id'], 'ft:') === 0 || strpos($item['id'], ':ft-') !== false) {
+                            $fb_groups['fine-tuned models'][] = $item;
+                        } elseif (strpos($idL, 'gpt-5') !== false) {
+                            $fb_groups['gpt-5 models'][] = $item;
                         } elseif (strpos($idL, 'gpt-4') !== false) {
-                            $fb_groups['GPT-4'][] = $item;
+                            $fb_groups['gpt-4 models'][] = $item;
                         } elseif (strpos($idL, 'gpt-3.5') !== false) {
-                            $fb_groups['GPT-3.5'][] = $item;
+                            $fb_groups['gpt-3.5 models'][] = $item;
+                        } elseif (strpos($idL, 'o1') !== false) {
+                            $fb_groups['o1 models'][] = $item;
+                        } elseif (strpos($idL, 'o3') !== false) {
+                            $fb_groups['o3 models'][] = $item;
+                        } elseif (strpos($idL, 'o4') !== false) {
+                            $fb_groups['o4 models'][] = $item;
                         } else {
-                            $fb_groups['Other'][] = $item;
+                            $fb_groups['others'][] = $item;
                         }
                     }
                     $processed_model_list = array_filter($fb_groups);

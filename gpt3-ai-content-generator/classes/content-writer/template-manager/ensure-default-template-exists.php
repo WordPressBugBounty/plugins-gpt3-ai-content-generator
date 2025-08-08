@@ -65,7 +65,7 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
         'content_title' => '',
         'content_keywords' => '',
         'ai_temperature' => (string)($ai_parameters['temperature'] ?? 1.0),
-        'content_max_tokens' => (string)($ai_parameters['max_completion_tokens'] ?? 1500),
+        'content_max_tokens' => (string)($ai_parameters['max_completion_tokens'] ?? 4000),
         'post_type' => 'post',
         'post_author' => $current_user_id ?: 1,
         'post_status' => 'draft',

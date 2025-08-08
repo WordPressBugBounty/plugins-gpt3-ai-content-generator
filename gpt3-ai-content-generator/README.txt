@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.32
+Stable tag: 2.3.33
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,7 +24,7 @@ Our plugin operates on a "Bring Your Own API Key" model. You need to have an API
 *   **Content Writer**: Generate high-quality articles, product descriptions, or any other text content. Input ideas from a list, CSV file, RSS feeds, or a list of URLs.
 *   **AI Forms**: A drag-and-drop form builder that uses AI to process user input. Create custom tools that can generate anything from a blog post outline to a customer support reply based on what your users enter.
 *   **Automation Engine**: Schedule AI tasks to run in the background. Automate content creation, update existing posts, index your content into a knowledge base, and automatically reply to blog comments.
-*   **Image Generator**: Add a text-to-image generator to your site using a shortcode. Supports OpenAI (DALL-E 3, GPT-4o), Google (Imagen), and Replicate models, as well as free stock photos from Pexels and Pixabay.
+*   **Image Generator**: Add a text-to-image generator to your site using a shortcode. Supports OpenAI (DALL-E 3, gpt-4o), Google (Imagen), and Replicate models, as well as free stock photos from Pexels and Pixabay.
 *   **AI Training**: Create a custom knowledge base by "training" the AI on your own content. You can upload text, files, or index existing WordPress posts, pages, and products. This knowledge base can be used by chatbots and AI forms to provide answers based on your data. Supports OpenAI Vector Stores, Pinecone, and Qdrant.
 *   **WooCommerce Tools**: Generate or enhance product descriptions, titles, and short descriptions using AI. You can also sell token packages to your users to monetize access to the AI features on your site.
 *   **Content Assistant**: A suite of tools to improve your existing content. Bulk-enhance posts, generate new titles and excerpts from the posts list, or process selected text directly within the Classic and Block editors.
@@ -76,6 +76,13 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.33 =
+
+- **Added**: Support for the latest OpenAI gpt-5 models. You can use "Sync button" to load them.
+- **Added**: New "Reasoning Effort" parameter for OpenAI’s reasoning models.
+- **Improved**: Content Assistant UI and overall functionality.
+- **Fixed**: An issue where a race condition, particularly with autosave enabled, could cause all API keys and settings in the dashboard to be wiped out. The save process is now defensive against database read failures.
 
 = 2.3.32 =
 

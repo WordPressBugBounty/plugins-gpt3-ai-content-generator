@@ -70,6 +70,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $top_p = isset($post_data['top_p']) ? sanitize_text_field($post_data['top_p']) : null;
     $frequency_penalty = isset($post_data['frequency_penalty']) ? sanitize_text_field($post_data['frequency_penalty']) : null;
     $presence_penalty = isset($post_data['presence_penalty']) ? sanitize_text_field($post_data['presence_penalty']) : null;
+    $reasoning_effort = isset($post_data['reasoning_effort']) ? sanitize_key($post_data['reasoning_effort']) : 'low';
 
     // --- Get Vector config fields from POST ---
     $enable_vector_store = isset($post_data['enable_vector_store']) && $post_data['enable_vector_store'] === '1' ? '1' : '0';
@@ -122,6 +123,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'top_p' => $top_p,
         'frequency_penalty' => $frequency_penalty,
         'presence_penalty' => $presence_penalty,
+        'reasoning_effort' => $reasoning_effort,
         // Vector settings
         'enable_vector_store' => $enable_vector_store,
         'vector_store_provider' => $vector_store_provider,

@@ -156,6 +156,12 @@ function format_chat_logic_for_payload_formatter(
     if (isset($ai_params['top_p'])) {
         $body_data['top_p'] = floatval($ai_params['top_p']);
     }
+    
+    // --- NEW: Add reasoning parameter ---
+    if (isset($ai_params['reasoning']) && is_array($ai_params['reasoning'])) {
+        $body_data['reasoning'] = $ai_params['reasoning'];
+    }
+    // --- END NEW ---
 
     return $body_data;
 }

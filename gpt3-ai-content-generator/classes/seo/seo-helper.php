@@ -188,9 +188,21 @@ class AIPKit_SEO_Helper
             }
         }
 
-        $result = wp_set_object_terms($post_id, $tags_string, $tag_taxonomy, false);
+        // Parse the comma-separated tags string into an array
+        $tags_array = array_map('trim', explode(',', $tags_string));
+        $tags_array = array_filter($tags_array, function($tag) {
+            return !empty($tag);
+        });
 
-        return !is_wp_error($result) && $result !== false;
+        $result = wp_set_object_terms($post_id, $tags_array, $tag_taxonomy, false);
+
+        if (is_wp_error($result)) {
+            return false;
+        }
+
+        $success = $result !== false;
+
+        return $success;
     }
 
 
@@ -213,10 +225,10 @@ class AIPKit_SEO_Helper
 
         // 1. Prioritize source for slug: Focus Keyword > Title
         $source_string = self::get_focus_keyword($post_id);
-        if (empty(trim($source_string))) {
+        if (empty(trim($source_string ?? ''))) {
             $source_string = $post->post_title;
         }
-        if (empty(trim($source_string))) {
+        if (empty(trim($source_string ?? ''))) {
             return false; // Nothing to generate slug from
         }
 

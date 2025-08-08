@@ -163,5 +163,11 @@ function format_sse_logic_for_payload_formatter(
         $body_data['instructions'] = $system_instruction;
     }
 
+    // --- NEW: Add reasoning parameter ---
+    if (isset($ai_params['reasoning']) && is_array($ai_params['reasoning'])) {
+        $body_data['reasoning'] = $ai_params['reasoning'];
+    }
+    // --- END NEW ---
+    
     return $body_data;
 }

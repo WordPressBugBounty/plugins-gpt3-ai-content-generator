@@ -114,6 +114,9 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['token_reset_period'] = isset($raw_settings['token_reset_period']) && in_array($raw_settings['token_reset_period'], ['never', 'daily', 'weekly', 'monthly']) ? sanitize_key($raw_settings['token_reset_period']) : BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
     $sanitized['token_limit_message'] = isset($raw_settings['token_limit_message']) ? sanitize_text_field($raw_settings['token_limit_message']) : '';
     $sanitized['model'] = isset($raw_settings['model']) ? sanitize_text_field($raw_settings['model']) : '';
+    // --- NEW: Sanitize reasoning_effort ---
+    $sanitized['reasoning_effort'] = isset($raw_settings['reasoning_effort']) && in_array($raw_settings['reasoning_effort'], ['minimal', 'low', 'medium', 'high']) ? sanitize_key($raw_settings['reasoning_effort']) : BotSettingsManager::DEFAULT_REASONING_EFFORT;
+    // --- END NEW ---
     $sanitized['tts_enabled'] = isset($raw_settings['tts_enabled']) ? '1' : '0';
     $sanitized['tts_provider'] = isset($raw_settings['tts_provider']) ? sanitize_text_field($raw_settings['tts_provider']) : BotSettingsManager::DEFAULT_TTS_PROVIDER;
     if (!in_array($sanitized['tts_provider'], ['Google', 'OpenAI', 'ElevenLabs'])) {

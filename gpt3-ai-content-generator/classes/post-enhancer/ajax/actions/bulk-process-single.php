@@ -2,6 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/post-enhancer/ajax/actions/bulk-process-single.php
 // Status: MODIFIED
+// I have added a conditional check to ensure the `reasoning_effort` parameter is only added for compatible OpenAI models (gpt-5, o-series).
 
 namespace WPAICG\PostEnhancer\Ajax\Actions;
 
@@ -70,6 +71,14 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
             'temperature' => isset($item_config['temperature']) ? floatval($item_config['temperature']) : ($global_ai_params['temperature'] ?? 1.0),
             'max_completion_tokens' => isset($item_config['max_tokens']) ? absint($item_config['max_tokens']) : ($global_ai_params['max_completion_tokens'] ?? 4000),
         ];
+        // --- NEW: Add reasoning effort to AI params ---
+        if ($provider === 'OpenAI' && isset($item_config['reasoning_effort']) && !empty($item_config['reasoning_effort'])) {
+            $model_lower = strtolower($model);
+            if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
+                 $ai_params['reasoning'] = ['effort' => sanitize_key($item_config['reasoning_effort'])];
+            }
+        }
+        // --- END NEW ---
         // --- END MODIFICATION ---
 
         // --- NEW: Extract Vector Store Settings ---
@@ -95,6 +104,31 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
 
         $system_instruction = 'You are an expert SEO copywriter. You follow instructions precisely. Your response must contain ONLY the generated text, with no introductory phrases, labels, or quotation marks.';
         $changes_made = [];
+
+        // --- NEW: Track detailed processing steps for frontend display ---
+        $processing_steps = [];
+        $fields_to_enhance = [];
+        foreach (array_keys($item_config) as $field_to_enhance) {
+            if (in_array($field_to_enhance, ['title', 'excerpt', 'content', 'meta', 'keyword', 'tags']) && !empty($item_config[$field_to_enhance]['prompt'])) {
+                $fields_to_enhance[] = $field_to_enhance;
+                $processing_steps[] = [
+                    'field' => $field_to_enhance,
+                    'display_name' => ucfirst(str_replace('_', ' ', $field_to_enhance)),
+                    'status' => 'pending',
+                    'message' => 'Waiting to process...'
+                ];
+            }
+        }
+        
+        // Add SEO slug if enabled
+        if (isset($item_config['generate_seo_slug']) && $item_config['generate_seo_slug'] === '1') {
+            $processing_steps[] = [
+                'field' => 'slug',
+                'display_name' => 'URL',
+                'status' => 'pending',
+                'message' => 'Waiting to process...'
+            ];
+        }
 
         // --- Start: Gather all possible placeholders ---
         $original_meta = get_post_meta($post->ID, '_yoast_wpseo_metadesc', true) ?: (get_post_meta($post->ID, '_aioseo_description', true) ?: '');
@@ -183,13 +217,28 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
             }
         }
 
+        // Helper function to update step status
+        $update_step_status = function($field, $status, $message = '') use (&$processing_steps) {
+            foreach ($processing_steps as &$step) {
+                if ($step['field'] === $field) {
+                    $step['status'] = $status;
+                    $step['message'] = $message;
+                    break;
+                }
+            }
+        };
+
         // 1. Process keyword first if requested
         if (in_array('keyword', $fields_to_enhance) && !empty($item_config['keyword']['prompt'])) {
+            $update_step_status('keyword', 'processing', 'Generating focus keyword...');
+            
             $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config['keyword']['prompt']);
-            $ai_params_kw = array_merge($ai_params, ['max_completion_tokens' => 20]);
-            $keyword_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $ai_params_kw, $system_instruction, ['post_id' => $post->ID]);
+            // *** FIX: Use the main ai_params which respects user's max_tokens setting ***
+            $current_ai_params = $ai_params; 
+            $keyword_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $current_ai_params, $system_instruction, ['post_id' => $post->ID]);
 
             if (is_wp_error($keyword_result)) {
+                $update_step_status('keyword', 'error', 'Failed: ' . $keyword_result->get_error_message());
                 $this->send_error_response($keyword_result);
                 return;
             }
@@ -199,6 +248,9 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                 AIPKit_SEO_Helper::update_focus_keyword($post->ID, $new_keyword);
                 $placeholders['{original_focus_keyword}'] = $new_keyword; // UPDATE placeholder for subsequent calls
                 $changes_made[] = 'focus keyword';
+                $update_step_status('keyword', 'completed', 'Successfully generated and updated');
+            } else {
+                $update_step_status('keyword', 'error', 'AI returned empty response');
             }
         }
 
@@ -209,26 +261,17 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
             }
 
             if (!empty($item_config[$field]['prompt'])) {
+                $field_display_name = ucfirst(str_replace('_', ' ', $field));
+                $update_step_status($field, 'processing', "Generating {$field_display_name}...");
+                
                 $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config[$field]['prompt']);
+                // *** FIX: Use the main ai_params which respects user's max_tokens setting ***
                 $current_ai_params = $ai_params;
-
-                // Adjust tokens for shorter fields
-                if ($field === 'title') {
-                    $current_ai_params['max_completion_tokens'] = 150;
-                }
-                if ($field === 'excerpt') {
-                    $current_ai_params['max_completion_tokens'] = 300;
-                }
-                if ($field === 'meta') {
-                    $current_ai_params['max_completion_tokens'] = 250;
-                }
-                if ($field === 'tags') {
-                    $current_ai_params['max_completion_tokens'] = 100;
-                }
-
+                
                 $ai_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $current_ai_params, $system_instruction, ['post_id' => $post->ID]);
 
                 if (is_wp_error($ai_result)) {
+                    $update_step_status($field, 'error', "Failed: " . $ai_result->get_error_message());
                     $this->send_error_response($ai_result);
                     return;
                 }
@@ -239,10 +282,12 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                         case 'title':
                             wp_update_post(['ID' => $post->ID, 'post_title' => sanitize_text_field($new_value)]);
                             $changes_made[] = 'title';
+                            $update_step_status('title', 'completed', 'Successfully updated');
                             break;
                         case 'excerpt':
                             wp_update_post(['ID' => $post->ID, 'post_excerpt' => wp_kses_post($new_value)]);
                             $changes_made[] = 'excerpt';
+                            $update_step_status('excerpt', 'completed', 'Successfully updated');
                             break;
                         case 'content':
                             $html_content = $new_value;
@@ -255,20 +300,29 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
                             $html_content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $html_content);
                             wp_update_post(['ID' => $post->ID, 'post_content' => wp_kses_post($html_content)]);
                             $changes_made[] = 'content';
+                            $update_step_status('content', 'completed', 'Successfully updated');
                             break;
                         case 'tags':
                             if (class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
                                 $result = \WPAICG\SEO\AIPKit_SEO_Helper::update_tags($post->ID, sanitize_text_field($new_value));
                                 if ($result) {
                                     $changes_made[] = 'tags';
+                                    $update_step_status('tags', 'completed', 'Successfully updated');
+                                } else {
+                                    $update_step_status('tags', 'error', 'Failed to update tags');
                                 }
+                            } else {
+                                $update_step_status('tags', 'error', 'SEO Helper class not available');
                             }
                             break;
                         case 'meta':
                             AIPKit_SEO_Helper::update_meta_description($post->ID, sanitize_text_field($new_value));
                             $changes_made[] = 'meta';
+                            $update_step_status('meta', 'completed', 'Successfully updated');
                             break;
                     }
+                } else {
+                    $update_step_status($field, 'error', 'AI returned empty response');
                 }
             }
         }
@@ -276,8 +330,12 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
 
         // --- NEW: Update Slug after all other changes ---
         if (!empty($changes_made) && isset($item_config['generate_seo_slug']) && $item_config['generate_seo_slug'] === '1') {
+            $update_step_status('slug', 'processing', 'Updating URL...');
             if (class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
                 \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($post->ID);
+                $update_step_status('slug', 'completed', 'Successfully updated');
+            } else {
+                $update_step_status('slug', 'error', 'SEO Helper class not available');
             }
         }
         // --- END NEW ---
@@ -285,7 +343,12 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
         if (empty($changes_made)) {
             $this->send_error_response(new WP_Error('enhancement_failed', 'AI failed to generate any valid enhancements for this post.', ['status' => 500]));
         } else {
-            wp_send_json_success(['message' => 'Post ' . $post->ID . ' enhanced successfully. Fields updated: ' . implode(', ', $changes_made)]);
+            wp_send_json_success([
+                'message' => 'Post ' . $post->ID . ' enhanced successfully. Fields updated: ' . implode(', ', $changes_made),
+                'fields_updated' => $changes_made,
+                'processing_steps' => $processing_steps, // NEW: Include detailed step information
+                'step_by_step_complete' => true
+            ]);
         }
     }
 }

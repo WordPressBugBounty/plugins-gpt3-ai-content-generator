@@ -1,7 +1,8 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/comment-reply/process-comment-reply-item.php
-// Status: NEW FILE
+// Status: MODIFIED
+// I have added the logic to include the `reasoning_effort` parameter for compatible OpenAI models.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\CommentReply;
 
@@ -72,7 +73,13 @@ function process_comment_reply_item_logic(array $item, array $item_config): arra
 
     // Call AI
     $ai_caller = new AIPKit_AI_Caller();
-    $ai_params_override = ['temperature' => floatval($item_config['ai_temperature'] ?? 1), 'max_completion_tokens' => intval($item_config['content_max_tokens'] ?? 250)];
+    $ai_params_override = ['temperature' => floatval($item_config['ai_temperature'] ?? 1), 'max_completion_tokens' => intval($item_config['content_max_tokens'] ?? 4000)];
+    if (($item_config['ai_provider'] ?? '') === 'OpenAI' && isset($item_config['reasoning_effort']) && !empty($item_config['reasoning_effort'])) {
+        $model_lower = strtolower($item_config['ai_model'] ?? '');
+        if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
+            $ai_params_override['reasoning'] = ['effort' => sanitize_key($item_config['reasoning_effort'])];
+        }
+    }
     $system_instruction = 'You are a helpful community manager replying to comments on a blog.';
     $ai_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $final_prompt]], $ai_params_override, $system_instruction);
 

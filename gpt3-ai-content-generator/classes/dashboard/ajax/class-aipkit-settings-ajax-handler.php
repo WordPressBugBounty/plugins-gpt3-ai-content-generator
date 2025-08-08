@@ -133,7 +133,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
      */
     private function save_global_ai_parameters(array $post_data): void
     {
-        $opts = get_option('aipkit_options', []);
+        // --- FIX: Safely retrieve options ---
+        $opts = get_option('aipkit_options');
+        if (!is_array($opts)) {
+            $opts = [];
+        }
+        // --- END FIX ---
+
         $default_ai_params = AIPKIT_AI_Settings::$default_ai_params;
         $existing_params = $opts['ai_parameters'] ?? $default_ai_params;
         $new_params = $existing_params;
@@ -182,7 +188,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
     private function save_public_api_key(array $post_data): void
     {
         if (isset($post_data['public_api_key'])) {
-            $opts = get_option('aipkit_options', []);
+            // --- FIX: Safely retrieve options ---
+            $opts = get_option('aipkit_options');
+            if (!is_array($opts)) {
+                $opts = [];
+            }
+            // --- END FIX ---
+
             $existing_api_keys = $opts['api_keys'] ?? AIPKIT_AI_Settings::$default_api_keys;
             $new_public_key = sanitize_text_field(trim($post_data['public_api_key']));
 
@@ -213,7 +225,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
      */
     private function save_all_security_settings(array $post_data): void
     {
-        $security_opts = AIPKIT_AI_Settings::get_security_settings();
+        // --- FIX: Safely retrieve security options ---
+        $security_opts = get_option(AIPKIT_AI_Settings::SECURITY_OPTION_NAME);
+        if (!is_array($security_opts)) {
+            $security_opts = AIPKIT_AI_Settings::get_security_settings(); // Fallback to getter which has defaults
+        }
+        // --- END FIX ---
+
         $new_security_opts = $security_opts;
 
         if (isset($post_data['banned_words']) || isset($post_data['banned_words_message'])) {
@@ -272,7 +290,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
      */
     private function save_enhancer_settings(array $post_data): bool
     {
-        $opts = get_option('aipkit_options', []);
+        // --- FIX: Safely retrieve options ---
+        $opts = get_option('aipkit_options');
+        if (!is_array($opts)) {
+            $opts = [];
+        }
+        // --- END FIX ---
+
         $current_enhancer_settings = $opts['enhancer_settings'] ?? [];
         $new_enhancer_settings = $current_enhancer_settings;
         $changed = false;
@@ -356,7 +380,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             return; // No settings to save
         }
 
-        $opts = get_option('aipkit_options', []);
+        // --- FIX: Safely retrieve options ---
+        $opts = get_option('aipkit_options');
+        if (!is_array($opts)) {
+            $opts = [];
+        }
+        // --- END FIX ---
+
         $current_settings = $opts['semantic_search'] ?? [];
         $new_settings = [];
 

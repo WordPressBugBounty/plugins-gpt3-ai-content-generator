@@ -55,6 +55,10 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                 $sanitized[$key] = absint($config[$key]);
             } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store', 'update_title', 'update_excerpt', 'update_content', 'update_meta'], true)) {
                 $sanitized[$key] = ($config[$key] === '1' || $config[$key] === true || $config[$key] === 1) ? '1' : '0';
+            } elseif ($key === 'reasoning_effort') {
+                // Sanitize reasoning_effort to only allow valid values
+                $valid_reasoning_efforts = ['minimal', 'low', 'medium', 'high'];
+                $sanitized[$key] = in_array($config[$key], $valid_reasoning_efforts, true) ? $config[$key] : 'low';
             } elseif (in_array($key, ['post_type', 'post_status', 'ai_provider', 'prompt_mode', 'cw_generation_mode', 'image_provider', 'image_placement', 'image_alignment', 'image_size', 'vector_store_provider', 'vector_embedding_provider', 'pexels_orientation', 'pexels_size', 'pexels_color', 'pixabay_orientation', 'pixabay_image_type', 'pixabay_category'], true)) {
                 $sanitized[$key] = sanitize_key($config[$key]);
             } elseif (is_string($config[$key])) {

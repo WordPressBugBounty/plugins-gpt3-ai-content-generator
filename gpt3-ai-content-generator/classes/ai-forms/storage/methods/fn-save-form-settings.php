@@ -49,6 +49,9 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     if (isset($settings['presence_penalty'])) {
         update_post_meta($form_id, '_aipkit_ai_form_presence_penalty', sanitize_text_field($settings['presence_penalty']));
     }
+    if (isset($settings['reasoning_effort'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_reasoning_effort', sanitize_key($settings['reasoning_effort']));
+    }
 
     // --- Save Vector Settings ---
     if (isset($settings['enable_vector_store'])) {

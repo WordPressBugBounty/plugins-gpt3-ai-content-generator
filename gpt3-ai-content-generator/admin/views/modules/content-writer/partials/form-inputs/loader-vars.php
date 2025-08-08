@@ -23,7 +23,7 @@ $default_provider = strtolower($default_provider_config['provider'] ?? 'openai')
 $deepseek_addon_active = aipkit_dashboard::is_addon_active('deepseek');
 $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 $default_temperature = $ai_parameters['temperature'] ?? 1.0;
-$default_max_tokens = $ai_parameters['max_completion_tokens'] ?? 1500;
+$default_max_tokens = $ai_parameters['max_completion_tokens'] ?? 4000;
 
 $providers_for_select = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
 if ($deepseek_addon_active) {

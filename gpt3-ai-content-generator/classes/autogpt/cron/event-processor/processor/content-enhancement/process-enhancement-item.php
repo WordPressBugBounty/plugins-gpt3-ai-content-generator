@@ -1,6 +1,8 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-enhancement/process-enhancement-item.php
+// Status: MODIFIED
+// I have added a conditional check to ensure the `reasoning_effort` parameter is only added for compatible OpenAI models (gpt-5, o-series).
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentEnhancement;
 
@@ -41,6 +43,12 @@ function process_enhancement_item_logic(array $item, array $item_config): array
 
     $ai_caller = new AIPKit_AI_Caller();
     $ai_params = ['temperature' => floatval($item_config['ai_temperature'] ?? 1.0)];
+    if (($item_config['ai_provider'] ?? '') === 'OpenAI' && isset($item_config['reasoning_effort']) && !empty($item_config['reasoning_effort'])) {
+        $model_lower = strtolower($item_config['ai_model'] ?? '');
+        if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
+            $ai_params['reasoning'] = ['effort' => sanitize_key($item_config['reasoning_effort'])];
+        }
+    }
     $user_max_tokens = absint($item_config['content_max_tokens'] ?? 4000);
     $system_instruction = 'You are an expert SEO copywriter and editor. You follow instructions precisely. Your response must contain ONLY the generated text, with no introductory phrases, labels, or quotation marks.';
     $changes_made = [];
@@ -142,9 +150,9 @@ function process_enhancement_item_logic(array $item, array $item_config): array
             $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config[$prompt_key]);
             $current_ai_params = $ai_params;
 
-            if ($field === 'title') $current_ai_params['max_completion_tokens'] = 150;
-            if ($field === 'excerpt') $current_ai_params['max_completion_tokens'] = 300;
-            if ($field === 'meta') $current_ai_params['max_completion_tokens'] = 250;
+            if ($field === 'title') $current_ai_params['max_completion_tokens'] = 4000;
+            if ($field === 'excerpt') $current_ai_params['max_completion_tokens'] = 4000;
+            if ($field === 'meta') $current_ai_params['max_completion_tokens'] = 4000;
             if ($field === 'content') $current_ai_params['max_completion_tokens'] = $user_max_tokens;
 
             $ai_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $prompt]], $current_ai_params, $system_instruction);

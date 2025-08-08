@@ -38,6 +38,8 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
         $prompt_mode = isset($_POST['prompt_mode']) ? sanitize_key($_POST['prompt_mode']) : 'standard';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
         $custom_keyword_prompt = isset($_POST['custom_keyword_prompt']) ? sanitize_textarea_field(wp_unslash($_POST['custom_keyword_prompt'])) : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
+        $content_max_tokens = isset($_POST['content_max_tokens']) ? intval($_POST['content_max_tokens']) : null;
 
 
         if (empty($generated_content) || empty($final_title) || empty($provider_raw) || empty($model)) {
@@ -57,7 +59,10 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
 
         $content_summary = AIPKit_Content_Writer_Summarizer::summarize($generated_content);
         $keyword_user_prompt = AIPKit_Content_Writer_Keyword_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_keyword_prompt);
-        $keyword_ai_params = ['max_completion_tokens' => 20, 'temperature' => 0.2];
+        
+        // Use the max tokens from template/form settings, or default to 20 for keyword generation
+        $max_tokens = isset($content_max_tokens) && $content_max_tokens > 0 ? $content_max_tokens : 4000;
+        $keyword_ai_params = ['max_completion_tokens' => $max_tokens];
 
         $keyword_result = $this->get_ai_caller()->make_standard_call(
             $provider,

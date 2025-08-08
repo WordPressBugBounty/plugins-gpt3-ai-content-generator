@@ -44,6 +44,9 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_temperature', (string)$sanitized_settings['temperature']);
     update_post_meta($botId, '_aipkit_max_completion_tokens', $sanitized_settings['max_completion_tokens']);
     update_post_meta($botId, '_aipkit_max_messages', $sanitized_settings['max_messages']);
+    // --- NEW: Save reasoning_effort ---
+    update_post_meta($botId, '_aipkit_reasoning_effort', $sanitized_settings['reasoning_effort']);
+    // --- END NEW ---
     update_post_meta($botId, '_aipkit_enable_conversation_starters', $sanitized_settings['enable_conversation_starters']);
     update_post_meta($botId, '_aipkit_conversation_starters', $sanitized_settings['conversation_starters']); // Already JSON
     update_post_meta($botId, '_aipkit_content_aware_enabled', $sanitized_settings['content_aware_enabled']);
@@ -162,7 +165,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
             update_post_meta($botId, '_aipkit_cts_' . $key, $value);
         }
     }
-
+    
     // --- Save Realtime Voice Agent settings ---
     update_post_meta($botId, '_aipkit_enable_realtime_voice', $sanitized_settings['enable_realtime_voice']);
     update_post_meta($botId, '_aipkit_direct_voice_mode', $sanitized_settings['direct_voice_mode']);

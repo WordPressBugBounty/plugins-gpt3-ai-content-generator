@@ -15,6 +15,7 @@ use WPAICG\Chat\Storage\BotSettingsManager; // Use new class for constants
 // $bot_id, $bot_settings, $openai_conversation_state_enabled_val, $current_provider_for_this_bot
 // $openai_web_search_enabled_val, $openai_web_search_context_size_val, $openai_web_search_loc_type_val, etc.
 // $google_search_grounding_enabled_val, $google_grounding_mode_val, etc.
+// $reasoning_effort_val (NEW)
 // --- NEW: $enable_image_upload variable passed from accordion-ai-config.php
 $enable_image_upload = isset($bot_settings['enable_image_upload'])
                         ? $bot_settings['enable_image_upload']
@@ -123,6 +124,18 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                 </span>
             </div>
         </div><!-- /Max Messages Column -->
+        
+        <!-- NEW: Reasoning Effort (Conditional) -->
+        <div class="aipkit_form-group aipkit_form-col aipkit_reasoning_effort_field" style="display: none;">
+            <label class="aipkit_form-label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort"><?php esc_html_e('Reasoning', 'gpt3-ai-content-generator'); ?></label>
+            <select id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort" name="reasoning_effort" class="aipkit_form-input">
+                <option value="minimal" <?php selected($reasoning_effort_val, 'minimal'); ?>>Minimal</option>
+                <option value="low" <?php selected($reasoning_effort_val, 'low'); ?>>Low (Default)</option>
+                <option value="medium" <?php selected($reasoning_effort_val, 'medium'); ?>>Medium</option>
+                <option value="high" <?php selected($reasoning_effort_val, 'high'); ?>>High</option>
+            </select>
+        </div>
+        <!-- END NEW -->
 
     </div><!-- /AI Params Row -->
 
@@ -216,4 +229,4 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
         >
     </div>
 
-</div> <?php // END WRAPPER DIV?>
+</div>

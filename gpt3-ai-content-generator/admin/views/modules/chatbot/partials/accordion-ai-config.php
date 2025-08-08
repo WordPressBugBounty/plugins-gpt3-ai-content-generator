@@ -60,6 +60,9 @@ $enable_voice_input = isset($bot_settings['enable_voice_input'])
                       ? $bot_settings['enable_voice_input']
                       : \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT;
 // --- END NEW ---
+// --- NEW: Get reasoning effort value ---
+$reasoning_effort_val = $bot_settings['reasoning_effort'] ?? BotSettingsManager::DEFAULT_REASONING_EFFORT;
+// --- END NEW ---
 ?>
 <div class="aipkit_accordion">
     <div class="aipkit_accordion-header">

@@ -55,9 +55,25 @@ $default_custom_title_prompt = AIPKit_Content_Writer_Prompts::get_default_title_
                 <div class="aipkit_form-group aipkit_form-col"> 
                     <label class="aipkit_form-label" for="aipkit_content_writer_max_tokens"><?php esc_html_e('Max Tokens', 'gpt3-ai-content-generator'); ?></label>
                     <div class="aipkit_slider_wrapper">
-                        <input type="range" id="aipkit_content_writer_max_tokens" name="content_max_tokens" class="aipkit_form-input aipkit_range_slider" min="100" max="4096" step="100" value="<?php echo esc_attr($default_max_tokens); ?>">
+                        <input type="range" id="aipkit_content_writer_max_tokens" name="content_max_tokens" class="aipkit_form-input aipkit_range_slider" min="100" max="128000" step="100" value="<?php echo esc_attr($default_max_tokens); ?>">
                         <span id="aipkit_content_writer_max_tokens_value" class="aipkit_slider_value"><?php echo esc_html($default_max_tokens); ?></span>
                     </div>
+                </div>
+            </div>
+            <!-- Reasoning Effort (Conditional) -->
+            <div class="aipkit_form-row aipkit_cw_reasoning_effort_field" style="display: none;">
+                <div class="aipkit_form-group aipkit_form-col">
+                    <label class="aipkit_form-label" for="aipkit_content_writer_reasoning_effort"><?php esc_html_e('Reasoning Effort', 'gpt3-ai-content-generator'); ?></label>
+                    <select id="aipkit_content_writer_reasoning_effort" name="reasoning_effort" class="aipkit_form-input">
+                        <option value="low"><?php esc_html_e('Low (Default)', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="minimal"><?php esc_html_e('Minimal', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="medium"><?php esc_html_e('Medium', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="high"><?php esc_html_e('High', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
+                    <p class="aipkit_form-help"><?php esc_html_e('For o-series and gpt-5 models. Controls the amount of reasoning performed.', 'gpt3-ai-content-generator'); ?></p>
+                </div>
+                <div class="aipkit_form-group aipkit_form-col">
+                    <!-- empty column for alignment -->
                 </div>
             </div>
         </div>

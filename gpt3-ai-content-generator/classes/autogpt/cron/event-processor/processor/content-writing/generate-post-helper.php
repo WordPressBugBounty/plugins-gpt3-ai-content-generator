@@ -2,6 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/cron/event-processor/processor/content-writing/generate-post-helper.php
 // Status: MODIFIED
+// I have added the logic to include the `reasoning_effort` parameter for compatible OpenAI models.
 
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
@@ -27,8 +28,15 @@ function generate_post_logic(array $prompts, array $cw_config, AIPKit_AI_Caller 
 
     $content_ai_params = [
         'temperature' => floatval($cw_config['ai_temperature'] ?? 1),
-        'max_completion_tokens' => intval($cw_config['content_max_tokens'] ?? 1500)
+        'max_completion_tokens' => intval($cw_config['content_max_tokens'] ?? 4000)
     ];
+
+    if (($provider ?? '') === 'OpenAI' && isset($cw_config['reasoning_effort']) && !empty($cw_config['reasoning_effort'])) {
+        $model_lower = strtolower($model ?? '');
+        if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
+            $content_ai_params['reasoning'] = ['effort' => sanitize_key($cw_config['reasoning_effort'])];
+        }
+    }
 
     // --- ADDED: Add OpenAI vector tool configuration if applicable ---
     if ($provider === 'OpenAI' &&

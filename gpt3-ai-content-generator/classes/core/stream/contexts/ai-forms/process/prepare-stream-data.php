@@ -82,6 +82,13 @@ function prepare_stream_data_logic(
     if (isset($form_config['presence_penalty']) && is_numeric($form_config['presence_penalty'])) {
         $ai_params_for_payload['presence_penalty'] = floatval($form_config['presence_penalty']);
     }
+    // Add reasoning effort to AI params
+    if ($provider === 'OpenAI' && isset($form_config['reasoning_effort']) && !empty($form_config['reasoning_effort'])) {
+        $model_lower = strtolower($model);
+        if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
+             $ai_params_for_payload['reasoning'] = ['effort' => sanitize_key($form_config['reasoning_effort'])];
+        }
+    }
 
 
     if ($provider === 'Google' && class_exists(GoogleSettingsHandler::class)) {

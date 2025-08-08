@@ -19,6 +19,8 @@ require_once __DIR__ . '/ajax/actions/update-excerpt.php';
 require_once __DIR__ . '/ajax/actions/update-meta.php';
 require_once __DIR__ . '/ajax/actions/update-tags.php';
 require_once __DIR__ . '/ajax/actions/bulk-process-single.php';
+require_once __DIR__ . '/ajax/actions/bulk-process-single-field.php';
+require_once __DIR__ . '/ajax/actions/bulk-update-seo-slug.php';
 require_once __DIR__ . '/ajax/actions/process-text.php';
 
 /**
@@ -36,6 +38,8 @@ class AjaxHandler
     private $update_meta_handler;
     private $update_tags_handler;
     private $bulk_process_single_handler; // ADDED
+    private $bulk_process_single_field_handler; // ADDED
+    private $bulk_update_seo_slug_handler; // ADDED
     private $process_text_handler;
     private $actions_handler; // ADDED
 
@@ -50,6 +54,8 @@ class AjaxHandler
         $this->update_meta_handler = new Actions\AIPKit_PostEnhancer_Update_Meta();
         $this->update_tags_handler = new Actions\AIPKit_PostEnhancer_Update_Tags();
         $this->bulk_process_single_handler = new Actions\AIPKit_PostEnhancer_Bulk_Process_Single(); // ADDED
+        $this->bulk_process_single_field_handler = new Actions\AIPKit_PostEnhancer_Bulk_Process_Single_Field(); // ADDED
+        $this->bulk_update_seo_slug_handler = new Actions\AIPKit_PostEnhancer_Bulk_Update_SEO_Slug(); // ADDED
         $this->process_text_handler = new Actions\AIPKit_PostEnhancer_Process_Text();
         $this->actions_handler = new AIPKit_Enhancer_Actions_Ajax_Handler(); // ADDED
     }
@@ -93,6 +99,22 @@ class AjaxHandler
     public function ajax_bulk_process_single_post()
     {
         $this->bulk_process_single_handler->handle();
+    }
+
+    /**
+     * AJAX handler for processing a single field of a post.
+     */
+    public function ajax_bulk_process_single_field()
+    {
+        $this->bulk_process_single_field_handler->handle();
+    }
+
+    /**
+     * AJAX handler for updating SEO slug of a post.
+     */
+    public function ajax_bulk_update_seo_slug()
+    {
+        $this->bulk_update_seo_slug_handler->handle();
     }
 
     /**
