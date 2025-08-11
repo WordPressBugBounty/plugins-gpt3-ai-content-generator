@@ -106,6 +106,9 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             if (!isset($opts['module_settings']) || !is_array($opts['module_settings'])) {
                 $opts['module_settings'] = self::$default_module_settings;
                 self::$module_settings = self::$default_module_settings;
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::check_and_init_module_settings (initializing). DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+                }
                 update_option('aipkit_options', $opts, 'no');
             } else {
                 $merged = array_merge(self::$default_module_settings, $opts['module_settings']);
@@ -113,6 +116,9 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 self::$module_settings = $final_settings;
                 if ($final_settings !== $opts['module_settings']) {
                     $opts['module_settings'] = $final_settings;
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::check_and_init_module_settings (syncing keys). DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+                    }
                     update_option('aipkit_options', $opts, 'no');
                 }
             }
@@ -130,6 +136,9 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             if (!isset($opts['addons_status']) || !is_array($opts['addons_status'])) {
                 $opts['addons_status'] = self::$default_addon_status;
                 self::$addon_status = self::$default_addon_status;
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::check_and_init_addon_status (initializing). DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+                }
                 update_option('aipkit_options', $opts, 'no');
             } else {
                 $merged = array_merge(self::$default_addon_status, $opts['addons_status']);
@@ -137,6 +146,9 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 self::$addon_status = $final_settings;
                 if ($final_settings !== $opts['addons_status']) {
                     $opts['addons_status'] = $final_settings;
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::check_and_init_addon_status (syncing keys). DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+                    }
                     update_option('aipkit_options', $opts, 'no');
                 }
             }
@@ -298,6 +310,9 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             // --- END FIX ---
 
             $opts['module_settings'] = self::$module_settings;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::ajax_update_module_setting. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+            }
             update_option('aipkit_options', $opts, 'no');
 
             wp_send_json_success(['message' => 'Module setting updated.']);
@@ -342,6 +357,9 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 $opts['addons_status'] = [];
             }
             $opts['addons_status'][$addonKey] = $isActive;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::ajax_update_addon_status. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+            }
             update_option('aipkit_options', $opts, 'no');
 
             wp_send_json_success(['message' => 'Addon status updated.']);

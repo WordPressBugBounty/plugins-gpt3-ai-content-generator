@@ -1,9 +1,16 @@
 <?php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/admin/ajax/log_ajax_handler.php
+// Status: MODIFIED
 
 namespace WPAICG\Chat\Admin\Ajax;
 
 use WPAICG\Chat\Storage\LogStorage;
 use WPAICG\Chat\Utils\Utils; // Needed for time diff
+use WPAICG\Chat\Storage\LogCronManager; // NEW: For scheduling
+use WPAICG\Chat\Storage\LogManager; // NEW: For pruning
+use WPAICG\Chat\Utils\LogStatusRenderer; // For cron status display
+use WPAICG\Chat\Utils\LogConfig; // For centralized configuration
+use WPAICG\aipkit_dashboard;
 use WP_Error; // Added use statement
 
 if (!defined('ABSPATH')) {
@@ -25,6 +32,108 @@ class LogAjaxHandler extends BaseAjaxHandler
         }
         $this->log_storage = new LogStorage();
     }
+
+    /**
+     * AJAX: Saves log pruning settings.
+     */
+    public function ajax_save_log_settings()
+    {
+        $permission_check = $this->check_module_access_permissions('logs', 'aipkit_save_log_settings_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above
+        $post_data = wp_unslash($_POST);
+
+        $enable_pruning = isset($post_data['enable_pruning']) && $post_data['enable_pruning'] === '1';
+        $retention_period = isset($post_data['retention_period_days']) ? floatval($post_data['retention_period_days']) : 90;
+
+
+        // Validate retention period using centralized config
+        if (!LogConfig::is_valid_period($retention_period)) {
+            $retention_period = 90; // Default if invalid value is submitted
+        }
+
+        // Pro plan check: Only allow enabling pruning if user has pro plan
+        $is_pro = aipkit_dashboard::is_pro_plan();
+        if ($enable_pruning && !$is_pro) {
+            // If user tries to enable pruning without pro plan, keep it disabled
+            $enable_pruning = false;
+        }
+
+        $settings = [
+            'enable_pruning' => $enable_pruning,
+            'retention_period_days' => $retention_period,
+        ];
+
+        update_option('aipkit_log_settings', $settings, 'no');
+
+        // Schedule or unschedule the cron job based on the new setting and pro status
+        if (class_exists(LogCronManager::class)) {
+            if ($enable_pruning && $is_pro) {
+                LogCronManager::schedule_event();
+            } else {
+                LogCronManager::unschedule_event(); // Unschedule if disabled OR not pro
+            }
+        }
+
+        $message = __('Log settings saved successfully.', 'gpt3-ai-content-generator');
+        if (!$is_pro && isset($post_data['enable_pruning']) && $post_data['enable_pruning'] === '1') {
+            $message .= ' ' . __('Note: Auto-delete feature requires Pro plan.', 'gpt3-ai-content-generator');
+        }
+
+        wp_send_json_success(['message' => $message]);
+    }
+
+    /**
+     * AJAX: Manually triggers the log pruning process.
+     */
+    public function ajax_prune_logs_now()
+    {
+        $permission_check = $this->check_module_access_permissions('logs', 'aipkit_save_log_settings_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // --- NEW: Pro Check ---
+        if (!aipkit_dashboard::is_pro_plan()) {
+            $this->send_wp_error(new WP_Error('pro_feature_required', __('Manual log pruning is a Pro feature. Please upgrade.', 'gpt3-ai-content-generator')), 403);
+            return;
+        }
+        // --- END NEW ---
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above
+        $post_data = wp_unslash($_POST);
+        $retention_period = isset($post_data['retention_period_days']) ? floatval($post_data['retention_period_days']) : 90;
+
+        if ($retention_period <= 0) {
+            $this->send_wp_error(new WP_Error('invalid_period', __('Invalid retention period provided.', 'gpt3-ai-content-generator')), 400);
+            return;
+        }
+
+        if (!class_exists(LogManager::class)) {
+            $this->send_wp_error(new WP_Error('dependency_missing', __('Log manager component is unavailable.', 'gpt3-ai-content-generator')), 500);
+            return;
+        }
+
+        $log_manager = new LogManager();
+        $deleted_rows = $log_manager->prune_logs($retention_period);
+
+        if ($deleted_rows === false) {
+            $this->send_wp_error(new WP_Error('pruning_failed', __('An error occurred while pruning the logs.', 'gpt3-ai-content-generator')), 500);
+        } else {
+            // Update last run time for manual pruning
+            update_option('aipkit_log_pruning_last_run', current_time('mysql', true), 'no');
+            
+            /* translators: %d: The number of log entries that were deleted. */
+            $message = sprintf(_n('%d log entry pruned.', '%d log entries pruned.', $deleted_rows, 'gpt3-ai-content-generator'), number_format_i18n($deleted_rows));
+            wp_send_json_success(['message' => $message, 'deleted_count' => $deleted_rows]);
+        }
+    }
+
 
     /** Extracts and sanitizes log filters from POST data. */
     private function extract_log_filters_from_post(array $post_data): array
@@ -279,5 +388,20 @@ class LogAjaxHandler extends BaseAjaxHandler
         } catch (\Exception $e) {
             wp_send_json_error(['message' => __('Deletion error:', 'gpt3-ai-content-generator') . ' ' . $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * AJAX: Gets the current cron status for log pruning.
+     */
+    public function ajax_get_log_cron_status()
+    {
+        $permission_check = $this->check_module_access_permissions('logs');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        $html = LogStatusRenderer::render_cron_status_panel();
+        wp_send_json_success(['html' => $html]);
     }
 }

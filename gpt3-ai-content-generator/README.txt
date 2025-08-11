@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.33
+Stable tag: 2.3.34
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,12 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.34 =
+
+- **Added**: Auto-Delete Logs — automatically removes logs after a specified period using a WP-Cron job.
+- **Improved**: Search UI on the AI Train page.
+- **Fixed**: Removed the "temperature" parameter for OpenAI’s gpt-5, o1, o3, and o4 models, as they do not support this parameter.
 
 = 2.3.33 =
 

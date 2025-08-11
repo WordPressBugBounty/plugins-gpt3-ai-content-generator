@@ -59,35 +59,67 @@ $qdrant_api_key_is_set = !empty($qdrant_data['api_key']);
                 </div>
             </div>
 
-            <div id="aipkit_search_qdrant_collection_form_wrapper" class="aipkit_ai_training_section_wrapper aipkit_openai_vs_content_section" style="display:none;">
-                 <div class="aipkit_ai_training_section_header">
-                    <h5 id="aipkit_search_qdrant_collection_form_title"><?php esc_html_e('Search Qdrant Collection', 'gpt3-ai-content-generator'); ?></h5>
-                    <button type="button" id="aipkit_close_search_qdrant_panel_btn" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small" title="<?php esc_attr_e('Close Search', 'gpt3-ai-content-generator'); ?>">
-                        <span class="dashicons dashicons-no-alt"></span>
-                    </button>
-                </div>
-                <div class="aipkit_panel_body">
+            <div id="aipkit_search_qdrant_collection_form_wrapper" class="aipkit_openai_vs_content_section" style="display:none;">
+                <div class="aipkit_search_form_container qdrant">
                     <input type="hidden" id="aipkit_search_qdrant_collection_id" value="">
-                    <div class="aipkit_form-group">
-                        <label class="aipkit_form-label" for="aipkit_search_query_text_qdrant"><?php esc_html_e('Search Query Text', 'gpt3-ai-content-generator'); ?></label>
-                        <textarea id="aipkit_search_query_text_qdrant" class="aipkit_form-input" rows="2" placeholder="<?php esc_attr_e('Enter text to search with (will be embedded)...', 'gpt3-ai-content-generator'); ?>"></textarea>
-                         <div class="aipkit_form-help"><?php esc_html_e('This text will be embedded using the model selected in the "Add Content" form above.', 'gpt3-ai-content-generator'); ?></div>
+                    
+                    <div class="aipkit_search_form_header">
+                        <button type="button" id="aipkit_close_search_qdrant_panel_btn" class="aipkit_search_form_close_btn" title="<?php esc_attr_e('Close Search', 'gpt3-ai-content-generator'); ?>">
+                            <span class="dashicons dashicons-no-alt"></span>
+                        </button>
                     </div>
-                     <div class="aipkit_form-group">
-                        <label class="aipkit_form-label" for="aipkit_search_top_k_qdrant"><?php esc_html_e('Number of Results (Top K)', 'gpt3-ai-content-generator'); ?></label>
-                        <input type="number" id="aipkit_search_top_k_qdrant" class="aipkit_form-input" value="3" min="1" max="100" style="max-width: 80px;">
+
+                    <div class="aipkit_search_form_row">
+                        <div class="aipkit_search_form_row_main">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_search_query_text_qdrant"><?php esc_html_e('Query', 'gpt3-ai-content-generator'); ?></label>
+                                <input type="text" id="aipkit_search_query_text_qdrant" class="aipkit_search_form_input aipkit_search_form_input_query" placeholder="<?php esc_attr_e('Enter text to search for...', 'gpt3-ai-content-generator'); ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="aipkit_search_form_row_side">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_qdrant_search_embedding_model_select"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></label>
+                                <select id="aipkit_qdrant_search_embedding_model_select" class="aipkit_search_form_select aipkit_search_form_input_medium">
+                                    <!-- Options populated by JS -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="aipkit_search_form_row_side">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_search_top_k_qdrant"><?php esc_html_e('Results', 'gpt3-ai-content-generator'); ?></label>
+                                <input type="number" id="aipkit_search_top_k_qdrant" class="aipkit_search_form_input aipkit_search_form_input_small" value="5" min="1" max="100">
+                            </div>
+                        </div>
+                        
+                        <div class="aipkit_search_form_row_side">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label">&nbsp;</label>
+                                <div class="aipkit_search_form_actions">
+                                    <button type="button" id="aipkit_search_qdrant_collection_btn" class="aipkit_search_form_btn aipkit_search_form_btn_primary">
+                                        <span class="aipkit_search_form_btn_text"><?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?></span>
+                                        <span class="aipkit_search_form_spinner"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="aipkit_form-group">
-                        <label class="aipkit_form-label" for="aipkit_search_filter_qdrant"><?php esc_html_e('Filter (JSON - Optional)', 'gpt3-ai-content-generator'); ?></label>
-                        <textarea id="aipkit_search_filter_qdrant" class="aipkit_form-input" rows="3" placeholder="<?php esc_attr_e('e.g., { "must": [{ "key": "source", "match": { "value": "wordpress_post" }}]}', 'gpt3-ai-content-generator'); ?>"></textarea>
+
+                    <!-- Optional Filter Row (Can be collapsed/expanded) -->
+                    <div class="aipkit_search_form_row" style="margin-top: 4px;">
+                        <div class="aipkit_search_form_row_main">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_search_filter_qdrant"><?php esc_html_e('Filter (JSON, Optional)', 'gpt3-ai-content-generator'); ?></label>
+                                <textarea id="aipkit_search_filter_qdrant" class="aipkit_search_form_textarea" placeholder="<?php esc_attr_e('e.g., { "must": [{ "key": "source", "match": { "value": "post" }}]}', 'gpt3-ai-content-generator'); ?>" rows="1"></textarea>
+                            </div>
+                        </div>
                     </div>
-                    <button type="button" id="aipkit_search_qdrant_collection_btn" class="aipkit_btn aipkit_btn-primary">
-                        <span class="aipkit_btn-text"><?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?></span>
-                        <span class="aipkit_spinner" style="display:none;"></span>
-                    </button>
-                    <div id="aipkit_search_qdrant_collection_form_status" class="aipkit_form-help"></div>
-                    <div id="aipkit_search_qdrant_results_area" class="aipkit_search_results_area"></div>
+
+                    <div id="aipkit_search_qdrant_collection_form_status" class="aipkit_search_form_status"></div>
                 </div>
+
+                <div id="aipkit_search_qdrant_results_area" class="aipkit_search_results_container"></div>
             </div>
             <?php // Create Collection UI elements REMOVED. Triggered by global "+" button next to select.?>
         </div>

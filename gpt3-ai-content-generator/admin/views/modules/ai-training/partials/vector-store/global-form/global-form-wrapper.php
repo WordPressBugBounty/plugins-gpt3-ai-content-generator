@@ -54,7 +54,7 @@ if (!defined('ABSPATH')) {
                         </div>
                         <div class="aipkit_source_card_content">
                             <h4 class="aipkit_source_card_title"><?php esc_html_e('Site Content', 'gpt3-ai-content-generator'); ?></h4>
-                            <p class="aipkit_source_card_desc"><?php esc_html_e('Select from your WordPress posts', 'gpt3-ai-content-generator'); ?></p>
+                            <p class="aipkit_source_card_desc"><?php esc_html_e('Select from your site content', 'gpt3-ai-content-generator'); ?></p>
                         </div>
                     </div>
                 </div>

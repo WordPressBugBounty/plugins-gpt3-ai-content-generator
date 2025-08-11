@@ -1,5 +1,4 @@
 <?php
-
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/dependency-loaders/class-chat-dependencies-loader.php
 // Status: MODIFIED
 
@@ -34,6 +33,8 @@ class Chat_Dependencies_Loader
             // --- END REMOVED ---
             'utils/class-aipkit_chat_utils.php',
             'utils/class-aipkit-svg-icons.php',
+            'utils/class-log-status-renderer.php',
+            'utils/class-log-config.php',
             'admin/chat_admin_setup.php',
             'storage/class-aipkit_log_query_helper.php', 'storage/class-aipkit_site_wide_bot_manager.php',
             'storage/class-aipkit_default_bot_setup.php', 'storage/class-aipkit_bot_settings_manager.php',
@@ -47,7 +48,9 @@ class Chat_Dependencies_Loader
             'storage/class-aipkit_conversation_logger.php',
             'storage/class-aipkit_conversation_reader.php',
             'storage/class-aipkit_feedback_manager.php',
-            'storage/class-aipkit_log_manager.php', 'storage/class-aipkit_chat_bot_storage.php',
+            'storage/class-aipkit_log_manager.php',
+            'storage/class-aipkit_log_cron_manager.php', // NEW
+            'storage/class-aipkit_chat_bot_storage.php',
             'storage/class-aipkit_chat_log_storage.php', 'storage/class-aipkit-bot-settings-getter.php',
             'storage/class-aipkit-bot-settings-saver.php', 'storage/class-aipkit-bot-settings-initializer.php',
             'admin/ajax/chatbot_ajax_handler.php', 'admin/ajax/chatbot_export_ajax_handler.php',

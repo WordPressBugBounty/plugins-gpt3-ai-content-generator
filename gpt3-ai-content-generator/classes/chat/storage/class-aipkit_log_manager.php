@@ -129,12 +129,12 @@ class LogManager
     /**
      * Deletes conversation rows older than X days (based on last_message_ts).
      */
-    public function prune_logs(int $days): int|false
+    public function prune_logs(float $days): int|false
     {
         if ($days <= 0) {
             return 0;
         }
-        $timestamp_threshold = time() - ($days * DAY_IN_SECONDS);
+        $timestamp_threshold = time() - (int)($days * DAY_IN_SECONDS);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Bulk deletion on a custom table for a cron job. Caching is not applicable. $this->table_name is safe.
         return $this->wpdb->query($this->wpdb->prepare("DELETE FROM {$this->table_name} WHERE last_message_ts < %d", $timestamp_threshold));
     }

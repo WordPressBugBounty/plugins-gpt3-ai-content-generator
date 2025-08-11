@@ -73,7 +73,7 @@ $is_pro = aipkit_dashboard::is_pro_plan();
         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--aipkit_container-border);">
             <div id="aipkit_indexing_settings_messages" class="aipkit_settings_messages" style="min-height: 1.5em; margin-bottom: 8px;"></div>
             <button id="aipkit_save_indexing_settings_btn" class="aipkit_btn aipkit_btn-primary">
-                <span class="aipkit_btn-text"><?php esc_html_e('Save Settings', 'gpt3-ai-content-generator'); ?></span>
+                <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
                 <span class="aipkit_spinner" style="display:none;"></span>
             </button>
         </div>

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Toolkit (formerly AI Power) 2.3.33\n"
+"Project-Id-Version: AIP: Complete AI Toolkit (formerly AI Power) 2.3.34\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-08T20:47:43+00:00\n"
+"POT-Creation-Date: 2025-08-11T10:29:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -143,8 +143,11 @@ msgstr ""
 #: admin/ajax/ai-forms/ajax-save-form.php:42
 #: admin/views/modules/ai-forms/partials/labels-config.php:28
 #: admin/views/modules/ai-forms/partials/labels-config.php:29
+#: admin/views/modules/ai-forms/partials/settings-ai-forms.php:220
+#: admin/views/modules/ai-training/partials/settings.php:76
 #: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:141
 #: admin/views/modules/content-writer/partials/template-controls.php:48
+#: admin/views/modules/logs/partials/logs-settings.php:123
 #: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:202
 #: classes/ai-forms/storage/methods/fn-get-form-data.php:139
 #: public/class-wp-ai-content-generator-public.php:150
@@ -336,7 +339,7 @@ msgstr ""
 msgid "AI Forms data migrated: %1$d forms and %2$d token records migrated. Other data in this category was not migrated."
 msgstr ""
 
-#: admin/ajax/migration/migrate/class-aipkit-migrate-global-settings-action.php:177
+#: admin/ajax/migration/migrate/class-aipkit-migrate-global-settings-action.php:176
 msgid "Global settings migrated successfully."
 msgstr ""
 
@@ -734,10 +737,13 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:112
 #: admin/views/modules/chatbot/partials/accordion-token-management.php:140
 #: admin/views/modules/image-generator/partials/settings-token-management.php:73
+#: classes/chat/utils/class-log-status-renderer.php:40
+#: classes/chat/utils/class-log-status-renderer.php:62
 msgid "Never"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:244
+#: classes/chat/utils/class-log-status-renderer.php:54
 msgid "Not Scheduled"
 msgstr ""
 
@@ -1402,6 +1408,8 @@ msgstr ""
 #: admin/data/dashboard-localized-texts.php:39
 #: admin/views/modules/ai-forms/index.php:124
 #: admin/views/modules/ai-forms/partials/labels-config.php:43
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:82
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:82
 #: admin/views/modules/autogpt/partials/community-engagement/ai-settings.php:26
 #: admin/views/modules/autogpt/partials/content-enhancement/ai-and-prompts.php:57
 #: admin/views/modules/autogpt/partials/content-writing/model-settings.php:30
@@ -1828,8 +1836,8 @@ msgstr ""
 
 #: admin/views/dashboard.php:25
 #: admin/views/modules/addons/index.php:119
-#: admin/views/modules/logs/index.php:124
-#: admin/views/modules/logs/index.php:131
+#: admin/views/modules/logs/index.php:103
+#: admin/views/modules/logs/index.php:109
 msgid "Chat"
 msgstr ""
 
@@ -1864,7 +1872,7 @@ msgid "Credits"
 msgstr ""
 
 #: admin/views/dashboard.php:60
-#: admin/views/modules/logs/index.php:30
+#: admin/views/modules/logs/index.php:29
 msgid "Logs"
 msgstr ""
 
@@ -2371,7 +2379,7 @@ msgid "More actions"
 msgstr ""
 
 #: admin/views/modules/ai-forms/index.php:65
-#: admin/views/modules/logs/index.php:57
+#: admin/views/modules/logs/index.php:59
 msgid "Export All"
 msgstr ""
 
@@ -2380,13 +2388,14 @@ msgid "Import"
 msgstr ""
 
 #: admin/views/modules/ai-forms/index.php:73
-#: admin/views/modules/logs/index.php:61
+#: admin/views/modules/logs/index.php:63
 msgid "Delete All"
 msgstr ""
 
 #: admin/views/modules/ai-forms/index.php:82
 #: admin/views/modules/ai-training/index.php:30
 #: admin/views/modules/image-generator/index.php:25
+#: admin/views/modules/logs/index.php:39
 #: admin/js/ai-forms/ui/render-dropped-element.js:183
 msgid "Settings"
 msgstr ""
@@ -2613,11 +2622,6 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:208
 #: admin/views/modules/image-generator/partials/settings-frontend-filtering.php:41
 msgid "Enter the exact model IDs. This will filter models across all selected providers."
-msgstr ""
-
-#: admin/views/modules/ai-forms/partials/settings-ai-forms.php:220
-#: admin/views/modules/ai-training/partials/settings.php:76
-msgid "Save Settings"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:26
@@ -3032,9 +3036,9 @@ msgid "Back"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/knowledge-base-details.php:27
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:76
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:85
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:85
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:88
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:108
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:101
 #: admin/views/modules/user-credits/index.php:101
 #: classes/shortcodes/class-aipkit-semantic-search-shortcode.php:46
 msgid "Search"
@@ -3094,7 +3098,7 @@ msgid "Site Content"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:57
-msgid "Select from your WordPress posts"
+msgid "Select from your site content"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:76
@@ -3248,28 +3252,26 @@ msgstr ""
 msgid "Message"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:60
-msgid "Search Vector Store"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:61
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:65
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:65
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:63
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:67
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:67
 msgid "Close Search"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:68
-msgid "Search Query"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:69
-msgid "Enter your search query..."
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:71
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:75
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:75
+msgid "Query"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:72
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:81
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:77
-msgid "Number of Results (Top K)"
+msgid "Enter your search query..."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:78
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:91
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:91
+msgid "Results"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:27
@@ -3294,31 +3296,17 @@ msgstr ""
 msgid "Loading records..."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:64
-msgid "Search Pinecone Index"
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:76
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:76
+msgid "Enter text to search for..."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:72
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:72
-msgid "Search Query Text"
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:98
+msgid "Namespace"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:73
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:73
-msgid "Enter text to search with (will be embedded)..."
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:74
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:74
-msgid "This text will be embedded using the model selected in the \"Add Content\" form above."
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:77
-msgid "Namespace (Optional)"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:78
-msgid "Enter namespace if applicable"
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-pinecone.php:99
+msgid "Optional"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:28
@@ -3345,16 +3333,12 @@ msgstr ""
 msgid "Select a Qdrant collection from the \"Target Collection\" dropdown in the \"Add Content\" form above to view its details and manage it, or use the \"+\" button next to the dropdown to create a new one."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:64
-msgid "Search Qdrant Collection"
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:113
+msgid "Filter (JSON, Optional)"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:81
-msgid "Filter (JSON - Optional)"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:82
-msgid "e.g., { \"must\": [{ \"key\": \"source\", \"match\": { \"value\": \"wordpress_post\" }}]}"
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-qdrant.php:114
+msgid "e.g., { \"must\": [{ \"key\": \"source\", \"match\": { \"value\": \"post\" }}]}"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/_empty-state.php:15
@@ -5228,20 +5212,70 @@ msgstr ""
 msgid "Role-Based Image Limits"
 msgstr ""
 
-#: admin/views/modules/logs/index.php:48
+#: admin/views/modules/logs/index.php:38
+msgid "Log Viewer"
+msgstr ""
+
+#: admin/views/modules/logs/index.php:51
 msgid "Loading logs..."
 msgstr ""
 
-#: admin/views/modules/logs/index.php:88
+#: admin/views/modules/logs/index.php:72
 msgid "Log Details"
 msgstr ""
 
-#: admin/views/modules/logs/index.php:96
+#: admin/views/modules/logs/index.php:77
 msgid "Select a conversation from the left to view details."
 msgstr ""
 
-#: admin/views/modules/logs/index.php:136
+#: admin/views/modules/logs/index.php:113
 msgid "Content Enhancer"
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:46
+msgid "Auto-Delete Logs"
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:48
+msgid "Automatically delete old log entries to keep your database size manageable. This process runs once daily in the background."
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:54
+msgid "Auto-Delete Logs is a Pro feature."
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:55
+msgid "Upgrade to Pro to enable."
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:65
+msgid "Enabled:"
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:71
+#: admin/views/modules/logs/partials/logs-settings.php:77
+msgid "Yes"
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:71
+#: admin/views/modules/logs/partials/logs-settings.php:80
+msgid "No"
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:87
+msgid "Delete logs older than:"
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:93
+msgid "%d Days"
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:112
+msgid "Delete Logs Now"
+msgstr ""
+
+#: admin/views/modules/logs/partials/logs-settings.php:116
+msgid "Immediately delete logs based on current retention settings."
 msgstr ""
 
 #: admin/views/modules/logs/partials/logs-table.php:41
@@ -5490,7 +5524,7 @@ msgstr ""
 
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:23
 #: classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php:65
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:416
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:425
 msgid "No results found."
 msgstr ""
 
@@ -6394,22 +6428,53 @@ msgstr ""
 msgid "TTS failed: %s API Key is missing in main settings."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:184
+#: classes/chat/admin/ajax/log_ajax_handler.php:82
+msgid "Log settings saved successfully."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:84
+msgid "Note: Auto-delete feature requires Pro plan."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:103
+msgid "Manual log pruning is a Pro feature. Please upgrade."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:113
+msgid "Invalid retention period provided."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:118
+msgid "Log manager component is unavailable."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:126
+msgid "An error occurred while pruning the logs."
+msgstr ""
+
+#. translators: %d: The number of log entries that were deleted.
+#: classes/chat/admin/ajax/log_ajax_handler.php:132
+msgid "%d log entry pruned."
+msgid_plural "%d log entries pruned."
+msgstr[0] ""
+msgstr[1] ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:293
 msgid "(Unknown Bot)"
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:186
+#: classes/chat/admin/ajax/log_ajax_handler.php:295
 #: classes/chat/storage/class-aipkit_log_manager.php:67
 #: classes/chat/storage/class-aipkit_log_manager.php:217
 #: classes/chat/storage/class-aipkit_log_manager.php:259
 msgid "(Unknown User)"
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:272
+#: classes/chat/admin/ajax/log_ajax_handler.php:381
 msgid "Database error during log deletion."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:280
+#: classes/chat/admin/ajax/log_ajax_handler.php:389
 msgid "Deletion error:"
 msgstr ""
 
@@ -6438,7 +6503,7 @@ msgstr ""
 #: classes/chat/admin/ajax/traits/Trait_CheckModuleAccess.php:31
 #: classes/core/providers/google/ajax-sync-tts-voices.php:23
 #: classes/dashboard/ajax/class-aipkit-base-dashboard-ajax-handler.php:38
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:435
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:447
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:54
 msgid "You do not have permission to perform this action."
 msgstr ""
@@ -6883,6 +6948,62 @@ msgstr ""
 msgid "%s ago"
 msgstr ""
 
+#: classes/chat/utils/class-log-config.php:27
+msgid "1 Day"
+msgstr ""
+
+#: classes/chat/utils/class-log-config.php:28
+msgid "3 Days"
+msgstr ""
+
+#: classes/chat/utils/class-log-config.php:29
+msgid "7 Days"
+msgstr ""
+
+#: classes/chat/utils/class-log-config.php:30
+msgid "15 Days"
+msgstr ""
+
+#: classes/chat/utils/class-log-config.php:31
+msgid "30 Days"
+msgstr ""
+
+#: classes/chat/utils/class-log-config.php:32
+msgid "60 Days"
+msgstr ""
+
+#: classes/chat/utils/class-log-config.php:33
+msgid "90 Days"
+msgstr ""
+
+#: classes/chat/utils/class-log-config.php:34
+msgid "6 Months"
+msgstr ""
+
+#: classes/chat/utils/class-log-config.php:35
+msgid "1 Year"
+msgstr ""
+
+#: classes/chat/utils/class-log-status-renderer.php:46
+msgid "Status:"
+msgstr ""
+
+#: classes/chat/utils/class-log-status-renderer.php:52
+msgid "Scheduled"
+msgstr ""
+
+#: classes/chat/utils/class-log-status-renderer.php:56
+msgid "Disabled"
+msgstr ""
+
+#: classes/chat/utils/class-log-status-renderer.php:63
+msgid "Last Clean Up: "
+msgstr ""
+
+#: classes/chat/utils/class-log-status-renderer.php:65
+msgid "Last Clean Up: Never"
+msgstr ""
+
 #: classes/content-writer/ajax/actions/class-aipkit-content-writer-create-task-action.php:50
 #: lib/content-writer/ajax/actions/class-aipkit-content-writer-verify-gsheets-action.php:40
 msgid "Google Sheet ID and Credentials are required."
@@ -6898,8 +7019,8 @@ msgstr ""
 #: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:36
 #: classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php:42
 #: classes/core/providers/google/ajax-sync-tts-voices.php:27
-#: classes/dashboard/class-aipkit_dashboard.php:170
-#: classes/dashboard/class-aipkit_dashboard.php:357
+#: classes/dashboard/class-aipkit_dashboard.php:182
+#: classes/dashboard/class-aipkit_dashboard.php:375
 #: classes/dashboard/class-aipkit_role_manager.php:226
 #: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:24
 #: lib/content-writer/ajax/actions/class-aipkit-content-writer-scrape-url-action.php:27
@@ -7816,15 +7937,15 @@ msgstr ""
 msgid "Settings saved successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:443
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:455
 msgid "\"Start Fresh\" option processed. Old data will be ignored."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:448
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:460
 msgid "Data migration will be available soon."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:450
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:462
 msgid "Invalid migration choice."
 msgstr ""
 
@@ -8255,11 +8376,11 @@ msgstr ""
 msgid "Points upserted to Qdrant successfully."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_dashboard.php:185
+#: classes/dashboard/class-aipkit_dashboard.php:197
 msgid "You do not have permission to access this module."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_dashboard.php:353
+#: classes/dashboard/class-aipkit_dashboard.php:371
 msgid "Unauthorized access."
 msgstr ""
 

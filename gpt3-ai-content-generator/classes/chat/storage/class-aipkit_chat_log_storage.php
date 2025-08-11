@@ -73,7 +73,7 @@ class LogStorage {
     /**
      * Deletes conversation rows older than X days. Delegates to LogManager.
      */
-    public function prune_logs(int $days): int|false {
+    public function prune_logs(float $days): int|false {
         return $this->manager->prune_logs($days);
     }
 

@@ -58,36 +58,65 @@ $pinecone_nonce = wp_create_nonce('aipkit_vector_store_pinecone_nonce');
                 </div>
             </div>
 
-            <!-- Search Form & Results Area for Pinecone (Initially Hidden, similar to OpenAI's) -->
-            <div id="aipkit_search_pinecone_index_form_wrapper" class="aipkit_ai_training_section_wrapper aipkit_openai_vs_content_section" style="display:none;">
-                 <div class="aipkit_ai_training_section_header">
-                    <h5 id="aipkit_search_pinecone_index_form_title"><?php esc_html_e('Search Pinecone Index', 'gpt3-ai-content-generator'); ?></h5>
-                    <button type="button" id="aipkit_close_search_pinecone_panel_btn" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small" title="<?php esc_attr_e('Close Search', 'gpt3-ai-content-generator'); ?>">
-                        <span class="dashicons dashicons-no-alt"></span>
-                    </button>
-                </div>
-                <div class="aipkit_panel_body">
+            <!-- Search Form & Results Area for Pinecone (Initially Hidden) -->
+            <div id="aipkit_search_pinecone_index_form_wrapper" class="aipkit_openai_vs_content_section" style="display:none;">
+                <div class="aipkit_search_form_container pinecone">
                     <input type="hidden" id="aipkit_search_pinecone_index_id" value="">
-                    <div class="aipkit_form-group">
-                        <label class="aipkit_form-label" for="aipkit_search_query_vector_pinecone"><?php esc_html_e('Search Query Text', 'gpt3-ai-content-generator'); ?></label>
-                        <textarea id="aipkit_search_query_vector_pinecone" class="aipkit_form-input" rows="2" placeholder="<?php esc_attr_e('Enter text to search with (will be embedded)...', 'gpt3-ai-content-generator'); ?>"></textarea>
-                        <div class="aipkit_form-help"><?php esc_html_e('This text will be embedded using the model selected in the "Add Content" form above.', 'gpt3-ai-content-generator'); ?></div>
+                    
+                    <div class="aipkit_search_form_header">
+                        <button type="button" id="aipkit_close_search_pinecone_panel_btn" class="aipkit_search_form_close_btn" title="<?php esc_attr_e('Close Search', 'gpt3-ai-content-generator'); ?>">
+                            <span class="dashicons dashicons-no-alt"></span>
+                        </button>
                     </div>
-                    <div class="aipkit_form-group">
-                        <label class="aipkit_form-label" for="aipkit_search_pinecone_namespace"><?php esc_html_e('Namespace (Optional)', 'gpt3-ai-content-generator'); ?></label>
-                        <input type="text" id="aipkit_search_pinecone_namespace" class="aipkit_form-input" placeholder="<?php esc_attr_e('Enter namespace if applicable', 'gpt3-ai-content-generator'); ?>" style="max-width: 250px;">
+
+                    <div class="aipkit_search_form_row">
+                        <div class="aipkit_search_form_row_main">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_search_query_vector_pinecone"><?php esc_html_e('Query', 'gpt3-ai-content-generator'); ?></label>
+                                <input type="text" id="aipkit_search_query_vector_pinecone" class="aipkit_search_form_input aipkit_search_form_input_query" placeholder="<?php esc_attr_e('Enter text to search for...', 'gpt3-ai-content-generator'); ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="aipkit_search_form_row_side">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_pinecone_search_embedding_model_select"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></label>
+                                <select id="aipkit_pinecone_search_embedding_model_select" class="aipkit_search_form_select aipkit_search_form_input_medium">
+                                    <!-- Options populated by JS -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="aipkit_search_form_row_side">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_search_top_k_pinecone"><?php esc_html_e('Results', 'gpt3-ai-content-generator'); ?></label>
+                                <input type="number" id="aipkit_search_top_k_pinecone" class="aipkit_search_form_input aipkit_search_form_input_small" value="5" min="1" max="100">
+                            </div>
+                        </div>
+                        
+                        <div class="aipkit_search_form_row_side">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_search_pinecone_namespace"><?php esc_html_e('Namespace', 'gpt3-ai-content-generator'); ?></label>
+                                <input type="text" id="aipkit_search_pinecone_namespace" class="aipkit_search_form_input aipkit_search_form_input_medium" placeholder="<?php esc_attr_e('Optional', 'gpt3-ai-content-generator'); ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="aipkit_search_form_row_side">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label">&nbsp;</label>
+                                <div class="aipkit_search_form_actions">
+                                    <button type="button" id="aipkit_search_pinecone_index_btn" class="aipkit_search_form_btn aipkit_search_form_btn_primary">
+                                        <span class="aipkit_search_form_btn_text"><?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?></span>
+                                        <span class="aipkit_search_form_spinner"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="aipkit_form-group">
-                        <label class="aipkit_form-label" for="aipkit_search_top_k_pinecone"><?php esc_html_e('Number of Results (Top K)', 'gpt3-ai-content-generator'); ?></label>
-                        <input type="number" id="aipkit_search_top_k_pinecone" class="aipkit_form-input" value="3" min="1" max="100" style="max-width: 80px;">
-                    </div>
-                    <button type="button" id="aipkit_search_pinecone_index_btn" class="aipkit_btn aipkit_btn-primary">
-                        <span class="aipkit_btn-text"><?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?></span>
-                        <span class="aipkit_spinner"></span>
-                    </button>
-                    <div id="aipkit_search_pinecone_index_form_status" class="aipkit_form-help"></div>
-                    <div id="aipkit_search_pinecone_results_area" class="aipkit_search_results_area"></div>
+
+                    <div id="aipkit_search_pinecone_index_form_status" class="aipkit_search_form_status"></div>
                 </div>
+
+                <div id="aipkit_search_pinecone_results_area" class="aipkit_search_results_container"></div>
             </div>
         </div>
     <?php endif; ?>

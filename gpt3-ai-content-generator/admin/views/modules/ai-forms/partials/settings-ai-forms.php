@@ -217,7 +217,7 @@ foreach ($editable_roles as $role_slug => $role_info) :
         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--aipkit_container-border);">
             <div id="aipkit_aiforms_settings_save_status" class="aipkit_form-help" style="min-height: 1.5em; margin-bottom: 8px;"></div>
             <button type="button" id="aipkit_save_ai_forms_settings_btn" class="aipkit_btn aipkit_btn-primary">
-                <span class="aipkit_btn-text"><?php esc_html_e('Save Settings', 'gpt3-ai-content-generator'); ?></span>
+                <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
                 <span class="aipkit_spinner" style="display:none;"></span>
             </button>
         </div>

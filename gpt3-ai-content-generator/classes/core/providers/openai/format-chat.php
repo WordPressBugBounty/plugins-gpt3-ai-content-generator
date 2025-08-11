@@ -162,6 +162,12 @@ function format_chat_logic_for_payload_formatter(
         $body_data['reasoning'] = $ai_params['reasoning'];
     }
     // --- END NEW ---
+    // --- NEW: Unset unsupported parameters for specific models ---
+    $model_lower = strtolower($model);
+    if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
+        unset($body_data['temperature'], $body_data['top_p'], $body_data['frequency_penalty'], $body_data['presence_penalty']);
+    }
+    // --- END NEW ---
 
     return $body_data;
 }

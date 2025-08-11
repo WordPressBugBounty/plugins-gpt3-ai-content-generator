@@ -48,6 +48,9 @@ function save_safety_settings_logic(array $post_data, array $default_safety_sett
 
     if ($opts['providers']['Google']['safety_settings'] !== $updated_settings) {
         $opts['providers']['Google']['safety_settings'] = $updated_settings;
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::save_safety_settings_logic. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+        }
         return update_option('aipkit_options', $opts, 'no');
     }
     return false;

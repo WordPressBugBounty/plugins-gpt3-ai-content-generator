@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/initializer/register-hooks-admin-ajax.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Chat\Initializer;
 
@@ -38,6 +38,9 @@ function register_hooks_admin_ajax_logic(
     add_action('wp_ajax_aipkit_get_chat_logs_html', [$log_ajax_handler, 'ajax_get_chat_logs_html']);
     add_action('wp_ajax_aipkit_export_chat_logs', [$log_ajax_handler, 'ajax_export_chat_logs']);
     add_action('wp_ajax_aipkit_delete_chat_logs', [$log_ajax_handler, 'ajax_delete_chat_logs']);
+    add_action('wp_ajax_aipkit_save_log_settings', [$log_ajax_handler, 'ajax_save_log_settings']);
+    add_action('wp_ajax_aipkit_prune_logs_now', [$log_ajax_handler, 'ajax_prune_logs_now']); // NEW
+    add_action('wp_ajax_aipkit_get_log_cron_status', [$log_ajax_handler, 'ajax_get_log_cron_status']); // NEW
 
     add_action('wp_ajax_aipkit_admin_get_conversation_history', [$conversation_ajax_handler, 'ajax_admin_get_conversation_history']);
 

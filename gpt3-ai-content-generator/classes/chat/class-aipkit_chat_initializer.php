@@ -1,5 +1,4 @@
 <?php
-
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/class-aipkit_chat_initializer.php
 
 namespace WPAICG\Chat;
@@ -68,6 +67,11 @@ class Initializer
         // --- MODIFIED: Frontend\Assets is now the orchestrator ---
         $assets          = new Frontend\Assets();
         // --- END MODIFICATION ---
+
+        // NEW: Register log pruning cron hook
+        if (class_exists(Storage\LogCronManager::class)) {
+            add_action(Storage\LogCronManager::HOOK_NAME, ['WPAICG\Chat\Storage\LogCronManager', 'run_pruning']);
+        }
 
 
         // Instantiate specific Admin AJAX Handlers

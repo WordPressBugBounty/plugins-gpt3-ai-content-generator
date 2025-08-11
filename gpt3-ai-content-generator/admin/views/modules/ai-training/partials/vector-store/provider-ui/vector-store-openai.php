@@ -55,30 +55,48 @@ if (!defined('ABSPATH')) {
             </div>
 
             <!-- Search Form & Results Area (Initially Hidden) -->
-            <div id="aipkit_search_store_form_openai_wrapper_modal_placeholder" class="aipkit_ai_training_section_wrapper aipkit_openai_vs_content_section" style="display:none;">
-                 <div class="aipkit_ai_training_section_header">
-                    <h5 id="aipkit_search_store_form_title_openai"><?php esc_html_e('Search Vector Store', 'gpt3-ai-content-generator'); ?></h5>
-                    <button type="button" id="aipkit_close_search_panel_btn_openai" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small" title="<?php esc_attr_e('Close Search', 'gpt3-ai-content-generator'); ?>">
-                        <span class="dashicons dashicons-no-alt"></span>
-                    </button>
-                </div>
-                <div class="aipkit_panel_body">
+            <div id="aipkit_search_store_form_openai_wrapper_modal_placeholder" class="aipkit_openai_vs_content_section" style="display:none;">
+                <div class="aipkit_search_form_container openai">
                     <input type="hidden" id="aipkit_search_vector_store_id_openai" value="">
-                    <div class="aipkit_form-group">
-                        <label class="aipkit_form-label" for="aipkit_search_query_text_openai"><?php esc_html_e('Search Query', 'gpt3-ai-content-generator'); ?></label>
-                        <textarea id="aipkit_search_query_text_openai" class="aipkit_form-input" rows="3" placeholder="<?php esc_attr_e('Enter your search query...', 'gpt3-ai-content-generator'); ?>"></textarea>
+                    
+                    <div class="aipkit_search_form_header">
+                        <button type="button" id="aipkit_close_search_panel_btn_openai" class="aipkit_search_form_close_btn" title="<?php esc_attr_e('Close Search', 'gpt3-ai-content-generator'); ?>">
+                            <span class="dashicons dashicons-no-alt"></span>
+                        </button>
                     </div>
-                    <div class="aipkit_form-group">
-                        <label class="aipkit_form-label" for="aipkit_search_top_k_openai"><?php esc_html_e('Number of Results (Top K)', 'gpt3-ai-content-generator'); ?></label>
-                        <input type="number" id="aipkit_search_top_k_openai" class="aipkit_form-input" value="3" min="1" max="20" style="max-width: 80px;">
+
+                    <div class="aipkit_search_form_row">
+                        <div class="aipkit_search_form_row_main">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_search_query_text_openai"><?php esc_html_e('Query', 'gpt3-ai-content-generator'); ?></label>
+                                <input type="text" id="aipkit_search_query_text_openai" class="aipkit_search_form_input aipkit_search_form_input_query" placeholder="<?php esc_attr_e('Enter your search query...', 'gpt3-ai-content-generator'); ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="aipkit_search_form_row_side">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label" for="aipkit_search_top_k_openai"><?php esc_html_e('Results', 'gpt3-ai-content-generator'); ?></label>
+                                <input type="number" id="aipkit_search_top_k_openai" class="aipkit_search_form_input aipkit_search_form_input_small" value="5" min="1" max="20">
+                            </div>
+                        </div>
+                        
+                        <div class="aipkit_search_form_row_side">
+                            <div class="aipkit_search_form_group">
+                                <label class="aipkit_search_form_label">&nbsp;</label>
+                                <div class="aipkit_search_form_actions">
+                                    <button type="button" id="aipkit_search_vector_store_btn_openai" class="aipkit_search_form_btn aipkit_search_form_btn_primary">
+                                        <span class="aipkit_search_form_btn_text"><?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?></span>
+                                        <span class="aipkit_search_form_spinner"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <button type="button" id="aipkit_search_vector_store_btn_openai" class="aipkit_btn aipkit_btn-primary">
-                        <span class="aipkit_btn-text"><?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?></span>
-                        <span class="aipkit_spinner"></span>
-                    </button>
-                    <div id="aipkit_search_vector_store_form_status_openai" class="aipkit_form-help"></div>
-                    <div id="aipkit_search_results_area_openai" class="aipkit_search_results_area"></div>
+
+                    <div id="aipkit_search_vector_store_form_status_openai" class="aipkit_search_form_status"></div>
                 </div>
+
+                <div id="aipkit_search_results_area_openai" class="aipkit_search_results_container"></div>
             </div>
         </div>
     <?php endif; ?>

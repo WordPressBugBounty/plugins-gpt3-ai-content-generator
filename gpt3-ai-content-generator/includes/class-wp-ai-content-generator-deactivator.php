@@ -11,6 +11,7 @@ use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
 use WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache;
 use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Scheduler;
 use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Event_Processor;
+use WPAICG\Chat\Storage\LogCronManager; // NEW: For unscheduling
 
 if (! defined('ABSPATH')) {
     exit;
@@ -31,6 +32,11 @@ class WP_AI_Content_Generator_Deactivator
 
         if (class_exists('\\WPAICG\\Core\\Stream\\Cache\\AIPKit_SSE_Message_Cache')) {
             AIPKit_SSE_Message_Cache::unschedule_cleanup_event();
+        }
+
+        // NEW: Unschedule log pruning cron
+        if (class_exists('\\WPAICG\\Chat\\Storage\\LogCronManager')) {
+            LogCronManager::unschedule_event();
         }
 
         $automated_task_scheduler_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/class-aipkit-automated-task-scheduler.php';

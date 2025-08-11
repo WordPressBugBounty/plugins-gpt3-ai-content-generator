@@ -178,6 +178,9 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         }
         if ($changed) {
             $opts['ai_parameters'] = $new_params;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::save_global_ai_parameters. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+            }
             update_option('aipkit_options', $opts, 'no');
         }
     }
@@ -203,6 +206,9 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                     $opts['api_keys'] = AIPKIT_AI_Settings::$default_api_keys;
                 }
                 $opts['api_keys']['public_api_key'] = $new_public_key;
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::save_public_api_key. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+                }
                 update_option('aipkit_options', $opts, 'no');
             }
         }
@@ -311,6 +317,9 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 
         if ($changed) {
             $opts['enhancer_settings'] = $new_enhancer_settings;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::save_enhancer_settings. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+            }
             update_option('aipkit_options', $opts, 'no');
         }
         return $changed;
@@ -418,6 +427,9 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         // Compare and update if changed
         if (wp_json_encode($current_settings) !== wp_json_encode($new_settings)) {
             $opts['semantic_search'] = $new_settings;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::save_semantic_search_settings. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+            }
             update_option('aipkit_options', $opts, 'no');
         }
     }

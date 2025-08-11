@@ -26,14 +26,10 @@ class AIPKit_Migrate_Global_Settings_Action extends AIPKit_Migration_Base_Ajax_A
 {
     public function handle_request()
     {
-        $permission_check = $this->check_module_access_permissions('settings', self::MIGRATION_NONCE_ACTION);
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-
-        global $wpdb;
         $this->update_category_status('global_settings', 'in_progress');
+        global $wpdb;
+        $processed_counts = ['custom_bots' => 0, 'chat_tokens' => 0];
+        $migrated_id_map = [];
 
         try {
             // --- 1. Fetch Old Data ---
@@ -166,6 +162,9 @@ class AIPKit_Migrate_Global_Settings_Action extends AIPKit_Migration_Base_Ajax_A
 
 
             // --- 4. Save and Finalize ---
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::handle_request. DATA: " . print_r($new_opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
+            }
             update_option('aipkit_options', $new_opts, 'no');
             update_option(AIPKIT_AI_Settings::SECURITY_OPTION_NAME, $new_security_opts, 'no');
             AIPKit_Providers::get_all_providers();

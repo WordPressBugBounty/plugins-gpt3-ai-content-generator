@@ -272,12 +272,5 @@ class WP_AI_Content_Generator_Activator
             // Ensure any recurring schedules are also cleared
             wp_clear_scheduled_hook($hook_name);
         }
-
-        // Attempt to clear task-specific hooks (these might have dynamic arguments)
-        // This requires iterating through existing crons and checking for the prefix.
-        // However, wp_clear_scheduled_hook without args clears all matching hook names, which is safer.
-        // If wpaicg_task_event_{task_id} was a known pattern, we'd need a way to list old task IDs.
-        // For now, clearing the generic wpaicg_cron and wpaicg_builder should prevent new items from those tasks.
-        // For a more thorough cleanup, one might need to iterate over get_option('cron').
     }
 }
