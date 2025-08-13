@@ -67,7 +67,7 @@ if (!defined('ABSPATH')) {
 if (file_exists($shared_rss_partial)) {
     include $shared_rss_partial;
 } else {
-    echo '<p>Error: RSS UI partial is missing.</p>';
+    echo '<p>This is a Pro feature. Please upgrade to access the RSS feature.</p>';
 }
 ?>
     </div>
@@ -79,7 +79,7 @@ $shared_url_partial = WPAICG_LIB_DIR . 'views/shared/content-writing/input-mode-
 if (file_exists($shared_url_partial)) {
     include $shared_url_partial;
 } else {
-    echo '<p>Error: URL UI partial is missing.</p>';
+    echo '<p>This is a Pro feature. Please upgrade to access the URL feature.</p>';
 }
 ?>
     </div>
@@ -92,7 +92,7 @@ if (file_exists($shared_gsheets_partial)) {
     $prefix = 'aipkit_task_cw';
     include $shared_gsheets_partial;
 } else {
-    echo '<p>Error: Google Sheets UI partial is missing.</p>';
+    echo '<p>This is a Pro feature. Please upgrade to access the Google Sheets feature.</p>';
 }
 ?>
     </div>

@@ -59,12 +59,16 @@ function process_enhancement_item_logic(array $item, array $item_config): array
         $original_meta = $post->post_excerpt; // Fallback to excerpt
     }
     $original_focus_keyword = AIPKit_SEO_Helper::get_focus_keyword($post->ID);
+    $original_tags = AIPKit_SEO_Helper::get_tags_as_string($post->ID);
+    $categories = AIPKit_SEO_Helper::get_categories_as_string($post->ID);
     $placeholders = [
         '{original_title}' => $post->post_title,
         '{original_content}' => wp_strip_all_tags(strip_shortcodes(apply_filters('the_content', $post->post_content))),
         '{original_excerpt}' => $post->post_excerpt,
         '{original_meta_description}' => $original_meta,
         '{original_focus_keyword}' => $original_focus_keyword ?: '',
+        '{original_tags}' => $original_tags,
+        '{categories}' => $categories,
     ];
     if ($post->post_type === 'product' && class_exists('WooCommerce')) {
         $product = wc_get_product($post->ID);

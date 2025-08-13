@@ -1,6 +1,5 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/moderation/AIPKit_BannedWords_Checker.php
-// Status: NEW FILE
 
 namespace WPAICG\Core\Moderation;
 
@@ -27,9 +26,13 @@ class AIPKit_BannedWords_Checker {
     public static function check(string $text, array $banned_words_settings): ?WP_Error {
         if (!empty($banned_words_settings['words'])) {
             $banned_words_list = array_map('trim', explode(',', strtolower($banned_words_settings['words'])));
-            $lower_text = strtolower($text);
+            // We no longer need to lowercase the text here, as the regex will be case-insensitive.
+            
             foreach ($banned_words_list as $banned_word) {
-                if ($banned_word !== '' && str_contains($lower_text, $banned_word)) {
+                if (empty($banned_word)) {
+                    continue;
+                }
+                if (preg_match('/\b' . preg_quote($banned_word, '/') . '\b/i', $text)) {
                     $banned_word_message = $banned_words_settings['message'] ?: __('Sorry, your message could not be sent as it contains prohibited words.', 'gpt3-ai-content-generator');
                     return new WP_Error('word_banned', $banned_word_message, ['status' => 400]); // Bad Request
                 }

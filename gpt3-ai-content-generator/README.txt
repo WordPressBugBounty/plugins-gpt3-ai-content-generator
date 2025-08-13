@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.34
+Stable tag: 2.3.35
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,12 @@ Yes. Using the **User Credits** module and our WooCommerce integration, you can 
 10. The WooCommerce integration with the Content Assistant tools.
 
 == Changelog ==
+
+= 2.3.35 =
+
+- **Added**: `{original_tags}` and `{categories}` placeholders for the Content Writer.
+- **Fixed**: Chatbot Banned Words filter now matches only whole words to avoid false positives.
+- **Fixed**: Improved chatbot widget visibility to ensure it stays above other page elements.
 
 = 2.3.34 =
 

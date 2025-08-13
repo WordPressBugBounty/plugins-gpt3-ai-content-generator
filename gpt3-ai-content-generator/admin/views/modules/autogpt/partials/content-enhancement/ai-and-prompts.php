@@ -115,7 +115,7 @@ $product_placeholders_help_text = __(' For products: {price}, {regular_price}, {
         <div id="aipkit_task_ce_title_prompt_wrapper" class="aipkit_collapsible_wrapper aipkit_collapsed">
             <textarea id="aipkit_task_ce_title_prompt" name="ce_title_prompt" class="aipkit_form-input" rows="5"><?php echo esc_textarea($default_title_prompt); ?></textarea>
             <p class="aipkit_form-help aipkit-enhancer-placeholders-help">
-                <?php aipkit_render_enhancer_placeholders(esc_html__('Placeholders: {original_title}, {original_content}, {original_excerpt}.', 'gpt3-ai-content-generator'), $product_placeholders_help_text); ?>
+                <?php aipkit_render_enhancer_placeholders(esc_html__('Placeholders: {original_title}, {original_content}, {original_excerpt}, {original_tags}, {categories}.', 'gpt3-ai-content-generator'), $product_placeholders_help_text); ?>
             </p>
         </div>
     </div>
@@ -131,7 +131,7 @@ $product_placeholders_help_text = __(' For products: {price}, {regular_price}, {
         <div id="aipkit_task_ce_excerpt_prompt_wrapper" class="aipkit_collapsible_wrapper aipkit_collapsed">
             <textarea id="aipkit_task_ce_excerpt_prompt" name="ce_excerpt_prompt" class="aipkit_form-input" rows="5"><?php echo esc_textarea($default_excerpt_prompt); ?></textarea>
             <p class="aipkit_form-help aipkit-enhancer-placeholders-help">
-                <?php aipkit_render_enhancer_placeholders(esc_html__('Placeholders: {original_title}, {original_content}, {original_excerpt}.', 'gpt3-ai-content-generator'), $product_placeholders_help_text); ?>
+                <?php aipkit_render_enhancer_placeholders(esc_html__('Placeholders: {original_title}, {original_content}, {original_excerpt}, {original_tags}, {categories}.', 'gpt3-ai-content-generator'), $product_placeholders_help_text); ?>
             </p>
         </div>
     </div>
@@ -147,7 +147,7 @@ $product_placeholders_help_text = __(' For products: {price}, {regular_price}, {
         <div id="aipkit_task_ce_content_prompt_wrapper" class="aipkit_collapsible_wrapper aipkit_collapsed">
             <textarea id="aipkit_task_ce_content_prompt" name="ce_content_prompt" class="aipkit_form-input" rows="5"><?php echo esc_textarea($default_content_prompt); ?></textarea>
             <p class="aipkit_form-help aipkit-enhancer-placeholders-help">
-                <?php aipkit_render_enhancer_placeholders(esc_html__('Placeholders: {original_title}, {original_content}, {original_excerpt}.', 'gpt3-ai-content-generator'), $product_placeholders_help_text); ?>
+                <?php aipkit_render_enhancer_placeholders(esc_html__('Placeholders: {original_title}, {original_content}, {original_excerpt}, {original_tags}, {categories}.', 'gpt3-ai-content-generator'), $product_placeholders_help_text); ?>
             </p>
         </div>
     </div>
@@ -163,7 +163,7 @@ $product_placeholders_help_text = __(' For products: {price}, {regular_price}, {
         <div id="aipkit_task_ce_meta_prompt_wrapper" class="aipkit_collapsible_wrapper aipkit_collapsed">
             <textarea id="aipkit_task_ce_meta_prompt" name="ce_meta_prompt" class="aipkit_form-input" rows="5"><?php echo esc_textarea($default_meta_prompt); ?></textarea>
             <p class="aipkit_form-help aipkit-enhancer-placeholders-help">
-                <?php aipkit_render_enhancer_placeholders(esc_html__('Placeholders: {original_title}, {original_content}, {original_meta_description}.', 'gpt3-ai-content-generator'), $product_placeholders_help_text); ?>
+                <?php aipkit_render_enhancer_placeholders(esc_html__('Placeholders: {original_title}, {original_content}, {original_meta_description}, {original_tags}, {categories}.', 'gpt3-ai-content-generator'), $product_placeholders_help_text); ?>
             </p>
         </div>
     </div>

@@ -302,4 +302,76 @@ class AIPKit_SEO_Helper
 
         return true;
     }
+
+    /**
+     * Gets all tags for a post as a comma-separated string.
+     * @param int $post_id The ID of the post.
+     * @return string A comma-separated string of tag names.
+     */
+    public static function get_tags_as_string(int $post_id): string
+    {
+        $post = get_post($post_id);
+        if (!$post) {
+            return '';
+        }
+    
+        $tag_taxonomy = 'post_tag'; // Default for posts
+    
+        if ($post->post_type === 'product' && taxonomy_exists('product_tag') && is_object_in_taxonomy($post->post_type, 'product_tag')) {
+            $tag_taxonomy = 'product_tag';
+        } elseif (!is_object_in_taxonomy($post->post_type, 'post_tag')) {
+            $taxonomies = get_object_taxonomies($post->post_type, 'objects');
+            if (!empty($taxonomies)) {
+                foreach ($taxonomies as $taxonomy) {
+                    if (!$taxonomy->hierarchical) {
+                        $tag_taxonomy = $taxonomy->name;
+                        break;
+                    }
+                }
+            }
+        }
+    
+        $tags = get_the_terms($post_id, $tag_taxonomy);
+        if (is_wp_error($tags) || empty($tags)) {
+            return '';
+        }
+    
+        return implode(', ', wp_list_pluck($tags, 'name'));
+    }
+
+    /**
+     * Gets all categories for a post as a comma-separated string.
+     * @param int $post_id The ID of the post.
+     * @return string A comma-separated string of category names.
+     */
+    public static function get_categories_as_string(int $post_id): string
+    {
+        $post = get_post($post_id);
+        if (!$post) {
+            return '';
+        }
+    
+        $cat_taxonomy = 'category'; // Default for posts
+    
+        if ($post->post_type === 'product' && taxonomy_exists('product_cat') && is_object_in_taxonomy($post->post_type, 'product_cat')) {
+            $cat_taxonomy = 'product_cat';
+        } elseif (!is_object_in_taxonomy($post->post_type, 'category')) {
+            $taxonomies = get_object_taxonomies($post->post_type, 'objects');
+            if (!empty($taxonomies)) {
+                foreach ($taxonomies as $taxonomy) {
+                    if ($taxonomy->hierarchical) {
+                        $cat_taxonomy = $taxonomy->name;
+                        break;
+                    }
+                }
+            }
+        }
+    
+        $categories = get_the_terms($post_id, $cat_taxonomy);
+        if (is_wp_error($categories) || empty($categories)) {
+            return '';
+        }
+    
+        return implode(', ', wp_list_pluck($categories, 'name'));
+    }
 }

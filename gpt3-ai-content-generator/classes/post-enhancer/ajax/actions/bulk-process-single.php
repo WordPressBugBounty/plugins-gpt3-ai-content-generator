@@ -133,13 +133,19 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
         // --- Start: Gather all possible placeholders ---
         $original_meta = get_post_meta($post->ID, '_yoast_wpseo_metadesc', true) ?: (get_post_meta($post->ID, '_aioseo_description', true) ?: '');
         $original_focus_keyword = AIPKit_SEO_Helper::get_focus_keyword($post->ID);
+        // --- NEW: Add original_tags and categories placeholders ---
+        $original_tags = AIPKit_SEO_Helper::get_tags_as_string($post->ID);
+        $categories = AIPKit_SEO_Helper::get_categories_as_string($post->ID);
         $placeholders = [
             '{original_title}' => $post->post_title,
             '{original_content}' => get_post_full_content($post),
             '{original_excerpt}' => $post->post_excerpt,
             '{original_meta_description}' => $original_meta,
             '{original_focus_keyword}' => $original_focus_keyword ?: '',
+            '{original_tags}' => $original_tags,
+            '{categories}' => $categories,
         ];
+        // --- END NEW ---
         if ($post->post_type === 'product' && class_exists('WooCommerce')) {
             $product = wc_get_product($post->ID);
             if ($product) {
