@@ -58,7 +58,8 @@ function do_ajax_search_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Aj
 
     if (is_wp_error($results)) {
         $handler_instance->send_wp_error($results);
-    } else {
-        wp_send_json_success(['results' => $results]);
+        return;
     }
+
+    wp_send_json_success(['results' => $results]);
 }

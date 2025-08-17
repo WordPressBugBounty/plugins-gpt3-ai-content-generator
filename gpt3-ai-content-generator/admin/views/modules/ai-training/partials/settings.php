@@ -10,8 +10,12 @@ if (!defined('ABSPATH')) { exit; }
 use WPAICG\aipkit_dashboard;
 
 // Get the new general setting for the checkbox default
-$training_general_settings = get_option('aipkit_training_general_settings', ['hide_user_uploads' => true]);
+$training_general_settings = get_option('aipkit_training_general_settings', [
+    'hide_user_uploads' => true,
+    'show_index_button' => true,
+]);
 $hide_user_uploads_checked = $training_general_settings['hide_user_uploads'] ?? true;
+$show_index_button_checked = $training_general_settings['show_index_button'] ?? true;
 
 // Check if user is on pro plan
 $is_pro = aipkit_dashboard::is_pro_plan();
@@ -63,6 +67,21 @@ $is_pro = aipkit_dashboard::is_pro_plan();
                         </label>
                         <p class="aipkit_form-help">
                             <?php esc_html_e('Hide vector stores created by users via the chatbot file upload feature from the main list.', 'gpt3-ai-content-generator'); ?>
+                        </p>
+                    </div>
+                    <div class="aipkit_form-group">
+                        <label class="aipkit_form-label aipkit_checkbox-label" for="aipkit_show_index_button_checkbox">
+                            <input
+                                type="checkbox"
+                                id="aipkit_show_index_button_checkbox"
+                                name="show_index_button"
+                                value="1"
+                                <?php checked($show_index_button_checked); ?>
+                            >
+                            <?php esc_html_e('Show Index Button on Post/Product List', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <p class="aipkit_form-help">
+                            <?php esc_html_e('Uncheck to hide the Index button from post and product list screens while keeping the feature available elsewhere.', 'gpt3-ai-content-generator'); ?>
                         </p>
                     </div>
                 </div>

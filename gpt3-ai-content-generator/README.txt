@@ -1,81 +1,141 @@
-=== AIP: Complete AI Toolkit (formerly AI Power) ===
+=== AIP: Complete AI Toolkit for WordPress (formerly AI Power) ===
 Contributors: senols
 Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.35
+Stable tag: 2.3.36
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A complete AI toolkit for WordPress: Chatbot, writer, voice agents, forms, automation, image & vector.
+AI, Chatbot, ChatGPT, Content Writer, Auto Content Writer, WooCommerce Product Writer, Image Generator, ChatPDF, AI Training, Embeddings and more.
 
 == Description ==
 
-AI Power is a comprehensive set of artificial intelligence tools that works directly inside your WordPress dashboard. It is a collection of interconnected modules designed to help you with content creation, site management, and user interaction.
+**AI Power (AIP)** is the **complete AI plugin for WordPress** — a full set of **artificial intelligence tools** to transform your site. From **AI chatbot** and **content generation** to **image creation, automation, and AI training** on your own data, AIP gives you everything in one place, right inside your WordPress dashboard.
 
-[Documentation](https://docs.aipower.org/) 
+Our **"Bring Your Own API Key"** model lets you connect to top AI providers (OpenAI, Google Gemini, Microsoft Azure, OpenRouter, DeepSeek). No hidden credits — you use your own account and control your costs.
 
-Our plugin operates on a "Bring Your Own API Key" model. You need to have an API key from your preferred AI provider (like OpenAI, Google, etc.) to use the features.
+[📖 Documentation & Guides](https://docs.aipower.org/)  
 
-**Key Features:**
+### Why Choose AIP?
 
-*   **AI Chatbot**: Build custom chatbots and deploy them anywhere on your site or an external site using a shortcode or as a popup. Train the chatbot on your own content, enable web search, set usage limits, and create automated triggers for advanced interactions. Supports voice input and playback.
-*   **Content Writer**: Generate high-quality articles, product descriptions, or any other text content. Input ideas from a list, CSV file, RSS feeds, or a list of URLs.
-*   **AI Forms**: A drag-and-drop form builder that uses AI to process user input. Create custom tools that can generate anything from a blog post outline to a customer support reply based on what your users enter.
-*   **Automation Engine**: Schedule AI tasks to run in the background. Automate content creation, update existing posts, index your content into a knowledge base, and automatically reply to blog comments.
-*   **Image Generator**: Add a text-to-image generator to your site using a shortcode. Supports OpenAI (DALL-E 3, gpt-4o), Google (Imagen), and Replicate models, as well as free stock photos from Pexels and Pixabay.
-*   **AI Training**: Create a custom knowledge base by "training" the AI on your own content. You can upload text, files, or index existing WordPress posts, pages, and products. This knowledge base can be used by chatbots and AI forms to provide answers based on your data. Supports OpenAI Vector Stores, Pinecone, and Qdrant.
-*   **WooCommerce Tools**: Generate or enhance product descriptions, titles, and short descriptions using AI. You can also sell token packages to your users to monetize access to the AI features on your site.
-*   **Content Assistant**: A suite of tools to improve your existing content. Bulk-enhance posts, generate new titles and excerpts from the posts list, or process selected text directly within the Classic and Block editors.
-*   **REST API**: Programmatically access the plugin's core functionalities (text generation, image generation, embeddings, chat) from external applications.
-*   **Flexible AI Providers**: Connect to multiple AI services. The plugin supports OpenAI, Google, Microsoft Azure, OpenRouter, and DeepSeek.
+* **All-in-One** – Chatbot, AI Writer, AI Forms, Image Generator, Automation, WooCommerce AI tools, and more.
+* **Train on Your Data** – Build your own **AI knowledge base** from posts, pages, products, PDFs, or files.
+* **Voice + Chat** – Real-time voice agents and voice input for interactive AI experiences.
+* **WooCommerce AI** – Generate product descriptions, titles, SEO tags, and even sell AI tokens to customers.
+* **Fast & Flexible** – Works with OpenAI GPT-5/4o, Google Gemini & Imagen, Azure, Replicate, and others.
+* **Secure** – 100% hosted on your WordPress site. Your data stays with you.
+
+---
+
+### 🚀 Key Features
+
+#### 🤖 AI Chatbot
+- Create custom **AI chatbots** for WordPress or any external site (embed with shortcode or HTML).
+- Train bots on your **own website content** or external files.
+- Enable **web search** (OpenAI or Google) for real-time answers.
+- Add **voice input & playback**, triggers, and usage limits.
+
+#### ✍️ AI Content Generator
+- Generate **high-quality articles, blog posts, or product descriptions**.
+- Input ideas via text, CSV, RSS feeds, or URLs.
+- SEO-friendly output with custom templates and placeholders.
+
+#### 📝 AI Forms
+- Drag-and-drop **AI-powered forms** to process user input into useful outputs — from outlines to support replies.
+- Connect forms to **web search** and your AI training data.
+
+#### ⚙️ AI Automation Engine
+- Schedule recurring or one-time AI tasks.
+- Automate content creation, comment replies, or vector indexing.
+
+#### 🎨 AI Image Generator
+- Convert text to image with **OpenAI DALL·E 3, GPT-4o, Google Imagen, Replicate models**.
+- Pull free stock images from **Pexels** or **Pixabay**.
+- Works in posts, tasks, chatbot, and forms.
+
+#### 📚 AI Training / Vector Database
+- Build a **knowledge base** from your posts, products, PDFs, or uploaded files.
+- Supports **OpenAI Vector Stores**, **Pinecone**, and **Qdrant**.
+- Use in Chatbot or Forms for **context-aware AI answers**.
+
+#### 🛒 WooCommerce AI Tools
+- Bulk-generate or enhance product descriptions, titles, and tags.
+- Sell **AI tokens** to customers via WooCommerce.
+
+#### 🛠 Content Assistant
+- Bulk-enhance existing posts, generate SEO titles/excerpts.
+- Works in Block Editor, Classic Editor, or directly from the post list.
+
+#### 🔌 REST API Access
+- Call text, image, embedding, and chatbot functions programmatically from other apps.
+
+---
 
 == Installation ==
 
-1.  Upload the plugin files to the `/wp-content/plugins/gpt3-ai-content-generator` directory, or install the plugin through the WordPress plugins screen directly.
-2.  Activate the plugin through the 'Plugins' screen in WordPress.
-3.  Navigate to the 'AIP' menu in your WordPress dashboard.
-4.  Go to the 'Dashboard' tab and enter your API key for at least one AI provider (e.g., OpenAI).
-5.  Click the 'Sync' button next to the model selection to fetch available models.
-6.  Explore the different modules (Chat, Write, Automate, etc.) from the main navigation to start using the tools.
+1. Install via Plugins → Add New, or upload to `/wp-content/plugins/gpt3-ai-content-generator`.
+2. Activate via the **Plugins** menu.
+3. Go to **AIP → Dashboard** and enter your API key for at least one provider (e.g., OpenAI).
+4. Click **Sync Models** to load available AI models.
+5. Explore modules (Chat, Write, Automate, etc.) and start using AI features.
+
+---
 
 == Frequently Asked Questions ==
 
-= Do I need to buy credits or an API key from you? =
+= Do I need to buy credits from you? =  
+No. AIP works with your **own API key** from AI providers like OpenAI, Google Gemini, etc. You pay them directly for usage.
 
-AI Power works with your own API key from your preferred AI provider (like OpenAI, Google, etc.). You are responsible for all costs associated with your usage of those third-party APIs. As long as you have enough api credits from those provider, you can use the plugin.
+= Which AI providers and models are supported? =  
+We support **OpenAI** (GPT-5, GPT-4o, GPT-3.5, DALL·E 3, etc.), **Google** (Gemini, Imagen), **Microsoft Azure OpenAI**, **OpenRouter**, **DeepSeek**, and **Replicate**.
 
-= What AI providers are supported? =
+= Can I train the AI on my own content? =  
+Yes. Use the **Train** module to index posts, pages, WooCommerce products, PDFs, or uploaded files into a **vector store**. Then link that knowledge base to your Chatbot or Forms.
 
-The plugin supports multiple AI providers. You can configure API keys for OpenAI, Google, Microsoft Azure, OpenRouter, and DeepSeek in the main dashboard.
+= How do I limit AI usage for visitors or members? =  
+The **Token Management** add-on lets you set role-based or guest usage limits for Chat, Forms, Images, etc. Limits can reset daily, weekly, monthly, or never.
 
-= How do I train the AI on my own content? =
+= Can I monetize my AI tools? =  
+Yes. Sell **token packages** via WooCommerce. Tokens are consumed when users access AI features.
 
-You can create a custom "knowledge base" using the **Train** module. There, you can upload text, PDF files, or select existing WordPress posts, pages, or products to be indexed into a vector store (provided by OpenAI, Pinecone, or Qdrant). Once your knowledge base is created, you can connect it to a Chatbot or an AI Form in their respective settings under the "Context" section. This allows the AI to use your data to provide more relevant responses.
+= What makes AIP different from other AI plugins? =  
+AIP is **all-in-one** — instead of installing separate plugins for chatbots, content writing, AI forms, and WooCommerce AI, you get them all in one optimized toolkit with centralized settings.
 
-= Can I control how much users can use the AI features? =
+= Is AIP compatible with GPT-5 and other latest models? =  
+Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and more.
 
-Yes. The **Token Management** add-on allows you to set usage limits. For each module (Chat, AI Forms, Image Generator), you can configure limits for guests and for logged-in users based on their WordPress role (e.g., Subscriber, Customer). You can set these limits to reset daily, weekly, monthly, or never.
-
-= Can I sell access to the AI tools on my site? =
-
-Yes. Using the **User Credits** module and our WooCommerce integration, you can create and sell "token packages". When a user purchases a package, the tokens are added to their account balance. This balance is used before their free periodic limits, allowing you to monetize AI features on your website.
+---
 
 == Screenshots ==
 
-1. The main dashboard with quick access to all AI modules and settings.
-2. The Addons page to enable/disable optional features like automation or training.
-3. The Chatbot builder interface with configuration panels and test preview.
-4. The Content Writer module for generating single, bulk, or RSS-based articles.
-5. The Automated Tasks manager for scheduling background AI tasks.
-6. The AI Forms builder using drag-and-drop blocks and custom prompts.
-7. The Image Generator supporting OpenAI, Google Veo, and Replicate models.
-8. The AI Training module for managing vector database knowledge sources.
-9. The User Credits (Token Management) system with per-role usage limits.
-10. The WooCommerce integration with the Content Assistant tools.
+1. Main dashboard with quick access to all modules.
+2. Add-ons page for enabling/disabling features.
+3. Chatbot builder with real-time preview.
+4. Content Writer with single, bulk, and RSS generation.
+5. Automated Tasks scheduler.
+6. Drag-and-drop AI Form builder.
+7. AI Image Generator interface.
+8. AI Training vector store management.
+9. Token Management system.
+10. WooCommerce AI integration.
+
+---
 
 == Changelog ==
+
+= 2.3.36 =
+
+- **Added**: A Vector Score Threshold option for the Chatbot and AI Forms. You can now set a minimum relevance score to exclude the low score results from the AI context.  
+- **Added**: Support for Azure Embedding Providers. You can now deploy and use your own embedding models from Azure.  
+- **Added**: A new setting under *AI Train → Settings* to show or hide the Index button on Post/Product lists.  
+- **Improved**: The positioning of the Index and Content Assistant buttons on the post list screen for better usability.  
+- **Improved**: Logging details, which now include vector database scores, payload information, and additional context for clearer debugging and transparency.  
+- **Improved**: In Image Generator settings, **Provider & Model Filtering** now supports selecting models directly via the UI instead of manually entering their IDs. 
+- **Improved**: Speech-to-Text (chat voice input) now uploads audio via multipart/form-data instead of large Base64 strings, improving compatibility with security plugins (e.g., WordFence), reducing request size, and adding MIME/size validation.
+- **Improved**: Content Assistant now automatically applies safe inline formatting (bold / italic) returned by AI in both Block and Classic editors.
+- **Fixed**: Token usage tracking for Azure image models in the Image Generator module, which is now recorded correctly.  
 
 = 2.3.35 =
 

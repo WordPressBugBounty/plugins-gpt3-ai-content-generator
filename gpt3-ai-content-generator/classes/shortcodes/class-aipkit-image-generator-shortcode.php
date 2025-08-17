@@ -68,7 +68,8 @@ class AIPKit_Image_Generator_Shortcode
         // --- 2.5 Get Default Image Settings ---
         $image_gen_settings = AIPKit_Image_Settings_Ajax_Handler::get_settings();
         $frontend_display_settings = $image_gen_settings['frontend_display'] ?? [];
-        $allowed_providers_str = $frontend_display_settings['allowed_providers'] ?? '';
+    // Allowed providers field deprecated: kept for backward compatibility but ignored (providers derived from selected models)
+    $allowed_providers_str = ''; // $frontend_display_settings['allowed_providers'] ?? '';
         $allowed_models_from_settings = $frontend_display_settings['allowed_models'] ?? '';
 
         // Prioritize shortcode attribute over global settings

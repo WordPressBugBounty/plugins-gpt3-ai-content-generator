@@ -63,6 +63,7 @@ class BotSettingsManager
     public const DEFAULT_VECTOR_STORE_PROVIDER = 'openai';
     public const DEFAULT_OPENAI_VECTOR_STORE_ID = ''; // Legacy, will be array now
     public const DEFAULT_VECTOR_STORE_TOP_K = 3;
+    public const DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD = 20; // NEW
     // --- Pinecone & Embedding Specific Constants ---
     public const DEFAULT_PINECONE_INDEX_NAME = '';
     public const DEFAULT_VECTOR_EMBEDDING_PROVIDER = 'openai';

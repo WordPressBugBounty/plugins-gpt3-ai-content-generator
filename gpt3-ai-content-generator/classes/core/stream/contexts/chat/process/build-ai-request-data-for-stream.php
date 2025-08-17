@@ -78,6 +78,7 @@ function build_ai_request_data_for_stream_logic(
     }
 
     $all_formatted_results_for_instruction = "";
+    $vector_search_scores = []; // Initialize array to capture vector search scores
     if (function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
         $all_formatted_results_for_instruction = \WPAICG\Core\Stream\Vector\build_vector_search_context_logic(
             $ai_caller,
@@ -89,7 +90,8 @@ function build_ai_request_data_for_stream_logic(
             $frontend_active_pinecone_index_name,
             $frontend_active_pinecone_namespace,
             $frontend_active_qdrant_collection_name,
-            $frontend_active_qdrant_file_upload_context_id
+            $frontend_active_qdrant_file_upload_context_id,
+            $vector_search_scores // Pass reference to capture scores
         );
     }
 
@@ -145,7 +147,18 @@ function build_ai_request_data_for_stream_logic(
         $vector_top_k_openai = absint($bot_settings['vector_store_top_k'] ?? 3);
         $vector_top_k_openai = max(1, min($vector_top_k_openai, 20));
         if (($bot_settings['enable_vector_store'] ?? '0') === '1' && ($bot_settings['vector_store_provider'] ?? '') === 'openai' && !empty($vector_store_ids_to_use)) {
-            $ai_params_for_payload['vector_store_tool_config'] = ['type' => 'file_search', 'vector_store_ids' => $vector_store_ids_to_use, 'max_num_results' => $vector_top_k_openai];
+            // Get confidence threshold and convert to OpenAI score threshold
+            $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
+            $openai_score_threshold = $confidence_threshold_percent / 100.0;
+            
+            $ai_params_for_payload['vector_store_tool_config'] = [
+                'type' => 'file_search', 
+                'vector_store_ids' => $vector_store_ids_to_use, 
+                'max_num_results' => $vector_top_k_openai,
+                'ranking_options' => [
+                    'score_threshold' => $openai_score_threshold
+                ]
+            ];
         }
         if (($bot_settings['openai_web_search_enabled'] ?? '0') === '1') {
             $ai_params_for_payload['web_search_tool_config'] = ['enabled' => true, 'search_context_size' => $bot_settings['openai_web_search_context_size'] ?? BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_CONTEXT_SIZE];
@@ -202,5 +215,6 @@ function build_ai_request_data_for_stream_logic(
         'system_instruction_filtered'   => $instructions_filtered_for_api,
         'api_params'                    => $api_params_for_stream,
         'ai_params'                     => $ai_params_for_payload,
+        'vector_search_scores'          => $vector_search_scores, // Include captured vector search scores
     ];
 }

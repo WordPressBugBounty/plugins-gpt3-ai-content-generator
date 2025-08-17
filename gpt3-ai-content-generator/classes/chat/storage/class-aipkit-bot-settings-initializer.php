@@ -1,6 +1,6 @@
 <?php
 
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/class-aipkit_bot_settings_initializer.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/class-aipkit-bot-settings-initializer.php
 // Status: MODIFIED
 
 namespace WPAICG\Chat\Storage;
@@ -63,9 +63,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_popup_icon_type', BotSettingsManager::DEFAULT_POPUP_ICON_TYPE);
         update_post_meta($post_id, '_aipkit_popup_icon_style', BotSettingsManager::DEFAULT_POPUP_ICON_STYLE);
         update_post_meta($post_id, '_aipkit_popup_icon_value', BotSettingsManager::DEFAULT_POPUP_ICON_VALUE);
-        // --- MODIFIED: Use new constant for stream_enabled ---
         update_post_meta($post_id, '_aipkit_stream_enabled', BotSettingsManager::DEFAULT_STREAM_ENABLED);
-        // --- END MODIFICATION ---
         update_post_meta($post_id, '_aipkit_footer_text', '');
         update_post_meta($post_id, '_aipkit_enable_fullscreen', '1');
         update_post_meta($post_id, '_aipkit_enable_download', '1');
@@ -115,6 +113,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_vector_embedding_provider', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
         update_post_meta($post_id, '_aipkit_vector_embedding_model', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_MODEL);
         update_post_meta($post_id, '_aipkit_vector_store_top_k', BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K);
+        update_post_meta($post_id, '_aipkit_vector_store_confidence_threshold', BotSettingsManager::DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD); // NEW
         update_post_meta($post_id, '_aipkit_openai_web_search_enabled', BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_ENABLED);
         update_post_meta($post_id, '_aipkit_openai_web_search_context_size', BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_CONTEXT_SIZE);
         update_post_meta($post_id, '_aipkit_openai_web_search_loc_type', BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_LOC_TYPE);

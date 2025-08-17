@@ -54,6 +54,7 @@ class SSEStreamProcessor {
     public $used_previous_openai_response_id = false;
     public $grounding_metadata = null;
     public $current_stream_context = 'chat';
+    public $vector_search_scores = []; // Store vector search scores for logging
 
     public function __construct(SSEResponseFormatter $formatter, LogStorage $log_storage) {
         $this->formatter   = $formatter;
@@ -132,6 +133,12 @@ class SSEStreamProcessor {
     public function get_grounding_metadata(): ?array { return $this->grounding_metadata; }
     public function set_grounding_metadata(?array $metadata): void { $this->grounding_metadata = $metadata; }
     public function get_current_stream_context(): string { return $this->current_stream_context; }
+    public function get_vector_search_scores(): array { 
+        return $this->vector_search_scores; 
+    }
+    public function set_vector_search_scores(array $scores): void { 
+        $this->vector_search_scores = $scores; 
+    }
 
     public function initialize_stream_state(string $provider, string $model, string $conversation_uuid, ?string $bot_message_id, array $base_log_data, string $stream_context, bool $used_previous_openai_id): void {
         $this->current_provider = $provider; $this->current_model = $model;
@@ -141,6 +148,7 @@ class SSEStreamProcessor {
         $this->log_base_data = $base_log_data; $this->current_stream_context = $stream_context;
         $this->error_occurred = false; $this->request_payload_log = null; $this->current_openai_response_id = null;
         $this->used_previous_openai_response_id = $used_previous_openai_id; $this->grounding_metadata = null;
+        // NOTE: vector_search_scores should NOT be reset here as they are set before streaming starts
     }
     // --- End Getters and Setters ---
 

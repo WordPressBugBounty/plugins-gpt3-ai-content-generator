@@ -1,6 +1,6 @@
 <?php
 
-// File: classes/core/stream/vector/build-context/resolve-qdrant-context.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/vector/build-context/resolve-qdrant-context.php
 // Status: MODIFIED
 
 namespace WPAICG\Core\Stream\Vector\BuildContext;
@@ -26,6 +26,7 @@ if (!defined('ABSPATH')) {
  * @param int $vector_top_k
  * @param \wpdb $wpdb
  * @param string $data_source_table_name
+ * @param array|null &$vector_search_scores_output Optional reference to capture scores for logging.
  * @return string Formatted Qdrant context results.
  */
 function resolve_qdrant_context_logic(
@@ -37,12 +38,15 @@ function resolve_qdrant_context_logic(
     ?string $frontend_active_qdrant_file_upload_context_id,
     int $vector_top_k,
     \wpdb $wpdb,
-    string $data_source_table_name
+    string $data_source_table_name,
+    ?array &$vector_search_scores_output = null
 ): string {
     $qdrant_results = "";
     $qdrant_collection_name_from_settings = $bot_settings['qdrant_collection_name'] ?? '';
     $vector_embedding_provider = $bot_settings['vector_embedding_provider'] ?? '';
     $vector_embedding_model = $bot_settings['vector_embedding_model'] ?? ''; // This is the correctly defined variable
+    $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
+    $qdrant_score_threshold = $confidence_threshold_percent / 100.0; // Normalize 0-100 to 0-1 scale
 
     if (empty($qdrant_collection_name_from_settings) || empty($vector_embedding_provider) || empty($vector_embedding_model)) {
         // If $vector_embedding_model is empty, this condition is met, and it returns early.
@@ -65,14 +69,12 @@ function resolve_qdrant_context_logic(
 
     $embedding_provider_normalized = normalize_embedding_provider_logic($vector_embedding_provider);
 
-    // --- MODIFIED: Ensure the correct variable $vector_embedding_model is passed ---
     $query_vector_values_or_error = resolve_embedding_vector_logic(
         $ai_caller,
         $user_message,
         $embedding_provider_normalized,
         $vector_embedding_model // Use the defined $vector_embedding_model
     );
-    // --- END MODIFICATION ---
 
     if (is_wp_error($query_vector_values_or_error)) {
         // Error is already logged by resolve_embedding_vector_logic if it fails.
@@ -97,10 +99,27 @@ function resolve_qdrant_context_logic(
             $formatted_file_results = "";
             $file_results_added = 0;
             foreach ($file_search_results as $item) {
+                // NEW: Confidence Threshold Check
+                if (isset($item['score']) && (float)$item['score'] < $qdrant_score_threshold) {
+                    continue;
+                }
+                // END NEW
                 $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
                 if (!empty($content_snippet)) {
                     $formatted_file_results .= "- " . trim($content_snippet) . "\n";
                     $file_results_added++;
+                    
+                    // Capture score data if reference provided
+                    if ($vector_search_scores_output !== null && isset($item['score'])) {
+                        $vector_search_scores_output[] = [
+                            'provider' => 'Qdrant',
+                            'collection_name' => $collection_to_query,
+                            'file_context_id' => $frontend_active_qdrant_file_upload_context_id,
+                            'result_id' => $item['id'] ?? null,
+                            'score' => $item['score'],
+                            'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                        ];
+                    }
                 }
             }
             if (!empty($formatted_file_results)) {
@@ -126,6 +145,11 @@ function resolve_qdrant_context_logic(
         $formatted_general_results = "";
         $general_results_added = 0;
         foreach ($general_search_results as $item) {
+            // NEW: Confidence Threshold Check
+            if (isset($item['score']) && (float)$item['score'] < $qdrant_score_threshold) {
+                continue;
+            }
+            // END NEW
             $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
             if (empty($content_snippet) && isset($item['id'])) {
                 $cache_key = 'aipkit_vds_content_' . md5('qdrant_general_' . $collection_to_query . $item['id']);
@@ -145,6 +169,18 @@ function resolve_qdrant_context_logic(
             if (!empty($content_snippet)) {
                 $formatted_general_results .= "- " . trim($content_snippet) . "\n";
                 $general_results_added++;
+                
+                // Capture score data if reference provided
+                if ($vector_search_scores_output !== null && isset($item['score'])) {
+                    $vector_search_scores_output[] = [
+                        'provider' => 'Qdrant',
+                        'collection_name' => $collection_to_query,
+                        'file_context_id' => null, // General context
+                        'result_id' => $item['id'] ?? null,
+                        'score' => $item['score'],
+                        'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                    ];
+                }
             }
         }
         if (!empty($formatted_general_results)) {

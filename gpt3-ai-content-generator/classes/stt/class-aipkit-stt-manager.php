@@ -125,33 +125,87 @@ class AIPKit_STT_Manager
             wp_send_json_error(['message' => __('Security check failed (nonce).', 'gpt3-ai-content-generator')], 403);
             return;
         }
-
-        $audio_base64 = isset($_POST['audio_data']) ? $_POST['audio_data'] : '';
-        $audio_format = isset($_POST['audio_format']) ? sanitize_text_field($_POST['audio_format']) : 'webm'; // Default or get from client
         $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0; // Get bot ID to read its STT provider setting
-
-        // Decode Base64 audio data
-        if (strpos($audio_base64, 'base64,') !== false) {
-            $audio_base64 = substr($audio_base64, strpos($audio_base64, 'base64,') + 7);
-        }
-        $audio_data_binary = base64_decode($audio_base64, true); // Use strict mode
-
-        if (empty($audio_data_binary)) {
-            wp_send_json_error(['message' => __('Invalid or empty audio data received.', 'gpt3-ai-content-generator')], 400);
-            return;
-        }
         if (empty($bot_id)) {
             wp_send_json_error(['message' => __('Bot ID is required for transcription.', 'gpt3-ai-content-generator')], 400);
             return;
         }
 
-        // Pass bot_id in options so the STT provider and potentially model ID can be determined correctly
+        // Prepare options early
         $options = ['bot_id' => $bot_id];
-        // Optionally pass language if sent from client
         if (isset($_POST['language'])) {
             $options['language'] = sanitize_text_field($_POST['language']);
         }
 
+        $audio_data_binary = '';
+        $audio_format = 'webm'; // default fallback
+
+        // 1. Preferred path: multipart file upload (avoids large base64 payloads that WAFs like WordFence can flag)
+        if (!empty($_FILES['audio_file']) && is_uploaded_file($_FILES['audio_file']['tmp_name'])) {
+            $tmp_name = $_FILES['audio_file']['tmp_name'];
+            $file_size = (int) ($_FILES['audio_file']['size'] ?? 0);
+            $original_name = sanitize_file_name($_FILES['audio_file']['name'] ?? 'audio');
+
+            // Allow filtering max size; default 4MB
+            $max_size = (int) apply_filters('aipkit_stt_max_audio_bytes', 4 * 1024 * 1024);
+            if ($file_size <= 0) {
+                wp_send_json_error(['message' => __('Uploaded audio file is empty.', 'gpt3-ai-content-generator')], 400);
+                return;
+            }
+            if ($file_size > $max_size) {
+                wp_send_json_error(['message' => sprintf(__('Audio file too large. Max size: %d bytes.', 'gpt3-ai-content-generator'), $max_size)], 413);
+                return;
+            }
+
+            // MIME detection
+            $mime = function_exists('mime_content_type') ? mime_content_type($tmp_name) : ($_FILES['audio_file']['type'] ?? '');
+            $allowed_mime_map = [
+                'audio/webm' => 'webm',
+                'audio/wav' => 'wav',
+                'audio/x-wav' => 'wav',
+                'audio/mpeg' => 'mp3',
+                'audio/mp3' => 'mp3',
+                'audio/ogg' => 'ogg',
+                'audio/ogg; codecs=opus' => 'ogg',
+            ];
+            if (isset($allowed_mime_map[$mime])) {
+                $audio_format = $allowed_mime_map[$mime];
+            } else {
+                // Fallback: attempt extension parse
+                $ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+                if (in_array($ext, ['webm', 'wav', 'mp3', 'ogg'])) {
+                    $audio_format = $ext;
+                } else {
+                    wp_send_json_error(['message' => __('Unsupported audio MIME type.', 'gpt3-ai-content-generator')], 400);
+                    return;
+                }
+            }
+
+            $audio_data_binary = file_get_contents($tmp_name);
+            if ($audio_data_binary === false || $audio_data_binary === '') {
+                wp_send_json_error(['message' => __('Failed to read uploaded audio file.', 'gpt3-ai-content-generator')], 400);
+                return;
+            }
+        }
+        // 2. Legacy path: base64 data (kept for backward compatibility with older frontends)
+        else {
+            $audio_base64 = isset($_POST['audio_data']) ? $_POST['audio_data'] : '';
+            if (strpos($audio_base64, 'base64,') !== false) {
+                $audio_base64 = substr($audio_base64, strpos($audio_base64, 'base64,') + 7);
+            }
+            $audio_data_binary = base64_decode($audio_base64, true); // strict mode
+            $audio_format = isset($_POST['audio_format']) ? sanitize_text_field($_POST['audio_format']) : 'webm';
+            if (empty($audio_data_binary)) {
+                wp_send_json_error(['message' => __('Invalid or empty audio data received.', 'gpt3-ai-content-generator')], 400);
+                return;
+            }
+            // Enforce size check on decoded data too
+            $max_size = (int) apply_filters('aipkit_stt_max_audio_bytes', 4 * 1024 * 1024);
+            if (strlen($audio_data_binary) > $max_size) {
+                wp_send_json_error(['message' => sprintf(__('Audio data too large after decoding. Max size: %d bytes.', 'gpt3-ai-content-generator'), $max_size)], 413);
+                return;
+            }
+        }
 
         // Call the main STT method
         $transcription_result = $this->speech_to_text($audio_data_binary, $audio_format, $options);

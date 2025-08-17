@@ -49,7 +49,7 @@ $addons = [
     ],
     [
         'key' => 'ai_post_enhancer', 'title' => __('Content Assistant', 'gpt3-ai-content-generator'),
-        'description' => __('Generate or improve WooCommerce product titles, short descriptions, meta tags, and excerpts. Also available inside the Classic and Block Editor toolbars. Supports all content types.', 'gpt3-ai-content-generator'),
+        'description' => __('Generate WooCommerce product titles, short descriptions, meta tags, and excerpts.', 'gpt3-ai-content-generator'),
         'pro' => false, 'category' => 'content'
     ],
     [
@@ -63,7 +63,7 @@ $addons = [
         'pro' => false, 'category' => 'chat'
     ],
     [
-        'key' => 'vector_databases', 'title' => __('Vector Database Integrations', 'gpt3-ai-content-generator'),
+        'key' => 'vector_databases', 'title' => __('Vector Database', 'gpt3-ai-content-generator'),
         'description' => __('Connect to Pinecone and Qdrant vector databases for advanced AI Training and retrieval.', 'gpt3-ai-content-generator'),
         'pro' => false, 'category' => 'training'
     ],
@@ -125,8 +125,28 @@ $categories = [
 
 
 $category_filters = array_merge(['all' => __('All', 'gpt3-ai-content-generator')], $categories);
+
+// Icon + accent color per category (Dashicons + CSS variable fallback)
+$category_icons = [
+    'core'     => 'admin-generic',
+    'chat'     => 'format-chat',
+    'content'  => 'media-text',
+    'training' => 'database',
+    'security' => 'shield-alt',
+    'privacy'  => 'lock',
+];
+
+// Accent color map (light backgrounds; text color handled via utility)
+$category_accents = [
+    'core'     => '#EEF4FF',
+    'chat'     => '#F0F9FF',
+    'content'  => '#F5F3FF',
+    'training' => '#F3FDF6',
+    'security' => '#FFF7ED',
+    'privacy'  => '#FDF2F8',
+];
 ?>
-<div class="aipkit_container aipkit_addons_container" id="aipkit_addons_container"> <?php // Add ID for JS targeting?>
+<div class="aipkit_container aipkit_addons_container aipkit_addons_modern" id="aipkit_addons_container"> <?php // Add ID for JS targeting?>
     <div class="aipkit_container-header">
         <div class="aipkit_container-title"><?php esc_html_e('Add-ons', 'gpt3-ai-content-generator'); ?></div>
     </div>
@@ -159,52 +179,49 @@ endforeach; ?>
             </div>
         </div>
 
-        <div class="aipkit_stats-grid" id="aipkit_addons_grid">
+        <div class="aipkit_addon-grid" id="aipkit_addons_grid">
             <?php foreach ($addons as $addon) :
                 $key = $addon['key'];
                 $isActive = isset($addon_status[$key]) ? $addon_status[$key] : false;
-                $isProFeature = $addon['pro'];
+                $isProFeature = (bool) $addon['pro'];
                 $canActivate = (!$isProFeature || ($isProFeature && $is_pro));
-                $categories_str = esc_attr($addon['category']); // Single category for now
+                $category = $addon['category'];
+                $icon = $category_icons[$category] ?? 'admin-generic';
+                $accent = $category_accents[$category] ?? '#EEF2F6';
+                $category_label = $categories[$category] ?? ucfirst($category);
                 ?>
-            <div
-                class="aipkit_stat-card aipkit_addon_card"
-                data-status="<?php echo $isActive ? 'active' : 'inactive'; ?>"
-                data-categories="<?php echo esc_attr($categories_str); ?>"
-            >
-                <div class="aipkit_stat-title-wrapper">
-                    <h3 class="aipkit_stat-title"><?php echo esc_html($addon['title']); ?></h3>
-                    <?php if ($isProFeature) : ?>
-                        <span class="aipkit_status-tag" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
-                    <?php endif; ?>
+                <div class="aipkit_addon_card" data-status="<?php echo $isActive ? 'active' : 'inactive'; ?>" data-category="<?php echo esc_attr($category); ?>" style="--aipkit_addon-accent: <?php echo esc_attr($accent); ?>;">
+                    <div class="aipkit_addon_card-header">
+                        <div class="aipkit_addon_icon-wrap">
+                            <span class="dashicons dashicons-<?php echo esc_attr($icon); ?>"></span>
+                        </div>
+                        <div class="aipkit_addon_header-text">
+                            <div class="aipkit_addon_title-line">
+                                <span class="aipkit_addon_title"><?php echo esc_html($addon['title']); ?></span>
+                            </div>
+                            <?php if ($isProFeature || $isActive) : ?>
+                            <div class="aipkit_addon_badges">
+                                <?php if ($isProFeature) : ?><span class="aipkit_badge aipkit_badge-pro"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span><?php endif; ?>
+                                <?php if ($isActive) : ?><span class="aipkit_badge aipkit_badge-active"><?php esc_html_e('Active', 'gpt3-ai-content-generator'); ?></span><?php endif; ?>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="aipkit_addon_body">
+                        <p class="aipkit_addon_desc" title="<?php echo esc_attr($addon['description']); ?>"><?php echo esc_html($addon['description']); ?></p>
+                    </div>
+                    <div class="aipkit_addon_actions">
+                        <?php if ($canActivate) : ?>
+                            <button type="button" class="aipkit_btn aipkit_btn-small <?php echo $isActive ? 'aipkit_btn-secondary' : 'aipkit_btn-primary'; ?> aipkit_addon_toggle_btn" data-addon-key="<?php echo esc_attr($key); ?>" data-active="<?php echo $isActive ? '1' : '0'; ?>">
+                                <span class="aipkit_btn-text"><?php echo $isActive ? esc_html__('Deactivate', 'gpt3-ai-content-generator') : esc_html__('Activate', 'gpt3-ai-content-generator'); ?></span>
+                                <span class="aipkit_spinner" style="display:none;"></span>
+                            </button>
+                        <?php else : ?>
+                            <a href="<?php echo esc_url($upgrade_url); ?>" class="aipkit_btn aipkit_btn-small aipkit_btn-primary" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?></a>
+                        <?php endif; ?>
+                        <div class="aipkit_addon_status_msg"></div>
+                    </div>
                 </div>
-                <p class="aipkit_stat-description"><?php echo esc_html($addon['description']); ?></p>
-                <?php if (!empty($addon['category'])): ?>
-                     <p class="aipkit_addon_categories">
-                        <strong><?php esc_html_e('Category:', 'gpt3-ai-content-generator'); ?></strong>
-                         <?php echo esc_html($categories[$addon['category']] ?? ucfirst($addon['category'])); ?>
-                    </p>
-                <?php endif; ?>
-
-                <div style="margin-top: auto;"> <?php // Push button to bottom?>
-                    <?php if ($canActivate) : ?>
-                        <button
-                            type="button"
-                            class="aipkit_btn <?php echo $isActive ? 'aipkit_btn-secondary' : 'aipkit_btn-primary'; ?> aipkit_addon_toggle_btn"
-                            data-addon-key="<?php echo esc_attr($key); ?>"
-                            data-active="<?php echo $isActive ? '1' : '0'; ?>"
-                        >
-                            <span class="aipkit_btn-text"><?php echo $isActive ? esc_html__('Deactivate', 'gpt3-ai-content-generator') : esc_html__('Activate', 'gpt3-ai-content-generator'); ?></span>
-                            <span class="aipkit_spinner" style="display:none;"></span>
-                        </button>
-                    <?php else : // Pro feature but not Pro plan?>
-                        <a href="<?php echo esc_url($upgrade_url); ?>" class="aipkit_btn aipkit_btn-primary" target="_blank" rel="noopener noreferrer">
-                            <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
-                        </a>
-                    <?php endif; ?>
-                     <div class="aipkit_addon_status_msg"></div>
-                </div>
-            </div>
             <?php endforeach; ?>
         </div>
         <div id="aipkit_no_addons_message" style="display:none; text-align:center; padding:20px; color: var(--aipkit_text-secondary);">

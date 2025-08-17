@@ -59,7 +59,7 @@ class LogStorage {
     /**
      * Retrieves conversation summaries for the admin log view. Delegates to LogManager.
      */
-    public function get_logs(array $filters = [], int $limit = 50, int $offset = 0, string $orderby = 'id', string $order = 'DESC'): array {
+    public function get_logs(array $filters = [], int $limit = 50, int $offset = 0, string $orderby = 'last_message_ts', string $order = 'DESC'): array {
         return $this->manager->get_logs($filters, $limit, $offset, $orderby, $order);
     }
 

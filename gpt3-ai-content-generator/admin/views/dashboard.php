@@ -140,37 +140,49 @@ if (current_user_can('manage_options') && class_exists(WP_AI_Content_Generator_A
                 aria-expanded="false"
                 aria-controls="aipkit_nav_links_container"
             ></button>
-            <!-- Modules Menu (Gear icon) -->
+            <!-- Modules Menu (Modern Toggle) -->
             <?php if (current_user_can('manage_options')): ?>
                 <div
                     class="aipkit_modules-menu"
                     id="aipkit_modulesMenu"
-                    title="<?php echo esc_attr__('Toggle Modules', 'gpt3-ai-content-generator'); ?>"
+                    title="<?php echo esc_attr__('Module Settings', 'gpt3-ai-content-generator'); ?>"
                 >
-                    <span class="dashicons dashicons-admin-settings aipkit_module-icon"></span>
-                    <div class="aipkit_dropdown-menu">
-                        <div class="aipkit_dropdown-info">
-                            <?php echo esc_html__('To avoid cluttering your WP, disable the modules that you do not need.', 'gpt3-ai-content-generator'); ?>
+                    <button class="aipkit_menu-trigger" type="button" aria-label="<?php echo esc_attr__('Module Settings', 'gpt3-ai-content-generator'); ?>">
+                        <svg class="aipkit_menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="m19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </button>
+                    <div class="aipkit_dropdown-panel">
+                        <div class="aipkit_panel-header">
+                            <h3><?php echo esc_html__('Module Settings', 'gpt3-ai-content-generator'); ?></h3>
+                            <p><?php echo esc_html__('Enable or disable modules to customize your workspace.', 'gpt3-ai-content-generator'); ?></p>
                         </div>
-                        <div class="aipkit_modules-grid">
+                        <div class="aipkit_modules-list">
                             <?php foreach ($modulesMap as $optionKey => $mod) :
                                 $checked = !isset($moduleSettings[$optionKey]) || !empty($moduleSettings[$optionKey]) ? 'checked' : '';
                                 $inputId = 'aipkit_toggle_' . esc_attr($optionKey);
                             ?>
-                                <label class="aipkit_dropdown-item" for="<?php echo esc_attr( $inputId ); ?>">
-                                    <?php echo esc_html( $mod['label'] ); ?>
-                                    <input
-                                        type="checkbox"
-                                        id="<?php echo esc_attr( $inputId ); ?>"
-                                        name="<?php echo esc_attr( $optionKey ); ?>"
-                                        class="aipkit_module-toggle"
-                                        data-module="<?php echo esc_attr( $mod['data_module'] ); ?>"
-                                        data-option-key="<?php echo esc_attr( $optionKey ); ?>"
-                                        data-icon="<?php echo esc_attr( $mod['icon'] ); ?>"
-                                        data-label="<?php echo esc_attr( $mod['label'] ); ?>"
-                                        <?php echo $checked ? 'checked' : ''; ?>
-                                    >
-                                </label>
+                                <div class="aipkit_module-item">
+                                    <div class="aipkit_module-info">
+                                        <span class="aipkit_module-icon dashicons dashicons-<?php echo esc_attr($mod['icon']); ?>"></span>
+                                        <span class="aipkit_module-label"><?php echo esc_html($mod['label']); ?></span>
+                                    </div>
+                                    <label class="aipkit_toggle-switch" for="<?php echo esc_attr($inputId); ?>">
+                                        <input
+                                            type="checkbox"
+                                            id="<?php echo esc_attr($inputId); ?>"
+                                            name="<?php echo esc_attr($optionKey); ?>"
+                                            class="aipkit_module-toggle"
+                                            data-module="<?php echo esc_attr($mod['data_module']); ?>"
+                                            data-option-key="<?php echo esc_attr($optionKey); ?>"
+                                            data-icon="<?php echo esc_attr($mod['icon']); ?>"
+                                            data-label="<?php echo esc_attr($mod['label']); ?>"
+                                            <?php echo $checked ? 'checked' : ''; ?>
+                                        >
+                                        <span class="aipkit_toggle-slider"></span>
+                                    </label>
+                                </div>
                             <?php endforeach; ?>
                         </div>
                     </div>

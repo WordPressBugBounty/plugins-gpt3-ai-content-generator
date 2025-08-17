@@ -79,6 +79,9 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     if (isset($settings['vector_store_top_k'])) {
         update_post_meta($form_id, '_aipkit_ai_form_vector_store_top_k', absint($settings['vector_store_top_k']));
     }
+    if (isset($settings['vector_store_confidence_threshold'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_vector_store_confidence_threshold', absint($settings['vector_store_confidence_threshold']));
+    }
     // --- END Vector Settings ---
 
     // --- NEW: Save Web Search & Grounding Settings ---

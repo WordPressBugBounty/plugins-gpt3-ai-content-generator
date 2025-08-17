@@ -68,7 +68,7 @@ if (!defined('ABSPATH')) {
         <div class="aipkit_form-group aipkit_form-col" style="flex: 1 1 auto;">
             <!-- OpenAI Selector -->
             <div class="aipkit_form-group aipkit_ai_form_vector_openai_field">
-                <label class="aipkit_form-label" for="aipkit_ai_form_openai_vector_store_ids"><?php esc_html_e('OpenAI Vector Stores', 'gpt3-ai-content-generator'); ?></label>
+                <label class="aipkit_form-label" for="aipkit_ai_form_openai_vector_store_ids"><?php esc_html_e('Vector Stores (Max 2)', 'gpt3-ai-content-generator'); ?></label>
                 <select id="aipkit_ai_form_openai_vector_store_ids" name="openai_vector_store_ids[]" class="aipkit_form-input" multiple size="3">
                      <?php if (!empty($openai_vector_stores)): ?>
                         <?php foreach ($openai_vector_stores as $store): ?>
@@ -118,6 +118,7 @@ if (!defined('ABSPATH')) {
                 <select id="aipkit_ai_form_vector_embedding_provider" name="vector_embedding_provider" class="aipkit_form-input aipkit_ai_form_vector_embedding_provider_select">
                     <option value="openai">OpenAI</option>
                     <option value="google">Google</option>
+                    <option value="azure">Azure</option>
                 </select>
             </div>
             <div class="aipkit_form-group aipkit_form-col" style="flex: 1 1 auto;">
@@ -129,14 +130,37 @@ if (!defined('ABSPATH')) {
         </div>
     </div>
 
-    <!-- Top K Slider -->
-    <div class="aipkit_form-group" style="margin-top: 15px;">
-        <label class="aipkit_form-label" for="aipkit_ai_form_vector_store_top_k"><?php esc_html_e('Results Limit', 'gpt3-ai-content-generator'); ?></label>
-        <div class="aipkit_slider_wrapper">
-            <input type="range" id="aipkit_ai_form_vector_store_top_k" name="vector_store_top_k" class="aipkit_form-input aipkit_range_slider" min="1" max="20" step="1" value="3" />
-            <span id="aipkit_ai_form_vector_store_top_k_value" class="aipkit_slider_value">3</span>
+    <!-- Top K and Confidence Threshold Sliders -->
+    <div class="aipkit_form-row" style="margin-top: 15px; gap: 10px;">
+        <div class="aipkit_form-group" style="flex: 1;">
+            <label class="aipkit_form-label" for="aipkit_ai_form_vector_store_top_k"><?php esc_html_e('Results Limit', 'gpt3-ai-content-generator'); ?></label>
+            <div class="aipkit_slider_wrapper">
+                <input type="range" id="aipkit_ai_form_vector_store_top_k" name="vector_store_top_k" class="aipkit_form-input aipkit_range_slider" min="1" max="20" step="1" value="3" />
+                <span id="aipkit_ai_form_vector_store_top_k_value" class="aipkit_slider_value">3</span>
+            </div>
         </div>
-        <p class="aipkit_form-help"><?php esc_html_e('Max relevant results from vector store. Applies per OpenAI store if multiple are selected.', 'gpt3-ai-content-generator'); ?></p>
+
+        <div class="aipkit_form-group" style="flex: 1;">
+            <label class="aipkit_form-label" for="aipkit_ai_form_vector_store_confidence_threshold"><?php esc_html_e('Score Threshold', 'gpt3-ai-content-generator'); ?></label>
+            <div class="aipkit_slider_wrapper">
+                <input type="range" id="aipkit_ai_form_vector_store_confidence_threshold" name="vector_store_confidence_threshold" class="aipkit_form-input aipkit_range_slider" min="0" max="100" step="1" value="20" />
+                <span id="aipkit_ai_form_vector_store_confidence_threshold_value" class="aipkit_slider_value">20%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help text for both sliders -->
+    <div class="aipkit_form-row" style="margin-top: 5px; gap: 10px;">
+        <div class="aipkit_form-group" style="flex: 1;">
+            <div class="aipkit_form-help">
+                <?php esc_html_e('Max relevant results from vector store.', 'gpt3-ai-content-generator'); ?>
+            </div>
+        </div>
+        <div class="aipkit_form-group" style="flex: 1;">
+            <div class="aipkit_form-help">
+                <?php esc_html_e('Only use results with a similarity score above this threshold.', 'gpt3-ai-content-generator'); ?>
+            </div>
+        </div>
     </div>
 </div>
 

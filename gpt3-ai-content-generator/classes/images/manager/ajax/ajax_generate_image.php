@@ -97,7 +97,9 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     }
 
     $provider = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : 'OpenAI';
-    $user_identifier = $is_logged_in ? 'wp_user_' . $user_id : ('guest_ip_' . ($session_id_for_guest ?? 'unknown'));
+    // --- MODIFICATION: Changed user identifier format ---
+    $user_identifier = $is_logged_in ? (string)$user_id : 'guest';
+    // --- END MODIFICATION ---
 
     $runtime_options = array_filter([
         'provider' => $provider,

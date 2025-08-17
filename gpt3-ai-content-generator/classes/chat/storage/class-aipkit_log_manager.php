@@ -36,7 +36,7 @@ class LogManager
      * Includes 'module' in the results.
      * Changed default sort order.
      */
-    public function get_logs(array $filters = [], int $limit = 50, int $offset = 0, string $orderby = 'id', string $order = 'DESC'): array // Default orderby changed to 'last_message_ts'
+    public function get_logs(array $filters = [], int $limit = 50, int $offset = 0, string $orderby = 'last_message_ts', string $order = 'DESC'): array // Default orderby changed to 'last_message_ts'
     {$query_parts = $this->query_helper->build_conversation_query_parts($filters, $orderby, $order, $limit, $offset, true); // Select messages JSON and module
         $query = "SELECT {$query_parts['select_sql']} FROM {$this->table_name} {$query_parts['join_sql']} WHERE {$query_parts['where_sql']} ORDER BY {$query_parts['orderby']} {$query_parts['order']} {$query_parts['limit_sql']}";
         if (!empty($query_parts['params'])) {

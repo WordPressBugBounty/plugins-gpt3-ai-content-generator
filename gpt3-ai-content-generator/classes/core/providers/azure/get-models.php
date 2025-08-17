@@ -1,5 +1,6 @@
 <?php
 // File: classes/core/providers/azure/get-models.php
+// Status: MODIFIED
 
 namespace WPAICG\Core\Providers\Azure\Methods;
 
@@ -53,10 +54,15 @@ function get_models_logic(AzureProviderStrategy $strategyInstance, array $api_pa
         $model_name = $dep['model'] ?? null; // Underlying model name
         $status = $dep['status'] ?? '';
         if (!empty($dep_id) && $status === 'succeeded') { // Only include succeeded deployments
+            $display_name = $dep_id;
+            if ($model_name && $model_name !== $dep_id) {
+                $display_name .= " ({$model_name})";
+            }
             $formatted[] = [
                 'id'      => $dep_id,
-                'name'    => $model_name ?: $dep_id, // Use model name for display, fallback to deployment id
+                'name'    => $display_name,
                 'status'  => $status,
+                'model'   => $model_name // Keep original model name for filtering
             ];
         }
     }

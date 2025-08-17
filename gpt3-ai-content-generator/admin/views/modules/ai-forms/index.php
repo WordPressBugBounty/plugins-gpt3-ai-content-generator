@@ -32,9 +32,11 @@ if (class_exists(AIPKit_Providers::class)) {
 
 $openai_embedding_models = [];
 $google_embedding_models = [];
+$azure_embedding_models = [];
 if (class_exists(AIPKit_Providers::class)) {
     $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
     $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+    $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
 }
 // --- END ADDED ---
 

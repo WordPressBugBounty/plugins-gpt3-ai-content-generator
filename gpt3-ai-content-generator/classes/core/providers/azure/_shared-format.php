@@ -34,7 +34,7 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
     // Map AIPKit standard AI params to Chat Completions API params
     $param_map = [
         'temperature' => 'temperature',
-        'max_completion_tokens' => 'max_tokens', // API uses 'max_tokens'
+        'max_completion_tokens' => 'max_completion_tokens', // API uses 'max_tokens'
         'top_p' => 'top_p',
         'stop' => 'stop',
         // Azure specific params can be added here if they differ from OpenAI Chat Completions
@@ -53,8 +53,10 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
             }
         }
     }
-    // Remove max_completion_tokens if it was only used for mapping to max_tokens
-    unset($body_data['max_completion_tokens']);
+    // unset top_p
+    unset($body_data['top_p']);
+    // unset temperature
+    unset($body_data['temperature']);
 
     return $body_data;
 }

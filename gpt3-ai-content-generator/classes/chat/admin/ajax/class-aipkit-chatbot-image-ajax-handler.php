@@ -209,6 +209,10 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             $provider_for_image = 'Replicate';
         }
 
+        // --- MODIFICATION: Add user identifier to options ---
+        $user_identifier = $is_logged_in ? (string)$user_id : 'guest';
+        // --- END MODIFICATION ---
+
         $generation_options_from_main_settings = \WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler::get_settings();
         $provider_module_defaults = $generation_options_from_main_settings['defaults'][$provider_for_image] ?? ($generation_options_from_main_settings['defaults']['OpenAI'] ?? []);
         $final_generation_options = array_merge(
@@ -217,6 +221,7 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
                 'provider' => $provider_for_image,
                 'model'    => $selected_image_model,
                 'n'        => 1,
+                'user'     => $user_identifier, // ADDED
             ]
         );
         if (($final_generation_options['model'] ?? '') === 'gpt-image-1' && $provider_for_image === 'OpenAI') {

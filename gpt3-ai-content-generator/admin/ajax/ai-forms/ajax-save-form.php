@@ -81,6 +81,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $vector_embedding_provider = isset($post_data['vector_embedding_provider']) ? sanitize_key($post_data['vector_embedding_provider']) : 'openai';
     $vector_embedding_model = isset($post_data['vector_embedding_model']) ? sanitize_text_field($post_data['vector_embedding_model']) : '';
     $vector_store_top_k = isset($post_data['vector_store_top_k']) ? absint($post_data['vector_store_top_k']) : 3;
+    $vector_store_confidence_threshold = isset($post_data['vector_store_confidence_threshold']) ? absint($post_data['vector_store_confidence_threshold']) : 20;
 
     // --- Get Web Search config fields from POST ---
     $openai_web_search_enabled = isset($post_data['openai_web_search_enabled']) && $post_data['openai_web_search_enabled'] === '1' ? '1' : '0';
@@ -133,6 +134,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'vector_embedding_provider' => $vector_embedding_provider,
         'vector_embedding_model' => $vector_embedding_model,
         'vector_store_top_k' => $vector_store_top_k,
+        'vector_store_confidence_threshold' => $vector_store_confidence_threshold,
         // Web Search settings
         'openai_web_search_enabled' => $openai_web_search_enabled,
         'google_search_grounding_enabled' => $google_search_grounding_enabled,

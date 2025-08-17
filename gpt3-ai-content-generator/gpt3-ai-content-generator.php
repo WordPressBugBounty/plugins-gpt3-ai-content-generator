@@ -9,9 +9,9 @@
  * @package           Wp_Ai_Content_Generator
  *
  * @wordpress-plugin
- * Plugin Name:       AIP: Complete AI Toolkit (formerly AI Power)
+ * Plugin Name:       AIP: Complete AI Toolkit for WordPress (formerly AI Power)
  * Description:       AI, Chatbot, ChatGPT, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more.
- * Version:           2.3.35
+ * Version:           2.3.36
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -22,7 +22,7 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.3.35' );
+define( 'WPAICG_VERSION', '2.3.36' );
 define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );

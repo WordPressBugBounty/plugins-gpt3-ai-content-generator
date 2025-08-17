@@ -75,6 +75,12 @@ $vector_store_top_k = isset($bot_settings['vector_store_top_k'])
                       : BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K;
 $vector_store_top_k = max(1, min($vector_store_top_k, 20));
 
+// --- NEW: Get Confidence Threshold ---
+$vector_store_confidence_threshold = $bot_settings['vector_store_confidence_threshold']
+                                     ?? BotSettingsManager::DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD;
+$vector_store_confidence_threshold = max(0, min(absint($vector_store_confidence_threshold), 100));
+// --- END NEW ---
+
 
 // Fetch available OpenAI vector stores
 $openai_vector_stores = [];
@@ -99,9 +105,11 @@ if (class_exists(AIPKit_Providers::class)) {
 // Fetch available Embedding Models (for Pinecone/Qdrant)
 $openai_embedding_models = [];
 $google_embedding_models = [];
+$azure_embedding_models = [];
 if (class_exists(AIPKit_Providers::class)) {
     $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
     $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+    $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
 }
 
 ?>
@@ -219,7 +227,7 @@ if (class_exists(AIPKit_Providers::class)) {
                         class="aipkit_form-label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_vector_store_ids"
                     >
-                        <?php esc_html_e('Vector Stores (multi-select)', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Vector Stores (max 2)', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <select
                         id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_vector_store_ids"
@@ -326,32 +334,9 @@ if (class_exists(AIPKit_Providers::class)) {
                     </select>
                 </div>
 
-                <!-- Top K Setting (always visible when vector store is enabled) -->
-                <div
-                    class="aipkit_form-group aipkit_form-col aipkit_vector_store_top_k_field"
-                    style="flex: 0 1 150px;"
-                >
-                    <label
-                        class="aipkit_form-label"
-                        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k"
-                    >
-                        <?php esc_html_e('Limit', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <input
-                        type="number"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k"
-                        name="vector_store_top_k"
-                        class="aipkit_form-input"
-                        value="<?php echo esc_attr($vector_store_top_k); ?>"
-                        min="1"
-                        max="20"
-                        step="1"
-                    />
-                </div>
-
             </div>
 
-             <!-- Embedding Provider & Model for Pinecone/Qdrant (Conditional) -->
+             <!-- Embedding Provider & Model for Pinecone/Qdrant (Conditional) - Row 2 -->
             <div
                 class="aipkit_vector_store_embedding_config_row"
                 style="display: <?php echo ($enable_vector_store === '1' && ($vector_store_provider === 'pinecone' || $vector_store_provider === 'qdrant')) ? 'block' : 'none'; ?>; margin-top: 10px;"
@@ -368,6 +353,7 @@ if (class_exists(AIPKit_Providers::class)) {
                         >
                             <option value="openai" <?php selected($vector_embedding_provider, 'openai'); ?>>OpenAI</option>
                             <option value="google" <?php selected($vector_embedding_provider, 'google'); ?>>Google</option>
+                            <option value="azure" <?php selected($vector_embedding_provider, 'azure'); ?>>Azure</option>
                         </select>
                     </div>
                     <div class="aipkit_form-group aipkit_form-col" style="flex: 1 1 auto;">
@@ -384,6 +370,7 @@ if (class_exists(AIPKit_Providers::class)) {
                             $current_embedding_list = [];
                             if ($vector_embedding_provider === 'openai') $current_embedding_list = $openai_embedding_models;
                             elseif ($vector_embedding_provider === 'google') $current_embedding_list = $google_embedding_models;
+                            elseif ($vector_embedding_provider === 'azure') $current_embedding_list = $azure_embedding_models;
 
                             if (!empty($current_embedding_list)) {
                                 foreach ($current_embedding_list as $model) {
@@ -400,6 +387,83 @@ if (class_exists(AIPKit_Providers::class)) {
                             }
                             ?>
                         </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dedicated row for Limit and Score Threshold sliders - Row 3 -->
+            <div class="aipkit_form-row" style="margin-top: 10px; gap: 10px;">
+                <!-- Top K Setting (always visible when vector store is enabled) -->
+                <div
+                    class="aipkit_form-group aipkit_form-col aipkit_vector_store_top_k_field"
+                    style="flex: 1;"
+                >
+                    <label
+                        class="aipkit_form-label"
+                        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k"
+                    >
+                        <?php esc_html_e('Limit', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <div class="aipkit_slider_wrapper">
+                        <input
+                            type="range"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k"
+                            name="vector_store_top_k"
+                            class="aipkit_form-input aipkit_range_slider"
+                            min="1"
+                            max="20"
+                            step="1"
+                            value="<?php echo esc_attr($vector_store_top_k); ?>"
+                        />
+                        <span
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_value"
+                            class="aipkit_slider_value"
+                        >
+                            <?php echo esc_html($vector_store_top_k); ?>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Confidence Threshold Setting (always visible when vector store is enabled) -->
+                <div
+                    class="aipkit_form-group aipkit_form-col aipkit_vector_store_confidence_field"
+                    style="flex: 1;"
+                >
+                    <label
+                        class="aipkit_form-label"
+                        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold"
+                    >
+                        <?php esc_html_e('Score Threshold', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <div class="aipkit_slider_wrapper">
+                        <input
+                            type="range"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold"
+                            name="vector_store_confidence_threshold"
+                            class="aipkit_form-input aipkit_range_slider"
+                            min="0" max="100" step="1"
+                            value="<?php echo esc_attr($vector_store_confidence_threshold); ?>"
+                        />
+                        <span
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_value"
+                            class="aipkit_slider_value"
+                        >
+                            <?php echo esc_html($vector_store_confidence_threshold); ?>%
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help text for Limit and Score Threshold -->
+            <div class="aipkit_form-row" style="margin-top: 5px; gap: 10px;">
+                <div class="aipkit_form-group" style="flex: 1;">
+                    <div class="aipkit_form-help">
+                        <?php esc_html_e('Number of results to retrieve from vector store.', 'gpt3-ai-content-generator'); ?>
+                    </div>
+                </div>
+                <div class="aipkit_form-group" style="flex: 1;">
+                    <div class="aipkit_form-help">
+                        <?php esc_html_e('Only use results with a similarity score above this.', 'gpt3-ai-content-generator'); ?>
                     </div>
                 </div>
             </div>

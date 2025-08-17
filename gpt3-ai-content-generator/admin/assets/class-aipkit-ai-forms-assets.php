@@ -91,8 +91,6 @@ class AIPKit_AI_Forms_Assets
         }
         if (!$this->is_admin_main_js_enqueued && !wp_script_is($admin_main_js_handle, 'enqueued')) {
             wp_enqueue_script($admin_main_js_handle);
-            // Set translations if this class is the first to enqueue admin-main
-            // This might be redundant if DashboardAssets already does it, but safe.
             wp_set_script_translations($admin_main_js_handle, 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
             $this->is_admin_main_js_enqueued = true;
         }
@@ -135,9 +133,11 @@ class AIPKit_AI_Forms_Assets
         }
         $openai_embedding_models = [];
         $google_embedding_models = [];
+        $azure_embedding_models = [];
         if (class_exists(AIPKit_Providers::class)) {
             $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
             $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+            $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
         }
         // --- END NEW ---
 
@@ -152,7 +152,8 @@ class AIPKit_AI_Forms_Assets
             ],
             'embeddingModels' => [
                 'openai' => $openai_embedding_models,
-                'google' => $google_embedding_models
+                'google' => $google_embedding_models,
+                'azure' => $azure_embedding_models,
             ],
             // --- END NEW ---
             'text' => [

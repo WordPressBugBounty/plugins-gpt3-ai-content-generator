@@ -16,13 +16,10 @@ if (!defined('ABSPATH')) {
  * @param array $bot_settings Bot settings.
  * @param string|null $frontend_active_openai_vs_id Active OpenAI Vector Store ID from frontend.
  */
-function apply_openai_vector_tool_config_logic(
-    array &$final_ai_params,
-    array $bot_settings,
-    ?string $frontend_active_openai_vs_id
-): void {
-    $vector_store_ids_to_use_for_tool = $bot_settings['openai_vector_store_ids'] ?? [];
-    if ($frontend_active_openai_vs_id && !in_array($frontend_active_openai_vs_id, $vector_store_ids_to_use_for_tool, true)) {
+function apply_openai_vector_tool_config_logic($final_ai_params, $bot_settings, $vector_store_ids_to_use_for_tool, $ai_service)
+{
+
+    if (empty($vector_store_ids_to_use_for_tool)) {
         $vector_store_ids_to_use_for_tool[] = $frontend_active_openai_vs_id;
     }
     $vector_store_ids_to_use_for_tool = array_unique(array_filter($vector_store_ids_to_use_for_tool));
@@ -32,10 +29,19 @@ function apply_openai_vector_tool_config_logic(
     if (($bot_settings['enable_vector_store'] ?? '0') === '1' &&
         ($bot_settings['vector_store_provider'] ?? '') === 'openai' &&
         !empty($vector_store_ids_to_use_for_tool)) {
+
+        // Convert confidence threshold percentage (0-100) to OpenAI score threshold (0.0-1.0)
+        // OpenAI expects ranking_options.score_threshold in the file_search tool for server-side filtering
+        $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
+        $openai_score_threshold = $confidence_threshold_percent / 100.0; // Convert to 0.0-1.0 scale
+
         $final_ai_params['vector_store_tool_config'] = [
             'type'             => 'file_search',
             'vector_store_ids' => $vector_store_ids_to_use_for_tool,
-            'max_num_results'  => $vector_top_k_openai
+            'max_num_results'  => $vector_top_k_openai,
+            'ranking_options'  => [
+                'score_threshold' => $openai_score_threshold
+            ]
         ];
     }
 }

@@ -76,10 +76,18 @@ function prepare_final_ai_params_logic(
             $frontend_previous_openai_response_id,
             $last_openai_response_id_from_history
         );
+        
+        // Get vector store IDs from bot settings
+        $vector_store_ids_to_use_for_tool = $bot_settings['openai_vector_store_ids'] ?? [];
+        if ($frontend_active_openai_vs_id && !in_array($frontend_active_openai_vs_id, $vector_store_ids_to_use_for_tool, true)) {
+            $vector_store_ids_to_use_for_tool[] = $frontend_active_openai_vs_id;
+        }
+        
         AiParams\apply_openai_vector_tool_config_logic(
             $final_ai_params,
             $bot_settings,
-            $frontend_active_openai_vs_id
+            $vector_store_ids_to_use_for_tool,
+            null // ai_service not needed for this function
         );
         AiParams\apply_openai_web_search_logic(
             $final_ai_params,

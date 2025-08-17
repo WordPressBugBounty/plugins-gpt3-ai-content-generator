@@ -379,11 +379,20 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         // --- NEW: Handle general settings separately ---
+        $general_settings = get_option('aipkit_training_general_settings', []);
+        $general_dirty = false;
         if (isset($settings['hide_user_uploads'])) {
-            $general_settings = get_option('aipkit_training_general_settings', []);
             $general_settings['hide_user_uploads'] = (bool) $settings['hide_user_uploads'];
+            unset($settings['hide_user_uploads']);
+            $general_dirty = true;
+        }
+        if (isset($settings['show_index_button'])) {
+            $general_settings['show_index_button'] = (bool) $settings['show_index_button'];
+            unset($settings['show_index_button']);
+            $general_dirty = true;
+        }
+        if ($general_dirty) {
             update_option('aipkit_training_general_settings', $general_settings);
-            unset($settings['hide_user_uploads']); // Remove from array before CPT processing
         }
         // --- END NEW ---
 

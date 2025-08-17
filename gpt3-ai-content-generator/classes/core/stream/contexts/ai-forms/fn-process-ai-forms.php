@@ -95,6 +95,7 @@ function process_ai_forms_logic(
     $ai_caller = $handlerInstance->get_ai_caller();
     $vector_store_manager = $handlerInstance->get_vector_store_manager();
     $system_instruction = $form_config['system_instruction'] ?? ''; // Currently no UI for this, but support it.
+    $vector_search_scores = []; // Initialize array to capture vector search scores
 
     if ($ai_caller && $vector_store_manager && ($form_config['enable_vector_store'] ?? '0') === '1') {
         $vector_search_context = \WPAICG\Core\Stream\Vector\build_vector_search_context_logic(
@@ -107,7 +108,8 @@ function process_ai_forms_logic(
             null,
             null,
             null,
-            null
+            null,
+            $vector_search_scores // Pass reference to capture scores
         );
 
         if (!empty($vector_search_context)) {
@@ -122,5 +124,5 @@ function process_ai_forms_logic(
 
 
     // 4. Log the request and prepare the final data for the SSE processor
-    return Process\prepare_stream_data_logic($handlerInstance, $validated_params, $form_config, $final_prompt, $system_instruction);
+    return Process\prepare_stream_data_logic($handlerInstance, $validated_params, $form_config, $final_prompt, $system_instruction, $vector_search_scores);
 }

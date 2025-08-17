@@ -163,6 +163,11 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
 
         $response_formatter->send_sse_event('message_start', ['message_id' => $processed_data['bot_message_id']]);
 
+        // Set vector search scores in the stream processor for logging
+        if (isset($processed_data['vector_search_scores']) && is_array($processed_data['vector_search_scores'])) {
+            $stream_processor->set_vector_search_scores($processed_data['vector_search_scores']);
+        }
+
         $stream_processor->start_stream(
             $processed_data['provider'], $processed_data['model'],
             $processed_data['user_message'], $processed_data['history'],

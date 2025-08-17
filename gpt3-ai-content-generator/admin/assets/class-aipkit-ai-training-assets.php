@@ -116,15 +116,18 @@ class AITrainingAssets
             }
             $openai_embedding_models = [];
             $google_embedding_models = [];
+            $azure_embedding_models = [];
             if (class_exists(AIPKit_Providers::class)) {
                 $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
                 $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+                $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
             }
             wp_localize_script($admin_main_js_handle, 'aipkit_openai_vs_config', [
                 'initialStores' => $initial_openai_stores,
                 'apiKeyIsSet' => !empty(AIPKit_Providers::get_provider_data('OpenAI')['api_key']),
                 'openaiEmbeddingModels' => $openai_embedding_models,
                 'googleEmbeddingModels' => $google_embedding_models,
+                'azureEmbeddingModels' => $azure_embedding_models,
             ]);
         }
 

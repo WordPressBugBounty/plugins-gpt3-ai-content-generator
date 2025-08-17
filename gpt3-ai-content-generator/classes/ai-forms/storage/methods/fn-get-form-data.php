@@ -105,9 +105,14 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $data['pinecone_index_name'] = get_post_meta($form_id, '_aipkit_ai_form_pinecone_index_name', true) ?: '';
     $data['qdrant_collection_name'] = get_post_meta($form_id, '_aipkit_ai_form_qdrant_collection_name', true) ?: '';
 
-    $data['vector_embedding_provider'] = get_post_meta($form_id, '_aipkit_ai_form_vector_embedding_provider', true) ?: 'openai';
+    $vector_embedding_provider = get_post_meta($form_id, '_aipkit_ai_form_vector_embedding_provider', true) ?: 'openai';
+    if (!in_array($vector_embedding_provider, ['openai', 'google', 'azure'])) {
+        $vector_embedding_provider = 'openai';
+    }
+    $data['vector_embedding_provider'] = $vector_embedding_provider;
     $data['vector_embedding_model'] = get_post_meta($form_id, '_aipkit_ai_form_vector_embedding_model', true) ?: '';
     $data['vector_store_top_k'] = get_post_meta($form_id, '_aipkit_ai_form_vector_store_top_k', true) ?: 3;
+    $data['vector_store_confidence_threshold'] = get_post_meta($form_id, '_aipkit_ai_form_vector_store_confidence_threshold', true) ?: 20;
     // --- END ---
 
     // --- NEW: Get Web Search & Grounding Settings ---

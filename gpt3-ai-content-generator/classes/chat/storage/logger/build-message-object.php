@@ -110,6 +110,10 @@ function build_message_object_logic(array $log_data, string $message_id, int $cu
     if (isset($log_data['grounding_metadata']) && is_array($log_data['grounding_metadata'])) {
         $new_message['grounding_metadata'] = $log_data['grounding_metadata'];
     }
+    // Store Vector Search Scores
+    if (isset($log_data['vector_search_scores']) && is_array($log_data['vector_search_scores']) && !empty($log_data['vector_search_scores'])) {
+        $new_message['vector_search_scores'] = $log_data['vector_search_scores'];
+    }
 
     return $new_message;
 }

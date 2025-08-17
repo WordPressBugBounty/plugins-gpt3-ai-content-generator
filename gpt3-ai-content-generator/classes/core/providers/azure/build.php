@@ -26,22 +26,17 @@ function build_logic_for_url_builder(string $operation, array $params): string|W
     $api_version = '';
     if ($operation === 'deployments' || $operation === 'models') {
         $api_version = $params['azure_authoring_version'] ?? '2023-03-15-preview';
-    } elseif ($operation === 'embeddings') {
-        // For Azure embeddings, the API version might be specific to the embedding model deployment.
-        // A common version is '2023-05-15', but this can vary.
-        // It's often included directly in the endpoint URL when configured in Azure AI Studio.
-        // For now, we'll use the inference version, but this might need adjustment based on Azure's best practices.
-        $api_version = $params['azure_inference_version'] ?? '2024-02-01'; // Using a common inference version.
     } else {
-        $api_version = $params['azure_inference_version'] ?? '2024-02-01'; // Default to inference for chat/stream
+        $api_version = $params['azure_inference_version'] ?? '2024-02-01'; // Default to inference for chat/stream/embeddings
     }
+
     if (empty($api_version)) return new WP_Error('missing_azure_api_version_logic', __('Azure API Version is required.', 'gpt3-ai-content-generator'));
 
     $paths = [
         'chat'        => '/chat/completions',
         'deployments' => '/openai/deployments',
         'models'      => '/openai/models',
-        'embeddings'  => '/embeddings', // Azure embeddings endpoint
+        'embeddings'  => '/embeddings',
     ];
     $path_key = ($operation === 'stream') ? 'chat' : $operation;
     $path_segment = $paths[$path_key] ?? null;

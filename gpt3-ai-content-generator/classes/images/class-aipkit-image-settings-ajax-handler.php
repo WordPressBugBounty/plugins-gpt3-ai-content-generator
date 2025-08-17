@@ -171,15 +171,58 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
 
         $frontend_defaults = $defaults['frontend_display'];
         $new_frontend_settings = $new_settings['frontend_display'] ?? $frontend_defaults;
-        if (isset($post_data['frontend_providers'])) {
-            $providers_raw = sanitize_textarea_field(wp_unslash($post_data['frontend_providers']));
-            $providers_arr = array_map('trim', explode(',', $providers_raw));
-            $new_frontend_settings['allowed_providers'] = implode(', ', array_filter($providers_arr));
-        }
+        // Providers now inferred from selected models. If no models selected = allow all (store empty string for both fields)
         if (isset($post_data['frontend_models'])) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[AIPKIT] Saving image settings: frontend_models raw=' . (is_string($post_data['frontend_models']) ? $post_data['frontend_models'] : 'N/A'));
+            }
             $models_raw = sanitize_textarea_field(wp_unslash($post_data['frontend_models']));
-            $models_arr = array_map('trim', explode(',', $models_raw));
-            $new_frontend_settings['allowed_models'] = implode(', ', array_filter($models_arr));
+            $models_arr = array_filter(array_map('trim', explode(',', $models_raw)));
+            if (empty($models_arr)) {
+                // All providers & models allowed
+                $new_frontend_settings['allowed_models'] = '';
+                $new_frontend_settings['allowed_providers'] = '';
+            } else {
+                // Build lookup tables from known provider model lists for accurate detection.
+                $openai_ids = ['gpt-image-1','dall-e-3','dall-e-2'];
+                $google_ids = [
+                    'gemini-2.0-flash-preview-image-generation','imagen-3.0-generate-002','imagen-4.0-generate-preview-06-06','imagen-4.0-ultra-generate-preview-06-06','veo-3.0-generate-preview'
+                ];
+                $azure_ids = [];
+                if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+                    $azure_models_list = \WPAICG\AIPKit_Providers::get_azure_image_models();
+                    if (is_array($azure_models_list)) {
+                        foreach ($azure_models_list as $mdl) {
+                            if (is_array($mdl) && isset($mdl['id'])) { $azure_ids[] = strtolower($mdl['id']); }
+                            elseif (is_string($mdl)) { $azure_ids[] = strtolower($mdl); }
+                        }
+                    }
+                    $replicate_models_list = \WPAICG\AIPKit_Providers::get_replicate_models();
+                } else {
+                    $replicate_models_list = [];
+                }
+                $replicate_ids = [];
+                if (is_array($replicate_models_list)) {
+                    foreach ($replicate_models_list as $mdl) {
+                        if (is_array($mdl) && isset($mdl['id'])) { $replicate_ids[] = strtolower($mdl['id']); }
+                        elseif (is_string($mdl)) { $replicate_ids[] = strtolower($mdl); }
+                    }
+                }
+                $openai_lu = array_flip(array_map('strtolower',$openai_ids));
+                $google_lu = array_flip(array_map('strtolower',$google_ids));
+                $azure_lu = array_flip($azure_ids);
+                $replicate_lu = array_flip($replicate_ids);
+                $providers_detected = [];
+                foreach ($models_arr as $m) {
+                    $ml = strtolower($m);
+                    if (isset($openai_lu[$ml])) { $providers_detected['OpenAI'] = true; continue; }
+                    if (isset($google_lu[$ml])) { $providers_detected['Google'] = true; continue; }
+                    if (isset($azure_lu[$ml])) { $providers_detected['Azure'] = true; continue; }
+                    if (isset($replicate_lu[$ml])) { $providers_detected['Replicate'] = true; continue; }
+                }
+                $new_frontend_settings['allowed_models'] = implode(', ', $models_arr);
+                $new_frontend_settings['allowed_providers'] = implode(', ', array_keys($providers_detected));
+            }
         }
         $new_settings['frontend_display'] = $new_frontend_settings;
 
@@ -190,12 +233,20 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
         $new_replicate_settings['disable_safety_checker'] = isset($post_data['replicate_disable_safety_checker']) && ($post_data['replicate_disable_safety_checker'] === '1');
         $new_settings['replicate'] = $new_replicate_settings;
 
-        if (wp_json_encode($current_settings) !== wp_json_encode($new_settings)) {
+        $current_json = wp_json_encode($current_settings);
+        $new_json     = wp_json_encode($new_settings);
+        if ($current_json !== $new_json) {
             $updated = update_option(self::SETTINGS_OPTION_NAME, $new_settings, 'no');
             if ($updated) {
                 wp_send_json_success(['message' => __('Image Generator settings saved.', 'gpt3-ai-content-generator')]);
             } else {
-                $this->send_wp_error(new WP_Error('save_failed', __('Failed to save settings.', 'gpt3-ai-content-generator'), ['status' => 500]));
+                // Re-fetch and compare again; if value already matches desired state, treat as success
+                $after = get_option(self::SETTINGS_OPTION_NAME, []);
+                if (wp_json_encode($after) === $new_json) {
+                    wp_send_json_success(['message' => __('Image Generator settings saved.', 'gpt3-ai-content-generator')]);
+                } else {
+                    $this->send_wp_error(new WP_Error('save_failed', __('Failed to save settings.', 'gpt3-ai-content-generator'), ['status' => 500]));
+                }
             }
         } else {
             wp_send_json_success(['message' => __('No changes detected.', 'gpt3-ai-content-generator')]);

@@ -75,6 +75,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['temperature'] = isset($raw_settings['temperature']) ? floatval($raw_settings['temperature']) : BotSettingsManager::DEFAULT_TEMPERATURE;
     $sanitized['max_completion_tokens'] = isset($raw_settings['max_completion_tokens']) ? absint($raw_settings['max_completion_tokens']) : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
     $sanitized['max_messages'] = isset($raw_settings['max_messages']) ? absint($raw_settings['max_messages']) : BotSettingsManager::DEFAULT_MAX_MESSAGES;
+    $sanitized['reasoning_effort'] = isset($raw_settings['reasoning_effort']) && in_array($raw_settings['reasoning_effort'], ['minimal', 'low', 'medium', 'high']) ? sanitize_key($raw_settings['reasoning_effort']) : BotSettingsManager::DEFAULT_REASONING_EFFORT;
     $sanitized['enable_conversation_starters'] = isset($raw_settings['enable_conversation_starters']) ? '1' : '0';
     $starters_raw = isset($raw_settings['conversation_starters']) ? $raw_settings['conversation_starters'] : ''; // Textarea value
     $starters_array = [];
@@ -114,9 +115,6 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['token_reset_period'] = isset($raw_settings['token_reset_period']) && in_array($raw_settings['token_reset_period'], ['never', 'daily', 'weekly', 'monthly']) ? sanitize_key($raw_settings['token_reset_period']) : BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
     $sanitized['token_limit_message'] = isset($raw_settings['token_limit_message']) ? sanitize_text_field($raw_settings['token_limit_message']) : '';
     $sanitized['model'] = isset($raw_settings['model']) ? sanitize_text_field($raw_settings['model']) : '';
-    // --- NEW: Sanitize reasoning_effort ---
-    $sanitized['reasoning_effort'] = isset($raw_settings['reasoning_effort']) && in_array($raw_settings['reasoning_effort'], ['minimal', 'low', 'medium', 'high']) ? sanitize_key($raw_settings['reasoning_effort']) : BotSettingsManager::DEFAULT_REASONING_EFFORT;
-    // --- END NEW ---
     $sanitized['tts_enabled'] = isset($raw_settings['tts_enabled']) ? '1' : '0';
     $sanitized['tts_provider'] = isset($raw_settings['tts_provider']) ? sanitize_text_field($raw_settings['tts_provider']) : BotSettingsManager::DEFAULT_TTS_PROVIDER;
     if (!in_array($sanitized['tts_provider'], ['Google', 'OpenAI', 'ElevenLabs'])) {
@@ -159,6 +157,10 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['vector_embedding_model'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_model'])) ? sanitize_text_field($raw_settings['vector_embedding_model']) : '';
     $raw_top_k = isset($raw_settings['vector_store_top_k']) ? absint($raw_settings['vector_store_top_k']) : BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K;
     $sanitized['vector_store_top_k'] = max(1, min($raw_top_k, 20));
+    // NEW: Sanitize confidence threshold
+    $raw_threshold = isset($raw_settings['vector_store_confidence_threshold']) ? absint($raw_settings['vector_store_confidence_threshold']) : BotSettingsManager::DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD;
+    $sanitized['vector_store_confidence_threshold'] = max(0, min($raw_threshold, 100));
+    // END NEW
     $sanitized['openai_web_search_enabled'] = isset($raw_settings['openai_web_search_enabled']) ? '1' : '0';
     $sanitized['openai_web_search_context_size'] = isset($raw_settings['openai_web_search_context_size']) && in_array($raw_settings['openai_web_search_context_size'], ['low', 'medium', 'high']) ? $raw_settings['openai_web_search_context_size'] : BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_CONTEXT_SIZE;
     $sanitized['openai_web_search_loc_type'] = isset($raw_settings['openai_web_search_loc_type']) && in_array($raw_settings['openai_web_search_loc_type'], ['none', 'approximate']) ? $raw_settings['openai_web_search_loc_type'] : BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_LOC_TYPE;
@@ -183,8 +185,8 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['output_audio_format'] = isset($raw_settings['output_audio_format']) && in_array($raw_settings['output_audio_format'], $valid_audio_formats) ? $raw_settings['output_audio_format'] : 'pcm16';
     $sanitized['input_audio_noise_reduction'] = isset($raw_settings['input_audio_noise_reduction']) ? '1' : '0';
     // --- END Sanitize Realtime Voice Agent settings ---
-
-    // --- Sanitize Embed Allowed Domains ---
+    
+    // --- ADDED: Sanitize embed allowed domains ---
     $raw_domains = isset($raw_settings['embed_allowed_domains']) ? trim($raw_settings['embed_allowed_domains']) : '';
     $domains_array = preg_split('/[\s,]+/', $raw_domains, -1, PREG_SPLIT_NO_EMPTY);
     $sanitized_domains = [];
@@ -195,7 +197,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         }
     }
     $sanitized['embed_allowed_domains'] = implode("\n", array_unique($sanitized_domains));
-    // --- END Sanitize Embed Allowed Domains ---
+    // --- END ADDED ---
 
     // Sanitize Custom Theme Settings
     $custom_theme_settings_raw = $raw_settings['custom_theme_settings'] ?? [];

@@ -1,6 +1,6 @@
 <?php
 
-// File: classes/core/stream/vector/build-context/resolve-pinecone-context.php
+// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/vector/build-context/resolve-pinecone-context.php
 // Status: MODIFIED
 
 namespace WPAICG\Core\Stream\Vector\BuildContext;
@@ -15,17 +15,18 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Resolves context from Pinecone vector store.
+ * Resolves Pinecone vector search context.
  *
- * @param \WPAICG\Core\AIPKit_AI_Caller $ai_caller
- * @param \WPAICG\Vector\AIPKit_Vector_Store_Manager $vector_store_manager
- * @param string $user_message
- * @param array $bot_settings
- * @param string|null $frontend_active_pinecone_index_name
- * @param string|null $frontend_active_pinecone_namespace
- * @param int $vector_top_k
- * @param \wpdb $wpdb
- * @param string $data_source_table_name
+ * @param AIPKit_AI_Caller $ai_caller Instance of AI Caller.
+ * @param AIPKit_Vector_Store_Manager $vector_store_manager Instance of Vector Store Manager.
+ * @param string $user_message The user's current message.
+ * @param array $bot_settings The settings of the current bot.
+ * @param string|null $frontend_active_pinecone_index_name Optional active Pinecone index name from frontend.
+ * @param string|null $frontend_active_pinecone_namespace Optional active Pinecone namespace from frontend.
+ * @param int $vector_top_k Number of results to fetch.
+ * @param \wpdb $wpdb WordPress database instance.
+ * @param string $data_source_table_name Vector data source table name.
+ * @param array|null &$vector_search_scores_output Optional reference to capture scores for logging.
  * @return string Formatted Pinecone context results.
  */
 function resolve_pinecone_context_logic(
@@ -37,12 +38,15 @@ function resolve_pinecone_context_logic(
     ?string $frontend_active_pinecone_namespace,
     int $vector_top_k,
     \wpdb $wpdb,
-    string $data_source_table_name
+    string $data_source_table_name,
+    ?array &$vector_search_scores_output = null
 ): string {
     $pinecone_results = "";
     $pinecone_index_name_from_settings = $bot_settings['pinecone_index_name'] ?? '';
     $vector_embedding_provider = $bot_settings['vector_embedding_provider'] ?? '';
     $vector_embedding_model = $bot_settings['vector_embedding_model'] ?? '';
+    $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
+    $pinecone_score_threshold = $confidence_threshold_percent / 100.0; // Normalize 0-100 to 0-1 scale
 
     if (empty($pinecone_index_name_from_settings) || empty($vector_embedding_provider) || empty($vector_embedding_model)) {
         return "";
@@ -79,6 +83,11 @@ function resolve_pinecone_context_logic(
         if (!is_wp_error($file_search_results) && !empty($file_search_results)) {
             $formatted_file_results = "";
             foreach ($file_search_results as $item) {
+                // NEW: Confidence Threshold Check
+                if (isset($item['score']) && (float)$item['score'] < $pinecone_score_threshold) {
+                    continue;
+                }
+                // END NEW
                 $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
                 if (empty($content_snippet) && isset($item['id'])) {
                     $cache_key = 'aipkit_vds_content_' . md5('pinecone_file_' . $index_to_query . $frontend_active_pinecone_namespace . $item['id']);
@@ -97,6 +106,18 @@ function resolve_pinecone_context_logic(
                 }
                 if (!empty($content_snippet)) {
                     $formatted_file_results .= "- " . trim($content_snippet) . "\n";
+                    
+                    // Capture score data if reference provided
+                    if ($vector_search_scores_output !== null && isset($item['score'])) {
+                        $vector_search_scores_output[] = [
+                            'provider' => 'Pinecone',
+                            'index_name' => $index_to_query,
+                            'namespace' => $frontend_active_pinecone_namespace,
+                            'result_id' => $item['id'] ?? null,
+                            'score' => $item['score'],
+                            'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                        ];
+                    }
                 }
             }
             if (!empty($formatted_file_results)) {
@@ -111,6 +132,11 @@ function resolve_pinecone_context_logic(
     if (!is_wp_error($general_search_results) && !empty($general_search_results)) {
         $formatted_general_results = "";
         foreach ($general_search_results as $item) {
+            // NEW: Confidence Threshold Check
+            if (isset($item['score']) && (float)$item['score'] < $pinecone_score_threshold) {
+                continue;
+            }
+            // END NEW
             // Skip if this result was already part of the file-specific context (if a namespace was used)
             if (!empty($frontend_active_pinecone_namespace) && ($item['metadata']['namespace'] ?? null) === $frontend_active_pinecone_namespace) {
                 continue;
@@ -133,6 +159,18 @@ function resolve_pinecone_context_logic(
             }
             if (!empty($content_snippet)) {
                 $formatted_general_results .= "- " . trim($content_snippet) . "\n";
+                
+                // Capture score data if reference provided
+                if ($vector_search_scores_output !== null && isset($item['score'])) {
+                    $vector_search_scores_output[] = [
+                        'provider' => 'Pinecone',
+                        'index_name' => $index_to_query,
+                        'namespace' => null, // General context has no specific namespace
+                        'result_id' => $item['id'] ?? null,
+                        'score' => $item['score'],
+                        'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                    ];
+                }
             }
         }
         if (!empty($formatted_general_results)) {

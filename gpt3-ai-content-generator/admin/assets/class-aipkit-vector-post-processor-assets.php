@@ -6,6 +6,7 @@
 namespace WPAICG\Admin\Assets;
 
 use WPAICG\AIPKit_Role_Manager;
+use WPAICG\Utils\AIPKit_Admin_Header_Action_Buttons;
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\AIPKit_Providers;
 
@@ -32,29 +33,33 @@ class AIPKit_Vector_Post_Processor_Assets
     public function register_hooks()
     {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
+        // Register the Index button only if module access AND user setting enabled
+        add_action('admin_init', function(){
+            if (!AIPKit_Role_Manager::user_can_access_module(self::MODULE_SLUG)) {
+                return;
+            }
+            $general = get_option('aipkit_training_general_settings', []);
+            $show = $general['show_index_button'] ?? true; // default enabled
+            if ($show) {
+                AIPKit_Admin_Header_Action_Buttons::register_button(
+                    'aipkit_add_to_vector_store_btn',
+                    __('Index', 'gpt3-ai-content-generator'),
+                    [ 'capability' => 'edit_posts' ]
+                );
+            }
+        });
     }
 
     /**
      * NEW: Adds the "Index" button to the post list screens via a PHP action.
      */
-    public function add_vpp_button()
-    {
-        $screen = get_current_screen();
-        if ($screen && $screen->base === 'edit') {
-            echo '<button type="button" id="aipkit_add_to_vector_store_btn" class="button button-secondary aipkit_vpp_button" style="margin-right: 5px;">' . esc_html__('Index', 'gpt3-ai-content-generator') . '</button>';
-        }
-    }
 
     public function enqueue_assets($hook_suffix)
     {
         $screen = get_current_screen();
         $is_post_list_screen = $screen && $screen->base === 'edit';
 
-        if ($is_post_list_screen && AIPKit_Role_Manager::user_can_access_module(self::MODULE_SLUG)) {
-            // --- NEW: Hook to add the button via PHP ---
-            add_action('restrict_manage_posts', [$this, 'add_vpp_button']);
-            // --- END NEW ---
-            
+    if ($is_post_list_screen && AIPKit_Role_Manager::user_can_access_module(self::MODULE_SLUG)) {
             $this->enqueue_styles();
             $this->enqueue_scripts($screen->post_type); // Pass post_type to enqueue_scripts
 
@@ -65,6 +70,8 @@ class AIPKit_Vector_Post_Processor_Assets
             $this->localize_vpp_data($screen->post_type); // Localize VPP specific data
         }
     }
+
+    // (REMOVED) Inline index button injector replaced by shared utility
 
     private function enqueue_styles()
     {
@@ -126,6 +133,7 @@ class AIPKit_Vector_Post_Processor_Assets
             $qdrant_collections = [];
             $openai_embedding_models = [];
             $google_embedding_models = [];
+            $azure_embedding_models = [];
 
             if (class_exists(AIPKit_Vector_Store_Registry::class)) {
                 $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
@@ -135,6 +143,7 @@ class AIPKit_Vector_Post_Processor_Assets
             if (class_exists(AIPKit_Providers::class)) {
                 $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
                 $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+                $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
             }
 
             wp_localize_script($admin_main_js_handle, 'aipkit_vpp_config', [
@@ -146,6 +155,7 @@ class AIPKit_Vector_Post_Processor_Assets
                 'qdrant_collections' => $qdrant_collections,
                 'openaiEmbeddingModels' => $openai_embedding_models,
                 'googleEmbeddingModels' => $google_embedding_models,
+                'azureEmbeddingModels' => $azure_embedding_models,
                 'text' => [
                     'modal_title' => __('Add Content to Vector Store', 'gpt3-ai-content-generator'),
                     'provider_label' => __('Provider', 'gpt3-ai-content-generator'),

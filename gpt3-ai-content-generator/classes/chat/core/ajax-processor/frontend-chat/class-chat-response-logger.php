@@ -86,6 +86,7 @@ class ChatResponseLogger
             $openai_response_id_for_log = $ai_result['openai_response_id'] ?? null;
             $used_previous_id_for_log = $ai_result['used_previous_response_id'] ?? false;
             $grounding_metadata_for_log = $ai_result['grounding_metadata'] ?? null;
+            $vector_search_scores_for_log = $ai_result['vector_search_scores'] ?? null;
 
             $tokens_consumed = $usage_data['total_tokens'] ?? 0;
             if ($tokens_consumed > 0) {
@@ -97,6 +98,7 @@ class ChatResponseLogger
                 'ai_provider'     => $provider, 'ai_model' => $bot_settings['model'] ?? '', 'usage' => $usage_data,
                 'request_payload' => $request_payload_log, 'openai_response_id' => $openai_response_id_for_log,
                 'used_previous_response_id' => $used_previous_id_for_log, 'grounding_metadata' => $grounding_metadata_for_log,
+                'vector_search_scores' => $vector_search_scores_for_log,
             ]);
             $bot_log_result = $this->log_storage->log_message($log_bot_data);
 

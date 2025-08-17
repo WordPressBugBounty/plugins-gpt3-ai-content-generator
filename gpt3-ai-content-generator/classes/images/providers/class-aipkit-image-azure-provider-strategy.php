@@ -116,8 +116,32 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
                 ];
             }
         }
+        // --- ADDED: Estimate token usage for Azure DALL-E ---
+        $estimated_usage = null;
+        if (!empty($images)) {
+            $num_images = count($images);
+            $prompt_words = str_word_count($prompt);
+            $estimated_input_tokens = max(1, (int)($prompt_words * 1.3));
+            $tokens_per_image = 2000; // DALL-E 3 estimate
+            $estimated_output_tokens = $num_images * $tokens_per_image;
+            $total_tokens = $estimated_input_tokens + $estimated_output_tokens;
+            
+            $estimated_usage = [
+                'input_tokens' => $estimated_input_tokens,
+                'output_tokens' => $estimated_output_tokens,
+                'total_tokens' => $total_tokens,
+                'provider_raw' => [
+                    'source' => 'estimated_azure_dalle3_cost',
+                    'model' => $options['model'] ?? 'dall-e-3',
+                    'images_generated' => $num_images,
+                    'tokens_per_image' => $tokens_per_image,
+                    'prompt_tokens_estimated' => $estimated_input_tokens,
+                ],
+            ];
+        }
 
-        return ['images' => $images, 'usage' => null]; // Azure DALL-E doesn't return token usage
+        return ['images' => $images, 'usage' => $estimated_usage];
+        // --- END ADDED ---
     }
 
     /**

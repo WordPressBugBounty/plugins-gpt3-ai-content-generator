@@ -8,6 +8,7 @@ namespace WPAICG\PostEnhancer;
 
 use WPAICG\aipkit_dashboard; // To check if addon is active
 use WPAICG\AIPKit_Role_Manager; // To check module access permissions
+use WPAICG\Utils\AIPKit_Admin_Header_Action_Buttons; // Shared header button injector
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -75,8 +76,8 @@ class Core
             foreach ($post_types as $post_type) {
                 add_filter("{$post_type}_row_actions", [$this, 'add_row_actions'], 10, 2);
             }
-            // Add the "Content Assistant" button to the post list screen
-            add_action('restrict_manage_posts', [$this, 'add_bulk_enhance_button']);
+            // Register Content Assistant button via shared utility
+            AIPKit_Admin_Header_Action_Buttons::register_button('aipkit_bulk_enhance_btn', 'Content Assistant');
 
             $aipkit_options = get_option('aipkit_options', []);
             $enhancer_editor_integration_enabled = $aipkit_options['enhancer_settings']['editor_integration'] ?? '1';
@@ -91,21 +92,7 @@ class Core
         }
     }
 
-    /**
-     * Adds the "Bulk Enhance" button to the post list screens.
-     */
-    public function add_bulk_enhance_button()
-    {
-        $screen = get_current_screen();
-        // --- MODIFICATION: Dynamically support all public post types by default ---
-        $public_post_types = get_post_types(['public' => true]);
-        unset($public_post_types['attachment']);
-        $supported_post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
-        // --- END MODIFICATION ---
-        if ($screen && in_array($screen->post_type, $supported_post_types, true)) {
-            echo '<button type="button" id="aipkit_bulk_enhance_btn" class="button">' . esc_html__('Content Assistant', 'gpt3-ai-content-generator') . '</button>';
-        }
-    }
+    // (REMOVED) Legacy filters-bar button hook & method eliminated; header button handled by shared utility.
 
 
     /**

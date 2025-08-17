@@ -69,6 +69,7 @@ $pinecone_indexes = [];
 $qdrant_collections = [];
 $openai_embedding_models = [];
 $google_embedding_models = [];
+$azure_embedding_models = [];
 
 if (class_exists(AIPKit_Vector_Store_Registry::class)) {
     $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
@@ -78,5 +79,6 @@ if (class_exists(AIPKit_Vector_Store_Registry::class)) {
 if (class_exists(AIPKit_Providers::class)) {
     $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
     $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+    $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
 }
 // --- End Load Vector Store Data ---

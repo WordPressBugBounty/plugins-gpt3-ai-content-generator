@@ -79,7 +79,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
             $validated_params['provider'],
             $validated_params['model'],
             [['role' => 'user', 'content' => $keyword_user_prompt]],
-            ['max_completion_tokens' => 4000, 'temperature' => 0.2],
+            ['max_completion_tokens' => 4000, 'temperature' => 1],
             'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.'
         );
         if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {

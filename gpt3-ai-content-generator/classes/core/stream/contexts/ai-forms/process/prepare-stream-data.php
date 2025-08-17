@@ -24,6 +24,7 @@ if (!defined('ABSPATH')) {
  * @param array $form_config The configuration of the form.
  * @param string $final_user_prompt The final constructed user prompt.
  * @param string $system_instruction The system instruction, potentially with vector context.
+ * @param array $vector_search_scores Array of captured vector search scores for logging.
  * @return array|WP_Error The structured data for the SSE processor, or a WP_Error on failure.
  */
 function prepare_stream_data_logic(
@@ -31,7 +32,8 @@ function prepare_stream_data_logic(
     array $validated_params,
     array $form_config,
     string $final_user_prompt,
-    string $system_instruction
+    string $system_instruction,
+    array $vector_search_scores = []
 ): array|WP_Error {
     $log_storage = $handlerInstance->get_log_storage();
     $user_id = $validated_params['user_id'];
@@ -105,10 +107,17 @@ function prepare_stream_data_logic(
         $vector_top_k = isset($form_config['vector_store_top_k']) ? absint($form_config['vector_store_top_k']) : 3;
         $vector_top_k = max(1, min($vector_top_k, 20));
 
+        // Get confidence threshold and convert to OpenAI score threshold
+        $confidence_threshold_percent = (int)($form_config['vector_store_confidence_threshold'] ?? 20);
+        $openai_score_threshold = $confidence_threshold_percent / 100.0;
+
         $ai_params_for_payload['vector_store_tool_config'] = [
             'type'             => 'file_search',
             'vector_store_ids' => $form_config['openai_vector_store_ids'],
             'max_num_results'  => $vector_top_k,
+            'ranking_options'  => [
+                'score_threshold' => $openai_score_threshold
+            ]
         ];
     }
 
@@ -151,5 +160,6 @@ function prepare_stream_data_logic(
         'conversation_uuid'             => $validated_params['conversation_uuid'],
         'base_log_data'                 => $base_log_data,
         'bot_message_id'                => $bot_message_id,
+        'vector_search_scores'          => $vector_search_scores, // Include captured vector search scores
     ];
 }

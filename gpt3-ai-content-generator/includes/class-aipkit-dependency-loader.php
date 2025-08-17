@@ -71,6 +71,12 @@ class AIPKit_Dependency_Loader
             require_once $identifier_utils_path;
         }
         // --- END ADDED ---
+        // --- ADDED: Load shared Admin Header Action Buttons util ---
+        $header_buttons_util_path = WPAICG_PLUGIN_DIR . 'includes/utils/class-aipkit-admin-header-action-buttons.php';
+        if (file_exists($header_buttons_util_path)) {
+            require_once $header_buttons_util_path;
+        }
+        // --- END ADDED ---
         // --- ADDED: Load new CORS Manager class ---
         $cors_manager_path = WPAICG_PLUGIN_DIR . 'includes/utils/class-aipkit-cors-manager.php';
         if (file_exists($cors_manager_path)) {

@@ -116,18 +116,26 @@ function format_sse_logic_for_payload_formatter(
     }
 
     $tools = [];
-    if (isset($ai_params['vector_store_tool_config']) &&
+    
+    if (
+        isset($ai_params['vector_store_tool_config']) &&
         is_array($ai_params['vector_store_tool_config']) &&
         $ai_params['vector_store_tool_config']['type'] === 'file_search' &&
         isset($ai_params['vector_store_tool_config']['vector_store_ids']) &&
         is_array($ai_params['vector_store_tool_config']['vector_store_ids']) &&
         !empty($ai_params['vector_store_tool_config']['vector_store_ids'])
     ) {
-        $tools[] = [
+        $file_search_tool = [
             'type' => 'file_search',
             'vector_store_ids' => $ai_params['vector_store_tool_config']['vector_store_ids'],
             'max_num_results' => $ai_params['vector_store_tool_config']['max_num_results'] ?? 3
-        ];
+        ];        // Add ranking_options if provided
+        if (isset($ai_params['vector_store_tool_config']['ranking_options']) && 
+            is_array($ai_params['vector_store_tool_config']['ranking_options'])) {
+            $file_search_tool['ranking_options'] = $ai_params['vector_store_tool_config']['ranking_options'];
+        }
+        
+        $tools[] = $file_search_tool;
     }
     $bot_allows_web_search_sse = isset($ai_params['web_search_tool_config']['enabled']) && $ai_params['web_search_tool_config']['enabled'] === true;
     $frontend_requests_web_search_sse = isset($ai_params['frontend_web_search_active']) && $ai_params['frontend_web_search_active'] === true;

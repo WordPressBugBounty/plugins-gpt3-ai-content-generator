@@ -178,6 +178,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             'PineconeIndexes' => 'aipkit_pinecone_index_list',
             'QdrantCollections' => 'aipkit_qdrant_collection_list',
             'Replicate' => 'aipkit_replicate_model_list',
+            'AzureEmbedding' => 'aipkit_azure_embedding_model_list',
         ];
 
         $option_name = $option_map[$provider] ?? null;
@@ -225,19 +226,35 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             } elseif ($provider === 'Azure') {
                 $chat_deployments = [];
                 $image_deployments = [];
+                $embedding_deployments = [];
                 if (is_array($result)) {
                     foreach ($result as $deployment) {
                         $model_name = strtolower($deployment['name'] ?? '');
                         if (strpos($model_name, 'dall-e') !== false) {
                             $image_deployments[] = $deployment;
+                        } elseif (strpos($model_name, 'embedding') !== false) {
+                            $embedding_deployments[] = $deployment;
                         } else {
                             $chat_deployments[] = $deployment;
                         }
                     }
                 }
                 update_option('aipkit_azure_image_model_list', $image_deployments, 'no');
+                update_option('aipkit_azure_embedding_model_list', $embedding_deployments, 'no');
                 $value_to_save = $chat_deployments;
-                $response_models = $chat_deployments;
+                
+                // Return grouped models for dashboard display
+                $grouped_models = [];
+                if (!empty($chat_deployments)) {
+                    $grouped_models['Chat Models'] = $chat_deployments;
+                }
+                if (!empty($embedding_deployments)) {
+                    $grouped_models['Embedding Models'] = $embedding_deployments;
+                }
+                if (!empty($image_deployments)) {
+                    $grouped_models['Image Models'] = $image_deployments;
+                }
+                $response_models = $grouped_models;
             } elseif ($provider === 'PineconeIndexes' && $this->vector_store_registry) {
                 $this->vector_store_registry->update_registered_stores_for_provider('Pinecone', $value_to_save);
             } elseif ($provider === 'QdrantCollections' && $this->vector_store_registry) {

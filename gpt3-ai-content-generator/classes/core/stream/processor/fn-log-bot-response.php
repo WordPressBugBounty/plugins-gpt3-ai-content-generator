@@ -34,6 +34,7 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
     $used_previous_openai_response_id = $processorInstance->get_used_previous_openai_response_id_status();
     $grounding_metadata = $processorInstance->get_grounding_metadata();
     $token_manager = $processorInstance->get_token_manager();
+    $vector_search_scores = $processorInstance->get_vector_search_scores();
 
     if (!$log_storage) {
         return;
@@ -62,6 +63,9 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
         }
         if ($current_provider === 'Google' && $grounding_metadata !== null) {
             $log_bot_data['grounding_metadata'] = $grounding_metadata;
+        }
+        if (!empty($vector_search_scores)) {
+            $log_bot_data['vector_search_scores'] = $vector_search_scores;
         }
         $log_storage->log_message($log_bot_data);
 

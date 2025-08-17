@@ -155,7 +155,7 @@ if ($deepseek_addon_active) {
 $grouped_openai_models = AIPKit_Providers::get_openai_models();
 $openrouter_model_list = AIPKit_Providers::get_openrouter_models();
 $google_model_list     = AIPKit_Providers::get_google_models();
-$azure_deployment_list = AIPKit_Providers::get_azure_deployments();
+$azure_deployment_list = AIPKit_Providers::get_azure_all_models_grouped();
 $deepseek_model_list   = AIPKit_Providers::get_deepseek_models();
 $elevenlabs_voice_list = AIPKit_Providers::get_elevenlabs_voices();
 $elevenlabs_model_list = AIPKit_Providers::get_elevenlabs_models();

@@ -76,7 +76,7 @@ class AIPKit_Providers
             ['id' => 'models/text-embedding-004', 'name' => 'Embedding 004 (768)'],
             ['id' => 'models/embedding-001', 'name' => 'Embedding 001 (768)'],
         ],
-        'Azure' => [], 'AzureImage' => [], 'DeepSeek' => ['deepseek-chat', 'deepseek-coder'],
+        'Azure' => [], 'AzureImage' => [], 'AzureEmbedding' => [], 'DeepSeek' => ['deepseek-chat', 'deepseek-coder'],
         'ElevenLabs' => [], 'ElevenLabsModels' => ['eleven_multilingual_v2'],
         'OpenAITTS' => [['id' => 'tts-1', 'name' => 'TTS-1'], ['id' => 'tts-1-hd', 'name' => 'TTS-1-HD']],
         'OpenAISTT' => [['id' => 'whisper-1', 'name' => 'Whisper-1']],
@@ -92,7 +92,7 @@ class AIPKit_Providers
         'Google'           => 'aipkit_google_model_list',
         'GoogleEmbedding'  => 'aipkit_google_embedding_model_list',
         'Azure'            => 'aipkit_azure_deployment_list',
-        'AzureImage' => 'aipkit_azure_image_model_list', 'DeepSeek'         => 'aipkit_deepseek_model_list',
+        'AzureImage' => 'aipkit_azure_image_model_list', 'AzureEmbedding'   => 'aipkit_azure_embedding_model_list', 'DeepSeek'         => 'aipkit_deepseek_model_list',
         'ElevenLabs'       => 'aipkit_elevenlabs_voice_list',
         'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
         'OpenAITTS'        => 'aipkit_openai_tts_model_list',
@@ -399,10 +399,41 @@ class AIPKit_Providers
     {
         return self::get_model_list('Azure');
     }
+    
+    /**
+     * Get all Azure models grouped by type for dashboard display
+     * @return array Grouped array with chat, embedding, and image models
+     */
+    public static function get_azure_all_models_grouped(): array
+    {
+        $grouped = [];
+        
+        // Get chat/language models
+        $chat_models = self::get_model_list('Azure');
+        if (!empty($chat_models)) {
+            $grouped['Chat Models'] = $chat_models;
+        }
+        
+        // Get embedding models
+        $embedding_models = self::get_model_list('AzureEmbedding');
+        if (!empty($embedding_models)) {
+            $grouped['Embedding Models'] = $embedding_models;
+        }
+        
+        // Get image models
+        $image_models = self::get_model_list('AzureImage');
+        if (!empty($image_models)) {
+            $grouped['Image Models'] = $image_models;
+        }
+        
+        return $grouped;
+    }
+    
     public static function get_azure_image_models(): array
     {
         return self::get_model_list('AzureImage');
     }
+    public static function get_azure_embedding_models(): array { return self::get_model_list('AzureEmbedding'); }
     public static function get_deepseek_models(): array
     {
         return self::get_model_list('DeepSeek');

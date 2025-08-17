@@ -59,13 +59,32 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
                             <select id="aipkit_public_image_provider" name="image_provider" class="aipkit_form-input">
                                 <?php
                                 $all_providers = ['OpenAI', 'Google', 'Azure'];
-                        if (aipkit_dashboard::is_addon_active('replicate')) {
-                            $all_providers[] = 'Replicate';
-                        }
-                        $allowed_providers_arr = !empty($allowed_providers) ? array_map('trim', explode(',', $allowed_providers)) : [];
-                        $providers_to_show = !empty($allowed_providers_arr) ? array_intersect($all_providers, $allowed_providers_arr) : $all_providers;
-
-                        foreach ($providers_to_show as $provider_name) : ?>
+                                if (aipkit_dashboard::is_addon_active('replicate')) {
+                                    $all_providers[] = 'Replicate';
+                                }
+                                // New logic: if specific models selected, derive providers from those models; else show all
+                                $allowed_models_arr = !empty($allowed_models) ? array_map('trim', explode(',', strtolower($allowed_models))) : [];
+                                if (!empty($allowed_models_arr)) {
+                                    $derived = [];
+                                    foreach ($allowed_models_arr as $mid) {
+                                        if ((strpos($mid, 'gpt-image') === 0) || (strpos($mid, 'dall-e') === 0)) {
+                                            $derived['OpenAI'] = true;
+                                        } elseif ((strpos($mid, 'gemini') === 0) || (strpos($mid, 'imagen') === 0) || (strpos($mid, 'veo-') === 0)) {
+                                            $derived['Google'] = true;
+                                        } elseif (strpos($mid, 'azure') !== false) {
+                                            $derived['Azure'] = true;
+                                        } elseif (strpos($mid, '/') !== false) {
+                                            $derived['Replicate'] = true;
+                                        }
+                                    }
+                                    $providers_to_show = array_values(array_intersect($all_providers, array_keys($derived)));
+                                    if (empty($providers_to_show)) {
+                                        $providers_to_show = $all_providers; // fallback safety
+                                    }
+                                } else {
+                                    $providers_to_show = $all_providers;
+                                }
+                                foreach ($providers_to_show as $provider_name) : ?>
                                     <option value="<?php echo esc_attr($provider_name); ?>" <?php selected($final_provider, $provider_name); ?>><?php echo esc_html($provider_name); ?></option>
                                 <?php endforeach; ?>
                             </select>

@@ -180,6 +180,7 @@ class ChatAdminAssets
         $qdrant_collections = [];
         $openai_embedding_models = [];
         $google_embedding_models = [];
+        $azure_embedding_models = [];
         $is_pro_plan = false;
         $is_triggers_addon_active = false;
 
@@ -191,6 +192,7 @@ class ChatAdminAssets
             $qdrant_collections = \WPAICG\AIPKit_Providers::get_qdrant_collections();
             $openai_embedding_models = \WPAICG\AIPKit_Providers::get_openai_embedding_models();
             $google_embedding_models = \WPAICG\AIPKit_Providers::get_google_embedding_models();
+            $azure_embedding_models = \WPAICG\AIPKit_Providers::get_azure_embedding_models();
         }
         if (class_exists('\\WPAICG\\aipkit_dashboard')) {
             $is_pro_plan = \WPAICG\aipkit_dashboard::is_pro_plan();
@@ -207,7 +209,7 @@ class ChatAdminAssets
             'userIp' => $user_ip_sanitized, 'requireConsentCompliance' => false,
             'openaiVectorStores' => $openai_vector_stores, 'pineconeIndexes' => $pinecone_indexes,
             'qdrantCollections' => $qdrant_collections, 'openaiEmbeddingModels' => $openai_embedding_models,
-            'googleEmbeddingModels' => $google_embedding_models, 'isProPlan' => $is_pro_plan,
+            'googleEmbeddingModels' => $google_embedding_models, 'azureEmbeddingModels' => $azure_embedding_models, 'isProPlan' => $is_pro_plan,
             'isTriggersAddonActive' => $is_triggers_addon_active,
             'text' => array_merge($dashboard_texts, [
                 'fullscreenError' => $dashboard_texts['fullscreenError'] ?? __('Error: Fullscreen functionality is unavailable.', 'gpt3-ai-content-generator'),

@@ -89,6 +89,7 @@ function generate_response(
         return $im_load_result;
     }
 
+    $vector_search_scores = []; // Initialize array to capture vector search scores
     $all_formatted_results_for_instruction = GenerateResponse\prepare_vector_search_context_logic(
         $ai_caller, // Pass AI Caller
         $vector_store_manager, // Pass Vector Store Manager
@@ -99,11 +100,17 @@ function generate_response(
         $frontend_active_pinecone_index_name,
         $frontend_active_pinecone_namespace,
         $frontend_active_qdrant_collection_name,
-        $frontend_active_qdrant_file_upload_context_id
+        $frontend_active_qdrant_file_upload_context_id,
+        $vector_search_scores // Pass reference to capture scores
     );
 
     $base_instructions = $bot_settings['instructions'] ?? '';
-    $instruction_context_for_logging = ['bot_settings' => $bot_settings, 'post_id' => $post_id, 'vector_search_results' => $all_formatted_results_for_instruction];
+    $instruction_context_for_logging = [
+        'bot_settings' => $bot_settings, 
+        'post_id' => $post_id, 
+        'vector_search_results' => $all_formatted_results_for_instruction,
+        'vector_search_scores' => $vector_search_scores // Add vector search scores for logging
+    ];
     $instructions_processed = GenerateResponse\build_final_system_instruction_logic($bot_settings, $post_id, $base_instructions, $all_formatted_results_for_instruction);
 
     $messages_prep_result = GenerateResponse\prepare_messages_for_api_logic($history, $user_message);

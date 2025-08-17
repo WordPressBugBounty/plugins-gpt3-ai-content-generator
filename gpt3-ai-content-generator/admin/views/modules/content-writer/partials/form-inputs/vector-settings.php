@@ -88,6 +88,7 @@ if (!defined('ABSPATH')) {
                         <select id="aipkit_cw_vector_embedding_provider" name="vector_embedding_provider" class="aipkit_form-input aipkit_autosave_trigger aipkit_cw_vector_embedding_provider_select">
                             <option value="openai" selected>OpenAI</option>
                             <option value="google">Google</option>
+                            <option value="azure">Azure</option>
                         </select>
                     </div>
                     <div class="aipkit_form-group aipkit_form-col">

@@ -186,6 +186,10 @@ class AIPKit_AI_Caller
         if (isset($parsed_data['grounding_metadata'])) {
             $return_data['grounding_metadata'] = $parsed_data['grounding_metadata'];
         }
+        // Include vector search scores from instruction context if available
+        if (!empty($instruction_context['vector_search_scores'])) {
+            $return_data['vector_search_scores'] = $instruction_context['vector_search_scores'];
+        }
 
         return $return_data;
     }

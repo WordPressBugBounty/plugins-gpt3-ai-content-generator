@@ -38,6 +38,7 @@ if (!defined('ABSPATH')) {
  * @param string|null $frontend_active_pinecone_namespace Optional active Pinecone namespace from frontend.
  * @param string|null $frontend_active_qdrant_collection_name Optional active Qdrant collection name.
  * @param string|null $frontend_active_qdrant_file_upload_context_id Optional active Qdrant file context ID.
+ * @param array|null &$vector_search_scores_output Optional reference to capture vector search scores for logging.
  * @return string The formatted context string from vector searches, or an empty string.
  */
 function build_vector_search_context_logic(
@@ -50,7 +51,8 @@ function build_vector_search_context_logic(
     ?string $frontend_active_pinecone_index_name = null,
     ?string $frontend_active_pinecone_namespace = null,
     ?string $frontend_active_qdrant_collection_name = null,
-    ?string $frontend_active_qdrant_file_upload_context_id = null
+    ?string $frontend_active_qdrant_file_upload_context_id = null,
+    ?array &$vector_search_scores_output = null
 ): string {
     global $wpdb;
     $data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
@@ -66,17 +68,24 @@ function build_vector_search_context_logic(
     $vector_top_k = absint($bot_settings['vector_store_top_k'] ?? 3);
     $vector_top_k = max(1, min($vector_top_k, 20));
 
+    // Initialize scores output array if reference provided
+    if ($vector_search_scores_output !== null) {
+        $vector_search_scores_output = [];
+    }
+
     if ($vector_provider_from_bot === 'openai') {
-        $all_formatted_results .= BuildContext\resolve_openai_context_logic(
+        $openai_results = BuildContext\resolve_openai_context_logic(
             $vector_store_manager,
             $user_message,
             $bot_settings,
             $main_provider,
             $frontend_active_openai_vs_id,
-            $vector_top_k
+            $vector_top_k,
+            $vector_search_scores_output
         );
+        $all_formatted_results .= $openai_results;
     } elseif ($vector_provider_from_bot === 'pinecone') {
-        $all_formatted_results .= BuildContext\resolve_pinecone_context_logic(
+        $pinecone_results = BuildContext\resolve_pinecone_context_logic(
             $ai_caller,
             $vector_store_manager,
             $user_message,
@@ -85,10 +94,12 @@ function build_vector_search_context_logic(
             $frontend_active_pinecone_namespace,
             $vector_top_k,
             $wpdb,
-            $data_source_table_name
+            $data_source_table_name,
+            $vector_search_scores_output
         );
+        $all_formatted_results .= $pinecone_results;
     } elseif ($vector_provider_from_bot === 'qdrant') {
-        $all_formatted_results .= BuildContext\resolve_qdrant_context_logic(
+        $qdrant_results = BuildContext\resolve_qdrant_context_logic(
             $ai_caller,
             $vector_store_manager,
             $user_message,
@@ -97,8 +108,11 @@ function build_vector_search_context_logic(
             $frontend_active_qdrant_file_upload_context_id,
             $vector_top_k,
             $wpdb,
-            $data_source_table_name
+            $data_source_table_name,
+            $vector_search_scores_output
         );
+        $all_formatted_results .= $qdrant_results;
     }
+    
     return trim($all_formatted_results);
 }

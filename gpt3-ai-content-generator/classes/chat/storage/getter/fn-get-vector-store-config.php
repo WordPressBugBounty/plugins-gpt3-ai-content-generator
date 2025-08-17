@@ -1,7 +1,7 @@
 <?php
 
 // File: classes/chat/storage/getter/fn-get-vector-store-config.php
-// Status: NEW FILE
+// Status: MODIFIED
 
 namespace WPAICG\Chat\Storage\GetterMethods;
 
@@ -61,6 +61,11 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
 
     $top_k_val = $get_meta_fn('_aipkit_vector_store_top_k', BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K);
     $settings['vector_store_top_k'] = max(1, min(absint($top_k_val), 20));
+
+    // NEW: Get confidence threshold
+    $threshold_val = $get_meta_fn('_aipkit_vector_store_confidence_threshold', BotSettingsManager::DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD);
+    $settings['vector_store_confidence_threshold'] = max(0, min(absint($threshold_val), 100));
+    // END NEW
 
     return $settings;
 }

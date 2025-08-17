@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-autogpt-assets.php
 // Status: MODIFIED
-// I have updated the localized text for embedding provider/model errors to be more generic and accurate for both Pinecone and Qdrant.
+// I have updated this file to include `azure_embedding_models` in the localized data for the frontend scripts.
 
 namespace WPAICG\Admin\Assets;
 
@@ -114,6 +114,7 @@ class AIPKit_Autogpt_Assets
         $qdrant_collections = [];
         $openai_embedding_models = [];
         $google_embedding_models = [];
+        $azure_embedding_models = [];
 
         if (class_exists(AIPKit_Vector_Store_Registry::class)) {
             $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
@@ -123,6 +124,7 @@ class AIPKit_Autogpt_Assets
         if (class_exists(AIPKit_Providers::class)) {
             $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
             $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+            $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
         }
         $task_types_for_js = [
             // --- NEW: Category: Knowledge Base ---
@@ -201,6 +203,7 @@ class AIPKit_Autogpt_Assets
             'qdrant_collections' => $qdrant_collections,
             'openai_embedding_models' => $openai_embedding_models,
             'google_embedding_models' => $google_embedding_models,
+            'azure_embedding_models' => $azure_embedding_models,
             'task_types' => $task_types_for_js,
             'default_cw_prompts' => $default_cw_prompts,
             'frequencies' => $frequencies,

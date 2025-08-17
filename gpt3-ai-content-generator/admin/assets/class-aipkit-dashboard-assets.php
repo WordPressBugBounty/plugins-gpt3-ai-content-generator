@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-dashboard-assets.php
 // Status: MODIFIED
-// I have added the 'isAdmin' flag to the localized data, making the current user's role available to the frontend JavaScript.
+// I have updated this file to include the 'isAdmin' flag to the localized data, making the current user's role available to the frontend JavaScript.
 
 namespace WPAICG\Admin\Assets;
 
@@ -156,6 +156,7 @@ class DashboardAssets
         $deepseek_models = [];
         $openai_embedding_models = [];
         $google_embedding_models = [];
+        $azure_embedding_models = [];
         if (class_exists('\\WPAICG\\AIPKit_Providers')) {
             $openai_models     = AIPKit_Providers::get_openai_models();
             $openrouter_models = AIPKit_Providers::get_openrouter_models();
@@ -164,6 +165,7 @@ class DashboardAssets
             $deepseek_models   = AIPKit_Providers::get_deepseek_models();
             $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
             $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+            $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
         }
 
         $aipkit_nonce = wp_create_nonce('aipkit_nonce');
@@ -190,6 +192,7 @@ class DashboardAssets
             'embeddingModels' => [
                 'openai' => $openai_embedding_models,
                 'google' => $google_embedding_models,
+                'azure' => $azure_embedding_models,
             ],
             'imageGeneratorModels' => [
                 'openai' => [

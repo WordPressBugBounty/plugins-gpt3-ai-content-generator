@@ -151,16 +151,41 @@ if (!defined('ABSPATH')) exit;
             $currentAzureDeployment = $azure_data['model']; // 'model' key stores deployment name for Azure
             $foundOldAzure = false;
             if (is_array($azure_deployment_list) && !empty($azure_deployment_list)) {
-                foreach ($azure_deployment_list as $dep) {
-                    $dep_id   = $dep['id'] ?? '';
-                    $dep_name = $dep['name'] ?? $dep_id;
-                    $label = $dep_id;
-                    if (!empty($dep_name) && $dep_name !== $dep_id) {
-                        $label .= ' (model: ' . $dep_name . ')';
+                // Check if we have grouped models or flat array
+                $isGrouped = !empty($azure_deployment_list) && isset($azure_deployment_list['Chat Models']) || isset($azure_deployment_list['Embedding Models']) || isset($azure_deployment_list['Image Models']);
+                
+                if ($isGrouped) {
+                    // Handle grouped models with optgroups
+                    foreach ($azure_deployment_list as $groupName => $models) {
+                        if (!empty($models) && is_array($models)) {
+                            echo '<optgroup label="' . esc_attr($groupName) . '">';
+                            foreach ($models as $dep) {
+                                $dep_id   = $dep['id'] ?? '';
+                                $dep_name = $dep['name'] ?? $dep_id;
+                                $label = $dep_id;
+                                if (!empty($dep_name) && $dep_name !== $dep_id) {
+                                    $label .= ' (model: ' . $dep_name . ')';
+                                }
+                                $selected = selected($currentAzureDeployment, $dep_id, false);
+                                if (!empty($selected)) $foundOldAzure = true;
+                                echo '<option value="' . esc_attr($dep_id) . '" ' . esc_attr( $selected ) . '>' . esc_html( $label ) . '</option>';
+                            }
+                            echo '</optgroup>';
+                        }
                     }
-                    $selected = selected($currentAzureDeployment, $dep_id, false);
-                    if (!empty($selected)) $foundOldAzure = true;
-                    echo '<option value="' . esc_attr($dep_id) . '" ' . esc_attr( $selected ) . '>' . esc_html( $label ) . '</option>';
+                } else {
+                    // Handle flat array (backward compatibility)
+                    foreach ($azure_deployment_list as $dep) {
+                        $dep_id   = $dep['id'] ?? '';
+                        $dep_name = $dep['name'] ?? $dep_id;
+                        $label = $dep_id;
+                        if (!empty($dep_name) && $dep_name !== $dep_id) {
+                            $label .= ' (model: ' . $dep_name . ')';
+                        }
+                        $selected = selected($currentAzureDeployment, $dep_id, false);
+                        if (!empty($selected)) $foundOldAzure = true;
+                        echo '<option value="' . esc_attr($dep_id) . '" ' . esc_attr( $selected ) . '>' . esc_html( $label ) . '</option>';
+                    }
                 }
             }
             if (!$foundOldAzure && !empty($currentAzureDeployment)) {

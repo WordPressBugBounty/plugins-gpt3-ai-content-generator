@@ -133,6 +133,7 @@ class PostEnhancerAssets
             $qdrant_collections = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_qdrant_collections() : [];
             $openai_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openai_embedding_models() : [];
             $google_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_google_embedding_models() : [];
+            $azure_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_azure_embedding_models() : [];
 
             // Define default prompts for the bulk enhancer modal
             $default_prompts = [
@@ -157,6 +158,9 @@ class PostEnhancerAssets
             }
             // --- END ADDED ---
 
+            // Developer filter for enabling inline formatting parsing (always true by default)
+            $parse_formats_enabled = apply_filters('aipkit_enhancer_enable_formatting', true);
+
             wp_localize_script($admin_main_js_handle, 'aipkit_post_enhancer', [
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'nonce_generate_title' => wp_create_nonce('aipkit_generate_title_nonce'),
@@ -179,7 +183,9 @@ class PostEnhancerAssets
                 'qdrant_collections' => $qdrant_collections,
                 'openaiEmbeddingModels' => $openai_embedding_models,
                 'googleEmbeddingModels' => $google_embedding_models,
+                'azureEmbeddingModels' => $azure_embedding_models,
                 'actions' => $enhancer_actions, // ADDED
+                'parse_html_formats' => (bool) $parse_formats_enabled,
                 'text' => [
                     'modal_title_title' => __('Title Suggestions', 'gpt3-ai-content-generator'),
                     'loading_title' => __('Generating Title Suggestions...', 'gpt3-ai-content-generator'),

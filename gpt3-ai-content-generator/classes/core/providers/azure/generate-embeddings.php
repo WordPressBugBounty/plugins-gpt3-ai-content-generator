@@ -1,6 +1,6 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/providers/azure/generate-embeddings.php
-// Status: MODIFIED
+// Status: NEW FILE
 
 namespace WPAICG\Core\Providers\Azure\Methods;
 
@@ -50,6 +50,10 @@ function generate_embeddings_logic(
     $payload = AzurePayloadFormatter::format_embeddings($input, $options);
     $request_body_json = wp_json_encode($payload);
 
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log("AIPKIT DEBUG (Azure Embedding Request):\nURL: " . $url . "\nPayload: " . $request_body_json);
+    }
+
     $response = wp_remote_post($url, array_merge($request_options, ['headers' => $headers, 'body' => $request_body_json]));
 
     if (is_wp_error($response)) {
@@ -58,6 +62,10 @@ function generate_embeddings_logic(
 
     $status_code = wp_remote_retrieve_response_code($response);
     $body = wp_remote_retrieve_body($response);
+
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log("AIPKIT DEBUG (Azure Embedding Response):\nStatus: " . $status_code . "\nBody: " . $body);
+    }
 
     $decoded_response = $strategyInstance->decode_json_public($body, 'Azure Embeddings'); // Call public wrapper
 

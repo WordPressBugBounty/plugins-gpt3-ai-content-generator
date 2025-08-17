@@ -44,9 +44,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_temperature', (string)$sanitized_settings['temperature']);
     update_post_meta($botId, '_aipkit_max_completion_tokens', $sanitized_settings['max_completion_tokens']);
     update_post_meta($botId, '_aipkit_max_messages', $sanitized_settings['max_messages']);
-    // --- NEW: Save reasoning_effort ---
     update_post_meta($botId, '_aipkit_reasoning_effort', $sanitized_settings['reasoning_effort']);
-    // --- END NEW ---
     update_post_meta($botId, '_aipkit_enable_conversation_starters', $sanitized_settings['enable_conversation_starters']);
     update_post_meta($botId, '_aipkit_conversation_starters', $sanitized_settings['conversation_starters']); // Already JSON
     update_post_meta($botId, '_aipkit_content_aware_enabled', $sanitized_settings['content_aware_enabled']);
@@ -124,6 +122,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         delete_post_meta($botId, '_aipkit_vector_embedding_model');
     }
     update_post_meta($botId, '_aipkit_vector_store_top_k', $sanitized_settings['vector_store_top_k']);
+    update_post_meta($botId, '_aipkit_vector_store_confidence_threshold', $sanitized_settings['vector_store_confidence_threshold']); // NEW
     update_post_meta($botId, '_aipkit_openai_web_search_enabled', $sanitized_settings['openai_web_search_enabled']);
     if ($sanitized_settings['openai_web_search_enabled'] === '1') {
         update_post_meta($botId, '_aipkit_openai_web_search_context_size', $sanitized_settings['openai_web_search_context_size']);
