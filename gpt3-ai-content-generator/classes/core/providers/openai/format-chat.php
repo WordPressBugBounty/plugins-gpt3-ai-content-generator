@@ -129,7 +129,15 @@ function format_chat_logic_for_payload_formatter(
         // Add ranking_options if provided
         if (isset($ai_params['vector_store_tool_config']['ranking_options']) && 
             is_array($ai_params['vector_store_tool_config']['ranking_options'])) {
-            $file_search_tool['ranking_options'] = $ai_params['vector_store_tool_config']['ranking_options'];
+            $ranking_opts = $ai_params['vector_store_tool_config']['ranking_options'];
+            if (isset($ranking_opts['score_threshold'])) {
+                $st = floatval($ranking_opts['score_threshold']);
+                if ($st <= 0) { $st = 0.0; }
+                elseif ($st >= 1) { $st = 1.0; }
+                else { $st = round($st, 6); }
+                $ranking_opts['score_threshold'] = $st;
+            }
+            $file_search_tool['ranking_options'] = $ranking_opts;
         }
         
         $tools[] = $file_search_tool;

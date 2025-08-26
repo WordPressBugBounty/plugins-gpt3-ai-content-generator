@@ -123,6 +123,22 @@ class AIPKit_AI_Caller
         $sanitized_request_body_data = AIPKit_Payload_Sanitizer::sanitize_for_logging($request_body_data);
 
         $request_body_json = json_encode($request_body_data);
+        // Post-encode sanitize: ensure score_threshold is clamped and rendered with <=6 decimals without relying on ini settings
+        if (is_string($request_body_json) && strpos($request_body_json, 'score_threshold') !== false) {
+            $request_body_json = preg_replace_callback(
+                '/("score_threshold"\s*:\s*)(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)/',
+                function ($m) {
+                    $val = (float)$m[2];
+                    if ($val <= 0) { $val = 0.0; }
+                    elseif ($val >= 1) { $val = 1.0; }
+                    else { $val = round($val, 6); }
+                    $formatted = rtrim(rtrim(number_format($val, 6, '.', ''), '0'), '.');
+                    if ($formatted === '' || $formatted === '-0') { $formatted = '0'; }
+                    return $m[1] . $formatted;
+                },
+                $request_body_json
+            );
+        }
 
         $request_payload_log = [
             'provider' => $provider,

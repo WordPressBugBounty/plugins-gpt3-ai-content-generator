@@ -33,7 +33,14 @@ function apply_openai_vector_tool_config_logic($final_ai_params, $bot_settings, 
         // Convert confidence threshold percentage (0-100) to OpenAI score threshold (0.0-1.0)
         // OpenAI expects ranking_options.score_threshold in the file_search tool for server-side filtering
         $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
-        $openai_score_threshold = round($confidence_threshold_percent / 100, 4); // Convert to 0.0-1.0 scale and round to 4 decimal places to avoid precision issues
+        // Convert to 0.0-1.0 scale and round to fixed 6 decimals, with exact endpoints for 0 and 100
+        if ($confidence_threshold_percent <= 0) {
+            $openai_score_threshold = 0.0;
+        } elseif ($confidence_threshold_percent >= 100) {
+            $openai_score_threshold = 1.0;
+        } else {
+            $openai_score_threshold = round($confidence_threshold_percent / 100, 6);
+        }
 
         $final_ai_params['vector_store_tool_config'] = [
             'type'             => 'file_search',

@@ -140,6 +140,22 @@ function start_stream_logic(
 
         $curl_post_data = apply_filters('aipkit_ai_query', $curl_post_data, $provider, $model, $history, $system_instruction_filtered, $api_params, $ai_params);
         $curl_post_json = json_encode($curl_post_data);
+        // Post-encode sanitize: avoid environment-driven over-precision
+        if (is_string($curl_post_json) && strpos($curl_post_json, 'score_threshold') !== false) {
+            $curl_post_json = preg_replace_callback(
+                '/("score_threshold"\s*:\s*)(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)/',
+                function ($m) {
+                    $val = (float)$m[2];
+                    if ($val <= 0) { $val = 0.0; }
+                    elseif ($val >= 1) { $val = 1.0; }
+                    else { $val = round($val, 6); }
+                    $formatted = rtrim(rtrim(number_format($val, 6, '.', ''), '0'), '.');
+                    if ($formatted === '' || $formatted === '-0') { $formatted = '0'; }
+                    return $m[1] . $formatted;
+                },
+                $curl_post_json
+            );
+        }
 
         $curl_options_base = $strategy->get_request_options('stream');
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.

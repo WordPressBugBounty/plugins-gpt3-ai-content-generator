@@ -88,7 +88,13 @@ function prepare_vector_standard_call(
             $vector_top_k = isset($form_data['vector_store_top_k']) ? absint($form_data['vector_store_top_k']) : 3;
             $vector_top_k = max(1, min($vector_top_k, 20));
             $confidence_threshold_percent = (int)($form_data['vector_store_confidence_threshold'] ?? 20);
-            $openai_score_threshold = round($confidence_threshold_percent / 100, 4);
+            if ($confidence_threshold_percent <= 0) {
+                $openai_score_threshold = 0.0;
+            } elseif ($confidence_threshold_percent >= 100) {
+                $openai_score_threshold = 1.0;
+            } else {
+                $openai_score_threshold = round($confidence_threshold_percent / 100, 6);
+            }
             $ai_params['vector_store_tool_config'] = [
                 'type' => 'file_search',
                 'vector_store_ids' => $openai_vs_ids,
