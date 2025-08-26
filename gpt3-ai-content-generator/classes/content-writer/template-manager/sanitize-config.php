@@ -53,6 +53,9 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                 $sanitized[$key] = (string)floatval($config[$key]);
             } elseif (in_array($key, ['content_max_tokens', 'image_count', 'image_placement_param_x', 'vector_store_top_k'], true)) {
                 $sanitized[$key] = absint($config[$key]);
+            } elseif ($key === 'vector_store_confidence_threshold') {
+                $raw = isset($config[$key]) ? absint($config[$key]) : 20;
+                $sanitized[$key] = max(0, min($raw, 100));
             } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store', 'update_title', 'update_excerpt', 'update_content', 'update_meta'], true)) {
                 $sanitized[$key] = ($config[$key] === '1' || $config[$key] === true || $config[$key] === 1) ? '1' : '0';
             } elseif ($key === 'reasoning_effort') {

@@ -67,8 +67,13 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
         // 4. Prepare AI parameters
         $ai_params_override = Shared\prepare_ai_params_logic($validated_params);
 
-        // 5. Log the initial user request
-        $conversation_uuid = wp_generate_uuid4();
+        // 5. Determine conversation UUID (reuse if provided, else create)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        $conversation_uuid = isset($_POST['conversation_uuid']) && !empty($_POST['conversation_uuid'])
+            ? sanitize_text_field(wp_unslash($_POST['conversation_uuid']))
+            : wp_generate_uuid4();
+        // Attach to params so the initial log uses the same conversation
+        $validated_params['conversation_uuid'] = $conversation_uuid;
         Shared\log_initial_request_logic($this, $validated_params, 'AJAX');
 
         // 6. Make the AI call

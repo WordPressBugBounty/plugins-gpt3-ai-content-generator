@@ -245,7 +245,17 @@ class AIPKit_Stats
         }
         // arsort($module_counts); // Ensure sorted (should be done in get_token_stats_last_days)
         $first_key = array_key_first($module_counts);
-        // Format the module name nicely for display
-        return $first_key ? ucfirst(str_replace(['-', '_'], ' ', $first_key)) : null;
+        if (!$first_key) {
+            return null;
+        }
+
+        // Map known module slugs to user-facing names
+        switch ($first_key) {
+            case 'ai_post_enhancer':
+                return __('Content Assistant', 'gpt3-ai-content-generator');
+            default:
+                // Format the module name nicely for display
+                return ucfirst(str_replace(['-', '_'], ' ', $first_key));
+        }
     }
 }

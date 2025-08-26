@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Toolkit for WordPress (formerly AI Power) 2.3.36\n"
+"Project-Id-Version: AIP: Complete AI Toolkit for WordPress (formerly AI Power) 2.3.37\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-17T12:17:45+00:00\n"
+"POT-Creation-Date: 2025-08-26T13:21:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -123,7 +123,7 @@ msgstr ""
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:168
 #: admin/views/modules/ai-forms/partials/labels-config.php:18
 #: admin/views/modules/ai-forms/partials/labels-config.php:19
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:209
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:261
 #: admin/views/modules/content-writer/partials/form-inputs/generation-mode.php:126
 #: classes/ai-forms/storage/methods/fn-get-form-data.php:142
 #: public/js/ai-forms/actions/sse/ui-manager.js:57
@@ -144,7 +144,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:28
 #: admin/views/modules/ai-forms/partials/labels-config.php:29
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:220
-#: admin/views/modules/ai-training/partials/settings.php:95
+#: admin/views/modules/ai-training/partials/settings.php:144
 #: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:141
 #: admin/views/modules/content-writer/partials/template-controls.php:48
 #: admin/views/modules/logs/partials/logs-settings.php:123
@@ -505,6 +505,7 @@ msgid "Index WordPress posts, pages, or products into a vector store for RAG."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:138
+#: admin/views/modules/ai-training/index.php:42
 msgid "List"
 msgstr ""
 
@@ -679,7 +680,7 @@ msgid "Loading models..."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:235
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:91
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:36
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:34
 #: admin/views/modules/chatbot/partials/accordion-context.php:368
 msgid "-- Select Model --"
@@ -802,16 +803,25 @@ msgstr ""
 msgid "N/A"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:260
+#: admin/assets/class-aipkit-autogpt-assets.php:261
+msgid "Added"
+msgstr ""
+
+#: admin/assets/class-aipkit-autogpt-assets.php:262
+#: classes/chat/utils/class-log-status-renderer.php:52
+msgid "Scheduled"
+msgstr ""
+
+#: admin/assets/class-aipkit-autogpt-assets.php:263
 msgid "item"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:261
+#: admin/assets/class-aipkit-autogpt-assets.php:264
 msgid "items"
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: admin/assets/class-aipkit-autogpt-assets.php:262
+#: admin/assets/class-aipkit-autogpt-assets.php:265
 #: includes/class-aipkit-shortcodes-manager.php:285
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:70
 #: admin/js/ai-training/wp/render-wp-content-list.js:126
@@ -819,7 +829,7 @@ msgid "Page"
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: admin/assets/class-aipkit-autogpt-assets.php:263
+#: admin/assets/class-aipkit-autogpt-assets.php:266
 #: includes/class-aipkit-shortcodes-manager.php:285
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:73
 #: admin/js/ai-training/wp/render-wp-content-list.js:129
@@ -827,7 +837,7 @@ msgid "of"
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: admin/assets/class-aipkit-autogpt-assets.php:264
+#: admin/assets/class-aipkit-autogpt-assets.php:267
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:83
 #: admin/views/modules/logs/partials/logs-table.php:188
 #: admin/views/modules/logs/partials/logs-table.php:195
@@ -838,7 +848,7 @@ msgid "Previous"
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: admin/assets/class-aipkit-autogpt-assets.php:265
+#: admin/assets/class-aipkit-autogpt-assets.php:268
 #: admin/data/dashboard-localized-texts.php:124
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:88
 #: admin/views/modules/logs/partials/logs-table.php:211
@@ -849,105 +859,105 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:266
+#: admin/assets/class-aipkit-autogpt-assets.php:269
 msgid "Are you sure you want to remove this item from the queue?"
 msgstr ""
 
 #. translators: %s is the status of the queue items, e.g. "Failed" or "Pending"
-#: admin/assets/class-aipkit-autogpt-assets.php:268
+#: admin/assets/class-aipkit-autogpt-assets.php:271
 msgid "Are you sure you want to delete all %s items from the queue? This cannot be undone."
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:269
+#: admin/assets/class-aipkit-autogpt-assets.php:272
 msgid "Are you sure you want to delete ALL items from the queue? This cannot be undone."
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:270
+#: admin/assets/class-aipkit-autogpt-assets.php:273
 msgid "Queue item deleted."
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:271
+#: admin/assets/class-aipkit-autogpt-assets.php:274
 msgid "Error deleting item:"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:272
+#: admin/assets/class-aipkit-autogpt-assets.php:275
 msgid "Error deleting items:"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:273
+#: admin/assets/class-aipkit-autogpt-assets.php:276
 msgid "Retry"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:274
+#: admin/assets/class-aipkit-autogpt-assets.php:277
 msgid "Item marked for retry. Queue processing will pick it up."
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:275
+#: admin/assets/class-aipkit-autogpt-assets.php:278
 msgid "Error retrying item:"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:276
+#: admin/assets/class-aipkit-autogpt-assets.php:279
 #: admin/data/dashboard-localized-texts.php:161
 msgid "task"
 msgstr ""
 
-#: admin/assets/class-aipkit-autogpt-assets.php:277
+#: admin/assets/class-aipkit-autogpt-assets.php:280
 #: admin/data/dashboard-localized-texts.php:162
 msgid "tasks"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:215
+#: admin/assets/class-aipkit-chat-admin-assets.php:222
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:111
 msgid "Error: Fullscreen functionality is unavailable."
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:216
+#: admin/assets/class-aipkit-chat-admin-assets.php:223
 #: admin/data/dashboard-localized-texts.php:86
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:112
 msgid "Copied!"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:217
+#: admin/assets/class-aipkit-chat-admin-assets.php:224
 #: admin/data/dashboard-localized-texts.php:87
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:112
 msgid "Failed to copy"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:218
+#: admin/assets/class-aipkit-chat-admin-assets.php:225
 msgid "Select OpenAI Store(s)"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:219
+#: admin/assets/class-aipkit-chat-admin-assets.php:226
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:185
 msgid "Select Pinecone Index"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:220
+#: admin/assets/class-aipkit-chat-admin-assets.php:227
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:190
 msgid "Select Qdrant Collection"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:221
+#: admin/assets/class-aipkit-chat-admin-assets.php:228
 msgid "Select Embedding Provider"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:222
+#: admin/assets/class-aipkit-chat-admin-assets.php:229
 msgid "Select Embedding Model"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:223
+#: admin/assets/class-aipkit-chat-admin-assets.php:230
 msgid "No OpenAI Stores Found (Sync in AI Training)"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:224
+#: admin/assets/class-aipkit-chat-admin-assets.php:231
 msgid "No Pinecone Indexes Found (Sync in AI Settings)"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:225
+#: admin/assets/class-aipkit-chat-admin-assets.php:232
 msgid "No Qdrant Collections Found (Sync in AI Settings)"
 msgstr ""
 
-#: admin/assets/class-aipkit-chat-admin-assets.php:226
+#: admin/assets/class-aipkit-chat-admin-assets.php:233
 msgid "No Models (Select Provider or Sync)"
 msgstr ""
 
@@ -1175,6 +1185,8 @@ msgstr ""
 #: admin/views/modules/chatbot/partials/accordion-context.php:276
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:53
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:360
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:519
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:553
 msgid "Index"
 msgstr ""
 
@@ -1186,6 +1198,7 @@ msgstr ""
 #: admin/data/dashboard-localized-texts.php:38
 #: admin/views/modules/ai-forms/index.php:125
 #: admin/views/modules/ai-forms/partials/labels-config.php:39
+#: admin/views/modules/ai-training/partials/knowledge-base-list.php:110
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:34
 #: admin/views/modules/content-writer/partials/form-inputs/ai-settings.php:27
 #: public/views/shortcodes/image-generator.php:58
@@ -1295,7 +1308,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/vector-config.php:117
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:85
 #: admin/views/modules/chatbot/partials/accordion-context.php:347
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:87
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:96
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:88
 msgid "Embedding Provider"
 msgstr ""
@@ -1304,7 +1317,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/vector-config.php:125
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:93
 #: admin/views/modules/chatbot/partials/accordion-context.php:361
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:95
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:104
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:96
 msgid "Embedding Model"
 msgstr ""
@@ -1314,7 +1327,7 @@ msgid "Select Model"
 msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:196
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:50
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:59
 msgid "Embedding provider and model are required."
 msgstr ""
 
@@ -1386,7 +1399,8 @@ msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:34
 #: admin/data/dashboard-localized-texts.php:73
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:96
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:158
+#: admin/views/modules/ai-training/partials/knowledge-base-list.php:151
 #: admin/views/modules/logs/partials/logs-table.php:57
 #: admin/views/modules/user-credits/index.php:110
 #: classes/chat/frontend/shortcode/configurator/get-text-labels.php:26
@@ -1502,10 +1516,7 @@ msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:61
 #: admin/views/modules/ai-forms/partials/_form-editor-actions.php:23
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:212
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:26
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:35
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:35
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:264
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:86
 #: admin/views/modules/content-writer/partials/template-controls.php:49
 #: admin/views/modules/content-writer/partials/template-controls.php:57
@@ -2054,7 +2065,8 @@ msgid "Analysis Details"
 msgstr ""
 
 #: admin/views/migration-tool/partials/_status_analysis_results.php:34
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:175
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:191
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:221
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:41
 #: admin/views/modules/autogpt/partials/content-writing/post-settings.php:42
 #: admin/views/modules/autogpt/partials/task-form-setup.php:42
@@ -2204,7 +2216,14 @@ msgid "Filter harmful content in chat messages using OpenAI's Moderation API."
 msgstr ""
 
 #: admin/views/modules/addons/index.php:51
+#: admin/views/modules/logs/index.php:113
 #: admin/views/modules/settings/partials/integrations/ai-assistant.php:19
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:103
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:273
+#: classes/chat/storage/class-aipkit_log_manager.php:59
+#: classes/chat/storage/class-aipkit_log_manager.php:214
+#: classes/chat/storage/class-aipkit_log_manager.php:259
+#: classes/dashboard/class-aipkit_stats.php:255
 #: admin/js/post-enhancer/block-editor-enhancer-plugin.js:183
 msgid "Content Assistant"
 msgstr ""
@@ -2240,6 +2259,7 @@ msgstr ""
 #: admin/views/modules/addons/index.php:71
 #: admin/views/modules/ai-forms/partials/form-editor.php:77
 #: admin/views/modules/ai-forms/partials/form-editor.php:82
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:90
 #: admin/views/modules/chatbot/partials/accordion-context.php:188
 msgid "File Upload"
 msgstr ""
@@ -2308,7 +2328,7 @@ msgstr ""
 #: admin/views/modules/addons/index.php:120
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:73
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:40
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:337
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:392
 msgid "Content"
 msgstr ""
 
@@ -2337,7 +2357,8 @@ msgid "Filter by Category:"
 msgstr ""
 
 #: admin/views/modules/addons/index.php:204
-#: admin/views/modules/ai-training/partials/settings.php:33
+#: admin/views/modules/ai-training/partials/settings.php:77
+#: admin/views/modules/ai-training/partials/settings.php:101
 #: admin/js/ai-forms/list/render-table.js:56
 msgid "Pro"
 msgstr ""
@@ -2395,7 +2416,7 @@ msgid "Delete All"
 msgstr ""
 
 #: admin/views/modules/ai-forms/index.php:84
-#: admin/views/modules/ai-training/index.php:30
+#: admin/views/modules/ai-training/index.php:49
 #: admin/views/modules/image-generator/index.php:25
 #: admin/views/modules/logs/index.php:39
 #: admin/js/ai-forms/ui/render-dropped-element.js:183
@@ -2421,7 +2442,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/index.php:124
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:65
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:26
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:335
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:390
 msgid "Title"
 msgstr ""
 
@@ -2510,7 +2531,7 @@ msgid "User Limit Type"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:98
-#: admin/views/modules/ai-training/partials/settings.php:54
+#: admin/views/modules/ai-training/partials/settings.php:36
 #: admin/views/modules/chatbot/partials/accordion-ai-config.php:70
 #: admin/views/modules/image-generator/partials/settings-token-management.php:59
 msgid "General"
@@ -2627,6 +2648,8 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:24
 #: admin/views/modules/chatbot/partials/accordion-context.php:161
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:355
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:519
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:553
 msgid "Vector Store"
 msgstr ""
 
@@ -2652,14 +2675,14 @@ msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:78
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:50
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:52
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:61
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:53
 msgid "No stores found (Sync in AI Training)"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:84
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:55
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:57
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:66
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:58
 msgid "Pinecone Index"
 msgstr ""
@@ -2667,21 +2690,21 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/vector-config.php:86
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:57
 #: admin/views/modules/chatbot/partials/accordion-context.php:283
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:59
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:68
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:60
 msgid "-- Select Index --"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:92
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:63
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:65
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:74
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:66
 msgid "No indexes found (Sync in AI Settings)"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:98
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:68
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:70
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:79
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:71
 msgid "Qdrant Collection"
 msgstr ""
@@ -2689,7 +2712,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/vector-config.php:100
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:70
 #: admin/views/modules/chatbot/partials/accordion-context.php:318
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:72
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:81
 #: admin/views/modules/settings/partials/integrations/vector-databases.php:113
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:73
 msgid "-- Select Collection --"
@@ -2697,27 +2720,28 @@ msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:106
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:76
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:78
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:87
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:79
 msgid "No collections found (Sync in AI Settings)"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:127
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:95
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:97
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:106
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:98
 msgid "Select Provider First"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:136
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:36
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:38
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:40
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:39
 msgid "Results Limit"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:144
 #: admin/views/modules/chatbot/partials/accordion-context.php:436
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:45
 msgid "Score Threshold"
 msgstr ""
 
@@ -2967,22 +2991,21 @@ msgstr ""
 msgid "Context"
 msgstr ""
 
-#: admin/views/modules/ai-training/index.php:17
+#: admin/views/modules/ai-training/index.php:18
 #: classes/dashboard/class-aipkit_role_manager.php:47
 msgid "AI Training"
 msgstr ""
 
-#: admin/views/modules/ai-training/index.php:20
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:20
+#: admin/views/modules/ai-training/index.php:23
 #: admin/views/modules/chatbot/partials/accordion-ai-config.php:104
 msgid "Add Content"
 msgstr ""
 
-#: admin/views/modules/ai-training/index.php:22
+#: admin/views/modules/ai-training/index.php:25
 msgid "Sync and fetch all indexes from OpenAI, Pinecone, and Qdrant providers"
 msgstr ""
 
-#: admin/views/modules/ai-training/index.php:24
+#: admin/views/modules/ai-training/index.php:27
 #: admin/views/modules/settings/partials/settings-models.php:48
 #: admin/views/modules/settings/partials/settings-models.php:96
 #: admin/views/modules/settings/partials/settings-models.php:134
@@ -2992,47 +3015,71 @@ msgid "Sync"
 msgstr ""
 
 #: admin/views/modules/ai-training/index.php:29
+msgid "Choose how to display knowledge bases"
+msgstr ""
+
+#: admin/views/modules/ai-training/index.php:29
+#: admin/views/modules/ai-training/index.php:39
+msgid "View style"
+msgstr ""
+
+#: admin/views/modules/ai-training/index.php:30
+#: admin/views/modules/ai-training/index.php:32
+msgid "Cards view"
+msgstr ""
+
+#: admin/views/modules/ai-training/index.php:34
+#: admin/views/modules/ai-training/index.php:36
+msgid "List view"
+msgstr ""
+
+#: admin/views/modules/ai-training/index.php:41
+msgid "Cards"
+msgstr ""
+
+#: admin/views/modules/ai-training/index.php:48
 #: admin/views/modules/autogpt/index.php:51
 msgid "Knowledge Base"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:76
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:114
 msgid "Knowledge Base Cards"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:86
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:135
+#: admin/views/modules/ai-training/partials/knowledge-base-list.php:132
+msgid "ago"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:148
+#: admin/views/modules/ai-training/partials/knowledge-base-list.php:144
 msgid "View details for %s knowledge base"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:94
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:156
+#: admin/views/modules/ai-training/partials/knowledge-base-list.php:149
 msgid "User uploaded knowledge base from chat interface"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:102
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:164
 msgid "Knowledge base statistics"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:104
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:166
+#: admin/views/modules/ai-training/partials/knowledge-base-list.php:111
 msgid "Documents"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:106
-msgid "Loading document count..."
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:114
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:174
 msgid "Expires"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:115
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:175
+#: admin/views/modules/ai-training/partials/knowledge-base-list.php:112
 msgid "Updated"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:125
-msgid "Loading last updated..."
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:133
+#: admin/views/modules/ai-training/partials/knowledge-base-cards.php:193
 msgid "Manage"
 msgstr ""
 
@@ -3049,187 +3096,221 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/settings.php:31
-msgid "Content Indexing Controls"
+#: admin/views/modules/ai-training/partials/knowledge-base-list.php:107
+msgid "Knowledge Base List"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/settings.php:39
-msgid "Fine-tune indexing settings to control which custom fields, taxonomies, and product data to include when training your AI. Enable/disable specific fields and customize labels for better AI context."
+#: admin/views/modules/ai-training/partials/knowledge-base-list.php:109
+#: admin/views/modules/autogpt/partials/task-form-setup.php:16
+#: admin/views/modules/autogpt/partials/task-list.php:26
+#: admin/views/modules/autogpt/partials/task-queue.php:41
+msgid "Name"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/settings.php:41
-msgid "Upgrade to Pro"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/settings.php:45
-msgid "Select which custom fields, product data, and taxonomies to include when indexing content. If a post type is not configured here, all of its public data will be indexed by default."
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/settings.php:66
+#: admin/views/modules/ai-training/partials/settings.php:48
 msgid "Hide User-Uploaded Files"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/settings.php:69
+#: admin/views/modules/ai-training/partials/settings.php:51
 msgid "Hide vector stores created by users via the chatbot file upload feature from the main list."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/settings.php:81
+#: admin/views/modules/ai-training/partials/settings.php:63
 msgid "Show Index Button on Post/Product List"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/settings.php:84
+#: admin/views/modules/ai-training/partials/settings.php:66
 msgid "Uncheck to hide the Index button from post and product list screens while keeping the feature available elsewhere."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store.php:63
-msgid "Manage your knowledge bases and populate them with your site content, files, or text to build a knowledge base for your AI."
+#: admin/views/modules/ai-training/partials/settings.php:75
+msgid "Content Indexing Controls"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:30
-#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:44
-msgid "Source"
+#: admin/views/modules/ai-training/partials/settings.php:83
+msgid "Fine-tune indexing settings to control which custom fields, taxonomies, and product data to include when training your AI. Enable/disable specific fields and customize labels for better AI context."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:38
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:63
-msgid "Text"
+#: admin/views/modules/ai-training/partials/settings.php:85
+#: admin/views/modules/ai-training/partials/settings.php:111
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:257
+msgid "Upgrade to Pro"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:39
-msgid "Paste or type content directly"
+#: admin/views/modules/ai-training/partials/settings.php:89
+msgid "Select which custom fields, product data, and taxonomies to include when indexing content. If a post type is not configured here, all of its public data will be indexed by default."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:47
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:64
-msgid "Files"
+#: admin/views/modules/ai-training/partials/settings.php:99
+msgid "Document Chunking"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:48
-msgid "Upload PDF, DOC, TXT files"
+#: admin/views/modules/ai-training/partials/settings.php:108
+msgid "Control how large documents are split into chunks for embeddings. Adjust chunk size and overlap to balance recall and precision."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:56
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:65
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:160
-msgid "Site Content"
+#: admin/views/modules/ai-training/partials/settings.php:117
+msgid "Average Chars per Token"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:57
-msgid "Select from your site content"
+#: admin/views/modules/ai-training/partials/settings.php:120
+msgid "Heuristic average characters per token (2–10). Used to estimate chunk character sizes."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:76
+#: admin/views/modules/ai-training/partials/settings.php:124
+msgid "Max Tokens per Chunk"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/settings.php:127
+msgid "Upper bound of tokens per chunk (256–8000). Keep safely below your embedding model context."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/settings.php:131
+msgid "Overlap Tokens"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/settings.php:134
+msgid "Token overlap between consecutive chunks (0–1000). 5–15% of max tokens is common."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:23
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:46
 msgid "Vector DB"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:88
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:33
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:32
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:91
 msgid "Embedding"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:99
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:44
 msgid "Target Store"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:103
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:48
 msgid "-- Select Target --"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:107
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:52
 msgid "Sync Stores"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:111
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:56
 msgid "Create New Store"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:114
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:59
 msgid "Create New Index"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:117
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:62
 msgid "Create New Collection"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:138
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:77
+#: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:44
+msgid "Source"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:84
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:101
+msgid "Text"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:96
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:103
+msgid "Site Content"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:102
+msgid "Files"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:112
 #: lib/admin/js/chatbot/triggers/ui-builder/renderFormElementEditorItem.js:68
 msgid "Text Content"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:140
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:114
 msgid "Paste or type your content here..."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:146
-msgid "Select File"
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:119
+msgid "Upload Files"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:165
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:123
+msgid "Drag and drop files here or click to browse"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:127
+msgid "Drag & drop files, or click to browse"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:131
+msgid "Supported: TXT, PDF, HTML, DOCX"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:150
+msgid "Mode"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:154
+msgid "All by Post Type"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:158
+msgid "Pick Specific"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:171
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:210
 msgid "Post Types"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:177
+msgid "Count"
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:193
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:223
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:51
 msgid "Published"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:178
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:194
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:224
 #: admin/views/modules/autogpt/index.php:80
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:52
 #: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:40
 msgid "Draft"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:179
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:195
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:225
 msgid "Any"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:183
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:200
+msgid "Click Add to start. You can stop anytime."
+msgstr ""
+
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:229
 #: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:53
 msgid "Action"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:185
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:231
 msgid "Load Content"
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:192
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:238
 msgid "Select criteria and click \"Load Content\"."
 msgstr ""
 
-#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:204
+#: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:252
 msgid "Add"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:14
-msgid "New Store Name"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:16
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:17
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:17
-msgid "Support FAQ"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/openai.php:21
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:30
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:30
-msgid "Create"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:15
-msgid "New Index Name"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/pinecone.php:22
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:22
-msgid "Dimension"
-msgstr ""
-
-#: admin/views/modules/ai-training/partials/vector-store/global-form/inline-create-forms/qdrant.php:15
-msgid "New Collection Name"
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:18
@@ -3645,7 +3726,7 @@ msgstr ""
 #: admin/views/modules/content-writer/partials/form-inputs/seo-settings.php:44
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:54
 #: admin/views/modules/content-writer/partials/output-area.php:33
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:336
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:391
 msgid "Excerpt"
 msgstr ""
 
@@ -3760,7 +3841,7 @@ msgid "Vector Provider"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:43
-#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:45
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:54
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:46
 msgid "OpenAI Vector Stores"
 msgstr ""
@@ -3823,8 +3904,7 @@ msgid "Days"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/content-writing/post-settings.php:90
-#: admin/views/modules/content-writer/partials/form-inputs/post-settings.php:103
-msgid "Append | YYYY-MM-DD HH:MM to the end of each line in your Bulk/CSV/URL/Sheets input to schedule posts individually."
+msgid "For Bulk/CSV/URL append | YYYY-MM-DD HH:MM (or include date in Google Sheets column). Accepted: YYYY-MM-DD HH:MM[:SS], YYYY/MM/DD HH:MM, MM/DD/YYYY HH:MM, DD/MM/YYYY HH:MM, or ISO 8601. Times interpreted in site timezone unless offset/Z given."
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:26
@@ -4188,12 +4268,6 @@ msgstr ""
 msgid "Leave blank to use the main image prompt."
 msgstr ""
 
-#: admin/views/modules/autogpt/partials/task-form-setup.php:16
-#: admin/views/modules/autogpt/partials/task-list.php:26
-#: admin/views/modules/autogpt/partials/task-queue.php:41
-msgid "Name"
-msgstr ""
-
 #: admin/views/modules/autogpt/partials/task-form-setup.php:30
 msgid "-- Select a category first --"
 msgstr ""
@@ -4350,6 +4424,8 @@ msgstr ""
 
 #: admin/views/modules/chatbot/partials/accordion-context.php:311
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:360
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:519
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:553
 msgid "Collection"
 msgstr ""
 
@@ -5077,8 +5153,16 @@ msgstr ""
 msgid "Post"
 msgstr ""
 
+#: admin/views/modules/content-writer/partials/form-inputs/post-settings.php:103
+msgid "Append | YYYY-MM-DD HH:MM (or :SS) to each line (Bulk/CSV/URL) or use the Google Sheets schedule column. Also accepted: YYYY/MM/DD HH:MM, MM/DD/YYYY HH:MM, DD/MM/YYYY HH:MM, ISO 8601. Site timezone assumed unless offset/Z supplied."
+msgstr ""
+
 #: admin/views/modules/content-writer/partials/form-inputs/seo-settings.php:28
 msgid "SEO"
+msgstr ""
+
+#: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:48
+msgid "Minimum vector similarity score required (0–100)."
 msgstr ""
 
 #: admin/views/modules/content-writer/partials/output-area.php:25
@@ -5258,10 +5342,6 @@ msgstr ""
 msgid "Select a conversation from the left to view details."
 msgstr ""
 
-#: admin/views/modules/logs/index.php:113
-msgid "Content Enhancer"
-msgstr ""
-
 #: admin/views/modules/logs/partials/logs-settings.php:46
 msgid "Auto-Delete Logs"
 msgstr ""
@@ -5362,25 +5442,25 @@ msgstr ""
 
 #: admin/views/modules/logs/partials/logs-table.php:125
 #: admin/views/modules/logs/partials/logs-table.php:126
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:106
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:116
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:268
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:280
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:111
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:121
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:278
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:290
 msgid "(Unknown)"
 msgstr ""
 
 #: admin/views/modules/logs/partials/logs-table.php:126
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:111
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:275
-#: classes/chat/storage/class-aipkit_log_manager.php:65
-#: classes/chat/storage/class-aipkit_log_manager.php:215
-#: classes/chat/storage/class-aipkit_log_manager.php:254
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:116
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:285
+#: classes/chat/storage/class-aipkit_log_manager.php:70
+#: classes/chat/storage/class-aipkit_log_manager.php:225
+#: classes/chat/storage/class-aipkit_log_manager.php:269
 msgid "Guest"
 msgstr ""
 
 #: admin/views/modules/logs/partials/logs-table.php:139
-#: classes/chat/storage/class-aipkit_log_manager.php:86
-#: classes/chat/storage/class-aipkit_log_manager.php:100
+#: classes/chat/storage/class-aipkit_log_manager.php:91
+#: classes/chat/storage/class-aipkit_log_manager.php:105
 msgid "(No messages)"
 msgstr ""
 
@@ -5493,10 +5573,10 @@ msgstr ""
 #: admin/views/modules/settings/partials/integrations/vector-databases.php:27
 #: admin/views/modules/settings/partials/integrations/vector-databases.php:96
 #: admin/views/modules/settings/partials/settings-api-keys.php:26
-#: admin/views/modules/settings/partials/settings-api-keys.php:45
-#: admin/views/modules/settings/partials/settings-api-keys.php:64
-#: admin/views/modules/settings/partials/settings-api-keys.php:83
-#: admin/views/modules/settings/partials/settings-api-keys.php:124
+#: admin/views/modules/settings/partials/settings-api-keys.php:47
+#: admin/views/modules/settings/partials/settings-api-keys.php:68
+#: admin/views/modules/settings/partials/settings-api-keys.php:89
+#: admin/views/modules/settings/partials/settings-api-keys.php:132
 msgid "API Key"
 msgstr ""
 
@@ -5540,11 +5620,11 @@ msgstr ""
 #: admin/views/modules/settings/partials/integrations/replicate.php:37
 #: admin/views/modules/settings/partials/integrations/stock-images.php:37
 #: admin/views/modules/settings/partials/integrations/stock-images.php:59
-#: admin/views/modules/settings/partials/settings-api-keys.php:33
-#: admin/views/modules/settings/partials/settings-api-keys.php:52
-#: admin/views/modules/settings/partials/settings-api-keys.php:71
-#: admin/views/modules/settings/partials/settings-api-keys.php:90
-#: admin/views/modules/settings/partials/settings-api-keys.php:131
+#: admin/views/modules/settings/partials/settings-api-keys.php:35
+#: admin/views/modules/settings/partials/settings-api-keys.php:56
+#: admin/views/modules/settings/partials/settings-api-keys.php:77
+#: admin/views/modules/settings/partials/settings-api-keys.php:98
+#: admin/views/modules/settings/partials/settings-api-keys.php:141
 msgid "Get Key"
 msgstr ""
 
@@ -5710,15 +5790,15 @@ msgstr ""
 msgid "Content Control & Moderation"
 msgstr ""
 
-#: admin/views/modules/settings/partials/settings-api-keys.php:103
+#: admin/views/modules/settings/partials/settings-api-keys.php:111
 msgid "Endpoint URL"
 msgstr ""
 
-#: admin/views/modules/settings/partials/settings-api-keys.php:106
+#: admin/views/modules/settings/partials/settings-api-keys.php:114
 msgid "e.g., https://your-resource-name.openai.azure.com/"
 msgstr ""
 
-#: admin/views/modules/settings/partials/settings-api-keys.php:107
+#: admin/views/modules/settings/partials/settings-api-keys.php:115
 msgid "Clear field"
 msgstr ""
 
@@ -6053,7 +6133,7 @@ msgstr ""
 msgid "File upload is a Pro feature."
 msgstr ""
 
-#: classes/autogpt/ajax/actions/run-now/run-now-content-writing.php:67
+#: classes/autogpt/ajax/actions/run-now/run-now-content-writing.php:68
 msgid "No new or valid items found in the source to generate content for."
 msgstr ""
 
@@ -6347,14 +6427,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:112
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:144
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:405
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:149
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:415
 #: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:62
 msgid "Bot ID is required."
 msgstr ""
 
 #: classes/chat/admin/ajax/class-aipkit-chatbot-image-ajax-handler.php:116
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:212
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:217
 #: classes/chat/core/ajax-processor/frontend-chat/class-chat-message-validator.php:65
 msgid "Conversation ID is required."
 msgstr ""
@@ -6366,145 +6446,165 @@ msgid "Session ID is missing for guest."
 msgstr ""
 
 #: classes/chat/admin/ajax/conversation_ajax_handler.php:99
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:264
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:269
 #: classes/chat/storage/class-aipkit_log_manager.php:53
-#: classes/chat/storage/class-aipkit_log_manager.php:203
-#: classes/chat/storage/class-aipkit_log_manager.php:243
+#: classes/chat/storage/class-aipkit_log_manager.php:208
+#: classes/chat/storage/class-aipkit_log_manager.php:253
 msgid "(Deleted Bot)"
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:103
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:108
 msgid "(No Bot/Module)"
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:109
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:273
-#: classes/chat/storage/class-aipkit_log_manager.php:63
-#: classes/chat/storage/class-aipkit_log_manager.php:213
-#: classes/chat/storage/class-aipkit_log_manager.php:252
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:114
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:283
+#: classes/chat/storage/class-aipkit_log_manager.php:68
+#: classes/chat/storage/class-aipkit_log_manager.php:223
+#: classes/chat/storage/class-aipkit_log_manager.php:267
 msgid "(Deleted User)"
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:145
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:150
 msgid "User or Session ID is required."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:154
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:159
 msgid "Could not retrieve conversation data."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:177
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:350
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:182
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:360
 msgid "Bot ID and Conversation ID are required."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:180
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:185
 msgid "Session ID is required for guest history."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:215
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:220
 msgid "User or Session ID must be provided from log data."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:248
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:253
 msgid "Internal error: Invalid user/session identifier combination."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:259
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:264
 msgid "Log entry not found."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:303
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:313
 msgid "Feedback service unavailable."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:323
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:333
 msgid "Feedback saved."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:355
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:365
 msgid "Cannot identify user or session."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:376
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:386
 msgid "Conversation deleted."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:393
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:403
 msgid "Text-to-Speech service is unavailable."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:397
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:407
 #: classes/speech/class-aipkit-speech-manager.php:61
 msgid "Voice Playback addon is not active."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:404
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:414
 #: classes/speech/class-aipkit-tts-elevenlabs-provider-strategy.php:55
 #: classes/speech/class-aipkit-tts-openai-provider-strategy.php:57
 msgid "Text cannot be empty."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:408
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:418
 msgid "Internal error: Cannot load bot storage."
 msgstr ""
 
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:414
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:424
 msgid "Voice playback is not enabled for this chatbot."
 msgstr ""
 
 #. translators: %s: The name of the Text-to-Speech provider (e.g., Google, OpenAI).
-#: classes/chat/admin/ajax/conversation_ajax_handler.php:445
+#: classes/chat/admin/ajax/conversation_ajax_handler.php:455
 msgid "TTS failed: %s API Key is missing in main settings."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:82
+#: classes/chat/admin/ajax/log_ajax_handler.php:54
+msgid "Invalid IP address provided."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:71
+msgid "IP address unblocked."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:73
+msgid "IP address was already unblocked."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:79
+msgid "IP address blocked."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:81
+msgid "IP address was already blocked."
+msgstr ""
+
+#: classes/chat/admin/ajax/log_ajax_handler.php:143
 msgid "Log settings saved successfully."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:84
+#: classes/chat/admin/ajax/log_ajax_handler.php:145
 msgid "Note: Auto-delete feature requires Pro plan."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:103
+#: classes/chat/admin/ajax/log_ajax_handler.php:164
 msgid "Manual log pruning is a Pro feature. Please upgrade."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:113
+#: classes/chat/admin/ajax/log_ajax_handler.php:174
 msgid "Invalid retention period provided."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:118
+#: classes/chat/admin/ajax/log_ajax_handler.php:179
 msgid "Log manager component is unavailable."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:126
+#: classes/chat/admin/ajax/log_ajax_handler.php:187
 msgid "An error occurred while pruning the logs."
 msgstr ""
 
 #. translators: %d: The number of log entries that were deleted.
-#: classes/chat/admin/ajax/log_ajax_handler.php:132
+#: classes/chat/admin/ajax/log_ajax_handler.php:193
 msgid "%d log entry pruned."
 msgid_plural "%d log entries pruned."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:293
+#: classes/chat/admin/ajax/log_ajax_handler.php:354
 msgid "(Unknown Bot)"
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:295
-#: classes/chat/storage/class-aipkit_log_manager.php:67
-#: classes/chat/storage/class-aipkit_log_manager.php:217
-#: classes/chat/storage/class-aipkit_log_manager.php:259
+#: classes/chat/admin/ajax/log_ajax_handler.php:356
+#: classes/chat/storage/class-aipkit_log_manager.php:72
+#: classes/chat/storage/class-aipkit_log_manager.php:227
+#: classes/chat/storage/class-aipkit_log_manager.php:274
 msgid "(Unknown User)"
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:381
+#: classes/chat/admin/ajax/log_ajax_handler.php:442
 msgid "Database error during log deletion."
 msgstr ""
 
-#: classes/chat/admin/ajax/log_ajax_handler.php:389
+#: classes/chat/admin/ajax/log_ajax_handler.php:450
 msgid "Deletion error:"
 msgstr ""
 
@@ -6648,12 +6748,16 @@ msgstr ""
 msgid "No indexable content types found."
 msgstr ""
 
-#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:388
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:386
 msgid "No vector store provider API key found. Please configure OpenAI, Pinecone, or Qdrant in AI Settings."
 msgstr ""
 
-#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:411
-msgid "No embedding provider API key found. Please configure OpenAI or Google API key in AI Settings -> Providers."
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:453
+msgid "No embedding provider API key found. Please configure OpenAI, Google, or Azure API key in AI Settings -> Providers."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:521
+msgid "🆕 %1$s created: %2$s"
 msgstr ""
 
 #: classes/chat/core/ai-service/generate-response/validate-request.php:33
@@ -6763,7 +6867,7 @@ msgid "Error processing form submission triggers."
 msgstr ""
 
 #: classes/chat/frontend/assets/class-assets-enqueuer.php:119
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:45
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:46
 #: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:142
 msgid "Upload File (TXT, PDF)"
 msgstr ""
@@ -6826,15 +6930,15 @@ msgstr ""
 msgid "Google Search Grounding Inactive"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:40
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:41
 msgid "Attach files or use tools"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:49
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:50
 msgid "Upload Image"
 msgstr ""
 
-#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:61
+#: classes/chat/frontend/shortcode/renderer/render_input_area_html.php:62
 msgid "Chat message input"
 msgstr ""
 
@@ -6923,20 +7027,20 @@ msgid "Failed to save feedback."
 msgstr ""
 
 #: classes/chat/storage/class-aipkit_log_manager.php:55
-#: classes/chat/storage/class-aipkit_log_manager.php:205
-#: classes/chat/storage/class-aipkit_log_manager.php:245
+#: classes/chat/storage/class-aipkit_log_manager.php:210
+#: classes/chat/storage/class-aipkit_log_manager.php:255
 msgid "(No Bot)"
 msgstr ""
 
-#: classes/chat/storage/class-aipkit_log_manager.php:277
+#: classes/chat/storage/class-aipkit_log_manager.php:292
 msgid "Conversation UUID is required for deletion."
 msgstr ""
 
-#: classes/chat/storage/class-aipkit_log_manager.php:280
+#: classes/chat/storage/class-aipkit_log_manager.php:295
 msgid "User ID or Session ID is required for deletion."
 msgstr ""
 
-#: classes/chat/storage/class-aipkit_log_manager.php:309
+#: classes/chat/storage/class-aipkit_log_manager.php:324
 msgid "Failed to delete conversation log."
 msgstr ""
 
@@ -7016,10 +7120,6 @@ msgstr ""
 
 #: classes/chat/utils/class-log-status-renderer.php:46
 msgid "Status:"
-msgstr ""
-
-#: classes/chat/utils/class-log-status-renderer.php:52
-msgid "Scheduled"
 msgstr ""
 
 #: classes/chat/utils/class-log-status-renderer.php:56
@@ -7103,7 +7203,7 @@ msgstr ""
 msgid "Custom Content Prompt cannot be empty when in Custom Prompt mode."
 msgstr ""
 
-#: classes/content-writer/ajax/actions/generate-title/handle-title-response.php:39
+#: classes/content-writer/ajax/actions/generate-title/handle-title-response.php:49
 msgid "AI did not return a valid title."
 msgstr ""
 
@@ -7267,7 +7367,7 @@ msgstr ""
 msgid "Template not found or you do not have permission to delete it."
 msgstr ""
 
-#: classes/content-writer/template-manager/ensure-default-template-exists.php:125
+#: classes/content-writer/template-manager/ensure-default-template-exists.php:126
 msgid "Default Template"
 msgstr ""
 
@@ -7380,35 +7480,55 @@ msgstr ""
 msgid "An unknown error occurred during re-indexing."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:334
-msgid "Source URL"
-msgstr ""
-
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:343
-msgid "SKU"
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:327
+msgid "Missing provider, store_id or batch_id."
 msgstr ""
 
 #: classes/core/ajax/class-aipkit-core-ajax-handler.php:344
+msgid "Failed to fetch chunk logs."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:389
+msgid "Source URL"
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:398
+msgid "SKU"
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:399
 msgid "Price"
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:345
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:400
 msgid "Stock Status"
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:346
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:401
 msgid "Weight & Dimensions"
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:347
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:402
 msgid "Product Attributes"
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:377
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:432
 msgid "Invalid settings format."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:455
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:461
+msgid "Average chars per token must be between 2 and 10."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:469
+msgid "Max tokens per chunk must be between 256 and 8000."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:477
+msgid "Overlap tokens must be between 0 and 1000."
+msgstr ""
+
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:549
 msgid "Indexing settings saved successfully."
 msgstr ""
 
@@ -7849,11 +7969,11 @@ msgid "Provider or Model is missing for content writer."
 msgstr ""
 
 #. translators: %s: The name of the AI provider (e.g., OpenAI, Google).
-#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:191
+#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:204
 msgid "API key missing for %s (Content Writer)."
 msgstr ""
 
-#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:208
+#: classes/core/stream/contexts/content-writer/fn-process-content-writer.php:221
 msgid "Azure endpoint is missing (Content Writer)."
 msgstr ""
 
@@ -7959,7 +8079,7 @@ msgid "Qdrant URL is required to sync collections."
 msgstr ""
 
 #. translators: %s: The provider name that was synced.
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:268
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:301
 msgid "%s synced successfully."
 msgstr ""
 
@@ -8096,14 +8216,14 @@ msgid "No file was sent for upload."
 msgstr ""
 
 #: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:71
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:54
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:54
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:63
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:63
 msgid "Upload utility is missing."
 msgstr ""
 
 #: classes/dashboard/ajax/openai/handler-files/ajax-upload-and-add-file-to-store-direct-openai.php:77
 #: classes/dashboard/ajax/openai/handler-files/ajax-upload-file-to-openai.php:43
-#: includes/class-aipkit-upload-utils.php:120
+#: includes/class-aipkit-upload-utils.php:136
 msgid "Error during file upload: Code "
 msgstr ""
 
@@ -8210,7 +8330,7 @@ msgstr ""
 msgid "File upload to Pinecone is a Pro feature. Please upgrade."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/class-aipkit-vector-store-pinecone-ajax-handler.php:245
+#: classes/dashboard/ajax/pinecone/class-aipkit-vector-store-pinecone-ajax-handler.php:250
 msgid "File upload processing component for Pinecone is missing."
 msgstr ""
 
@@ -8261,7 +8381,7 @@ msgstr ""
 msgid "Vector Store components not available for Pinecone."
 msgstr ""
 
-#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-list-indexes.php:47
+#: classes/dashboard/ajax/pinecone/handler-indexes/ajax-list-indexes.php:69
 msgid "Pinecone indexes synced successfully."
 msgstr ""
 
@@ -8462,7 +8582,7 @@ msgid "Token Usage Shortcode (Frontend)"
 msgstr ""
 
 #: classes/dashboard/class-aipkit_role_manager.php:54
-msgid "Content Enhancer (Admin Edit Screen)"
+msgid "Content Assistant (Admin Edit Screen)"
 msgstr ""
 
 #: classes/dashboard/class-aipkit_role_manager.php:55
@@ -8668,39 +8788,39 @@ msgid "You must be logged in to view history."
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_load_more_image_history.php:74
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:220
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:212
 msgid "Duration: %ds"
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_load_more_image_history.php:82
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:228
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:220
 msgid "Your browser does not support the video tag."
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_load_more_image_history.php:85
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:231
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:223
 msgid "VIDEO"
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_load_more_image_history.php:88
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:234
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:226
 msgid "Delete Video"
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_load_more_image_history.php:94
 #: classes/images/manager/ajax/ajax_load_more_image_history.php:129
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:240
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:275
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:232
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:267
 msgid "Prompt:"
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_load_more_image_history.php:120
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:266
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:258
 msgid "IMAGE"
 msgstr ""
 
 #: classes/images/manager/ajax/ajax_load_more_image_history.php:123
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:269
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:261
 msgid "Delete Image"
 msgstr ""
 
@@ -8974,27 +9094,27 @@ msgstr ""
 msgid "Operation \"%s\" not supported for OpenAI Image URL Builder."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:66
+#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:71
 msgid "No field specified for processing."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:75
+#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:80
 msgid "Invalid configuration for the specified field."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:219
+#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:252
 msgid "AI returned empty response for this field."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:258
+#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:304
 msgid "Failed to update tags."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:262
+#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:308
 msgid "Tags helper class not available."
 msgstr ""
 
-#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:271
+#: classes/post-enhancer/ajax/actions/bulk-process-single-field.php:317
 msgid "Unsupported field type."
 msgstr ""
 
@@ -9108,11 +9228,11 @@ msgid "Action deleted successfully."
 msgstr ""
 
 #: classes/post-enhancer/class-aipkit-post-enhancer-core.php:136
-msgid "Enhance content using AI"
+msgid "Update content using AI"
 msgstr ""
 
 #: classes/post-enhancer/class-aipkit-post-enhancer-core.php:137
-msgid "Enhance"
+msgid "Assistant"
 msgstr ""
 
 #: classes/post-enhancer/class-aipkit-post-enhancer-core.php:138
@@ -9156,6 +9276,7 @@ msgid "An array of message objects representing the conversation history."
 msgstr ""
 
 #: classes/rest/handlers/class-aipkit-rest-chat-handler.php:61
+#: classes/rest/handlers/class-aipkit-rest-logs-handler.php:65
 #: classes/rest/handlers/class-aipkit-rest-vector-store-handler.php:80
 msgid "API Key for accessing this endpoint."
 msgstr ""
@@ -9347,6 +9468,30 @@ msgstr ""
 msgid "Missing required parameter: prompt"
 msgstr ""
 
+#: classes/rest/handlers/class-aipkit-rest-logs-handler.php:38
+msgid "The page number for pagination."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-logs-handler.php:44
+msgid "The number of conversation logs to return per page."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-logs-handler.php:50
+msgid "Filter logs for a specific chatbot ID."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-logs-handler.php:55
+msgid "Search for logs by a user's display name, username, or email."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-logs-handler.php:60
+msgid "Search for logs where the conversation contains specific text."
+msgstr ""
+
+#: classes/rest/handlers/class-aipkit-rest-logs-handler.php:108
+msgid "Internal server error: Log storage component not loaded."
+msgstr ""
+
 #: classes/rest/handlers/class-aipkit-rest-text-handler.php:31
 msgid "The AI provider to use for text generation."
 msgstr ""
@@ -9465,15 +9610,11 @@ msgstr ""
 msgid "AIPKit Image Generator Shortcode: Module is disabled in settings."
 msgstr ""
 
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:63
-msgid "AIPKit Image Generator Shortcode: Current user role lacks permission."
-msgstr ""
-
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:196
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:188
 msgid "You have not generated any images or videos yet."
 msgstr ""
 
-#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:291
+#: classes/shortcodes/class-aipkit-image-generator-shortcode.php:283
 msgid "Load More"
 msgstr ""
 
@@ -9890,7 +10031,7 @@ msgid "Embedding provider and model are required for Pinecone."
 msgstr ""
 
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:136
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:50
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:59
 msgid "Embedding provider and model are required for Qdrant."
 msgstr ""
 
@@ -10132,12 +10273,12 @@ msgid "An error occurred while searching."
 msgstr ""
 
 #. translators: %1$s is the detected MIME type, %2$s is the allowed types
-#: includes/class-aipkit-upload-utils.php:137
+#: includes/class-aipkit-upload-utils.php:153
 msgid "Invalid file type: %1$s. Allowed types: %2$s"
 msgstr ""
 
 #. translators: %1$s is the actual file size, %2$s is the maximum allowed size
-#: includes/class-aipkit-upload-utils.php:148
+#: includes/class-aipkit-upload-utils.php:164
 msgid "File is too large (%1$s). Maximum allowed size is %2$s."
 msgstr ""
 
@@ -10284,7 +10425,6 @@ msgid "Embedding provider or model is not configured for this chatbot."
 msgstr ""
 
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-pinecone-handler.php:113
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:88
 msgid "PDF parsing utility is missing (Pinecone)."
 msgstr ""
 
@@ -10294,15 +10434,15 @@ msgstr ""
 
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-pinecone-handler.php:144
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-qdrant-handler.php:194
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:113
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:112
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:110
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:110
 msgid "Could not read file content or file is empty."
 msgstr ""
 
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-pinecone-handler.php:163
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-qdrant-handler.php:209
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:130
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:129
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:188
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:183
 msgid "Failed to generate vector for file content."
 msgstr ""
 
@@ -10327,7 +10467,6 @@ msgid "This chatbot is not configured for Qdrant file uploads (collection name m
 msgstr ""
 
 #: lib/chat/frontend/ajax/handlers/class-chat-file-upload-qdrant-handler.php:177
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:87
 msgid "PDF parsing utility is missing (Qdrant)."
 msgstr ""
 
@@ -10480,6 +10619,42 @@ msgstr ""
 msgid "Permission denied. Ensure the sheet is shared with the service account email."
 msgstr ""
 
+#: lib/utils/class-aipkit-file-text-extractor.php:30
+msgid "Uploaded file is not readable."
+msgstr ""
+
+#: lib/utils/class-aipkit-file-text-extractor.php:40
+msgid "Could not read file content."
+msgstr ""
+
+#: lib/utils/class-aipkit-file-text-extractor.php:47
+msgid "PDF parser not available."
+msgstr ""
+
+#: lib/utils/class-aipkit-file-text-extractor.php:60
+msgid "Could not read HTML file."
+msgstr ""
+
+#: lib/utils/class-aipkit-file-text-extractor.php:76
+msgid "Unsupported file type: %s"
+msgstr ""
+
+#: lib/utils/class-aipkit-file-text-extractor.php:100
+msgid "DOCX extraction requires ZipArchive extension."
+msgstr ""
+
+#: lib/utils/class-aipkit-file-text-extractor.php:104
+msgid "Failed to open DOCX file."
+msgstr ""
+
+#: lib/utils/class-aipkit-file-text-extractor.php:109
+msgid "DOCX main document.xml not found."
+msgstr ""
+
+#: lib/utils/class-aipkit-file-text-extractor.php:114
+msgid "Failed to read DOCX XML."
+msgstr ""
+
 #: lib/utils/class-aipkit-pdf-parser.php:38
 msgid "PDF parsing library is not available."
 msgstr ""
@@ -10512,37 +10687,27 @@ msgstr ""
 msgid "Could not extract any meaningful text from the main content area."
 msgstr ""
 
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:43
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:52
 msgid "Target Pinecone index is required."
 msgstr ""
 
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:47
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:56
 msgid "No file provided for Pinecone upload."
 msgstr ""
 
-#. translators: %s is the MIME type
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:108
-msgid "Unsupported file type after validation (Pinecone). Given: %s"
-msgstr ""
-
-#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:165
+#: lib/vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php:260
 msgid "File content embedded and upserted to Pinecone successfully."
 msgstr ""
 
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:43
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:52
 msgid "Target Qdrant collection name is required."
 msgstr ""
 
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:47
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:56
 msgid "No file provided for Qdrant upload."
 msgstr ""
 
-#. translators: %s is the MIME type
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:107
-msgid "Unsupported file type after validation (Qdrant). Given: %s"
-msgstr ""
-
-#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:164
+#: lib/vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php:255
 msgid "File content embedded and upserted to Qdrant successfully."
 msgstr ""
 

@@ -33,7 +33,7 @@ function log_stream_init_logic(AIPKit_Content_Writer_Init_Stream_Action $handler
         'role' => implode(', ', wp_get_current_user()->roles),
         'ip_address' => class_exists(AIPKit_IP_Anonymization::class) ? AIPKit_IP_Anonymization::maybe_anonymize($client_ip) : $client_ip,
         'message_role' => 'user',
-        'message_content' => "Content Writer Request (Stream Init): " . esc_html($cached_data['initial_request_details']['title'] ?? 'Untitled'),
+        'message_content' => "Content Writer Request: " . esc_html($cached_data['initial_request_details']['title'] ?? 'Untitled'),
         'timestamp' => time(),
         'ai_provider' => $cached_data['provider'],
         'ai_model' => $cached_data['model'],

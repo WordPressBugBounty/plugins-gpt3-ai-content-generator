@@ -220,6 +220,9 @@ class Ajax_Hooks_Registrar
         if (method_exists($core_ajax_handler, 'ajax_delete_vector_data_source_entry')) {
             add_action('wp_ajax_aipkit_delete_vector_data_source_entry', [$core_ajax_handler, 'ajax_delete_vector_data_source_entry']);
         }
+        if (method_exists($core_ajax_handler, 'ajax_get_chunk_logs_by_batch')) {
+            add_action('wp_ajax_aipkit_get_chunk_logs_by_batch', [$core_ajax_handler, 'ajax_get_chunk_logs_by_batch']);
+        }
         if (method_exists($core_ajax_handler, 'ajax_reindex_vector_data_source_entry')) {
             add_action('wp_ajax_aipkit_reindex_vector_data_source_entry', [$core_ajax_handler, 'ajax_reindex_vector_data_source_entry']);
         }

@@ -2,7 +2,7 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/dependency-loaders/class-rest-dependencies-loader.php
 // Status: MODIFIED
-// I have updated this loader to include the new Vector Store REST handler.
+// I have updated this loader to include the new Logs REST handler.
 
 namespace WPAICG\Includes\DependencyLoaders;
 
@@ -25,7 +25,8 @@ class Rest_Dependencies_Loader
             'class-aipkit-rest-embeddings-handler.php',
             'class-aipkit-rest-chat-handler.php',
             'class-aipkit-rest-vector-store-handler.php',
-            'class-aipkit-rest-chatbot-embed-handler.php' // NEW: Embed handler
+            'class-aipkit-rest-chatbot-embed-handler.php', // NEW: Embed handler
+            'class-aipkit-rest-logs-handler.php', // NEW: Logs handler
         ];
         foreach ($handlers_to_load as $handler_file) {
             $full_path = $rest_base_path . 'handlers/' . $handler_file;

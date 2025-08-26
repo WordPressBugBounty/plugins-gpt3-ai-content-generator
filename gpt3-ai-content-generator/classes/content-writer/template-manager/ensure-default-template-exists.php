@@ -116,6 +116,7 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
         'vector_embedding_provider' => 'openai',
         'vector_embedding_model' => 'text-embedding-3-small',
         'vector_store_top_k' => '3',
+    'vector_store_confidence_threshold' => '20',
         ];
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table. Caches will be invalidated.
         $wpdb->insert(
@@ -160,7 +161,7 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
             $needs_update = true;
         }
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
-        if ($needs_update) {$wpdb->update(
+    if ($needs_update) {$wpdb->update(
                 $table_name,
                 ['config' => wp_json_encode($config)],
                 ['id' => $default_template->id],

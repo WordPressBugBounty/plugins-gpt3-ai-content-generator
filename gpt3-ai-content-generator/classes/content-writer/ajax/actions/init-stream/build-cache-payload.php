@@ -26,6 +26,10 @@ function build_cache_payload_logic(
     array $ai_params_for_cache,
     array $settings
 ): array {
+    // Reuse conversation_uuid from the request if present; otherwise generate a new one
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing
+    $provided_uuid = isset($settings['conversation_uuid']) ? sanitize_text_field(wp_unslash($settings['conversation_uuid'])) : '';
+    $conversation_uuid = !empty($provided_uuid) ? $provided_uuid : wp_generate_uuid4();
     return [
     'stream_context' => 'content_writer',
     'system_instruction' => $system_instruction,
@@ -33,7 +37,7 @@ function build_cache_payload_logic(
     'provider' => $provider,
     'model' => $model,
     'ai_params' => $ai_params_for_cache,
-    'conversation_uuid' => wp_generate_uuid4(),
+    'conversation_uuid' => $conversation_uuid,
     'user_id' => get_current_user_id(),
     'bot_id' => null,
     'session_id' => null,
@@ -71,5 +75,6 @@ function build_cache_payload_logic(
     'vector_embedding_provider'     => $settings['vector_embedding_provider'] ?? 'openai',
     'vector_embedding_model'        => $settings['vector_embedding_model'] ?? '',
     'vector_store_top_k'            => isset($settings['vector_store_top_k']) ? absint($settings['vector_store_top_k']) : 3,
+    'vector_store_confidence_threshold' => isset($settings['vector_store_confidence_threshold']) ? max(0, min(absint($settings['vector_store_confidence_threshold']), 100)) : 20,
     ];
 }

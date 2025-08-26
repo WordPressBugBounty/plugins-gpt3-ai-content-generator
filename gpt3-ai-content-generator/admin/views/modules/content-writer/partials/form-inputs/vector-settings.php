@@ -34,9 +34,18 @@ if (!defined('ABSPATH')) {
                         <option value="qdrant">Qdrant</option>
                     </select>
                 </div>
+            </div>
+            <div class="aipkit_form-row">
                 <div class="aipkit_form-group aipkit_form-col aipkit_cw_vector_store_top_k_field">
                     <label class="aipkit_form-label" for="aipkit_cw_vector_store_top_k"><?php esc_html_e('Results Limit', 'gpt3-ai-content-generator'); ?></label>
-                    <input type="number" id="aipkit_cw_vector_store_top_k" name="vector_store_top_k" class="aipkit_form-input aipkit_autosave_trigger" value="3" min="1" max="20" step="1">
+                    <input type="range" id="aipkit_cw_vector_store_top_k" name="vector_store_top_k" class="aipkit_form-input aipkit_autosave_trigger aipkit_range_slider" value="3" min="1" max="20" step="1">
+                    <span id="aipkit_cw_vector_store_top_k_value" class="aipkit_slider_value">3</span>
+                </div>
+                <div class="aipkit_form-group aipkit_form-col aipkit_cw_vector_store_confidence_field">
+                    <label class="aipkit_form-label" for="aipkit_cw_vector_store_confidence_threshold"><?php esc_html_e('Score Threshold', 'gpt3-ai-content-generator'); ?></label>
+                    <input type="range" id="aipkit_cw_vector_store_confidence_threshold" name="vector_store_confidence_threshold" class="aipkit_form-input aipkit_autosave_trigger aipkit_range_slider" value="20" min="0" max="100" step="1">
+                    <span id="aipkit_cw_vector_store_confidence_threshold_value" class="aipkit_slider_value">20%</span>
+                    <p class="aipkit_form-help"><?php esc_html_e('Minimum vector similarity score required (0–100).', 'gpt3-ai-content-generator'); ?></p>
                 </div>
             </div>
             <!-- Provider Specific Fields -->

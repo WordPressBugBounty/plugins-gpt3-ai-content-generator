@@ -59,11 +59,6 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
     <?php include __DIR__ . '/vector-store/nonce-fields.php'; ?>
     <?php include __DIR__ . '/vector-store/data-attributes.php'; ?>
 
-    <div class="aipkit_knowledge_base_intro">
-        <p><?php esc_html_e('Manage your knowledge bases and populate them with your site content, files, or text to build a knowledge base for your AI.', 'gpt3-ai-content-generator'); ?></p>
-        <div id="aipkit_knowledge_base_global_status" class="aipkit_global_status_area"></div>
-    </div>
-
     <!-- Add Content Form -->
     <div id="aipkit_add_content_form_container" style="display:none;max-width: 750px;">
         <?php // This partial now contains the entire "Add Content" form, moved from the old left-panel.php ?>
@@ -74,6 +69,11 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
     <!-- View for the list of knowledge base cards -->
     <div id="aipkit_kb_card_view">
         <?php include __DIR__ . '/knowledge-base-cards.php'; ?>
+    </div>
+
+    <!-- View for the list-style knowledge base items (initially hidden, toggled via selector) -->
+    <div id="aipkit_kb_list_view" style="display: none;">
+        <?php include __DIR__ . '/knowledge-base-list.php'; ?>
     </div>
 
     <!-- View for the details of a single knowledge base (initially hidden) -->

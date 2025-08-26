@@ -50,6 +50,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids',
             'pinecone_index_name', 'qdrant_collection_name', 'vector_embedding_provider',
             'vector_embedding_model', 'vector_store_top_k',
+            'vector_store_confidence_threshold',
             'rss_include_keywords', 'rss_exclude_keywords',
             'reasoning_effort', // ADDED
         ];
@@ -77,6 +78,9 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
                     $content_writer_config[$key] = array_map('absint', $settings[$key]);
                 } elseif (in_array($key, ['post_author', 'image_count', 'image_placement_param_x', 'vector_store_top_k', 'smart_schedule_interval_value'], true)) {
                     $content_writer_config[$key] = absint($settings[$key]);
+                } elseif ($key === 'vector_store_confidence_threshold') {
+                    $raw = isset($settings[$key]) ? absint($settings[$key]) : 20;
+                    $content_writer_config[$key] = max(0, min($raw, 100));
                 } elseif ($key === 'ai_temperature') {
                     $content_writer_config[$key] = (string)floatval($settings[$key]);
                 } elseif ($key === 'openai_vector_store_ids' && is_array($settings[$key])) {

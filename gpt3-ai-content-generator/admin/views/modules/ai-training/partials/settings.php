@@ -16,6 +16,10 @@ $training_general_settings = get_option('aipkit_training_general_settings', [
 ]);
 $hide_user_uploads_checked = $training_general_settings['hide_user_uploads'] ?? true;
 $show_index_button_checked = $training_general_settings['show_index_button'] ?? true;
+// Chunking defaults and current values
+$chunk_avg_chars = isset($training_general_settings['chunk_avg_chars_per_token']) ? (int) $training_general_settings['chunk_avg_chars_per_token'] : 4;
+$chunk_max_tokens = isset($training_general_settings['chunk_max_tokens_per_chunk']) ? (int) $training_general_settings['chunk_max_tokens_per_chunk'] : 3000;
+$chunk_overlap_tokens = isset($training_general_settings['chunk_overlap_tokens']) ? (int) $training_general_settings['chunk_overlap_tokens'] : 150;
 
 // Check if user is on pro plan
 $is_pro = aipkit_dashboard::is_pro_plan();
@@ -25,29 +29,7 @@ $is_pro = aipkit_dashboard::is_pro_plan();
     <form id="aipkit_indexing_settings_form" onsubmit="return false;">
 
         <div class="aipkit_accordion-group">
-            <div class="aipkit_accordion">
-                <div class="aipkit_accordion-header aipkit_active">
-                    <span class="dashicons dashicons-admin-settings"></span>
-                    <?php esc_html_e('Content Indexing Controls', 'gpt3-ai-content-generator'); ?>
-                    <?php if (!$is_pro): ?>
-                        <span class="aipkit_status-tag" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; margin-left: 8px; padding: 2px 8px; font-size: 11px; font-weight: 600; border-radius: 12px; text-transform: uppercase;"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
-                    <?php endif; ?>
-                </div>
-                <div class="aipkit_accordion-content aipkit_active">
-                    <?php if (!$is_pro): ?>
-                        <div class="aipkit_notice aipkit_notice-info" style="margin-bottom: 15px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #0073aa; border-radius: 4px;">
-                            <p style="margin: 0 0 10px 0;"><?php esc_html_e('Fine-tune indexing settings to control which custom fields, taxonomies, and product data to include when training your AI. Enable/disable specific fields and customize labels for better AI context.', 'gpt3-ai-content-generator'); ?></p>
-                            <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="button button-primary" style="margin-top: 5px;">
-                                <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                    <p class="aipkit_form-help"><?php esc_html_e('Select which custom fields, product data, and taxonomies to include when indexing content. If a post type is not configured here, all of its public data will be indexed by default.', 'gpt3-ai-content-generator'); ?></p>
-                    <div id="aipkit_indexing_settings_form_container">
-                        <!-- Accordions will be dynamically generated here by JS -->
-                    </div>
-                </div>
-            </div>
+            <!-- Move General to top -->
             <div class="aipkit_accordion">
                 <div class="aipkit_accordion-header">
                     <span class="dashicons dashicons-admin-generic"></span>
@@ -85,6 +67,73 @@ $is_pro = aipkit_dashboard::is_pro_plan();
                         </p>
                     </div>
                 </div>
+            </div>
+            <!-- Content Indexing Controls next -->
+            <div class="aipkit_accordion">
+                <div class="aipkit_accordion-header aipkit_active">
+                    <span class="dashicons dashicons-admin-settings"></span>
+                    <?php esc_html_e('Content Indexing Controls', 'gpt3-ai-content-generator'); ?>
+                    <?php if (!$is_pro): ?>
+                        <span class="aipkit_status-tag" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; margin-left: 8px; padding: 2px 8px; font-size: 11px; font-weight: 600; border-radius: 12px; text-transform: uppercase;"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="aipkit_accordion-content aipkit_active">
+                    <?php if (!$is_pro): ?>
+                        <div class="aipkit_notice aipkit_notice-info" style="margin-bottom: 15px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #0073aa; border-radius: 4px;">
+                            <p style="margin: 0 0 10px 0;"><?php esc_html_e('Fine-tune indexing settings to control which custom fields, taxonomies, and product data to include when training your AI. Enable/disable specific fields and customize labels for better AI context.', 'gpt3-ai-content-generator'); ?></p>
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="button button-primary" style="margin-top: 5px;">
+                                <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                    <p class="aipkit_form-help"><?php esc_html_e('Select which custom fields, product data, and taxonomies to include when indexing content. If a post type is not configured here, all of its public data will be indexed by default.', 'gpt3-ai-content-generator'); ?></p>
+                    <div id="aipkit_indexing_settings_form_container">
+                        <!-- Accordions will be dynamically generated here by JS -->
+                    </div>
+                </div>
+            </div>
+            <!-- Document Chunking remains third -->
+            <div class="aipkit_accordion">
+            <div class="aipkit_accordion-header">
+                <span class="dashicons dashicons-editor-table"></span>
+                <?php esc_html_e('Document Chunking', 'gpt3-ai-content-generator'); ?>
+                <?php if (!$is_pro): ?>
+                    <span class="aipkit_status-tag" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; margin-left: 8px; padding: 2px 8px; font-size: 11px; font-weight: 600; border-radius: 12px; text-transform: uppercase;"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                <?php endif; ?>
+            </div>
+            <div class="aipkit_accordion-content" id="aipkit_chunking_settings_content">
+                <?php if (!$is_pro): ?>
+                    <div class="aipkit_notice aipkit_notice-info" style="margin-bottom: 15px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #0073aa; border-radius: 4px;">
+                        <p style="margin: 0 0 10px 0;">
+                            <?php esc_html_e('Control how large documents are split into chunks for embeddings. Adjust chunk size and overlap to balance recall and precision.', 'gpt3-ai-content-generator'); ?>
+                        </p>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="button button-primary" style="margin-top: 5px;">
+                            <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                        </a>
+                    </div>
+                <?php endif; ?>
+                <div class="aipkit_form-group">
+                    <label class="aipkit_form-label" for="aipkit_chunk_avg_chars_per_token">
+                        <?php esc_html_e('Average Chars per Token', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <input type="number" min="2" max="10" step="1" id="aipkit_chunk_avg_chars_per_token" name="chunk_avg_chars_per_token" value="<?php echo esc_attr($chunk_avg_chars); ?>" <?php echo !$is_pro ? 'disabled' : ''; ?> />
+                    <p class="aipkit_form-help"><?php esc_html_e('Heuristic average characters per token (2–10). Used to estimate chunk character sizes.', 'gpt3-ai-content-generator'); ?></p>
+                </div>
+                <div class="aipkit_form-group">
+                    <label class="aipkit_form-label" for="aipkit_chunk_max_tokens_per_chunk">
+                        <?php esc_html_e('Max Tokens per Chunk', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <input type="number" min="256" max="8000" step="1" id="aipkit_chunk_max_tokens_per_chunk" name="chunk_max_tokens_per_chunk" value="<?php echo esc_attr($chunk_max_tokens); ?>" <?php echo !$is_pro ? 'disabled' : ''; ?> />
+                    <p class="aipkit_form-help"><?php esc_html_e('Upper bound of tokens per chunk (256–8000). Keep safely below your embedding model context.', 'gpt3-ai-content-generator'); ?></p>
+                </div>
+                <div class="aipkit_form-group">
+                    <label class="aipkit_form-label" for="aipkit_chunk_overlap_tokens">
+                        <?php esc_html_e('Overlap Tokens', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <input type="number" min="0" max="1000" step="1" id="aipkit_chunk_overlap_tokens" name="chunk_overlap_tokens" value="<?php echo esc_attr($chunk_overlap_tokens); ?>" <?php echo !$is_pro ? 'disabled' : ''; ?> />
+                    <p class="aipkit_form-help"><?php esc_html_e('Token overlap between consecutive chunks (0–1000). 5–15% of max tokens is common.', 'gpt3-ai-content-generator'); ?></p>
+                </div>
+            </div>
             </div>
         </div>
 

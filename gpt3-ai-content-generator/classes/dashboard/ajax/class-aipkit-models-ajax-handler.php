@@ -256,8 +256,41 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 }
                 $response_models = $grouped_models;
             } elseif ($provider === 'PineconeIndexes' && $this->vector_store_registry) {
+                // Enrich with describe results to capture total_vector_count
+                $pinecone_config = [
+                    'api_key' => $api_params['api_key'] ?? ''
+                ];
+                $enriched = [];
+                if ($this->vector_store_manager && is_array($value_to_save)) {
+                    foreach ($value_to_save as $idx) {
+                        $name = $idx['name'] ?? $idx['id'] ?? null;
+                        if (!$name) continue;
+                        $details = $this->vector_store_manager->describe_single_index('Pinecone', $name, $pinecone_config);
+                        $enriched[] = is_wp_error($details) ? $idx : array_merge($idx, $details);
+                    }
+                }
+                if (!empty($enriched)) {
+                    $value_to_save = $enriched;
+                }
                 $this->vector_store_registry->update_registered_stores_for_provider('Pinecone', $value_to_save);
             } elseif ($provider === 'QdrantCollections' && $this->vector_store_registry) {
+                // Enrich with describe results to capture vectors_count
+                $qdrant_config = [
+                    'url' => $api_params['url'] ?? '',
+                    'api_key' => $api_params['api_key'] ?? ''
+                ];
+                $enriched = [];
+                if ($this->vector_store_manager && is_array($value_to_save)) {
+                    foreach ($value_to_save as $col) {
+                        $name = $col['name'] ?? $col['id'] ?? null;
+                        if (!$name) continue;
+                        $details = $this->vector_store_manager->describe_single_index('Qdrant', $name, $qdrant_config);
+                        $enriched[] = is_wp_error($details) ? $col : array_merge($col, $details);
+                    }
+                }
+                if (!empty($enriched)) {
+                    $value_to_save = $enriched;
+                }
                 $this->vector_store_registry->update_registered_stores_for_provider('Qdrant', $value_to_save);
             }
             update_option($option_name, $value_to_save, 'no');

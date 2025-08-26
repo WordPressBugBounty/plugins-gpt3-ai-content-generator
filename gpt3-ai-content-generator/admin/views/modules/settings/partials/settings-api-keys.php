@@ -26,7 +26,9 @@ $provider_api_key_urls = [
     <label class="aipkit_form-label" for="aipkit_openai_api_key"><?php esc_html_e('API Key', 'gpt3-ai-content-generator'); ?></label>
     <div class="aipkit_input-with-button">
         <div class="aipkit_api-key-wrapper">
-            <input type="password" id="aipkit_openai_api_key" name="openai_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($openai_data['api_key']); ?>" />
+            <input type="password" id="aipkit_openai_api_key" name="openai_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($openai_data['api_key']); ?>"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                data-lpignore="true" data-1p-ignore="true" data-form-type="other" />
             <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
         </div>
         <a href="<?php echo esc_url($provider_api_key_urls['OpenAI']); ?>" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">
@@ -45,7 +47,9 @@ $provider_api_key_urls = [
     <label class="aipkit_form-label" for="aipkit_openrouter_api_key"><?php esc_html_e('API Key', 'gpt3-ai-content-generator'); ?></label>
     <div class="aipkit_input-with-button">
         <div class="aipkit_api-key-wrapper">
-            <input type="password" id="aipkit_openrouter_api_key" name="openrouter_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($openrouter_data['api_key']); ?>" />
+            <input type="password" id="aipkit_openrouter_api_key" name="openrouter_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($openrouter_data['api_key']); ?>"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                data-lpignore="true" data-1p-ignore="true" data-form-type="other" />
             <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
         </div>
         <a href="<?php echo esc_url($provider_api_key_urls['OpenRouter']); ?>" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">
@@ -64,7 +68,9 @@ $provider_api_key_urls = [
     <label class="aipkit_form-label" for="aipkit_google_api_key"><?php esc_html_e('API Key', 'gpt3-ai-content-generator'); ?></label>
     <div class="aipkit_input-with-button">
         <div class="aipkit_api-key-wrapper">
-            <input type="password" id="aipkit_google_api_key" name="google_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($google_data['api_key']); ?>" />
+            <input type="password" id="aipkit_google_api_key" name="google_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($google_data['api_key']); ?>"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                data-lpignore="true" data-1p-ignore="true" data-form-type="other" />
             <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
         </div>
         <a href="<?php echo esc_url($provider_api_key_urls['Google']); ?>" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">
@@ -83,7 +89,9 @@ $provider_api_key_urls = [
     <label class="aipkit_form-label" for="aipkit_azure_api_key"><?php esc_html_e('API Key', 'gpt3-ai-content-generator'); ?></label>
     <div class="aipkit_input-with-button">
         <div class="aipkit_api-key-wrapper">
-            <input type="password" id="aipkit_azure_api_key" name="azure_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($azure_data['api_key']); ?>" />
+            <input type="password" id="aipkit_azure_api_key" name="azure_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($azure_data['api_key']); ?>"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                data-lpignore="true" data-1p-ignore="true" data-form-type="other" />
             <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
         </div>
         <a href="<?php echo esc_url($provider_api_key_urls['Azure']); ?>" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">
@@ -124,7 +132,9 @@ $provider_api_key_urls = [
     <label class="aipkit_form-label" for="aipkit_deepseek_api_key"><?php esc_html_e('API Key', 'gpt3-ai-content-generator'); ?></label>
     <div class="aipkit_input-with-button">
         <div class="aipkit_api-key-wrapper">
-            <input type="password" id="aipkit_deepseek_api_key" name="deepseek_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($deepseek_data['api_key']); ?>" />
+            <input type="password" id="aipkit_deepseek_api_key" name="deepseek_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($deepseek_data['api_key']); ?>"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                data-lpignore="true" data-1p-ignore="true" data-form-type="other" />
             <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
         </div>
         <a href="<?php echo esc_url($provider_api_key_urls['DeepSeek']); ?>" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">

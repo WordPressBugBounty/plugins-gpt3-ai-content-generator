@@ -133,8 +133,8 @@ class Core
                         </div>
                     </div>
                  </div>',
-                esc_attr__('Enhance content using AI', 'gpt3-ai-content-generator'), // aria-label for trigger
-                esc_html__('Enhance', 'gpt3-ai-content-generator'), // Link text for trigger
+                esc_attr__('Update content using AI', 'gpt3-ai-content-generator'), // aria-label for trigger
+                esc_html__('Assistant', 'gpt3-ai-content-generator'), // Link text for trigger
                 esc_html__('Text Tools', 'gpt3-ai-content-generator'), // Group Title
                 esc_attr($post->ID),
                 esc_html__('Generate Title', 'gpt3-ai-content-generator'),

@@ -257,6 +257,9 @@ class AIPKit_Autogpt_Assets
                 'target_id_prefix' => __('Target ID:', 'gpt3-ai-content-generator'),
                 'task_id_prefix' => __('Task ID:', 'gpt3-ai-content-generator'),
                 'not_applicable' => __('N/A', 'gpt3-ai-content-generator'),
+                // Labels for Added/Scheduled display in queue table
+                'added_at_label' => __('Added', 'gpt3-ai-content-generator'),
+                'scheduled_for_label' => __('Scheduled', 'gpt3-ai-content-generator'),
                 'item_singular' => __('item', 'gpt3-ai-content-generator'),
                 'item_plural' => __('items', 'gpt3-ai-content-generator'),
                 'page_label' => __('Page', 'gpt3-ai-content-generator'),

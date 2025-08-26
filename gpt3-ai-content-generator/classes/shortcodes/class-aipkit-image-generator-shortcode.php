@@ -57,14 +57,6 @@ class AIPKit_Image_Generator_Shortcode
             return '';
         }
 
-        // 2. Permission Check (REVISED)
-        if (is_user_logged_in() && !AIPKit_Role_Manager::user_can_access_module('image_generator')) {
-            if (current_user_can('manage_options')) {
-                return '<p style="color:orange;"><em>[' . esc_html__('AIPKit Image Generator Shortcode: Current user role lacks permission.', 'gpt3-ai-content-generator') . ']</em></p>';
-            }
-            return '';
-        }
-
         // --- 2.5 Get Default Image Settings ---
         $image_gen_settings = AIPKit_Image_Settings_Ajax_Handler::get_settings();
         $frontend_display_settings = $image_gen_settings['frontend_display'] ?? [];

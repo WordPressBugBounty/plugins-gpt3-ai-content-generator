@@ -98,7 +98,12 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         if (!empty($meta_row['bot_id'])) {
             $bot_name = get_the_title($meta_row['bot_id']) ?: __('(Deleted Bot)', 'gpt3-ai-content-generator');
         } elseif (!empty($meta_row['module'])) {
-            $bot_name = sprintf('(%s)', esc_html(ucfirst(str_replace('_', ' ', $meta_row['module']))));
+            // Friendly label for specific modules (no parentheses)
+            if ($meta_row['module'] === 'ai_post_enhancer') {
+                $bot_name = __('Content Assistant', 'gpt3-ai-content-generator');
+            } else {
+                $bot_name = esc_html(ucfirst(str_replace('_', ' ', $meta_row['module'])));
+            }
         } else {
              $bot_name = __('(No Bot/Module)', 'gpt3-ai-content-generator');
         }
@@ -260,13 +265,18 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             return;
         }
 
-        if (!empty($log_data['bot_id'])) {
-            $log_data['bot_name'] = get_the_title($log_data['bot_id']) ?: __('(Deleted Bot)', 'gpt3-ai-content-generator');
-        } elseif (!empty($log_data['module'])) {
-             $log_data['bot_name'] = sprintf('(%s)', esc_html(ucfirst(str_replace('_', ' ', $log_data['module']))));
-        } else {
-             $log_data['bot_name'] = __('(Unknown)', 'gpt3-ai-content-generator');
-        }
+       if (!empty($log_data['bot_id'])) {
+          $log_data['bot_name'] = get_the_title($log_data['bot_id']) ?: __('(Deleted Bot)', 'gpt3-ai-content-generator');
+       } elseif (!empty($log_data['module'])) {
+           // Friendly label for specific modules (no parentheses)
+           if ($log_data['module'] === 'ai_post_enhancer') {
+               $log_data['bot_name'] = __('Content Assistant', 'gpt3-ai-content-generator');
+           } else {
+               $log_data['bot_name'] = esc_html(ucfirst(str_replace('_', ' ', $log_data['module'])));
+           }
+       } else {
+           $log_data['bot_name'] = __('(Unknown)', 'gpt3-ai-content-generator');
+       }
 
         if (!$log_data['is_guest'] && !empty($log_data['user_id'])) {
             $user_data = get_userdata($log_data['user_id']);

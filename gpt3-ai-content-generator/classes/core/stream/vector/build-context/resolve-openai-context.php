@@ -35,10 +35,14 @@ function resolve_openai_context_logic(
     int $vector_top_k,
     ?array &$vector_search_scores_output = null
 ): string {
+    // Do NOT inject OpenAI vector results into the prompt. OpenAI File Search
+    // works by sending vector_store_ids via tools; the model retrieves content server-side.
+    // We still compute and return scores for logs/telemetry, but we keep the
+    // returned context string empty so nothing is prepended to the system prompt.
     $openai_results = "";
     $openai_vector_store_ids_from_settings = $bot_settings['openai_vector_store_ids'] ?? [];
     $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
-    $openai_score_threshold = $confidence_threshold_percent / 100.0; // Convert to 0.0-1.0 scale for OpenAI
+    $openai_score_threshold = round($confidence_threshold_percent / 100, 4); // Convert to 0.0-1.0 scale for OpenAI and round to avoid precision issues
 
     $final_openai_vector_store_ids = $openai_vector_store_ids_from_settings;
     if ($frontend_active_openai_vs_id && !in_array($frontend_active_openai_vs_id, $final_openai_vector_store_ids, true)) {
@@ -75,14 +79,17 @@ function resolve_openai_context_logic(
                 $search_results = $vector_store_manager->query_vectors('OpenAI', $current_vs_id, $search_query_vector, $vector_top_k, [], $openai_api_config);
 
                 if (!is_wp_error($search_results) && !empty($search_results)) {
+                    // We no longer build a textual context for OpenAI. Only capture
+                    // scores for logging/insight. This keeps the actual payload clean
+                    // and consistent with File Search usage.
                     $current_store_results = "";
                     foreach ($search_results as $item) {
-                        // OpenAI now filters on server-side, so we don't need client-side filtering
+                        // OpenAI filters on server-side; no client-side filtering nor context injection.
 
                         if (!empty($item['content'])) {
                             $textContent = is_array($item['content']) ? implode(" ", array_column(array_filter($item['content'], fn ($p) => $p['type'] === 'text'), 'text')) : $item['content'];
                             if (!empty(trim($textContent))) {
-                                $current_store_results .= "- " . trim($textContent) . "\n";
+                                // Do not append to $openai_results. Only count and record preview for scores.
                                 $total_results_added++;
                                 
                                 // Capture score data if reference provided
@@ -109,9 +116,7 @@ function resolve_openai_context_logic(
                             }
                         }
                     }
-                    if (!empty($current_store_results)) {
-                        $openai_results .= "Context from Store ID {$current_vs_id}:\n" . $current_store_results . "\n";
-                    }
+                    // Intentionally no context string appended for OpenAI.
                 }
             }
         }

@@ -55,6 +55,13 @@ class AIPKit_Upload_Utils
         $limits['post_max_size_hr'] = $limits['post_max_size'];
         $limits['memory_limit_hr'] = $limits['memory_limit'];
 
+        // Also include allowed MIME types for vector uploads so the client can validate before uploading
+        if (method_exists(__CLASS__, 'get_vector_upload_allowed_mime_types')) {
+            $limits['allowed_mime_types'] = self::get_vector_upload_allowed_mime_types();
+        } else {
+            $limits['allowed_mime_types'] = [];
+        }
+
         return $limits;
     }
 
@@ -87,9 +94,12 @@ class AIPKit_Upload_Utils
     public static function get_vector_upload_allowed_mime_types(): array
     {
         return apply_filters('aipkit_vector_upload_allowed_mime_types', [
-            'text/plain',       // For .txt files
-            'application/pdf',  // For .pdf files
-            // Add more types here later, e.g., 'application/msword', etc.
+            'text/plain',       // .txt
+            'application/pdf',  // .pdf
+            'application/x-pdf',
+            'text/html',        // .html
+            'application/xhtml+xml',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
         ]);
     }
 
@@ -100,9 +110,15 @@ class AIPKit_Upload_Utils
      */
     public static function get_content_writer_allowed_mime_types(): array
     {
+        // NOTE: Different browsers / OS combos report CSV MIME types inconsistently.
+        // Common real-world values: text/csv, text/plain, application/vnd.ms-excel (legacy), application/csv,
+        // text/comma-separated-values. We include several to reduce false negatives that caused 400 errors.
         return apply_filters('aipkit_content_writer_allowed_mime_types', [
             'text/csv',
             'text/plain',
+            'application/vnd.ms-excel',          // Seen on Windows / older browsers for .csv
+            'application/csv',                   // Some environments
+            'text/comma-separated-values',       // Alternative label
         ]);
     }
 

@@ -1,7 +1,7 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/rest/class-aipkit-rest-controller.php
 // Status: MODIFIED
-// I have updated this controller to instantiate and register the new vector store handler and its REST endpoint.
+// I have updated this controller to instantiate and register the new logs handler and its REST endpoint.
 
 namespace WPAICG\REST;
 
@@ -17,6 +17,7 @@ use WPAICG\REST\Handlers\AIPKit_REST_Chat_Handler;
 use WPAICG\REST\Handlers\AIPKit_REST_Vector_Store_Handler;
 use WPAICG\REST\Handlers\AIPKit_REST_Base_Handler; // For permission callback
 use WPAICG\REST\Handlers\AIPKit_REST_Chatbot_Embed_Handler; // NEW: Embed handler
+use WPAICG\REST\Handlers\AIPKit_REST_Logs_Handler; // NEW: Logs handler
 
 
 if (!defined('ABSPATH')) {
@@ -36,6 +37,7 @@ class AIPKit_REST_Controller extends WP_REST_Controller
     protected $rest_base_chat = 'chat';
     protected $rest_base_vectors = 'vector-stores';
     protected $rest_base_chatbot_embed = 'chatbots'; // NEW
+    protected $rest_base_logs = 'logs'; // NEW
 
     private $text_handler;
     private $image_handler;
@@ -43,6 +45,7 @@ class AIPKit_REST_Controller extends WP_REST_Controller
     private $chat_handler;
     private $vector_store_handler;
     private $chatbot_embed_handler; // NEW
+    private $logs_handler; // NEW
     private $base_handler; // For permission check
 
     public function __construct()
@@ -54,6 +57,7 @@ class AIPKit_REST_Controller extends WP_REST_Controller
         $this->rest_base_chat = 'chat';
         $this->rest_base_vectors = 'vector-stores';
         $this->rest_base_chatbot_embed = 'chatbots'; // NEW
+        $this->rest_base_logs = 'logs'; // NEW
 
         // Instantiate handlers
         if (class_exists(AIPKit_REST_Text_Handler::class)) {
@@ -81,6 +85,11 @@ class AIPKit_REST_Controller extends WP_REST_Controller
             $this->chatbot_embed_handler = new AIPKit_REST_Chatbot_Embed_Handler();
         }
 
+        // NEW: Instantiate logs handler
+        if (class_exists(AIPKit_REST_Logs_Handler::class)) {
+            $this->logs_handler = new AIPKit_REST_Logs_Handler();
+        }
+
         if ($this->text_handler) {
             $this->base_handler = $this->text_handler;
         }
@@ -92,7 +101,7 @@ class AIPKit_REST_Controller extends WP_REST_Controller
      */
     public function register_routes()
     {
-        if (!$this->text_handler || !$this->image_handler || !$this->embeddings_handler || !$this->chat_handler || !$this->vector_store_handler || !$this->base_handler || !$this->chatbot_embed_handler) {
+        if (!$this->text_handler || !$this->image_handler || !$this->embeddings_handler || !$this->chat_handler || !$this->vector_store_handler || !$this->base_handler || !$this->chatbot_embed_handler || !$this->logs_handler) {
             return;
         }
         
@@ -175,6 +184,21 @@ class AIPKit_REST_Controller extends WP_REST_Controller
                     'args'                => $this->vector_store_handler->get_endpoint_args(),
                 ),
                 'schema' => array($this->vector_store_handler, 'get_item_schema'),
+            )
+        );
+
+        // NEW: Register Logs route
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base_logs,
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array($this->logs_handler, 'handle_request'),
+                    'permission_callback' => array($this->base_handler, 'check_permissions'),
+                    'args'                => $this->logs_handler->get_endpoint_args(),
+                ),
+                'schema' => array($this->logs_handler, 'get_item_schema'),
             )
         );
     }

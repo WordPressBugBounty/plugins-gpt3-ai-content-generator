@@ -46,7 +46,7 @@ function resolve_pinecone_context_logic(
     $vector_embedding_provider = $bot_settings['vector_embedding_provider'] ?? '';
     $vector_embedding_model = $bot_settings['vector_embedding_model'] ?? '';
     $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
-    $pinecone_score_threshold = $confidence_threshold_percent / 100.0; // Normalize 0-100 to 0-1 scale
+    $pinecone_score_threshold = round($confidence_threshold_percent / 100, 4); // Normalize 0-100 to 0-1 scale and round to avoid precision issues
 
     if (empty($pinecone_index_name_from_settings) || empty($vector_embedding_provider) || empty($vector_embedding_model)) {
         return "";

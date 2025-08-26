@@ -51,7 +51,7 @@ class AIPKit_Content_Writer_Template_Manager
         'generate_images_enabled', 'image_provider', 'image_model', 'image_prompt',
         'image_count', 'image_placement', 'image_placement_param_x', 'image_alignment', 'image_size',
         'generate_featured_image', 'featured_image_prompt',
-        'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids', 'pinecone_index_name', 'qdrant_collection_name', 'vector_embedding_provider', 'vector_embedding_model', 'vector_store_top_k',
+    'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids', 'pinecone_index_name', 'qdrant_collection_name', 'vector_embedding_provider', 'vector_embedding_model', 'vector_store_top_k', 'vector_store_confidence_threshold',
         'rss_include_keywords', 'rss_exclude_keywords',
         'pexels_orientation', 'pexels_size', 'pexels_color',
         'pixabay_orientation', 'pixabay_image_type', 'pixabay_category',

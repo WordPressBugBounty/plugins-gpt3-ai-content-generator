@@ -51,7 +51,7 @@ class AIPKit_Role_Manager
             'logs'                  => __('Logs (Admin)', 'gpt3-ai-content-generator'),
             // Frontend / Non-Dashboard Modules
             'token_usage_shortcode' => __('Token Usage Shortcode (Frontend)', 'gpt3-ai-content-generator'),
-            'ai_post_enhancer'      => __('Content Enhancer (Admin Edit Screen)', 'gpt3-ai-content-generator'),
+            'ai_post_enhancer'      => __('Content Assistant (Admin Edit Screen)', 'gpt3-ai-content-generator'),
             'vector_content_indexer' => __('Vector Content Indexer (Post Screen)', 'gpt3-ai-content-generator'),
         ];
     }
@@ -290,8 +290,25 @@ class AIPKit_Role_Manager
             return true;
         }
 
+        // Normalize module slug to match saved permissions keys.
+        // Some callers use underscores (e.g., 'image_generator') while
+        // the Role Manager stores slugs with hyphens (e.g., 'image-generator').
+        $all_permissions = self::get_role_permissions();
+        $normalized_slug = $module_slug;
+        if (!isset($all_permissions[$normalized_slug])) {
+            $alt_hyphen = str_replace('_', '-', $module_slug);
+            if (isset($all_permissions[$alt_hyphen])) {
+                $normalized_slug = $alt_hyphen;
+            } else {
+                $alt_underscore = str_replace('-', '_', $module_slug);
+                if (isset($all_permissions[$alt_underscore])) {
+                    $normalized_slug = $alt_underscore;
+                }
+            }
+        }
+
         $user_id = get_current_user_id();
-        $cache_key = $user_id . '_' . $module_slug;
+        $cache_key = $user_id . '_' . $normalized_slug;
         if (isset(self::$permission_cache[$cache_key])) {
             return self::$permission_cache[$cache_key];
         }
@@ -303,9 +320,9 @@ class AIPKit_Role_Manager
         }
         $user_roles = (array) $user->roles;
 
-        $all_permissions = self::get_role_permissions();
-        $allowed_roles = isset($all_permissions[$module_slug]) && is_array($all_permissions[$module_slug])
-                         ? $all_permissions[$module_slug]
+        // Use normalized slug to fetch allowed roles
+        $allowed_roles = isset($all_permissions[$normalized_slug]) && is_array($all_permissions[$normalized_slug])
+                         ? $all_permissions[$normalized_slug]
                          : ['administrator'];
 
         $has_access = count(array_intersect($user_roles, $allowed_roles)) > 0;

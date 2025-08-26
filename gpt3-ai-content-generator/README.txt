@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.36
+Stable tag: 2.3.37
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,25 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.37 =
+
+- **Added**: Document Chunking support for Pinecone and Qdrant. You can now configure chunk size and overlap in the settings. File uploads to Pinecone and Qdrant are token-aware and automatically split into chunks, preventing token limit issues and improving retrieval quality.
+- **Added**: REST Logs Handler for accessing logs via the plugin’s REST API, enabling external integrations.
+- **Added**: One-click IP Block button on the logs page.
+- **Improved**: AI Train → Site Content now has a default “All by Post Type” mode with per‑type checkboxes, live counts (e.g., Posts 34, Pages 20), and better progress/stop controls. You can still switch to “Pick Specific” to select items per page.
+- **Improved**: Performance, cache and UI improvements on the AI Train page.
+- **Improved**: New drag‑and‑drop with multi‑file queue for file uploads to Pinecone and Qdrant.
+- **Improved**: Better text extracting for file uploads to Pinecone and Qdrant.
+- **Improved**: More detailed logs for the Content Assistant and Content Writer modules.
+- **Improved**: Support for additional file types in file uploads: TXT, PDF, HTML, and DOCX.
+- **Improved**: Vector score threshold for content writer and automated tasks.
+- **Fixed**: Missing vector count display for Pinecone and Qdrant.
+- **Fixed**: Chat footer text now resizes properly and no longer gets cut off.
+- **Fixed**: Resolved decimal_max_decimal_places_exceeded chatbot error.
+- **Fixed**: Content Writer & Automated Task scheduling when using "Use Dates from Input". Dates were previously ignored and posts published immediately. Now, multi-format date parsing (ISO, dash, slash, compact) correctly schedules future posts and aligns Run Now with cron behavior.
+- **Fixed**: CSV upload issues in the Content Writer module.
+- **Fixed**: Image Generator was not visible to logged-in users.
 
 = 2.3.36 =
 

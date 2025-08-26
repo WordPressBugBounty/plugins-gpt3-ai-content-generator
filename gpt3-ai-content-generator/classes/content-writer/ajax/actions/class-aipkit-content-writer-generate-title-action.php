@@ -52,10 +52,11 @@ class AIPKit_Content_Writer_Generate_Title_Action extends AIPKit_Content_Writer_
             $validated_params['model'],
             [['role' => 'user', 'content' => $prompts['user_prompt']]],
             $ai_params_override,
-            $prompts['system_instruction']
+            $prompts['system_instruction'],
+            $validated_params // Pass the full form data for vector support
         );
 
-        // 5. Handle the AI response (success or error)
-        GenerateTitle\handle_title_response_logic($this, $ai_result);
+    // 5. Handle the AI response (success or error) and log under conversation if provided
+    GenerateTitle\handle_title_response_logic($this, $ai_result, $validated_params, $prompts, $ai_params_override);
     }
 }

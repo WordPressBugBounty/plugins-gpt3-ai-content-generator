@@ -54,7 +54,12 @@ class LogManager
                 } elseif (empty($log_row['module'])) {
                     $log_row['bot_name'] = __('(No Bot)', 'gpt3-ai-content-generator');
                 } else {
-                    $log_row['bot_name'] = sprintf('(%s)', esc_html(ucfirst(str_replace('_', ' ', $log_row['module']))));
+                    // Friendly labels for non-bot sources
+                    if ($log_row['module'] === 'ai_post_enhancer') {
+                        $log_row['bot_name'] = __('Content Assistant', 'gpt3-ai-content-generator');
+                    } else {
+                        $log_row['bot_name'] = esc_html(ucfirst(str_replace('_', ' ', $log_row['module'])));
+                    }
                 }
 
                 if (!isset($log_row['user_display_name'])) {
@@ -204,7 +209,12 @@ class LogManager
                 } elseif (empty($log_row['module'])) {
                     $log_row['bot_name'] = __('(No Bot)', 'gpt3-ai-content-generator');
                 } else {
-                    $log_row['bot_name'] = sprintf('(%s)', esc_html(ucfirst(str_replace('_', ' ', $log_row['module']))));
+                    // Friendly labels for non-bot sources
+                    if ($log_row['module'] === 'ai_post_enhancer') {
+                        $log_row['bot_name'] = __('Content Assistant', 'gpt3-ai-content-generator');
+                    } else {
+                        $log_row['bot_name'] = esc_html(ucfirst(str_replace('_', ' ', $log_row['module'])));
+                    }
                 }
 
                 if (!isset($log_row['user_display_name'])) {
@@ -244,7 +254,12 @@ class LogManager
         } elseif (empty($log_row['module'])) {
             $log_row['bot_name'] = __('(No Bot)', 'gpt3-ai-content-generator');
         } else {
-            $log_row['bot_name'] = sprintf('(%s)', esc_html(ucfirst(str_replace('_', ' ', $log_row['module']))));
+            // Friendly labels for non-bot sources
+            if ($log_row['module'] === 'ai_post_enhancer') {
+                $log_row['bot_name'] = __('Content Assistant', 'gpt3-ai-content-generator');
+            } else {
+                $log_row['bot_name'] = esc_html(ucfirst(str_replace('_', ' ', $log_row['module'])));
+            }
         }
 
         if (!$log_row['is_guest'] && !empty($log_row['user_id'])) {

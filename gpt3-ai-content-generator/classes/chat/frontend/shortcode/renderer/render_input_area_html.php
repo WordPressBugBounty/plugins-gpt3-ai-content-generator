@@ -18,7 +18,8 @@ if (!defined('ABSPATH')) {
  * @return void Echos HTML.
  */
 function render_input_area_html_logic(array $frontend_config, bool $is_inline = false, array $feature_flags = [], bool $allow_openai_web_search_tool = false, bool $allow_google_search_grounding = false) {
-    $autofocus_attr = $is_inline ? 'autofocus' : '';
+    // Autofocus is disabled for now as it can cause issues with focus management in some browsers.
+    // $autofocus_attr = $is_inline ? 'autofocus' : '';
     $input_action_button_enabled = $feature_flags['input_action_button_enabled'] ?? false;
     $file_upload_ui_enabled = $feature_flags['file_upload_ui_enabled'] ?? false;
     $image_upload_ui_enabled = $feature_flags['image_upload_ui_enabled'] ?? false;
@@ -60,7 +61,6 @@ function render_input_area_html_logic(array $frontend_config, bool $is_inline = 
                 placeholder="<?php echo esc_attr($frontend_config['text']['typeMessage']); ?>"
                 aria-label="<?php esc_attr_e('Chat message input', 'gpt3-ai-content-generator'); ?>"
                 rows="1"
-                <?php echo esc_attr($autofocus_attr); ?>
             ></textarea>
              <div class="aipkit_chat_input_actions_bar">
                 <div class="aipkit_chat_input_actions_left">

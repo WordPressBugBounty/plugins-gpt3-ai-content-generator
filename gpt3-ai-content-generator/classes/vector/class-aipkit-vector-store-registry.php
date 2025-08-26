@@ -49,19 +49,38 @@ class AIPKit_Vector_Store_Registry {
      */
     public static function update_registered_stores_for_provider(string $provider, array $stores_list): void {
         $all_stores = self::get_all_registered_stores();
-        $normalized_stores = [];
+        $existing = $all_stores[$provider] ?? [];
+        $by_id = [];
+        foreach ($existing as $store) {
+            if (isset($store['id'])) {
+                $by_id[$store['id']] = $store;
+            }
+        }
 
-        // Normalize the incoming list to ensure consistent structure if needed
+        $normalized_stores = [];
         foreach ($stores_list as $store_data) {
-            if (is_array($store_data)) {
-                // Ensure 'id' exists. For Pinecone, 'name' is the primary ID.
-                if (!isset($store_data['id']) && isset($store_data['name']) && $provider === 'Pinecone') {
-                    $store_data['id'] = $store_data['name'];
-                }
-                if (isset($store_data['id'])) {
-                    $store_data['provider'] = $provider;
-                    $normalized_stores[] = $store_data;
-                }
+            if (!is_array($store_data)) {
+                continue;
+            }
+            // Ensure 'id' exists. For Pinecone, 'name' is the primary ID.
+            if (!isset($store_data['id']) && isset($store_data['name']) && $provider === 'Pinecone') {
+                $store_data['id'] = $store_data['name'];
+            }
+            if (!isset($store_data['id'])) {
+                continue;
+            }
+
+            $incoming = $store_data;
+            $incoming['provider'] = $provider;
+
+            // Merge with existing by id to preserve fields like counts if incoming lacks them
+            $id = $incoming['id'];
+            if (isset($by_id[$id]) && is_array($by_id[$id])) {
+                // Existing first, then incoming to allow incoming to overwrite when present
+                $merged = array_merge($by_id[$id], $incoming);
+                $normalized_stores[] = $merged;
+            } else {
+                $normalized_stores[] = $incoming;
             }
         }
 

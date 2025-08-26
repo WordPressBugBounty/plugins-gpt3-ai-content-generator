@@ -53,7 +53,7 @@ function _aipkit_qdrant_ajax_get_vector_data_source_logs_logic(AIPKit_Vector_Sto
 
     if (false === $logs) {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $data_source_table_name is safe.
-        $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id FROM {$data_source_table_name} WHERE provider = %s AND vector_store_id = %s ORDER BY timestamp DESC LIMIT %d OFFSET %d", $provider, $store_id, $logs_per_page, $offset), ARRAY_A);
+    $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id, batch_id FROM {$data_source_table_name} WHERE provider = %s AND vector_store_id = %s ORDER BY timestamp DESC LIMIT %d OFFSET %d", $provider, $store_id, $logs_per_page, $offset), ARRAY_A);
         wp_cache_set($cache_key, $logs, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
     }
 

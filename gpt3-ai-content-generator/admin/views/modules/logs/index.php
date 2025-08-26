@@ -110,7 +110,7 @@ $manageable_modules = AIPKit_Role_Manager::get_manageable_modules();
             }
         }
         if (!isset($manageable_modules['ai_post_enhancer'])) {
-            $module_list_output[] = ['id' => 'ai_post_enhancer', 'title' => __('Content Enhancer', 'gpt3-ai-content-generator')];
+            $module_list_output[] = ['id' => 'ai_post_enhancer', 'title' => __('Content Assistant', 'gpt3-ai-content-generator')];
         }
         $module_list_output = array_map("unserialize", array_unique(array_map("serialize", $module_list_output)));
         usort($module_list_output, fn($a, $b) => strcmp($a['title'], $b['title']));

@@ -17,6 +17,7 @@ require_once $modules_path . 'rss-task-generator.php';
 require_once $modules_path . 'gsheets-task-generator.php';
 require_once $modules_path . 'url-task-generator.php';
 require_once $modules_path . 'manual-task-generator.php';
+require_once $modules_path . 'parse-schedule-utils.php';
 
 
 if (!defined('ABSPATH')) {
@@ -69,10 +70,17 @@ function run_now_content_writing_logic(int $task_id, array $task_config): bool|W
 
     // 2. Loop through generated items and queue them
     $queued_count = 0;
+    $item_index = 0;
     foreach ($topics_to_queue as $index => $item_data) {
         $item_config = ContentWritingModules\prepare_item_config_logic($item_data, $task_config, $scraped_contexts);
         if (empty($item_config['content_title'])) {
             continue;
+        }
+
+        // Unified scheduling helper
+        $scheduled_gmt_time = ContentWritingModules\compute_item_schedule_gmt_logic($item_data, $task_config, $item_index, $generation_mode);
+        if ($scheduled_gmt_time) {
+            $item_config['scheduled_gmt_time'] = $scheduled_gmt_time;
         }
 
         $target_identifier = ContentWritingModules\generate_target_identifier_logic($item_data, $task_id, $index);
@@ -84,6 +92,7 @@ function run_now_content_writing_logic(int $task_id, array $task_config): bool|W
 
         if (ContentWritingModules\insert_topic_into_queue_logic($task_id, $target_identifier, $item_config)) {
             $queued_count++;
+            $item_index++;
         }
     }
 

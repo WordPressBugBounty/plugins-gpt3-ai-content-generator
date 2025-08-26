@@ -17,6 +17,7 @@ require_once $modules_path . 'rss-task-generator.php';
 require_once $modules_path . 'gsheets-task-generator.php';
 require_once $modules_path . 'url-task-generator.php';
 require_once $modules_path . 'manual-task-generator.php';
+require_once $modules_path . 'parse-schedule-utils.php';
 
 
 if (!defined('ABSPATH')) {
@@ -89,40 +90,8 @@ function trigger_content_writing_task_logic(int $task_id, array $task_config): v
             continue;
         }
 
-        // --- NEW: Calculate scheduled time ---
-        $schedule_mode = $task_config['schedule_mode'] ?? 'immediate';
-        $scheduled_gmt_time = null;
-
-        if ($schedule_mode === 'from_input') {
-            $date_str = '';
-            if ($generation_mode === 'gsheets' && !empty($item_data['schedule_date'])) {
-                // Handle Google Sheets date from its dedicated column
-                $date_str = $item_data['schedule_date'];
-            } else {
-                // Handle pipe-separated date for Bulk, CSV, URL modes
-                $parts = explode('|', is_array($item_data) ? ($item_data['topic'] ?? '') : $item_data);
-                if (count($parts) > 1) {
-                    $date_str = trim(end($parts));
-                }
-            }
-
-            if (!empty($date_str) && \DateTime::createFromFormat('Y-m-d H:i', $date_str)) {
-                $scheduled_gmt_time = get_gmt_from_date($date_str . ':00');
-            }
-
-        } elseif ($schedule_mode === 'smart' && !empty($task_config['smart_schedule_start_datetime'])) {
-            try {
-                $start_datetime = new \DateTime($task_config['smart_schedule_start_datetime'], wp_timezone());
-                $interval_value = absint($task_config['smart_schedule_interval_value'] ?? 1);
-                $interval_unit = $task_config['smart_schedule_interval_unit'] ?? 'hours';
-                $offset_value = $item_index * $interval_value;
-                $offset_string = "+{$offset_value} {$interval_unit}";
-                $start_datetime->modify($offset_string);
-                $scheduled_gmt_time = $start_datetime->format('Y-m-d H:i:s');
-            } catch (\Exception $e) {
-            }
-        }
-
+        // --- NEW: Calculate scheduled time via unified helper ---
+        $scheduled_gmt_time = ContentWritingModules\compute_item_schedule_gmt_logic($item_data, $task_config, $item_index, $generation_mode);
         if ($scheduled_gmt_time) {
             $item_specific_config['scheduled_gmt_time'] = $scheduled_gmt_time;
         }

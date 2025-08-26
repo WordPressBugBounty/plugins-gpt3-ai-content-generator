@@ -152,3 +152,51 @@ function log_enhancer_interaction_logic(int $post_id, string $type, string $prom
     $log_result = $log_storage->log_message($log_data);
 
 }
+
+/**
+ * Logs a bulk Post Enhancer update (single-field step) into the shared Admin Logs storage.
+ * The content format is aligned with the Post Enhancer log renderer expectations:
+ * it includes lines for "Post ID:", "Prompt Snippet:", and "Result:" so the UI can parse and display nicely.
+ */
+function log_enhancer_bulk_update_logic(int $post_id, string $field, string $prompt, string $response_content, string $provider, string $model, ?array $usage, ?array $request_payload, ?string $conversation_uuid_override = null): void
+{
+    if (!class_exists(LogStorage::class)) {
+        return;
+    }
+    $log_storage = new LogStorage();
+    $user_id = get_current_user_id();
+    $user_wp_role = $user_id ? implode(', ', wp_get_current_user()->roles) : null;
+    $ip_address = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
+    // Use provided conversation UUID to aggregate all bulk step messages into one record
+    $conversation_uuid = $conversation_uuid_override && is_string($conversation_uuid_override)
+        ? substr(sanitize_key($conversation_uuid_override), 0, 36)
+        : ('enhancer-bulk-' . $field . '-' . $post_id . '-' . time());
+
+    $message_content = sprintf(
+        "Bulk Enhancer updated %s for Post ID: %d.\nPrompt Snippet: %s...\nResult:\n%s",
+        $field,
+        $post_id,
+        mb_substr($prompt, 0, 100),
+        $response_content
+    );
+
+    $log_data = [
+        'bot_id'             => null,
+        'user_id'            => $user_id ?: null,
+        'session_id'         => null,
+        'conversation_uuid'  => $conversation_uuid,
+        'module'             => 'ai_post_enhancer',
+        'is_guest'           => false,
+        'role'               => $user_wp_role,
+        'ip_address'         => class_exists(\WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization::class) ? \WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization::maybe_anonymize($ip_address) : $ip_address,
+        'message_role'       => 'bot',
+        'message_content'    => $message_content,
+        'timestamp'          => time(),
+        'ai_provider'        => $provider,
+        'ai_model'           => $model,
+        'usage'              => $usage,
+        'request_payload'    => $request_payload,
+    ];
+
+    $log_storage->log_message($log_data);
+}

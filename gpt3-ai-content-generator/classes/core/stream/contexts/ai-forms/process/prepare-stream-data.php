@@ -109,7 +109,7 @@ function prepare_stream_data_logic(
 
         // Get confidence threshold and convert to OpenAI score threshold
         $confidence_threshold_percent = (int)($form_config['vector_store_confidence_threshold'] ?? 20);
-        $openai_score_threshold = $confidence_threshold_percent / 100.0;
+        $openai_score_threshold = round($confidence_threshold_percent / 100, 4); // Round to avoid precision issues
 
         $ai_params_for_payload['vector_store_tool_config'] = [
             'type'             => 'file_search',

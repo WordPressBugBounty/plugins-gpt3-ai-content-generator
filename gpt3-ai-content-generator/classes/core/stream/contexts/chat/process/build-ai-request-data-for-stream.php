@@ -149,7 +149,7 @@ function build_ai_request_data_for_stream_logic(
         if (($bot_settings['enable_vector_store'] ?? '0') === '1' && ($bot_settings['vector_store_provider'] ?? '') === 'openai' && !empty($vector_store_ids_to_use)) {
             // Get confidence threshold and convert to OpenAI score threshold
             $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
-            $openai_score_threshold = $confidence_threshold_percent / 100.0;
+            $openai_score_threshold = round($confidence_threshold_percent / 100, 4); // Round to avoid precision issues
             
             $ai_params_for_payload['vector_store_tool_config'] = [
                 'type' => 'file_search', 

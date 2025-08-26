@@ -67,12 +67,40 @@ class AIPKit_Content_Writer_Generate_Meta_Action extends AIPKit_Content_Writer_B
         $max_tokens = isset($content_max_tokens) && $content_max_tokens > 0 ? $content_max_tokens : 4000;
         $meta_ai_params = ['max_completion_tokens' => $max_tokens];
 
+        // DRY vector preparation via shared helper
+        $ai_caller = $this->get_ai_caller();
+        $vector_store_manager = $this->get_vector_store_manager();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in permission check
+        $form_data = $_POST;
+        if (!function_exists('WPAICG\\Core\\Stream\\Vector\\prepare_vector_standard_call')) {
+            $helper_path = WPAICG_PLUGIN_DIR . 'classes/core/stream/vector/fn-prepare-vector-standard-call.php';
+            if (file_exists($helper_path)) {
+                require_once $helper_path;
+            }
+        }
+        $meta_instruction_context = [];
+        if (function_exists('WPAICG\\Core\\Stream\\Vector\\prepare_vector_standard_call')) {
+            $prep = \WPAICG\Core\Stream\Vector\prepare_vector_standard_call(
+                $ai_caller,
+                $vector_store_manager,
+                $meta_user_prompt,
+                $form_data,
+                $provider,
+                $meta_system_instruction,
+                $meta_ai_params
+            );
+            $meta_system_instruction = $prep['system_instruction'] ?? $meta_system_instruction;
+            $meta_ai_params = $prep['ai_params'] ?? $meta_ai_params;
+            $meta_instruction_context = $prep['instruction_context'] ?? [];
+        }
+
         $meta_result = $this->get_ai_caller()->make_standard_call(
             $provider,
             $model,
             [['role' => 'user', 'content' => $meta_user_prompt]],
             $meta_ai_params,
-            $meta_system_instruction
+            $meta_system_instruction,
+            $meta_instruction_context
         );
 
         if (is_wp_error($meta_result)) {
@@ -85,7 +113,67 @@ class AIPKit_Content_Writer_Generate_Meta_Action extends AIPKit_Content_Writer_B
             $this->send_wp_error(new WP_Error('meta_gen_empty', 'AI did not return a valid meta description.', ['status' => 500]));
             return;
         }
+        // Log using the same approach as title step
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_text_field(wp_unslash($_POST['conversation_uuid'])) : '';
+        if ($this->log_storage) {
+            if (empty($conversation_uuid)) {
+                if (function_exists('wp_generate_uuid4')) {
+                    $conversation_uuid = wp_generate_uuid4();
+                } else {
+                    $conversation_uuid = uniqid('aipkit-', true);
+                }
+            }
+            $current_user = wp_get_current_user();
+            $base = [
+                'bot_id' => null,
+                'user_id' => get_current_user_id(),
+                'session_id' => null,
+                'conversation_uuid' => $conversation_uuid,
+                'module' => 'content_writer',
+                'is_guest' => 0,
+                'role' => is_a($current_user, 'WP_User') ? implode(', ', $current_user->roles) : '',
+                'ip_address' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
+                'timestamp' => time(),
+                'ai_provider' => $provider,
+                'ai_model' => $model,
+            ];
+            // User intent
+            $this->log_storage->log_message(array_merge($base, [
+                'message_role' => 'user',
+                'message_content' => 'Generate Meta Description',
+                'request_payload' => [
+                    'title' => $final_title,
+                    'keywords' => $keywords,
+                    'prompt_mode' => $prompt_mode,
+                    'custom_meta_prompt' => $custom_meta_prompt,
+                ],
+            ]));
+            // Bot response
+            $botLog = array_merge($base, [
+                'message_role' => 'bot',
+                'message_content' => $meta_description,
+                'usage' => $meta_result['usage'] ?? null,
+                'request_payload' => [
+                    'provider' => $provider,
+                    'model' => $model,
+                    'payload_sent' => [
+                        'messages' => [['role' => 'user', 'content' => $meta_user_prompt]],
+                        'ai_params' => $meta_ai_params,
+                        'system_instruction' => $meta_system_instruction,
+                    ],
+                ],
+            ]);
+            if (!empty($meta_result['vector_search_scores'])) {
+                $botLog['vector_search_scores'] = $meta_result['vector_search_scores'];
+            }
+            $this->log_storage->log_message($botLog);
+        }
 
-        wp_send_json_success(['meta_description' => $meta_description]);
+        wp_send_json_success([
+            'meta_description' => $meta_description,
+            'usage' => $meta_result['usage'] ?? null,
+            'conversation_uuid' => $conversation_uuid,
+        ]);
     }
 }

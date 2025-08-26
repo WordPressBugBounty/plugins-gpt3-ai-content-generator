@@ -103,6 +103,11 @@ class AIPKit_Get_Automated_Task_Queue_Items_Action extends AIPKit_Automated_Task
                 } else {
                     $item['target_title'] = $item['target_identifier'];
                 }
+
+                // Expose scheduled time for content writing items (if any) so UI can display it under Added At column.
+                if (str_starts_with($item['task_type'], 'content_writing') && !empty($item_config['scheduled_gmt_time'])) {
+                    $item['scheduled_gmt_time'] = $item_config['scheduled_gmt_time'];
+                }
                 $enriched_items[] = $item;
             }
         }

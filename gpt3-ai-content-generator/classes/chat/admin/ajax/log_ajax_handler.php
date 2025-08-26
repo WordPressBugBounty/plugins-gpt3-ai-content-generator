@@ -11,6 +11,7 @@ use WPAICG\Chat\Storage\LogManager; // NEW: For pruning
 use WPAICG\Chat\Utils\LogStatusRenderer; // For cron status display
 use WPAICG\Chat\Utils\LogConfig; // For centralized configuration
 use WPAICG\aipkit_dashboard;
+use WPAICG\AIPKIT_AI_Settings; // ADDED for security settings access
 use WP_Error; // Added use statement
 
 if (!defined('ABSPATH')) {
@@ -32,6 +33,66 @@ class LogAjaxHandler extends BaseAjaxHandler
         }
         $this->log_storage = new LogStorage();
     }
+
+    /**
+     * AJAX: Adds or removes an IP from the banned list.
+     * @since 2.3.37
+     */
+    public function ajax_toggle_ip_block_status()
+    {
+        $permission_check = $this->check_module_access_permissions('logs', 'aipkit_toggle_ip_block_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        $post_data = wp_unslash($_POST);
+        $ip_to_toggle = isset($post_data['ip']) ? sanitize_text_field($post_data['ip']) : '';
+        $is_currently_banned = isset($post_data['is_banned']) ? ($post_data['is_banned'] === 'true') : false;
+
+        if (empty($ip_to_toggle) || !filter_var($ip_to_toggle, FILTER_VALIDATE_IP)) {
+            $this->send_wp_error(new WP_Error('invalid_ip', __('Invalid IP address provided.', 'gpt3-ai-content-generator')), 400);
+            return;
+        }
+
+        $security_options = AIPKIT_AI_Settings::get_security_settings();
+        $banned_ips_settings = $security_options['bannedips'] ?? ['ips' => '', 'message' => ''];
+        $banned_ips_raw = $banned_ips_settings['ips'] ?? '';
+
+        $banned_ips_list = array_map('trim', explode(',', $banned_ips_raw));
+        $banned_ips_list = array_filter($banned_ips_list, 'strlen');
+
+        $ip_index = array_search($ip_to_toggle, $banned_ips_list, true);
+
+        if ($is_currently_banned) {
+            // Action is to UNBLOCK
+            if ($ip_index !== false) {
+                unset($banned_ips_list[$ip_index]);
+                $message = __('IP address unblocked.', 'gpt3-ai-content-generator');
+            } else {
+                $message = __('IP address was already unblocked.', 'gpt3-ai-content-generator');
+            }
+        } else {
+            // Action is to BLOCK
+            if ($ip_index === false) {
+                $banned_ips_list[] = $ip_to_toggle;
+                $message = __('IP address blocked.', 'gpt3-ai-content-generator');
+            } else {
+                $message = __('IP address was already blocked.', 'gpt3-ai-content-generator');
+            }
+        }
+
+        $new_banned_ips_string = implode(', ', array_unique($banned_ips_list));
+        $security_options['bannedips']['ips'] = $new_banned_ips_string;
+
+        update_option(AIPKIT_AI_Settings::SECURITY_OPTION_NAME, $security_options, 'no');
+
+        wp_send_json_success([
+            'message' => $message,
+            'new_banned_ips_list' => $new_banned_ips_string
+        ]);
+    }
+
 
     /**
      * AJAX: Saves log pruning settings.

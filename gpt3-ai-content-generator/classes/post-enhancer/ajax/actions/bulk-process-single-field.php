@@ -17,6 +17,7 @@ use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WPAICG\Core\Stream\Vector as VectorContextBuilder;
 
 use function WPAICG\PostEnhancer\Ajax\Base\get_post_full_content;
+use function WPAICG\PostEnhancer\Ajax\Base\log_enhancer_bulk_update_logic;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -58,6 +59,10 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
             $this->send_error_response($post);
             return;
         }
+
+    // Optional: a conversation UUID to aggregate all steps into one log record
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: Nonce is checked in check_permissions.
+    $conv_uuid = isset($_POST['conversation_uuid']) ? sanitize_key(wp_unslash($_POST['conversation_uuid'])) : null;
 
         // Get the specific field to process
         // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: Nonce is checked in check_permissions.
@@ -208,20 +213,61 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         // Process the specific field
         $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config[$field]['prompt']);
         
-        $ai_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $ai_params, $system_instruction, ['post_id' => $post->ID]);
+    $ai_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $ai_params, $system_instruction, ['post_id' => $post->ID]);
 
         if (is_wp_error($ai_result)) {
+            // Log error to Admin Logs as well
+            $error_message = 'Error: ' . $ai_result->get_error_message();
+            $error_data = $ai_result->get_error_data() ?? [];
+            $request_payload_log = $error_data['request_payload'] ?? null;
+            log_enhancer_bulk_update_logic(
+                (int) $post->ID,
+                $field,
+                $prompt,
+                $error_message,
+                $provider,
+                $model,
+                null,
+                is_array($request_payload_log) ? $request_payload_log : null,
+                $conv_uuid
+            );
             $this->send_error_response($ai_result);
             return;
         }
 
         if (empty($ai_result['content'])) {
+            // Log empty response as an error entry
+            $request_payload_log = $ai_result['request_payload_log'] ?? null;
+            log_enhancer_bulk_update_logic(
+                (int) $post->ID,
+                $field,
+                $prompt,
+                'Error: AI returned empty response for this field.',
+                $provider,
+                $model,
+                $ai_result['usage'] ?? null,
+                is_array($request_payload_log) ? $request_payload_log : null,
+                $conv_uuid
+            );
             $this->send_error_response(new WP_Error('empty_response', __('AI returned empty response for this field.', 'gpt3-ai-content-generator'), ['status' => 500]));
             return;
         }
 
         $new_value = trim(str_replace('"', '', $ai_result['content']));
         $success_message = '';
+
+        // Log success before updating the post based on field type so Admin Logs capture the generated content
+        log_enhancer_bulk_update_logic(
+            (int) $post->ID,
+            $field,
+            $prompt,
+            $new_value,
+            $provider,
+            $model,
+            $ai_result['usage'] ?? null,
+            $ai_result['request_payload_log'] ?? null,
+            $conv_uuid
+        );
 
         // Update the post based on field type
         switch ($field) {

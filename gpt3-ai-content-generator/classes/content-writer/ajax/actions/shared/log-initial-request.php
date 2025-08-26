@@ -33,11 +33,17 @@ function log_initial_request_logic(AIPKit_Content_Writer_Base_Ajax_Action $handl
 
     $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
 
+    // Reuse provided conversation_uuid when available so all steps belong to one session
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing
+    $conversation_uuid = isset($request_data['conversation_uuid']) && !empty($request_data['conversation_uuid'])
+        ? sanitize_text_field($request_data['conversation_uuid'])
+        : wp_generate_uuid4();
+
     $handler->log_storage->log_message([
         'bot_id'            => null,
         'user_id'           => get_current_user_id(),
         'session_id'        => null,
-        'conversation_uuid' => wp_generate_uuid4(), // Generate a unique ID for this one-off interaction
+        'conversation_uuid' => $conversation_uuid, // Use provided UUID or generate a new one
         'module'            => 'content_writer',
         'is_guest'          => 0,
         'role'              => implode(', ', wp_get_current_user()->roles),

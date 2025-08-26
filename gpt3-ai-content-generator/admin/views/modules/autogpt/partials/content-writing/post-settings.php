@@ -87,6 +87,6 @@ if (!defined('ABSPATH')) {
         </div>
     </div>
     <p class="aipkit_form-help aipkit_task_schedule_from_input_help" style="display: none;">
-        <?php esc_html_e('Append | YYYY-MM-DD HH:MM to the end of each line in your Bulk/CSV/URL/Sheets input to schedule posts individually.', 'gpt3-ai-content-generator'); ?>
+        <?php esc_html_e('For Bulk/CSV/URL append | YYYY-MM-DD HH:MM (or include date in Google Sheets column). Accepted: YYYY-MM-DD HH:MM[:SS], YYYY/MM/DD HH:MM, MM/DD/YYYY HH:MM, DD/MM/YYYY HH:MM, or ISO 8601. Times interpreted in site timezone unless offset/Z given.', 'gpt3-ai-content-generator'); ?>
     </p>
 </div>

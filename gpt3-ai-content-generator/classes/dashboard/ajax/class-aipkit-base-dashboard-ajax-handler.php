@@ -58,6 +58,29 @@ abstract class BaseDashboardAjaxHandler {
                        ? $error_data_payload['status']
                        : 400; // Default to 400 Bad Request if not specified
 
+        // Attach sanitized details for debugging (without huge payloads)
+        $details = [];
+        if (is_array($error_data_payload)) {
+            $details = $error_data_payload;
+            if (isset($details['log_data']) && is_array($details['log_data'])) {
+                $log = $details['log_data'];
+                // Compute content length and truncate indexed_content if present
+                if (isset($log['indexed_content']) && is_string($log['indexed_content'])) {
+                    $content = $log['indexed_content'];
+                    $details['log_data']['indexed_content_length'] = function_exists('mb_strlen') ? mb_strlen($content) : strlen($content);
+                    // Truncate to avoid massive responses
+                    $max = 1000;
+                    if ((function_exists('mb_strlen') ? mb_strlen($content) : strlen($content)) > $max) {
+                        $details['log_data']['indexed_content'] = (function_exists('mb_substr') ? mb_substr($content, 0, $max) : substr($content, 0, $max)) . '...';
+                    }
+                }
+            }
+        }
+
+        if (!empty($details)) {
+            $error_data['details'] = $details;
+        }
+
         wp_send_json_error($error_data, $status_code);
     }
 }

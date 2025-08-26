@@ -111,7 +111,7 @@ function process_content_writer_logic(
     // The initial request details are already in the cached data
     $log_user_data = array_merge($base_log_data, [
         'message_role'       => 'user',
-        'message_content'    => "Content Writer Request (Stream Init): " . esc_html($initial_request_details['title'] ?? 'Untitled'),
+        'message_content'    => "Content Writer Request: " . esc_html($initial_request_details['title'] ?? 'Untitled'),
         'timestamp'          => time(),
         'ai_provider'       => $provider,
         'ai_model'          => $model,
@@ -138,40 +138,53 @@ function process_content_writer_logic(
     if ($is_vector_enabled && $ai_caller && $vector_store_manager) {
         $vector_provider = $cached_data['vector_store_provider'] ?? 'openai';
 
-        if ($vector_provider === 'pinecone' || $vector_provider === 'qdrant') {
-            if (!function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
-                $vector_logic_path = WPAICG_PLUGIN_DIR . 'classes/core/stream/vector/fn-build-vector-search-context.php';
-                if (file_exists($vector_logic_path)) {
-                    require_once $vector_logic_path;
-                }
+        // Always attempt to build vector context and capture scores for logging (OpenAI, Pinecone, Qdrant)
+        if (!function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
+            $vector_logic_path = WPAICG_PLUGIN_DIR . 'classes/core/stream/vector/fn-build-vector-search-context.php';
+            if (file_exists($vector_logic_path)) {
+                require_once $vector_logic_path;
             }
-            if (function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
-                $vector_context = \WPAICG\Core\Stream\Vector\build_vector_search_context_logic(
-                    $ai_caller,
-                    $vector_store_manager,
-                    $user_message,
-                    $cached_data,
-                    $provider,
-                    null,
-                    $cached_data['pinecone_index_name'] ?? null,
-                    null,
-                    $cached_data['qdrant_collection_name'] ?? null,
-                    null
-                );
-                if (!empty($vector_context)) {
-                    $system_instruction = $vector_context . "\n\n---\n\n" . $system_instruction;
-                }
+        }
+        $collected_vector_search_scores = [];
+        if (function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
+            $vector_context = \WPAICG\Core\Stream\Vector\build_vector_search_context_logic(
+                $ai_caller,
+                $vector_store_manager,
+                $user_message,
+                $cached_data,
+                $provider,
+                null, // active OpenAI VS id (none from CW UI)
+                $cached_data['pinecone_index_name'] ?? null,
+                null, // pinecone namespace (optional)
+                $cached_data['qdrant_collection_name'] ?? null,
+                null, // qdrant file upload context id (optional)
+                $collected_vector_search_scores
+            );
+            if (!empty($vector_context)) {
+                $system_instruction = $vector_context . "\n\n---\n\n" . $system_instruction;
             }
-        } elseif ($provider === 'OpenAI' && $vector_provider === 'openai') {
+            if (!empty($collected_vector_search_scores)) {
+                // Attach to AI params for visibility in sanitized request payload logs
+                $ai_params_for_payload['vector_search_scores'] = $collected_vector_search_scores;
+            }
+        }
+
+        // Additionally, for OpenAI provider with OpenAI vector store, configure the file_search tool
+        if ($provider === 'OpenAI' && $vector_provider === 'openai') {
             $openai_vs_ids = $cached_data['openai_vector_store_ids'] ?? [];
             if (!empty($openai_vs_ids) && is_array($openai_vs_ids)) {
                 $vector_top_k = isset($cached_data['vector_store_top_k']) ? absint($cached_data['vector_store_top_k']) : 3;
                 $vector_top_k = max(1, min($vector_top_k, 20));
+                $confidence_threshold_percent = (int)($cached_data['vector_store_confidence_threshold'] ?? 20);
+                $openai_score_threshold = round($confidence_threshold_percent / 100, 4);
 
                 $ai_params_for_payload['vector_store_tool_config'] = [
                     'type'             => 'file_search',
                     'vector_store_ids' => $openai_vs_ids,
                     'max_num_results'  => $vector_top_k,
+                    'ranking_options'  => [
+                        'score_threshold' => $openai_score_threshold
+                    ],
                 ];
             }
         }
@@ -222,10 +235,17 @@ function process_content_writer_logic(
         return $error;
     }
 
-    return [
+    $result = [
         'provider' => $provider, 'model' => $model, 'user_message' => $user_message, 'history' => [],
         'system_instruction_filtered' => $system_instruction,
         'api_params' => $api_params_for_stream, 'ai_params' => $ai_params_for_payload,
         'conversation_uuid' => $conversation_uuid, 'base_log_data' => $base_log_data, 'bot_message_id' => $bot_message_id,
     ];
+
+    // Expose captured vector search scores at the top-level for logging parity with Chat/AI Forms
+    if (isset($collected_vector_search_scores) && is_array($collected_vector_search_scores) && !empty($collected_vector_search_scores)) {
+        $result['vector_search_scores'] = $collected_vector_search_scores;
+    }
+
+    return $result;
 }

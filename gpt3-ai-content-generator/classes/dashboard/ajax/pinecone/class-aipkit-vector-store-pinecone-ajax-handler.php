@@ -232,6 +232,11 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
                 $this // Pass the handler instance
             );
             if (is_wp_error($result)) {
+                // Log if error object contains log_data
+                $log_data_on_error = $result->get_error_data();
+                if (is_array($log_data_on_error) && isset($log_data_on_error['log_data'])) {
+                    $this->_log_vector_data_source_entry($log_data_on_error['log_data']);
+                }
                 $this->send_wp_error($result);
             } else {
                 // Log the result from the Pro function's 'log_data'

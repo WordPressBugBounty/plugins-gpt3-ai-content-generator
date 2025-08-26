@@ -343,7 +343,7 @@ class AIPKit_Chatbot_Index_Content_Ajax_Handler extends BaseAjaxHandler
         }
 
         $provider_name_map = ['openai' => 'OpenAI', 'pinecone' => 'Pinecone', 'qdrant' => 'Qdrant'];
-        $embedding_provider_name_map = ['openai' => 'OpenAI', 'google' => 'Google'];
+        $embedding_provider_name_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure'];
 
         $display_info = [
             'provider_name' => $provider_name_map[$config['provider']] ?? ucfirst($config['provider']),
@@ -370,45 +370,87 @@ class AIPKit_Chatbot_Index_Content_Ajax_Handler extends BaseAjaxHandler
     {
         $config = ['provider' => '', 'embedding_provider' => '', 'embedding_model' => '', 'store_name' => '', 'index_name' => '', 'collection_name' => ''];
         $bot_settings = $this->bot_storage->get_chatbot_settings($bot_id);
-        $bot_provider = $bot_settings['provider'] ?? 'OpenAI';
+        $bot_provider = $bot_settings['provider'] ?? 'OpenAI'; // Get the bot's main provider
 
         if (!empty($user_config['provider'])) {
             $config['provider'] = $user_config['provider'];
-            $config = array_merge($config, $this->_determine_embedding_config($user_config));
         } else {
             if ($bot_provider === 'OpenAI' && !empty(AIPKit_Providers::get_provider_data('OpenAI')['api_key'])) {
                 $config['provider'] = 'openai';
             } else {
-                $config = array_merge($config, $this->_determine_embedding_config($user_config));
                 if (!empty(AIPKit_Providers::get_provider_data('Pinecone')['api_key'])) {
                     $config['provider'] = 'pinecone';
                 } elseif (!empty(AIPKit_Providers::get_provider_data('Qdrant')['api_key']) && !empty(AIPKit_Providers::get_provider_data('Qdrant')['url'])) {
                     $config['provider'] = 'qdrant';
                 } else {
-                    throw new Exception(__('No vector store provider API key found. Please configure OpenAI, Pinecone, or Qdrant in AI Settings.', 'gpt3-ai-content-generator'));
+                     throw new Exception(__('No vector store provider API key found. Please configure OpenAI, Pinecone, or Qdrant in AI Settings.', 'gpt3-ai-content-generator'));
                 }
             }
         }
+        
+        // Now determine embedding config
+        $config = array_merge($config, $this->_determine_embedding_config($user_config, $bot_provider));
+
         $store_key = $config['provider'] === 'pinecone' ? 'index_name' : ($config['provider'] === 'qdrant' ? 'collection_name' : 'store_name');
-        $config[$store_key] = $user_config[$store_key] ?? $this->_generate_vector_store_name($bot_id, $config['provider']);
+        $generated = $user_config[$store_key] ?? $this->_generate_vector_store_name($bot_id, $config['provider']);
+        if ($config['provider'] === 'pinecone') {
+            // Keep Pinecone index names short & compliant (<=45 chars, lowercase, hyphens)
+            $index_name = strtolower(preg_replace('/[^a-zA-Z0-9-]+/', '-', $generated));
+            $index_name = trim(preg_replace('/-+/', '-', $index_name), '-');
+            if ($index_name === '' || strlen($index_name) > 45) {
+                // Add a short unique suffix so repeated runs create distinct indexes.
+                $suffix = substr(wp_generate_uuid4(), 0, 8); // 8 hex chars
+                $index_name = 'chat-pinecone-u' . $bot_id . '-' . $suffix;
+                // Extra safety: truncate if somehow exceeds 45 (shouldn't normally)
+                if (strlen($index_name) > 45) {
+                    $index_name = substr($index_name, 0, 45);
+                }
+            }
+            $config[$store_key] = $index_name;
+        } else {
+            $config[$store_key] = $generated;
+        }
 
         return $config;
     }
 
-    private function _determine_embedding_config($user_config)
+    private function _determine_embedding_config($user_config, $bot_provider) // Added $bot_provider
     {
         if (!empty($user_config['embedding_provider'])) {
+            $model = $user_config['embedding_model'] ?? '';
+            if(empty($model)){
+                 if($user_config['embedding_provider'] === 'openai'){
+                     $model = 'text-embedding-3-small';
+                 }
+                 elseif($user_config['embedding_provider'] === 'google'){
+                     $model = 'text-embedding-004';
+                 }
+                 elseif($user_config['embedding_provider'] === 'azure'){
+                     $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
+                     $model = !empty($azure_embedding_models) ? $azure_embedding_models[0]['id'] : '';
+                 }
+            }
             return [
                 'embedding_provider' => $user_config['embedding_provider'],
-                'embedding_model' => $user_config['embedding_model'] ?? ($user_config['embedding_provider'] === 'openai' ? 'text-embedding-3-small' : 'text-embedding-004')
+                'embedding_model' => $model
             ];
         }
+
+        // NEW: Check if bot provider is Azure
+        if ($bot_provider === 'Azure' && !empty(AIPKit_Providers::get_provider_data('Azure')['api_key'])) {
+             $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
+             return [
+                 'embedding_provider' => 'azure',
+                 'embedding_model' => !empty($azure_embedding_models) ? $azure_embedding_models[0]['id'] : ''
+             ];
+        }
+
         if (!empty(AIPKit_Providers::get_provider_data('OpenAI')['api_key'])) {
             return ['embedding_provider' => 'openai', 'embedding_model' => 'text-embedding-3-small'];
         } elseif (!empty(AIPKit_Providers::get_provider_data('Google')['api_key'])) {
             return ['embedding_provider' => 'google', 'embedding_model' => 'text-embedding-004'];
         }
-        throw new Exception(__('No embedding provider API key found. Please configure OpenAI or Google API key in AI Settings -> Providers.', 'gpt3-ai-content-generator'));
+        throw new Exception(__('No embedding provider API key found. Please configure OpenAI, Google, or Azure API key in AI Settings -> Providers.', 'gpt3-ai-content-generator'));
     }
 
     private function _get_all_indexable_content_types()
@@ -474,7 +516,12 @@ class AIPKit_Chatbot_Index_Content_Ajax_Handler extends BaseAjaxHandler
 
                 $vector_store_id = $this->_create_vector_store($process_data['config']);
                 $process_data['vector_store_id'] = $vector_store_id;
-                $process_data['messages'][] = ['text' => 'Vector store created/verified.', 'type' => 'info', 'time' => current_time('mysql')];
+                $label = $process_data['config']['provider'] === 'pinecone' ? __('Index', 'gpt3-ai-content-generator') : ($process_data['config']['provider'] === 'qdrant' ? __('Collection', 'gpt3-ai-content-generator') : __('Vector Store', 'gpt3-ai-content-generator'));
+                $process_data['messages'][] = [
+                    'text' => sprintf(__('🆕 %1$s created: %2$s', 'gpt3-ai-content-generator'), $label, $vector_store_id),
+                    'type' => 'info',
+                    'time' => current_time('mysql')
+                ];
 
                 $posts_to_index = $this->_get_posts_to_index($process_data['content_types']);
                 $process_data['posts_to_index'] = $posts_to_index;
@@ -503,12 +550,23 @@ class AIPKit_Chatbot_Index_Content_Ajax_Handler extends BaseAjaxHandler
             // Check if finished or reschedule
             if (empty($process_data['posts_to_index'])) {
                 $this->_update_bot_vector_settings($process_data['bot_id'], $process_data['config'], $process_data['vector_store_id']);
-                $this->_cleanup_indexing_process($process_id, false, "🎉 Indexing completed! Indexed {$process_data['indexed_posts']} items.");
+                $label = $process_data['config']['provider'] === 'pinecone' ? __('Index', 'gpt3-ai-content-generator') : ($process_data['config']['provider'] === 'qdrant' ? __('Collection', 'gpt3-ai-content-generator') : __('Vector Store', 'gpt3-ai-content-generator'));
+                $this->_cleanup_indexing_process($process_id, false, "🎉 Indexing completed! Indexed {$process_data['indexed_posts']} items into {$label}: {$process_data['vector_store_id']}.");
             } else {
                 wp_schedule_single_event(time() + 3, 'aipkit_process_content_indexing', [$process_id]);
             }
         } catch (Exception $e) {
-            $this->_cleanup_indexing_process($process_id, true, "💥 Indexing failed: {$e->getMessage()}");
+            $message = $e->getMessage();
+            if ($message === 'Process cancelled by user.') {
+                // Genuine cancellation
+                $this->_cleanup_indexing_process($process_id, true, '⏹️ Process cancelled by user.');
+            } else {
+                // Treat as error, not user cancellation
+                if (function_exists('error_log')) {
+                    error_log('[AIPKit Indexing Error][' . $process_id . '] ' . $message);
+                }
+                $this->_cleanup_indexing_process($process_id, false, "💥 Indexing failed: {$message}");
+            }
         }
     }
 
@@ -526,7 +584,7 @@ class AIPKit_Chatbot_Index_Content_Ajax_Handler extends BaseAjaxHandler
             if (!$this->ai_caller) {
                 throw new Exception('AI Caller not available for embedding.');
             }
-            $embedding_provider_map = ['openai' => 'OpenAI', 'google' => 'Google'];
+            $embedding_provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure'];
             $normalized_embedding_provider = $embedding_provider_map[$config['embedding_provider']] ?? ucfirst($config['embedding_provider']);
             $embedding_result = $this->ai_caller->generate_embeddings($normalized_embedding_provider, 'test', ['model' => $config['embedding_model']]);
             if (is_wp_error($embedding_result)) {
@@ -558,7 +616,7 @@ class AIPKit_Chatbot_Index_Content_Ajax_Handler extends BaseAjaxHandler
     private function _index_single_post($post_id, $config, $vector_store_id)
     {
         $provider = $config['provider'];
-        $embedding_provider_map = ['openai' => 'OpenAI', 'google' => 'Google'];
+        $embedding_provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure'];
         $normalized_embedding_provider = isset($config['embedding_provider']) ? ($embedding_provider_map[$config['embedding_provider']] ?? ucfirst($config['embedding_provider'])) : null;
 
         $processor_map = [

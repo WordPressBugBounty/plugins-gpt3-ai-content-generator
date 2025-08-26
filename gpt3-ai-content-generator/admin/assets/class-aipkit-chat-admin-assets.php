@@ -203,6 +203,11 @@ class ChatAdminAssets
         // This addresses both the MissingUnslash and InputNotSanitized warnings.
         $user_ip_sanitized = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
         // --- END FIX ---
+        
+        // --- ADDED: Get banned IPs for the new feature ---
+        $security_options = AIPKIT_AI_Settings::get_security_settings();
+        $banned_ips_settings = $security_options['bannedips'] ?? ['ips' => ''];
+        // --- END ADDED ---
 
         $preview_config_for_js = [
             'nonce' => $aipkit_frontend_nonce, 'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -211,6 +216,8 @@ class ChatAdminAssets
             'qdrantCollections' => $qdrant_collections, 'openaiEmbeddingModels' => $openai_embedding_models,
             'googleEmbeddingModels' => $google_embedding_models, 'azureEmbeddingModels' => $azure_embedding_models, 'isProPlan' => $is_pro_plan,
             'isTriggersAddonActive' => $is_triggers_addon_active,
+            'banned_ips' => $banned_ips_settings['ips'], // ADDED
+            'nonce_toggle_ip_block' => wp_create_nonce('aipkit_toggle_ip_block_nonce'), // ADDED
             'text' => array_merge($dashboard_texts, [
                 'fullscreenError' => $dashboard_texts['fullscreenError'] ?? __('Error: Fullscreen functionality is unavailable.', 'gpt3-ai-content-generator'),
                 'copySuccess'     => $dashboard_texts['copySuccess'] ?? __('Copied!', 'gpt3-ai-content-generator'),

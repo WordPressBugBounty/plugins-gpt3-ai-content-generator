@@ -302,6 +302,61 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
     }
 
     /**
+     * AJAX: Return chunk logs for a given provider/store and batch_id with pagination.
+     * @since NEXT_VERSION
+     */
+    public function ajax_get_chunk_logs_by_batch()
+    {
+        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'aipkit_vector_data_source';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- already checked
+        $post = wp_unslash($_POST);
+        $provider = isset($post['provider']) ? sanitize_text_field($post['provider']) : '';
+        $store_id = isset($post['store_id']) ? sanitize_text_field($post['store_id']) : '';
+        $batch_id = isset($post['batch_id']) ? sanitize_text_field($post['batch_id']) : '';
+        $page = isset($post['page']) ? max(1, absint($post['page'])) : 1;
+        $per_page = isset($post['per_page']) ? min(50, max(1, absint($post['per_page']))) : 10;
+
+        if (!$provider || !$store_id || !$batch_id) {
+            $this->send_wp_error(new \WP_Error('missing_params_chunk_logs', __('Missing provider, store_id or batch_id.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $offset = ($page - 1) * $per_page;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is safe
+        $total = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$table} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s",
+            $provider, $store_id, $batch_id
+        ));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is safe
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT id, file_id, indexed_content, timestamp FROM {$table} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s ORDER BY id ASC LIMIT %d OFFSET %d",
+            $provider, $store_id, $batch_id, $per_page, $offset
+        ), ARRAY_A);
+
+        if ($wpdb->last_error) {
+            $this->send_wp_error(new \WP_Error('db_error_chunk_logs', __('Failed to fetch chunk logs.', 'gpt3-ai-content-generator'), ['status' => 500]));
+            return;
+        }
+
+        wp_send_json_success([
+            'chunks' => $rows,
+            'pagination' => [
+                'total' => $total,
+                'total_pages' => $per_page ? (int) ceil($total / $per_page) : 1,
+                'current_page' => $page,
+                'per_page' => $per_page,
+            ],
+        ]);
+    }
+
+    /**
      * AJAX: Retrieves CPTs and their fields/taxonomies for indexing settings UI.
      * @since 2.4.0
      */
@@ -391,6 +446,45 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             unset($settings['show_index_button']);
             $general_dirty = true;
         }
+        // Chunking settings (Pro only)
+        if (isset($settings['chunk_avg_chars_per_token']) || isset($settings['chunk_max_tokens_per_chunk']) || isset($settings['chunk_overlap_tokens'])) {
+            // Only allow saving if Pro
+            $is_pro = \WPAICG\aipkit_dashboard::is_pro_plan();
+            if ($is_pro) {
+                $avg = isset($settings['chunk_avg_chars_per_token']) ? (int)$settings['chunk_avg_chars_per_token'] : null;
+                $max = isset($settings['chunk_max_tokens_per_chunk']) ? (int)$settings['chunk_max_tokens_per_chunk'] : null;
+                $ovl = isset($settings['chunk_overlap_tokens']) ? (int)$settings['chunk_overlap_tokens'] : null;
+
+                // Validate ranges
+                if ($avg !== null) {
+                    if ($avg < 2 || $avg > 10) {
+                        $this->send_wp_error(new \WP_Error('invalid_chunk_avg', __('Average chars per token must be between 2 and 10.', 'gpt3-ai-content-generator')));
+                        return;
+                    }
+                    $general_settings['chunk_avg_chars_per_token'] = $avg;
+                    $general_dirty = true;
+                }
+                if ($max !== null) {
+                    if ($max < 256 || $max > 8000) {
+                        $this->send_wp_error(new \WP_Error('invalid_chunk_max', __('Max tokens per chunk must be between 256 and 8000.', 'gpt3-ai-content-generator')));
+                        return;
+                    }
+                    $general_settings['chunk_max_tokens_per_chunk'] = $max;
+                    $general_dirty = true;
+                }
+                if ($ovl !== null) {
+                    if ($ovl < 0 || $ovl > 1000) {
+                        $this->send_wp_error(new \WP_Error('invalid_chunk_overlap', __('Overlap tokens must be between 0 and 1000.', 'gpt3-ai-content-generator')));
+                        return;
+                    }
+                    $general_settings['chunk_overlap_tokens'] = $ovl;
+                    $general_dirty = true;
+                }
+            }
+            // Remove from specific settings payload
+            unset($settings['chunk_avg_chars_per_token'], $settings['chunk_max_tokens_per_chunk'], $settings['chunk_overlap_tokens']);
+        }
+
         if ($general_dirty) {
             update_option('aipkit_training_general_settings', $general_settings);
         }
@@ -521,15 +615,25 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-        $last_updated_timestamp = $wpdb->get_var($wpdb->prepare(
-            "SELECT MAX(timestamp) FROM {$table_name} WHERE provider = %s AND vector_store_id = %s",
-            $provider,
-            $store_id
-        ));
+        $last_updated_timestamp = null;
+        if ($wpdb instanceof \wpdb) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table existence check
+            $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
+            if ($table_exists === $table_name) {
+                $last_updated_timestamp = $wpdb->get_var($wpdb->prepare(
+                    "SELECT MAX(timestamp) FROM {$table_name} WHERE provider = %s AND vector_store_id = %s",
+                    $provider,
+                    $store_id
+                ));
+            }
+        }
 
         $last_updated_friendly = null;
         if ($last_updated_timestamp && class_exists(ChatUtils::class)) {
-            $last_updated_friendly = ChatUtils::aipkit_human_time_diff($last_updated_timestamp);
+            $ts_num = is_numeric($last_updated_timestamp) ? (int) $last_updated_timestamp : strtotime($last_updated_timestamp);
+            if ($ts_num) {
+                $last_updated_friendly = ChatUtils::aipkit_human_time_diff($ts_num);
+            }
         }
 
         wp_send_json_success([
@@ -625,12 +729,21 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             $this->send_wp_error($permission_check);
         }
 
+        // Render cards view
         ob_start();
         include WPAICG_PLUGIN_DIR . 'admin/views/modules/ai-training/partials/knowledge-base-cards.php';
         $cards_html = ob_get_clean();
 
+        // Render list view as well so client can refresh either/both
+        ob_start();
+        include WPAICG_PLUGIN_DIR . 'admin/views/modules/ai-training/partials/knowledge-base-list.php';
+        $list_html = ob_get_clean();
+
         wp_send_json_success([
-            'html' => $cards_html
+            // Back-compat: keep 'html' as cards
+            'html' => $cards_html,
+            'cards_html' => $cards_html,
+            'list_html' => $list_html,
         ]);
     }
 }
