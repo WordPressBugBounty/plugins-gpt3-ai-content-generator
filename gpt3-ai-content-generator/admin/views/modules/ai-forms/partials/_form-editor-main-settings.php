@@ -74,8 +74,19 @@ if (!defined('ABSPATH')) {
                 <div class="aipkit_form-group aipkit_form-col aipkit_ai_form_provider_col">
                     <label class="aipkit_form-label" for="aipkit_ai_form_ai_provider"><?php esc_html_e('AI Provider', 'gpt3-ai-content-generator'); ?></label>
                     <select id="aipkit_ai_form_ai_provider" name="ai_provider" class="aipkit_form-input">
-                        <?php foreach ($providers as $p_value) : ?>
-                            <option value="<?php echo esc_attr($p_value); ?>"><?php echo esc_html($p_value); ?></option>
+                        <?php foreach ($providers as $p_value) :
+                            $disabled = false;
+                            $label = $p_value;
+                            if ($p_value === 'DeepSeek' && (empty($deepseek_addon_active) || !$deepseek_addon_active)) {
+                                $disabled = true;
+                                $label = __('DeepSeek (Enable in Addons)', 'gpt3-ai-content-generator');
+                            }
+                            if ($p_value === 'Ollama' && (empty($is_pro) || !$is_pro || empty($ollama_addon_active) || !$ollama_addon_active)) {
+                                $disabled = true;
+                                $label = __('Ollama (Enable in Addons)', 'gpt3-ai-content-generator');
+                            }
+                        ?>
+                            <option value="<?php echo esc_attr($p_value); ?>" <?php echo $disabled ? 'disabled' : ''; ?>><?php echo esc_html($label); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

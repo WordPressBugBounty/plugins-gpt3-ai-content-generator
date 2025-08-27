@@ -173,9 +173,6 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
         $new_frontend_settings = $new_settings['frontend_display'] ?? $frontend_defaults;
         // Providers now inferred from selected models. If no models selected = allow all (store empty string for both fields)
         if (isset($post_data['frontend_models'])) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[AIPKIT] Saving image settings: frontend_models raw=' . (is_string($post_data['frontend_models']) ? $post_data['frontend_models'] : 'N/A'));
-            }
             $models_raw = sanitize_textarea_field(wp_unslash($post_data['frontend_models']));
             $models_arr = array_filter(array_map('trim', explode(',', $models_raw)));
             if (empty($models_arr)) {

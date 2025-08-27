@@ -29,6 +29,9 @@ $providers_for_select = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
 if ($deepseek_addon_active) {
     $providers_for_select[] = 'DeepSeek';
 }
+if ($is_pro && aipkit_dashboard::is_addon_active('ollama')) {
+    $providers_for_select[] = 'Ollama';
+}
 
 $available_post_types = get_post_types(['public' => true], 'objects');
 unset($available_post_types['attachment']);

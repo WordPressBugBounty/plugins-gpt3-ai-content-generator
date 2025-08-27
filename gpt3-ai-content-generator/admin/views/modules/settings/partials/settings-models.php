@@ -239,3 +239,38 @@ if (!defined('ABSPATH')) exit;
     </div>
 </div>
 <?php endif; ?>
+
+<!-- Ollama Model -->
+<div
+    class="aipkit_form-group aipkit_model_field"
+    id="aipkit_ollama_model_group"
+    data-provider="Ollama"
+    style="display: <?php echo ($current_provider === 'Ollama') ? 'block' : 'none'; ?>;"
+>
+    <label class="aipkit_form-label" for="aipkit_ollama_model"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></label>
+    <div class="aipkit_input-with-button">
+        <select id="aipkit_ollama_model" name="ollama_model" class="aipkit_form-input aipkit_autosave_trigger">
+            <?php
+            $currentOllamaModel = $ollama_data['model'] ?? '';
+            $foundCurrentOllama = false;
+            if (!empty($ollama_model_list)) {
+                foreach ($ollama_model_list as $m) {
+                    $model_id = $m['id'] ?? '';
+                    $model_name = $m['name'] ?? $model_id;
+                     if($model_id === $currentOllamaModel) $foundCurrentOllama = true;
+                    echo '<option value="' . esc_attr($model_id) . '" ' . selected($currentOllamaModel, $model_id, false) . '>' . esc_html($model_name) . '</option>';
+                }
+            }
+             if (!$foundCurrentOllama && !empty($currentOllamaModel)) {
+                echo '<option value="' . esc_attr($currentOllamaModel) . '" selected>' . esc_html($currentOllamaModel) . ' (Manual)</option>';
+            } elseif(empty($ollama_model_list) && empty($currentOllamaModel)) {
+                 echo '<option value="">'.esc_html__('(Sync to load models)', 'gpt3-ai-content-generator').'</option>';
+            }
+            ?>
+        </select>
+        <button id="aipkit_sync_ollama_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn " data-provider="Ollama">
+            <span class="aipkit_btn-text"><?php echo esc_html__('Sync', 'gpt3-ai-content-generator'); ?></span>
+             <span class="aipkit_spinner" style="display:none;"></span>
+        </button>
+    </div>
+</div>

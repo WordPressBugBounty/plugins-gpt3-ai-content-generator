@@ -213,6 +213,13 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
                 'azure'      => \WPAICG\AIPKit_Providers::get_azure_deployments(),
                 'deepseek'   => \WPAICG\AIPKit_Providers::get_deepseek_models(),
             ];
+            if (
+                class_exists('\\WPAICG\\aipkit_dashboard') &&
+                \WPAICG\aipkit_dashboard::is_pro_plan() &&
+                \WPAICG\aipkit_dashboard::is_addon_active('ollama')
+            ) {
+                $models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
+            }
         }
 
         // 6. Send the response

@@ -14,11 +14,11 @@ if (!defined('ABSPATH')) {
 use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKIT_AI_Settings;
 
-// --- Get available providers ---
-$providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
-if (class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_addon_active('deepseek')) {
-    $providers[] = 'DeepSeek';
-}
+// --- Get available providers (always show, lock via disabled when not eligible) ---
+$providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];
+$is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
+$deepseek_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_addon_active('deepseek');
+$ollama_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_addon_active('ollama');
 // --- Get global AI param defaults ---
 $global_ai_params = [];
 if (class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {

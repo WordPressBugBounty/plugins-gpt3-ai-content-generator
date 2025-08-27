@@ -41,6 +41,10 @@ class AIPKit_Providers
             'api_key' => '', 'model' => '',
             'base_url' => 'https://api.deepseek.com', 'api_version' => 'v1',
         ],
+        'Ollama' => [
+            'model' => '',
+            'base_url' => 'http://localhost:11434',
+        ],
         'ElevenLabs' => [
             'api_key' => '', 'voice_id' => '', 'model_id' => '',
             'base_url' => 'https://api.elevenlabs.io', 'api_version' => 'v1',
@@ -77,6 +81,7 @@ class AIPKit_Providers
             ['id' => 'models/embedding-001', 'name' => 'Embedding 001 (768)'],
         ],
         'Azure' => [], 'AzureImage' => [], 'AzureEmbedding' => [], 'DeepSeek' => ['deepseek-chat', 'deepseek-coder'],
+        'Ollama' => [],
         'ElevenLabs' => [], 'ElevenLabsModels' => ['eleven_multilingual_v2'],
         'OpenAITTS' => [['id' => 'tts-1', 'name' => 'TTS-1'], ['id' => 'tts-1-hd', 'name' => 'TTS-1-HD']],
         'OpenAISTT' => [['id' => 'whisper-1', 'name' => 'Whisper-1']],
@@ -93,6 +98,7 @@ class AIPKit_Providers
         'GoogleEmbedding'  => 'aipkit_google_embedding_model_list',
         'Azure'            => 'aipkit_azure_deployment_list',
         'AzureImage' => 'aipkit_azure_image_model_list', 'AzureEmbedding'   => 'aipkit_azure_embedding_model_list', 'DeepSeek'         => 'aipkit_deepseek_model_list',
+        'Ollama'           => 'aipkit_ollama_model_list',
         'ElevenLabs'       => 'aipkit_elevenlabs_voice_list',
         'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
         'OpenAITTS'        => 'aipkit_openai_tts_model_list',
@@ -159,9 +165,6 @@ class AIPKit_Providers
 
         if (wp_json_encode($providers_from_db) !== wp_json_encode($final_providers)) {
             $opts['providers'] = $final_providers;
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::get_all_providers. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
-            }
             update_option('aipkit_options', $opts, 'no');
         }
         return $final_providers;
@@ -249,9 +252,6 @@ class AIPKit_Providers
             }
         }
         if ($changed_for_this_provider) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::save_provider_data. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
-            }
             update_option('aipkit_options', $opts, 'no');
         }
     }
@@ -276,9 +276,6 @@ class AIPKit_Providers
             }
             if (!isset($opts['providers'][$provider]) || !is_array($opts['providers'][$provider])) {
                 $opts['providers'][$provider] = self::$provider_defaults[$provider] ?? [];
-            }
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::save_current_provider. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
             }
             update_option('aipkit_options', $opts, 'no');
         }
@@ -437,6 +434,10 @@ class AIPKit_Providers
     public static function get_deepseek_models(): array
     {
         return self::get_model_list('DeepSeek');
+    }
+    public static function get_ollama_models(): array
+    {
+        return self::get_model_list('Ollama');
     }
     public static function get_elevenlabs_voices(): array
     {

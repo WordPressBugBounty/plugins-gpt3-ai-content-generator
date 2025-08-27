@@ -83,7 +83,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
-        $valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'];
+        $valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate', 'Ollama'];
         if (!in_array($provider, $valid_providers, true)) {
             wp_send_json_error(['message' => __('Invalid provider selection.', 'gpt3-ai-content-generator')]);
             return;
@@ -179,6 +179,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             'QdrantCollections' => 'aipkit_qdrant_collection_list',
             'Replicate' => 'aipkit_replicate_model_list',
             'AzureEmbedding' => 'aipkit_azure_embedding_model_list',
+            'Ollama' => 'aipkit_ollama_model_list',
         ];
 
         $option_name = $option_map[$provider] ?? null;
@@ -223,6 +224,20 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 $value_to_save = $chat_models;
                 $response_models = $value_to_save; // Set response to just the chat models
                 update_option('aipkit_google_embedding_model_list', $embedding_models, 'no');
+            } elseif ($provider === 'Ollama') {
+                $chat_models = [];
+                $embedding_models = [];
+                foreach ($result as $model) {
+                    $id_lower = strtolower($model['id']);
+                    if (strpos($id_lower, 'embed') !== false) {
+                        $embedding_models[] = $model;
+                    } else {
+                        $chat_models[] = $model;
+                    }
+                }
+                $value_to_save = $chat_models;
+                $response_models = $value_to_save; // Set response to just the chat models
+                update_option('aipkit_ollama_embedding_model_list', $embedding_models, 'no');
             } elseif ($provider === 'Azure') {
                 $chat_deployments = [];
                 $image_deployments = [];

@@ -41,7 +41,7 @@ function build_task_config_enhancement_logic(array $post_data): array|WP_Error
     // AI Settings
     $provider_raw = $post_data['ai_provider'] ?? 'openai';
     $task_config['ai_provider'] = match (strtolower($provider_raw)) {
-        'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'deepseek' => 'DeepSeek',
+        'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'deepseek' => 'DeepSeek', 'ollama' => 'Ollama',
         default => ucfirst(strtolower($provider_raw))
     };
     $task_config['ai_model'] = $post_data['ai_model'] ?? '';

@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.38
+Stable tag: 2.3.39
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ AI, Chatbot, ChatGPT, Content Writer, Auto Content Writer, WooCommerce Product W
 
 **AI Power (AIP)** is the **complete AI plugin for WordPress** — a full set of **artificial intelligence tools** to transform your site. From **AI chatbot** and **content generation** to **image creation, automation, and AI training** on your own data, AIP gives you everything in one place, right inside your WordPress dashboard.
 
-Our **"Bring Your Own API Key"** model lets you connect to top AI providers (OpenAI, Google Gemini, Microsoft Azure, OpenRouter, DeepSeek). No hidden credits — you use your own account and control your costs.
+Our **"Bring Your Own API Key"** model lets you connect to top AI providers (OpenAI, Google Gemini, Microsoft Azure, OpenRouter, DeepSeek and Ollama). No hidden credits — you use your own account and control your costs.
 
 [📖 Documentation & Guides](https://docs.aipower.org/)  
 
@@ -89,7 +89,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 No. AIP works with your **own API key** from AI providers like OpenAI, Google Gemini, etc. You pay them directly for usage.
 
 = Which AI providers and models are supported? =  
-We support **OpenAI** (GPT-5, GPT-4o, GPT-3.5, DALL·E 3, etc.), **Google** (Gemini, Imagen), **Microsoft Azure OpenAI**, **OpenRouter**, **DeepSeek**, and **Replicate**.
+We support **OpenAI** (GPT-5, GPT-4o, GPT-3.5, DALL·E 3, etc.), **Google** (Gemini, Imagen), **Microsoft Azure OpenAI**, **OpenRouter**, **DeepSeek**, **Ollama** and **Replicate**.
 
 = Can I train the AI on my own content? =  
 Yes. Use the **Train** module to index posts, pages, WooCommerce products, PDFs, or uploaded files into a **vector store**. Then link that knowledge base to your Chatbot or Forms.
@@ -124,6 +124,12 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.39 =
+
+Added Ollama support. You can now use your local AI in our plugin.
+
+[Please read the tutorial here](https://docs.aipower.org/docs/ai-providers#ollama-local-ai)
 
 = 2.3.38 =
 

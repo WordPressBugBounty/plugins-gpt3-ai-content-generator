@@ -189,10 +189,10 @@ foreach ($editable_roles as $role_slug => $role_info) :
                             name="frontend_providers"
                             class="aipkit_form-input aipkit_settings_input"
                             rows="2"
-                            placeholder="<?php esc_attr_e('e.g., OpenAI, Google', 'gpt3-ai-content-generator'); ?>"
+                            placeholder="<?php esc_attr_e('e.g., OpenAI, Google, Ollama', 'gpt3-ai-content-generator'); ?>"
                         ><?php echo esc_textarea($allowed_providers_str); ?></textarea>
                          <div class="aipkit_form-help">
-                            <?php esc_html_e('Enter provider names exactly as they appear (OpenAI, OpenRouter, Google, Azure, DeepSeek).', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Enter provider names exactly as they appear (OpenAI, OpenRouter, Google, Azure, DeepSeek, Ollama).', 'gpt3-ai-content-generator'); ?>
                         </div>
                     </div>
                     <div class="aipkit_form-group">

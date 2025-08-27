@@ -69,6 +69,9 @@ $cw_providers_for_select = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
 if (aipkit_dashboard::is_addon_active('deepseek')) {
     $cw_providers_for_select[] = 'DeepSeek';
 }
+if ($is_pro && aipkit_dashboard::is_addon_active('ollama')) {
+    $cw_providers_for_select[] = 'Ollama';
+}
 $cw_ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 $cw_default_temperature = $cw_ai_parameters['temperature'] ?? 1.0;
 $cw_default_max_tokens = $cw_ai_parameters['max_completion_tokens'] ?? 4000;

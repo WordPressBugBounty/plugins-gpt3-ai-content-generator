@@ -63,6 +63,10 @@ class Provider_Dependencies_Loader
 
         require_once $providers_path . 'azure/bootstrap-provider-strategy.php';
         require_once $providers_path . 'deepseek-provider-strategy.php';
+        // Load Ollama bootstrap (Pro addon strategy lives under lib)
+        if (file_exists($providers_path . 'ollama/bootstrap-provider-strategy.php')) {
+            require_once $providers_path . 'ollama/bootstrap-provider-strategy.php';
+        }
         require_once $providers_path . 'provider-strategy-factory.php';
 
         // Load sub-components for Azure (these bootstraps load their respective classes)

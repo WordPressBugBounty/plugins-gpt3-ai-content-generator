@@ -42,6 +42,7 @@ class ProviderStrategyFactory {
             'Google'     => 'google/bootstrap-provider-strategy.php', // MODIFIED PATH
             'Azure'      => 'azure/bootstrap-provider-strategy.php',
             'DeepSeek'   => 'deepseek-provider-strategy.php',
+            'Ollama'     => 'ollama/bootstrap-provider-strategy.php',
         ];
 
         // Ensure the Interface and Base Class are loaded before any specific strategy.
@@ -97,6 +98,11 @@ class ProviderStrategyFactory {
                      self::$instances[$provider] = new DeepSeekProviderStrategy();
                  }
                  break;
+            case 'Ollama':
+                if (class_exists(AIPKit_Ollama_Strategy::class)) {
+                    self::$instances[$provider] = new AIPKit_Ollama_Strategy();
+                }
+                break;
             default:
                 /* translators: %s: The name of the AI provider. */
                 return new WP_Error('unsupported_provider_strategy', sprintf(__('Provider strategy "%s" is not supported.', 'gpt3-ai-content-generator'), esc_html($provider)));

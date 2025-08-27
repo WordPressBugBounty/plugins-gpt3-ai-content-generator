@@ -72,18 +72,20 @@ if ($default_bot_entry) {
 $all_bots_ordered_entries = array_merge($all_bots_ordered_entries, $other_bots_entries);
 
 
-// Provide the array of possible providers
-$providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
-if (aipkit_dashboard::is_addon_active('deepseek')) {
-    $providers[] = 'DeepSeek';
-}
+// Provide the array of possible providers (always show, lock via disabled when not eligible)
+$providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];
+// Eligibility flags for UI (used to disable options and label them)
+$is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
+$deepseek_addon_active = aipkit_dashboard::is_addon_active('deepseek');
+$ollama_addon_active = aipkit_dashboard::is_addon_active('ollama');
 
 // Model lists (needed by chatbot-settings-pane.php -> accordion-ai-config.php -> provider-model.php)
 $grouped_openai_models = get_option('aipkit_openai_model_list', array());
 $openrouter_model_list = get_option('aipkit_openrouter_model_list', array());
 $google_model_list     = get_option('aipkit_google_model_list', array());
-$azure_deployment_list = get_option('aipkit_azure_deployment_list', array());
-$deepseek_model_list   = get_option('aipkit_deepseek_model_list', array());
+$azure_deployment_list = \WPAICG\AIPKit_Providers::get_azure_deployments();
+$deepseek_model_list   = \WPAICG\AIPKit_Providers::get_deepseek_models();
+$ollama_model_list     = \WPAICG\AIPKit_Providers::get_ollama_models();
 $replicate_model_list = \WPAICG\AIPKit_Providers::get_replicate_models();
 
 

@@ -143,3 +143,22 @@ $provider_api_key_urls = [
     </div>
 </div>
  <?php endif; ?>
+
+<!-- Ollama Base URL -->
+<div
+    class="aipkit_form-group aipkit_api_key_field"
+    id="aipkit_ollama_base_url_group"
+    data-provider="Ollama"
+    style="display: <?php echo ($current_provider === 'Ollama') ? 'block' : 'none'; ?>;"
+>
+    <label class="aipkit_form-label" for="aipkit_ollama_base_url"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
+    <div class="aipkit_input-with-button">
+        <div class="aipkit_input-with-icon-wrapper">
+             <input type="url" id="aipkit_ollama_base_url" name="ollama_base_url" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($ollama_data['base_url']); ?>" placeholder="<?php esc_attr_e('e.g., http://localhost:11434', 'gpt3-ai-content-generator'); ?>" />
+             <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default', 'gpt3-ai-content-generator'); ?>" data-default-value="http://localhost:11434" data-target-input="aipkit_ollama_base_url">
+                <span class="dashicons dashicons-undo"></span>
+            </span>
+        </div>
+        <span class="aipkit_input-button-spacer"></span>
+    </div>
+</div>

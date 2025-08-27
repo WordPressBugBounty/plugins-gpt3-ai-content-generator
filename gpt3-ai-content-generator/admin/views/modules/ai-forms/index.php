@@ -42,8 +42,12 @@ if (class_exists(AIPKit_Providers::class)) {
 
 // --- NEW: Get providers for filter ---
 $providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
-if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_addon_active('deepseek')) {
+if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_addon_active('deepseek')) {
     $providers[] = 'DeepSeek';
+}
+$is_pro = class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+if ($is_pro && class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_addon_active('ollama')) {
+    $providers[] = 'Ollama';
 }
 // --- END NEW ---
 ?>

@@ -162,9 +162,6 @@ class AIPKit_Migrate_Global_Settings_Action extends AIPKit_Migration_Base_Ajax_A
 
 
             // --- 4. Save and Finalize ---
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::handle_request. DATA: " . print_r($new_opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
-            }
             update_option('aipkit_options', $new_opts, 'no');
             update_option(AIPKIT_AI_Settings::SECURITY_OPTION_NAME, $new_security_opts, 'no');
             AIPKit_Providers::get_all_providers();

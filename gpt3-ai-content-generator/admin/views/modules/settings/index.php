@@ -92,6 +92,7 @@ $openrouter_data = AIPKit_Providers::get_provider_data('OpenRouter');
 $google_data     = AIPKit_Providers::get_provider_data('Google');
 $azure_data      = AIPKit_Providers::get_provider_data('Azure');
 $deepseek_data   = AIPKit_Providers::get_provider_data('DeepSeek');
+$ollama_data     = AIPKit_Providers::get_provider_data('Ollama');
 $elevenlabs_data = AIPKit_Providers::get_provider_data('ElevenLabs');
 $pexels_data     = AIPKit_Providers::get_provider_data('Pexels');
 $pixabay_data    = AIPKit_Providers::get_provider_data('Pixabay');
@@ -116,6 +117,7 @@ $openrouter_defaults = AIPKit_Providers::get_provider_defaults('OpenRouter');
 $google_defaults     = AIPKit_Providers::get_provider_defaults('Google');
 $azure_defaults      = AIPKit_Providers::get_provider_defaults('Azure');
 $deepseek_defaults   = AIPKit_Providers::get_provider_defaults('DeepSeek');
+$ollama_defaults     = AIPKit_Providers::get_provider_defaults('Ollama');
 $elevenlabs_defaults = AIPKit_Providers::get_provider_defaults('ElevenLabs');
 $pexels_defaults     = AIPKit_Providers::get_provider_defaults('Pexels');
 $pixabay_defaults    = AIPKit_Providers::get_provider_defaults('Pixabay');
@@ -147,16 +149,15 @@ $semantic_search_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipk
 $integrations_tab_visible = $voice_playback_addon_active || $vector_databases_addon_active || $stock_images_addon_active || $replicate_addon_active || $post_enhancer_addon_active || $semantic_search_addon_active;
 
 
-$providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
-if ($deepseek_addon_active) {
-    $providers[] = 'DeepSeek';
-}
+$providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];
+$ollama_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_addon_active('ollama');
 
 $grouped_openai_models = AIPKit_Providers::get_openai_models();
 $openrouter_model_list = AIPKit_Providers::get_openrouter_models();
 $google_model_list     = AIPKit_Providers::get_google_models();
 $azure_deployment_list = AIPKit_Providers::get_azure_all_models_grouped();
 $deepseek_model_list   = AIPKit_Providers::get_deepseek_models();
+$ollama_model_list     = AIPKit_Providers::get_ollama_models();
 $elevenlabs_voice_list = AIPKit_Providers::get_elevenlabs_voices();
 $elevenlabs_model_list = AIPKit_Providers::get_elevenlabs_models();
 // --- NEW: Get Pinecone & Qdrant lists (initially empty) ---

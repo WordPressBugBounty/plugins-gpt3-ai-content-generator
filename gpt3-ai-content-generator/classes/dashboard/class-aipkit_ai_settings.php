@@ -75,9 +75,6 @@ if (!class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
             $opts = get_option('aipkit_options', array());
             if (!isset($opts['ai_parameters']) || !is_array($opts['ai_parameters'])) {
                 $opts['ai_parameters'] = self::$default_ai_params;
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::check_and_init_ai_parameters (initializing). DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
-                }
                 update_option('aipkit_options', $opts, 'no');
             } else {
                 // Ensure all default keys exist and remove obsolete ones
@@ -87,9 +84,6 @@ if (!class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
                 }
                 if ($final_params !== $opts['ai_parameters']) {
                     $opts['ai_parameters'] = $final_params;
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::check_and_init_ai_parameters (syncing keys). DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
-                    }
                     update_option('aipkit_options', $opts, 'no');
                 }
             }
@@ -100,17 +94,11 @@ if (!class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
              $opts = get_option('aipkit_options', array());
              if (!isset($opts['api_keys']) || !is_array($opts['api_keys'])) {
                  $opts['api_keys'] = self::$default_api_keys;
-                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                     error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::check_and_init_api_keys (initializing). DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
-                 }
                  update_option('aipkit_options', $opts, 'no');
              } else {
                  $merged = array_merge(self::$default_api_keys, $opts['api_keys']);
                  if ($merged !== $opts['api_keys']) {
                      $opts['api_keys'] = $merged;
-                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                         error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::check_and_init_api_keys (syncing keys). DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
-                     }
                      update_option('aipkit_options', $opts, 'no');
                  }
              }

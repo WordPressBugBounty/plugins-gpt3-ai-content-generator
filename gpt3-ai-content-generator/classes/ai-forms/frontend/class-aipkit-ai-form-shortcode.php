@@ -101,14 +101,22 @@ class AIPKit_AI_Form_Shortcode
             // We enqueue public-main.bundle.js for any AI Form, so we can localize against it.
             // The WP_AI_Content_Generator_Public class handles enqueueing logic.
             $public_main_js_handle = 'aipkit-public-main';
-            if (wp_script_is($public_main_js_handle, 'registered') && class_exists('\\WPAICG\\AIPKit_Providers')) {
+        if (wp_script_is($public_main_js_handle, 'registered') && class_exists('\\WPAICG\\AIPKit_Providers')) {
                 $all_models = [
-                    'openai'     => \WPAICG\AIPKit_Providers::get_openai_models(),
-                    'openrouter' => \WPAICG\AIPKit_Providers::get_openrouter_models(),
-                    'google'     => \WPAICG\AIPKit_Providers::get_google_models(),
-                    'azure'      => \WPAICG\AIPKit_Providers::get_azure_deployments(),
-                    'deepseek'   => \WPAICG\AIPKit_Providers::get_deepseek_models(),
+            'openai'     => \WPAICG\AIPKit_Providers::get_openai_models(),
+            'openrouter' => \WPAICG\AIPKit_Providers::get_openrouter_models(),
+            'google'     => \WPAICG\AIPKit_Providers::get_google_models(),
+            'azure'      => \WPAICG\AIPKit_Providers::get_azure_deployments(),
+            'deepseek'   => \WPAICG\AIPKit_Providers::get_deepseek_models(),
                 ];
+                // Add Ollama models only for Pro plan and when addon is active
+                if (
+                    class_exists('\\WPAICG\\aipkit_dashboard') &&
+                    \WPAICG\aipkit_dashboard::is_pro_plan() &&
+                    \WPAICG\aipkit_dashboard::is_addon_active('ollama')
+                ) {
+            $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
+                }
                 wp_localize_script($public_main_js_handle, 'aipkit_ai_forms_models', $all_models);
                 $models_localized = true;
             }

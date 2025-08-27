@@ -160,6 +160,13 @@ class WP_AI_Content_Generator_Public
                         'azure'      => \WPAICG\AIPKit_Providers::get_azure_deployments(),
                         'deepseek'   => \WPAICG\AIPKit_Providers::get_deepseek_models(),
                     ];
+                    if (
+                        class_exists('\\WPAICG\\aipkit_dashboard') &&
+                        \WPAICG\aipkit_dashboard::is_pro_plan() &&
+                        \WPAICG\aipkit_dashboard::is_addon_active('ollama')
+                    ) {
+                        $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
+                    }
                     wp_localize_script($public_main_js_handle, 'aipkit_ai_forms_models', $all_models);
                 }
                 $ai_forms_localized = true;

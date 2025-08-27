@@ -88,6 +88,11 @@ $addons = [
         'pro' => false, 'category' => 'core'
     ],
     [
+        'key' => 'ollama', 'title' => __('Ollama Integration', 'gpt3-ai-content-generator'),
+        'description' => __('Enable Ollama models for text generation in various modules.', 'gpt3-ai-content-generator'),
+        'pro' => true, 'category' => 'core'
+    ],
+    [
         'key' => 'semantic_search', 'title' => __('Semantic Search', 'gpt3-ai-content-generator'),
         'description' => __('Enable a frontend shortcode for users to perform semantic search on your custom knowledge base.', 'gpt3-ai-content-generator'),
         'pro' => false, 'category' => 'content'

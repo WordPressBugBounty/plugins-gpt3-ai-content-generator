@@ -193,7 +193,8 @@ function build_ai_request_data_for_stream_logic(
         'azure_inference_version' => ($main_provider_for_ai === 'Azure') ? ($provData['api_version_inference'] ?? '2025-01-01-preview') : '',
         'azure_authoring_version' => ($main_provider_for_ai === 'Azure') ? ($provData['api_version_authoring'] ?? '2023-03-15-preview') : '',
     ];
-    if (empty($api_params_for_stream['api_key'])) {
+    // Ollama doesn't require an API key, so skip validation for it
+    if ($main_provider_for_ai !== 'Ollama' && empty($api_params_for_stream['api_key'])) {
         /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
         return new WP_Error('missing_api_key', sprintf(__('API key missing for %s.', 'gpt3-ai-content-generator'), $main_provider_for_ai), ['status' => 400]);
     }

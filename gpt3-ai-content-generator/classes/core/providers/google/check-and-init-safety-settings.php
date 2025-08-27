@@ -42,9 +42,6 @@ function check_and_init_safety_settings_logic(array $default_safety_settings) {
     }
 
     if ($changed) {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("AIPKIT DEBUG: Updating 'aipkit_options' from " . __FILE__ . "::check_and_init_safety_settings_logic. DATA: " . print_r($opts, true) . " BACKTRACE: " . wp_debug_backtrace_summary());
-        }
         update_option('aipkit_options', $opts, 'no');
     }
 }

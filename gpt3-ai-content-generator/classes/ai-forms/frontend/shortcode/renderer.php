@@ -81,12 +81,19 @@ function render_form_html_logic(
                             <select id="aipkit-aiform-provider-<?php echo esc_attr($form_data['id']); ?>" name="aipkit_form_field[ai_provider]" class="aipkit_form-input aipkit_aiform_provider_select">
                                 <?php
                                 $all_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
-                        if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_addon_active('deepseek')) {
-                            $all_providers[] = 'DeepSeek';
-                        }
+                                if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_addon_active('deepseek')) {
+                                    $all_providers[] = 'DeepSeek';
+                                }
+                                if (
+                                    class_exists('\\WPAICG\\aipkit_dashboard') &&
+                                    \WPAICG\aipkit_dashboard::is_pro_plan() &&
+                                    \WPAICG\aipkit_dashboard::is_addon_active('ollama')
+                                ) {
+                                    $all_providers[] = 'Ollama';
+                                }
 
-                        $allowed_providers = !empty($allowed_providers_str) ? array_map('trim', explode(',', $allowed_providers_str)) : [];
-                        $providers_to_show = !empty($allowed_providers) ? array_intersect($all_providers, $allowed_providers) : $all_providers;
+                                $allowed_providers = !empty($allowed_providers_str) ? array_map('trim', explode(',', $allowed_providers_str)) : [];
+                                $providers_to_show = !empty($allowed_providers) ? array_intersect($all_providers, $allowed_providers) : $all_providers;
 
                         foreach ($providers_to_show as $provider_name) {
                             echo '<option value="' . esc_attr($provider_name) . '"' . selected($form_data['ai_provider'], $provider_name, false) . '>' . esc_html($provider_name) . '</option>';

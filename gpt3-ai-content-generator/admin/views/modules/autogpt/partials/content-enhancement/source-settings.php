@@ -58,7 +58,7 @@ if (!defined('ABSPATH')) {
 
 
 <div class="aipkit_form-group">
-    <label class="aipkit_form-label"><?php esc_html_e('Fields to Enhance', 'gpt3-ai-content-generator'); ?></label>
+    <label class="aipkit_form-label"><?php esc_html_e('Fields to Update', 'gpt3-ai-content-generator'); ?></label>
     <div class="aipkit_checkbox-group">
         <label class="aipkit_checkbox-label" for="aipkit_task_ce_update_title">
             <input type="checkbox" id="aipkit_task_ce_update_title" name="ce_update_title" value="1" <?php disabled(!$is_pro); ?>>

@@ -154,6 +154,7 @@ class DashboardAssets
         $google_models = [];
         $azure_deployments = [];
         $deepseek_models = [];
+        $ollama_models = [];
         $openai_embedding_models = [];
         $google_embedding_models = [];
         $azure_embedding_models = [];
@@ -163,6 +164,7 @@ class DashboardAssets
             $google_models     = AIPKit_Providers::get_google_models();
             $azure_deployments = AIPKit_Providers::get_azure_deployments();
             $deepseek_models   = AIPKit_Providers::get_deepseek_models();
+            $ollama_models     = AIPKit_Providers::get_ollama_models();
             $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
             $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
             $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
@@ -187,7 +189,7 @@ class DashboardAssets
             'models' => [
                 'openai'     => $openai_models, 'openrouter' => $openrouter_models,
                 'google'     => $google_models, 'azure'      => $azure_deployments,
-                'deepseek'   => $deepseek_models,
+                'deepseek'   => $deepseek_models, 'ollama'     => $ollama_models,
             ],
             'embeddingModels' => [
                 'openai' => $openai_embedding_models,

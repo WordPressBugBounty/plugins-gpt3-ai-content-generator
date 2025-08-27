@@ -28,6 +28,7 @@ function build_task_config_comment_reply_logic(array $post_data): array|WP_Error
         'google' => 'Google',
         'azure' => 'Azure',
         'deepseek' => 'DeepSeek',
+        'ollama' => 'Ollama',
         default => ucfirst(strtolower($provider_raw))
     };
 

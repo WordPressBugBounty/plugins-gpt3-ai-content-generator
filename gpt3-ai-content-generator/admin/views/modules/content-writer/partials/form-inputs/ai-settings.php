@@ -26,11 +26,34 @@ $default_custom_title_prompt = AIPKit_Content_Writer_Prompts::get_default_title_
             <div class="aipkit_form-group aipkit_form-col">
                 <label class="aipkit_form-label" for="aipkit_content_writer_provider"><?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?></label>
                 <select id="aipkit_content_writer_provider" name="ai_provider" class="aipkit_form-input">
-                    <?php foreach ($providers_for_select as $p_value) : ?>
-                    <option value="<?php echo esc_attr(strtolower($p_value)); ?>" <?php selected($default_provider, strtolower($p_value)); ?>>
-                        <?php echo esc_html($p_value); ?>
-                    </option>
-                    <?php endforeach; ?>
+                    <?php
+                    // Always render base providers from provided list, but skip DeepSeek/Ollama here to avoid duplicates
+                    if (!empty($providers_for_select) && is_array($providers_for_select)) {
+                        foreach ($providers_for_select as $p_value) {
+                            if ($p_value === 'DeepSeek' || $p_value === 'Ollama') {
+                                continue;
+                            }
+                            $val = strtolower($p_value);
+                            echo '<option value="' . esc_attr($val) . '"' . selected($default_provider, $val, false) . '>' . esc_html($p_value) . '</option>';
+                        }
+                    }
+
+                    // Compute gating flags for DeepSeek and Ollama
+                    $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+                    $deepseek_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_addon_active('deepseek');
+                    $ollama_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_addon_active('ollama');
+
+                    // DeepSeek option (always listed, disabled when addon inactive)
+                    $ds_disabled = !$deepseek_addon_active;
+                    $ds_label = 'DeepSeek' . ($ds_disabled ? ' (' . esc_html__('Enable in Addons', 'gpt3-ai-content-generator') . ')' : '');
+                    echo '<option value="deepseek"' . selected($default_provider, 'deepseek', false) . ($ds_disabled ? ' disabled' : '') . '>' . esc_html($ds_label) . '</option>';
+
+                    // Ollama option (always listed, disabled unless Pro + addon active)
+                    $ollama_enabled = ($is_pro && $ollama_addon_active);
+                    $ol_disabled = !$ollama_enabled;
+                    $ol_label = 'Ollama' . ($ol_disabled ? ' (' . esc_html__('Enable in Addons', 'gpt3-ai-content-generator') . ')' : '');
+                    echo '<option value="ollama"' . selected($default_provider, 'ollama', false) . ($ol_disabled ? ' disabled' : '') . '>' . esc_html($ol_label) . '</option>';
+                    ?>
                 </select>
             </div>
             <div class="aipkit_form-group aipkit_form-col">

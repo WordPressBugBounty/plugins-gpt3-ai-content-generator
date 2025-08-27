@@ -65,10 +65,10 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                     } else {
                         $content_writer_config[$key] = null;
                     }
-                } elseif ($key === 'ai_provider' || $key === 'image_provider') {
+        } elseif ($key === 'ai_provider' || $key === 'image_provider') {
                     $provider_raw = sanitize_text_field(wp_unslash($post_data[$key]));
                     $content_writer_config[$key] = match (strtolower($provider_raw)) {
-                        'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'deepseek' => 'DeepSeek',
+            'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'deepseek' => 'DeepSeek', 'ollama' => 'Ollama',
                         default => ucfirst(strtolower($provider_raw))
                     };
                 } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store', 'generate_seo_slug'], true)) {

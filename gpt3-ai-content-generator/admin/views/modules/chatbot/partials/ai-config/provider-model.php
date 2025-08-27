@@ -44,12 +44,24 @@ $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
             name="provider"
             class="aipkit_form-input aipkit_chatbot_provider_select" <?php // JS targets this class?>
         >
-            <?php foreach ($providers as $p_value) : ?>
+            <?php foreach ($providers as $p_value) :
+                $disabled = false;
+                $label = $p_value;
+
+                if ($p_value === 'DeepSeek' && (empty($deepseek_addon_active) || !$deepseek_addon_active)) {
+                    $disabled = true;
+                    $label = __('DeepSeek (Enable in Addons)', 'gpt3-ai-content-generator');
+                }
+                if ($p_value === 'Ollama' && (!$is_pro || empty($ollama_addon_active) || !$ollama_addon_active)) {
+                    $disabled = true;
+                    $label = __('Ollama (Enable in Addons)', 'gpt3-ai-content-generator');
+                }
+            ?>
                 <option
                     value="<?php echo esc_attr($p_value); ?>"
-                    <?php selected($saved_provider, $p_value); ?>
+                    <?php selected($saved_provider, $p_value); ?> <?php echo $disabled ? 'disabled' : ''; ?>
                 >
-                    <?php echo esc_html($p_value); ?>
+                    <?php echo esc_html($label); ?>
                 </option>
             <?php endforeach; ?>
         </select>
@@ -466,6 +478,70 @@ if (!empty($deepseek_model_list)): ?>
                     style="display: none;"
                 >
                     <span class="dashicons dashicons-admin-site-alt3"></span>
+                </button>
+                <button
+                    type="button"
+                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_stream_mode_toggle <?php echo $saved_stream_enabled === '1' ? 'aipkit_active' : ''; ?>"
+                    title="<?php esc_attr_e('Toggle Stream Mode', 'gpt3-ai-content-generator'); ?>"
+                    aria-pressed="<?php echo $saved_stream_enabled === '1' ? 'true' : 'false'; ?>"
+                >
+                    <span class="dashicons dashicons-admin-plugins"></span>
+                </button>
+                 <button
+                    type="button"
+                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_voice_input_toggle <?php echo $enable_voice_input === '1' ? 'aipkit_active' : ''; ?>"
+                    title="<?php esc_attr_e('Toggle Voice Input', 'gpt3-ai-content-generator'); ?>"
+                    aria-pressed="<?php echo $enable_voice_input === '1' ? 'true' : 'false'; ?>"
+                >
+                    <span class="dashicons dashicons-microphone"></span>
+                </button>
+            </div> <?php // END WRAPPER?>
+        </div>
+
+        <!-- Ollama Model -->
+        <div
+            class="aipkit_chatbot_model_field"
+            data-provider="Ollama"
+            style="display: <?php echo $saved_provider === 'Ollama' ? 'block' : 'none'; ?>;"
+        >
+             <label
+                class="aipkit_form-label"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_ollama_model"
+            >
+                <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+            </label>
+             <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
+                <select
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_ollama_model"
+                    name="ollama_model"
+                    class="aipkit_form-input"
+                >
+                    <?php
+                    $foundCurrentOllama = false;
+                    if (!empty($ollama_model_list)): ?>
+                        <?php foreach ($ollama_model_list as $m):
+                            $model_id   = $m['id'] ?? '';
+                            $model_name = $m['name'] ?? $model_id;
+                            if ($model_id === $saved_model) {
+                                $foundCurrentOllama = true;
+                            }
+                            ?>
+                            <option
+                                value="<?php echo esc_attr($model_id); ?>"
+                                <?php selected($saved_model, $model_id); ?>
+                            >
+                                <?php echo esc_html($model_name); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <?php if (!$foundCurrentOllama && !empty($saved_model) && $saved_provider === 'Ollama'): ?>
+                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?> (Manual)</option>
+                    <?php elseif (empty($ollama_model_list) && !$foundCurrentOllama && empty($saved_model)): ?>
+                        <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
+                    <?php endif; ?>
+                </select>
+                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-admin-generic"></span>
                 </button>
                 <button
                     type="button"

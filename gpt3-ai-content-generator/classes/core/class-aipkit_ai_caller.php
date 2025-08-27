@@ -106,7 +106,8 @@ class AIPKit_AI_Caller
             'deployment'              => ($provider === 'Azure') ? $model : null,
         ];
 
-        if (empty($api_params['api_key'])) {
+    // Ollama doesn't require an API key
+    if ($provider !== 'Ollama' && empty($api_params['api_key'])) {
             /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
             return new WP_Error('missing_api_key', sprintf(__('API key is missing for %s.', 'gpt3-ai-content-generator'), $provider), ['provider' => $provider, 'model' => $model]);
         }

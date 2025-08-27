@@ -54,6 +54,7 @@ function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Conte
                 break;
             case 'azure':
             case 'deepseek':
+            case 'ollama':
             default:
                 $model_for_template = $default_provider_config['model'] ?? '';
                 break;

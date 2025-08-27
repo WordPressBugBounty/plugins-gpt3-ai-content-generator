@@ -53,6 +53,7 @@ function validate_and_normalize_input_logic(AIPKit_Content_Writer_Base_Ajax_Acti
         'google' => 'Google',
         'azure' => 'Azure',
         'deepseek' => 'DeepSeek',
+        'ollama' => 'Ollama',
         default => $provider_raw
     };
 
