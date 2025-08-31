@@ -24,13 +24,7 @@ $available_image_models = [
         ['id' => 'dall-e-2',    'name' => 'DALL-E 2'],
     ],
     'Azure' => \WPAICG\AIPKit_Providers::get_azure_image_models(),
-    'Google' => [
-        ['id' => 'gemini-2.0-flash-preview-image-generation', 'name' => 'Gemini 2.0 Flash'],
-        ['id' => 'imagen-3.0-generate-002',                   'name' => 'Imagen 3.0'],
-        // imagen-4.0-generate-preview-06-06 and imagen-4.0-ultra-generate-preview-06-06
-        ['id' => 'imagen-4.0-generate-preview-06-06',         'name' => 'Imagen 4.0 Preview'],
-        ['id' => 'imagen-4.0-ultra-generate-preview-06-06',   'name' => 'Imagen 4.0 Ultra Preview'],
-    ],
+    'Google' => \WPAICG\AIPKit_Providers::get_google_image_models(),
 ];
 if (isset($replicate_model_list) && is_array($replicate_model_list) && !empty($replicate_model_list)) {
     $available_image_models['Replicate'] = $replicate_model_list;

@@ -100,6 +100,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         update_post_meta($botId, '_aipkit_openai_vector_store_ids', $sanitized_settings['openai_vector_store_ids']);
         delete_post_meta($botId, '_aipkit_pinecone_index_name');
         delete_post_meta($botId, '_aipkit_qdrant_collection_name');
+        delete_post_meta($botId, '_aipkit_qdrant_collection_names');
         delete_post_meta($botId, '_aipkit_vector_embedding_provider');
         delete_post_meta($botId, '_aipkit_vector_embedding_model');
     } elseif ($sanitized_settings['vector_store_provider'] === 'pinecone') {
@@ -108,8 +109,10 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         update_post_meta($botId, '_aipkit_vector_embedding_model', $sanitized_settings['vector_embedding_model']);
         delete_post_meta($botId, '_aipkit_openai_vector_store_ids');
         delete_post_meta($botId, '_aipkit_qdrant_collection_name');
+        delete_post_meta($botId, '_aipkit_qdrant_collection_names');
     } elseif ($sanitized_settings['vector_store_provider'] === 'qdrant') {
         update_post_meta($botId, '_aipkit_qdrant_collection_name', $sanitized_settings['qdrant_collection_name']);
+        update_post_meta($botId, '_aipkit_qdrant_collection_names', $sanitized_settings['qdrant_collection_names']);
         update_post_meta($botId, '_aipkit_vector_embedding_provider', $sanitized_settings['vector_embedding_provider']);
         update_post_meta($botId, '_aipkit_vector_embedding_model', $sanitized_settings['vector_embedding_model']);
         delete_post_meta($botId, '_aipkit_openai_vector_store_ids');
@@ -118,6 +121,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         delete_post_meta($botId, '_aipkit_openai_vector_store_ids');
         delete_post_meta($botId, '_aipkit_pinecone_index_name');
         delete_post_meta($botId, '_aipkit_qdrant_collection_name');
+        delete_post_meta($botId, '_aipkit_qdrant_collection_names');
         delete_post_meta($botId, '_aipkit_vector_embedding_provider');
         delete_post_meta($botId, '_aipkit_vector_embedding_model');
     }
@@ -197,6 +201,13 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         $triggers_json_string = '[]';
     }
     update_post_meta($botId, $trigger_meta_key, $triggers_json_string);
+
+    // --- NEW: Save WhatsApp connector mapping ---
+    if (isset($sanitized_settings['whatsapp_connector_ids']) && is_array($sanitized_settings['whatsapp_connector_ids'])) {
+        update_post_meta($botId, '_aipkit_whatsapp_connector_ids', $sanitized_settings['whatsapp_connector_ids']);
+    } else {
+        delete_post_meta($botId, '_aipkit_whatsapp_connector_ids');
+    }
 
     return true;
 }

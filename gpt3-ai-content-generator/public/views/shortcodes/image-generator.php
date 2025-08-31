@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 use WPAICG\aipkit_dashboard;
+use WPAICG\AIPKit_Providers;
 
 // Variables passed from the shortcode class: $nonce,
 // $show_provider, $show_model,
@@ -24,17 +25,30 @@ $openai_models_display = [ // For display in dropdown
     'dall-e-3' => 'DALL-E 3',
     'dall-e-2' => 'DALL-E 2',
 ];
-$google_models_display = [
-    'image' => [
-        'gemini-2.0-flash-preview-image-generation' => 'Gemini 2.0 Flash',
-        'imagen-3.0-generate-002' => 'Imagen 3.0',
-        'imagen-4.0-generate-preview-06-06' => 'Imagen 4.0 Preview',
-        'imagen-4.0-ultra-generate-preview-06-06' => 'Imagen 4.0 Ultra Preview',
-    ],
-    'video' => [
-        'veo-3.0-generate-preview' => 'Veo 3 (Video)',
-    ]
-];
+// Build Google models dynamically from synced option
+$google_models_display = [ 'image' => [], 'video' => [] ];
+if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+    $google_image_models = AIPKit_Providers::get_google_image_models();
+    if (!empty($google_image_models)) {
+        foreach ($google_image_models as $mdl) {
+            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
+            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
+            if ($mid) {
+                $google_models_display['image'][$mid] = $mname;
+            }
+        }
+    }
+    $google_video_models = AIPKit_Providers::get_google_video_models();
+    if (!empty($google_video_models)) {
+        foreach ($google_video_models as $mdl) {
+            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
+            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
+            if ($mid) {
+                $google_models_display['video'][$mid] = $mname;
+            }
+        }
+    }
+}
 
 $theme_class = 'aipkit-theme-' . esc_attr($theme);
 

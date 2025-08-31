@@ -513,30 +513,36 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             
             if (isset($cpt_settings['fields']) && is_array($cpt_settings['fields'])) {
                 foreach ($cpt_settings['fields'] as $key => $config) {
+                    // Preserve original meta key (may include ":" etc.)
+                    $key = is_string($key) ? wp_unslash($key) : $key;
                     // Ensure enabled is properly converted to boolean
                     $enabled = isset($config['enabled']) && $config['enabled'];
-                    $sanitized_settings[$cpt]['fields'][sanitize_key($key)] = [
-                        'enabled' => $enabled, // This will be boolean true/false
+                    $sanitized_settings[$cpt]['fields'][$key] = [
+                        'enabled' => (bool) $enabled,
                         'label'   => sanitize_text_field($config['label'] ?? ''),
                     ];
                 }
             }
             if (isset($cpt_settings['taxonomies']) && is_array($cpt_settings['taxonomies'])) {
                 foreach ($cpt_settings['taxonomies'] as $key => $config) {
+                    // Preserve original taxonomy slug key
+                    $key = is_string($key) ? wp_unslash($key) : $key;
                     // Ensure enabled is properly converted to boolean
                     $enabled = isset($config['enabled']) && $config['enabled'];
-                    $sanitized_settings[$cpt]['taxonomies'][sanitize_key($key)] = [
-                        'enabled' => $enabled, // This will be boolean true/false
+                    $sanitized_settings[$cpt]['taxonomies'][$key] = [
+                        'enabled' => (bool) $enabled,
                         'label'   => sanitize_text_field($config['label'] ?? ''),
                     ];
                 }
             }
             if (isset($cpt_settings['woo_attributes']) && is_array($cpt_settings['woo_attributes'])) {
                 foreach ($cpt_settings['woo_attributes'] as $key => $config) {
+                    // Preserve original key
+                    $key = is_string($key) ? wp_unslash($key) : $key;
                     // Ensure enabled is properly converted to boolean
                     $enabled = isset($config['enabled']) && $config['enabled'];
-                    $sanitized_settings[$cpt]['woo_attributes'][sanitize_key($key)] = [
-                        'enabled' => $enabled, // This will be boolean true/false
+                    $sanitized_settings[$cpt]['woo_attributes'][$key] = [
+                        'enabled' => (bool) $enabled,
                         'label'   => sanitize_text_field($config['label'] ?? ''),
                     ];
                 }

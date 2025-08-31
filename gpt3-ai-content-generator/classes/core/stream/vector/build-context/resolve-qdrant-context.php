@@ -43,12 +43,18 @@ function resolve_qdrant_context_logic(
 ): string {
     $qdrant_results = "";
     $qdrant_collection_name_from_settings = $bot_settings['qdrant_collection_name'] ?? '';
+    $qdrant_collection_names_multi = [];
+    if (!empty($bot_settings['qdrant_collection_names']) && is_array($bot_settings['qdrant_collection_names'])) {
+        $qdrant_collection_names_multi = array_values(array_unique(array_filter(array_map('strval', $bot_settings['qdrant_collection_names']))));
+    } elseif (!empty($qdrant_collection_name_from_settings)) {
+        $qdrant_collection_names_multi = [$qdrant_collection_name_from_settings];
+    }
     $vector_embedding_provider = $bot_settings['vector_embedding_provider'] ?? '';
     $vector_embedding_model = $bot_settings['vector_embedding_model'] ?? ''; // This is the correctly defined variable
     $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
     $qdrant_score_threshold = round($confidence_threshold_percent / 100, 4); // Normalize 0-100 to 0-1 scale and round to avoid precision issues
 
-    if (empty($qdrant_collection_name_from_settings) || empty($vector_embedding_provider) || empty($vector_embedding_model)) {
+    if (empty($qdrant_collection_names_multi) || empty($vector_embedding_provider) || empty($vector_embedding_model)) {
         // If $vector_embedding_model is empty, this condition is met, and it returns early.
         // This prevents "Undefined variable" if the model is essential and missing.
         return "";
@@ -82,48 +88,46 @@ function resolve_qdrant_context_logic(
     }
     $query_vector_values = $query_vector_values_or_error;
 
-    $collection_to_query = $qdrant_collection_name_from_settings;
-    $qdrant_results_this_pass = "";
+    // We'll search across all selected collections and aggregate
+    $collections_to_query = $qdrant_collection_names_multi;
+    $qdrant_results_aggregate = "";
 
     // 1. Search with file-specific context ID if provided
     if (!empty($frontend_active_qdrant_file_upload_context_id)) {
-        $file_specific_filter = [
-            'must' => [
-                ['key' => 'payload.file_upload_context_id', 'match' => ['value' => $frontend_active_qdrant_file_upload_context_id]]
-            ]
-        ];
-        $query_vector_for_file_context = ['vector' => $query_vector_values];
-        $file_search_results = $vector_store_manager->query_vectors('Qdrant', $collection_to_query, $query_vector_for_file_context, $vector_top_k, $file_specific_filter, $qdrant_api_config);
+        foreach ($collections_to_query as $collection_to_query) {
+            $file_specific_filter = [
+                'must' => [
+                    ['key' => 'payload.file_upload_context_id', 'match' => ['value' => $frontend_active_qdrant_file_upload_context_id]]
+                ]
+            ];
+            $query_vector_for_file_context = ['vector' => $query_vector_values];
+            $file_search_results = $vector_store_manager->query_vectors('Qdrant', $collection_to_query, $query_vector_for_file_context, $vector_top_k, $file_specific_filter, $qdrant_api_config);
 
-        if (!is_wp_error($file_search_results) && !empty($file_search_results)) {
-            $formatted_file_results = "";
-            $file_results_added = 0;
-            foreach ($file_search_results as $item) {
-                // NEW: Confidence Threshold Check
-                if (isset($item['score']) && (float)$item['score'] < $qdrant_score_threshold) {
-                    continue;
-                }
-                // END NEW
-                $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
-                if (!empty($content_snippet)) {
-                    $formatted_file_results .= "- " . trim($content_snippet) . "\n";
-                    $file_results_added++;
-                    
-                    // Capture score data if reference provided
-                    if ($vector_search_scores_output !== null && isset($item['score'])) {
-                        $vector_search_scores_output[] = [
-                            'provider' => 'Qdrant',
-                            'collection_name' => $collection_to_query,
-                            'file_context_id' => $frontend_active_qdrant_file_upload_context_id,
-                            'result_id' => $item['id'] ?? null,
-                            'score' => $item['score'],
-                            'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
-                        ];
+            if (!is_wp_error($file_search_results) && !empty($file_search_results)) {
+                $formatted_file_results = "";
+                foreach ($file_search_results as $item) {
+                    if (isset($item['score']) && (float)$item['score'] < $qdrant_score_threshold) {
+                        continue;
+                    }
+                    $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
+                    if (!empty($content_snippet)) {
+                        $formatted_file_results .= "- " . trim($content_snippet) . "\n";
+
+                        if ($vector_search_scores_output !== null && isset($item['score'])) {
+                            $vector_search_scores_output[] = [
+                                'provider' => 'Qdrant',
+                                'collection_name' => $collection_to_query,
+                                'file_context_id' => $frontend_active_qdrant_file_upload_context_id,
+                                'result_id' => $item['id'] ?? null,
+                                'score' => $item['score'],
+                                'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                            ];
+                        }
                     }
                 }
-            }
-            if (!empty($formatted_file_results)) {
-                $qdrant_results_this_pass .= "Context from Uploaded File (Collection {$collection_to_query}, File Context ID: {$frontend_active_qdrant_file_upload_context_id}):\n" . $formatted_file_results . "\n";
+                if (!empty($formatted_file_results)) {
+                    $qdrant_results_aggregate .= "Context from Uploaded File (Collection {$collection_to_query}, File Context ID: {$frontend_active_qdrant_file_upload_context_id}):\n" . $formatted_file_results . "\n";
+                }
             }
         }
     }
@@ -138,58 +142,55 @@ function resolve_qdrant_context_logic(
         ];
     }
 
-    $query_vector_for_general_context = ['vector' => $query_vector_values];
-    $general_search_results = $vector_store_manager->query_vectors('Qdrant', $collection_to_query, $query_vector_for_general_context, $vector_top_k, $general_knowledge_filter, $qdrant_api_config);
+    foreach ($collections_to_query as $collection_to_query) {
+        $query_vector_for_general_context = ['vector' => $query_vector_values];
+        $general_search_results = $vector_store_manager->query_vectors('Qdrant', $collection_to_query, $query_vector_for_general_context, $vector_top_k, $general_knowledge_filter, $qdrant_api_config);
 
-    if (!is_wp_error($general_search_results) && !empty($general_search_results)) {
-        $formatted_general_results = "";
-        $general_results_added = 0;
-        foreach ($general_search_results as $item) {
-            // NEW: Confidence Threshold Check
-            if (isset($item['score']) && (float)$item['score'] < $qdrant_score_threshold) {
-                continue;
-            }
-            // END NEW
-            $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
-            if (empty($content_snippet) && isset($item['id'])) {
-                $cache_key = 'aipkit_vds_content_' . md5('qdrant_general_' . $collection_to_query . $item['id']);
-                $cache_group = 'aipkit_vector_source_content';
-                $log_entry = wp_cache_get($cache_key, $cache_group);
+        if (!is_wp_error($general_search_results) && !empty($general_search_results)) {
+            $formatted_general_results = "";
+            foreach ($general_search_results as $item) {
+                if (isset($item['score']) && (float)$item['score'] < $qdrant_score_threshold) {
+                    continue;
+                }
+                $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
+                if (empty($content_snippet) && isset($item['id'])) {
+                    $cache_key = 'aipkit_vds_content_' . md5('qdrant_general_' . $collection_to_query . $item['id']);
+                    $cache_group = 'aipkit_vector_source_content';
+                    $log_entry = wp_cache_get($cache_key, $cache_group);
 
-                if (false === $log_entry) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
-                    $log_entry = $wpdb->get_row($wpdb->prepare("SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Qdrant' AND vector_store_id = %s AND file_id = %s AND (batch_id IS NULL OR batch_id = '' OR batch_id NOT LIKE %s) ORDER BY timestamp DESC LIMIT 1", $collection_to_query, $item['id'], 'qdrant_chat_file_%'), ARRAY_A);
-                    wp_cache_set($cache_key, $log_entry, $cache_group, HOUR_IN_SECONDS);
+                    if (false === $log_entry) {
+                        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+                        $log_entry = $wpdb->get_row($wpdb->prepare("SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Qdrant' AND vector_store_id = %s AND file_id = %s AND (batch_id IS NULL OR batch_id = '' OR batch_id NOT LIKE %s) ORDER BY timestamp DESC LIMIT 1", $collection_to_query, $item['id'], 'qdrant_chat_file_%'), ARRAY_A);
+                        wp_cache_set($cache_key, $log_entry, $cache_group, HOUR_IN_SECONDS);
+                    }
+                    
+                    if ($log_entry && !empty($log_entry['indexed_content'])) {
+                        $content_snippet = $log_entry['indexed_content'];
+                    }
                 }
-                
-                if ($log_entry && !empty($log_entry['indexed_content'])) {
-                    $content_snippet = $log_entry['indexed_content'];
+                if (!empty($content_snippet)) {
+                    $formatted_general_results .= "- " . trim($content_snippet) . "\n";
+                    
+                    if ($vector_search_scores_output !== null && isset($item['score'])) {
+                        $vector_search_scores_output[] = [
+                            'provider' => 'Qdrant',
+                            'collection_name' => $collection_to_query,
+                            'file_context_id' => null,
+                            'result_id' => $item['id'] ?? null,
+                            'score' => $item['score'],
+                            'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                        ];
+                    }
                 }
             }
-            if (!empty($content_snippet)) {
-                $formatted_general_results .= "- " . trim($content_snippet) . "\n";
-                $general_results_added++;
-                
-                // Capture score data if reference provided
-                if ($vector_search_scores_output !== null && isset($item['score'])) {
-                    $vector_search_scores_output[] = [
-                        'provider' => 'Qdrant',
-                        'collection_name' => $collection_to_query,
-                        'file_context_id' => null, // General context
-                        'result_id' => $item['id'] ?? null,
-                        'score' => $item['score'],
-                        'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
-                    ];
-                }
+            if (!empty($formatted_general_results)) {
+                $qdrant_results_aggregate .= "General Knowledge from Bot (Collection {$collection_to_query}):\n" . $formatted_general_results . "\n";
             }
-        }
-        if (!empty($formatted_general_results)) {
-            $qdrant_results_this_pass .= "General Knowledge from Bot (Collection {$collection_to_query}):\n" . $formatted_general_results . "\n";
         }
     }
 
-    if (!empty($qdrant_results_this_pass)) {
-        $qdrant_results = $qdrant_results_this_pass;
+    if (!empty($qdrant_results_aggregate)) {
+        $qdrant_results = $qdrant_results_aggregate;
     }
 
     return $qdrant_results;

@@ -212,11 +212,33 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 update_option('aipkit_openai_embedding_model_list', $embedding_models, 'no');
             } elseif ($provider === 'Google') {
                 $chat_models = [];
+                $image_models = [];
+                $video_models = [];
                 $embedding_models = [];
                 foreach ($result as $model) {
-                    $id_lower = strtolower($model['id']);
-                    if (strpos($id_lower, 'embedding') !== false) {
+                    // Prefer capability-based detection using supportedGenerationMethods from Google API
+                    $methods = [];
+                    if (isset($model['supportedGenerationMethods']) && is_array($model['supportedGenerationMethods'])) {
+                        // Normalize to lowercase for safe comparison
+                        $methods = array_map('strtolower', $model['supportedGenerationMethods']);
+                    }
+
+                    $id = $model['id'] ?? '';
+                    $id_lower = strtolower($id);
+                    $is_embedding = in_array('embedcontent', $methods, true);
+                    $is_image = in_array('predict', $methods, true)
+                        // Include Gemini image-generation models that use generateContent
+                        || (strpos($id_lower, 'gemini') !== false && strpos($id_lower, 'image-generation') !== false);
+                    $is_video = in_array('predictlongrunning', $methods, true)
+                        // Heuristic fallback: Veo or other video-prefixed names
+                        || (strpos($id_lower, 'veo') !== false);
+
+                    if ($is_embedding) {
                         $embedding_models[] = $model;
+                    } elseif ($is_video) {
+                        $video_models[] = $model;
+                    } elseif ($is_image) {
+                        $image_models[] = $model;
                     } else {
                         $chat_models[] = $model;
                     }
@@ -224,6 +246,8 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 $value_to_save = $chat_models;
                 $response_models = $value_to_save; // Set response to just the chat models
                 update_option('aipkit_google_embedding_model_list', $embedding_models, 'no');
+                update_option('aipkit_google_image_model_list', $image_models, 'no');
+                update_option('aipkit_google_video_model_list', $video_models, 'no');
             } elseif ($provider === 'Ollama') {
                 $chat_models = [];
                 $embedding_models = [];

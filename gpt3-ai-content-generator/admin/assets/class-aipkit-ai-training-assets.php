@@ -1,7 +1,6 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-ai-training-assets.php
-// Status: MODIFIED
 
 namespace WPAICG\Admin\Assets;
 
@@ -93,6 +92,31 @@ class AITrainingAssets
             wp_set_script_translations($admin_main_js_handle, 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
             $this->is_admin_main_js_enqueued = true;
         }
+
+        // Ensure Pro upload (multi-file + drag/drop) code is available on AI Training when eligible
+        // These features live in lib-main.bundle.js and are required for the File Upload tab.
+        $should_enqueue_pro_upload = false;
+        if (class_exists('\\WPAICG\\aipkit_dashboard')) {
+            $is_pro = \WPAICG\aipkit_dashboard::is_pro_plan();
+            $has_file_upload_addon = \WPAICG\aipkit_dashboard::is_addon_active('file_upload');
+            $should_enqueue_pro_upload = ($is_pro && $has_file_upload_addon);
+        }
+        if ($should_enqueue_pro_upload) {
+            $lib_main_js_handle = 'aipkit-lib-main';
+            if (!wp_script_is($lib_main_js_handle, 'registered')) {
+                wp_register_script(
+                    $lib_main_js_handle,
+                    $dist_js_url . 'lib-main.bundle.js',
+                    ['wp-i18n', $admin_main_js_handle, 'aipkit_markdown-it'],
+                    $this->version,
+                    true
+                );
+            }
+            if (!wp_script_is($lib_main_js_handle, 'enqueued')) {
+                wp_enqueue_script($lib_main_js_handle);
+                wp_set_script_translations($lib_main_js_handle, 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
+            }
+        }
     }
 
     private function localize_data()
@@ -172,7 +196,9 @@ class AITrainingAssets
         if (!$already_localized_settings) {
             wp_localize_script($admin_main_js_handle, 'aipkit_ai_training_settings_config', [
                 'settings_nonce' => wp_create_nonce('aipkit_ai_training_settings_nonce'),
-                'isPro' => aipkit_dashboard::is_pro_plan() // Pass pro status
+                'isPro' => aipkit_dashboard::is_pro_plan(), // Pass pro status
+                // --- ADDED: Pass addon status for file upload ---
+                'isFileUploadAddonActive' => aipkit_dashboard::is_addon_active('file_upload'),
             ]);
         }
         // --- END NEW ---

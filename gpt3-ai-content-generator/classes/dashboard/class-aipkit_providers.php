@@ -75,6 +75,9 @@ class AIPKit_Providers
         ],
         'OpenRouter' => ['anthropic/claude-3-sonnet', 'anthropic/claude-3-opus', 'cohere/command-r-plus', 'google/gemini-pro-1.5', 'meta-llama/llama-3.1-70b-instruct', 'mistralai/mistral-large', 'openai/gpt-4o', 'openai/gpt-4-turbo', 'openai/gpt-3.5-turbo', 'deepseek/deepseek-chat'],
         'Google' => ['gemini-1.5-pro-latest', 'gemini-1.5-flash-latest', 'gemini-pro'],
+        // Default lists for Google Image/Video models (empty; populated via Sync)
+        'GoogleImage' => [],
+        'GoogleVideo' => [],
         'GoogleEmbedding' => [
             ['id' => 'gemini-embedding-exp-03-07', 'name' => 'Gemini Embedding (3072)'],
             ['id' => 'models/text-embedding-004', 'name' => 'Embedding 004 (768)'],
@@ -95,6 +98,8 @@ class AIPKit_Providers
         'OpenAIEmbedding'  => 'aipkit_openai_embedding_model_list',
         'OpenRouter'       => 'aipkit_openrouter_model_list',
         'Google'           => 'aipkit_google_model_list',
+        'GoogleImage'      => 'aipkit_google_image_model_list',
+        'GoogleVideo'      => 'aipkit_google_video_model_list',
         'GoogleEmbedding'  => 'aipkit_google_embedding_model_list',
         'Azure'            => 'aipkit_azure_deployment_list',
         'AzureImage' => 'aipkit_azure_image_model_list', 'AzureEmbedding'   => 'aipkit_azure_embedding_model_list', 'DeepSeek'         => 'aipkit_deepseek_model_list',
@@ -391,6 +396,14 @@ class AIPKit_Providers
     public static function get_google_embedding_models(): array
     {
         return self::get_model_list('GoogleEmbedding');
+    }
+    public static function get_google_image_models(): array
+    {
+        return self::get_model_list('GoogleImage');
+    }
+    public static function get_google_video_models(): array
+    {
+        return self::get_model_list('GoogleVideo');
     }
     public static function get_azure_deployments(): array
     {

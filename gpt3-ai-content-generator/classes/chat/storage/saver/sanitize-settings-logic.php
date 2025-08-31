@@ -152,7 +152,30 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     }
     $sanitized['openai_vector_store_ids'] = wp_json_encode(array_values(array_unique($openai_vs_ids_to_save)));
     $sanitized['pinecone_index_name'] = ($sanitized['vector_store_provider'] === 'pinecone' && isset($raw_settings['pinecone_index_name'])) ? sanitize_text_field($raw_settings['pinecone_index_name']) : '';
-    $sanitized['qdrant_collection_name'] = ($sanitized['vector_store_provider'] === 'qdrant' && isset($raw_settings['qdrant_collection_name'])) ? sanitize_text_field($raw_settings['qdrant_collection_name']) : '';
+    // Qdrant: accept multiple collections; also maintain legacy single for compatibility
+    $qdrant_names_raw = [];
+    if ($sanitized['vector_store_provider'] === 'qdrant') {
+        if (isset($raw_settings['qdrant_collection_names'])) {
+            $qdrant_names_raw = is_array($raw_settings['qdrant_collection_names']) ? $raw_settings['qdrant_collection_names'] : [];
+        } elseif (isset($raw_settings['qdrant_collection_names']) && is_string($raw_settings['qdrant_collection_names'])) {
+            // If sent as JSON string for any reason
+            $decoded = json_decode($raw_settings['qdrant_collection_names'], true);
+            if (is_array($decoded)) { $qdrant_names_raw = $decoded; }
+        }
+        // Fallback to single field
+        if (empty($qdrant_names_raw) && isset($raw_settings['qdrant_collection_name'])) {
+            $single = sanitize_text_field($raw_settings['qdrant_collection_name']);
+            if (!empty($single)) { $qdrant_names_raw = [$single]; }
+        }
+    }
+    $qdrant_names_clean = [];
+    foreach ($qdrant_names_raw as $name) {
+        $sn = sanitize_text_field(trim((string)$name));
+        if ($sn !== '') { $qdrant_names_clean[] = $sn; }
+    }
+    $qdrant_names_clean = array_values(array_unique($qdrant_names_clean));
+    $sanitized['qdrant_collection_names'] = wp_json_encode($qdrant_names_clean);
+    $sanitized['qdrant_collection_name'] = $qdrant_names_clean[0] ?? '';
     $sanitized['vector_embedding_provider'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_provider'])) ? sanitize_key($raw_settings['vector_embedding_provider']) : BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
     $sanitized['vector_embedding_model'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_model'])) ? sanitize_text_field($raw_settings['vector_embedding_model']) : '';
     $raw_top_k = isset($raw_settings['vector_store_top_k']) ? absint($raw_settings['vector_store_top_k']) : BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K;
@@ -241,6 +264,24 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['custom_theme_settings'] = $custom_theme_settings_sanitized;
     
     $sanitized['triggers_json'] = isset($raw_settings['triggers_json']) ? trim(wp_unslash($raw_settings['triggers_json'])) : '[]';
+
+    // --- NEW: Sanitize WhatsApp connector mapping ---
+    $wa_ids = [];
+    if (isset($raw_settings['whatsapp_connector_ids'])) {
+        $raw_wa = $raw_settings['whatsapp_connector_ids'];
+        if (is_string($raw_wa)) {
+            $decoded = json_decode($raw_wa, true);
+            if (is_array($decoded)) { $raw_wa = $decoded; }
+        }
+        if (is_array($raw_wa)) {
+            foreach ($raw_wa as $id) {
+                $sid = sanitize_key((string)$id);
+                if ($sid !== '') { $wa_ids[] = $sid; }
+            }
+            $wa_ids = array_values(array_unique($wa_ids));
+        }
+    }
+    $sanitized['whatsapp_connector_ids'] = $wa_ids;
     
     return $sanitized;
 }

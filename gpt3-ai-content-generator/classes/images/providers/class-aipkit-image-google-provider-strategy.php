@@ -126,7 +126,17 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
      * @return bool True if it's a video model, false otherwise.
      */
     private function is_video_model(string $model_id): bool {
-        return $model_id === 'veo-3.0-generate-preview' || strpos($model_id, 'veo') !== false;
+        // Prefer synced list of Google Video models; fallback to heuristic
+        if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+            $video_models = \WPAICG\AIPKit_Providers::get_google_video_models();
+            if (is_array($video_models) && !empty($video_models)) {
+                $ids = array_map(function($m){ return is_array($m) ? ($m['id'] ?? '') : (is_string($m)? $m : ''); }, $video_models);
+                if (in_array($model_id, $ids, true)) {
+                    return true;
+                }
+            }
+        }
+        return strpos($model_id, 'veo') !== false;
     }
 
     /**

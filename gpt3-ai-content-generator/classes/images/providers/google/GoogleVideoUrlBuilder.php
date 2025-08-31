@@ -33,14 +33,8 @@ class GoogleVideoUrlBuilder {
 
         // Handle different operations
         if ($operation === 'generate') {
-            // For video generation, we use predictLongRunning endpoint
-            if ($model_id === 'veo-3.0-generate-preview') {
-                $endpoint_suffix = ':predictLongRunning';
-            } else {
-                /* translators: %s: The model ID that was attempted to be used for video URL building. */
-                return new WP_Error('unsupported_google_video_model_for_url', sprintf(__('Unsupported Google video model for URL building: %s', 'gpt3-ai-content-generator'), $model_id));
-            }
-            
+            // For video generation, use predictLongRunning endpoint for any supported video model
+            $endpoint_suffix = ':predictLongRunning';
             // Construct path: /v1beta/models/MODEL_ID:predictLongRunning
             $full_path = '/' . trim($api_version, '/') . '/models/' . urlencode($model_id) . $endpoint_suffix;
             $url_with_key = $base_url . $full_path . '?key=' . urlencode($api_key);

@@ -146,7 +146,8 @@ $replicate_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_das
 $post_enhancer_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('ai_post_enhancer');
 $semantic_search_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('semantic_search');
 
-$integrations_tab_visible = $voice_playback_addon_active || $vector_databases_addon_active || $stock_images_addon_active || $replicate_addon_active || $post_enhancer_addon_active || $semantic_search_addon_active;
+$whatsapp_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_addon_active('whatsapp');
+$integrations_tab_visible = $voice_playback_addon_active || $vector_databases_addon_active || $stock_images_addon_active || $replicate_addon_active || $post_enhancer_addon_active || $semantic_search_addon_active || $whatsapp_addon_active;
 
 
 $providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];

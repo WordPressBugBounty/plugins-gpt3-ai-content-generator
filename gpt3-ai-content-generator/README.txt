@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.39
+Stable tag: 2.3.40
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,15 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.40 =
+
+- **Added**: New Google video models: Veo 2, Veo 3 Fast.
+- **Added**: New Google image model: Gemini 2.0 Flash Preview, Imagen 4 Fast.
+- **Improved**: Google model syncing. Once synced, models are now automatically grouped (text, image, embedding, video) across all modules. When Google releases new models, simply hit Sync to retrieve them, no plugin update required.
+- **Improved**: You can now select multiple Qdrant collections for each chatbot.
+- **Fixed**: File upload issue under AI Train page.
+- **Fixed**: AI Training → Settings now keeps fields/taxonomies with special characters in their keys.
 
 = 2.3.39 =
 

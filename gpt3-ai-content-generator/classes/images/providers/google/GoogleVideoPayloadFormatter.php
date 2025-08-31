@@ -23,44 +23,25 @@ class GoogleVideoPayloadFormatter {
         $model_id = $options['model'] ?? '';
         $payload = [];
 
-        if ($model_id === 'veo-3.0-generate-preview') {
-            // Build the instances array for Veo 3
-            $instance = [
-                'prompt' => $prompt
-            ];
+        // Build instances; many video models accept prompt-only instances
+        $instance = [ 'prompt' => $prompt ];
+        $payload = [ 'instances' => [$instance] ];
 
-            $payload = [
-                'instances' => [$instance]
-            ];
-
-            // Add parameters if provided
-            $parameters = [];
-            
-            // Aspect ratio (default to 16:9 for Veo 3)
-            if (isset($options['aspect_ratio'])) {
-                $parameters['aspectRatio'] = $options['aspect_ratio'];
-            } else {
-                $parameters['aspectRatio'] = '16:9';
-            }
-            
-            // Negative prompt
-            if (isset($options['negative_prompt']) && !empty($options['negative_prompt'])) {
-                $parameters['negativePrompt'] = $options['negative_prompt'];
-            }
-            
-            // Person generation (default to allow_all for Veo 3)
-            if (isset($options['person_generation'])) {
-                $parameters['personGeneration'] = $options['person_generation'];
-            } else {
-                $parameters['personGeneration'] = 'allow_all';
-            }
-
-            // Only add parameters if we have any
-            if (!empty($parameters)) {
-                $payload['parameters'] = $parameters;
-            }
+        // Optional parameters, applied generically. Models may ignore unknowns.
+        $parameters = [];
+        if (isset($options['aspect_ratio'])) {
+            $parameters['aspectRatio'] = $options['aspect_ratio'];
         }
-
+        if (isset($options['negative_prompt']) && !empty($options['negative_prompt'])) {
+            $parameters['negativePrompt'] = $options['negative_prompt'];
+        }
+        if (isset($options['person_generation'])) {
+            $parameters['personGeneration'] = $options['person_generation'];
+        }
+        if (!empty($parameters)) {
+            $payload['parameters'] = $parameters;
+        }
+        
         return $payload;
     }
 } 

@@ -257,16 +257,8 @@ class AIPKit_Shortcodes_Manager
                     ],
                     'azure_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_azure_image_models() : [],
                     'google_models' => [
-                        'image' => [
-                            ['id' => 'gemini-2.0-flash-preview-image-generation', 'name' => 'Gemini 2.0 Flash (Image)'],
-                            ['id' => 'imagen-3.0-generate-002', 'name' => 'Imagen 3.0'],
-                            ['id' => 'imagen-4.0-generate-preview-06-06', 'name' => 'Imagen 4.0 Preview'],
-                            ['id' => 'imagen-4.0-ultra-generate-preview-06-06', 'name' => 'Imagen 4.0 Ultra Preview'],
-
-                        ],
-                        'video' => [
-                             ['id' => 'veo-3.0-generate-preview', 'name' => 'Veo 3.0 (Video)'],
-                        ]
+                        'image' => (class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_google_image_models() : []),
+                        'video' => (class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_google_video_models() : []),
                     ],
                     'replicate_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_replicate_models() : []
                 ]);

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Toolkit for WordPress (formerly AI Power) 2.3.39\n"
+"Project-Id-Version: AIP: Complete AI Toolkit for WordPress (formerly AI Power) 2.3.40\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-27T13:16:25+00:00\n"
+"POT-Creation-Date: 2025-08-31T06:57:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -115,7 +115,7 @@ msgstr[1] ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:15
 #: admin/views/modules/content-writer/partials/form-inputs/generation-mode.php:122
 #: classes/ai-forms/storage/methods/fn-get-form-data.php:141
-#: public/views/shortcodes/image-generator.php:182
+#: public/views/shortcodes/image-generator.php:196
 msgid "Generate"
 msgstr ""
 
@@ -145,7 +145,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/labels-config.php:29
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:220
 #: admin/views/modules/ai-training/partials/settings.php:144
-#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:141
+#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:151
 #: admin/views/modules/content-writer/partials/template-controls.php:48
 #: admin/views/modules/logs/partials/logs-settings.php:123
 #: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:202
@@ -682,7 +682,7 @@ msgstr ""
 #: admin/assets/class-aipkit-autogpt-assets.php:235
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:36
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:34
-#: admin/views/modules/chatbot/partials/accordion-context.php:368
+#: admin/views/modules/chatbot/partials/accordion-context.php:383
 msgid "-- Select Model --"
 msgstr ""
 
@@ -728,7 +728,7 @@ msgstr ""
 #: admin/assets/class-aipkit-post-enhancer-assets.php:224
 #: admin/views/migration-tool/partials/_status_analysis_results.php:86
 #: admin/views/modules/ai-training/partials/knowledge-base-details.php:30
-#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:113
+#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:123
 #: admin/js/ai-forms/list/render-table.js:192
 #: admin/js/ai-forms/ui/render-dropped-element.js:189
 msgid "Delete"
@@ -822,7 +822,7 @@ msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:265
-#: includes/class-aipkit-shortcodes-manager.php:285
+#: includes/class-aipkit-shortcodes-manager.php:277
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:70
 #: admin/js/ai-training/wp/render-wp-content-list.js:126
 msgid "Page"
@@ -830,7 +830,7 @@ msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-autogpt-assets.php:266
-#: includes/class-aipkit-shortcodes-manager.php:285
+#: includes/class-aipkit-shortcodes-manager.php:277
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:73
 #: admin/js/ai-training/wp/render-wp-content-list.js:129
 msgid "of"
@@ -841,7 +841,7 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:83
 #: admin/views/modules/logs/partials/logs-table.php:188
 #: admin/views/modules/logs/partials/logs-table.php:195
-#: includes/class-aipkit-shortcodes-manager.php:285
+#: includes/class-aipkit-shortcodes-manager.php:277
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:57
 #: admin/js/ai-training/wp/render-wp-content-list.js:114
 msgid "Previous"
@@ -853,7 +853,7 @@ msgstr ""
 #: admin/views/modules/autogpt/partials/task-automation-ui.php:88
 #: admin/views/modules/logs/partials/logs-table.php:211
 #: admin/views/modules/logs/partials/logs-table.php:218
-#: includes/class-aipkit-shortcodes-manager.php:285
+#: includes/class-aipkit-shortcodes-manager.php:277
 #: admin/js/ai-training/ui/global/utils/render-logs-pagination.js:79
 #: admin/js/ai-training/wp/render-wp-content-list.js:134
 msgid "Next"
@@ -1111,7 +1111,7 @@ msgstr ""
 #. translators: %s is the name of the token, e.g. "OpenAI"
 #: admin/assets/class-aipkit-post-enhancer-assets.php:220
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:167
-#: includes/class-aipkit-shortcodes-manager.php:285
+#: includes/class-aipkit-shortcodes-manager.php:277
 msgid "Close"
 msgstr ""
 
@@ -1182,7 +1182,7 @@ msgid "Failed to save permissions."
 msgstr ""
 
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:46
-#: admin/views/modules/chatbot/partials/accordion-context.php:276
+#: admin/views/modules/chatbot/partials/accordion-context.php:282
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:53
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:360
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:519
@@ -1201,7 +1201,7 @@ msgstr ""
 #: admin/views/modules/ai-training/partials/knowledge-base-list.php:110
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:34
 #: admin/views/modules/content-writer/partials/form-inputs/ai-settings.php:27
-#: public/views/shortcodes/image-generator.php:58
+#: public/views/shortcodes/image-generator.php:72
 msgid "Provider"
 msgstr ""
 
@@ -1307,7 +1307,7 @@ msgstr ""
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:193
 #: admin/views/modules/ai-forms/partials/vector-config.php:117
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:85
-#: admin/views/modules/chatbot/partials/accordion-context.php:347
+#: admin/views/modules/chatbot/partials/accordion-context.php:362
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:96
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:88
 msgid "Embedding Provider"
@@ -1316,7 +1316,7 @@ msgstr ""
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:194
 #: admin/views/modules/ai-forms/partials/vector-config.php:125
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:93
-#: admin/views/modules/chatbot/partials/accordion-context.php:361
+#: admin/views/modules/chatbot/partials/accordion-context.php:376
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:104
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:96
 msgid "Embedding Model"
@@ -1439,7 +1439,7 @@ msgstr ""
 #: admin/views/modules/settings/partials/settings-models.php:109
 #: admin/views/modules/settings/partials/settings-models.php:214
 #: admin/views/modules/settings/partials/settings-models.php:250
-#: public/views/shortcodes/image-generator.php:98
+#: public/views/shortcodes/image-generator.php:112
 msgid "Model"
 msgstr ""
 
@@ -1848,7 +1848,7 @@ msgid "(%s)"
 msgstr ""
 
 #: admin/views/dashboard.php:25
-#: admin/views/modules/addons/index.php:124
+#: admin/views/modules/addons/index.php:131
 #: admin/views/modules/logs/index.php:103
 #: admin/views/modules/logs/index.php:109
 msgid "Chat"
@@ -1869,7 +1869,7 @@ msgid "Forms"
 msgstr ""
 
 #: admin/views/dashboard.php:45
-#: admin/views/modules/chatbot/partials/accordion-images.php:43
+#: admin/views/modules/chatbot/partials/accordion-images.php:37
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:22
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:168
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:82
@@ -1895,7 +1895,7 @@ msgid "Dashboard"
 msgstr ""
 
 #: admin/views/dashboard.php:112
-#: admin/views/modules/addons/index.php:156
+#: admin/views/modules/addons/index.php:163
 msgid "Add-ons"
 msgstr ""
 
@@ -2262,7 +2262,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/form-editor.php:77
 #: admin/views/modules/ai-forms/partials/form-editor.php:82
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:90
-#: admin/views/modules/chatbot/partials/accordion-context.php:188
+#: admin/views/modules/chatbot/partials/accordion-context.php:194
 msgid "File Upload"
 msgstr ""
 
@@ -2331,30 +2331,30 @@ msgstr ""
 msgid "Embed your chatbots on any external website with a simple HTML snippet."
 msgstr ""
 
-#: admin/views/modules/addons/index.php:123
+#: admin/views/modules/addons/index.php:130
 msgid "Core"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:125
+#: admin/views/modules/addons/index.php:132
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:73
 #: admin/views/modules/content-writer/partials/generation-status-indicators.php:40
 #: classes/core/ajax/class-aipkit-core-ajax-handler.php:392
 msgid "Content"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:126
+#: admin/views/modules/addons/index.php:133
 msgid "AI Training & Data"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:127
+#: admin/views/modules/addons/index.php:134
 msgid "Security & Moderation"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:128
+#: admin/views/modules/addons/index.php:135
 msgid "Privacy & Compliance"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:132
+#: admin/views/modules/addons/index.php:139
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:145
 #: admin/views/modules/autogpt/partials/task-form-image-settings.php:153
 #: admin/views/modules/content-writer/partials/form-inputs/image-settings.php:118
@@ -2362,36 +2362,36 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:162
+#: admin/views/modules/addons/index.php:169
 msgid "Filter by Category:"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:209
+#: admin/views/modules/addons/index.php:216
 #: admin/views/modules/ai-training/partials/settings.php:77
 #: admin/views/modules/ai-training/partials/settings.php:101
 #: admin/js/ai-forms/list/render-table.js:56
 msgid "Pro"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:210
+#: admin/views/modules/addons/index.php:217
 #: admin/views/modules/autogpt/index.php:91
 #: lib/views/chatbot/partials/triggers/trigger-builder-main.php:68
 msgid "Active"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:221
+#: admin/views/modules/addons/index.php:228
 msgid "Deactivate"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:221
+#: admin/views/modules/addons/index.php:228
 msgid "Activate"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:225
+#: admin/views/modules/addons/index.php:232
 msgid "Upgrade"
 msgstr ""
 
-#: admin/views/modules/addons/index.php:233
+#: admin/views/modules/addons/index.php:240
 msgid "No add-ons match the current filter."
 msgstr ""
 
@@ -2656,7 +2656,7 @@ msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:26
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:24
-#: admin/views/modules/chatbot/partials/accordion-context.php:161
+#: admin/views/modules/chatbot/partials/accordion-context.php:167
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:355
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:519
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:553
@@ -2699,7 +2699,7 @@ msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:86
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:57
-#: admin/views/modules/chatbot/partials/accordion-context.php:283
+#: admin/views/modules/chatbot/partials/accordion-context.php:289
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:68
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:60
 msgid "-- Select Index --"
@@ -2721,7 +2721,6 @@ msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:100
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:70
-#: admin/views/modules/chatbot/partials/accordion-context.php:318
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:81
 #: admin/views/modules/settings/partials/integrations/vector-databases.php:113
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:73
@@ -2750,7 +2749,7 @@ msgid "Results Limit"
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/vector-config.php:144
-#: admin/views/modules/chatbot/partials/accordion-context.php:436
+#: admin/views/modules/chatbot/partials/accordion-context.php:451
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:45
 msgid "Score Threshold"
 msgstr ""
@@ -3008,7 +3007,7 @@ msgid "For select o-series and gpt-5 models. Controls the amount of reasoning pe
 msgstr ""
 
 #: admin/views/modules/ai-forms/partials/_form-editor-main-settings.php:176
-#: admin/views/modules/chatbot/partials/accordion-context.php:119
+#: admin/views/modules/chatbot/partials/accordion-context.php:125
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:17
 msgid "Context"
 msgstr ""
@@ -3868,7 +3867,7 @@ msgstr ""
 
 #: admin/views/modules/autogpt/partials/content-writing/knowledge-base-settings.php:28
 #: admin/views/modules/autogpt/partials/task-form-config-content-indexing.php:16
-#: admin/views/modules/chatbot/partials/accordion-context.php:208
+#: admin/views/modules/chatbot/partials/accordion-context.php:214
 #: admin/views/modules/content-writer/partials/form-inputs/vector-settings.php:30
 #: lib/views/modules/autogpt/partials/content-enhancement/knowledge-base-settings.php:31
 msgid "Vector Provider"
@@ -4422,86 +4421,87 @@ msgstr ""
 msgid "Cannot determine Pro status or addon activation."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:140
+#: admin/views/modules/chatbot/partials/accordion-context.php:146
 msgid "Content Aware"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:143
+#: admin/views/modules/chatbot/partials/accordion-context.php:149
 msgid "Use page content as context."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:164
+#: admin/views/modules/chatbot/partials/accordion-context.php:170
 msgid "Use knowledge base."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:191
+#: admin/views/modules/chatbot/partials/accordion-context.php:197
 msgid "Allow users to upload files."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:230
+#: admin/views/modules/chatbot/partials/accordion-context.php:236
 msgid "Vector Stores (max 2)"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:246
+#: admin/views/modules/chatbot/partials/accordion-context.php:252
 msgid "File"
 msgid_plural "Files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:264
+#: admin/views/modules/chatbot/partials/accordion-context.php:270
 msgid "-- No Stores Found (Sync in AI Training) --"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:300
+#: admin/views/modules/chatbot/partials/accordion-context.php:306
 msgid "-- No Indexes Found (Sync in AI Settings) --"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:311
-#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:360
-#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:519
-#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:553
-msgid "Collection"
+#: admin/views/modules/chatbot/partials/accordion-context.php:317
+msgid "Collections"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:331
+#: admin/views/modules/chatbot/partials/accordion-context.php:345
 msgid "-- No Collections Found (Sync in AI Settings) --"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:386
+#: admin/views/modules/chatbot/partials/accordion-context.php:349
+msgid "Hold Cmd/Ctrl to select multiple collections."
+msgstr ""
+
+#: admin/views/modules/chatbot/partials/accordion-context.php:401
 msgid "-- Select Provider or Sync Models --"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:405
+#: admin/views/modules/chatbot/partials/accordion-context.php:420
 #: classes/shortcodes/token-usage/render/render_module_table_header.php:25
 #: classes/shortcodes/token-usage/render/render_usage_row.php:55
 msgid "Limit"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:461
+#: admin/views/modules/chatbot/partials/accordion-context.php:476
 msgid "Number of results to retrieve from vector store."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-context.php:466
+#: admin/views/modules/chatbot/partials/accordion-context.php:481
 msgid "Only use results with a similarity score above this."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:54
+#: admin/views/modules/chatbot/partials/accordion-images.php:48
 msgid "Image Generation Model"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:72
+#: admin/views/modules/chatbot/partials/accordion-images.php:66
 msgid "Addon Disabled"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:85
+#: admin/views/modules/chatbot/partials/accordion-images.php:79
 msgid "Select the model to use."
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:96
+#: admin/views/modules/chatbot/partials/accordion-images.php:90
 msgid "Image Generation Triggers"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/accordion-images.php:107
+#: admin/views/modules/chatbot/partials/accordion-images.php:101
 msgid "Comma-separated commands (e.g., /image, /generate) to trigger."
 msgstr ""
 
@@ -4948,7 +4948,7 @@ msgid "Reset all custom theme settings to their defaults."
 msgstr ""
 
 #: admin/views/modules/chatbot/partials/appearance/custom-theme/reset-theme-button.php:28
-#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:123
+#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:133
 msgid "Reset"
 msgstr ""
 
@@ -5084,7 +5084,7 @@ msgstr ""
 msgid "Click to copy shortcode"
 msgstr ""
 
-#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:110
+#: admin/views/modules/chatbot/partials/chatbot-settings-pane.php:120
 #: classes/chat/admin/ajax/chatbot_ajax_handler.php:142
 #: classes/chat/storage/class-aipkit_bot_lifecycle_manager.php:96
 msgid "The default chatbot cannot be deleted."
@@ -5562,27 +5562,27 @@ msgstr ""
 msgid "Statistics component is unavailable."
 msgstr ""
 
-#: admin/views/modules/settings/index.php:173
+#: admin/views/modules/settings/index.php:174
 msgid "AI Settings & Usage"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:185
+#: admin/views/modules/settings/index.php:186
 msgid "Configuration"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:190
+#: admin/views/modules/settings/index.php:191
 msgid "Providers"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:193
+#: admin/views/modules/settings/index.php:194
 msgid "Advanced"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:197
+#: admin/views/modules/settings/index.php:198
 msgid "Integrations"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:210
+#: admin/views/modules/settings/index.php:211
 msgid "API"
 msgstr ""
 
@@ -5595,6 +5595,7 @@ msgid "Show the \"Content Assistant\" menu in the Classic and Block editors."
 msgstr ""
 
 #: admin/views/modules/settings/partials/integrations/ai-assistant.php:44
+#: lib/views/settings/partials/whatsapp.php:51
 msgid "Label"
 msgstr ""
 
@@ -5800,7 +5801,7 @@ msgstr ""
 msgid "Banned IP Notification Message"
 msgstr ""
 
-#: admin/views/modules/settings/partials/settings-advanced-integrations.php:29
+#: admin/views/modules/settings/partials/settings-advanced-integrations.php:30
 msgid "No active integrations to configure."
 msgstr ""
 
@@ -5876,6 +5877,7 @@ msgstr ""
 #: admin/views/modules/settings/partials/settings-parameters.php:138
 #: admin/views/modules/settings/partials/settings-parameters.php:166
 #: admin/views/modules/settings/partials/settings-parameters.php:223
+#: lib/views/settings/partials/whatsapp.php:61
 msgid "API Version"
 msgstr ""
 
@@ -6125,7 +6127,7 @@ msgstr ""
 
 #: classes/ai-forms/admin/class-aipkit-ai-form-settings-ajax-handler.php:194
 #: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:67
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:249
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:260
 msgid "No changes detected."
 msgstr ""
 
@@ -6668,6 +6670,9 @@ msgid "Security check failed (nonce)."
 msgstr ""
 
 #: classes/chat/admin/ajax/traits/Trait_CheckAdminPermissions.php:27
+#: lib/whatsapp/admin/class-whatsapp-settings.php:25
+#: lib/whatsapp/admin/class-whatsapp-settings.php:37
+#: lib/whatsapp/admin/class-whatsapp-settings.php:95
 msgid "Permission denied."
 msgstr ""
 
@@ -6794,6 +6799,12 @@ msgstr ""
 
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:342
 msgid "No indexable content types found."
+msgstr ""
+
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:360
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:519
+#: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:553
+msgid "Collection"
 msgstr ""
 
 #: classes/chat/ajax/class-aipkit-chatbot-index-content-ajax-handler.php:386
@@ -7117,7 +7128,7 @@ msgstr ""
 msgid "Chatbot post has an invalid status."
 msgstr ""
 
-#: classes/chat/storage/saver/save-meta-fields-logic.php:194
+#: classes/chat/storage/saver/save-meta-fields-logic.php:198
 msgid "Invalid JSON format for triggers. Triggers were not saved."
 msgstr ""
 
@@ -7197,8 +7208,8 @@ msgstr ""
 #: classes/content-writer/ajax/actions/class-aipkit-content-writer-parse-csv-action.php:36
 #: classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php:42
 #: classes/core/providers/google/ajax-sync-tts-voices.php:27
-#: classes/dashboard/class-aipkit_dashboard.php:171
-#: classes/dashboard/class-aipkit_dashboard.php:358
+#: classes/dashboard/class-aipkit_dashboard.php:172
+#: classes/dashboard/class-aipkit_dashboard.php:359
 #: classes/dashboard/class-aipkit_role_manager.php:226
 #: classes/post-enhancer/ajax/base/abstract-enhancer-ajax-action.php:24
 #: lib/content-writer/ajax/actions/class-aipkit-content-writer-scrape-url-action.php:27
@@ -7576,7 +7587,7 @@ msgstr ""
 msgid "Overlap tokens must be between 0 and 1000."
 msgstr ""
 
-#: classes/core/ajax/class-aipkit-core-ajax-handler.php:549
+#: classes/core/ajax/class-aipkit-core-ajax-handler.php:555
 msgid "Indexing settings saved successfully."
 msgstr ""
 
@@ -8127,7 +8138,7 @@ msgid "Qdrant URL is required to sync collections."
 msgstr ""
 
 #. translators: %s: The provider name that was synced.
-#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:316
+#: classes/dashboard/ajax/class-aipkit-models-ajax-handler.php:340
 msgid "%s synced successfully."
 msgstr ""
 
@@ -8574,11 +8585,11 @@ msgstr ""
 msgid "Points upserted to Qdrant successfully."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_dashboard.php:186
+#: classes/dashboard/class-aipkit_dashboard.php:187
 msgid "You do not have permission to access this module."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_dashboard.php:354
+#: classes/dashboard/class-aipkit_dashboard.php:355
 msgid "Unauthorized access."
 msgstr ""
 
@@ -8695,12 +8706,12 @@ msgstr ""
 msgid "Failed to load Image Generation strategy for provider: %s"
 msgstr ""
 
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:238
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:243
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:249
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:254
 msgid "Image Generator settings saved."
 msgstr ""
 
-#: classes/images/class-aipkit-image-settings-ajax-handler.php:245
+#: classes/images/class-aipkit-image-settings-ajax-handler.php:256
 #: admin/js/ai-forms/ajax/save-settings.js:61
 msgid "Failed to save settings."
 msgstr ""
@@ -8935,20 +8946,20 @@ msgstr ""
 msgid "Google Image API Error (%1$d): %2$s"
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:146
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:156
 msgid "Google video generation components are missing."
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:158
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:168
 msgid "Failed to format payload for Google video model: "
 msgstr ""
 
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:175
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:185
 msgid "HTTP error during Google video generation."
 msgstr ""
 
 #. translators: %1$d: HTTP status code, %2$s: Error message from the API.
-#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:188
+#: classes/images/providers/class-aipkit-image-google-provider-strategy.php:198
 msgid "Google Video API Error (%1$d): %2$s"
 msgstr ""
 
@@ -9038,17 +9049,17 @@ msgstr ""
 msgid "An unknown Google API error occurred."
 msgstr ""
 
-#: classes/images/providers/google/GoogleImageUrlBuilder.php:30
+#: classes/images/providers/google/GoogleImageUrlBuilder.php:31
 msgid "Google API key is required for image URL construction."
 msgstr ""
 
 #. translators: %s: The model ID that was attempted to be used for image URL building.
-#: classes/images/providers/google/GoogleImageUrlBuilder.php:39
+#: classes/images/providers/google/GoogleImageUrlBuilder.php:54
 msgid "Video model %s should use GoogleVideoUrlBuilder instead."
 msgstr ""
 
 #. translators: %s: The model ID that was attempted to be used for URL building.
-#: classes/images/providers/google/GoogleImageUrlBuilder.php:56
+#: classes/images/providers/google/GoogleImageUrlBuilder.php:71
 msgid "Unsupported Google image model for URL building: %s"
 msgstr ""
 
@@ -9120,12 +9131,7 @@ msgstr ""
 msgid "Google API key is required for video URL construction."
 msgstr ""
 
-#. translators: %s: The model ID that was attempted to be used for video URL building.
-#: classes/images/providers/google/GoogleVideoUrlBuilder.php:41
-msgid "Unsupported Google video model for URL building: %s"
-msgstr ""
-
-#: classes/images/providers/google/GoogleVideoUrlBuilder.php:55
+#: classes/images/providers/google/GoogleVideoUrlBuilder.php:49
 msgid "Unsupported video operation: %s"
 msgstr ""
 
@@ -10298,25 +10304,25 @@ msgid "AI Power Form Error: This form (legacy ID: %d) has not been migrated. Ple
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: includes/class-aipkit-shortcodes-manager.php:285
+#: includes/class-aipkit-shortcodes-manager.php:277
 msgid "Loading details..."
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: includes/class-aipkit-shortcodes-manager.php:285
+#: includes/class-aipkit-shortcodes-manager.php:277
 msgid "Error loading details."
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: includes/class-aipkit-shortcodes-manager.php:285
+#: includes/class-aipkit-shortcodes-manager.php:277
 msgid "Usage Details for %s"
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:298
+#: includes/class-aipkit-shortcodes-manager.php:290
 msgid "Searching..."
 msgstr ""
 
-#: includes/class-aipkit-shortcodes-manager.php:298
+#: includes/class-aipkit-shortcodes-manager.php:290
 msgid "An error occurred while searching."
 msgstr ""
 
@@ -10675,31 +10681,31 @@ msgstr ""
 msgid "Could not read file content."
 msgstr ""
 
-#: lib/utils/class-aipkit-file-text-extractor.php:47
+#: lib/utils/class-aipkit-file-text-extractor.php:50
 msgid "PDF parser not available."
 msgstr ""
 
-#: lib/utils/class-aipkit-file-text-extractor.php:60
+#: lib/utils/class-aipkit-file-text-extractor.php:64
 msgid "Could not read HTML file."
 msgstr ""
 
-#: lib/utils/class-aipkit-file-text-extractor.php:76
+#: lib/utils/class-aipkit-file-text-extractor.php:82
 msgid "Unsupported file type: %s"
 msgstr ""
 
-#: lib/utils/class-aipkit-file-text-extractor.php:100
+#: lib/utils/class-aipkit-file-text-extractor.php:106
 msgid "DOCX extraction requires ZipArchive extension."
 msgstr ""
 
-#: lib/utils/class-aipkit-file-text-extractor.php:104
+#: lib/utils/class-aipkit-file-text-extractor.php:110
 msgid "Failed to open DOCX file."
 msgstr ""
 
-#: lib/utils/class-aipkit-file-text-extractor.php:109
+#: lib/utils/class-aipkit-file-text-extractor.php:115
 msgid "DOCX main document.xml not found."
 msgstr ""
 
-#: lib/utils/class-aipkit-file-text-extractor.php:114
+#: lib/utils/class-aipkit-file-text-extractor.php:120
 msgid "Failed to read DOCX XML."
 msgstr ""
 
@@ -10859,6 +10865,31 @@ msgstr ""
 msgid "Filter user audio before sending to improve accuracy."
 msgstr ""
 
+#: lib/views/chatbot/partials/accordion-whatsapp.php:15
+#: lib/views/settings/partials/whatsapp.php:11
+msgid "WhatsApp"
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-whatsapp.php:19
+msgid "Webhook URL"
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-whatsapp.php:21
+msgid "Use this URL in your Meta app webhook configuration."
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-whatsapp.php:25
+msgid "Attach Connectors to this Bot"
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-whatsapp.php:28
+msgid "No connectors found. Add connectors under Settings > Integrations > WhatsApp."
+msgstr ""
+
+#: lib/views/chatbot/partials/accordion-whatsapp.php:36
+msgid "Incoming messages to these numbers will be routed to this bot."
+msgstr ""
+
 #: lib/views/chatbot/partials/triggers/trigger-builder-main.php:32
 msgid "Add New Trigger"
 msgstr ""
@@ -10911,6 +10942,62 @@ msgstr ""
 msgid "Notification Message"
 msgstr ""
 
+#: lib/views/settings/partials/whatsapp.php:15
+msgid "Webhook URL:"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:16
+msgid "Paste this URL into your Meta App Webhooks (WhatsApp) configuration."
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:22
+msgid "Connectors"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:24
+msgid "Load Existing"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:25
+msgid "Add Connector"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:45
+msgid "Connector"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:46
+msgid "Remove"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:57
+msgid "Phone Number ID"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:68
+msgid "Access Token"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:72
+msgid "App Secret"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:78
+msgid "Verify Token"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:85
+msgid "Test Recipient (E.164)"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:89
+msgid "Test Message"
+msgstr ""
+
+#: lib/views/settings/partials/whatsapp.php:93
+msgid "Send Test"
+msgstr ""
+
 #: lib/views/shared/content-writing/input-mode-gsheets.php:17
 msgid "Google Sheet ID"
 msgstr ""
@@ -10956,19 +11043,59 @@ msgstr ""
 msgid "The content from each URL will be fetched and used as context for the %1$s placeholder in your %2$s."
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:51
+#: lib/whatsapp/admin/class-whatsapp-settings.php:44
+msgid "Invalid connectors payload."
+msgstr ""
+
+#: lib/whatsapp/admin/class-whatsapp-settings.php:89
+msgid "Saved."
+msgstr ""
+
+#: lib/whatsapp/admin/class-whatsapp-settings.php:102
+msgid "Recipient and message are required."
+msgstr ""
+
+#: lib/whatsapp/admin/class-whatsapp-settings.php:124
+msgid "Connector not found or invalid."
+msgstr ""
+
+#: lib/whatsapp/admin/class-whatsapp-settings.php:131
+msgid "Connector is missing phone number ID or access token."
+msgstr ""
+
+#: lib/whatsapp/admin/class-whatsapp-settings.php:140
+msgid "WhatsApp client not available."
+msgstr ""
+
+#: lib/whatsapp/admin/class-whatsapp-settings.php:146
+msgid "Test message sent."
+msgstr ""
+
+#: lib/whatsapp/admin/class-whatsapp-settings.php:148
+msgid "Unknown error"
+msgstr ""
+
+#: lib/whatsapp/admin/class-whatsapp-settings.php:149
+msgid "Send failed: %s"
+msgstr ""
+
+#: lib/whatsapp/core/class-whatsapp-processor.php:73
+msgid "Sorry, this message type is not supported yet."
+msgstr ""
+
+#: public/views/shortcodes/image-generator.php:65
 msgid "Describe the image you want to generate..."
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:171
+#: public/views/shortcodes/image-generator.php:185
 msgid "(Select Provider)"
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:195
+#: public/views/shortcodes/image-generator.php:209
 msgid "Your Images"
 msgstr ""
 
-#: public/views/shortcodes/image-generator.php:202
+#: public/views/shortcodes/image-generator.php:216
 msgid "You have not generated any images yet."
 msgstr ""
 

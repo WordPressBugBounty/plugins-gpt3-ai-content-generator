@@ -56,6 +56,8 @@ function query_vectors_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, st
                 'score' => $point['score'] ?? null,
                 'metadata' => $point['payload'] ?? [],
                 'vector' => $point['vector'] ?? null,
+                // Annotate collection for downstream aggregation/UX
+                'collection' => $index_name,
             ];
         }
     }

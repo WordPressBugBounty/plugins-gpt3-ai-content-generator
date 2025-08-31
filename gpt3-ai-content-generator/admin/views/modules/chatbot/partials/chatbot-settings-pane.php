@@ -94,6 +94,16 @@ $saved_model = $bot_settings['model'] ?? '';
                 }
 // --- END MODIFICATION ---
 ?>
+                <?php
+                // --- NEW: Conditional include for WhatsApp accordion ---
+                if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('whatsapp')) {
+                    $wa_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-whatsapp.php';
+                    if (file_exists($wa_accordion_path)) {
+                        include $wa_accordion_path;
+                    }
+                }
+                // --- END NEW ---
+                ?>
             </div> <?php // End aipkit_accordion-group?>
 
             <div class="aipkit_bot-actions">

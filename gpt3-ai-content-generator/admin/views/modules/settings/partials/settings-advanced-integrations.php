@@ -21,8 +21,9 @@ $stock_images_addon_active = aipkit_dashboard::is_addon_active('stock_images');
 $replicate_addon_active = aipkit_dashboard::is_addon_active('replicate');
 $post_enhancer_addon_active = aipkit_dashboard::is_addon_active('ai_post_enhancer');
 $semantic_search_addon_active = aipkit_dashboard::is_addon_active('semantic_search');
+$whatsapp_addon_active = aipkit_dashboard::is_addon_active('whatsapp');
 
-$integrations_tab_visible = $voice_playback_addon_active || $vector_databases_addon_active || $stock_images_addon_active || $replicate_addon_active || $post_enhancer_addon_active || $semantic_search_addon_active;
+$integrations_tab_visible = $voice_playback_addon_active || $vector_databases_addon_active || $stock_images_addon_active || $replicate_addon_active || $post_enhancer_addon_active || $semantic_search_addon_active || $whatsapp_addon_active;
 
 
 if (!$integrations_tab_visible) {
@@ -85,6 +86,11 @@ $enhancer_editor_integration_enabled = $aipkit_options['enhancer_settings']['edi
 
         <?php if ($vector_databases_addon_active) : ?>
             <?php include __DIR__ . '/integrations/vector-databases.php'; ?>
+        <?php endif; ?>
+
+        <?php if ($whatsapp_addon_active) : ?>
+            <?php // Include Pro lib partial for WhatsApp settings ?>
+            <?php $wa_partial = WPAICG_LIB_DIR . 'views/settings/partials/whatsapp.php'; if (file_exists($wa_partial)) { include $wa_partial; } ?>
         <?php endif; ?>
 
     </div>

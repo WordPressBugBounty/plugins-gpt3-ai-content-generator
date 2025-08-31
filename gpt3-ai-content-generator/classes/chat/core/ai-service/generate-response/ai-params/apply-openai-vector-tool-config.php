@@ -14,14 +14,10 @@ if (!defined('ABSPATH')) {
  *
  * @param array &$final_ai_params Reference to the final AI parameters array to be modified.
  * @param array $bot_settings Bot settings.
- * @param string|null $frontend_active_openai_vs_id Active OpenAI Vector Store ID from frontend.
  */
-function apply_openai_vector_tool_config_logic($final_ai_params, $bot_settings, $vector_store_ids_to_use_for_tool, $ai_service)
+function apply_openai_vector_tool_config_logic(&$final_ai_params, $bot_settings, $vector_store_ids_to_use_for_tool, $ai_service)
 {
-
-    if (empty($vector_store_ids_to_use_for_tool)) {
-        $vector_store_ids_to_use_for_tool[] = $frontend_active_openai_vs_id;
-    }
+    // Vector store IDs should be prepared by the caller; just normalize here
     $vector_store_ids_to_use_for_tool = array_unique(array_filter($vector_store_ids_to_use_for_tool));
     $vector_top_k_openai = absint($bot_settings['vector_store_top_k'] ?? 3);
     $vector_top_k_openai = max(1, min($vector_top_k_openai, 20));

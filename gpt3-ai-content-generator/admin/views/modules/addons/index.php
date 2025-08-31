@@ -111,6 +111,13 @@ $addons = [
         'pro' => true,
         'category' => 'chat'
     ],
+    // [
+    //     'key' => 'whatsapp',
+    //     'title' => __('WhatsApp', 'gpt3-ai-content-generator'),
+    //     'description' => __('Connect your chatbots to WhatsApp via Meta\'s Cloud API. Receive and reply to WhatsApp messages.', 'gpt3-ai-content-generator'),
+    //     'pro' => true,
+    //     'category' => 'chat'
+    // ],
 ];
 
 // Sort addons alphabetically by title

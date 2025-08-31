@@ -182,9 +182,20 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             } else {
                 // Build lookup tables from known provider model lists for accurate detection.
                 $openai_ids = ['gpt-image-1','dall-e-3','dall-e-2'];
-                $google_ids = [
-                    'gemini-2.0-flash-preview-image-generation','imagen-3.0-generate-002','imagen-4.0-generate-preview-06-06','imagen-4.0-ultra-generate-preview-06-06','veo-3.0-generate-preview'
-                ];
+                // Get Google image and video models from synced lists
+                $google_ids = [];
+                if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+                    $google_image_models = \WPAICG\AIPKit_Providers::get_google_image_models();
+                    $google_video_models = \WPAICG\AIPKit_Providers::get_google_video_models();
+                    foreach ([$google_image_models, $google_video_models] as $list) {
+                        if (is_array($list) && !empty($list)) {
+                            foreach ($list as $mdl) {
+                                if (is_array($mdl) && isset($mdl['id'])) { $google_ids[] = strtolower($mdl['id']); }
+                                elseif (is_string($mdl)) { $google_ids[] = strtolower($mdl); }
+                            }
+                        }
+                    }
+                }
                 $azure_ids = [];
                 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
                     $azure_models_list = \WPAICG\AIPKit_Providers::get_azure_image_models();

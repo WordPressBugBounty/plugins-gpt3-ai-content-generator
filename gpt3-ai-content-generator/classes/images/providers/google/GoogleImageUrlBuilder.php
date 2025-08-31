@@ -4,6 +4,7 @@
 namespace WPAICG\Images\Providers\Google;
 
 use WP_Error;
+use WPAICG\AIPKit_Providers;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -34,7 +35,21 @@ class GoogleImageUrlBuilder {
         // e.g. "gemini-2.0-flash-preview-image-generation" or "imagen-3.0-generate-002"
 
         // Handle video models - redirect to video URL builder
-        if ($model_id === 'veo-3.0-generate-preview' || strpos($model_id, 'veo') !== false) {
+        $is_video_model = false;
+        if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+            $video_models = AIPKit_Providers::get_google_video_models();
+            if (is_array($video_models) && !empty($video_models)) {
+                foreach ($video_models as $vm) {
+                    $vid = is_array($vm) ? ($vm['id'] ?? '') : (is_string($vm) ? $vm : '');
+                    if (!empty($vid) && $vid === $model_id) { $is_video_model = true; break; }
+                }
+            }
+        }
+        // Fallback heuristic
+        if (!$is_video_model && strpos($model_id, 'veo') !== false) {
+            $is_video_model = true;
+        }
+        if ($is_video_model) {
             /* translators: %s: The model ID that was attempted to be used for image URL building. */
             return new WP_Error('video_model_in_image_url_builder', sprintf(__('Video model %s should use GoogleVideoUrlBuilder instead.', 'gpt3-ai-content-generator'), $model_id));
         }

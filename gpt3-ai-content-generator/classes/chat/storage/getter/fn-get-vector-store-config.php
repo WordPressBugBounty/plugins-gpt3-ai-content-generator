@@ -52,6 +52,14 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
 
     $settings['pinecone_index_name'] = $get_meta_fn('_aipkit_pinecone_index_name', BotSettingsManager::DEFAULT_PINECONE_INDEX_NAME);
     $settings['qdrant_collection_name'] = $get_meta_fn('_aipkit_qdrant_collection_name', BotSettingsManager::DEFAULT_QDRANT_COLLECTION_NAME);
+    // NEW: Multi-collection support for Qdrant (JSON array)
+    $qdrant_names_json = $get_meta_fn('_aipkit_qdrant_collection_names', '[]');
+    $qdrant_names_array = json_decode($qdrant_names_json, true);
+    if (!is_array($qdrant_names_array)) { $qdrant_names_array = []; }
+    if (empty($qdrant_names_array) && !empty($settings['qdrant_collection_name'])) {
+        $qdrant_names_array = [$settings['qdrant_collection_name']];
+    }
+    $settings['qdrant_collection_names'] = $qdrant_names_array;
 
     $settings['vector_embedding_provider'] = $get_meta_fn('_aipkit_vector_embedding_provider', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
     if (!in_array($settings['vector_embedding_provider'], ['openai', 'google', 'azure'])) {

@@ -67,7 +67,13 @@ $pinecone_index_name = $bot_settings['pinecone_index_name'] ?? BotSettingsManage
 $vector_embedding_provider = $bot_settings['vector_embedding_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
 $vector_embedding_model = $bot_settings['vector_embedding_model'] ?? BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_MODEL;
 // --- NEW: Qdrant Specific ---
-$qdrant_collection_name = $bot_settings['qdrant_collection_name'] ?? BotSettingsManager::DEFAULT_QDRANT_COLLECTION_NAME;
+$qdrant_collection_name = $bot_settings['qdrant_collection_name'] ?? BotSettingsManager::DEFAULT_QDRANT_COLLECTION_NAME; // legacy single
+$qdrant_collection_names = [];
+if (!empty($bot_settings['qdrant_collection_names']) && is_array($bot_settings['qdrant_collection_names'])) {
+    $qdrant_collection_names = $bot_settings['qdrant_collection_names'];
+} elseif (!empty($qdrant_collection_name)) {
+    $qdrant_collection_names = [$qdrant_collection_name];
+}
 // --- END NEW ---
 
 $vector_store_top_k = isset($bot_settings['vector_store_top_k'])
@@ -302,36 +308,45 @@ if (class_exists(AIPKit_Providers::class)) {
                         ?>
                     </select>
                 </div>
-                <!-- Qdrant Collection Select (Conditional) -->
+                <!-- Qdrant Collections Multi-Select (Conditional) -->
                 <div
                     class="aipkit_form-group aipkit_form-col aipkit_vector_store_qdrant_field"
                     style="flex: 1 1 auto; display: <?php echo ($enable_vector_store === '1' && $vector_store_provider === 'qdrant') ? 'block' : 'none'; ?>;"
                 >
-                    <label class="aipkit_form-label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_qdrant_collection_name">
-                        <?php esc_html_e('Collection', 'gpt3-ai-content-generator'); ?>
+                    <label class="aipkit_form-label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_qdrant_collection_names">
+                        <?php esc_html_e('Collections', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <select
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_qdrant_collection_name"
-                        name="qdrant_collection_name"
+                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_qdrant_collection_names"
+                        name="qdrant_collection_names[]"
                         class="aipkit_form-input"
+                        multiple
+                        size="6"
                     >
-                        <option value=""><?php esc_html_e('-- Select Collection --', 'gpt3-ai-content-generator'); ?></option>
                         <?php
                         if (!empty($qdrant_collections)) {
                             foreach ($qdrant_collections as $collection) {
                                 $collection_id_val = $collection['name'] ?? ($collection['id'] ?? '');
                                 $collection_display_name = $collection['name'] ?? $collection_id_val;
-                                echo '<option value="' . esc_attr($collection_id_val) . '" ' . selected($qdrant_collection_name, $collection_id_val, false) . '>' . esc_html($collection_display_name) . '</option>';
+                                $selected_attr = in_array($collection_id_val, $qdrant_collection_names, true) ? ' selected="selected"' : '';
+                                echo '<option value="' . esc_attr($collection_id_val) . '"' . $selected_attr . '>' . esc_html($collection_display_name) . '</option>';
                             }
                         }
-                        if (!empty($qdrant_collection_name) && (empty($qdrant_collections) || !in_array($qdrant_collection_name, array_column($qdrant_collections, 'name')))) {
-                            echo '<option value="' . esc_attr($qdrant_collection_name) . '" selected="selected">' . esc_html($qdrant_collection_name) . ' (Manual/Not Synced)</option>';
+                        // Handle legacy/saved values not in synced list
+                        if (!empty($qdrant_collection_names)) {
+                            $existing_vals = array_map(function($c){ return is_array($c) ? ($c['name'] ?? '') : (string)$c; }, $qdrant_collections);
+                            foreach ($qdrant_collection_names as $legacy_val) {
+                                if ($legacy_val && (!in_array($legacy_val, $existing_vals, true))) {
+                                    echo '<option value="' . esc_attr($legacy_val) . '" selected="selected">' . esc_html($legacy_val) . ' (Manual/Not Synced)</option>';
+                                }
+                            }
                         }
-                        if (empty($qdrant_collections) && empty($qdrant_collection_name)) {
+                        if (empty($qdrant_collections) && empty($qdrant_collection_names)) {
                              echo '<option value="" disabled>'.esc_html__('-- No Collections Found (Sync in AI Settings) --', 'gpt3-ai-content-generator').'</option>';
                         }
                         ?>
                     </select>
+                    <div class="aipkit_form-help"><?php esc_html_e('Hold Cmd/Ctrl to select multiple collections.', 'gpt3-ai-content-generator'); ?></div>
                 </div>
 
             </div>

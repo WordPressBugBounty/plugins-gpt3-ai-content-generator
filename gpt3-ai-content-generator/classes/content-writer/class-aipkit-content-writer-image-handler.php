@@ -130,7 +130,11 @@ class AIPKit_Content_Writer_Image_Handler
                 'style' => 'vivid'
             ];
 
-            $models_with_n_equals_1 = ['dall-e-3', 'gpt-image-1', 'gemini-2.0-flash-preview-image-generation'];
+            // Models that only support returning one image per request
+            $models_with_n_equals_1 = ['dall-e-3', 'gpt-image-1'];
+            if (strpos($image_model, 'gemini') !== false && strpos($image_model, 'image-generation') !== false) {
+                $models_with_n_equals_1[] = $image_model; // handle all Gemini image-generation variants
+            }
 
             if (in_array($image_model, $models_with_n_equals_1, true)) {
                 for ($i = 0; $i < $image_count; $i++) {

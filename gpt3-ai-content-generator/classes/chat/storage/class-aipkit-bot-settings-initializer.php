@@ -110,6 +110,7 @@ class AIPKit_Bot_Settings_Initializer
         delete_post_meta($post_id, '_aipkit_openai_vector_store_id');
         update_post_meta($post_id, '_aipkit_pinecone_index_name', BotSettingsManager::DEFAULT_PINECONE_INDEX_NAME);
         update_post_meta($post_id, '_aipkit_qdrant_collection_name', BotSettingsManager::DEFAULT_QDRANT_COLLECTION_NAME);
+        update_post_meta($post_id, '_aipkit_qdrant_collection_names', '[]');
         update_post_meta($post_id, '_aipkit_vector_embedding_provider', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
         update_post_meta($post_id, '_aipkit_vector_embedding_model', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_MODEL);
         update_post_meta($post_id, '_aipkit_vector_store_top_k', BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K);

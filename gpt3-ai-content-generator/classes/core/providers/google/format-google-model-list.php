@@ -18,16 +18,20 @@ if (!defined('ABSPATH')) {
  * @return array Formatted list [['id' => ..., 'name' => ...]].
  */
 function format_google_model_list_logic(GoogleProviderStrategy $strategyInstance, array $raw_models): array {
+    
     $formatted = [];
     foreach ($raw_models as $model) {
         if (!is_array($model)) continue;
         $mId = $model['name'] ?? null;
-        if (!empty($mId) && in_array('generateContent', $model['supportedGenerationMethods'] ?? [])) {
+        if (!empty($mId)) {
             $cleanId = (strpos($mId, 'models/') === 0) ? substr($mId, 7) : $mId;
+            $supportedMethods = $model['supportedGenerationMethods'] ?? [];
+            
             $formatted[] = [
                 'id'       => $cleanId,
                 'name'     => $model['displayName'] ?? $cleanId,
                 'version'  => $model['version'] ?? '',
+                'supportedGenerationMethods' => $supportedMethods,
             ];
         }
     }
