@@ -41,6 +41,9 @@ function render_popup_mode_html_logic(
     $popup_icon_type = $frontend_config['popupIconType'] ?? BotSettingsManager::DEFAULT_POPUP_ICON_TYPE;
     $popup_icon_style = $frontend_config['popupIconStyle'] ?? 'circle';
     $popup_icon_value = $frontend_config['popupIconValue'] ?? BotSettingsManager::DEFAULT_POPUP_ICON_VALUE;
+    $popup_icon_size  = (isset($frontend_config['popupIconSize']) && in_array($frontend_config['popupIconSize'], ['small','medium','large','xlarge'], true))
+        ? $frontend_config['popupIconSize']
+        : BotSettingsManager::DEFAULT_POPUP_ICON_SIZE;
     $icon_html = '';
 
     if ($popup_icon_type === 'custom' && !empty($popup_icon_value)) {
@@ -72,10 +75,35 @@ function render_popup_mode_html_logic(
     // --- END NEW ---
 
     ?>
-    <div class="aipkit_popup_wrapper" id="aipkit_popup_wrapper_<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' data-bot-id="<?php echo esc_attr($bot_id); ?>">
-        <button class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>">
+    <div class="aipkit_popup_wrapper" id="aipkit_popup_wrapper_<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' data-bot-id="<?php echo esc_attr($bot_id); ?>" data-icon-size="<?php echo esc_attr($popup_icon_size); ?>">
+        <button class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>">
             <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
         </button>
+        <?php
+        // --- NEW: Optional popup hint above trigger ---
+        $hint_enabled = !empty($frontend_config['popupLabelEnabled']) && !empty($frontend_config['popupLabelText']);
+        if ($hint_enabled) {
+            $dismissible = !empty($frontend_config['popupLabelDismissible']);
+            // Plain text only
+            $hint_text = wp_strip_all_tags((string)$frontend_config['popupLabelText']);
+            $hint_size = isset($frontend_config['popupLabelSize']) && in_array($frontend_config['popupLabelSize'], ['small','medium','large','xlarge'], true)
+                ? $frontend_config['popupLabelSize']
+                : 'medium';
+            ?>
+            <div
+                class="aipkit_popup_hint aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_hint--size-<?php echo esc_attr($hint_size); ?>"
+                id="aipkit_popup_hint_<?php echo esc_attr($bot_id); ?>"
+                role="status"
+                aria-live="polite"
+                aria-hidden="true"
+                data-bot-id="<?php echo esc_attr($bot_id); ?>"
+            >
+                <span class="aipkit_popup_hint_text"><?php echo esc_html($hint_text); ?></span>
+                <?php if ($dismissible): ?>
+                    <button type="button" class="aipkit_popup_hint_close" aria-label="<?php echo esc_attr($frontend_config['text']['dismissHint'] ?? 'Dismiss'); ?>">&times;</button>
+                <?php endif; ?>
+            </div>
+        <?php } // end hint_enabled ?>
         <div class="aipkit_chat_container aipkit_popup_content aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-hidden="true" <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?> >
             <div class="aipkit_chat_main">
                 <?php if ($feature_flags['show_header']): ?>

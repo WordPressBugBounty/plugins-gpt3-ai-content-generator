@@ -40,10 +40,61 @@ function upsert_vectors_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, s
     }
     unset($point);
 
-    if (isset($vectors_data['wait'])) {
-        $query_params['wait'] = ($vectors_data['wait'] === true || $vectors_data['wait'] === 'true') ? 'true' : 'false';
+    // Optional: dimension pre-validation via describe_index
+    if (function_exists('WPAICG\\Vector\\Providers\\Qdrant\\Methods\\describe_index_logic')) {
+        $desc = describe_index_logic($strategyInstance, $index_name);
+        if (!is_wp_error($desc)) {
+            $vectors_cfg = $desc['config']['params']['vectors'] ?? null;
+            $expected_size = null;
+            if (is_array($vectors_cfg) && isset($vectors_cfg['size'])) {
+                $expected_size = (int) $vectors_cfg['size'];
+            }
+            if ($expected_size && $expected_size > 0) {
+                foreach ($body['points'] as $p) {
+                    $vals = $p['vector'] ?? null;
+                    if (is_array($vals) && count($vals) !== $expected_size) {
+                        return new WP_Error('qdrant_vector_dimension_mismatch', sprintf(__('Vector dimension mismatch. Expected %1$d, got %2$d.', 'gpt3-ai-content-generator'), $expected_size, count($vals)));
+                    }
+                }
+            } else {
+                // Fallback: internal consistency
+                $first_len = null;
+                foreach ($body['points'] as $p) {
+                    $vals = $p['vector'] ?? null;
+                    if (!is_array($vals)) continue;
+                    $len = count($vals);
+                    if ($first_len === null) { $first_len = $len; }
+                    if ($first_len !== $len) {
+                        return new WP_Error('qdrant_vector_dimension_inconsistent', __('Vectors have inconsistent dimensions in the upsert payload.', 'gpt3-ai-content-generator'));
+                    }
+                }
+            }
+        }
     }
 
-    $response = _request_logic($strategyInstance, 'PUT', $path, $body, $query_params);
-    return $response;
+    // Add wait=true by default (filterable)
+    $wait_default = apply_filters('aipkit_qdrant_upsert_wait', true, $index_name);
+    if (isset($vectors_data['wait'])) {
+        $query_params['wait'] = ($vectors_data['wait'] === true || $vectors_data['wait'] === 'true') ? 'true' : 'false';
+    } elseif ($wait_default === true) {
+        $query_params['wait'] = 'true';
+    }
+
+    // Batch upserts
+    $batch_size = apply_filters('aipkit_qdrant_upsert_batch_size', 100, $index_name);
+    $all_results = [];
+    $total = count($body['points']);
+    for ($i = 0; $i < $total; $i += $batch_size) {
+        $chunk_points = array_slice($body['points'], $i, $batch_size);
+        $chunk_body = ['points' => $chunk_points];
+        $resp = _request_logic($strategyInstance, 'PUT', $path, $chunk_body, $query_params);
+        if (is_wp_error($resp)) return $resp;
+        $all_results[] = $resp;
+    }
+
+    $last = end($all_results);
+    if (is_array($last)) {
+        $last['aipkit_batches'] = count($all_results);
+    }
+    return $last;
 }

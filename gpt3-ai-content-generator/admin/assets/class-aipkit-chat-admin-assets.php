@@ -21,6 +21,7 @@ if (! defined('ABSPATH')) {
 class ChatAdminAssets
 {
     private $version;
+    private $base_dir;
     private $is_admin_main_js_enqueued = false;
     private $is_public_main_js_enqueued = false;
     private $is_admin_chat_css_enqueued = false;
@@ -30,6 +31,7 @@ class ChatAdminAssets
     public function __construct()
     {
         $this->version = defined('WPAICG_VERSION') ? WPAICG_VERSION : '1.9.15';
+        $this->base_dir = defined('WPAICG_PLUGIN_DIR') ? WPAICG_PLUGIN_DIR : plugin_dir_path(__FILE__) . '../../';
     }
 
     public function register_hooks()
@@ -65,6 +67,8 @@ class ChatAdminAssets
     {
         $dist_css_url = WPAICG_PLUGIN_URL . 'dist/css/';
         $admin_main_css_handle = 'aipkit-admin-main-css';
+        $ver_public_main_css = $this->asset_ver('dist/css/public-main.bundle.css');
+        $ver_admin_chat_css  = $this->asset_ver('dist/css/admin-chat.bundle.css');
 
         $public_main_css_handle = 'aipkit-public-main-css';
         if (!wp_style_is($public_main_css_handle, 'registered')) {
@@ -72,7 +76,7 @@ class ChatAdminAssets
                 $public_main_css_handle,
                 $dist_css_url . 'public-main.bundle.css',
                 ['dashicons'],
-                $this->version
+                $ver_public_main_css
             );
         }
         if (!$this->is_public_main_css_enqueued && !wp_style_is($public_main_css_handle, 'enqueued')) {
@@ -86,7 +90,7 @@ class ChatAdminAssets
                 $admin_chat_css_handle,
                 $dist_css_url . 'admin-chat.bundle.css',
                 [$admin_main_css_handle, $public_main_css_handle],
-                $this->version
+                $ver_admin_chat_css
             );
         }
         if (!$this->is_admin_chat_css_enqueued && !wp_style_is($admin_chat_css_handle, 'enqueued')) {
@@ -101,13 +105,15 @@ class ChatAdminAssets
         $admin_main_js_handle = 'aipkit-admin-main';
         $public_main_js_handle = 'aipkit-public-main';
         $jspdf_handle = 'aipkit_jspdf';
+        $ver_admin_main_js = $this->asset_ver('dist/js/admin-main.bundle.js');
+        $ver_public_main_js = $this->asset_ver('dist/js/public-main.bundle.js');
 
         if (!wp_script_is($admin_main_js_handle, 'registered')) {
             wp_register_script(
                 $admin_main_js_handle,
                 $dist_js_url . 'admin-main.bundle.js',
                 ['wp-i18n', 'aipkit_markdown-it'],
-                $this->version,
+                $ver_admin_main_js,
                 true
             );
         }
@@ -124,7 +130,7 @@ class ChatAdminAssets
                 $public_main_js_handle,
                 $dist_js_url . 'public-main.bundle.js',
                 ['wp-i18n', 'aipkit_markdown-it'], // REMOVED 'aipkit_jspdf' from here
-                $this->version,
+                $ver_public_main_js,
                 true
             );
         }
@@ -155,7 +161,7 @@ class ChatAdminAssets
         // Ensure script is registered (might have been by ChatAssetsOrchestrator if this runs first)
         if (!wp_script_is($public_main_js_handle, 'registered')) {
             $dist_js_url = WPAICG_PLUGIN_URL . 'dist/js/';
-            wp_register_script($public_main_js_handle, $dist_js_url . 'public-main.bundle.js', ['wp-i18n','aipkit_markdown-it'], $this->version, true); // No jspdf here
+            wp_register_script($public_main_js_handle, $dist_js_url . 'public-main.bundle.js', ['wp-i18n','aipkit_markdown-it'], $ver_public_main_js, true); // No jspdf here
         }
         // Ensure script is enqueued if not already (Chat Admin Assets always needs public-main for preview)
         if (!wp_script_is($public_main_js_handle, 'enqueued')) {
@@ -241,5 +247,18 @@ class ChatAdminAssets
             wp_add_inline_script('aipkit-admin-main', 'window.aipkit_index_content_nonce = "' . esc_js($index_content_nonce) . '";', 'before');
         }
         // --- END NEW ---
+    }
+
+    /**
+     * Returns a cache-busting version based on file mtime; falls back to plugin version.
+     */
+    private function asset_ver(string $relative_path): string
+    {
+        $abs = rtrim($this->base_dir, '/\\') . '/' . ltrim($relative_path, '/\\');
+        $ts = @filemtime($abs);
+        if ($ts) {
+            return (string) $ts;
+        }
+        return $this->version;
     }
 }

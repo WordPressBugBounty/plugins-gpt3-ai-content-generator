@@ -123,7 +123,85 @@ class AssetsEnqueuer
                         // ... any other truly global texts needed by public-main.bundle.js
                     ]
                 ]);
+                // Provide a consistent action name for nonce refresh (used by JS auto-retry)
+                // No security risk: this just exposes the action string, not the nonce value itself.
+                wp_add_inline_script(
+                    $public_main_js_handle,
+                    'window.aipkit_getChatNonceAction = "aipkit_get_frontend_chat_nonce";',
+                    'before'
+                );
                 $global_chat_localized = true;
+            }
+
+            // Inject a tiny runtime wrapper to auto-refresh nonce once on nonce-related failures
+            static $nonce_wrapper_injected = false;
+            if (!$nonce_wrapper_injected && wp_script_is($public_main_js_handle, 'enqueued')) {
+                $wrapper_js = <<<'JS'
+;(function(){
+  try{
+    if(typeof window.aipkit_frontendApiRequest === 'function'){
+      var __aipkit_origFrontendApiRequest = window.aipkit_frontendApiRequest;
+      function __aipkit_refreshNonce(cfg){
+        return new Promise(function(resolve,reject){
+          try{
+            if(!cfg || !cfg.ajaxUrl){ return reject(new Error('No ajaxUrl for nonce refresh')); }
+            var fd = new FormData();
+            fd.append('action', (typeof window.aipkit_getChatNonceAction === 'string' && window.aipkit_getChatNonceAction) ? window.aipkit_getChatNonceAction : 'aipkit_get_frontend_chat_nonce');
+            if(cfg.botId){ fd.append('bot_id', cfg.botId); }
+            fetch(cfg.ajaxUrl, { method:'POST', body: fd, credentials:'same-origin' })
+              .then(function(r){ return r.json(); })
+              .then(function(j){ if(j && j.success && j.data && j.data.nonce){ cfg.nonce = j.data.nonce; resolve(j.data.nonce); } else { reject(new Error('Nonce refresh failed')); } })
+              .catch(function(){ reject(new Error('Nonce refresh network error')); });
+          }catch(e){ reject(e); }
+        });
+      }
+      window.aipkit_frontendApiRequest = function(action, data, cfg){
+        return __aipkit_origFrontendApiRequest(action, data, cfg).catch(function(err){
+          var msg = (err && err.message ? String(err.message) : '').toLowerCase();
+          if(msg.indexOf('security check failed') !== -1 || msg.indexOf('session has expired') !== -1 || msg.indexOf('nonce') !== -1){
+            return __aipkit_refreshNonce(cfg).then(function(){ return __aipkit_origFrontendApiRequest(action, data, cfg); });
+          }
+          throw err;
+        });
+      };
+    }
+  }catch(e){ /* noop */ }
+})();
+;(function(){
+  try{
+    if(typeof window.aipkit_chatUI_cacheSseMessage === 'function'){
+      var __aipkit_origCacheSseMessage = window.aipkit_chatUI_cacheSseMessage;
+      function __aipkit_refreshNonce(cfg){
+        return new Promise(function(resolve,reject){
+          try{
+            if(!cfg || !cfg.ajaxUrl){ return reject(new Error('No ajaxUrl for nonce refresh')); }
+            var fd = new FormData();
+            fd.append('action', (typeof window.aipkit_getChatNonceAction === 'string' && window.aipkit_getChatNonceAction) ? window.aipkit_getChatNonceAction : 'aipkit_get_frontend_chat_nonce');
+            if(cfg.botId){ fd.append('bot_id', cfg.botId); }
+            fetch(cfg.ajaxUrl, { method:'POST', body: fd, credentials:'same-origin' })
+              .then(function(r){ return r.json(); })
+              .then(function(j){ if(j && j.success && j.data && j.data.nonce){ cfg.nonce = j.data.nonce; resolve(j.data.nonce); } else { reject(new Error('Nonce refresh failed')); } })
+              .catch(function(){ reject(new Error('Nonce refresh network error')); });
+          }catch(e){ reject(e); }
+        });
+      }
+      window.aipkit_chatUI_cacheSseMessage = function(userText, cfg, imageDataPayload, activeFileContext, clientUserMessageId){
+        return __aipkit_origCacheSseMessage(userText, cfg, imageDataPayload, activeFileContext, clientUserMessageId).catch(function(err){
+          var msg = (err && err.message ? String(err.message) : '').toLowerCase();
+          if(msg.indexOf('security check failed') !== -1 || msg.indexOf('session has expired') !== -1 || msg.indexOf('nonce') !== -1){
+            return __aipkit_refreshNonce(cfg).then(function(){
+              return __aipkit_origCacheSseMessage(userText, cfg, imageDataPayload, activeFileContext, clientUserMessageId);
+            });
+          }
+          throw err;
+        });
+      };
+    }
+  }catch(e){ /* noop */ }
+})();
+JS;
+                wp_add_inline_script($public_main_js_handle, $wrapper_js, 'after');
+                $nonce_wrapper_injected = true;
             }
         }
     }

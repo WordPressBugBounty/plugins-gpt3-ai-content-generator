@@ -153,6 +153,43 @@ class AIPKit_Upload_Utils
             return new WP_Error('invalid_file_type_vector', sprintf(__('Invalid file type: %1$s. Allowed types: %2$s', 'gpt3-ai-content-generator'), esc_html($file_mime_type ?: 'Unknown'), esc_html(implode(', ', $allowed_mime_types))));
         }
 
+        // Additional hardening: verify extension and WP's own type detection
+        $ext = strtolower(pathinfo($file_data['name'] ?? '', PATHINFO_EXTENSION));
+        $allowed_exts_map = [
+            'text/plain' => ['txt', 'text', 'log', 'md'],
+            'application/pdf' => ['pdf'],
+            'application/x-pdf' => ['pdf'],
+            'text/html' => ['html', 'htm'],
+            'application/xhtml+xml' => ['xhtml', 'html'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx'],
+        ];
+        $allowed_exts = [];
+        foreach ($allowed_mime_types as $mt) {
+            if (isset($allowed_exts_map[$mt])) {
+                $allowed_exts = array_merge($allowed_exts, $allowed_exts_map[$mt]);
+            }
+        }
+        if (!empty($ext) && !empty($allowed_exts) && !in_array($ext, $allowed_exts, true)) {
+            return new WP_Error('invalid_file_extension_vector', sprintf(__('Invalid file extension: .%1$s. Allowed extensions: %2$s', 'gpt3-ai-content-generator'), esc_html($ext), esc_html(implode(', ', array_unique($allowed_exts)))));
+        }
+
+        // Cross-check with WordPress core detection (non-fatal if unknown but mismatch is rejected)
+        if (function_exists('wp_check_filetype_and_ext')) {
+            $ft = wp_check_filetype_and_ext($file_data['tmp_name'], $file_data['name']);
+            $ft_type = isset($ft['type']) ? strtolower((string) $ft['type']) : '';
+            $ft_ext  = isset($ft['ext']) ? strtolower((string) $ft['ext']) : '';
+            if (!empty($ft_type) && !in_array($ft_type, array_map('strtolower', $allowed_mime_types), true)) {
+                return new WP_Error('invalid_file_type_vector_core', sprintf(__('Invalid file type (WP check): %1$s. Allowed types: %2$s', 'gpt3-ai-content-generator'), esc_html($ft_type), esc_html(implode(', ', $allowed_mime_types))));
+            }
+            if (!empty($ft_ext) && !empty($allowed_exts) && !in_array($ft_ext, $allowed_exts, true)) {
+                return new WP_Error('invalid_file_extension_vector_core', sprintf(__('Invalid file extension (WP check): .%1$s. Allowed extensions: %2$s', 'gpt3-ai-content-generator'), esc_html($ft_ext), esc_html(implode(', ', array_unique($allowed_exts)))));
+            }
+            // If both type and extension are present and contradict the content-derived $file_mime_type, reject
+            if (!empty($ft_type) && !empty($file_mime_type) && strtolower($ft_type) !== strtolower($file_mime_type)) {
+                return new WP_Error('filetype_mismatch_vector', sprintf(__('File type mismatch between content and extension: %1$s vs %2$s', 'gpt3-ai-content-generator'), esc_html($file_mime_type), esc_html($ft_type)));
+            }
+        }
+
         // Check file size
         if ($max_size_bytes === null) {
             $upload_limits = self::get_effective_upload_limit_summary();

@@ -59,5 +59,11 @@ class Vector_Post_Processor_Classes_Loader
         if (file_exists($ajax_handler_path) && !class_exists(\WPAICG\Vector\AIPKit_Vector_Post_Processor_Ajax_Handler::class)) {
             require_once $ajax_handler_path;
         }
+
+        // Load the List Screen class (handles post list screen features)
+        $list_screen_path = WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/class-aipkit-vector-post-processor-list-screen.php';
+        if (file_exists($list_screen_path) && !class_exists(\WPAICG\Vector\PostProcessor\AIPKit_Vector_Post_Processor_List_Screen::class)) {
+            require_once $list_screen_path;
+        }
     }
 }

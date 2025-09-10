@@ -51,11 +51,16 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $valid_themes = ['light', 'dark', 'custom', 'chatgpt'];
     $sanitized['theme'] = isset($raw_settings['theme']) && in_array($raw_settings['theme'], $valid_themes) ? sanitize_text_field($raw_settings['theme']) : 'light';
     $sanitized['instructions'] = isset($raw_settings['instructions']) ? sanitize_textarea_field($raw_settings['instructions']) : '';
-    $sanitized['popup_enabled'] = isset($raw_settings['popup_enabled']) ? '1' : '0';
+    $sanitized['popup_enabled'] = (isset($raw_settings['popup_enabled']) && $raw_settings['popup_enabled'] === '1') ? '1' : '0';
     $sanitized['popup_position'] = isset($raw_settings['popup_position']) ? sanitize_key($raw_settings['popup_position']) : 'bottom-right';
     $sanitized['popup_delay'] = isset($raw_settings['popup_delay']) ? absint($raw_settings['popup_delay']) : BotSettingsManager::DEFAULT_POPUP_DELAY;
-    $sanitized['site_wide_enabled'] = isset($raw_settings['site_wide_enabled']) ? '1' : '0';
+    $sanitized['site_wide_enabled'] = (isset($raw_settings['site_wide_enabled']) && $raw_settings['site_wide_enabled'] === '1') ? '1' : '0';
     $sanitized['popup_icon_style'] = isset($raw_settings['popup_icon_style']) && in_array($raw_settings['popup_icon_style'], ['circle', 'square', 'none']) ? sanitize_key($raw_settings['popup_icon_style']) : BotSettingsManager::DEFAULT_POPUP_ICON_STYLE;
+    // NEW: Popup icon size
+    $allowed_icon_sizes = ['small','medium','large','xlarge'];
+    $sanitized['popup_icon_size'] = isset($raw_settings['popup_icon_size']) && in_array($raw_settings['popup_icon_size'], $allowed_icon_sizes, true)
+        ? sanitize_key($raw_settings['popup_icon_size'])
+        : (defined('WPAICG\\Chat\\Storage\\BotSettingsManager::DEFAULT_POPUP_ICON_SIZE') ? BotSettingsManager::DEFAULT_POPUP_ICON_SIZE : 'medium');
     $sanitized['popup_icon_type'] = isset($raw_settings['popup_icon_type']) && in_array($raw_settings['popup_icon_type'], ['default', 'custom']) ? $raw_settings['popup_icon_type'] : BotSettingsManager::DEFAULT_POPUP_ICON_TYPE;
     $sanitized['popup_icon_value'] = '';
     if ($sanitized['popup_icon_type'] === 'default') {
@@ -64,19 +69,21 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     } elseif ($sanitized['popup_icon_type'] === 'custom') {
         $sanitized['popup_icon_value'] = isset($raw_settings['popup_icon_custom_url']) ? esc_url_raw(trim($raw_settings['popup_icon_custom_url'])) : '';
     }
-    $sanitized['stream_enabled'] = isset($raw_settings['stream_enabled']) ? '1' : '0';
+    $sanitized['stream_enabled'] = (isset($raw_settings['stream_enabled']) && $raw_settings['stream_enabled'] === '1') ? '1' : '0';
     $sanitized['footer_text'] = isset($raw_settings['footer_text']) ? wp_kses_post($raw_settings['footer_text']) : '';
-    $sanitized['enable_fullscreen'] = isset($raw_settings['enable_fullscreen']) ? '1' : '0';
-    $sanitized['enable_download'] = isset($raw_settings['enable_download']) ? '1' : '0';
-    $sanitized['enable_copy_button'] = isset($raw_settings['enable_copy_button']) ? '1' : '0';
-    $sanitized['enable_feedback'] = isset($raw_settings['enable_feedback']) ? '1' : '0';
-    $sanitized['enable_conversation_sidebar'] = isset($raw_settings['enable_conversation_sidebar']) ? '1' : '0';
+    $sanitized['enable_fullscreen'] = (isset($raw_settings['enable_fullscreen']) && $raw_settings['enable_fullscreen'] === '1') ? '1' : '0';
+    $sanitized['enable_download'] = (isset($raw_settings['enable_download']) && $raw_settings['enable_download'] === '1') ? '1' : '0';
+    $sanitized['enable_copy_button'] = (isset($raw_settings['enable_copy_button']) && $raw_settings['enable_copy_button'] === '1') ? '1' : '0';
+    $sanitized['enable_feedback'] = (isset($raw_settings['enable_feedback']) && $raw_settings['enable_feedback'] === '1') ? '1' : '0';
+    $sanitized['enable_conversation_sidebar'] = (isset($raw_settings['enable_conversation_sidebar']) && $raw_settings['enable_conversation_sidebar'] === '1') ? '1' : '0';
+    // Typing indicator customization
+    $sanitized['custom_typing_text'] = isset($raw_settings['custom_typing_text']) ? sanitize_text_field($raw_settings['custom_typing_text']) : '';
     $sanitized['input_placeholder'] = isset($raw_settings['input_placeholder']) ? sanitize_text_field($raw_settings['input_placeholder']) : __('Type your message...', 'gpt3-ai-content-generator');
     $sanitized['temperature'] = isset($raw_settings['temperature']) ? floatval($raw_settings['temperature']) : BotSettingsManager::DEFAULT_TEMPERATURE;
     $sanitized['max_completion_tokens'] = isset($raw_settings['max_completion_tokens']) ? absint($raw_settings['max_completion_tokens']) : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
     $sanitized['max_messages'] = isset($raw_settings['max_messages']) ? absint($raw_settings['max_messages']) : BotSettingsManager::DEFAULT_MAX_MESSAGES;
     $sanitized['reasoning_effort'] = isset($raw_settings['reasoning_effort']) && in_array($raw_settings['reasoning_effort'], ['minimal', 'low', 'medium', 'high']) ? sanitize_key($raw_settings['reasoning_effort']) : BotSettingsManager::DEFAULT_REASONING_EFFORT;
-    $sanitized['enable_conversation_starters'] = isset($raw_settings['enable_conversation_starters']) ? '1' : '0';
+    $sanitized['enable_conversation_starters'] = (isset($raw_settings['enable_conversation_starters']) && $raw_settings['enable_conversation_starters'] === '1') ? '1' : '0';
     $starters_raw = isset($raw_settings['conversation_starters']) ? $raw_settings['conversation_starters'] : ''; // Textarea value
     $starters_array = [];
     if (!empty($starters_raw)) {
@@ -90,8 +97,8 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         $starters_array = array_slice($starters_array, 0, 6);
     }
     $sanitized['conversation_starters'] = wp_json_encode($starters_array, JSON_UNESCAPED_UNICODE);
-    $sanitized['content_aware_enabled'] = isset($raw_settings['content_aware_enabled']) ? '1' : '0';
-    $sanitized['openai_conversation_state_enabled'] = isset($raw_settings['openai_conversation_state_enabled']) ? '1' : '0';
+    $sanitized['content_aware_enabled'] = (isset($raw_settings['content_aware_enabled']) && $raw_settings['content_aware_enabled'] === '1') ? '1' : '0';
+    $sanitized['openai_conversation_state_enabled'] = (isset($raw_settings['openai_conversation_state_enabled']) && $raw_settings['openai_conversation_state_enabled'] === '1') ? '1' : '0';
     $sanitized['token_limit_mode'] = isset($raw_settings['token_limit_mode']) && in_array($raw_settings['token_limit_mode'], ['general', 'role_based']) ? $raw_settings['token_limit_mode'] : BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
     $raw_guest_limit = isset($raw_settings['token_guest_limit']) ? trim($raw_settings['token_guest_limit']) : '';
     $sanitized['token_guest_limit'] = ($raw_guest_limit === '0' || (ctype_digit($raw_guest_limit) && $raw_guest_limit > 0)) ? (string)absint($raw_guest_limit) : ''; // Store as string or empty
@@ -115,7 +122,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['token_reset_period'] = isset($raw_settings['token_reset_period']) && in_array($raw_settings['token_reset_period'], ['never', 'daily', 'weekly', 'monthly']) ? sanitize_key($raw_settings['token_reset_period']) : BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
     $sanitized['token_limit_message'] = isset($raw_settings['token_limit_message']) ? sanitize_text_field($raw_settings['token_limit_message']) : '';
     $sanitized['model'] = isset($raw_settings['model']) ? sanitize_text_field($raw_settings['model']) : '';
-    $sanitized['tts_enabled'] = isset($raw_settings['tts_enabled']) ? '1' : '0';
+    $sanitized['tts_enabled'] = (isset($raw_settings['tts_enabled']) && $raw_settings['tts_enabled'] === '1') ? '1' : '0';
     $sanitized['tts_provider'] = isset($raw_settings['tts_provider']) ? sanitize_text_field($raw_settings['tts_provider']) : BotSettingsManager::DEFAULT_TTS_PROVIDER;
     if (!in_array($sanitized['tts_provider'], ['Google', 'OpenAI', 'ElevenLabs'])) {
         $sanitized['tts_provider'] = BotSettingsManager::DEFAULT_TTS_PROVIDER;
@@ -125,8 +132,8 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['tts_openai_model_id'] = isset($raw_settings['tts_openai_model_id']) ? sanitize_text_field($raw_settings['tts_openai_model_id']) : BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID;
     $sanitized['tts_elevenlabs_voice_id'] = isset($raw_settings['tts_elevenlabs_voice_id']) ? sanitize_text_field($raw_settings['tts_elevenlabs_voice_id']) : '';
     $sanitized['tts_elevenlabs_model_id'] = isset($raw_settings['tts_elevenlabs_model_id']) ? sanitize_text_field($raw_settings['tts_elevenlabs_model_id']) : '';
-    $sanitized['tts_auto_play'] = isset($raw_settings['tts_auto_play']) ? '1' : '0';
-    $sanitized['enable_voice_input'] = isset($raw_settings['enable_voice_input']) ? '1' : '0';
+    $sanitized['tts_auto_play'] = (isset($raw_settings['tts_auto_play']) && $raw_settings['tts_auto_play'] === '1') ? '1' : '0';
+    $sanitized['enable_voice_input'] = (isset($raw_settings['enable_voice_input']) && $raw_settings['enable_voice_input'] === '1') ? '1' : '0';
     $sanitized['stt_provider'] = isset($raw_settings['stt_provider']) ? sanitize_text_field($raw_settings['stt_provider']) : BotSettingsManager::DEFAULT_STT_PROVIDER;
     if (!in_array($sanitized['stt_provider'], ['OpenAI', 'Azure'])) {
         $sanitized['stt_provider'] = BotSettingsManager::DEFAULT_STT_PROVIDER;
@@ -138,9 +145,9 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $triggers_array = array_filter($triggers_array, function ($trigger) { return !empty($trigger) && preg_match('/^\/[a-zA-Z0-9_]+$/', $trigger); });
     $sanitized['image_triggers'] = !empty($triggers_array) ? implode(',', $triggers_array) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
     $sanitized['chat_image_model_id'] = isset($raw_settings['chat_image_model_id']) ? sanitize_text_field($raw_settings['chat_image_model_id']) : BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
-    $sanitized['enable_file_upload'] = isset($raw_settings['enable_file_upload']) ? '1' : '0';
-    $sanitized['enable_image_upload'] = isset($raw_settings['enable_image_upload']) ? '1' : '0';
-    $sanitized['enable_vector_store'] = isset($raw_settings['enable_vector_store']) ? '1' : '0';
+    $sanitized['enable_file_upload'] = (isset($raw_settings['enable_file_upload']) && $raw_settings['enable_file_upload'] === '1') ? '1' : '0';
+    $sanitized['enable_image_upload'] = (isset($raw_settings['enable_image_upload']) && $raw_settings['enable_image_upload'] === '1') ? '1' : '0';
+    $sanitized['enable_vector_store'] = (isset($raw_settings['enable_vector_store']) && $raw_settings['enable_vector_store'] === '1') ? '1' : '0';
     $sanitized['vector_store_provider'] = isset($raw_settings['vector_store_provider']) && in_array($raw_settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant']) ? sanitize_text_field($raw_settings['vector_store_provider']) : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
     $openai_vs_ids_raw = isset($raw_settings['openai_vector_store_ids']) && is_array($raw_settings['openai_vector_store_ids']) ? $raw_settings['openai_vector_store_ids'] : [];
     $openai_vs_ids_to_save = [];
@@ -184,21 +191,21 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $raw_threshold = isset($raw_settings['vector_store_confidence_threshold']) ? absint($raw_settings['vector_store_confidence_threshold']) : BotSettingsManager::DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD;
     $sanitized['vector_store_confidence_threshold'] = max(0, min($raw_threshold, 100));
     // END NEW
-    $sanitized['openai_web_search_enabled'] = isset($raw_settings['openai_web_search_enabled']) ? '1' : '0';
+    $sanitized['openai_web_search_enabled'] = (isset($raw_settings['openai_web_search_enabled']) && $raw_settings['openai_web_search_enabled'] === '1') ? '1' : '0';
     $sanitized['openai_web_search_context_size'] = isset($raw_settings['openai_web_search_context_size']) && in_array($raw_settings['openai_web_search_context_size'], ['low', 'medium', 'high']) ? $raw_settings['openai_web_search_context_size'] : BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_CONTEXT_SIZE;
     $sanitized['openai_web_search_loc_type'] = isset($raw_settings['openai_web_search_loc_type']) && in_array($raw_settings['openai_web_search_loc_type'], ['none', 'approximate']) ? $raw_settings['openai_web_search_loc_type'] : BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_LOC_TYPE;
     $sanitized['openai_web_search_loc_country'] = isset($raw_settings['openai_web_search_loc_country']) ? sanitize_text_field($raw_settings['openai_web_search_loc_country']) : '';
     $sanitized['openai_web_search_loc_city'] = isset($raw_settings['openai_web_search_loc_city']) ? sanitize_text_field($raw_settings['openai_web_search_loc_city']) : '';
     $sanitized['openai_web_search_loc_region'] = isset($raw_settings['openai_web_search_loc_region']) ? sanitize_text_field($raw_settings['openai_web_search_loc_region']) : '';
     $sanitized['openai_web_search_loc_timezone'] = isset($raw_settings['openai_web_search_loc_timezone']) ? sanitize_text_field($raw_settings['openai_web_search_loc_timezone']) : '';
-    $sanitized['google_search_grounding_enabled'] = isset($raw_settings['google_search_grounding_enabled']) ? '1' : '0';
+    $sanitized['google_search_grounding_enabled'] = (isset($raw_settings['google_search_grounding_enabled']) && $raw_settings['google_search_grounding_enabled'] === '1') ? '1' : '0';
     $sanitized['google_grounding_mode'] = isset($raw_settings['google_grounding_mode']) && in_array($raw_settings['google_grounding_mode'], ['DEFAULT_MODE', 'MODE_DYNAMIC']) ? $raw_settings['google_grounding_mode'] : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
     $raw_google_threshold = isset($raw_settings['google_grounding_dynamic_threshold']) ? floatval($raw_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
     $sanitized['google_grounding_dynamic_threshold'] = max(0.0, min($raw_google_threshold, 1.0));
 
     // --- Sanitize Realtime Voice Agent settings ---
-    $sanitized['enable_realtime_voice'] = isset($raw_settings['enable_realtime_voice']) ? '1' : '0';
-    $sanitized['direct_voice_mode'] = isset($raw_settings['direct_voice_mode']) ? '1' : '0';
+    $sanitized['enable_realtime_voice'] = (isset($raw_settings['enable_realtime_voice']) && $raw_settings['enable_realtime_voice'] === '1') ? '1' : '0';
+    $sanitized['direct_voice_mode'] = (isset($raw_settings['direct_voice_mode']) && $raw_settings['direct_voice_mode'] === '1') ? '1' : '0';
     $sanitized['realtime_model'] = isset($raw_settings['realtime_model']) && in_array($raw_settings['realtime_model'], ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime']) ? $raw_settings['realtime_model'] : 'gpt-4o-realtime-preview';
     $sanitized['realtime_voice'] = isset($raw_settings['realtime_voice']) && in_array($raw_settings['realtime_voice'], ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'shimmer', 'verse']) ? $raw_settings['realtime_voice'] : 'alloy';
     $sanitized['turn_detection'] = isset($raw_settings['turn_detection']) && in_array($raw_settings['turn_detection'], ['none', 'server_vad', 'semantic_vad']) ? $raw_settings['turn_detection'] : 'server_vad';
@@ -206,8 +213,31 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $valid_audio_formats = ['pcm16', 'g711_ulaw', 'g711_alaw'];
     $sanitized['input_audio_format'] = isset($raw_settings['input_audio_format']) && in_array($raw_settings['input_audio_format'], $valid_audio_formats) ? $raw_settings['input_audio_format'] : 'pcm16';
     $sanitized['output_audio_format'] = isset($raw_settings['output_audio_format']) && in_array($raw_settings['output_audio_format'], $valid_audio_formats) ? $raw_settings['output_audio_format'] : 'pcm16';
-    $sanitized['input_audio_noise_reduction'] = isset($raw_settings['input_audio_noise_reduction']) ? '1' : '0';
+    $sanitized['input_audio_noise_reduction'] = (isset($raw_settings['input_audio_noise_reduction']) && $raw_settings['input_audio_noise_reduction'] === '1') ? '1' : '0';
     // --- END Sanitize Realtime Voice Agent settings ---
+
+    // --- NEW: Popup Label (Hint) above trigger ---
+    $sanitized['popup_label_enabled'] = (isset($raw_settings['popup_label_enabled']) && $raw_settings['popup_label_enabled'] === '1') ? '1' : '0';
+    $allowed_modes = ['always','on_delay','until_open','until_dismissed'];
+    $sanitized['popup_label_mode'] = isset($raw_settings['popup_label_mode']) && in_array($raw_settings['popup_label_mode'], $allowed_modes, true)
+        ? $raw_settings['popup_label_mode']
+        : 'on_delay';
+    $sanitized['popup_label_text'] = isset($raw_settings['popup_label_text']) ? sanitize_text_field($raw_settings['popup_label_text']) : '';
+    $sanitized['popup_label_delay_seconds'] = isset($raw_settings['popup_label_delay_seconds']) ? max(0, absint($raw_settings['popup_label_delay_seconds'])) : 2;
+    $sanitized['popup_label_auto_hide_seconds'] = isset($raw_settings['popup_label_auto_hide_seconds']) ? max(0, absint($raw_settings['popup_label_auto_hide_seconds'])) : 0;
+    $sanitized['popup_label_dismissible'] = (isset($raw_settings['popup_label_dismissible']) && $raw_settings['popup_label_dismissible'] === '1') ? '1' : '0';
+    $allowed_freq = ['always','once_per_session','once_per_visitor'];
+    $sanitized['popup_label_frequency'] = isset($raw_settings['popup_label_frequency']) && in_array($raw_settings['popup_label_frequency'], $allowed_freq, true)
+        ? $raw_settings['popup_label_frequency']
+        : 'once_per_visitor';
+    $sanitized['popup_label_show_on_mobile'] = (isset($raw_settings['popup_label_show_on_mobile']) && $raw_settings['popup_label_show_on_mobile'] === '1') ? '1' : '0';
+    $sanitized['popup_label_show_on_desktop'] = (isset($raw_settings['popup_label_show_on_desktop']) && $raw_settings['popup_label_show_on_desktop'] === '1') ? '1' : '0';
+    $sanitized['popup_label_version'] = isset($raw_settings['popup_label_version']) ? sanitize_text_field($raw_settings['popup_label_version']) : '';
+    // NEW: Popup Hint Size
+    $allowed_sizes = ['small','medium','large','xlarge'];
+    $sanitized['popup_label_size'] = isset($raw_settings['popup_label_size']) && in_array($raw_settings['popup_label_size'], $allowed_sizes, true)
+        ? $raw_settings['popup_label_size']
+        : 'medium';
     
     // --- ADDED: Sanitize embed allowed domains ---
     $raw_domains = isset($raw_settings['embed_allowed_domains']) ? trim($raw_settings['embed_allowed_domains']) : '';

@@ -37,10 +37,15 @@ if (isset($replicate_model_list) && is_array($replicate_model_list) && !empty($r
         <?php esc_html_e('Images', 'gpt3-ai-content-generator'); ?>
     </div>
     <div class="aipkit_accordion-content">
-        <div class="aipkit_form-row">
-            <!-- Model Selection for Chatbot Image Generation -->
-            <div class="aipkit_form-col" style="flex-grow: 3;">
-                <div class="aipkit_form-group">
+        <div class="aipkit_settings_subsection">
+            <div class="aipkit_settings_subsection-header">
+                <h5 class="aipkit_settings_subsection-title"><?php esc_html_e('Image Generation', 'gpt3-ai-content-generator'); ?></h5>
+            </div>
+            <div class="aipkit_settings_subsection-body">
+                <div class="aipkit_form-row">
+                    <!-- Model Selection for Chatbot Image Generation -->
+                    <div class="aipkit_form-col" style="flex-grow: 3;">
+                        <div class="aipkit_form-group">
                     <label
                         class="aipkit_form-label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id"
@@ -76,32 +81,34 @@ if (isset($replicate_model_list) && is_array($replicate_model_list) && !empty($r
                         ?>
                     </select>
                     <div class="aipkit_form-help">
-                        <?php esc_html_e('Select the model to use.', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Select the image model for this bot.', 'gpt3-ai-content-generator'); ?>
+                    </div>
+                </div>
+                </div>
+                <!-- Image Generation Triggers -->
+                <div class="aipkit_form-col" style="flex-grow: 7;">
+                    <div class="aipkit_form-group">
+                        <label
+                            class="aipkit_form-label"
+                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_image_triggers"
+                        >
+                            <?php esc_html_e('Image Generation Triggers', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <input
+                            type="text"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_image_triggers"
+                            name="image_triggers"
+                            class="aipkit_form-input"
+                            value="<?php echo esc_attr($image_triggers); ?>"
+                            placeholder="/image, /generate, /img"
+                        />
+                        <div class="aipkit_form-help">
+                            <?php esc_html_e('Comma-separated commands (e.g., /image, /generate) to trigger.', 'gpt3-ai-content-generator'); ?>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!-- Image Generation Triggers -->
-             <div class="aipkit_form-col" style="flex-grow: 7;">
-                 <div class="aipkit_form-group">
-                    <label
-                        class="aipkit_form-label"
-                        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_image_triggers"
-                    >
-                        <?php esc_html_e('Image Generation Triggers', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <input
-                        type="text"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_image_triggers"
-                        name="image_triggers"
-                        class="aipkit_form-input"
-                        value="<?php echo esc_attr($image_triggers); ?>"
-                        placeholder="/image, /generate, /img"
-                    />
-                    <div class="aipkit_form-help">
-                        <?php esc_html_e('Comma-separated commands (e.g., /image, /generate) to trigger.', 'gpt3-ai-content-generator'); ?>
-                    </div>
-                </div>
-             </div>
         </div>
     </div>
+</div>
 </div>

@@ -17,18 +17,6 @@ $saved_stream_enabled = isset($bot_settings['stream_enabled'])
 $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
 
 ?>
-<!-- Hidden checkbox for stream mode, controlled by icon button -->
-<div class="aipkit_form-group" style="display: none; margin:0;">
-    <input
-        type="checkbox"
-        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_stream_enabled"
-        name="stream_enabled"
-        class="aipkit_toggle_switch aipkit_stream_enable_toggle"
-        value="1"
-        <?php checked($saved_stream_enabled, '1'); ?>
-    >
-</div>
-
 <!-- Row container for Provider + Model -->
 <div class="aipkit_form-row aipkit_form-row-align-bottom" style="flex-wrap: nowrap; gap: 10px;">
     <!-- AI Provider Column -->
@@ -80,6 +68,7 @@ $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_model"
             >
                 <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_model_sync_status" aria-live="polite"></span>
             </label>
             <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
                 <select
@@ -120,60 +109,14 @@ if (!empty($grouped_openai_models) && is_array($grouped_openai_models)): ?>
                     }
 ?>
                 </select>
-                <div class="aipkit_form-group" style="display: none; margin:0;">
-                    <input
-                        type="checkbox"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_web_search_enabled"
-                        name="openai_web_search_enabled"
-                        class="aipkit_toggle_switch aipkit_openai_web_search_enable_toggle"
-                        value="1"
-                        <?php checked($openai_web_search_enabled_val, '1'); ?>
-                    >
-                </div>
+                <!-- OpenAI Web Search checkbox moved to Features subsection -->
+                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="OpenAI" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-update"></span>
+                </button>
                 <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
                     <span class="dashicons dashicons-admin-generic"></span>
                 </button>
-                <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_web_search_toggle"
-                    title="<?php esc_attr_e('Toggle Web Search / Grounding', 'gpt3-ai-content-generator'); ?>"
-                    data-provider="OpenAI Google"
-                    style="display: none;"
-                >
-                    <span class="dashicons dashicons-admin-site-alt3"></span>
-                </button>
-                <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_stream_mode_toggle <?php echo $saved_stream_enabled === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Stream Mode', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $saved_stream_enabled === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-admin-plugins"></span>
-                </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_stateful_conv_toggle <?php echo $openai_conversation_state_enabled_val === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Stateful Conversation', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $openai_conversation_state_enabled_val === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-backup"></span>
-                </button>
-                <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_image_upload_toggle <?php echo $enable_image_upload === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Image Upload', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $enable_image_upload === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-format-image"></span>
-                </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_voice_input_toggle <?php echo $enable_voice_input === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Voice Input', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $enable_voice_input === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-microphone"></span>
-                </button>
+                <!-- Feature toggles moved to Features subsection; keep only parameters button -->
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -188,6 +131,7 @@ if (!empty($grouped_openai_models) && is_array($grouped_openai_models)): ?>
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_model"
             >
                 <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_model_sync_status" aria-live="polite"></span>
             </label>
              <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
                <select
@@ -234,34 +178,13 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php } ?>
                 </select>
+                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="OpenRouter" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-update"></span>
+                </button>
                 <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
                     <span class="dashicons dashicons-admin-generic"></span>
                 </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_web_search_toggle"
-                    title="<?php esc_attr_e('Toggle Web Search / Grounding', 'gpt3-ai-content-generator'); ?>"
-                    data-provider="OpenAI Google"
-                    style="display: none;"
-                >
-                    <span class="dashicons dashicons-admin-site-alt3"></span>
-                </button>
-                <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_stream_mode_toggle <?php echo $saved_stream_enabled === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Stream Mode', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $saved_stream_enabled === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-admin-plugins"></span>
-                </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_voice_input_toggle <?php echo $enable_voice_input === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Voice Input', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $enable_voice_input === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-microphone"></span>
-                </button>
+                <!-- Feature toggles moved to Features subsection; keep only parameters button -->
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -276,6 +199,7 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_model"
             >
                 <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_model_sync_status" aria-live="polite"></span>
             </label>
              <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
                 <select
@@ -311,44 +235,14 @@ if (!empty($google_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <div class="aipkit_form-group" style="display: none; margin:0;">
-                    <input
-                        type="checkbox"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_search_grounding_enabled"
-                        name="google_search_grounding_enabled"
-                        class="aipkit_toggle_switch aipkit_google_search_grounding_enable_toggle"
-                        value="1"
-                        <?php checked($google_search_grounding_enabled_val, '1'); ?>
-                    >
-                </div>
+                <!-- Google Search Grounding checkbox moved to Features subsection -->
+                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="Google" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-update"></span>
+                </button>
                 <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
                     <span class="dashicons dashicons-admin-generic"></span>
                 </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_web_search_toggle"
-                    title="<?php esc_attr_e('Toggle Web Search / Grounding', 'gpt3-ai-content-generator'); ?>"
-                    data-provider="OpenAI Google"
-                    style="display: none;"
-                >
-                    <span class="dashicons dashicons-admin-site-alt3"></span>
-                </button>
-                <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_stream_mode_toggle <?php echo $saved_stream_enabled === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Stream Mode', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $saved_stream_enabled === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-admin-plugins"></span>
-                </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_voice_input_toggle <?php echo $enable_voice_input === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Voice Input', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $enable_voice_input === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-microphone"></span>
-                </button>
+                <!-- Feature toggles moved to Features subsection; keep only parameters button -->
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -363,6 +257,7 @@ if (!empty($google_model_list)): ?>
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_azure_deployment"
             >
                 <?php esc_html_e('Deployment', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_model_sync_status" aria-live="polite"></span>
             </label>
              <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
                 <select
@@ -394,33 +289,11 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
 }
 ?>
                 </select>
+                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="Azure" title="<?php esc_attr_e('Sync deployments', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-update"></span>
+                </button>
                 <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
                     <span class="dashicons dashicons-admin-generic"></span>
-                </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_web_search_toggle"
-                    title="<?php esc_attr_e('Toggle Web Search / Grounding', 'gpt3-ai-content-generator'); ?>"
-                    data-provider="OpenAI Google"
-                    style="display: none;"
-                >
-                    <span class="dashicons dashicons-admin-site-alt3"></span>
-                </button>
-                <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_stream_mode_toggle <?php echo $saved_stream_enabled === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Stream Mode', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $saved_stream_enabled === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-admin-plugins"></span>
-                </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_voice_input_toggle <?php echo $enable_voice_input === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Voice Input', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $enable_voice_input === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-microphone"></span>
                 </button>
             </div> <?php // END WRAPPER?>
         </div>
@@ -436,6 +309,7 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_deepseek_model"
             >
                 <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_model_sync_status" aria-live="polite"></span>
             </label>
              <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
                 <select
@@ -467,33 +341,11 @@ if (!empty($deepseek_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
+                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="DeepSeek" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-update"></span>
+                </button>
                 <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
                     <span class="dashicons dashicons-admin-generic"></span>
-                </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_web_search_toggle"
-                    title="<?php esc_attr_e('Toggle Web Search / Grounding', 'gpt3-ai-content-generator'); ?>"
-                    data-provider="OpenAI Google"
-                    style="display: none;"
-                >
-                    <span class="dashicons dashicons-admin-site-alt3"></span>
-                </button>
-                <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_stream_mode_toggle <?php echo $saved_stream_enabled === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Stream Mode', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $saved_stream_enabled === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-admin-plugins"></span>
-                </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_voice_input_toggle <?php echo $enable_voice_input === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Voice Input', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $enable_voice_input === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-microphone"></span>
                 </button>
             </div> <?php // END WRAPPER?>
         </div>
@@ -509,6 +361,7 @@ if (!empty($deepseek_model_list)): ?>
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_ollama_model"
             >
                 <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_model_sync_status" aria-live="polite"></span>
             </label>
              <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
                 <select
@@ -540,24 +393,11 @@ if (!empty($deepseek_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
+                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="Ollama" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-update"></span>
+                </button>
                 <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
                     <span class="dashicons dashicons-admin-generic"></span>
-                </button>
-                <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_stream_mode_toggle <?php echo $saved_stream_enabled === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Stream Mode', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $saved_stream_enabled === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-admin-plugins"></span>
-                </button>
-                 <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_voice_input_toggle <?php echo $enable_voice_input === '1' ? 'aipkit_active' : ''; ?>"
-                    title="<?php esc_attr_e('Toggle Voice Input', 'gpt3-ai-content-generator'); ?>"
-                    aria-pressed="<?php echo $enable_voice_input === '1' ? 'true' : 'false'; ?>"
-                >
-                    <span class="dashicons dashicons-microphone"></span>
                 </button>
             </div> <?php // END WRAPPER?>
         </div>

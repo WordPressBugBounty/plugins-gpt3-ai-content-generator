@@ -63,6 +63,19 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_popup_icon_type', BotSettingsManager::DEFAULT_POPUP_ICON_TYPE);
         update_post_meta($post_id, '_aipkit_popup_icon_style', BotSettingsManager::DEFAULT_POPUP_ICON_STYLE);
         update_post_meta($post_id, '_aipkit_popup_icon_value', BotSettingsManager::DEFAULT_POPUP_ICON_VALUE);
+        update_post_meta($post_id, '_aipkit_popup_icon_size', BotSettingsManager::DEFAULT_POPUP_ICON_SIZE);
+        // Initialize Popup Hint/Label defaults
+        update_post_meta($post_id, '_aipkit_popup_label_enabled', BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED);
+        update_post_meta($post_id, '_aipkit_popup_label_text', BotSettingsManager::DEFAULT_POPUP_LABEL_TEXT);
+        update_post_meta($post_id, '_aipkit_popup_label_mode', BotSettingsManager::DEFAULT_POPUP_LABEL_MODE);
+        update_post_meta($post_id, '_aipkit_popup_label_delay_seconds', BotSettingsManager::DEFAULT_POPUP_LABEL_DELAY_SECONDS);
+        update_post_meta($post_id, '_aipkit_popup_label_auto_hide_seconds', BotSettingsManager::DEFAULT_POPUP_LABEL_AUTO_HIDE_SECONDS);
+        update_post_meta($post_id, '_aipkit_popup_label_dismissible', BotSettingsManager::DEFAULT_POPUP_LABEL_DISMISSIBLE);
+        update_post_meta($post_id, '_aipkit_popup_label_frequency', BotSettingsManager::DEFAULT_POPUP_LABEL_FREQUENCY);
+        update_post_meta($post_id, '_aipkit_popup_label_show_on_mobile', BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_MOBILE);
+        update_post_meta($post_id, '_aipkit_popup_label_show_on_desktop', BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_DESKTOP);
+        update_post_meta($post_id, '_aipkit_popup_label_version', BotSettingsManager::DEFAULT_POPUP_LABEL_VERSION);
+        update_post_meta($post_id, '_aipkit_popup_label_size', BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE);
         update_post_meta($post_id, '_aipkit_stream_enabled', BotSettingsManager::DEFAULT_STREAM_ENABLED);
         update_post_meta($post_id, '_aipkit_footer_text', '');
         update_post_meta($post_id, '_aipkit_enable_fullscreen', '1');
@@ -72,6 +85,8 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_enable_conversation_sidebar', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR);
         $default_placeholder = __('Type your message...', 'gpt3-ai-content-generator');
         update_post_meta($post_id, '_aipkit_input_placeholder', $default_placeholder);
+        // Typing indicator customization defaults
+        update_post_meta($post_id, '_aipkit_custom_typing_text', BotSettingsManager::DEFAULT_CUSTOM_TYPING_TEXT);
         update_post_meta($post_id, '_aipkit_temperature', (string)BotSettingsManager::DEFAULT_TEMPERATURE);
         update_post_meta($post_id, '_aipkit_max_completion_tokens', BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS);
         update_post_meta($post_id, '_aipkit_max_messages', BotSettingsManager::DEFAULT_MAX_MESSAGES);

@@ -77,9 +77,12 @@ function do_ajax_upload_and_add_file_to_store_direct_openai_logic(AIPKit_OpenAI_
         $handler_instance->send_wp_error(new WP_Error('upload_error_direct_lib', __('Error during file upload: Code ', 'gpt3-ai-content-generator') . $file['error'], ['status' => 400]));
         return;
     }
-    if ($file['size'] > $upload_limits['limit_bytes']) {
+    // Enforce OpenAI's 10MB cap per file, clamped by server limits
+    $openai_cap_bytes = 10 * 1024 * 1024;
+    $effective_limit_for_openai = min((int) ($upload_limits['limit_bytes'] ?? $openai_cap_bytes), $openai_cap_bytes);
+    if ($file['size'] > $effective_limit_for_openai) {
         /* translators: %s: Formatted upload limit (e.g., "10 MB"). */
-        $handler_instance->send_wp_error(new WP_Error('file_too_large_direct_lib', sprintf(__('File is too large (max %s).', 'gpt3-ai-content-generator'), $upload_limits['formatted']), ['status' => 400]));
+        $handler_instance->send_wp_error(new WP_Error('file_too_large_direct_lib', sprintf(__('File is too large (max %s).', 'gpt3-ai-content-generator'), size_format($effective_limit_for_openai)), ['status' => 400]));
         return;
     }
 

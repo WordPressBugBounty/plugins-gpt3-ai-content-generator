@@ -73,6 +73,9 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
         ? $get_meta_fn('_aipkit_enable_conversation_sidebar', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR)
         : BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR;
 
+    // Typing indicator customization
+    $settings['custom_typing_text'] = $get_meta_fn('_aipkit_custom_typing_text', BotSettingsManager::DEFAULT_CUSTOM_TYPING_TEXT);
+
     // Popup settings
     $settings['popup_enabled'] = in_array($get_meta_fn('_aipkit_popup_enabled', '0'), ['0','1'])
         ? $get_meta_fn('_aipkit_popup_enabled', '0')
@@ -84,6 +87,10 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $settings['site_wide_enabled'] = in_array($get_meta_fn('_aipkit_site_wide_enabled', '0'), ['0','1'])
         ? $get_meta_fn('_aipkit_site_wide_enabled', '0')
         : '0';
+    // NEW: Popup icon size
+    $allowed_icon_sizes = ['small','medium','large','xlarge'];
+    $icon_size_meta = $get_meta_fn('_aipkit_popup_icon_size', BotSettingsManager::DEFAULT_POPUP_ICON_SIZE);
+    $settings['popup_icon_size'] = in_array($icon_size_meta, $allowed_icon_sizes, true) ? $icon_size_meta : BotSettingsManager::DEFAULT_POPUP_ICON_SIZE;
     $settings['popup_icon_style'] = $get_meta_fn('_aipkit_popup_icon_style', BotSettingsManager::DEFAULT_POPUP_ICON_STYLE);
     if (!in_array($settings['popup_icon_style'], ['circle', 'square', 'none'])) {
         $settings['popup_icon_style'] = BotSettingsManager::DEFAULT_POPUP_ICON_STYLE;
@@ -99,6 +106,35 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     if ($settings['popup_icon_type'] === 'custom' && empty($settings['popup_icon_value'])) {
         $settings['popup_icon_value'] = '';
     }
+
+    // --- NEW: Popup Label (Hint) settings ---
+    $settings['popup_label_enabled'] = in_array($get_meta_fn('_aipkit_popup_label_enabled', BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED), ['0','1'])
+        ? $get_meta_fn('_aipkit_popup_label_enabled', BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED)
+        : BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED;
+    $settings['popup_label_text'] = $get_meta_fn('_aipkit_popup_label_text', BotSettingsManager::DEFAULT_POPUP_LABEL_TEXT);
+    $allowed_modes = ['always','on_delay','until_open','until_dismissed'];
+    $label_mode = $get_meta_fn('_aipkit_popup_label_mode', BotSettingsManager::DEFAULT_POPUP_LABEL_MODE);
+    $settings['popup_label_mode'] = in_array($label_mode, $allowed_modes, true) ? $label_mode : BotSettingsManager::DEFAULT_POPUP_LABEL_MODE;
+    $settings['popup_label_delay_seconds'] = absint($get_meta_fn('_aipkit_popup_label_delay_seconds', BotSettingsManager::DEFAULT_POPUP_LABEL_DELAY_SECONDS));
+    $settings['popup_label_auto_hide_seconds'] = absint($get_meta_fn('_aipkit_popup_label_auto_hide_seconds', BotSettingsManager::DEFAULT_POPUP_LABEL_AUTO_HIDE_SECONDS));
+    $settings['popup_label_dismissible'] = in_array($get_meta_fn('_aipkit_popup_label_dismissible', BotSettingsManager::DEFAULT_POPUP_LABEL_DISMISSIBLE), ['0','1'])
+        ? $get_meta_fn('_aipkit_popup_label_dismissible', BotSettingsManager::DEFAULT_POPUP_LABEL_DISMISSIBLE)
+        : BotSettingsManager::DEFAULT_POPUP_LABEL_DISMISSIBLE;
+    $allowed_freq = ['always','once_per_session','once_per_visitor'];
+    $label_freq = $get_meta_fn('_aipkit_popup_label_frequency', BotSettingsManager::DEFAULT_POPUP_LABEL_FREQUENCY);
+    $settings['popup_label_frequency'] = in_array($label_freq, $allowed_freq, true) ? $label_freq : BotSettingsManager::DEFAULT_POPUP_LABEL_FREQUENCY;
+    $settings['popup_label_show_on_mobile'] = in_array($get_meta_fn('_aipkit_popup_label_show_on_mobile', BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_MOBILE), ['0','1'])
+        ? $get_meta_fn('_aipkit_popup_label_show_on_mobile', BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_MOBILE)
+        : BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_MOBILE;
+    $settings['popup_label_show_on_desktop'] = in_array($get_meta_fn('_aipkit_popup_label_show_on_desktop', BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_DESKTOP), ['0','1'])
+        ? $get_meta_fn('_aipkit_popup_label_show_on_desktop', BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_DESKTOP)
+        : BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_DESKTOP;
+    $settings['popup_label_version'] = $get_meta_fn('_aipkit_popup_label_version', BotSettingsManager::DEFAULT_POPUP_LABEL_VERSION);
+    // NEW: Popup hint size
+    $allowed_sizes = ['small','medium','large','xlarge'];
+    $label_size = $get_meta_fn('_aipkit_popup_label_size', BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE);
+    $settings['popup_label_size'] = in_array($label_size, $allowed_sizes, true) ? $label_size : BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE;
+    // --- END NEW ---
 
     // --- Retrieve Custom Theme Settings ---
     $custom_theme_settings_retrieved = [];

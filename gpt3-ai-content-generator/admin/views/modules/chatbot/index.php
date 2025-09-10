@@ -135,6 +135,7 @@ if ($initial_active_bot_id) {
 $is_token_management_active = aipkit_dashboard::is_addon_active('token_management');
 $is_voice_playback_active = aipkit_dashboard::is_addon_active('voice_playback');
 $starters_addon_active = aipkit_dashboard::is_addon_active('conversation_starters');
+$is_realtime_voice_active = (aipkit_dashboard::is_pro_plan() && aipkit_dashboard::is_addon_active('realtime_voice'));
 
 ?>
 <div class="aipkit_container aipkit_chatbot_module_container">
@@ -144,6 +145,42 @@ $starters_addon_active = aipkit_dashboard::is_addon_active('conversation_starter
     <div class="aipkit_chatbots-split-layout">
         <!-- Left Column: Chatbot Settings -->
         <div class="aipkit_chatbot-list-column">
+            <?php if (empty($create_new_active_class)) : ?>
+            <div class="aipkit_chatbot-list-column-header">
+                <div class="aipkit_chatbot_header_bar">
+                    <div class="aipkit_chatbot_header_left">
+                        <div class="aipkit_segmented_controls" role="tablist" aria-label="<?php esc_attr_e('Chatbot Sections', 'gpt3-ai-content-generator'); ?>">
+                            <button type="button" class="aipkit_segmented_btn is-active" data-segment="ai_config" role="tab" aria-selected="true"><?php esc_html_e('AI', 'gpt3-ai-content-generator'); ?></button>
+                            <button type="button" class="aipkit_segmented_btn" data-segment="appearance" role="tab" aria-selected="false"><?php esc_html_e('Style', 'gpt3-ai-content-generator'); ?></button>
+                            <?php // Popup & Images moved into modals; tabs removed ?>
+                                <?php // Audio settings moved to a modal; tab removed ?>
+                            <?php // Token management moved into modal; tab removed ?>
+
+                            <?php if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')): ?>
+                                <button type="button" class="aipkit_segmented_btn" data-segment="embed_anywhere" role="tab" aria-selected="false"><?php esc_html_e('Embed', 'gpt3-ai-content-generator'); ?></button>
+                            <?php endif; ?>
+                            <?php if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('triggers')): ?>
+                                <button type="button" class="aipkit_segmented_btn" data-segment="triggers" role="tab" aria-selected="false"><?php esc_html_e('Triggers', 'gpt3-ai-content-generator'); ?></button>
+                            <?php endif; ?>
+                            <?php if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('whatsapp')): ?>
+                                <button type="button" class="aipkit_segmented_btn" data-segment="whatsapp" role="tab" aria-selected="false"><?php esc_html_e('WhatsApp', 'gpt3-ai-content-generator'); ?></button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="aipkit_chatbot_header_right">
+                        <button
+                            type="button"
+                            id="aipkit_chatbot_header_save_btn"
+                            class="aipkit_btn aipkit_btn-primary"
+                            title="<?php esc_attr_e('Save chatbot settings', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="aipkit_spinner"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
             <div class="aipkit_tab-content-area" id="aipkit_chatbot_main_tab_content_container">
                 <?php
                 // --- NEW: Find the single active bot entry to render its pane ---

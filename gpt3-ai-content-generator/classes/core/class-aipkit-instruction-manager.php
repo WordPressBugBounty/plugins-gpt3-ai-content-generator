@@ -95,6 +95,29 @@ class AIPKit_Instruction_Manager {
              $instructions_raw = str_replace('[date]', $current_date, $instructions_raw);
         }
 
+        // Replace [username] placeholder with the logged-in user's username (user_login)
+        if (strpos($instructions_raw, '[username]') !== false) {
+            $username = '';
+
+            if (function_exists('wp_get_current_user')) {
+                $user = wp_get_current_user();
+                if ($user && $user->exists()) {
+                    // Use the WordPress username (login). Developers can filter this if they prefer display_name, etc.
+                    $username = $user->user_login ?: '';
+                }
+            }
+
+            /**
+             * Filter the value used to replace the [username] placeholder in system instructions.
+             *
+             * @since 1.0.0
+             * @param string $username The derived username (defaults to WP user_login or empty string if not logged-in).
+             */
+            $username = apply_filters('aipkit_instruction_username', $username);
+
+            $instructions_raw = str_replace('[username]', $username, $instructions_raw);
+        }
+
         return $instructions_raw;
     }
 } // End Class

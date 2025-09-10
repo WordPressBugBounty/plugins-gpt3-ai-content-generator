@@ -20,7 +20,7 @@ function get_text_labels_logic(array $settings, array $consent_texts): array {
         'sendMessage' => __('Send Message', 'gpt3-ai-content-generator'),
         'sending' => __('Sending...', 'gpt3-ai-content-generator'),
         'typeMessage' => $settings['input_placeholder'] ?? __('Type your message...', 'gpt3-ai-content-generator'),
-        'thinking' => __('Thinking...', 'gpt3-ai-content-generator'),
+        'thinking' => __('Thinking', 'gpt3-ai-content-generator'),
         'streaming' => __('Streaming...', 'gpt3-ai-content-generator'),
         'errorPrefix' => __('Error:', 'gpt3-ai-content-generator'),
         'userPrefix' => __('User', 'gpt3-ai-content-generator'),
@@ -57,5 +57,7 @@ function get_text_labels_logic(array $settings, array $consent_texts): array {
         'googleSearchGroundingToggle' => __('Toggle Google Search Grounding', 'gpt3-ai-content-generator'),
         'googleSearchGroundingActive' => __('Google Search Grounding Active', 'gpt3-ai-content-generator'),
         'googleSearchGroundingInactive' => __('Google Search Grounding Inactive', 'gpt3-ai-content-generator'),
+        // Popup hint related
+        'dismissHint' => __('Dismiss', 'gpt3-ai-content-generator'),
     ];
 }

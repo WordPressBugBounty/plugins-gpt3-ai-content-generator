@@ -56,7 +56,7 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
                 'default'     => false,
             ),
             'system_instruction' => array(
-                'description' => __('Optional system instructions for the AI.', 'gpt3-ai-content-generator'),
+                'description' => __('Optional system instructions for the AI. Supports [date] and [username] placeholders.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
             ),
             'ai_params' => array(

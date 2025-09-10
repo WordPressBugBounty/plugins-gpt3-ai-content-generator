@@ -88,6 +88,27 @@ $all_bots_to_list = array_merge($all_bots_to_list, $other_bots_entries);
             </div>
         <?php endif; ?>
 
+        <!-- Tools dropdown: moved from header right; styled like selection dropdown -->
+        <div class="aipkit_tab_dropdown_container aipkit_actions_dropdown_container" id="aipkit_chatbot_tools_dropdown">
+            <button
+                type="button"
+                class="aipkit_btn aipkit_tab_button aipkit_tab_dropdown_trigger"
+                title="<?php esc_attr_e('Tools', 'gpt3-ai-content-generator'); ?>"
+                aria-haspopup="true"
+                aria-expanded="false"
+            >
+                <span class="aipkit_tools_label"><?php esc_html_e('Tools', 'gpt3-ai-content-generator'); ?></span>
+                <span class="dashicons dashicons-arrow-down-alt2"></span>
+            </button>
+            <div class="aipkit_tab_dropdown_menu" style="display: none;">
+                <button type="button" class="aipkit_btn-as-link aipkit_header_reset_btn"><?php esc_html_e('Reset', 'gpt3-ai-content-generator'); ?></button>
+                <button type="button" class="aipkit_btn-as-link aipkit_header_delete_btn"><?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?></button>
+            </div>
+        </div>
+
+        <!-- Shared confirmation/status area for Tools actions -->
+        <div id="aipkit_header_action_feedback" class="aipkit_tab_action_feedback"></div>
+
         <!-- Shortcode Pill -->
         <div
             id="aipkit_chatbot_shortcode_pill_container"

@@ -26,7 +26,7 @@ function get_core_flag_values_logic(array $settings): array {
         $defaults = [
             'DEFAULT_ENABLE_COPY_BUTTON' => '1',
             'DEFAULT_ENABLE_FEEDBACK' => '1',
-            'DEFAULT_ENABLE_CONVERSATION_STARTERS' => '0',
+            'DEFAULT_ENABLE_CONVERSATION_STARTERS' => '1',
             'DEFAULT_ENABLE_CONVERSATION_SIDEBAR' => '0',
             'DEFAULT_TTS_ENABLED' => '0',
             'DEFAULT_ENABLE_VOICE_INPUT' => '0',

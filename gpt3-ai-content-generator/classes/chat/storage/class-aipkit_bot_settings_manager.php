@@ -33,11 +33,24 @@ class BotSettingsManager
     public const DEFAULT_ENABLE_COPY_BUTTON = '1';
     public const DEFAULT_ENABLE_FEEDBACK = '1';
     public const DEFAULT_POPUP_DELAY = 1;
-    public const DEFAULT_ENABLE_CONVERSATION_STARTERS = '0';
+    public const DEFAULT_ENABLE_CONVERSATION_STARTERS = '1';
     public const DEFAULT_ENABLE_CONVERSATION_SIDEBAR = '0';
     public const DEFAULT_POPUP_ICON_TYPE = 'default';
     public const DEFAULT_POPUP_ICON_STYLE = 'circle';
     public const DEFAULT_POPUP_ICON_VALUE = 'chat-bubble';
+    public const DEFAULT_POPUP_ICON_SIZE = 'medium'; // allowed: small|medium|large|xlarge
+    // --- Popup Hint/Label Defaults ---
+    public const DEFAULT_POPUP_LABEL_ENABLED = '0';
+    public const DEFAULT_POPUP_LABEL_TEXT = '';
+    public const DEFAULT_POPUP_LABEL_MODE = 'on_delay'; // allowed: always|on_delay|until_open|until_dismissed
+    public const DEFAULT_POPUP_LABEL_DELAY_SECONDS = 2;
+    public const DEFAULT_POPUP_LABEL_AUTO_HIDE_SECONDS = 0; // 0 = never auto-hide
+    public const DEFAULT_POPUP_LABEL_DISMISSIBLE = '1';
+    public const DEFAULT_POPUP_LABEL_FREQUENCY = 'once_per_visitor'; // allowed: always|once_per_session|once_per_visitor
+    public const DEFAULT_POPUP_LABEL_SHOW_ON_MOBILE = '1';
+    public const DEFAULT_POPUP_LABEL_SHOW_ON_DESKTOP = '1';
+    public const DEFAULT_POPUP_LABEL_VERSION = '';
+    public const DEFAULT_POPUP_LABEL_SIZE = 'medium'; // allowed: small|medium|large|xlarge
     public const DEFAULT_CONTENT_AWARE_ENABLED = '0';
     public const DEFAULT_TOKEN_GUEST_LIMIT = null;
     public const DEFAULT_TOKEN_USER_LIMIT = null;
@@ -58,6 +71,8 @@ class BotSettingsManager
     public const DEFAULT_ENABLE_FILE_UPLOAD = '0';
     public const DEFAULT_ENABLE_IMAGE_UPLOAD = '0';
     public const DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED = '0';
+    // --- Typing Indicator Defaults ---
+    public const DEFAULT_CUSTOM_TYPING_TEXT = '';
     // --- Vector Store Constants ---
     public const DEFAULT_ENABLE_VECTOR_STORE = '0';
     public const DEFAULT_VECTOR_STORE_PROVIDER = 'openai';

@@ -30,6 +30,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_popup_position', $sanitized_settings['popup_position']);
     update_post_meta($botId, '_aipkit_popup_delay', $sanitized_settings['popup_delay']);
     update_post_meta($botId, '_aipkit_site_wide_enabled', $sanitized_settings['site_wide_enabled']);
+    update_post_meta($botId, '_aipkit_popup_icon_size', $sanitized_settings['popup_icon_size']);
     update_post_meta($botId, '_aipkit_popup_icon_type', $sanitized_settings['popup_icon_type']);
     update_post_meta($botId, '_aipkit_popup_icon_style', $sanitized_settings['popup_icon_style']);
     update_post_meta($botId, '_aipkit_popup_icon_value', $sanitized_settings['popup_icon_value']);
@@ -40,6 +41,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_enable_copy_button', $sanitized_settings['enable_copy_button']);
     update_post_meta($botId, '_aipkit_enable_feedback', $sanitized_settings['enable_feedback']);
     update_post_meta($botId, '_aipkit_enable_conversation_sidebar', $sanitized_settings['enable_conversation_sidebar']);
+    update_post_meta($botId, '_aipkit_custom_typing_text', $sanitized_settings['custom_typing_text']);
     update_post_meta($botId, '_aipkit_input_placeholder', $sanitized_settings['input_placeholder']);
     update_post_meta($botId, '_aipkit_temperature', (string)$sanitized_settings['temperature']);
     update_post_meta($botId, '_aipkit_max_completion_tokens', $sanitized_settings['max_completion_tokens']);
@@ -180,6 +182,20 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_output_audio_format', $sanitized_settings['output_audio_format']);
     update_post_meta($botId, '_aipkit_input_audio_noise_reduction', $sanitized_settings['input_audio_noise_reduction']);
     // --- END ---
+
+    // --- NEW: Popup Label (Hint) above trigger ---
+    update_post_meta($botId, '_aipkit_popup_label_enabled', $sanitized_settings['popup_label_enabled']);
+    update_post_meta($botId, '_aipkit_popup_label_text', $sanitized_settings['popup_label_text']);
+    update_post_meta($botId, '_aipkit_popup_label_mode', $sanitized_settings['popup_label_mode']);
+    update_post_meta($botId, '_aipkit_popup_label_delay_seconds', $sanitized_settings['popup_label_delay_seconds']);
+    update_post_meta($botId, '_aipkit_popup_label_auto_hide_seconds', $sanitized_settings['popup_label_auto_hide_seconds']);
+    update_post_meta($botId, '_aipkit_popup_label_dismissible', $sanitized_settings['popup_label_dismissible']);
+    update_post_meta($botId, '_aipkit_popup_label_frequency', $sanitized_settings['popup_label_frequency']);
+    update_post_meta($botId, '_aipkit_popup_label_show_on_mobile', $sanitized_settings['popup_label_show_on_mobile']);
+    update_post_meta($botId, '_aipkit_popup_label_show_on_desktop', $sanitized_settings['popup_label_show_on_desktop']);
+    update_post_meta($botId, '_aipkit_popup_label_version', $sanitized_settings['popup_label_version']);
+    update_post_meta($botId, '_aipkit_popup_label_size', $sanitized_settings['popup_label_size']);
+    // --- END NEW ---
     
     // --- ADDED: Save embed allowed domains ---
     update_post_meta($botId, '_aipkit_embed_allowed_domains', $sanitized_settings['embed_allowed_domains']);

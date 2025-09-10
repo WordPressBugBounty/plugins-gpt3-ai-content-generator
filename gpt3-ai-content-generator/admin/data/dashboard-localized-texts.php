@@ -67,7 +67,7 @@ return [
     'sendMessage'               => __('Send Message', 'gpt3-ai-content-generator'),
     'sending'                   => __('Sending...', 'gpt3-ai-content-generator'),
     'typeMessage'               => __('Type your message...', 'gpt3-ai-content-generator'),
-    'thinking'                  => __('Thinking...', 'gpt3-ai-content-generator'),
+    'thinking'                  => __('Thinking', 'gpt3-ai-content-generator'),
     'streaming'                 => __('Streaming...', 'gpt3-ai-content-generator'),
     'errorPrefix'               => __('Error:', 'gpt3-ai-content-generator'),
     'userPrefix'                => __('User', 'gpt3-ai-content-generator'),

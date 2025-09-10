@@ -36,6 +36,19 @@ if (file_exists($svg_icons_util_path) && !class_exists('\\WPAICG\\Chat\\Utils\\A
 $saved_provider = $bot_settings['provider'] ?? 'OpenAI';
 $saved_model = $bot_settings['model'] ?? '';
 
+// Audio (STT) defaults
+$enable_voice_input = isset($bot_settings['enable_voice_input'])
+    ? $bot_settings['enable_voice_input']
+    : \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT;
+$stt_provider = isset($bot_settings['stt_provider'])
+    ? $bot_settings['stt_provider']
+    : \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_STT_PROVIDER;
+$stt_openai_model_id = isset($bot_settings['stt_openai_model_id'])
+    ? $bot_settings['stt_openai_model_id']
+    : \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_STT_OPENAI_MODEL_ID;
+// Get synced OpenAI STT models
+$openai_stt_models = \WPAICG\AIPKit_Providers::get_openai_stt_models();
+
 ?>
 <div class="aipkit_tab-content <?php echo esc_attr($active_class); ?>" id="chatbot-<?php echo esc_attr($bot_id); ?>-content">
     <!-- Settings Form -->
@@ -45,114 +58,60 @@ $saved_model = $bot_settings['model'] ?? '';
             data-bot-id="<?php echo esc_attr($bot_id); ?>"
             onsubmit="return false;"
         >
-            <div class="aipkit_accordion-group"> <?php // Wrap all accordions in a group?>
-                <?php // include __DIR__ . '/accordion-general.php'; // REMOVED: General settings merged into AI config ?>
-                <?php include __DIR__ . '/accordion-ai-config.php'; ?>
-                <?php include __DIR__ . '/accordion-appearance.php'; ?>
-                <?php include __DIR__ . '/accordion-popup.php'; ?>
-                <?php include __DIR__ . '/accordion-images.php'; ?>
-                <?php
-                $is_voice_playback_active = aipkit_dashboard::is_addon_active('voice_playback');
-                if ($is_voice_playback_active) {
-                    include __DIR__ . '/accordion-tts-settings.php';
-                }
-                ?>
-                <?php
-                // --- ADDED: Conditional include for Voice Agent accordion ---
-                if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('realtime_voice')) {
-                    $voice_agent_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-voice-agent.php';
-                    if (file_exists($voice_agent_accordion_path)) {
-                        include $voice_agent_accordion_path;
-                    }
-                }
-                // --- END ADDED ---
-                ?>
-                <?php
-                $is_token_management_active = aipkit_dashboard::is_addon_active('token_management');
-                if ($is_token_management_active) {
-                    include __DIR__ . '/accordion-token-management.php';
-                }
-                ?>
-                <?php include __DIR__ . '/accordion-context.php'; ?>
-                <?php
-                // --- MODIFIED: Conditional include for Embed Anywhere accordion ---
-                if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')) {
-                    $embed_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-embed.php';
-                    if (file_exists($embed_accordion_path)) {
-                        include $embed_accordion_path;
-                    }
-                }
-                // --- END MODIFICATION ---
-                ?>
-                <?php
-                // --- MODIFIED: Conditional include for Triggers accordion ---
-                if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('triggers')) {
-                    $triggers_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-triggers.php'; // New path
-                    if (file_exists($triggers_accordion_path)) {
-                        include $triggers_accordion_path;
-                    }
-                }
-// --- END MODIFICATION ---
-?>
-                <?php
-                // --- NEW: Conditional include for WhatsApp accordion ---
-                if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('whatsapp')) {
-                    $wa_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-whatsapp.php';
-                    if (file_exists($wa_accordion_path)) {
-                        include $wa_accordion_path;
-                    }
-                }
-                // --- END NEW ---
-                ?>
-            </div> <?php // End aipkit_accordion-group?>
-
-            <div class="aipkit_bot-actions">
-                <div class="aipkit_bot-actions_left">
-                    <div class="aipkit_bot-actions_button_group">
-                        <button
-                            type="button"
-                            class="aipkit_btn aipkit_btn-danger aipkit_delete_bot_btn"
-                            data-bot-id="<?php echo esc_attr($bot_id); ?>"
-                            data-bot-name="<?php echo esc_attr($bot_name); ?>"
-                            data-is-default="<?php echo $is_default ? '1' : '0'; ?>"
-                            <?php disabled($is_default); ?>
-                            <?php if ($is_default) {
-                                echo 'title="' . esc_attr__('The default chatbot cannot be deleted.', 'gpt3-ai-content-generator') . '"';
-                            } ?>
-                        >
-                            <span class="aipkit_btn-text"><?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?></span>
-                            <span class="aipkit_spinner" style="display:none;"></span>
-                        </button>
-                        <button
-                            type="button"
-                            class="aipkit_btn aipkit_btn-secondary aipkit_reset_bot_btn"
-                            data-bot-id="<?php echo esc_attr($bot_id); ?>"
-                            data-bot-name="<?php echo esc_attr($bot_name); ?>"
-                            data-is-default="<?php echo $is_default ? '1' : '0'; ?>"
-                        >
-                            <span class="aipkit_btn-text"><?php esc_html_e('Reset', 'gpt3-ai-content-generator'); ?></span>
-                            <span class="aipkit_spinner" style="display:none;"></span>
-                        </button>
-                    </div>
-                    <div
-                        class="aipkit_action_feedback_area"
-                        id="aipkit_action_feedback_<?php echo esc_attr($bot_id); ?>"
-                    >
-                        <div class="aipkit_confirmation_message aipkit_delete_confirmation" id="aipkit_delete_confirmation_<?php echo esc_attr($bot_id); ?>" style="display:none;"></div>
-                        <div class="aipkit_confirmation_message aipkit_reset_confirmation" id="aipkit_reset_confirmation_<?php echo esc_attr($bot_id); ?>" style="display:none;"></div>
-                        <div class="aipkit_action_status_message" id="aipkit_action_status_<?php echo esc_attr($bot_id); ?>"></div>
-                    </div>
-                </div>
-                <div class="aipkit_bot-actions_right">
-                    <button
-                        type="submit"
-                        class="aipkit_btn aipkit_btn-primary aipkit_save_bot_settings_btn"
-                    >
-                        <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
-                        <span class="aipkit_spinner" style="display:none;"></span>
-                    </button>
-                </div>
+            <div class="aipkit_settings_sections">
+                <div class="aipkit_segmented_container aipkit_settings_sections aipkit_settings_sections--segmented">
+                    <section class="aipkit_settings_section is-active-segment" data-segment="ai_config">
+                        <div class="aipkit_settings_section-body">
+                            <?php include __DIR__ . '/accordion-ai-config.php'; ?>
+                        </div>
+                    </section>
+                    <section class="aipkit_settings_section" data-segment="appearance">
+                        <div class="aipkit_settings_section-body">
+                            <?php include __DIR__ . '/accordion-appearance.php'; ?>
+                        </div>
+                    </section>
+                    <?php // Audio settings moved into a modal; audio segmented section removed ?>
+                    
+                    <?php if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')): ?>
+                    <section class="aipkit_settings_section" data-segment="embed_anywhere">
+                        <div class="aipkit_settings_section-body">
+                            <?php
+                            $embed_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-embed.php';
+                            if (file_exists($embed_accordion_path)) {
+                                include $embed_accordion_path;
+                            }
+                            ?>
+                        </div>
+                    </section>
+                    <?php endif; ?>
+                    <?php if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('triggers')): ?>
+                    <section class="aipkit_settings_section" data-segment="triggers">
+                        <div class="aipkit_settings_section-body">
+                            <?php
+                            $triggers_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-triggers.php';
+                            if (file_exists($triggers_accordion_path)) {
+                                include $triggers_accordion_path;
+                            }
+                            ?>
+                        </div>
+                    </section>
+                    <?php endif; ?>
+                    <?php if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('whatsapp')): ?>
+                    <section class="aipkit_settings_section" data-segment="whatsapp">
+                        <div class="aipkit_settings_section-body">
+                            <?php
+                            $wa_accordion_path = WPAICG_LIB_DIR . 'views/chatbot/partials/accordion-whatsapp.php';
+                            if (file_exists($wa_accordion_path)) {
+                                include $wa_accordion_path;
+                            }
+                            ?>
+                        </div>
+                    </section>
+                    <?php endif; ?>
+                </div><!-- /.aipkit_segmented_container -->
             </div>
+
+
         </form>
     </div>
 </div>

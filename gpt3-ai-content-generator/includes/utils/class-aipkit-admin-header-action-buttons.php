@@ -61,7 +61,7 @@ class AIPKit_Admin_Header_Action_Buttons {
             ];
         }
 
-        $version = defined('WPAICG_VERSION') ? WPAICG_VERSION : '1.0.0';
+        $version = self::file_ver('dist/css/admin-header-action-buttons.bundle.css', 'dist/js/admin-header-action-buttons.bundle.js');
         $css_handle = 'aipkit-header-buttons';
         $js_handle  = 'aipkit-header-buttons';
 
@@ -87,5 +87,14 @@ class AIPKit_Admin_Header_Action_Buttons {
             'window.aipkitHeaderButtons = ' . wp_json_encode($export) . ';',
             'before'
         );
+    }
+
+    private static function file_ver(string $css_rel, string $js_rel): string {
+        $base = defined('WPAICG_PLUGIN_DIR') ? WPAICG_PLUGIN_DIR : plugin_dir_path(__FILE__) . '../../';
+        $css_ts = @filemtime($base . ltrim($css_rel, '/')) ?: 0;
+        $js_ts  = @filemtime($base . ltrim($js_rel, '/')) ?: 0;
+        $best = max($css_ts, $js_ts);
+        if ($best > 0) return (string)$best;
+        return defined('WPAICG_VERSION') ? WPAICG_VERSION : '1.0.0';
     }
 }

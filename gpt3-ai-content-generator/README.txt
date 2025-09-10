@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.40
+Stable tag: 2.3.41
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,19 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.41 =
+
+- **Added**: Popup hint text — you can now display a custom hint above the chatbot popup.
+- **Added**: Custom typing indicator — you can replace the animated dots with your own text.
+- **Added**: Option to set different chatbot popup icon sizes — you can choose from small, medium, large, or extra-large popup icon.
+- **Added**: Index status — you can now see which posts are indexed directly from the post list screen.
+- **Added**: You can now user [username] placeholder in your chatbot system instructions.
+- **Fixed**: Fixed an issue where expired cache could prevent the chatbot from working.
+- **Improved**: General CSS and styling updates for the chatbot.
+- **Improved**: Simplified chatbot settings screen.
+
+**Note**: After updating the plugin, clear your cache and hard refresh the plugin page to see the newest changes.
 
 = 2.3.40 =
 

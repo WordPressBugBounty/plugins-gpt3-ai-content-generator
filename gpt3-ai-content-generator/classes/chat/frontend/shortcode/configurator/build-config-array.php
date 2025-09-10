@@ -120,6 +120,28 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'popupIconType' => $settings['popup_icon_type'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_POPUP_ICON_TYPE : 'default'),
         'popupIconStyle' => $settings['popup_icon_style'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_POPUP_ICON_STYLE : 'circle'),
         'popupIconValue' => $settings['popup_icon_value'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_POPUP_ICON_VALUE : 'chat-bubble'),
+        // NEW: Icon size for trigger
+        'popupIconSize' => (function() use ($settings) {
+            $val = $settings['popup_icon_size'] ?? 'medium';
+            return in_array($val, ['small','medium','large','xlarge'], true) ? $val : 'medium';
+        })(),
+        // --- NEW: Popup Hint/Bubble above trigger ---
+        'popupLabelEnabled' => ($settings['popup_label_enabled'] ?? '0') === '1',
+        'popupLabelText' => isset($settings['popup_label_text']) ? wp_strip_all_tags((string)$settings['popup_label_text']) : '',
+        // Modes: 'always', 'on_delay', 'until_open', 'until_dismissed'
+        'popupLabelMode' => in_array(($settings['popup_label_mode'] ?? 'on_delay'), ['always','on_delay','until_open','until_dismissed'], true) ? $settings['popup_label_mode'] : 'on_delay',
+        'popupLabelDelaySeconds' => max(0, absint($settings['popup_label_delay_seconds'] ?? 2)),
+        // 0 = never auto-hide
+        'popupLabelAutoHideSeconds' => max(0, absint($settings['popup_label_auto_hide_seconds'] ?? 0)),
+        'popupLabelDismissible' => ($settings['popup_label_dismissible'] ?? '1') === '1',
+        // Frequency: 'always', 'once_per_session', 'once_per_visitor'
+        'popupLabelFrequency' => in_array(($settings['popup_label_frequency'] ?? 'once_per_visitor'), ['always','once_per_session','once_per_visitor'], true) ? $settings['popup_label_frequency'] : 'once_per_visitor',
+        'popupLabelShowOnMobile' => ($settings['popup_label_show_on_mobile'] ?? '1') === '1',
+        'popupLabelShowOnDesktop' => ($settings['popup_label_show_on_desktop'] ?? '1') === '1',
+        // Bump this (any string) to re-show hints for everyone
+        'popupLabelVersion' => isset($settings['popup_label_version']) ? (string)$settings['popup_label_version'] : '',
+        // NEW: Popup hint size option passed to frontend
+        'popupLabelSize' => in_array(($settings['popup_label_size'] ?? 'medium'), ['small','medium','large','xlarge'], true) ? $settings['popup_label_size'] : 'medium',
         'streamEnabled' => $feature_flags['stream_enabled'],
         'footerText' => $settings['footer_text'] ?? '',
         'enableFullscreen' => $feature_flags['enable_fullscreen'],
@@ -158,5 +180,10 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'googleGroundingDynamicThreshold' => $google_grounding_settings['googleGroundingDynamicThreshold'],
         'customThemeSettings' => $custom_theme_settings_for_js,
         'text' => $text_labels,
+        'customTypingText' => (function() use ($settings, $text_labels) {
+            $txt = isset($settings['custom_typing_text']) ? trim((string)$settings['custom_typing_text']) : '';
+            // If empty, frontend shows dots; no auto-fallback
+            return $txt;
+        })(),
     ];
 }

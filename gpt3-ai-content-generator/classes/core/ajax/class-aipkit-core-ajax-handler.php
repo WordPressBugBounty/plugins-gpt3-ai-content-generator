@@ -59,11 +59,22 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
      */
     public function ajax_get_upload_limits()
     {
-        // Permission check: Ensure the user has permission to access the 'ai-training' module
-        // Using the nonce for OpenAI vector store as it's closely related
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_nonce_openai');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
+        // Permission check: accept any valid nonce from AI Training UIs (global or provider-specific)
+        $nonce_candidates = [
+            'aipkit_nonce',
+            'aipkit_vector_store_nonce_openai',
+            'aipkit_vector_store_pinecone_nonce',
+            'aipkit_vector_store_qdrant_nonce',
+        ];
+        $has_permission = false;
+        $last_error = null;
+        foreach ($nonce_candidates as $nonce_field) {
+            $check = $this->check_module_access_permissions('ai-training', $nonce_field);
+            if (!is_wp_error($check)) { $has_permission = true; break; }
+            $last_error = $check;
+        }
+        if (!$has_permission) {
+            $this->send_wp_error($last_error ?: new WP_Error('forbidden', __('Permission denied.', 'gpt3-ai-content-generator')));
             return;
         }
 

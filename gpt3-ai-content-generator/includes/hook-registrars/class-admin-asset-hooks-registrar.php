@@ -14,6 +14,7 @@ use WPAICG\Admin\Assets\PostEnhancerAssets;
 use WPAICG\Admin\Assets\ImageGeneratorAssets;
 use WPAICG\Admin\Assets\AITrainingAssets;
 use WPAICG\Admin\Assets\AIPKit_Vector_Post_Processor_Assets;
+use WPAICG\Vector\PostProcessor\AIPKit_Vector_Post_Processor_List_Screen;
 use WPAICG\Admin\Assets\AIPKit_Autogpt_Assets;
 use WPAICG\Admin\Assets\AIPKit_Content_Writer_Assets;
 // --- ADDED: AI Forms Assets ---
@@ -46,6 +47,7 @@ class Admin_Asset_Hooks_Registrar
         $content_writer_assets = new AIPKit_Content_Writer_Assets();
         $ai_training_assets = new AITrainingAssets();
         $vector_post_processor_assets = new AIPKit_Vector_Post_Processor_Assets();
+        $vector_post_processor_list_screen = new AIPKit_Vector_Post_Processor_List_Screen();
         $autogpt_assets = null;
         if (class_exists(AIPKit_Autogpt_Assets::class)) {
             $autogpt_assets = new AIPKit_Autogpt_Assets();
@@ -86,6 +88,7 @@ class Admin_Asset_Hooks_Registrar
         $content_writer_assets->register_hooks();
         $ai_training_assets->register_hooks();
         $vector_post_processor_assets->register_hooks();
+        $vector_post_processor_list_screen->register_hooks();
         if ($autogpt_assets) {
             $autogpt_assets->register_hooks();
         }

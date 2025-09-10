@@ -43,11 +43,11 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
         public static $default_addon_status = array( // MODIFIED: private to public
            'ai_post_enhancer'           => true,
            'consent_compliance'         => false,
-           'conversation_starters'      => false,
+           'conversation_starters'      => true,
            'deepseek'                   => false,
            'ollama'                     => false,
            'embed_anywhere'             => false,
-           'file_upload'                => false,
+           'file_upload'                => true,
            'ip_anonymization'           => false,
            'openai_moderation'          => false,
            'pdf_download'               => false,
@@ -55,10 +55,10 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
            'replicate'                  => false,
            'semantic_search'            => false,
            'stock_images'               => false,
-           'token_management'           => false,
+           'token_management'           => true,
            'triggers'                   => false,
-           'vector_databases'           => false,
-           'voice_playback'             => false,
+           'vector_databases'           => true,
+           'voice_playback'             => true,
            'whatsapp'                   => false,
         );
 
