@@ -1052,14 +1052,28 @@ if (class_exists(aipkit_dashboard::class)) {
                 </div>
                 <div class="aipkit_modal_body">
                     <div class="aipkit_settings_sections">
-                    <section class="aipkit_settings_section aipkit_vector_store_settings_conditional_row" data-section="vector-store">
+                    <section class="aipkit_settings_section" data-section="vector-store">
                         <div class="aipkit_settings_section-header">
                             <h5 class="aipkit_settings_section-title"><?php esc_html_e('Vector Store', 'gpt3-ai-content-generator'); ?></h5>
                         </div>
                         <div class="aipkit_settings_section-body">
-                            <!-- Dummy enable switch to drive provider-field toggles in modal -->
-                            <input type="checkbox" class="aipkit_vector_store_toggle_switch aipkit_hidden" checked="checked" />
+                            <!-- Actual enable switch for Vector Store -->
+                            <div class="aipkit_form-group">
+                                <label class="aipkit_form-label aipkit_checkbox-label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_vector_store_modal">
+                                    <input
+                                        type="checkbox"
+                                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_vector_store_modal"
+                                        name="enable_vector_store"
+                                        class="aipkit_toggle_switch aipkit_vector_store_toggle_switch"
+                                        value="1" <?php checked($enable_vector_store, '1'); ?>
+                                    />
+                                    <?php esc_html_e('Enable Vector Store', 'gpt3-ai-content-generator'); ?>
+                                </label>
+                                <div class="aipkit_form-help"><?php esc_html_e('Use a knowledge base to provide additional context during chat.', 'gpt3-ai-content-generator'); ?></div>
+                            </div>
 
+                            <!-- Provider/fields shown only when enabled -->
+                            <div class="aipkit_vector_store_settings_conditional_row" style="display: <?php echo ($enable_vector_store === '1') ? 'block' : 'none'; ?>;">
                             <div class="aipkit_settings_grid">
                                 <div class="aipkit_form-group">
                                     <label class="aipkit_form-label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_provider_modal">
@@ -1289,6 +1303,7 @@ if (class_exists(aipkit_dashboard::class)) {
                                     <div class="aipkit_form-help"><?php esc_html_e('Only use results with a similarity score above this.', 'gpt3-ai-content-generator'); ?></div>
                                 </div>
                             </div>
+                            </div> <!-- /.aipkit_vector_store_settings_conditional_row -->
                         </div>
                     </section>
 
