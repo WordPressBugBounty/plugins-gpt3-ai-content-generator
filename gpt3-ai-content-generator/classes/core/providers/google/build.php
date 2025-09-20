@@ -50,14 +50,11 @@ function build_logic_for_url_builder(string $operation, array $params): string|W
         /* translators: %s: The name of the API endpoint path. */
         if (empty($model_id)) return new WP_Error('missing_google_model_logic', sprintf(__('Google model ID is required for the "%s" endpoint path.', 'gpt3-ai-content-generator'), $operation));
         
-        $model_id_for_path = $model_id;
-        // For embedContent, the model ID in path should be `models/embedding-001` or `models/text-embedding-004`
-        // For chat/stream, the model ID in path is just `gemini-pro` or `gemini-1.5-flash-latest`
-        if ($operation === 'embedContent' && strpos($model_id, 'models/') !== 0) {
-            $model_id_for_path = 'models/' . $model_id;
-        } elseif (($operation === 'chat' || $operation === 'stream') && strpos($model_id, 'models/') === 0) {
-            $model_id_for_path = substr($model_id, 7);
-        }
+        // The endpoint path already includes '/models/{model}',
+        // so the placeholder should receive the raw model id WITHOUT the 'models/' prefix.
+        $model_id_for_path = (strpos($model_id, 'models/') === 0)
+            ? substr($model_id, 7)
+            : $model_id;
         $full_path = str_replace('{model}', urlencode($model_id_for_path), $full_path);
     }
 

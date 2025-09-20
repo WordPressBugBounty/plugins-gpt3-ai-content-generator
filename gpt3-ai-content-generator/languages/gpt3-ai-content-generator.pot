@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIP: Complete AI Toolkit for WordPress (formerly AI Power) 2.3.42\n"
+"Project-Id-Version: AIP: Complete AI Toolkit for WordPress (formerly AI Power) 2.3.43\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-11T00:09:32+00:00\n"
+"POT-Creation-Date: 2025-09-20T10:52:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -462,7 +462,7 @@ msgstr ""
 
 #: admin/assets/class-aipkit-ai-forms-assets.php:186
 #: admin/data/dashboard-localized-texts.php:152
-#: lib/views/chatbot/partials/triggers/trigger-builder-main.php:86
+#: lib/views/chatbot/partials/triggers/trigger-builder-main.php:87
 msgid "Value"
 msgstr ""
 
@@ -548,7 +548,8 @@ msgid "Generate articles from a list of topics in a Google Sheets spreadsheet."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:167
-msgid "Enhance Existing Content"
+#: admin/views/modules/autogpt/index.php:50
+msgid "Update Existing Content"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:169
@@ -701,7 +702,7 @@ msgid "No automated tasks configured yet."
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:240
-#: admin/assets/class-aipkit-post-enhancer-assets.php:223
+#: admin/assets/class-aipkit-post-enhancer-assets.php:229
 #: admin/js/ai-forms/list/render-table.js:174
 msgid "Edit"
 msgstr ""
@@ -723,7 +724,7 @@ msgid "Task must be active to run"
 msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:245
-#: admin/assets/class-aipkit-post-enhancer-assets.php:224
+#: admin/assets/class-aipkit-post-enhancer-assets.php:230
 #: admin/views/migration-tool/partials/_status_analysis_results.php:86
 #: admin/views/modules/ai-training/partials/knowledge-base-details.php:30
 #: admin/views/modules/chatbot/partials/chatbot-main-selector.php:105
@@ -793,6 +794,8 @@ msgstr ""
 
 #: admin/assets/class-aipkit-autogpt-assets.php:259
 #: admin/views/modules/settings/partials/token-stats.php:29
+#: admin/views/modules/settings/partials/token-stats.php:100
+#: admin/views/modules/settings/partials/token-stats.php:110
 #: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:98
 #: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:103
 #: classes/dashboard/ajax/openai/handler-files/ajax-list-files-in-vector-store-openai.php:107
@@ -989,125 +992,125 @@ msgstr ""
 msgid "Click to view full image"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:190
+#: admin/assets/class-aipkit-post-enhancer-assets.php:196
 msgid "Title Suggestions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:191
+#: admin/assets/class-aipkit-post-enhancer-assets.php:197
 msgid "Generating Title Suggestions..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:192
+#: admin/assets/class-aipkit-post-enhancer-assets.php:198
 msgid "Updating Title..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:193
+#: admin/assets/class-aipkit-post-enhancer-assets.php:199
 msgid "Error loading title suggestions."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:194
+#: admin/assets/class-aipkit-post-enhancer-assets.php:200
 msgid "Error updating title."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:195
+#: admin/assets/class-aipkit-post-enhancer-assets.php:201
 msgid "No title suggestions generated or AI Error."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:196
+#: admin/assets/class-aipkit-post-enhancer-assets.php:202
 msgid "Click a title to apply:"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:197
+#: admin/assets/class-aipkit-post-enhancer-assets.php:203
 msgid "Excerpt Suggestions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:198
+#: admin/assets/class-aipkit-post-enhancer-assets.php:204
 msgid "Generating Excerpt Suggestions..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:199
+#: admin/assets/class-aipkit-post-enhancer-assets.php:205
 msgid "Updating Excerpt..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:200
+#: admin/assets/class-aipkit-post-enhancer-assets.php:206
 msgid "Error loading excerpt suggestions."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:201
+#: admin/assets/class-aipkit-post-enhancer-assets.php:207
 msgid "Error updating excerpt."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:202
+#: admin/assets/class-aipkit-post-enhancer-assets.php:208
 msgid "No excerpt suggestions generated or AI Error."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:203
+#: admin/assets/class-aipkit-post-enhancer-assets.php:209
 msgid "Click an excerpt to apply:"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:204
+#: admin/assets/class-aipkit-post-enhancer-assets.php:210
 msgid "Meta Description Suggestions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:205
+#: admin/assets/class-aipkit-post-enhancer-assets.php:211
 msgid "Generating Meta Descriptions..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:206
+#: admin/assets/class-aipkit-post-enhancer-assets.php:212
 msgid "Updating Meta Description..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:207
+#: admin/assets/class-aipkit-post-enhancer-assets.php:213
 msgid "Error loading meta description suggestions."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:208
+#: admin/assets/class-aipkit-post-enhancer-assets.php:214
 msgid "Error updating meta description."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:209
+#: admin/assets/class-aipkit-post-enhancer-assets.php:215
 msgid "No meta description suggestions generated or AI Error."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:210
+#: admin/assets/class-aipkit-post-enhancer-assets.php:216
 msgid "Click a meta description to apply:"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:211
+#: admin/assets/class-aipkit-post-enhancer-assets.php:217
 msgid "Tag Suggestions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:212
+#: admin/assets/class-aipkit-post-enhancer-assets.php:218
 msgid "Generating Tag Suggestions..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:213
+#: admin/assets/class-aipkit-post-enhancer-assets.php:219
 msgid "Updating Tags..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:214
+#: admin/assets/class-aipkit-post-enhancer-assets.php:220
 msgid "Error loading tag suggestions."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:215
+#: admin/assets/class-aipkit-post-enhancer-assets.php:221
 msgid "Error updating tags."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:216
+#: admin/assets/class-aipkit-post-enhancer-assets.php:222
 msgid "No tag suggestions generated or AI Error."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:217
+#: admin/assets/class-aipkit-post-enhancer-assets.php:223
 msgid "Click a tag set to apply:"
 msgstr ""
 
 #. translators: %s is the name of the post type, e.g. "Post" or "Page"
-#: admin/assets/class-aipkit-post-enhancer-assets.php:219
+#: admin/assets/class-aipkit-post-enhancer-assets.php:225
 msgid "Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)"
 msgstr ""
 
 #. translators: %s is the name of the token, e.g. "OpenAI"
-#: admin/assets/class-aipkit-post-enhancer-assets.php:220
+#: admin/assets/class-aipkit-post-enhancer-assets.php:226
 #: admin/assets/class-aipkit-vector-post-processor-assets.php:167
 #: admin/views/modules/chatbot/partials/accordion-ai-config.php:518
 #: admin/views/modules/chatbot/partials/accordion-ai-config.php:823
@@ -1133,56 +1136,94 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:221
+#: admin/assets/class-aipkit-post-enhancer-assets.php:227
 msgid "Configure AI Actions"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:222
-#: admin/views/modules/settings/partials/integrations/ai-assistant.php:55
+#: admin/assets/class-aipkit-post-enhancer-assets.php:228
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:82
 msgid "Add New"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:225
+#: admin/assets/class-aipkit-post-enhancer-assets.php:231
 msgid "Action Label"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:226
+#: admin/assets/class-aipkit-post-enhancer-assets.php:232
 msgid "Action Prompt"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:227
+#: admin/assets/class-aipkit-post-enhancer-assets.php:233
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:72
+msgid "Position"
+msgstr ""
+
+#: admin/assets/class-aipkit-post-enhancer-assets.php:234
+msgid "Use default"
+msgstr ""
+
+#: admin/assets/class-aipkit-post-enhancer-assets.php:235
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:51
+msgid "Replace selection"
+msgstr ""
+
+#: admin/assets/class-aipkit-post-enhancer-assets.php:236
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:52
+msgid "Insert after"
+msgstr ""
+
+#: admin/assets/class-aipkit-post-enhancer-assets.php:237
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:53
+msgid "Insert before"
+msgstr ""
+
+#: admin/assets/class-aipkit-post-enhancer-assets.php:238
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:83
+msgid "Reset to Defaults"
+msgstr ""
+
+#: admin/assets/class-aipkit-post-enhancer-assets.php:239
+msgid "Reset all actions to the default set? This will replace current customizations."
+msgstr ""
+
+#: admin/assets/class-aipkit-post-enhancer-assets.php:240
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:97
+msgid "Actions reset to defaults."
+msgstr ""
+
+#: admin/assets/class-aipkit-post-enhancer-assets.php:241
 msgid "Save Action"
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:228
+#: admin/assets/class-aipkit-post-enhancer-assets.php:242
 #: admin/assets/class-aipkit-role-manager-assets.php:92
 #: admin/js/ai-forms/ajax/save-settings.js:39
 msgid "Saving..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:229
+#: admin/assets/class-aipkit-post-enhancer-assets.php:243
 msgid "Are you sure you want to delete this action? This cannot be undone."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:230
+#: admin/assets/class-aipkit-post-enhancer-assets.php:244
 #: admin/views/migration-tool/partials/_javascript.php:43
 msgid "Deleting..."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:231
+#: admin/assets/class-aipkit-post-enhancer-assets.php:245
 msgid "Action deleted."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:232
+#: admin/assets/class-aipkit-post-enhancer-assets.php:246
 msgid "Action saved."
 msgstr ""
 
-#: admin/assets/class-aipkit-post-enhancer-assets.php:233
+#: admin/assets/class-aipkit-post-enhancer-assets.php:247
 msgid "Loading actions..."
 msgstr ""
 
 #. translators: %s is the name of the post type, e.g. "Post" or "Page"
-#: admin/assets/class-aipkit-post-enhancer-assets.php:235
+#: admin/assets/class-aipkit-post-enhancer-assets.php:249
 msgid "Use %s as a placeholder for the selected text."
 msgstr ""
 
@@ -1239,7 +1280,7 @@ msgstr ""
 #: admin/views/migration-tool/partials/_javascript.php:41
 #: classes/ai-forms/admin/class-aipkit-ai-form-ajax-handler.php:200
 #: public/class-wp-ai-content-generator-public.php:148
-#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:57
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:97
 msgid "Processing..."
 msgstr ""
 
@@ -1545,7 +1586,7 @@ msgid "Cancel"
 msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:63
-#: admin/views/modules/settings/partials/token-stats.php:113
+#: admin/views/modules/settings/partials/token-stats.php:131
 #: admin/views/modules/user-credits/index.php:89
 msgid "Loading chart data..."
 msgstr ""
@@ -1822,7 +1863,7 @@ msgstr ""
 
 #: admin/data/dashboard-localized-texts.php:137
 #: admin/views/modules/ai-forms/partials/form-editor.php:51
-#: lib/admin/js/chatbot/triggers/ui-builder/renderActionPayloadFields.js:87
+#: lib/admin/js/chatbot/triggers/ui-builder/renderActionPayloadFields.js:99
 msgid "Form Elements"
 msgstr ""
 
@@ -1880,7 +1921,7 @@ msgid "Write"
 msgstr ""
 
 #: admin/views/dashboard.php:35
-#: admin/views/modules/autogpt/index.php:99
+#: admin/views/modules/autogpt/index.php:122
 msgid "Automate"
 msgstr ""
 
@@ -2104,7 +2145,7 @@ msgstr ""
 #: admin/views/modules/ai-training/partials/vector-store/provider-ui/vector-store-openai.php:45
 #: admin/views/modules/autogpt/partials/task-list.php:32
 #: admin/views/modules/autogpt/partials/task-queue.php:46
-#: admin/views/modules/settings/partials/integrations/ai-assistant.php:46
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:73
 #: admin/views/modules/user-credits/index.php:115
 msgid "Actions"
 msgstr ""
@@ -2248,8 +2289,8 @@ msgstr ""
 #: classes/chat/storage/class-aipkit_log_manager.php:59
 #: classes/chat/storage/class-aipkit_log_manager.php:214
 #: classes/chat/storage/class-aipkit_log_manager.php:259
-#: classes/dashboard/class-aipkit_stats.php:255
-#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:183
+#: classes/dashboard/class-aipkit_stats.php:389
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:436
 msgid "Content Assistant"
 msgstr ""
 
@@ -2396,7 +2437,7 @@ msgid "Pro"
 msgstr ""
 
 #: admin/views/modules/addons/index.php:217
-#: admin/views/modules/autogpt/index.php:91
+#: admin/views/modules/autogpt/index.php:114
 #: lib/views/chatbot/partials/triggers/trigger-builder-main.php:68
 msgid "Active"
 msgstr ""
@@ -2585,7 +2626,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:113
 #: admin/views/modules/autogpt/index.php:61
 #: admin/views/modules/chatbot/partials/ai-config/token-settings.php:61
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:57
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:80
 #: admin/views/modules/image-generator/partials/settings-token-management.php:74
 msgid "Daily"
 msgstr ""
@@ -2593,7 +2634,7 @@ msgstr ""
 #: admin/views/modules/ai-forms/partials/settings-ai-forms.php:114
 #: admin/views/modules/autogpt/index.php:62
 #: admin/views/modules/chatbot/partials/ai-config/token-settings.php:62
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:58
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:81
 #: admin/views/modules/image-generator/partials/settings-token-management.php:75
 msgid "Weekly"
 msgstr ""
@@ -3329,9 +3370,9 @@ msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:194
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:224
-#: admin/views/modules/autogpt/index.php:83
+#: admin/views/modules/autogpt/index.php:106
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:52
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:43
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:66
 msgid "Draft"
 msgstr ""
 
@@ -3345,7 +3386,7 @@ msgid "Click Add to start. You can stop anytime."
 msgstr ""
 
 #: admin/views/modules/ai-training/partials/vector-store/global-form/global-form-wrapper.php:229
-#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:53
+#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:49
 msgid "Action"
 msgstr ""
 
@@ -3503,68 +3544,64 @@ msgstr ""
 msgid "Create New Content"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:50
-msgid "Update Existing Content"
-msgstr ""
-
 #: admin/views/modules/autogpt/index.php:52
 msgid "Engagement"
 msgstr ""
 
 #: admin/views/modules/autogpt/index.php:55
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:51
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:74
 msgid "One-time"
 msgstr ""
 
 #: admin/views/modules/autogpt/index.php:56
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:52
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:75
 #: includes/hook-registrars/class-core-hooks-registrar.php:63
 msgid "Every 5 Minutes"
 msgstr ""
 
 #: admin/views/modules/autogpt/index.php:57
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:53
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:76
 #: includes/hook-registrars/class-core-hooks-registrar.php:67
 msgid "Every 15 Minutes"
 msgstr ""
 
 #: admin/views/modules/autogpt/index.php:58
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:54
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:77
 #: includes/hook-registrars/class-core-hooks-registrar.php:71
 msgid "Every 30 Minutes"
 msgstr ""
 
 #: admin/views/modules/autogpt/index.php:59
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:55
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:78
 msgid "Hourly"
 msgstr ""
 
 #: admin/views/modules/autogpt/index.php:60
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:56
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:79
 msgid "Twice Daily"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:84
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:44
+#: admin/views/modules/autogpt/index.php:107
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:67
 msgid "Publish"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:85
+#: admin/views/modules/autogpt/index.php:108
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:53
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:45
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:68
 msgid "Pending Review"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:86
-#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:46
+#: admin/views/modules/autogpt/index.php:109
+#: admin/views/modules/content-writer/partials/form-inputs/loader-vars.php:69
 msgid "Private"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:92
+#: admin/views/modules/autogpt/index.php:115
 msgid "Paused"
 msgstr ""
 
-#: admin/views/modules/autogpt/index.php:103
+#: admin/views/modules/autogpt/index.php:126
 msgid "Add New Task"
 msgstr ""
 
@@ -3744,7 +3781,7 @@ msgid "Placeholders: {original_title}, {original_content}, {original_meta_descri
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:19
-msgid "Post Types to Enhance"
+msgid "Post Types to Update"
 msgstr ""
 
 #: admin/views/modules/autogpt/partials/content-enhancement/source-settings.php:25
@@ -6324,31 +6361,36 @@ msgstr ""
 msgid "Your message was flagged by the moderation system and could not be sent."
 msgstr ""
 
-#: admin/views/modules/settings/index.php:138
+#. translators: 1: rows, 2: bytes
+#: admin/views/modules/settings/index.php:154
+msgid "Usage data for the selected period is very large (rows: %1$s, size: %2$s). Token metrics are not shown. Consider deleting logs."
+msgstr ""
+
+#: admin/views/modules/settings/index.php:170
 msgid "Statistics component is unavailable."
 msgstr ""
 
-#: admin/views/modules/settings/index.php:174
+#: admin/views/modules/settings/index.php:206
 msgid "AI Settings & Usage"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:186
+#: admin/views/modules/settings/index.php:218
 msgid "Configuration"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:191
+#: admin/views/modules/settings/index.php:223
 msgid "Providers"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:194
+#: admin/views/modules/settings/index.php:226
 msgid "Advanced"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:198
+#: admin/views/modules/settings/index.php:230
 msgid "Integrations"
 msgstr ""
 
-#: admin/views/modules/settings/index.php:211
+#: admin/views/modules/settings/index.php:243
 msgid "API"
 msgstr ""
 
@@ -6360,12 +6402,20 @@ msgstr ""
 msgid "Show the \"Content Assistant\" menu in the Classic and Block editors."
 msgstr ""
 
-#: admin/views/modules/settings/partials/integrations/ai-assistant.php:44
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:41
+msgid "Default Insert Position"
+msgstr ""
+
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:61
+msgid "Controls where generated content is placed relative to your current selection."
+msgstr ""
+
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:70
 #: lib/views/settings/partials/whatsapp.php:51
 msgid "Label"
 msgstr ""
 
-#: admin/views/modules/settings/partials/integrations/ai-assistant.php:45
+#: admin/views/modules/settings/partials/integrations/ai-assistant.php:71
 msgid "Prompt"
 msgstr ""
 
@@ -6439,7 +6489,7 @@ msgstr ""
 
 #: admin/views/modules/settings/partials/integrations/semantic-search.php:23
 #: classes/core/ajax/class-aipkit-semantic-search-ajax-handler.php:65
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:416
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:426
 msgid "No results found."
 msgstr ""
 
@@ -6702,38 +6752,52 @@ msgid "Error calculating stats: %s"
 msgstr ""
 
 #. translators: %d is the number of days used in the statistics range
-#: admin/views/modules/settings/partials/token-stats.php:72
+#: admin/views/modules/settings/partials/token-stats.php:74
 msgid "Total token usage statistics across all modules for the last %d days."
 msgstr ""
 
-#: admin/views/modules/settings/partials/token-stats.php:75
+#: admin/views/modules/settings/partials/token-stats.php:77
 msgid "(Stats calculation might be slow due to high volume)"
 msgstr ""
 
-#: admin/views/modules/settings/partials/token-stats.php:81
+#: admin/views/modules/settings/partials/token-stats.php:83
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/views/modules/settings/partials/token-stats.php:92
+msgid "Read more"
+msgstr ""
+
+#: admin/views/modules/settings/partials/token-stats.php:99
 #: admin/views/modules/user-credits/index.php:68
 msgid "Total Tokens Used"
 msgstr ""
 
 #. translators: %d is the number of days used in the stats period
-#: admin/views/modules/settings/partials/token-stats.php:85
+#: admin/views/modules/settings/partials/token-stats.php:103
 msgid "(Last %d days)"
 msgstr ""
 
-#: admin/views/modules/settings/partials/token-stats.php:91
+#: admin/views/modules/settings/partials/token-stats.php:109
 msgid "Avg Tokens / Interaction"
 msgstr ""
 
-#: admin/views/modules/settings/partials/token-stats.php:93
+#: admin/views/modules/settings/partials/token-stats.php:111
 msgid "(Estimate)"
 msgstr ""
 
-#: admin/views/modules/settings/partials/token-stats.php:97
+#: admin/views/modules/settings/partials/token-stats.php:111
+msgid "(Not available for large datasets)"
+msgstr ""
+
+#: admin/views/modules/settings/partials/token-stats.php:115
 msgid "Most Used Module"
 msgstr ""
 
 #. translators: %d is the number of days used in the stats period
-#: admin/views/modules/settings/partials/token-stats.php:102
+#: admin/views/modules/settings/partials/token-stats.php:120
 msgid "(By interactions, last %d days)"
 msgstr ""
 
@@ -7455,7 +7519,7 @@ msgstr ""
 #: classes/chat/admin/ajax/traits/Trait_CheckModuleAccess.php:31
 #: classes/core/providers/google/ajax-sync-tts-voices.php:23
 #: classes/dashboard/ajax/class-aipkit-base-dashboard-ajax-handler.php:38
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:435
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:445
 #: classes/vector/post-processor/class-aipkit-vector-post-processor-ajax-handler.php:54
 msgid "You do not have permission to perform this action."
 msgstr ""
@@ -8919,15 +8983,15 @@ msgstr ""
 msgid "Settings saved successfully."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:443
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:453
 msgid "\"Start Fresh\" option processed. Old data will be ignored."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:448
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:458
 msgid "Data migration will be available soon."
 msgstr ""
 
-#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:450
+#: classes/dashboard/ajax/class-aipkit-settings-ajax-handler.php:460
 msgid "Invalid migration choice."
 msgstr ""
 
@@ -9366,6 +9430,11 @@ msgstr ""
 msgid "Unauthorized access."
 msgstr ""
 
+#. translators: 1: rows, 2: size
+#: classes/dashboard/class-aipkit_dashboard.php:385
+msgid "Usage data for the selected period is very large (rows: %1$s, size: %2$s). Showing no chart data. Consider reducing the period, pruning logs, or disabling conversation storage."
+msgstr ""
+
 #: classes/dashboard/class-aipkit_dashboard_initializer.php:146
 msgid "AIP"
 msgstr ""
@@ -9437,17 +9506,40 @@ msgstr ""
 msgid "Permissions are up to date."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_stats.php:41
-#: classes/dashboard/class-aipkit_stats.php:121
+#: classes/dashboard/class-aipkit_stats.php:53
+msgid "Database error estimating log volume for stats."
+msgstr ""
+
+#: classes/dashboard/class-aipkit_stats.php:71
+#: classes/dashboard/class-aipkit_stats.php:172
+#: classes/dashboard/class-aipkit_stats.php:319
 msgid "Number of days must be positive."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_stats.php:61
+#. translators: 1: number of rows, 2: number of bytes
+#: classes/dashboard/class-aipkit_stats.php:95
+msgid "Usage data volume is too large to compute statistics right now (rows: %1$s, bytes: %2$s). Try reducing retention or disabling conversation storage."
+msgstr ""
+
+#: classes/dashboard/class-aipkit_stats.php:112
 msgid "Database error fetching logs for stats."
 msgstr ""
 
-#: classes/dashboard/class-aipkit_stats.php:139
+#. translators: 1: number of rows, 2: number of bytes
+#: classes/dashboard/class-aipkit_stats.php:196
+msgid "Usage data volume is too large to compute daily chart (rows: %1$s, bytes: %2$s). Try reducing retention or disabling conversation storage."
+msgstr ""
+
+#: classes/dashboard/class-aipkit_stats.php:213
 msgid "Database error fetching logs for daily stats."
+msgstr ""
+
+#: classes/dashboard/class-aipkit_stats.php:340
+msgid "Database error fetching counts for quick stats."
+msgstr ""
+
+#: classes/dashboard/class-aipkit_stats.php:353
+msgid "Database error fetching module counts for quick stats."
 msgstr ""
 
 #. translators: %s: Context for the error (e.g., "OpenAI Image").
@@ -10026,27 +10118,63 @@ msgstr ""
 msgid "Correct any spelling and grammar mistakes in the following text: \"%s\""
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:94
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:55
+msgid "Summarize"
+msgstr ""
+
+#. translators: %s: The text to be summarized
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:57
+msgid "Summarize the following text in 3–5 concise sentences while preserving key facts and tone: \"%s\""
+msgstr ""
+
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:62
+msgid "Create Outline (H2/H3)"
+msgstr ""
+
+#. translators: %s: The text to outline
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:64
+msgid "Create a clear outline from the following text using headings (## for H2, ### for H3) and short bullets as needed: \"%s\""
+msgstr ""
+
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:69
+msgid "Generate FAQs"
+msgstr ""
+
+#. translators: %s: The text to generate FAQs from
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:71
+msgid "Generate 5–7 relevant FAQ questions and short answers based on this text. Use a simple Q/A format in Markdown. Text: \"%s\""
+msgstr ""
+
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:76
+msgid "Simplify Tone"
+msgstr ""
+
+#. translators: %s: The text to be simplified
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:78
+msgid "Rewrite the following in a friendly, simple tone (grade 7–8 readability) while preserving meaning and structure: \"%s\""
+msgstr ""
+
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:142
 msgid "Label and prompt are required."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:124
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:179
 msgid "You have reached the maximum of 20 actions."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:144
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:202
 msgid "Action saved successfully."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:164
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:222
 msgid "Action ID is required."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:170
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:228
 msgid "No actions to delete."
 msgstr ""
 
-#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:179
+#: classes/post-enhancer/ajax/class-aipkit-enhancer-actions-ajax-handler.php:237
 msgid "Action deleted successfully."
 msgstr ""
 
@@ -11122,29 +11250,37 @@ msgstr ""
 msgid "An error occurred while searching."
 msgstr ""
 
+#: includes/class-aipkit-upload-utils.php:142
+msgid "Invalid uploaded file source."
+msgstr ""
+
 #. translators: %1$s is the detected MIME type, %2$s is the allowed types
-#: includes/class-aipkit-upload-utils.php:153
+#: includes/class-aipkit-upload-utils.php:204
 msgid "Invalid file type: %1$s. Allowed types: %2$s"
 msgstr ""
 
-#: includes/class-aipkit-upload-utils.php:173
+#: includes/class-aipkit-upload-utils.php:211
 msgid "Invalid file extension: .%1$s. Allowed extensions: %2$s"
 msgstr ""
 
-#: includes/class-aipkit-upload-utils.php:182
+#: includes/class-aipkit-upload-utils.php:219
 msgid "Invalid file type (WP check): %1$s. Allowed types: %2$s"
 msgstr ""
 
-#: includes/class-aipkit-upload-utils.php:185
+#: includes/class-aipkit-upload-utils.php:222
 msgid "Invalid file extension (WP check): .%1$s. Allowed extensions: %2$s"
 msgstr ""
 
-#: includes/class-aipkit-upload-utils.php:189
+#: includes/class-aipkit-upload-utils.php:226
 msgid "File type mismatch between content and extension: %1$s vs %2$s"
 msgstr ""
 
+#: includes/class-aipkit-upload-utils.php:239
+msgid "Uploaded file is empty."
+msgstr ""
+
 #. translators: %1$s is the actual file size, %2$s is the maximum allowed size
-#: includes/class-aipkit-upload-utils.php:201
+#: includes/class-aipkit-upload-utils.php:244
 msgid "File is too large (%1$s). Maximum allowed size is %2$s."
 msgstr ""
 
@@ -11382,8 +11518,8 @@ msgstr ""
 msgid "Webhook call failed with HTTP status %d."
 msgstr ""
 
-#: lib/chat/triggers/actions/AIPKit_Action_Display_Form.php:36
-msgid "Invalid or missing form definition in display_form action payload."
+#: lib/chat/triggers/actions/AIPKit_Action_Display_Form.php:37
+msgid "Invalid or missing form elements in display_form action payload."
 msgstr ""
 
 #: lib/chat/triggers/actions/AIPKit_Action_Inject_Context.php:33
@@ -11674,7 +11810,7 @@ msgstr ""
 msgid "Delete Trigger"
 msgstr ""
 
-#: lib/views/chatbot/partials/triggers/trigger-builder-main.php:87
+#: lib/views/chatbot/partials/triggers/trigger-builder-main.php:89
 msgid "Remove Condition"
 msgstr ""
 
@@ -12024,27 +12160,52 @@ msgstr ""
 msgid "View Purchase History"
 msgstr ""
 
-#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:43
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:77
 msgid "Please select some text to process."
 msgstr ""
 
-#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:68
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:105
 msgid "An error occurred: Security token missing."
 msgstr ""
 
-#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:161
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:180
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:219
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:269
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:399
+msgid "Undo"
+msgstr ""
+
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:197
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:240
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:290
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:412
+msgid "Changes reverted."
+msgstr ""
+
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:202
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:245
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:295
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:417
 msgid "Text updated successfully!"
 msgstr ""
 
-#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:170
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:425
 msgid "An error occurred:"
 msgstr ""
 
-#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:226
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:449
+msgid "Recent"
+msgstr ""
+
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:458
+msgid "All Actions"
+msgstr ""
+
+#: admin/js/post-enhancer/block-editor-enhancer-plugin.js:479
 msgid "AIP Content Assistant"
 msgstr ""
 
-#: lib/admin/js/chatbot/triggers/ui-builder/renderActionPayloadFields.js:90
+#: lib/admin/js/chatbot/triggers/ui-builder/renderActionPayloadFields.js:102
 msgid "Add Form Element"
 msgstr ""
 
@@ -12100,23 +12261,19 @@ msgstr ""
 msgid "Priority"
 msgstr ""
 
-#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:40
-msgid "Description (Optional)"
-msgstr ""
-
-#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:45
+#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:41
 msgid "Conditions (All must be met)"
 msgstr ""
 
-#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:49
+#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:45
 msgid "No conditions defined. This trigger will run if the event occurs."
 msgstr ""
 
-#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:51
+#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:47
 msgid "Add Condition"
 msgstr ""
 
-#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:55
+#: lib/admin/js/chatbot/triggers/ui-builder/renderTriggerEditorForm.js:51
 msgid "Action Type"
 msgstr ""
 

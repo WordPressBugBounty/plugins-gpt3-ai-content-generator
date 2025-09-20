@@ -360,7 +360,12 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 return;
             }
 
-            $days = 30;
+            // Optional period parameter (allowed: 3, 7, 14, 30, 90); default 3 to keep memory low
+            $allowed_days = [3, 7, 14, 30, 90];
+            $days = isset($_POST['days']) ? absint($_POST['days']) : 3;
+            if (!in_array($days, $allowed_days, true)) {
+                $days = 3;
+            }
             $stats_class_name = '\\WPAICG\\Stats\\AIPKit_Stats';
             if (!class_exists($stats_class_name)) {
                 wp_send_json_error(['message' => 'Statistics component unavailable.'], 500);
@@ -371,7 +376,26 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             $daily_data = $stats_calculator->get_daily_token_stats($days);
 
             if (is_wp_error($daily_data)) {
-                wp_send_json_error(['message' => $daily_data->get_error_message()], 500);
+                if ($daily_data->get_error_code() === 'stats_volume_too_large') {
+                    $data = $daily_data->get_error_data();
+                    $rows = isset($data['rows']) ? (int) $data['rows'] : 0;
+                    $bytes = isset($data['bytes']) ? (int) $data['bytes'] : 0;
+                    $notice = sprintf(
+                        /* translators: 1: rows, 2: size */
+                        __('Usage data for the selected period is very large (rows: %1$s, size: %2$s). Showing no chart data. Consider reducing the period, pruning logs, or disabling conversation storage.', 'gpt3-ai-content-generator'),
+                        number_format_i18n($rows),
+                        size_format($bytes)
+                    );
+                    wp_send_json_success([
+                        'daily_token_data' => new \stdClass(),
+                        'notice' => $notice,
+                        'volume' => ['rows' => $rows, 'bytes' => $bytes],
+                        'days' => $days,
+                        'manage_logs_url' => admin_url('admin.php?page=wpaicg#logs')
+                    ]);
+                } else {
+                    wp_send_json_error(['message' => $daily_data->get_error_message()], 500);
+                }
             } else {
                 wp_send_json_success(['daily_token_data' => $daily_data]);
             }

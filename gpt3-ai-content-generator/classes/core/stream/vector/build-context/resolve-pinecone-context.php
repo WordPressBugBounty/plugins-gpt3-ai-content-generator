@@ -148,8 +148,33 @@ function resolve_pinecone_context_logic(
                 $log_entry = wp_cache_get($cache_key, $cache_group);
 
                 if (false === $log_entry) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
-                    $log_entry = $wpdb->get_row($wpdb->prepare("SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Pinecone' AND vector_store_id = %s AND (batch_id IS NULL OR batch_id = '') AND file_id = %s ORDER BY timestamp DESC LIMIT 1", $index_to_query, $item['id']), ARRAY_A);
+                    // Preferred query for legacy general records (no batch)
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct query to custom table
+                    $log_entry = $wpdb->get_row($wpdb->prepare(
+                        "SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Pinecone' AND vector_store_id = %s AND (batch_id IS NULL OR batch_id = '') AND file_id = %s ORDER BY timestamp DESC LIMIT 1",
+                        $index_to_query,
+                        $item['id']
+                    ), ARRAY_A);
+
+                    // Fallback: allow any batch_id (covers file uploads where batch_id is set)
+                    if (!$log_entry) {
+                        $log_entry = $wpdb->get_row($wpdb->prepare(
+                            "SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Pinecone' AND vector_store_id = %s AND file_id = %s ORDER BY timestamp DESC LIMIT 1",
+                            $index_to_query,
+                            $item['id']
+                        ), ARRAY_A);
+                    }
+
+                    // Fallback 2: if metadata contains batch_id, query by it explicitly for precision
+                    if (!$log_entry && !empty($item['metadata']['batch_id'])) {
+                        $log_entry = $wpdb->get_row($wpdb->prepare(
+                            "SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Pinecone' AND vector_store_id = %s AND batch_id = %s AND file_id = %s ORDER BY timestamp DESC LIMIT 1",
+                            $index_to_query,
+                            $item['metadata']['batch_id'],
+                            $item['id']
+                        ), ARRAY_A);
+                    }
+
                     wp_cache_set($cache_key, $log_entry, $cache_group, HOUR_IN_SECONDS);
                 }
 

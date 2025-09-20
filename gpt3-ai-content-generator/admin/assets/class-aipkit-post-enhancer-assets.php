@@ -126,6 +126,11 @@ class PostEnhancerAssets
 
         static $post_enhancer_localized = false;
         if (!$post_enhancer_localized) {
+            $opts = get_option('aipkit_options', []);
+            $default_insert_position = isset($opts['enhancer_settings']['default_insert_position']) ? sanitize_key($opts['enhancer_settings']['default_insert_position']) : 'replace';
+            if (!in_array($default_insert_position, ['replace','after','before'], true)) {
+                $default_insert_position = 'replace';
+            }
             $default_ai_config = AIPKit_Providers::get_default_provider_config();
             $default_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
             $openai_vector_stores = class_exists(AIPKit_Vector_Store_Registry::class) ? AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI') : [];
@@ -186,6 +191,7 @@ class PostEnhancerAssets
                 'azureEmbeddingModels' => $azure_embedding_models,
                 'actions' => $enhancer_actions, // ADDED
                 'parse_html_formats' => (bool) $parse_formats_enabled,
+                'default_insert_position' => $default_insert_position,
                 'text' => [
                     'modal_title_title' => __('Title Suggestions', 'gpt3-ai-content-generator'),
                     'loading_title' => __('Generating Title Suggestions...', 'gpt3-ai-content-generator'),
@@ -224,6 +230,14 @@ class PostEnhancerAssets
                     'delete_action' => __('Delete', 'gpt3-ai-content-generator'),
                     'action_label' => __('Action Label', 'gpt3-ai-content-generator'),
                     'action_prompt' => __('Action Prompt', 'gpt3-ai-content-generator'),
+                    'insert_position' => __('Position', 'gpt3-ai-content-generator'),
+                    'use_default_position' => __('Use default', 'gpt3-ai-content-generator'),
+                    'replace_selection' => __('Replace selection', 'gpt3-ai-content-generator'),
+                    'insert_after' => __('Insert after', 'gpt3-ai-content-generator'),
+                    'insert_before' => __('Insert before', 'gpt3-ai-content-generator'),
+                    'reset_actions' => __('Reset to Defaults', 'gpt3-ai-content-generator'),
+                    'confirm_reset_actions' => __('Reset all actions to the default set? This will replace current customizations.', 'gpt3-ai-content-generator'),
+                    'actions_reset' => __('Actions reset to defaults.', 'gpt3-ai-content-generator'),
                     'save_action' => __('Save Action', 'gpt3-ai-content-generator'),
                     'saving_action' => __('Saving...', 'gpt3-ai-content-generator'),
                     'confirm_delete_action' => __('Are you sure you want to delete this action? This cannot be undone.', 'gpt3-ai-content-generator'),

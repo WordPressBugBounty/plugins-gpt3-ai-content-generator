@@ -36,7 +36,7 @@ function upload_and_parse_file_logic(AIPKit_AI_Form_Processor $processorInstance
         return;
     }
 
-    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: $_FILES is validated by AIPKit_Upload_Utils::validate_vector_upload_file below.
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: $_FILES is validated by AIPKit_Upload_Utils::validate_upload_file below.
     $file_data = $_FILES['file'];
 
     if (!class_exists('\\WPAICG\\Includes\\AIPKit_Upload_Utils')) {
@@ -46,7 +46,7 @@ function upload_and_parse_file_logic(AIPKit_AI_Form_Processor $processorInstance
 
     // Using the same validation logic as vector store uploads (checks size and MIME)
     $allowed_mime_types = \WPAICG\Includes\AIPKit_Upload_Utils::get_vector_upload_allowed_mime_types();
-    $validation_result = \WPAICG\Includes\AIPKit_Upload_Utils::validate_vector_upload_file($file_data, $allowed_mime_types);
+    $validation_result = \WPAICG\Includes\AIPKit_Upload_Utils::validate_upload_file($file_data, $allowed_mime_types);
 
     if (is_wp_error($validation_result)) {
         wp_send_json_error(['message' => $validation_result->get_error_message()], 400);

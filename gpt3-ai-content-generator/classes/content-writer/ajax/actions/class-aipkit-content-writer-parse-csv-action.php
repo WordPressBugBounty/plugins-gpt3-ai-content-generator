@@ -38,13 +38,13 @@ class AIPKit_Content_Writer_Parse_Csv_Action extends AIPKit_Content_Writer_Base_
         }
 
         // --- Task 2.2: File Validation ---
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES data is validated by AIPKit_Upload_Utils::validate_vector_upload_file().
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES data is validated by AIPKit_Upload_Utils::validate_upload_file().
         if (!isset($_FILES['file'])) {
             $this->send_wp_error(new WP_Error('no_file_received', __('No CSV file was received.', 'gpt3-ai-content-generator')), 400);
             return;
         }
 
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES data is validated by AIPKit_Upload_Utils::validate_vector_upload_file().
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES data is validated by AIPKit_Upload_Utils::validate_upload_file().
         $file_data = $_FILES['file'];
 
         if (!class_exists(AIPKit_Upload_Utils::class)) {
@@ -54,7 +54,7 @@ class AIPKit_Content_Writer_Parse_Csv_Action extends AIPKit_Content_Writer_Base_
 
         $allowed_mime_types = AIPKit_Upload_Utils::get_content_writer_allowed_mime_types();
         // Use the general validation function, passing our specific MIME types
-        $validation_result = AIPKit_Upload_Utils::validate_vector_upload_file($file_data, $allowed_mime_types);
+        $validation_result = AIPKit_Upload_Utils::validate_upload_file($file_data, $allowed_mime_types);
 
         if (is_wp_error($validation_result)) {
             $this->send_wp_error($validation_result);

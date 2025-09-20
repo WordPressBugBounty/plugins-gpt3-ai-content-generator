@@ -127,12 +127,44 @@ $qdrant_defaults     = AIPKit_Providers::get_provider_defaults('Qdrant');
 
 $stats_error_message = null;
 $stats_data = null;
+// Default to a smaller period to keep memory low
+$aipkit_stats_default_days = 3;
 if (class_exists('\\WPAICG\\Stats\\AIPKit_Stats')) {
     $stats_calculator = new AIPKit_Stats();
-    $stats_data = $stats_calculator->get_token_stats_last_days(30);
+    $stats_data = $stats_calculator->get_token_stats_last_days($aipkit_stats_default_days);
     if (is_wp_error($stats_data)) {
-        $stats_error_message = $stats_data->get_error_message();
-        $stats_data = null;
+        if ($stats_data->get_error_code() === 'stats_volume_too_large') {
+            $err = $stats_data; // keep reference to error for volume data
+            // Fallback to quick stats (interactions + module counts only)
+            $quick = $stats_calculator->get_quick_interaction_stats($aipkit_stats_default_days);
+            if (!is_wp_error($quick)) {
+                $stats_data = [
+                    'days_period' => $quick['days_period'] ?? $aipkit_stats_default_days,
+                    'total_tokens' => null,
+                    'total_interactions' => $quick['total_interactions'] ?? 0,
+                    'avg_tokens_per_interaction' => null,
+                    'module_counts' => $quick['module_counts'] ?? [],
+                ];
+                // Show a friendly notice rather than an error
+                $err_data = is_wp_error($err) ? $err->get_error_data() : null;
+                $rows = is_array($err_data) && isset($err_data['rows']) ? (int)$err_data['rows'] : 0;
+                $bytes = is_array($err_data) && isset($err_data['bytes']) ? (int)$err_data['bytes'] : 0;
+                $stats_notice_message = sprintf(
+                    /* translators: 1: rows, 2: bytes */
+                    __('Usage data for the selected period is very large (rows: %1$s, size: %2$s). Token metrics are not shown. Consider deleting logs.', 'gpt3-ai-content-generator'),
+                    number_format_i18n($rows),
+                    size_format($bytes)
+                );
+                $stats_notice_link = admin_url('admin.php?page=wpaicg#logs');
+                $stats_error_message = null;
+            } else {
+                $stats_error_message = $stats_data->get_error_message();
+                $stats_data = null;
+            }
+        } else {
+            $stats_error_message = $stats_data->get_error_message();
+            $stats_data = null;
+        }
     }
 } else {
     $stats_error_message = __('Statistics component is unavailable.', 'gpt3-ai-content-generator');

@@ -18,8 +18,14 @@ if (!defined('ABSPATH')) {
 function format_embeddings_logic_for_payload_formatter($input, array $options): array {
     $text_to_embed = is_array($input) ? ($input[0] ?? '') : $input;
 
+    // Google Embeddings expects the model name in the form "models/<model-id>" in the request body
+    $model_for_body = isset($options['model']) ? (string) $options['model'] : '';
+    if ($model_for_body !== '' && strpos($model_for_body, 'models/') !== 0) {
+        $model_for_body = 'models/' . $model_for_body;
+    }
+
     $payload = [
-        'model' => $options['model'], 
+        'model' => $model_for_body,
         'content' => [
             'parts' => [['text' => (string)$text_to_embed]]
         ]

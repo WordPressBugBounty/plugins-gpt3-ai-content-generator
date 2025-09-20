@@ -50,7 +50,53 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'prompt' => __('Correct any spelling and grammar mistakes in the following text: "%s"', 'gpt3-ai-content-generator'),
                 'is_default' => true
             ],
+            [
+                'id' => 'summarize-' . wp_generate_uuid4(),
+                'label' => __('Summarize', 'gpt3-ai-content-generator'),
+                /* translators: %s: The text to be summarized */
+                'prompt' => __('Summarize the following text in 3–5 concise sentences while preserving key facts and tone: "%s"', 'gpt3-ai-content-generator'),
+                'is_default' => true
+            ],
+            [
+                'id' => 'outline-' . wp_generate_uuid4(),
+                'label' => __('Create Outline (H2/H3)', 'gpt3-ai-content-generator'),
+                /* translators: %s: The text to outline */
+                'prompt' => __('Create a clear outline from the following text using headings (## for H2, ### for H3) and short bullets as needed: "%s"', 'gpt3-ai-content-generator'),
+                'is_default' => true
+            ],
+            [
+                'id' => 'faqs-' . wp_generate_uuid4(),
+                'label' => __('Generate FAQs', 'gpt3-ai-content-generator'),
+                /* translators: %s: The text to generate FAQs from */
+                'prompt' => __('Generate 5–7 relevant FAQ questions and short answers based on this text. Use a simple Q/A format in Markdown. Text: "%s"', 'gpt3-ai-content-generator'),
+                'is_default' => true
+            ],
+            [
+                'id' => 'simplify-' . wp_generate_uuid4(),
+                'label' => __('Simplify Tone', 'gpt3-ai-content-generator'),
+                /* translators: %s: The text to be simplified */
+                'prompt' => __('Rewrite the following in a friendly, simple tone (grade 7–8 readability) while preserving meaning and structure: "%s"', 'gpt3-ai-content-generator'),
+                'is_default' => true
+            ],
         ];
+    }
+
+    /**
+     * AJAX: Reset actions to defaults.
+     */
+    public function ajax_reset_actions(): void
+    {
+        $permission_check = $this->check_module_access_permissions(self::MODULE_SLUG, 'aipkit_enhancer_actions_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+        $defaults = $this->get_default_actions_public();
+        update_option(self::OPTION_NAME, $defaults, 'no');
+        wp_send_json_success([
+            'message' => __('Actions reset to defaults.', 'gpt3-ai-content-generator'),
+            'actions' => $defaults,
+        ]);
     }
 
     /**
@@ -89,6 +135,8 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         $label = isset($_POST['label']) ? sanitize_text_field(wp_unslash($_POST['label'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
         $prompt = isset($_POST['prompt']) ? sanitize_textarea_field(wp_unslash($_POST['prompt'])) : '';
+        $insert_position_raw = isset($_POST['insert_position']) ? sanitize_key(wp_unslash($_POST['insert_position'])) : null;
+        $allowed_positions = ['replace','after','before'];
 
         if (empty($label) || empty($prompt)) {
             $this->send_wp_error(new WP_Error('missing_data', __('Label and prompt are required.', 'gpt3-ai-content-generator')));
@@ -110,6 +158,13 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                     }
                     $action['label'] = $label;
                     $action['prompt'] = $prompt;
+                    if ($insert_position_raw !== null) {
+                        if ($insert_position_raw === '' || $insert_position_raw === 'default') {
+                            unset($action['insert_position']);
+                        } elseif (in_array($insert_position_raw, $allowed_positions, true)) {
+                            $action['insert_position'] = $insert_position_raw;
+                        }
+                    }
                     $found = true;
                     break;
                 }
@@ -130,6 +185,9 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'prompt' => $prompt,
                 'is_default' => false
             ];
+            if ($insert_position_raw && in_array($insert_position_raw, $allowed_positions, true)) {
+                $new_action['insert_position'] = $insert_position_raw;
+            }
             $actions[] = $new_action;
             $saved_action = $new_action;
         } else {

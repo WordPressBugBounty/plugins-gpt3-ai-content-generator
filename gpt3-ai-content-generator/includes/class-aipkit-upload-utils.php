@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 /**
  * AIPKit_Upload_Utils
  * Utility class for retrieving and formatting WordPress/server upload limits.
- * ADDED: get_vector_upload_allowed_mime_types and validate_vector_upload_file methods.
+ * ADDED: get_vector_upload_allowed_mime_types and validate_upload_file methods.
  */
 class AIPKit_Upload_Utils
 {
@@ -130,30 +130,26 @@ class AIPKit_Upload_Utils
      * @param int|null $max_size_bytes Optional override for max file size.
      * @return true|WP_Error True if valid, WP_Error otherwise.
      */
-    public static function validate_vector_upload_file(array $file_data, ?array $allowed_mime_types = null, ?int $max_size_bytes = null): bool|WP_Error
+    public static function validate_upload_file(array $file_data, ?array $allowed_mime_types = null, ?int $max_size_bytes = null): bool|WP_Error
     {
         if ($file_data['error'] !== UPLOAD_ERR_OK) {
             return new WP_Error('upload_error', __('Error during file upload: Code ', 'gpt3-ai-content-generator') . $file_data['error']);
+        }
+
+        // Ensure the uploaded file is a genuine HTTP upload and readable
+        $tmp_name = $file_data['tmp_name'] ?? '';
+        if (empty($tmp_name) || !is_readable($tmp_name) || !function_exists('is_uploaded_file') || !is_uploaded_file($tmp_name)) {
+            return new WP_Error('invalid_upload_source', __('Invalid uploaded file source.', 'gpt3-ai-content-generator'));
         }
 
         if ($allowed_mime_types === null) {
             $allowed_mime_types = self::get_vector_upload_allowed_mime_types();
         }
 
-        // Check MIME type (more reliable than extension for security)
-        $file_mime_type = '';
-        if (function_exists('mime_content_type') && is_readable($file_data['tmp_name'])) {
-            $file_mime_type = mime_content_type($file_data['tmp_name']);
-        } elseif (isset($file_data['type'])) {
-            $file_mime_type = $file_data['type']; // Fallback to browser-sent type
-        }
+        // Precompute lowercase allowed types for comparisons
+        $allowed_mime_types_lc = array_map('strtolower', $allowed_mime_types);
 
-        if (empty($file_mime_type) || !in_array(strtolower($file_mime_type), array_map('strtolower', $allowed_mime_types), true)) {
-            /* translators: %1$s is the detected MIME type, %2$s is the allowed types */
-            return new WP_Error('invalid_file_type_vector', sprintf(__('Invalid file type: %1$s. Allowed types: %2$s', 'gpt3-ai-content-generator'), esc_html($file_mime_type ?: 'Unknown'), esc_html(implode(', ', $allowed_mime_types))));
-        }
-
-        // Additional hardening: verify extension and WP's own type detection
+        // Additional hardening: verify extension map (extended with CSV types)
         $ext = strtolower(pathinfo($file_data['name'] ?? '', PATHINFO_EXTENSION));
         $allowed_exts_map = [
             'text/plain' => ['txt', 'text', 'log', 'md'],
@@ -162,6 +158,10 @@ class AIPKit_Upload_Utils
             'text/html' => ['html', 'htm'],
             'application/xhtml+xml' => ['xhtml', 'html'],
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx'],
+            // CSV-specific mappings (fix): allow common CSV MIME types to map to .csv
+            'text/csv' => ['csv'],
+            'application/csv' => ['csv'],
+            'application/vnd.ms-excel' => ['csv'],
         ];
         $allowed_exts = [];
         foreach ($allowed_mime_types as $mt) {
@@ -169,24 +169,62 @@ class AIPKit_Upload_Utils
                 $allowed_exts = array_merge($allowed_exts, $allowed_exts_map[$mt]);
             }
         }
-        if (!empty($ext) && !empty($allowed_exts) && !in_array($ext, $allowed_exts, true)) {
-            return new WP_Error('invalid_file_extension_vector', sprintf(__('Invalid file extension: .%1$s. Allowed extensions: %2$s', 'gpt3-ai-content-generator'), esc_html($ext), esc_html(implode(', ', array_unique($allowed_exts)))));
-        }
 
-        // Cross-check with WordPress core detection (non-fatal if unknown but mismatch is rejected)
+        // Prefer WordPress filetype check first and accept if it validates
+        $accepted_by_wp_filetype = false;
         if (function_exists('wp_check_filetype_and_ext')) {
-            $ft = wp_check_filetype_and_ext($file_data['tmp_name'], $file_data['name']);
+            $ft = wp_check_filetype_and_ext($tmp_name, $file_data['name']);
             $ft_type = isset($ft['type']) ? strtolower((string) $ft['type']) : '';
             $ft_ext  = isset($ft['ext']) ? strtolower((string) $ft['ext']) : '';
-            if (!empty($ft_type) && !in_array($ft_type, array_map('strtolower', $allowed_mime_types), true)) {
-                return new WP_Error('invalid_file_type_vector_core', sprintf(__('Invalid file type (WP check): %1$s. Allowed types: %2$s', 'gpt3-ai-content-generator'), esc_html($ft_type), esc_html(implode(', ', $allowed_mime_types))));
+
+            // If WP detected type is in allowed list and ext is either allowed or unknown, accept
+            if (!empty($ft_type) && in_array($ft_type, $allowed_mime_types_lc, true)) {
+                if (empty($allowed_exts) || empty($ft_ext) || in_array($ft_ext, $allowed_exts, true)) {
+                    $accepted_by_wp_filetype = true;
+                }
             }
-            if (!empty($ft_ext) && !empty($allowed_exts) && !in_array($ft_ext, $allowed_exts, true)) {
-                return new WP_Error('invalid_file_extension_vector_core', sprintf(__('Invalid file extension (WP check): .%1$s. Allowed extensions: %2$s', 'gpt3-ai-content-generator'), esc_html($ft_ext), esc_html(implode(', ', array_unique($allowed_exts)))));
+            // Or, if type is unknown but extension alone is allowed, accept as well (helps with text/csv on some hosts)
+            if (!$accepted_by_wp_filetype && !empty($ft_ext) && in_array($ft_ext, $allowed_exts, true)) {
+                $accepted_by_wp_filetype = true;
             }
-            // If both type and extension are present and contradict the content-derived $file_mime_type, reject
-            if (!empty($ft_type) && !empty($file_mime_type) && strtolower($ft_type) !== strtolower($file_mime_type)) {
-                return new WP_Error('filetype_mismatch_vector', sprintf(__('File type mismatch between content and extension: %1$s vs %2$s', 'gpt3-ai-content-generator'), esc_html($file_mime_type), esc_html($ft_type)));
+        }
+
+        // Determine content-derived MIME type as a fallback path
+        $file_mime_type = '';
+        if (function_exists('mime_content_type') && is_readable($tmp_name)) {
+            $file_mime_type = mime_content_type($tmp_name);
+        } elseif (isset($file_data['type'])) {
+            $file_mime_type = $file_data['type']; // Fallback to browser-sent type
+        }
+
+        // If WP accepted the filetype, skip content-derived rejection.
+        if (!$accepted_by_wp_filetype) {
+            if (empty($file_mime_type) || !in_array(strtolower($file_mime_type), $allowed_mime_types_lc, true)) {
+                /* translators: %1$s is the detected MIME type, %2$s is the allowed types */
+                return new WP_Error('invalid_file_type_vector', sprintf(__('Invalid file type: %1$s. Allowed types: %2$s', 'gpt3-ai-content-generator'), esc_html($file_mime_type ?: 'Unknown'), esc_html(implode(', ', $allowed_mime_types))));
+            }
+        }
+
+        // Extension check (skip if WP already accepted by type/ext above)
+        if (!$accepted_by_wp_filetype) {
+            if (!empty($ext) && !empty($allowed_exts) && !in_array($ext, $allowed_exts, true)) {
+                return new WP_Error('invalid_file_extension_vector', sprintf(__('Invalid file extension: .%1$s. Allowed extensions: %2$s', 'gpt3-ai-content-generator'), esc_html($ext), esc_html(implode(', ', array_unique($allowed_exts)))));
+            }
+            // Cross-check with WordPress core detection (non-fatal if unknown but mismatch may be rejected)
+            if (function_exists('wp_check_filetype_and_ext')) {
+                $ft = wp_check_filetype_and_ext($tmp_name, $file_data['name']);
+                $ft_type = isset($ft['type']) ? strtolower((string) $ft['type']) : '';
+                $ft_ext  = isset($ft['ext']) ? strtolower((string) $ft['ext']) : '';
+                if (!empty($ft_type) && !in_array($ft_type, $allowed_mime_types_lc, true)) {
+                    return new WP_Error('invalid_file_type_vector_core', sprintf(__('Invalid file type (WP check): %1$s. Allowed types: %2$s', 'gpt3-ai-content-generator'), esc_html($ft_type), esc_html(implode(', ', $allowed_mime_types))));
+                }
+                if (!empty($ft_ext) && !empty($allowed_exts) && !in_array($ft_ext, $allowed_exts, true)) {
+                    return new WP_Error('invalid_file_extension_vector_core', sprintf(__('Invalid file extension (WP check): .%1$s. Allowed extensions: %2$s', 'gpt3-ai-content-generator'), esc_html($ft_ext), esc_html(implode(', ', array_unique($allowed_exts)))));
+                }
+                // If both type and extension are present and contradict the content-derived $file_mime_type, reject
+                if (!empty($ft_type) && !empty($file_mime_type) && strtolower($ft_type) !== strtolower($file_mime_type)) {
+                    return new WP_Error('filetype_mismatch_vector', sprintf(__('File type mismatch between content and extension: %1$s vs %2$s', 'gpt3-ai-content-generator'), esc_html($file_mime_type), esc_html($ft_type)));
+                }
             }
         }
 
@@ -194,6 +232,11 @@ class AIPKit_Upload_Utils
         if ($max_size_bytes === null) {
             $upload_limits = self::get_effective_upload_limit_summary();
             $max_size_bytes = $upload_limits['limit_bytes'];
+        }
+
+        // Reject empty files explicitly
+        if ((int) ($file_data['size'] ?? 0) === 0) {
+            return new WP_Error('file_empty', __('Uploaded file is empty.', 'gpt3-ai-content-generator'));
         }
 
         if ($file_data['size'] > $max_size_bytes) {

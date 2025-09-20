@@ -342,6 +342,9 @@ class Ajax_Hooks_Registrar
             if (method_exists($enhancer_actions_ajax_handler, 'ajax_delete_action')) {
                 add_action('wp_ajax_aipkit_delete_enhancer_action', [$enhancer_actions_ajax_handler, 'ajax_delete_action']);
             }
+            if (method_exists($enhancer_actions_ajax_handler, 'ajax_reset_actions')) {
+                add_action('wp_ajax_aipkit_reset_enhancer_actions', [$enhancer_actions_ajax_handler, 'ajax_reset_actions']);
+            }
         }
         // --- END NEW ---
 

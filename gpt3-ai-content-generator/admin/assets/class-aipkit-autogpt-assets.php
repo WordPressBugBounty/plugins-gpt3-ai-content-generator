@@ -164,7 +164,7 @@ class AIPKit_Autogpt_Assets
             ],
             // --- NEW: Category: Content Enhancement ---
             'enhance_existing_content' => [
-                'label' => __('Enhance Existing Content', 'gpt3-ai-content-generator'),
+                'label' => __('Update Existing Content', 'gpt3-ai-content-generator'),
                 'category' => 'content_enhancement',
                 'description' => __('Automatically update titles, excerpts, or meta descriptions for existing posts based on your custom prompts.', 'gpt3-ai-content-generator'),
                 'pro' => true, // This will be used by the frontend to show "Pro" tag

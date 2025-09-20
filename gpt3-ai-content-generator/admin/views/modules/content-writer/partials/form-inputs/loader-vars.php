@@ -37,7 +37,30 @@ $available_post_types = get_post_types(['public' => true], 'objects');
 unset($available_post_types['attachment']);
 
 $current_user_id = get_current_user_id();
-$users_for_author = get_users(['orderby' => 'display_name', 'order' => 'ASC', 'fields' => ['ID', 'display_name']]);
+// Minimal safeguard: avoid loading thousands of users which can freeze the UI.
+// Load up to a small cap and ensure current user is present.
+$__aipkit_user_list_cap = 200;
+$users_for_author = get_users([
+    'orderby' => 'display_name',
+    'order'   => 'ASC',
+    'fields'  => ['ID', 'display_name'],
+    'number'  => $__aipkit_user_list_cap,
+]);
+if ($current_user_id) {
+    $has_current_user = false;
+    foreach ($users_for_author as $u) {
+        if ((int) $u->ID === (int) $current_user_id) { $has_current_user = true; break; }
+    }
+    if (!$has_current_user) {
+        $u = get_user_by('id', $current_user_id);
+        if ($u && isset($u->ID)) {
+            $users_for_author[] = (object) [
+                'ID' => (int) $u->ID,
+                'display_name' => (string) $u->display_name,
+            ];
+        }
+    }
+}
 
 $post_statuses = [
     'draft' => __('Draft', 'gpt3-ai-content-generator'),

@@ -59,6 +59,7 @@ $current_replicate_api_key = $replicate_data['api_key'] ?? '';
 
 $aipkit_options = get_option('aipkit_options', []);
 $enhancer_editor_integration_enabled = $aipkit_options['enhancer_settings']['editor_integration'] ?? '1';
+$enhancer_default_insert_position = $aipkit_options['enhancer_settings']['default_insert_position'] ?? 'replace';
 
 ?>
 <div class="aipkit_settings-tab-content-inner-padding">

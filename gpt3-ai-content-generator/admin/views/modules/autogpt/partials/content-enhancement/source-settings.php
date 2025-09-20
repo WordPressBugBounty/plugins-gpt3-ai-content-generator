@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 ?>
 <div class="aipkit_form-row">
     <div class="aipkit_form-group aipkit_form-col">
-        <label class="aipkit_form-label" for="aipkit_task_ce_post_types"><?php esc_html_e('Post Types to Enhance', 'gpt3-ai-content-generator'); ?></label>
+        <label class="aipkit_form-label" for="aipkit_task_ce_post_types"><?php esc_html_e('Post Types to Update', 'gpt3-ai-content-generator'); ?></label>
         <select id="aipkit_task_ce_post_types" name="ce_post_types[]" class="aipkit_form-input" multiple size="4" style="min-height: 105px;" <?php disabled(!$is_pro); ?>>
             <?php foreach ($all_selectable_post_types as $slug => $pt_obj): ?>
                 <option value="<?php echo esc_attr($slug); ?>"><?php echo esc_html($pt_obj->label); ?></option>

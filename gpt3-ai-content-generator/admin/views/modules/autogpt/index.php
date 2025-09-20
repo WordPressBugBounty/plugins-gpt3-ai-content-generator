@@ -78,7 +78,30 @@ $cw_default_max_tokens = $cw_ai_parameters['max_completion_tokens'] ?? 4000;
 $cw_available_post_types = get_post_types(['public' => true], 'objects');
 unset($cw_available_post_types['attachment']);
 $cw_current_user_id = get_current_user_id();
-$cw_users_for_author = get_users(['orderby' => 'display_name', 'order' => 'ASC', 'fields' => ['ID', 'display_name']]);
+// Minimal safeguard: avoid loading thousands of users into selects.
+// Load up to a small, reasonable cap and ensure current user is always present.
+$__aipkit_user_list_cap = 200;
+$cw_users_for_author = get_users([
+    'orderby' => 'display_name',
+    'order'   => 'ASC',
+    'fields'  => ['ID', 'display_name'],
+    'number'  => $__aipkit_user_list_cap,
+]);
+if ($cw_current_user_id) {
+    $has_current_user = false;
+    foreach ($cw_users_for_author as $u) {
+        if ((int) $u->ID === (int) $cw_current_user_id) { $has_current_user = true; break; }
+    }
+    if (!$has_current_user) {
+        $u = get_user_by('id', $cw_current_user_id);
+        if ($u && isset($u->ID)) {
+            $cw_users_for_author[] = (object) [
+                'ID' => (int) $u->ID,
+                'display_name' => (string) $u->display_name,
+            ];
+        }
+    }
+}
 $cw_post_statuses = [
     'draft' => __('Draft', 'gpt3-ai-content-generator'),
     'publish' => __('Publish', 'gpt3-ai-content-generator'),

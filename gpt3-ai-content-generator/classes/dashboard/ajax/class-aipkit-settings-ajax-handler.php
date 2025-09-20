@@ -309,6 +309,16 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             }
         }
 
+        if (array_key_exists('enhancer_insert_position_default', $post_data)) {
+            $raw = sanitize_key($post_data['enhancer_insert_position_default']);
+            $allowed = ['replace','after','before'];
+            $pos = in_array($raw, $allowed, true) ? $raw : 'replace';
+            if (($new_enhancer_settings['default_insert_position'] ?? 'replace') !== $pos) {
+                $new_enhancer_settings['default_insert_position'] = $pos;
+                $changed = true;
+            }
+        }
+
         if ($changed) {
             $opts['enhancer_settings'] = $new_enhancer_settings;
             update_option('aipkit_options', $opts, 'no');

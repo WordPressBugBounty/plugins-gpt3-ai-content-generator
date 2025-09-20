@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 2.3.42
+Stable tag: 2.3.43
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,20 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.43 =
+
+- **Improved**: Block Editor formatting — structured outputs now insert as proper blocks (Headings, Paragraphs, Lists).
+- **Added**: Default Insert Position (Replace / After / Before) with per-action overrides in settings.
+- **Added**: Undo for editor inserts.
+- **Added**: Recent Actions section in editor menus for quick reuse.
+- **Added**: "Reset to Defaults" button for Content Assistant actions.
+- **Fixed**: Dropdown freeze caused by large user counts in Automated Tasks and Content Writer.  
+- **Fixed**: Scrolling issue in Chatbot settings.  
+- **Fixed**: CSV upload handling errors.  
+- **Fixed**: Google Embeddings integration issues.  
+- **Fixed**: Category retrieval bug when editing Automated Tasks.  
+- **Improved**: SDK updated.  
 
 = 2.3.42 =
 

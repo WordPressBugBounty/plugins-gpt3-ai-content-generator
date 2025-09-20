@@ -20,6 +20,9 @@ class AIPKit_Stats
 
     private $wpdb;
     private $log_table_name;
+    // Hard caps to prevent memory exhaustion on large sites; can be filtered.
+    private const DEFAULT_MAX_BYTES_FOR_STATS = 64000000; // ~64 MB
+    private const DEFAULT_MAX_ROWS_FOR_STATS  = 5000;       // cap rows to scan
     public const TOP_N_MODULES_FOR_CHART = 4; // Number of top modules to display individually in the chart
 
     public function __construct()
@@ -28,6 +31,33 @@ class AIPKit_Stats
         $this->wpdb = $wpdb;
         $this->log_table_name = $wpdb->prefix . 'aipkit_chat_logs'; // Table name remains the same
     }
+
+    /**
+     * Estimate number of rows and total bytes for messages in range to avoid OOM.
+     *
+     * @param int $start_ts
+     * @param int $end_ts
+     * @return array{rows:int, bytes:int}|WP_Error
+     */
+    private function estimate_volume(int $start_ts, int $end_ts): array|WP_Error
+    {
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Using prepare with timestamps
+        $sql = $this->wpdb->prepare(
+            "SELECT COUNT(*) AS cnt, COALESCE(SUM(CHAR_LENGTH(messages)), 0) AS total_bytes FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d",
+            $start_ts,
+            $end_ts
+        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+        $row = $this->wpdb->get_row($sql, ARRAY_A);
+        if ($this->wpdb->last_error) {
+            return new WP_Error('db_query_error', __('Database error estimating log volume for stats.', 'gpt3-ai-content-generator'));
+        }
+        $rows  = isset($row['cnt']) ? (int) $row['cnt'] : 0;
+        $bytes = isset($row['total_bytes']) ? (int) $row['total_bytes'] : 0;
+        return ['rows' => $rows, 'bytes' => $bytes];
+    }
+
+    
 
     /**
      * Calculates token usage statistics across all modules for the last X days.
@@ -48,6 +78,27 @@ class AIPKit_Stats
 
         $timestamp_threshold_start = $start_datetime->getTimestamp();
         $timestamp_threshold_end = $end_datetime->getTimestamp();
+
+        // Guardrail: estimate volume and bail out if too heavy
+        $vol = $this->estimate_volume($timestamp_threshold_start, $timestamp_threshold_end);
+        if (is_wp_error($vol)) {
+            return $vol;
+        }
+        $max_bytes = (int) apply_filters('aipkit_stats_max_bytes', self::DEFAULT_MAX_BYTES_FOR_STATS);
+        $max_rows  = (int) apply_filters('aipkit_stats_max_rows', self::DEFAULT_MAX_ROWS_FOR_STATS);
+        
+        if ($vol['rows'] > $max_rows || $vol['bytes'] > $max_bytes) {
+            return new WP_Error(
+                'stats_volume_too_large',
+                sprintf(
+                    /* translators: 1: number of rows, 2: number of bytes */
+                    __('Usage data volume is too large to compute statistics right now (rows: %1$s, bytes: %2$s). Try reducing retention or disabling conversation storage.', 'gpt3-ai-content-generator'),
+                    number_format_i18n($vol['rows']),
+                    size_format($vol['bytes'])
+                ),
+                [ 'rows' => (int) $vol['rows'], 'bytes' => (int) $vol['bytes'] ]
+            );
+        }
 
         // Query to fetch conversation logs within the date range based on last_message_ts
         // Select 'messages' and 'module' columns
@@ -128,6 +179,29 @@ class AIPKit_Stats
 
         $timestamp_threshold_start = $start_datetime->getTimestamp();
         $timestamp_threshold_end = $end_datetime->getTimestamp();
+
+        // Guardrail: estimate volume and bail out if too heavy
+        $vol = $this->estimate_volume($timestamp_threshold_start, $timestamp_threshold_end);
+        if (is_wp_error($vol)) {
+            return $vol;
+        }
+        $max_bytes = (int) apply_filters('aipkit_stats_max_bytes', self::DEFAULT_MAX_BYTES_FOR_STATS);
+        $max_rows  = (int) apply_filters('aipkit_stats_max_rows', self::DEFAULT_MAX_ROWS_FOR_STATS);
+        
+        if ($vol['rows'] > $max_rows || $vol['bytes'] > $max_bytes) {
+            return new WP_Error(
+                'stats_volume_too_large',
+                sprintf(
+                    /* translators: 1: number of rows, 2: number of bytes */
+                    __('Usage data volume is too large to compute daily chart (rows: %1$s, bytes: %2$s). Try reducing retention or disabling conversation storage.', 'gpt3-ai-content-generator'),
+                    number_format_i18n($vol['rows']),
+                    size_format($vol['bytes'])
+                ),
+                [ 'rows' => (int) $vol['rows'], 'bytes' => (int) $vol['bytes'] ]
+            );
+        }
+
+        // Fetch logs within the range, including 'module' and 'messages'
 
         // Fetch logs within the range, including 'module' and 'messages'
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Using prepare to safely insert timestamps
@@ -231,6 +305,66 @@ class AIPKit_Stats
         return $filtered_daily_tokens;
     }
 
+
+    /**
+     * Fast path: Returns only interactions count and per-module counts for last X days.
+     * Avoids loading `messages` longtext to keep memory low.
+     *
+     * @param int $days
+     * @return array|WP_Error ['total_interactions' => int, 'module_counts' => array, 'days_period' => int]
+     */
+    public function get_quick_interaction_stats(int $days = 3): array|WP_Error
+    {
+        if ($days <= 0) {
+            return new WP_Error('invalid_days', __('Number of days must be positive.', 'gpt3-ai-content-generator'));
+        }
+
+        $wp_timezone = wp_timezone();
+        $end_datetime = new DateTime('now', $wp_timezone);
+        $start_datetime = new DateTime("-$days days", $wp_timezone);
+        $start_datetime->setTime(0, 0, 0);
+
+        $timestamp_threshold_start = $start_datetime->getTimestamp();
+        $timestamp_threshold_end = $end_datetime->getTimestamp();
+
+        // Count total interactions
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Using prepare with timestamps
+        $count_sql = $this->wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d",
+            $timestamp_threshold_start,
+            $timestamp_threshold_end
+        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+        $total_interactions = (int) $this->wpdb->get_var($count_sql);
+        if ($this->wpdb->last_error) {
+            return new WP_Error('db_query_error', __('Database error fetching counts for quick stats.', 'gpt3-ai-content-generator'));
+        }
+
+        // Per-module counts
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Using prepare with timestamps
+        $group_sql = $this->wpdb->prepare(
+            "SELECT COALESCE(module,'unknown') as module, COUNT(*) as cnt FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d GROUP BY module",
+            $timestamp_threshold_start,
+            $timestamp_threshold_end
+        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $this->wpdb->get_results($group_sql, ARRAY_A) ?: [];
+        if ($this->wpdb->last_error) {
+            return new WP_Error('db_query_error', __('Database error fetching module counts for quick stats.', 'gpt3-ai-content-generator'));
+        }
+        $module_counts = [];
+        foreach ($rows as $r) {
+            $module = $r['module'] !== null && $r['module'] !== '' ? $r['module'] : 'unknown';
+            $module_counts[$module] = (int) $r['cnt'];
+        }
+        arsort($module_counts);
+
+        return [
+            'total_interactions' => $total_interactions,
+            'module_counts' => $module_counts,
+            'days_period' => $days,
+        ];
+    }
 
     /**
      * Gets the most used module from the calculated module counts.
