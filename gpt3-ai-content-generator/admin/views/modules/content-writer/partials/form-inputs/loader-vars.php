@@ -23,10 +23,7 @@ $default_provider = strtolower($default_provider_config['provider'] ?? 'openai')
 $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 $default_temperature = $ai_parameters['temperature'] ?? 1.0;
 
-$providers_for_select = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
-if ($is_pro) {
-    $providers_for_select[] = 'Ollama';
-}
+$providers_for_select = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
 
 $available_post_types = get_post_types(['public' => true], 'objects');
 unset($available_post_types['attachment']);

@@ -28,6 +28,7 @@ function build_task_config_comment_reply_logic(array $post_data): array|WP_Error
         'openrouter' => 'OpenRouter',
         'google' => 'Google',
         'azure' => 'Azure',
+        'claude' => 'Claude',
         'deepseek' => 'DeepSeek',
         'ollama' => 'Ollama',
         default => ucfirst(strtolower($provider_raw))

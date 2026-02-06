@@ -36,5 +36,8 @@ function extract_request_params_logic(array $cached_data, array $get_params): ar
         'active_pinecone_namespace' => $cached_data['active_pinecone_namespace'] ?? ($get_params['active_pinecone_namespace'] ?? null),
         'active_qdrant_collection_name' => $cached_data['active_qdrant_collection_name'] ?? ($get_params['active_qdrant_collection_name'] ?? null),
         'active_qdrant_file_upload_context_id' => $cached_data['active_qdrant_file_upload_context_id'] ?? ($get_params['active_qdrant_file_upload_context_id'] ?? null),
+        'active_claude_file_id' => isset($cached_data['active_claude_file_id'])
+            ? sanitize_text_field((string) $cached_data['active_claude_file_id'])
+            : (isset($get_params['active_claude_file_id']) ? sanitize_text_field(wp_unslash($get_params['active_claude_file_id'])) : null),
     ];
 }

@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) exit;
 // Variables required: $current_provider, $temperature, $top_p
 // Also, variables required by the included partials settings-advanced-provider.php and settings-safety-google.php
 // must be available here or passed down.
-// For settings-advanced-provider.php: $openai_data, $openrouter_data, $google_data, $azure_data, $deepseek_data, $openai_defaults, etc.
+// For settings-advanced-provider.php: $openai_data, $openrouter_data, $google_data, $azure_data, $claude_data, $deepseek_data, $openai_defaults, etc.
 // For settings-safety-google.php: $category_thresholds, $safety_thresholds
 // $is_pro (from settings/index.php)
 
@@ -198,6 +198,39 @@ use WPAICG\Core\Providers\Google\GoogleSettingsHandler; // For settings-safety-g
                     <div class="aipkit_input-with-icon-wrapper">
                         <input type="text" id="aipkit_azure_inference_version" name="azure_inference_version" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($azure_data['api_version_inference']); ?>" />
                         <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($azure_defaults['api_version_inference']); ?>" data-target-input="aipkit_azure_inference_version">
+                            <span class="dashicons dashicons-undo"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="aipkit_popover_option_group aipkit_advanced_settings_provider"
+        data-provider-setting="Claude"
+        style="display: <?php echo ($current_provider === 'Claude') ? 'block' : 'none'; ?>;"
+    >
+        <div class="aipkit_popover_option_row">
+            <div class="aipkit_popover_option_main">
+                <label class="aipkit_popover_option_label" for="aipkit_claude_base_url"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
+                <div class="aipkit_popover_option_actions">
+                    <div class="aipkit_input-with-icon-wrapper">
+                        <input type="text" id="aipkit_claude_base_url" name="claude_base_url" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--vector-wide aipkit_autosave_trigger" value="<?php echo esc_attr($claude_data['base_url']); ?>" />
+                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($claude_defaults['base_url']); ?>" data-target-input="aipkit_claude_base_url">
+                            <span class="dashicons dashicons-undo"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="aipkit_popover_option_row">
+            <div class="aipkit_popover_option_main">
+                <label class="aipkit_popover_option_label" for="aipkit_claude_api_version"><?php esc_html_e('API Version', 'gpt3-ai-content-generator'); ?></label>
+                <div class="aipkit_popover_option_actions">
+                    <div class="aipkit_input-with-icon-wrapper">
+                        <input type="text" id="aipkit_claude_api_version" name="claude_api_version" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($claude_data['api_version']); ?>" />
+                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($claude_defaults['api_version']); ?>" data-target-input="aipkit_claude_api_version">
                             <span class="dashicons dashicons-undo"></span>
                         </span>
                     </div>

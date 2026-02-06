@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  * Determines file/image upload related feature flags.
  *
  * @param array $core_flags An array of intermediate flags from get_core_flag_values_logic.
- *                          Expected keys: 'enable_file_upload_setting', 'enable_image_upload_setting'.
+ *                          Expected keys: 'provider', 'enable_file_upload_setting', 'enable_image_upload_setting'.
  * @return array An array of upload feature flags:
  *               'file_upload_ui_enabled', 'image_upload_ui_enabled', 'input_action_button_enabled'.
  */
@@ -33,10 +33,16 @@ function get_upload_flags_logic(array $core_flags): array {
         $is_pro = aipkit_dashboard::is_pro_plan();
     }
 
+    $provider = isset($core_flags['provider']) ? sanitize_text_field((string) $core_flags['provider']) : 'OpenAI';
+    $vector_store_provider = isset($core_flags['vector_store_provider']) ? sanitize_key((string) $core_flags['vector_store_provider']) : 'openai';
+    $image_upload_supported_providers = ['OpenAI', 'Claude'];
+    $is_image_upload_supported_provider = in_array($provider, $image_upload_supported_providers, true);
+    $claude_files_compatible = !($vector_store_provider === 'claude_files' && $provider !== 'Claude');
+
     // File upload UI is enabled if the setting is on AND it's a Pro feature
-    $upload_flags['file_upload_ui_enabled'] = ($core_flags['enable_file_upload_setting'] ?? false) && $is_pro;
-    // Image upload UI is enabled if the setting is on (it's a free feature, might also depend on provider in future)
-    $upload_flags['image_upload_ui_enabled'] = $core_flags['enable_image_upload_setting'] ?? false;
+    $upload_flags['file_upload_ui_enabled'] = ($core_flags['enable_file_upload_setting'] ?? false) && $is_pro && $claude_files_compatible;
+    // Image upload UI is enabled only for providers with image-analysis support.
+    $upload_flags['image_upload_ui_enabled'] = ($core_flags['enable_image_upload_setting'] ?? false) && $is_image_upload_supported_provider;
 
     $upload_flags['input_action_button_enabled'] = $upload_flags['file_upload_ui_enabled'] ||
                                                  $upload_flags['image_upload_ui_enabled'];

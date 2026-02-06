@@ -119,6 +119,11 @@ class AIPKit_AI_Caller
         }
 
         $request_body_data = $strategy->format_chat_payload('', $instructions_processed, $messages, $final_ai_params, $model);
+        $claude_beta_header_detector = '\WPAICG\Core\Providers\Claude\Methods\claude_payload_requires_files_beta_header';
+        $claude_requires_files_beta_header = $provider === 'Claude'
+            && is_array($request_body_data)
+            && function_exists($claude_beta_header_detector)
+            && $claude_beta_header_detector($request_body_data);
 
         $sanitized_final_ai_params = AIPKit_Payload_Sanitizer::sanitize_for_logging($final_ai_params);
         $sanitized_request_body_data = AIPKit_Payload_Sanitizer::sanitize_for_logging($request_body_data);
@@ -158,6 +163,9 @@ class AIPKit_AI_Caller
         }
 
         $headers = $strategy->get_api_headers($api_params['api_key'], 'chat');
+        if ($provider === 'Claude' && $claude_requires_files_beta_header) {
+            $headers['anthropic-beta'] = 'files-api-2025-04-14';
+        }
         $options = $strategy->get_request_options('chat');
 
         $sanitized_headers = [];

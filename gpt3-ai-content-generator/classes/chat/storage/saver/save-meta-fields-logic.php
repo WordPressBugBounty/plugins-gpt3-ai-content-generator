@@ -168,6 +168,43 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         delete_post_meta($botId, '_aipkit_openai_web_search_loc_region');
         delete_post_meta($botId, '_aipkit_openai_web_search_loc_timezone');
     }
+    update_post_meta($botId, '_aipkit_claude_web_search_enabled', $sanitized_settings['claude_web_search_enabled']);
+    if ($sanitized_settings['claude_web_search_enabled'] === '1') {
+        update_post_meta($botId, '_aipkit_claude_web_search_max_uses', (string) $sanitized_settings['claude_web_search_max_uses']);
+        update_post_meta($botId, '_aipkit_claude_web_search_loc_type', $sanitized_settings['claude_web_search_loc_type']);
+        if ($sanitized_settings['claude_web_search_loc_type'] === 'approximate') {
+            update_post_meta($botId, '_aipkit_claude_web_search_loc_country', $sanitized_settings['claude_web_search_loc_country']);
+            update_post_meta($botId, '_aipkit_claude_web_search_loc_city', $sanitized_settings['claude_web_search_loc_city']);
+            update_post_meta($botId, '_aipkit_claude_web_search_loc_region', $sanitized_settings['claude_web_search_loc_region']);
+            update_post_meta($botId, '_aipkit_claude_web_search_loc_timezone', $sanitized_settings['claude_web_search_loc_timezone']);
+        } else {
+            delete_post_meta($botId, '_aipkit_claude_web_search_loc_country');
+            delete_post_meta($botId, '_aipkit_claude_web_search_loc_city');
+            delete_post_meta($botId, '_aipkit_claude_web_search_loc_region');
+            delete_post_meta($botId, '_aipkit_claude_web_search_loc_timezone');
+        }
+        if (!empty($sanitized_settings['claude_web_search_allowed_domains'])) {
+            update_post_meta($botId, '_aipkit_claude_web_search_allowed_domains', $sanitized_settings['claude_web_search_allowed_domains']);
+            delete_post_meta($botId, '_aipkit_claude_web_search_blocked_domains');
+        } elseif (!empty($sanitized_settings['claude_web_search_blocked_domains'])) {
+            update_post_meta($botId, '_aipkit_claude_web_search_blocked_domains', $sanitized_settings['claude_web_search_blocked_domains']);
+            delete_post_meta($botId, '_aipkit_claude_web_search_allowed_domains');
+        } else {
+            delete_post_meta($botId, '_aipkit_claude_web_search_allowed_domains');
+            delete_post_meta($botId, '_aipkit_claude_web_search_blocked_domains');
+        }
+        update_post_meta($botId, '_aipkit_claude_web_search_cache_ttl', $sanitized_settings['claude_web_search_cache_ttl']);
+    } else {
+        delete_post_meta($botId, '_aipkit_claude_web_search_max_uses');
+        delete_post_meta($botId, '_aipkit_claude_web_search_loc_type');
+        delete_post_meta($botId, '_aipkit_claude_web_search_loc_country');
+        delete_post_meta($botId, '_aipkit_claude_web_search_loc_city');
+        delete_post_meta($botId, '_aipkit_claude_web_search_loc_region');
+        delete_post_meta($botId, '_aipkit_claude_web_search_loc_timezone');
+        delete_post_meta($botId, '_aipkit_claude_web_search_allowed_domains');
+        delete_post_meta($botId, '_aipkit_claude_web_search_blocked_domains');
+        delete_post_meta($botId, '_aipkit_claude_web_search_cache_ttl');
+    }
     update_post_meta($botId, '_aipkit_google_search_grounding_enabled', $sanitized_settings['google_search_grounding_enabled']);
     if ($sanitized_settings['google_search_grounding_enabled'] === '1') {
         update_post_meta($botId, '_aipkit_google_grounding_mode', $sanitized_settings['google_grounding_mode']);

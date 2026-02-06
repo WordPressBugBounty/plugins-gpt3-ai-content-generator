@@ -30,7 +30,7 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
             'provider' => array(
                 'description' => __('The AI provider to use for text generation.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'enum'        => ['openai', 'azure', 'google', 'openrouter', 'deepseek','ollama'],
+                'enum'        => ['openai', 'azure', 'google', 'openrouter', 'claude', 'deepseek', 'ollama'],
                 'required'    => true,
             ),
             'model' => array(
@@ -141,7 +141,14 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
         }
 
         $provider = match(strtolower($provider_raw)) {
-            'openai' => 'OpenAI', 'azure' => 'Azure', 'google' => 'Google', 'openrouter' => 'OpenRouter', 'deepseek' => 'DeepSeek', default => null,
+            'openai' => 'OpenAI',
+            'azure' => 'Azure',
+            'google' => 'Google',
+            'openrouter' => 'OpenRouter',
+            'claude' => 'Claude',
+            'deepseek' => 'DeepSeek',
+            'ollama' => 'Ollama',
+            default => null,
         };
         if ($provider === null) {
             /* translators: %s is the invalid provider name */

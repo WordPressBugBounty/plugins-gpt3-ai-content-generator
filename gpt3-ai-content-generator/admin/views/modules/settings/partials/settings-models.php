@@ -5,8 +5,32 @@
  */
 if (!defined('ABSPATH')) exit;
 
-// Variables required: $current_provider, $openai_data, $openrouter_data, $google_data, $azure_data, $deepseek_data,
-// $grouped_openai_models (THIS IS NOW THE FILTERED LIST), $openrouter_model_list, $google_model_list, $azure_deployment_list, $deepseek_model_list
+// Variables required: $current_provider, $openai_data, $openrouter_data, $google_data, $azure_data, $claude_data, $deepseek_data,
+// $grouped_openai_models (THIS IS NOW THE FILTERED LIST), $openrouter_model_list, $google_model_list, $azure_deployment_list, $claude_model_list, $deepseek_model_list
+
+$recommended_openai = \WPAICG\AIPKit_Providers::get_recommended_models('OpenAI');
+$recommended_openai = array_values(array_filter($recommended_openai, static function ($model) {
+    return is_array($model) && !empty($model['id']);
+}));
+$recommended_openai_lookup = array_fill_keys(array_column($recommended_openai, 'id'), true);
+
+$recommended_openrouter = \WPAICG\AIPKit_Providers::get_recommended_models('OpenRouter');
+$recommended_openrouter = array_values(array_filter($recommended_openrouter, static function ($model) {
+    return is_array($model) && !empty($model['id']);
+}));
+$recommended_openrouter_lookup = array_fill_keys(array_column($recommended_openrouter, 'id'), true);
+
+$recommended_google = \WPAICG\AIPKit_Providers::get_recommended_models('Google');
+$recommended_google = array_values(array_filter($recommended_google, static function ($model) {
+    return is_array($model) && !empty($model['id']);
+}));
+$recommended_google_lookup = array_fill_keys(array_column($recommended_google, 'id'), true);
+
+$recommended_claude = \WPAICG\AIPKit_Providers::get_recommended_models('Claude');
+$recommended_claude = array_values(array_filter($recommended_claude, static function ($model) {
+    return is_array($model) && !empty($model['id']);
+}));
+$recommended_claude_lookup = array_fill_keys(array_column($recommended_claude, 'id'), true);
 
 ?>
 <!-- OpenAI Model -->
@@ -22,22 +46,44 @@ if (!defined('ABSPATH')) exit;
             <?php
             $currentOpenAIModel = $openai_data['model'];
             $foundCurrent = false;
+            if (!empty($recommended_openai)) {
+                echo '<optgroup label="' . esc_attr__('Recommended', 'gpt3-ai-content-generator') . '">';
+                foreach ($recommended_openai as $rec) {
+                    $rec_id = $rec['id'] ?? '';
+                    $rec_name = $rec['name'] ?? $rec_id;
+                    if (!$rec_id) {
+                        continue;
+                    }
+                    if ($rec_id === $currentOpenAIModel) {
+                        $foundCurrent = true;
+                    }
+                    echo '<option value="' . esc_attr($rec_id) . '" ' . selected($currentOpenAIModel, $rec_id, false) . '>' . esc_html($rec_name) . '</option>';
+                }
+                echo '</optgroup>';
+            }
             if (!empty($grouped_openai_models) && is_array($grouped_openai_models)) {
                 foreach ($grouped_openai_models as $groupLabel => $groupItems) {
-                    echo '<optgroup label="' . esc_attr($groupLabel) . '">';
+                    $group_options = '';
                     foreach ($groupItems as $m) {
                         $model_id = $m['id'] ?? '';
                         $model_name = $m['name'] ?? $model_id;
-                         if($model_id === $currentOpenAIModel) $foundCurrent = true;
-                        echo '<option value="' . esc_attr($model_id) . '" ' . selected($currentOpenAIModel, $model_id, false) . '>' . esc_html($model_name) . '</option>';
+                        if (!$model_id || !empty($recommended_openai_lookup[$model_id])) {
+                            continue;
+                        }
+                        if ($model_id === $currentOpenAIModel) {
+                            $foundCurrent = true;
+                        }
+                        $group_options .= '<option value="' . esc_attr($model_id) . '" ' . selected($currentOpenAIModel, $model_id, false) . '>' . esc_html($model_name) . '</option>';
                     }
-                    echo '</optgroup>';
+                    if ($group_options !== '') {
+                        echo '<optgroup label="' . esc_attr($groupLabel) . '">' . $group_options . '</optgroup>';
+                    }
                 }
             }
             if (!$foundCurrent && !empty($currentOpenAIModel) && strpos($currentOpenAIModel, 'tts-') !== 0) {
                 echo '<option value="' . esc_attr($currentOpenAIModel) . '" selected>' . esc_html($currentOpenAIModel) . ' (Manual)</option>';
             }
-            if (empty($grouped_openai_models) && !$foundCurrent && (empty($currentOpenAIModel) || strpos($currentOpenAIModel, 'tts-') === 0) ) {
+            if (empty($grouped_openai_models) && empty($recommended_openai) && !$foundCurrent && (empty($currentOpenAIModel) || strpos($currentOpenAIModel, 'tts-') === 0) ) {
                  echo '<option value="">'.esc_html__('(Sync to load models)', 'gpt3-ai-content-generator').'</option>';
             }
             ?>
@@ -70,6 +116,21 @@ if (!defined('ABSPATH')) exit;
         <?php
         $currentORModel = $openrouter_data['model'];
         $foundCurrentOR = false;
+        if (!empty($recommended_openrouter)) {
+            echo '<optgroup label="' . esc_attr__('Recommended', 'gpt3-ai-content-generator') . '">';
+            foreach ($recommended_openrouter as $rec) {
+                $rec_id = $rec['id'] ?? '';
+                $rec_name = $rec['name'] ?? $rec_id;
+                if (!$rec_id) {
+                    continue;
+                }
+                if ($rec_id === $currentORModel) {
+                    $foundCurrentOR = true;
+                }
+                echo '<option value="' . esc_attr($rec_id) . '" ' . selected($currentORModel, $rec_id, false) . '>' . esc_html($rec_name) . '</option>';
+            }
+            echo '</optgroup>';
+        }
         if (!empty($openrouter_model_list)) {
             $grouped = array();
             foreach ($openrouter_model_list as $model) {
@@ -82,18 +143,25 @@ if (!defined('ABSPATH')) exit;
             }
             ksort($grouped);
             foreach ($grouped as $prefix => $modelsArr) {
-                echo '<optgroup label="' . esc_attr(ucfirst($prefix)) . '">';
+                $group_options = '';
                 usort($modelsArr, fn($a, $b) => strcmp($a['name'], $b['name']));
                 foreach ($modelsArr as $m) {
-                     if($m['id'] === $currentORModel) $foundCurrentOR = true;
-                    echo '<option value="' . esc_attr($m['id']) . '" ' . selected($currentORModel, $m['id'], false) . '>' . esc_html($m['name']) . '</option>';
+                    if (!empty($recommended_openrouter_lookup[$m['id'] ?? ''])) {
+                        continue;
+                    }
+                    if ($m['id'] === $currentORModel) {
+                        $foundCurrentOR = true;
+                    }
+                    $group_options .= '<option value="' . esc_attr($m['id']) . '" ' . selected($currentORModel, $m['id'], false) . '>' . esc_html($m['name']) . '</option>';
                 }
-                echo '</optgroup>';
+                if ($group_options !== '') {
+                    echo '<optgroup label="' . esc_attr(ucfirst($prefix)) . '">' . $group_options . '</optgroup>';
+                }
             }
         }
          if (!$foundCurrentOR && !empty($currentORModel)) {
              echo '<option value="' . esc_attr($currentORModel) . '" selected>' . esc_html($currentORModel) . ' (Manual)</option>';
-         } elseif (empty($openrouter_model_list) && empty($currentORModel)) {
+         } elseif (empty($openrouter_model_list) && empty($recommended_openrouter) && empty($currentORModel)) {
              echo '<option value="">'.esc_html__('(Sync to load models)', 'gpt3-ai-content-generator').'</option>';
          }
         ?>
@@ -126,25 +194,121 @@ if (!defined('ABSPATH')) exit;
             <?php
             $currentGoogleModel = $google_data['model'];
             $foundCurrentGoogle = false;
+            if (!empty($recommended_google)) {
+                echo '<optgroup label="' . esc_attr__('Recommended', 'gpt3-ai-content-generator') . '">';
+                foreach ($recommended_google as $rec) {
+                    $rec_id = $rec['id'] ?? '';
+                    $rec_name = $rec['name'] ?? $rec_id;
+                    if (!$rec_id) {
+                        continue;
+                    }
+                    $isRecSelected = ($rec_id === $currentGoogleModel || $currentGoogleModel === 'models/' . $rec_id);
+                    if ($isRecSelected) {
+                        $foundCurrentGoogle = true;
+                    }
+                    echo '<option value="' . esc_attr($rec_id) . '" ' . ($isRecSelected ? 'selected' : '') . '>' . esc_html($rec_name) . '</option>';
+                }
+                echo '</optgroup>';
+            }
             if (!empty($google_model_list)) {
+                if (!empty($recommended_google)) {
+                    echo '<optgroup label="' . esc_attr__('All models', 'gpt3-ai-content-generator') . '">';
+                }
                 foreach ($google_model_list as $gm) {
                     $gId = isset($gm['id']) ? $gm['id'] : (isset($gm['name']) ? $gm['name'] : '');
                     $gName = isset($gm['name']) ? $gm['name'] : $gId;
                     $selectedValue = $gId;
+                    if (!empty($recommended_google_lookup[$selectedValue])) {
+                        continue;
+                    }
                     $isSelected = ($currentGoogleModel === $selectedValue || $currentGoogleModel === 'models/'.$selectedValue);
-                    if ($isSelected) $foundCurrentGoogle = true;
+                    if ($isSelected) {
+                        $foundCurrentGoogle = true;
+                    }
                     echo '<option value="' . esc_attr($selectedValue) . '" ' . ($isSelected ? 'selected' : '') . '>' . esc_html($gName) . '</option>';
+                }
+                if (!empty($recommended_google)) {
+                    echo '</optgroup>';
                 }
             }
              if (!$foundCurrentGoogle && !empty($currentGoogleModel)) {
                  $displayModel = (strpos($currentGoogleModel, 'models/') === 0) ? substr($currentGoogleModel, 7) : $currentGoogleModel;
                 echo '<option value="' . esc_attr($currentGoogleModel) . '" selected>' . esc_html($displayModel) . ' (Manual)</option>';
-            } elseif (empty($google_model_list) && empty($currentGoogleModel)) {
+            } elseif (empty($google_model_list) && empty($recommended_google) && empty($currentGoogleModel)) {
                  echo '<option value="">'.esc_html__('(Sync to load models)', 'gpt3-ai-content-generator').'</option>';
             }
             ?>
         </select>
         <button id="aipkit_sync_google_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="Google">
+            <span class="dashicons dashicons-update"></span>
+            <span class="aipkit_btn_label"><?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?></span>
+        </button>
+        <button
+            type="button"
+            class="aipkit_btn aipkit_btn-secondary aipkit_settings_advanced_btn"
+            aria-controls="aipkit_settings_advanced_popover"
+            aria-expanded="false"
+        >
+            <?php esc_html_e('Advanced', 'gpt3-ai-content-generator'); ?>
+        </button>
+    </div>
+</div>
+
+<!-- Claude Model -->
+<div
+    class="aipkit_form-group aipkit_model_field"
+    id="aipkit_claude_model_group"
+    data-provider="Claude"
+    style="display: <?php echo ($current_provider === 'Claude') ? 'block' : 'none'; ?>;"
+>
+    <label class="aipkit_form-label" for="aipkit_claude_model"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></label>
+    <div class="aipkit_input-with-button">
+        <select id="aipkit_claude_model" name="claude_model" class="aipkit_form-input aipkit_autosave_trigger">
+            <?php
+            $currentClaudeModel = $claude_data['model'] ?? '';
+            $foundCurrentClaude = false;
+            if (!empty($recommended_claude)) {
+                echo '<optgroup label="' . esc_attr__('Recommended', 'gpt3-ai-content-generator') . '">';
+                foreach ($recommended_claude as $rec) {
+                    $rec_id = $rec['id'] ?? '';
+                    $rec_name = $rec['name'] ?? $rec_id;
+                    if (!$rec_id) {
+                        continue;
+                    }
+                    if ($rec_id === $currentClaudeModel) {
+                        $foundCurrentClaude = true;
+                    }
+                    echo '<option value="' . esc_attr($rec_id) . '" ' . selected($currentClaudeModel, $rec_id, false) . '>' . esc_html($rec_name) . '</option>';
+                }
+                echo '</optgroup>';
+            }
+            if (!empty($claude_model_list)) {
+                if (!empty($recommended_claude)) {
+                    echo '<optgroup label="' . esc_attr__('All models', 'gpt3-ai-content-generator') . '">';
+                }
+                foreach ($claude_model_list as $m) {
+                    $model_id = $m['id'] ?? '';
+                    $model_name = $m['name'] ?? $model_id;
+                    if (!$model_id || !empty($recommended_claude_lookup[$model_id])) {
+                        continue;
+                    }
+                    if ($model_id === $currentClaudeModel) {
+                        $foundCurrentClaude = true;
+                    }
+                    echo '<option value="' . esc_attr($model_id) . '" ' . selected($currentClaudeModel, $model_id, false) . '>' . esc_html($model_name) . '</option>';
+                }
+                if (!empty($recommended_claude)) {
+                    echo '</optgroup>';
+                }
+            }
+            if (!$foundCurrentClaude && !empty($currentClaudeModel)) {
+                echo '<option value="' . esc_attr($currentClaudeModel) . '" selected>' . esc_html($currentClaudeModel) . ' (Manual)</option>';
+            } elseif (empty($claude_model_list) && empty($recommended_claude) && empty($currentClaudeModel)) {
+                echo '<option value="">' . esc_html__('(Sync to load models)', 'gpt3-ai-content-generator') . '</option>';
+            }
+            ?>
+        </select>
+        <button id="aipkit_sync_claude_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="Claude">
             <span class="dashicons dashicons-update"></span>
             <span class="aipkit_btn_label"><?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?></span>
         </button>

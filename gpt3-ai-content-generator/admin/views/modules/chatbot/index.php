@@ -222,6 +222,22 @@ $openai_web_search_loc_country_val = $active_bot_settings['openai_web_search_loc
 $openai_web_search_loc_city_val = $active_bot_settings['openai_web_search_loc_city'] ?? '';
 $openai_web_search_loc_region_val = $active_bot_settings['openai_web_search_loc_region'] ?? '';
 $openai_web_search_loc_timezone_val = $active_bot_settings['openai_web_search_loc_timezone'] ?? '';
+$claude_web_search_enabled_val = $active_bot_settings['claude_web_search_enabled']
+    ?? BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_ENABLED;
+$claude_web_search_max_uses_val = isset($active_bot_settings['claude_web_search_max_uses'])
+    ? absint($active_bot_settings['claude_web_search_max_uses'])
+    : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_MAX_USES;
+$claude_web_search_max_uses_val = max(1, min($claude_web_search_max_uses_val, 20));
+$claude_web_search_loc_type_val = $active_bot_settings['claude_web_search_loc_type']
+    ?? BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_LOC_TYPE;
+$claude_web_search_loc_country_val = $active_bot_settings['claude_web_search_loc_country'] ?? '';
+$claude_web_search_loc_city_val = $active_bot_settings['claude_web_search_loc_city'] ?? '';
+$claude_web_search_loc_region_val = $active_bot_settings['claude_web_search_loc_region'] ?? '';
+$claude_web_search_loc_timezone_val = $active_bot_settings['claude_web_search_loc_timezone'] ?? '';
+$claude_web_search_allowed_domains_val = $active_bot_settings['claude_web_search_allowed_domains'] ?? '';
+$claude_web_search_blocked_domains_val = $active_bot_settings['claude_web_search_blocked_domains'] ?? '';
+$claude_web_search_cache_ttl_val = $active_bot_settings['claude_web_search_cache_ttl']
+    ?? BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
 $google_search_grounding_enabled_val = $active_bot_settings['google_search_grounding_enabled']
     ?? BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED;
 $google_grounding_mode_val = $active_bot_settings['google_grounding_mode']
@@ -268,7 +284,7 @@ $content_aware_enabled = in_array($content_aware_enabled, ['0', '1'], true)
     : BotSettingsManager::DEFAULT_CONTENT_AWARE_ENABLED;
 $vector_store_provider = $active_bot_settings['vector_store_provider']
     ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-$allowed_vector_store_providers = ['openai', 'pinecone', 'qdrant'];
+$allowed_vector_store_providers = ['openai', 'pinecone', 'qdrant', 'claude_files'];
 if (!in_array($vector_store_provider, $allowed_vector_store_providers, true)) {
     $vector_store_provider = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
 }
@@ -314,6 +330,7 @@ $pinecone_provider_data = [];
 $qdrant_provider_data = [];
 $google_provider_data = [];
 $azure_provider_data = [];
+$claude_provider_data = [];
 $elevenlabs_provider_data = [];
 if (class_exists(AIPKit_Vector_Store_Registry::class)) {
     $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
@@ -329,6 +346,7 @@ if (class_exists(AIPKit_Providers::class)) {
     $qdrant_provider_data = AIPKit_Providers::get_provider_data('Qdrant');
     $google_provider_data = AIPKit_Providers::get_provider_data('Google');
     $azure_provider_data = AIPKit_Providers::get_provider_data('Azure');
+    $claude_provider_data = AIPKit_Providers::get_provider_data('Claude');
     $elevenlabs_provider_data = AIPKit_Providers::get_provider_data('ElevenLabs');
     $replicate_provider_data = AIPKit_Providers::get_provider_data('Replicate');
 }
@@ -338,6 +356,7 @@ $qdrant_url = $qdrant_provider_data['url'] ?? '';
 $qdrant_api_key = $qdrant_provider_data['api_key'] ?? '';
 $google_api_key = $google_provider_data['api_key'] ?? '';
 $azure_api_key = $azure_provider_data['api_key'] ?? '';
+$claude_api_key = $claude_provider_data['api_key'] ?? '';
 $elevenlabs_api_key = $elevenlabs_provider_data['api_key'] ?? '';
 $replicate_api_key = $replicate_provider_data['api_key'] ?? '';
 $image_triggers = $active_bot_settings['image_triggers']
@@ -460,7 +479,7 @@ $direct_voice_mode_tooltip = $direct_voice_mode_disabled
     : '';
 
 // Provider/model data for AI selection.
-$providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];
+$providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
 $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
 $rt_disabled_by_plan = !$is_pro_plan;
 $rt_controls_disabled = $rt_disabled_by_plan;
@@ -488,6 +507,7 @@ $grouped_openai_models = get_option('aipkit_openai_model_list', []);
 $openrouter_model_list = get_option('aipkit_openrouter_model_list', []);
 $google_model_list = get_option('aipkit_google_model_list', []);
 $azure_deployment_list = AIPKit_Providers::get_azure_deployments();
+$claude_model_list = AIPKit_Providers::get_claude_models();
 $deepseek_model_list = AIPKit_Providers::get_deepseek_models();
 $ollama_model_list = AIPKit_Providers::get_ollama_models();
 
@@ -499,6 +519,7 @@ if (!in_array($saved_provider, $providers, true)) {
         'openrouter' => 'OpenRouter',
         'google' => 'Google',
         'azure' => 'Azure',
+        'claude' => 'Claude',
         'deepseek' => 'DeepSeek',
         'ollama' => 'Ollama',
     ];
@@ -538,6 +559,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     data-qdrant-url-set="<?php echo esc_attr(!empty($qdrant_url) ? 'true' : 'false'); ?>"
     data-google-api-key-set="<?php echo esc_attr(!empty($google_api_key) ? 'true' : 'false'); ?>"
     data-azure-api-key-set="<?php echo esc_attr(!empty($azure_api_key) ? 'true' : 'false'); ?>"
+    data-claude-api-key-set="<?php echo esc_attr(!empty($claude_api_key) ? 'true' : 'false'); ?>"
     data-model-settings-title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
     data-model-settings-description="<?php esc_attr_e('Configure model settings and behavior for this chatbot.', 'gpt3-ai-content-generator'); ?>"
 >
@@ -2589,12 +2611,12 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                 </button>
             </div>
             <div class="aipkit_popover_flyout_body aipkit_popover_image_body">
-                <div class="aipkit_popover_option_row aipkit_image_analysis_popover_row" style="<?php echo ($current_provider_for_this_bot === 'OpenAI') ? '' : 'display:none;'; ?>">
+                <div class="aipkit_popover_option_row aipkit_image_analysis_popover_row" style="<?php echo (($current_provider_for_this_bot === 'OpenAI' || $current_provider_for_this_bot === 'Claude')) ? '' : 'display:none;'; ?>">
                     <div class="aipkit_popover_option_main">
                         <span
                             class="aipkit_popover_option_label"
                             tabindex="0"
-                            data-tooltip="<?php echo esc_attr__('Allow image uploads for analysis (OpenAI only).', 'gpt3-ai-content-generator'); ?>"
+                            data-tooltip="<?php echo esc_attr__('Allow image uploads for analysis (OpenAI and Claude only).', 'gpt3-ai-content-generator'); ?>"
                         >
                             <?php esc_html_e('Image upload', 'gpt3-ai-content-generator'); ?>
                         </span>

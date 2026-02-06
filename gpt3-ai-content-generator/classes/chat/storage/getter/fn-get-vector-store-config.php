@@ -34,7 +34,11 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
         : BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
 
     $settings['vector_store_provider'] = $get_meta_fn('_aipkit_vector_store_provider', BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER);
-    if (!in_array($settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant'])) {
+    if (!in_array($settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant', 'claude_files'], true)) {
+        $settings['vector_store_provider'] = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
+    }
+    $chat_provider = sanitize_text_field((string) $get_meta_fn('_aipkit_provider', 'OpenAI'));
+    if (strtolower($chat_provider) !== 'claude' && $settings['vector_store_provider'] === 'claude_files') {
         $settings['vector_store_provider'] = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
     }
 

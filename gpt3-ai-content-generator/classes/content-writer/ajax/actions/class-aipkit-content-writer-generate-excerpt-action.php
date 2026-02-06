@@ -45,7 +45,13 @@ class AIPKit_Content_Writer_Generate_Excerpt_Action extends AIPKit_Content_Write
         }
 
         $provider = match (strtolower($provider_raw)) {
-            'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'deepseek' => 'DeepSeek', 'ollama' => 'Ollama',
+            'openai' => 'OpenAI',
+            'openrouter' => 'OpenRouter',
+            'google' => 'Google',
+            'azure' => 'Azure',
+            'claude' => 'Claude',
+            'deepseek' => 'DeepSeek',
+            'ollama' => 'Ollama',
             default => $provider_raw
         };
 

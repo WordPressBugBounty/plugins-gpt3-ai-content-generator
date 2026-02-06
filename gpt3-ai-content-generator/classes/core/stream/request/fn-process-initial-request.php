@@ -89,6 +89,9 @@ function process_initial_request_logic(
                     if (isset($outer_decoded['active_qdrant_file_upload_context_id'])) {
                         $cached_data_decoded_for_handler['active_qdrant_file_upload_context_id'] = $outer_decoded['active_qdrant_file_upload_context_id'];
                     }
+                    if (isset($outer_decoded['active_claude_file_id'])) {
+                        $cached_data_decoded_for_handler['active_claude_file_id'] = $outer_decoded['active_claude_file_id'];
+                    }
                     if (isset($outer_decoded['client_user_message_id'])) {
                         $cached_data_decoded_for_handler['client_user_message_id'] = $outer_decoded['client_user_message_id'];
                     }

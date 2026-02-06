@@ -139,6 +139,15 @@ function start_stream_logic(
         $curl_post_json_for_log = json_encode($sanitized_curl_post_data_for_log);
 
         $curl_post_data = apply_filters('aipkit_ai_query', $curl_post_data, $provider, $model, $history, $system_instruction_filtered, $api_params, $ai_params);
+        $claude_beta_header_detector = '\WPAICG\Core\Providers\Claude\Methods\claude_payload_requires_files_beta_header';
+        $claude_requires_files_beta_header = $provider === 'Claude'
+            && is_array($curl_post_data)
+            && function_exists($claude_beta_header_detector)
+            && $claude_beta_header_detector($curl_post_data);
+        if ($claude_requires_files_beta_header) {
+            $headers['anthropic-beta'] = 'files-api-2025-04-14';
+            $curl_headers = $strategy->format_headers_for_curl($headers);
+        }
         $sanitized_curl_headers = [];
         foreach ($curl_headers as $header_line) {
             if (preg_match('/^(authorization|api[-_]?key|x-api-key)\s*:/i', (string)$header_line)) {

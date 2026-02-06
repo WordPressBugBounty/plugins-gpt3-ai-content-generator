@@ -51,6 +51,7 @@ require_once __DIR__ . '/determine_provider_model.php';
  * @param string|null $frontend_active_pinecone_namespace Optional active Pinecone namespace from frontend.
  * @param string|null $frontend_active_qdrant_collection_name Optional active Qdrant collection name from frontend.
  * @param string|null $frontend_active_qdrant_file_upload_context_id Optional active Qdrant file context ID from frontend.
+ * @param string|null $frontend_active_claude_file_id Optional active Claude file ID from frontend.
  * @return array|WP_Error Response data or WP_Error.
  */
 function generate_response(
@@ -67,7 +68,8 @@ function generate_response(
     ?string $frontend_active_pinecone_index_name = null,
     ?string $frontend_active_pinecone_namespace = null,
     ?string $frontend_active_qdrant_collection_name = null,
-    ?string $frontend_active_qdrant_file_upload_context_id = null
+    ?string $frontend_active_qdrant_file_upload_context_id = null,
+    ?string $frontend_active_claude_file_id = null
 ): array|WP_Error {
     $ai_caller = $serviceInstance->get_ai_caller();
     $vector_store_manager = $serviceInstance->get_vector_store_manager(); // Get Vector Store Manager
@@ -139,7 +141,8 @@ function generate_response(
         $messages_payload,
         $frontend_openai_web_search_active,
         $frontend_google_search_grounding_active,
-        $frontend_active_openai_vs_id
+        $frontend_active_openai_vs_id,
+        $frontend_active_claude_file_id
     );
     $final_ai_params = $final_ai_params_result['final_ai_params'];
     $actual_previous_response_id_to_use = $final_ai_params_result['actual_previous_response_id_to_use'];

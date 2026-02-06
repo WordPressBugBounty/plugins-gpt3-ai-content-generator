@@ -65,10 +65,7 @@ $frequencies = [
 $is_pro = aipkit_dashboard::is_pro_plan(); // Define is_pro for partials
 
 // For Content Writing Task Type
-$cw_providers_for_select = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
-if ($is_pro) {
-    $cw_providers_for_select[] = 'Ollama';
-}
+$cw_providers_for_select = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
 $cw_ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 $cw_default_temperature = $cw_ai_parameters['temperature'] ?? 1.0;
 $cw_available_post_types = get_post_types(['public' => true], 'objects');

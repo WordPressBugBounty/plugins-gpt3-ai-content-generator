@@ -375,7 +375,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             return;
         }
 
-        $allowed_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];
+        $allowed_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
         if (!in_array($provider, $allowed_providers, true)) {
             wp_send_json_error(['message' => __('Invalid provider.', 'gpt3-ai-content-generator')], 400);
             return;
@@ -824,6 +824,66 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $openai_web_search_loc_timezone = isset($_POST['openai_web_search_loc_timezone']) ? sanitize_text_field(wp_unslash($_POST['openai_web_search_loc_timezone'])) : '';
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_enabled = (isset($_POST['claude_web_search_enabled']) && wp_unslash($_POST['claude_web_search_enabled']) === '1') ? '1' : '0';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_max_uses = isset($_POST['claude_web_search_max_uses'])
+            ? absint(wp_unslash($_POST['claude_web_search_max_uses']))
+            : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_MAX_USES;
+        $claude_web_search_max_uses = max(1, min($claude_web_search_max_uses, 20));
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_loc_type = isset($_POST['claude_web_search_loc_type']) ? sanitize_text_field(wp_unslash($_POST['claude_web_search_loc_type'])) : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_LOC_TYPE;
+        $allowed_claude_loc_types = ['none', 'approximate'];
+        if (!in_array($claude_web_search_loc_type, $allowed_claude_loc_types, true)) {
+            $claude_web_search_loc_type = BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_LOC_TYPE;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_loc_country = isset($_POST['claude_web_search_loc_country']) ? sanitize_text_field(wp_unslash($_POST['claude_web_search_loc_country'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_loc_city = isset($_POST['claude_web_search_loc_city']) ? sanitize_text_field(wp_unslash($_POST['claude_web_search_loc_city'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_loc_region = isset($_POST['claude_web_search_loc_region']) ? sanitize_text_field(wp_unslash($_POST['claude_web_search_loc_region'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_loc_timezone = isset($_POST['claude_web_search_loc_timezone']) ? sanitize_text_field(wp_unslash($_POST['claude_web_search_loc_timezone'])) : '';
+        $normalize_domains = static function ($value): string {
+            if (!is_string($value)) {
+                return '';
+            }
+            $parts = preg_split('/[\r\n,]+/', $value);
+            if (!is_array($parts)) {
+                return '';
+            }
+            $clean = [];
+            foreach ($parts as $part) {
+                $domain = strtolower(trim((string) $part));
+                if ($domain === '') {
+                    continue;
+                }
+                $domain = preg_replace('/^https?:\/\//', '', $domain);
+                $domain = trim((string) $domain, " \t\n\r\0\x0B/");
+                if ($domain === '') {
+                    continue;
+                }
+                if (!preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/i', $domain)) {
+                    continue;
+                }
+                $clean[] = $domain;
+            }
+            return implode(',', array_values(array_unique($clean)));
+        };
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_allowed_domains = isset($_POST['claude_web_search_allowed_domains']) ? $normalize_domains((string) wp_unslash($_POST['claude_web_search_allowed_domains'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_blocked_domains = isset($_POST['claude_web_search_blocked_domains']) ? $normalize_domains((string) wp_unslash($_POST['claude_web_search_blocked_domains'])) : '';
+        if ($claude_web_search_allowed_domains !== '') {
+            $claude_web_search_blocked_domains = '';
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $claude_web_search_cache_ttl = isset($_POST['claude_web_search_cache_ttl']) ? sanitize_text_field(wp_unslash($_POST['claude_web_search_cache_ttl'])) : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
+        if (!in_array($claude_web_search_cache_ttl, ['none', '5m', '1h'], true)) {
+            $claude_web_search_cache_ttl = BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_search_grounding_enabled = (isset($_POST['google_search_grounding_enabled']) && wp_unslash($_POST['google_search_grounding_enabled']) === '1') ? '1' : '0';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_grounding_mode = isset($_POST['google_grounding_mode']) ? sanitize_text_field(wp_unslash($_POST['google_grounding_mode'])) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
@@ -844,6 +904,16 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         update_post_meta($bot_id, '_aipkit_openai_web_search_loc_city', $openai_web_search_loc_city);
         update_post_meta($bot_id, '_aipkit_openai_web_search_loc_region', $openai_web_search_loc_region);
         update_post_meta($bot_id, '_aipkit_openai_web_search_loc_timezone', $openai_web_search_loc_timezone);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_enabled', $claude_web_search_enabled);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_max_uses', (string) $claude_web_search_max_uses);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_loc_type', $claude_web_search_loc_type);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_loc_country', $claude_web_search_loc_country);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_loc_city', $claude_web_search_loc_city);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_loc_region', $claude_web_search_loc_region);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_loc_timezone', $claude_web_search_loc_timezone);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_allowed_domains', $claude_web_search_allowed_domains);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_blocked_domains', $claude_web_search_blocked_domains);
+        update_post_meta($bot_id, '_aipkit_claude_web_search_cache_ttl', $claude_web_search_cache_ttl);
         update_post_meta($bot_id, '_aipkit_google_search_grounding_enabled', $google_search_grounding_enabled);
         update_post_meta($bot_id, '_aipkit_google_grounding_mode', $google_grounding_mode);
         update_post_meta($bot_id, '_aipkit_google_grounding_dynamic_threshold', $google_grounding_dynamic_threshold);
@@ -892,7 +962,11 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $vector_store_provider = isset($_POST['vector_store_provider'])
             ? sanitize_text_field(wp_unslash($_POST['vector_store_provider']))
             : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
+        $main_provider = (string) get_post_meta($bot_id, '_aipkit_provider', true);
         $allowed_providers = ['openai', 'pinecone', 'qdrant'];
+        if (strtolower($main_provider) === 'claude') {
+            $allowed_providers[] = 'claude_files';
+        }
         if (!in_array($vector_store_provider, $allowed_providers, true)) {
             $vector_store_provider = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
         }
@@ -1899,7 +1973,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         $provider_key = $settings['vector_store_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant'], true)) {
+        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'claude_files'], true)) {
             $provider_key = $override_provider;
         }
         $provider_map = [
@@ -1907,7 +1981,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
         ];
-        $provider_name = $provider_map[$provider_key] ?? 'OpenAI';
+        $provider_name = $provider_map[$provider_key] ?? '';
+        if ($provider_name === '') {
+            wp_send_json_success([
+                'count' => 0,
+            ]);
+            return;
+        }
 
         $store_ids = [];
         if ($provider_key === 'openai') {
@@ -2066,7 +2146,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         $provider_key = $settings['vector_store_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant'], true)) {
+        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'claude_files'], true)) {
             $provider_key = $override_provider;
         }
         $provider_map = [

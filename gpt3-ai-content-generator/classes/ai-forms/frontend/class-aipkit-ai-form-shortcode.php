@@ -103,11 +103,11 @@ class AIPKit_AI_Form_Shortcode
             $public_main_js_handle = 'aipkit-public-main';
         if (wp_script_is($public_main_js_handle, 'registered') && class_exists('\\WPAICG\\AIPKit_Providers')) {
                 $all_models = [
-            'openai'     => \WPAICG\AIPKit_Providers::get_openai_models(),
+            'openai' => \WPAICG\AIPKit_Providers::get_openai_models(),
+            'google' => \WPAICG\AIPKit_Providers::get_google_models(),
+            'claude' => \WPAICG\AIPKit_Providers::get_claude_models(),
             'openrouter' => \WPAICG\AIPKit_Providers::get_openrouter_models(),
-            'google'     => \WPAICG\AIPKit_Providers::get_google_models(),
-            'azure'      => \WPAICG\AIPKit_Providers::get_azure_deployments(),
-            'deepseek'   => \WPAICG\AIPKit_Providers::get_deepseek_models(),
+            'azure' => \WPAICG\AIPKit_Providers::get_azure_deployments(),
                 ];
                 // Add Ollama models only for Pro plan
                 if (
@@ -116,6 +116,7 @@ class AIPKit_AI_Form_Shortcode
                 ) {
             $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
                 }
+                $all_models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
                 wp_localize_script($public_main_js_handle, 'aipkit_ai_forms_models', $all_models);
                 $models_localized = true;
             }

@@ -37,6 +37,10 @@ class AIPKit_Providers
             'api_version_authoring' => '2023-03-15-preview', 'api_version_inference' => '2025-01-01-preview',
             'api_version_images' => '2024-04-01-preview'
         ],
+        'Claude' => [
+            'api_key' => '', 'model' => 'claude-opus-4-6',
+            'base_url' => 'https://api.anthropic.com', 'api_version' => '2023-06-01',
+        ],
         'DeepSeek' => [
             'api_key' => '', 'model' => '',
             'base_url' => 'https://api.deepseek.com', 'api_version' => 'v1',
@@ -83,6 +87,11 @@ class AIPKit_Providers
             ['id' => 'models/text-embedding-004', 'name' => 'Embedding 004 (768)'],
             ['id' => 'models/embedding-001', 'name' => 'Embedding 001 (768)'],
         ],
+        'Claude' => [
+            'claude-opus-4-6',
+            'claude-opus-4-5-20251101',
+            'claude-sonnet-4-5-20250929',
+        ],
         'Azure' => [], 'AzureImage' => [], 'AzureEmbedding' => [], 'DeepSeek' => ['deepseek-chat', 'deepseek-coder'],
         'Ollama' => [],
         'ElevenLabs' => [], 'ElevenLabsModels' => ['eleven_multilingual_v2'],
@@ -117,6 +126,11 @@ class AIPKit_Providers
             'x-ai/grok-4.1-fast',
             'z-ai/glm-4.7',
         ],
+        'Claude' => [
+            'claude-opus-4-6',
+            'claude-opus-4-5-20251101',
+            'claude-sonnet-4-5-20250929',
+        ],
     ];
 
     private static $model_list_options = [
@@ -127,6 +141,7 @@ class AIPKit_Providers
         'GoogleImage'      => 'aipkit_google_image_model_list',
         'GoogleVideo'      => 'aipkit_google_video_model_list',
         'GoogleEmbedding'  => 'aipkit_google_embedding_model_list',
+        'Claude'           => 'aipkit_claude_model_list',
         'Azure'            => 'aipkit_azure_deployment_list',
         'AzureImage' => 'aipkit_azure_image_model_list', 'AzureEmbedding'   => 'aipkit_azure_embedding_model_list', 'DeepSeek'         => 'aipkit_deepseek_model_list',
         'Ollama'           => 'aipkit_ollama_model_list',
@@ -205,7 +220,18 @@ class AIPKit_Providers
     {
         $all = self::get_all_providers();
         $defaults = self::$provider_defaults[$provider] ?? [];
-        return isset($all[$provider]) ? array_merge($defaults, $all[$provider]) : $defaults;
+        $provider_data = isset($all[$provider]) ? array_merge($defaults, $all[$provider]) : $defaults;
+
+        // Backward compatibility: older installs may have an empty stored Claude model.
+        if (
+            $provider === 'Claude'
+            && isset($provider_data['model'])
+            && trim((string) $provider_data['model']) === ''
+        ) {
+            $provider_data['model'] = $defaults['model'] ?? 'claude-opus-4-6';
+        }
+
+        return $provider_data;
     }
 
     public static function get_default_provider_config()
@@ -246,6 +272,8 @@ class AIPKit_Providers
             $normalized_key = 'OpenRouter';
         } elseif ('google' === $key_lower) {
             $normalized_key = 'Google';
+        } elseif ('claude' === $key_lower) {
+            $normalized_key = 'Claude';
         }
 
         $recommended_ids = self::$recommended_model_lists[$normalized_key] ?? [];
@@ -402,7 +430,7 @@ class AIPKit_Providers
 
         if ($use_defaults) {
             $default_list_raw = self::$default_model_lists[$provider_key] ?? [];
-            if (in_array($provider_key, ['Google', 'Azure', 'DeepSeek'])) {
+            if (in_array($provider_key, ['Google', 'Claude', 'Azure', 'DeepSeek'])) {
                 $processed_model_list = array_map(fn ($id) => ['id' => $id, 'name' => $id], $default_list_raw);
             } elseif ($provider_key === 'OpenRouter') {
                 $processed_model_list = array_map(function ($id) {
@@ -485,6 +513,10 @@ class AIPKit_Providers
     public static function get_google_embedding_models(): array
     {
         return self::get_model_list('GoogleEmbedding');
+    }
+    public static function get_claude_models(): array
+    {
+        return self::get_model_list('Claude');
     }
     public static function get_google_image_models(): array
     {

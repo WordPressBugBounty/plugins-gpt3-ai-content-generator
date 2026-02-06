@@ -62,6 +62,9 @@ class Provider_Dependencies_Loader
         // END MODIFICATION
 
         require_once $providers_path . 'azure/bootstrap-provider-strategy.php';
+        if (file_exists($providers_path . 'claude/bootstrap-provider-strategy.php')) {
+            require_once $providers_path . 'claude/bootstrap-provider-strategy.php';
+        }
         require_once $providers_path . 'deepseek-provider-strategy.php';
         // Load Ollama bootstrap (Pro addon strategy lives under lib)
         if (file_exists($providers_path . 'ollama/bootstrap-provider-strategy.php')) {

@@ -33,6 +33,7 @@ function get_core_flag_values_logic(array $settings): array {
             'DEFAULT_ENABLE_FILE_UPLOAD' => '0',
             'DEFAULT_ENABLE_IMAGE_UPLOAD' => '0',
             'DEFAULT_OPENAI_WEB_SEARCH_ENABLED' => '0',
+            'DEFAULT_CLAUDE_WEB_SEARCH_ENABLED' => '0',
             'DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED' => '0',
         ];
     } else {
@@ -46,11 +47,14 @@ function get_core_flag_values_logic(array $settings): array {
             'DEFAULT_ENABLE_FILE_UPLOAD' => BotSettingsManager::DEFAULT_ENABLE_FILE_UPLOAD,
             'DEFAULT_ENABLE_IMAGE_UPLOAD' => BotSettingsManager::DEFAULT_ENABLE_IMAGE_UPLOAD,
             'DEFAULT_OPENAI_WEB_SEARCH_ENABLED' => BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_ENABLED,
+            'DEFAULT_CLAUDE_WEB_SEARCH_ENABLED' => BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_ENABLED,
             'DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED' => BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED,
         ];
     }
 
     return [
+        'provider' => isset($settings['provider']) ? sanitize_text_field((string) $settings['provider']) : 'OpenAI',
+        'vector_store_provider' => isset($settings['vector_store_provider']) ? sanitize_key((string) $settings['vector_store_provider']) : 'openai',
         // Directly derived flags (boolean)
         'popup_enabled'      => ($settings['popup_enabled'] ?? '0') === '1',
         'stream_enabled'     => ($settings['stream_enabled'] ?? '0') === '1',
@@ -68,6 +72,7 @@ function get_core_flag_values_logic(array $settings): array {
         'enable_image_upload_setting' => ($settings['enable_image_upload'] ?? $defaults['DEFAULT_ENABLE_IMAGE_UPLOAD']) === '1',
         'enable_realtime_voice_setting' => ($settings['enable_realtime_voice'] ?? '0') === '1',
         'allow_openai_web_search_tool_setting'  => ($settings['openai_web_search_enabled'] ?? $defaults['DEFAULT_OPENAI_WEB_SEARCH_ENABLED']) === '1',
+        'allow_claude_web_search_tool_setting'  => ($settings['claude_web_search_enabled'] ?? $defaults['DEFAULT_CLAUDE_WEB_SEARCH_ENABLED']) === '1',
         'allow_google_search_grounding_setting' => ($settings['google_search_grounding_enabled'] ?? $defaults['DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED']) === '1',
     ];
 }

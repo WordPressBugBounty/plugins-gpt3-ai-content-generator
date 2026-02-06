@@ -94,6 +94,9 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     if (isset($settings['openai_web_search_enabled'])) {
         update_post_meta($form_id, '_aipkit_ai_form_openai_web_search_enabled', $settings['openai_web_search_enabled'] === '1' ? '1' : '0');
     }
+    if (isset($settings['claude_web_search_enabled'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_enabled', $settings['claude_web_search_enabled'] === '1' ? '1' : '0');
+    }
     if (isset($settings['google_search_grounding_enabled'])) {
         update_post_meta($form_id, '_aipkit_ai_form_google_search_grounding_enabled', $settings['google_search_grounding_enabled'] === '1' ? '1' : '0');
     }
@@ -116,6 +119,44 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     }
     if (isset($settings['openai_web_search_loc_timezone'])) {
         update_post_meta($form_id, '_aipkit_ai_form_openai_web_search_loc_timezone', sanitize_text_field($settings['openai_web_search_loc_timezone']));
+    }
+
+    // --- Save Claude Web Search Sub-Settings ---
+    if (isset($settings['claude_web_search_max_uses'])) {
+        $max_uses = absint($settings['claude_web_search_max_uses']);
+        $max_uses = max(1, min($max_uses, 20));
+        update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_max_uses', $max_uses);
+    }
+    if (isset($settings['claude_web_search_loc_type'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_loc_type', sanitize_text_field($settings['claude_web_search_loc_type']));
+    }
+    if (isset($settings['claude_web_search_loc_country'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_loc_country', sanitize_text_field($settings['claude_web_search_loc_country']));
+    }
+    if (isset($settings['claude_web_search_loc_city'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_loc_city', sanitize_text_field($settings['claude_web_search_loc_city']));
+    }
+    if (isset($settings['claude_web_search_loc_region'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_loc_region', sanitize_text_field($settings['claude_web_search_loc_region']));
+    }
+    if (isset($settings['claude_web_search_loc_timezone'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_loc_timezone', sanitize_text_field($settings['claude_web_search_loc_timezone']));
+    }
+    $claude_allowed_domains = isset($settings['claude_web_search_allowed_domains']) ? sanitize_textarea_field($settings['claude_web_search_allowed_domains']) : null;
+    $claude_blocked_domains = isset($settings['claude_web_search_blocked_domains']) ? sanitize_textarea_field($settings['claude_web_search_blocked_domains']) : null;
+    if ($claude_allowed_domains !== null || $claude_blocked_domains !== null) {
+        if (!empty($claude_allowed_domains)) {
+            $claude_blocked_domains = '';
+        }
+        if ($claude_allowed_domains !== null) {
+            update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_allowed_domains', $claude_allowed_domains);
+        }
+        if ($claude_blocked_domains !== null) {
+            update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_blocked_domains', $claude_blocked_domains);
+        }
+    }
+    if (isset($settings['claude_web_search_cache_ttl'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_cache_ttl', sanitize_text_field($settings['claude_web_search_cache_ttl']));
     }
     
     // --- Save Google Search Grounding Sub-Settings ---

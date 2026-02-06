@@ -104,19 +104,16 @@ $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard
                         <?php
                         if (!empty($aipkit_ai_providers_for_select)) {
                             foreach ($aipkit_ai_providers_for_select as $provider_label) {
-                                if ($provider_label === 'DeepSeek' || $provider_label === 'Ollama') {
-                                    continue;
-                                }
                                 $provider_value = strtolower($provider_label);
-                                echo '<option value="' . esc_attr($provider_value) . '"' . selected($default_provider, $provider_value, false) . '>' . esc_html($provider_label) . '</option>';
+                                $disabled = false;
+                                $label = $provider_label;
+                                if ($provider_label === 'Ollama' && !$is_pro) {
+                                    $disabled = true;
+                                    $label = __('Ollama (Pro)', 'gpt3-ai-content-generator');
+                                }
+                                echo '<option value="' . esc_attr($provider_value) . '"' . selected($default_provider, $provider_value, false) . ($disabled ? ' disabled' : '') . '>' . esc_html($label) . '</option>';
                             }
                         }
-
-                        echo '<option value="deepseek"' . selected($default_provider, 'deepseek', false) . '>DeepSeek</option>';
-
-                        $ollama_disabled = !$is_pro;
-                        $ollama_label = $ollama_disabled ? __('Ollama (Pro)', 'gpt3-ai-content-generator') : 'Ollama';
-                        echo '<option value="ollama"' . selected($default_provider, 'ollama', false) . ($ollama_disabled ? ' disabled' : '') . '>' . esc_html($ollama_label) . '</option>';
                         ?>
                     </select>
                 </div>

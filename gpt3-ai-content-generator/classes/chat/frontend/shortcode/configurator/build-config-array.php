@@ -236,7 +236,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'imageUploadEnabledUI' => $feature_flags['image_upload_ui_enabled'] ?? false,
         'inputActionButtonEnabled' => $feature_flags['input_action_button_enabled'] ?? false,
         'provider' => $settings['provider'] ?? 'OpenAI', // This is the Main AI provider for the bot
-        // This line ensures vectorStoreProvider (e.g., 'openai', 'pinecone', 'qdrant') is passed to JS
+        // This line ensures vectorStoreProvider (e.g., 'openai', 'pinecone', 'qdrant', 'claude_files') is passed to JS.
         'vectorStoreProvider' => $settings['vector_store_provider'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER : 'openai'),
         'enableOpenAIConversationState' => $enable_openai_conv_state,
         'allowWebSearchTool' => $allow_openai_web_search_tool,

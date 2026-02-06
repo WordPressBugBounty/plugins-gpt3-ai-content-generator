@@ -5,13 +5,14 @@
  */
 if (!defined('ABSPATH')) exit;
 
-// Variables required: $current_provider, $openai_data, $openrouter_data, $google_data, $azure_data, $deepseek_data, $azure_defaults
+// Variables required: $current_provider, $openai_data, $openrouter_data, $google_data, $azure_data, $claude_data, $deepseek_data, $azure_defaults
 
 $provider_api_key_urls = [
     'OpenAI' => 'https://platform.openai.com/api-keys',
     'OpenRouter' => 'https://openrouter.ai/keys',
     'Google' => 'https://makersuite.google.com/app/apikey',
     'Azure' => 'https://ai.azure.com/', 
+    'Claude' => 'https://console.anthropic.com/settings/keys',
     'DeepSeek' => 'https://platform.deepseek.com/api_keys',
 ];
 
@@ -74,6 +75,27 @@ $provider_api_key_urls = [
             <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
         </div>
         <a href="<?php echo esc_url($provider_api_key_urls['Google']); ?>" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">
+             <span class="aipkit_btn-text"><?php esc_html_e('Get Key', 'gpt3-ai-content-generator'); ?></span>
+        </a>
+    </div>
+</div>
+
+<!-- Claude API Key -->
+<div
+    class="aipkit_form-group aipkit_api_key_field"
+    id="aipkit_claude_api_key_group"
+    data-provider="Claude"
+     style="display: <?php echo ($current_provider === 'Claude') ? 'block' : 'none'; ?>;"
+>
+    <label class="aipkit_form-label" for="aipkit_claude_api_key"><?php esc_html_e('API Key', 'gpt3-ai-content-generator'); ?></label>
+    <div class="aipkit_input-with-button">
+        <div class="aipkit_api-key-wrapper">
+            <input type="password" id="aipkit_claude_api_key" name="claude_api_key" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($claude_data['api_key']); ?>"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                data-lpignore="true" data-1p-ignore="true" data-form-type="other" />
+            <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
+        </div>
+        <a href="<?php echo esc_url($provider_api_key_urls['Claude']); ?>" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">
              <span class="aipkit_btn-text"><?php esc_html_e('Get Key', 'gpt3-ai-content-generator'); ?></span>
         </a>
     </div>

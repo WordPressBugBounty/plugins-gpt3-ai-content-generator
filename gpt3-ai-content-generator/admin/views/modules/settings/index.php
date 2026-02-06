@@ -52,6 +52,7 @@ $openai_data     = AIPKit_Providers::get_provider_data('OpenAI');
 $openrouter_data = AIPKit_Providers::get_provider_data('OpenRouter');
 $google_data     = AIPKit_Providers::get_provider_data('Google');
 $azure_data      = AIPKit_Providers::get_provider_data('Azure');
+$claude_data     = AIPKit_Providers::get_provider_data('Claude');
 $deepseek_data   = AIPKit_Providers::get_provider_data('DeepSeek');
 $ollama_data     = AIPKit_Providers::get_provider_data('Ollama');
 $pinecone_data   = AIPKit_Providers::get_provider_data('Pinecone');
@@ -72,6 +73,7 @@ $openai_defaults     = AIPKit_Providers::get_provider_defaults('OpenAI');
 $openrouter_defaults = AIPKit_Providers::get_provider_defaults('OpenRouter');
 $google_defaults     = AIPKit_Providers::get_provider_defaults('Google');
 $azure_defaults      = AIPKit_Providers::get_provider_defaults('Azure');
+$claude_defaults     = AIPKit_Providers::get_provider_defaults('Claude');
 $deepseek_defaults   = AIPKit_Providers::get_provider_defaults('DeepSeek');
 $ollama_defaults     = AIPKit_Providers::get_provider_defaults('Ollama');
 $pinecone_defaults   = AIPKit_Providers::get_provider_defaults('Pinecone');
@@ -127,11 +129,12 @@ if (class_exists('\\WPAICG\\Stats\\AIPKit_Stats')) {
 $integrations_tab_visible = true;
 
 
-$providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];
+$providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
 $grouped_openai_models = AIPKit_Providers::get_openai_models();
 $openrouter_model_list = AIPKit_Providers::get_openrouter_models();
 $google_model_list     = AIPKit_Providers::get_google_models();
 $azure_deployment_list = AIPKit_Providers::get_azure_all_models_grouped();
+$claude_model_list     = AIPKit_Providers::get_claude_models();
 $deepseek_model_list   = AIPKit_Providers::get_deepseek_models();
 $ollama_model_list     = AIPKit_Providers::get_ollama_models();
 $active_provider_label = $current_provider ?: __('Not set', 'gpt3-ai-content-generator');
@@ -148,6 +151,9 @@ switch ($current_provider) {
         break;
     case 'Azure':
         $active_model_value = $azure_data['model'] ?? '';
+        break;
+    case 'Claude':
+        $active_model_value = $claude_data['model'] ?? '';
         break;
     case 'DeepSeek':
         $active_model_value = $deepseek_data['model'] ?? '';
@@ -190,6 +196,8 @@ if ($current_provider === 'Azure') {
         $current_provider_key = $openrouter_data['api_key'] ?? '';
     } elseif ($current_provider === 'Google') {
         $current_provider_key = $google_data['api_key'] ?? '';
+    } elseif ($current_provider === 'Claude') {
+        $current_provider_key = $claude_data['api_key'] ?? '';
     } elseif ($current_provider === 'DeepSeek') {
         $current_provider_key = $deepseek_data['api_key'] ?? '';
     }

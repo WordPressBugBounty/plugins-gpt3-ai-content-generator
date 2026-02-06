@@ -55,6 +55,13 @@ $recommended_google = array_values(array_filter($recommended_google, static func
 $recommended_google_ids = array_column($recommended_google, 'id');
 $recommended_google_lookup = array_fill_keys($recommended_google_ids, true);
 
+$recommended_claude = \WPAICG\AIPKit_Providers::get_recommended_models('Claude');
+$recommended_claude = array_values(array_filter($recommended_claude, static function ($model) {
+    return is_array($model) && !empty($model['id']);
+}));
+$recommended_claude_ids = array_column($recommended_claude, 'id');
+$recommended_claude_lookup = array_fill_keys($recommended_claude_ids, true);
+
 ?>
 <!-- Row container for Bot + Provider + Model -->
 <div class="aipkit_form-row aipkit_form-row-align-bottom aipkit_builder_inline_row" style="gap: 10px;">
@@ -403,6 +410,86 @@ if (!empty($google_model_list)): ?>
                 </select>
                 <?php echo $shortcode_pill; ?>
                 <!-- Google Search Grounding checkbox moved to Features subsection -->
+            </div> <?php // END WRAPPER?>
+        </div>
+
+        <!-- Claude Model -->
+        <div
+            class="aipkit_chatbot_model_field"
+            data-provider="Claude"
+            style="display: <?php echo $saved_provider === 'Claude' ? 'block' : 'none'; ?>;"
+        >
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+                <label
+                    class="aipkit_form-label aipkit_form-label--status"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_model"
+                >
+                    <span class="aipkit_model_label_text"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_model_status_slot">
+                        <span class="aipkit_model_sync_status" aria-live="polite"></span>
+                    </span>
+                </label>
+                <?php echo $shortcode_label; ?>
+                <select
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_model"
+                    name="claude_model"
+                    class="aipkit_form-input"
+                >
+                     <?php
+$foundCurrentClaude = false;
+if (!empty($recommended_claude)) : ?>
+                        <optgroup label="<?php echo esc_attr__('Recommended', 'gpt3-ai-content-generator'); ?>">
+                            <?php foreach ($recommended_claude as $rec):
+                                $rec_id = $rec['id'] ?? '';
+                                $rec_name = $rec['name'] ?? $rec_id;
+                                if (!$rec_id) {
+                                    continue;
+                                }
+                                if ($rec_id === $saved_model) {
+                                    $foundCurrentClaude = true;
+                                }
+                                ?>
+                                <option
+                                    value="<?php echo esc_attr($rec_id); ?>"
+                                    <?php selected($saved_model, $rec_id); ?>
+                                >
+                                    <?php echo esc_html($rec_name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    <?php endif;
+if (!empty($claude_model_list)): ?>
+                        <?php if (!empty($recommended_claude)) : ?>
+                            <optgroup label="<?php echo esc_attr__('All models', 'gpt3-ai-content-generator'); ?>">
+                        <?php endif; ?>
+                        <?php foreach ($claude_model_list as $model):
+                            $model_id = $model['id'] ?? '';
+                            $model_name = $model['name'] ?? $model_id;
+                            if (!$model_id || !empty($recommended_claude_lookup[$model_id])) {
+                                continue;
+                            }
+                            if ($model_id === $saved_model) {
+                                $foundCurrentClaude = true;
+                            }
+                            ?>
+                            <option
+                                value="<?php echo esc_attr($model_id); ?>"
+                                <?php selected($saved_model, $model_id); ?>
+                            >
+                                <?php echo esc_html($model_name); ?>
+                            </option>
+                        <?php endforeach; ?>
+                        <?php if (!empty($recommended_claude)) : ?>
+                            </optgroup>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                    <?php if (!$foundCurrentClaude && !empty($saved_model) && $saved_provider === 'Claude'): ?>
+                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?> (Manual)</option>
+                    <?php elseif (empty($claude_model_list) && empty($recommended_claude) && !$foundCurrentClaude && empty($saved_model)): ?>
+                        <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
+                    <?php endif; ?>
+                </select>
+                <?php echo $shortcode_pill; ?>
             </div> <?php // END WRAPPER?>
         </div>
 

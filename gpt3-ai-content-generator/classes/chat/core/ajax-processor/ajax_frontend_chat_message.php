@@ -191,8 +191,11 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
         $frontend_google_search_grounding_active,
         $image_inputs_for_service,
         $context['frontend_active_openai_vs_id'],
-        $context['active_pinecone_index_name'], // Pass Pinecone index from context
-        $context['active_pinecone_namespace']   // Pass Pinecone namespace from context
+        $context['active_pinecone_index_name'],
+        $context['active_pinecone_namespace'],
+        $context['active_qdrant_collection_name'],
+        $context['active_qdrant_file_upload_context_id'],
+        $context['active_claude_file_id']
     );
 
     // --- 9. Log AI Response & Send JSON ---

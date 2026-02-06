@@ -48,6 +48,7 @@ $bot_id = $initial_active_bot_id;
                     <option value="openai" <?php selected($vector_store_provider, 'openai'); ?>>OpenAI</option>
                     <option value="pinecone" <?php selected($vector_store_provider, 'pinecone'); ?>>Pinecone</option>
                     <option value="qdrant" <?php selected($vector_store_provider, 'qdrant'); ?>>Qdrant</option>
+                    <option value="claude_files" <?php selected($vector_store_provider, 'claude_files'); ?>><?php esc_html_e('Claude Files', 'gpt3-ai-content-generator'); ?></option>
                 </select>
             </div>
         </div>
@@ -432,7 +433,7 @@ $bot_id = $initial_active_bot_id;
             </div>
         </div>
 
-        <div class="aipkit_popover_option_row aipkit_vector_store_top_k_field">
+        <div class="aipkit_popover_option_row aipkit_vector_store_top_k_field" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'pinecone', 'qdrant'], true)) ? '' : 'display:none;'; ?>">
             <div class="aipkit_popover_option_main">
                 <label
                     class="aipkit_popover_option_label"
@@ -459,7 +460,7 @@ $bot_id = $initial_active_bot_id;
             </div>
         </div>
 
-        <div class="aipkit_popover_option_row aipkit_vector_store_confidence_field aipkit_popover_option_row--force-divider">
+        <div class="aipkit_popover_option_row aipkit_vector_store_confidence_field aipkit_popover_option_row--force-divider" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'pinecone', 'qdrant'], true)) ? '' : 'display:none;'; ?>">
             <div class="aipkit_popover_option_main">
                 <label
                     class="aipkit_popover_option_label"

@@ -155,10 +155,10 @@ class WP_AI_Content_Generator_Public
                 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
                     $all_models = [
                         'openai'     => \WPAICG\AIPKit_Providers::get_openai_models(),
-                        'openrouter' => \WPAICG\AIPKit_Providers::get_openrouter_models(),
                         'google'     => \WPAICG\AIPKit_Providers::get_google_models(),
+                        'claude'     => \WPAICG\AIPKit_Providers::get_claude_models(),
+                        'openrouter' => \WPAICG\AIPKit_Providers::get_openrouter_models(),
                         'azure'      => \WPAICG\AIPKit_Providers::get_azure_deployments(),
-                        'deepseek'   => \WPAICG\AIPKit_Providers::get_deepseek_models(),
                     ];
                     if (
                         class_exists('\\WPAICG\\aipkit_dashboard') &&
@@ -166,6 +166,7 @@ class WP_AI_Content_Generator_Public
                     ) {
                         $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
                     }
+                    $all_models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
                     wp_localize_script($public_main_js_handle, 'aipkit_ai_forms_models', $all_models);
                 }
                 $ai_forms_localized = true;

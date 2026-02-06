@@ -42,6 +42,7 @@ class AIPKit_Content_Writer_Image_Handler
             'openrouter' => 'OpenRouter',
             'google' => 'Google',
             'azure' => 'Azure',
+            'claude' => 'Claude',
             'deepseek' => 'DeepSeek',
             'ollama' => 'Ollama',
             default => ucfirst(strtolower($provider)),

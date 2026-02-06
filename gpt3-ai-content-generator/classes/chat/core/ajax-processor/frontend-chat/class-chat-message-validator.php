@@ -27,6 +27,7 @@ class ChatMessageValidator
      * Validates the initial chat message request.
      * MODIFIED: Extracts and validates active_pinecone_index_name and active_pinecone_namespace.
      * MODIFIED: Extracts and validates active_qdrant_collection_name and active_qdrant_file_upload_context_id.
+     * MODIFIED: Extracts active_claude_file_id.
      * MODIFIED: Changed sanitization of user_message_text to wp_strip_all_tags(wp_unslash(...)) instead of sanitize_textarea_field.
      *
      * @param array $post_data The $_POST data.
@@ -56,6 +57,7 @@ class ChatMessageValidator
         $active_pinecone_namespace = isset($post_data['active_pinecone_namespace']) ? sanitize_text_field(wp_unslash($post_data['active_pinecone_namespace'])) : null;
         $active_qdrant_collection_name = isset($post_data['active_qdrant_collection_name']) ? sanitize_text_field(wp_unslash($post_data['active_qdrant_collection_name'])) : null;
         $active_qdrant_file_upload_context_id = isset($post_data['active_qdrant_file_upload_context_id']) ? sanitize_text_field(wp_unslash($post_data['active_qdrant_file_upload_context_id'])) : null;
+        $active_claude_file_id = isset($post_data['active_claude_file_id']) ? sanitize_text_field(wp_unslash($post_data['active_claude_file_id'])) : null;
 
 
         if (empty($bot_id)) {
@@ -126,6 +128,7 @@ class ChatMessageValidator
             'active_pinecone_namespace'  => $active_pinecone_namespace,
             'active_qdrant_collection_name' => $active_qdrant_collection_name,
             'active_qdrant_file_upload_context_id' => $active_qdrant_file_upload_context_id,
+            'active_claude_file_id' => $active_claude_file_id,
         ];
     }
 }

@@ -208,10 +208,10 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
         if (class_exists('\\WPAICG\\AIPKit_Providers')) {
             $models = [
                 'openai'     => \WPAICG\AIPKit_Providers::get_openai_models(),
-                'openrouter' => \WPAICG\AIPKit_Providers::get_openrouter_models(),
                 'google'     => \WPAICG\AIPKit_Providers::get_google_models(),
+                'claude'     => \WPAICG\AIPKit_Providers::get_claude_models(),
+                'openrouter' => \WPAICG\AIPKit_Providers::get_openrouter_models(),
                 'azure'      => \WPAICG\AIPKit_Providers::get_azure_deployments(),
-                'deepseek'   => \WPAICG\AIPKit_Providers::get_deepseek_models(),
             ];
             if (
                 class_exists('\\WPAICG\\aipkit_dashboard') &&
@@ -219,6 +219,7 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
             ) {
                 $models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
             }
+            $models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
         }
 
         // 6. Send the response

@@ -41,6 +41,7 @@ class ProviderStrategyFactory {
             'OpenRouter' => 'openrouter/bootstrap-provider-strategy.php',
             'Google'     => 'google/bootstrap-provider-strategy.php', // MODIFIED PATH
             'Azure'      => 'azure/bootstrap-provider-strategy.php',
+            'Claude'     => 'claude/bootstrap-provider-strategy.php',
             'DeepSeek'   => 'deepseek-provider-strategy.php',
             'Ollama'     => 'ollama/bootstrap-provider-strategy.php',
         ];
@@ -91,6 +92,11 @@ class ProviderStrategyFactory {
             case 'Azure':
                  if (class_exists(AzureProviderStrategy::class)) { 
                     self::$instances[$provider] = new AzureProviderStrategy();
+                 }
+                 break;
+            case 'Claude':
+                 if (class_exists(ClaudeProviderStrategy::class)) {
+                    self::$instances[$provider] = new ClaudeProviderStrategy();
                  }
                  break;
              case 'DeepSeek':

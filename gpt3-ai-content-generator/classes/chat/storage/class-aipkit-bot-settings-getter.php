@@ -23,6 +23,7 @@ require_once $getter_logic_path . 'fn-get-tts-config.php';
 require_once $getter_logic_path . 'fn-get-stt-config.php';
 require_once $getter_logic_path . 'fn-get-token-management-config.php';
 require_once $getter_logic_path . 'fn-get-openai-specific-config.php';
+require_once $getter_logic_path . 'fn-get-claude-specific-config.php';
 require_once $getter_logic_path . 'fn-get-google-specific-config.php';
 require_once $getter_logic_path . 'fn-get-trigger-config.php';
 require_once $getter_logic_path . 'fn-get-voice-agent-config.php';
@@ -89,6 +90,7 @@ class AIPKit_Bot_Settings_Getter
         $settings = array_merge($settings, GetterMethods\get_stt_config_logic($bot_id, $get_meta_fn));
         $settings = array_merge($settings, GetterMethods\get_token_management_config_logic($bot_id, $get_meta_fn));
         $settings = array_merge($settings, GetterMethods\get_openai_specific_config_logic($bot_id, $get_meta_fn));
+        $settings = array_merge($settings, GetterMethods\get_claude_specific_config_logic($bot_id, $get_meta_fn));
         $settings = array_merge($settings, GetterMethods\get_google_specific_config_logic($bot_id, $get_meta_fn));
         $settings = array_merge($settings, GetterMethods\get_trigger_config_logic($bot_id, $get_meta_fn));
         $settings = array_merge($settings, GetterMethods\get_voice_agent_config_logic($bot_id, $get_meta_fn));

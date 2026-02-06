@@ -97,6 +97,8 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     $client_user_message_id = isset($_POST['user_client_message_id']) ? sanitize_key(wp_unslash($_POST['user_client_message_id'])) : null;
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
     $active_openai_vs_id = isset($_POST['active_openai_vs_id']) ? sanitize_text_field(wp_unslash($_POST['active_openai_vs_id'])) : null;
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+    $active_claude_file_id = isset($_POST['active_claude_file_id']) ? sanitize_text_field(wp_unslash($_POST['active_claude_file_id'])) : null;
 
     $image_inputs_data = null;
     if ($image_inputs_json) {
@@ -131,6 +133,9 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     ];
     if ($active_openai_vs_id) {
         $data_to_cache_structured['active_openai_vs_id'] = $active_openai_vs_id;
+    }
+    if ($active_claude_file_id) {
+        $data_to_cache_structured['active_claude_file_id'] = $active_claude_file_id;
     }
     
     $data_to_cache = wp_json_encode($data_to_cache_structured);

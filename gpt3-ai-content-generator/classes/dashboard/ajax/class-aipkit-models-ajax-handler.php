@@ -83,7 +83,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
-        $valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate', 'Ollama'];
+        $valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate', 'Ollama'];
         if (!in_array($provider, $valid_providers, true)) {
             wp_send_json_error(['message' => __('Invalid provider selection.', 'gpt3-ai-content-generator')]);
             return;
@@ -112,7 +112,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         ];
 
 
-        if (empty($api_params['api_key']) && in_array($provider, ['OpenAI', 'Azure', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'])) {
+        if (empty($api_params['api_key']) && in_array($provider, ['OpenAI', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'])) {
             /* translators: %s: The provider name that was attempted to be used for model sync. */
             wp_send_json_error(['message' => sprintf(__('%s API key is required.', 'gpt3-ai-content-generator'), $provider_data_key)]);
             return;
@@ -173,7 +173,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         $option_map = [
             'OpenAI' => 'aipkit_openai_model_list', 'OpenRouter' => 'aipkit_openrouter_model_list',
-            'Google' => 'aipkit_google_model_list', 'Azure' => 'aipkit_azure_deployment_list', 'AzureImage' => 'aipkit_azure_image_model_list', 'DeepSeek' => 'aipkit_deepseek_model_list', 'ElevenLabs' => 'aipkit_elevenlabs_voice_list',
+            'Google' => 'aipkit_google_model_list', 'Azure' => 'aipkit_azure_deployment_list', 'Claude' => 'aipkit_claude_model_list', 'AzureImage' => 'aipkit_azure_image_model_list', 'DeepSeek' => 'aipkit_deepseek_model_list', 'ElevenLabs' => 'aipkit_elevenlabs_voice_list',
             'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
             'PineconeIndexes' => 'aipkit_pinecone_index_list',
             'QdrantCollections' => 'aipkit_qdrant_collection_list',

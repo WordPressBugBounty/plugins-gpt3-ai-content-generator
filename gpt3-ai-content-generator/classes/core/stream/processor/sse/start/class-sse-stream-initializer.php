@@ -119,6 +119,15 @@ class SSEStreamInitializer {
         $curl_post_json_for_log = json_encode($sanitized_curl_post_data_for_log);
 
         $curl_post_data_filtered = apply_filters('aipkit_ai_query', $curl_post_data, $provider, $model, $history, $system_instruction_filtered, $api_params, $ai_params);
+        $claude_beta_header_detector = '\WPAICG\Core\Providers\Claude\Methods\claude_payload_requires_files_beta_header';
+        $claude_requires_files_beta_header = $provider === 'Claude'
+            && is_array($curl_post_data_filtered)
+            && function_exists($claude_beta_header_detector)
+            && $claude_beta_header_detector($curl_post_data_filtered);
+        if ($claude_requires_files_beta_header) {
+            $headers['anthropic-beta'] = 'files-api-2025-04-14';
+            $curl_headers = $strategy->format_headers_for_curl($headers);
+        }
         $curl_post_json = json_encode($curl_post_data_filtered);
         return [
             'endpoint_url'   => $endpoint_url,

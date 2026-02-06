@@ -15,7 +15,7 @@ use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKIT_AI_Settings;
 
 // --- Get available providers (always show, lock via disabled when not eligible) ---
-$providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];
+$providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
 $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
 // --- Get global AI param defaults ---
 $global_ai_params = [];

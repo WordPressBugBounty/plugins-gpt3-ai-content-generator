@@ -73,7 +73,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
         } elseif ($key === 'ai_provider' || $key === 'image_provider') {
                     $provider_raw = sanitize_text_field(wp_unslash($settings[$key]));
                     $content_writer_config[$key] = match (strtolower($provider_raw)) {
-            'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'deepseek' => 'DeepSeek', 'ollama' => 'Ollama',
+            'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'claude' => 'Claude', 'deepseek' => 'DeepSeek', 'ollama' => 'Ollama',
                         default => ucfirst(strtolower($provider_raw))
                     };
                 } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description', 'enable_vector_store'], true)) {

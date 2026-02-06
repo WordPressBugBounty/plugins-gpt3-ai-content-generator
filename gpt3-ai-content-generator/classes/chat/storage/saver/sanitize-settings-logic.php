@@ -207,7 +207,16 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['enable_file_upload'] = (isset($raw_settings['enable_file_upload']) && $raw_settings['enable_file_upload'] === '1') ? '1' : '0';
     $sanitized['enable_image_upload'] = (isset($raw_settings['enable_image_upload']) && $raw_settings['enable_image_upload'] === '1') ? '1' : '0';
     $sanitized['enable_vector_store'] = (isset($raw_settings['enable_vector_store']) && $raw_settings['enable_vector_store'] === '1') ? '1' : '0';
-    $sanitized['vector_store_provider'] = isset($raw_settings['vector_store_provider']) && in_array($raw_settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant']) ? sanitize_text_field($raw_settings['vector_store_provider']) : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
+    $vector_store_provider_input = isset($raw_settings['vector_store_provider'])
+        ? sanitize_key((string) $raw_settings['vector_store_provider'])
+        : '';
+    $allowed_vector_store_providers = ['openai', 'pinecone', 'qdrant'];
+    if (strtolower((string) ($sanitized['provider'] ?? '')) === 'claude') {
+        $allowed_vector_store_providers[] = 'claude_files';
+    }
+    $sanitized['vector_store_provider'] = in_array($vector_store_provider_input, $allowed_vector_store_providers, true)
+        ? $vector_store_provider_input
+        : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
     $openai_vs_ids_raw = isset($raw_settings['openai_vector_store_ids']) && is_array($raw_settings['openai_vector_store_ids']) ? $raw_settings['openai_vector_store_ids'] : [];
     $openai_vs_ids_to_save = [];
     foreach ($openai_vs_ids_raw as $vs_id) {
@@ -257,6 +266,50 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['openai_web_search_loc_city'] = isset($raw_settings['openai_web_search_loc_city']) ? sanitize_text_field($raw_settings['openai_web_search_loc_city']) : '';
     $sanitized['openai_web_search_loc_region'] = isset($raw_settings['openai_web_search_loc_region']) ? sanitize_text_field($raw_settings['openai_web_search_loc_region']) : '';
     $sanitized['openai_web_search_loc_timezone'] = isset($raw_settings['openai_web_search_loc_timezone']) ? sanitize_text_field($raw_settings['openai_web_search_loc_timezone']) : '';
+    $sanitized['claude_web_search_enabled'] = (isset($raw_settings['claude_web_search_enabled']) && $raw_settings['claude_web_search_enabled'] === '1') ? '1' : '0';
+    $raw_claude_max_uses = isset($raw_settings['claude_web_search_max_uses']) ? absint($raw_settings['claude_web_search_max_uses']) : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_MAX_USES;
+    $sanitized['claude_web_search_max_uses'] = max(1, min($raw_claude_max_uses, 20));
+    $sanitized['claude_web_search_loc_type'] = isset($raw_settings['claude_web_search_loc_type']) && in_array($raw_settings['claude_web_search_loc_type'], ['none', 'approximate'], true)
+        ? $raw_settings['claude_web_search_loc_type']
+        : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_LOC_TYPE;
+    $sanitized['claude_web_search_loc_country'] = isset($raw_settings['claude_web_search_loc_country']) ? sanitize_text_field($raw_settings['claude_web_search_loc_country']) : '';
+    $sanitized['claude_web_search_loc_city'] = isset($raw_settings['claude_web_search_loc_city']) ? sanitize_text_field($raw_settings['claude_web_search_loc_city']) : '';
+    $sanitized['claude_web_search_loc_region'] = isset($raw_settings['claude_web_search_loc_region']) ? sanitize_text_field($raw_settings['claude_web_search_loc_region']) : '';
+    $sanitized['claude_web_search_loc_timezone'] = isset($raw_settings['claude_web_search_loc_timezone']) ? sanitize_text_field($raw_settings['claude_web_search_loc_timezone']) : '';
+    $normalize_domains = static function ($domains_raw): string {
+        if (!is_string($domains_raw)) {
+            return '';
+        }
+        $domains = preg_split('/[\r\n,]+/', $domains_raw);
+        if (!is_array($domains)) {
+            return '';
+        }
+        $clean = [];
+        foreach ($domains as $domain) {
+            $value = strtolower(trim((string) $domain));
+            if ($value === '') {
+                continue;
+            }
+            $value = preg_replace('/^https?:\/\//', '', $value);
+            $value = trim((string) $value, " \t\n\r\0\x0B/");
+            if ($value === '') {
+                continue;
+            }
+            if (!preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/i', $value)) {
+                continue;
+            }
+            $clean[] = $value;
+        }
+        return implode(',', array_values(array_unique($clean)));
+    };
+    $sanitized['claude_web_search_allowed_domains'] = $normalize_domains($raw_settings['claude_web_search_allowed_domains'] ?? '');
+    $sanitized['claude_web_search_blocked_domains'] = $normalize_domains($raw_settings['claude_web_search_blocked_domains'] ?? '');
+    if ($sanitized['claude_web_search_allowed_domains'] !== '') {
+        $sanitized['claude_web_search_blocked_domains'] = '';
+    }
+    $sanitized['claude_web_search_cache_ttl'] = isset($raw_settings['claude_web_search_cache_ttl']) && in_array($raw_settings['claude_web_search_cache_ttl'], ['none', '5m', '1h'], true)
+        ? $raw_settings['claude_web_search_cache_ttl']
+        : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
     $sanitized['google_search_grounding_enabled'] = (isset($raw_settings['google_search_grounding_enabled']) && $raw_settings['google_search_grounding_enabled'] === '1') ? '1' : '0';
     $sanitized['google_grounding_mode'] = isset($raw_settings['google_grounding_mode']) && in_array($raw_settings['google_grounding_mode'], ['DEFAULT_MODE', 'MODE_DYNAMIC']) ? $raw_settings['google_grounding_mode'] : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
     $raw_google_threshold = isset($raw_settings['google_grounding_dynamic_threshold']) ? floatval($raw_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;

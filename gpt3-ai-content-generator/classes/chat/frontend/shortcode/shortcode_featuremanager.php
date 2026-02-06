@@ -65,7 +65,11 @@ class FeatureManager {
         $flags = array_merge($flags, $upload_flags);
 
         // 5. Determine Web Search flag
-        $web_search_flag = FeatureManagerMethods\get_web_search_flag_logic($settings, $core_flags['allow_openai_web_search_tool_setting']);
+        $web_search_flag = FeatureManagerMethods\get_web_search_flag_logic(
+            $settings,
+            $core_flags['allow_openai_web_search_tool_setting'],
+            $core_flags['allow_claude_web_search_tool_setting']
+        );
         $flags = array_merge($flags, $web_search_flag);
 
         // 6. Determine Google Search Grounding flags

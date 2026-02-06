@@ -30,6 +30,7 @@ $aipkit_settings_url = admin_url('admin.php?page=wpaicg');
     data-message-openrouter="<?php echo esc_attr__('OpenRouter API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
     data-message-google="<?php echo esc_attr__('Google API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
     data-message-azure="<?php echo esc_attr__('Azure requires an API key and endpoint. Add them in AI Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-claude="<?php echo esc_attr__('Claude API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
     data-message-deepseek="<?php echo esc_attr__('DeepSeek API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
     data-message-ollama="<?php echo esc_attr__('Ollama base URL is not set. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
     data-message-replicate="<?php echo esc_attr__('Replicate API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"

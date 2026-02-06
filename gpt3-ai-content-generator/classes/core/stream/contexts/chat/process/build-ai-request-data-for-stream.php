@@ -41,6 +41,7 @@ if (!defined('ABSPATH')) {
  * @param string|null $frontend_active_pinecone_namespace Active Pinecone namespace.
  * @param string|null $frontend_active_qdrant_collection_name Active Qdrant collection name.
  * @param string|null $frontend_active_qdrant_file_upload_context_id Active Qdrant file context ID.
+ * @param string|null $frontend_active_claude_file_id Active Claude file ID.
  * @return array|WP_Error Prepared data array or WP_Error.
  */
 function build_ai_request_data_for_stream_logic(
@@ -61,7 +62,8 @@ function build_ai_request_data_for_stream_logic(
     ?string $frontend_active_pinecone_index_name,
     ?string $frontend_active_pinecone_namespace,
     ?string $frontend_active_qdrant_collection_name,
-    ?string $frontend_active_qdrant_file_upload_context_id
+    ?string $frontend_active_qdrant_file_upload_context_id,
+    ?string $frontend_active_claude_file_id
 ): array|WP_Error {
 
     // Ensure dependencies for sub-logics are loaded
@@ -180,6 +182,83 @@ function build_ai_request_data_for_stream_logic(
             $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
         }
         // --- END NEW ---
+    } elseif ($main_provider_for_ai === 'Claude') {
+        if (($bot_settings['claude_web_search_enabled'] ?? '0') === '1') {
+            $web_search_config = [
+                'enabled' => true,
+                'type' => 'web_search_20250305',
+            ];
+
+            $claude_max_uses = isset($bot_settings['claude_web_search_max_uses'])
+                ? absint($bot_settings['claude_web_search_max_uses'])
+                : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_MAX_USES;
+            $claude_max_uses = max(1, min($claude_max_uses, 20));
+            $web_search_config['max_uses'] = $claude_max_uses;
+
+            $split_domains = static function ($domains_raw): array {
+                if (!is_string($domains_raw) || trim($domains_raw) === '') {
+                    return [];
+                }
+                $parts = preg_split('/[\r\n,]+/', $domains_raw);
+                if (!is_array($parts)) {
+                    return [];
+                }
+                $domains = array_values(array_filter(array_map(static function ($part) {
+                    $domain = strtolower(trim((string) $part));
+                    if ($domain === '') {
+                        return '';
+                    }
+                    $domain = preg_replace('/^https?:\/\//', '', $domain);
+                    $domain = trim((string) $domain, " \t\n\r\0\x0B/");
+                    if ($domain === '' || !preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/i', $domain)) {
+                        return '';
+                    }
+                    return $domain;
+                }, $parts)));
+                return array_values(array_unique($domains));
+            };
+
+            $allowed_domains = $split_domains($bot_settings['claude_web_search_allowed_domains'] ?? '');
+            $blocked_domains = $split_domains($bot_settings['claude_web_search_blocked_domains'] ?? '');
+            if (!empty($allowed_domains)) {
+                $web_search_config['allowed_domains'] = $allowed_domains;
+            } elseif (!empty($blocked_domains)) {
+                $web_search_config['blocked_domains'] = $blocked_domains;
+            }
+
+            if (($bot_settings['claude_web_search_loc_type'] ?? 'none') === 'approximate') {
+                $claude_user_location = array_filter([
+                    'country' => $bot_settings['claude_web_search_loc_country'] ?? null,
+                    'city' => $bot_settings['claude_web_search_loc_city'] ?? null,
+                    'region' => $bot_settings['claude_web_search_loc_region'] ?? null,
+                    'timezone' => $bot_settings['claude_web_search_loc_timezone'] ?? null,
+                ]);
+                if (!empty($claude_user_location)) {
+                    $claude_user_location['type'] = 'approximate';
+                    $web_search_config['user_location'] = $claude_user_location;
+                }
+            }
+
+            $cache_ttl = $bot_settings['claude_web_search_cache_ttl'] ?? BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
+            if (in_array($cache_ttl, ['5m', '1h'], true)) {
+                $web_search_config['cache_control'] = [
+                    'type' => 'ephemeral',
+                    'ttl' => $cache_ttl,
+                ];
+            }
+
+            $ai_params_for_payload['web_search_tool_config'] = $web_search_config;
+            $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;
+        }
+        $vector_store_provider = sanitize_key((string) ($bot_settings['vector_store_provider'] ?? ''));
+        $claude_file_id = sanitize_text_field((string) $frontend_active_claude_file_id);
+        if (
+            $vector_store_provider === 'claude_files' &&
+            $claude_file_id !== '' &&
+            preg_match('/^file_[a-zA-Z0-9_-]+$/', $claude_file_id)
+        ) {
+            $ai_params_for_payload['claude_file_ids'] = [$claude_file_id];
+        }
     } elseif ($main_provider_for_ai === 'Google') {
         if (($bot_settings['google_search_grounding_enabled'] ?? '0') === '1') {
             $ai_params_for_payload['google_grounding_mode'] = $bot_settings['google_grounding_mode'] ?? BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;

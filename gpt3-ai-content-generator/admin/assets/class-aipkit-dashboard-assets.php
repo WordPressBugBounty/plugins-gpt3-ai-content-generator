@@ -148,6 +148,7 @@ class DashboardAssets
         $openrouter_models = [];
         $google_models = [];
         $azure_deployments = [];
+        $claude_models = [];
         $deepseek_models = [];
         $ollama_models = [];
         $openai_embedding_models = [];
@@ -160,6 +161,7 @@ class DashboardAssets
             $openrouter_models = AIPKit_Providers::get_openrouter_models();
             $google_models     = AIPKit_Providers::get_google_models();
             $azure_deployments = AIPKit_Providers::get_azure_deployments();
+            $claude_models     = AIPKit_Providers::get_claude_models();
             $deepseek_models   = AIPKit_Providers::get_deepseek_models();
             $ollama_models     = AIPKit_Providers::get_ollama_models();
             $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
@@ -169,6 +171,7 @@ class DashboardAssets
             $recommended_models = [
                 'openai' => AIPKit_Providers::get_recommended_models('OpenAI'),
                 'google' => AIPKit_Providers::get_recommended_models('Google'),
+                'claude' => AIPKit_Providers::get_recommended_models('Claude'),
                 'openrouter' => AIPKit_Providers::get_recommended_models('OpenRouter'),
             ];
         }
@@ -178,11 +181,12 @@ class DashboardAssets
             $providers = AIPKit_Providers::get_all_providers();
             $provider_status = [
                 'openai' => !empty($providers['OpenAI']['api_key']),
-                'openrouter' => !empty($providers['OpenRouter']['api_key']),
                 'google' => !empty($providers['Google']['api_key']),
+                'claude' => !empty($providers['Claude']['api_key']),
+                'openrouter' => !empty($providers['OpenRouter']['api_key']),
                 'azure' => !empty($providers['Azure']['api_key']) && !empty($providers['Azure']['endpoint']),
-                'deepseek' => !empty($providers['DeepSeek']['api_key']),
                 'ollama' => !empty($providers['Ollama']['base_url']),
+                'deepseek' => !empty($providers['DeepSeek']['api_key']),
                 'replicate' => !empty($providers['Replicate']['api_key']),
                 'pinecone' => !empty($providers['Pinecone']['api_key']),
                 'qdrant' => !empty($providers['Qdrant']['api_key']) && !empty($providers['Qdrant']['url']),
@@ -204,9 +208,13 @@ class DashboardAssets
             'upgradeUrl' => admin_url('admin.php?page=wpaicg-pricing'),
             'adminUrl'   => admin_url(),
             'models' => [
-                'openai'     => $openai_models, 'openrouter' => $openrouter_models,
-                'google'     => $google_models, 'azure'      => $azure_deployments,
-                'deepseek'   => $deepseek_models, 'ollama'     => $ollama_models,
+                'openai' => $openai_models,
+                'google' => $google_models,
+                'claude' => $claude_models,
+                'openrouter' => $openrouter_models,
+                'azure' => $azure_deployments,
+                'ollama' => $ollama_models,
+                'deepseek' => $deepseek_models,
             ],
             'recommendedModels' => $recommended_models,
             'embeddingModels' => [

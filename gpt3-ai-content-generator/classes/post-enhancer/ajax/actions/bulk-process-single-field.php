@@ -106,7 +106,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         // Use AI config from the request, with fallback to globals
         $provider_raw = $item_config['ai_provider'] ?? $global_config['provider'];
         $provider = match(strtolower($provider_raw)) {
-            'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'deepseek' => 'DeepSeek', 'ollama' => 'Ollama',
+            'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'google' => 'Google', 'azure' => 'Azure', 'claude' => 'Claude', 'deepseek' => 'DeepSeek', 'ollama' => 'Ollama',
             default => ucfirst(strtolower($provider_raw))
         };
         $model = $item_config['ai_model'] ?? $global_config['model'];

@@ -13,6 +13,7 @@ $ai_params_logic_path = __DIR__ . '/ai-params/';
 require_once $ai_params_logic_path . 'apply-openai-stateful-conversation.php';
 require_once $ai_params_logic_path . 'apply-openai-vector-tool-config.php';
 require_once $ai_params_logic_path . 'apply-openai-web-search.php';
+require_once $ai_params_logic_path . 'apply-claude-web-search.php';
 require_once $ai_params_logic_path . 'apply-google-search-grounding.php';
 // --- NEW: Require reasoning logic file ---
 require_once $ai_params_logic_path . 'apply-openai-reasoning.php';
@@ -37,6 +38,7 @@ if (!defined('ABSPATH')) {
  * @param bool $frontend_openai_web_search_active Flag for OpenAI web search.
  * @param bool $frontend_google_search_grounding_active Flag for Google Search Grounding.
  * @param string|null $frontend_active_openai_vs_id Active OpenAI Vector Store ID.
+ * @param string|null $frontend_active_claude_file_id Active Claude file ID.
  * @return array ['final_ai_params' => array, 'actual_previous_response_id_to_use' => string|null]
  */
 function prepare_final_ai_params_logic(
@@ -49,7 +51,8 @@ function prepare_final_ai_params_logic(
     array &$messages_payload_ref, // Pass by reference
     bool $frontend_openai_web_search_active,
     bool $frontend_google_search_grounding_active,
-    ?string $frontend_active_openai_vs_id
+    ?string $frontend_active_openai_vs_id,
+    ?string $frontend_active_claude_file_id
 ): array {
     // Ensure dependencies are loaded (already handled in original file, repeated here for safety if this file were called standalone)
     if (!class_exists(AIPKit_Providers::class)) {
@@ -101,6 +104,21 @@ function prepare_final_ai_params_logic(
             $model
         );
         // --- END NEW ---
+    } elseif ($main_provider === 'Claude') {
+        AiParams\apply_claude_web_search_logic(
+            $final_ai_params,
+            $bot_settings,
+            $frontend_openai_web_search_active
+        );
+        $vector_store_provider = sanitize_key((string) ($bot_settings['vector_store_provider'] ?? ''));
+        $claude_file_id = sanitize_text_field((string) $frontend_active_claude_file_id);
+        if (
+            $vector_store_provider === 'claude_files' &&
+            $claude_file_id !== '' &&
+            preg_match('/^file_[a-zA-Z0-9_-]+$/', $claude_file_id)
+        ) {
+            $final_ai_params['claude_file_ids'] = [$claude_file_id];
+        }
     } elseif ($main_provider === 'Google') {
         AiParams\apply_google_search_grounding_logic(
             $final_ai_params,

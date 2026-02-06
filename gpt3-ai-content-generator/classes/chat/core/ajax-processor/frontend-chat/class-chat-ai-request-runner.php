@@ -40,6 +40,7 @@ class ChatAIRequestRunner
      * @param string|null $frontend_active_pinecone_namespace Optional active Pinecone namespace.
      * @param string|null $frontend_active_qdrant_collection_name Optional active Qdrant collection name.
      * @param string|null $frontend_active_qdrant_file_upload_context_id Optional active Qdrant file context ID.
+     * @param string|null $frontend_active_claude_file_id Optional active Claude file ID.
      * @return array|WP_Error AI service result or WP_Error.
      */
     public function run_ai_request(
@@ -56,7 +57,8 @@ class ChatAIRequestRunner
         ?string $frontend_active_pinecone_index_name = null,
         ?string $frontend_active_pinecone_namespace = null,
         ?string $frontend_active_qdrant_collection_name = null,
-        ?string $frontend_active_qdrant_file_upload_context_id = null
+        ?string $frontend_active_qdrant_file_upload_context_id = null,
+        ?string $frontend_active_claude_file_id = null
     ): array|WP_Error {
 
         $result = $this->ai_service->generate_response(
@@ -72,7 +74,8 @@ class ChatAIRequestRunner
             $frontend_active_pinecone_index_name,
             $frontend_active_pinecone_namespace,
             $frontend_active_qdrant_collection_name,
-            $frontend_active_qdrant_file_upload_context_id
+            $frontend_active_qdrant_file_upload_context_id,
+            $frontend_active_claude_file_id
         );
 
         return $result;

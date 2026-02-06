@@ -38,6 +38,7 @@ class ChatContextBuilder
      * Builds the initial context for processing a chat message.
      * MODIFIED: Includes active_pinecone_index_name and active_pinecone_namespace in the context.
      * MODIFIED: Includes active_qdrant_collection_name and active_qdrant_file_upload_context_id.
+     * MODIFIED: Includes active_claude_file_id.
      *
      * @param array $validated_data Data from ChatMessageValidator.
      * @param string|null $client_ip The client's IP.
@@ -57,6 +58,7 @@ class ChatContextBuilder
         // --- ADDED: Get Qdrant context from validated data ---
         $active_qdrant_collection_name = $validated_data['active_qdrant_collection_name'] ?? null;
         $active_qdrant_file_upload_context_id = $validated_data['active_qdrant_file_upload_context_id'] ?? null;
+        $active_claude_file_id = $validated_data['active_claude_file_id'] ?? null;
         // --- END ADDED ---
 
 
@@ -106,6 +108,7 @@ class ChatContextBuilder
             // --- ADDED: Include Qdrant context in the built context ---
             'active_qdrant_collection_name' => $active_qdrant_collection_name,
             'active_qdrant_file_upload_context_id' => $active_qdrant_file_upload_context_id,
+            'active_claude_file_id' => $active_claude_file_id,
             // --- END ADDED ---
         ];
     }

@@ -154,6 +154,16 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_openai_web_search_loc_city', '');
         update_post_meta($post_id, '_aipkit_openai_web_search_loc_region', '');
         update_post_meta($post_id, '_aipkit_openai_web_search_loc_timezone', '');
+        update_post_meta($post_id, '_aipkit_claude_web_search_enabled', BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_ENABLED);
+        update_post_meta($post_id, '_aipkit_claude_web_search_max_uses', (string) BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_MAX_USES);
+        update_post_meta($post_id, '_aipkit_claude_web_search_loc_type', BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_LOC_TYPE);
+        update_post_meta($post_id, '_aipkit_claude_web_search_loc_country', '');
+        update_post_meta($post_id, '_aipkit_claude_web_search_loc_city', '');
+        update_post_meta($post_id, '_aipkit_claude_web_search_loc_region', '');
+        update_post_meta($post_id, '_aipkit_claude_web_search_loc_timezone', '');
+        update_post_meta($post_id, '_aipkit_claude_web_search_allowed_domains', '');
+        update_post_meta($post_id, '_aipkit_claude_web_search_blocked_domains', '');
+        update_post_meta($post_id, '_aipkit_claude_web_search_cache_ttl', BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL);
         update_post_meta($post_id, '_aipkit_google_search_grounding_enabled', BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED);
         update_post_meta($post_id, '_aipkit_google_grounding_mode', BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE);
         update_post_meta($post_id, '_aipkit_google_grounding_dynamic_threshold', (string)BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD);
