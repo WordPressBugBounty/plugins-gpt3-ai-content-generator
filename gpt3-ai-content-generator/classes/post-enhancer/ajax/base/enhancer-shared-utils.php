@@ -9,7 +9,6 @@ use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Chat\Storage\LogStorage;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -139,7 +138,7 @@ function log_enhancer_interaction_logic(int $post_id, string $type, string $prom
         'module'             => 'ai_post_enhancer',
         'is_guest'           => false,
         'role'               => $user_wp_role,
-        'ip_address'         => class_exists(\WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization::class) ? \WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization::maybe_anonymize($ip_address) : $ip_address,
+        'ip_address'         => $ip_address,
         'message_role'       => 'bot',
         'message_content'    => sprintf("Generated %s suggestions for Post ID: %d.\nPrompt Snippet: %s...\nResult:\n%s", $type, $post_id, mb_substr($prompt, 0, 100), $response_content),
         'timestamp'          => time(),
@@ -173,7 +172,7 @@ function log_enhancer_bulk_update_logic(int $post_id, string $field, string $pro
         : ('enhancer-bulk-' . $field . '-' . $post_id . '-' . time());
 
     $message_content = sprintf(
-        "Bulk Enhancer updated %s for Post ID: %d.\nPrompt Snippet: %s...\nResult:\n%s",
+        "Content Assistant updated %s for Post ID: %d.\nPrompt Snippet: %s...\nResult:\n%s",
         $field,
         $post_id,
         mb_substr($prompt, 0, 100),
@@ -188,7 +187,7 @@ function log_enhancer_bulk_update_logic(int $post_id, string $field, string $pro
         'module'             => 'ai_post_enhancer',
         'is_guest'           => false,
         'role'               => $user_wp_role,
-        'ip_address'         => class_exists(\WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization::class) ? \WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization::maybe_anonymize($ip_address) : $ip_address,
+        'ip_address'         => $ip_address,
         'message_role'       => 'bot',
         'message_content'    => $message_content,
         'timestamp'          => time(),

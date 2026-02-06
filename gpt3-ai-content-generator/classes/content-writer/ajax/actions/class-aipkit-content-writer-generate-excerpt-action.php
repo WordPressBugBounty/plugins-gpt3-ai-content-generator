@@ -38,8 +38,6 @@ class AIPKit_Content_Writer_Generate_Excerpt_Action extends AIPKit_Content_Write
         $prompt_mode = isset($_POST['prompt_mode']) ? sanitize_key($_POST['prompt_mode']) : 'standard';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
         $custom_excerpt_prompt = isset($_POST['custom_excerpt_prompt']) ? sanitize_textarea_field(wp_unslash($_POST['custom_excerpt_prompt'])) : null;
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
-        $content_max_tokens = isset($_POST['content_max_tokens']) ? intval($_POST['content_max_tokens']) : null;
 
         if (empty($generated_content) || empty($final_title) || empty($provider_raw) || empty($model)) {
             $this->send_wp_error(new WP_Error('missing_excerpt_data', 'Missing required data for excerpt generation.', ['status' => 400]));
@@ -70,8 +68,7 @@ class AIPKit_Content_Writer_Generate_Excerpt_Action extends AIPKit_Content_Write
         );
         $excerpt_system_instruction = 'You are an expert copywriter. Your task is to provide an engaging excerpt for a piece of content.';
 
-        $max_tokens = isset($content_max_tokens) && $content_max_tokens > 0 ? $content_max_tokens : 4000;
-        $excerpt_ai_params = ['max_completion_tokens' => $max_tokens];
+        $excerpt_ai_params = [];
 
         // DRY vector preparation via shared helper
         $ai_caller = $this->get_ai_caller();
@@ -99,6 +96,7 @@ class AIPKit_Content_Writer_Generate_Excerpt_Action extends AIPKit_Content_Write
             $excerpt_ai_params = $prep['ai_params'] ?? $excerpt_ai_params;
             $excerpt_instruction_context = $prep['instruction_context'] ?? [];
         }
+        $excerpt_ai_params['top_p'] = null;
 
         $excerpt_result = $this->get_ai_caller()->make_standard_call(
             $provider,

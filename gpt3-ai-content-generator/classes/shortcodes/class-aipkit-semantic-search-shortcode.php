@@ -4,8 +4,6 @@
 
 namespace WPAICG\Shortcodes;
 
-use WPAICG\aipkit_dashboard;
-
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -26,17 +24,9 @@ class AIPKit_Semantic_Search_Shortcode
      */
     public function render_shortcode($atts = [])
     {
-        // 1. Check if the addon is active
-        if (!class_exists('\\WPAICG\\aipkit_dashboard') || !aipkit_dashboard::is_addon_active('semantic_search')) {
-            if (current_user_can('manage_options')) {
-                return '<p style="color:orange;"><em>[' . esc_html__('AIPKit Semantic Search Shortcode: Addon is disabled.', 'gpt3-ai-content-generator') . ']</em></p>';
-            }
-            return '';
-        }
+        // 1. Retrieve saved settings (handled by localization in AIPKit_Shortcodes_Manager)
 
-        // 2. Retrieve saved settings (handled by localization in AIPKit_Shortcodes_Manager)
-
-        // 3. Render the basic HTML structure
+        // 2. Render the basic HTML structure
         ob_start();
         ?>
         <div class="aipkit_semantic_search_wrapper">
@@ -54,7 +44,7 @@ class AIPKit_Semantic_Search_Shortcode
         <?php
         return ob_get_clean();
 
-        // 4 & 5. Enqueue and Localize Assets
+        // 3 & 4. Enqueue and Localize Assets
         // This is handled centrally in AIPKit_Shortcodes_Manager to avoid redundant enqueues/localizations
         // when multiple shortcodes are on a page. The manager's check `has_shortcode` will trigger it.
     }

@@ -38,21 +38,19 @@ class AIPKit_Role_Manager
     {
         return [
             // Dashboard Modules
-            'chatbot'               => __('Chatbot (Admin)', 'gpt3-ai-content-generator'),
+            'chatbot'               => __('Chatbot', 'gpt3-ai-content-generator'),
             'content-writer'        => __('Content Writer', 'gpt3-ai-content-generator'),
-            'autogpt'               => __('AutoGPT (General Access)', 'gpt3-ai-content-generator'),
-            'autogpt_auto_indexer'  => __('Auto Content Indexing (AutoGPT)', 'gpt3-ai-content-generator'),
+            'autogpt'               => __('Automate', 'gpt3-ai-content-generator'),
+            'autogpt_auto_indexer'  => __('Auto Content Indexing', 'gpt3-ai-content-generator'),
             'ai-forms'              => __('AI Forms', 'gpt3-ai-content-generator'),
-            'image-generator'       => __('Image Generator', 'gpt3-ai-content-generator'),
-            'ai-training'           => __('AI Training', 'gpt3-ai-content-generator'),
-            'user-credits'          => __('User Credits', 'gpt3-ai-content-generator'),
-            'settings'              => __('Settings (Global)', 'gpt3-ai-content-generator'),
-            'addons'                => __('Add-ons (Admin)', 'gpt3-ai-content-generator'),
-            'logs'                  => __('Logs (Admin)', 'gpt3-ai-content-generator'),
+            'image-generator'       => __('Images', 'gpt3-ai-content-generator'),
+            'sources'               => __('Sources', 'gpt3-ai-content-generator'),
+            'settings'              => __('Dashboard', 'gpt3-ai-content-generator'),
+            'stats'                 => __('Stats', 'gpt3-ai-content-generator'),
             // Frontend / Non-Dashboard Modules
-            'token_usage_shortcode' => __('Token Usage Shortcode (Frontend)', 'gpt3-ai-content-generator'),
-            'ai_post_enhancer'      => __('Content Assistant (Admin Edit Screen)', 'gpt3-ai-content-generator'),
-            'vector_content_indexer' => __('Vector Content Indexer (Post Screen)', 'gpt3-ai-content-generator'),
+            'token_usage_shortcode' => __('Token Usage Shortcode', 'gpt3-ai-content-generator'),
+            'ai_post_enhancer'      => __('Content Assistant', 'gpt3-ai-content-generator'),
+            'vector_content_indexer' => __('Vector Content Indexer', 'gpt3-ai-content-generator'),
         ];
     }
 
@@ -99,6 +97,10 @@ class AIPKit_Role_Manager
 
         $updated_permissions = $permissions;
         $changed = false;
+        if (isset($updated_permissions['logs']) && !isset($updated_permissions['stats'])) {
+            $updated_permissions['stats'] = $updated_permissions['logs'];
+            $changed = true;
+        }
         foreach (array_keys($modules) as $module_slug) {
             if (!isset($updated_permissions[$module_slug])) {
                 $updated_permissions[$module_slug] = $defaults[$module_slug];
@@ -116,6 +118,10 @@ class AIPKit_Role_Manager
                 unset($updated_permissions[$saved_module_slug]);
                 $changed = true;
             }
+        }
+        if ($changed) {
+            update_option(self::OPTION_NAME, $updated_permissions, 'no');
+            self::$permission_cache = [];
         }
         return $updated_permissions;
     }
@@ -138,6 +144,10 @@ class AIPKit_Role_Manager
         }
 
         $final_permissions = $current_permissions;
+        if (isset($final_permissions['logs']) && !isset($final_permissions['stats'])) {
+            $final_permissions['stats'] = $final_permissions['logs'];
+            $changed = true;
+        }
 
         // Step 1: Ensure all current modules are present and prune obsolete ones
         foreach (array_keys($all_modules) as $module_slug) {
@@ -153,49 +163,7 @@ class AIPKit_Role_Manager
             }
         }
 
-        // Step 2: Migrate old capabilities to new module permissions
-        $old_to_new_cap_map = [
-            'wpaicg_settings'        => 'settings',
-            'wpaicg_single_content'  => 'content-writer',
-            'wpaicg_bulk_content'    => 'autogpt',
-            'wpaicg_chatgpt'         => 'chatbot',
-            'wpaicg_imgcreator'      => 'image-generator',
-            'wpaicg_embeddings_access' => 'ai-training',
-            'wpaicg_finetune_access'   => 'ai-training',
-            'wpaicg_chatbot_widget'  => 'chatbot',
-            'wpaicg_aipower_dashboard' => 'settings',
-            'wpaicg_audio_converter_access' => 'audio_converter',
-            'wpaicg_chat_logs'       => 'logs',
-            'wpaicg_forms_access'    => 'ai-forms',
-            'wpaicg_account_access'  => 'ai_account',
-            'wpaicg_post_enhancer'   => 'ai_post_enhancer',
-            'wpaicg_vector_indexer'  => 'vector_content_indexer',
-        ];
-
-        $wp_roles = wp_roles();
-        foreach ($wp_roles->roles as $role_slug => $role_data) {
-            $role_object = $wp_roles->get_role($role_slug);
-            if (!$role_object) {
-                continue;
-            }
-
-            foreach ($old_to_new_cap_map as $old_cap => $new_module_slug) {
-                if ($role_object->has_cap($old_cap)) {
-                    if (isset($final_permissions[$new_module_slug]) && is_array($final_permissions[$new_module_slug])) {
-                        if (!in_array($role_slug, $final_permissions[$new_module_slug], true)) {
-                            $final_permissions[$new_module_slug][] = $role_slug;
-                            $changed = true;
-                        }
-                    } else {
-                        $final_permissions[$new_module_slug] = [$role_slug];
-                        if ($role_slug !== 'administrator' && !in_array('administrator', $final_permissions[$new_module_slug])) {
-                            $final_permissions[$new_module_slug][] = 'administrator';
-                        }
-                        $changed = true;
-                    }
-                }
-            }
-        }
+        // Step 2: Legacy capability migration removed.
         foreach (array_keys($all_modules) as $module_slug_for_admin_check) {
             if (isset($final_permissions[$module_slug_for_admin_check]) && is_array($final_permissions[$module_slug_for_admin_check])) {
                 if (!in_array('administrator', $final_permissions[$module_slug_for_admin_check], true)) {

@@ -155,13 +155,13 @@ function generate_response(
     );
 
     if (is_wp_error($ai_call_result)) {
-        $triggers_addon_active = false;
+        $triggers_enabled = false;
         if (class_exists('\WPAICG\aipkit_dashboard')) {
-            $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+            $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
         }
         GenerateResponse\handle_ai_call_error_logic(
             $ai_call_result,
-            $triggers_addon_active,
+            $triggers_enabled,
             $serviceInstance->get_log_storage(),
             [],
             $main_provider,

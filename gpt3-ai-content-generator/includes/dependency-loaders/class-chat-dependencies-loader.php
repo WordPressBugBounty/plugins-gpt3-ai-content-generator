@@ -57,7 +57,6 @@ class Chat_Dependencies_Loader
             'admin/ajax/chatbot_import_ajax_handler.php', 'admin/ajax/conversation_ajax_handler.php',
             'admin/ajax/log_ajax_handler.php', 'admin/ajax/user_credits_ajax_handler.php',
             'admin/ajax/class-aipkit-chatbot-image-ajax-handler.php',
-            'ajax/class-aipkit-chatbot-index-content-ajax-handler.php',
             'frontend/chat_assets.php', 'frontend/chat_shortcode.php',
             'frontend/shortcode/shortcode_configurator.php', 'frontend/shortcode/shortcode_dataprovider.php',
             'frontend/shortcode/shortcode_featuremanager.php', 'frontend/shortcode/shortcode_renderer.php',

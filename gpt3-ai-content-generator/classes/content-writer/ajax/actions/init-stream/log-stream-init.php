@@ -5,7 +5,6 @@
 namespace WPAICG\ContentWriter\Ajax\Actions\InitStream;
 
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Init_Stream_Action;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -31,7 +30,7 @@ function log_stream_init_logic(AIPKit_Content_Writer_Init_Stream_Action $handler
         'module' => 'content_writer',
         'is_guest' => 0,
         'role' => implode(', ', wp_get_current_user()->roles),
-        'ip_address' => class_exists(AIPKit_IP_Anonymization::class) ? AIPKit_IP_Anonymization::maybe_anonymize($client_ip) : $client_ip,
+        'ip_address' => $client_ip,
         'message_role' => 'user',
         'message_content' => "Content Writer Request: " . esc_html($cached_data['initial_request_details']['title'] ?? 'Untitled'),
         'timestamp' => time(),

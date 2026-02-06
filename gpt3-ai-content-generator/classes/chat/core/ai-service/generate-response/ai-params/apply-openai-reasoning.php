@@ -5,6 +5,8 @@
 
 namespace WPAICG\Chat\Core\AIService\GenerateResponse\AiParams;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -21,11 +23,12 @@ function apply_openai_reasoning_logic(
     array $bot_settings,
     string $model
 ): void {
-    $reasoning_effort = $bot_settings['reasoning_effort'] ?? 'low';
-    $model_lower = strtolower($model);
+    $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+        (string) $model,
+        $bot_settings['reasoning_effort'] ?? ''
+    );
 
-    // Check if the model is an o-series or gpt-5 model and the setting is not empty
-    if (!empty($reasoning_effort) && (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false)) {
+    if ($reasoning_effort !== '') {
         $final_ai_params['reasoning'] = ['effort' => $reasoning_effort];
     }
 }

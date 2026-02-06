@@ -19,7 +19,6 @@ class ImageGeneratorAssets
     private $version;
     private $is_admin_main_js_enqueued = false;
     private $is_public_main_js_enqueued = false;
-    private $is_admin_image_generator_css_enqueued = false;
     private $is_public_image_generator_css_enqueued = false;
 
     public function __construct()
@@ -55,22 +54,6 @@ class ImageGeneratorAssets
     private function enqueue_styles()
     {
         $dist_css_url = WPAICG_PLUGIN_URL . 'dist/css/';
-        $admin_main_css_handle = 'aipkit-admin-main-css';
-
-        $admin_img_gen_css_handle = 'aipkit-admin-image-generator-css';
-        if (!wp_style_is($admin_img_gen_css_handle, 'registered')) {
-            wp_register_style(
-                $admin_img_gen_css_handle,
-                $dist_css_url . 'admin-image-generator.bundle.css',
-                [$admin_main_css_handle],
-                $this->version
-            );
-        }
-        if (!$this->is_admin_image_generator_css_enqueued && !wp_style_is($admin_img_gen_css_handle, 'enqueued')) {
-            wp_enqueue_style($admin_img_gen_css_handle);
-            $this->is_admin_image_generator_css_enqueued = true;
-        }
-
         $public_img_gen_css_handle = 'aipkit-public-image-generator-css';
         if (!wp_style_is($public_img_gen_css_handle, 'registered')) {
             wp_register_style(
@@ -151,7 +134,9 @@ class ImageGeneratorAssets
                 'viewFullImage' => __('Click to view full image', 'gpt3-ai-content-generator'),
             ],
              'openai_models' => [
+                ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],
                 ['id' => 'gpt-image-1', 'name' => 'GPT Image 1'],
+                ['id' => 'gpt-image-1-mini', 'name' => 'GPT Image 1 mini'],
                 ['id' => 'dall-e-3', 'name' => 'DALL-E 3'],
                 ['id' => 'dall-e-2', 'name' => 'DALL-E 2'],
              ],

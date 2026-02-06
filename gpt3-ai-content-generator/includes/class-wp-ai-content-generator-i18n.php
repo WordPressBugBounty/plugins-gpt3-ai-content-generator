@@ -27,10 +27,6 @@ class WP_AI_Content_Generator_i18n
      */
     public function init_hooks() // Method name remains init_hooks, but its action hook changes
     {
-        load_plugin_textdomain(
-            'gpt3-ai-content-generator',
-            false,
-            dirname(WPAICG_PLUGIN_DIR) . '/gpt3-ai-content-generator/languages/'
-        );
+        // Intentionally left blank: translations are auto-loaded by WordPress.org.
     }
 }

@@ -89,4 +89,18 @@ class AIPKit_Content_Writer_Template_Ajax_Handler extends AIPKit_Content_Writer_
         require_once __DIR__ . '/template/ajax-list-templates.php';
         \WPAICG\ContentWriter\Ajax\Template\ajax_list_templates_logic($this);
     }
+
+    /**
+    * AJAX: Resets starter templates for the current user.
+    */
+    public function ajax_reset_starter_templates()
+    {
+        $permission_check = $this->check_module_access_permissions('content-writer', self::NONCE_ACTION);
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+        require_once __DIR__ . '/template/ajax-reset-starter-templates.php';
+        \WPAICG\ContentWriter\Ajax\Template\ajax_reset_starter_templates_logic($this);
+    }
 }

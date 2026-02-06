@@ -4,7 +4,7 @@
 
 namespace WPAICG\Chat\Frontend\Assets;
 
-use WPAICG\aipkit_dashboard; // To check addon status
+use WPAICG\aipkit_dashboard; // To check Pro status
 use WPAICG\Chat\Frontend\Assets as AssetsOrchestrator; // Use the main orchestrator
 
 if (!defined('ABSPATH')) {
@@ -57,26 +57,22 @@ class AssetsRequireFlags {
         AssetsOrchestrator::$consent_needed = true;
         AssetsOrchestrator::$moderation_needed = true;
 
-        if ($needs_pdf && aipkit_dashboard::is_pro_plan() && aipkit_dashboard::is_addon_active('pdf_download')) {
+        if ($needs_pdf && aipkit_dashboard::is_pro_plan()) {
             AssetsOrchestrator::$jspdf_needed = true;
         }
         if ($needs_copy) AssetsOrchestrator::$copy_button_needed = true;
         if ($needs_feedback) AssetsOrchestrator::$feedback_needed = true;
-        if ($needs_starters && aipkit_dashboard::is_addon_active('conversation_starters')) {
-            AssetsOrchestrator::$starters_needed = true;
-        }
+        if ($needs_starters) AssetsOrchestrator::$starters_needed = true;
         if ($needs_sidebar) AssetsOrchestrator::$sidebar_needed = true;
-        if ($needs_tts && aipkit_dashboard::is_addon_active('voice_playback')) {
-            AssetsOrchestrator::$tts_needed = true;
-        }
+        if ($needs_tts) AssetsOrchestrator::$tts_needed = true;
         if ($needs_stt) AssetsOrchestrator::$stt_needed = true;
         if ($needs_image_gen) AssetsOrchestrator::$image_gen_needed = true;
         if ($needs_chat_image_upload) AssetsOrchestrator::$chat_image_upload_needed = true;
-        // --- Set file upload flag if Pro and addon active ---
-        if ($needs_chat_file_upload && aipkit_dashboard::is_pro_plan() && aipkit_dashboard::is_addon_active('file_upload')) {
-             AssetsOrchestrator::$chat_file_upload_needed = true;
+        // --- Set file upload flag if Pro ---
+        if ($needs_chat_file_upload && aipkit_dashboard::is_pro_plan()) {
+            AssetsOrchestrator::$chat_file_upload_needed = true;
         }
-        if ($needs_realtime_voice && aipkit_dashboard::is_pro_plan() && aipkit_dashboard::is_addon_active('realtime_voice')) {
+        if ($needs_realtime_voice && aipkit_dashboard::is_pro_plan()) {
             AssetsOrchestrator::$realtime_voice_needed = true;
         }
         // --- END ---

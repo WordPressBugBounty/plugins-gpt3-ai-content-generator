@@ -6,6 +6,7 @@
 
 namespace WPAICG\ContentWriter\TemplateManagerMethods;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WP_Error;
 
 // Load all the new method logic files
@@ -31,7 +32,7 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
 
     foreach ($allowed_config_keys as $key) {
         if (isset($config[$key])) {
-            if (in_array($key, ['content_title', 'content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'rss_include_keywords', 'rss_exclude_keywords', 'title_prompt', 'excerpt_prompt', 'content_prompt', 'meta_prompt', 'keyword_prompt'], true)) {
+            if (in_array($key, ['content_title', 'content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'custom_title_prompt_update', 'custom_content_prompt_update', 'custom_meta_prompt_update', 'custom_keyword_prompt_update', 'custom_excerpt_prompt_update', 'custom_tags_prompt_update', 'rss_feeds', 'url_list', 'image_prompt', 'image_prompt_update', 'featured_image_prompt', 'featured_image_prompt_update', 'image_title_prompt', 'image_alt_text_prompt', 'image_caption_prompt', 'image_description_prompt', 'image_title_prompt_update', 'image_alt_text_prompt_update', 'image_caption_prompt_update', 'image_description_prompt_update', 'rss_include_keywords', 'rss_exclude_keywords', 'title_prompt', 'excerpt_prompt', 'content_prompt', 'meta_prompt', 'keyword_prompt'], true)) {
                 $sanitized[$key] = sanitize_textarea_field(wp_unslash($config[$key]));
             } elseif (in_array($key, ['title', 'excerpt', 'content', 'meta', 'keyword', 'tags'], true) && is_array($config[$key])) {
                 $sanitized_sub_array = [];
@@ -51,17 +52,19 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                 }
             } elseif ($key === 'ai_temperature') {
                 $sanitized[$key] = (string)floatval($config[$key]);
-            } elseif (in_array($key, ['content_max_tokens', 'image_count', 'image_placement_param_x', 'vector_store_top_k'], true)) {
+            } elseif ($key === 'content_length') {
+                $value = sanitize_key($config[$key]);
+                $sanitized[$key] = in_array($value, ['short', 'medium', 'long'], true) ? $value : 'medium';
+            } elseif (in_array($key, ['image_count', 'image_placement_param_x', 'vector_store_top_k', 'content_max_tokens'], true)) {
                 $sanitized[$key] = absint($config[$key]);
             } elseif ($key === 'vector_store_confidence_threshold') {
                 $raw = isset($config[$key]) ? absint($config[$key]) : 20;
                 $sanitized[$key] = max(0, min($raw, 100));
-            } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store', 'update_title', 'update_excerpt', 'update_content', 'update_meta'], true)) {
+            } elseif (in_array($key, ['generate_title', 'generate_content', 'generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description', 'enable_vector_store', 'update_title', 'update_excerpt', 'update_content', 'update_meta'], true)) {
                 $sanitized[$key] = ($config[$key] === '1' || $config[$key] === true || $config[$key] === 1) ? '1' : '0';
             } elseif ($key === 'reasoning_effort') {
-                // Sanitize reasoning_effort to only allow valid values
-                $valid_reasoning_efforts = ['minimal', 'low', 'medium', 'high'];
-                $sanitized[$key] = in_array($config[$key], $valid_reasoning_efforts, true) ? $config[$key] : 'low';
+                $effort = AIPKit_OpenAI_Reasoning::sanitize_effort($config[$key] ?? '');
+                $sanitized[$key] = $effort !== '' ? $effort : 'low';
             } elseif (in_array($key, ['post_type', 'post_status', 'ai_provider', 'prompt_mode', 'cw_generation_mode', 'image_provider', 'image_placement', 'image_alignment', 'image_size', 'vector_store_provider', 'vector_embedding_provider', 'pexels_orientation', 'pexels_size', 'pexels_color', 'pixabay_orientation', 'pixabay_image_type', 'pixabay_category'], true)) {
                 $sanitized[$key] = sanitize_key($config[$key]);
             } elseif (is_string($config[$key])) {

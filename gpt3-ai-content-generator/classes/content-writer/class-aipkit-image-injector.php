@@ -69,17 +69,25 @@ class AIPKit_Image_Injector
      */
     private function inject_after_first_h2(string $content, array $images, string $alignment, string $image_size): string
     {
-        $image_html = $this->get_image_html($images[0], $alignment, $image_size);
-        if (empty($image_html)) {
+        $image_html_array = array_filter(
+            array_map(fn ($img) => $this->get_image_html($img, $alignment, $image_size), $images)
+        );
+        if (empty($image_html_array)) {
             return $content;
         }
 
+        $first_image = array_shift($image_html_array);
         $position = stripos($content, '</h2>');
         if ($position !== false) {
-            return substr_replace($content, '</h2>' . "\n\n" . $image_html . "\n\n", $position, 5);
+            $content = substr_replace($content, '</h2>' . "\n\n" . $first_image . "\n\n", $position, 5);
+        } else {
+            $content .= "\n\n" . $first_image;
         }
-        // Fallback: append if no h2 found
-        return $content . "\n\n" . $image_html;
+
+        if (!empty($image_html_array)) {
+            $content .= "\n\n" . implode("\n\n", $image_html_array);
+        }
+        return $content;
     }
 
     /**
@@ -93,17 +101,25 @@ class AIPKit_Image_Injector
      */
     private function inject_after_first_h3(string $content, array $images, string $alignment, string $image_size): string
     {
-        $image_html = $this->get_image_html($images[0], $alignment, $image_size);
-        if (empty($image_html)) {
+        $image_html_array = array_filter(
+            array_map(fn ($img) => $this->get_image_html($img, $alignment, $image_size), $images)
+        );
+        if (empty($image_html_array)) {
             return $content;
         }
 
+        $first_image = array_shift($image_html_array);
         $position = stripos($content, '</h3>');
         if ($position !== false) {
-            return substr_replace($content, '</h3>' . "\n\n" . $image_html . "\n\n", $position, 5);
+            $content = substr_replace($content, '</h3>' . "\n\n" . $first_image . "\n\n", $position, 5);
+        } else {
+            $content .= "\n\n" . $first_image;
         }
-        // Fallback: append if no h3 found
-        return $content . "\n\n" . $image_html;
+
+        if (!empty($image_html_array)) {
+            $content .= "\n\n" . implode("\n\n", $image_html_array);
+        }
+        return $content;
     }
 
     /**
@@ -226,11 +242,36 @@ class AIPKit_Image_Injector
      */
     private function get_image_html(?array $image_item, string $alignment = 'none', string $image_size = 'large'): string
     {
-        if (empty($image_item) || empty($image_item['attachment_id'])) {
+        if (empty($image_item)) {
             return '';
         }
+
+        if (empty($image_item['attachment_id'])) {
+            $fallback_url = $image_item['media_library_url'] ?? ($image_item['url'] ?? ($image_item['src'] ?? ($image_item['image_url'] ?? null)));
+            if (empty($fallback_url)) {
+                return '';
+            }
+            $fallback_alt = $image_item['alt'] ?? ($image_item['revised_prompt'] ?? 'Image');
+            $class_list = [];
+            if (in_array($alignment, ['left', 'right', 'center', 'none'], true)) {
+                $class_list[] = 'align' . $alignment;
+            }
+            $class_list[] = 'aipkit_cw_external_image';
+            $class_list[] = 'size-full';
+            $final_classes = esc_attr(implode(' ', $class_list));
+
+            // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- External URL fallback when attachment is missing.
+            return sprintf('<img class="%s" src="%s" alt="%s" />',
+                $final_classes,
+                esc_url($fallback_url),
+                esc_attr($fallback_alt)
+            );
+        }
+
         $attachment_id = absint($image_item['attachment_id']);
-        $alt_text = esc_attr($image_item['revised_prompt'] ?? get_the_title($attachment_id) ?: 'AI Generated Image');
+        $stored_alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
+        $fallback_alt = $image_item['revised_prompt'] ?? get_the_title($attachment_id) ?: 'Image';
+        $alt_text = esc_attr($stored_alt ?: $fallback_alt);
 
         // Get image data (URL, width, height) for the specified size from WordPress
         $image_attributes = wp_get_attachment_image_src($attachment_id, $image_size);

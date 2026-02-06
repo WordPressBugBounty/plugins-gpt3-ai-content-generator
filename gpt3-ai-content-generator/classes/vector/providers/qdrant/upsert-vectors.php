@@ -28,7 +28,7 @@ function upsert_vectors_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, s
     } else {
         $body['points'] = $vectors_data;
     }
-    foreach($body['points'] as &$point) {
+    foreach ($body['points'] as &$point) {
         if (isset($point['values']) && !isset($point['vector'])) {
             $point['vector'] = $point['values'];
             unset($point['values']);
@@ -36,6 +36,26 @@ function upsert_vectors_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, s
         if (isset($point['metadata']) && !isset($point['payload'])) {
             $point['payload'] = $point['metadata'];
             unset($point['metadata']);
+        }
+        $point_id = $point['id'] ?? null;
+        $needs_uuid = false;
+        if ($point_id === null || $point_id === '') {
+            $needs_uuid = true;
+        } elseif (is_int($point_id)) {
+            $needs_uuid = false;
+        } elseif (is_string($point_id) && ctype_digit($point_id)) {
+            $needs_uuid = false;
+        } elseif (is_string($point_id) && preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $point_id)) {
+            $needs_uuid = false;
+        } else {
+            $needs_uuid = true;
+        }
+        if ($needs_uuid) {
+            $new_id = wp_generate_uuid4();
+            $point['id'] = $new_id;
+            if (isset($point['payload']['vector_id']) && $point['payload']['vector_id'] === $point_id) {
+                $point['payload']['vector_id'] = $new_id;
+            }
         }
     }
     unset($point);
@@ -53,6 +73,7 @@ function upsert_vectors_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, s
                 foreach ($body['points'] as $p) {
                     $vals = $p['vector'] ?? null;
                     if (is_array($vals) && count($vals) !== $expected_size) {
+                        /* translators: %1$d: expected dimension, %2$d: actual dimension */
                         return new WP_Error('qdrant_vector_dimension_mismatch', sprintf(__('Vector dimension mismatch. Expected %1$d, got %2$d.', 'gpt3-ai-content-generator'), $expected_size, count($vals)));
                     }
                 }

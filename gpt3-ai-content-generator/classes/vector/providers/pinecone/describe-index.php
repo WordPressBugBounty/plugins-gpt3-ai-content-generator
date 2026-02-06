@@ -12,6 +12,49 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Fetches basic index metadata from the controller plane and caches it.
+ *
+ * @param AIPKit_Vector_Pinecone_Strategy $strategyInstance The instance of the strategy class.
+ * @param string $index_name The name of the index to describe.
+ * @return array|WP_Error Index overview or WP_Error.
+ */
+function get_index_overview_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $index_name): array|WP_Error {
+    $cache_key = 'aipkit_pinecone_index_overview_' . md5($index_name);
+    $cache_group = 'aipkit_pinecone';
+    static $request_cache = [];
+
+    if (isset($request_cache[$cache_key])) {
+        return $request_cache[$cache_key];
+    }
+
+    $cached = wp_cache_get($cache_key, $cache_group);
+    if (false !== $cached) {
+        $request_cache[$cache_key] = $cached;
+        return $cached;
+    }
+
+    $transient = get_transient($cache_key);
+    if (false !== $transient) {
+        wp_cache_set($cache_key, $transient, $cache_group, HOUR_IN_SECONDS);
+        $request_cache[$cache_key] = $transient;
+        return $transient;
+    }
+
+    $path = '/indexes/' . urlencode($index_name);
+    $description = _request_logic($strategyInstance, 'GET', $path);
+    if (!is_wp_error($description)) {
+        $ttl = (int) apply_filters('aipkit_pinecone_index_overview_cache_ttl', HOUR_IN_SECONDS, $index_name, $description);
+        if ($ttl > 0) {
+            set_transient($cache_key, $description, $ttl);
+            wp_cache_set($cache_key, $description, $cache_group, $ttl);
+        }
+    }
+
+    $request_cache[$cache_key] = $description;
+    return $description;
+}
+
+/**
  * Logic for the describe_index method of AIPKit_Vector_Pinecone_Strategy.
  *
  * @param AIPKit_Vector_Pinecone_Strategy $strategyInstance The instance of the strategy class.
@@ -19,8 +62,7 @@ if (!defined('ABSPATH')) {
  * @return array|WP_Error Index details or WP_Error.
  */
 function describe_index_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $index_name): array|WP_Error {
-    $path = '/indexes/' . urlencode($index_name);
-    $description = _request_logic($strategyInstance, 'GET', $path);
+    $description = get_index_overview_logic($strategyInstance, $index_name);
     if (is_wp_error($description)) {
         return $description;
     }

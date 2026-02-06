@@ -29,10 +29,6 @@ use WPAICG\Includes\DependencyLoaders\Automated_Task_Cron_Helpers_Loader;
 use WPAICG\Includes\DependencyLoaders\Hook_Registrars_Loader;
 use WPAICG\Includes\DependencyLoaders\AI_Forms_Dependencies_Loader;
 use WPAICG\Includes\DependencyLoaders\Core_Moderation_Dependencies_Loader;
-// --- ADDED: Use statement for Migration AJAX Loader ---
-use WPAICG\Includes\DependencyLoaders\Migration_Ajax_Handlers_Loader;
-
-// --- END ADDED ---
 
 
 // Ensure this file is only loaded by WordPress
@@ -112,9 +108,6 @@ class AIPKit_Dependency_Loader
         require_once $loaders_path . 'class-hook-registrars-loader.php';
         require_once $loaders_path . 'class-ai-forms-dependencies-loader.php';
         require_once $loaders_path . 'class-core-moderation-dependencies-loader.php';
-        // --- ADDED: require_once for Migration AJAX Handlers Loader ---
-        require_once $loaders_path . 'class-migration-ajax-handlers-loader.php';
-        // --- END ADDED ---
         // --- END Load the new specialized loader class files ---
 
         // Call specialized loaders
@@ -141,8 +134,5 @@ class AIPKit_Dependency_Loader
         Hook_Registrars_Loader::load();
         AI_Forms_Dependencies_Loader::load();
         Core_Moderation_Dependencies_Loader::load();
-        // --- ADDED: Call to Migration AJAX Handlers Loader ---
-        Migration_Ajax_Handlers_Loader::load();
-        // --- END ADDED ---
     }
 }

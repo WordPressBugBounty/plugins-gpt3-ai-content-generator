@@ -11,7 +11,6 @@ use WPAICG\Chat\Frontend\Shortcode\DataProvider;
 use WPAICG\Chat\Frontend\Shortcode\FeatureManager;
 use WPAICG\Chat\Frontend\Shortcode\Configurator;
 use WPAICG\Chat\Frontend\Shortcode\Renderer;
-use WPAICG\aipkit_dashboard;
 
 
 if (!defined('ABSPATH')) {
@@ -141,8 +140,8 @@ class AIPKit_REST_Chatbot_Embed_Handler extends AIPKit_REST_Base_Handler
             'mainJs' => WPAICG_PLUGIN_URL . 'dist/js/public-main.bundle.js?ver=' . $version,
         ];
         
-        if (aipkit_dashboard::is_pro_plan() && aipkit_dashboard::is_addon_active('pdf_download')) {
-             $frontend_config['assetUrls']['jspdf'] = WPAICG_PLUGIN_URL . 'lib/js/jspdf.umd.min.js';
+        if (!empty($feature_flags['pdf_ui_enabled'])) {
+            $frontend_config['assetUrls']['jspdf'] = WPAICG_PLUGIN_URL . 'lib/js/jspdf.umd.min.js';
         }
         
         // Render the HTML for the chatbot

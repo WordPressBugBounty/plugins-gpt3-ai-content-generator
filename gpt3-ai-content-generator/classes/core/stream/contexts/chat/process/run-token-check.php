@@ -39,12 +39,12 @@ function run_token_check_logic(
     if (is_wp_error($token_check_result)) {
         $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
         $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
-        $triggers_addon_active = false;
+        $triggers_enabled = false;
         if (class_exists('\WPAICG\aipkit_dashboard')) {
-            $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+            $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
         }
 
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
             // Only proceed if log storage is available for the trigger manager
             if ($log_storage) {
                 $error_data = $token_check_result->get_error_data() ?: [];

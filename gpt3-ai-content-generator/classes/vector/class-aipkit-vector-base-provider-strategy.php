@@ -53,6 +53,13 @@ abstract class AIPKit_Vector_Base_Provider_Strategy implements AIPKit_Vector_Pro
         if (is_array($decoded)) {
             if (!empty($decoded['error']['message'])) {
                 $message = $decoded['error']['message'];
+            } elseif (!empty($decoded['status']['error'])) {
+                $status_error = $decoded['status']['error'];
+                $message = is_string($status_error)
+                    ? $status_error
+                    : (is_array($status_error) && !empty($status_error['message'])
+                        ? $status_error['message']
+                        : $message);
             } elseif (!empty($decoded['message'])) {
                 $message = $decoded['message'];
             } elseif (!empty($decoded['detail'])) {

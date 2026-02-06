@@ -6,6 +6,7 @@
 namespace WPAICG\Admin\Assets;
 
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
+use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -13,7 +14,7 @@ if (! defined('ABSPATH')) {
 
 /**
  * Handles enqueueing assets for the AIPKit Content Writer module.
- * REVISED: Enqueues admin-main.bundle.js and admin-content-writer.bundle.css.
+ * REVISED: Enqueues admin-main.bundle.js (shared admin styles live in admin-main).
  *          Markdown-it registration moved to SharedAssetsManager.
  * MODIFIED: Calls DashboardAssets::localize_core_data() to ensure global JS object is available.
  */
@@ -21,7 +22,6 @@ class AIPKit_Content_Writer_Assets
 {
     private $version;
     private $is_admin_main_js_enqueued = false;
-    private $is_admin_content_writer_css_enqueued = false;
     private $is_admin_woocommerce_writer_css_enqueued = false;
 
     public function __construct()
@@ -57,22 +57,19 @@ class AIPKit_Content_Writer_Assets
     private function enqueue_styles()
     {
         $dist_css_url = WPAICG_PLUGIN_URL . 'dist/css/';
-        $cw_css_handle = 'aipkit-admin-content-writer-css';
         $woo_writer_css_handle = 'aipkit-admin-woocommerce-writer-css';
         $admin_main_css_handle = 'aipkit-admin-main-css';
 
-
-        if (!wp_style_is($cw_css_handle, 'registered')) {
+        if (!wp_style_is($admin_main_css_handle, 'registered')) {
             wp_register_style(
-                $cw_css_handle,
-                $dist_css_url . 'admin-content-writer.bundle.css',
-                [$admin_main_css_handle],
+                $admin_main_css_handle,
+                $dist_css_url . 'admin-main.bundle.css',
+                ['dashicons'],
                 $this->version
             );
         }
-        if (!$this->is_admin_content_writer_css_enqueued && !wp_style_is($cw_css_handle, 'enqueued')) {
-            wp_enqueue_style($cw_css_handle);
-            $this->is_admin_content_writer_css_enqueued = true;
+        if (!wp_style_is($admin_main_css_handle, 'enqueued')) {
+            wp_enqueue_style($admin_main_css_handle);
         }
 
         if (class_exists('WooCommerce')) {
@@ -95,6 +92,13 @@ class AIPKit_Content_Writer_Assets
     {
         $admin_main_js_handle = 'aipkit-admin-main';
         $dist_js_url = WPAICG_PLUGIN_URL . 'dist/js/';
+
+        if (!wp_script_is('aipkit_markdown-it', 'registered') && class_exists(AIPKit_Shared_Assets_Manager::class)) {
+            AIPKit_Shared_Assets_Manager::register($this->version);
+        }
+        if (wp_script_is('aipkit_markdown-it', 'registered') && !wp_script_is('aipkit_markdown-it', 'enqueued')) {
+            wp_enqueue_script('aipkit_markdown-it');
+        }
 
         if (!wp_script_is($admin_main_js_handle, 'registered')) {
             wp_register_script(
@@ -128,6 +132,14 @@ class AIPKit_Content_Writer_Assets
                     'keyword' => AIPKit_Content_Writer_Prompts::get_default_keyword_prompt(),
                     'image' => AIPKit_Content_Writer_Prompts::get_default_image_prompt(),
                     'featured_image' => AIPKit_Content_Writer_Prompts::get_default_featured_image_prompt(),
+                    'image_title' => AIPKit_Content_Writer_Prompts::get_default_image_title_prompt(),
+                    'image_alt_text' => AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt(),
+                    'image_caption' => AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt(),
+                    'image_description' => AIPKit_Content_Writer_Prompts::get_default_image_description_prompt(),
+                    'image_title_update' => AIPKit_Content_Writer_Prompts::get_default_image_title_prompt_update(),
+                    'image_alt_text_update' => AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt_update(),
+                    'image_caption_update' => AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt_update(),
+                    'image_description_update' => AIPKit_Content_Writer_Prompts::get_default_image_description_prompt_update(),
                 ]
             ]);
         }

@@ -46,6 +46,7 @@ class GoogleVideoUrlBuilder {
             $url_with_key = $base_url . $full_path . '?key=' . urlencode($api_key);
             
         } else {
+            /* translators: %s: operation name */
             return new WP_Error('unsupported_video_operation', sprintf(__('Unsupported video operation: %s', 'gpt3-ai-content-generator'), $operation));
         }
 

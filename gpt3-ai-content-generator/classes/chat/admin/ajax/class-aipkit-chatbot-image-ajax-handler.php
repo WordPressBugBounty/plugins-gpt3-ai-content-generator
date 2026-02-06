@@ -7,12 +7,10 @@ namespace WPAICG\Chat\Admin\Ajax;
 
 use WPAICG\Images\AIPKit_Image_Manager;
 use WPAICG\Chat\Storage\LogStorage;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 // --- MODIFIED: Use new Token Manager namespace and its constants ---
 use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 // --- END MODIFICATION ---
-use WPAICG\aipkit_dashboard;
 use WPAICG\Chat\Storage\BotStorage;
 use WP_Error;
 
@@ -121,6 +119,9 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             return;
         }
 
+        $bot_settings = $this->bot_storage->get_chatbot_settings($bot_id);
+        $enable_ip_anonymization = isset($bot_settings['enable_ip_anonymization']) && $bot_settings['enable_ip_anonymization'] === '1';
+
         $base_log_data = [
             'bot_id'             => $bot_id,
             'user_id'            => $user_id ?: null,
@@ -130,9 +131,10 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             'is_guest'           => $is_logged_in ? 0 : 1,
             'role'               => $user_wp_role,
             'ip_address'         => $client_ip,
+            'ip_anonymize'       => $enable_ip_anonymization,
         ];
 
-        if (aipkit_dashboard::is_addon_active('token_management')) {
+        if ($this->token_manager) {
             $token_check_result = null;
             // --- MODIFIED: Use new GuestTableConstant ---
             $context_id_for_token_check = $is_logged_in ? 0 : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
@@ -157,7 +159,8 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
                     $session_id,
                     $client_ip,
                     $bot_id,
-                    $user_wp_role
+                    $user_wp_role,
+                    $enable_ip_anonymization
                 );
                 $this->send_wp_error($token_check_result);
                 return;
@@ -178,7 +181,6 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
         $bot_response_message_id = $this->log_storage->log_message($user_command_log_data)['message_id'] ?? ('aipkit-bot-msg-' . uniqid());
 
 
-        $bot_settings = $this->bot_storage->get_chatbot_settings($bot_id);
         $selected_image_model = $bot_settings['chat_image_model_id'] ?? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
         $provider_for_image = 'OpenAI';
 
@@ -230,7 +232,8 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
                 'user'     => $user_identifier, // ADDED
             ]
         );
-        if (($final_generation_options['model'] ?? '') === 'gpt-image-1' && $provider_for_image === 'OpenAI') {
+        $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
+        if (in_array(($final_generation_options['model'] ?? ''), $gpt_image_models, true) && $provider_for_image === 'OpenAI') {
             unset($final_generation_options['response_format']);
             $final_generation_options['output_format'] = 'png';
         } elseif (($final_generation_options['model'] ?? '') === 'dall-e-3' && $provider_for_image === 'OpenAI') {
@@ -249,7 +252,7 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             $images_generated_count = count($images_array);
             $tokens_to_record_for_chatbot = $usage_data['total_tokens'] ?? ($images_generated_count * AIPKit_Image_Manager::TOKENS_PER_IMAGE);
 
-            if (aipkit_dashboard::is_addon_active('token_management') && $tokens_to_record_for_chatbot > 0) {
+            if ($this->token_manager && $tokens_to_record_for_chatbot > 0) {
                 // --- MODIFIED: Use new GuestTableConstant ---
                 $context_id_for_token_record = $is_logged_in ? $bot_id : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
                 $module_to_record_against = $is_logged_in ? 'chat' : 'image_generator';
@@ -270,6 +273,7 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             $client_ip,
             $bot_id,
             $user_wp_role,
+            $enable_ip_anonymization,
             $bot_response_message_id
         );
 
@@ -285,7 +289,7 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
         }
     }
 
-    private function log_image_generation_attempt(string $conversation_uuid, string $extracted_prompt, array $request_options_for_log, array|WP_Error $result, ?array $usage_data, ?int $user_id, ?string $session_id, ?string $client_ip, int $bot_id_for_log, ?string $user_wp_role, string $bot_response_message_id = null)
+    private function log_image_generation_attempt(string $conversation_uuid, string $extracted_prompt, array $request_options_for_log, array|WP_Error $result, ?array $usage_data, ?int $user_id, ?string $session_id, ?string $client_ip, int $bot_id_for_log, ?string $user_wp_role, bool $ip_anonymize = false, string $bot_response_message_id = null)
     {
         if (!$this->log_storage) {
             return;
@@ -315,7 +319,8 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
         $log_data = [
             'bot_id'             => $bot_id_for_log, 'user_id'            => $user_id ?: null, 'session_id'         => $session_id, 'conversation_uuid' => $conversation_uuid,
             'module'             => 'chat', 'is_guest'           => ($user_id === 0 || $user_id === null), 'role'               => $user_wp_role,
-            'ip_address'         => \WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization::maybe_anonymize($client_ip),
+            'ip_address'         => $client_ip,
+            'ip_anonymize'       => $ip_anonymize,
             'message_role'       => 'bot', 'message_content'    => $message_content, 'timestamp'          => time(),
             'ai_provider'        => $provider_used, 'ai_model'           => $model_used, 'usage'              => $usage_data,
             'message_id'         => $bot_response_message_id,

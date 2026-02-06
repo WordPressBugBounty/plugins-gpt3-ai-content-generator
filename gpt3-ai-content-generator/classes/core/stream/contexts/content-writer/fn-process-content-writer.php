@@ -9,7 +9,6 @@ use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Chat\Storage\LogStorage;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -52,9 +51,9 @@ function process_content_writer_logic(
     // --- MODIFIED: Conditional Trigger Manager usage ---
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
-    $triggers_addon_active = false;
+    $triggers_enabled = false;
     if (class_exists('\WPAICG\aipkit_dashboard')) {
-        $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+        $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
     }
     // --- END MODIFICATION ---
 
@@ -62,7 +61,7 @@ function process_content_writer_logic(
     if (empty($user_message)) {
         $error = new WP_Error('empty_message_cw_logic', __('Content writer prompt cannot be empty.', 'gpt3-ai-content-generator'));
         // --- MODIFIED: Conditional Trigger Manager usage ---
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
             // --- END MODIFICATION ---
             $error_event_context = [
                 'error_code'    => $error->get_error_code(), 'error_message' => $error->get_error_message(),
@@ -79,7 +78,7 @@ function process_content_writer_logic(
     if (empty($provider) || empty($model)) {
         $error = new WP_Error('missing_provider_model_cw_logic', __('Provider or Model is missing for content writer.', 'gpt3-ai-content-generator'));
         // --- MODIFIED: Conditional Trigger Manager usage ---
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
             // --- END MODIFICATION ---
             $error_event_context = [
                 'error_code'    => $error->get_error_code(), 'error_message' => $error->get_error_message(),
@@ -103,7 +102,7 @@ function process_content_writer_logic(
         'module'            => 'content_writer',
         'is_guest'          => 0,
         'role'              => $user_wp_role,
-        'ip_address'        => AIPKit_IP_Anonymization::maybe_anonymize($client_ip),
+        'ip_address'        => $client_ip,
     ];
     $bot_message_id = 'aif-cw-msg-' . uniqid('', true);
     $base_log_data['bot_message_id'] = $bot_message_id;
@@ -123,7 +122,7 @@ function process_content_writer_logic(
     $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
     $ai_params_for_payload = array_merge($global_ai_params, $ai_params_from_cache);
     $ai_params_for_payload['temperature'] = $ai_params_for_payload['temperature'] ?? 1.0;
-    $ai_params_for_payload['max_completion_tokens'] = $ai_params_for_payload['max_completion_tokens'] ?? 4000;
+    unset($ai_params_for_payload['top_p']);
 
     if ($provider === 'Google' && class_exists(GoogleSettingsHandler::class)) {
         $ai_params_for_payload['safety_settings'] = GoogleSettingsHandler::get_safety_settings();
@@ -204,7 +203,7 @@ function process_content_writer_logic(
         /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
         $error = new WP_Error('missing_api_key_cw_logic', sprintf(__('API key missing for %s (Content Writer).', 'gpt3-ai-content-generator'), $provider), ['status' => 400]);
         // --- MODIFIED: Conditional Trigger Manager usage ---
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
             // --- END MODIFICATION ---
             $error_event_context = [
                 'error_code'    => $error->get_error_code(), 'error_message' => $error->get_error_message(),
@@ -221,7 +220,7 @@ function process_content_writer_logic(
     if ($provider === 'Azure' && empty($api_params_for_stream['azure_endpoint'])) {
         $error = new WP_Error('missing_azure_endpoint_cw_logic', __('Azure endpoint is missing (Content Writer).', 'gpt3-ai-content-generator'), ['status' => 400]);
         // --- MODIFIED: Conditional Trigger Manager usage ---
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
             // --- END MODIFICATION ---
             $error_event_context = [
                 'error_code'    => $error->get_error_code(), 'error_message' => $error->get_error_message(),

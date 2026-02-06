@@ -17,8 +17,6 @@ use WPAICG\AIPKIT_AI_Settings;
 // --- Get available providers (always show, lock via disabled when not eligible) ---
 $providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];
 $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
-$deepseek_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_addon_active('deepseek');
-$ollama_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_addon_active('ollama');
 // --- Get global AI param defaults ---
 $global_ai_params = [];
 if (class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
@@ -166,12 +164,60 @@ $default_presence_penalty = $global_ai_params['presence_penalty'] ?? 0.0;
         </div>
         <!-- End 3-Column Layout Wrapper -->
 
-        <?php include __DIR__ . '/_form-editor-actions.php'; ?>
-
     </form>
 
     <!-- Container for AI Form Preview -->
     <div id="aipkit_ai_form_preview_container" style="display: none; margin-top: 20px; padding: 15px; border: 1px solid var(--aipkit_container-border); border-radius: 4px; background-color: #fff;">
         <!-- Preview will be injected here by JS -->
+    </div>
+
+    <div
+        class="aipkit-modal-overlay aipkit_builder_instructions_modal aipkit_ai_form_prompt_modal"
+        id="aipkit_ai_form_prompt_modal"
+        aria-hidden="true"
+    >
+        <div
+            class="aipkit-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="aipkit_ai_form_prompt_modal_title"
+            aria-describedby="aipkit_ai_form_prompt_modal_description"
+        >
+            <div class="aipkit-modal-header">
+                <div>
+                    <h3 class="aipkit-modal-title" id="aipkit_ai_form_prompt_modal_title">
+                        <?php esc_html_e('Prompt Editor', 'gpt3-ai-content-generator'); ?>
+                    </h3>
+                    <p class="aipkit_builder_modal_subtitle" id="aipkit_ai_form_prompt_modal_description">
+                        <?php esc_html_e('Refine your prompt with a larger editor view.', 'gpt3-ai-content-generator'); ?>
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    class="aipkit-modal-close-btn aipkit_ai_form_prompt_modal_close"
+                    aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <span class="dashicons dashicons-no-alt"></span>
+                </button>
+            </div>
+            <div class="aipkit-modal-body">
+                <div class="aipkit_builder_field">
+                    <textarea
+                        id="aipkit_ai_form_prompt_modal_textarea"
+                        class="aipkit_builder_textarea aipkit_builder_textarea_large aipkit_ai_form_prompt_modal_textarea"
+                        rows="14"
+                        aria-label="<?php esc_attr_e('Prompt', 'gpt3-ai-content-generator'); ?>"
+                    ></textarea>
+                </div>
+                <div class="aipkit_builder_modal_meta">
+                    <span class="aipkit_builder_char_count aipkit_ai_form_prompt_count">
+                        <?php esc_html_e('0 characters', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                    <span class="aipkit_builder_key_hint">
+                        <?php esc_html_e('Press ESC to close', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

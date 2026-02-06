@@ -77,9 +77,10 @@ class BotStorage
      * Retrieve all published chatbots.
      * (Kept in Facade for now)
      *
+     * @param bool $prefetch_meta Whether to prefetch post meta for all bots.
      * @return array Array of WP_Post objects.
      */
-    public function get_chatbots(): array
+    public function get_chatbots(bool $prefetch_meta = true): array
     {
         if (!class_exists(AdminSetup::class)) {
             return [];
@@ -90,7 +91,7 @@ class BotStorage
             'posts_per_page' => -1,
             'orderby'        => 'title',
             'order'          => 'ASC',
-            'update_post_meta_cache' => true, // Ensure meta is cached by WP_Query
+            'update_post_meta_cache' => $prefetch_meta,
             'update_post_term_cache' => false,
         );
         $query = new \WP_Query($args);

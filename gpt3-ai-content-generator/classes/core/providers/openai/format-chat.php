@@ -72,10 +72,14 @@ function format_chat_logic_for_payload_formatter(
             }
             foreach ($ai_params['image_inputs'] as $image_input) {
                 if (isset($image_input['base64']) && isset($image_input['type'])) {
-                    $new_content_parts[] = [
+                    $image_payload = [
                         'type' => 'input_image',
                         'image_url' => 'data:' . $image_input['type'] . ';base64,' . $image_input['base64']
                     ];
+                    if (!empty($image_input['detail'])) {
+                        $image_payload['detail'] = $image_input['detail'];
+                    }
+                    $new_content_parts[] = $image_payload;
                 }
             }
             if (!empty($new_content_parts)) {
@@ -85,10 +89,14 @@ function format_chat_logic_for_payload_formatter(
                     $input_array[$last_message_key]['content'] = [['type' => 'input_text', 'text' => '']];
                     foreach ($ai_params['image_inputs'] as $image_input) {
                         if (isset($image_input['base64']) && isset($image_input['type'])) {
-                            $input_array[$last_message_key]['content'][] = [
+                            $image_payload = [
                                 'type' => 'input_image',
                                 'image_url' => 'data:' . $image_input['type'] . ';base64,' . $image_input['base64']
                             ];
+                            if (!empty($image_input['detail'])) {
+                                $image_payload['detail'] = $image_input['detail'];
+                            }
+                            $input_array[$last_message_key]['content'][] = $image_payload;
                         }
                     }
                 }

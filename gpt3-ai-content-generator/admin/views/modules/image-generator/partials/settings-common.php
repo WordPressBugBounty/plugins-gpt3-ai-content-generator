@@ -38,20 +38,18 @@ $default_css_template = "/* --- AIPKit Image Generator Custom CSS Example (Dark 
 ";
 
 ?>
-<!-- Custom CSS Section -->
-<p class="aipkit_form-help">
-    <?php esc_html_e('Add your custom CSS rules here to style the shortcode when using [aipkit_image_generator theme="custom"]. This allows for full control over the generator\'s appearance on the frontend.', 'gpt3-ai-content-generator'); ?>
-    <br>
-    <em><?php esc_html_e('Example CSS (based on dark theme) is provided below. Edit or replace it with your own styles.', 'gpt3-ai-content-generator'); ?></em>
-</p>
- <div class="aipkit_form-group">
-     <label class="aipkit_form-label" for="aipkit_image_generator_custom_css"><?php esc_html_e('Custom CSS Rules', 'gpt3-ai-content-generator'); ?></label>
-    <textarea
-        id="aipkit_image_generator_custom_css"
-        name="custom_css"
-        class="aipkit_form-input aipkit_settings_input" <?php // Added aipkit_settings_input for JS save ?>
-        rows="15"
-        style="font-family: monospace; font-size: 12px; white-space: pre; overflow-x: auto;"
-        placeholder="<?php echo esc_attr($default_css_template); ?>"
-    ><?php echo esc_textarea($custom_css ?: $default_css_template); // Show default if saved is empty ?></textarea>
+
+<div class="aipkit_popover_option_row">
+    <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
+        <textarea
+            id="aipkit_image_generator_custom_css"
+            name="custom_css"
+            class="aipkit_popover_option_textarea aipkit_popover_option_textarea--code aipkit_autosave_trigger"
+            rows="15"
+            placeholder="<?php echo esc_attr($default_css_template); ?>"
+        ><?php echo esc_textarea($custom_css ?: $default_css_template); ?></textarea>
+        <span class="aipkit_popover_option_helper">
+            <?php esc_html_e('Add CSS rules for [aipkit_image_generator theme="custom"].', 'gpt3-ai-content-generator'); ?>
+        </span>
+    </div>
 </div>

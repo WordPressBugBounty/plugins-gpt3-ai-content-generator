@@ -5,6 +5,7 @@
 
 namespace WPAICG\AutoGPT\Ajax\Actions\SaveTask;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager;
 use WP_Error;
 
@@ -27,7 +28,8 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
         // This list should ideally mirror the one in AIPKit_Content_Writer_Template_Manager for consistency.
         $allowed_keys_from_template_manager = [
             'ai_provider', 'ai_model', 'content_title_bulk', 'content_keywords',
-            'ai_temperature', 'content_max_tokens', 'post_type', 'post_author',
+            'ai_temperature', 'post_type', 'post_author',
+            'content_length',
             'post_status',
             'schedule_mode', 'smart_schedule_start_datetime', 'smart_schedule_interval_value', 'smart_schedule_interval_unit',
             'post_categories',
@@ -81,7 +83,10 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                     $content_writer_config[$key] = (string)floatval($post_data[$key]);
                 } elseif ($key === 'openai_vector_store_ids' && is_array($post_data[$key])) {
                     $content_writer_config[$key] = array_map('sanitize_text_field', $post_data[$key]);
-                } elseif (in_array($key, ['schedule_mode', 'smart_schedule_interval_unit', 'reasoning_effort'], true)) {
+                } elseif ($key === 'reasoning_effort') {
+                    $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data[$key] ?? '');
+                    $content_writer_config[$key] = $reasoning_effort !== '' ? $reasoning_effort : 'low';
+                } elseif (in_array($key, ['schedule_mode', 'smart_schedule_interval_unit', 'content_length'], true)) {
                     $content_writer_config[$key] = sanitize_key($post_data[$key]);
                 } elseif (is_string($post_data[$key])) {
                     $content_writer_config[$key] = sanitize_text_field(wp_unslash($post_data[$key]));

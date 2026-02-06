@@ -19,7 +19,7 @@ function is_duplicate_topic_logic(int $task_id, string $target_identifier): bool
 {
     global $wpdb;
     $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated.
     $existing_item = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$queue_table_name} WHERE task_id = %d AND target_identifier = %s",
         $task_id,
         $target_identifier
@@ -141,5 +141,30 @@ function insert_topic_into_queue_logic(int $task_id, string $target_identifier, 
         ],
         ['%d', '%s', '%s', '%s', '%s', '%s']
     );
-    return (bool) $inserted;
+    if (!$inserted) {
+        return false;
+    }
+
+    if (
+        isset($item_config['cw_generation_mode']) &&
+        $item_config['cw_generation_mode'] === 'gsheets' &&
+        !empty($item_config['gsheets_row_index']) &&
+        !empty($item_config['gsheets_sheet_id']) &&
+        !empty($item_config['gsheets_credentials']) &&
+        class_exists('\WPAICG\Lib\ContentWriter\AIPKit_Google_Sheets_Parser')
+    ) {
+        try {
+            $sheets_parser = new \WPAICG\Lib\ContentWriter\AIPKit_Google_Sheets_Parser($item_config['gsheets_credentials']);
+            $status_to_write = 'Queued on ' . current_time('mysql');
+            $sheets_parser->update_row_status(
+                $item_config['gsheets_sheet_id'],
+                (int) $item_config['gsheets_row_index'],
+                $status_to_write
+            );
+        } catch (\Exception $e) {
+            // Fail silently; queue insertion succeeded.
+        }
+    }
+
+    return true;
 }

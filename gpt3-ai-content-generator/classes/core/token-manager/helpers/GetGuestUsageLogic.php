@@ -4,6 +4,7 @@
 namespace WPAICG\Core\TokenManager\Helpers;
 
 use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
+use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -19,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 function GetGuestUsageLogic(AIPKit_Token_Manager $managerInstance, string $session_id, int $guest_context_table_id): array {
     global $wpdb;
-    $guest_table_name = $managerInstance->get_guest_table_name();
+    $guest_table_name = $wpdb->prefix . GuestTableConstants::GUEST_TABLE_NAME_SUFFIX;
     $current_usage = 0;
     $last_reset_time = 0;
 

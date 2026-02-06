@@ -38,7 +38,7 @@ function update_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
     }
 
     // Get the original template to check ownership and type
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $original_template = $wpdb->get_row($wpdb->prepare("SELECT user_id, template_type, is_default FROM {$table_name} WHERE id = %d", $template_id), ARRAY_A);
 
     if (!$original_template) {
@@ -54,7 +54,7 @@ function update_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
     }
 
     // Check for duplicate name for the original owner of the template.
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $existing = $wpdb->get_var($wpdb->prepare(
         "SELECT id FROM {$table_name} WHERE user_id = %d AND template_name = %s AND template_type = %s AND id != %d",
         $original_template['user_id'],

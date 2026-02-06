@@ -100,24 +100,56 @@ class AIPKit_OpenAI_Vector_Stores_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_list_vector_stores_openai()
     {
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_nonce_openai'
+        );
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-stores/ajax-list-vector-stores-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerStores\do_ajax_list_vector_stores_openai_logic($this);
     }
 
     public function ajax_create_vector_store_openai()
     {
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_nonce_openai'
+        );
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-stores/ajax-create-vector-store-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerStores\do_ajax_create_vector_store_openai_logic($this);
     }
 
     public function ajax_delete_vector_store_openai()
     {
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_nonce_openai'
+        );
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-stores/ajax-delete-vector-store-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerStores\do_ajax_delete_vector_store_openai_logic($this);
     }
 
     public function ajax_search_vector_store_openai()
     {
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_nonce_openai'
+        );
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
         require_once __DIR__ . '/handler-stores/ajax-search-vector-store-openai.php';
         \WPAICG\Dashboard\Ajax\OpenAI\HandlerStores\do_ajax_search_vector_store_openai_logic($this);
     }

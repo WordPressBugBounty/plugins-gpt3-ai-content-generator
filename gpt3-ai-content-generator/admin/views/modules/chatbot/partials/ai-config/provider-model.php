@@ -15,12 +15,99 @@ $saved_stream_enabled = isset($bot_settings['stream_enabled'])
 
 // Get saved Azure deployment name if applicable
 $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
+$render_global_status = true;
+$shortcode_text_main = '';
+if (!empty($bot_id)) {
+    $shortcode_text_main = sprintf('[aipkit_chatbot id=%d]', absint($bot_id));
+}
+$shortcode_label = '';
+$shortcode_pill = '';
+if (!empty($shortcode_text_main)) {
+    $shortcode_label = '<span class="aipkit_form-label aipkit_form-label--inline aipkit_shortcode_label">' .
+        esc_html__('Shortcode', 'gpt3-ai-content-generator') .
+        '</span>';
+    $shortcode_pill = sprintf(
+        '<div class="aipkit_shortcode_pill aipkit_builder_shortcode_pill" data-shortcode="%1$s" title="%2$s"><span class="aipkit_shortcode_text">%3$s</span></div>',
+        esc_attr($shortcode_text_main),
+        esc_attr__('Click to copy shortcode', 'gpt3-ai-content-generator'),
+        esc_html($shortcode_text_main)
+    );
+}
+
+$recommended_openai = \WPAICG\AIPKit_Providers::get_recommended_models('OpenAI');
+$recommended_openai = array_values(array_filter($recommended_openai, static function ($model) {
+    return is_array($model) && !empty($model['id']);
+}));
+$recommended_openai_ids = array_column($recommended_openai, 'id');
+$recommended_openai_lookup = array_fill_keys($recommended_openai_ids, true);
+
+$recommended_openrouter = \WPAICG\AIPKit_Providers::get_recommended_models('OpenRouter');
+$recommended_openrouter = array_values(array_filter($recommended_openrouter, static function ($model) {
+    return is_array($model) && !empty($model['id']);
+}));
+$recommended_openrouter_ids = array_column($recommended_openrouter, 'id');
+$recommended_openrouter_lookup = array_fill_keys($recommended_openrouter_ids, true);
+
+$recommended_google = \WPAICG\AIPKit_Providers::get_recommended_models('Google');
+$recommended_google = array_values(array_filter($recommended_google, static function ($model) {
+    return is_array($model) && !empty($model['id']);
+}));
+$recommended_google_ids = array_column($recommended_google, 'id');
+$recommended_google_lookup = array_fill_keys($recommended_google_ids, true);
 
 ?>
-<!-- Row container for Provider + Model -->
-<div class="aipkit_form-row aipkit_form-row-align-bottom" style="flex-wrap: nowrap; gap: 10px;">
+<!-- Row container for Bot + Provider + Model -->
+<div class="aipkit_form-row aipkit_form-row-align-bottom aipkit_builder_inline_row" style="gap: 10px;">
+    <!-- Chatbot Selection Column -->
+    <div class="aipkit_form-group aipkit_form-col" style="flex: 0 1 140px;">
+        <label
+            class="aipkit_form-label aipkit_builder_label_with_action"
+            for="aipkit_chatbot_builder_bot_select"
+        >
+            <span><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></span>
+            <?php if ((empty($is_next_layout) || !$is_next_layout) && isset($is_default_active) && !$is_default_active) : ?>
+                <button
+                    type="button"
+                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_builder_rename_btn aipkit_builder_rename_btn--label"
+                    aria-label="<?php echo esc_attr($rename_disabled_title ?? __('Rename chatbot', 'gpt3-ai-content-generator')); ?>"
+                    title="<?php echo esc_attr($rename_disabled_title ?? __('Rename chatbot', 'gpt3-ai-content-generator')); ?>"
+                >
+                    <span class="dashicons dashicons-edit"></span>
+                </button>
+            <?php endif; ?>
+        </label>
+        <div class="aipkit_input-with-button">
+            <select
+                id="aipkit_chatbot_builder_bot_select"
+                name="aipkit_chatbot_builder_bot_select"
+                class="aipkit_form-input aipkit_builder_bot_select_input"
+                <?php echo empty($all_bots_ordered_entries) ? 'disabled' : ''; ?>
+            >
+                <?php if (empty($all_bots_ordered_entries)) : ?>
+                    <option value="">
+                        <?php esc_html_e('No chatbots yet', 'gpt3-ai-content-generator'); ?>
+                    </option>
+                <?php else : ?>
+                    <option value="__new__">
+                        <?php esc_html_e('+ New Bot', 'gpt3-ai-content-generator'); ?>
+                    </option>
+                    <option value="" disabled>----------</option>
+                    <?php foreach ($all_bots_ordered_entries as $bot_entry) : ?>
+                        <?php $bot_post = $bot_entry['post']; ?>
+                        <option
+                            value="<?php echo esc_attr($bot_post->ID); ?>"
+                            <?php selected($bot_id, $bot_post->ID); ?>
+                        >
+                            <?php echo esc_html($bot_post->post_title); ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+    </div>
+
     <!-- AI Provider Column -->
-    <div class="aipkit_form-group aipkit_form-col" style="flex: 0 1 160px;">
+    <div class="aipkit_form-group aipkit_form-col" style="flex: 0 1 140px;">
         <label
             class="aipkit_form-label"
             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_provider"
@@ -31,18 +118,15 @@ $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
             id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_provider"
             name="provider"
             class="aipkit_form-input aipkit_chatbot_provider_select" <?php // JS targets this class?>
+            data-aipkit-provider-notice-target="aipkit_provider_notice_chatbot"
         >
             <?php foreach ($providers as $p_value) :
                 $disabled = false;
                 $label = $p_value;
 
-                if ($p_value === 'DeepSeek' && (empty($deepseek_addon_active) || !$deepseek_addon_active)) {
+                if ($p_value === 'Ollama' && !$is_pro) {
                     $disabled = true;
-                    $label = __('DeepSeek (Enable in Addons)', 'gpt3-ai-content-generator');
-                }
-                if ($p_value === 'Ollama' && (!$is_pro || empty($ollama_addon_active) || !$ollama_addon_active)) {
-                    $disabled = true;
-                    $label = __('Ollama (Enable in Addons)', 'gpt3-ai-content-generator');
+                    $label = __('Ollama (Pro)', 'gpt3-ai-content-generator');
                 }
             ?>
                 <option
@@ -56,21 +140,31 @@ $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
     </div>
 
     <!-- Model Selection Column -->
-    <div class="aipkit_form-group aipkit_form-col" style="flex: 1 1 auto;">
+    <div class="aipkit_form-group aipkit_form-col" style="flex: 1 1 420px;">
         <!-- OpenAI Model -->
         <div
             class="aipkit_chatbot_model_field" <?php // JS targets this class?>
             data-provider="OpenAI"
             style="display: <?php echo $saved_provider === 'OpenAI' ? 'block' : 'none'; ?>;"
         >
-            <label
-                class="aipkit_form-label"
+            <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+                <label
+                class="aipkit_form-label aipkit_form-label--status"
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_model"
-            >
-                <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_model_sync_status" aria-live="polite"></span>
-            </label>
-            <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
+                >
+                    <span class="aipkit_model_label_text"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_model_status_slot">
+                        <span class="aipkit_model_sync_status" aria-live="polite"></span>
+                        <?php if ($render_global_status) : ?>
+                            <span
+                                id="aipkit_chatbot_global_save_status_container"
+                                class="aipkit_save_status_container aipkit_builder_save_status"
+                            ></span>
+                            <?php $render_global_status = false; ?>
+                        <?php endif; ?>
+                    </span>
+                </label>
+                <?php echo $shortcode_label; ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_model"
                     name="openai_model"
@@ -79,12 +173,36 @@ $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
                     <?php
                      // $grouped_openai_models now only contains chat models (already filtered if applicable)
                      $foundCurrentOpenAI = false;
-if (!empty($grouped_openai_models) && is_array($grouped_openai_models)): ?>
+                    if (!empty($recommended_openai)) : ?>
+                        <optgroup label="<?php echo esc_attr__('Recommended', 'gpt3-ai-content-generator'); ?>">
+                            <?php foreach ($recommended_openai as $rec):
+                                $rec_id = $rec['id'] ?? '';
+                                $rec_name = $rec['name'] ?? $rec_id;
+                                if (!$rec_id) {
+                                    continue;
+                                }
+                                if ($rec_id === $saved_model) {
+                                    $foundCurrentOpenAI = true;
+                                }
+                                ?>
+                                <option
+                                    value="<?php echo esc_attr($rec_id); ?>"
+                                    <?php selected($saved_model, $rec_id); ?>
+                                >
+                                    <?php echo esc_html($rec_name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    <?php endif;
+                    if (!empty($grouped_openai_models) && is_array($grouped_openai_models)): ?>
                         <?php foreach ($grouped_openai_models as $groupLabel => $groupItems): ?>
                             <optgroup label="<?php echo esc_attr($groupLabel); ?>">
                                 <?php foreach ($groupItems as $m):
                                     $model_id   = $m['id'] ?? '';
                                     $model_name = $m['name'] ?? $model_id;
+                                    if (!empty($recommended_openai_lookup[$model_id])) {
+                                        continue;
+                                    }
                                     if ($model_id === $saved_model) {
                                         $foundCurrentOpenAI = true;
                                     }
@@ -104,19 +222,13 @@ if (!empty($grouped_openai_models) && is_array($grouped_openai_models)): ?>
                     // AND the saved model is NOT an OpenAI TTS model (as this dropdown is for CHAT models)
                     if (!$foundCurrentOpenAI && !empty($saved_model) && $saved_provider === 'OpenAI' && strpos($saved_model, 'tts-') !== 0) {
                         echo '<option value="' . esc_attr($saved_model) . '" selected>' . esc_html($saved_model) . ' (Manual)</option>';
-                    } elseif (empty($grouped_openai_models) && (!$foundCurrentOpenAI || empty($saved_model) || strpos($saved_model, 'tts-') === 0)) {
+                    } elseif (empty($grouped_openai_models) && empty($recommended_openai) && (!$foundCurrentOpenAI || empty($saved_model) || strpos($saved_model, 'tts-') === 0)) {
                         echo '<option value="">'.esc_html__('(Sync models in main AI Settings)', 'gpt3-ai-content-generator').'</option>';
                     }
 ?>
                 </select>
+                <?php echo $shortcode_pill; ?>
                 <!-- OpenAI Web Search checkbox moved to Features subsection -->
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="OpenAI" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-update"></span>
-                </button>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-admin-generic"></span>
-                </button>
-                <!-- Feature toggles moved to Features subsection; keep only parameters button -->
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -126,14 +238,17 @@ if (!empty($grouped_openai_models) && is_array($grouped_openai_models)): ?>
             data-provider="OpenRouter"
             style="display: <?php echo $saved_provider === 'OpenRouter' ? 'block' : 'none'; ?>;"
         >
-             <label
-                class="aipkit_form-label"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_model"
-            >
-                <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_model_sync_status" aria-live="polite"></span>
-            </label>
-             <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+                <label
+                    class="aipkit_form-label aipkit_form-label--status"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_model"
+                >
+                    <span class="aipkit_model_label_text"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_model_status_slot">
+                        <span class="aipkit_model_sync_status" aria-live="polite"></span>
+                    </span>
+                </label>
+                <?php echo $shortcode_label; ?>
                <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_model"
                     name="openrouter_model"
@@ -141,6 +256,27 @@ if (!empty($grouped_openai_models) && is_array($grouped_openai_models)): ?>
                 >
                     <?php
 $foundCurrentOR = false;
+if (!empty($recommended_openrouter)) : ?>
+                        <optgroup label="<?php echo esc_attr__('Recommended', 'gpt3-ai-content-generator'); ?>">
+                            <?php foreach ($recommended_openrouter as $rec):
+                                $rec_id = $rec['id'] ?? '';
+                                $rec_name = $rec['name'] ?? $rec_id;
+                                if (!$rec_id) {
+                                    continue;
+                                }
+                                if ($rec_id === $saved_model) {
+                                    $foundCurrentOR = true;
+                                }
+                                ?>
+                                <option
+                                    value="<?php echo esc_attr($rec_id); ?>"
+                                    <?php selected($saved_model, $rec_id); ?>
+                                >
+                                    <?php echo esc_html($rec_name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    <?php endif;
 if (!empty($openrouter_model_list)) {
     $grouped = [];
     foreach ($openrouter_model_list as $model) {
@@ -159,6 +295,9 @@ if (!empty($openrouter_model_list)) {
                                 <?php
             usort($modelsInGroup, fn ($a, $b) => strcmp($a['name'], $b['name']));
         foreach ($modelsInGroup as $m):
+            if (!empty($recommended_openrouter_lookup[$m['id'] ?? ''])) {
+                continue;
+            }
             if ($m['id'] === $saved_model) {
                 $foundCurrentOR = true;
             } ?>
@@ -174,17 +313,11 @@ if (!empty($openrouter_model_list)) {
 }
 if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter') { ?>
                         <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?> (Manual)</option>
-                    <?php } elseif (empty($openrouter_model_list) && empty($saved_model)) { ?>
+                    <?php } elseif (empty($openrouter_model_list) && empty($recommended_openrouter) && empty($saved_model)) { ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php } ?>
                 </select>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="OpenRouter" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-update"></span>
-                </button>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-admin-generic"></span>
-                </button>
-                <!-- Feature toggles moved to Features subsection; keep only parameters button -->
+                <?php echo $shortcode_pill; ?>
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -194,14 +327,17 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
             data-provider="Google"
             style="display: <?php echo $saved_provider === 'Google' ? 'block' : 'none'; ?>;"
         >
-             <label
-                class="aipkit_form-label"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_model"
-            >
-                <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_model_sync_status" aria-live="polite"></span>
-            </label>
-             <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+                <label
+                    class="aipkit_form-label aipkit_form-label--status"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_model"
+                >
+                    <span class="aipkit_model_label_text"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_model_status_slot">
+                        <span class="aipkit_model_sync_status" aria-live="polite"></span>
+                    </span>
+                </label>
+                <?php echo $shortcode_label; ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_model"
                     name="google_model"
@@ -209,7 +345,31 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
                 >
                      <?php
 $foundCurrentGoogle = false;
+if (!empty($recommended_google)) : ?>
+                        <optgroup label="<?php echo esc_attr__('Recommended', 'gpt3-ai-content-generator'); ?>">
+                            <?php foreach ($recommended_google as $rec):
+                                $rec_id = $rec['id'] ?? '';
+                                $rec_name = $rec['name'] ?? $rec_id;
+                                if (!$rec_id) {
+                                    continue;
+                                }
+                                if ($rec_id === $saved_model || $saved_model === 'models/' . $rec_id) {
+                                    $foundCurrentGoogle = true;
+                                }
+                                ?>
+                                <option
+                                    value="<?php echo esc_attr($rec_id); ?>"
+                                    <?php selected($saved_model, $rec_id); ?>
+                                >
+                                    <?php echo esc_html($rec_name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    <?php endif;
 if (!empty($google_model_list)): ?>
+                        <?php if (!empty($recommended_google)) : ?>
+                            <optgroup label="<?php echo esc_attr__('All models', 'gpt3-ai-content-generator'); ?>">
+                        <?php endif; ?>
                         <?php foreach ($google_model_list as $gm):
                             $gId   = $gm['id'] ?? ($gm['name'] ?? '');
                             $gName = $gm['name'] ?? $gId;
@@ -217,6 +377,9 @@ if (!empty($google_model_list)): ?>
                             $isSelected = ($saved_model === $selectedValue || $saved_model === 'models/'.$selectedValue);
                             if ($isSelected) {
                                 $foundCurrentGoogle = true;
+                            }
+                            if (!empty($recommended_google_lookup[$selectedValue])) {
+                                continue;
                             }
                             ?>
                             <option
@@ -226,23 +389,20 @@ if (!empty($google_model_list)): ?>
                                 <?php echo esc_html($gName); ?>
                             </option>
                         <?php endforeach; ?>
+                        <?php if (!empty($recommended_google)) : ?>
+                            </optgroup>
+                        <?php endif; ?>
                     <?php endif; ?>
                     <?php
                     if (!$foundCurrentGoogle && !empty($saved_model) && $saved_provider === 'Google'): ?>
                          <?php $displayModel = (strpos($saved_model, 'models/') === 0) ? substr($saved_model, 7) : $saved_model; ?>
                         <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($displayModel); ?> (Manual)</option>
-                    <?php elseif (empty($google_model_list) && !$foundCurrentGoogle && empty($saved_model)): ?>
+                    <?php elseif (empty($google_model_list) && empty($recommended_google) && !$foundCurrentGoogle && empty($saved_model)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
+                <?php echo $shortcode_pill; ?>
                 <!-- Google Search Grounding checkbox moved to Features subsection -->
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="Google" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-update"></span>
-                </button>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-admin-generic"></span>
-                </button>
-                <!-- Feature toggles moved to Features subsection; keep only parameters button -->
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -252,14 +412,17 @@ if (!empty($google_model_list)): ?>
             data-provider="Azure"
             style="display: <?php echo $saved_provider === 'Azure' ? 'block' : 'none'; ?>;"
         >
-             <label
-                class="aipkit_form-label"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_azure_deployment"
-            >
-                <?php esc_html_e('Deployment', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_model_sync_status" aria-live="polite"></span>
-            </label>
-             <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+                <label
+                    class="aipkit_form-label aipkit_form-label--status"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_azure_deployment"
+                >
+                    <span class="aipkit_model_label_text"><?php esc_html_e('Deployment', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_model_status_slot">
+                        <span class="aipkit_model_sync_status" aria-live="polite"></span>
+                    </span>
+                </label>
+                <?php echo $shortcode_label; ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_azure_deployment"
                     name="azure_deployment"
@@ -289,12 +452,7 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
 }
 ?>
                 </select>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="Azure" title="<?php esc_attr_e('Sync deployments', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-update"></span>
-                </button>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-admin-generic"></span>
-                </button>
+                <?php echo $shortcode_pill; ?>
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -304,14 +462,17 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
             data-provider="DeepSeek"
             style="display: <?php echo $saved_provider === 'DeepSeek' ? 'block' : 'none'; ?>;"
         >
-             <label
-                class="aipkit_form-label"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_deepseek_model"
-            >
-                <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_model_sync_status" aria-live="polite"></span>
-            </label>
-             <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+                <label
+                    class="aipkit_form-label aipkit_form-label--status"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_deepseek_model"
+                >
+                    <span class="aipkit_model_label_text"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_model_status_slot">
+                        <span class="aipkit_model_sync_status" aria-live="polite"></span>
+                    </span>
+                </label>
+                <?php echo $shortcode_label; ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_deepseek_model"
                     name="deepseek_model"
@@ -341,12 +502,7 @@ if (!empty($deepseek_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="DeepSeek" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-update"></span>
-                </button>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-admin-generic"></span>
-                </button>
+                <?php echo $shortcode_pill; ?>
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -356,14 +512,17 @@ if (!empty($deepseek_model_list)): ?>
             data-provider="Ollama"
             style="display: <?php echo $saved_provider === 'Ollama' ? 'block' : 'none'; ?>;"
         >
-             <label
-                class="aipkit_form-label"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_ollama_model"
-            >
-                <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_model_sync_status" aria-live="polite"></span>
-            </label>
-             <div class="aipkit_input-with-button"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+                <label
+                    class="aipkit_form-label aipkit_form-label--status"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_ollama_model"
+                >
+                    <span class="aipkit_model_label_text"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_model_status_slot">
+                        <span class="aipkit_model_sync_status" aria-live="polite"></span>
+                    </span>
+                </label>
+                <?php echo $shortcode_label; ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_ollama_model"
                     name="ollama_model"
@@ -393,12 +552,7 @@ if (!empty($deepseek_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_sync_btn" data-provider="Ollama" title="<?php esc_attr_e('Sync models', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-update"></span>
-                </button>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_cb_ai_settings_toggle" title="<?php esc_attr_e('Toggle AI Parameters', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-admin-generic"></span>
-                </button>
+                <?php echo $shortcode_pill; ?>
             </div> <?php // END WRAPPER?>
         </div>
 

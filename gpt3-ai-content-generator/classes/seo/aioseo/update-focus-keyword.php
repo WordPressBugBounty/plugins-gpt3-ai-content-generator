@@ -38,7 +38,7 @@ function update_focus_keyword_logic(int $post_id, string $keyword): bool
     $table_exists = ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name);
 
     if ($table_exists) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated.
         $existing_row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE post_id = %d", $post_id));
         if ($existing_row && !empty($existing_row->keyphrases)) {
             $keyphrases_data = json_decode($existing_row->keyphrases, true);

@@ -45,18 +45,29 @@ function run_content_moderation_logic(
         return true; // Fail open if moderator class is missing.
     }
 
-    $moderation_context = ['client_ip' => $client_ip, 'bot_settings' => $bot_settings];
+    $moderation_context = [
+        'client_ip' => $client_ip,
+        'bot_settings' => $bot_settings,
+        'banned_ips_settings' => [
+            'ips' => $bot_settings['banned_ips'] ?? '',
+            'message' => $bot_settings['banned_ips_message'] ?? '',
+        ],
+        'banned_words_settings' => [
+            'words' => $bot_settings['banned_words'] ?? '',
+            'message' => $bot_settings['banned_words_message'] ?? '',
+        ],
+    ];
     $moderation_check = AIPKit_Content_Moderator::check_content($user_message_text, $moderation_context);
 
     if (is_wp_error($moderation_check)) {
         $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
         $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
-        $triggers_addon_active = false;
+        $triggers_enabled = false;
         if (class_exists('\WPAICG\aipkit_dashboard')) {
-            $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+            $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
         }
 
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
             // Only proceed if log storage is available for the trigger manager
             if ($log_storage) {
                 $error_data = $moderation_check->get_error_data() ?: [];

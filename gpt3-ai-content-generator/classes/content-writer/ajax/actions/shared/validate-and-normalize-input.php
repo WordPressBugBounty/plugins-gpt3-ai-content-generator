@@ -66,11 +66,32 @@ function validate_and_normalize_input_logic(AIPKit_Content_Writer_Base_Ajax_Acti
         return new WP_Error('missing_model', __('AI model selection is required.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
 
+    $content_length = isset($settings['content_length'])
+        ? sanitize_key($settings['content_length'])
+        : '';
+    if (!in_array($content_length, ['short', 'medium', 'long'], true)) {
+        $content_length = 'medium';
+    }
+
+    $rss_description = isset($settings['rss_description'])
+        ? sanitize_textarea_field(wp_unslash($settings['rss_description']))
+        : '';
+    $url_content_context = isset($settings['url_content_context'])
+        ? sanitize_textarea_field(wp_unslash($settings['url_content_context']))
+        : '';
+    $source_url = isset($settings['source_url'])
+        ? esc_url_raw(wp_unslash($settings['source_url']))
+        : '';
+
     $validated_params = $settings;
     $validated_params['content_title'] = $topic; // Use parsed topic
     $validated_params['inline_keywords'] = $inline_keywords; // Add parsed keywords
     $validated_params['provider'] = $provider;
     $validated_params['model'] = $model;
+    $validated_params['content_length'] = $content_length;
+    $validated_params['rss_description'] = $rss_description;
+    $validated_params['url_content_context'] = $url_content_context;
+    $validated_params['source_url'] = $source_url;
 
     return $validated_params;
 }

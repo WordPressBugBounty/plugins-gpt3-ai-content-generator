@@ -40,8 +40,14 @@ class AIPKit_Bot_Settings_Initializer
         }
         // --- END MODIFICATION ---
 
-        $default_greeting = sprintf(__('Hello! How can I assist you?', 'gpt3-ai-content-generator'), esc_html($botName));
+        $default_greeting = __('Hello there!', 'gpt3-ai-content-generator');
+        $default_subgreeting = __('How can I help you today?', 'gpt3-ai-content-generator');
         update_post_meta($post_id, '_aipkit_greeting_message', $default_greeting);
+        update_post_meta($post_id, '_aipkit_subgreeting_message', $default_subgreeting);
+        update_post_meta($post_id, '_aipkit_header_avatar_url', BotSettingsManager::DEFAULT_HEADER_AVATAR_URL);
+        update_post_meta($post_id, '_aipkit_header_avatar_type', BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE);
+        update_post_meta($post_id, '_aipkit_header_avatar_value', BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE);
+        update_post_meta($post_id, '_aipkit_header_online_text', __('Online', 'gpt3-ai-content-generator'));
         $global = AIPKit_Providers::get_default_provider_config();
         $global_provider = $global['provider'];
         $global_model = $global['model'];
@@ -53,10 +59,10 @@ class AIPKit_Bot_Settings_Initializer
         }
         delete_post_meta($post_id, '_aipkit_azure_deployment');
         delete_post_meta($post_id, '_aipkit_azure_endpoint');
-        update_post_meta($post_id, '_aipkit_theme', 'light');
+        update_post_meta($post_id, '_aipkit_theme', 'dark');
         $default_instructions = __("You are a helpful AI Assistant. Please be friendly. Today's date is [date].", 'gpt3-ai-content-generator');
         update_post_meta($post_id, '_aipkit_instructions', $default_instructions);
-        update_post_meta($post_id, '_aipkit_popup_enabled', '0');
+        update_post_meta($post_id, '_aipkit_popup_enabled', '1');
         update_post_meta($post_id, '_aipkit_popup_position', 'bottom-right');
         update_post_meta($post_id, '_aipkit_popup_delay', BotSettingsManager::DEFAULT_POPUP_DELAY);
         update_post_meta($post_id, '_aipkit_site_wide_enabled', '0');
@@ -82,6 +88,17 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_enable_download', '1');
         update_post_meta($post_id, '_aipkit_enable_copy_button', BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON);
         update_post_meta($post_id, '_aipkit_enable_feedback', BotSettingsManager::DEFAULT_ENABLE_FEEDBACK);
+        update_post_meta($post_id, '_aipkit_enable_consent_compliance', BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE);
+        update_post_meta($post_id, '_aipkit_enable_ip_anonymization', BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION);
+        update_post_meta($post_id, '_aipkit_consent_title', __('Consent Required', 'gpt3-ai-content-generator'));
+        update_post_meta($post_id, '_aipkit_consent_message', __('Before starting the conversation, please agree to our Terms of Service and Privacy Policy.', 'gpt3-ai-content-generator'));
+        update_post_meta($post_id, '_aipkit_consent_button', __('I Agree', 'gpt3-ai-content-generator'));
+        update_post_meta($post_id, '_aipkit_openai_moderation_enabled', BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION);
+        update_post_meta($post_id, '_aipkit_openai_moderation_message', __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'));
+        update_post_meta($post_id, '_aipkit_banned_words', BotSettingsManager::DEFAULT_BANNED_WORDS);
+        update_post_meta($post_id, '_aipkit_banned_words_message', BotSettingsManager::DEFAULT_BANNED_WORDS_MESSAGE);
+        update_post_meta($post_id, '_aipkit_banned_ips', BotSettingsManager::DEFAULT_BANNED_IPS);
+        update_post_meta($post_id, '_aipkit_banned_ips_message', BotSettingsManager::DEFAULT_BANNED_IPS_MESSAGE);
         update_post_meta($post_id, '_aipkit_enable_conversation_sidebar', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR);
         $default_placeholder = __('Type your message...', 'gpt3-ai-content-generator');
         update_post_meta($post_id, '_aipkit_input_placeholder', $default_placeholder);

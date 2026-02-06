@@ -93,6 +93,32 @@ class AIPKit_Providers
         'Replicate' => [],
     ];
 
+    private static $recommended_model_lists = [
+        'OpenAI' => [
+            'gpt-4.1-mini',
+            'gpt-4.1',
+            'gpt-4o-mini',
+            'gpt-4o',
+            'gpt-5-mini',
+        ],
+        'Google' => [
+            'gemini-2.5-flash',
+            'gemini-3-flash-preview',
+            'gemini-2.5-flash-lite',
+            'gemini-2.0-flash',
+            'gemini-2.0-flash-lite',
+        ],
+        'OpenRouter' => [
+            'anthropic/claude-3.7-sonnet',
+            'anthropic/claude-3.5-haiku',
+            'openai/gpt-4o',
+            'openai/gpt-4o-mini',
+            'google/gemini-3-flash-preview',
+            'x-ai/grok-4.1-fast',
+            'z-ai/glm-4.7',
+        ],
+    ];
+
     private static $model_list_options = [
         'OpenAI'           => 'aipkit_openai_model_list',
         'OpenAIEmbedding'  => 'aipkit_openai_embedding_model_list',
@@ -208,6 +234,69 @@ class AIPKit_Providers
     public static function get_provider_defaults_all(): array
     {
         return self::$provider_defaults;
+    }
+
+    public static function get_recommended_models(string $provider_key): array
+    {
+        $normalized_key = $provider_key;
+        $key_lower = strtolower($provider_key);
+        if ('openai' === $key_lower) {
+            $normalized_key = 'OpenAI';
+        } elseif ('openrouter' === $key_lower) {
+            $normalized_key = 'OpenRouter';
+        } elseif ('google' === $key_lower) {
+            $normalized_key = 'Google';
+        }
+
+        $recommended_ids = self::$recommended_model_lists[$normalized_key] ?? [];
+        if (empty($recommended_ids)) {
+            return [];
+        }
+
+        $available_models = self::get_model_list($normalized_key);
+        $lookup = [];
+        $is_list = is_array($available_models) && array_keys($available_models) === range(0, count($available_models) - 1);
+
+        if ('OpenAI' === $normalized_key && !$is_list) {
+            foreach ($available_models as $group_models) {
+                if (!is_array($group_models)) {
+                    continue;
+                }
+                foreach ($group_models as $model) {
+                    if (!isset($model['id'])) {
+                        continue;
+                    }
+                    $lookup[$model['id']] = $model['name'] ?? $model['id'];
+                }
+            }
+        } elseif (is_array($available_models)) {
+            foreach ($available_models as $model) {
+                if (!is_array($model) || !isset($model['id'])) {
+                    continue;
+                }
+                $lookup[$model['id']] = $model['name'] ?? $model['id'];
+            }
+        }
+
+        $recommended = [];
+        foreach ($recommended_ids as $model_id) {
+            if (isset($lookup[$model_id])) {
+                $recommended[] = [
+                    'id' => $model_id,
+                    'name' => $lookup[$model_id],
+                ];
+            }
+        }
+
+        /**
+         * Filters recommended models for a provider.
+         *
+         * @param array  $recommended Recommended model list as [{id,name}].
+         * @param string $normalized_key Provider key (OpenAI, OpenRouter, Google).
+         * @param array  $recommended_ids Recommended model IDs in order.
+         * @param array  $lookup Available model lookup [id => name].
+         */
+        return apply_filters('aipkit_recommended_models', $recommended, $normalized_key, $recommended_ids, $lookup);
     }
 
     public static function save_provider_data($provider, $data)

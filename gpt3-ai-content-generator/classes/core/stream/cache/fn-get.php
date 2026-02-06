@@ -41,13 +41,14 @@ function get_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInst
     // 2. Cache miss, so query the database.
     global $wpdb;
     $now_utc = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+    $table_name = $wpdb->prefix . $cacheInstance::DB_TABLE_SUFFIX;
 
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Custom table name is fixed (wpdb prefix + plugin suffix).
     $row = $wpdb->get_row(
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
         $wpdb->prepare(
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
-            "SELECT message_content FROM {$cacheInstance->get_db_table_name()} WHERE cache_key = %s AND expires_at > %s LIMIT 1",
+            "SELECT message_content FROM {$table_name} WHERE cache_key = %s AND expires_at > %s LIMIT 1",
             $key,
             $now_utc
         ),
@@ -61,8 +62,8 @@ function get_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInst
         $result_to_cache = $row['message_content'];
     } else {
         // 4a. Not found or expired. Check if the key exists at all to differentiate the error.
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
-        $exists = $wpdb->get_var($wpdb->prepare("SELECT 1 FROM {$cacheInstance->get_db_table_name()} WHERE cache_key = %s LIMIT 1", $key));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Custom table name is fixed (wpdb prefix + plugin suffix).
+        $exists = $wpdb->get_var($wpdb->prepare("SELECT 1 FROM {$table_name} WHERE cache_key = %s LIMIT 1", $key));
         if ($exists) {
             $result_to_cache = new WP_Error('sse_cache_expired', __('Cached message has expired.', 'gpt3-ai-content-generator'));
         } else {

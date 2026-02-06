@@ -46,6 +46,8 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
             return;
         }
 
+        $this->maybe_extend_execution_limits(300);
+
         // 2. Check for required dependencies (AI Caller, Logger)
         if (!$this->ai_caller) {
             $this->send_wp_error(new WP_Error('ai_caller_missing', __('AI processing component is unavailable.', 'gpt3-ai-content-generator')), 500);

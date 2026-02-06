@@ -58,7 +58,7 @@ class FeedbackManager
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $this->table_name is safe (from $wpdb->prefix), and $where_sql contains placeholders.
         $sql = "SELECT id, messages FROM {$this->table_name} WHERE {$where_sql} LIMIT 1";
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $this->wpdb->prepare is used below.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: $this->wpdb->prepare is used below.
         $log_row = $this->wpdb->get_row($this->wpdb->prepare($sql, $params), ARRAY_A); 
 
         if (!$log_row) {

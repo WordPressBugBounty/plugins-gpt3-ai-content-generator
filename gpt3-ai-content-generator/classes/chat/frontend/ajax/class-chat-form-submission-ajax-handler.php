@@ -86,9 +86,9 @@ class ChatFormSubmissionAjaxHandler {
         }
 
 
-        $triggers_addon_active = false;
+        $triggers_enabled = false;
         if (class_exists(\WPAICG\aipkit_dashboard::class)) {
-            $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+            $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
         }
 
         $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
@@ -96,7 +96,7 @@ class ChatFormSubmissionAjaxHandler {
         
         $trigger_handler_function = '\WPAICG\Lib\Chat\Triggers\process_chat_triggers';
 
-        if (!$triggers_addon_active || !class_exists($trigger_storage_class) || !class_exists($trigger_manager_class) || !function_exists($trigger_handler_function)) {
+        if (!$triggers_enabled || !class_exists($trigger_storage_class) || !class_exists($trigger_manager_class) || !function_exists($trigger_handler_function)) {
             wp_send_json_success(['message' => __('Form submitted.', 'gpt3-ai-content-generator') . ' (' . __('Triggers not active or fully available.', 'gpt3-ai-content-generator') . ')']);
             return;
         }
@@ -110,8 +110,11 @@ class ChatFormSubmissionAjaxHandler {
             $this->send_wp_error(new WP_Error('bot_not_found', __('Chatbot configuration not found.', 'gpt3-ai-content-generator'), ['status' => 404]));
             return;
         }
+        $enable_ip_anonymization = isset($bot_settings['enable_ip_anonymization']) && $bot_settings['enable_ip_anonymization'] === '1';
 
         $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
+        $http_referer = isset($_SERVER['HTTP_REFERER']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_REFERER'])) : '';
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
         $user_wp_roles = $user_id ? (array) wp_get_current_user()->roles : ['guest'];
         $log_storage_instance = null;
         if (class_exists('\WPAICG\Chat\Storage\LogStorage')) {
@@ -127,6 +130,7 @@ class ChatFormSubmissionAjaxHandler {
             'module'            => 'chat', // This ensures trigger meta-logs go to the right conversation
             'is_guest'          => ($user_id === 0 || $user_id === null),
             'ip_address'        => $client_ip,
+            'ip_anonymize'      => $enable_ip_anonymization,
             'role'              => $user_wp_roles ? implode(', ', $user_wp_roles) : null,
         ];
 
@@ -145,6 +149,8 @@ class ChatFormSubmissionAjaxHandler {
             'user_roles'            => $user_wp_roles,
             'current_provider'      => $bot_settings['provider'] ?? null,
             'current_model_id'      => $bot_settings['model'] ?? null,
+            'http_referer'          => $http_referer,
+            'user_agent'            => $user_agent,
             'log_storage'           => $log_storage_instance,
             'base_log_data'         => $base_log_data_for_triggers, // Pass this populated array
             'module'                => 'chat' // Explicitly set top-level module as well

@@ -29,10 +29,16 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
         return [];
     }
 
+    $starter_ids = get_cw_starter_template_ids_for_user($user_id);
+    $starter_lookup = !empty($starter_ids) ? array_fill_keys($starter_ids, true) : [];
+    $starter_order_lookup = !empty($starter_ids)
+        ? array_flip(array_map('intval', $starter_ids))
+        : [];
+
     $all_templates_raw = [];
 
     // All users (including admins) get their own templates first.
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated.
     $user_templates_raw = $wpdb->get_results($wpdb->prepare(
         "SELECT t.*, u.display_name FROM {$table_name} t LEFT JOIN {$wpdb->users} u ON t.user_id = u.ID WHERE t.user_id = %d AND t.template_type = %s ORDER BY t.is_default DESC, t.template_name ASC",
         $user_id,
@@ -45,7 +51,7 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
 
     // If user is an admin, get templates from all OTHER users.
     if (current_user_can('manage_options')) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated.
         $other_users_templates_raw = $wpdb->get_results($wpdb->prepare(
             "SELECT t.*, u.display_name FROM {$table_name} t LEFT JOIN {$wpdb->users} u ON t.user_id = u.ID WHERE t.user_id != %d AND t.template_type = %s AND t.is_default = 0 ORDER BY u.display_name ASC, t.template_name ASC",
             $user_id,
@@ -58,7 +64,7 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
     }
 
     $templates = [];
-    $process_raw_template = function ($raw_template) {
+    $process_raw_template = function ($raw_template) use ($starter_lookup, $user_id) {
         if (!$raw_template) {
             return null;
         }
@@ -111,9 +117,10 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
             $raw_template['config']['post_schedule_time'] = '';
         }
 
-        if (!isset($raw_template['config']['content_max_tokens']) && class_exists(AIPKIT_AI_Settings::class)) {
-            $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
-            $raw_template['config']['content_max_tokens'] = (string)($ai_parameters['max_completion_tokens'] ?? 4000);
+        $is_starter = ((int)$raw_template['user_id'] === (int)$user_id && isset($starter_lookup[(int)$raw_template['id']]));
+        $raw_template['is_starter'] = $is_starter ? 1 : 0;
+        if ($is_starter && isset($starter_order_lookup[(int)$raw_template['id']])) {
+            $raw_template['starter_order'] = (int)$starter_order_lookup[(int)$raw_template['id']];
         }
 
         return $raw_template;

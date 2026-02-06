@@ -46,7 +46,6 @@ function build_cache_payload_logic(
     'title' => $settings['content_title'] ?? '',
     'keywords' => $settings['content_keywords'] ?? null,
     'inline_keywords' => $settings['inline_keywords'] ?? '',
-    'content_max_tokens' => $ai_params_for_cache['max_completion_tokens'] ?? null,
     'generate_meta_description' => $settings['generate_meta_description'] ?? '0',
     'custom_meta_prompt' => $settings['custom_meta_prompt'] ?? '',
     'generate_focus_keyword' => $settings['generate_focus_keyword'] ?? '0',

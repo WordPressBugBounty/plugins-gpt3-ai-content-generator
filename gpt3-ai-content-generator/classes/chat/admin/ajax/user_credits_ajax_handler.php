@@ -46,7 +46,7 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
      */
     public function ajax_get_user_credits_data()
     {
-        $permission_check = $this->check_module_access_permissions('user-credits'); // Check 'user-credits' module access
+        $permission_check = $this->check_module_access_permissions('stats'); // Permissions now live under the Usage/Stats module
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -69,7 +69,7 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
      */
     public function ajax_admin_update_token_balance()
     {
-        $permission_check = $this->check_module_access_permissions('user-credits', 'aipkit_user_credits_nonce');
+        $permission_check = $this->check_module_access_permissions('stats', 'aipkit_user_credits_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;

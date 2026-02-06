@@ -25,6 +25,7 @@ class Content_Writer_Dependencies_Loader
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-title-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-save-post-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-create-task-action.php',
+            $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-prepare-batch-action.php',
             // --- MODIFIED: Load new SEO action classes ---
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-meta-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-keyword-action.php',
@@ -32,6 +33,7 @@ class Content_Writer_Dependencies_Loader
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-tags-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-images-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-parse-csv-action.php',
+            $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-fetch-posts-action.php',
             // --- MODIFIED: Scrape URL action is a Pro feature, moved to lib loader ---
             // --- END MODIFICATION ---
             $content_writer_base_path . 'prompt/class-aipkit-content-writer-system-instruction-builder.php',

@@ -11,8 +11,6 @@ use WPAICG\AIPKit_Providers;
 use WPAICG\Stats\AIPKit_Stats;
 use WPAICG\aipkit_dashboard;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
-use WPAICG\Lib\Addons\AIPKit_OpenAI_Moderation;
-use WPAICG\Lib\Addons\AIPKit_Consent_Compliance;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -36,44 +34,7 @@ $ai_params = AIPKIT_AI_Settings::get_ai_parameters();
 $all_api_keys = AIPKIT_AI_Settings::get_api_keys();
 $public_api_key = $all_api_keys['public_api_key'] ?? '';
 
-$security_options = AIPKIT_AI_Settings::get_security_settings();
-$banned_words_settings = $security_options['bannedwords'] ?? ['words' => '', 'message' => ''];
-$saved_banned_words = $banned_words_settings['words'] ?? '';
-$saved_word_notification_message = $banned_words_settings['message'] ?? '';
-$placeholder_word_message = AIPKIT_AI_Settings::$default_security_settings['bannedwords']['message'] ?: __('Sorry, your message could not be sent as it contains prohibited words.', 'gpt3-ai-content-generator');
-$banned_ips_settings = $security_options['bannedips'] ?? ['ips' => '', 'message' => ''];
-$saved_banned_ips = $banned_ips_settings['ips'] ?? '';
-$saved_ip_notification_message = $banned_ips_settings['message'] ?? '';
-$placeholder_ip_message = AIPKIT_AI_Settings::$default_security_settings['bannedips']['message'] ?: __('Access from your IP address has been blocked.', 'gpt3-ai-content-generator');
-
 $is_pro = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
-$openai_mod_addon_helper_exists = class_exists('\WPAICG\Lib\Addons\AIPKit_OpenAI_Moderation');
-$openai_mod_addon_active = $openai_mod_addon_helper_exists && $is_pro && class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active(AIPKit_OpenAI_Moderation::ADDON_KEY);
-$openai_moderation_enabled = $security_options['openai_moderation_enabled'] ?? AIPKIT_AI_Settings::$default_security_settings['openai_moderation_enabled'];
-$openai_moderation_message = $security_options['openai_moderation_message'] ?? AIPKIT_AI_Settings::$default_security_settings['openai_moderation_message'];
-$placeholder_openai_message = AIPKIT_AI_Settings::$default_security_settings['openai_moderation_message'] ?: __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator');
-if (empty($openai_moderation_message) && $openai_mod_addon_active) {
-    $openai_moderation_message = $placeholder_openai_message;
-}
-
-$consent_addon_helper_exists = class_exists('\WPAICG\Lib\Addons\AIPKit_Consent_Compliance');
-$consent_addon_active = $consent_addon_helper_exists && $is_pro && class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active(AIPKit_Consent_Compliance::ADDON_KEY);
-$consent_settings = $security_options['consent'] ?? AIPKIT_AI_Settings::$default_security_settings['consent'];
-$saved_consent_title = $consent_settings['title'] ?? '';
-$saved_consent_message = $consent_settings['message'] ?? '';
-$saved_consent_button = $consent_settings['button'] ?? '';
-$placeholder_consent_title = AIPKIT_AI_Settings::$default_security_settings['consent']['title'] ?: __('Consent Required', 'gpt3-ai-content-generator');
-$placeholder_consent_message = AIPKIT_AI_Settings::$default_security_settings['consent']['message'] ?: __('Before starting the conversation, please agree to our Terms of Service and Privacy Policy.', 'gpt3-ai-content-generator');
-$placeholder_consent_button = AIPKIT_AI_Settings::$default_security_settings['consent']['button'] ?: __('I Agree', 'gpt3-ai-content-generator');
-if (empty($saved_consent_title) && $consent_addon_active) {
-    $saved_consent_title = $placeholder_consent_title;
-}
-if (empty($saved_consent_message) && $consent_addon_active) {
-    $saved_consent_message = $placeholder_consent_message;
-}
-if (empty($saved_consent_button) && $consent_addon_active) {
-    $saved_consent_button = $placeholder_consent_button;
-}
 
 $safety_settings = class_exists(GoogleSettingsHandler::class) ? GoogleSettingsHandler::get_safety_settings() : [];
 $category_thresholds = array();
@@ -93,14 +54,9 @@ $google_data     = AIPKit_Providers::get_provider_data('Google');
 $azure_data      = AIPKit_Providers::get_provider_data('Azure');
 $deepseek_data   = AIPKit_Providers::get_provider_data('DeepSeek');
 $ollama_data     = AIPKit_Providers::get_provider_data('Ollama');
-$elevenlabs_data = AIPKit_Providers::get_provider_data('ElevenLabs');
-$pexels_data     = AIPKit_Providers::get_provider_data('Pexels');
-$pixabay_data    = AIPKit_Providers::get_provider_data('Pixabay');
 $pinecone_data   = AIPKit_Providers::get_provider_data('Pinecone');
 $qdrant_data     = AIPKit_Providers::get_provider_data('Qdrant');
 
-
-$max_completion_tokens = $ai_params['max_completion_tokens'];
 $temperature       = $ai_params['temperature'];
 $top_p             = $ai_params['top_p'];
 $openai_store_conversation = isset($openai_data['store_conversation']) ? $openai_data['store_conversation'] : '0';
@@ -118,9 +74,6 @@ $google_defaults     = AIPKit_Providers::get_provider_defaults('Google');
 $azure_defaults      = AIPKit_Providers::get_provider_defaults('Azure');
 $deepseek_defaults   = AIPKit_Providers::get_provider_defaults('DeepSeek');
 $ollama_defaults     = AIPKit_Providers::get_provider_defaults('Ollama');
-$elevenlabs_defaults = AIPKit_Providers::get_provider_defaults('ElevenLabs');
-$pexels_defaults     = AIPKit_Providers::get_provider_defaults('Pexels');
-$pixabay_defaults    = AIPKit_Providers::get_provider_defaults('Pixabay');
 $pinecone_defaults   = AIPKit_Providers::get_provider_defaults('Pinecone');
 $qdrant_defaults     = AIPKit_Providers::get_provider_defaults('Qdrant');
 
@@ -155,7 +108,7 @@ if (class_exists('\\WPAICG\\Stats\\AIPKit_Stats')) {
                     number_format_i18n($rows),
                     size_format($bytes)
                 );
-                $stats_notice_link = admin_url('admin.php?page=wpaicg#logs');
+                $stats_notice_link = admin_url('admin.php?page=wpaicg#stats');
                 $stats_error_message = null;
             } else {
                 $stats_error_message = $stats_data->get_error_message();
@@ -170,122 +123,149 @@ if (class_exists('\\WPAICG\\Stats\\AIPKit_Stats')) {
     $stats_error_message = __('Statistics component is unavailable.', 'gpt3-ai-content-generator');
 }
 
-$deepseek_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('deepseek');
-$voice_playback_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('voice_playback');
-$vector_databases_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('vector_databases');
-$stock_images_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('stock_images');
-$replicate_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('replicate');
-$post_enhancer_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('ai_post_enhancer');
-$semantic_search_addon_active = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_addon_active('semantic_search');
 
-$whatsapp_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_addon_active('whatsapp');
-$integrations_tab_visible = $voice_playback_addon_active || $vector_databases_addon_active || $stock_images_addon_active || $replicate_addon_active || $post_enhancer_addon_active || $semantic_search_addon_active || $whatsapp_addon_active;
+$integrations_tab_visible = true;
 
 
 $providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'Ollama'];
-$ollama_addon_active = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_addon_active('ollama');
-
 $grouped_openai_models = AIPKit_Providers::get_openai_models();
 $openrouter_model_list = AIPKit_Providers::get_openrouter_models();
 $google_model_list     = AIPKit_Providers::get_google_models();
 $azure_deployment_list = AIPKit_Providers::get_azure_all_models_grouped();
 $deepseek_model_list   = AIPKit_Providers::get_deepseek_models();
 $ollama_model_list     = AIPKit_Providers::get_ollama_models();
-$elevenlabs_voice_list = AIPKit_Providers::get_elevenlabs_voices();
-$elevenlabs_model_list = AIPKit_Providers::get_elevenlabs_models();
-// --- NEW: Get Pinecone & Qdrant lists (initially empty) ---
-$pinecone_index_list = AIPKit_Providers::get_pinecone_indexes();
-$qdrant_collection_list = AIPKit_Providers::get_qdrant_collections();
-// --- END NEW ---
+$active_provider_label = $current_provider ?: __('Not set', 'gpt3-ai-content-generator');
+$active_model_value = '';
+switch ($current_provider) {
+    case 'OpenAI':
+        $active_model_value = $openai_data['model'] ?? '';
+        break;
+    case 'OpenRouter':
+        $active_model_value = $openrouter_data['model'] ?? '';
+        break;
+    case 'Google':
+        $active_model_value = $google_data['model'] ?? '';
+        break;
+    case 'Azure':
+        $active_model_value = $azure_data['model'] ?? '';
+        break;
+    case 'DeepSeek':
+        $active_model_value = $deepseek_data['model'] ?? '';
+        break;
+    case 'Ollama':
+        $active_model_value = $ollama_data['model'] ?? '';
+        break;
+}
+$active_model_value = is_string($active_model_value) ? trim($active_model_value) : '';
+if ($current_provider === 'Google' && strpos($active_model_value, 'models/') === 0) {
+    $active_model_value = substr($active_model_value, 7);
+}
+$active_model_display = $active_model_value !== '' ? $active_model_value : __('Not selected', 'gpt3-ai-content-generator');
+
+$connection_label = __('API Key', 'gpt3-ai-content-generator');
+$connection_status_text = __('Missing', 'gpt3-ai-content-generator');
+$connection_status_class = 'aipkit_status-warning';
+
+if ($current_provider === 'Azure') {
+    $connection_label = __('API Key & Endpoint', 'gpt3-ai-content-generator');
+    $azure_key_set = !empty($azure_data['api_key']);
+    $azure_endpoint_set = !empty($azure_data['endpoint']);
+    if ($azure_key_set && $azure_endpoint_set) {
+        $connection_status_text = __('Set', 'gpt3-ai-content-generator');
+        $connection_status_class = 'aipkit_status-success';
+    } else {
+        $connection_status_text = __('Incomplete', 'gpt3-ai-content-generator');
+    }
+} elseif ($current_provider === 'Ollama') {
+    $connection_label = __('Base URL', 'gpt3-ai-content-generator');
+    if (!empty($ollama_data['base_url'])) {
+        $connection_status_text = __('Set', 'gpt3-ai-content-generator');
+        $connection_status_class = 'aipkit_status-success';
+    }
+} else {
+    $current_provider_key = '';
+    if ($current_provider === 'OpenAI') {
+        $current_provider_key = $openai_data['api_key'] ?? '';
+    } elseif ($current_provider === 'OpenRouter') {
+        $current_provider_key = $openrouter_data['api_key'] ?? '';
+    } elseif ($current_provider === 'Google') {
+        $current_provider_key = $google_data['api_key'] ?? '';
+    } elseif ($current_provider === 'DeepSeek') {
+        $current_provider_key = $deepseek_data['api_key'] ?? '';
+    }
+    if (!empty($current_provider_key)) {
+        $connection_status_text = __('Set', 'gpt3-ai-content-generator');
+        $connection_status_class = 'aipkit_status-success';
+    }
+}
 
 ?>
-<div class="aipkit_container aipkit_settings_main_container" id="aipkit_settings_container">
-    <div class="aipkit_container-header">
-        <div class="aipkit_settings_heading_with_messages">
-            <div class="aipkit_container-title">
-                <?php echo esc_html__('AI Settings & Usage', 'gpt3-ai-content-generator'); ?>
-            </div>
-            <div id="aipkit_settings_messages" class="aipkit_settings_messages"></div>
-        </div>
-    </div>
+<div class="aipkit_settings_main_container" id="aipkit_settings_container">
+    <div class="aipkit_settings_layout">
 
-    <div class="aipkit_container-body aipkit_settings_container_body">
-        <div class="aipkit_settings_layout">
-
-            <!-- Left Column: Configuration Settings (Tabbed) -->
-            <div class="aipkit_settings_column aipkit_settings_column-left aipkit_sub_container">
-                 <div class="aipkit_sub_container_header">
-                    <div class="aipkit_sub_container_title"><?php echo esc_html__('Configuration', 'gpt3-ai-content-generator'); ?></div>
-                 </div>
-                 <div class="aipkit_sub_container_body">
-                    <div class="aipkit_tabs">
-                        <div class="aipkit_tab aipkit_active" data-tab="providers">
-                            <?php esc_html_e('Providers', 'gpt3-ai-content-generator'); ?>
-                        </div>
-                        <div class="aipkit_tab" data-tab="settings">
-                            <?php esc_html_e('Advanced', 'gpt3-ai-content-generator'); ?>
-                        </div>
-                        <?php if ($integrations_tab_visible): // Conditionally show Integrations tab?>
-                            <div class="aipkit_tab" data-tab="integrations">
-                                <?php esc_html_e('Integrations', 'gpt3-ai-content-generator'); ?>
-                            </div>
-                        <?php endif; ?>
+            <div class="aipkit_settings_column aipkit_settings_column-left">
+                <section class="aipkit_settings_card" id="aipkit_settings_provider_card">
+                    <div class="aipkit_settings_card_header">
+                        <h3 class="aipkit_settings_card_title"><?php esc_html_e('Provider & Model', 'gpt3-ai-content-generator'); ?></h3>
+                        <div id="aipkit_settings_messages" class="aipkit_settings_messages"></div>
                     </div>
-                    <div class="aipkit_tab_content_container">
-                        <div class="aipkit_tab-content aipkit_active" id="providers-content">
-                            <div class="aipkit_settings-tab-content-inner-padding">
-                                <div class="aipkit_accordion-group"> <?php // Single group for all "Providers" tab accordions?>
-
-                                    <!-- Accordion: API Configuration (Provider, Model, API Keys) -->
-                                    <div class="aipkit_accordion">
-                                        <div class="aipkit_accordion-header aipkit_active"> <?php // Make first one active?>
-                                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                                            <?php echo esc_html__('API', 'gpt3-ai-content-generator'); ?>
-                                        </div>
-                                        <div class="aipkit_accordion-content aipkit_active">
-                                            <div class="aipkit_settings-section">
-                                                <div class="aipkit_form-row aipkit_settings-form-row--provider-model">
-                                                    <div class="aipkit_form-group aipkit_form-col aipkit_settings-form-col--provider-select">
-                                                        <?php include __DIR__ . '/partials/settings-provider-select.php'; ?>
-                                                    </div>
-                                                    <div class="aipkit_form-group aipkit_form-col aipkit_settings-form-col--model-select">
-                                                        <?php include __DIR__ . '/partials/settings-models.php'; ?>
-                                                    </div>
-                                                </div>
-                                                <hr class="aipkit_hr"> <?php // Separator before API Keys?>
-                                                <div class="aipkit_form-row aipkit_settings-form-row--api-keys">
-                                                    <div class="aipkit_form-group aipkit_form-col aipkit_settings-form-col--full-width">
-                                                        <?php include __DIR__ . '/partials/settings-api-keys.php'; ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Parameters & Advanced Accordion (Combined) -->
-                                    <?php // This now includes parameters, provider-specific advanced, and Google safety settings?>
-                                    <?php include __DIR__ . '/partials/settings-parameters.php'; ?>
-
-                                </div> <?php // End of the accordion group for Providers Tab?>
+                    <div class="aipkit_settings_card_body">
+                        <div class="aipkit_form-row aipkit_settings-form-row--provider-model">
+                            <div class="aipkit_form-group aipkit_form-col aipkit_settings-form-col--provider-select">
+                                <?php include __DIR__ . '/partials/settings-provider-select.php'; ?>
+                            </div>
+                            <div class="aipkit_form-group aipkit_form-col aipkit_settings-form-col--model-select">
+                                <?php include __DIR__ . '/partials/settings-models.php'; ?>
                             </div>
                         </div>
-                        <div class="aipkit_tab-content" id="settings-content">
-                             <?php // Content for "Advanced" tab?>
-                            <?php include __DIR__ . '/partials/settings-advanced.php'; ?>
+                        <div class="aipkit_settings-form-col--full-width">
+                            <?php include __DIR__ . '/partials/settings-api-keys.php'; ?>
                         </div>
-                        <?php if ($integrations_tab_visible): ?>
-                             <div class="aipkit_tab-content" id="integrations-content">
-                                <?php // Content for "Integrations" tab?>
-                                <?php include __DIR__ . '/partials/settings-advanced-integrations.php'; ?>
-                            </div>
-                        <?php endif; ?>
                     </div>
-                </div>
+                </section>
+
+                <?php if ($integrations_tab_visible): ?>
+                    <section class="aipkit_settings_card" id="aipkit_settings_integrations_card">
+                        <div class="aipkit_settings_card_header">
+                            <h3 class="aipkit_settings_card_title"><?php esc_html_e('Integrations', 'gpt3-ai-content-generator'); ?></h3>
+                        </div>
+                        <div class="aipkit_settings_card_body">
+                            <?php include __DIR__ . '/partials/settings-advanced-integrations.php'; ?>
+                        </div>
+                    </section>
+                <?php endif; ?>
             </div>
 
-            <!-- Right Column: Token Stats -->
             <?php include __DIR__ . '/partials/token-stats.php'; ?>
 
+    </div>
+
+    <div
+        class="aipkit_model_settings_popover"
+        id="aipkit_settings_advanced_popover"
+        aria-hidden="true"
+    >
+        <div
+            class="aipkit_model_settings_popover_panel"
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby="aipkit_settings_advanced_title"
+        >
+            <div class="aipkit_model_settings_popover_header">
+                <span class="aipkit_model_settings_popover_title" id="aipkit_settings_advanced_title">
+                    <?php esc_html_e('Advanced settings', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <button
+                    type="button"
+                    class="aipkit_model_settings_popover_close"
+                    aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <span class="dashicons dashicons-no-alt"></span>
+                </button>
+            </div>
+            <div class="aipkit_model_settings_popover_body">
+                <?php include __DIR__ . '/partials/settings-parameters.php'; ?>
+            </div>
         </div>
     </div>
 </div>
@@ -294,22 +274,4 @@ $qdrant_collection_list = AIPKit_Providers::get_qdrant_collections();
 <div id="aipkit_google_tts_voices_json_main" style="display:none;" data-voices="<?php
     $google_voices_main = class_exists(GoogleSettingsHandler::class) ? GoogleSettingsHandler::get_synced_google_tts_voices() : [];
 echo esc_attr(wp_json_encode($google_voices_main ?: []));
-?>"></div>
-
-<!-- Hidden div for storing synced ElevenLabs Voices -->
-<div id="aipkit_elevenlabs_voices_json_main" style="display:none;" data-voices="<?php
-    echo esc_attr(wp_json_encode($elevenlabs_voice_list ?: []));
-?>"></div>
-
-<!-- NEW: Hidden div for storing synced ElevenLabs Models -->
-<div id="aipkit_elevenlabs_models_json_main" style="display:none;" data-models="<?php
-    echo esc_attr(wp_json_encode($elevenlabs_model_list ?: []));
-?>"></div>
-
-<!-- NEW: Hidden divs for Pinecone & Qdrant -->
-<div id="aipkit_pinecone_indexes_json_main" style="display:none;" data-indexes="<?php
-    echo esc_attr(wp_json_encode($pinecone_index_list ?: []));
-?>"></div>
-<div id="aipkit_qdrant_collections_json_main" style="display:none;" data-collections="<?php
-    echo esc_attr(wp_json_encode($qdrant_collection_list ?: []));
 ?>"></div>

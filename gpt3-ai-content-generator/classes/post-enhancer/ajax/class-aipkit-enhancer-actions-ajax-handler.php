@@ -100,6 +100,69 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
     }
 
     /**
+     * AJAX: Reorder actions.
+     */
+    public function ajax_reorder_actions(): void
+    {
+        $permission_check = $this->check_module_access_permissions(self::MODULE_SLUG, 'aipkit_enhancer_actions_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
+        $order_raw = isset($_POST['order']) ? wp_unslash($_POST['order']) : [];
+        if (!is_array($order_raw)) {
+            $this->send_wp_error(new WP_Error('invalid_order', __('Invalid action order provided.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $ordered_ids = array_values(
+            array_filter(
+                array_map('sanitize_text_field', $order_raw)
+            )
+        );
+
+        $actions = get_option(self::OPTION_NAME, $this->get_default_actions_public());
+        if (!is_array($actions) || empty($actions)) {
+            wp_send_json_success(['actions' => []]);
+        }
+
+        $actions_by_id = [];
+        foreach ($actions as $action) {
+            $id = isset($action['id']) ? sanitize_text_field((string) $action['id']) : '';
+            if ($id !== '') {
+                $actions_by_id[$id] = $action;
+            }
+        }
+
+        $reordered = [];
+        foreach ($ordered_ids as $id) {
+            if (isset($actions_by_id[$id])) {
+                $reordered[] = $actions_by_id[$id];
+                unset($actions_by_id[$id]);
+            }
+        }
+
+        // Append any remaining actions in their original order.
+        if (!empty($actions_by_id)) {
+            foreach ($actions as $action) {
+                $id = isset($action['id']) ? sanitize_text_field((string) $action['id']) : '';
+                if ($id !== '' && isset($actions_by_id[$id])) {
+                    $reordered[] = $action;
+                    unset($actions_by_id[$id]);
+                }
+            }
+        }
+
+        update_option(self::OPTION_NAME, $reordered, 'no');
+        wp_send_json_success([
+            'message' => __('Action order updated.', 'gpt3-ai-content-generator'),
+            'actions' => $reordered,
+        ]);
+    }
+
+    /**
      * AJAX handler to get all custom and default actions.
      */
     public function ajax_get_actions(): void

@@ -57,7 +57,7 @@ function log_image_generation_attempt_logic(
     $log_data = [
         'bot_id'             => $bot_id_for_log, 'user_id'            => $user_id ?: null, 'session_id'         => $session_id, 'conversation_uuid' => $conversation_uuid,
         'module'             => $bot_id_for_log ? 'chat' : $managerInstance::MODULE_SLUG, 'is_guest'           => ($user_id === 0 || $user_id === null), 'role'               => $user_wp_role,
-        'ip_address'         => \WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization::maybe_anonymize($client_ip),
+        'ip_address'         => $client_ip,
         'message_role'       => 'bot', 'message_content'    => $message_content, 'timestamp'          => time(),
         'ai_provider'        => $provider_used, 'ai_model'           => $model_used, 'usage'              => $usage_data,
         'message_id'         => $bot_response_message_id,

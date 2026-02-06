@@ -6,7 +6,6 @@
 namespace WPAICG\ContentWriter\Ajax\Actions\StandardGeneration;
 
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Standard_Generation_Action;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -36,7 +35,7 @@ function handle_error_response_logic(AIPKit_Content_Writer_Standard_Generation_A
             'module'            => 'content_writer',
             'is_guest'          => 0,
             'role'              => implode(', ', wp_get_current_user()->roles),
-            'ip_address'        => AIPKit_IP_Anonymization::maybe_anonymize(isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null),
+            'ip_address'        => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
             'message_role'      => 'bot',
             'message_content'   => "Error generating content (AJAX): " . $error->get_error_message(),
             'timestamp'         => time(),

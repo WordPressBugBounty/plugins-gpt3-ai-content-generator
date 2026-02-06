@@ -10,7 +10,6 @@ use WPAICG\Chat\Storage\FeedbackManager;
 // Keep dependencies needed by the new classes if they aren't self-contained
 use WPAICG\Chat\Storage\LogQueryHelper;
 use WPAICG\Chat\Admin\AdminSetup; // Needed for Bot name lookup
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization; // IP Anonymization addon
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

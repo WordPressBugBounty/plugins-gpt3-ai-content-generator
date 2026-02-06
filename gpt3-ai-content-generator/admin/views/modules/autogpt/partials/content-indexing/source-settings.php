@@ -14,6 +14,9 @@ if (!defined('ABSPATH')) {
 ?>
 <div id="aipkit_task_ci_source_settings">
     <div class="aipkit_form-group">
+        <?php include __DIR__ . '/knowledge-base-settings.php'; ?>
+    </div>
+    <div class="aipkit_form-group">
         <label class="aipkit_form-label" for="aipkit_task_content_indexing_post_types"><?php esc_html_e('Post Types to Index', 'gpt3-ai-content-generator'); ?></label>
         <select id="aipkit_task_content_indexing_post_types" name="post_types[]" class="aipkit_form-input" multiple size="5" style="min-height: 80px;">
             <?php foreach ($all_selectable_post_types as $slug => $pt_obj): ?>
@@ -22,7 +25,7 @@ if (!defined('ABSPATH')) {
         </select>
         <div class="aipkit_form-help"><?php esc_html_e('Select one or more post types. Ctrl/Cmd + click to select multiple.', 'gpt3-ai-content-generator'); ?></div>
     </div>
-     <div class="aipkit_auto_indexer_content_options">
+    <div class="aipkit_auto_indexer_content_options">
         <label class="aipkit_checkbox-label">
             <input type="checkbox" name="index_existing_now_flag" id="aipkit_task_content_indexing_index_existing" value="1" checked>
             <?php esc_html_e('Queue all existing content for indexing (one-time action).', 'gpt3-ai-content-generator'); ?>
@@ -38,4 +41,5 @@ if (!defined('ABSPATH')) {
             <?php esc_html_e('Keeps your knowledge base up-to-date by indexing content that is published or updated after the task\'s last run.', 'gpt3-ai-content-generator'); ?>
         </p>
     </div>
+
 </div>

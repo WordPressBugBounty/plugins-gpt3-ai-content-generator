@@ -140,6 +140,7 @@ function aipkit_create_vector_data_source_table()
         KEY user_id (user_id),
         KEY timestamp (timestamp),
         KEY provider_store_id (provider, vector_store_id),
+        KEY provider_store_time (provider, vector_store_id, timestamp),
         KEY post_id (post_id),
         KEY file_id (file_id),
         KEY status (status),

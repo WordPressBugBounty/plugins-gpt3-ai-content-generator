@@ -11,6 +11,7 @@ use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler; // Added for default actions
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -154,6 +155,10 @@ class PostEnhancerAssets
 
                 'tags'    => "You are an SEO expert. Generate a list of 5–10 relevant tags for a blog post titled \"{original_title}\". Return ONLY a comma-separated list of the tags. Do not include any introduction, explanation, or numbering.\n\nArticle Content Snippet:\n{original_content}"
             ];
+
+            $prompt_library = class_exists(AIPKit_Content_Writer_Prompts::class)
+                ? AIPKit_Content_Writer_Prompts::get_prompt_library()
+                : [];
             
             // --- ADDED: Fetch custom and default actions ---
             $enhancer_actions = get_option('aipkit_enhancer_actions', []);
@@ -183,6 +188,7 @@ class PostEnhancerAssets
                 'default_ai_model' => $default_ai_config['model'] ?? 'N/A',
                 'default_ai_params' => $default_ai_params,
                 'default_prompts' => $default_prompts,
+                'prompt_library' => $prompt_library,
                 'openai_vector_stores' => $openai_vector_stores,
                 'pinecone_indexes' => $pinecone_indexes,
                 'qdrant_collections' => $qdrant_collections,

@@ -123,7 +123,7 @@ function CheckAndResetTokensLogic(
 
     $current_usage = 0;
     $last_reset_time = 0;
-    $guest_table_name = $managerInstance->get_guest_table_name();
+    $guest_table_name = $wpdb->prefix . GuestTableConstants::GUEST_TABLE_NAME_SUFFIX;
 
     if ($is_guest) {
         $limit = $settings['token_guest_limit'] ?? null;

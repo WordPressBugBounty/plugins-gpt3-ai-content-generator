@@ -19,16 +19,12 @@ if (!defined('ABSPATH')) {
 function get_realtime_voice_flag_logic(array $core_flags): array
 {
     $is_pro = false;
-    $addon_active = false;
 
     if (class_exists(aipkit_dashboard::class)) {
         $is_pro = aipkit_dashboard::is_pro_plan();
-        $addon_active = aipkit_dashboard::is_addon_active('realtime_voice');
     }
 
     return [
-        'enable_realtime_voice_ui' => ($core_flags['enable_realtime_voice_setting'] ?? false) &&
-                                       $is_pro &&
-                                       $addon_active,
+        'enable_realtime_voice_ui' => ($core_flags['enable_realtime_voice_setting'] ?? false) && $is_pro,
     ];
 }

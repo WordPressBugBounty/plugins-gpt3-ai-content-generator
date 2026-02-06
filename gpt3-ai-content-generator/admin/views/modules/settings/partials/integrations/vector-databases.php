@@ -65,8 +65,8 @@ if (!defined('ABSPATH')) {
                     ?>
                 </select>
                 <button id="aipkit_sync_pinecone_indexes_btn" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="PineconeIndexes">
-                    <span class="aipkit_btn-text"><?php echo esc_html__('Sync Indexes', 'gpt3-ai-content-generator'); ?></span>
-                     <span class="aipkit_spinner" style="display:none;"></span>
+                    <span class="dashicons dashicons-update"></span>
+                    <span class="aipkit_btn_label"><?php echo esc_html__('Sync Indexes', 'gpt3-ai-content-generator'); ?></span>
                 </button>
             </div>
              <div class="aipkit_form-help"><?php esc_html_e('Sync and select a default index for modules that use Pinecone. Indexes are managed in AI Training.', 'gpt3-ai-content-generator'); ?></div>
@@ -124,8 +124,8 @@ if (!defined('ABSPATH')) {
                          endif; ?>
                 </select>
                 <button id="aipkit_sync_qdrant_collections_btn" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="QdrantCollections">
-                    <span class="aipkit_btn-text"><?php echo esc_html__('Sync Collections', 'gpt3-ai-content-generator'); ?></span>
-                     <span class="aipkit_spinner" style="display:none;"></span>
+                    <span class="dashicons dashicons-update"></span>
+                    <span class="aipkit_btn_label"><?php echo esc_html__('Sync Collections', 'gpt3-ai-content-generator'); ?></span>
                 </button>
             </div>
             <div class="aipkit_form-help"><?php esc_html_e('Sync and select a default Qdrant collection. Collections are managed in AI Training.', 'gpt3-ai-content-generator'); ?></div>

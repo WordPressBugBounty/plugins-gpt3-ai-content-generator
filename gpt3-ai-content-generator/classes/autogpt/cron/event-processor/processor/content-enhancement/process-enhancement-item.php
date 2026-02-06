@@ -7,6 +7,7 @@
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentEnhancement;
 
 use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\SEO\AIPKit_SEO_Helper;
 use WP_Error;
 // --- ADDED: Dependencies for vector context ---
@@ -43,10 +44,13 @@ function process_enhancement_item_logic(array $item, array $item_config): array
 
     $ai_caller = new AIPKit_AI_Caller();
     $ai_params = ['temperature' => floatval($item_config['ai_temperature'] ?? 1.0)];
-    if (($item_config['ai_provider'] ?? '') === 'OpenAI' && isset($item_config['reasoning_effort']) && !empty($item_config['reasoning_effort'])) {
-        $model_lower = strtolower($item_config['ai_model'] ?? '');
-        if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
-            $ai_params['reasoning'] = ['effort' => sanitize_key($item_config['reasoning_effort'])];
+    if (($item_config['ai_provider'] ?? '') === 'OpenAI') {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) ($item_config['ai_model'] ?? ''),
+            $item_config['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params['reasoning'] = ['effort' => $reasoning_effort];
         }
     }
     $user_max_tokens = absint($item_config['content_max_tokens'] ?? 4000);

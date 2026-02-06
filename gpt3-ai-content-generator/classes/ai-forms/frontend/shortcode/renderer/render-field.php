@@ -21,7 +21,8 @@ function render_field_logic(array $element, int $form_id): void
 {
     $field_id_attr = 'aipkit_form_field_' . esc_attr($form_id) . '_' . esc_attr($element['fieldId']);
     $field_name_attr = 'aipkit_form_field[' . esc_attr($element['fieldId']) . ']';
-    $required_attr = !empty($element['required']) ? 'required' : '';
+    $is_required = !empty($element['required']);
+    $required_attr = $is_required ? 'required' : '';
     $help_text = $element['helpText'] ?? '';
 
     switch ($element['type']) {
@@ -72,8 +73,9 @@ function render_field_logic(array $element, int $form_id): void
                 foreach ($element['options'] as $index => $option) {
                     $checkbox_id   = esc_attr($field_id_attr . '_' . $index);
                     $checkbox_name = $field_name_attr . '[]'; // Corrected: Do not escape brackets in the name attribute.
+                    $required_data_attr = $is_required ? ' data-is-required="true"' : '';
                     echo '<div class="aipkit-checkbox-item">';
-                    echo '<input type="checkbox" id="' . $checkbox_id . '" name="' . $checkbox_name . '" value="' . esc_attr($option['value']) . '" class="aipkit_form-input-checkbox" ' . ($required_attr && $index === 0 ? esc_attr($required_attr) : '') . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $checkbox_id and $checkbox_name are already escaped/safe at their definitions.
+                    echo '<input type="checkbox" id="' . $checkbox_id . '" name="' . $checkbox_name . '" value="' . esc_attr($option['value']) . '" class="aipkit_form-input-checkbox"' . $required_data_attr . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $checkbox_id and $checkbox_name are already escaped/safe at their definitions.
                     echo '<label for="' . $checkbox_id . '">' . esc_html($option['text']) . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $checkbox_id is already escaped at its definition.
                     echo '</div>';
                 }
@@ -136,7 +138,7 @@ function render_field_logic(array $element, int $form_id): void
             } else {
                 echo '<div class="aipkit_form-group">';
                 echo '<label class="aipkit_form-label">' . esc_html($element['label']) . '</label>';
-                echo '<p class="aipkit_form-help"><em>' . esc_html__('File upload is a Pro feature.', 'gpt3-ai-content-generator') . '</em></p>';
+                echo '<p class="aipkit_form-help"><em>' . esc_html__('File upload is a paid feature.', 'gpt3-ai-content-generator') . '</em></p>';
                 echo '</div>';
             }
             break;

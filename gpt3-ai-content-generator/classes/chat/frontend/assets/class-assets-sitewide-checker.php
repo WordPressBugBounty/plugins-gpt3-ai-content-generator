@@ -58,16 +58,14 @@ class AssetsSiteWideChecker {
             AssetsOrchestrator::$consent_needed = true;
             AssetsOrchestrator::$moderation_needed = true;
 
-            $pdf_addon_active = aipkit_dashboard::is_addon_active('pdf_download');
-            $starters_addon_active = aipkit_dashboard::is_addon_active('conversation_starters');
-            $voice_playback_addon_active = aipkit_dashboard::is_addon_active('voice_playback');
-
-            if ($enable_download_setting === '1' && aipkit_dashboard::is_pro_plan() && $pdf_addon_active) AssetsOrchestrator::$jspdf_needed = true;
+            if ($enable_download_setting === '1' && aipkit_dashboard::is_pro_plan()) {
+                AssetsOrchestrator::$jspdf_needed = true;
+            }
             if ($enable_copy_button_setting === '1') AssetsOrchestrator::$copy_button_needed = true;
             if ($enable_feedback_setting === '1') AssetsOrchestrator::$feedback_needed = true;
-            if ($starters_addon_active && $enable_starters_setting === true) AssetsOrchestrator::$starters_needed = true; // Corrected variable name
+            if ($enable_starters_setting === true) AssetsOrchestrator::$starters_needed = true; // Corrected variable name
             if ($enable_sidebar_setting === true && !$popup_enabled_setting) AssetsOrchestrator::$sidebar_needed = true;
-            if ($voice_playback_addon_active && $enable_tts_setting === true) AssetsOrchestrator::$tts_needed = true;
+            if ($enable_tts_setting === true) AssetsOrchestrator::$tts_needed = true;
             if ($enable_stt_setting === true) AssetsOrchestrator::$stt_needed = true; // Corrected variable name
             if ($enable_image_gen_command) AssetsOrchestrator::$image_gen_needed = true;
 

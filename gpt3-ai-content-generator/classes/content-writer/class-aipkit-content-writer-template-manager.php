@@ -10,7 +10,9 @@ use WP_Error;
 
 // Load all the new method logic files
 $methods_path = __DIR__ . '/template-manager/';
+require_once $methods_path . 'template-base-config.php';
 require_once $methods_path . 'ensure-default-template-exists.php';
+require_once $methods_path . 'starter-templates.php';
 require_once $methods_path . 'sanitize-config.php';
 require_once $methods_path . 'create-template.php';
 require_once $methods_path . 'update-template.php';
@@ -35,22 +37,31 @@ class AIPKit_Content_Writer_Template_Manager
     private $allowed_config_keys = [
         'ai_provider', 'ai_model', 'content_title', 'content_title_bulk',
         'content_keywords',
-        'ai_temperature', 'content_max_tokens',
+        'ai_temperature', 'content_length', 'content_max_tokens',
         'post_type', 'post_author', 'post_status',
         'post_schedule_date', 'post_schedule_time',
         'post_categories', 'prompt_mode', 'custom_title_prompt', 'custom_content_prompt',
+        'generate_title', 'generate_content',
         'generate_meta_description', 'custom_meta_prompt',
         'generate_focus_keyword', 'custom_keyword_prompt',
         'generate_excerpt', 'custom_excerpt_prompt',
         'generate_tags', 'custom_tags_prompt',
+        'custom_title_prompt_update', 'custom_content_prompt_update',
+        'custom_meta_prompt_update', 'custom_keyword_prompt_update',
+        'custom_excerpt_prompt_update', 'custom_tags_prompt_update',
         'cw_generation_mode', 'rss_feeds',
         'gsheets_sheet_id', 'gsheets_credentials',
         'url_list',
         'generate_toc',
         'generate_seo_slug', // NEW: Add generate_seo_slug
         'generate_images_enabled', 'image_provider', 'image_model', 'image_prompt',
+        'image_prompt_update',
+        'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description',
+        'image_title_prompt', 'image_alt_text_prompt', 'image_caption_prompt', 'image_description_prompt',
+        'image_title_prompt_update', 'image_alt_text_prompt_update', 'image_caption_prompt_update', 'image_description_prompt_update',
         'image_count', 'image_placement', 'image_placement_param_x', 'image_alignment', 'image_size',
         'generate_featured_image', 'featured_image_prompt',
+        'featured_image_prompt_update',
     'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids', 'pinecone_index_name', 'qdrant_collection_name', 'vector_embedding_provider', 'vector_embedding_model', 'vector_store_top_k', 'vector_store_confidence_threshold',
         'rss_include_keywords', 'rss_exclude_keywords',
         'pexels_orientation', 'pexels_size', 'pexels_color',
@@ -98,6 +109,11 @@ class AIPKit_Content_Writer_Template_Manager
     public function get_templates_for_user(string $type = 'content_writer'): array
     {
         return TemplateManagerMethods\get_templates_for_user_logic($this, $type);
+    }
+
+    public function reset_starter_templates(): array|WP_Error
+    {
+        return TemplateManagerMethods\reset_starter_templates_logic($this);
     }
 
     // --- Getters for use by namespaced functions ---

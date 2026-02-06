@@ -6,7 +6,6 @@
 namespace WPAICG\Core\Stream\Contexts\Chat\Process;
 
 use WPAICG\Chat\Storage\LogStorage;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -30,13 +29,6 @@ function log_user_message_logic(
     ?array $image_inputs,
     int $request_timestamp
 ): array|WP_Error {
-    if (!class_exists(AIPKit_IP_Anonymization::class)) {
-        $ip_anon_path = WPAICG_PLUGIN_DIR . 'classes/addons/class-aipkit-ip-anonymization.php';
-        if (file_exists($ip_anon_path)) {
-            require_once $ip_anon_path;
-        }
-    }
-
     $log_user_data = [
         'bot_id'            => $base_log_data['bot_id'],
         'user_id'           => $base_log_data['user_id'],
@@ -45,7 +37,8 @@ function log_user_message_logic(
         'module'            => $base_log_data['module'],
         'is_guest'          => $base_log_data['is_guest'],
         'role'              => $base_log_data['role'],
-        'ip_address'        => isset($base_log_data['ip_address']) && class_exists(AIPKit_IP_Anonymization::class) ? AIPKit_IP_Anonymization::maybe_anonymize($base_log_data['ip_address']) : ($base_log_data['ip_address'] ?? null),
+        'ip_address'        => $base_log_data['ip_address'] ?? null,
+        'ip_anonymize'      => $base_log_data['ip_anonymize'] ?? false,
         'message_role'      => 'user',
         'message_content'   => $user_message_text,
         'timestamp'         => $request_timestamp,

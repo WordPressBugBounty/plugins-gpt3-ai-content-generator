@@ -162,8 +162,7 @@ class WP_AI_Content_Generator_Public
                     ];
                     if (
                         class_exists('\\WPAICG\\aipkit_dashboard') &&
-                        \WPAICG\aipkit_dashboard::is_pro_plan() &&
-                        \WPAICG\aipkit_dashboard::is_addon_active('ollama')
+                        \WPAICG\aipkit_dashboard::is_pro_plan()
                     ) {
                         $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
                     }

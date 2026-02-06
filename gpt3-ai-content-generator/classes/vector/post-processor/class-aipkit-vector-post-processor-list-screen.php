@@ -131,6 +131,7 @@ class AIPKit_Vector_Post_Processor_List_Screen
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
         
         // Get all post IDs that have been indexed successfully
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table lookup for admin filter.
         $indexed_post_ids = $wpdb->get_col(
             $wpdb->prepare(
                 "SELECT DISTINCT post_id FROM {$table_name} WHERE post_id IS NOT NULL AND status = %s",
@@ -182,11 +183,27 @@ class AIPKit_Vector_Post_Processor_List_Screen
         if ($column_name !== 'ai_indexed_status') return;
 
         if (isset(self::$posts_status_cache[$post_id])) {
-            echo '<div class="aipkit-indexed-status-list">';
+            $unique_statuses = [];
+            $seen_keys = [];
             foreach (self::$posts_status_cache[$post_id] as $status) {
-                $provider_class = 'aipkit_provider_tag_' . strtolower(esc_attr($status['provider']));
+                $provider = isset($status['provider']) ? (string) $status['provider'] : '';
+                $store_id = isset($status['vector_store_id']) ? (string) $status['vector_store_id'] : '';
+                $key = strtolower($provider) . '|' . $store_id;
+                if ($store_id === '') {
+                    $key = strtolower($provider) . '|_none_';
+                }
+                if (isset($seen_keys[$key])) {
+                    continue;
+                }
+                $seen_keys[$key] = true;
+                $unique_statuses[] = $status;
+            }
+            echo '<div class="aipkit-indexed-status-list">';
+            foreach ($unique_statuses as $status) {
+                $provider_label = isset($status['provider']) ? (string) $status['provider'] : '';
+                $provider_class = 'aipkit_provider_tag_' . sanitize_html_class(strtolower($provider_label));
                 $display_name = $this->get_vector_store_display_name($status);
-                echo '<span class="aipkit-status-tag aipkit-status-indexed ' . $provider_class . '" title="' . esc_attr($status['provider']) . ': ' . $display_name . '">' . $display_name . '</span>';
+                echo '<span class="aipkit-status-tag aipkit-status-indexed ' . esc_attr($provider_class) . '" title="' . esc_attr($provider_label . ': ' . $display_name) . '">' . esc_html($display_name) . '</span>';
             }
             echo '</div>';
         } else {
@@ -205,7 +222,7 @@ class AIPKit_Vector_Post_Processor_List_Screen
 
         // If we already have a name and it's not just the ID, use it
         if (!empty($vector_store_name) && $vector_store_name !== $vector_store_id) {
-            return esc_html($vector_store_name);
+            return (string) $vector_store_name;
         }
 
         // For OpenAI, try to get the name from the registry
@@ -216,7 +233,7 @@ class AIPKit_Vector_Post_Processor_List_Screen
                 foreach ($registry['OpenAI'] as $store) {
                     if (isset($store['id']) && $store['id'] === $vector_store_id) {
                         if (!empty($store['name'])) {
-                            return esc_html($store['name']);
+                            return (string) $store['name'];
                         }
                         break;
                     }
@@ -225,7 +242,7 @@ class AIPKit_Vector_Post_Processor_List_Screen
         }
 
         // Fallback to the original logic
-        return esc_html($vector_store_name ?: $vector_store_id);
+        return (string) ($vector_store_name ?: $vector_store_id);
     }
 
     public function cache_posts_indexing_status($posts, $query) {
@@ -238,7 +255,7 @@ class AIPKit_Vector_Post_Processor_List_Screen
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
         $ids_placeholder = implode(',', array_fill(0, count($post_ids), '%d'));
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table lookup for list screen cache.
         $results = $wpdb->get_results($wpdb->prepare("SELECT post_id, vector_store_id, vector_store_name, provider FROM {$table_name} WHERE post_id IN ({$ids_placeholder}) AND status = 'indexed'", $post_ids), ARRAY_A);
 
         $grouped_results = [];

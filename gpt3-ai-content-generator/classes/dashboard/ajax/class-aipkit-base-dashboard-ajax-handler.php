@@ -43,6 +43,27 @@ abstract class BaseDashboardAjaxHandler {
     }
 
     /**
+     * Helper to check nonce and allow access to any of the provided modules.
+     *
+     * @param array<int, string> $module_slugs Module slugs to check access for.
+     * @param string $nonce_action The nonce action string.
+     * @return bool|WP_Error True if permissions are valid, WP_Error otherwise.
+     */
+    public function check_any_module_access_permissions(array $module_slugs, string $nonce_action = 'aipkit_nonce'): bool|WP_Error {
+        if (!check_ajax_referer($nonce_action, '_ajax_nonce', false)) {
+            return new WP_Error('nonce_failure', __('Security check failed (nonce).', 'gpt3-ai-content-generator'), ['status' => 403]);
+        }
+
+        foreach ($module_slugs as $module_slug) {
+            if (AIPKit_Role_Manager::user_can_access_module($module_slug)) {
+                return true;
+            }
+        }
+
+        return new WP_Error('permission_denied', __('You do not have permission to perform this action.', 'gpt3-ai-content-generator'), ['status' => 403]);
+    }
+
+    /**
      * Helper to send WP_Error as a standard JSON error response.
      *
      * @param WP_Error $error The WP_Error object.

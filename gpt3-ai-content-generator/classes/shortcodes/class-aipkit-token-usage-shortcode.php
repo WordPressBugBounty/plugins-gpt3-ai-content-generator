@@ -88,7 +88,7 @@ class AIPKit_Token_Usage_Shortcode
         $conversations = wp_cache_get($cache_key, $cache_group);
 
         if (false === $conversations) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: Necessary for fetching and processing usage data from the custom logs table. Caching is implemented.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Necessary for fetching and processing usage data from the custom logs table. Caching is implemented.
             $conversations = $wpdb->get_results($wpdb->prepare("SELECT messages FROM {$table_name} WHERE {$where_sql}", $params), ARRAY_A);
             wp_cache_set($cache_key, $conversations, $cache_group, MINUTE_IN_SECONDS); // Cache for 1 minute
         }

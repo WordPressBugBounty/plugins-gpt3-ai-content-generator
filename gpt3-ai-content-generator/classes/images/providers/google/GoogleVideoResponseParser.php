@@ -157,6 +157,7 @@ class GoogleVideoResponseParser {
         $decoded_response = json_decode($body, true);
         
         if ($status_code !== 200 || empty($decoded_response)) {
+            /* translators: %d: HTTP status code */
             return new WP_Error('poll_api_error', sprintf(__('Google Video API polling error (%d).', 'gpt3-ai-content-generator'), $status_code));
         }
 
@@ -193,6 +194,7 @@ class GoogleVideoResponseParser {
         $status_code = wp_remote_retrieve_response_code($response);
         
         if ($status_code !== 200) {
+            /* translators: %d: HTTP status code */
             return new WP_Error('video_download_http_error', sprintf(__('Video download failed with status %d.', 'gpt3-ai-content-generator'), $status_code));
         }
 
@@ -219,17 +221,26 @@ class GoogleVideoResponseParser {
         if (!empty($upload_dir['error'])) {
             return new WP_Error('upload_dir_error', __('Upload directory error: ', 'gpt3-ai-content-generator') . $upload_dir['error']);
         }
+
+        if (!function_exists('WP_Filesystem')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        $filesystem_ready = WP_Filesystem();
+        global $wp_filesystem;
+        if (!$filesystem_ready || !$wp_filesystem) {
+            return new WP_Error('filesystem_init_failed', __('Could not initialize filesystem.', 'gpt3-ai-content-generator'));
+        }
         
         // Check if upload directory is writable
-        if (!is_writable($upload_dir['path'])) {
+        if (!$wp_filesystem->is_writable($upload_dir['path'])) {
             return new WP_Error('upload_dir_not_writable', __('Upload directory is not writable.', 'gpt3-ai-content-generator'));
         }
         
         $filename = 'veo3_video_' . time() . '_' . wp_generate_password(8, false) . '.mp4';
-        $file_path = $upload_dir['path'] . '/' . $filename;
+        $file_path = trailingslashit($upload_dir['path']) . $filename;
         
         // Write video data to file
-        $result = file_put_contents($file_path, $video_data);
+        $result = $wp_filesystem->put_contents($file_path, $video_data, FS_CHMOD_FILE);
                 
         if ($result === false) {
             return new WP_Error('video_save_error', __('Failed to save video file to uploads directory.', 'gpt3-ai-content-generator'));
@@ -303,6 +314,7 @@ class GoogleVideoResponseParser {
             return $decoded['error']['message'];
         }
         
+        /* translators: %d: HTTP status code */
         return sprintf(__('Google Video API returned status %d', 'gpt3-ai-content-generator'), $status_code);
     }
 } 

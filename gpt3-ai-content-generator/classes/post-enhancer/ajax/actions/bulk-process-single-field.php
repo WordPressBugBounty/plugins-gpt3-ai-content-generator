@@ -8,6 +8,7 @@ namespace WPAICG\PostEnhancer\Ajax\Actions;
 
 use WPAICG\PostEnhancer\Ajax\Base\AIPKit_Post_Enhancer_Base_Ajax_Action;
 use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\SEO\AIPKit_SEO_Helper;
@@ -72,6 +73,22 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
             return;
         }
 
+        $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: Nonce is checked in check_permissions.
+        $enhancer_source = isset($_POST['enhancer_source']) ? sanitize_key(wp_unslash($_POST['enhancer_source'])) : '';
+        $bypass_pro_checks = ($enhancer_source === 'post_enhancer');
+
+        if (!$is_pro && !$bypass_pro_checks) {
+            if ($post->post_type === 'product') {
+                $this->send_error_response(new WP_Error('pro_required', __('Optimize Products is a Pro feature.', 'gpt3-ai-content-generator'), ['status' => 403]));
+                return;
+            }
+            if ($post->post_type !== 'attachment' && !in_array($field, ['title', 'content'], true)) {
+                $this->send_error_response(new WP_Error('pro_required', __('SEO field updates are available on Pro.', 'gpt3-ai-content-generator'), ['status' => 403]));
+                return;
+            }
+        }
+
         // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: Nonce is checked in check_permissions.
         $item_config_json = isset($_POST['enhancements']) ? wp_unslash($_POST['enhancements']) : '{}';
         $item_config = json_decode($item_config_json, true);
@@ -98,10 +115,13 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
             'max_completion_tokens' => isset($item_config['max_tokens']) ? absint($item_config['max_tokens']) : ($global_ai_params['max_completion_tokens'] ?? 4000),
         ];
         // --- NEW: Add reasoning effort to AI params ---
-        if ($provider === 'OpenAI' && isset($item_config['reasoning_effort']) && !empty($item_config['reasoning_effort'])) {
-            $model_lower = strtolower($model);
-            if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
-                $ai_params['reasoning'] = ['effort' => sanitize_key($item_config['reasoning_effort'])];
+        if ($provider === 'OpenAI') {
+            $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+                (string) $model,
+                $item_config['reasoning_effort'] ?? ''
+            );
+            if ($reasoning_effort !== '') {
+                $ai_params['reasoning'] = ['effort' => $reasoning_effort];
             }
         }
         // --- END NEW ---
@@ -132,6 +152,21 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         $original_focus_keyword = AIPKit_SEO_Helper::get_focus_keyword($post->ID);
         $original_tags = AIPKit_SEO_Helper::get_tags_as_string($post->ID);
         $categories = AIPKit_SEO_Helper::get_categories_as_string($post->ID);
+        $original_alt = '';
+        $original_caption = '';
+        $original_description = '';
+        $file_name = '';
+
+        if ($post->post_type === 'attachment') {
+            $original_alt = (string) get_post_meta($post->ID, '_wp_attachment_image_alt', true);
+            $original_caption = (string) $post->post_excerpt;
+            $original_description = (string) $post->post_content;
+            $attached_file = (string) get_attached_file($post->ID);
+            if ($attached_file) {
+                $file_name = wp_basename($attached_file);
+            }
+        }
+
         $placeholders = [
             '{original_title}' => $post->post_title,
             '{original_content}' => get_post_full_content($post),
@@ -140,6 +175,10 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
             '{original_focus_keyword}' => $original_focus_keyword ?: '',
             '{original_tags}' => $original_tags,
             '{categories}' => $categories,
+            '{original_caption}' => $original_caption,
+            '{original_description}' => $original_description,
+            '{original_alt}' => $original_alt,
+            '{file_name}' => $file_name,
         ];
 
         // Add WooCommerce placeholders if applicable
@@ -210,8 +249,21 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
             $system_instruction = "## Relevant information from knowledge base:\n" . trim($vector_context) . "\n##\n\n" . $system_instruction;
         }
 
+        $image_context = '';
+        $image_fields = ['keyword', 'title', 'excerpt', 'content'];
+        if ($post->post_type === 'attachment' && in_array($field, $image_fields, true)) {
+            $image_context = $this->get_image_context_for_attachment($post->ID, $provider, $ai_caller);
+            if (!empty($image_context)) {
+                $placeholders['{image_context}'] = $image_context;
+            }
+        }
+
         // Process the specific field
-        $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $item_config[$field]['prompt']);
+        $raw_prompt = $item_config[$field]['prompt'];
+        $prompt = str_replace(array_keys($placeholders), array_values($placeholders), $raw_prompt);
+        if (!empty($image_context) && strpos($raw_prompt, '{image_context}') === false) {
+            $prompt .= "\n\nImage context: " . $image_context;
+        }
         
     $ai_result = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => $prompt]], $ai_params, $system_instruction, ['post_id' => $post->ID]);
 
@@ -255,6 +307,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
 
         $new_value = trim(str_replace('"', '', $ai_result['content']));
         $success_message = '';
+        $updated_value = null;
 
         // Log success before updating the post based on field type so Admin Logs capture the generated content
         log_enhancer_bulk_update_logic(
@@ -272,11 +325,17 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         // Update the post based on field type
         switch ($field) {
             case 'keyword':
-                AIPKit_SEO_Helper::update_focus_keyword($post->ID, $new_value);
-                $success_message = 'Focus keyword updated successfully';
+                if ($post->post_type === 'attachment') {
+                    update_post_meta($post->ID, '_wp_attachment_image_alt', sanitize_text_field($new_value));
+                    $success_message = 'Alt text updated successfully';
+                } else {
+                    AIPKit_SEO_Helper::update_focus_keyword($post->ID, $new_value);
+                    $success_message = 'Focus keyword updated successfully';
+                }
                 break;
             case 'title':
                 wp_update_post(['ID' => $post->ID, 'post_title' => sanitize_text_field($new_value)]);
+                $updated_value = get_post_field('post_title', $post->ID);
                 $success_message = 'Title updated successfully';
                 break;
             case 'excerpt':
@@ -318,10 +377,174 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
                 return;
         }
 
-        wp_send_json_success([
+        if ($post->post_type === 'attachment' && $updated_value === null) {
+            switch ($field) {
+                case 'keyword':
+                    $updated_value = sanitize_text_field($new_value);
+                    break;
+                case 'excerpt':
+                case 'content':
+                    $updated_value = trim(wp_strip_all_tags($new_value));
+                    break;
+            }
+        }
+
+        $response_payload = [
             'message' => $success_message,
             'field' => $field,
             'post_id' => $post->ID
-        ]);
+        ];
+        if ($updated_value !== null) {
+            $response_payload['updated_value'] = $updated_value;
+        }
+
+        wp_send_json_success($response_payload);
+    }
+
+    private function get_image_context_for_attachment(int $attachment_id, string $provider, AIPKit_AI_Caller $ai_caller): string
+    {
+        if ($provider !== 'OpenAI') {
+            return '';
+        }
+
+        $openai_config = AIPKit_Providers::get_provider_data('OpenAI');
+        if (empty($openai_config['api_key'])) {
+            return '';
+        }
+
+        $file_path = $this->get_attachment_image_path($attachment_id);
+        $file_mtime = $file_path && file_exists($file_path) ? (int) filemtime($file_path) : 0;
+        $transient_key = 'aipkit_cw_img_ctx_' . $attachment_id . '_' . $file_mtime;
+        $cached_context = get_transient($transient_key);
+        if (is_string($cached_context) && $cached_context !== '') {
+            return $cached_context;
+        }
+
+        $image_payload = $this->get_attachment_image_payload($attachment_id);
+        if (empty($image_payload['base64']) || empty($image_payload['type'])) {
+            return '';
+        }
+
+        $analysis_prompt = 'Describe the image in one short sentence for SEO context. Return only the description.';
+        $analysis_params = [
+            'temperature' => 0.2,
+            'max_completion_tokens' => 60,
+            'image_inputs' => [
+                [
+                    'base64' => $image_payload['base64'],
+                    'type' => $image_payload['type'],
+                    'detail' => 'low',
+                ],
+            ],
+        ];
+
+        $analysis_result = $ai_caller->make_standard_call(
+            'OpenAI',
+            'gpt-4.1-mini',
+            [['role' => 'user', 'content' => $analysis_prompt]],
+            $analysis_params,
+            null,
+            ['post_id' => $attachment_id]
+        );
+
+        if (is_wp_error($analysis_result) || empty($analysis_result['content'])) {
+            return '';
+        }
+
+        $context = trim(preg_replace('/\s+/', ' ', $analysis_result['content']));
+        if ($context === '') {
+            return '';
+        }
+
+        set_transient($transient_key, $context, 30 * MINUTE_IN_SECONDS);
+        return $context;
+    }
+
+    private function get_attachment_image_path(int $attachment_id): string
+    {
+        $original_path = (string) get_attached_file($attachment_id);
+        if ($original_path === '') {
+            return '';
+        }
+
+        $meta = wp_get_attachment_metadata($attachment_id);
+        if (is_array($meta) && !empty($meta['sizes']['medium']['file'])) {
+            $dir = trailingslashit(pathinfo($original_path, PATHINFO_DIRNAME));
+            $medium_path = $dir . $meta['sizes']['medium']['file'];
+            if (file_exists($medium_path)) {
+                return $medium_path;
+            }
+        }
+
+        return file_exists($original_path) ? $original_path : '';
+    }
+
+    private function get_attachment_image_payload(int $attachment_id): array
+    {
+        $file_path = $this->get_attachment_image_path($attachment_id);
+        if ($file_path !== '') {
+            $payload = $this->get_image_payload_from_path($file_path);
+            if (!empty($payload)) {
+                return $payload;
+            }
+        }
+
+        $image_url = wp_get_attachment_image_url($attachment_id, 'medium');
+        if (empty($image_url)) {
+            return [];
+        }
+
+        $response = wp_remote_get($image_url, ['timeout' => 15]);
+        if (is_wp_error($response)) {
+            return [];
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        if ($body === '') {
+            return [];
+        }
+
+        $content_type = (string) wp_remote_retrieve_header($response, 'content-type');
+        $mime_type = trim(strtok($content_type, ';'));
+        if ($mime_type === '' || strpos($mime_type, 'image/') !== 0) {
+            return [];
+        }
+
+        return [
+            'base64' => base64_encode($body),
+            'type' => $mime_type,
+        ];
+    }
+
+    private function get_image_payload_from_path(string $file_path): array
+    {
+        if (!is_readable($file_path)) {
+            return [];
+        }
+
+        $file_size = filesize($file_path);
+        if ($file_size !== false && $file_size > 50 * 1024 * 1024) {
+            return [];
+        }
+
+        $image_bytes = file_get_contents($file_path);
+        if ($image_bytes === false) {
+            return [];
+        }
+
+        $mime_type = wp_get_image_mime($file_path);
+        if (empty($mime_type)) {
+            $filetype = wp_check_filetype($file_path);
+            $mime_type = $filetype['type'] ?? '';
+        }
+
+        if ($mime_type === '' || strpos($mime_type, 'image/') !== 0) {
+            return [];
+        }
+
+        return [
+            'base64' => base64_encode($image_bytes),
+            'type' => $mime_type,
+        ];
     }
 }

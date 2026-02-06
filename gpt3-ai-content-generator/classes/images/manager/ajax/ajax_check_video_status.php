@@ -9,7 +9,6 @@ use WPAICG\Images\AIPKit_Image_Manager;
 use WPAICG\Images\Providers\Google\GoogleVideoResponseParser;
 use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
-use WPAICG\aipkit_dashboard;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -143,7 +142,7 @@ function ajax_check_video_status_logic(AIPKit_Image_Manager $managerInstance): v
             
             // Record token usage when video generation completes
             $token_manager = $managerInstance->get_token_manager();
-            if (aipkit_dashboard::is_addon_active('token_management') && $token_manager && !empty($videos_array)) {
+            if ($token_manager && !empty($videos_array)) {
                 $videos_generated_count = count($videos_array);
                 $tokens_to_record = $usage_data['total_tokens'] ?? ($videos_generated_count * $managerInstance::TOKENS_PER_IMAGE);
                 
@@ -154,9 +153,9 @@ function ajax_check_video_status_logic(AIPKit_Image_Manager $managerInstance): v
                     $session_id_for_guest = null;
                     if (!$is_logged_in) {
                         $session_id_for_guest = isset($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : null;
-                        if (empty($session_id_for_guest) && class_exists('\WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization')) {
+                        if (empty($session_id_for_guest)) {
                             $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
-                            $session_id_for_guest = \WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization::maybe_anonymize($client_ip);
+                            $session_id_for_guest = $client_ip;
                         }
                     }
                     

@@ -32,8 +32,8 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
         'posts_per_page' => 20,
         'paged'          => 1,
         's'              => '', // for search
-        'orderby'        => 'title',
-        'order'          => 'ASC',
+        'orderby'        => 'modified',
+        'order'          => 'DESC',
     ];
 
     // Map 'search' arg to 's' for WP_Query
@@ -94,7 +94,11 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
         if (false === $all_meta_results) {
             // Construct the placeholders for the IN clause
             $id_placeholders = implode(', ', array_fill(0, count($post_ids), '%d'));
-            $meta_keys_to_fetch = ['_aipkit_ai_form_ai_provider', '_aipkit_ai_form_ai_model'];
+            $meta_keys_to_fetch = [
+                '_aipkit_ai_form_ai_provider',
+                '_aipkit_ai_form_ai_model',
+                '_aipkit_ai_form_submission_count',
+            ];
             $meta_key_placeholders = implode(', ', array_fill(0, count($meta_keys_to_fetch), '%s'));
 
             // Prepare the query to fetch all meta data in one go
@@ -121,6 +125,12 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
     if ($query->have_posts()) {
         foreach ($query->posts as $post) {
             $form_id = $post->ID;
+            $updated_at = $post->post_modified_gmt;
+            if (!$updated_at || '0000-00-00 00:00:00' === $updated_at) {
+                $updated_at = $post->post_date_gmt;
+            }
+            $submission_count_raw = $meta_map[$form_id]['_aipkit_ai_form_submission_count'] ?? 0;
+            $submission_count = is_numeric($submission_count_raw) ? (int) $submission_count_raw : 0;
             $forms_data[] = [
                 'id' => $form_id,
                 'title' => $post->post_title,
@@ -128,6 +138,8 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
                 'status' => $post->post_status,
                 'provider' => $meta_map[$form_id]['_aipkit_ai_form_ai_provider'] ?? null,
                 'model' => $meta_map[$form_id]['_aipkit_ai_form_ai_model'] ?? null,
+                'updated_at' => $updated_at,
+                'submissions_count' => $submission_count,
             ];
         }
         wp_reset_postdata(); // Important after custom loops to restore the global post object

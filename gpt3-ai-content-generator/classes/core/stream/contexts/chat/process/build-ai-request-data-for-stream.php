@@ -6,6 +6,7 @@
 namespace WPAICG\Core\Stream\Contexts\Chat\Process;
 
 use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WPAICG\Core\AIPKit_Instruction_Manager;
 use WPAICG\AIPKit_Providers;
@@ -171,8 +172,12 @@ function build_ai_request_data_for_stream_logic(
             $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;
         }
         // --- NEW: Add reasoning parameter ---
-        if (isset($bot_settings['reasoning_effort']) && !empty($bot_settings['reasoning_effort']) && (strpos($model_id_for_ai, 'gpt-5') !== false || strpos($model_id_for_ai, 'o1') !== false || strpos($model_id_for_ai, 'o3') !== false || strpos($model_id_for_ai, 'o4') !== false)) {
-            $ai_params_for_payload['reasoning'] = ['effort' => $bot_settings['reasoning_effort']];
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) $model_id_for_ai,
+            $bot_settings['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
         }
         // --- END NEW ---
     } elseif ($main_provider_for_ai === 'Google') {

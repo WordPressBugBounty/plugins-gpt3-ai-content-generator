@@ -47,15 +47,15 @@ function start_stream_logic(
 
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
-    $triggers_addon_active = false;
+    $triggers_enabled = false;
     if (class_exists('\WPAICG\aipkit_dashboard')) {
-        $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+        $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
     }
 
     try {
         $strategy = ProviderStrategyFactory::get_strategy($provider);
         if (is_wp_error($strategy)) {
-            if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
+            if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
                 $error_event_context = [
                     'error_code'    => $strategy->get_error_code(),
                     'error_message' => $strategy->get_error_message(),
@@ -93,7 +93,7 @@ function start_stream_logic(
         $url_params = array_merge($api_params, ['model' => $model, 'deployment' => $model]);
         $endpoint_url = $strategy->build_api_url($url_operation, $url_params);
         if (is_wp_error($endpoint_url)) {
-            if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
+            if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
                 $error_event_context = [
                     'error_code'    => $endpoint_url->get_error_code(),
                     'error_message' => $endpoint_url->get_error_message(),
@@ -139,6 +139,15 @@ function start_stream_logic(
         $curl_post_json_for_log = json_encode($sanitized_curl_post_data_for_log);
 
         $curl_post_data = apply_filters('aipkit_ai_query', $curl_post_data, $provider, $model, $history, $system_instruction_filtered, $api_params, $ai_params);
+        $sanitized_curl_headers = [];
+        foreach ($curl_headers as $header_line) {
+            if (preg_match('/^(authorization|api[-_]?key|x-api-key)\s*:/i', (string)$header_line)) {
+                $sanitized_curl_headers[] = preg_replace('/:\s*.*/', ': [redacted]', (string)$header_line);
+                continue;
+            }
+            $sanitized_curl_headers[] = $header_line;
+        }
+        $sanitized_body = AIPKit_Payload_Sanitizer::sanitize_for_logging($curl_post_data);
         $curl_post_json = json_encode($curl_post_data);
         // Post-encode sanitize: avoid environment-driven over-precision
         if (is_string($curl_post_json) && strpos($curl_post_json, 'score_threshold') !== false) {
@@ -158,6 +167,23 @@ function start_stream_logic(
         }
 
         $curl_options_base = $strategy->get_request_options('stream');
+        $stream_context = $processorInstance->get_current_stream_context();
+        $timeout_base = isset($curl_options_base['timeout']) ? (int) $curl_options_base['timeout'] : 120;
+        if (in_array($stream_context, ['ai_forms', 'content_writer'], true)) {
+            $timeout_base = max($timeout_base, 300);
+        }
+        $timeout_base = (int) apply_filters(
+            'aipkit_stream_timeout',
+            $timeout_base,
+            $provider,
+            $model,
+            $stream_context,
+            $api_params,
+            $ai_params
+        );
+        if ($timeout_base < 0) {
+            $timeout_base = 0;
+        }
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
         $ch = curl_init();
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
@@ -175,7 +201,7 @@ function start_stream_logic(
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_TIMEOUT, $curl_options_base['timeout'] ?? 120);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout_base);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $curl_options_base['sslverify'] ?? true);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
@@ -208,7 +234,7 @@ function start_stream_logic(
                 $processorInstance->set_error_occurred_status(true);
             }
             log_bot_error_logic($processorInstance, $error_message);
-            if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
+            if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
                 $error_event_context = [
                    'error_code'    => 'curl_error_' . $curl_error_num, 'error_message' => $curl_error_msg,
                    'bot_id'        => $base_log_data['bot_id'] ?? null, 'user_id'       => $base_log_data['user_id'] ?? null,
@@ -225,7 +251,7 @@ function start_stream_logic(
             $formatter->send_sse_error("API Error: {$api_error_message}", false);
             $processorInstance->set_error_occurred_status(true);
             log_bot_error_logic($processorInstance, "API Error ({$final_http_code}): {$api_error_message}");
-            if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
+            if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
                 $error_event_context = [
                    'error_code'    => 'api_error_http_' . $final_http_code, 'error_message' => $api_error_message,
                    'bot_id'        => $base_log_data['bot_id'] ?? null, 'user_id'       => $base_log_data['user_id'] ?? null,
@@ -242,7 +268,7 @@ function start_stream_logic(
             $formatter->send_sse_error($no_data_error_msg, false);
             $processorInstance->set_error_occurred_status(true);
             log_bot_error_logic($processorInstance, $no_data_error_msg);
-            if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
+            if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
                 $error_event_context = [
                    'error_code'    => 'no_data_received', 'error_message' => $no_data_error_msg,
                    'bot_id'        => $base_log_data['bot_id'] ?? null, 'user_id'       => $base_log_data['user_id'] ?? null,
@@ -270,7 +296,7 @@ function start_stream_logic(
         $formatter->set_sse_headers();
         $formatter->send_sse_error($error_message_final);
 
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class) && $log_storage_for_triggers) {
             $error_event_context = [
                'error_code'    => 'stream_processor_exception', 'error_message' => $error_message_final,
                'bot_id'        => $base_log_data['bot_id'] ?? null, 'user_id'       => $base_log_data['user_id'] ?? null,

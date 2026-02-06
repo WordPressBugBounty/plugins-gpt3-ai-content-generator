@@ -31,10 +31,10 @@ function process_session_start_trigger_logic(array $context): array|WP_Error
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
     $trigger_function_name = '\WPAICG\Lib\Chat\Triggers\process_chat_triggers';
-    $triggers_addon_active = false;
+    $triggers_enabled = false;
 
     if (class_exists('\WPAICG\aipkit_dashboard')) {
-        $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+        $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
     }
 
     $neutral_result = [
@@ -50,7 +50,7 @@ function process_session_start_trigger_logic(array $context): array|WP_Error
         'display_form_event_data' => null,
     ];
 
-    if (!$triggers_addon_active || !class_exists($trigger_storage_class) || !class_exists($trigger_manager_class) || !function_exists($trigger_function_name)) {
+    if (!$triggers_enabled || !class_exists($trigger_storage_class) || !class_exists($trigger_manager_class) || !function_exists($trigger_function_name)) {
         return $neutral_result; // No triggers to run or components missing
     }
 

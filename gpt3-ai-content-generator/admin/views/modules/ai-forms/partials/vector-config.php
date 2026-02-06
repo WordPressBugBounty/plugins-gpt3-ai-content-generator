@@ -4,7 +4,7 @@
 
 /**
  * Partial: AI Form Editor - Vector & Context Configuration
- * Contains settings for enabling and configuring vector store and web search integration.
+ * Contains settings for enabling and configuring vector store context.
  */
 if (!defined('ABSPATH')) {
     exit;
@@ -13,225 +13,436 @@ if (!defined('ABSPATH')) {
 // $openai_vector_stores, $pinecone_indexes, $qdrant_collections
 // $openai_embedding_models, $google_embedding_models
 ?>
-<div class="aipkit_form-row aipkit_checkbox-row">
-    <div class="aipkit_form-group">
-        <label class="aipkit_form-label aipkit_checkbox-label" for="aipkit_ai_form_enable_vector_store">
-            <input
-                type="checkbox"
-                id="aipkit_ai_form_enable_vector_store"
-                name="enable_vector_store"
-                class="aipkit_toggle_switch aipkit_ai_form_vector_store_toggle"
-                value="1"
-            >
-            <?php esc_html_e('Vector Store', 'gpt3-ai-content-generator'); ?>
-        </label>
-    </div>
-    <div class="aipkit_form-group">
-        <label class="aipkit_form-label aipkit_checkbox-label" for="aipkit_ai_form_openai_web_search_enabled">
-            <input
-                type="checkbox"
-                id="aipkit_ai_form_openai_web_search_enabled"
-                name="openai_web_search_enabled"
-                class="aipkit_toggle_switch aipkit_ai_form_openai_web_search_toggle"
-                value="1"
-            >
-            <?php esc_html_e('OpenAI Web Search', 'gpt3-ai-content-generator'); ?>
-        </label>
-    </div>
-    <div class="aipkit_form-group">
-        <label class="aipkit_form-label aipkit_checkbox-label" for="aipkit_ai_form_google_search_grounding_enabled">
-            <input
-                type="checkbox"
-                id="aipkit_ai_form_google_search_grounding_enabled"
-                name="google_search_grounding_enabled"
-                class="aipkit_toggle_switch aipkit_ai_form_google_search_grounding_toggle"
-                value="1"
-            >
-            <?php esc_html_e('Google Search', 'gpt3-ai-content-generator'); ?>
-        </label>
-    </div>
-</div>
-<div class="aipkit_form-help">
-    <?php esc_html_e('Provide additional context to the AI by enabling a knowledge base or real-time web search. Visibility of these options depends on the selected AI Provider.', 'gpt3-ai-content-generator'); ?>
-</div>
-
-<div class="aipkit_ai_form_vector_store_conditional_settings" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--aipkit_container-border);">
-    <div class="aipkit_form-row" style="flex-wrap: nowrap; gap: 10px;">
-        <div class="aipkit_form-group aipkit_form-col" style="flex: 0 1 180px;">
-            <label class="aipkit_form-label" for="aipkit_ai_form_vector_store_provider"><?php esc_html_e('Vector Store Provider', 'gpt3-ai-content-generator'); ?></label>
-            <select id="aipkit_ai_form_vector_store_provider" name="vector_store_provider" class="aipkit_form-input aipkit_ai_form_vector_store_provider_select">
-                <option value="openai">OpenAI</option>
-                <option value="pinecone">Pinecone</option>
-                <option value="qdrant">Qdrant</option>
-            </select>
-        </div>
-        <div class="aipkit_form-group aipkit_form-col" style="flex: 1 1 auto;">
-            <!-- OpenAI Selector -->
-            <div class="aipkit_form-group aipkit_ai_form_vector_openai_field">
-                <label class="aipkit_form-label" for="aipkit_ai_form_openai_vector_store_ids"><?php esc_html_e('Vector Stores (Max 2)', 'gpt3-ai-content-generator'); ?></label>
-                <select id="aipkit_ai_form_openai_vector_store_ids" name="openai_vector_store_ids[]" class="aipkit_form-input" multiple size="3">
-                     <?php if (!empty($openai_vector_stores)): ?>
-                        <?php foreach ($openai_vector_stores as $store): ?>
-                            <option value="<?php echo esc_attr($store['id']); ?>"><?php echo esc_html($store['name']); ?></option>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <option value="" disabled><?php esc_html_e('No stores found (Sync in AI Training)', 'gpt3-ai-content-generator'); ?></option>
-                    <?php endif; ?>
-                </select>
-            </div>
-            <!-- Pinecone Selector -->
-            <div class="aipkit_form-group aipkit_ai_form_vector_pinecone_field" style="display:none;">
-                <label class="aipkit_form-label" for="aipkit_ai_form_pinecone_index_name"><?php esc_html_e('Pinecone Index', 'gpt3-ai-content-generator'); ?></label>
-                <select id="aipkit_ai_form_pinecone_index_name" name="pinecone_index_name" class="aipkit_form-input">
-                    <option value=""><?php esc_html_e('-- Select Index --', 'gpt3-ai-content-generator'); ?></option>
-                     <?php if (!empty($pinecone_indexes)): ?>
-                        <?php foreach ($pinecone_indexes as $index): ?>
-                            <option value="<?php echo esc_attr($index['name']); ?>"><?php echo esc_html($index['name']); ?></option>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <option value="" disabled><?php esc_html_e('No indexes found (Sync in AI Settings)', 'gpt3-ai-content-generator'); ?></option>
-                    <?php endif; ?>
-                </select>
-            </div>
-            <!-- Qdrant Selector -->
-            <div class="aipkit_form-group aipkit_ai_form_vector_qdrant_field" style="display:none;">
-                <label class="aipkit_form-label" for="aipkit_ai_form_qdrant_collection_name"><?php esc_html_e('Qdrant Collection', 'gpt3-ai-content-generator'); ?></label>
-                <select id="aipkit_ai_form_qdrant_collection_name" name="qdrant_collection_name" class="aipkit_form-input">
-                    <option value=""><?php esc_html_e('-- Select Collection --', 'gpt3-ai-content-generator'); ?></option>
-                     <?php if (!empty($qdrant_collections)): ?>
-                        <?php foreach ($qdrant_collections as $collection): ?>
-                            <option value="<?php echo esc_attr($collection['name']); ?>"><?php echo esc_html($collection['name']); ?></option>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <option value="" disabled><?php esc_html_e('No collections found (Sync in AI Settings)', 'gpt3-ai-content-generator'); ?></option>
-                    <?php endif; ?>
-                </select>
+<?php
+$vector_embedding_provider = '';
+$vector_embedding_model = '';
+?>
+<div class="aipkit_popover_options_list">
+    <div class="aipkit_popover_option_row aipkit_vector_store_popover_row">
+        <div class="aipkit_popover_option_main">
+            <span class="aipkit_popover_option_label_group">
+                <span
+                    class="aipkit_popover_option_label"
+                    tabindex="0"
+                    data-tooltip="<?php echo esc_attr__('Use your knowledge base for more accurate answers.', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php esc_html_e('Knowledge base', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <span class="aipkit_popover_warning" data-tooltip="" aria-hidden="true">
+                    <span class="dashicons dashicons-warning"></span>
+                </span>
+            </span>
+            <div class="aipkit_popover_option_actions">
+                <label class="aipkit_switch">
+                    <input
+                        type="checkbox"
+                        id="aipkit_ai_form_enable_vector_store"
+                        name="enable_vector_store"
+                        class="aipkit_vector_store_enable_select"
+                        value="1"
+                    >
+                    <span class="aipkit_switch_slider"></span>
+                </label>
             </div>
         </div>
     </div>
-
-    <!-- Embedding Config (for Pinecone/Qdrant) -->
-    <div class="aipkit_ai_form_embedding_config_row" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--aipkit_container-border);">
-        <div class="aipkit_form-row" style="flex-wrap: nowrap; gap: 10px;">
-            <div class="aipkit_form-group aipkit_form-col" style="flex: 0 1 180px;">
-                <label class="aipkit_form-label" for="aipkit_ai_form_vector_embedding_provider"><?php esc_html_e('Embedding Provider', 'gpt3-ai-content-generator'); ?></label>
-                <select id="aipkit_ai_form_vector_embedding_provider" name="vector_embedding_provider" class="aipkit_form-input aipkit_ai_form_vector_embedding_provider_select">
+    <div class="aipkit_vector_store_settings_conditional_row" style="display:none;">
+        <div class="aipkit_popover_option_row">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_vector_store_provider"
+                >
+                    <?php esc_html_e('Vector provider', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <select
+                    id="aipkit_ai_form_vector_store_provider"
+                    name="vector_store_provider"
+                    class="aipkit_popover_option_select aipkit_vector_store_provider_select"
+                >
                     <option value="openai">OpenAI</option>
-                    <option value="google">Google</option>
-                    <option value="azure">Azure</option>
-                </select>
-            </div>
-            <div class="aipkit_form-group aipkit_form-col" style="flex: 1 1 auto;">
-                <label class="aipkit_form-label" for="aipkit_ai_form_vector_embedding_model"><?php esc_html_e('Embedding Model', 'gpt3-ai-content-generator'); ?></label>
-                <select id="aipkit_ai_form_vector_embedding_model" name="vector_embedding_model" class="aipkit_form-input aipkit_ai_form_vector_embedding_model_select">
-                     <option value=""><?php esc_html_e('Select Provider First', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="pinecone">Pinecone</option>
+                    <option value="qdrant">Qdrant</option>
                 </select>
             </div>
         </div>
-    </div>
 
-    <!-- Top K and Confidence Threshold Sliders -->
-    <div class="aipkit_form-row" style="margin-top: 15px; gap: 10px;">
-        <div class="aipkit_form-group" style="flex: 1;">
-            <label class="aipkit_form-label" for="aipkit_ai_form_vector_store_top_k"><?php esc_html_e('Results Limit', 'gpt3-ai-content-generator'); ?></label>
-            <div class="aipkit_slider_wrapper">
-                <input type="range" id="aipkit_ai_form_vector_store_top_k" name="vector_store_top_k" class="aipkit_form-input aipkit_range_slider" min="1" max="20" step="1" value="3" />
-                <span id="aipkit_ai_form_vector_store_top_k_value" class="aipkit_slider_value">3</span>
+        <div class="aipkit_popover_option_row aipkit_vector_store_openai_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_openai_vector_store_ids"
+                    data-tooltip="<?php echo esc_attr__('Select up to two stores.', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php esc_html_e('Vector stores (max 2)', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div
+                    class="aipkit_popover_multiselect"
+                    data-aipkit-vector-stores-dropdown
+                    data-placeholder="<?php echo esc_attr__('Select stores', 'gpt3-ai-content-generator'); ?>"
+                    data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <button
+                        type="button"
+                        class="aipkit_popover_multiselect_btn"
+                        aria-expanded="false"
+                        aria-controls="aipkit_ai_form_openai_vector_store_panel"
+                    >
+                        <span class="aipkit_popover_multiselect_label">
+                            <?php esc_html_e('Select stores', 'gpt3-ai-content-generator'); ?>
+                        </span>
+                    </button>
+                    <div
+                        id="aipkit_ai_form_openai_vector_store_panel"
+                        class="aipkit_popover_multiselect_panel"
+                        role="menu"
+                        hidden
+                    >
+                        <div class="aipkit_popover_multiselect_options"></div>
+                    </div>
+                </div>
+                <select
+                    id="aipkit_ai_form_openai_vector_store_ids"
+                    name="openai_vector_store_ids[]"
+                    class="aipkit_popover_multiselect_select"
+                    multiple
+                    size="3"
+                    hidden
+                    aria-hidden="true"
+                    tabindex="-1"
+                >
+                    <?php
+                    if (!empty($openai_vector_stores)) {
+                        $store_index = 1;
+                        foreach ($openai_vector_stores as $store) {
+                            $store_id_val = $store['id'] ?? '';
+                            if ($store_id_val === '') {
+                                continue;
+                            }
+                            $store_name = $store['name'] ?? '';
+                            if ($store_name === '') {
+                                $store_name = sprintf(
+                                    /* translators: %d is the vector store index. */
+                                    __('Untitled store %d', 'gpt3-ai-content-generator'),
+                                    $store_index
+                                );
+                            }
+                            $file_count_total = $store['file_counts']['total'] ?? null;
+                            $file_count_display = ($file_count_total !== null)
+                                ? " ({$file_count_total} " . _n('File', 'Files', (int) $file_count_total, 'gpt3-ai-content-generator') . ")"
+                                : ' (Files: N/A)';
+                            $option_text = $store_name . $file_count_display;
+                            echo '<option value="' . esc_attr($store_id_val) . '">' . esc_html($option_text) . '</option>';
+                            $store_index++;
+                        }
+                    } else {
+                        echo '<option value="" disabled>' . esc_html__('-- No Vector Stores Found --', 'gpt3-ai-content-generator') . '</option>';
+                    }
+                    ?>
+                </select>
             </div>
         </div>
 
-        <div class="aipkit_form-group" style="flex: 1;">
-            <label class="aipkit_form-label" for="aipkit_ai_form_vector_store_confidence_threshold"><?php esc_html_e('Score Threshold', 'gpt3-ai-content-generator'); ?></label>
-            <div class="aipkit_slider_wrapper">
-                <input type="range" id="aipkit_ai_form_vector_store_confidence_threshold" name="vector_store_confidence_threshold" class="aipkit_form-input aipkit_range_slider" min="0" max="100" step="1" value="20" />
-                <span id="aipkit_ai_form_vector_store_confidence_threshold_value" class="aipkit_slider_value">20%</span>
+        <div class="aipkit_popover_option_row aipkit_vector_store_pinecone_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_pinecone_index_name"
+                >
+                    <?php esc_html_e('Index', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_popover_inline_controls">
+                    <select
+                        id="aipkit_ai_form_pinecone_index_name"
+                        name="pinecone_index_name"
+                        class="aipkit_popover_option_select"
+                    >
+                        <option value=""><?php esc_html_e('-- Select Index --', 'gpt3-ai-content-generator'); ?></option>
+                        <?php if (!empty($pinecone_indexes)): ?>
+                            <?php foreach ($pinecone_indexes as $index): ?>
+                                <?php $index_name = is_array($index) ? ($index['name'] ?? '') : (string) $index; ?>
+                                <?php if ($index_name !== ''): ?>
+                                    <option value="<?php echo esc_attr($index_name); ?>"><?php echo esc_html($index_name); ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <option value="" disabled><?php esc_html_e('-- No Indexes Found --', 'gpt3-ai-content-generator'); ?></option>
+                        <?php endif; ?>
+                    </select>
+                </div>
             </div>
         </div>
-    </div>
+        <div class="aipkit_popover_option_row aipkit_vector_store_pinecone_key_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_pinecone_api_key"
+                >
+                    <?php esc_html_e('API key', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
+                    <input
+                        type="password"
+                        id="aipkit_ai_form_pinecone_api_key"
+                        name="pinecone_api_key"
+                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
+                        value="<?php echo esc_attr($pinecone_api_key ?? ''); ?>"
+                        autocomplete="new-password"
+                        data-lpignore="true"
+                        data-1p-ignore="true"
+                        data-form-type="other"
+                    />
+                    <span class="aipkit_api-key-toggle">
+                        <span class="dashicons dashicons-visibility"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
 
-    <!-- Help text for both sliders -->
-    <div class="aipkit_form-row" style="margin-top: 5px; gap: 10px;">
-        <div class="aipkit_form-group" style="flex: 1;">
-            <div class="aipkit_form-help">
-                <?php esc_html_e('Max relevant results from vector store.', 'gpt3-ai-content-generator'); ?>
+        <div class="aipkit_popover_option_row aipkit_vector_store_qdrant_url_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_qdrant_url"
+                >
+                    <?php esc_html_e('URL', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <input
+                    type="url"
+                    id="aipkit_ai_form_qdrant_url"
+                    name="qdrant_url"
+                    class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
+                    placeholder="<?php esc_attr_e('e.g., http://localhost:6333', 'gpt3-ai-content-generator'); ?>"
+                    value="<?php echo esc_attr($qdrant_url ?? ''); ?>"
+                />
             </div>
         </div>
-        <div class="aipkit_form-group" style="flex: 1;">
-            <div class="aipkit_form-help">
-                <?php esc_html_e('Only use results with a similarity score above this threshold.', 'gpt3-ai-content-generator'); ?>
+        <div class="aipkit_popover_option_row aipkit_vector_store_qdrant_key_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_qdrant_api_key"
+                >
+                    <?php esc_html_e('API key', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
+                    <input
+                        type="password"
+                        id="aipkit_ai_form_qdrant_api_key"
+                        name="qdrant_api_key"
+                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
+                        value="<?php echo esc_attr($qdrant_api_key ?? ''); ?>"
+                        autocomplete="new-password"
+                        data-lpignore="true"
+                        data-1p-ignore="true"
+                        data-form-type="other"
+                    />
+                    <span class="aipkit_api-key-toggle">
+                        <span class="dashicons dashicons-visibility"></span>
+                    </span>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+        <div class="aipkit_popover_option_row aipkit_vector_store_qdrant_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_qdrant_collection_name"
+                    data-tooltip="<?php echo esc_attr__('Select a collection.', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php esc_html_e('Collection', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_popover_inline_controls">
+                    <select
+                        id="aipkit_ai_form_qdrant_collection_name"
+                        name="qdrant_collection_name"
+                        class="aipkit_popover_option_select"
+                    >
+                        <option value=""><?php esc_html_e('-- Select Collection --', 'gpt3-ai-content-generator'); ?></option>
+                        <?php
+                        if (!empty($qdrant_collections)) {
+                            foreach ($qdrant_collections as $collection) {
+                                $collection_name = is_array($collection) ? ($collection['name'] ?? '') : (string) $collection;
+                                if ($collection_name === '') {
+                                    continue;
+                                }
+                                echo '<option value="' . esc_attr($collection_name) . '">' . esc_html($collection_name) . '</option>';
+                            }
+                        } else {
+                            echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+        </div>
 
-<!-- OpenAI Web Search Settings -->
-<div class="aipkit_ai_form_openai_web_search_settings" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--aipkit_container-border);">
-    <p class="aipkit_form-help" style="margin-top: 0;"><?php esc_html_e('Configure real-time web search for OpenAI models.', 'gpt3-ai-content-generator'); ?></p>
-    
-    <div class="aipkit_form-row">
-        <div class="aipkit_form-group aipkit_form-col">
-            <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_context_size"><?php esc_html_e('Search Context Size', 'gpt3-ai-content-generator'); ?></label>
-            <select id="aipkit_ai_form_openai_web_search_context_size" name="openai_web_search_context_size" class="aipkit_form-input">
-                <option value="low"><?php esc_html_e('Low', 'gpt3-ai-content-generator'); ?></option>
-                <option value="medium" selected><?php esc_html_e('Medium (Default)', 'gpt3-ai-content-generator'); ?></option>
-                <option value="high"><?php esc_html_e('High', 'gpt3-ai-content-generator'); ?></option>
-            </select>
-        </div>
-        <div class="aipkit_form-group aipkit_form-col">
-            <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_type"><?php esc_html_e('User Location', 'gpt3-ai-content-generator'); ?></label>
-            <select id="aipkit_ai_form_openai_web_search_loc_type" name="openai_web_search_loc_type" class="aipkit_form-input aipkit_ai_form_openai_web_search_loc_type_select">
-                <option value="none" selected><?php esc_html_e('None (Default)', 'gpt3-ai-content-generator'); ?></option>
-                <option value="approximate"><?php esc_html_e('Approximate', 'gpt3-ai-content-generator'); ?></option>
-            </select>
-        </div>
-    </div>
-    
-    <div class="aipkit_ai_form_openai_web_search_location_details" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
-        <div class="aipkit_form-row">
-            <div class="aipkit_form-group aipkit_form-col">
-                <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_country"><?php esc_html_e('Country (ISO Code)', 'gpt3-ai-content-generator'); ?></label>
-                <input type="text" id="aipkit_ai_form_openai_web_search_loc_country" name="openai_web_search_loc_country" class="aipkit_form-input" placeholder="<?php esc_attr_e('e.g., US, GB', 'gpt3-ai-content-generator'); ?>" maxlength="2">
+        <div class="aipkit_popover_option_row aipkit_vector_store_embedding_config_row" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_vector_embedding_select"
+                >
+                    <?php esc_html_e('Embedding', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_popover_inline_controls">
+                    <select
+                        id="aipkit_ai_form_vector_embedding_select"
+                        class="aipkit_popover_option_select aipkit_vector_embedding_select"
+                    >
+                        <?php
+                        $embedding_groups = [
+                            'openai' => [
+                                'label' => esc_html__('OpenAI', 'gpt3-ai-content-generator'),
+                                'models' => $openai_embedding_models,
+                            ],
+                            'google' => [
+                                'label' => esc_html__('Google', 'gpt3-ai-content-generator'),
+                                'models' => $google_embedding_models,
+                            ],
+                            'azure' => [
+                                'label' => esc_html__('Azure', 'gpt3-ai-content-generator'),
+                                'models' => $azure_embedding_models,
+                            ],
+                        ];
+                        $embedding_model_map = [];
+                        foreach ($embedding_groups as $group_key => $group_data) {
+                            foreach ($group_data['models'] as $model) {
+                                $model_id_val = $model['id'] ?? '';
+                                if ($model_id_val !== '') {
+                                    $embedding_model_map[$model_id_val] = $group_key;
+                                }
+                            }
+                        }
+                        $selected_embedding_value = '';
+                        if (!empty($vector_embedding_provider) && !empty($vector_embedding_model)) {
+                            $selected_embedding_value = $vector_embedding_provider . '::' . $vector_embedding_model;
+                        }
+                        echo '<option value="">' . esc_html__('-- Select Embedding --', 'gpt3-ai-content-generator') . '</option>';
+                        $manual_included = false;
+                        foreach ($embedding_groups as $group_key => $group_data) {
+                            echo '<optgroup label="' . esc_attr($group_data['label']) . '">';
+                            foreach ($group_data['models'] as $model) {
+                                $model_id_val = $model['id'] ?? '';
+                                if ($model_id_val === '') {
+                                    continue;
+                                }
+                                $model_name_val = $model['name'] ?? $model_id_val;
+                                $option_value = $group_key . '::' . $model_id_val;
+                                $is_selected = selected($selected_embedding_value, $option_value, false);
+                                echo '<option value="' . esc_attr($option_value) . '" data-provider="' . esc_attr($group_key) . '" ' . $is_selected . '>' . esc_html($model_name_val) . '</option>';
+                            }
+                            if (!$manual_included && !empty($vector_embedding_model) && $vector_embedding_provider === $group_key && !isset($embedding_model_map[$vector_embedding_model])) {
+                                $manual_value = $vector_embedding_provider . '::' . $vector_embedding_model;
+                                echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($vector_embedding_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . ' (Manual)</option>';
+                                $manual_included = true;
+                            }
+                            echo '</optgroup>';
+                        }
+                        if (!$manual_included && !empty($vector_embedding_model) && !isset($embedding_model_map[$vector_embedding_model])) {
+                            $manual_provider = $vector_embedding_provider ?: 'manual';
+                            $manual_value = $manual_provider . '::' . $vector_embedding_model;
+                            echo '<optgroup label="' . esc_attr__('Manual', 'gpt3-ai-content-generator') . '">';
+                            echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($manual_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . ' (Manual)</option>';
+                            echo '</optgroup>';
+                        }
+                        ?>
+                    </select>
+                    <select
+                        id="aipkit_ai_form_vector_embedding_provider"
+                        name="vector_embedding_provider"
+                        class="aipkit_popover_option_select aipkit_vector_embedding_provider_select aipkit_hidden"
+                        aria-hidden="true"
+                        tabindex="-1"
+                    >
+                        <option value="openai" <?php selected($vector_embedding_provider, 'openai'); ?>>OpenAI</option>
+                        <option value="google" <?php selected($vector_embedding_provider, 'google'); ?>>Google</option>
+                        <option value="azure" <?php selected($vector_embedding_provider, 'azure'); ?>>Azure</option>
+                    </select>
+                    <select
+                        id="aipkit_ai_form_vector_embedding_model"
+                        name="vector_embedding_model"
+                        class="aipkit_popover_option_select aipkit_vector_embedding_model_select aipkit_hidden"
+                        aria-hidden="true"
+                        tabindex="-1"
+                    >
+                        <option value=""><?php esc_html_e('-- Select Model --', 'gpt3-ai-content-generator'); ?></option>
+                        <?php
+                        $current_embedding_list = [];
+                        if ($vector_embedding_provider === 'openai') {
+                            $current_embedding_list = $openai_embedding_models;
+                        } elseif ($vector_embedding_provider === 'google') {
+                            $current_embedding_list = $google_embedding_models;
+                        } elseif ($vector_embedding_provider === 'azure') {
+                            $current_embedding_list = $azure_embedding_models;
+                        }
+                        if (!empty($current_embedding_list)) {
+                            foreach ($current_embedding_list as $model) {
+                                $model_id_val = $model['id'] ?? '';
+                                $model_name_val = $model['name'] ?? $model_id_val;
+                                echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($vector_embedding_model, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>';
+                            }
+                        }
+                        if (!empty($vector_embedding_model) && (empty($current_embedding_list) || !in_array($vector_embedding_model, array_column($current_embedding_list, 'id'), true))) {
+                            echo '<option value="' . esc_attr($vector_embedding_model) . '" selected="selected">' . esc_html($vector_embedding_model) . ' (Manual)</option>';
+                        }
+                        if (empty($current_embedding_list) && empty($vector_embedding_model)) {
+                            echo '<option value="" disabled>' . esc_html__('-- Select Provider --', 'gpt3-ai-content-generator') . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
             </div>
-            <div class="aipkit_form-group aipkit_form-col">
-                <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_city"><?php esc_html_e('City', 'gpt3-ai-content-generator'); ?></label>
-                <input type="text" id="aipkit_ai_form_openai_web_search_loc_city" name="openai_web_search_loc_city" class="aipkit_form-input" placeholder="<?php esc_attr_e('e.g., London', 'gpt3-ai-content-generator'); ?>">
-            </div>
         </div>
-        <div class="aipkit_form-row">
-            <div class="aipkit_form-group aipkit_form-col">
-                <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_region"><?php esc_html_e('Region/State', 'gpt3-ai-content-generator'); ?></label>
-                <input type="text" id="aipkit_ai_form_openai_web_search_loc_region" name="openai_web_search_loc_region" class="aipkit_form-input" placeholder="<?php esc_attr_e('e.g., California', 'gpt3-ai-content-generator'); ?>">
-            </div>
-            <div class="aipkit_form-group aipkit_form-col">
-                <label class="aipkit_form-label" for="aipkit_ai_form_openai_web_search_loc_timezone"><?php esc_html_e('Timezone (IANA)', 'gpt3-ai-content-generator'); ?></label>
-                <input type="text" id="aipkit_ai_form_openai_web_search_loc_timezone" name="openai_web_search_loc_timezone" class="aipkit_form-input" placeholder="<?php esc_attr_e('e.g., America/Chicago', 'gpt3-ai-content-generator'); ?>">
-            </div>
-        </div>
-        <div class="aipkit_form-help"><?php esc_html_e('Leave location fields blank if not applicable. Country code is 2-letter ISO (e.g., US).', 'gpt3-ai-content-generator'); ?></div>
-    </div>
-</div>
 
-<!-- Google Search Grounding Settings -->
-<div class="aipkit_ai_form_google_search_grounding_settings" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--aipkit_container-border);">
-    <p class="aipkit_form-help" style="margin-top: 0;"><?php esc_html_e('Configure Google Search grounding for supported Gemini models.', 'gpt3-ai-content-generator'); ?></p>
-    <p class="aipkit_form-help" style="margin-top: 0;"><?php esc_html_e('Supported models: Gemini 2.5 Pro, Gemini 2.5 Flash, Gemini 2.0 Flash, Gemini 1.5 Pro, Gemini 1.5 Flash.', 'gpt3-ai-content-generator'); ?></p>
-
-    <div class="aipkit_form-row">
-        <div class="aipkit_form-group aipkit_form-col">
-            <label class="aipkit_form-label" for="aipkit_ai_form_google_grounding_mode"><?php esc_html_e('Grounding Mode', 'gpt3-ai-content-generator'); ?></label>
-            <select id="aipkit_ai_form_google_grounding_mode" name="google_grounding_mode" class="aipkit_form-input aipkit_ai_form_google_grounding_mode_select">
-                <option value="DEFAULT_MODE" selected><?php esc_html_e('Default (Model Decides/Search as Tool)', 'gpt3-ai-content-generator'); ?></option>
-                <option value="MODE_DYNAMIC"><?php esc_html_e('Dynamic Retrieval (Gemini 1.5 Flash only)', 'gpt3-ai-content-generator'); ?></option>
-            </select>
+        <div class="aipkit_popover_option_row aipkit_vector_store_top_k_field">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_vector_store_top_k"
+                    data-tooltip="<?php echo esc_attr__('Number of results to retrieve from vector store.', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php esc_html_e('Limit', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_popover_param_slider">
+                    <input
+                        type="range"
+                        id="aipkit_ai_form_vector_store_top_k"
+                        name="vector_store_top_k"
+                        class="aipkit_form-input aipkit_range_slider aipkit_popover_slider"
+                        min="1"
+                        max="20"
+                        step="1"
+                        value="3"
+                    />
+                    <span id="aipkit_ai_form_vector_store_top_k_value" class="aipkit_popover_param_value">3</span>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="aipkit_ai_form_google_grounding_dynamic_threshold_container" style="display: none; margin-top: 10px;">
-        <div class="aipkit_form-group aipkit_form-col">
-            <label class="aipkit_form-label" for="aipkit_ai_form_google_grounding_dynamic_threshold"><?php esc_html_e('Dynamic Retrieval Threshold', 'gpt3-ai-content-generator'); ?></label>
-            <div class="aipkit_slider_wrapper" style="max-width: 400px;">
-                <input type="range" id="aipkit_ai_form_google_grounding_dynamic_threshold" name="google_grounding_dynamic_threshold" class="aipkit_form-input aipkit_range_slider" min="0.0" max="1.0" step="0.01" value="0.30">
-                <span id="aipkit_ai_form_google_grounding_dynamic_threshold_value" class="aipkit_slider_value">0.30</span>
+
+        <div class="aipkit_popover_option_row aipkit_vector_store_confidence_field aipkit_popover_option_row--force-divider">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_vector_store_confidence_threshold"
+                    data-tooltip="<?php echo esc_attr__('Only use results with a similarity score above this.', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php esc_html_e('Score threshold', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_popover_param_slider">
+                    <input
+                        type="range"
+                        id="aipkit_ai_form_vector_store_confidence_threshold"
+                        name="vector_store_confidence_threshold"
+                        class="aipkit_form-input aipkit_range_slider aipkit_popover_slider"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value="20"
+                        data-suffix="%"
+                    />
+                    <span id="aipkit_ai_form_vector_store_confidence_threshold_value" class="aipkit_popover_param_value">20%</span>
+                </div>
             </div>
         </div>
     </div>

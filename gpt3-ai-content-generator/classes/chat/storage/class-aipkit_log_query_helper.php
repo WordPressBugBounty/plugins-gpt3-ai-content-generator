@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  * ADDED: Handles 'module' column filtering and selection.
  * FIXED: Ensure empty module filter fetches ALL logs (including NULL module).
  * FIXED: Stricter checks for bot_id and module filters to ensure empty filters don't restrict query.
- * REMOVED: Module filter logic.
+ * ADDED: Module and date-range filters.
  */
 class LogQueryHelper
 {
@@ -33,8 +33,12 @@ class LogQueryHelper
      *  - user_id => int|null (null for guests)
      *  - session_id => string (for guests)
      *  - conversation_uuid => string
+     *  - search => string (OR match across user display_name, guest session_id, and messages JSON)
      *  - user_name => string (partial match of user display_name or session_id for guests)
      *  - message_like => string (partial match in the 'messages' JSON column - **performance warning**)
+     *  - module => string (module slug; use 'chatbot' to match NULL/empty)
+     *  - start_ts => int (unix timestamp, inclusive)
+     *  - end_ts => int (unix timestamp, inclusive)
      * @param string $orderby Field to order by (e.g., 'updated_at', 'last_message_ts').
      * @param string $order 'ASC' or 'DESC'.
      * @param int $limit Max rows.
@@ -113,24 +117,55 @@ class LogQueryHelper
             $params[] = sanitize_key($filters['conversation_uuid']);
         }
 
-        // user_name filter (joins wp_users)
-        if (!empty($filters['user_name'])) {
+        if (!empty($filters['module'])) {
+            $module_filter = sanitize_key($filters['module']);
+            if ($module_filter === 'chatbot') {
+                $where_clauses[] = "({$this->table_name}.module IS NULL OR {$this->table_name}.module = '')";
+            } else {
+                $where_clauses[] = "{$this->table_name}.module = %s";
+                $params[] = $module_filter;
+            }
+        }
+
+        if (!empty($filters['start_ts'])) {
+            $where_clauses[] = "{$this->table_name}.last_message_ts >= %d";
+            $params[] = absint($filters['start_ts']);
+        }
+
+        if (!empty($filters['end_ts'])) {
+            $where_clauses[] = "{$this->table_name}.last_message_ts <= %d";
+            $params[] = absint($filters['end_ts']);
+        }
+
+        // search filter (OR across user display_name, guest session_id, and messages JSON)
+        $search_value = isset($filters['search']) ? trim((string) $filters['search']) : '';
+        if ($search_value !== '') {
             $join_sql = " LEFT JOIN {$wpdb->users} AS u ON u.ID = {$this->table_name}.user_id ";
             $select_fields[] = "u.display_name as user_display_name";
-            $where_clauses[] = "( (u.display_name IS NOT NULL AND u.display_name LIKE %s) OR ({$this->table_name}.is_guest = 1 AND {$this->table_name}.session_id LIKE %s) )";
-            $likeVal = '%' . $wpdb->esc_like($filters['user_name']) . '%';
+            $likeVal = '%' . $wpdb->esc_like($search_value) . '%';
+            $where_clauses[] = "( (u.display_name IS NOT NULL AND u.display_name LIKE %s) OR ({$this->table_name}.is_guest = 1 AND {$this->table_name}.session_id LIKE %s) OR {$this->table_name}.messages LIKE %s )";
+            $params[] = $likeVal;
             $params[] = $likeVal;
             $params[] = $likeVal;
         } else {
-            $select_fields[] = "NULL as user_display_name";
-        }
+            // user_name filter (joins wp_users)
+            if (!empty($filters['user_name'])) {
+                $join_sql = " LEFT JOIN {$wpdb->users} AS u ON u.ID = {$this->table_name}.user_id ";
+                $select_fields[] = "u.display_name as user_display_name";
+                $where_clauses[] = "( (u.display_name IS NOT NULL AND u.display_name LIKE %s) OR ({$this->table_name}.is_guest = 1 AND {$this->table_name}.session_id LIKE %s) )";
+                $likeVal = '%' . $wpdb->esc_like($filters['user_name']) . '%';
+                $params[] = $likeVal;
+                $params[] = $likeVal;
+            } else {
+                $select_fields[] = "NULL as user_display_name";
+            }
 
-
-        // message_like filter
-        if (!empty($filters['message_like'])) {
-            $where_clauses[] = "{$this->table_name}.messages LIKE %s";
-            $likeVal = '%' . $wpdb->esc_like($filters['message_like']) . '%';
-            $params[] = $likeVal;
+            // message_like filter
+            if (!empty($filters['message_like'])) {
+                $where_clauses[] = "{$this->table_name}.messages LIKE %s";
+                $likeVal = '%' . $wpdb->esc_like($filters['message_like']) . '%';
+                $params[] = $likeVal;
+            }
         }
 
         // --- ORDER BY Clause ---
@@ -171,7 +206,7 @@ class LogQueryHelper
 
     /**
     * Builds SQL query parts for counting conversation rows based on filters.
-    * REMOVED: Module filter logic (inherited from build_conversation_query_parts).
+    * ADDED: Module and date-range filters (inherited from build_conversation_query_parts).
     *
     * @param array $filters Filters (same as build_conversation_query_parts).
     *
@@ -199,7 +234,7 @@ class LogQueryHelper
     /**
      * Builds SQL query parts for fetching message rows based on filters.
      * Used specifically for export operations.
-     * REMOVED: Module filter logic.
+     * ADDED: Module and date-range filters.
      *
      * @param array $filters Filters (same as build_conversation_query_parts)
      * @param string $orderby Field to order by

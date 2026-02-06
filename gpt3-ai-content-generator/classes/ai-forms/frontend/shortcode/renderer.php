@@ -80,14 +80,10 @@ function render_form_html_logic(
                             <label class="aipkit_form-label" for="aipkit-aiform-provider-<?php echo esc_attr($form_data['id']); ?>"><?php echo esc_html($labels['provider_label']); ?></label>
                             <select id="aipkit-aiform-provider-<?php echo esc_attr($form_data['id']); ?>" name="aipkit_form_field[ai_provider]" class="aipkit_form-input aipkit_aiform_provider_select">
                                 <?php
-                                $all_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
-                                if (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_addon_active('deepseek')) {
-                                    $all_providers[] = 'DeepSeek';
-                                }
+                                $all_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek'];
                                 if (
                                     class_exists('\\WPAICG\\aipkit_dashboard') &&
-                                    \WPAICG\aipkit_dashboard::is_pro_plan() &&
-                                    \WPAICG\aipkit_dashboard::is_addon_active('ollama')
+                                    \WPAICG\aipkit_dashboard::is_pro_plan()
                                 ) {
                                     $all_providers[] = 'Ollama';
                                 }

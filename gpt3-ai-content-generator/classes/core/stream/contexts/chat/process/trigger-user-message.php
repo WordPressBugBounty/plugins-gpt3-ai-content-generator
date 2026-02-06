@@ -28,10 +28,10 @@ function process_user_message_trigger_logic(array $context): array|WP_Error
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
     $trigger_function_name = '\WPAICG\Lib\Chat\Triggers\process_chat_triggers'; // This function is in lib/chat/triggers/trigger_handler.php
-    $triggers_addon_active = false;
+    $triggers_enabled = false;
 
     if (class_exists('\WPAICG\aipkit_dashboard')) {
-        $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+        $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
     }
 
     // Prepare a neutral result that reflects the input context if no triggers modify it.
@@ -51,7 +51,7 @@ function process_user_message_trigger_logic(array $context): array|WP_Error
     ];
     // --- END MODIFICATION ---
 
-    if (!$triggers_addon_active || !class_exists($trigger_storage_class) || !class_exists($trigger_manager_class) || !function_exists($trigger_function_name)) {
+    if (!$triggers_enabled || !class_exists($trigger_storage_class) || !class_exists($trigger_manager_class) || !function_exists($trigger_function_name)) {
         return $neutral_result; // No triggers to run or components missing
     }
 

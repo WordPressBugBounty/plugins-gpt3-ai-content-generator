@@ -4,7 +4,6 @@ namespace WPAICG\Chat\Storage;
 
 use WPAICG\Chat\Storage\LogQueryHelper;
 use WPAICG\Chat\Admin\AdminSetup; // Needed for Bot name lookup
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization; // Include the addon class
 use WPAICG\Chat\Utils\Utils; // Needed for time diff
 use WP_Error; // Added use statement
 
@@ -29,6 +28,134 @@ class LogManager
         $this->query_helper = new LogQueryHelper($this->table_name);
     }
 
+    private function is_content_writer_placeholder(string $content): bool
+    {
+        $normalized = strtolower(trim($content));
+        if ($normalized === '') {
+            return false;
+        }
+        return (strpos($normalized, 'generate ') === 0) || (strpos($normalized, 'content writer request') === 0);
+    }
+
+    private function extract_prompt_from_payload_sent(array $payload): ?string
+    {
+        $sent = $payload['payload_sent'] ?? null;
+        if (!is_array($sent)) {
+            return null;
+        }
+        $messages = $sent['messages'] ?? null;
+        if (!is_array($messages)) {
+            $messages = $sent['input'] ?? null;
+        }
+        if (!is_array($messages)) {
+            return null;
+        }
+        foreach ($messages as $message) {
+            if (!is_array($message)) {
+                continue;
+            }
+            if (($message['role'] ?? '') !== 'user') {
+                continue;
+            }
+            $content = $message['content'] ?? '';
+            if (!is_string($content)) {
+                continue;
+            }
+            $content = trim($content);
+            if ($content !== '') {
+                return $content;
+            }
+        }
+        return null;
+    }
+
+    private function find_prompt_field(array $payload, string $content): ?string
+    {
+        $map = [
+            'generate excerpt' => 'custom_excerpt_prompt',
+            'generate tags' => 'custom_tags_prompt',
+            'generate meta description' => 'custom_meta_prompt',
+            'generate focus keyword' => 'custom_keyword_prompt',
+            'generate image prompt' => 'image_prompt',
+            'generate featured image' => 'featured_image_prompt',
+            'generate title' => 'custom_title_prompt',
+        ];
+        $normalized = strtolower(trim($content));
+        if (!isset($map[$normalized])) {
+            return null;
+        }
+        $field = $map[$normalized];
+        $value = $payload[$field] ?? null;
+        if (!is_string($value)) {
+            return null;
+        }
+        $value = trim($value);
+        return $value !== '' ? $value : null;
+    }
+
+    private function find_any_prompt_field(array $payload): ?string
+    {
+        foreach ($payload as $key => $value) {
+            if (!is_string($key) || !is_string($value)) {
+                continue;
+            }
+            if (preg_match('/_prompt$/i', $key) !== 1) {
+                continue;
+            }
+            $value = trim($value);
+            if ($value !== '') {
+                return $value;
+            }
+        }
+        return null;
+    }
+
+    private function resolve_content_writer_preview(array $messages): ?string
+    {
+        $preview = null;
+        $count = count($messages);
+        for ($i = 0; $i < $count; $i++) {
+            $message = $messages[$i] ?? null;
+            if (!is_array($message)) {
+                continue;
+            }
+            if (($message['role'] ?? '') !== 'user') {
+                continue;
+            }
+            $content = $message['content'] ?? '';
+            if (!is_string($content)) {
+                continue;
+            }
+            $content = trim($content);
+            if ($content === '') {
+                continue;
+            }
+            $preview = $content;
+            if (!$this->is_content_writer_placeholder($content)) {
+                continue;
+            }
+
+            $replacement = null;
+            $next_payload = $messages[$i + 1]['request_payload'] ?? null;
+            if (is_array($next_payload)) {
+                $replacement = $this->extract_prompt_from_payload_sent($next_payload);
+            }
+            if (!$replacement && isset($message['request_payload']) && is_array($message['request_payload'])) {
+                $replacement = $this->extract_prompt_from_payload_sent($message['request_payload']);
+            }
+            if (!$replacement && isset($message['request_payload']) && is_array($message['request_payload'])) {
+                $replacement = $this->find_prompt_field($message['request_payload'], $content);
+            }
+            if (!$replacement && isset($message['request_payload']) && is_array($message['request_payload'])) {
+                $replacement = $this->find_any_prompt_field($message['request_payload']);
+            }
+            if ($replacement) {
+                $preview = $replacement;
+            }
+        }
+        return $preview;
+    }
+
     /**
      * Retrieves conversation summary rows for the admin log view.
      * Handles the new JSON structure to extract the last message snippet and check for feedback.
@@ -43,7 +170,7 @@ class LogManager
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $this->wpdb->prepare is safe to use here.
             $query = $this->wpdb->prepare($query, $query_parts['params']);
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log retrieval.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to custom table for log retrieval.
         $results = $this->wpdb->get_results($query, ARRAY_A);
 
         if ($results) {
@@ -90,6 +217,14 @@ class LogManager
                     $log_row['last_message_role'] = $last_message_obj['role'] ?? '';
                     $log_row['last_message_content'] = $last_message_obj['content'] ?? __('(No messages)', 'gpt3-ai-content-generator');
 
+                    if (($log_row['module'] ?? '') === 'content_writer') {
+                        $content_writer_preview = $this->resolve_content_writer_preview($messages_array);
+                        if ($content_writer_preview) {
+                            $log_row['last_message_role'] = 'user';
+                            $log_row['last_message_content'] = $content_writer_preview;
+                        }
+                    }
+
                     foreach ($messages_array as $msg) {
                         if (isset($msg['feedback']) && ($msg['feedback'] === 'up' || $msg['feedback'] === 'down')) {
                             $has_feedback = true;
@@ -127,7 +262,7 @@ class LogManager
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $this->wpdb->prepare is safe to use here.
             $query = $this->wpdb->prepare($query, $query_parts['params']);
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log counting.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to custom table for log counting.
         return (int) $this->wpdb->get_var($query);
     }
 
@@ -162,7 +297,7 @@ class LogManager
         if (!$select_ids_query) {
             return false;
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log deletion.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to custom table for log deletion.
         $log_ids_to_delete = $this->wpdb->get_col($select_ids_query);
         if (empty($log_ids_to_delete)) {
             return 0;
@@ -199,7 +334,7 @@ class LogManager
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: $this->wpdb->prepare is safe to use here.
             $query = $this->wpdb->prepare($query, $query_parts['params']);
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log retrieval.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to custom table for log retrieval.
         $results = $this->wpdb->get_results($query, ARRAY_A) ?: [];
 
         if ($results) {
@@ -228,7 +363,6 @@ class LogManager
                     }
                 }
 
-                $log_row['ip_address'] = AIPKit_IP_Anonymization::maybe_anonymize($log_row['ip_address']);
             }
             unset($log_row);
         }
@@ -317,7 +451,7 @@ class LogManager
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $this->table_name is safe. $where_sql contains placeholders for the prepare method.
         $query = $this->wpdb->prepare("DELETE FROM {$this->table_name} WHERE {$where_sql}", $params);
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: Direct query to custom table for log deletion.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to custom table for log deletion.
         $deleted_rows = $this->wpdb->query($query);
 
         if ($deleted_rows === false) {

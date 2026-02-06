@@ -7,7 +7,6 @@
 namespace WPAICG\ContentWriter\Ajax\Actions\StandardGeneration;
 
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Standard_Generation_Action;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Meta_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder;
@@ -53,7 +52,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
             'module'            => 'content_writer',
             'is_guest'          => 0,
             'role'              => implode(', ', wp_get_current_user()->roles),
-            'ip_address'        => AIPKit_IP_Anonymization::maybe_anonymize(isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null),
+            'ip_address'        => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
             'message_role'      => 'bot',
             'message_content'   => $content,
             'timestamp'         => time(),
@@ -75,7 +74,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
     if ($generate_keyword && empty($user_provided_keywords) && !empty($content)) {
         $content_summary_for_kw = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer::summarize($content);
         $keyword_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder::build($final_title, $content_summary_for_kw, 'custom', $validated_params['custom_keyword_prompt']);
-        $keyword_ai_params = ['max_completion_tokens' => 4000, 'temperature' => 1];
+        $keyword_ai_params = ['temperature' => 1, 'top_p' => null];
         $keyword_result = $handler->get_ai_caller()->make_standard_call(
             $validated_params['provider'],
             $validated_params['model'],
@@ -96,7 +95,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
                     'module' => 'content_writer',
                     'is_guest' => 0,
                     'role' => implode(', ', wp_get_current_user()->roles),
-                    'ip_address' => AIPKit_IP_Anonymization::maybe_anonymize(isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null),
+                    'ip_address' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
                     'timestamp' => time(),
                     'ai_provider' => $validated_params['provider'],
                     'ai_model' => $validated_params['model'],
@@ -131,7 +130,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
     // 2. Generate Excerpt
     if (($validated_params['generate_excerpt'] ?? '0') === '1' && !empty($content)) {
         $excerpt_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_excerpt_prompt']);
-        $excerpt_ai_params = ['max_completion_tokens' => 4000, 'temperature' => 1];
+        $excerpt_ai_params = ['temperature' => 1, 'top_p' => null];
         $excerpt_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $excerpt_user_prompt]], $excerpt_ai_params);
         if (!is_wp_error($excerpt_result) && !empty($excerpt_result['content'])) {
             $excerpt = trim(str_replace(['"', "'"], '', $excerpt_result['content']));
@@ -144,7 +143,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
                     'module' => 'content_writer',
                     'is_guest' => 0,
                     'role' => implode(', ', wp_get_current_user()->roles),
-                    'ip_address' => AIPKit_IP_Anonymization::maybe_anonymize(isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null),
+                    'ip_address' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
                     'timestamp' => time(),
                     'ai_provider' => $validated_params['provider'],
                     'ai_model' => $validated_params['model'],
@@ -176,7 +175,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
     // 3. Generate Tags
     if (($validated_params['generate_tags'] ?? '0') === '1' && !empty($content)) {
         $tags_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_tags_prompt']);
-        $tags_ai_params = ['max_completion_tokens' => 4000, 'temperature' => 0.5];
+        $tags_ai_params = ['temperature' => 0.5, 'top_p' => null];
         $tags_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $tags_user_prompt]], $tags_ai_params);
         if (!is_wp_error($tags_result) && !empty($tags_result['content'])) {
             $tags = trim(str_replace(['"', "'"], '', $tags_result['content']));
@@ -189,7 +188,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
                     'module' => 'content_writer',
                     'is_guest' => 0,
                     'role' => implode(', ', wp_get_current_user()->roles),
-                    'ip_address' => AIPKit_IP_Anonymization::maybe_anonymize(isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null),
+                    'ip_address' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
                     'timestamp' => time(),
                     'ai_provider' => $validated_params['provider'],
                     'ai_model' => $validated_params['model'],
@@ -221,7 +220,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
     // 4. Generate Meta Description
     if (($validated_params['generate_meta_description'] ?? '0') === '1' && !empty($content)) {
         $meta_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Meta_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_meta_prompt']);
-        $meta_ai_params = ['max_completion_tokens' => 4000, 'temperature' => 1];
+        $meta_ai_params = ['temperature' => 1, 'top_p' => null];
         $meta_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $meta_user_prompt]], $meta_ai_params);
         if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
             $meta_description = trim(str_replace(['"', "'"], '', $meta_result['content']));
@@ -234,7 +233,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
                     'module' => 'content_writer',
                     'is_guest' => 0,
                     'role' => implode(', ', wp_get_current_user()->roles),
-                    'ip_address' => AIPKit_IP_Anonymization::maybe_anonymize(isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null),
+                    'ip_address' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
                     'timestamp' => time(),
                     'ai_provider' => $validated_params['provider'],
                     'ai_model' => $validated_params['model'],

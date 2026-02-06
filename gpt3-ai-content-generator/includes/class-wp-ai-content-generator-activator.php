@@ -24,15 +24,6 @@ if (! defined('ABSPATH')) {
  */
 class WP_AI_Content_Generator_Activator
 {
-    // --- NEW: Migration Status Option Constants ---
-    public const MIGRATION_DATA_EXISTS_OPTION = 'aipkit_migration_data_exists';
-    public const MIGRATION_STATUS_OPTION = 'aipkit_migration_status';
-    public const MIGRATION_LAST_ERROR_OPTION = 'aipkit_migration_last_error';
-    public const MIGRATION_OLD_VERSION_OPTION = 'aipkit_old_plugin_version_migrated_from';
-    public const MIGRATION_CATEGORY_STATUS_OPTION = 'aipkit_migration_category_status'; // ADDED
-    public const MIGRATION_ANALYSIS_RESULTS_OPTION = 'aipkit_migration_analysis_results'; // ADDED
-    // --- END NEW ---
-
     /**
      * Main activation routine for single site or per-site activation.
      * REVISED: This method is now significantly leaner. It only handles tasks that
@@ -106,87 +97,6 @@ class WP_AI_Content_Generator_Activator
         }
     }
 
-    /**
-     * Checks for old plugin data and sets initial migration status options.
-     * UPDATED: Sets status to 'analysis_required' and initializes new state options.
-     * MODIFIED: Changed visibility from private to public to allow calls from outside activation.
-     */
-    public static function check_for_old_data_and_set_migration_status()
-    {
-        global $wpdb;
-        $current_migration_status = get_option(self::MIGRATION_STATUS_OPTION, '');
-
-        // If migration is already completed or user has chosen to start fresh, do nothing.
-        if (in_array($current_migration_status, ['completed', 'fresh_install_chosen', 'not_applicable'], true)) {
-            return;
-        }
-
-        $old_data_found = false;
-        $old_table_names = ['wpaicg', 'wpaicg_chatlogs', 'wpaicg_chattokens', 'wpaicg_image_logs', 'wpaicg_imagetokens', 'wpaicg_form_logs', 'wpaicg_form_feedback', 'wpaicg_formtokens'];
-        foreach ($old_table_names as $table_suffix) {
-            $table_name = $wpdb->prefix . $table_suffix;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name) {
-                $old_data_found = true;
-                break;
-            }
-        }
-
-        if (!$old_data_found) {
-            // Check for old options
-            $old_options_to_check = ['wpaicg_options', 'wpaicg_provider', 'wpaicg_chat_widget', 'wpaicg_module_settings'];
-            foreach ($old_options_to_check as $option_name) {
-                if (get_option($option_name) !== false) {
-                    $old_data_found = true;
-                    break;
-                }
-            }
-        }
-        // Check for old CPTs
-        if (!$old_data_found) {
-            $old_cpts = ['wpaicg_mtemplate', 'wpaicg_tracking', 'wpaicg_bulk', 'wpaicg_chatbot', 'wpaicg_form', 'wpaicg_embeddings', 'wpaicg_pdfadmin', 'wpaicg_file', 'wpaicg_finetune', 'wpaicg_audio'];
-            foreach ($old_cpts as $cpt_slug) {
-                $posts = get_posts(['post_type' => $cpt_slug, 'post_status' => 'any', 'posts_per_page' => 1, 'fields' => 'ids']);
-                if (!empty($posts)) {
-                    $old_data_found = true;
-                    break;
-                }
-            }
-        }
-
-
-        if ($old_data_found) {
-            update_option(self::MIGRATION_DATA_EXISTS_OPTION, true, 'no');
-
-            // Only initialize the migration state ONCE.
-            if (empty($current_migration_status) || $current_migration_status === 'not_started') {
-                // Set the status to 'analysis_required' to start the process.
-                update_option(self::MIGRATION_STATUS_OPTION, 'analysis_required', 'no');
-
-                // Initialize new migration state options for a fresh migration attempt.
-                $migration_categories = ['global_settings', 'cron_jobs', 'cpt_data', 'chatbot_data', 'image_data'];
-                $default_category_status = array_fill_keys($migration_categories, 'pending');
-                update_option(self::MIGRATION_CATEGORY_STATUS_OPTION, $default_category_status, 'no');
-                update_option(self::MIGRATION_ANALYSIS_RESULTS_OPTION, [], 'no'); // Crucially, only init this once.
-
-                // Store the old version for informational purposes.
-                $old_plugin_version = get_option('wpaicg_version', '1.9.x');
-                update_option(self::MIGRATION_OLD_VERSION_OPTION, sanitize_text_field($old_plugin_version), 'no');
-            }
-            // If status is already 'analysis_required', 'analysis_complete', etc., do nothing here to preserve state.
-
-        } else {
-            // No old data found, set to not applicable and clean up any potential leftover options.
-            update_option(self::MIGRATION_DATA_EXISTS_OPTION, false, 'no');
-            update_option(self::MIGRATION_STATUS_OPTION, 'not_applicable', 'no');
-            delete_option(self::MIGRATION_OLD_VERSION_OPTION);
-            delete_option(self::MIGRATION_LAST_ERROR_OPTION);
-            delete_option(self::MIGRATION_CATEGORY_STATUS_OPTION);
-            delete_option(self::MIGRATION_ANALYSIS_RESULTS_OPTION);
-        }
-    }
-
-
     public static function setup_tables_for_blog($blog_id = null)
     {
         $switched = false;
@@ -249,7 +159,7 @@ class WP_AI_Content_Generator_Activator
     }
 
     /**
-     * Unschedule old plugin cron hooks during migration.
+     * Unschedule old plugin cron hooks from legacy versions.
      * @since 2.1
      */
     public static function unschedule_old_cron_hooks()

@@ -73,9 +73,15 @@ function validate_and_normalize_input_logic(AIPKit_Content_Writer_Generate_Title
     // Sanitize other used fields that might be passed in
     $settings['ai_temperature'] = isset($settings['ai_temperature']) ? floatval($settings['ai_temperature']) : 1.0;
     $settings['custom_title_prompt'] = isset($settings['custom_title_prompt']) ? sanitize_textarea_field($settings['custom_title_prompt']) : '';
-    
-    // Extract max tokens parameter for title generation
-    $settings['content_max_tokens'] = isset($settings['content_max_tokens']) ? intval($settings['content_max_tokens']) : null;
+    $settings['rss_description'] = isset($settings['rss_description'])
+        ? sanitize_textarea_field(wp_unslash($settings['rss_description']))
+        : '';
+    $settings['url_content_context'] = isset($settings['url_content_context'])
+        ? sanitize_textarea_field(wp_unslash($settings['url_content_context']))
+        : '';
+    $settings['source_url'] = isset($settings['source_url'])
+        ? esc_url_raw(wp_unslash($settings['source_url']))
+        : '';
 
 
     // Return the full set of validated and normalized parameters

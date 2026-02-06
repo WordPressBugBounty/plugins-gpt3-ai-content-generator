@@ -66,6 +66,8 @@ class OpenAIImageResponseParser {
             'dall-e-2' => self::DALLE2_TOKENS_PER_IMAGE,
             'dall-e-3' => self::DALLE3_TOKENS_PER_IMAGE,
             'gpt-image-1' => self::GPT_IMAGE_1_TOKENS_PER_IMAGE,
+            'gpt-image-1.5' => self::GPT_IMAGE_1_TOKENS_PER_IMAGE,
+            'gpt-image-1-mini' => self::GPT_IMAGE_1_TOKENS_PER_IMAGE,
             default => self::DALLE3_TOKENS_PER_IMAGE, // Default to DALL-E 3 estimate
         };
         

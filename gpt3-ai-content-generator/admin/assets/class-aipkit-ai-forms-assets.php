@@ -16,13 +16,13 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Handles enqueueing assets (CSS/JS) and localization for the AIPKit AI Forms module.
+ * Handles enqueueing JS assets and localization for the AIPKit AI Forms module.
+ * Shared admin styles live in admin-main.
  */
 class AIPKit_AI_Forms_Assets
 {
     private $version;
     private $is_admin_main_js_enqueued = false;
-    private $is_admin_ai_forms_css_enqueued = false;
 
 
     public function __construct()
@@ -44,7 +44,6 @@ class AIPKit_AI_Forms_Assets
             return;
         }
 
-        $this->enqueue_styles();
         $this->enqueue_scripts();
 
         // Ensure core dashboard data is localized if admin-main.js was enqueued
@@ -53,26 +52,6 @@ class AIPKit_AI_Forms_Assets
         }
 
         $this->localize_data();
-    }
-
-    private function enqueue_styles()
-    {
-        $dist_css_url = WPAICG_PLUGIN_URL . 'dist/css/';
-        $ai_forms_css_handle = 'aipkit-admin-ai-forms-css';
-        $admin_main_css_handle = 'aipkit-admin-main-css';
-
-        if (!wp_style_is($ai_forms_css_handle, 'registered')) {
-            wp_register_style(
-                $ai_forms_css_handle,
-                $dist_css_url . 'admin-ai-forms.bundle.css',
-                [$admin_main_css_handle],
-                $this->version
-            );
-        }
-        if (!$this->is_admin_ai_forms_css_enqueued && !wp_style_is($ai_forms_css_handle, 'enqueued')) {
-            wp_enqueue_style($ai_forms_css_handle);
-            $this->is_admin_ai_forms_css_enqueued = true;
-        }
     }
 
     private function enqueue_scripts()

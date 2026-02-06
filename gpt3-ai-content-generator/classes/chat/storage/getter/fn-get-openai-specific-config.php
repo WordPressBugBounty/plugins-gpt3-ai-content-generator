@@ -5,6 +5,7 @@
 
 namespace WPAICG\Chat\Storage\GetterMethods;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Chat\Storage\BotSettingsManager; // For default constants
 
 if (!defined('ABSPATH')) {
@@ -60,9 +61,8 @@ function get_openai_specific_config_logic(int $bot_id, callable $get_meta_fn): a
     // Reasoning Effort Setting
     $default_reasoning_effort = defined('WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_REASONING_EFFORT') ? BotSettingsManager::DEFAULT_REASONING_EFFORT : 'medium';
     $settings['reasoning_effort'] = $get_meta_fn('_aipkit_reasoning_effort', $default_reasoning_effort);
-    if (!in_array($settings['reasoning_effort'], ['minimal', 'low', 'medium', 'high', ''])) {
-        $settings['reasoning_effort'] = $default_reasoning_effort;
-    }
+    $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($settings['reasoning_effort']);
+    $settings['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : $default_reasoning_effort;
 
 
     return $settings;

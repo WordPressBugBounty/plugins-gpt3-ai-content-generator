@@ -7,8 +7,6 @@ namespace WPAICG\Images\Manager\Ajax;
 
 use WPAICG\Images\AIPKit_Image_Manager;
 use WPAICG\AIPKit_Role_Manager;
-use WPAICG\aipkit_dashboard;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 use WPAICG\Core\AIPKit_Content_Moderator;
 use WP_Error;
@@ -27,7 +25,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     $user_id = get_current_user_id();
     $is_logged_in = $user_id > 0;
     $session_id_from_post = isset($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : null;
-    $session_id_for_guest = $is_logged_in ? null : AIPKit_IP_Anonymization::maybe_anonymize($client_ip);
+    $session_id_for_guest = $is_logged_in ? null : $client_ip;
     if (!$is_logged_in && empty($session_id_for_guest) && !empty($session_id_from_post)) {
         $session_id_for_guest = $session_id_from_post;
     }
@@ -68,7 +66,8 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     if (class_exists(AIPKit_Content_Moderator::class)) {
         $moderation_context = [
             'client_ip' => $client_ip,
-            'bot_settings' => ['provider' => $provider_for_moderation] // Provide a minimal settings array for the check
+            'bot_settings' => ['provider' => $provider_for_moderation], // Provide a minimal settings array for the check
+            'skip_banned_checks' => true,
         ];
         $moderation_check = AIPKit_Content_Moderator::check_content($prompt, $moderation_context);
         if (is_wp_error($moderation_check)) {
@@ -84,7 +83,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     $num_images_to_generate = max(1, $num_images_to_generate);
 
     $token_manager = $managerInstance->get_token_manager();
-    if (aipkit_dashboard::is_addon_active('token_management') && $token_manager) {
+    if ($token_manager) {
         $token_check_result = null;
         $context_id_for_token_check = $is_logged_in ? GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
         $token_check_result = $token_manager->check_and_reset_tokens($user_id ?: null, $session_id_for_guest, $context_id_for_token_check, 'image_generator');
@@ -112,7 +111,8 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         'user' => $user_identifier,
     ], function ($value) { return $value !== null; });
 
-    if (strtolower($provider) === 'openai' && ($runtime_options['model'] ?? '') === 'gpt-image-1') {
+    $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
+    if (strtolower($provider) === 'openai' && in_array(($runtime_options['model'] ?? ''), $gpt_image_models, true)) {
         $runtime_options['output_format'] = 'png';
         unset($runtime_options['response_format']);
     }
@@ -158,7 +158,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         $media_generated_count = count($images_array) + count($videos_array);
         $tokens_to_record = $usage_data['total_tokens'] ?? ($media_generated_count * $managerInstance::TOKENS_PER_IMAGE);
 
-        if (aipkit_dashboard::is_addon_active('token_management') && $tokens_to_record > 0 && $token_manager) {
+        if ($token_manager && $tokens_to_record > 0) {
             $context_id_for_token_record = $is_logged_in ? GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
             $token_manager->record_token_usage($user_id ?: null, $session_id_for_guest, $context_id_for_token_record, $tokens_to_record, 'image_generator');
         }

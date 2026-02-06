@@ -89,7 +89,7 @@ function do_ajax_list_files_in_vector_store_openai_logic(AIPKit_OpenAI_Vector_St
                 $log_entry = wp_cache_get($cache_key, $cache_group);
 
                 if (false === $log_entry) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $data_source_table_name is safe.
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $data_source_table_name is safe.
                     $log_entry = $wpdb->get_row($wpdb->prepare("SELECT user_id, post_id, post_title, indexed_content FROM {$data_source_table_name} WHERE file_id = %s ORDER BY timestamp DESC LIMIT 1", $file['id']), ARRAY_A);
                     wp_cache_set($cache_key, $log_entry, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
                 }

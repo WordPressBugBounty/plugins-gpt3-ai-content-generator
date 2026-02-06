@@ -6,7 +6,6 @@
 namespace WPAICG\Admin\Assets;
 
 use WPAICG\aipkit_dashboard;
-use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Chat\Frontend\Assets as ChatFrontendAssetsOrchestrator;
@@ -143,10 +142,9 @@ class ChatAdminAssets
 
         // --- MODIFICATION START: Conditionally enqueue jsPDF for admin chat preview ---
         // The chat preview uses public-main.bundle.js. If PDF download is a feature
-        // shown in the preview (and Pro plan is active, PDF addon active), we need jsPDF.
+        // shown in the preview and Pro plan is active, we need jsPDF.
         if (class_exists('\WPAICG\aipkit_dashboard') &&
             \WPAICG\aipkit_dashboard::is_pro_plan() &&
-            \WPAICG\aipkit_dashboard::is_addon_active('pdf_download') &&
             wp_script_is($jspdf_handle, 'registered') &&
             !wp_script_is($jspdf_handle, 'enqueued')) {
             wp_enqueue_script($jspdf_handle);
@@ -188,7 +186,6 @@ class ChatAdminAssets
         $google_embedding_models = [];
         $azure_embedding_models = [];
         $is_pro_plan = false;
-        $is_triggers_addon_active = false;
 
         if (class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Registry')) {
             $openai_vector_stores = \WPAICG\Vector\AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
@@ -202,7 +199,6 @@ class ChatAdminAssets
         }
         if (class_exists('\\WPAICG\\aipkit_dashboard')) {
             $is_pro_plan = \WPAICG\aipkit_dashboard::is_pro_plan();
-            $is_triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
         }
 
         // --- FIX: Correctly sanitize the IP address ---
@@ -210,19 +206,13 @@ class ChatAdminAssets
         $user_ip_sanitized = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
         // --- END FIX ---
         
-        // --- ADDED: Get banned IPs for the new feature ---
-        $security_options = AIPKIT_AI_Settings::get_security_settings();
-        $banned_ips_settings = $security_options['bannedips'] ?? ['ips' => ''];
-        // --- END ADDED ---
-
         $preview_config_for_js = [
             'nonce' => $aipkit_frontend_nonce, 'ajaxUrl' => admin_url('admin-ajax.php'),
             'userIp' => $user_ip_sanitized, 'requireConsentCompliance' => false,
             'openaiVectorStores' => $openai_vector_stores, 'pineconeIndexes' => $pinecone_indexes,
             'qdrantCollections' => $qdrant_collections, 'openaiEmbeddingModels' => $openai_embedding_models,
             'googleEmbeddingModels' => $google_embedding_models, 'azureEmbeddingModels' => $azure_embedding_models, 'isProPlan' => $is_pro_plan,
-            'isTriggersAddonActive' => $is_triggers_addon_active,
-            'banned_ips' => $banned_ips_settings['ips'], // ADDED
+            'automationsNonce' => wp_create_nonce('aipkit_automated_tasks_manage_nonce'),
             'nonce_toggle_ip_block' => wp_create_nonce('aipkit_toggle_ip_block_nonce'), // ADDED
             'text' => array_merge($dashboard_texts, [
                 'fullscreenError' => $dashboard_texts['fullscreenError'] ?? __('Error: Fullscreen functionality is unavailable.', 'gpt3-ai-content-generator'),

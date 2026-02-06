@@ -4,6 +4,7 @@
 
 namespace WPAICG\AIForms\Storage\Methods;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Admin_Setup;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
@@ -91,8 +92,12 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
         'top_p' => (is_numeric($form_top_p) && $form_top_p !== '') ? floatval($form_top_p) : ($global_ai_params['top_p'] ?? 1.0),
         'frequency_penalty' => (is_numeric($form_frequency_penalty) && $form_frequency_penalty !== '') ? floatval($form_frequency_penalty) : ($global_ai_params['frequency_penalty'] ?? 0.0),
         'presence_penalty' => (is_numeric($form_presence_penalty) && $form_presence_penalty !== '') ? floatval($form_presence_penalty) : ($global_ai_params['presence_penalty'] ?? 0.0),
-        'reasoning_effort' => get_post_meta($form_id, '_aipkit_ai_form_reasoning_effort', true) ?: 'low',
+        'reasoning_effort' => '',
     ];
+
+    $stored_reasoning_effort = get_post_meta($form_id, '_aipkit_ai_form_reasoning_effort', true) ?: 'low';
+    $normalized_reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($stored_reasoning_effort);
+    $data['reasoning_effort'] = $normalized_reasoning_effort !== '' ? $normalized_reasoning_effort : 'low';
 
     // --- Add Vector Settings ---
     $data['enable_vector_store'] = get_post_meta($form_id, '_aipkit_ai_form_enable_vector_store', true) ?: '0';

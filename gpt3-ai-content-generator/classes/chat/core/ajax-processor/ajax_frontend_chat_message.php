@@ -40,8 +40,8 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
         if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
             $origin = $_SERVER['HTTP_ORIGIN'];
             $site_url = get_site_url();
-            $site_parsed = parse_url($site_url);
-            $origin_parsed = parse_url($origin);
+            $site_parsed = wp_parse_url($site_url);
+            $origin_parsed = wp_parse_url($origin);
             
             // Check if origin is different from site domain
             if ($origin_parsed && $site_parsed && 
@@ -54,8 +54,7 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
         if ($is_cross_origin) {
             // This is a cross-origin request, check embed feature availability
             if (class_exists('\WPAICG\aipkit_dashboard') && 
-                \WPAICG\aipkit_dashboard::is_pro_plan() && 
-                \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')) {
+                \WPAICG\aipkit_dashboard::is_pro_plan()) {
                 
                 $origin_allowed = AIPKit_CORS_Manager::check_and_set_cors_headers($bot_id_from_request);
                 if (!$origin_allowed) {

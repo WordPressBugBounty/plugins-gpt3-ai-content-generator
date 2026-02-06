@@ -52,14 +52,9 @@ function generate_title_logic(array $cw_config, AIPKit_AI_Caller $ai_caller): ar
     }
     // --- END NEW ---
 
-    // Use the max tokens from task configuration, with a fallback to 60 for title generation
-    $max_tokens_for_title = isset($cw_config['content_max_tokens']) && $cw_config['content_max_tokens'] > 0 
-                            ? $cw_config['content_max_tokens'] // Use the configured value
-                            : 4000; // Default fallback
-
     $title_ai_params = [
         'temperature' => floatval($cw_config['ai_temperature'] ?? 1),
-        'max_completion_tokens' => $max_tokens_for_title,
+        'top_p' => null,
     ];
 
     $title_result = $ai_caller->make_standard_call(
@@ -71,10 +66,8 @@ function generate_title_logic(array $cw_config, AIPKit_AI_Caller $ai_caller): ar
     );
 
     if (is_wp_error($title_result)) {
-        // Enhanced error message with token information for debugging
         $error_msg = $title_result->get_error_message();
-        $debug_info = " (max_tokens used: {$max_tokens_for_title})";
-        return new WP_Error('title_generation_failed', 'Title generation failed: ' . $error_msg . $debug_info);
+        return new WP_Error('title_generation_failed', 'Title generation failed: ' . $error_msg);
     }
 
     $generated_title_raw = trim($title_result['content'] ?? '');

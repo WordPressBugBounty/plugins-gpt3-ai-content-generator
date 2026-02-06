@@ -23,7 +23,7 @@ if (!defined('ABSPATH')) {
 function url_mode_generate_items_logic(int $task_id, array $task_config): array|WP_Error
 {
     if (!aipkit_dashboard::is_pro_plan() || !class_exists(AIPKit_Url_Scraper::class)) {
-        return new WP_Error('url_feature_unavailable', __('URL scraping is a Pro feature or its components are missing.', 'gpt3-ai-content-generator'), ['status' => 403]);
+        return new WP_Error('url_feature_unavailable', __('URL extracting is a Pro feature or its components are missing.', 'gpt3-ai-content-generator'), ['status' => 403]);
     }
 
     $topics = [];

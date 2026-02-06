@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
  * @return array|WP_Error Array of matching vectors or WP_Error.
  */
 function query_vectors_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $index_name, array $query_vector_param, int $top_k, array $filter = []): array|WP_Error {
-    $index_description = describe_index_logic($strategyInstance, $index_name); // Use externalized describe_index_logic
+    $index_description = get_index_overview_logic($strategyInstance, $index_name);
     if (is_wp_error($index_description)) return $index_description;
     $host = $index_description['host'] ?? null;
     if (empty($host)) return new WP_Error('missing_host_pinecone_query', __('Index host not found for query operation.', 'gpt3-ai-content-generator'));

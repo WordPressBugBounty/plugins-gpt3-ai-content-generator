@@ -23,6 +23,7 @@ if (!defined('ABSPATH')) {
 function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_Error
 {
     update_post_meta($botId, '_aipkit_greeting_message', $sanitized_settings['greeting']);
+    update_post_meta($botId, '_aipkit_subgreeting_message', $sanitized_settings['subgreeting']);
     update_post_meta($botId, '_aipkit_provider', $sanitized_settings['provider']);
     update_post_meta($botId, '_aipkit_theme', $sanitized_settings['theme']);
     update_post_meta($botId, '_aipkit_instructions', $sanitized_settings['instructions']);
@@ -36,10 +37,25 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_popup_icon_value', $sanitized_settings['popup_icon_value']);
     update_post_meta($botId, '_aipkit_stream_enabled', $sanitized_settings['stream_enabled']);
     update_post_meta($botId, '_aipkit_footer_text', $sanitized_settings['footer_text']);
+    update_post_meta($botId, '_aipkit_header_avatar_type', $sanitized_settings['header_avatar_type']);
+    update_post_meta($botId, '_aipkit_header_avatar_value', $sanitized_settings['header_avatar_value']);
+    update_post_meta($botId, '_aipkit_header_avatar_url', $sanitized_settings['header_avatar_url']);
+    update_post_meta($botId, '_aipkit_header_online_text', $sanitized_settings['header_online_text']);
     update_post_meta($botId, '_aipkit_enable_fullscreen', $sanitized_settings['enable_fullscreen']);
     update_post_meta($botId, '_aipkit_enable_download', $sanitized_settings['enable_download']);
     update_post_meta($botId, '_aipkit_enable_copy_button', $sanitized_settings['enable_copy_button']);
     update_post_meta($botId, '_aipkit_enable_feedback', $sanitized_settings['enable_feedback']);
+    update_post_meta($botId, '_aipkit_enable_consent_compliance', $sanitized_settings['enable_consent_compliance']);
+    update_post_meta($botId, '_aipkit_enable_ip_anonymization', $sanitized_settings['enable_ip_anonymization']);
+    update_post_meta($botId, '_aipkit_consent_title', $sanitized_settings['consent_title']);
+    update_post_meta($botId, '_aipkit_consent_message', $sanitized_settings['consent_message']);
+    update_post_meta($botId, '_aipkit_consent_button', $sanitized_settings['consent_button']);
+    update_post_meta($botId, '_aipkit_openai_moderation_enabled', $sanitized_settings['openai_moderation_enabled']);
+    update_post_meta($botId, '_aipkit_openai_moderation_message', $sanitized_settings['openai_moderation_message']);
+    update_post_meta($botId, '_aipkit_banned_words', $sanitized_settings['banned_words']);
+    update_post_meta($botId, '_aipkit_banned_words_message', $sanitized_settings['banned_words_message']);
+    update_post_meta($botId, '_aipkit_banned_ips', $sanitized_settings['banned_ips']);
+    update_post_meta($botId, '_aipkit_banned_ips_message', $sanitized_settings['banned_ips_message']);
     update_post_meta($botId, '_aipkit_enable_conversation_sidebar', $sanitized_settings['enable_conversation_sidebar']);
     update_post_meta($botId, '_aipkit_custom_typing_text', $sanitized_settings['custom_typing_text']);
     update_post_meta($botId, '_aipkit_input_placeholder', $sanitized_settings['input_placeholder']);
@@ -169,6 +185,9 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         foreach ($sanitized_settings['custom_theme_settings'] as $key => $value) {
             update_post_meta($botId, '_aipkit_cts_' . $key, $value);
         }
+        if (class_exists(\WPAICG\Chat\Storage\BotSettingsManager::class)) {
+            \WPAICG\Chat\Storage\BotSettingsManager::cleanup_custom_theme_meta($botId);
+        }
     }
     
     // --- Save Realtime Voice Agent settings ---
@@ -215,6 +234,26 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     }
     if (!is_array($decoded_triggers_for_validation)) {
         $triggers_json_string = '[]';
+    } else {
+        // Normalize stored JSON to ensure nested strings (e.g. body_template) are properly escaped.
+        $triggers_json_string = wp_json_encode(
+            $decoded_triggers_for_validation,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+    }
+
+    $trigger_validator_class = '\\WPAICG\\Lib\\Chat\\Triggers\\Validation\\AIPKit_Trigger_Validator';
+    if (!class_exists($trigger_validator_class) && defined('WPAICG_LIB_DIR')) {
+        $validator_path = WPAICG_LIB_DIR . 'chat/triggers/validation/class-aipkit-trigger-validator.php';
+        if (file_exists($validator_path)) {
+            require_once $validator_path;
+        }
+    }
+    if (class_exists($trigger_validator_class)) {
+        $validation_result = $trigger_validator_class::validate_triggers_array($decoded_triggers_for_validation);
+        if (is_wp_error($validation_result)) {
+            return $validation_result;
+        }
     }
     update_post_meta($botId, $trigger_meta_key, $triggers_json_string);
 

@@ -35,8 +35,8 @@ function ajax_get_frontend_chat_nonce_logic(): void
         if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
             $origin = $_SERVER['HTTP_ORIGIN'];
             $site_url = get_site_url();
-            $site_parsed = parse_url($site_url);
-            $origin_parsed = parse_url($origin);
+            $site_parsed = wp_parse_url($site_url);
+            $origin_parsed = wp_parse_url($origin);
             if ($origin_parsed && $site_parsed && (
                 ($origin_parsed['host'] ?? '') !== ($site_parsed['host'] ?? '') ||
                 ($origin_parsed['scheme'] ?? 'http') !== ($site_parsed['scheme'] ?? 'http')
@@ -64,4 +64,3 @@ function ajax_get_frontend_chat_nonce_logic(): void
     $nonce = wp_create_nonce('aipkit_frontend_chat_nonce');
     wp_send_json_success(['nonce' => $nonce]);
 }
-

@@ -37,6 +37,23 @@ class SSERequestExecutor {
         }
 
         $curl_options_base = $strategy->get_request_options('stream');
+        $stream_context = $this->processorInstance->get_current_stream_context();
+        $timeout_base = isset($curl_options_base['timeout']) ? (int) $curl_options_base['timeout'] : 120;
+        if (in_array($stream_context, ['ai_forms', 'content_writer'], true)) {
+            $timeout_base = max($timeout_base, 300);
+        }
+        $timeout_base = (int) apply_filters(
+            'aipkit_stream_timeout',
+            $timeout_base,
+            $this->processorInstance->get_current_provider() ?? '',
+            $this->processorInstance->get_current_model() ?? '',
+            $stream_context,
+            [],
+            []
+        );
+        if ($timeout_base < 0) {
+            $timeout_base = 0;
+        }
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
         $ch = curl_init();
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
@@ -54,7 +71,7 @@ class SSERequestExecutor {
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_TIMEOUT, $curl_options_base['timeout'] ?? 120);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout_base);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $curl_options_base['sslverify'] ?? true);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.

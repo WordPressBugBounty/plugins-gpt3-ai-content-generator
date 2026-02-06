@@ -54,6 +54,10 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
         $processorInstance->set_grounding_metadata($parsed['grounding_metadata']);
         $formatter->send_sse_event('grounding_metadata', $parsed['grounding_metadata']);
     }
+    if (isset($parsed['status']) && is_array($parsed['status'])) {
+        $formatter->send_sse_event('status', $parsed['status']);
+        $processorInstance->set_data_sent_to_frontend_status(true);
+    }
 
     if ($parsed['is_error'] && $parsed['delta']) {
          if (!$processorInstance->get_error_occurred_status()) {

@@ -54,14 +54,16 @@ class LogConfig
      */
     public static function is_valid_period($period): bool
     {
-        $validPeriods = self::get_valid_periods();
-        $numericPeriod = (float)$period;
-        
-        // Convert valid periods to floats for comparison
-        $validPeriodsFloat = array_map('floatval', $validPeriods);
-        
-        // Check if the numeric value exists in our valid periods
-        return in_array($numericPeriod, $validPeriodsFloat, true);
+        if (!is_numeric($period)) {
+            return false;
+        }
+
+        $numericPeriod = (float) $period;
+        if ($numericPeriod < 1 || $numericPeriod > 365) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

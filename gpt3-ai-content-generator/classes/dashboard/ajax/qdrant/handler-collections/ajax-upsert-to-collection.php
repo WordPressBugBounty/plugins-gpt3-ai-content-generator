@@ -37,6 +37,7 @@ function _aipkit_qdrant_ajax_upsert_to_collection_logic(AIPKit_Vector_Store_Qdra
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in the calling handler method.
     $post_data = wp_unslash($_POST);
     $collection_name = isset($post_data['collection_name']) ? sanitize_text_field($post_data['collection_name']) : '';
+    $source_context = isset($post_data['source_context']) ? sanitize_text_field($post_data['source_context']) : '';
     // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string, decoded and validated below.
     $vectors_json = isset($post_data['vectors']) ? $post_data['vectors'] : '';
     $embedding_provider = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : null;

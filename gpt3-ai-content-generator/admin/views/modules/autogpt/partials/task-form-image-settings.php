@@ -9,10 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use WPAICG\aipkit_dashboard; // Added for addon status check
 
-$replicate_addon_active = aipkit_dashboard::is_addon_active('replicate');
-$stock_images_addon_active = aipkit_dashboard::is_addon_active('stock_images');
 ?>
 <div id="aipkit_task_form_image_settings" class="aipkit_task_config_section">
     <div class="aipkit_form-group">
@@ -32,28 +29,13 @@ $stock_images_addon_active = aipkit_dashboard::is_addon_active('stock_images');
         <div class="aipkit_form-row">
             <div class="aipkit_form-group aipkit_form-col">
                 <label class="aipkit_form-label" for="aipkit_task_cw_image_provider"><?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?></label>
-                <select id="aipkit_task_cw_image_provider" name="image_provider" class="aipkit_form-input">
+                <select id="aipkit_task_cw_image_provider" name="image_provider" class="aipkit_form-input" data-aipkit-provider-notice-target="aipkit_provider_notice_autogpt" data-aipkit-provider-notice-defer="1">
                     <option value="openai" selected>OpenAI</option>
                     <option value="google">Google</option>
                     <option value="azure">Azure</option>
-                    <option value="replicate" <?php disabled(!$replicate_addon_active); ?>>
-                        <?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?>
-                         <?php if (!$replicate_addon_active): ?>
-                            <?php esc_html_e('(Addon Disabled)', 'gpt3-ai-content-generator'); ?>
-                        <?php endif; ?>
-                    </option>
-                    <option value="pexels" <?php disabled(!$stock_images_addon_active); ?>>
-                        <?php esc_html_e('Pexels', 'gpt3-ai-content-generator'); ?>
-                        <?php if (!$stock_images_addon_active): ?>
-                            <?php esc_html_e('(Addon Disabled)', 'gpt3-ai-content-generator'); ?>
-                        <?php endif; ?>
-                    </option>
-                    <option value="pixabay" <?php disabled(!$stock_images_addon_active); ?>>
-                        <?php esc_html_e('Pixabay', 'gpt3-ai-content-generator'); ?>
-                        <?php if (!$stock_images_addon_active): ?>
-                            <?php esc_html_e('(Addon Disabled)', 'gpt3-ai-content-generator'); ?>
-                        <?php endif; ?>
-                    </option>
+                    <option value="replicate"><?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="pexels"><?php esc_html_e('Pexels', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="pixabay"><?php esc_html_e('Pixabay', 'gpt3-ai-content-generator'); ?></option>
                 </select>
             </div>
             <div class="aipkit_form-group aipkit_form-col" id="aipkit_task_cw_image_model_group">

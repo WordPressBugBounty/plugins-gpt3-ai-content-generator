@@ -6,6 +6,8 @@
 
 namespace WPAICG\ContentWriter\Ajax\Actions\GenerateTitle;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -18,26 +20,24 @@ if (!defined('ABSPATH')) {
  */
 function prepare_ai_params_logic(array $validated_params): array
 {
-    // Use the max tokens from template/form settings, or default to 200 for title generation
-    $max_tokens = isset($validated_params['content_max_tokens']) && $validated_params['content_max_tokens'] > 0 
-                  ? $validated_params['content_max_tokens'] 
-                  : 4000;
-    
-    $ai_params_override = [
-        'max_completion_tokens' => $max_tokens,
-    ];
+    $ai_params_override = [];
 
     if (isset($validated_params['ai_temperature'])) {
         $ai_params_override['temperature'] = floatval($validated_params['ai_temperature']);
     }
 
     // Add reasoning effort to AI params if present and model is compatible
-    if (($validated_params['provider'] ?? '') === 'OpenAI' && isset($validated_params['reasoning_effort']) && !empty($validated_params['reasoning_effort'])) {
-        $model_lower = strtolower($validated_params['ai_model'] ?? '');
-        if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
-             $ai_params_override['reasoning'] = ['effort' => sanitize_key($validated_params['reasoning_effort'])];
+    if (($validated_params['provider'] ?? '') === 'OpenAI') {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) ($validated_params['ai_model'] ?? ''),
+            $validated_params['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
         }
     }
+
+    $ai_params_override['top_p'] = null;
 
     return $ai_params_override;
 }

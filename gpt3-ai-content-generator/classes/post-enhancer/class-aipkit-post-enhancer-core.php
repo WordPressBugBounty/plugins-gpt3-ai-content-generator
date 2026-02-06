@@ -6,7 +6,6 @@
 
 namespace WPAICG\PostEnhancer;
 
-use WPAICG\aipkit_dashboard; // To check if addon is active
 use WPAICG\AIPKit_Role_Manager; // To check module access permissions
 use WPAICG\Utils\AIPKit_Admin_Header_Action_Buttons; // Shared header button injector
 
@@ -29,66 +28,66 @@ class Core
      */
     public function init_hooks()
     {
-        // Load AJAX handler only if the addon is active
-        if (aipkit_dashboard::is_addon_active(self::ADDON_KEY)) {
-            // Ensure AJAX handler class is loaded
-            $ajax_handler_path = WPAICG_PLUGIN_DIR . 'classes/post-enhancer/class-aipkit-post-enhancer-ajax.php';
-            if (file_exists($ajax_handler_path)) {
-                require_once $ajax_handler_path;
-                // Register AJAX actions if class exists
-                if (class_exists('\\WPAICG\\PostEnhancer\\AjaxHandler')) {
-                    $ajax_handler = new AjaxHandler();
-                    // Title actions
-                    add_action('wp_ajax_aipkit_generate_title_suggestions', [$ajax_handler, 'generate_title_suggestions']);
-                    add_action('wp_ajax_aipkit_update_post_title', [$ajax_handler, 'update_post_title']);
-                    // Excerpt actions
-                    add_action('wp_ajax_aipkit_generate_excerpt_suggestions', [$ajax_handler, 'generate_excerpt_suggestions']);
-                    add_action('wp_ajax_aipkit_update_post_excerpt', [$ajax_handler, 'update_post_excerpt']);
-                    // Meta Description actions
-                    add_action('wp_ajax_aipkit_generate_meta_suggestions', [$ajax_handler, 'generate_meta_suggestions']);
-                    add_action('wp_ajax_aipkit_update_post_meta_desc', [$ajax_handler, 'update_post_meta_desc']);
-                    // --- NEW: Add Tags hooks ---
-                    add_action('wp_ajax_aipkit_generate_tags_suggestions', [$ajax_handler, 'generate_tags_suggestions']);
-                    add_action('wp_ajax_aipkit_update_post_tags', [$ajax_handler, 'update_post_tags']);
-                    // --- END NEW ---
-                    // --- NEW: Add Bulk Process hook ---
-                    add_action('wp_ajax_aipkit_bulk_process_single_post', [$ajax_handler, 'ajax_bulk_process_single_post']);
-                    // --- NEW: Add individual field processing hooks ---
-                    add_action('wp_ajax_aipkit_bulk_process_single_field', [$ajax_handler, 'ajax_bulk_process_single_field']);
-                    add_action('wp_ajax_aipkit_bulk_update_seo_slug', [$ajax_handler, 'ajax_bulk_update_seo_slug']);
-                    // --- END NEW ---
-                    // --- ADDED: Register new text processing hook ---
-                    add_action('wp_ajax_aipkit_process_enhancer_text', [$ajax_handler, 'ajax_process_enhancer_text']);
-                    // --- END ADDED ---
-                    // --- NEW: Add hooks for Actions CRUD ---
-                    add_action('wp_ajax_aipkit_get_enhancer_actions', [$ajax_handler, 'ajax_get_enhancer_actions']);
-                    add_action('wp_ajax_aipkit_save_enhancer_action', [$ajax_handler, 'ajax_save_enhancer_action']);
-                    add_action('wp_ajax_aipkit_delete_enhancer_action', [$ajax_handler, 'ajax_delete_enhancer_action']);
-                    // --- END NEW ---
-                }
-            }
-
-            // --- MODIFICATION: Dynamically support all public post types by default ---
-            $public_post_types = get_post_types(['public' => true]);
-            unset($public_post_types['attachment']);
-            $post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
-            // --- END MODIFICATION ---
-            foreach ($post_types as $post_type) {
-                add_filter("{$post_type}_row_actions", [$this, 'add_row_actions'], 10, 2);
-            }
-            // Register Content Assistant button via shared utility
-            AIPKit_Admin_Header_Action_Buttons::register_button('aipkit_bulk_enhance_btn', 'Content Assistant');
-
-            $aipkit_options = get_option('aipkit_options', []);
-            $enhancer_editor_integration_enabled = $aipkit_options['enhancer_settings']['editor_integration'] ?? '1';
-
-            if ($enhancer_editor_integration_enabled === '1') {
-                // --- NEW: Add hooks for TinyMCE button ---
-                add_action('admin_init', [$this, 'setup_tinymce_button']);
-                // --- ADDED: Add hooks for Block Editor button ---
-                add_action('admin_init', [$this, 'setup_block_editor_button']);
+        // Ensure AJAX handler class is loaded
+        $ajax_handler_path = WPAICG_PLUGIN_DIR . 'classes/post-enhancer/class-aipkit-post-enhancer-ajax.php';
+        if (file_exists($ajax_handler_path)) {
+            require_once $ajax_handler_path;
+            // Register AJAX actions if class exists
+            if (class_exists('\\WPAICG\\PostEnhancer\\AjaxHandler')) {
+                $ajax_handler = new AjaxHandler();
+                // Title actions
+                add_action('wp_ajax_aipkit_generate_title_suggestions', [$ajax_handler, 'generate_title_suggestions']);
+                add_action('wp_ajax_aipkit_update_post_title', [$ajax_handler, 'update_post_title']);
+                // Excerpt actions
+                add_action('wp_ajax_aipkit_generate_excerpt_suggestions', [$ajax_handler, 'generate_excerpt_suggestions']);
+                add_action('wp_ajax_aipkit_update_post_excerpt', [$ajax_handler, 'update_post_excerpt']);
+                // Meta Description actions
+                add_action('wp_ajax_aipkit_generate_meta_suggestions', [$ajax_handler, 'generate_meta_suggestions']);
+                add_action('wp_ajax_aipkit_update_post_meta_desc', [$ajax_handler, 'update_post_meta_desc']);
+                // --- NEW: Add Tags hooks ---
+                add_action('wp_ajax_aipkit_generate_tags_suggestions', [$ajax_handler, 'generate_tags_suggestions']);
+                add_action('wp_ajax_aipkit_update_post_tags', [$ajax_handler, 'update_post_tags']);
+                // --- END NEW ---
+                // --- NEW: Add Bulk Process hook ---
+                add_action('wp_ajax_aipkit_bulk_process_single_post', [$ajax_handler, 'ajax_bulk_process_single_post']);
+                // --- NEW: Add individual field processing hooks ---
+                add_action('wp_ajax_aipkit_bulk_process_single_field', [$ajax_handler, 'ajax_bulk_process_single_field']);
+                add_action('wp_ajax_aipkit_bulk_update_seo_slug', [$ajax_handler, 'ajax_bulk_update_seo_slug']);
+                // --- END NEW ---
+                // --- ADDED: Register new text processing hook ---
+                add_action('wp_ajax_aipkit_process_enhancer_text', [$ajax_handler, 'ajax_process_enhancer_text']);
                 // --- END ADDED ---
+                // --- NEW: Add hooks for Actions CRUD ---
+                add_action('wp_ajax_aipkit_get_enhancer_actions', [$ajax_handler, 'ajax_get_enhancer_actions']);
+                add_action('wp_ajax_aipkit_save_enhancer_action', [$ajax_handler, 'ajax_save_enhancer_action']);
+                add_action('wp_ajax_aipkit_delete_enhancer_action', [$ajax_handler, 'ajax_delete_enhancer_action']);
+                // --- END NEW ---
             }
+        }
+
+        // --- MODIFICATION: Dynamically support all public post types by default ---
+        $public_post_types = get_post_types(['public' => true]);
+        unset($public_post_types['attachment']);
+        $post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
+        // --- END MODIFICATION ---
+        foreach ($post_types as $post_type) {
+            add_filter("{$post_type}_row_actions", [$this, 'add_row_actions'], 10, 2);
+        }
+        $aipkit_options = get_option('aipkit_options', []);
+        $enhancer_editor_integration_enabled = $aipkit_options['enhancer_settings']['editor_integration'] ?? '1';
+        $enhancer_list_button_enabled = $aipkit_options['enhancer_settings']['show_list_button'] ?? '1';
+
+        // Register Content Assistant button via shared utility (list screens)
+        if ($enhancer_list_button_enabled === '1') {
+            AIPKit_Admin_Header_Action_Buttons::register_button('aipkit_bulk_enhance_btn', 'Assistant');
+        }
+
+        if ($enhancer_editor_integration_enabled === '1') {
+            // --- NEW: Add hooks for TinyMCE button ---
+            add_action('admin_init', [$this, 'setup_tinymce_button']);
+            // --- ADDED: Add hooks for Block Editor button ---
+            add_action('admin_init', [$this, 'setup_block_editor_button']);
+            // --- END ADDED ---
         }
     }
 
@@ -106,9 +105,14 @@ class Core
      */
     public function add_row_actions($actions, $post)
     {
-        // Check if addon is active and user has permission for the module AND can edit this post
+        $aipkit_options = get_option('aipkit_options', []);
+        $enhancer_list_button_enabled = $aipkit_options['enhancer_settings']['show_list_button'] ?? '1';
+        if ($enhancer_list_button_enabled !== '1') {
+            return $actions;
+        }
+
+        // Check if user has permission for the module AND can edit this post
         if (
-            aipkit_dashboard::is_addon_active(self::ADDON_KEY) &&
             AIPKit_Role_Manager::user_can_access_module(self::ADDON_KEY) &&
             current_user_can('edit_post', $post->ID)
         ) {

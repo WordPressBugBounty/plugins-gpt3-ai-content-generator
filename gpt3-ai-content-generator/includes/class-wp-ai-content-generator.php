@@ -96,8 +96,9 @@ class WP_AI_Content_Generator
         // --- NEW: Check if any tables are missing as a fallback for incomplete activations/updates ---
         $tables_are_missing = $this->are_plugin_tables_missing();
         // --- END NEW ---
+        $vector_index_missing = $this->is_vector_data_source_index_missing();
 
-        if (version_compare((string)$saved_version, $current_version, '<') || $tables_are_missing) { // MODIFIED to include table check
+        if (version_compare((string)$saved_version, $current_version, '<') || $tables_are_missing || $vector_index_missing) { // MODIFIED to include table/index check
 
             // --- ADDED: Clear caches first to ensure users get new assets ---
             $this->clear_external_caches();
@@ -169,6 +170,28 @@ class WP_AI_Content_Generator
             }
         }
         return false;
+    }
+
+    /**
+     * Checks whether the vector data source composite index exists.
+     * @return bool True if the index is missing.
+     */
+    private function is_vector_data_source_index_missing(): bool
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
+        $index_name = 'provider_store_time';
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Table existence check.
+        $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
+        if ($table_exists !== $table_name) {
+            return false;
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name is safe from $wpdb->prefix.
+        $index_rows = $wpdb->get_results($wpdb->prepare("SHOW INDEX FROM {$table_name} WHERE Key_name = %s", $index_name));
+
+        return empty($index_rows);
     }
 
     /**

@@ -31,13 +31,13 @@ function do_ajax_list_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance)
     $post_data = wp_unslash($_POST);
     $paged = isset($post_data['page']) ? absint($post_data['page']) : 1;
     $search = isset($post_data['search']) ? sanitize_text_field($post_data['search']) : '';
-    $sort_by = isset($post_data['sort_by']) ? sanitize_key($post_data['sort_by']) : 'title';
-    $sort_order_raw = isset($post_data['sort_order']) ? strtoupper(sanitize_key($post_data['sort_order'])) : 'ASC';
+    $sort_by = isset($post_data['sort_by']) ? sanitize_key($post_data['sort_by']) : 'modified';
+    $sort_order_raw = isset($post_data['sort_order']) ? strtoupper(sanitize_key($post_data['sort_order'])) : 'DESC';
     $sort_order = in_array($sort_order_raw, ['ASC', 'DESC']) ? $sort_order_raw : 'ASC';
     $provider_filter = isset($post_data['filter_provider']) ? sanitize_text_field($post_data['filter_provider']) : 'all';
 
     // Whitelist sortable columns
-    $allowed_sort_keys = ['id', 'title', 'provider', 'model', 'date'];
+    $allowed_sort_keys = ['id', 'title', 'provider', 'model', 'date', 'modified'];
     if (!in_array($sort_by, $allowed_sort_keys)) {
         $sort_by = 'title';
     }

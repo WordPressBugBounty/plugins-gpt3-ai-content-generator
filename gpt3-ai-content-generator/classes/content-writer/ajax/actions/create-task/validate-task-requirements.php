@@ -19,7 +19,10 @@ if (!defined('ABSPATH')) {
 */
 function validate_task_requirements_logic(array $config): bool|WP_Error
 {
-    $generation_mode = $config['cw_generation_mode'] ?? 'single';
+    $generation_mode = $config['cw_generation_mode'] ?? 'task';
+    if ($generation_mode === 'single') {
+        $generation_mode = 'task';
+    }
 
     if ($generation_mode === 'rss') {
         if (empty($config['rss_feeds'])) {

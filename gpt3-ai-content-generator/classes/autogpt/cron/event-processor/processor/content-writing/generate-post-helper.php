@@ -7,6 +7,7 @@
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
 use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -28,13 +29,36 @@ function generate_post_logic(array $prompts, array $cw_config, AIPKit_AI_Caller 
 
     $content_ai_params = [
         'temperature' => floatval($cw_config['ai_temperature'] ?? 1),
-        'max_completion_tokens' => intval($cw_config['content_max_tokens'] ?? 4000)
+        'top_p' => null,
     ];
 
-    if (($provider ?? '') === 'OpenAI' && isset($cw_config['reasoning_effort']) && !empty($cw_config['reasoning_effort'])) {
-        $model_lower = strtolower($model ?? '');
-        if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
-            $content_ai_params['reasoning'] = ['effort' => sanitize_key($cw_config['reasoning_effort'])];
+    $max_completion_tokens = null;
+    if (isset($cw_config['max_completion_tokens']) && is_numeric($cw_config['max_completion_tokens'])) {
+        $max_completion_tokens = absint($cw_config['max_completion_tokens']);
+    } elseif (isset($cw_config['max_tokens']) && is_numeric($cw_config['max_tokens'])) {
+        $max_completion_tokens = absint($cw_config['max_tokens']);
+    } else {
+        $content_length = isset($cw_config['content_length']) ? sanitize_key($cw_config['content_length']) : '';
+        $length_map = [
+            'short' => 2000,
+            'medium' => 4000,
+            'long' => 6000,
+        ];
+        if (isset($length_map[$content_length])) {
+            $max_completion_tokens = $length_map[$content_length];
+        }
+    }
+    if ($max_completion_tokens) {
+        $content_ai_params['max_completion_tokens'] = $max_completion_tokens;
+    }
+
+    if (($provider ?? '') === 'OpenAI') {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) ($model ?? ''),
+            $cw_config['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $content_ai_params['reasoning'] = ['effort' => $reasoning_effort];
         }
     }
 

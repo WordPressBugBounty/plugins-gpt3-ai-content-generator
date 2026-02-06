@@ -30,6 +30,16 @@ class AIPKit_PostEnhancer_Bulk_Update_SEO_Slug extends AIPKit_Post_Enhancer_Base
             return;
         }
 
+        $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: Nonce is checked in check_permissions.
+        $enhancer_source = isset($_POST['enhancer_source']) ? sanitize_key(wp_unslash($_POST['enhancer_source'])) : '';
+        $bypass_pro_checks = ($enhancer_source === 'post_enhancer');
+
+        if (!$is_pro && !$bypass_pro_checks) {
+            $this->send_error_response(new WP_Error('pro_required', __('Updating URL slugs is available on Pro.', 'gpt3-ai-content-generator'), ['status' => 403]));
+            return;
+        }
+
         // Check if action type is specified
         // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: Nonce is checked in check_permissions.
         $action_type = isset($_POST['action_type']) ? sanitize_text_field(wp_unslash($_POST['action_type'])) : '';

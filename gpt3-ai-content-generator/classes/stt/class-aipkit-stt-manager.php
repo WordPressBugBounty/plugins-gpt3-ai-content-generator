@@ -153,6 +153,7 @@ class AIPKit_STT_Manager
                 return;
             }
             if ($file_size > $max_size) {
+                /* translators: %d: maximum file size in bytes */
                 wp_send_json_error(['message' => sprintf(__('Audio file too large. Max size: %d bytes.', 'gpt3-ai-content-generator'), $max_size)], 413);
                 return;
             }
@@ -202,6 +203,7 @@ class AIPKit_STT_Manager
             // Enforce size check on decoded data too
             $max_size = (int) apply_filters('aipkit_stt_max_audio_bytes', 4 * 1024 * 1024);
             if (strlen($audio_data_binary) > $max_size) {
+                /* translators: %d: maximum file size in bytes */
                 wp_send_json_error(['message' => sprintf(__('Audio data too large after decoding. Max size: %d bytes.', 'gpt3-ai-content-generator'), $max_size)], 413);
                 return;
             }

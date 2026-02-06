@@ -125,7 +125,10 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_list_collections_qdrant()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_qdrant_nonce'
+        );
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -136,7 +139,10 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_create_collection_qdrant()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_qdrant_nonce'
+        );
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -147,7 +153,7 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_delete_collection_qdrant()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_qdrant_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -158,7 +164,10 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_upsert_to_qdrant_collection()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_qdrant_nonce'
+        );
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -169,7 +178,7 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_upload_file_and_upsert_to_qdrant()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_qdrant_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -226,7 +235,7 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_search_qdrant_collection()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_qdrant_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -237,7 +246,7 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_get_qdrant_collection_stats()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_qdrant_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -248,7 +257,7 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_get_vector_data_source_logs_for_store()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_qdrant_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_qdrant_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;

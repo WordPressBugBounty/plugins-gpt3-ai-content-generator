@@ -23,7 +23,6 @@ class Chat_Event_Utils_Asset_Registrar
             'action-button'           => ['aipkit-chat-event-attach-action-button', $public_chat_attach_js_url . 'action-button.js', []],
             'input-field'             => ['aipkit-chat-event-attach-input-field', $public_chat_attach_js_url . 'input-field.js', [$dependencies['auto-resize-textarea'] ?? null]],
             'fullscreen-button'       => ['aipkit-chat-event-attach-fullscreen-button', $public_chat_attach_js_url . 'fullscreen-button.js', []],
-            'close-button'            => ['aipkit-chat-event-attach-close-button', $public_chat_attach_js_url . 'close-button.js', ['aipkit-chat-ui-popup-open','aipkit-chat-ui-popup-close']], // Depends on popup utils
             'web-search-toggle'       => ['aipkit-chat-event-attach-web-search-toggle', $public_chat_attach_js_url . 'web-search-toggle.js', ['aipkit-chat-event-close-download-menu', 'aipkit-chat-event-close-input-action-menu', 'aipkit-chat-util-toggle-web-search']],
             'google-grounding-toggle' => ['aipkit-chat-event-attach-google-grounding-toggle', $public_chat_attach_js_url . 'google-grounding-toggle.js', ['aipkit-chat-event-close-download-menu', 'aipkit-chat-event-close-input-action-menu', 'aipkit-chat-util-toggle-google-grounding']],
             'download-menu'           => ['aipkit-chat-event-attach-download-menu', $public_chat_attach_js_url . 'download-menu.js', ['aipkit-chat-event-close-input-action-menu']],

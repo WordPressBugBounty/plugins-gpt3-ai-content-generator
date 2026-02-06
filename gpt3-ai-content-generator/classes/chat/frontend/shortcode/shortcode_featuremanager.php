@@ -11,7 +11,6 @@ use WPAICG\Chat\Storage\BotSettingsManager; // Use for constants
 // Load the new method logic files
 $featuremanager_methods_path = __DIR__ . '/featuremanager/';
 require_once $featuremanager_methods_path . 'get-core-flag-values.php';
-require_once $featuremanager_methods_path . 'get-addon-status.php';
 require_once $featuremanager_methods_path . 'get-ui-flags.php';
 require_once $featuremanager_methods_path . 'get-upload-flags.php';
 require_once $featuremanager_methods_path . 'get-web-search-flag.php';
@@ -54,11 +53,11 @@ class FeatureManager {
         $flags['feedback_ui_enabled'] = $flags['enable_feedback'];
 
 
-        // 2. Get addon statuses
-        $addon_statuses = FeatureManagerMethods\get_addon_status_logic();
+        // 2. Determine plan status
+        $is_pro_plan = class_exists(aipkit_dashboard::class) ? aipkit_dashboard::is_pro_plan() : false;
 
         // 3. Determine UI flags based on core flags and addon statuses
-        $ui_flags = FeatureManagerMethods\get_ui_flags_logic($core_flags, $addon_statuses);
+        $ui_flags = FeatureManagerMethods\get_ui_flags_logic($core_flags, $is_pro_plan);
         $flags = array_merge($flags, $ui_flags);
 
         // 4. Determine upload related flags
@@ -74,7 +73,7 @@ class FeatureManager {
         $flags = array_merge($flags, $google_grounding_flags);
 
         // 7. Determine Realtime Voice flag
-        $realtime_voice_flag = FeatureManagerMethods\get_realtime_voice_flag_logic($core_flags, $addon_statuses);
+        $realtime_voice_flag = FeatureManagerMethods\get_realtime_voice_flag_logic($core_flags);
         $flags = array_merge($flags, $realtime_voice_flag);
 
         // 8. Compute derived flags

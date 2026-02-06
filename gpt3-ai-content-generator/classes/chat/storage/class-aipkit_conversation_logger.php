@@ -76,7 +76,10 @@ class ConversationLogger
         $module            = sanitize_key($log_data['module']);
         $is_guest          = $user_id ? 0 : 1;
         $original_ip = isset($log_data['ip_address']) ? sanitize_text_field($log_data['ip_address']) : null;
-        $ip_to_store = class_exists(AIPKit_IP_Anonymization::class) ? AIPKit_IP_Anonymization::maybe_anonymize($original_ip) : $original_ip;
+        $ip_anonymize = isset($log_data['ip_anonymize']) && in_array($log_data['ip_anonymize'], ['1', 1, true], true);
+        $ip_to_store = ($ip_anonymize && class_exists(AIPKit_IP_Anonymization::class))
+            ? AIPKit_IP_Anonymization::maybe_anonymize($original_ip, true)
+            : $original_ip;
         $user_wp_role = $log_data['user_wp_role'] ?? ($user_id ? implode(', ', wp_get_current_user()->roles) : null);
 
         // --- 3. Determine Message ID and Timestamp ---
@@ -96,7 +99,7 @@ class ConversationLogger
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $this->table_name is safe (from $wpdb->prefix), and $where_parts['where_sql'] contains placeholders for the prepare method.
         $sql = "SELECT id, messages FROM {$this->table_name} WHERE {$where_parts['where_sql']} LIMIT 1";
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $sql is constructed with placeholders and safe variables, and is prepared here.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: $sql is constructed with placeholders and safe variables, and is prepared here.
         $existing_log_row = $this->wpdb->get_row($this->wpdb->prepare($sql, $where_parts['params']), ARRAY_A);
 
         // --- 6. Update or Insert ---

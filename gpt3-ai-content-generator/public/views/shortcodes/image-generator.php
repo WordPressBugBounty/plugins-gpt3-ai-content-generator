@@ -10,7 +10,6 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKit_Providers;
 
 // Variables passed from the shortcode class: $nonce,
@@ -21,7 +20,9 @@ use WPAICG\AIPKit_Providers;
 // $allowed_providers, $allowed_models
 
 $openai_models_display = [ // For display in dropdown
+    'gpt-image-1.5' => 'GPT Image 1.5',
     'gpt-image-1' => 'GPT Image 1',
+    'gpt-image-1-mini' => 'GPT Image 1 mini',
     'dall-e-3' => 'DALL-E 3',
     'dall-e-2' => 'DALL-E 2',
 ];
@@ -70,12 +71,9 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
                     <?php if ($show_provider) : ?>
                         <div class="aipkit_form-group aipkit_image_gen_option">
                             <label class="aipkit_form-label" for="aipkit_public_image_provider"><?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?></label>
-                            <select id="aipkit_public_image_provider" name="image_provider" class="aipkit_form-input">
+                            <select id="aipkit_public_image_provider" name="image_provider" class="aipkit_form-input" data-aipkit-provider-notice-target="aipkit_provider_notice_image_generator">
                                 <?php
-                                $all_providers = ['OpenAI', 'Google', 'Azure'];
-                                if (aipkit_dashboard::is_addon_active('replicate')) {
-                                    $all_providers[] = 'Replicate';
-                                }
+                                $all_providers = ['OpenAI', 'Google', 'Azure', 'Replicate'];
                                 // New logic: if specific models selected, derive providers from those models; else show all
                                 $allowed_models_arr = !empty($allowed_models) ? array_map('trim', explode(',', strtolower($allowed_models))) : [];
                                 if (!empty($allowed_models_arr)) {
@@ -114,8 +112,8 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
                                  <?php // Options populated by JS, but set selected based on final_model?>
                                  <?php if ($final_provider === 'OpenAI'): ?>
                                     <?php
-                            // Sort OpenAI models for display: gpt-image-1, dall-e-3, dall-e-2
-                            $sorted_openai_keys_render = ['gpt-image-1', 'dall-e-3', 'dall-e-2'];
+                            // Sort OpenAI models for display: gpt-image-1.5, gpt-image-1, gpt-image-1-mini, dall-e-3, dall-e-2
+                            $sorted_openai_keys_render = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini', 'dall-e-3', 'dall-e-2'];
                                      $final_openai_models_render = [];
                                      foreach ($sorted_openai_keys_render as $key) {
                                          if (isset($openai_models_display[$key])) {
@@ -204,17 +202,13 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
         </div>
         <input type="hidden" id="aipkit_image_generator_public_nonce" value="<?php echo esc_attr($nonce); ?>">
 
-        <?php if (isset($show_history) && $show_history && is_user_logged_in()): ?>
+        <?php if (isset($show_history) && $show_history && is_user_logged_in() && !empty(trim($image_history_html))): ?>
             <div class="aipkit_image_history_section">
                 <h3 class="aipkit_image_history_title"><?php esc_html_e('Your Images', 'gpt3-ai-content-generator'); ?></h3>
                 <?php
                 // We're keeping the HTML generation in PHP for initial load, JS handles deletion.
-                if (isset($image_history_html) && !empty(trim($image_history_html))) {
-                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is generated in the shortcode class.
-                    echo $image_history_html;
-                } else {
-                    echo '<p class="aipkit-image-history-empty">' . esc_html__('You have not generated any images yet.', 'gpt3-ai-content-generator') . '</p>';
-                }
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is generated in the shortcode class.
+                echo $image_history_html;
 ?>
             </div>
         <?php endif; ?>

@@ -140,7 +140,7 @@ function RecordTokenUsageLogic(
     }
 
     if ($should_record) {
-        $guest_table_name = $managerInstance->get_guest_table_name();
+        $guest_table_name = $wpdb->prefix . GuestTableConstants::GUEST_TABLE_NAME_SUFFIX;
         $new_usage = 0;
         if ($is_guest && $guest_context_table_id !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.

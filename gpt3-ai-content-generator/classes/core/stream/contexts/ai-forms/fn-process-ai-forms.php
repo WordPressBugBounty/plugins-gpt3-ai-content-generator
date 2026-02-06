@@ -81,7 +81,8 @@ function process_ai_forms_logic(
             'client_ip'    => $validated_params['client_ip'],
             'bot_settings' => [ // Minimal settings needed for OpenAI moderation provider check
                 'provider' => $form_config['ai_provider'] ?? 'OpenAI'
-            ]
+            ],
+            'skip_banned_checks' => true,
         ];
         $moderation_check = \WPAICG\Core\AIPKit_Content_Moderator::check_content($final_prompt, $moderation_context);
         if (is_wp_error($moderation_check)) {

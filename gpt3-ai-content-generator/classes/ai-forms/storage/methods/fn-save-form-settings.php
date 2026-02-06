@@ -4,6 +4,7 @@
 
 namespace WPAICG\AIForms\Storage\Methods;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -50,7 +51,12 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
         update_post_meta($form_id, '_aipkit_ai_form_presence_penalty', sanitize_text_field($settings['presence_penalty']));
     }
     if (isset($settings['reasoning_effort'])) {
-        update_post_meta($form_id, '_aipkit_ai_form_reasoning_effort', sanitize_key($settings['reasoning_effort']));
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($settings['reasoning_effort']);
+        update_post_meta(
+            $form_id,
+            '_aipkit_ai_form_reasoning_effort',
+            $reasoning_effort !== '' ? $reasoning_effort : 'low'
+        );
     }
 
     // --- Save Vector Settings ---

@@ -46,13 +46,13 @@ function _aipkit_qdrant_ajax_get_vector_data_source_logs_logic(AIPKit_Vector_Sto
     $total_logs = wp_cache_get($total_logs_count_cache_key, $cache_group);
 
     if (false === $total_logs) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- $data_source_table_name is safe.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $data_source_table_name is safe.
         $total_logs = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$data_source_table_name} WHERE provider = %s AND vector_store_id = %s", $provider, $store_id));
         wp_cache_set($total_logs_count_cache_key, $total_logs, $cache_group, MINUTE_IN_SECONDS * 5);
     }
 
     if (false === $logs) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $data_source_table_name is safe.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $data_source_table_name is safe.
     $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, status, message, indexed_content, post_id, embedding_provider, embedding_model, file_id, batch_id FROM {$data_source_table_name} WHERE provider = %s AND vector_store_id = %s ORDER BY timestamp DESC LIMIT %d OFFSET %d", $provider, $store_id, $logs_per_page, $offset), ARRAY_A);
         wp_cache_set($cache_key, $logs, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
     }

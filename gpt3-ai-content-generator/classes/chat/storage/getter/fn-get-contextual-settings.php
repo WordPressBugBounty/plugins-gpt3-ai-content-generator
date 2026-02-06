@@ -49,7 +49,7 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
 
     $settings['chat_image_model_id'] = $get_meta_fn('_aipkit_chat_image_model_id', BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID);
     // Build valid image models dynamically
-    $valid_image_models = ['gpt-image-1', 'dall-e-3', 'dall-e-2'];
+    $valid_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini', 'dall-e-3', 'dall-e-2'];
     if (class_exists('\\WPAICG\\AIPKit_Providers')) {
         // Add Google image models
         $google_models = \WPAICG\AIPKit_Providers::get_google_image_models();
@@ -67,13 +67,8 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
         }
     }
 
-    // Check if replicate addon is active before adding its models to validation list
-    $replicate_addon_active = false;
-    if (class_exists('\WPAICG\aipkit_dashboard')) {
-        $replicate_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('replicate');
-    }
-
-    if ($replicate_addon_active && class_exists('\WPAICG\AIPKit_Providers')) {
+    // Add Replicate models to validation list when available
+    if (class_exists('\WPAICG\AIPKit_Providers')) {
         $replicate_models = \WPAICG\AIPKit_Providers::get_replicate_models();
         if (!empty($replicate_models)) {
             $replicate_model_ids = wp_list_pluck($replicate_models, 'id');

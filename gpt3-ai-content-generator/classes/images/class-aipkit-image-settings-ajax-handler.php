@@ -181,7 +181,7 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
                 $new_frontend_settings['allowed_providers'] = '';
             } else {
                 // Build lookup tables from known provider model lists for accurate detection.
-                $openai_ids = ['gpt-image-1','dall-e-3','dall-e-2'];
+                $openai_ids = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini', 'dall-e-3', 'dall-e-2'];
                 // Get Google image and video models from synced lists
                 $google_ids = [];
                 if (class_exists('\\WPAICG\\AIPKit_Providers')) {

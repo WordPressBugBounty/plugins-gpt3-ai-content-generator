@@ -33,12 +33,12 @@ class SSEErrorHandler
         $this->botIdForTrigger = $botIdForTrigger ?: ($processorInstance->get_log_base_data()['bot_id'] ?? 0);
         $this->log_storage = $log_storage; // Store LogStorage
 
-        // Ensure Trigger classes are loaded if the addon is active
-        $triggers_addon_active = false;
+        // Ensure Trigger classes are loaded if triggers are enabled
+        $triggers_enabled = false;
         if (class_exists('\WPAICG\aipkit_dashboard')) {
-            $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+            $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
         }
-        if ($triggers_addon_active) {
+        if ($triggers_enabled) {
             if (!class_exists('\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage')) {
                 $path = WPAICG_LIB_DIR . 'chat/triggers/class-aipkit-trigger-storage.php';
                 if (file_exists($path)) {
@@ -77,11 +77,11 @@ class SSEErrorHandler
             \WPAICG\Core\Stream\Processor\log_bot_error_logic($this->processorInstance, $error_message);
         }
 
-        $triggers_addon_active = class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+        $triggers_enabled = class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
         $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
         $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
 
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
             $base_log_data = $this->processorInstance->get_log_base_data();
             $error_event_context = [
                 'error_code'    => $error_code,

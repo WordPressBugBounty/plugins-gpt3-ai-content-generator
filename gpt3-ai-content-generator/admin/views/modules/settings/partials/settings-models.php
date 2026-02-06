@@ -6,10 +6,8 @@
 if (!defined('ABSPATH')) exit;
 
 // Variables required: $current_provider, $openai_data, $openrouter_data, $google_data, $azure_data, $deepseek_data,
-// $grouped_openai_models (THIS IS NOW THE FILTERED LIST), $openrouter_model_list, $google_model_list, $azure_deployment_list, $deepseek_model_list,
-// $deepseek_addon_active
+// $grouped_openai_models (THIS IS NOW THE FILTERED LIST), $openrouter_model_list, $google_model_list, $azure_deployment_list, $deepseek_model_list
 
-// REMOVED outer .aipkit_settings-section div
 ?>
 <!-- OpenAI Model -->
 <div
@@ -44,9 +42,17 @@ if (!defined('ABSPATH')) exit;
             }
             ?>
         </select>
-        <button id="aipkit_sync_openai_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn " data-provider="OpenAI">
-            <span class="aipkit_btn-text"><?php echo esc_html__('Sync', 'gpt3-ai-content-generator'); ?></span>
-            <span class="aipkit_spinner" style="display:none;"></span>
+        <button id="aipkit_sync_openai_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="OpenAI">
+            <span class="dashicons dashicons-update"></span>
+            <span class="aipkit_btn_label"><?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?></span>
+        </button>
+        <button
+            type="button"
+            class="aipkit_btn aipkit_btn-secondary aipkit_settings_advanced_btn"
+            aria-controls="aipkit_settings_advanced_popover"
+            aria-expanded="false"
+        >
+            <?php esc_html_e('Advanced', 'gpt3-ai-content-generator'); ?>
         </button>
     </div>
 </div>
@@ -92,9 +98,17 @@ if (!defined('ABSPATH')) exit;
          }
         ?>
         </select>
-        <button id="aipkit_sync_openrouter_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn " data-provider="OpenRouter">
-           <span class="aipkit_btn-text"><?php echo esc_html__('Sync', 'gpt3-ai-content-generator'); ?></span>
-           <span class="aipkit_spinner" style="display:none;"></span>
+        <button id="aipkit_sync_openrouter_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="OpenRouter">
+           <span class="dashicons dashicons-update"></span>
+           <span class="aipkit_btn_label"><?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?></span>
+        </button>
+        <button
+            type="button"
+            class="aipkit_btn aipkit_btn-secondary aipkit_settings_advanced_btn"
+            aria-controls="aipkit_settings_advanced_popover"
+            aria-expanded="false"
+        >
+            <?php esc_html_e('Advanced', 'gpt3-ai-content-generator'); ?>
         </button>
     </div>
 </div>
@@ -130,9 +144,17 @@ if (!defined('ABSPATH')) exit;
             }
             ?>
         </select>
-        <button id="aipkit_sync_google_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn " data-provider="Google">
-            <span class="aipkit_btn-text"><?php echo esc_html__('Sync', 'gpt3-ai-content-generator'); ?></span>
-             <span class="aipkit_spinner" style="display:none;"></span>
+        <button id="aipkit_sync_google_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="Google">
+            <span class="dashicons dashicons-update"></span>
+            <span class="aipkit_btn_label"><?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?></span>
+        </button>
+        <button
+            type="button"
+            class="aipkit_btn aipkit_btn-secondary aipkit_settings_advanced_btn"
+            aria-controls="aipkit_settings_advanced_popover"
+            aria-expanded="false"
+        >
+            <?php esc_html_e('Advanced', 'gpt3-ai-content-generator'); ?>
         </button>
     </div>
 </div>
@@ -195,16 +217,23 @@ if (!defined('ABSPATH')) exit;
             }
             ?>
         </select>
-        <button id="aipkit_sync_azure_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn " data-provider="Azure">
-            <span class="aipkit_btn-text"><?php echo esc_html__('Sync', 'gpt3-ai-content-generator'); ?></span>
-            <span class="aipkit_spinner" style="display:none;"></span>
+        <button id="aipkit_sync_azure_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="Azure">
+            <span class="dashicons dashicons-update"></span>
+            <span class="aipkit_btn_label"><?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?></span>
+        </button>
+        <button
+            type="button"
+            class="aipkit_btn aipkit_btn-secondary aipkit_settings_advanced_btn"
+            aria-controls="aipkit_settings_advanced_popover"
+            aria-expanded="false"
+        >
+            <?php esc_html_e('Advanced', 'gpt3-ai-content-generator'); ?>
         </button>
     </div>
 </div>
 
 
-<!-- DeepSeek Model (Conditionally Rendered) -->
-  <?php if ($deepseek_addon_active) : ?>
+<!-- DeepSeek Model -->
 <div
     class="aipkit_form-group aipkit_model_field" 
     id="aipkit_deepseek_model_group" 
@@ -232,13 +261,20 @@ if (!defined('ABSPATH')) exit;
             }
             ?>
         </select>
-        <button id="aipkit_sync_deepseek_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn " data-provider="DeepSeek">
-            <span class="aipkit_btn-text"><?php echo esc_html__('Sync', 'gpt3-ai-content-generator'); ?></span>
-             <span class="aipkit_spinner" style="display:none;"></span>
+        <button id="aipkit_sync_deepseek_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="DeepSeek">
+            <span class="dashicons dashicons-update"></span>
+            <span class="aipkit_btn_label"><?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?></span>
+        </button>
+        <button
+            type="button"
+            class="aipkit_btn aipkit_btn-secondary aipkit_settings_advanced_btn"
+            aria-controls="aipkit_settings_advanced_popover"
+            aria-expanded="false"
+        >
+            <?php esc_html_e('Advanced', 'gpt3-ai-content-generator'); ?>
         </button>
     </div>
 </div>
-<?php endif; ?>
 
 <!-- Ollama Model -->
 <div
@@ -268,9 +304,17 @@ if (!defined('ABSPATH')) exit;
             }
             ?>
         </select>
-        <button id="aipkit_sync_ollama_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn " data-provider="Ollama">
-            <span class="aipkit_btn-text"><?php echo esc_html__('Sync', 'gpt3-ai-content-generator'); ?></span>
-             <span class="aipkit_spinner" style="display:none;"></span>
+        <button id="aipkit_sync_ollama_models" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="Ollama">
+            <span class="dashicons dashicons-update"></span>
+            <span class="aipkit_btn_label"><?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?></span>
+        </button>
+        <button
+            type="button"
+            class="aipkit_btn aipkit_btn-secondary aipkit_settings_advanced_btn"
+            aria-controls="aipkit_settings_advanced_popover"
+            aria-expanded="false"
+        >
+            <?php esc_html_e('Advanced', 'gpt3-ai-content-generator'); ?>
         </button>
     </div>
 </div>

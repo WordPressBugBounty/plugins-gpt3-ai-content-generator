@@ -160,6 +160,15 @@ class AIPKit_AI_Caller
         $headers = $strategy->get_api_headers($api_params['api_key'], 'chat');
         $options = $strategy->get_request_options('chat');
 
+        $sanitized_headers = [];
+        foreach ($headers as $header_key => $header_value) {
+            if (preg_match('/authorization|api[-_]?key|x-api-key/i', (string)$header_key)) {
+                $sanitized_headers[$header_key] = '[redacted]';
+                continue;
+            }
+            $sanitized_headers[$header_key] = $header_value;
+        }
+
         $response = wp_remote_request($url, array_merge($options, ['headers' => $headers, 'body' => $request_body_json, 'data_format' => 'body']));
 
         if (is_wp_error($response)) {

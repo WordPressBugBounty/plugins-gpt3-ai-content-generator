@@ -56,12 +56,7 @@ class AIPKit_Speech_Manager
      */
     public function text_to_speech(string $text, array $options = []): string|WP_Error
     {
-        // 1. Check if the 'voice_playback' addon is active
-        if (!aipkit_dashboard::is_addon_active('voice_playback')) {
-            return new WP_Error('addon_inactive', __('Voice Playback addon is not active.', 'gpt3-ai-content-generator'));
-        }
-
-        // 2. Get required options
+        // 1. Get required options
         $provider = $options['provider'] ?? null;
         $voice_id = $options['voice'] ?? null;
         // Get ElevenLabs model ID if provider is ElevenLabs

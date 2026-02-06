@@ -37,7 +37,16 @@ class AIPKit_Image_Storage_Helper
         require_once(ABSPATH . 'wp-admin/includes/media.php');
 
         $image_content_binary = null;
-        $filename_base = sanitize_title_with_dashes(substr($original_prompt, 0, 50)) ?: 'ai-generated-image';
+        $attachment_meta = [];
+        if (isset($generation_options['aipkit_attachment_meta']) && is_array($generation_options['aipkit_attachment_meta'])) {
+            $attachment_meta = $generation_options['aipkit_attachment_meta'];
+        }
+        $filename_seed = $attachment_meta['filename_base'] ?? substr($original_prompt, 0, 50);
+        $filename_base = sanitize_title_with_dashes($filename_seed);
+        if ($filename_base !== '' && strlen($filename_base) > 60) {
+            $filename_base = substr($filename_base, 0, 60);
+        }
+        $filename_base = $filename_base ?: 'ai-generated-image';
         $extension = 'png'; // Default extension
         $mime_type = 'image/png'; // Default mime type
 
@@ -47,8 +56,9 @@ class AIPKit_Image_Storage_Helper
             if ($image_content_binary === false) {
                 return new WP_Error('image_decode_failed', __('Failed to decode base64 image data.', 'gpt3-ai-content-generator'));
             }
-            // Determine extension from output_format if gpt-image-1
-            if (($generation_options['model'] ?? '') === 'gpt-image-1' && !empty($generation_options['output_format'])) {
+            // Determine extension from output_format for GPT Image models
+            $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
+            if (in_array(($generation_options['model'] ?? ''), $gpt_image_models, true) && !empty($generation_options['output_format'])) {
                 $extension = strtolower($generation_options['output_format']); // png, jpeg, webp
                 if ($extension === 'jpeg') {
                     $extension = 'jpg';
@@ -103,14 +113,22 @@ class AIPKit_Image_Storage_Helper
         }
 
         // Prepare attachment data
-        $attachment_title = substr($original_prompt, 0, 100) ?: __('AI Generated Image', 'gpt3-ai-content-generator');
+        $attachment_title_raw = $attachment_meta['title'] ?? substr($original_prompt, 0, 100);
+        $attachment_title = sanitize_text_field($attachment_title_raw) ?: __('Image', 'gpt3-ai-content-generator');
+        $attachment_caption = isset($attachment_meta['caption']) ? sanitize_text_field($attachment_meta['caption']) : '';
+        $attachment_description = isset($attachment_meta['description'])
+            ? sanitize_textarea_field($attachment_meta['description'])
+            : $original_prompt;
         $attachment = [
             'guid'           => $upload['url'],
             'post_mime_type' => $mime_type,
             'post_title'     => $attachment_title,
-            'post_content'   => $original_prompt,
+            'post_content'   => $attachment_description,
             'post_status'    => 'inherit',
         ];
+        if ($attachment_caption !== '') {
+            $attachment['post_excerpt'] = $attachment_caption;
+        }
         if ($wp_user_id && $wp_user_id > 0) {
             $attachment['post_author'] = $wp_user_id;
         }
@@ -150,9 +168,15 @@ class AIPKit_Image_Storage_Helper
         if (isset($image_data_item['photographer'])) {
             update_post_meta($attach_id, '_aipkit_image_photographer', sanitize_text_field($image_data_item['photographer']));
         }
-        if (isset($image_data_item['alt'])) {
-            update_post_meta($attach_id, '_aipkit_image_alt_text', sanitize_text_field($image_data_item['alt']));
-            update_post_meta($attach_id, '_wp_attachment_image_alt', sanitize_text_field($image_data_item['alt']));
+        $alt_text = '';
+        if (!empty($attachment_meta['alt'])) {
+            $alt_text = sanitize_text_field($attachment_meta['alt']);
+        } elseif (isset($image_data_item['alt'])) {
+            $alt_text = sanitize_text_field($image_data_item['alt']);
+        }
+        if ($alt_text !== '') {
+            update_post_meta($attach_id, '_aipkit_image_alt_text', $alt_text);
+            update_post_meta($attach_id, '_wp_attachment_image_alt', $alt_text);
         }
 
         return $attach_id;

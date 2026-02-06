@@ -84,9 +84,9 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
                 return []; // Cannot identify user/session
             }
 
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $meta_row = $wpdb->get_row(
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Reason: $table is safe (from $wpdb->prefix), and $where_sql is built with placeholders. This is a false positive.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: $table is safe (from $wpdb->prefix), and $where_sql is built with placeholders. This is a false positive.
             $wpdb->prepare("SELECT user_id, session_id, ip_address, is_guest, first_message_ts, last_message_ts, bot_id, module FROM {$table} WHERE {$where_sql} LIMIT 1", $params), ARRAY_A);
             wp_cache_set($cache_key, $meta_row, $cache_group, HOUR_IN_SECONDS);
         }
@@ -254,7 +254,7 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
                 return;
             }
 
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $log_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE {$where_sql} LIMIT 1", $params), ARRAY_A);
             wp_cache_set($cache_key, $log_data, $cache_group, HOUR_IN_SECONDS);
         }
@@ -288,6 +288,12 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
              }
         } else {
              $log_data['user_display_name'] = __('(Unknown)', 'gpt3-ai-content-generator');
+        }
+
+        $log_data['banned_ips'] = '';
+        if (!empty($log_data['bot_id'])) {
+            $banned_ips_value = get_post_meta((int)$log_data['bot_id'], '_aipkit_banned_ips', true);
+            $log_data['banned_ips'] = is_string($banned_ips_value) ? $banned_ips_value : '';
         }
 
         wp_send_json_success(['log_data' => $log_data]);
@@ -403,11 +409,6 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             wp_send_json_error(['message' => __('Text-to-Speech service is unavailable.', 'gpt3-ai-content-generator')], 503);
             return;
         }
-        if (!\WPAICG\aipkit_dashboard::is_addon_active('voice_playback')) {
-             wp_send_json_error(['message' => __('Voice Playback addon is not active.', 'gpt3-ai-content-generator')], 403);
-            return;
-        }
-
         $text = isset($_POST['text']) ? sanitize_textarea_field(wp_unslash($_POST['text'])) : '';
         $bot_id = isset($_POST['bot_id']) ? absint(wp_unslash($_POST['bot_id'])) : 0;
 

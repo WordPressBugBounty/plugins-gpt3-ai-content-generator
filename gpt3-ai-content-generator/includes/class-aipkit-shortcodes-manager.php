@@ -25,9 +25,9 @@ class AIPKit_Shortcodes_Manager
     private $token_usage_shortcode = null;
     private $image_generator_shortcode = null;
     private $semantic_search_shortcode = null; // NEW
-    private $is_token_management_active = false;
+    private $is_token_management_active = true;
     private $is_image_generator_active = false;
-    private $is_semantic_search_active = false; // NEW
+    private $is_semantic_search_active = true; // NEW
     private $is_public_main_js_enqueued_by_shortcodes = false; // Track if main JS is enqueued by this manager
     private $is_token_usage_css_enqueued = false;
     private $is_image_generator_css_enqueued = false;
@@ -44,10 +44,8 @@ class AIPKit_Shortcodes_Manager
             }
         }
         if (class_exists('\\WPAICG\\aipkit_dashboard')) {
-            $this->is_token_management_active = aipkit_dashboard::is_addon_active('token_management');
             $module_settings = aipkit_dashboard::get_module_settings();
             $this->is_image_generator_active = !empty($module_settings['image_generator']);
-            $this->is_semantic_search_active = aipkit_dashboard::is_addon_active('semantic_search');
         }
     }
 
@@ -66,49 +64,7 @@ class AIPKit_Shortcodes_Manager
         if ($this->is_semantic_search_active && $this->semantic_search_shortcode) {
             add_shortcode('aipkit_semantic_search', [$this->semantic_search_shortcode, 'render_shortcode']);
         }
-        add_shortcode('wpaicg_chatgpt', [$this, 'legacy_chatbot_shortcode_handler']);
-        add_shortcode('wpaicg_form', [$this, 'legacy_ai_form_shortcode_handler']);
         add_action('wp_enqueue_scripts', [$this, 'register_and_enqueue_assets']);
-    }
-
-    public function legacy_chatbot_shortcode_handler($atts)
-    {
-        $map = get_option('aipkit_bot_id_map', []);
-        $old_id = isset($atts['id']) ? absint($atts['id']) : 0;
-        $new_id = $map[$old_id] ?? 0;
-
-        if (!$new_id) {
-            if (current_user_can('manage_options')) {
-                $error_message = sprintf(
-                    /* translators: %d: The legacy ID of the chatbot. */
-                    esc_html__('AI Power Chatbot Error: This chatbot (legacy ID: %d) has not been migrated. Please run the migration tool.', 'gpt3-ai-content-generator'),
-                    $old_id
-                );
-                return '<div style="color: red; border: 1px solid red; padding: 10px; margin: 1em 0;">' . $error_message . '</div>';
-            }
-            return '';
-        }
-        return do_shortcode('[aipkit_chatbot id="' . esc_attr($new_id) . '"]');
-    }
-
-    public function legacy_ai_form_shortcode_handler($atts)
-    {
-        $map = get_option('aipkit_form_id_map', []);
-        $old_id = isset($atts['id']) ? absint($atts['id']) : 0;
-        $new_id = $map[$old_id] ?? 0;
-
-        if (!$new_id) {
-            if (current_user_can('manage_options')) {
-                $error_message = sprintf(
-                    /* translators: %d: The legacy ID of the form. */
-                    esc_html__('AI Power Form Error: This form (legacy ID: %d) has not been migrated. Please run the migration tool.', 'gpt3-ai-content-generator'),
-                    $old_id
-                );
-                return '<div style="color: red; border: 1px solid red; padding: 10px; margin: 1em 0;">' . $error_message . '</div>';
-            }
-            return '';
-        }
-        return do_shortcode('[aipkit_ai_form id="' . esc_attr($new_id) . '"]');
     }
 
     private function load_dependencies()
@@ -251,7 +207,9 @@ class AIPKit_Shortcodes_Manager
                         'viewFullImage' => __('Click to view full image', 'gpt3-ai-content-generator'),
                     ],
                     'openai_models' => [
+                        ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],
                         ['id' => 'gpt-image-1', 'name' => 'GPT Image 1'],
+                        ['id' => 'gpt-image-1-mini', 'name' => 'GPT Image 1 mini'],
                         ['id' => 'dall-e-3', 'name' => 'DALL-E 3'],
                         ['id' => 'dall-e-2', 'name' => 'DALL-E 2'],
                     ],

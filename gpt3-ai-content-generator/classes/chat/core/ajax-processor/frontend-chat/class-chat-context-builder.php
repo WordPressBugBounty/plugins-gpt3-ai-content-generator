@@ -7,7 +7,6 @@ namespace WPAICG\Chat\Core\AjaxProcessor\FrontendChat;
 
 use WPAICG\Chat\Storage\BotStorage;
 use WPAICG\Chat\Core\AIService; // For determine_provider_model
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -64,6 +63,7 @@ class ChatContextBuilder
         $bot_settings = $this->bot_storage->get_chatbot_settings($bot_id);
         $is_guest     = ($user_id === 0);
         $user_wp_role = !$is_guest ? implode(', ', wp_get_current_user()->roles) : null;
+        $enable_ip_anonymization = isset($bot_settings['enable_ip_anonymization']) && $bot_settings['enable_ip_anonymization'] === '1';
 
         $provider_model_info = [];
         if (function_exists('\WPAICG\Chat\Core\AIService\determine_provider_model')) {
@@ -79,7 +79,8 @@ class ChatContextBuilder
             'bot_id' => $bot_id, 'user_id' => $user_id ?: null, 'session_id' => $session_id,
             'conversation_uuid' => $conversation_uuid, 'module' => 'chat', 'is_guest' => $is_guest,
             'role' => $user_wp_role,
-            'ip_address' => class_exists(AIPKit_IP_Anonymization::class) ? AIPKit_IP_Anonymization::maybe_anonymize($client_ip) : $client_ip,
+            'ip_address' => $client_ip,
+            'ip_anonymize' => $enable_ip_anonymization,
             'form_id' => null, // Not applicable for chat context
             'user_message_id_from_client' => $validated_data['client_user_message_id'] ?? null,
         ];

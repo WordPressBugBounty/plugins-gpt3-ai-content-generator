@@ -44,16 +44,8 @@ use WPAICG\Chat\Frontend\Ajax\ChatFormSubmissionAjaxHandler;
 use WPAICG\Lib\Chat\Frontend\Ajax\ChatFileUploadAjaxDispatcher as LibChatFileUploadAjaxDispatcher;
 use WPAICG\Dashboard\Ajax\SettingsAjaxHandler;
 use WPAICG\Dashboard\Ajax\ModelsAjaxHandler;
-use WPAICG\Admin\AIPKit_Migration_Handler;
-use WPAICG\Admin\Ajax\Migration\AIPKit_Analyze_Old_Data_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Global_Settings_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Chatbot_Data_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Image_Data_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_CPT_Data_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Cron_Jobs_Action;
 // --- NEW: Post Enhancer Actions Handler ---
 use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
-// Migration action classes are handled by AIPKit_Migration_Handler, so no need for `use` statements for them here.
 // --- ADDED: Use statement for new Semantic Search handler ---
 use WPAICG\Core\Ajax\AIPKit_Semantic_Search_Ajax_Handler;
 use WPAICG\Lib\Chat\Frontend\Ajax\Handlers\AIPKit_Realtime_Session_Ajax_Handler;
@@ -132,21 +124,20 @@ class AIPKit_Hook_Manager
         $chat_file_upload_ajax_dispatcher = null;
         // Ensure aipkit_dashboard class and its methods are available before calling them
         if (class_exists('\WPAICG\aipkit_dashboard') &&
-            method_exists('\WPAICG\aipkit_dashboard', 'is_pro_plan') &&
-            method_exists('\WPAICG\aipkit_dashboard', 'is_addon_active')) {
+            method_exists('\WPAICG\aipkit_dashboard', 'is_pro_plan')) {
 
-            if (\WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('file_upload')) {
-                // Pro plan is active and file_upload addon is active, so the class is expected.
+            if (\WPAICG\aipkit_dashboard::is_pro_plan()) {
+                // Pro plan is active, so the class is expected.
                 if (class_exists(LibChatFileUploadAjaxDispatcher::class)) {
                     $chat_file_upload_ajax_dispatcher = new LibChatFileUploadAjaxDispatcher();
                 }
             }
-            // If not Pro or addon not active, $chat_file_upload_ajax_dispatcher remains null and no warning is logged.
+            // If not Pro, $chat_file_upload_ajax_dispatcher remains null and no warning is logged.
         }
         // --- END MODIFICATION ---
 
         $realtime_session_ajax_handler = null;
-        if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('realtime_voice')) {
+        if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan()) {
             if (class_exists(AIPKit_Realtime_Session_Ajax_Handler::class)) {
                 $realtime_session_ajax_handler = new AIPKit_Realtime_Session_Ajax_Handler();
             }

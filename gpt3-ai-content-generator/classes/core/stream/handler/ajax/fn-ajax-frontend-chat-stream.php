@@ -60,15 +60,15 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
 
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
-    $triggers_addon_active = false;
+    $triggers_enabled = false;
     if (class_exists('\WPAICG\aipkit_dashboard')) {
-        $triggers_addon_active = \WPAICG\aipkit_dashboard::is_addon_active('triggers');
+        $triggers_enabled = \WPAICG\aipkit_dashboard::is_pro_plan();
     }
 
     if (!$request_handler || !$stream_processor) {
         $error_message = __('Server error: Stream processing components not ready.', 'gpt3-ai-content-generator');
         $response_formatter->send_sse_error($error_message);
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
              $bot_id = isset($get_data['bot_id']) ? absint($get_data['bot_id']) : null; 
              $log_storage_for_trigger_error = class_exists('\WPAICG\Chat\Storage\LogStorage') ? new \WPAICG\Chat\Storage\LogStorage() : null;
              if ($log_storage_for_trigger_error) {
@@ -98,7 +98,7 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
             $status_code = is_array($error_data) && isset($error_data['status']) && is_int($error_data['status']) ? $error_data['status'] : 500;
             $user_facing_message = $processed_data->get_error_message();
 
-            if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+            if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
                 $bot_id = isset($get_data['bot_id']) ? absint($get_data['bot_id']) : null; 
                 $log_storage_for_trigger_error = class_exists('\WPAICG\Chat\Storage\LogStorage') ? new \WPAICG\Chat\Storage\LogStorage() : null;
                 if ($log_storage_for_trigger_error) {
@@ -182,7 +182,7 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
         if (!$response_formatter->get_headers_sent_status()) $response_formatter->set_sse_headers();
         $response_formatter->send_sse_error($error_message_final);
         
-        if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+        if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
              $bot_id = isset($get_data['bot_id']) ? absint($get_data['bot_id']) : null; 
              $log_storage_for_trigger_error = class_exists('\WPAICG\Chat\Storage\LogStorage') ? new \WPAICG\Chat\Storage\LogStorage() : null;
              if ($log_storage_for_trigger_error) {

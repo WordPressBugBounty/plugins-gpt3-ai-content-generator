@@ -34,14 +34,22 @@ function register_hooks_admin_ajax_logic(
     add_action('wp_ajax_aipkit_get_chatbot_shortcode', [$chatbot_ajax_handler, 'ajax_get_chatbot_shortcode']);
     add_action('wp_ajax_aipkit_reset_chatbot_settings', [$chatbot_ajax_handler, 'ajax_reset_chatbot_settings']);
     add_action('wp_ajax_aipkit_rename_chatbot', [$chatbot_ajax_handler, 'ajax_rename_chatbot']);
-
-    add_action('wp_ajax_aipkit_get_chat_logs_html', [$log_ajax_handler, 'ajax_get_chat_logs_html']);
-    add_action('wp_ajax_aipkit_export_chat_logs', [$log_ajax_handler, 'ajax_export_chat_logs']);
-    add_action('wp_ajax_aipkit_delete_chat_logs', [$log_ajax_handler, 'ajax_delete_chat_logs']);
-    add_action('wp_ajax_aipkit_save_log_settings', [$log_ajax_handler, 'ajax_save_log_settings']);
-    add_action('wp_ajax_aipkit_prune_logs_now', [$log_ajax_handler, 'ajax_prune_logs_now']); // NEW
-    add_action('wp_ajax_aipkit_get_log_cron_status', [$log_ajax_handler, 'ajax_get_log_cron_status']); // NEW
-    add_action('wp_ajax_aipkit_toggle_ip_block_status', [$log_ajax_handler, 'ajax_toggle_ip_block_status']); // NEW
+    add_action('wp_ajax_aipkit_update_chatbot_instructions', [$chatbot_ajax_handler, 'ajax_update_chatbot_instructions']);
+    add_action('wp_ajax_aipkit_update_chatbot_model_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_model_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_ai_parameters', [$chatbot_ajax_handler, 'ajax_update_chatbot_ai_parameters']);
+    add_action('wp_ajax_aipkit_update_chatbot_conversation_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_conversation_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_style_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_style_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_web_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_web_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_context_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_context_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_token_limits', [$chatbot_ajax_handler, 'ajax_update_chatbot_token_limits']);
+    add_action('wp_ajax_aipkit_update_chatbot_image_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_image_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_file_upload_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_file_upload_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_audio_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_audio_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_popup_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_popup_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_deploy_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_deploy_settings']);
+    add_action('wp_ajax_aipkit_update_chatbot_triggers', [$chatbot_ajax_handler, 'ajax_update_chatbot_triggers']);
+    add_action('wp_ajax_aipkit_get_chatbot_training_source_count', [$chatbot_ajax_handler, 'ajax_get_chatbot_training_source_count']);
+    add_action('wp_ajax_aipkit_get_chatbot_training_sources', [$chatbot_ajax_handler, 'ajax_get_chatbot_training_sources']);
 
     add_action('wp_ajax_aipkit_admin_get_conversation_history', [$conversation_ajax_handler, 'ajax_admin_get_conversation_history']);
 

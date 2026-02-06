@@ -45,12 +45,19 @@ function render_popup_mode_html_logic(
         ? $frontend_config['popupIconSize']
         : BotSettingsManager::DEFAULT_POPUP_ICON_SIZE;
     $icon_html = '';
+    $close_icon_html = AIPKit_SVG_Icons::get_chevron_down_svg();
 
     if ($popup_icon_type === 'custom' && !empty($popup_icon_value)) {
         // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function (e.g., `wp_get_attachment_image_url`). The `<img>` tag is constructed manually to build a custom HTML structure with specific wrappers, classes, or attributes that are not achievable with the standard `wp_get_attachment_image()` function.
         $icon_html = '<img src="' . esc_url($popup_icon_value) . '" alt="' . esc_attr__('Open Chat', 'gpt3-ai-content-generator') . '" class="aipkit_popup_custom_icon" />';
     } else {
         switch ($popup_icon_value) {
+            case 'spark':
+                $icon_html = AIPKit_SVG_Icons::get_spark_svg();
+                break;
+            case 'openai':
+                $icon_html = AIPKit_SVG_Icons::get_openai_svg();
+                break;
             case 'plus': $icon_html = AIPKit_SVG_Icons::get_plus_svg();
                 break;
             case 'question-mark': $icon_html = AIPKit_SVG_Icons::get_question_mark_svg();
@@ -66,18 +73,47 @@ function render_popup_mode_html_logic(
     // --- NEW: Add custom theme class and data attribute ---
     $custom_theme_class = '';
     $custom_theme_data_attr = '';
+    $trigger_inline_style = '';
     if ($theme === 'custom' && !empty($frontend_config['customThemeSettings'])) {
         $custom_theme_class = 'aipkit-theme-custom';
         $custom_theme_data_attr = 'data-custom-theme=\'' . esc_attr(wp_json_encode($frontend_config['customThemeSettings'])) . '\'';
+
+        // Extract primary color for immediate trigger styling (prevents FOUC)
+        $custom_settings = $frontend_config['customThemeSettings'];
+        $primary_color = '';
+
+        // Check primary_color first, then legacy accent_color
+        if (!empty($custom_settings['primary_color'])) {
+            $primary_color = $custom_settings['primary_color'];
+        } elseif (!empty($custom_settings['accent_color'])) {
+            $primary_color = $custom_settings['accent_color'];
+        }
+
+        // Build inline style for trigger to prevent flash of dark color
+        if (!empty($primary_color)) {
+            $trigger_inline_style = '--aipkit-chat-popup-trigger-bg-color:' . esc_attr($primary_color) . ';--aipkit-chat-send-button-bg-color:' . esc_attr($primary_color) . ';';
+        }
     } elseif ($theme === 'custom') {
         $custom_theme_class = 'aipkit-theme-custom';
     }
     // --- END NEW ---
 
+    $popup_wrapper_classes = 'aipkit_popup_wrapper';
+    if (!empty($custom_theme_class)) {
+        $popup_wrapper_classes .= ' ' . $custom_theme_class;
+    }
+
+    // Build wrapper style attribute
+    $wrapper_style_attr = !empty($trigger_inline_style) ? 'style="' . esc_attr($trigger_inline_style) . '"' : '';
     ?>
-    <div class="aipkit_popup_wrapper" id="aipkit_popup_wrapper_<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' data-bot-id="<?php echo esc_attr($bot_id); ?>" data-icon-size="<?php echo esc_attr($popup_icon_size); ?>">
-        <button class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>">
-            <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+    <div class="<?php echo esc_attr($popup_wrapper_classes); ?>" id="aipkit_popup_wrapper_<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' data-bot-id="<?php echo esc_attr($bot_id); ?>" data-icon-size="<?php echo esc_attr($popup_icon_size); ?>" <?php echo $wrapper_style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+        <button class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" aria-expanded="false" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>">
+            <span class="aipkit_popup_icon aipkit_popup_icon--open">
+                <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+            </span>
+            <span class="aipkit_popup_icon aipkit_popup_icon--close" aria-hidden="true">
+                <?php echo $close_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+            </span>
         </button>
         <?php
         // --- NEW: Optional popup hint above trigger ---

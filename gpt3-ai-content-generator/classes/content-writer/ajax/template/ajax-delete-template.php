@@ -34,6 +34,10 @@ function ajax_delete_template_logic(AIPKit_Content_Writer_Template_Ajax_Handler 
     if (is_wp_error($result)) {
         $handler->send_wp_error($result);
     } else {
+        $user_id = get_current_user_id();
+        if ($user_id) {
+            \WPAICG\ContentWriter\TemplateManagerMethods\remove_cw_starter_template_id_for_user($user_id, $template_id);
+        }
         wp_send_json_success(['message' => __('Template deleted successfully.', 'gpt3-ai-content-generator')]);
     }
 }

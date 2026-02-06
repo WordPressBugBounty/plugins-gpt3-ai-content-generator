@@ -34,7 +34,7 @@ class AIPKit_Update_Automated_Task_Status_Action extends AIPKit_Automated_Task_B
             $this->send_wp_error(new WP_Error('missing_params_status_update', __('Task ID and status are required.', 'gpt3-ai-content-generator')), 400);
             return;
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated
         $task = $wpdb->get_row($wpdb->prepare("SELECT task_config FROM {$this->tasks_table_name} WHERE id = %d", $task_id), ARRAY_A);
         if (!$task) {
             $this->send_wp_error(new WP_Error('task_not_found_status', __('Task not found.', 'gpt3-ai-content-generator')), 404);

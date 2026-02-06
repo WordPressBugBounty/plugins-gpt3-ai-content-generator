@@ -56,9 +56,8 @@ class AIPKit_CORS_Manager
             return false;
         }
 
-        // Check if user is on pro plan and embed addon is active
-        return \WPAICG\aipkit_dashboard::is_pro_plan() && 
-               \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere');
+        // Check if user is on pro plan
+        return \WPAICG\aipkit_dashboard::is_pro_plan();
     }
 
     /**
@@ -131,8 +130,8 @@ class AIPKit_CORS_Manager
         // Check if this is actually a cross-origin request
         $is_cross_origin = false;
         $site_url = get_site_url();
-        $site_parsed = parse_url($site_url);
-        $origin_parsed = parse_url($request_origin);
+        $site_parsed = wp_parse_url($site_url);
+        $origin_parsed = wp_parse_url($request_origin);
         
         if ($origin_parsed && $site_parsed && 
             ($origin_parsed['host'] !== $site_parsed['host'] || 

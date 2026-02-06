@@ -29,7 +29,7 @@ function get_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template
     if (!$user_id && $user_id_override !== 0) {
         return new WP_Error('not_logged_in_get', __('User must be logged in to get templates.', 'gpt3-ai-content-generator'));
     }
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated.
     $template = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d AND user_id = %d", $template_id, $user_id), ARRAY_A);
 
     if (!$template) {
@@ -90,11 +90,6 @@ function get_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template
     } else {
         $template['config']['post_schedule_date'] = '';
         $template['config']['post_schedule_time'] = '';
-    }
-
-    if (!isset($template['config']['content_max_tokens']) && class_exists(AIPKIT_AI_Settings::class)) {
-        $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
-        $template['config']['content_max_tokens'] = (string)($ai_parameters['max_completion_tokens'] ?? 4000);
     }
 
     return $template;

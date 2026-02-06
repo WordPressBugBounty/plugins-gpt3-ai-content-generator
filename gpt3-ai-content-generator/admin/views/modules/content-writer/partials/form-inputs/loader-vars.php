@@ -20,16 +20,11 @@ use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 $is_pro = aipkit_dashboard::is_pro_plan();
 $default_provider_config = AIPKit_Providers::get_default_provider_config();
 $default_provider = strtolower($default_provider_config['provider'] ?? 'openai');
-$deepseek_addon_active = aipkit_dashboard::is_addon_active('deepseek');
 $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 $default_temperature = $ai_parameters['temperature'] ?? 1.0;
-$default_max_tokens = $ai_parameters['max_completion_tokens'] ?? 4000;
 
 $providers_for_select = ['OpenAI', 'OpenRouter', 'Google', 'Azure'];
-if ($deepseek_addon_active) {
-    $providers_for_select[] = 'DeepSeek';
-}
-if ($is_pro && aipkit_dashboard::is_addon_active('ollama')) {
+if ($is_pro) {
     $providers_for_select[] = 'Ollama';
 }
 
@@ -43,7 +38,7 @@ $__aipkit_user_list_cap = 200;
 $users_for_author = get_users([
     'orderby' => 'display_name',
     'order'   => 'ASC',
-    'fields'  => ['ID', 'display_name'],
+    'fields'  => ['ID', 'display_name', 'user_login'],
     'number'  => $__aipkit_user_list_cap,
 ]);
 if ($current_user_id) {
@@ -57,6 +52,7 @@ if ($current_user_id) {
             $users_for_author[] = (object) [
                 'ID' => (int) $u->ID,
                 'display_name' => (string) $u->display_name,
+                'user_login' => (string) $u->user_login,
             ];
         }
     }

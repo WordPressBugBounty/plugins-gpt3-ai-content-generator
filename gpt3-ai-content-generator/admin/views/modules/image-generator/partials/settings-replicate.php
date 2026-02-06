@@ -9,28 +9,60 @@ if (!defined('ABSPATH')) {
 
 // Variables required from parent settings-image-generator.php:
 // $settings_data (array containing replicate settings)
+// $current_replicate_api_key (string)
 $replicate_settings = $settings_data['replicate'] ?? [];
 $disable_safety_checker = $replicate_settings['disable_safety_checker'] ?? true;
 ?>
-<p class="aipkit_form-help">
-    <?php esc_html_e('Configure settings specific to Replicate image generation. By default, the safety checker is disabled to avoid false positives that may block legitimate prompts.', 'gpt3-ai-content-generator'); ?>
-</p>
 
-<div class="aipkit_form-group">
-    <label class="aipkit_form-label aipkit_checkbox-label">
-        <input 
-            type="checkbox" 
-            id="aipkit_replicate_disable_safety_checker" 
-            name="replicate_disable_safety_checker" 
-            class="aipkit_form-input aipkit_settings_input" 
-            value="1" 
-            <?php checked($disable_safety_checker, true); ?>
-        >
-        <span class="aipkit_checkbox-text">
-            <?php esc_html_e('Disable Safety Checker', 'gpt3-ai-content-generator'); ?>
-        </span>
-    </label>
-    <div class="aipkit_form-help">
-        <?php esc_html_e('When enabled, this disables Replicate\'s built-in safety checker to prevent false positives that may block legitimate image generation prompts. Only disable this if you have other content moderation measures in place.', 'gpt3-ai-content-generator'); ?>
+<div class="aipkit_popover_option_group">
+    <div class="aipkit_popover_option_row aipkit_popover_option_row--force-divider">
+        <div class="aipkit_popover_option_main">
+            <label
+                class="aipkit_popover_option_label"
+                for="aipkit_replicate_api_key"
+            >
+                <?php esc_html_e('API key', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
+                <input
+                    type="password"
+                    id="aipkit_replicate_api_key"
+                    name="replicate_api_key"
+                    class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
+                    value="<?php echo esc_attr($current_replicate_api_key ?? ''); ?>"
+                    placeholder="<?php esc_attr_e('Enter your Replicate API key', 'gpt3-ai-content-generator'); ?>"
+                    autocomplete="new-password"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-form-type="other"
+                />
+                <span class="aipkit_api-key-toggle">
+                    <span class="dashicons dashicons-visibility"></span>
+                </span>
+            </div>
+        </div>
     </div>
-</div> 
+</div>
+
+<div class="aipkit_popover_option_group">
+    <div class="aipkit_popover_option_row">
+        <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
+            <div class="aipkit_popover_option_header">
+                <label class="aipkit_popover_option_label" for="aipkit_replicate_disable_safety_checker">
+                    <?php esc_html_e('Disable safety checker', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <label class="aipkit_switch">
+                    <input
+                        type="checkbox"
+                        id="aipkit_replicate_disable_safety_checker"
+                        name="replicate_disable_safety_checker"
+                        class="aipkit_toggle_switch aipkit_autosave_trigger"
+                        value="1"
+                        <?php checked($disable_safety_checker, true); ?>
+                    >
+                    <span class="aipkit_switch_slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

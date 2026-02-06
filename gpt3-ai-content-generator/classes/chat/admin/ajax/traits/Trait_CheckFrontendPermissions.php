@@ -34,8 +34,7 @@ trait Trait_CheckFrontendPermissions {
         if ($bot_id > 0) {
             // Only perform CORS check if embed feature is available
             if (class_exists('\WPAICG\aipkit_dashboard') && 
-                \WPAICG\aipkit_dashboard::is_pro_plan() && 
-                \WPAICG\aipkit_dashboard::is_addon_active('embed_anywhere')) {
+                \WPAICG\aipkit_dashboard::is_pro_plan()) {
                 
                 $origin_allowed = AIPKit_CORS_Manager::check_and_set_cors_headers($bot_id);
                 if (!$origin_allowed) {

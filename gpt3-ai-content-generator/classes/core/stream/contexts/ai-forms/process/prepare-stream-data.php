@@ -5,8 +5,8 @@
 
 namespace WPAICG\Core\Stream\Contexts\AIForms\Process;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Core\Stream\Contexts\AIForms\SSEAIFormsStreamContextHandler;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
@@ -50,7 +50,7 @@ function prepare_stream_data_logic(
         'module'            => 'ai_forms',
         'is_guest'          => ($user_id === 0),
         'role'              => $user_wp_role,
-        'ip_address'        => AIPKit_IP_Anonymization::maybe_anonymize($validated_params['client_ip']),
+        'ip_address'        => $validated_params['client_ip'],
         'form_id'           => $validated_params['form_id'],
     ];
     $bot_message_id = 'aif-msg-' . uniqid('', true);
@@ -63,6 +63,13 @@ function prepare_stream_data_logic(
         'request_payload'    => ['form_id' => $validated_params['form_id'], 'inputs' => $validated_params['user_input_values'], 'constructed_prompt' => $final_user_prompt]
     ]);
     $log_storage->log_message($log_user_data);
+
+    $form_id = absint($validated_params['form_id']);
+    if ($form_id > 0) {
+        $count_meta_key = '_aipkit_ai_form_submission_count';
+        $current_count = (int) get_post_meta($form_id, $count_meta_key, true);
+        update_post_meta($form_id, $count_meta_key, $current_count + 1);
+    }
 
     // 2. Prepare AI and API Parameters
     $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
@@ -85,10 +92,13 @@ function prepare_stream_data_logic(
         $ai_params_for_payload['presence_penalty'] = floatval($form_config['presence_penalty']);
     }
     // Add reasoning effort to AI params
-    if ($provider === 'OpenAI' && isset($form_config['reasoning_effort']) && !empty($form_config['reasoning_effort'])) {
-        $model_lower = strtolower($model);
-        if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
-             $ai_params_for_payload['reasoning'] = ['effort' => sanitize_key($form_config['reasoning_effort'])];
+    if ($provider === 'OpenAI') {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) $model,
+            $form_config['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
         }
     }
 

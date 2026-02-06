@@ -167,6 +167,7 @@ class AIPKit_Vector_Post_Processor_Assets
                     'close' => __('Close', 'gpt3-ai-content-generator'),
                     'stop' => __('Stop', 'gpt3-ai-content-generator'),
                     'stopping' => __('Stopping...', 'gpt3-ai-content-generator'),
+                    /* translators: %1$d: current count, %2$d: total count */
                     'indexing_progress' => __('Processing: %1$d/%2$d', 'gpt3-ai-content-generator'),
                     'indexing_complete' => __('Indexing complete!', 'gpt3-ai-content-generator'),
                     'error_fetching_stores' => __('Error fetching vector stores.', 'gpt3-ai-content-generator'),
@@ -190,11 +191,18 @@ class AIPKit_Vector_Post_Processor_Assets
                     'select_qdrant_collection' => __('Select Qdrant Collection', 'gpt3-ai-content-generator'),
                     'no_qdrant_collections_found' => __('No Qdrant collections found. Create one in AI Training.', 'gpt3-ai-content-generator'),
                     'error_no_qdrant_collection_selected' => __('Please select a Qdrant collection.', 'gpt3-ai-content-generator'),
+                    'target_label' => __('Target', 'gpt3-ai-content-generator'),
+                    'embedding_label' => __('Embedding', 'gpt3-ai-content-generator'),
                     'embedding_provider_label' => __('Embedding Provider', 'gpt3-ai-content-generator'),
                     'embedding_model_label' => __('Embedding Model', 'gpt3-ai-content-generator'),
                     'select_model' => __('Select Model', 'gpt3-ai-content-generator'),
                     'error_no_embedding_config' => __('Embedding provider and model are required.', 'gpt3-ai-content-generator'),
                     'ensure_api_key_for_embedding' => __('Ensure API key is set for the selected embedding provider in AI Settings.', 'gpt3-ai-content-generator'),
+                    'status_pending' => __('Pending', 'gpt3-ai-content-generator'),
+                    'status_processing' => __('Processing', 'gpt3-ai-content-generator'),
+                    'status_completed' => __('Completed', 'gpt3-ai-content-generator'),
+                    'status_failed' => __('Failed', 'gpt3-ai-content-generator'),
+                    'status_stopped' => __('Stopped', 'gpt3-ai-content-generator'),
                 ]
             ]);
             $vpp_localized = true;

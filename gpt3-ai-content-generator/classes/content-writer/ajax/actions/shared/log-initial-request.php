@@ -5,7 +5,6 @@
 namespace WPAICG\ContentWriter\Ajax\Actions\Shared;
 
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Base_Ajax_Action;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -28,7 +27,6 @@ function log_initial_request_logic(AIPKit_Content_Writer_Base_Ajax_Action $handl
     $initial_request_details_for_log = [
         'title'              => $request_data['content_title'] ?? '',
         'keywords'           => $request_data['content_keywords'] ?? null,
-        'content_max_tokens' => $request_data['content_max_tokens'] ?? null,
     ];
 
     $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
@@ -47,7 +45,7 @@ function log_initial_request_logic(AIPKit_Content_Writer_Base_Ajax_Action $handl
         'module'            => 'content_writer',
         'is_guest'          => 0,
         'role'              => implode(', ', wp_get_current_user()->roles),
-        'ip_address'        => AIPKit_IP_Anonymization::maybe_anonymize($client_ip),
+        'ip_address'        => $client_ip,
         'message_role'      => 'user',
         'message_content'   => "Content Writer Request ({$request_type}): " . esc_html($request_data['content_title']),
         'timestamp'         => time(),

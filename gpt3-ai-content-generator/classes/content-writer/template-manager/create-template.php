@@ -37,7 +37,7 @@ function create_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
     if (empty($template_name)) {
         return new WP_Error('empty_template_name', __('Template name cannot be empty.', 'gpt3-ai-content-generator'));
     }
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated.
     $existing = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$table_name} WHERE user_id = %d AND template_name = %s AND template_type = %s",
         $user_id,
         $template_name,

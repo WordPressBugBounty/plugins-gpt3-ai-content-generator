@@ -66,7 +66,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
 
     $client_ip = get_client_ip_logic();
     $starters_array = get_conversation_starters_logic($settings, $feature_flags['starters_ui_enabled']);
-    $consent_texts = get_consent_settings_logic();
+    $consent_texts = get_consent_settings_logic($settings);
     $tts_settings = get_tts_settings_logic($settings);
     $google_grounding_settings = get_google_grounding_settings_logic($settings, $feature_flags);
 
@@ -76,6 +76,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
     if (class_exists(AIPKit_Consent_Compliance::class)) {
         $consent_required = AIPKit_Consent_Compliance::is_required();
     }
+    $consent_toggle_enabled = ($settings['enable_consent_compliance'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE : '1')) === '1';
 
     $current_post_id = 0;
     if (is_singular()) {
@@ -92,13 +93,63 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
 
     $text_labels = get_text_labels_logic($settings, $consent_texts);
 
+    $banned_ips_list = isset($settings['banned_ips']) ? sanitize_textarea_field((string) $settings['banned_ips']) : '';
+    $banned_ips_message = isset($settings['banned_ips_message']) ? sanitize_text_field((string) $settings['banned_ips_message']) : '';
+    $banned_words_list = isset($settings['banned_words']) ? sanitize_textarea_field((string) $settings['banned_words']) : '';
+    $banned_words_message = isset($settings['banned_words_message']) ? sanitize_text_field((string) $settings['banned_words_message']) : '';
+
     // --- Add custom theme settings to frontend config ---
     $custom_theme_settings_for_js = [];
     if (($settings['theme'] ?? 'light') === 'custom') {
         $custom_theme_settings_for_js = $settings['custom_theme_settings'] ?? [];
         $custom_theme_settings_for_js = array_filter($custom_theme_settings_for_js, function ($value) {
-            return $value !== '';
+            return $value !== '' && $value !== null;
         });
+
+        $custom_theme_defaults = class_exists(BotSettingsManager::class)
+            ? BotSettingsManager::get_custom_theme_defaults()
+            : [];
+        $token_keys = [
+            'primary_color', 'secondary_color', 'auto_text_contrast',
+            'font_family', 'bubble_border_radius',
+            'container_max_width', 'popup_width', 'container_height', 'container_min_height',
+            'container_max_height', 'popup_height', 'popup_min_height', 'popup_max_height'
+        ];
+        $numeric_keys = [
+            'bubble_border_radius', 'container_border_radius', 'container_max_width', 'popup_width',
+            'container_height', 'container_min_height', 'container_max_height',
+            'popup_height', 'popup_min_height', 'popup_max_height'
+        ];
+        $token_key_map = array_fill_keys($token_keys, true);
+        $has_tokens = false;
+        foreach ($token_keys as $token_key) {
+            if (array_key_exists($token_key, $custom_theme_settings_for_js)) {
+                $has_tokens = true;
+                break;
+            }
+        }
+        if ($has_tokens && !empty($custom_theme_defaults)) {
+            foreach ($custom_theme_settings_for_js as $key => $value) {
+                if (isset($token_key_map[$key])) {
+                    continue;
+                }
+                if (!array_key_exists($key, $custom_theme_defaults)) {
+                    continue;
+                }
+                $default_value = $custom_theme_defaults[$key];
+                if (in_array($key, $numeric_keys, true)) {
+                    if (is_numeric($value) && is_numeric($default_value) && (int)$value === (int)$default_value) {
+                        unset($custom_theme_settings_for_js[$key]);
+                    }
+                } elseif (is_string($value) && is_string($default_value)) {
+                    if (strtolower($value) === strtolower($default_value)) {
+                        unset($custom_theme_settings_for_js[$key]);
+                    }
+                } elseif ($value === $default_value) {
+                    unset($custom_theme_settings_for_js[$key]);
+                }
+            }
+        }
     }
     // --- END ---
     
@@ -144,6 +195,12 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'popupLabelSize' => in_array(($settings['popup_label_size'] ?? 'medium'), ['small','medium','large','xlarge'], true) ? $settings['popup_label_size'] : 'medium',
         'streamEnabled' => $feature_flags['stream_enabled'],
         'footerText' => $settings['footer_text'] ?? '',
+        'headerAvatarType' => $settings['header_avatar_type'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE : 'default'),
+        'headerAvatarValue' => $settings['header_avatar_value'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE : 'chat-bubble'),
+        'headerAvatarUrl' => (($settings['header_avatar_type'] ?? '') === 'custom')
+            ? ($settings['header_avatar_value'] ?? ($settings['header_avatar_url'] ?? ''))
+            : '',
+        'headerOnlineText' => $settings['header_online_text'] ?? '',
         'enableFullscreen' => $feature_flags['enable_fullscreen'],
         'enableDownload' => $feature_flags['enable_download'],
         'enableCopyButton' => $feature_flags['enable_copy_button'],
@@ -154,7 +211,15 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'enableStarters' => $feature_flags['starters_ui_enabled'],
         'starters' => $starters_array,
         'userIp' => $client_ip,
-        'requireConsentCompliance' => $consent_required,
+        'bannedIpsConfig' => [
+            'ipsList' => $banned_ips_list,
+            'message' => $banned_ips_message,
+        ],
+        'bannedWordsConfig' => [
+            'wordsList' => $banned_words_list,
+            'message' => $banned_words_message,
+        ],
+        'requireConsentCompliance' => $consent_required && $consent_toggle_enabled,
         'ttsEnabled' => $feature_flags['tts_ui_enabled'],
         'ttsAutoPlay' => $tts_settings['tts_auto_play'],
         'ttsProvider' => $tts_settings['tts_provider'],

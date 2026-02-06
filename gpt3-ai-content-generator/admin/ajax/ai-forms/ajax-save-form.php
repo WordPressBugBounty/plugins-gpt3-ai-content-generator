@@ -2,6 +2,7 @@
 
 namespace WPAICG\Admin\Ajax\AIForms;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WP_Error;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Ajax_Handler;
 
@@ -70,7 +71,10 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $top_p = isset($post_data['top_p']) ? sanitize_text_field($post_data['top_p']) : null;
     $frequency_penalty = isset($post_data['frequency_penalty']) ? sanitize_text_field($post_data['frequency_penalty']) : null;
     $presence_penalty = isset($post_data['presence_penalty']) ? sanitize_text_field($post_data['presence_penalty']) : null;
-    $reasoning_effort = isset($post_data['reasoning_effort']) ? sanitize_key($post_data['reasoning_effort']) : 'low';
+    $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data['reasoning_effort'] ?? '');
+    if ($reasoning_effort === '') {
+        $reasoning_effort = 'low';
+    }
 
     // --- Get Vector config fields from POST ---
     $enable_vector_store = isset($post_data['enable_vector_store']) && $post_data['enable_vector_store'] === '1' ? '1' : '0';

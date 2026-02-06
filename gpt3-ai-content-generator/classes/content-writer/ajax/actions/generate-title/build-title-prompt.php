@@ -32,8 +32,15 @@ function build_title_prompt_logic(array $validated_params): array
     $final_title_for_prompt = $validated_params['content_title'] ?? '';
     $final_keywords_for_prompt = !empty($validated_params['inline_keywords']) ? $validated_params['inline_keywords'] : ($validated_params['content_keywords'] ?? '');
 
+    $rss_description = $validated_params['rss_description'] ?? '';
+    $url_content_context = $validated_params['url_content_context'] ?? '';
+    $source_url = $validated_params['source_url'] ?? '';
+
     $user_prompt = str_replace('{topic}', $final_title_for_prompt, $user_prompt_template);
     $user_prompt = str_replace('{keywords}', $final_keywords_for_prompt, $user_prompt);
+    $user_prompt = str_replace('{description}', $rss_description, $user_prompt);
+    $user_prompt = str_replace('{url_content}', $url_content_context, $user_prompt);
+    $user_prompt = str_replace('{source_url}', $source_url, $user_prompt);
 
     return [
         'user_prompt' => $user_prompt,

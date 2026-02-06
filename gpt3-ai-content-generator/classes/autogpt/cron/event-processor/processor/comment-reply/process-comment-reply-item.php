@@ -7,8 +7,8 @@
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\CommentReply;
 
 use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Chat\Storage\LogStorage;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -74,10 +74,13 @@ function process_comment_reply_item_logic(array $item, array $item_config): arra
     // Call AI
     $ai_caller = new AIPKit_AI_Caller();
     $ai_params_override = ['temperature' => floatval($item_config['ai_temperature'] ?? 1), 'max_completion_tokens' => intval($item_config['content_max_tokens'] ?? 4000)];
-    if (($item_config['ai_provider'] ?? '') === 'OpenAI' && isset($item_config['reasoning_effort']) && !empty($item_config['reasoning_effort'])) {
-        $model_lower = strtolower($item_config['ai_model'] ?? '');
-        if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
-            $ai_params_override['reasoning'] = ['effort' => sanitize_key($item_config['reasoning_effort'])];
+    if (($item_config['ai_provider'] ?? '') === 'OpenAI') {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) ($item_config['ai_model'] ?? ''),
+            $item_config['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
         }
     }
     $system_instruction = 'You are a helpful community manager replying to comments on a blog.';
@@ -108,7 +111,7 @@ function process_comment_reply_item_logic(array $item, array $item_config): arra
         'module' => 'community_reply_comments',
         'is_guest' => empty($original_comment->user_id),
         'role' => 'system',
-        'ip_address' => AIPKit_IP_Anonymization::maybe_anonymize($original_comment->comment_author_IP),
+        'ip_address' => $original_comment->comment_author_IP,
         'message_role' => 'bot',
         'message_content' => "Automated reply to comment #{$comment_id}.",
         'timestamp' => time(),

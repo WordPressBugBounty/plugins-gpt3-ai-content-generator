@@ -32,12 +32,20 @@ class BotSettingsManager
     public const DEFAULT_STREAM_ENABLED = '1'; // ADDED: Default for stream mode
     public const DEFAULT_ENABLE_COPY_BUTTON = '1';
     public const DEFAULT_ENABLE_FEEDBACK = '1';
+    public const DEFAULT_ENABLE_CONSENT_COMPLIANCE = '1';
+    public const DEFAULT_ENABLE_IP_ANONYMIZATION = '0';
+    public const DEFAULT_ENABLE_OPENAI_MODERATION = '0';
+    public const DEFAULT_OPENAI_MODERATION_MESSAGE = '';
+    public const DEFAULT_BANNED_WORDS = '';
+    public const DEFAULT_BANNED_WORDS_MESSAGE = '';
+    public const DEFAULT_BANNED_IPS = '';
+    public const DEFAULT_BANNED_IPS_MESSAGE = '';
     public const DEFAULT_POPUP_DELAY = 1;
     public const DEFAULT_ENABLE_CONVERSATION_STARTERS = '1';
     public const DEFAULT_ENABLE_CONVERSATION_SIDEBAR = '0';
     public const DEFAULT_POPUP_ICON_TYPE = 'default';
     public const DEFAULT_POPUP_ICON_STYLE = 'circle';
-    public const DEFAULT_POPUP_ICON_VALUE = 'chat-bubble';
+    public const DEFAULT_POPUP_ICON_VALUE = 'spark';
     public const DEFAULT_POPUP_ICON_SIZE = 'medium'; // allowed: small|medium|large|xlarge
     // --- Popup Hint/Label Defaults ---
     public const DEFAULT_POPUP_LABEL_ENABLED = '0';
@@ -51,6 +59,11 @@ class BotSettingsManager
     public const DEFAULT_POPUP_LABEL_SHOW_ON_DESKTOP = '1';
     public const DEFAULT_POPUP_LABEL_VERSION = '';
     public const DEFAULT_POPUP_LABEL_SIZE = 'medium'; // allowed: small|medium|large|xlarge
+    // --- Header Defaults ---
+    public const DEFAULT_HEADER_AVATAR_URL = '';
+    public const DEFAULT_HEADER_AVATAR_TYPE = 'default';
+    public const DEFAULT_HEADER_AVATAR_VALUE = 'spark';
+    public const DEFAULT_HEADER_ONLINE_TEXT = 'Online';
     public const DEFAULT_CONTENT_AWARE_ENABLED = '0';
     public const DEFAULT_TOKEN_GUEST_LIMIT = null;
     public const DEFAULT_TOKEN_USER_LIMIT = null;
@@ -110,60 +123,68 @@ class BotSettingsManager
     // --- NEW: Custom Theme Defaults ---
     public const DEFAULT_CUSTOM_THEME_FONT_FAMILY = 'inherit';
     public const DEFAULT_CUSTOM_THEME_BUBBLE_BORDER_RADIUS = 18;
+    public const DEFAULT_CTS_PRIMARY_COLOR = '#0F766E';
+    public const DEFAULT_CTS_SECONDARY_COLOR = '#ECFEFF';
+    public const DEFAULT_CTS_ACCENT_COLOR = '#111111';
+    public const DEFAULT_CTS_APP_BG_COLOR = '#FFFFFF';
+    public const DEFAULT_CTS_SURFACE_COLOR = '#FFFFFF';
+    public const DEFAULT_CTS_TEXT_COLOR = '#111111';
+    public const DEFAULT_CTS_BORDER_COLOR = '#E5E5E5';
+    public const DEFAULT_CTS_AUTO_TEXT_CONTRAST = '1';
     public const DEFAULT_CTS_CONTAINER_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_CONTAINER_TEXT_COLOR = '#2D3748';
-    public const DEFAULT_CTS_CONTAINER_BORDER_COLOR = '#E1E7EF';
-    public const DEFAULT_CTS_CONTAINER_BORDER_RADIUS = 6; // Assuming this is a new general radius
+    public const DEFAULT_CTS_CONTAINER_TEXT_COLOR = '#111111';
+    public const DEFAULT_CTS_CONTAINER_BORDER_COLOR = '#E5E5E5';
+    public const DEFAULT_CTS_CONTAINER_BORDER_RADIUS = 10; // Assuming this is a new general radius
     public const DEFAULT_CTS_HEADER_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_HEADER_TEXT_COLOR = '#718096';
-    public const DEFAULT_CTS_HEADER_BORDER_COLOR = '#E1E7EF';
-    public const DEFAULT_CTS_MESSAGES_BG_COLOR = '#F7F9FC';
-    public const DEFAULT_CTS_MESSAGES_SCROLLBAR_THUMB_COLOR = '#E1E7EF'; // Actual color default
+    public const DEFAULT_CTS_HEADER_TEXT_COLOR = '#6B6B6B';
+    public const DEFAULT_CTS_HEADER_BORDER_COLOR = '#E5E5E5';
+    public const DEFAULT_CTS_MESSAGES_BG_COLOR = '#FFFFFF';
+    public const DEFAULT_CTS_MESSAGES_SCROLLBAR_THUMB_COLOR = '#E5E5E5'; // Actual color default
     public const DEFAULT_CTS_MESSAGES_SCROLLBAR_TRACK_COLOR = 'transparent'; // Actual color default
-    public const DEFAULT_CTS_BOT_BUBBLE_BG_COLOR = '#E9ECEF';
-    public const DEFAULT_CTS_BOT_BUBBLE_TEXT_COLOR = '#2D3748';
-    public const DEFAULT_CTS_USER_BUBBLE_BG_COLOR = '#4A6FA5';
+    public const DEFAULT_CTS_BOT_BUBBLE_BG_COLOR = '#F3F3F3';
+    public const DEFAULT_CTS_BOT_BUBBLE_TEXT_COLOR = '#111111';
+    public const DEFAULT_CTS_USER_BUBBLE_BG_COLOR = '#006CFF';
     public const DEFAULT_CTS_USER_BUBBLE_TEXT_COLOR = '#FFFFFF';
     public const DEFAULT_CTS_INPUT_AREA_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_INPUT_AREA_BORDER_COLOR = '#E1E7EF'; // Actual color default
-    public const DEFAULT_CTS_INPUT_WRAPPER_BG_COLOR = '#F7F9FC';
-    public const DEFAULT_CTS_INPUT_WRAPPER_BORDER_COLOR = '#E1E7EF'; // Actual color default
-    public const DEFAULT_CTS_INPUT_TEXT_COLOR = '#2D3748';
-    public const DEFAULT_CTS_INPUT_PLACEHOLDER_COLOR = '#9CA3AF'; // Actual color default
-    public const DEFAULT_CTS_INPUT_FOCUS_BORDER_COLOR = '#4A6FA5'; // Actual color default
-    public const DEFAULT_CTS_INPUT_FOCUS_SHADOW_COLOR = 'rgba(74, 111, 165, 0.2)'; // Actual color default
-    public const DEFAULT_CTS_SEND_BUTTON_BG_COLOR = '#4A6FA5';
+    public const DEFAULT_CTS_INPUT_AREA_BORDER_COLOR = '#E5E5E5'; // Actual color default
+    public const DEFAULT_CTS_INPUT_WRAPPER_BG_COLOR = '#FFFFFF';
+    public const DEFAULT_CTS_INPUT_WRAPPER_BORDER_COLOR = '#E5E5E5'; // Actual color default
+    public const DEFAULT_CTS_INPUT_TEXT_COLOR = '#111111';
+    public const DEFAULT_CTS_INPUT_PLACEHOLDER_COLOR = '#737373'; // Actual color default
+    public const DEFAULT_CTS_INPUT_FOCUS_BORDER_COLOR = '#111111'; // Actual color default
+    public const DEFAULT_CTS_INPUT_FOCUS_SHADOW_COLOR = 'rgba(0, 0, 0, 0.12)'; // Actual color default
+    public const DEFAULT_CTS_SEND_BUTTON_BG_COLOR = '#111111';
     public const DEFAULT_CTS_SEND_BUTTON_TEXT_COLOR = '#FFFFFF';
     public const DEFAULT_CTS_ACTION_BUTTON_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_ACTION_BUTTON_COLOR = '#718096';
-    public const DEFAULT_CTS_ACTION_BUTTON_BORDER_COLOR = '#D1D5DB';
-    public const DEFAULT_CTS_ACTION_BUTTON_HOVER_BG_COLOR = '#F0F4F8';
-    public const DEFAULT_CTS_ACTION_BUTTON_HOVER_COLOR = '#2D3748';
-    public const DEFAULT_CTS_ACTION_BUTTON_HOVER_BORDER_COLOR = '#61A0FF'; // Actual color default
+    public const DEFAULT_CTS_ACTION_BUTTON_COLOR = '#6B6B6B';
+    public const DEFAULT_CTS_ACTION_BUTTON_BORDER_COLOR = '#E5E5E5';
+    public const DEFAULT_CTS_ACTION_BUTTON_HOVER_BG_COLOR = '#EDEDED';
+    public const DEFAULT_CTS_ACTION_BUTTON_HOVER_COLOR = '#111111';
+    public const DEFAULT_CTS_ACTION_BUTTON_HOVER_BORDER_COLOR = '#1F1F1F'; // Actual color default
     public const DEFAULT_CTS_FOOTER_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_FOOTER_TEXT_COLOR = '#718096';
-    public const DEFAULT_CTS_FOOTER_BORDER_COLOR = '#E1E7EF';
-    public const DEFAULT_CTS_SIDEBAR_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_SIDEBAR_TEXT_COLOR = '#718096';
-    public const DEFAULT_CTS_SIDEBAR_BORDER_COLOR = '#E1E7EF';
-    public const DEFAULT_CTS_SIDEBAR_ACTIVE_BG_COLOR = '#EDF2F7';
-    public const DEFAULT_CTS_SIDEBAR_ACTIVE_TEXT_COLOR = '#4A6FA5';
-    public const DEFAULT_CTS_SIDEBAR_HOVER_BG_COLOR = '#F0F4F8';
-    public const DEFAULT_CTS_SIDEBAR_HOVER_TEXT_COLOR = '#2D3748';
+    public const DEFAULT_CTS_FOOTER_TEXT_COLOR = '#6B6B6B';
+    public const DEFAULT_CTS_FOOTER_BORDER_COLOR = '#E5E5E5';
+    public const DEFAULT_CTS_SIDEBAR_BG_COLOR = '#FBFBFB';
+    public const DEFAULT_CTS_SIDEBAR_TEXT_COLOR = '#262626';
+    public const DEFAULT_CTS_SIDEBAR_BORDER_COLOR = '#E5E5E5';
+    public const DEFAULT_CTS_SIDEBAR_ACTIVE_BG_COLOR = '#F5F5F5';
+    public const DEFAULT_CTS_SIDEBAR_ACTIVE_TEXT_COLOR = '#343434';
+    public const DEFAULT_CTS_SIDEBAR_HOVER_BG_COLOR = '#F5F5F5';
+    public const DEFAULT_CTS_SIDEBAR_HOVER_TEXT_COLOR = '#343434';
     public const DEFAULT_CTS_ACTION_MENU_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_ACTION_MENU_BORDER_COLOR = '#E1E7EF';
-    public const DEFAULT_CTS_ACTION_MENU_ITEM_TEXT_COLOR = '#2D3748';
-    public const DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_BG_COLOR = '#F0F4F8';
-    public const DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_TEXT_COLOR = '#4A6FA5';
+    public const DEFAULT_CTS_ACTION_MENU_BORDER_COLOR = '#E5E5E5';
+    public const DEFAULT_CTS_ACTION_MENU_ITEM_TEXT_COLOR = '#111111';
+    public const DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_BG_COLOR = '#EDEDED';
+    public const DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_TEXT_COLOR = '#111111';
     // --- NEW DIMENSION DEFAULTS ---
-    public const DEFAULT_CTS_CONTAINER_MAX_WIDTH = 650; // px
-    public const DEFAULT_CTS_POPUP_WIDTH = 400;         // px
-    public const DEFAULT_CTS_CONTAINER_HEIGHT = 450;    // px
+    public const DEFAULT_CTS_CONTAINER_MAX_WIDTH = 896; // px
+    public const DEFAULT_CTS_POPUP_WIDTH = 450;         // px
+    public const DEFAULT_CTS_CONTAINER_HEIGHT = 560;    // px
     public const DEFAULT_CTS_CONTAINER_MAX_HEIGHT = 70; // vh (number only)
-    public const DEFAULT_CTS_CONTAINER_MIN_HEIGHT = 250;  // px
-    public const DEFAULT_CTS_POPUP_HEIGHT = 450;        // px (can inherit from container_height)
-    public const DEFAULT_CTS_POPUP_MIN_HEIGHT = 250;    // px (can inherit)
-    public const DEFAULT_CTS_POPUP_MAX_HEIGHT = 70;     // vh (can inherit, number only)
+    public const DEFAULT_CTS_CONTAINER_MIN_HEIGHT = 320;  // px
+    public const DEFAULT_CTS_POPUP_HEIGHT = 680;        // px (can inherit from container_height)
+    public const DEFAULT_CTS_POPUP_MIN_HEIGHT = 320;    // px (can inherit)
+    public const DEFAULT_CTS_POPUP_MAX_HEIGHT = 90;     // vh (can inherit, number only)
     // --- END NEW DIMENSION DEFAULTS ---
 
 
@@ -236,53 +257,11 @@ class BotSettingsManager
     public static function get_custom_theme_defaults(): array
     {
         return [
+            'primary_color' => self::DEFAULT_CTS_PRIMARY_COLOR,
+            'secondary_color' => self::DEFAULT_CTS_SECONDARY_COLOR,
+            'auto_text_contrast' => self::DEFAULT_CTS_AUTO_TEXT_CONTRAST,
             'font_family' => self::DEFAULT_CUSTOM_THEME_FONT_FAMILY,
             'bubble_border_radius' => self::DEFAULT_CUSTOM_THEME_BUBBLE_BORDER_RADIUS,
-            'container_bg_color' => self::DEFAULT_CTS_CONTAINER_BG_COLOR,
-            'container_text_color' => self::DEFAULT_CTS_CONTAINER_TEXT_COLOR,
-            'container_border_color' => self::DEFAULT_CTS_CONTAINER_BORDER_COLOR,
-            'container_border_radius' => self::DEFAULT_CTS_CONTAINER_BORDER_RADIUS, // Actual default for the CSS var
-            'header_bg_color' => self::DEFAULT_CTS_HEADER_BG_COLOR,
-            'header_text_color' => self::DEFAULT_CTS_HEADER_TEXT_COLOR,
-            'header_border_color' => self::DEFAULT_CTS_HEADER_BORDER_COLOR,
-            'messages_bg_color' => self::DEFAULT_CTS_MESSAGES_BG_COLOR,
-            'messages_scrollbar_thumb_color' => self::DEFAULT_CTS_MESSAGES_SCROLLBAR_THUMB_COLOR,
-            'messages_scrollbar_track_color' => self::DEFAULT_CTS_MESSAGES_SCROLLBAR_TRACK_COLOR,
-            'bot_bubble_bg_color' => self::DEFAULT_CTS_BOT_BUBBLE_BG_COLOR,
-            'bot_bubble_text_color' => self::DEFAULT_CTS_BOT_BUBBLE_TEXT_COLOR,
-            'user_bubble_bg_color' => self::DEFAULT_CTS_USER_BUBBLE_BG_COLOR,
-            'user_bubble_text_color' => self::DEFAULT_CTS_USER_BUBBLE_TEXT_COLOR,
-            'input_area_bg_color' => self::DEFAULT_CTS_INPUT_AREA_BG_COLOR,
-            'input_area_border_color' => self::DEFAULT_CTS_INPUT_AREA_BORDER_COLOR,
-            'input_wrapper_bg_color' => self::DEFAULT_CTS_INPUT_WRAPPER_BG_COLOR,
-            'input_wrapper_border_color' => self::DEFAULT_CTS_INPUT_WRAPPER_BORDER_COLOR,
-            'input_text_color' => self::DEFAULT_CTS_INPUT_TEXT_COLOR,
-            'input_placeholder_color' => self::DEFAULT_CTS_INPUT_PLACEHOLDER_COLOR,
-            'input_focus_border_color' => self::DEFAULT_CTS_INPUT_FOCUS_BORDER_COLOR,
-            'input_focus_shadow_color' => self::DEFAULT_CTS_INPUT_FOCUS_SHADOW_COLOR,
-            'send_button_bg_color' => self::DEFAULT_CTS_SEND_BUTTON_BG_COLOR,
-            'send_button_text_color' => self::DEFAULT_CTS_SEND_BUTTON_TEXT_COLOR,
-            'action_button_bg_color' => self::DEFAULT_CTS_ACTION_BUTTON_BG_COLOR,
-            'action_button_color' => self::DEFAULT_CTS_ACTION_BUTTON_COLOR,
-            'action_button_border_color' => self::DEFAULT_CTS_ACTION_BUTTON_BORDER_COLOR,
-            'action_button_hover_bg_color' => self::DEFAULT_CTS_ACTION_BUTTON_HOVER_BG_COLOR,
-            'action_button_hover_color' => self::DEFAULT_CTS_ACTION_BUTTON_HOVER_COLOR,
-            'action_button_hover_border_color' => self::DEFAULT_CTS_ACTION_BUTTON_HOVER_BORDER_COLOR,
-            'footer_bg_color' => self::DEFAULT_CTS_FOOTER_BG_COLOR,
-            'footer_text_color' => self::DEFAULT_CTS_FOOTER_TEXT_COLOR,
-            'footer_border_color' => self::DEFAULT_CTS_FOOTER_BORDER_COLOR,
-            'sidebar_bg_color' => self::DEFAULT_CTS_SIDEBAR_BG_COLOR,
-            'sidebar_text_color' => self::DEFAULT_CTS_SIDEBAR_TEXT_COLOR,
-            'sidebar_border_color' => self::DEFAULT_CTS_SIDEBAR_BORDER_COLOR,
-            'sidebar_active_bg_color' => self::DEFAULT_CTS_SIDEBAR_ACTIVE_BG_COLOR,
-            'sidebar_active_text_color' => self::DEFAULT_CTS_SIDEBAR_ACTIVE_TEXT_COLOR,
-            'sidebar_hover_bg_color' => self::DEFAULT_CTS_SIDEBAR_HOVER_BG_COLOR,
-            'sidebar_hover_text_color' => self::DEFAULT_CTS_SIDEBAR_HOVER_TEXT_COLOR,
-            'action_menu_bg_color' => self::DEFAULT_CTS_ACTION_MENU_BG_COLOR,
-            'action_menu_border_color' => self::DEFAULT_CTS_ACTION_MENU_BORDER_COLOR,
-            'action_menu_item_text_color' => self::DEFAULT_CTS_ACTION_MENU_ITEM_TEXT_COLOR,
-            'action_menu_item_hover_bg_color' => self::DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_BG_COLOR,
-            'action_menu_item_hover_text_color' => self::DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_TEXT_COLOR,
             // --- NEW DIMENSION DEFAULTS ---
             'container_max_width' => self::DEFAULT_CTS_CONTAINER_MAX_WIDTH,
             'popup_width' => self::DEFAULT_CTS_POPUP_WIDTH,
@@ -293,28 +272,83 @@ class BotSettingsManager
             'popup_min_height' => self::DEFAULT_CTS_POPUP_MIN_HEIGHT,
             'popup_max_height' => self::DEFAULT_CTS_POPUP_MAX_HEIGHT,
             // --- END NEW DIMENSION DEFAULTS ---
+        ];
+    }
 
-             // --- Keep placeholder keys for form UI generation if needed by HTML partials ---
-             // These are NOT used as CSS variable defaults but can be used for <input placeholder="...">
-             // However, for type="color", placeholder is not standard.
-            'bubble_border_radius_placeholder' => self::DEFAULT_CUSTOM_THEME_BUBBLE_BORDER_RADIUS,
-            'container_border_radius_placeholder' => self::DEFAULT_CTS_CONTAINER_BORDER_RADIUS,
-            'messages_scrollbar_thumb_color_placeholder' => self::DEFAULT_CTS_MESSAGES_SCROLLBAR_THUMB_COLOR,
-            'messages_scrollbar_track_color_placeholder' => self::DEFAULT_CTS_MESSAGES_SCROLLBAR_TRACK_COLOR,
-            'input_area_border_color_placeholder' => self::DEFAULT_CTS_INPUT_AREA_BORDER_COLOR,
-            'input_wrapper_border_color_placeholder' => self::DEFAULT_CTS_INPUT_WRAPPER_BORDER_COLOR,
-            'input_placeholder_color_placeholder' => self::DEFAULT_CTS_INPUT_PLACEHOLDER_COLOR,
-            'input_focus_border_color_placeholder' => self::DEFAULT_CTS_INPUT_FOCUS_BORDER_COLOR,
-            'input_focus_shadow_color_placeholder' => self::DEFAULT_CTS_INPUT_FOCUS_SHADOW_COLOR,
-            'action_button_hover_border_color_placeholder' => self::DEFAULT_CTS_ACTION_BUTTON_HOVER_BORDER_COLOR,
-            'container_max_width_placeholder' => self::DEFAULT_CTS_CONTAINER_MAX_WIDTH,
-            'popup_width_placeholder' => self::DEFAULT_CTS_POPUP_WIDTH,
-            'container_height_placeholder' => self::DEFAULT_CTS_CONTAINER_HEIGHT,
-            'container_max_height_placeholder' => self::DEFAULT_CTS_CONTAINER_MAX_HEIGHT,
-            'container_min_height_placeholder' => self::DEFAULT_CTS_CONTAINER_MIN_HEIGHT,
-            'popup_height_placeholder' => self::DEFAULT_CTS_POPUP_HEIGHT,
-            'popup_min_height_placeholder' => self::DEFAULT_CTS_POPUP_MIN_HEIGHT,
-            'popup_max_height_placeholder' => self::DEFAULT_CTS_POPUP_MAX_HEIGHT,
+    /**
+     * Removes deprecated custom theme overrides stored in post meta.
+     */
+    public static function cleanup_custom_theme_meta(int $bot_id): void
+    {
+        $allowed_keys = array_keys(self::get_custom_theme_defaults());
+        $allowed_meta_keys = [];
+        foreach ($allowed_keys as $key) {
+            $allowed_meta_keys['_aipkit_cts_' . $key] = true;
+        }
+
+        $all_meta = get_post_meta($bot_id);
+        foreach ($all_meta as $meta_key => $_) {
+            if (strpos($meta_key, '_aipkit_cts_') === 0 && !isset($allowed_meta_keys[$meta_key])) {
+                delete_post_meta($bot_id, $meta_key);
+            }
+        }
+    }
+
+    /**
+     * Returns the preset palettes shown for the custom theme picker.
+     * @return array<int, array<string, string>>
+     */
+    public static function get_custom_theme_presets(): array
+    {
+        return [
+            [
+                'key' => 'lagoon',
+                'label' => __('Lagoon', 'gpt3-ai-content-generator'),
+                'secondary' => '#ECFEFF',
+                'primary' => '#0F766E',
+            ],
+            [
+                'key' => 'ocean',
+                'label' => __('Ocean', 'gpt3-ai-content-generator'),
+                'secondary' => '#F1F5FF',
+                'primary' => '#0B5FFF',
+            ],
+            [
+                'key' => 'forest',
+                'label' => __('Forest', 'gpt3-ai-content-generator'),
+                'secondary' => '#F2FBF5',
+                'primary' => '#1B5E20',
+            ],
+            [
+                'key' => 'ember',
+                'label' => __('Ember', 'gpt3-ai-content-generator'),
+                'secondary' => '#FFF7ED',
+                'primary' => '#C2410C',
+            ],
+            [
+                'key' => 'rose',
+                'label' => __('Rose', 'gpt3-ai-content-generator'),
+                'secondary' => '#FFF1F2',
+                'primary' => '#BE123C',
+            ],
+            [
+                'key' => 'berry',
+                'label' => __('Berry', 'gpt3-ai-content-generator'),
+                'secondary' => '#F5F3FF',
+                'primary' => '#7C3AED',
+            ],
+            [
+                'key' => 'midnight',
+                'label' => __('Midnight', 'gpt3-ai-content-generator'),
+                'secondary' => '#0F172A',
+                'primary' => '#60A5FA',
+            ],
+            [
+                'key' => 'citrine',
+                'label' => __('Citrine', 'gpt3-ai-content-generator'),
+                'secondary' => '#FFFBEB',
+                'primary' => '#CA8A04',
+            ],
         ];
     }
 }

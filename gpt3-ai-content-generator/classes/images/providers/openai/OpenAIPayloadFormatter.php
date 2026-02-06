@@ -31,20 +31,21 @@ class OpenAIPayloadFormatter
         ];
 
         // Apply options based on the selected model
-        if ($model === 'gpt-image-1') {
-            $payload['n'] = 1; // gpt-image-1 only supports n=1
+        $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
+        if (in_array($model, $gpt_image_models, true)) {
+            $payload['n'] = 1; // GPT Image models only support n=1
             if (isset($options['size'])) {
                 $payload['size'] = $options['size'];
             }
 
-            // gpt-image-1 uses output_format (png, jpeg, webp), not response_format
+            // GPT Image models use output_format (png, jpeg, webp), not response_format
             if (isset($options['output_format'])) {
                 $payload['output_format'] = $options['output_format'];
             } else {
                 $payload['output_format'] = 'png';
-            } // Default to png if not specified for gpt-image-1
+            } // Default to png if not specified for GPT Image models
 
-            // Additional gpt-image-1 parameters if present in options
+            // Additional GPT Image parameters if present in options
             if (isset($options['background'])) {
                 $payload['background'] = $options['background'];
             }

@@ -227,7 +227,18 @@ class AIPKit_Image_Replicate_Provider_Strategy extends AIPKit_Image_Base_Provide
         }
 
         $image_urls = is_array($output) ? $output : [$output];
-        $images = array_map(fn ($url) => ['url' => $url, 'b64_json' => null], $image_urls);
+        $images = array_map(function ($item) {
+            if (is_array($item) && isset($item['url'])) {
+                $url = $item['url'];
+            } else {
+                $url = $item;
+            }
+            return ['url' => $url, 'b64_json' => null];
+        }, $image_urls);
+        $images = array_filter($images, fn ($image) => !empty($image['url']));
+        if (empty($images)) {
+            return new WP_Error('replicate_no_output_url', 'Prediction succeeded but no image URL was found.');
+        }
 
         $predict_time = $decoded_response['metrics']['predict_time'] ?? 0;
         $estimated_tokens = round($predict_time * 500);

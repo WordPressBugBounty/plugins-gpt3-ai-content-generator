@@ -61,14 +61,14 @@ class AIPKit_Get_Automated_Tasks_Action extends AIPKit_Automated_Task_Base_Ajax_
         }
 
         $total_items_query = "SELECT COUNT(*) FROM {$this->tasks_table_name}" . $where_sql;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: This is a direct query for counting, caching is not applicable here.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: This is a direct query for counting, caching is not applicable here.
         $total_items = $wpdb->get_var($wpdb->prepare($total_items_query, $prepare_args));
 
         $prepare_args_for_select = $prepare_args;
         $prepare_args_for_select[] = $items_per_page;
         $prepare_args_for_select[] = $offset;
         $query = "SELECT * FROM {$this->tasks_table_name}" . $where_sql . " ORDER BY " . esc_sql($orderby_col) . " " . esc_sql($order_dir) . " LIMIT %d OFFSET %d";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: This is a direct query for selecting items, caching is not applicable here.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: This is a direct query for selecting items, caching is not applicable here.
         $tasks = $wpdb->get_results($wpdb->prepare($query, $prepare_args_for_select), ARRAY_A);
 
 

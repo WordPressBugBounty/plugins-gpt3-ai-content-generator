@@ -23,7 +23,7 @@ class AIPKit_OpenAI_Moderation_Checker {
      * Checks if text should be moderated by OpenAI and performs the check if applicable.
      *
      * @param string $text The text content to check.
-     * @param array $bot_settings Settings of the current bot (used for provider check).
+     * @param array $bot_settings Settings of the current bot (used for provider and moderation checks).
      * @return WP_Error|null WP_Error if flagged by OpenAI, null otherwise or if not applicable.
      */
     public static function check(string $text, array $bot_settings): ?WP_Error {
@@ -34,7 +34,13 @@ class AIPKit_OpenAI_Moderation_Checker {
             return null;
         }
 
-        // 2. Determine the AI provider for the current context (bot settings)
+        // 2. Require OpenAI moderation to be enabled for this bot
+        $moderation_enabled = $bot_settings['openai_moderation_enabled'] ?? '0';
+        if (!($moderation_enabled === '1' || $moderation_enabled === 1 || $moderation_enabled === true)) {
+            return null;
+        }
+
+        // 3. Determine the AI provider for the current context (bot settings)
         $provider_from_bot = $bot_settings['provider'] ?? null;
         $global_default_provider = null;
         if (class_exists(\WPAICG\AIPKit_Providers::class)) { // Ensure Providers class is loaded
@@ -42,16 +48,16 @@ class AIPKit_OpenAI_Moderation_Checker {
         }
         $current_provider = $provider_from_bot ?: $global_default_provider;
 
-        // 3. OpenAI Moderation only applies if the selected provider is OpenAI
+        // 4. OpenAI Moderation only applies if the selected provider is OpenAI
         if ($current_provider !== 'OpenAI') {
             return null;
         }
 
-        // 4. Use the Pro Facade's perform_moderation method.
+        // 5. Use the Pro Facade's perform_moderation method.
         // This method internally calls ProOpenAIModerationFacade::is_required() and then the executor.
-        $moderation_result = ProOpenAIModerationFacade::perform_moderation($text);
+        $moderation_result = ProOpenAIModerationFacade::perform_moderation($text, $bot_settings);
 
-        // 5. Analyze the result from the Pro Facade:
+        // 6. Analyze the result from the Pro Facade:
         // - null: Moderation wasn't required by Pro Facade's internal checks, or an API error occurred (Pro Facade handles logging).
         // - false: Moderation check passed.
         // - string: Moderation flagged the message, and the string is the user-facing message.

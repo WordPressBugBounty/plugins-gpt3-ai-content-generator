@@ -71,6 +71,7 @@ function ajax_load_more_image_history_logic(): void
                 // Format duration for display
                 $duration_display = '';
                 if ($duration) {
+                    /* translators: %d: duration in seconds */
                     $duration_display = sprintf(__('Duration: %ds', 'gpt3-ai-content-generator'), intval($duration));
                 }
                 
@@ -115,7 +116,7 @@ function ajax_load_more_image_history_logic(): void
                 <div class="aipkit-image-history-item">
                     <a href="<?php echo esc_url($full_url); ?>" target="_blank" rel="noopener noreferrer">
                         <?php // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function (e.g., `wp_get_attachment_image_url`). The `<img>` tag is constructed manually to build a custom HTML structure with specific wrappers, classes, or attributes that are not achievable with the standard `wp_get_attachment_image()` function. ?>
-                        <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr($prompt ?: 'AI Generated Image'); ?>">
+                        <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr($prompt ?: 'Image'); ?>">
                         <div class="aipkit-image-overlay">
                             <span class="aipkit-media-type-badge"><?php esc_html_e('IMAGE', 'gpt3-ai-content-generator'); ?></span>
                         </div>

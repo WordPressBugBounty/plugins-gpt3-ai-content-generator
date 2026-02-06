@@ -6,6 +6,7 @@
 
 namespace WPAICG\AutoGPT\Ajax\Actions\SaveTask;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -26,11 +27,11 @@ function build_task_config_enhancement_logic(array $post_data): array|WP_Error
     $task_config['post_authors'] = isset($post_data['post_authors']) && is_array($post_data['post_authors']) ? array_map('absint', $post_data['post_authors']) : [];
     $task_config['post_statuses'] = isset($post_data['post_statuses']) && is_array($post_data['post_statuses']) ? array_map('sanitize_key', $post_data['post_statuses']) : ['publish'];
 
-    // Fields to enhance
-    $task_config['update_title'] = isset($post_data['update_title']) ? '1' : '0';
-    $task_config['update_excerpt'] = isset($post_data['update_excerpt']) ? '1' : '0';
-    $task_config['update_meta'] = isset($post_data['update_meta']) ? '1' : '0';
-    $task_config['update_content'] = isset($post_data['update_content']) ? '1' : '0';
+    // Fields to enhance (respect explicit '1'/'0' values from frontend)
+    $task_config['update_title'] = (isset($post_data['update_title']) && $post_data['update_title'] === '1') ? '1' : '0';
+    $task_config['update_excerpt'] = (isset($post_data['update_excerpt']) && $post_data['update_excerpt'] === '1') ? '1' : '0';
+    $task_config['update_meta'] = (isset($post_data['update_meta']) && $post_data['update_meta'] === '1') ? '1' : '0';
+    $task_config['update_content'] = (isset($post_data['update_content']) && $post_data['update_content'] === '1') ? '1' : '0';
 
     // Prompts
     $task_config['title_prompt'] = isset($post_data['title_prompt']) ? sanitize_textarea_field(wp_unslash($post_data['title_prompt'])) : '';
@@ -47,13 +48,14 @@ function build_task_config_enhancement_logic(array $post_data): array|WP_Error
     $task_config['ai_model'] = $post_data['ai_model'] ?? '';
     $task_config['ai_temperature'] = isset($post_data['ai_temperature']) ? floatval($post_data['ai_temperature']) : 1.0;
     $task_config['content_max_tokens'] = isset($post_data['content_max_tokens']) ? absint($post_data['content_max_tokens']) : 4000;
-    $task_config['reasoning_effort'] = isset($post_data['reasoning_effort']) ? sanitize_key($post_data['reasoning_effort']) : 'low';
+    $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data['reasoning_effort'] ?? '');
+    $task_config['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : 'low';
 
     // Task Frequency
     $task_config['task_frequency'] = isset($post_data['task_frequency']) ? sanitize_key($post_data['task_frequency']) : 'daily';
 
-    // One-time run flag
-    $task_config['enhance_existing_now_flag'] = isset($post_data['enhance_existing_now_flag']) ? '1' : '0';
+    // One-time run flag (explicit value)
+    $task_config['enhance_existing_now_flag'] = (isset($post_data['enhance_existing_now_flag']) && $post_data['enhance_existing_now_flag'] === '1') ? '1' : '0';
 
     // --- START: NEW Vector Store Settings ---
     $task_config['enable_vector_store'] = isset($post_data['enable_vector_store']) && $post_data['enable_vector_store'] === '1' ? '1' : '0';
@@ -78,10 +80,10 @@ function build_task_config_enhancement_logic(array $post_data): array|WP_Error
 
     // Validation
     if (empty($task_config['post_types'])) {
-        return new WP_Error('missing_post_types_enhance', __('Please select at least one post type to enhance.', 'gpt3-ai-content-generator'));
+        return new WP_Error('missing_post_types_enhance', __('Please select at least one post type to update.', 'gpt3-ai-content-generator'));
     }
     if ($task_config['update_title'] !== '1' && $task_config['update_excerpt'] !== '1' && $task_config['update_meta'] !== '1' && $task_config['update_content'] !== '1') {
-        return new WP_Error('no_enhancement_selected', __('Please select at least one field to enhance.', 'gpt3-ai-content-generator'));
+        return new WP_Error('no_enhancement_selected', __('Please select at least one field to update (Title, Excerpt, Content, or Meta Description).', 'gpt3-ai-content-generator'));
     }
 
     return $task_config;

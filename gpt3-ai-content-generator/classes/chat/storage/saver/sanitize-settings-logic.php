@@ -5,6 +5,7 @@
 
 namespace WPAICG\Chat\Storage\SaverMethods;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Chat\Storage\BotSettingsManager;
 use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKit_Providers;
@@ -32,14 +33,21 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     if (!class_exists(BotSettingsManager::class)) {
         // Fallback defaults if class is missing
         $custom_theme_defaults = [
-             'font_family' => 'inherit', 'bubble_border_radius' => 18,
-             'container_bg_color' => '#FFFFFF', /* ... other minimal defaults */
-             // --- NEW DIMENSION DEFAULTS (Fallback) ---
-             'container_max_width' => 650, 'popup_width' => 400,
-             'container_height' => 450, 'container_max_height' => 70,
-             'container_min_height' => 250, 'popup_height' => 450,
-             'popup_min_height' => 250, 'popup_max_height' => 70,
-             // --- END NEW DIMENSION DEFAULTS (Fallback) ---
+            'primary_color' => '#0F766E',
+            'secondary_color' => '#ECFEFF',
+            'auto_text_contrast' => '1',
+            'font_family' => 'inherit',
+            'bubble_border_radius' => 18,
+            // --- NEW DIMENSION DEFAULTS (Fallback) ---
+            'container_max_width' => 896,
+            'popup_width' => 450,
+            'container_height' => 560,
+            'container_min_height' => 320,
+            'container_max_height' => 70,
+            'popup_height' => 680,
+            'popup_min_height' => 320,
+            'popup_max_height' => 90,
+            // --- END NEW DIMENSION DEFAULTS (Fallback) ---
         ];
     } else {
         $custom_theme_defaults = BotSettingsManager::get_custom_theme_defaults();
@@ -47,9 +55,10 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
 
 
     $sanitized['greeting'] = isset($raw_settings['greeting']) ? sanitize_textarea_field($raw_settings['greeting']) : '';
+    $sanitized['subgreeting'] = isset($raw_settings['subgreeting']) ? sanitize_textarea_field($raw_settings['subgreeting']) : '';
     $sanitized['provider'] = isset($raw_settings['provider']) ? sanitize_text_field($raw_settings['provider']) : '';
     $valid_themes = ['light', 'dark', 'custom', 'chatgpt'];
-    $sanitized['theme'] = isset($raw_settings['theme']) && in_array($raw_settings['theme'], $valid_themes) ? sanitize_text_field($raw_settings['theme']) : 'light';
+    $sanitized['theme'] = isset($raw_settings['theme']) && in_array($raw_settings['theme'], $valid_themes) ? sanitize_text_field($raw_settings['theme']) : 'dark';
     $sanitized['instructions'] = isset($raw_settings['instructions']) ? sanitize_textarea_field($raw_settings['instructions']) : '';
     $sanitized['popup_enabled'] = (isset($raw_settings['popup_enabled']) && $raw_settings['popup_enabled'] === '1') ? '1' : '0';
     $sanitized['popup_position'] = isset($raw_settings['popup_position']) ? sanitize_key($raw_settings['popup_position']) : 'bottom-right';
@@ -64,17 +73,66 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['popup_icon_type'] = isset($raw_settings['popup_icon_type']) && in_array($raw_settings['popup_icon_type'], ['default', 'custom']) ? $raw_settings['popup_icon_type'] : BotSettingsManager::DEFAULT_POPUP_ICON_TYPE;
     $sanitized['popup_icon_value'] = '';
     if ($sanitized['popup_icon_type'] === 'default') {
-        $default_icon_key = isset($raw_settings['popup_icon_default']) && in_array($raw_settings['popup_icon_default'], ['chat-bubble', 'plus', 'question-mark']) ? $raw_settings['popup_icon_default'] : BotSettingsManager::DEFAULT_POPUP_ICON_VALUE;
+        $default_icon_key = isset($raw_settings['popup_icon_default']) && in_array($raw_settings['popup_icon_default'], ['chat-bubble', 'spark', 'openai', 'plus', 'question-mark']) ? $raw_settings['popup_icon_default'] : BotSettingsManager::DEFAULT_POPUP_ICON_VALUE;
         $sanitized['popup_icon_value'] = $default_icon_key;
     } elseif ($sanitized['popup_icon_type'] === 'custom') {
         $sanitized['popup_icon_value'] = isset($raw_settings['popup_icon_custom_url']) ? esc_url_raw(trim($raw_settings['popup_icon_custom_url'])) : '';
     }
     $sanitized['stream_enabled'] = (isset($raw_settings['stream_enabled']) && $raw_settings['stream_enabled'] === '1') ? '1' : '0';
     $sanitized['footer_text'] = isset($raw_settings['footer_text']) ? wp_kses_post($raw_settings['footer_text']) : '';
+    $allowed_header_icons = ['chat-bubble', 'spark', 'openai', 'plus', 'question-mark'];
+    $header_avatar_type = isset($raw_settings['header_avatar_type']) && in_array($raw_settings['header_avatar_type'], ['default', 'custom'], true)
+        ? sanitize_key($raw_settings['header_avatar_type'])
+        : BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE;
+    if (!isset($raw_settings['header_avatar_type']) && !empty($raw_settings['header_avatar_url'])) {
+        $header_avatar_type = 'custom';
+    }
+    $header_avatar_value = '';
+    $header_avatar_url = '';
+    if ($header_avatar_type === 'custom') {
+        $header_avatar_url = isset($raw_settings['header_avatar_url'])
+            ? esc_url_raw(trim((string)$raw_settings['header_avatar_url']))
+            : BotSettingsManager::DEFAULT_HEADER_AVATAR_URL;
+        $header_avatar_value = $header_avatar_url;
+    } else {
+        $default_avatar_key = isset($raw_settings['header_avatar_default']) && in_array($raw_settings['header_avatar_default'], $allowed_header_icons, true)
+            ? sanitize_key($raw_settings['header_avatar_default'])
+            : BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
+        $header_avatar_value = $default_avatar_key;
+    }
+    $sanitized['header_avatar_type'] = $header_avatar_type;
+    $sanitized['header_avatar_value'] = $header_avatar_value;
+    $sanitized['header_avatar_url'] = $header_avatar_url;
+    $sanitized['header_online_text'] = isset($raw_settings['header_online_text'])
+        ? sanitize_text_field($raw_settings['header_online_text'])
+        : __('Online', 'gpt3-ai-content-generator');
     $sanitized['enable_fullscreen'] = (isset($raw_settings['enable_fullscreen']) && $raw_settings['enable_fullscreen'] === '1') ? '1' : '0';
     $sanitized['enable_download'] = (isset($raw_settings['enable_download']) && $raw_settings['enable_download'] === '1') ? '1' : '0';
     $sanitized['enable_copy_button'] = (isset($raw_settings['enable_copy_button']) && $raw_settings['enable_copy_button'] === '1') ? '1' : '0';
     $sanitized['enable_feedback'] = (isset($raw_settings['enable_feedback']) && $raw_settings['enable_feedback'] === '1') ? '1' : '0';
+    $sanitized['enable_consent_compliance'] = (isset($raw_settings['enable_consent_compliance']) && $raw_settings['enable_consent_compliance'] === '1') ? '1' : '0';
+    $sanitized['enable_ip_anonymization'] = (isset($raw_settings['enable_ip_anonymization']) && $raw_settings['enable_ip_anonymization'] === '1') ? '1' : '0';
+    $sanitized['consent_title'] = isset($raw_settings['consent_title']) ? sanitize_text_field($raw_settings['consent_title']) : '';
+    $sanitized['consent_message'] = isset($raw_settings['consent_message']) ? wp_kses_post($raw_settings['consent_message']) : '';
+    $sanitized['consent_button'] = isset($raw_settings['consent_button']) ? sanitize_text_field($raw_settings['consent_button']) : '';
+    $sanitized['openai_moderation_enabled'] = (isset($raw_settings['openai_moderation_enabled']) && $raw_settings['openai_moderation_enabled'] === '1') ? '1' : '0';
+    $sanitized['openai_moderation_message'] = isset($raw_settings['openai_moderation_message']) ? sanitize_text_field($raw_settings['openai_moderation_message']) : '';
+    $banned_words_raw = isset($raw_settings['banned_words']) ? sanitize_textarea_field($raw_settings['banned_words']) : BotSettingsManager::DEFAULT_BANNED_WORDS;
+    $banned_words_array = array_map('trim', explode(',', strtolower($banned_words_raw)));
+    $sanitized['banned_words'] = implode(',', array_filter($banned_words_array, function ($word) {
+        return $word !== '';
+    }));
+    $sanitized['banned_words_message'] = isset($raw_settings['banned_words_message'])
+        ? sanitize_text_field($raw_settings['banned_words_message'])
+        : BotSettingsManager::DEFAULT_BANNED_WORDS_MESSAGE;
+    $banned_ips_raw = isset($raw_settings['banned_ips']) ? sanitize_textarea_field($raw_settings['banned_ips']) : BotSettingsManager::DEFAULT_BANNED_IPS;
+    $banned_ips_array = array_map('trim', explode(',', $banned_ips_raw));
+    $sanitized['banned_ips'] = implode(',', array_filter($banned_ips_array, function ($ip) {
+        return $ip !== '';
+    }));
+    $sanitized['banned_ips_message'] = isset($raw_settings['banned_ips_message'])
+        ? sanitize_text_field($raw_settings['banned_ips_message'])
+        : BotSettingsManager::DEFAULT_BANNED_IPS_MESSAGE;
     $sanitized['enable_conversation_sidebar'] = (isset($raw_settings['enable_conversation_sidebar']) && $raw_settings['enable_conversation_sidebar'] === '1') ? '1' : '0';
     // Typing indicator customization
     $sanitized['custom_typing_text'] = isset($raw_settings['custom_typing_text']) ? sanitize_text_field($raw_settings['custom_typing_text']) : '';
@@ -82,7 +140,8 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['temperature'] = isset($raw_settings['temperature']) ? floatval($raw_settings['temperature']) : BotSettingsManager::DEFAULT_TEMPERATURE;
     $sanitized['max_completion_tokens'] = isset($raw_settings['max_completion_tokens']) ? absint($raw_settings['max_completion_tokens']) : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
     $sanitized['max_messages'] = isset($raw_settings['max_messages']) ? absint($raw_settings['max_messages']) : BotSettingsManager::DEFAULT_MAX_MESSAGES;
-    $sanitized['reasoning_effort'] = isset($raw_settings['reasoning_effort']) && in_array($raw_settings['reasoning_effort'], ['minimal', 'low', 'medium', 'high']) ? sanitize_key($raw_settings['reasoning_effort']) : BotSettingsManager::DEFAULT_REASONING_EFFORT;
+    $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($raw_settings['reasoning_effort'] ?? '');
+    $sanitized['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : BotSettingsManager::DEFAULT_REASONING_EFFORT;
     $sanitized['enable_conversation_starters'] = (isset($raw_settings['enable_conversation_starters']) && $raw_settings['enable_conversation_starters'] === '1') ? '1' : '0';
     $starters_raw = isset($raw_settings['conversation_starters']) ? $raw_settings['conversation_starters'] : ''; // Textarea value
     $starters_array = [];
@@ -276,6 +335,8 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
                 'Garamond, serif', '"Courier New", Courier, monospace', '"Brush Script MT", cursive', 'inherit'
             ];
             $custom_theme_settings_sanitized[$key] = in_array($value, $allowed_fonts, true) ? $value : ($custom_theme_defaults['font_family'] ?? 'inherit');
+        } elseif ($key === 'auto_text_contrast') {
+            $custom_theme_settings_sanitized[$key] = ($value === '0' || $value === 0) ? '0' : '1';
         } elseif ($key === 'bubble_border_radius' ||
                    $key === 'container_max_width' ||
                    $key === 'popup_width' ||

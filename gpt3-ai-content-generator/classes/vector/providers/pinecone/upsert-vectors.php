@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  * @return array|WP_Error Result of the upsert operation or WP_Error.
  */
 function upsert_vectors_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $index_name, array $vectors_data): array|WP_Error {
-    $index_description = describe_index_logic($strategyInstance, $index_name); // Use externalized describe_index_logic
+    $index_description = get_index_overview_logic($strategyInstance, $index_name);
     if (is_wp_error($index_description)) return $index_description;
     $host = $index_description['host'] ?? null;
     if (empty($host)) return new WP_Error('missing_host_pinecone_upsert', __('Index host not found for upsert operation.', 'gpt3-ai-content-generator'));
@@ -37,6 +37,7 @@ function upsert_vectors_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance,
         foreach ($vectors_list as $vec) {
             $values = $vec['values'] ?? $vec['vector'] ?? null;
             if (is_array($values) && count($values) !== $expected_dim) {
+                /* translators: %1$d: expected dimension, %2$d: actual dimension */
                 return new WP_Error('vector_dimension_mismatch', sprintf(__('Vector dimension mismatch. Expected %1$d, got %2$d.', 'gpt3-ai-content-generator'), $expected_dim, count($values)));
             }
         }

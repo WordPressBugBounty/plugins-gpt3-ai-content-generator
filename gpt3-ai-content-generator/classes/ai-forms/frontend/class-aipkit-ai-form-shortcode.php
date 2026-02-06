@@ -109,11 +109,10 @@ class AIPKit_AI_Form_Shortcode
             'azure'      => \WPAICG\AIPKit_Providers::get_azure_deployments(),
             'deepseek'   => \WPAICG\AIPKit_Providers::get_deepseek_models(),
                 ];
-                // Add Ollama models only for Pro plan and when addon is active
+                // Add Ollama models only for Pro plan
                 if (
                     class_exists('\\WPAICG\\aipkit_dashboard') &&
-                    \WPAICG\aipkit_dashboard::is_pro_plan() &&
-                    \WPAICG\aipkit_dashboard::is_addon_active('ollama')
+                    \WPAICG\aipkit_dashboard::is_pro_plan()
                 ) {
             $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
                 }
@@ -123,7 +122,7 @@ class AIPKit_AI_Form_Shortcode
         }
 
         // 4. Conditionally enqueue jsPDF
-        if ($show_pdf_download && class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan() && \WPAICG\aipkit_dashboard::is_addon_active('pdf_download')) {
+        if ($show_pdf_download && class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan()) {
             if (wp_script_is('aipkit_jspdf', 'registered') && !wp_script_is('aipkit_jspdf', 'enqueued')) {
                 wp_enqueue_script('aipkit_jspdf');
             }

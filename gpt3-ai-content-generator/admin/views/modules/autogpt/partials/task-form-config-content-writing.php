@@ -19,8 +19,11 @@ use WPAICG\aipkit_dashboard; // For pro checks
 
 ?>
 <div id="aipkit_task_config_cw_main" class="aipkit_task_config_section">
-
-
-    <?php include __DIR__ . '/content-writing/post-settings.php'; ?>
-
+    <div class="aipkit_autogpt_setting_cards">
+        <?php
+        $aipkit_post_settings_card_id = 'aipkit_autogpt_cw_post_settings_popover';
+        $aipkit_post_settings_popover_body_path = __DIR__ . '/content-writing/post-settings.php';
+        include __DIR__ . '/shared/post-settings-card.php';
+        ?>
+    </div>
 </div> <!-- End Content Writing Specific Fields -->

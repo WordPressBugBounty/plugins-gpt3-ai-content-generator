@@ -3,7 +3,13 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/hook-registrars/class-ajax-hooks-registrar.php
 // Status: MODIFIED
 
-namespace WPAICG\Includes\HookRegistrars;
+namespace {
+    if (!defined('ABSPATH')) {
+        exit; // Exit if accessed directly
+    }
+}
+
+namespace WPAICG\Includes\HookRegistrars {
 
 // --- Use statements for ALL handlers/services needed by ANY registrar ---
 // Core Functionality
@@ -31,12 +37,14 @@ use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Excerpt_Act
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Tags_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Save_Post_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Create_Task_Action;
+use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Prepare_Batch_Action;
 // --- MODIFIED: Use new SEO action classes ---
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Images_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Meta_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Keyword_Action;
 // --- MODIFIED: Use new CSV parsing action class ---
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Parse_Csv_Action;
+use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Fetch_Posts_Action;
 // --- END MODIFICATION ---
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Template_Ajax_Handler;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Ajax_Handler;
@@ -45,29 +53,14 @@ use WPAICG\Chat\Frontend\Ajax\ChatFormSubmissionAjaxHandler;
 use WPAICG\Lib\Chat\Frontend\Ajax\ChatFileUploadAjaxDispatcher as LibChatFileUploadAjaxDispatcher;
 use WPAICG\Dashboard\Ajax\SettingsAjaxHandler;
 use WPAICG\Dashboard\Ajax\ModelsAjaxHandler;
-use WPAICG\Admin\AIPKit_Migration_Handler;
-use WPAICG\Admin\Ajax\Migration\AIPKit_Analyze_Old_Data_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Global_Settings_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Chatbot_Data_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Image_Data_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_CPT_Data_Action;
-use WPAICG\Admin\Ajax\Migration\Delete\AIPKit_Delete_Old_Cron_Jobs_Action;
 // --- NEW: Post Enhancer Actions Handler ---
 use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
 // --- ADDED: Use statement for Semantic Search handler ---
 use WPAICG\Core\Ajax\AIPKit_Semantic_Search_Ajax_Handler;
 use WPAICG\Lib\Chat\Frontend\Ajax\Handlers\AIPKit_Realtime_Session_Ajax_Handler;
-use WPAICG\Chat\Ajax\AIPKit_Chatbot_Index_Content_Ajax_Handler;
 
 
 // --- END ADDED ---
-
-// Migration action classes are handled by AIPKit_Migration_Handler, so no need for `use` statements for them here.
-
-if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
-}
-
 /**
  * Registers AJAX action hooks.
  */
@@ -106,6 +99,8 @@ class Ajax_Hooks_Registrar
         $content_writer_generate_images_action = class_exists(AIPKit_Content_Writer_Generate_Images_Action::class) ? new AIPKit_Content_Writer_Generate_Images_Action() : null;
         // --- MODIFIED: Instantiate new CSV action class ---
         $content_writer_parse_csv_action = class_exists(AIPKit_Content_Writer_Parse_Csv_Action::class) ? new AIPKit_Content_Writer_Parse_Csv_Action() : null;
+        $content_writer_fetch_posts_action = class_exists(AIPKit_Content_Writer_Fetch_Posts_Action::class) ? new AIPKit_Content_Writer_Fetch_Posts_Action() : null;
+        $content_writer_prepare_batch_action = class_exists(AIPKit_Content_Writer_Prepare_Batch_Action::class) ? new AIPKit_Content_Writer_Prepare_Batch_Action() : null;
         // --- END MODIFICATION ---
         $enhancer_actions_ajax_handler = class_exists(AIPKit_Enhancer_Actions_Ajax_Handler::class) ? new AIPKit_Enhancer_Actions_Ajax_Handler() : null;
 
@@ -114,12 +109,9 @@ class Ajax_Hooks_Registrar
             if (method_exists($settings_ajax_handler, 'ajax_save_settings')) {
                 add_action('wp_ajax_aipkit_save_ai_settings', [$settings_ajax_handler, 'ajax_save_settings']);
             }
-            if (method_exists($settings_ajax_handler, 'ajax_handle_migration_choice')) {
-                add_action('wp_ajax_aipkit_handle_migration_choice', [$settings_ajax_handler, 'ajax_handle_migration_choice']);
-            }
-            // --- ADDED: Register the new migration dismiss action ---
-            if (method_exists($settings_ajax_handler, 'ajax_dismiss_migration_notice')) {
-                add_action('wp_ajax_aipkit_dismiss_migration_notice', [$settings_ajax_handler, 'ajax_dismiss_migration_notice']);
+            // --- ADDED: Register the Chatolia notice dismiss action ---
+            if (method_exists($settings_ajax_handler, 'ajax_dismiss_chatolia_notice')) {
+                add_action('wp_ajax_aipkit_dismiss_chatolia_notice', [$settings_ajax_handler, 'ajax_dismiss_chatolia_notice']);
             }
             // --- END ADDED ---
         }
@@ -130,38 +122,6 @@ class Ajax_Hooks_Registrar
             }
         }
         // --- END MODIFICATION ---
-
-        if (class_exists(AIPKit_Migration_Handler::class)) {
-            $migration_handler = new AIPKit_Migration_Handler();
-            if (method_exists($migration_handler, 'register_ajax_hooks')) {
-                $migration_handler->register_ajax_hooks();
-            }
-        }
-
-        if (class_exists(AIPKit_Analyze_Old_Data_Action::class)) {
-            $analyze_action = new AIPKit_Analyze_Old_Data_Action();
-            if (method_exists($analyze_action, 'handle_request')) {
-                add_action('wp_ajax_aipkit_analyze_old_data', [$analyze_action, 'handle_request']);
-            }
-        }
-
-        // --- ADDED: Register deletion AJAX hooks ---
-        $deletion_actions = [
-            'aipkit_delete_old_global_settings' => AIPKit_Delete_Old_Global_Settings_Action::class,
-            'aipkit_delete_old_chatbot_data'    => AIPKit_Delete_Old_Chatbot_Data_Action::class,
-            'aipkit_delete_old_image_data'      => AIPKit_Delete_Old_Image_Data_Action::class,
-            'aipkit_delete_old_cpt_data'        => AIPKit_Delete_Old_CPT_Data_Action::class,
-            'aipkit_delete_old_cron_jobs'       => AIPKit_Delete_Old_Cron_Jobs_Action::class,
-        ];
-        foreach ($deletion_actions as $action_name => $class_name) {
-            if (class_exists($class_name)) {
-                $action_instance = new $class_name();
-                if (method_exists($action_instance, 'handle_request')) {
-                    add_action('wp_ajax_' . $action_name, [$action_instance, 'handle_request']);
-                }
-            }
-        }
-        // --- END ADDED ---
 
         if (method_exists($image_settings_ajax_handler, 'ajax_save_image_settings')) {
             add_action('wp_ajax_aipkit_save_image_settings', [$image_settings_ajax_handler, 'ajax_save_image_settings']);
@@ -188,6 +148,7 @@ class Ajax_Hooks_Registrar
         add_action('wp_ajax_aipkit_delete_file_from_vector_store_openai', [$openai_vs_files_ajax_handler, 'ajax_delete_file_from_vector_store_openai']);
         add_action('wp_ajax_aipkit_add_text_to_vector_store_openai', [$openai_vs_files_ajax_handler, 'ajax_add_text_to_vector_store_openai']);
         add_action('wp_ajax_aipkit_upload_and_add_file_to_store_direct_openai', [$openai_vs_files_ajax_handler, 'ajax_upload_and_add_file_to_store_direct_openai']);
+        add_action('wp_ajax_aipkit_get_openai_file_batch_status', [$openai_vs_files_ajax_handler, 'ajax_get_openai_file_batch_status']);
         add_action('wp_ajax_aipkit_get_openai_indexing_logs', [$openai_vs_files_ajax_handler, 'ajax_get_openai_indexing_logs']);
 
         add_action('wp_ajax_aipkit_fetch_wp_content_for_indexing', [$openai_wp_content_indexing_ajax_handler, 'ajax_fetch_wp_content_for_indexing']);
@@ -217,6 +178,9 @@ class Ajax_Hooks_Registrar
         if (method_exists($core_ajax_handler, 'ajax_generate_embedding')) {
             add_action('wp_ajax_aipkit_generate_embedding', [$core_ajax_handler, 'ajax_generate_embedding']);
         }
+        if (method_exists($core_ajax_handler, 'ajax_get_global_vector_sources')) {
+            add_action('wp_ajax_aipkit_get_global_vector_sources', [$core_ajax_handler, 'ajax_get_global_vector_sources']);
+        }
         if (method_exists($core_ajax_handler, 'ajax_delete_vector_data_source_entry')) {
             add_action('wp_ajax_aipkit_delete_vector_data_source_entry', [$core_ajax_handler, 'ajax_delete_vector_data_source_entry']);
         }
@@ -232,33 +196,33 @@ class Ajax_Hooks_Registrar
         if (method_exists($core_ajax_handler, 'ajax_save_cpt_indexing_options')) {
             add_action('wp_ajax_aipkit_save_cpt_indexing_options', [$core_ajax_handler, 'ajax_save_cpt_indexing_options']);
         }
-        // NEW: AJAX action for fetching knowledge base stats
-        if (method_exists($core_ajax_handler, 'ajax_get_knowledge_base_stats')) {
-            add_action('wp_ajax_aipkit_get_knowledge_base_stats', [$core_ajax_handler, 'ajax_get_knowledge_base_stats']);
+        if (method_exists($core_ajax_handler, 'ajax_get_stats_overview')) {
+            add_action('wp_ajax_aipkit_stats_get_overview', [$core_ajax_handler, 'ajax_get_stats_overview']);
         }
-        // NEW: AJAX action for SYNCING knowledge base stats
-        if (method_exists($core_ajax_handler, 'ajax_sync_knowledge_base_stats')) {
-            add_action('wp_ajax_aipkit_sync_knowledge_base_stats', [$core_ajax_handler, 'ajax_sync_knowledge_base_stats']);
+        if (method_exists($core_ajax_handler, 'ajax_get_stats_logs')) {
+            add_action('wp_ajax_aipkit_stats_get_logs', [$core_ajax_handler, 'ajax_get_stats_logs']);
         }
-        // NEW: AJAX action for refreshing knowledge base cards
-        if (method_exists($core_ajax_handler, 'ajax_refresh_knowledge_base_cards')) {
-            add_action('wp_ajax_aipkit_refresh_knowledge_base_cards', [$core_ajax_handler, 'ajax_refresh_knowledge_base_cards']);
+        if (method_exists($core_ajax_handler, 'ajax_get_stats_log_detail')) {
+            add_action('wp_ajax_aipkit_stats_get_log_detail', [$core_ajax_handler, 'ajax_get_stats_log_detail']);
         }
-
-        // --- NEW: Chatbot Index Content AJAX Handlers ---
-        if (class_exists('\WPAICG\Chat\Ajax\AIPKit_Chatbot_Index_Content_Ajax_Handler')) {
-            $chatbot_index_content_ajax_handler = new \WPAICG\Chat\Ajax\AIPKit_Chatbot_Index_Content_Ajax_Handler();
-            add_action('wp_ajax_aipkit_check_indexing_status', [$chatbot_index_content_ajax_handler, 'ajax_check_indexing_status']);
-            add_action('wp_ajax_aipkit_analyze_express_setup', [$chatbot_index_content_ajax_handler, 'ajax_analyze_express_setup']);
-            add_action('wp_ajax_aipkit_start_content_indexing', [$chatbot_index_content_ajax_handler, 'ajax_start_content_indexing']);
-            add_action('wp_ajax_aipkit_cancel_content_indexing', [$chatbot_index_content_ajax_handler, 'ajax_cancel_content_indexing']);
-            add_action('wp_ajax_aipkit_get_indexing_progress', [$chatbot_index_content_ajax_handler, 'ajax_get_indexing_progress']);
-            
-            // Register cron action for background processing
-            add_action('aipkit_process_content_indexing', ['\WPAICG\Chat\Ajax\AIPKit_Chatbot_Index_Content_Ajax_Handler', 'process_content_indexing']);
+        if (method_exists($core_ajax_handler, 'ajax_export_stats_logs')) {
+            add_action('wp_ajax_aipkit_stats_export_logs', [$core_ajax_handler, 'ajax_export_stats_logs']);
         }
-        // --- END NEW ---
-
+        if (method_exists($core_ajax_handler, 'ajax_delete_stats_log')) {
+            add_action('wp_ajax_aipkit_stats_delete_log', [$core_ajax_handler, 'ajax_delete_stats_log']);
+        }
+        if (method_exists($core_ajax_handler, 'ajax_delete_stats_logs')) {
+            add_action('wp_ajax_aipkit_stats_delete_logs', [$core_ajax_handler, 'ajax_delete_stats_logs']);
+        }
+        if (method_exists($core_ajax_handler, 'ajax_save_stats_settings')) {
+            add_action('wp_ajax_aipkit_stats_save_settings', [$core_ajax_handler, 'ajax_save_stats_settings']);
+        }
+        if (method_exists($core_ajax_handler, 'ajax_get_stats_log_cron_status')) {
+            add_action('wp_ajax_aipkit_stats_get_log_cron_status', [$core_ajax_handler, 'ajax_get_stats_log_cron_status']);
+        }
+        if (method_exists($core_ajax_handler, 'ajax_prune_stats_logs_now')) {
+            add_action('wp_ajax_aipkit_stats_prune_logs_now', [$core_ajax_handler, 'ajax_prune_stats_logs_now']);
+        }
         if (method_exists($automated_task_manager, 'init_ajax_hooks')) {
             $automated_task_manager->init_ajax_hooks();
         }
@@ -276,12 +240,16 @@ class Ajax_Hooks_Registrar
         add_action('wp_ajax_aipkit_load_cw_template', [$content_writer_template_ajax_handler, 'ajax_load_template']);
         add_action('wp_ajax_aipkit_delete_cw_template', [$content_writer_template_ajax_handler, 'ajax_delete_template']);
         add_action('wp_ajax_aipkit_list_cw_templates', [$content_writer_template_ajax_handler, 'ajax_list_templates']);
+        add_action('wp_ajax_aipkit_reset_cw_starter_templates', [$content_writer_template_ajax_handler, 'ajax_reset_starter_templates']);
 
         if (method_exists($content_writer_save_post_action, 'handle')) {
             add_action('wp_ajax_aipkit_content_writer_save_post', [$content_writer_save_post_action, 'handle']);
         }
         if (method_exists($content_writer_create_task_action, 'handle')) {
             add_action('wp_ajax_aipkit_content_writer_create_task', [$content_writer_create_task_action, 'handle']);
+        }
+        if ($content_writer_prepare_batch_action && method_exists($content_writer_prepare_batch_action, 'handle')) {
+            add_action('wp_ajax_aipkit_content_writer_prepare_batch', [$content_writer_prepare_batch_action, 'handle']);
         }
         // --- NEW: Register new SEO action hooks ---
         if ($content_writer_generate_meta_action && method_exists($content_writer_generate_meta_action, 'handle')) {
@@ -303,6 +271,9 @@ class Ajax_Hooks_Registrar
         // --- MODIFIED: Register new CSV and URL action hooks ---
         if ($content_writer_parse_csv_action && method_exists($content_writer_parse_csv_action, 'handle')) {
             add_action('wp_ajax_aipkit_content_writer_parse_csv', [$content_writer_parse_csv_action, 'handle']);
+        }
+        if ($content_writer_fetch_posts_action && method_exists($content_writer_fetch_posts_action, 'handle')) {
+            add_action('wp_ajax_aipkit_content_writer_fetch_existing_posts', [$content_writer_fetch_posts_action, 'handle']);
         }
         // --- END MODIFICATION ---
 
@@ -345,6 +316,9 @@ class Ajax_Hooks_Registrar
             if (method_exists($enhancer_actions_ajax_handler, 'ajax_reset_actions')) {
                 add_action('wp_ajax_aipkit_reset_enhancer_actions', [$enhancer_actions_ajax_handler, 'ajax_reset_actions']);
             }
+            if (method_exists($enhancer_actions_ajax_handler, 'ajax_reorder_actions')) {
+                add_action('wp_ajax_aipkit_reorder_enhancer_actions', [$enhancer_actions_ajax_handler, 'ajax_reorder_actions']);
+            }
         }
         // --- END NEW ---
 
@@ -355,4 +329,6 @@ class Ajax_Hooks_Registrar
         }
         // --- END NEW ---
     }
+}
+
 }

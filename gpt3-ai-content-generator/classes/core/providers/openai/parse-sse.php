@@ -13,7 +13,15 @@ if (!defined('ABSPATH')) {
  */
 function parse_sse_chunk_logic_for_response_parser(string $sse_chunk, string &$current_buffer): array {
     $current_buffer .= $sse_chunk;
-    $result = ['delta' => null, 'usage' => null, 'is_error' => false, 'is_warning' => false, 'is_done' => false, 'openai_response_id' => null];
+    $result = [
+        'delta' => null,
+        'usage' => null,
+        'is_error' => false,
+        'is_warning' => false,
+        'is_done' => false,
+        'openai_response_id' => null,
+        'status' => null,
+    ];
 
     while (($line_end_pos = strpos($current_buffer, "\n\n")) !== false) {
         $event_block = substr($current_buffer, 0, $line_end_pos);
@@ -43,7 +51,38 @@ function parse_sse_chunk_logic_for_response_parser(string $sse_chunk, string &$c
         if ($event_data_json) {
             $decoded_data = json_decode($event_data_json, true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_data)) {
+                $set_status = function (string $type, array $payload = []) use (&$result): void {
+                    $status = ['type' => $type];
+                    if (isset($payload['response']['status'])) {
+                        $status['status'] = $payload['response']['status'];
+                    }
+                    if (isset($payload['response']['id'])) {
+                        $status['response_id'] = $payload['response']['id'];
+                    }
+                    if (isset($payload['item_id'])) {
+                        $status['item_id'] = $payload['item_id'];
+                    }
+                    if (isset($payload['output_index'])) {
+                        $status['output_index'] = $payload['output_index'];
+                    }
+                    $result['status'] = $status;
+                };
+
                 switch ($event_type) {
+                    case 'response.created':
+                    case 'response.in_progress':
+                    case 'response.queued':
+                    case 'response.web_search_call.in_progress':
+                    case 'response.web_search_call.searching':
+                    case 'response.web_search_call.completed':
+                    case 'response.file_search_call.in_progress':
+                    case 'response.file_search_call.searching':
+                    case 'response.file_search_call.completed':
+                    case 'response.image_generation_call.in_progress':
+                    case 'response.image_generation_call.generating':
+                    case 'response.image_generation_call.completed':
+                        $set_status($event_type, $decoded_data);
+                        break;
                     case 'response.output_text.delta':
                         $delta_text = $decoded_data['delta'] ?? '';
                         if ($delta_text !== '') {

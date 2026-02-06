@@ -13,7 +13,6 @@ use WP_Error;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
-use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 

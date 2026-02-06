@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 ?>
 <div class="aipkit_form_editor_actions">
     <button type="button" id="aipkit_save_ai_form_btn" class="aipkit_btn aipkit_btn-primary">
-        <span class="aipkit_btn-text"><?php esc_html_e('Save Form', 'gpt3-ai-content-generator'); ?></span>
+        <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
         <span class="aipkit_spinner" style="display:none;"></span>
     </button>
     <button type="button" id="aipkit_preview_ai_form_btn" class="aipkit_btn aipkit_btn-secondary" disabled>

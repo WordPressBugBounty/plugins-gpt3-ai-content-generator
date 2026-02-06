@@ -40,7 +40,10 @@ class AIPKit_Content_Writer_Create_Task_Action extends AIPKit_Content_Writer_Bas
         $raw_settings = isset($_POST) ? wp_unslash($_POST) : [];
 
         // --- NEW: Google Sheets Logic ---
-        $generation_mode = $raw_settings['cw_generation_mode'] ?? 'single';
+        $generation_mode = $raw_settings['cw_generation_mode'] ?? 'task';
+        if ($generation_mode === 'single') {
+            $generation_mode = 'task';
+        }
         if ($generation_mode === 'gsheets') {
             if (class_exists('\WPAICG\Lib\ContentWriter\AIPKit_Google_Sheets_Parser')) {
                 $sheet_id = $raw_settings['gsheets_sheet_id'] ?? '';

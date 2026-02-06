@@ -102,6 +102,7 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
 
         if ($status_code !== 200 || is_wp_error($decoded_response)) {
             $error_msg = is_wp_error($decoded_response) ? $decoded_response->get_error_message() : $this->parse_error_response($body, $status_code, 'Azure Image');
+            /* translators: %1$d: HTTP status code, %2$s: error message */
             return new WP_Error('azure_image_api_error', sprintf(__('Azure Image API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg));
         }
 

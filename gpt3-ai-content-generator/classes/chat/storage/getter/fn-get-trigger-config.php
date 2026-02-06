@@ -40,12 +40,32 @@ function get_trigger_config_logic(int $bot_id, callable $get_meta_fn): array
     }
 
     $decoded = json_decode($triggers_json_string, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+        // Attempt a targeted repair for unescaped quotes in body_template (common cause of invalid JSON).
+        $repaired = preg_replace_callback(
+            '/("body_template"\s*:\s*")(.+?)(")\s*,\s*"timeout_seconds"/s',
+            static function (array $matches): string {
+                $value = $matches[2];
+                $value = str_replace('\\', '\\\\', $value);
+                $value = str_replace('"', '\\"', $value);
+                return $matches[1] . $value . $matches[3] . ', "timeout_seconds"';
+            },
+            $triggers_json_string,
+            -1,
+            $repair_count
+        );
+        if (!empty($repair_count)) {
+            $decoded = json_decode($repaired, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $triggers_json_string = $repaired;
+            }
+        }
+    }
+
     if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-        // Ensure pretty print for consistent saving/display if needed, but not strictly necessary for JS.
-        // Storing the "cleaned" JSON might be better to avoid issues with slightly malformed but decodable JSON.
-        $settings['triggers_json'] = wp_json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); // Not pretty printing here for brevity
+        $settings['triggers_json'] = wp_json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     } else {
-        $settings['triggers_json'] = '[]'; // Default to empty array string if decode fails or not an array
+        $settings['triggers_json'] = '[]';
     }
     return $settings;
 }

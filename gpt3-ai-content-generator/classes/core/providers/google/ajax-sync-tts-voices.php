@@ -61,7 +61,7 @@ function ajax_sync_google_tts_voices_logic(string $option_name) {
     update_option($option_name, $voices, 'no');
 
     wp_send_json_success([
-        'message' => __('Google voices synced successfully.', 'gpt3-ai-content-generator'),
+        'message' => __('Sync ok.', 'gpt3-ai-content-generator'),
         'voices'  => $voices
     ]);
 }

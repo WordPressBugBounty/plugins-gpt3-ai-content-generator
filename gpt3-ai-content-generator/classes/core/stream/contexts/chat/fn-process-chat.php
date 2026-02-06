@@ -73,6 +73,7 @@ function process_chat_logic(
     if (empty($bot_settings)) {
         return new WP_Error('settings_load_failure_moderation', __('Could not load chatbot configuration.', 'gpt3-ai-content-generator'), ['status' => 500]);
     }
+    $enable_ip_anonymization = isset($bot_settings['enable_ip_anonymization']) && $bot_settings['enable_ip_anonymization'] === '1';
 
     $moderation_result = Process\run_content_moderation_logic($params['user_message_text'], $params['client_ip'], $bot_settings, $handlerInstance->get_log_storage(), $params['bot_id'], $params['user_id'], $params['session_id']);
     if (is_wp_error($moderation_result)) {
@@ -84,7 +85,7 @@ function process_chat_logic(
         'bot_id' => $params['bot_id'], 'user_id' => $params['user_id'], 'session_id' => $params['session_id'],
         'conversation_uuid' => $params['conversation_uuid'], 'module' => 'chat', 'is_guest' => ($params['user_id'] === 0),
         'role' => ($params['user_id'] > 0 && class_exists('WP_User') && ($u = get_user_by('id', $params['user_id'])) && isset($u->roles) && is_array($u->roles)) ? implode(', ', $u->roles) : 'guest',
-        'ip_address' => $params['client_ip'], 'form_id' => null,
+        'ip_address' => $params['client_ip'], 'ip_anonymize' => $enable_ip_anonymization, 'form_id' => null,
         'user_message_id_from_client' => $params['client_user_message_id']
     ];
     $bot_message_id_for_stream = 'aipkit-msg-' . uniqid('', true);

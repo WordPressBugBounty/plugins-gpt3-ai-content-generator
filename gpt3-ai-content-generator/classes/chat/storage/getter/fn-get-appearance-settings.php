@@ -34,14 +34,21 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
         } else {
             // Define minimal defaults if class is missing to avoid undefined index errors later
             $custom_theme_defaults = [
-                 'font_family' => 'inherit', 'bubble_border_radius' => 18,
-                 'container_bg_color' => '#FFFFFF', /* ... other minimal defaults */
-                 // --- NEW DIMENSION DEFAULTS (Fallback) ---
-                 'container_max_width' => 650, 'popup_width' => 400,
-                 'container_height' => 450, 'container_max_height' => 70,
-                 'container_min_height' => 250, 'popup_height' => 450,
-                 'popup_min_height' => 250, 'popup_max_height' => 70,
-                 // --- END NEW DIMENSION DEFAULTS (Fallback) ---
+                'primary_color' => '#0F766E',
+                'secondary_color' => '#ECFEFF',
+                'auto_text_contrast' => '1',
+                'font_family' => 'inherit',
+                'bubble_border_radius' => 18,
+                // --- NEW DIMENSION DEFAULTS (Fallback) ---
+                'container_max_width' => 896,
+                'popup_width' => 450,
+                'container_height' => 560,
+                'container_min_height' => 320,
+                'container_max_height' => 70,
+                'popup_height' => 680,
+                'popup_min_height' => 320,
+                'popup_max_height' => 90,
+                // --- END NEW DIMENSION DEFAULTS (Fallback) ---
             ];
         }
     } else {
@@ -52,11 +59,34 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     // --- MODIFIED: Add new themes to validation ---
     $valid_themes = ['light', 'dark', 'custom', 'chatgpt'];
     // --- END MODIFICATION ---
-    $settings['theme'] = in_array($get_meta_fn('_aipkit_theme', 'light'), $valid_themes)
-        ? $get_meta_fn('_aipkit_theme', 'light')
-        : 'light';
+    $default_theme = 'dark';
+    $settings['theme'] = in_array($get_meta_fn('_aipkit_theme', $default_theme), $valid_themes)
+        ? $get_meta_fn('_aipkit_theme', $default_theme)
+        : $default_theme;
     $settings['footer_text'] = $get_meta_fn('_aipkit_footer_text');
     $settings['input_placeholder'] = $get_meta_fn('_aipkit_input_placeholder', __('Type your message...', 'gpt3-ai-content-generator'));
+    $header_avatar_url = $get_meta_fn('_aipkit_header_avatar_url', BotSettingsManager::DEFAULT_HEADER_AVATAR_URL);
+    $header_avatar_type = $get_meta_fn('_aipkit_header_avatar_type', BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE);
+    $header_avatar_value = $get_meta_fn('_aipkit_header_avatar_value', BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE);
+    if (!in_array($header_avatar_type, ['default', 'custom'], true)) {
+        $header_avatar_type = $header_avatar_url !== '' ? 'custom' : BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE;
+    }
+    if ($header_avatar_type === 'custom') {
+        if ($header_avatar_url === '' && !empty($header_avatar_value)) {
+            $header_avatar_url = $header_avatar_value;
+        }
+        $header_avatar_value = $header_avatar_url;
+    } else {
+        $allowed_header_icons = ['chat-bubble', 'spark', 'openai', 'plus', 'question-mark'];
+        if (!in_array($header_avatar_value, $allowed_header_icons, true)) {
+            $header_avatar_value = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
+        }
+        $header_avatar_url = '';
+    }
+    $settings['header_avatar_type'] = $header_avatar_type;
+    $settings['header_avatar_value'] = $header_avatar_value;
+    $settings['header_avatar_url'] = ($header_avatar_type === 'custom') ? $header_avatar_url : '';
+    $settings['header_online_text'] = $get_meta_fn('_aipkit_header_online_text', __('Online', 'gpt3-ai-content-generator'));
     $settings['enable_fullscreen'] = in_array($get_meta_fn('_aipkit_enable_fullscreen', '0'), ['0','1'])
         ? $get_meta_fn('_aipkit_enable_fullscreen', '0')
         : '0';
@@ -69,6 +99,48 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $settings['enable_feedback'] = in_array($get_meta_fn('_aipkit_enable_feedback', BotSettingsManager::DEFAULT_ENABLE_FEEDBACK), ['0','1'])
         ? $get_meta_fn('_aipkit_enable_feedback', BotSettingsManager::DEFAULT_ENABLE_FEEDBACK)
         : BotSettingsManager::DEFAULT_ENABLE_FEEDBACK;
+    $settings['enable_consent_compliance'] = in_array($get_meta_fn('_aipkit_enable_consent_compliance', BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE), ['0','1'])
+        ? $get_meta_fn('_aipkit_enable_consent_compliance', BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE)
+        : BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE;
+    $settings['enable_ip_anonymization'] = in_array($get_meta_fn('_aipkit_enable_ip_anonymization', BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION), ['0','1'])
+        ? $get_meta_fn('_aipkit_enable_ip_anonymization', BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION)
+        : BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION;
+    $settings['consent_title'] = $get_meta_fn(
+        '_aipkit_consent_title',
+        __('Consent Required', 'gpt3-ai-content-generator')
+    );
+    $settings['consent_message'] = $get_meta_fn(
+        '_aipkit_consent_message',
+        __('Before starting the conversation, please agree to our Terms of Service and Privacy Policy.', 'gpt3-ai-content-generator')
+    );
+    $settings['consent_button'] = $get_meta_fn(
+        '_aipkit_consent_button',
+        __('I Agree', 'gpt3-ai-content-generator')
+    );
+    $settings['openai_moderation_enabled'] = in_array($get_meta_fn('_aipkit_openai_moderation_enabled', BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION), ['0','1'])
+        ? $get_meta_fn('_aipkit_openai_moderation_enabled', BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION)
+        : BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION;
+    $settings['openai_moderation_message'] = $get_meta_fn(
+        '_aipkit_openai_moderation_message',
+        __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator')
+    );
+    $settings['banned_words'] = $get_meta_fn(
+        '_aipkit_banned_words',
+        BotSettingsManager::DEFAULT_BANNED_WORDS
+    );
+    $settings['banned_words_message'] = $get_meta_fn(
+        '_aipkit_banned_words_message',
+        BotSettingsManager::DEFAULT_BANNED_WORDS_MESSAGE
+    );
+    $settings['banned_ips'] = $get_meta_fn(
+        '_aipkit_banned_ips',
+        BotSettingsManager::DEFAULT_BANNED_IPS
+    );
+    $settings['banned_ips_message'] = $get_meta_fn(
+        '_aipkit_banned_ips_message',
+        BotSettingsManager::DEFAULT_BANNED_IPS_MESSAGE
+    );
+
     $settings['enable_conversation_sidebar'] = in_array($get_meta_fn('_aipkit_enable_conversation_sidebar', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR), ['0','1'])
         ? $get_meta_fn('_aipkit_enable_conversation_sidebar', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR)
         : BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR;
@@ -100,7 +172,7 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     if (!in_array($settings['popup_icon_type'], ['default', 'custom'])) {
         $settings['popup_icon_type'] = BotSettingsManager::DEFAULT_POPUP_ICON_TYPE;
     }
-    if ($settings['popup_icon_type'] === 'default' && !in_array($settings['popup_icon_value'], ['chat-bubble', 'plus', 'question-mark'])) {
+    if ($settings['popup_icon_type'] === 'default' && !in_array($settings['popup_icon_value'], ['chat-bubble', 'spark', 'openai', 'plus', 'question-mark'])) {
         $settings['popup_icon_value'] = BotSettingsManager::DEFAULT_POPUP_ICON_VALUE;
     }
     if ($settings['popup_icon_type'] === 'custom' && empty($settings['popup_icon_value'])) {
@@ -157,6 +229,10 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
                 $custom_theme_settings_retrieved[$key] = is_numeric($value_from_meta) ? max(0, absint($value_from_meta)) : $custom_theme_defaults[$key];
             } elseif (in_array($key, ['container_max_height', 'popup_max_height'])) {
                 $custom_theme_settings_retrieved[$key] = is_numeric($value_from_meta) ? max(1, min(absint($value_from_meta), 100)) : $custom_theme_defaults[$key];
+            } elseif ($key === 'auto_text_contrast') {
+                $custom_theme_settings_retrieved[$key] = in_array((string)$value_from_meta, ['0', '1'], true)
+                    ? (string)$value_from_meta
+                    : ($custom_theme_defaults[$key] ?? '1');
             } else {
                 $custom_theme_settings_retrieved[$key] = $value_from_meta;
             }

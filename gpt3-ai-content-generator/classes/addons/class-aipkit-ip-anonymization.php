@@ -4,8 +4,6 @@
 
 namespace WPAICG\AIPKit\Addons; // Updated Namespace
 
-use WPAICG\aipkit_dashboard; // Use the main dashboard class
-
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -13,7 +11,7 @@ if (!defined('ABSPATH')) {
 /**
  * AIPKit_IP_Anonymization
  *
- * Provides functionality to anonymize IP addresses based on the addon's status.
+ * Provides functionality to anonymize IP addresses when enabled.
  * Supports both IPv4 and IPv6.
  * UPDATED: Added conditional logging based on WP_DEBUG.
  * UPDATED: Improved IPv6 anonymization fallback.
@@ -21,22 +19,20 @@ if (!defined('ABSPATH')) {
  */
 class AIPKit_IP_Anonymization {
 
-    const ADDON_KEY = 'ip_anonymization';
-
     /**
-     * Anonymizes an IP address if the IP Anonymization addon is active.
+     * Anonymizes an IP address when enabled.
      *
      * @param string|null $ip The IP address to potentially anonymize.
+     * @param bool $enabled Whether anonymization should be applied.
      * @return string|null The original or anonymized IP address, or null if input was null/empty.
      */
-    public static function maybe_anonymize(?string $ip): ?string {
+    public static function maybe_anonymize(?string $ip, bool $enabled = false): ?string {
         if (empty($ip)) {
             return $ip; // Return null/empty if input is null/empty
         }
 
-        // Check if the addon is active
-        if (!aipkit_dashboard::is_addon_active(self::ADDON_KEY)) {
-            return $ip; // Addon not active, return original IP
+        if (!$enabled) {
+            return $ip; // Not enabled, return original IP
         }
 
         // Validate and anonymize

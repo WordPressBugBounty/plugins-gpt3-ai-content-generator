@@ -111,11 +111,18 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         }
         // --- END MODIFICATION ---
 
+        $post_status = get_post_status($post_id_result);
+        $view_link = get_permalink($post_id_result);
+        if (in_array($post_status, ['draft', 'pending', 'auto-draft'], true)) {
+            $view_link = get_preview_post_link($post_id_result);
+        }
+
         // 13. Send a success response
         wp_send_json_success([
             'message' => __('Post saved successfully!', 'gpt3-ai-content-generator'),
             'post_id' => $post_id_result,
-            'edit_link' => get_edit_post_link($post_id_result, 'raw')
+            'edit_link' => get_edit_post_link($post_id_result, 'raw'),
+            'view_link' => $view_link
         ]);
     }
 }

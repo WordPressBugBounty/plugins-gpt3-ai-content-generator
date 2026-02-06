@@ -58,7 +58,7 @@ function get_all_conversation_data_logic(
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: This is a prepared query with parameters.
             $query = $wpdb->prepare($query, $query_parts['params']);
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Reason: This is a prepared query with parameters.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: This is a prepared query with parameters.
         $summaries = $wpdb->get_results($query, ARRAY_A);
         wp_cache_set($cache_key, $summaries, $cache_group, MINUTE_IN_SECONDS * 5); // Cache for 5 minutes
     }

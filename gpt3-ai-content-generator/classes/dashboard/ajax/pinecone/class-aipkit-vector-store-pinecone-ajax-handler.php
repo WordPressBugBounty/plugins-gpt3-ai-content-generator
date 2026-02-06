@@ -153,7 +153,10 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_list_indexes_pinecone()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_pinecone_nonce'
+        );
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -165,7 +168,7 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
     // NEW AJAX ACTION
     public function ajax_get_pinecone_index_details()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -176,7 +179,10 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_create_index_pinecone()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_pinecone_nonce'
+        );
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -187,7 +193,10 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_upsert_to_pinecone_index()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
+        $permission_check = $this->check_any_module_access_permissions(
+            ['sources', 'chatbot'],
+            'aipkit_vector_store_pinecone_nonce'
+        );
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -198,7 +207,7 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_search_pinecone_index()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -209,7 +218,7 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_upload_file_and_upsert_to_pinecone()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -253,7 +262,7 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_get_pinecone_indexing_logs()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
@@ -264,7 +273,7 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
 
     public function ajax_delete_index_pinecone()
     {
-        $permission_check = $this->check_module_access_permissions('ai-training', 'aipkit_vector_store_pinecone_nonce');
+        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;

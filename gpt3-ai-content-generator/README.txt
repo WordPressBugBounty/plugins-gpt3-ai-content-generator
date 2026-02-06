@@ -1,10 +1,10 @@
-=== AIP: Complete AI Toolkit for WordPress (formerly AI Power) ===
+=== AI Puffer – AI Chatbots, Content Writer & Forms (formerly AI Power) ===
 Contributors: senols
 Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.43
+Stable tag: 2.3.69
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,149 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.69 =
+
+- Our new name is now AI Puffeer with a cute puffer fish.
+- Fixed conversation titles in the chatbot sidebar.
+
+= 2.3.68 =
+
+- **Improved**: OpenAI streaming now sends small status updates to keep streams stable.
+- **Improved**: Increased default SSE timeout for AI Forms and Content Writer (can be changed with `aipkit_stream_timeout` filter).
+
+= 2.3.67 =
+
+- **Fixed**: Chatbot webhooks now send reliably (including JSON body payloads).
+- **Fixed**: AutoGPT prompt placeholders now update correctly by task type.
+
+= 2.3.66 =
+
+- **Improved**: Moved assistant settings from Dashboard into the Content Writer module.
+- **Improved**: UI/UX improvements for the Content Assistant, the post list assistant modal, and the “Add to Vector Store” modal.
+- **Fixed**: Chat logs pagination now renders correctly.
+- **Fixed**: Reasoning effort options now align with OpenAI model rules (e.g., minimal mapped to low).
+
+= 2.3.65 =
+
+- **Improved**: Automated Tasks UI polish.
+
+= 2.3.64 =
+
+- **Improved**: Chatbot custom themes.
+
+= 2.3.63 =
+
+- **Improved**: Chatbot custom themes.
+
+= 2.3.62 =
+
+- - **Fixed**: Chatbot theme override issues.
+
+= 2.3.61 =
+
+- **Improved**: Image Generator UI polish.
+
+= 2.3.60 =
+
+- **Improved**: AI Forms UI polish.
+- **Improved**: Pinecone vector store operations now cache index overview for fewer API calls.
+
+= 2.3.59 =
+
+- **Added**: New Stats module combining both logs and user credits.
+- **Fixed**: Replicate models now appear in the chatbot image generation dropdown after syncing.
+
+= 2.3.58 =
+
+- **Added**: New Sources module to manage vector providers, sources table, training, settings, and semantic search in one place.
+- **Removed**: Legacy AI Training module and Vector DB integrations tab (consolidated into Sources).
+- **Removed**: Legacy Logs and User Credits modules (consolidated into Usage).
+- **Improved**: Content Writer UI layout and input flows (templates card, RSS/CSV/URL/Sheets cleanup, status/actions).
+- **Added**: Stop controls for update content / optimize images / optimize products modes.
+- **Fixed**: AI Forms context tab now refreshes vector store lists when opened.
+- **Fixed**: Timeout issue in content writer.
+
+= 2.3.57 =
+
+- **Improved**: Chatbot settings ui.
+- **Improved**: File uploads now show the correct completion status.
+- **Added**: CSV and JSON files are now accepted for training.
+- **Improved**: Recommended model suggestions have been refreshed.
+- **Fixed**: RSS feeds now switch to the right action and task options when a feed is entered.
+
+= 2.3.56 =
+
+- **Improved**: Chatbot markdown links now open in a new tab to keep the chat session visible.
+- **Added**: Content Writer update modes (update content, optimize products, optimize images) with dedicated lists.
+- **Added**: Image metadata generation (title, alt text, caption, description) across create/update flows.
+- **Improved**: Content Writer prompts, validations, and update-mode handling.
+- **Improved**: Content Writer status/error messaging.
+
+= 2.3.55 =
+
+- **Added**: Content Writer update modes (update content, optimize products, optimize images) with dedicated lists.
+- **Added**: Image metadata generation (title, alt text, caption, description) across create/update flows.
+- **Improved**: Content Writer prompts, validations, and update-mode handling.
+- **Improved**: Content Writer status/error messaging.
+
+= 2.3.54 =
+
+- **Improved**: Content Writer UI/UX polish.
+- **Improved**: Content Writer previews, image handling, and knowledge base (RAG) controls.
+- **Improved**: Starter templates added in content writer.
+- **Added**: New OpenAI GPT Image models (`gpt-image-1.5`, `gpt-image-1-mini`) across image features.
+
+= 2.3.53 =
+
+- **Improved**: Content Writer UI/UX polish.
+- **Improved**: Content Writer previews, image handling, and knowledge base (RAG) controls.
+- **Improved**: Starter templates added in content writer.
+- **Added**: New OpenAI GPT Image models (`gpt-image-1.5`, `gpt-image-1-mini`) across image features.
+
+= 2.3.52 =
+
+- **Improved**: Admin settings dashboard layout.
+- **Improved**: CSS cleanup.
+
+= 2.3.51 =
+
+- **Added**: API key notice banner across admin modules.
+- **Added**: Automatic model sync after saving provider credentials.
+
+= 2.3.50 =
+
+- **Fixed**: Bug fix.
+
+= 2.3.49 =
+
+- **Improved**: Chatbot settings page.
+
+= 2.3.48 =
+- Chatbot UI/UX refresh, with improved layout, spacing, and theme polish.
+- New header elements for popup widgets (avatar, bot name, online status) plus refined launch button styling.
+- Improved conversation starters, input area, and fullscreen behavior for a cleaner chat experience.
+
+Note: Please clear your browser cache and flush any caching plugin/CDN so the updated chat UI loads.
+
+= 2.3.47 =
+
+- **Improved**: Chatbot settings page.
+
+= 2.3.46 =
+
+- **Improved**: WordPress 6.9 Compatibility.
+
+= 2.3.45 =
+
+- **Fixed**: Chatbot input bar overlaying typed text on mobile and some desktop themes (e.g., OceanWP). The action bar now stacks below the textarea to avoid z-index/position conflicts.
+- **Fixed**: AI Forms checkbox control no longer forces the first checkbox to stay selected.
+
+= 2.3.44 =
+
+- **Fixed**: Automated Tasks → Enhance Existing Content — "Fields to Update" incorrectly checked "Title" when editing a task even if it was not selected during save. Checkbox states now persist correctly.
+- **Fixed**: Chatbot settings — "Reasoning" parameter was not persisting and always reverted to "low" (default) after save.
+- **Improved**: SDK updated.
 
 = 2.3.43 =
 

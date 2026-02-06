@@ -21,8 +21,6 @@ if (!defined('ABSPATH')) {
 function get_upload_flags_logic(array $core_flags): array {
     $upload_flags = [];
     $is_pro = false;
-    $file_upload_addon_active = false;
-
     // Ensure aipkit_dashboard class is loaded before calling its static methods
     if (!class_exists(aipkit_dashboard::class)) {
         $dashboard_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_dashboard.php';
@@ -33,11 +31,10 @@ function get_upload_flags_logic(array $core_flags): array {
 
     if (class_exists(aipkit_dashboard::class)) {
         $is_pro = aipkit_dashboard::is_pro_plan();
-        $file_upload_addon_active = aipkit_dashboard::is_addon_active('file_upload');
     }
 
-    // File upload UI is enabled if the setting is on AND it's a Pro feature that's active
-    $upload_flags['file_upload_ui_enabled'] = ($core_flags['enable_file_upload_setting'] ?? false) && $is_pro && $file_upload_addon_active;
+    // File upload UI is enabled if the setting is on AND it's a Pro feature
+    $upload_flags['file_upload_ui_enabled'] = ($core_flags['enable_file_upload_setting'] ?? false) && $is_pro;
     // Image upload UI is enabled if the setting is on (it's a free feature, might also depend on provider in future)
     $upload_flags['image_upload_ui_enabled'] = $core_flags['enable_image_upload_setting'] ?? false;
 

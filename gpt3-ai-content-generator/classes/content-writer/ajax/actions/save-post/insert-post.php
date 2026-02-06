@@ -11,6 +11,7 @@ use WP_Error;
 use WPAICG\Utils\AIPKit_TOC_Generator;
 // --- ADDED: Image Injector Dependency ---
 use WPAICG\ContentWriter\AIPKit_Image_Injector;
+use WPAICG\Images\AIPKit_Image_Storage_Helper;
 
 // --- END ADDED ---
 
@@ -42,6 +43,12 @@ if (!class_exists(AIPKit_Image_Injector::class)) {
     $injector_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-image-injector.php';
     if (file_exists($injector_path)) {
         require_once $injector_path;
+    }
+}
+if (!class_exists(AIPKit_Image_Storage_Helper::class)) {
+    $storage_path = WPAICG_PLUGIN_DIR . 'classes/images/class-aipkit-image-storage-helper.php';
+    if (file_exists($storage_path)) {
+        require_once $storage_path;
     }
 }
 // --- END ADDED ---
@@ -77,6 +84,41 @@ function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $imag
     $postarr['post_content'] = $html_content;
     // --- END: Convert markdown to HTML ---
 
+
+    // --- ADDED: Normalize image data if attachment IDs are missing ---
+    if (!empty($image_data['in_content_images']) && class_exists(AIPKit_Image_Storage_Helper::class)) {
+        $normalized_images = [];
+        foreach ($image_data['in_content_images'] as $image_item) {
+            if (empty($image_item['attachment_id'])) {
+                $fallback_url = $image_item['media_library_url'] ?? ($image_item['url'] ?? ($image_item['src'] ?? ($image_item['image_url'] ?? null)));
+                if (!empty($fallback_url)) {
+                    $attachment_id = AIPKit_Image_Storage_Helper::save_image_to_media_library(
+                        ['url' => $fallback_url],
+                        $postarr['post_title'],
+                        [],
+                        absint($postarr['post_author'])
+                    );
+                    if (!is_wp_error($attachment_id) && $attachment_id) {
+                        $image_item['attachment_id'] = $attachment_id;
+                        $image_item['media_library_url'] = wp_get_attachment_url($attachment_id);
+                    }
+                }
+            }
+            $normalized_images[] = $image_item;
+        }
+        $image_data['in_content_images'] = $normalized_images;
+    }
+    if (empty($image_data['featured_image_id']) && !empty($image_data['featured_image_url']) && class_exists(AIPKit_Image_Storage_Helper::class)) {
+        $featured_attachment_id = AIPKit_Image_Storage_Helper::save_image_to_media_library(
+            ['url' => $image_data['featured_image_url']],
+            $postarr['post_title'],
+            [],
+            absint($postarr['post_author'])
+        );
+        if (!is_wp_error($featured_attachment_id) && $featured_attachment_id) {
+            $image_data['featured_image_id'] = $featured_attachment_id;
+        }
+    }
 
     // --- ADDED: Image Injector logic before ToC generation ---
     if (!empty($image_data['in_content_images']) && class_exists(AIPKit_Image_Injector::class)) {

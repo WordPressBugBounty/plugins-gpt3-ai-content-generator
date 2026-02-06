@@ -13,7 +13,6 @@ use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
 use WPAICG\Dashboard\Ajax\SettingsAjaxHandler;
 use WPAICG\Dashboard\Ajax\ModelsAjaxHandler;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
-use WPAICG\WP_AI_Content_Generator_Activator;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -73,10 +72,6 @@ class Initializer
     {
         add_action('admin_menu', [$this, 'register_admin_menu']);
 
-        // --- ADDED: Hook for admin_init tasks ---
-        add_action('admin_init', [$this, 'run_admin_init_tasks']);
-        // --- END ADDED ---
-
         // --- MODIFIED: Corrected Token Manager usage ---
         if (class_exists('\\WPAICG\\Core\\TokenManager\\AIPKit_Token_Manager')) {
             $token_manager = new \WPAICG\Core\TokenManager\AIPKit_Token_Manager();
@@ -121,17 +116,6 @@ class Initializer
         }
     }
 
-    // --- ADDED: Method to run tasks on admin_init ---
-    public function run_admin_init_tasks()
-    {
-        // Run the migration check on every admin page load.
-        // The check is idempotent and will exit early if not needed.
-        if (class_exists(WP_AI_Content_Generator_Activator::class)) {
-            WP_AI_Content_Generator_Activator::check_for_old_data_and_set_migration_status();
-        }
-    }
-    // --- END ADDED ---
-
     private function get_base_menu_capability(): string
     {
         $base_capability = 'edit_posts';
@@ -143,23 +127,10 @@ class Initializer
         if (!current_user_can($menu_capability) && !current_user_can('manage_options') && !current_user_can('wpaicg_settings')) {
             return;
         }
-        add_menu_page(__('AIP', 'gpt3-ai-content-generator'), __('AIP', 'gpt3-ai-content-generator'), $menu_capability, 'wpaicg', [$this, 'render_dashboard_page'], WPAICG_PLUGIN_URL . 'public/images/icon.png', 6);
+        add_menu_page(__('AI Puffer', 'gpt3-ai-content-generator'), __('AI Puffer', 'gpt3-ai-content-generator'), $menu_capability, 'wpaicg', [$this, 'render_dashboard_page'], WPAICG_PLUGIN_URL . 'public/images/icon.svg', 6);
         add_submenu_page('wpaicg', __('Dashboard', 'gpt3-ai-content-generator'), __('Dashboard', 'gpt3-ai-content-generator'), $menu_capability, 'wpaicg', [$this, 'render_dashboard_page']);
         add_submenu_page('wpaicg', __('Role Manager', 'gpt3-ai-content-generator'), __('Role Manager', 'gpt3-ai-content-generator'), 'manage_options', 'aipkit-role-manager', [$this, 'render_role_manager_page']);
 
-        // --- MODIFIED: Conditionally register Migration Tool submenu page ---
-        // The check for old data runs on admin_init, so this option should be available here.
-        if (get_option(WP_AI_Content_Generator_Activator::MIGRATION_DATA_EXISTS_OPTION, false)) {
-            add_submenu_page(
-                'wpaicg', // Parent slug
-                __('Migration Tool', 'gpt3-ai-content-generator'), // Page title
-                __('Migration Tool', 'gpt3-ai-content-generator'), // Menu title
-                'manage_options', // Capability
-                'aipkit-migration-tool', // Menu slug
-                [$this, 'render_migration_tool_page'] // Callback function
-            );
-        }
-        // --- END MODIFICATION ---
     }
     private function can_user_access_dashboard(): bool
     {
@@ -204,20 +175,4 @@ class Initializer
         }
     }
 
-    // --- ADDED: Callback for Migration Tool page ---
-    public function render_migration_tool_page()
-    {
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'gpt3-ai-content-generator'));
-        }
-        $migration_tool_path = WPAICG_PLUGIN_DIR . 'admin/views/migration-tool.php';
-        if (file_exists($migration_tool_path)) {
-            echo '<div class="wrap aipkit_wrap">'; // Add standard wrapper
-            include $migration_tool_path;
-            echo '</div>';
-        } else {
-            echo '<div class="wrap"><h2>Error</h2><p>Migration Tool view file not found: ' . esc_html($migration_tool_path) . '</p></div>';
-        }
-    }
-    // --- END ADDED ---
 }

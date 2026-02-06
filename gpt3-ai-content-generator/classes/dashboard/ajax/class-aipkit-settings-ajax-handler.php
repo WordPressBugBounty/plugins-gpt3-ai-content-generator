@@ -8,11 +8,7 @@ namespace WPAICG\Dashboard\Ajax;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
-use WPAICG\aipkit_dashboard; // For addon/plan checks
-use WPAICG\Lib\Addons\AIPKit_OpenAI_Moderation; // For addon checks
-use WPAICG\Lib\Addons\AIPKit_Consent_Compliance; // For addon checks
 use WP_Error;
-use WPAICG\WP_AI_Content_Generator_Activator; // ADDED for migration constants
 
 if (!defined('ABSPATH')) {
     exit;
@@ -37,27 +33,22 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 
         // Store initial states to detect if any actual change occurred
         $initial_core_opts_json = wp_json_encode(get_option('aipkit_options', []));
-        $initial_security_opts_json = wp_json_encode(AIPKIT_AI_Settings::get_security_settings());
-
         // --- Perform Save Operations for Different Setting Groups ---
         $this->save_main_provider_selection($post_data);
         $this->save_all_provider_api_details($post_data);
         $this->save_global_ai_parameters($post_data);
         $this->save_public_api_key($post_data);
         $this->save_google_safety_settings_if_applicable($post_data);
-        $this->save_all_security_settings($post_data); // Operates on a separate option
         $enhancer_settings_changed = $this->save_enhancer_settings($post_data);
         $this->save_semantic_search_settings($post_data);
         $updated_enhancer_actions = $this->save_enhancer_actions($post_data); // NEW
 
         // --- Check if any options actually changed ---
         $final_core_opts_json = wp_json_encode(get_option('aipkit_options', []));
-        $final_security_opts_json = wp_json_encode(AIPKIT_AI_Settings::get_security_settings());
 
         $core_changed = ($initial_core_opts_json !== $final_core_opts_json);
-        $security_changed = ($initial_security_opts_json !== $final_security_opts_json);
 
-        if ($core_changed || $security_changed || $enhancer_settings_changed || $updated_enhancer_actions !== null) {
+        if ($core_changed || $enhancer_settings_changed || $updated_enhancer_actions !== null) {
             $response = ['message' => __('Settings saved successfully.', 'gpt3-ai-content-generator')];
             if ($updated_enhancer_actions !== null) {
                 $response['updated_enhancer_actions'] = $updated_enhancer_actions;
@@ -150,10 +141,6 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                 $value_from_post = $post_data[$key];
                 $value_to_set = null;
                 switch ($key) {
-                    case 'max_completion_tokens': $val = absint($value_from_post);
-                        $val = max(1, min($val, 128000));
-                        $value_to_set = $val;
-                        break;
                     case 'temperature':
                     case 'top_p':
                     case 'frequency_penalty':
@@ -220,70 +207,6 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
     }
 
     /**
-     * Saves all security-related settings (Banned Words/IPs, OpenAI Moderation, Consent)
-     * to the 'aipkit_security' option.
-     */
-    private function save_all_security_settings(array $post_data): void
-    {
-        // --- FIX: Safely retrieve security options ---
-        $security_opts = get_option(AIPKIT_AI_Settings::SECURITY_OPTION_NAME);
-        if (!is_array($security_opts)) {
-            $security_opts = AIPKIT_AI_Settings::get_security_settings(); // Fallback to getter which has defaults
-        }
-        // --- END FIX ---
-
-        $new_security_opts = $security_opts;
-
-        if (isset($post_data['banned_words']) || isset($post_data['banned_words_message'])) {
-            $banned_words_raw = isset($post_data['banned_words']) ? sanitize_textarea_field($post_data['banned_words']) : ($new_security_opts['bannedwords']['words'] ?? '');
-            $word_notification_message = isset($post_data['banned_words_message']) ? sanitize_text_field($post_data['banned_words_message']) : ($new_security_opts['bannedwords']['message'] ?? '');
-            $words_array = array_map('trim', explode(',', strtolower($banned_words_raw)));
-            $new_security_opts['bannedwords']['words'] = implode(',', array_filter($words_array, fn ($word) => !empty($word)));
-            $new_security_opts['bannedwords']['message'] = $word_notification_message;
-        }
-
-        if (isset($post_data['banned_ips']) || isset($post_data['banned_ips_message'])) {
-            $banned_ips_raw = isset($post_data['banned_ips']) ? sanitize_textarea_field($post_data['banned_ips']) : ($new_security_opts['bannedips']['ips'] ?? '');
-            $ip_notification_message = isset($post_data['banned_ips_message']) ? sanitize_text_field($post_data['banned_ips_message']) : ($new_security_opts['bannedips']['message'] ?? '');
-            $ips_array = array_map('trim', explode(',', $banned_ips_raw));
-            $new_security_opts['bannedips']['ips'] = implode(',', array_filter($ips_array, fn ($ip) => !empty($ip)));
-            $new_security_opts['bannedips']['message'] = $ip_notification_message;
-        }
-
-        $is_pro = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
-        $openai_mod_addon_active = $is_pro && class_exists('\WPAICG\Lib\Addons\AIPKit_OpenAI_Moderation') && aipkit_dashboard::is_addon_active(AIPKit_OpenAI_Moderation::ADDON_KEY);
-        if ($openai_mod_addon_active) {
-            if (array_key_exists('openai_moderation_enabled', $post_data)) {
-                $new_security_opts['openai_moderation_enabled'] = ($post_data['openai_moderation_enabled'] === '1') ? '1' : '0';
-            }
-            if (isset($post_data['openai_moderation_message'])) {
-                $new_security_opts['openai_moderation_message'] = sanitize_text_field($post_data['openai_moderation_message']);
-            }
-        } else {
-            unset($new_security_opts['openai_moderation_enabled'], $new_security_opts['openai_moderation_message']);
-        }
-
-        $consent_addon_active = $is_pro && class_exists('\WPAICG\Lib\Addons\AIPKit_Consent_Compliance') && aipkit_dashboard::is_addon_active(AIPKit_Consent_Compliance::ADDON_KEY);
-        if ($consent_addon_active) {
-            if (isset($post_data['consent_title'])) {
-                $new_security_opts['consent']['title'] = sanitize_text_field($post_data['consent_title']);
-            }
-            if (isset($post_data['consent_message'])) {
-                $new_security_opts['consent']['message'] = wp_kses_post($post_data['consent_message']);
-            }
-            if (isset($post_data['consent_button'])) {
-                $new_security_opts['consent']['button'] = sanitize_text_field($post_data['consent_button']);
-            }
-        } else {
-            unset($new_security_opts['consent']);
-        }
-
-        if (wp_json_encode($security_opts) !== wp_json_encode($new_security_opts)) {
-            update_option(AIPKIT_AI_Settings::SECURITY_OPTION_NAME, $new_security_opts, 'no');
-        }
-    }
-
-    /**
      * Saves Content Enhancer settings.
      * @param array $post_data
      * @return bool True if settings were changed, false otherwise.
@@ -315,6 +238,14 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             $pos = in_array($raw, $allowed, true) ? $raw : 'replace';
             if (($new_enhancer_settings['default_insert_position'] ?? 'replace') !== $pos) {
                 $new_enhancer_settings['default_insert_position'] = $pos;
+                $changed = true;
+            }
+        }
+
+        if (array_key_exists('enhancer_list_button', $post_data)) {
+            $new_value = ($post_data['enhancer_list_button'] === '1') ? '1' : '0';
+            if (($new_enhancer_settings['show_list_button'] ?? '1') !== $new_value) {
+                $new_enhancer_settings['show_list_button'] = $new_value;
                 $changed = true;
             }
         }
@@ -434,45 +365,17 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 
 
     /**
-     * AJAX: Handles user's choice from the migration tool.
+     * AJAX: Handles dismissing the Chatolia notice permanently.
      * @since 2.1
      */
-    public function ajax_handle_migration_choice()
-    {
-        // Security check for this specific action
-        check_ajax_referer('aipkit_migration_tool_action', '_ajax_nonce_migration');
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'gpt3-ai-content-generator')], 403);
-            return;
-        }
-
-        $choice = isset($_POST['choice']) ? sanitize_key($_POST['choice']) : '';
-
-        if ($choice === 'start_fresh') {
-            update_option(WP_AI_Content_Generator_Activator::MIGRATION_STATUS_OPTION, 'fresh_install_chosen', 'no');
-            wp_send_json_success(['message' => __('"Start Fresh" option processed. Old data will be ignored.', 'gpt3-ai-content-generator')]);
-        } elseif ($choice === 'migrate_data') {
-            // Placeholder for Phase 2
-            // update_option(WP_AI_Content_Generator_Activator::MIGRATION_STATUS_OPTION, 'migration_chosen', 'no');
-            // update_option(WP_AI_Content_Generator_Activator::MIGRATION_STATUS_OPTION, 'in_progress_phase_2_step_0', 'no');
-            wp_send_json_success(['message' => __('Data migration will be available soon.', 'gpt3-ai-content-generator')]);
-        } else {
-            wp_send_json_error(['message' => __('Invalid migration choice.', 'gpt3-ai-content-generator')], 400);
-        }
-    }
-
-    /**
-     * AJAX: Handles dismissing the migration notice permanently.
-     * @since 2.1
-     */
-    public function ajax_dismiss_migration_notice()
+    public function ajax_dismiss_chatolia_notice()
     {
         $permission_check = $this->check_module_access_permissions('settings');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
         }
-        update_option('aipkit_migration_notice_dismissed', '1', 'no');
-        wp_send_json_success(['message' => 'Migration notice dismissed.']);
+        update_option('aipkit_chatolia_notice_dismissed', '1', 'no');
+        wp_send_json_success(['message' => 'Chatolia notice dismissed.']);
     }
 }

@@ -4,7 +4,7 @@
  */
 if (!defined('ABSPATH')) exit;
 
-// Variables required: $current_provider, $providers, $deepseek_addon_active, $is_pro, $ollama_addon_active
+// Variables required: $current_provider, $providers, $is_pro
 // No outer .aipkit_form-group div here, it's provided by the parent (settings/index.php)
 ?>
 <label
@@ -22,15 +22,9 @@ if (!defined('ABSPATH')) exit;
         $disabled = false;
         $label = $p_value;
 
-        if ($p_value === 'DeepSeek' && !$deepseek_addon_active) {
+        if ($p_value === 'Ollama' && !$is_pro) {
             $disabled = true;
-            $label = __('DeepSeek (Enable in Addons)', 'gpt3-ai-content-generator');
-        }
-        if ($p_value === 'Ollama') {
-            if (!$is_pro || !$ollama_addon_active) {
-                $disabled = true;
-                $label = __('Ollama (Enable in Addons)', 'gpt3-ai-content-generator');
-            }
+            $label = __('Ollama (Pro)', 'gpt3-ai-content-generator');
         }
     ?>
     <option value="<?php echo esc_attr($p_value); ?>" <?php selected($current_provider, $p_value); ?> <?php echo $disabled ? 'disabled' : ''; ?>>

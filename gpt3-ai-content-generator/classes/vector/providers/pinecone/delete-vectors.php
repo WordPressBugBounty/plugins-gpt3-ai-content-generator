@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  * @return bool|WP_Error True on success, WP_Error on failure.
  */
 function delete_vectors_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $index_name, array $vector_ids): bool|WP_Error {
-    $index_description = describe_index_logic($strategyInstance, $index_name); // Use externalized describe_index_logic
+    $index_description = get_index_overview_logic($strategyInstance, $index_name);
     if (is_wp_error($index_description)) return $index_description;
     $host = $index_description['host'] ?? null;
     if (empty($host)) return new WP_Error('missing_host_pinecone_delete_vectors', __('Index host not found for delete vectors.', 'gpt3-ai-content-generator'));

@@ -29,45 +29,16 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             'ai_forms'        => true,
             'image_generator' => true,
             'training'        => true,
-            'ai_account'      => false,
+            'sources'         => true,
             'audio_converter' => false,
-            'logs_viewer'     => true,
-        );
-
-        /**
-         * Default addon status (true=active, false=inactive).
-         * ADDED: file_upload default.
-         * ADDED: triggers default.
-         * MODIFIED: Changed visibility from private to public.
-         */
-        public static $default_addon_status = array( // MODIFIED: private to public
-           'ai_post_enhancer'           => true,
-           'consent_compliance'         => false,
-           'conversation_starters'      => true,
-           'deepseek'                   => false,
-           'ollama'                     => false,
-           'embed_anywhere'             => false,
-           'file_upload'                => true,
-           'ip_anonymization'           => false,
-           'openai_moderation'          => false,
-           'pdf_download'               => false,
-           'realtime_voice'             => false,
-           'replicate'                  => false,
-           'semantic_search'            => false,
-           'stock_images'               => false,
-           'token_management'           => true,
-           'triggers'                   => false,
-           'vector_databases'           => true,
-           'voice_playback'             => true,
-           'whatsapp'                   => false,
+            'stats_viewer'    => true,
         );
 
         private static $module_settings = array();
-        private static $addon_status = array();
 
         public static function is_pro_plan()
         {
-            if (function_exists('wpaicg_gacg_fs') && wpaicg_gacg_fs()->is_plan('pro', true)) { // Check for 'pro' plan or higher
+            if (function_exists('wpaicg_gacg_fs') && wpaicg_gacg_fs()->is_plan('pro', true)) {
                 return true;
             }
             return false;
@@ -83,7 +54,6 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 wp_doing_ajax()
             ) {
                 self::check_and_init_module_settings();
-                self::check_and_init_addon_status();
                 self::register_ajax_handlers();
             }
         }
@@ -92,7 +62,6 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
         {
             add_action('wp_ajax_aipkit_dashboard_load_module', [__CLASS__, 'ajax_load_module']);
             add_action('wp_ajax_aipkit_update_module_setting', [__CLASS__, 'ajax_update_module_setting']);
-            add_action('wp_ajax_aipkit_update_addon_status', [__CLASS__, 'ajax_update_addon_status']);
             add_action('wp_ajax_aipkit_get_token_usage_chart_data', [__CLASS__, 'ajax_get_token_usage_chart_data']);
         }
 
@@ -120,50 +89,12 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             }
         }
 
-        private static function check_and_init_addon_status()
-        {
-            // --- FIX: Safely retrieve options ---
-            $opts = get_option('aipkit_options');
-            if (!is_array($opts)) {
-                $opts = [];
-            }
-            // --- END FIX ---
-
-            if (!isset($opts['addons_status']) || !is_array($opts['addons_status'])) {
-                $opts['addons_status'] = self::$default_addon_status;
-                self::$addon_status = self::$default_addon_status;
-                update_option('aipkit_options', $opts, 'no');
-            } else {
-                $merged = array_merge(self::$default_addon_status, $opts['addons_status']);
-                $final_settings = array_intersect_key($merged, self::$default_addon_status);
-                self::$addon_status = $final_settings;
-                if ($final_settings !== $opts['addons_status']) {
-                    $opts['addons_status'] = $final_settings;
-                    update_option('aipkit_options', $opts, 'no');
-                }
-            }
-        }
-
         public static function get_module_settings()
         {
             if (empty(self::$module_settings)) {
                 self::check_and_init_module_settings();
             }
             return self::$module_settings;
-        }
-
-        public static function get_addon_status()
-        {
-            if (empty(self::$addon_status)) {
-                self::check_and_init_addon_status();
-            }
-            return self::$addon_status;
-        }
-
-        public static function is_addon_active($addonKey)
-        {
-            $statuses = self::get_addon_status();
-            return isset($statuses[$addonKey]) && $statuses[$addonKey] === true;
         }
 
         public static function ajax_load_module()
@@ -199,6 +130,7 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
             $module_dir = WPAICG_PLUGIN_DIR . 'admin/views/modules/' . $module . '/';
             $module_file = $module_dir . 'index.php';
+
             $modules_base_path = realpath(untrailingslashit(WPAICG_PLUGIN_DIR . 'admin/views/modules'));
             $real_module_file_path = realpath($module_file);
 
@@ -305,50 +237,6 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             wp_send_json_success(['message' => 'Module setting updated.']);
         }
 
-        public static function ajax_update_addon_status()
-        {
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error(['message' => 'Unauthorized access.'], 403);
-                return;
-            }
-            if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce(sanitize_key($_POST['_ajax_nonce']), 'aipkit_nonce')) {
-                wp_send_json_error(['message' => 'Security check failed.'], 403);
-                return;
-            }
-
-            $addonKey = isset($_POST['addonKey']) ? sanitize_key($_POST['addonKey']) : '';
-            $active   = isset($_POST['active']) ? sanitize_text_field(wp_unslash($_POST['active'])) : '';
-
-            self::check_and_init_addon_status();
-
-            if (empty($addonKey) || !array_key_exists($addonKey, self::$default_addon_status)) {
-                wp_send_json_error(['message' => 'Invalid addon key.'], 400);
-                return;
-            }
-
-            $isActive = ($active === '1');
-            $pro_addons = ['pdf_download', 'consent_compliance', 'openai_moderation', 'file_upload', 'triggers', 'realtime_voice', 'embed_anywhere', 'ollama','whatsapp'];
-            if ($isActive && in_array($addonKey, $pro_addons) && !self::is_pro_plan()) {
-                wp_send_json_error(['message' => 'Pro plan required to activate this addon.'], 403);
-                return;
-            }
-
-            self::$addon_status[$addonKey] = $isActive;
-            // --- FIX: Safely retrieve options before updating ---
-            $opts = get_option('aipkit_options');
-            if (!is_array($opts)) {
-                $opts = [];
-            }
-            // --- END FIX ---
-            if (!isset($opts['addons_status']) || !is_array($opts['addons_status'])) {
-                $opts['addons_status'] = [];
-            }
-            $opts['addons_status'][$addonKey] = $isActive;
-            update_option('aipkit_options', $opts, 'no');
-
-            wp_send_json_success(['message' => 'Addon status updated.']);
-        }
-
         public static function ajax_get_token_usage_chart_data()
         {
             if (!AIPKit_Role_Manager::user_can_access_module('settings')) {
@@ -391,7 +279,7 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                         'notice' => $notice,
                         'volume' => ['rows' => $rows, 'bytes' => $bytes],
                         'days' => $days,
-                        'manage_logs_url' => admin_url('admin.php?page=wpaicg#logs')
+                        'manage_logs_url' => admin_url('admin.php?page=wpaicg#stats')
                     ]);
                 } else {
                     wp_send_json_error(['message' => $daily_data->get_error_message()], 500);

@@ -8,6 +8,7 @@ namespace WPAICG\PostEnhancer\Ajax\Actions;
 
 use WPAICG\PostEnhancer\Ajax\Base\AIPKit_Post_Enhancer_Base_Ajax_Action;
 use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\SEO\AIPKit_SEO_Helper;
@@ -72,10 +73,13 @@ class AIPKit_PostEnhancer_Bulk_Process_Single extends AIPKit_Post_Enhancer_Base_
             'max_completion_tokens' => isset($item_config['max_tokens']) ? absint($item_config['max_tokens']) : ($global_ai_params['max_completion_tokens'] ?? 4000),
         ];
         // --- NEW: Add reasoning effort to AI params ---
-        if ($provider === 'OpenAI' && isset($item_config['reasoning_effort']) && !empty($item_config['reasoning_effort'])) {
-            $model_lower = strtolower($model);
-            if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
-                 $ai_params['reasoning'] = ['effort' => sanitize_key($item_config['reasoning_effort'])];
+        if ($provider === 'OpenAI') {
+            $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+                (string) $model,
+                $item_config['reasoning_effort'] ?? ''
+            );
+            if ($reasoning_effort !== '') {
+                $ai_params['reasoning'] = ['effort' => $reasoning_effort];
             }
         }
         // --- END NEW ---

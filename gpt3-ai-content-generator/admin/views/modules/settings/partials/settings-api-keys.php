@@ -5,7 +5,7 @@
  */
 if (!defined('ABSPATH')) exit;
 
-// Variables required: $current_provider, $openai_data, $openrouter_data, $google_data, $azure_data, $deepseek_data, $deepseek_addon_active, $azure_defaults
+// Variables required: $current_provider, $openai_data, $openrouter_data, $google_data, $azure_data, $deepseek_data, $azure_defaults
 
 $provider_api_key_urls = [
     'OpenAI' => 'https://platform.openai.com/api-keys',
@@ -101,7 +101,6 @@ $provider_api_key_urls = [
 </div>
 
 <!-- Azure Endpoint URL -->
-<hr class="aipkit_hr aipkit_api_key_field" data-provider="Azure" style="display: <?php echo ($current_provider === 'Azure') ? 'block' : 'none'; ?>;">
 <div
     class="aipkit_form-group aipkit_api_key_field"
     id="aipkit_azure_endpoint_group"
@@ -121,8 +120,7 @@ $provider_api_key_urls = [
 </div>
 
 
-<!-- DeepSeek API Key (Conditionally Rendered) -->
- <?php if ($deepseek_addon_active) : ?>
+<!-- DeepSeek API Key -->
 <div
     class="aipkit_form-group aipkit_api_key_field"
     id="aipkit_deepseek_api_key_group"
@@ -142,7 +140,6 @@ $provider_api_key_urls = [
         </a>
     </div>
 </div>
- <?php endif; ?>
 
 <!-- Ollama Base URL -->
 <div
@@ -152,13 +149,12 @@ $provider_api_key_urls = [
     style="display: <?php echo ($current_provider === 'Ollama') ? 'block' : 'none'; ?>;"
 >
     <label class="aipkit_form-label" for="aipkit_ollama_base_url"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
-    <div class="aipkit_input-with-button">
+    <div class="aipkit_input-with-button aipkit_input-with-button--full">
         <div class="aipkit_input-with-icon-wrapper">
              <input type="url" id="aipkit_ollama_base_url" name="ollama_base_url" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($ollama_data['base_url']); ?>" placeholder="<?php esc_attr_e('e.g., http://localhost:11434', 'gpt3-ai-content-generator'); ?>" />
              <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default', 'gpt3-ai-content-generator'); ?>" data-default-value="http://localhost:11434" data-target-input="aipkit_ollama_base_url">
                 <span class="dashicons dashicons-undo"></span>
             </span>
         </div>
-        <span class="aipkit_input-button-spacer"></span>
     </div>
 </div>

@@ -42,11 +42,7 @@ class DashboardAssets
         $admin_css_bundles = [
             'aipkit-admin-main-css' => 'admin-main.bundle.css',
             'aipkit-admin-chat' => 'admin-chat.bundle.css',
-            'aipkit-admin-ai-forms' => 'admin-ai-forms.bundle.css',
-            'aipkit-admin-ai-training' => 'admin-ai-training.bundle.css',
             'aipkit-admin-autogpt' => 'admin-autogpt.bundle.css',
-            'aipkit-admin-content-writer' => 'admin-content-writer.bundle.css',
-            'aipkit-admin-image-generator' => 'admin-image-generator.bundle.css',
             'aipkit-admin-post-enhancer' => 'admin-post-enhancer.bundle.css',
             'aipkit-admin-vector-post-processor' => 'admin-vector-post-processor.bundle.css',
             'aipkit-admin-woocommerce-writer' => 'admin-woocommerce-writer.bundle.css',
@@ -85,17 +81,16 @@ class DashboardAssets
         $is_aipkit_page = $screen && (
             strpos($screen->id, 'page_wpaicg') !== false ||
             $screen->id === 'toplevel_page_wpaicg' ||
-            strpos($screen->id, 'aipkit-role-manager') !== false ||
-            strpos($screen->id, 'aipkit-migration-tool') !== false
+            strpos($screen->id, 'aipkit-role-manager') !== false
         );
 
 
         if ($is_aipkit_page) {
             // --- Enqueue ALL Admin CSS Bundles ---
             $all_css_handles = [
-                'aipkit-admin-main-css', 'aipkit-admin-chat', 'aipkit-admin-ai-forms',
-                'aipkit-admin-ai-training', 'aipkit-admin-autogpt', 'aipkit-admin-content-writer',
-                'aipkit-admin-image-generator', 'aipkit-admin-post-enhancer', 'aipkit-admin-vector-post-processor',
+                'aipkit-admin-main-css', 'aipkit-admin-chat',
+                'aipkit-admin-autogpt',
+                'aipkit-admin-post-enhancer', 'aipkit-admin-vector-post-processor',
                 'aipkit-admin-woocommerce-writer', 'aipkit-lib-triggers-admin',
             ];
             foreach ($all_css_handles as $handle) {
@@ -159,6 +154,7 @@ class DashboardAssets
         $google_embedding_models = [];
         $azure_embedding_models = [];
         $google_image_models = [];
+        $recommended_models = [];
         if (class_exists('\\WPAICG\\AIPKit_Providers')) {
             $openai_models     = AIPKit_Providers::get_openai_models();
             $openrouter_models = AIPKit_Providers::get_openrouter_models();
@@ -170,6 +166,27 @@ class DashboardAssets
             $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
             $google_image_models = AIPKit_Providers::get_google_image_models();
             $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
+            $recommended_models = [
+                'openai' => AIPKit_Providers::get_recommended_models('OpenAI'),
+                'google' => AIPKit_Providers::get_recommended_models('Google'),
+                'openrouter' => AIPKit_Providers::get_recommended_models('OpenRouter'),
+            ];
+        }
+
+        $provider_status = [];
+        if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+            $providers = AIPKit_Providers::get_all_providers();
+            $provider_status = [
+                'openai' => !empty($providers['OpenAI']['api_key']),
+                'openrouter' => !empty($providers['OpenRouter']['api_key']),
+                'google' => !empty($providers['Google']['api_key']),
+                'azure' => !empty($providers['Azure']['api_key']) && !empty($providers['Azure']['endpoint']),
+                'deepseek' => !empty($providers['DeepSeek']['api_key']),
+                'ollama' => !empty($providers['Ollama']['base_url']),
+                'replicate' => !empty($providers['Replicate']['api_key']),
+                'pinecone' => !empty($providers['Pinecone']['api_key']),
+                'qdrant' => !empty($providers['Qdrant']['api_key']) && !empty($providers['Qdrant']['url']),
+            ];
         }
 
         $aipkit_nonce = wp_create_nonce('aipkit_nonce');
@@ -177,14 +194,12 @@ class DashboardAssets
         $dashboard_texts = file_exists($localized_text_path) ? require $localized_text_path : [];
 
         $is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard') ? aipkit_dashboard::is_pro_plan() : false;
-        $addon_status = class_exists('\\WPAICG\\aipkit_dashboard') ? aipkit_dashboard::get_addon_status() : [];
 
         wp_localize_script($admin_main_js_handle, 'aipkit_dashboard', [
             'ajaxurl'    => admin_url('admin-ajax.php'),
             'nonce'      => $aipkit_nonce,
             'isProPlan'  => $is_pro_plan,
             'isAdmin'    => current_user_can('manage_options'),
-            'addons'     => $addon_status,
             'modulesUrl' => WPAICG_PLUGIN_URL . 'admin/views/modules/',
             'upgradeUrl' => admin_url('admin.php?page=wpaicg-pricing'),
             'adminUrl'   => admin_url(),
@@ -193,6 +208,7 @@ class DashboardAssets
                 'google'     => $google_models, 'azure'      => $azure_deployments,
                 'deepseek'   => $deepseek_models, 'ollama'     => $ollama_models,
             ],
+            'recommendedModels' => $recommended_models,
             'embeddingModels' => [
                 'openai' => $openai_embedding_models,
                 'google' => $google_embedding_models,
@@ -200,7 +216,9 @@ class DashboardAssets
             ],
             'imageGeneratorModels' => [
                 'openai' => [
+                    ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],
                     ['id' => 'gpt-image-1', 'name' => 'GPT Image 1'],
+                    ['id' => 'gpt-image-1-mini', 'name' => 'GPT Image 1 mini'],
                     ['id' => 'dall-e-3', 'name' => 'DALL-E 3'],
                     ['id' => 'dall-e-2', 'name' => 'DALL-E 2'],
                 ],
@@ -208,6 +226,7 @@ class DashboardAssets
                 'azure' => AIPKit_Providers::get_azure_image_models(),
                 'replicate' => AIPKit_Providers::get_replicate_models(),
             ],
+            'providerStatus' => $provider_status,
             'text' => $dashboard_texts,
             'currentUserId' => get_current_user_id()
         ]);

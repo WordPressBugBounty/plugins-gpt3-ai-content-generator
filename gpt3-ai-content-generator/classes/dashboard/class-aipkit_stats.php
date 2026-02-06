@@ -47,7 +47,7 @@ class AIPKit_Stats
             $start_ts,
             $end_ts
         );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $row = $this->wpdb->get_row($sql, ARRAY_A);
         if ($this->wpdb->last_error) {
             return new WP_Error('db_query_error', __('Database error estimating log volume for stats.', 'gpt3-ai-content-generator'));
@@ -105,7 +105,7 @@ class AIPKit_Stats
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Using prepare to safely insert timestamps
         $query = $this->wpdb->prepare("SELECT messages, module FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d", $timestamp_threshold_start, $timestamp_threshold_end);
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: Using prepare to safely insert timestamps
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Using prepare to safely insert timestamps
         $results = $this->wpdb->get_results($query, ARRAY_A);
 
         if ($this->wpdb->last_error) {
@@ -206,7 +206,7 @@ class AIPKit_Stats
         // Fetch logs within the range, including 'module' and 'messages'
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Using prepare to safely insert timestamps
         $query = $this->wpdb->prepare("SELECT messages, module FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d", $timestamp_threshold_start, $timestamp_threshold_end);
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: Using prepare to safely insert timestamps
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Using prepare to safely insert timestamps
         $results = $this->wpdb->get_results($query, ARRAY_A);
 
         if ($this->wpdb->last_error) {
@@ -334,7 +334,7 @@ class AIPKit_Stats
             $timestamp_threshold_start,
             $timestamp_threshold_end
         );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $total_interactions = (int) $this->wpdb->get_var($count_sql);
         if ($this->wpdb->last_error) {
             return new WP_Error('db_query_error', __('Database error fetching counts for quick stats.', 'gpt3-ai-content-generator'));
@@ -347,7 +347,7 @@ class AIPKit_Stats
             $timestamp_threshold_start,
             $timestamp_threshold_end
         );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $rows = $this->wpdb->get_results($group_sql, ARRAY_A) ?: [];
         if ($this->wpdb->last_error) {
             return new WP_Error('db_query_error', __('Database error fetching module counts for quick stats.', 'gpt3-ai-content-generator'));

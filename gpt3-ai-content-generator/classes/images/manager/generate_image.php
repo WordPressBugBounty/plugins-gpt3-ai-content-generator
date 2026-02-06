@@ -65,7 +65,8 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
         $final_options['n'] = 1;
     }
 
-    if (($final_options['model'] ?? '') === 'gpt-image-1') {
+    $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
+    if (in_array(($final_options['model'] ?? ''), $gpt_image_models, true)) {
         if (isset($final_options['response_format']) && !isset($final_options['output_format'])) {
             if ($final_options['response_format'] === 'b64_json') {
                 $final_options['output_format'] = 'png';
@@ -82,11 +83,18 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
 
     if ($wp_user_id !== null && class_exists(AIPKit_Image_Storage_Helper::class) && isset($result_from_strategy['images'])) {
         $saved_image_data = [];
-        foreach ($result_from_strategy['images'] as $image_item) {
+        $meta_list = isset($final_options['aipkit_attachment_meta_list']) && is_array($final_options['aipkit_attachment_meta_list'])
+            ? array_values($final_options['aipkit_attachment_meta_list'])
+            : [];
+        foreach ($result_from_strategy['images'] as $index => $image_item) {
+            $image_options = $final_options;
+            if (!empty($meta_list[$index]) && is_array($meta_list[$index])) {
+                $image_options['aipkit_attachment_meta'] = $meta_list[$index];
+            }
             $attachment_id_or_error = AIPKit_Image_Storage_Helper::save_image_to_media_library(
                 $image_item,
                 $prompt,
-                $final_options,
+                $image_options,
                 $wp_user_id
             );
             if (!is_wp_error($attachment_id_or_error) && $attachment_id_or_error) {

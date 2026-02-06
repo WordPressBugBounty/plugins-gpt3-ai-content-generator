@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
  * Handles logging and trigger dispatch for AI call errors.
  *
  * @param WP_Error $ai_call_error_result The WP_Error object from the AI call.
- * @param bool $triggers_addon_active Whether the triggers addon is active.
+ * @param bool $triggers_enabled Whether triggers are enabled.
  * @param \WPAICG\Chat\Storage\LogStorage|null $log_storage_for_triggers Instance of LogStorage for triggers.
  * @param array $base_log_data Base log data (may be empty if not passed down).
  * @param string $main_provider The main AI provider.
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
  */
 function handle_ai_call_error_logic(
     WP_Error $ai_call_error_result,
-    bool $triggers_addon_active,
+    bool $triggers_enabled,
     ?LogStorage $log_storage_for_triggers,
     array $base_log_data, // This might be empty depending on the orchestrator
     string $main_provider,
@@ -38,7 +38,7 @@ function handle_ai_call_error_logic(
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
 
-    if ($triggers_addon_active && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
+    if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
         // Only proceed if log storage is available for the trigger manager
         if ($log_storage_for_triggers) {
             $error_data_from_caller = $ai_call_error_result->get_error_data() ?? [];
