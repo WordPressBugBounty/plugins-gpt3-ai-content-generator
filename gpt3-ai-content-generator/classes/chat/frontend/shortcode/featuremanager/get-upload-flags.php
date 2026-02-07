@@ -5,6 +5,7 @@
 namespace WPAICG\Chat\Frontend\Shortcode\FeatureManagerMethods;
 
 use WPAICG\aipkit_dashboard; // ADDED for Pro check
+use function WPAICG\Core\Providers\OpenRouter\Methods\resolve_model_capabilities_logic;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -34,10 +35,25 @@ function get_upload_flags_logic(array $core_flags): array {
     }
 
     $provider = isset($core_flags['provider']) ? sanitize_text_field((string) $core_flags['provider']) : 'OpenAI';
+    $model = isset($core_flags['model']) ? sanitize_text_field((string) $core_flags['model']) : '';
     $vector_store_provider = isset($core_flags['vector_store_provider']) ? sanitize_key((string) $core_flags['vector_store_provider']) : 'openai';
-    $image_upload_supported_providers = ['OpenAI', 'Claude'];
+    $image_upload_supported_providers = ['OpenAI', 'Claude', 'OpenRouter'];
     $is_image_upload_supported_provider = in_array($provider, $image_upload_supported_providers, true);
     $claude_files_compatible = !($vector_store_provider === 'claude_files' && $provider !== 'Claude');
+
+    if ($provider === 'OpenRouter' && $is_image_upload_supported_provider && $model !== '') {
+        $resolver_fn = 'WPAICG\\Core\\Providers\\OpenRouter\\Methods\\resolve_model_capabilities_logic';
+        if (!function_exists($resolver_fn)) {
+            $capability_file = WPAICG_PLUGIN_DIR . 'classes/core/providers/openrouter/capabilities.php';
+            if (file_exists($capability_file)) {
+                require_once $capability_file;
+            }
+        }
+        if (function_exists($resolver_fn)) {
+            $capabilities = resolve_model_capabilities_logic($model);
+            $is_image_upload_supported_provider = !empty($capabilities['image_input']);
+        }
+    }
 
     // File upload UI is enabled if the setting is on AND it's a Pro feature
     $upload_flags['file_upload_ui_enabled'] = ($core_flags['enable_file_upload_setting'] ?? false) && $is_pro && $claude_files_compatible;

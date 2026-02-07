@@ -16,6 +16,7 @@ use WP_Error;
 $methods_path = __DIR__ . '/';
 require_once $methods_path . 'build-api-url.php';
 require_once $methods_path . 'get-api-headers.php';
+require_once $methods_path . 'capabilities.php';
 require_once $methods_path . 'format-chat-payload.php';
 require_once $methods_path . 'parse-chat-response.php';
 require_once $methods_path . 'parse-error-response.php';
@@ -23,6 +24,7 @@ require_once $methods_path . 'get-models.php';
 require_once $methods_path . 'build-sse-payload.php';
 require_once $methods_path . 'parse-sse-chunk.php';
 require_once $methods_path . 'generate-embeddings.php';
+require_once $methods_path . 'get-embedding-models.php';
 
 
 if (!defined('ABSPATH')) {
@@ -30,8 +32,8 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * OpenRouter Provider Strategy (Modularized).
- * Uses standard Chat Completions format.
+ * OpenRouter Provider Strategy (modularized).
+ * Uses OpenRouter Responses API for runtime chat/stream operations.
  * Delegates logic to namespaced functions.
  */
 class OpenRouterProviderStrategy extends BaseProviderStrategy {
@@ -91,5 +93,15 @@ class OpenRouterProviderStrategy extends BaseProviderStrategy {
 
     public function generate_embeddings($input, array $api_params, array $options = []): array|WP_Error {
         return \WPAICG\Core\Providers\OpenRouter\Methods\generate_embeddings_logic($this, $input, $api_params, $options);
+    }
+
+    /**
+     * Returns OpenRouter embedding models list via /embeddings/models.
+     *
+     * @param array $api_params Provider connection params.
+     * @return array|WP_Error
+     */
+    public function get_embedding_models(array $api_params): array|WP_Error {
+        return \WPAICG\Core\Providers\OpenRouter\Methods\get_embedding_models_logic($this, $api_params);
     }
 }

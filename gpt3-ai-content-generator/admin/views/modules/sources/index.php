@@ -29,11 +29,13 @@ $pinecone_index_list = [];
 $qdrant_collection_list = [];
 $openai_embedding_models = [];
 $google_embedding_models = [];
+$openrouter_embedding_models = [];
 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
     $pinecone_index_list = \WPAICG\AIPKit_Providers::get_pinecone_indexes();
     $qdrant_collection_list = \WPAICG\AIPKit_Providers::get_qdrant_collections();
     $openai_embedding_models = \WPAICG\AIPKit_Providers::get_openai_embedding_models();
     $google_embedding_models = \WPAICG\AIPKit_Providers::get_google_embedding_models();
+    $openrouter_embedding_models = \WPAICG\AIPKit_Providers::get_openrouter_embedding_models();
 }
 $all_embedding_models_map = [];
 foreach ($openai_embedding_models as $model_item) {
@@ -42,6 +44,11 @@ foreach ($openai_embedding_models as $model_item) {
     }
 }
 foreach ($google_embedding_models as $model_item) {
+    if (!empty($model_item['id'])) {
+        $all_embedding_models_map[$model_item['id']] = true;
+    }
+}
+foreach ($openrouter_embedding_models as $model_item) {
     if (!empty($model_item['id'])) {
         $all_embedding_models_map[$model_item['id']] = true;
     }
@@ -955,6 +962,13 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                             <optgroup label="<?php esc_attr_e('Google', 'gpt3-ai-content-generator'); ?>">
                                                 <?php foreach ($google_embedding_models as $model_item): ?>
                                                     <option value="<?php echo esc_attr($model_item['id']); ?>" <?php selected($semantic_embedding_model, $model_item['id']); ?> data-provider="google">
+                                                        <?php echo esc_html($model_item['name']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                            <optgroup label="<?php esc_attr_e('OpenRouter', 'gpt3-ai-content-generator'); ?>">
+                                                <?php foreach ($openrouter_embedding_models as $model_item): ?>
+                                                    <option value="<?php echo esc_attr($model_item['id']); ?>" <?php selected($semantic_embedding_model, $model_item['id']); ?> data-provider="openrouter">
                                                         <?php echo esc_html($model_item['name']); ?>
                                                     </option>
                                                 <?php endforeach; ?>

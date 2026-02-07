@@ -33,6 +33,7 @@ if (class_exists(AIPKit_Providers::class)) {
 $aipkit_openai_embedding_models = [];
 $aipkit_google_embedding_models = [];
 $aipkit_azure_embedding_models = [];
+$aipkit_openrouter_embedding_models = [];
 $aipkit_openai_provider_data = [];
 $aipkit_pinecone_provider_data = [];
 $aipkit_qdrant_provider_data = [];
@@ -40,6 +41,7 @@ if (class_exists(AIPKit_Providers::class)) {
     $aipkit_openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
     $aipkit_google_embedding_models = AIPKit_Providers::get_google_embedding_models();
     $aipkit_azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
+    $aipkit_openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
     $aipkit_openai_provider_data = AIPKit_Providers::get_provider_data('OpenAI');
     $aipkit_pinecone_provider_data = AIPKit_Providers::get_provider_data('Pinecone');
     $aipkit_qdrant_provider_data = AIPKit_Providers::get_provider_data('Qdrant');
@@ -50,6 +52,7 @@ $qdrant_collections = $aipkit_qdrant_collections;
 $openai_embedding_models = $aipkit_openai_embedding_models;
 $google_embedding_models = $aipkit_google_embedding_models;
 $azure_embedding_models = $aipkit_azure_embedding_models;
+$openrouter_embedding_models = $aipkit_openrouter_embedding_models;
 $openai_api_key = $aipkit_openai_provider_data['api_key'] ?? '';
 $pinecone_api_key = $aipkit_pinecone_provider_data['api_key'] ?? '';
 $qdrant_url = $aipkit_qdrant_provider_data['url'] ?? '';

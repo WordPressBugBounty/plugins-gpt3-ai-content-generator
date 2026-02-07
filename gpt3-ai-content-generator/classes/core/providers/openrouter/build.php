@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 /**
  * Logic for the build static method of OpenRouterUrlBuilder.
  *
- * @param string $operation ('chat', 'models', 'stream')
+ * @param string $operation ('chat', 'models', 'stream', 'embeddings', 'embedding_models')
  * @param array  $params Required parameters (base_url, api_version).
  * @return string|WP_Error The full URL or WP_Error.
  */
@@ -24,12 +24,14 @@ function build_logic_for_url_builder(string $operation, array $params): string|W
     if (empty($base_url)) return new WP_Error("missing_base_url_OpenRouter_logic", __('OpenRouter Base URL is required.', 'gpt3-ai-content-generator'));
 
     $paths = [
-        'chat'   => '/chat/completions', // Map 'chat' and 'stream' to this
-        'models' => '/models',
+        'responses'        => '/responses',
+        'models'           => '/models',
+        'embeddings'       => '/embeddings',
+        'embedding_models' => '/embeddings/models',
     ];
 
-    // Map 'stream' operation to use 'chat' path key
-    $path_key = ($operation === 'stream') ? 'chat' : $operation;
+    // OpenRouter runtime chat/stream now targets Responses API.
+    $path_key = ($operation === 'chat' || $operation === 'stream') ? 'responses' : $operation;
     $path_segment = $paths[$path_key] ?? null;
 
     if ($path_segment === null) {

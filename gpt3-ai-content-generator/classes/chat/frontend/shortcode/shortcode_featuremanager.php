@@ -68,7 +68,8 @@ class FeatureManager {
         $web_search_flag = FeatureManagerMethods\get_web_search_flag_logic(
             $settings,
             $core_flags['allow_openai_web_search_tool_setting'],
-            $core_flags['allow_claude_web_search_tool_setting']
+            $core_flags['allow_claude_web_search_tool_setting'],
+            $core_flags['allow_openrouter_web_search_tool_setting']
         );
         $flags = array_merge($flags, $web_search_flag);
 

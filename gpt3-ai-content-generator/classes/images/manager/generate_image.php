@@ -21,6 +21,7 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
 
     $provider_normalized = match(strtolower($provider_raw)) {
         'openai' => 'OpenAI',
+        'openrouter' => 'OpenRouter',
         'azure' => 'Azure',
         'google' => 'Google',
         'pexels' => 'Pexels',
@@ -29,7 +30,7 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
         default => 'OpenAI',
     };
 
-    if (!in_array($provider_normalized, ['OpenAI', 'Azure', 'Google', 'Pexels', 'Pixabay', 'Replicate'])) {
+    if (!in_array($provider_normalized, ['OpenAI', 'OpenRouter', 'Azure', 'Google', 'Pexels', 'Pixabay', 'Replicate'])) {
         /* translators: %s: The provider name that was attempted to be used for image generation. */
         return new WP_Error('unsupported_image_provider', sprintf(__('Image provider "%s" is not currently supported.', 'gpt3-ai-content-generator'), esc_html($provider_raw)), ['status' => 400]);
     }
@@ -55,6 +56,12 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
 
     if (empty($final_options['model']) && $provider_normalized === 'OpenAI') {
         $final_options['model'] = 'dall-e-2';
+    } elseif (empty($final_options['model']) && $provider_normalized === 'OpenRouter') {
+        $openrouter_image_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openrouter_image_models() : [];
+        $first_openrouter_model = (is_array($openrouter_image_models) && !empty($openrouter_image_models[0]['id']))
+            ? sanitize_text_field((string) $openrouter_image_models[0]['id'])
+            : '';
+        $final_options['model'] = $first_openrouter_model !== '' ? $first_openrouter_model : 'google/gemini-2.5-flash-image-preview';
     } elseif (empty($final_options['model']) && $provider_normalized === 'Google') {
         $final_options['model'] = 'gemini-2.0-flash-preview-image-generation';
     }

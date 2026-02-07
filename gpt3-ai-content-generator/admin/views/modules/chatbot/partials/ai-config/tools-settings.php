@@ -137,6 +137,38 @@ $bot_id = $initial_active_bot_id;
             </div>
         </div>
     </div>
+    <div class="aipkit_popover_option_row aipkit_web_search_toggle_openrouter" style="<?php echo ($current_provider_for_this_bot === 'OpenRouter') ? '' : 'display:none;'; ?>">
+        <div class="aipkit_popover_option_main">
+            <span
+                class="aipkit_popover_option_label"
+                tabindex="0"
+                data-tooltip="<?php echo esc_attr__('Let the assistant browse the web. Availability depends on the selected OpenRouter model.', 'gpt3-ai-content-generator'); ?>"
+            >
+                <?php esc_html_e('Web search', 'gpt3-ai-content-generator'); ?>
+            </span>
+            <div class="aipkit_popover_option_actions">
+                <label class="aipkit_switch">
+                    <input
+                        type="checkbox"
+                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_enabled_popover"
+                        name="openrouter_web_search_enabled"
+                        class="aipkit_openrouter_web_search_enable_toggle"
+                        value="1"
+                        <?php checked($openrouter_web_search_enabled_val, '1'); ?>
+                    />
+                    <span class="aipkit_switch_slider"></span>
+                </label>
+                <button
+                    type="button"
+                    class="aipkit_popover_option_btn aipkit_web_search_config_btn"
+                    data-web-provider="openrouter"
+                    style="<?php echo ($openrouter_web_search_enabled_val === '1') ? '' : 'display:none;'; ?>"
+                >
+                    <?php esc_html_e('Configure', 'gpt3-ai-content-generator'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="aipkit_popover_option_row">
         <div class="aipkit_popover_option_main">
             <span

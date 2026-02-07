@@ -317,6 +317,10 @@ if (!defined('ABSPATH')) {
                                 'label' => esc_html__('Azure', 'gpt3-ai-content-generator'),
                                 'models' => $azure_embedding_models,
                             ],
+                            'openrouter' => [
+                                'label' => esc_html__('OpenRouter', 'gpt3-ai-content-generator'),
+                                'models' => $openrouter_embedding_models,
+                            ],
                         ];
                         $embedding_model_map = [];
                         foreach ($embedding_groups as $group_key => $group_data) {
@@ -371,6 +375,7 @@ if (!defined('ABSPATH')) {
                         <option value="openai" <?php selected($vector_embedding_provider, 'openai'); ?>>OpenAI</option>
                         <option value="google" <?php selected($vector_embedding_provider, 'google'); ?>>Google</option>
                         <option value="azure" <?php selected($vector_embedding_provider, 'azure'); ?>>Azure</option>
+                        <option value="openrouter" <?php selected($vector_embedding_provider, 'openrouter'); ?>>OpenRouter</option>
                     </select>
                     <select
                         id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_embedding_model_modal"
@@ -388,6 +393,8 @@ if (!defined('ABSPATH')) {
                             $current_embedding_list = $google_embedding_models;
                         } elseif ($vector_embedding_provider === 'azure') {
                             $current_embedding_list = $azure_embedding_models;
+                        } elseif ($vector_embedding_provider === 'openrouter') {
+                            $current_embedding_list = $openrouter_embedding_models;
                         }
                         if (!empty($current_embedding_list)) {
                             foreach ($current_embedding_list as $model) {

@@ -112,10 +112,12 @@ class AIPKit_AI_Forms_Assets
         }
         $openai_embedding_models = [];
         $google_embedding_models = [];
+        $openrouter_embedding_models = [];
         $azure_embedding_models = [];
         if (class_exists(AIPKit_Providers::class)) {
             $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
             $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+            $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
             $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
         }
         // --- END NEW ---
@@ -132,6 +134,7 @@ class AIPKit_AI_Forms_Assets
             'embeddingModels' => [
                 'openai' => $openai_embedding_models,
                 'google' => $google_embedding_models,
+                'openrouter' => $openrouter_embedding_models,
                 'azure' => $azure_embedding_models,
             ],
             // --- END NEW ---

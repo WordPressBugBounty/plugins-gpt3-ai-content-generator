@@ -6,6 +6,7 @@
 namespace WPAICG\Core\Stream\Handler\Ajax;
 
 use WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache; // Corrected namespace for Cache
+use WPAICG\Chat\Core\AjaxProcessor\FrontendChat\ChatImageInputValidator;
 use WPAICG\Utils\AIPKit_CORS_Manager; // For CORS handling
 use WP_Error;
 
@@ -92,7 +93,7 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     $user_message = str_replace(chr(0), '', $user_message); // Remove null bytes
     
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
-    $image_inputs_json = isset($_POST['image_inputs']) ? wp_kses_post(wp_unslash($_POST['image_inputs'])) : null;
+    $image_inputs_json = isset($_POST['image_inputs']) ? wp_unslash($_POST['image_inputs']) : null;
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
     $client_user_message_id = isset($_POST['user_client_message_id']) ? sanitize_key(wp_unslash($_POST['user_client_message_id'])) : null;
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
@@ -100,20 +101,39 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
     $active_claude_file_id = isset($_POST['active_claude_file_id']) ? sanitize_text_field(wp_unslash($_POST['active_claude_file_id'])) : null;
 
+    if (!class_exists(ChatImageInputValidator::class)) {
+        $validator_path = WPAICG_PLUGIN_DIR . 'classes/chat/core/ajax-processor/frontend-chat/class-chat-image-input-validator.php';
+        if (file_exists($validator_path)) {
+            require_once $validator_path;
+        }
+    }
+
     $image_inputs_data = null;
     if ($image_inputs_json) {
-        $decoded_outer_array = json_decode($image_inputs_json, true);
-        if (is_array($decoded_outer_array) && isset($decoded_outer_array[0]) && is_array($decoded_outer_array[0])) {
-            $transformed_image_inputs = [];
-            $item = $decoded_outer_array[0];
-            if (is_array($item) && isset($item['mime_type']) && isset($item['base64_data'])) {
-                if (strpos($item['mime_type'], 'image/') === 0) {
-                    $transformed_image_inputs[] = ['type' => $item['mime_type'], 'base64' => $item['base64_data']];
-                }
-            }
-            if (!empty($transformed_image_inputs)) {
-                $image_inputs_data = $transformed_image_inputs;
-            }
+        if (!class_exists(ChatImageInputValidator::class)) {
+            $error_data_for_response = [
+                'message' => __('Image validation component is unavailable.', 'gpt3-ai-content-generator'),
+                'code' => 'image_validator_missing',
+            ];
+            wp_send_json_error($error_data_for_response, 500);
+            return;
+        }
+
+        $image_validation_result = ChatImageInputValidator::parse_and_validate($image_inputs_json);
+        if (is_wp_error($image_validation_result)) {
+            $error_data_for_response = [
+                'message' => $image_validation_result->get_error_message(),
+                'code' => $image_validation_result->get_error_code(),
+            ];
+            $error_status = is_array($image_validation_result->get_error_data()) && isset($image_validation_result->get_error_data()['status'])
+                ? absint($image_validation_result->get_error_data()['status'])
+                : 400;
+            wp_send_json_error($error_data_for_response, $error_status);
+            return;
+        }
+
+        if (is_array($image_validation_result)) {
+            $image_inputs_data = $image_validation_result;
         }
     }
 

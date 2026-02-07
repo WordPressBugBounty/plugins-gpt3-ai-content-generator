@@ -251,8 +251,26 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $qdrant_names_clean = array_values(array_unique($qdrant_names_clean));
     $sanitized['qdrant_collection_names'] = wp_json_encode($qdrant_names_clean);
     $sanitized['qdrant_collection_name'] = $qdrant_names_clean[0] ?? '';
-    $sanitized['vector_embedding_provider'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_provider'])) ? sanitize_key($raw_settings['vector_embedding_provider']) : BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
-    $sanitized['vector_embedding_model'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_model'])) ? sanitize_text_field($raw_settings['vector_embedding_model']) : '';
+    $allowed_embedding_providers = ['openai', 'google', 'azure', 'openrouter'];
+    $sanitized['vector_embedding_provider'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_provider']))
+        ? sanitize_key($raw_settings['vector_embedding_provider'])
+        : BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
+    if (!in_array($sanitized['vector_embedding_provider'], $allowed_embedding_providers, true)) {
+        $sanitized['vector_embedding_provider'] = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
+    }
+    $sanitized['vector_embedding_model'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_model']))
+        ? sanitize_text_field($raw_settings['vector_embedding_model'])
+        : '';
+    // Backward-compatibility: accept combined "provider::model" values from older UI payloads.
+    if (strpos($sanitized['vector_embedding_model'], '::') !== false) {
+        [$model_provider, $model_id] = array_pad(explode('::', $sanitized['vector_embedding_model'], 2), 2, '');
+        $model_provider = sanitize_key((string) $model_provider);
+        $model_id = sanitize_text_field((string) $model_id);
+        if ($model_id !== '' && in_array($model_provider, $allowed_embedding_providers, true)) {
+            $sanitized['vector_embedding_provider'] = $model_provider;
+            $sanitized['vector_embedding_model'] = $model_id;
+        }
+    }
     $raw_top_k = isset($raw_settings['vector_store_top_k']) ? absint($raw_settings['vector_store_top_k']) : BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K;
     $sanitized['vector_store_top_k'] = max(1, min($raw_top_k, 20));
     // NEW: Sanitize confidence threshold
@@ -310,6 +328,17 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['claude_web_search_cache_ttl'] = isset($raw_settings['claude_web_search_cache_ttl']) && in_array($raw_settings['claude_web_search_cache_ttl'], ['none', '5m', '1h'], true)
         ? $raw_settings['claude_web_search_cache_ttl']
         : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
+    $sanitized['openrouter_web_search_enabled'] = (isset($raw_settings['openrouter_web_search_enabled']) && $raw_settings['openrouter_web_search_enabled'] === '1') ? '1' : '0';
+    $sanitized['openrouter_web_search_engine'] = isset($raw_settings['openrouter_web_search_engine']) && in_array($raw_settings['openrouter_web_search_engine'], ['auto', 'native', 'exa'], true)
+        ? $raw_settings['openrouter_web_search_engine']
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
+    $raw_openrouter_max_results = isset($raw_settings['openrouter_web_search_max_results'])
+        ? absint($raw_settings['openrouter_web_search_max_results'])
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS;
+    $sanitized['openrouter_web_search_max_results'] = max(1, min($raw_openrouter_max_results, 10));
+    $sanitized['openrouter_web_search_search_prompt'] = isset($raw_settings['openrouter_web_search_search_prompt'])
+        ? sanitize_textarea_field((string) $raw_settings['openrouter_web_search_search_prompt'])
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
     $sanitized['google_search_grounding_enabled'] = (isset($raw_settings['google_search_grounding_enabled']) && $raw_settings['google_search_grounding_enabled'] === '1') ? '1' : '0';
     $sanitized['google_grounding_mode'] = isset($raw_settings['google_grounding_mode']) && in_array($raw_settings['google_grounding_mode'], ['DEFAULT_MODE', 'MODE_DYNAMIC']) ? $raw_settings['google_grounding_mode'] : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
     $raw_google_threshold = isset($raw_settings['google_grounding_dynamic_threshold']) ? floatval($raw_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;

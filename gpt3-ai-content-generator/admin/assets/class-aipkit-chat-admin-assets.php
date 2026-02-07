@@ -184,6 +184,7 @@ class ChatAdminAssets
         $qdrant_collections = [];
         $openai_embedding_models = [];
         $google_embedding_models = [];
+        $openrouter_embedding_models = [];
         $azure_embedding_models = [];
         $is_pro_plan = false;
 
@@ -195,6 +196,7 @@ class ChatAdminAssets
             $qdrant_collections = \WPAICG\AIPKit_Providers::get_qdrant_collections();
             $openai_embedding_models = \WPAICG\AIPKit_Providers::get_openai_embedding_models();
             $google_embedding_models = \WPAICG\AIPKit_Providers::get_google_embedding_models();
+            $openrouter_embedding_models = \WPAICG\AIPKit_Providers::get_openrouter_embedding_models();
             $azure_embedding_models = \WPAICG\AIPKit_Providers::get_azure_embedding_models();
         }
         if (class_exists('\\WPAICG\\aipkit_dashboard')) {
@@ -211,7 +213,7 @@ class ChatAdminAssets
             'userIp' => $user_ip_sanitized, 'requireConsentCompliance' => false,
             'openaiVectorStores' => $openai_vector_stores, 'pineconeIndexes' => $pinecone_indexes,
             'qdrantCollections' => $qdrant_collections, 'openaiEmbeddingModels' => $openai_embedding_models,
-            'googleEmbeddingModels' => $google_embedding_models, 'azureEmbeddingModels' => $azure_embedding_models, 'isProPlan' => $is_pro_plan,
+            'googleEmbeddingModels' => $google_embedding_models, 'openrouterEmbeddingModels' => $openrouter_embedding_models, 'azureEmbeddingModels' => $azure_embedding_models, 'isProPlan' => $is_pro_plan,
             'automationsNonce' => wp_create_nonce('aipkit_automated_tasks_manage_nonce'),
             'nonce_toggle_ip_block' => wp_create_nonce('aipkit_toggle_ip_block_nonce'), // ADDED
             'text' => array_merge($dashboard_texts, [

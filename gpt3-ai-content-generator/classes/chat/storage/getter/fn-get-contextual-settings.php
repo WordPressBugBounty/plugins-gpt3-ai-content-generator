@@ -76,6 +76,15 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
         }
     }
 
+    // Add OpenRouter image models to validation list when available
+    if (class_exists('\WPAICG\AIPKit_Providers')) {
+        $openrouter_image_models = \WPAICG\AIPKit_Providers::get_openrouter_image_models();
+        if (!empty($openrouter_image_models)) {
+            $openrouter_model_ids = wp_list_pluck($openrouter_image_models, 'id');
+            $valid_image_models = array_merge($valid_image_models, $openrouter_model_ids);
+        }
+    }
+
     if (!in_array($settings['chat_image_model_id'], $valid_image_models)) {
         $settings['chat_image_model_id'] = BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
     }

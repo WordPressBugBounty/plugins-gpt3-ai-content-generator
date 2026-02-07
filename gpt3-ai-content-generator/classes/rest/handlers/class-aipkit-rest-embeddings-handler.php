@@ -25,13 +25,13 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
     {
         return array(
             'provider' => array(
-                'description' => __('The AI provider for embeddings (OpenAI, Google, or Azure).', 'gpt3-ai-content-generator'),
+                'description' => __('The AI provider for embeddings (OpenAI, Google, Azure, or OpenRouter).', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'enum'        => ['openai', 'google', 'azure'],
+                'enum'        => ['openai', 'google', 'azure', 'openrouter'],
                 'required'    => true,
             ),
             'model' => array(
-                'description' => __('The specific embedding model ID or Azure deployment ID.', 'gpt3-ai-content-generator'),
+                'description' => __('The specific embedding model ID (or Azure deployment ID).', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
                 'required'    => true,
             ),
@@ -42,12 +42,12 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
                 'items'       => ['type' => 'string'],
             ),
             'dimensions' => array(
-                'description' => __('(OpenAI text-embedding-3+, Azure) Number of dimensions for output embeddings.', 'gpt3-ai-content-generator'),
+                'description' => __('(OpenAI/OpenRouter text-embedding-3+, Azure) Number of dimensions for output embeddings.', 'gpt3-ai-content-generator'),
                 'type'        => 'integer',
                 'required'    => false,
             ),
             'encoding_format' => array(
-                'description' => __('(OpenAI) Format to return embeddings: float or base64.', 'gpt3-ai-content-generator'),
+                'description' => __('(OpenAI/OpenRouter) Format to return embeddings: float or base64.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
                 'enum'        => ['float', 'base64'],
                 'default'     => 'float',
@@ -148,7 +148,11 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
         }
 
         $provider = match(strtolower($provider_raw)) {
-            'openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', default => null,
+            'openai' => 'OpenAI',
+            'google' => 'Google',
+            'azure' => 'Azure',
+            'openrouter' => 'OpenRouter',
+            default => null,
         };
         if ($provider === null) {
             /* translators: %s is the provider name */
@@ -164,14 +168,14 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
             'model' => sanitize_text_field($model)
         ];
 
-        if ($provider === 'OpenAI' || $provider === 'Azure') {
+        if ($provider === 'OpenAI' || $provider === 'Azure' || $provider === 'OpenRouter') {
             if (isset($params['dimensions'])) {
                 $embedding_options['dimensions'] = absint($params['dimensions']);
             }
             if (isset($params['user'])) {
                 $embedding_options['user'] = sanitize_text_field($params['user']);
             }
-            if ($provider === 'OpenAI' && isset($params['encoding_format'])) {
+            if (($provider === 'OpenAI' || $provider === 'OpenRouter') && isset($params['encoding_format'])) {
                 $embedding_options['encoding_format'] = sanitize_key($params['encoding_format']);
             }
         }

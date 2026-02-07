@@ -66,7 +66,7 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
     $settings['qdrant_collection_names'] = $qdrant_names_array;
 
     $settings['vector_embedding_provider'] = $get_meta_fn('_aipkit_vector_embedding_provider', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
-    if (!in_array($settings['vector_embedding_provider'], ['openai', 'google', 'azure'])) {
+    if (!in_array($settings['vector_embedding_provider'], ['openai', 'google', 'azure', 'openrouter'], true)) {
         $settings['vector_embedding_provider'] = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
     }
     $settings['vector_embedding_model'] = $get_meta_fn('_aipkit_vector_embedding_model', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_MODEL);

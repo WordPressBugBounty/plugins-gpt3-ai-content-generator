@@ -18,11 +18,8 @@ if (!defined('ABSPATH')) {
  * @return array The formatted SSE payload.
  */
 function format_sse_logic_for_payload_formatter(array $messages, string $system_instruction, array $ai_params, string $model): array {
-    // The 'history' array for _shared_format_logic should already contain all necessary messages
-    // (user/assistant/system) from the $messages array, and the system instruction is handled by the shared logic.
+    // The history array already contains user/assistant messages; system instructions are merged by shared formatter.
     $payload = _shared_format_logic($system_instruction, $messages, $ai_params, $model);
     $payload['stream'] = true;
-    // OpenRouter supports requesting usage in stream options
-    $payload['stream_options'] = ['include_usage' => true];
     return $payload;
 }

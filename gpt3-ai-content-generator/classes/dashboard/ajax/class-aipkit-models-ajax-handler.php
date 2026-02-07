@@ -7,6 +7,7 @@ namespace WPAICG\Dashboard\Ajax;
 
 use WPAICG\AIPKit_Providers;
 use WPAICG\Core\AIPKit_Models_API;
+use WPAICG\Core\Providers\ProviderStrategyFactory;
 use WPAICG\Speech\AIPKit_TTS_Provider_Strategy_Factory;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
@@ -112,7 +113,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         ];
 
 
-        if (empty($api_params['api_key']) && in_array($provider, ['OpenAI', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'])) {
+        if (empty($api_params['api_key']) && in_array($provider, ['OpenAI', 'OpenRouter', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'], true)) {
             /* translators: %s: The provider name that was attempted to be used for model sync. */
             wp_send_json_error(['message' => sprintf(__('%s API key is required.', 'gpt3-ai-content-generator'), $provider_data_key)]);
             return;
@@ -184,6 +185,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         $option_name = $option_map[$provider] ?? null;
         $response_models = $result; // Default to raw result
+        $extra_response_payload = [];
 
         if ($option_name) {
             $value_to_save = $result;
@@ -248,6 +250,19 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 update_option('aipkit_google_embedding_model_list', $embedding_models, 'no');
                 update_option('aipkit_google_image_model_list', $image_models, 'no');
                 update_option('aipkit_google_video_model_list', $video_models, 'no');
+            } elseif ($provider === 'OpenRouter') {
+                $existing_embedding_models = get_option('aipkit_openrouter_embedding_model_list', []);
+                $openrouter_embedding_models = is_array($existing_embedding_models) ? $existing_embedding_models : [];
+
+                $openrouter_strategy = ProviderStrategyFactory::get_strategy('OpenRouter');
+                if (!is_wp_error($openrouter_strategy) && method_exists($openrouter_strategy, 'get_embedding_models')) {
+                    $embedding_models_result = $openrouter_strategy->get_embedding_models($api_params);
+                    if (!is_wp_error($embedding_models_result) && is_array($embedding_models_result)) {
+                        $openrouter_embedding_models = $embedding_models_result;
+                        update_option('aipkit_openrouter_embedding_model_list', $openrouter_embedding_models, 'no');
+                    }
+                }
+                $extra_response_payload['embedding_models'] = $openrouter_embedding_models;
             } elseif ($provider === 'Ollama') {
                 $chat_models = [];
                 $embedding_models = [];
@@ -337,6 +352,14 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         AIPKit_Providers::clear_model_caches();
         /* translators: %s: The provider name that was synced. */
-        wp_send_json_success(['message' => sprintf(__('%s synced successfully.', 'gpt3-ai-content-generator'), $provider_data_key), 'models'  => $response_models]);
+        wp_send_json_success(
+            array_merge(
+                [
+                    'message' => sprintf(__('%s synced successfully.', 'gpt3-ai-content-generator'), $provider_data_key),
+                    'models'  => $response_models,
+                ],
+                $extra_response_payload
+            )
+        );
     }
 }

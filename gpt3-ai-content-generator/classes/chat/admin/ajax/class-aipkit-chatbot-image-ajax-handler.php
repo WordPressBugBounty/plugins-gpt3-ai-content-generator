@@ -192,6 +192,15 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             }
         }
 
+        // Get OpenRouter image models for detection
+        $openrouter_image_model_ids = [];
+        if (class_exists('\WPAICG\AIPKit_Providers')) {
+            $openrouter_image_models = \WPAICG\AIPKit_Providers::get_openrouter_image_models();
+            if (!empty($openrouter_image_models)) {
+                $openrouter_image_model_ids = wp_list_pluck($openrouter_image_models, 'id');
+            }
+        }
+
         // Get Azure image models for detection
         $azure_model_ids = [];
         if (class_exists('\WPAICG\AIPKit_Providers')) {
@@ -209,7 +218,9 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
                 $google_image_model_ids = wp_list_pluck($google_image_models, 'id');
             }
         }
-        if (in_array($selected_image_model, $google_image_model_ids, true)) {
+        if (in_array($selected_image_model, $openrouter_image_model_ids, true)) {
+            $provider_for_image = 'OpenRouter';
+        } elseif (in_array($selected_image_model, $google_image_model_ids, true)) {
             $provider_for_image = 'Google';
         } elseif (in_array($selected_image_model, $azure_model_ids, true)) {
             $provider_for_image = 'Azure';

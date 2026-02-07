@@ -153,8 +153,10 @@ class DashboardAssets
         $ollama_models = [];
         $openai_embedding_models = [];
         $google_embedding_models = [];
+        $openrouter_embedding_models = [];
         $azure_embedding_models = [];
         $google_image_models = [];
+        $openrouter_image_models = [];
         $recommended_models = [];
         if (class_exists('\\WPAICG\\AIPKit_Providers')) {
             $openai_models     = AIPKit_Providers::get_openai_models();
@@ -166,7 +168,9 @@ class DashboardAssets
             $ollama_models     = AIPKit_Providers::get_ollama_models();
             $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
             $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+            $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
             $google_image_models = AIPKit_Providers::get_google_image_models();
+            $openrouter_image_models = AIPKit_Providers::get_openrouter_image_models();
             $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
             $recommended_models = [
                 'openai' => AIPKit_Providers::get_recommended_models('OpenAI'),
@@ -220,6 +224,7 @@ class DashboardAssets
             'embeddingModels' => [
                 'openai' => $openai_embedding_models,
                 'google' => $google_embedding_models,
+                'openrouter' => $openrouter_embedding_models,
                 'azure' => $azure_embedding_models,
             ],
             'imageGeneratorModels' => [
@@ -231,6 +236,7 @@ class DashboardAssets
                     ['id' => 'dall-e-2', 'name' => 'DALL-E 2'],
                 ],
                 'google' => $google_image_models,
+                'openrouter' => $openrouter_image_models,
                 'azure' => AIPKit_Providers::get_azure_image_models(),
                 'replicate' => AIPKit_Providers::get_replicate_models(),
             ],

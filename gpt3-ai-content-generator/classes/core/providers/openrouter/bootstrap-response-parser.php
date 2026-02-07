@@ -17,13 +17,13 @@ require_once __DIR__ . '/parse-error.php';
 require_once __DIR__ . '/parse-sse.php';
 
 /**
- * Handles parsing responses and SSE chunks from the OpenRouter API (Chat Completions format) (Modularized).
- * Original logic for static methods is now in separate files within the 'Methods' namespace.
+ * Handles parsing responses and SSE chunks from the OpenRouter Responses API (modularized).
+ * Includes compatibility fallbacks for legacy chat-completions-shaped payloads.
  */
 class OpenRouterResponseParser {
 
     /**
-     * Parses a standard Chat Completions API response (used by OpenRouter).
+     * Parses a standard non-stream OpenRouter response payload.
      *
      * @param array $decoded_response The decoded JSON response.
      * @return array|WP_Error ['content' => string, 'usage' => array|null] or WP_Error.
@@ -45,7 +45,7 @@ class OpenRouterResponseParser {
 
 
     /**
-     * Parses an SSE chunk from an OpenRouter stream (Chat Completions format).
+     * Parses an SSE chunk from an OpenRouter stream.
      *
      * @param string $sse_chunk       The raw chunk received.
      * @param string &$current_buffer Reference to the incomplete buffer.

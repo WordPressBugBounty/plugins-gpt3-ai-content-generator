@@ -138,6 +138,13 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
 
     // --- 2. Process Image Input ---
     $image_inputs_for_service = $image_processor->process($image_inputs_json);
+    if (is_wp_error($image_inputs_for_service)) {
+        $status_code = is_array($image_inputs_for_service->get_error_data()) && isset($image_inputs_for_service->get_error_data()['status'])
+            ? absint($image_inputs_for_service->get_error_data()['status'])
+            : 400;
+        wp_send_json_error(['message' => $image_inputs_for_service->get_error_message()], $status_code);
+        return;
+    }
 
     // --- 3. Build Initial Context (Bot Settings, User Info, IP, etc.) ---
     // Context builder now also handles Pinecone parameters if they exist in $validation_result

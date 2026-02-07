@@ -238,6 +238,19 @@ $claude_web_search_allowed_domains_val = $active_bot_settings['claude_web_search
 $claude_web_search_blocked_domains_val = $active_bot_settings['claude_web_search_blocked_domains'] ?? '';
 $claude_web_search_cache_ttl_val = $active_bot_settings['claude_web_search_cache_ttl']
     ?? BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
+$openrouter_web_search_enabled_val = $active_bot_settings['openrouter_web_search_enabled']
+    ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED;
+$openrouter_web_search_engine_val = $active_bot_settings['openrouter_web_search_engine']
+    ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
+if (!in_array($openrouter_web_search_engine_val, ['auto', 'native', 'exa'], true)) {
+    $openrouter_web_search_engine_val = BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
+}
+$openrouter_web_search_max_results_val = isset($active_bot_settings['openrouter_web_search_max_results'])
+    ? absint($active_bot_settings['openrouter_web_search_max_results'])
+    : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS;
+$openrouter_web_search_max_results_val = max(1, min($openrouter_web_search_max_results_val, 10));
+$openrouter_web_search_search_prompt_val = $active_bot_settings['openrouter_web_search_search_prompt']
+    ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
 $google_search_grounding_enabled_val = $active_bot_settings['google_search_grounding_enabled']
     ?? BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED;
 $google_grounding_mode_val = $active_bot_settings['google_grounding_mode']
@@ -301,7 +314,7 @@ if (isset($active_bot_settings['openai_vector_store_ids'])) {
 }
 $pinecone_index_name = $active_bot_settings['pinecone_index_name'] ?? BotSettingsManager::DEFAULT_PINECONE_INDEX_NAME;
 $vector_embedding_provider = $active_bot_settings['vector_embedding_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
-$allowed_embedding_providers = ['openai', 'google', 'azure'];
+$allowed_embedding_providers = ['openai', 'google', 'azure', 'openrouter'];
 if (!in_array($vector_embedding_provider, $allowed_embedding_providers, true)) {
     $vector_embedding_provider = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
 }
@@ -325,6 +338,7 @@ $qdrant_collections = [];
 $openai_embedding_models = [];
 $google_embedding_models = [];
 $azure_embedding_models = [];
+$openrouter_embedding_models = [];
 $openai_provider_data = [];
 $pinecone_provider_data = [];
 $qdrant_provider_data = [];
@@ -341,6 +355,7 @@ if (class_exists(AIPKit_Providers::class)) {
     $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
     $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
     $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
+    $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
     $openai_provider_data = AIPKit_Providers::get_provider_data('OpenAI');
     $pinecone_provider_data = AIPKit_Providers::get_provider_data('Pinecone');
     $qdrant_provider_data = AIPKit_Providers::get_provider_data('Qdrant');
@@ -364,6 +379,7 @@ $image_triggers = $active_bot_settings['image_triggers']
 $chat_image_model_id = $active_bot_settings['chat_image_model_id']
     ?? BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
 $replicate_model_list = AIPKit_Providers::get_replicate_models();
+$openrouter_image_model_list = AIPKit_Providers::get_openrouter_image_models();
 $available_image_models = [
     'OpenAI' => [
         ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],
@@ -375,6 +391,9 @@ $available_image_models = [
     'Azure' => AIPKit_Providers::get_azure_image_models(),
     'Google' => AIPKit_Providers::get_google_image_models(),
 ];
+if (isset($openrouter_image_model_list) && is_array($openrouter_image_model_list) && !empty($openrouter_image_model_list)) {
+    $available_image_models['OpenRouter'] = $openrouter_image_model_list;
+}
 if (isset($replicate_model_list) && is_array($replicate_model_list) && !empty($replicate_model_list)) {
     $available_image_models['Replicate'] = $replicate_model_list;
 }
@@ -1827,7 +1846,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
         data-title-limits="<?php esc_attr_e('Limits', 'gpt3-ai-content-generator'); ?>"
     >
         <div
-            class="aipkit_model_settings_popover_panel"
+            class="aipkit_model_settings_popover_panel aipkit_model_settings_popover_panel--allow-overflow"
             role="dialog"
             aria-modal="false"
             aria-labelledby="aipkit_model_settings_popover_title"
@@ -2611,12 +2630,12 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                 </button>
             </div>
             <div class="aipkit_popover_flyout_body aipkit_popover_image_body">
-                <div class="aipkit_popover_option_row aipkit_image_analysis_popover_row" style="<?php echo (($current_provider_for_this_bot === 'OpenAI' || $current_provider_for_this_bot === 'Claude')) ? '' : 'display:none;'; ?>">
+                <div class="aipkit_popover_option_row aipkit_image_analysis_popover_row" style="<?php echo (($current_provider_for_this_bot === 'OpenAI' || $current_provider_for_this_bot === 'Claude' || $current_provider_for_this_bot === 'OpenRouter')) ? '' : 'display:none;'; ?>">
                     <div class="aipkit_popover_option_main">
                         <span
                             class="aipkit_popover_option_label"
                             tabindex="0"
-                            data-tooltip="<?php echo esc_attr__('Allow image uploads for analysis (OpenAI and Claude only).', 'gpt3-ai-content-generator'); ?>"
+                            data-tooltip="<?php echo esc_attr__('Allow image uploads for analysis (OpenAI, Claude, and OpenRouter only).', 'gpt3-ai-content-generator'); ?>"
                         >
                             <?php esc_html_e('Image upload', 'gpt3-ai-content-generator'); ?>
                         </span>

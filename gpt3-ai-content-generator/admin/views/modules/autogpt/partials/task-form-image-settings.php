@@ -32,6 +32,7 @@ if (!defined('ABSPATH')) {
                 <select id="aipkit_task_cw_image_provider" name="image_provider" class="aipkit_form-input" data-aipkit-provider-notice-target="aipkit_provider_notice_autogpt" data-aipkit-provider-notice-defer="1">
                     <option value="openai" selected>OpenAI</option>
                     <option value="google">Google</option>
+                    <option value="openrouter">OpenRouter</option>
                     <option value="azure">Azure</option>
                     <option value="replicate"><?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?></option>
                     <option value="pexels"><?php esc_html_e('Pexels', 'gpt3-ai-content-generator'); ?></option>

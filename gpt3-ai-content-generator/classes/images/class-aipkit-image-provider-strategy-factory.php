@@ -38,6 +38,7 @@ class AIPKit_Image_Provider_Strategy_Factory
         $strategies_to_load = [
             'OpenAI'          => 'class-aipkit-image-openai-provider-strategy.php',
             'Azure' => 'class-aipkit-image-azure-provider-strategy.php', 'Google'          => 'class-aipkit-image-google-provider-strategy.php',
+            'OpenRouter'      => 'class-aipkit-image-openrouter-provider-strategy.php',
             'Pexels'          => 'class-aipkit-image-pexels-provider-strategy.php',
             'Pixabay'         => 'class-aipkit-image-pixabay-provider-strategy.php',
             'Replicate'       => 'class-aipkit-image-replicate-provider-strategy.php',
@@ -81,6 +82,8 @@ class AIPKit_Image_Provider_Strategy_Factory
             case 'Azure': $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_Azure_Provider_Strategy';
                 break;
             case 'Google':          $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_Google_Provider_Strategy';
+                break;
+            case 'OpenRouter':      $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_OpenRouter_Provider_Strategy';
                 break;
             case 'Pexels':          $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_Pexels_Provider_Strategy';
                 break;

@@ -133,6 +133,7 @@ class AIPKit_Vector_Post_Processor_Assets
             $qdrant_collections = [];
             $openai_embedding_models = [];
             $google_embedding_models = [];
+            $openrouter_embedding_models = [];
             $azure_embedding_models = [];
 
             if (class_exists(AIPKit_Vector_Store_Registry::class)) {
@@ -143,6 +144,7 @@ class AIPKit_Vector_Post_Processor_Assets
             if (class_exists(AIPKit_Providers::class)) {
                 $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
                 $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+                $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
                 $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
             }
 
@@ -155,6 +157,7 @@ class AIPKit_Vector_Post_Processor_Assets
                 'qdrant_collections' => $qdrant_collections,
                 'openaiEmbeddingModels' => $openai_embedding_models,
                 'googleEmbeddingModels' => $google_embedding_models,
+                'openrouterEmbeddingModels' => $openrouter_embedding_models,
                 'azureEmbeddingModels' => $azure_embedding_models,
                 'text' => [
                     'modal_title' => __('Add Content to Vector Store', 'gpt3-ai-content-generator'),

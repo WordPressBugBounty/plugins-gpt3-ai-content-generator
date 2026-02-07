@@ -39,5 +39,8 @@ $allowed_models_str = $frontend_display_settings['allowed_models'] ?? '';
         <span class="aipkit_popover_option_helper">
             <?php esc_html_e('Pick specific models to show on the frontend. Leave everything unselected to allow all models. Use the per-provider toggle to include entire catalogs quickly.', 'gpt3-ai-content-generator'); ?>
         </span>
+        <span class="aipkit_popover_option_helper">
+            <?php esc_html_e('OpenRouter entries include only image-capable models from your synced list.', 'gpt3-ai-content-generator'); ?>
+        </span>
     </div>
 </div>

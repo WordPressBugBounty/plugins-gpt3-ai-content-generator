@@ -133,7 +133,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         // Normalize provider name
-        $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure'];
+        $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
         $embedding_provider = $provider_map[$embedding_provider_key] ?? '';
 
         if (empty($embedding_provider)) {

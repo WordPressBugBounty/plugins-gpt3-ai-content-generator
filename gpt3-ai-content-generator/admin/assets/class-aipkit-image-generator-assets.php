@@ -132,6 +132,7 @@ class ImageGeneratorAssets
                 'noPrompt' => __('Please enter a prompt.', 'gpt3-ai-content-generator'),
                 'initialPlaceholder' => __('Generated images will appear here.', 'gpt3-ai-content-generator'),
                 'viewFullImage' => __('Click to view full image', 'gpt3-ai-content-generator'),
+                'openrouterModelUnsupported' => __('Selected OpenRouter model does not support image generation.', 'gpt3-ai-content-generator'),
             ],
              'openai_models' => [
                 ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],
@@ -144,6 +145,7 @@ class ImageGeneratorAssets
                 'image' => (class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_google_image_models() : []),
                 'video' => (class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_google_video_models() : []),
              ],
+             'openrouter_image_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_openrouter_image_models() : [],
              'replicate_models' => AIPKit_Providers::get_replicate_models()
         ]);
     }

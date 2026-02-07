@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.70
+Stable tag: 2.3.71
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,14 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.71 =
+
+- **Improved**: Migrated OpenRouter to the Responses API.
+- **Added**: OpenRouter embeddings support in chatbot, content writer, automated task and ai forms.
+- **Added**: OpenRouter web search support in chatbot and ai forms.
+- **Added**: OpenRouter image analysis support in chatbot.
+- **Added**: OpenRouter image generation support in chatbot, content writer, automated task and image generator module.
 
 = 2.3.70 =
 

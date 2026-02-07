@@ -195,6 +195,60 @@ if (!defined('ABSPATH')) {
         </div>
     </div>
 
+    <div class="aipkit_popover_option_row aipkit_ai_form_web_search_row aipkit_ai_form_web_search_row--openrouter">
+        <div class="aipkit_popover_option_main">
+            <span class="aipkit_popover_option_label" tabindex="0" data-tooltip="<?php echo esc_attr__('Let OpenRouter models browse the web. Availability depends on the selected model.', 'gpt3-ai-content-generator'); ?>">
+                <?php esc_html_e('Web Search', 'gpt3-ai-content-generator'); ?>
+            </span>
+            <div class="aipkit_popover_option_actions">
+                <label class="aipkit_switch">
+                    <input
+                        type="checkbox"
+                        id="aipkit_ai_form_openrouter_web_search_enabled"
+                        name="openrouter_web_search_enabled"
+                        class="aipkit_ai_form_openrouter_web_search_toggle"
+                        value="1"
+                    >
+                    <span class="aipkit_switch_slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="aipkit_form-help">
+        <?php esc_html_e('OpenRouter web search support can vary by model.', 'gpt3-ai-content-generator'); ?>
+    </div>
+
+    <div class="aipkit_ai_form_openrouter_web_search_settings" style="display: none;">
+        <div class="aipkit_popover_option_row">
+            <div class="aipkit_popover_option_main">
+                <label class="aipkit_popover_option_label" for="aipkit_ai_form_openrouter_web_search_engine">
+                    <?php esc_html_e('Engine', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <select id="aipkit_ai_form_openrouter_web_search_engine" name="openrouter_web_search_engine" class="aipkit_popover_option_select">
+                    <option value="auto" selected><?php esc_html_e('Auto (Recommended)', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="native"><?php esc_html_e('Native', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="exa"><?php esc_html_e('Exa', 'gpt3-ai-content-generator'); ?></option>
+                </select>
+            </div>
+        </div>
+        <div class="aipkit_popover_option_row">
+            <div class="aipkit_popover_option_main">
+                <label class="aipkit_popover_option_label" for="aipkit_ai_form_openrouter_web_search_max_results">
+                    <?php esc_html_e('Max Results', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <input type="number" id="aipkit_ai_form_openrouter_web_search_max_results" name="openrouter_web_search_max_results" class="aipkit_popover_option_input aipkit_popover_option_input--framed" min="1" max="10" step="1" value="5">
+            </div>
+        </div>
+        <div class="aipkit_popover_option_row">
+            <div class="aipkit_popover_option_main">
+                <label class="aipkit_popover_option_label" for="aipkit_ai_form_openrouter_web_search_search_prompt">
+                    <?php esc_html_e('Search Prompt', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <input type="text" id="aipkit_ai_form_openrouter_web_search_search_prompt" name="openrouter_web_search_search_prompt" class="aipkit_popover_option_input aipkit_popover_option_input--framed" placeholder="<?php esc_attr_e('Optional prompt for search intent', 'gpt3-ai-content-generator'); ?>">
+            </div>
+        </div>
+    </div>
+
     <div class="aipkit_popover_option_row aipkit_ai_form_web_search_row aipkit_ai_form_web_search_row--google">
         <div class="aipkit_popover_option_main">
             <span class="aipkit_popover_option_label" tabindex="0" data-tooltip="<?php echo esc_attr__('Let Google models browse the web.', 'gpt3-ai-content-generator'); ?>">
@@ -240,6 +294,6 @@ if (!defined('ABSPATH')) {
     </div>
 
     <div class="aipkit_ai_form_web_search_empty_state aipkit_form-help" style="display: none;">
-        <?php esc_html_e('Web Search is available for OpenAI, Google, and Claude providers only.', 'gpt3-ai-content-generator'); ?>
+        <?php esc_html_e('Web Search is available for OpenAI, Google, Claude, and OpenRouter providers only.', 'gpt3-ai-content-generator'); ?>
     </div>
 </div>

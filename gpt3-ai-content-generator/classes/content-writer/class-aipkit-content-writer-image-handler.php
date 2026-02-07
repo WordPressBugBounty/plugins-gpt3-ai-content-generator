@@ -597,6 +597,9 @@ class AIPKit_Content_Writer_Image_Handler
                 $result = $this->image_manager->generate_image($prompt_for_main_images, $generation_options, $current_user_id);
                 if (!is_wp_error($result) && !empty($result['images'])) {
                     $final_image_data['in_content_images'] = array_merge($final_image_data['in_content_images'], $result['images']);
+                    if (count($final_image_data['in_content_images']) > $image_count) {
+                        $final_image_data['in_content_images'] = array_slice($final_image_data['in_content_images'], 0, $image_count);
+                    }
                 } else {
                     $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No images returned from API.';
                     // Log the error for debugging bulk mode issues

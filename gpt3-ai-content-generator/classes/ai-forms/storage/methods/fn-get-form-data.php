@@ -111,7 +111,7 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $data['qdrant_collection_name'] = get_post_meta($form_id, '_aipkit_ai_form_qdrant_collection_name', true) ?: '';
 
     $vector_embedding_provider = get_post_meta($form_id, '_aipkit_ai_form_vector_embedding_provider', true) ?: 'openai';
-    if (!in_array($vector_embedding_provider, ['openai', 'google', 'azure'])) {
+    if (!in_array($vector_embedding_provider, ['openai', 'google', 'azure', 'openrouter'], true)) {
         $vector_embedding_provider = 'openai';
     }
     $data['vector_embedding_provider'] = $vector_embedding_provider;
@@ -124,6 +124,8 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $data['openai_web_search_enabled'] = get_post_meta($form_id, '_aipkit_ai_form_openai_web_search_enabled', true) ?: '0';
     $claude_web_search_enabled = get_post_meta($form_id, '_aipkit_ai_form_claude_web_search_enabled', true);
     $data['claude_web_search_enabled'] = in_array($claude_web_search_enabled, ['0', '1'], true) ? $claude_web_search_enabled : '0';
+    $openrouter_web_search_enabled = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_enabled', true);
+    $data['openrouter_web_search_enabled'] = in_array($openrouter_web_search_enabled, ['0', '1'], true) ? $openrouter_web_search_enabled : '0';
     $data['google_search_grounding_enabled'] = get_post_meta($form_id, '_aipkit_ai_form_google_search_grounding_enabled', true) ?: '0';
     
     // OpenAI Web Search sub-settings
@@ -151,6 +153,14 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     }
     $claude_cache_ttl = get_post_meta($form_id, '_aipkit_ai_form_claude_web_search_cache_ttl', true) ?: 'none';
     $data['claude_web_search_cache_ttl'] = in_array($claude_cache_ttl, ['none', '5m', '1h'], true) ? $claude_cache_ttl : 'none';
+
+    // OpenRouter Web Search sub-settings
+    $openrouter_engine = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_engine', true) ?: 'auto';
+    $data['openrouter_web_search_engine'] = in_array($openrouter_engine, ['auto', 'native', 'exa'], true) ? $openrouter_engine : 'auto';
+    $openrouter_max_results_raw = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_max_results', true);
+    $openrouter_max_results = is_numeric($openrouter_max_results_raw) ? absint($openrouter_max_results_raw) : 5;
+    $data['openrouter_web_search_max_results'] = max(1, min($openrouter_max_results, 10));
+    $data['openrouter_web_search_search_prompt'] = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_search_prompt', true) ?: '';
     
     // Google Search Grounding sub-settings
     $data['google_grounding_mode'] = get_post_meta($form_id, '_aipkit_ai_form_google_grounding_mode', true) ?: 'DEFAULT_MODE';

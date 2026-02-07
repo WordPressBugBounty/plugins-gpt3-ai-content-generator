@@ -204,6 +204,31 @@ function prepare_stream_data_logic(
         // For AI Forms, web search is implicitly active if the form setting is enabled.
         $ai_params_for_payload['frontend_web_search_active'] = true;
     }
+    if ($provider === 'OpenRouter' && ($form_config['openrouter_web_search_enabled'] ?? '0') === '1') {
+        $web_search_config = ['enabled' => true];
+
+        $openrouter_engine = isset($form_config['openrouter_web_search_engine'])
+            ? sanitize_key((string) $form_config['openrouter_web_search_engine'])
+            : 'auto';
+        if (in_array($openrouter_engine, ['native', 'exa'], true)) {
+            $web_search_config['engine'] = $openrouter_engine;
+        }
+
+        $openrouter_max_results = isset($form_config['openrouter_web_search_max_results'])
+            ? absint($form_config['openrouter_web_search_max_results'])
+            : 5;
+        $web_search_config['max_results'] = max(1, min($openrouter_max_results, 10));
+
+        $openrouter_search_prompt = isset($form_config['openrouter_web_search_search_prompt'])
+            ? sanitize_textarea_field((string) $form_config['openrouter_web_search_search_prompt'])
+            : '';
+        if ($openrouter_search_prompt !== '') {
+            $web_search_config['search_prompt'] = $openrouter_search_prompt;
+        }
+
+        $ai_params_for_payload['web_search_tool_config'] = $web_search_config;
+        $ai_params_for_payload['frontend_web_search_active'] = true;
+    }
     if ($provider === 'Google' && ($form_config['google_search_grounding_enabled'] ?? '0') === '1') {
         // For AI Forms, grounding is implicitly active if the form setting is enabled.
         $ai_params_for_payload['frontend_google_search_grounding_active'] = true;

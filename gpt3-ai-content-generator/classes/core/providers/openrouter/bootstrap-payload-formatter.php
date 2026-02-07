@@ -10,13 +10,14 @@ if (!defined('ABSPATH')) {
 }
 
 // Load method logic files
+require_once __DIR__ . '/capabilities.php';
 require_once __DIR__ . '/_shared-format.php';
 require_once __DIR__ . '/format-chat.php';
 require_once __DIR__ . '/format-sse.php';
 
 
 /**
- * Handles formatting request payloads for the OpenRouter API (Chat Completions format) (Modularized).
+ * Handles formatting request payloads for the OpenRouter Responses API (modularized).
  * Original logic for static methods is now in separate files within the 'Methods' namespace.
  */
 class OpenRouterPayloadFormatter {

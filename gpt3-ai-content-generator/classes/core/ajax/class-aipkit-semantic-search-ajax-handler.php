@@ -74,7 +74,7 @@ class AIPKit_Semantic_Search_Ajax_Handler extends BaseDashboardAjaxHandler
         // --- END FIX ---
 
         // Generate embedding for the user's query
-        $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure'];
+        $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
         $embedding_provider_norm = $provider_map[$embedding_provider_key] ?? ucfirst($embedding_provider_key);
 
         $embedding_options = ['model' => $embedding_model];

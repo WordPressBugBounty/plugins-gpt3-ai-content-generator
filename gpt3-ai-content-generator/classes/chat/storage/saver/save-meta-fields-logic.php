@@ -205,6 +205,16 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         delete_post_meta($botId, '_aipkit_claude_web_search_blocked_domains');
         delete_post_meta($botId, '_aipkit_claude_web_search_cache_ttl');
     }
+    update_post_meta($botId, '_aipkit_openrouter_web_search_enabled', $sanitized_settings['openrouter_web_search_enabled']);
+    if ($sanitized_settings['openrouter_web_search_enabled'] === '1') {
+        update_post_meta($botId, '_aipkit_openrouter_web_search_engine', $sanitized_settings['openrouter_web_search_engine']);
+        update_post_meta($botId, '_aipkit_openrouter_web_search_max_results', (string) $sanitized_settings['openrouter_web_search_max_results']);
+        update_post_meta($botId, '_aipkit_openrouter_web_search_search_prompt', $sanitized_settings['openrouter_web_search_search_prompt']);
+    } else {
+        delete_post_meta($botId, '_aipkit_openrouter_web_search_engine');
+        delete_post_meta($botId, '_aipkit_openrouter_web_search_max_results');
+        delete_post_meta($botId, '_aipkit_openrouter_web_search_search_prompt');
+    }
     update_post_meta($botId, '_aipkit_google_search_grounding_enabled', $sanitized_settings['google_search_grounding_enabled']);
     if ($sanitized_settings['google_search_grounding_enabled'] === '1') {
         update_post_meta($botId, '_aipkit_google_grounding_mode', $sanitized_settings['google_grounding_mode']);

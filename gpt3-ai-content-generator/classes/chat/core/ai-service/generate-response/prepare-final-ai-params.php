@@ -14,6 +14,7 @@ require_once $ai_params_logic_path . 'apply-openai-stateful-conversation.php';
 require_once $ai_params_logic_path . 'apply-openai-vector-tool-config.php';
 require_once $ai_params_logic_path . 'apply-openai-web-search.php';
 require_once $ai_params_logic_path . 'apply-claude-web-search.php';
+require_once $ai_params_logic_path . 'apply-openrouter-web-search.php';
 require_once $ai_params_logic_path . 'apply-google-search-grounding.php';
 // --- NEW: Require reasoning logic file ---
 require_once $ai_params_logic_path . 'apply-openai-reasoning.php';
@@ -119,6 +120,12 @@ function prepare_final_ai_params_logic(
         ) {
             $final_ai_params['claude_file_ids'] = [$claude_file_id];
         }
+    } elseif ($main_provider === 'OpenRouter') {
+        AiParams\apply_openrouter_web_search_logic(
+            $final_ai_params,
+            $bot_settings,
+            $frontend_openai_web_search_active
+        );
     } elseif ($main_provider === 'Google') {
         AiParams\apply_google_search_grounding_logic(
             $final_ai_params,

@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 // Variables passed from parent (index.php -> form-editor.php -> _form-editor-main-settings.php -> this):
 // $openai_vector_stores, $pinecone_indexes, $qdrant_collections
-// $openai_embedding_models, $google_embedding_models
+// $openai_embedding_models, $google_embedding_models, $azure_embedding_models, $openrouter_embedding_models
 ?>
 <?php
 $vector_embedding_provider = '';
@@ -304,6 +304,10 @@ $vector_embedding_model = '';
                                 'label' => esc_html__('Azure', 'gpt3-ai-content-generator'),
                                 'models' => $azure_embedding_models,
                             ],
+                            'openrouter' => [
+                                'label' => esc_html__('OpenRouter', 'gpt3-ai-content-generator'),
+                                'models' => $openrouter_embedding_models,
+                            ],
                         ];
                         $embedding_model_map = [];
                         foreach ($embedding_groups as $group_key => $group_data) {
@@ -358,6 +362,7 @@ $vector_embedding_model = '';
                         <option value="openai" <?php selected($vector_embedding_provider, 'openai'); ?>>OpenAI</option>
                         <option value="google" <?php selected($vector_embedding_provider, 'google'); ?>>Google</option>
                         <option value="azure" <?php selected($vector_embedding_provider, 'azure'); ?>>Azure</option>
+                        <option value="openrouter" <?php selected($vector_embedding_provider, 'openrouter'); ?>>OpenRouter</option>
                     </select>
                     <select
                         id="aipkit_ai_form_vector_embedding_model"
@@ -375,6 +380,8 @@ $vector_embedding_model = '';
                             $current_embedding_list = $google_embedding_models;
                         } elseif ($vector_embedding_provider === 'azure') {
                             $current_embedding_list = $azure_embedding_models;
+                        } elseif ($vector_embedding_provider === 'openrouter') {
+                            $current_embedding_list = $openrouter_embedding_models;
                         }
                         if (!empty($current_embedding_list)) {
                             foreach ($current_embedding_list as $model) {

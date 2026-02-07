@@ -56,7 +56,7 @@ function do_ajax_search_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
         return;
     }
 
-    $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure'];
+    $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
     $embedding_provider_norm = $provider_map[$embedding_provider_key] ?? 'OpenAI';
     $embedding_options = ['model' => $embedding_model];
 

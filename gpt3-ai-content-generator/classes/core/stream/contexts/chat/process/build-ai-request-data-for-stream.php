@@ -259,6 +259,32 @@ function build_ai_request_data_for_stream_logic(
         ) {
             $ai_params_for_payload['claude_file_ids'] = [$claude_file_id];
         }
+    } elseif ($main_provider_for_ai === 'OpenRouter') {
+        if (($bot_settings['openrouter_web_search_enabled'] ?? '0') === '1') {
+            $web_search_config = ['enabled' => true];
+
+            $openrouter_engine = isset($bot_settings['openrouter_web_search_engine'])
+                ? sanitize_key((string) $bot_settings['openrouter_web_search_engine'])
+                : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
+            if (in_array($openrouter_engine, ['native', 'exa'], true)) {
+                $web_search_config['engine'] = $openrouter_engine;
+            }
+
+            $openrouter_max_results = isset($bot_settings['openrouter_web_search_max_results'])
+                ? absint($bot_settings['openrouter_web_search_max_results'])
+                : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS;
+            $web_search_config['max_results'] = max(1, min($openrouter_max_results, 10));
+
+            $openrouter_search_prompt = isset($bot_settings['openrouter_web_search_search_prompt'])
+                ? sanitize_textarea_field((string) $bot_settings['openrouter_web_search_search_prompt'])
+                : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
+            if ($openrouter_search_prompt !== '') {
+                $web_search_config['search_prompt'] = $openrouter_search_prompt;
+            }
+
+            $ai_params_for_payload['web_search_tool_config'] = $web_search_config;
+            $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;
+        }
     } elseif ($main_provider_for_ai === 'Google') {
         if (($bot_settings['google_search_grounding_enabled'] ?? '0') === '1') {
             $ai_params_for_payload['google_grounding_mode'] = $bot_settings['google_grounding_mode'] ?? BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;

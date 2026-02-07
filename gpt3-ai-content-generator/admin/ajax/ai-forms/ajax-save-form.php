@@ -90,6 +90,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     // --- Get Web Search config fields from POST ---
     $openai_web_search_enabled = isset($post_data['openai_web_search_enabled']) && $post_data['openai_web_search_enabled'] === '1' ? '1' : '0';
     $claude_web_search_enabled = isset($post_data['claude_web_search_enabled']) && $post_data['claude_web_search_enabled'] === '1' ? '1' : '0';
+    $openrouter_web_search_enabled = isset($post_data['openrouter_web_search_enabled']) && $post_data['openrouter_web_search_enabled'] === '1' ? '1' : '0';
     $google_search_grounding_enabled = isset($post_data['google_search_grounding_enabled']) && $post_data['google_search_grounding_enabled'] === '1' ? '1' : '0';
     
     // OpenAI Web Search sub-settings
@@ -141,6 +142,15 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     if (!in_array($claude_web_search_cache_ttl, ['none', '5m', '1h'], true)) {
         $claude_web_search_cache_ttl = 'none';
     }
+
+    // OpenRouter Web Search sub-settings
+    $openrouter_web_search_engine = isset($post_data['openrouter_web_search_engine']) ? sanitize_key((string) $post_data['openrouter_web_search_engine']) : 'auto';
+    if (!in_array($openrouter_web_search_engine, ['auto', 'native', 'exa'], true)) {
+        $openrouter_web_search_engine = 'auto';
+    }
+    $openrouter_web_search_max_results = isset($post_data['openrouter_web_search_max_results']) ? absint($post_data['openrouter_web_search_max_results']) : 5;
+    $openrouter_web_search_max_results = max(1, min($openrouter_web_search_max_results, 10));
+    $openrouter_web_search_search_prompt = isset($post_data['openrouter_web_search_search_prompt']) ? sanitize_textarea_field($post_data['openrouter_web_search_search_prompt']) : '';
     
     // Google Search Grounding sub-settings
     $google_grounding_mode = isset($post_data['google_grounding_mode']) ? sanitize_text_field($post_data['google_grounding_mode']) : 'DEFAULT_MODE';
@@ -185,6 +195,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         // Web Search settings
         'openai_web_search_enabled' => $openai_web_search_enabled,
         'claude_web_search_enabled' => $claude_web_search_enabled,
+        'openrouter_web_search_enabled' => $openrouter_web_search_enabled,
         'google_search_grounding_enabled' => $google_search_grounding_enabled,
         // OpenAI Web Search sub-settings
         'openai_web_search_context_size' => $openai_web_search_context_size,
@@ -203,6 +214,10 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'claude_web_search_allowed_domains' => $claude_web_search_allowed_domains,
         'claude_web_search_blocked_domains' => $claude_web_search_blocked_domains,
         'claude_web_search_cache_ttl' => $claude_web_search_cache_ttl,
+        // OpenRouter Web Search sub-settings
+        'openrouter_web_search_engine' => $openrouter_web_search_engine,
+        'openrouter_web_search_max_results' => $openrouter_web_search_max_results,
+        'openrouter_web_search_search_prompt' => $openrouter_web_search_search_prompt,
         // Google Search Grounding sub-settings
         'google_grounding_mode' => $google_grounding_mode,
         'google_grounding_dynamic_threshold' => $google_grounding_dynamic_threshold,

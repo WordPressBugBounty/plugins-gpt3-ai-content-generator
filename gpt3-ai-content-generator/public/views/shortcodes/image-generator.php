@@ -28,6 +28,9 @@ $openai_models_display = [ // For display in dropdown
 ];
 // Build Google models dynamically from synced option
 $google_models_display = [ 'image' => [], 'video' => [] ];
+$openrouter_models_display = [];
+$replicate_models_display = [];
+$azure_models_display = [];
 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
     $google_image_models = AIPKit_Providers::get_google_image_models();
     if (!empty($google_image_models)) {
@@ -46,6 +49,39 @@ if (class_exists('\\WPAICG\\AIPKit_Providers')) {
             $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
             if ($mid) {
                 $google_models_display['video'][$mid] = $mname;
+            }
+        }
+    }
+
+    $openrouter_models = AIPKit_Providers::get_openrouter_image_models();
+    if (!empty($openrouter_models)) {
+        foreach ($openrouter_models as $mdl) {
+            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
+            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
+            if ($mid) {
+                $openrouter_models_display[$mid] = $mname;
+            }
+        }
+    }
+
+    $replicate_models = AIPKit_Providers::get_replicate_models();
+    if (!empty($replicate_models)) {
+        foreach ($replicate_models as $mdl) {
+            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
+            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
+            if ($mid) {
+                $replicate_models_display[$mid] = $mname;
+            }
+        }
+    }
+
+    $azure_models_list = AIPKit_Providers::get_azure_image_models();
+    if (!empty($azure_models_list)) {
+        foreach ($azure_models_list as $mdl) {
+            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
+            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
+            if ($mid) {
+                $azure_models_display[$mid] = $mname;
             }
         }
     }
@@ -73,20 +109,38 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
                             <label class="aipkit_form-label" for="aipkit_public_image_provider"><?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?></label>
                             <select id="aipkit_public_image_provider" name="image_provider" class="aipkit_form-input" data-aipkit-provider-notice-target="aipkit_provider_notice_image_generator">
                                 <?php
-                                $all_providers = ['OpenAI', 'Google', 'Azure', 'Replicate'];
-                                // New logic: if specific models selected, derive providers from those models; else show all
+                                $all_providers = ['OpenAI', 'Google', 'OpenRouter', 'Azure', 'Replicate'];
                                 $allowed_models_arr = !empty($allowed_models) ? array_map('trim', explode(',', strtolower($allowed_models))) : [];
                                 if (!empty($allowed_models_arr)) {
                                     $derived = [];
+                                    $openai_lookup = array_flip(array_map('strtolower', array_keys($openai_models_display)));
+                                    $google_lookup = [];
+                                    foreach ($google_models_display as $type => $models_array) {
+                                        foreach ($models_array as $id => $name) {
+                                            $google_lookup[strtolower((string) $id)] = true;
+                                        }
+                                    }
+                                    $openrouter_lookup = array_flip(array_map('strtolower', array_keys($openrouter_models_display)));
+                                    $azure_lookup = array_flip(array_map('strtolower', array_keys($azure_models_display)));
+                                    $replicate_lookup = array_flip(array_map('strtolower', array_keys($replicate_models_display)));
                                     foreach ($allowed_models_arr as $mid) {
-                                        if ((strpos($mid, 'gpt-image') === 0) || (strpos($mid, 'dall-e') === 0)) {
+                                        if (isset($openai_lookup[$mid])) {
                                             $derived['OpenAI'] = true;
-                                        } elseif ((strpos($mid, 'gemini') === 0) || (strpos($mid, 'imagen') === 0) || (strpos($mid, 'veo-') === 0)) {
+                                        } elseif (isset($google_lookup[$mid])) {
                                             $derived['Google'] = true;
-                                        } elseif (strpos($mid, 'azure') !== false) {
+                                        } elseif (isset($openrouter_lookup[$mid])) {
+                                            $derived['OpenRouter'] = true;
+                                        } elseif (isset($azure_lookup[$mid])) {
                                             $derived['Azure'] = true;
-                                        } elseif (strpos($mid, '/') !== false) {
+                                        } elseif (isset($replicate_lookup[$mid])) {
                                             $derived['Replicate'] = true;
+                                        } elseif (strpos($mid, '/') !== false) {
+                                            // Fallback for older settings when full model list isn't synced yet.
+                                            if (strpos($mid, ':') !== false) {
+                                                $derived['Replicate'] = true;
+                                            } else {
+                                                $derived['OpenRouter'] = true;
+                                            }
                                         }
                                     }
                                     $providers_to_show = array_values(array_intersect($all_providers, array_keys($derived)));
@@ -157,12 +211,21 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
                                      if ($final_model && !$model_found) : ?>
                                         <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
                                      <?php endif; ?>
+                                 <?php elseif ($final_provider === 'OpenRouter'): ?>
+                                     <?php foreach ($openrouter_models_display as $id => $name): ?>
+                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($final_model, $id); ?>>
+                                            <?php echo esc_html($name); ?>
+                                        </option>
+                                     <?php endforeach; ?>
+                                     <?php if ($final_model && !array_key_exists($final_model, $openrouter_models_display)) : ?>
+                                        <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
+                                     <?php endif; ?>
                                  <?php elseif ($final_provider === 'Azure'): ?>
                                      <?php 
                                      // Azure models handling
-                                     $azure_models_display = AIPKit_Providers::get_azure_image_models();
+                                     $azure_models_display_rows = AIPKit_Providers::get_azure_image_models();
                                      ?>
-                                     <?php foreach ($azure_models_display as $model): ?>
+                                     <?php foreach ($azure_models_display_rows as $model): ?>
                                         <option value="<?php echo esc_attr($model['id']); ?>" <?php selected($final_model, $model['id']); ?>>
                                             <?php echo esc_html($model['name']); ?>
                                         </option>
@@ -170,7 +233,7 @@ $theme_class = 'aipkit-theme-' . esc_attr($theme);
                                      <?php 
                                      // Check if final_model exists in azure models
                                      $model_found = false;
-                                     foreach ($azure_models_display as $model) {
+                                     foreach ($azure_models_display_rows as $model) {
                                          if ($model['id'] === $final_model) {
                                              $model_found = true;
                                              break;

@@ -114,6 +114,7 @@ class AIPKit_Autogpt_Assets
         $qdrant_collections = [];
         $openai_embedding_models = [];
         $google_embedding_models = [];
+        $openrouter_embedding_models = [];
         $azure_embedding_models = [];
 
         if (class_exists(AIPKit_Vector_Store_Registry::class)) {
@@ -124,6 +125,7 @@ class AIPKit_Autogpt_Assets
         if (class_exists(AIPKit_Providers::class)) {
             $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
             $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+            $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
             $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
         }
         $task_types_for_js = [
@@ -203,6 +205,7 @@ class AIPKit_Autogpt_Assets
             'qdrant_collections' => $qdrant_collections,
             'openai_embedding_models' => $openai_embedding_models,
             'google_embedding_models' => $google_embedding_models,
+            'openrouter_embedding_models' => $openrouter_embedding_models,
             'azure_embedding_models' => $azure_embedding_models,
             'task_types' => $task_types_for_js,
             'default_cw_prompts' => $default_cw_prompts,

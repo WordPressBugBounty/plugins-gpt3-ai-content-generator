@@ -17,6 +17,6 @@ if (!defined('ABSPATH')) {
  */
 function normalize_embedding_provider_logic(string $embedding_provider_key): string
 {
-    $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure'];
+    $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
     return $provider_map[strtolower($embedding_provider_key)] ?? ucfirst($embedding_provider_key);
 }

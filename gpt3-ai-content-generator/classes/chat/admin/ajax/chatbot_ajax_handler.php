@@ -884,6 +884,23 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $openrouter_web_search_enabled = (isset($_POST['openrouter_web_search_enabled']) && wp_unslash($_POST['openrouter_web_search_enabled']) === '1') ? '1' : '0';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $openrouter_web_search_engine = isset($_POST['openrouter_web_search_engine']) ? sanitize_key(wp_unslash($_POST['openrouter_web_search_engine'])) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
+        if (!in_array($openrouter_web_search_engine, ['auto', 'native', 'exa'], true)) {
+            $openrouter_web_search_engine = BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $openrouter_web_search_max_results = isset($_POST['openrouter_web_search_max_results'])
+            ? absint(wp_unslash($_POST['openrouter_web_search_max_results']))
+            : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS;
+        $openrouter_web_search_max_results = max(1, min($openrouter_web_search_max_results, 10));
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $openrouter_web_search_search_prompt = isset($_POST['openrouter_web_search_search_prompt'])
+            ? sanitize_textarea_field(wp_unslash($_POST['openrouter_web_search_search_prompt']))
+            : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_search_grounding_enabled = (isset($_POST['google_search_grounding_enabled']) && wp_unslash($_POST['google_search_grounding_enabled']) === '1') ? '1' : '0';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_grounding_mode = isset($_POST['google_grounding_mode']) ? sanitize_text_field(wp_unslash($_POST['google_grounding_mode'])) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
@@ -914,6 +931,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         update_post_meta($bot_id, '_aipkit_claude_web_search_allowed_domains', $claude_web_search_allowed_domains);
         update_post_meta($bot_id, '_aipkit_claude_web_search_blocked_domains', $claude_web_search_blocked_domains);
         update_post_meta($bot_id, '_aipkit_claude_web_search_cache_ttl', $claude_web_search_cache_ttl);
+        update_post_meta($bot_id, '_aipkit_openrouter_web_search_enabled', $openrouter_web_search_enabled);
+        update_post_meta($bot_id, '_aipkit_openrouter_web_search_engine', $openrouter_web_search_engine);
+        update_post_meta($bot_id, '_aipkit_openrouter_web_search_max_results', (string) $openrouter_web_search_max_results);
+        update_post_meta($bot_id, '_aipkit_openrouter_web_search_search_prompt', $openrouter_web_search_search_prompt);
         update_post_meta($bot_id, '_aipkit_google_search_grounding_enabled', $google_search_grounding_enabled);
         update_post_meta($bot_id, '_aipkit_google_grounding_mode', $google_grounding_mode);
         update_post_meta($bot_id, '_aipkit_google_grounding_dynamic_threshold', $google_grounding_dynamic_threshold);
@@ -1021,7 +1042,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $vector_embedding_provider = isset($_POST['vector_embedding_provider'])
                 ? sanitize_key(wp_unslash($_POST['vector_embedding_provider']))
                 : BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
-            $allowed_embedding_providers = ['openai', 'google', 'azure'];
+            $allowed_embedding_providers = ['openai', 'google', 'azure', 'openrouter'];
             if (!in_array($vector_embedding_provider, $allowed_embedding_providers, true)) {
                 $vector_embedding_provider = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
             }
@@ -1029,6 +1050,16 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $vector_embedding_model = isset($_POST['vector_embedding_model'])
                 ? sanitize_text_field(wp_unslash($_POST['vector_embedding_model']))
                 : '';
+            // Backward-compatibility: accept combined "provider::model" values from older UI payloads.
+            if (strpos($vector_embedding_model, '::') !== false) {
+                [$model_provider, $model_id] = array_pad(explode('::', $vector_embedding_model, 2), 2, '');
+                $model_provider = sanitize_key((string) $model_provider);
+                $model_id = sanitize_text_field((string) $model_id);
+                if ($model_id !== '' && in_array($model_provider, $allowed_embedding_providers, true)) {
+                    $vector_embedding_provider = $model_provider;
+                    $vector_embedding_model = $model_id;
+                }
+            }
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.

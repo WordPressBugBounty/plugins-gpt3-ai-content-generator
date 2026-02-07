@@ -97,6 +97,9 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     if (isset($settings['claude_web_search_enabled'])) {
         update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_enabled', $settings['claude_web_search_enabled'] === '1' ? '1' : '0');
     }
+    if (isset($settings['openrouter_web_search_enabled'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_enabled', $settings['openrouter_web_search_enabled'] === '1' ? '1' : '0');
+    }
     if (isset($settings['google_search_grounding_enabled'])) {
         update_post_meta($form_id, '_aipkit_ai_form_google_search_grounding_enabled', $settings['google_search_grounding_enabled'] === '1' ? '1' : '0');
     }
@@ -157,6 +160,23 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     }
     if (isset($settings['claude_web_search_cache_ttl'])) {
         update_post_meta($form_id, '_aipkit_ai_form_claude_web_search_cache_ttl', sanitize_text_field($settings['claude_web_search_cache_ttl']));
+    }
+
+    // --- Save OpenRouter Web Search Sub-Settings ---
+    if (isset($settings['openrouter_web_search_engine'])) {
+        $engine = sanitize_key((string) $settings['openrouter_web_search_engine']);
+        if (!in_array($engine, ['auto', 'native', 'exa'], true)) {
+            $engine = 'auto';
+        }
+        update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_engine', $engine);
+    }
+    if (isset($settings['openrouter_web_search_max_results'])) {
+        $max_results = absint($settings['openrouter_web_search_max_results']);
+        $max_results = max(1, min($max_results, 10));
+        update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_max_results', $max_results);
+    }
+    if (isset($settings['openrouter_web_search_search_prompt'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_search_prompt', sanitize_textarea_field($settings['openrouter_web_search_search_prompt']));
     }
     
     // --- Save Google Search Grounding Sub-Settings ---

@@ -167,6 +167,7 @@ if (!defined('ABSPATH')) {
                         <option value="openai" selected>OpenAI</option>
                         <option value="google">Google</option>
                         <option value="azure">Azure</option>
+                        <option value="openrouter">OpenRouter</option>
                     </select>
                 </div>
                 <div class="aipkit_vector_embedding_divider">

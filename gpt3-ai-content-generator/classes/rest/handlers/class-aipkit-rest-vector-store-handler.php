@@ -63,7 +63,7 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             'embedding_provider' => array(
                 'description' => __('The AI provider to use for generating embeddings.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'enum'        => ['openai', 'google', 'azure'],
+                'enum'        => ['openai', 'google', 'azure', 'openrouter'],
                 'required'    => true,
             ),
             'embedding_model' => array(
@@ -128,7 +128,13 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_no_content', __('Each object in the "vectors" array must have a "content" key.', 'gpt3-ai-content-generator'), ['status' => 400]));
         }
         
-        $embedding_provider_normalized = match(strtolower($embedding_provider_key)) { 'openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', default => null, };
+        $embedding_provider_normalized = match(strtolower($embedding_provider_key)) {
+            'openai' => 'OpenAI',
+            'google' => 'Google',
+            'azure' => 'Azure',
+            'openrouter' => 'OpenRouter',
+            default => null,
+        };
         if(!$embedding_provider_normalized) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_embedding_provider', __('Invalid embedding provider.', 'gpt3-ai-content-generator'), ['status' => 400]));
         
         $embedding_result = $this->ai_caller->generate_embeddings($embedding_provider_normalized, $content_array_for_embedding, ['model' => $embedding_model]);

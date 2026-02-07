@@ -107,6 +107,11 @@ class BotSettingsManager
     public const DEFAULT_CLAUDE_WEB_SEARCH_MAX_USES = 5;
     public const DEFAULT_CLAUDE_WEB_SEARCH_LOC_TYPE = 'none';
     public const DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL = 'none';
+    // --- OpenRouter Web Search Constants ---
+    public const DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED = '0';
+    public const DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE = 'auto';
+    public const DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS = 5;
+    public const DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT = '';
     // --- NEW: Google Search Grounding Constants ---
     public const DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED = '0'; // Master switch for bot
     public const DEFAULT_GOOGLE_GROUNDING_MODE = 'DEFAULT_MODE'; // Default: use Search as Tool for Gemini 2.0+, Retrieval for 1.5 Flash

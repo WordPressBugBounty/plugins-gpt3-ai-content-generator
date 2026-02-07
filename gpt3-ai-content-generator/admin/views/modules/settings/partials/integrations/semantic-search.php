@@ -29,9 +29,11 @@ $all_qdrant_collections = \WPAICG\AIPKit_Providers::get_qdrant_collections();
 // NEW: Get embedding models for the new dropdown
 $openai_embedding_models = \WPAICG\AIPKit_Providers::get_openai_embedding_models();
 $google_embedding_models = \WPAICG\AIPKit_Providers::get_google_embedding_models();
+$openrouter_embedding_models = \WPAICG\AIPKit_Providers::get_openrouter_embedding_models();
 $all_embedding_models_map = [];
 foreach ($openai_embedding_models as $m) { $all_embedding_models_map[$m['id']] = true; }
 foreach ($google_embedding_models as $m) { $all_embedding_models_map[$m['id']] = true; }
+foreach ($openrouter_embedding_models as $m) { $all_embedding_models_map[$m['id']] = true; }
 
 ?>
 <!-- Semantic Search Accordion -->
@@ -100,6 +102,13 @@ foreach ($google_embedding_models as $m) { $all_embedding_models_map[$m['id']] =
                     <optgroup label="Google">
                         <?php foreach ($google_embedding_models as $model_item): ?>
                             <option value="<?php echo esc_attr($model_item['id']); ?>" <?php selected($embedding_model, $model_item['id']); ?> data-provider="google">
+                                <?php echo esc_html($model_item['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                    <optgroup label="OpenRouter">
+                        <?php foreach ($openrouter_embedding_models as $model_item): ?>
+                            <option value="<?php echo esc_attr($model_item['id']); ?>" <?php selected($embedding_model, $model_item['id']); ?> data-provider="openrouter">
                                 <?php echo esc_html($model_item['name']); ?>
                             </option>
                         <?php endforeach; ?>

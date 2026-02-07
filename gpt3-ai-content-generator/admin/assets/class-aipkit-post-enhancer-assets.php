@@ -139,6 +139,7 @@ class PostEnhancerAssets
             $qdrant_collections = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_qdrant_collections() : [];
             $openai_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openai_embedding_models() : [];
             $google_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_google_embedding_models() : [];
+            $openrouter_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openrouter_embedding_models() : [];
             $azure_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_azure_embedding_models() : [];
 
             // Define default prompts for the bulk enhancer modal
@@ -194,6 +195,7 @@ class PostEnhancerAssets
                 'qdrant_collections' => $qdrant_collections,
                 'openaiEmbeddingModels' => $openai_embedding_models,
                 'googleEmbeddingModels' => $google_embedding_models,
+                'openrouterEmbeddingModels' => $openrouter_embedding_models,
                 'azureEmbeddingModels' => $azure_embedding_models,
                 'actions' => $enhancer_actions, // ADDED
                 'parse_html_formats' => (bool) $parse_formats_enabled,

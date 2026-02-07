@@ -77,7 +77,21 @@ class AIPKit_Providers
             ['id' => 'text-embedding-3-large', 'name' => 'Text Embedding 3 Large (3072)'],
             ['id' => 'text-embedding-ada-002', 'name' => 'Text Embedding Ada 002 (1536)'],
         ],
-        'OpenRouter' => ['anthropic/claude-3-sonnet', 'anthropic/claude-3-opus', 'cohere/command-r-plus', 'google/gemini-pro-1.5', 'meta-llama/llama-3.1-70b-instruct', 'mistralai/mistral-large', 'openai/gpt-4o', 'openai/gpt-4-turbo', 'openai/gpt-3.5-turbo', 'deepseek/deepseek-chat'],
+        'OpenRouter' => [
+            'deepseek/deepseek-v3.2',
+            'anthropic/claude-opus-4.5',
+            'anthropic/claude-opus-4.6',
+            'anthropic/claude-sonnet-4.5',
+            'google/gemini-2.5-flash',
+            'google/gemini-2.5-flash-lite',
+            'google/gemini-3-flash-preview',
+            'minimax/minimax-m2.1',
+            'moonshotai/kimi-k2.5',
+            'openai/gpt-5-nano',
+            'x-ai/grok-4.1-fast',
+            'z-ai/glm-4.7',
+        ],
+        'OpenRouterEmbedding' => [],
         'Google' => ['gemini-1.5-pro-latest', 'gemini-1.5-flash-latest', 'gemini-pro'],
         // Default lists for Google Image/Video models (empty; populated via Sync)
         'GoogleImage' => [],
@@ -118,11 +132,16 @@ class AIPKit_Providers
             'gemini-2.0-flash-lite',
         ],
         'OpenRouter' => [
-            'anthropic/claude-3.7-sonnet',
-            'anthropic/claude-3.5-haiku',
-            'openai/gpt-4o',
-            'openai/gpt-4o-mini',
+            'anthropic/claude-opus-4.5',
+            'anthropic/claude-opus-4.6',
+            'anthropic/claude-sonnet-4.5',
+            'deepseek/deepseek-v3.2',
+            'google/gemini-2.5-flash',
+            'google/gemini-2.5-flash-lite',
             'google/gemini-3-flash-preview',
+            'minimax/minimax-m2.1',
+            'moonshotai/kimi-k2.5',
+            'openai/gpt-5-nano',
             'x-ai/grok-4.1-fast',
             'z-ai/glm-4.7',
         ],
@@ -137,6 +156,7 @@ class AIPKit_Providers
         'OpenAI'           => 'aipkit_openai_model_list',
         'OpenAIEmbedding'  => 'aipkit_openai_embedding_model_list',
         'OpenRouter'       => 'aipkit_openrouter_model_list',
+        'OpenRouterEmbedding' => 'aipkit_openrouter_embedding_model_list',
         'Google'           => 'aipkit_google_model_list',
         'GoogleImage'      => 'aipkit_google_image_model_list',
         'GoogleVideo'      => 'aipkit_google_video_model_list',
@@ -505,6 +525,72 @@ class AIPKit_Providers
     public static function get_openrouter_models(): array
     {
         return self::get_model_list('OpenRouter');
+    }
+    public static function get_openrouter_image_models(): array
+    {
+        $models = self::get_openrouter_models();
+        if (!is_array($models) || empty($models)) {
+            return [];
+        }
+
+        $resolver_fn = '\WPAICG\Core\Providers\OpenRouter\Methods\resolve_model_capabilities_from_metadata_logic';
+        if (!function_exists($resolver_fn)) {
+            $capability_file = WPAICG_PLUGIN_DIR . 'classes/core/providers/openrouter/capabilities.php';
+            if (file_exists($capability_file)) {
+                require_once $capability_file;
+            }
+        }
+
+        $image_models = [];
+        foreach ($models as $model) {
+            if (!is_array($model) || empty($model['id'])) {
+                continue;
+            }
+
+            $model_id = sanitize_text_field((string) $model['id']);
+            $model_name = isset($model['name']) ? sanitize_text_field((string) $model['name']) : $model_id;
+            if ($model_id === '') {
+                continue;
+            }
+
+            $capabilities = function_exists($resolver_fn)
+                ? (array) call_user_func($resolver_fn, $model)
+                : [];
+            $supports_image = !empty($capabilities['image_output']) || !empty($capabilities['image_generation']);
+            if (!$supports_image) {
+                continue;
+            }
+
+            $item = [
+                'id' => $model_id,
+                'name' => $model_name,
+            ];
+            if (isset($model['output_modalities']) && is_array($model['output_modalities'])) {
+                $normalized_output_modalities = array_values(array_unique(array_map(
+                    static fn($modality): string => strtolower(trim((string) $modality)),
+                    $model['output_modalities']
+                )));
+                $normalized_output_modalities = array_values(array_filter($normalized_output_modalities, static fn($modality): bool => $modality !== ''));
+                if (!empty($normalized_output_modalities)) {
+                    $item['output_modalities'] = $normalized_output_modalities;
+                }
+            }
+            if (!empty($capabilities)) {
+                $item['capabilities'] = $capabilities;
+            }
+            $image_models[] = $item;
+        }
+
+        usort(
+            $image_models,
+            static fn(array $a, array $b): int => strcasecmp((string) ($a['name'] ?? ''), (string) ($b['name'] ?? ''))
+        );
+
+        return $image_models;
+    }
+    public static function get_openrouter_embedding_models(): array
+    {
+        return self::get_model_list('OpenRouterEmbedding');
     }
     public static function get_google_models(): array
     {
