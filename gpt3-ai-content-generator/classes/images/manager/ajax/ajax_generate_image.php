@@ -9,6 +9,7 @@ use WPAICG\Images\AIPKit_Image_Manager;
 use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 use WPAICG\Core\AIPKit_Content_Moderator;
+use function WPAICG\Images\Manager\Utils\parse_edit_source_image_upload_logic;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -61,12 +62,17 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         return;
     }
 
+    $provider = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : 'OpenAI';
+    $image_mode = isset($post_data['image_mode']) ? sanitize_key($post_data['image_mode']) : 'generate';
+    if (!in_array($image_mode, ['generate', 'edit'], true)) {
+        $image_mode = 'generate';
+    }
+
     // --- ADDED: Content Moderation Check ---
-    $provider_for_moderation = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : 'OpenAI';
     if (class_exists(AIPKit_Content_Moderator::class)) {
         $moderation_context = [
             'client_ip' => $client_ip,
-            'bot_settings' => ['provider' => $provider_for_moderation], // Provide a minimal settings array for the check
+            'bot_settings' => ['provider' => $provider], // Provide a minimal settings array for the check
             'skip_banned_checks' => true,
         ];
         $moderation_check = AIPKit_Content_Moderator::check_content($prompt, $moderation_context);
@@ -78,6 +84,28 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         }
     }
     // --- END ADDED ---
+
+    $source_image_payload = null;
+    if ($image_mode === 'edit') {
+        $edit_provider = strtolower($provider);
+        if (!in_array($edit_provider, ['google', 'openai', 'openrouter'], true)) {
+            $provider_error = new WP_Error(
+                'image_edit_provider_unsupported',
+                __('Image editing is currently supported only for Google, OpenAI and OpenRouter providers.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
+            $managerInstance->log_image_generation_attempt($conversation_uuid, $prompt, $post_data, $provider_error, null, $user_id, $session_id_for_guest, $client_ip);
+            $managerInstance->send_wp_error($provider_error);
+            return;
+        }
+
+        $source_image_payload = parse_edit_source_image_upload_logic($_FILES);
+        if (is_wp_error($source_image_payload)) {
+            $managerInstance->log_image_generation_attempt($conversation_uuid, $prompt, $post_data, $source_image_payload, null, $user_id, $session_id_for_guest, $client_ip);
+            $managerInstance->send_wp_error($source_image_payload);
+            return;
+        }
+    }
 
     $num_images_to_generate = isset($post_data['n']) ? absint($post_data['n']) : 1;
     $num_images_to_generate = max(1, $num_images_to_generate);
@@ -95,12 +123,12 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         }
     }
 
-    $provider = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : 'OpenAI';
     // --- MODIFICATION: Changed user identifier format ---
     $user_identifier = $is_logged_in ? (string)$user_id : 'guest';
     // --- END MODIFICATION ---
 
     $runtime_options = array_filter([
+        'image_mode' => $image_mode,
         'provider' => $provider,
         'model' => isset($post_data['model']) ? sanitize_text_field($post_data['model']) : null,
         'size' => isset($post_data['size']) ? sanitize_text_field($post_data['size']) : null,
@@ -110,6 +138,19 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         'response_format' => isset($post_data['response_format']) ? sanitize_text_field($post_data['response_format']) : 'url',
         'user' => $user_identifier,
     ], function ($value) { return $value !== null; });
+
+    if ($image_mode === 'edit' && is_array($source_image_payload)) {
+        $runtime_options['source_image'] = $source_image_payload;
+    }
+
+    $request_options_for_log = $runtime_options;
+    if (isset($request_options_for_log['source_image']) && is_array($request_options_for_log['source_image'])) {
+        $request_options_for_log['source_image'] = [
+            'mime_type' => $request_options_for_log['source_image']['mime_type'] ?? '',
+            'size_bytes' => $request_options_for_log['source_image']['size_bytes'] ?? 0,
+            'file_name' => $request_options_for_log['source_image']['file_name'] ?? '',
+        ];
+    }
 
     $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
     if (strtolower($provider) === 'openai' && in_array(($runtime_options['model'] ?? ''), $gpt_image_models, true)) {
@@ -130,7 +171,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
             $managerInstance->log_image_generation_attempt(
                 $conversation_uuid,
                 $prompt,
-                $runtime_options,
+                $request_options_for_log,
                 $result,
                 null, // No usage data yet
                 $user_id,
@@ -168,7 +209,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     $managerInstance->log_image_generation_attempt(
         $conversation_uuid,
         $prompt,
-        $runtime_options,
+        $request_options_for_log,
         $result,
         $usage_data,
         $user_id,

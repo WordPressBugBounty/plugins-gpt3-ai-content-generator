@@ -39,6 +39,7 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
                 'auto_text_contrast' => '1',
                 'font_family' => 'inherit',
                 'bubble_border_radius' => 18,
+                'container_border_radius' => 10,
                 // --- NEW DIMENSION DEFAULTS (Fallback) ---
                 'container_max_width' => 896,
                 'popup_width' => 450,
@@ -185,7 +186,21 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
         : BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED;
     $settings['popup_label_text'] = $get_meta_fn('_aipkit_popup_label_text', BotSettingsManager::DEFAULT_POPUP_LABEL_TEXT);
     $allowed_modes = ['always','on_delay','until_open','until_dismissed'];
-    $label_mode = $get_meta_fn('_aipkit_popup_label_mode', BotSettingsManager::DEFAULT_POPUP_LABEL_MODE);
+    $raw_label_mode = $get_meta_fn('_aipkit_popup_label_mode', BotSettingsManager::DEFAULT_POPUP_LABEL_MODE);
+    $legacy_mode_map = [
+        'delay_once' => 'on_delay',
+        'delay_always' => 'on_delay',
+        'immediate_once' => 'always',
+        'immediate_always' => 'always',
+        'manual' => 'until_dismissed',
+    ];
+    $legacy_frequency_map = [
+        'delay_once' => 'once_per_visitor',
+        'delay_always' => 'always',
+        'immediate_once' => 'once_per_visitor',
+        'immediate_always' => 'always',
+    ];
+    $label_mode = $legacy_mode_map[$raw_label_mode] ?? $raw_label_mode;
     $settings['popup_label_mode'] = in_array($label_mode, $allowed_modes, true) ? $label_mode : BotSettingsManager::DEFAULT_POPUP_LABEL_MODE;
     $settings['popup_label_delay_seconds'] = absint($get_meta_fn('_aipkit_popup_label_delay_seconds', BotSettingsManager::DEFAULT_POPUP_LABEL_DELAY_SECONDS));
     $settings['popup_label_auto_hide_seconds'] = absint($get_meta_fn('_aipkit_popup_label_auto_hide_seconds', BotSettingsManager::DEFAULT_POPUP_LABEL_AUTO_HIDE_SECONDS));
@@ -194,6 +209,9 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
         : BotSettingsManager::DEFAULT_POPUP_LABEL_DISMISSIBLE;
     $allowed_freq = ['always','once_per_session','once_per_visitor'];
     $label_freq = $get_meta_fn('_aipkit_popup_label_frequency', BotSettingsManager::DEFAULT_POPUP_LABEL_FREQUENCY);
+    if (!in_array($label_freq, $allowed_freq, true) && isset($legacy_frequency_map[$raw_label_mode])) {
+        $label_freq = $legacy_frequency_map[$raw_label_mode];
+    }
     $settings['popup_label_frequency'] = in_array($label_freq, $allowed_freq, true) ? $label_freq : BotSettingsManager::DEFAULT_POPUP_LABEL_FREQUENCY;
     $settings['popup_label_show_on_mobile'] = in_array($get_meta_fn('_aipkit_popup_label_show_on_mobile', BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_MOBILE), ['0','1'])
         ? $get_meta_fn('_aipkit_popup_label_show_on_mobile', BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_MOBILE)
@@ -222,7 +240,7 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
         } else {
             // Specific handling for numeric dimension settings
             if (in_array($key, [
-                'bubble_border_radius', 'container_max_width', 'popup_width',
+                'bubble_border_radius', 'container_border_radius', 'container_max_width', 'popup_width',
                 'container_height', 'container_min_height',
                 'popup_height', 'popup_min_height'
             ])) {

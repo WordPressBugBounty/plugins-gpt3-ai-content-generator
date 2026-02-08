@@ -49,8 +49,10 @@ function render_inline_mode_html_logic(
     }
     // --- END NEW ---
 
+    $has_main_footer_class = !empty($frontend_config['footerText']) ? 'aipkit-has-main-footer' : '';
+
     ?>
-    <div class="aipkit_chat_container aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" data-bot-id="<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $custom_theme_data_attr is properly escaped ?> >
+    <div class="aipkit_chat_container aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> <?php echo esc_attr($has_main_footer_class); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" data-bot-id="<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $custom_theme_data_attr is properly escaped ?> >
         <?php if ($feature_flags['sidebar_ui_enabled']): ?>
             <?php $rendererInstance->render_sidebar_html_internal($frontend_config); ?>
         <?php endif; ?>

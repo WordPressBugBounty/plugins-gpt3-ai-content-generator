@@ -26,7 +26,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                     <div class="aipkit_top_bar_left_group">
                         <div class="aipkit_shortcode_display_top_wrapper">
                             <code id="aipkit_image_generator_shortcode_snippet" title="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>">
-                                [aipkit_image_generator]
+                                [aipkit_image_generator mode="both" default_mode="generate"]
                             </code>
                             <button type="button" id="aipkit_image_generator_shortcode_settings_toggle" class="aipkit_icon_btn" title="<?php esc_attr_e('Configure Shortcode Options', 'gpt3-ai-content-generator'); ?>" aria-expanded="false" aria-controls="aipkit_image_generator_shortcode_configurator">
                                 <span class="dashicons dashicons-admin-settings"></span>
@@ -74,6 +74,38 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     <span class="aipkit_popover_option_label"><?php esc_html_e('Show Model Select', 'gpt3-ai-content-generator'); ?></span>
                                     <label class="aipkit_switch">
                                         <input type="checkbox" name="cfg_show_model" class="aipkit_toggle_switch aipkit_config_input" value="1" checked>
+                                        <span class="aipkit_switch_slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="aipkit_popover_option_row">
+                                <div class="aipkit_popover_option_main">
+                                    <label class="aipkit_popover_option_label" for="aipkit_image_generator_shortcode_mode"><?php esc_html_e('UI Mode', 'gpt3-ai-content-generator'); ?></label>
+                                    <div class="aipkit_popover_option_actions">
+                                        <select id="aipkit_image_generator_shortcode_mode" name="cfg_mode" class="aipkit_popover_option_select aipkit_config_input">
+                                            <option value="generate"><?php esc_html_e('Generate only', 'gpt3-ai-content-generator'); ?></option>
+                                            <option value="edit"><?php esc_html_e('Edit only', 'gpt3-ai-content-generator'); ?></option>
+                                            <option value="both" selected><?php esc_html_e('Generate + Edit', 'gpt3-ai-content-generator'); ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="aipkit_popover_option_row aipkit_image_shortcode_default_mode_row" hidden>
+                                <div class="aipkit_popover_option_main">
+                                    <label class="aipkit_popover_option_label" for="aipkit_image_generator_shortcode_default_mode"><?php esc_html_e('Default Mode', 'gpt3-ai-content-generator'); ?></label>
+                                    <div class="aipkit_popover_option_actions">
+                                        <select id="aipkit_image_generator_shortcode_default_mode" name="cfg_default_mode" class="aipkit_popover_option_select aipkit_config_input">
+                                            <option value="generate" selected><?php esc_html_e('Generate', 'gpt3-ai-content-generator'); ?></option>
+                                            <option value="edit"><?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="aipkit_popover_option_row aipkit_image_shortcode_mode_switch_row" hidden>
+                                <div class="aipkit_popover_option_main">
+                                    <span class="aipkit_popover_option_label"><?php esc_html_e('Show Mode Switch', 'gpt3-ai-content-generator'); ?></span>
+                                    <label class="aipkit_switch">
+                                        <input type="checkbox" name="cfg_show_mode_switch" class="aipkit_toggle_switch aipkit_config_input" value="1" checked>
                                         <span class="aipkit_switch_slider"></span>
                                     </label>
                                 </div>
@@ -134,7 +166,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     <div class="aipkit_container-body">
         <div class="aipkit_image_generator_admin_preview_wrapper">
             <?php
-            echo do_shortcode('[aipkit_image_generator history="true"]');
+            echo do_shortcode('[aipkit_image_generator history="true" mode="both" default_mode="generate"]');
             ?>
         </div>
     </div>

@@ -38,6 +38,9 @@ class AIPKit_Image_Generator_Shortcode
      *        - number (int 1-4 - presets the number)
      *        - theme (string 'light', 'dark', 'custom', default 'dark')
      *        - history (bool|string 'true'/'false', default 'false')
+     *        - mode (string 'generate'|'edit'|'both', default 'generate')
+     *        - default_mode (string 'generate'|'edit', default 'generate', used when mode='both')
+     *        - show_mode_switch (bool|string 'true'/'false', default 'true', used when mode='both')
      *
      * @return string HTML output.
      */
@@ -60,6 +63,7 @@ class AIPKit_Image_Generator_Shortcode
         // --- 2.5 Get Default Image Settings ---
         $image_gen_settings = AIPKit_Image_Settings_Ajax_Handler::get_settings();
         $frontend_display_settings = $image_gen_settings['frontend_display'] ?? [];
+        $ui_text_settings = $image_gen_settings['ui_text'] ?? [];
     // Allowed providers field deprecated: kept for backward compatibility but ignored (providers derived from selected models)
     $allowed_providers_str = ''; // $frontend_display_settings['allowed_providers'] ?? '';
         $allowed_models_from_settings = $frontend_display_settings['allowed_models'] ?? '';
@@ -78,12 +82,33 @@ class AIPKit_Image_Generator_Shortcode
             'number'        => 1,
             'theme'         => 'dark',
             'history'       => 'false',
+            'mode'          => 'generate',
+            'default_mode'  => 'generate',
+            'show_mode_switch' => 'true',
         ];
         $atts = shortcode_atts($default_atts, $atts, 'aipkit_image_generator');
 
         $show_provider = filter_var($atts['show_provider'], FILTER_VALIDATE_BOOLEAN);
         $show_model    = filter_var($atts['show_model'], FILTER_VALIDATE_BOOLEAN);
         $show_history  = filter_var($atts['history'], FILTER_VALIDATE_BOOLEAN); // NEW
+
+        $mode = sanitize_key($atts['mode'] ?? 'generate');
+        $allowed_modes = ['generate', 'edit', 'both'];
+        if (!in_array($mode, $allowed_modes, true)) {
+            $mode = 'generate';
+        }
+
+        $default_mode = sanitize_key($atts['default_mode'] ?? 'generate');
+        $allowed_default_modes = ['generate', 'edit'];
+        if (!in_array($default_mode, $allowed_default_modes, true)) {
+            $default_mode = 'generate';
+        }
+
+        $show_mode_switch = filter_var($atts['show_mode_switch'], FILTER_VALIDATE_BOOLEAN);
+        if ($mode !== 'both') {
+            $default_mode = $mode;
+            $show_mode_switch = false;
+        }
 
         $preset_provider_from_att = !empty($atts['provider']) ? strtolower(sanitize_text_field($atts['provider'])) : null;
         $preset_model    = !empty($atts['model']) ? sanitize_text_field($atts['model']) : null;
@@ -124,9 +149,13 @@ class AIPKit_Image_Generator_Shortcode
             'final_number'   => $final_number,
             'theme'          => $theme,
             'show_history'   => $show_history, // NEW: Pass to view
-            'image_history_html' => ($show_history && is_user_logged_in()) ? $this->render_image_history() : '', // NEW: Render history HTML
+            'image_history_html' => ($show_history && is_user_logged_in()) ? $this->render_image_history($mode) : '', // NEW: Render history HTML
             'allowed_providers' => $allowed_providers_str,
             'allowed_models' => $final_allowed_models_str,
+            'mode'           => $mode,
+            'default_mode'   => $default_mode,
+            'show_mode_switch' => $show_mode_switch,
+            'ui_text'        => $ui_text_settings,
         ];
 
         // 7. Include the partial view
@@ -151,11 +180,13 @@ class AIPKit_Image_Generator_Shortcode
      *
      * @return string HTML for the image history section.
      */
-    private function render_image_history(): string
+    private function render_image_history(string $shortcode_mode = 'generate'): string
     {
         if (!is_user_logged_in()) {
             return '';
         }
+
+        $allow_edit_action = in_array($shortcode_mode, ['edit', 'both'], true);
 
         $user_id = get_current_user_id();
         $args = [
@@ -252,6 +283,10 @@ class AIPKit_Image_Generator_Shortcode
                     $provider = get_post_meta($attachment_id, '_aipkit_image_provider', true);
                     $model = get_post_meta($attachment_id, '_aipkit_image_model', true);
                     $size = get_post_meta($attachment_id, '_aipkit_image_size', true);
+                    $image_url_path = wp_parse_url((string) $full_url, PHP_URL_PATH);
+                    $image_file_name = is_string($image_url_path) && $image_url_path !== ''
+                        ? sanitize_file_name(wp_basename($image_url_path))
+                        : 'image-' . $attachment_id . '.png';
                     ?>
                     <div class="aipkit-image-history-item">
                         <a href="<?php echo esc_url($full_url); ?>" target="_blank" rel="noopener noreferrer">
@@ -261,6 +296,19 @@ class AIPKit_Image_Generator_Shortcode
                                 <span class="aipkit-media-type-badge"><?php esc_html_e('IMAGE', 'gpt3-ai-content-generator'); ?></span>
                             </div>
                         </a>
+                        <?php if ($allow_edit_action): ?>
+                            <button
+                                type="button"
+                                class="aipkit-image-history-edit-btn"
+                                data-image-url="<?php echo esc_url($full_url); ?>"
+                                data-image-name="<?php echo esc_attr($image_file_name); ?>"
+                                title="<?php esc_attr_e('Edit Image', 'gpt3-ai-content-generator'); ?>"
+                                aria-label="<?php esc_attr_e('Edit Image', 'gpt3-ai-content-generator'); ?>"
+                            >
+                                <span class="dashicons dashicons-edit"></span>
+                                <span class="aipkit_spinner" hidden></span>
+                            </button>
+                        <?php endif; ?>
                         <button type="button" class="aipkit-image-history-delete-btn" data-attachment-id="<?php echo esc_attr($attachment_id); ?>" title="<?php esc_attr_e('Delete Image', 'gpt3-ai-content-generator'); ?>">
                             <span class="dashicons dashicons-trash"></span>
                         </button>

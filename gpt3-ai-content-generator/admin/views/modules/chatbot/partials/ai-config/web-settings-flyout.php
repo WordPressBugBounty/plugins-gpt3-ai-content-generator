@@ -5,6 +5,31 @@ if (!defined('ABSPATH')) {
 ?>
 
 <div class="aipkit_popover_options_list aipkit_popover_options_list--web">
+    <?php $supports_web_toggle_default = in_array($current_provider_for_this_bot, ['OpenAI', 'Google', 'Claude', 'OpenRouter'], true); ?>
+    <div class="aipkit_popover_option_row aipkit_web_toggle_default_row" style="<?php echo $supports_web_toggle_default ? '' : 'display:none;'; ?>">
+        <div class="aipkit_popover_option_main">
+            <span
+                class="aipkit_popover_option_label"
+                tabindex="0"
+                data-tooltip="<?php echo esc_attr__('Enable this to keep the chat web toggle active by default on first load and after starting a new chat.', 'gpt3-ai-content-generator'); ?>"
+            >
+                <?php esc_html_e('Web toggle default on', 'gpt3-ai-content-generator'); ?>
+            </span>
+            <div class="aipkit_popover_option_actions">
+                <label class="aipkit_switch">
+                    <input
+                        type="checkbox"
+                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_web_toggle_default_on_modal"
+                        name="web_toggle_default_on"
+                        class="aipkit_web_toggle_default_on"
+                        value="1"
+                        <?php checked($web_toggle_default_on_val, '1'); ?>
+                    />
+                    <span class="aipkit_switch_slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
     <div class="aipkit_popover_option_group aipkit_web_modal_section_openai" style="<?php echo ($current_provider_for_this_bot === 'OpenAI') ? '' : 'display:none;'; ?>">
         <div class="aipkit_openai_web_search_conditional_settings" style="<?php echo ($current_provider_for_this_bot === 'OpenAI' && $openai_web_search_enabled_val === '1') ? '' : 'display:none;'; ?>">
             <div class="aipkit_popover_option_row">

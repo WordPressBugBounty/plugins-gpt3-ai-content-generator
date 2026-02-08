@@ -23,9 +23,9 @@ function log_image_generation_attempt_logic(
     ?int $user_id,
     ?string $session_id,
     ?string $client_ip,
-    int $bot_id_for_log = null,
+    ?int $bot_id_for_log = null,
     ?string $user_wp_role = null,
-    string $bot_response_message_id = null
+    ?string $bot_response_message_id = null
 ): void {
     $log_storage = $managerInstance->get_log_storage();
     if (!$log_storage) {
@@ -34,7 +34,19 @@ function log_image_generation_attempt_logic(
     $is_error = is_wp_error($result);
     $response_data_for_log = [];
     $message_content = '';
-    $logged_request_payload = ['prompt' => $extracted_prompt, 'options' => $request_options_for_log];
+    $request_options_for_log_safe = $request_options_for_log;
+    if (isset($request_options_for_log_safe['source_image'])) {
+        if (is_array($request_options_for_log_safe['source_image'])) {
+            $request_options_for_log_safe['source_image'] = [
+                'mime_type' => $request_options_for_log_safe['source_image']['mime_type'] ?? '',
+                'size_bytes' => $request_options_for_log_safe['source_image']['size_bytes'] ?? 0,
+                'file_name' => $request_options_for_log_safe['source_image']['file_name'] ?? '',
+            ];
+        } else {
+            unset($request_options_for_log_safe['source_image']);
+        }
+    }
+    $logged_request_payload = ['prompt' => $extracted_prompt, 'options' => $request_options_for_log_safe];
     $model_used = $request_options_for_log['model'] ?? 'default_image_model';
     $provider_used = $request_options_for_log['provider'] ?? 'OpenAI';
     if ($is_error) {

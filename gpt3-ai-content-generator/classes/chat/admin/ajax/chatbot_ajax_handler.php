@@ -913,6 +913,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             ? floatval(wp_unslash($_POST['google_grounding_dynamic_threshold']))
             : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
         $google_grounding_dynamic_threshold = max(0.0, min($google_grounding_dynamic_threshold, 1.0));
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $web_toggle_default_on = (isset($_POST['web_toggle_default_on']) && wp_unslash($_POST['web_toggle_default_on']) === '1') ? '1' : '0';
 
         update_post_meta($bot_id, '_aipkit_openai_web_search_enabled', $openai_web_search_enabled);
         update_post_meta($bot_id, '_aipkit_openai_web_search_context_size', $openai_web_search_context_size);
@@ -938,6 +940,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         update_post_meta($bot_id, '_aipkit_google_search_grounding_enabled', $google_search_grounding_enabled);
         update_post_meta($bot_id, '_aipkit_google_grounding_mode', $google_grounding_mode);
         update_post_meta($bot_id, '_aipkit_google_grounding_dynamic_threshold', $google_grounding_dynamic_threshold);
+        update_post_meta($bot_id, '_aipkit_web_toggle_default_on', $web_toggle_default_on);
 
         wp_send_json_success([
             'message' => __('Saved', 'gpt3-ai-content-generator'),

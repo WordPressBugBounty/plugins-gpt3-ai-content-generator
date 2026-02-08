@@ -79,6 +79,9 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
     if ($header_online_text === '') {
         $header_online_text = __('Online', 'gpt3-ai-content-generator');
     }
+    $download_menu_id = function_exists('wp_unique_id')
+        ? wp_unique_id('aipkit_download_menu_')
+        : uniqid('aipkit_download_menu_', false);
     $fallback_avatar_svg = class_exists(AIPKit_SVG_Icons::class)
         ? AIPKit_SVG_Icons::get_chat_bubble_svg()
         : '';
@@ -86,7 +89,7 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
     <div class="aipkit_chat_header">
         <div class="aipkit_header_info">
             <?php if (!$is_popup && $feature_flags['sidebar_ui_enabled']): ?>
-                <button class="aipkit_header_btn aipkit_sidebar_toggle_btn" title="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>">
+                <button type="button" class="aipkit_header_btn aipkit_sidebar_toggle_btn" title="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>" aria-expanded="false">
                     <?php echo $sidebar_toggle_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </button>
             <?php endif; ?>
@@ -125,29 +128,29 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
         </div>
         <div class="aipkit_header_actions">
             <?php if ($feature_flags['enable_fullscreen']): ?>
-                <button class="aipkit_header_btn aipkit_fullscreen_btn" title="<?php echo esc_attr($frontend_config['text']['fullscreen']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['fullscreen']); ?>" aria-expanded="false">
+                <button type="button" class="aipkit_header_btn aipkit_fullscreen_btn" title="<?php echo esc_attr($frontend_config['text']['fullscreen']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['fullscreen']); ?>" aria-expanded="false">
                     <?php echo $fullscreen_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </button>
             <?php endif; ?>
             <?php if ($feature_flags['enable_download']): ?>
                 <div class="aipkit_download_wrapper">
-                    <button class="aipkit_header_btn aipkit_download_btn" title="<?php echo esc_attr($frontend_config['text']['download']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['download']); ?>">
+                    <button type="button" class="aipkit_header_btn aipkit_download_btn" title="<?php echo esc_attr($frontend_config['text']['download']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['download']); ?>" aria-haspopup="menu" aria-expanded="false" aria-controls="<?php echo esc_attr($download_menu_id); ?>">
                         <?php echo $download_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </button>
                     <?php if ($feature_flags['pdf_ui_enabled']): ?>
-                        <div class="aipkit_download_menu">
-                            <div class="aipkit_download_menu_item" data-format="txt"><?php echo esc_html($frontend_config['text']['downloadTxt']); ?></div>
-                            <div class="aipkit_download_menu_item" data-format="pdf"><?php echo esc_html($frontend_config['text']['downloadPdf']); ?></div>
+                        <div class="aipkit_download_menu" id="<?php echo esc_attr($download_menu_id); ?>" role="menu" aria-hidden="true">
+                            <button type="button" class="aipkit_download_menu_item" role="menuitem" data-format="txt"><?php echo esc_html($frontend_config['text']['downloadTxt']); ?></button>
+                            <button type="button" class="aipkit_download_menu_item" role="menuitem" data-format="pdf"><?php echo esc_html($frontend_config['text']['downloadPdf']); ?></button>
                         </div>
                     <?php elseif ($feature_flags['enable_download']): ?>
-                        <div class="aipkit_download_menu">
-                            <div class="aipkit_download_menu_item" data-format="txt"><?php echo esc_html($frontend_config['text']['downloadTxt']); ?></div>
+                        <div class="aipkit_download_menu" id="<?php echo esc_attr($download_menu_id); ?>" role="menu" aria-hidden="true">
+                            <button type="button" class="aipkit_download_menu_item" role="menuitem" data-format="txt"><?php echo esc_html($frontend_config['text']['downloadTxt']); ?></button>
                         </div>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
             <?php if ($is_popup): ?>
-                <button class="aipkit_header_btn aipkit_popup_close_btn" title="<?php echo esc_attr__('Close chat', 'gpt3-ai-content-generator'); ?>" aria-label="<?php echo esc_attr__('Close chat', 'gpt3-ai-content-generator'); ?>">
+                <button type="button" class="aipkit_header_btn aipkit_popup_close_btn" title="<?php echo esc_attr__('Close chat', 'gpt3-ai-content-generator'); ?>" aria-label="<?php echo esc_attr__('Close chat', 'gpt3-ai-content-generator'); ?>">
                     <?php echo $close_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </button>
             <?php endif; ?>

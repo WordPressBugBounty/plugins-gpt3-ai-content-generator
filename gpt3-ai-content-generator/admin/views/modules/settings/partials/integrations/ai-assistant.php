@@ -2,11 +2,6 @@
 /**
  * Partial: Content Assistant Settings
  * 
- * REDESIGNED following UX principles from philosophy.md:
- * 1. Choice Overload Prevention - Minimal initial options, smart defaults
- * 2. Chunking - Logically grouped settings with clear visual separation
- * 3. Progressive Disclosure - Show complexity only when needed
- * 4. Goal-Gradient Effect - Clear visual progress for action management
  */
 if (!defined('ABSPATH')) {
     exit;

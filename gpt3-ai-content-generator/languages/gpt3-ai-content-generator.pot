@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – AI Chatbots, Content Writer & Forms (formerly AI Power) 2.3.71\n"
+"Project-Id-Version: AI Puffer – AI Chatbots, Content Writer & Forms (formerly AI Power) 2.3.72\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-07T12:05:27+00:00\n"
+"POT-Creation-Date: 2026-02-08T13:39:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -522,25 +522,109 @@ msgstr ""
 msgid "No Models (Select Provider or Sync)"
 msgstr ""
 
+msgid "Generated images will appear here."
+msgstr ""
+
 msgid "Generating..."
+msgstr ""
+
+msgid "Editing..."
 msgstr ""
 
 msgid "Error generating image."
 msgstr ""
 
-msgid "Generate Image"
-msgstr ""
-
 msgid "Please enter a prompt."
-msgstr ""
-
-msgid "Generated images will appear here."
 msgstr ""
 
 msgid "Click to view full image"
 msgstr ""
 
+msgid "Click to view full video"
+msgstr ""
+
 msgid "Selected OpenRouter model does not support image generation."
+msgstr ""
+
+msgid "Please upload an image to edit."
+msgstr ""
+
+msgid "Image editing is currently supported only for Google, OpenAI and OpenRouter providers."
+msgstr ""
+
+msgid "Selected model does not support image editing."
+msgstr ""
+
+msgid "Invalid image type. Allowed types: JPG, PNG, WEBP, GIF."
+msgstr ""
+
+msgid "Source image is too large. Maximum allowed size is 10MB."
+msgstr ""
+
+msgid "Could not attach dropped file automatically. Click to choose file."
+msgstr ""
+
+msgid "Could not load the selected image for editing."
+msgstr ""
+
+msgid "Image editing is not available in the current setup."
+msgstr ""
+
+msgid "Source image loaded. Describe your edits and click Edit Image."
+msgstr ""
+
+msgid "(No edit-capable models available)"
+msgstr ""
+
+msgid "(No image-capable OpenRouter models found)"
+msgstr ""
+
+msgid "(No models available)"
+msgstr ""
+
+msgid "Image Models"
+msgstr ""
+
+msgid "Video Models"
+msgstr ""
+
+msgid "Error: Configuration missing."
+msgstr ""
+
+msgid "Error: Core UI elements missing."
+msgstr ""
+
+msgid "Error: Missing required image generation settings."
+msgstr ""
+
+msgid "Error: No video data found."
+msgstr ""
+
+msgid "Error: No image data found."
+msgstr ""
+
+msgid "Error: Cannot delete image. Configuration missing."
+msgstr ""
+
+msgid "Error deleting image:"
+msgstr ""
+
+msgid "Revised:"
+msgstr ""
+
+msgid "Generating Video..."
+msgstr ""
+
+msgid "Video generation in progress..."
+msgstr ""
+
+msgid "Generating video..."
+msgstr ""
+
+msgid "Video generation timed out. Please try again."
+msgstr ""
+
+msgid "Video generation failed:"
 msgstr ""
 
 msgid "Title Suggestions"
@@ -2701,16 +2785,16 @@ msgstr ""
 msgid "Show Mode"
 msgstr ""
 
-msgid "On delay (once)"
+msgid "On delay"
 msgstr ""
 
-msgid "On delay (always)"
+msgid "Always (immediate)"
 msgstr ""
 
-msgid "Immediate (once)"
+msgid "Until chat is opened"
 msgstr ""
 
-msgid "Immediate (always)"
+msgid "Until hint is dismissed"
 msgstr ""
 
 msgid "Controls hint font size and padding."
@@ -3396,6 +3480,12 @@ msgstr ""
 msgid "Configure speech, playback, and realtime audio settings."
 msgstr ""
 
+msgid "Enable this to keep the chat web toggle active by default on first load and after starting a new chat."
+msgstr ""
+
+msgid "Web toggle default on"
+msgstr ""
+
 msgid "Amount of web context to include."
 msgstr ""
 
@@ -4039,6 +4129,24 @@ msgstr ""
 msgid "Show Model Select"
 msgstr ""
 
+msgid "UI Mode"
+msgstr ""
+
+msgid "Generate only"
+msgstr ""
+
+msgid "Edit only"
+msgstr ""
+
+msgid "Generate + Edit"
+msgstr ""
+
+msgid "Default Mode"
+msgstr ""
+
+msgid "Show Mode Switch"
+msgstr ""
+
 msgid "Show User History (if logged in)"
 msgstr ""
 
@@ -4060,6 +4168,9 @@ msgstr ""
 msgid "Token Management"
 msgstr ""
 
+msgid "UI Text"
+msgstr ""
+
 msgid "Token management"
 msgstr ""
 
@@ -4069,7 +4180,49 @@ msgstr ""
 msgid "Safety defaults"
 msgstr ""
 
+msgid "UI text"
+msgstr ""
+
+msgid "Frontend labels and placeholders"
+msgstr ""
+
 msgid "Disable safety checker"
+msgstr ""
+
+msgid "Generate button label"
+msgstr ""
+
+msgid "Edit button label"
+msgstr ""
+
+msgid "Mode tab label (Generate)"
+msgstr ""
+
+msgid "Mode tab label (Edit)"
+msgstr ""
+
+msgid "Generate prompt placeholder"
+msgstr ""
+
+msgid "Edit prompt placeholder"
+msgstr ""
+
+msgid "Source image label"
+msgstr ""
+
+msgid "Upload dropzone title"
+msgstr ""
+
+msgid "Upload dropzone meta text"
+msgstr ""
+
+msgid "Upload helper text"
+msgstr ""
+
+msgid "History title"
+msgstr ""
+
+msgid "Results empty text"
 msgstr ""
 
 msgid "Role Manager"
@@ -5347,6 +5500,9 @@ msgid "Upload image"
 msgstr ""
 
 msgid "Open Chat"
+msgstr ""
+
+msgid "Close Chat"
 msgstr ""
 
 msgid "You are a helpful AI Assistant. Please be friendly. Today's date is [date]."
@@ -8410,6 +8566,30 @@ msgstr ""
 msgid "Failed to load Image Generation strategy for provider: %s"
 msgstr ""
 
+msgid "Edit Image"
+msgstr ""
+
+msgid "Describe the image you want to generate..."
+msgstr ""
+
+msgid "Describe how you want to edit the uploaded image..."
+msgstr ""
+
+msgid "Source image"
+msgstr ""
+
+msgid "Drop image here or click to upload"
+msgstr ""
+
+msgid "JPG, PNG, WEBP, GIF up to 10MB"
+msgstr ""
+
+msgid "Upload an image (JPG, PNG, WEBP, GIF up to 10MB), then describe the edits in the prompt."
+msgstr ""
+
+msgid "Your Images"
+msgstr ""
+
 msgid "Image Generator settings saved."
 msgstr ""
 
@@ -8542,6 +8722,19 @@ msgstr ""
 msgid "Azure Endpoint/Region URL is required for image generation."
 msgstr ""
 
+msgid "Only one source image is supported in this version."
+msgstr ""
+
+msgid "Source image upload failed. Please try again."
+msgstr ""
+
+msgid "Invalid source image file."
+msgstr ""
+
+#. translators: %s: Comma-separated list of allowed file extensions.
+msgid "Invalid image type. Allowed types: %s."
+msgstr ""
+
 msgid "Azure Endpoint is required."
 msgstr ""
 
@@ -8565,6 +8758,15 @@ msgid "Google model ID is required."
 msgstr ""
 
 msgid "Prompt cannot be empty for generation."
+msgstr ""
+
+msgid "Selected Google video model does not support image editing."
+msgstr ""
+
+msgid "Selected Google model does not support image editing."
+msgstr ""
+
+msgid "Source image is required for edit mode."
 msgstr ""
 
 msgid "Google image generation components are missing."
@@ -8602,6 +8804,12 @@ msgstr ""
 msgid "OpenAI image generation components are missing."
 msgstr ""
 
+msgid "Source image is required for OpenAI edit mode."
+msgstr ""
+
+msgid "Selected OpenAI model does not support image editing."
+msgstr ""
+
 msgid "HTTP error during image generation."
 msgstr ""
 
@@ -8612,10 +8820,22 @@ msgstr ""
 msgid "OpenAI API returned success but image data structure is invalid."
 msgstr ""
 
+msgid "Selected source image format is not supported for OpenRouter edit mode. Allowed: PNG, JPG, WEBP, GIF."
+msgstr ""
+
+msgid "Source image is required for OpenRouter edit mode."
+msgstr ""
+
+msgid "Invalid source image payload for OpenRouter edit mode."
+msgstr ""
+
 msgid "OpenRouter API Key is required for image generation."
 msgstr ""
 
 msgid "OpenRouter image model is required."
+msgstr ""
+
+msgid "Selected OpenRouter model does not support image editing."
 msgstr ""
 
 msgid "Selected OpenRouter model does not support image output."
@@ -8677,6 +8897,27 @@ msgstr ""
 msgid "An unknown Google API error occurred."
 msgstr ""
 
+msgid "Cannot count tokens for an empty model or payload."
+msgstr ""
+
+msgid "Google API key is required for token counting."
+msgstr ""
+
+msgid "Failed to encode Google token count payload."
+msgstr ""
+
+msgid "HTTP error occurred while counting Google prompt tokens."
+msgstr ""
+
+msgid "Google token count request failed."
+msgstr ""
+
+msgid "Failed to parse Google token count response."
+msgstr ""
+
+msgid "Google token count response did not include totalTokens."
+msgstr ""
+
 msgid "Google API key is required for image URL construction."
 msgstr ""
 
@@ -8701,9 +8942,6 @@ msgid "No video data found in completed Google Video API response."
 msgstr ""
 
 msgid "Unknown error occurred during video generation."
-msgstr ""
-
-msgid "Video generation in progress..."
 msgstr ""
 
 msgid "HTTP error during Google Video API polling."
@@ -8757,6 +8995,12 @@ msgstr ""
 
 #. translators: %s is the operation name
 msgid "Operation \"%s\" not supported for OpenAI Image URL Builder."
+msgstr ""
+
+msgid "Invalid source image payload for OpenAI edit mode."
+msgstr ""
+
+msgid "Selected source image format is not supported for OpenAI edit mode. Allowed: PNG, JPG, WEBP."
 msgstr ""
 
 msgid "No field specified for processing."
@@ -10290,13 +10534,13 @@ msgstr ""
 msgid "Sorry, this message type is not supported yet."
 msgstr ""
 
-msgid "Describe the image you want to generate..."
+msgid "Image editing UI is enabled. Backend editing will be available in the next phase."
+msgstr ""
+
+msgid "Selected source image preview"
 msgstr ""
 
 msgid "(Select Provider)"
-msgstr ""
-
-msgid "Your Images"
 msgstr ""
 
 msgid "Validation Issues Found:"

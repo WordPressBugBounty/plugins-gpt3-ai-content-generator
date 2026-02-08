@@ -22,6 +22,7 @@ require_once $manager_path . 'ajax/ajax_delete_generated_image.php';
 require_once $manager_path . 'ajax/ajax_load_more_image_history.php';
 require_once $manager_path . 'ajax/ajax_check_video_status.php';
 require_once $manager_path . 'log/log_image_generation_attempt.php';
+require_once $manager_path . 'utils/parse_edit_source_image_upload.php';
 require_once $manager_path . 'utils/send_wp_error.php';
 
 
@@ -89,9 +90,9 @@ class AIPKit_Image_Manager
         ?int $user_id,
         ?string $session_id,
         ?string $client_ip,
-        int $bot_id_for_log = null,
+        ?int $bot_id_for_log = null,
         ?string $user_wp_role = null,
-        string $bot_response_message_id = null
+        ?string $bot_response_message_id = null
     ) {
         Manager\Log\log_image_generation_attempt_logic($this, $conversation_uuid, $extracted_prompt, $request_options_for_log, $result, $usage_data, $user_id, $session_id, $client_ip, $bot_id_for_log, $user_wp_role, $bot_response_message_id);
     }

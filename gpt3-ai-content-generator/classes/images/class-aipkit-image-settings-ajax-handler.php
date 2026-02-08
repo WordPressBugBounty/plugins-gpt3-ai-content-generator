@@ -22,6 +22,27 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
     public const SETTINGS_OPTION_NAME = 'aipkit_image_generator_settings';
 
     /**
+     * Get default UI text values for the frontend image generator.
+     */
+    public static function get_default_ui_text_settings(): array
+    {
+        return [
+            'generate_label' => __('Generate', 'gpt3-ai-content-generator'),
+            'edit_label' => __('Edit Image', 'gpt3-ai-content-generator'),
+            'mode_generate_label' => __('Generate', 'gpt3-ai-content-generator'),
+            'mode_edit_label' => __('Edit', 'gpt3-ai-content-generator'),
+            'generate_placeholder' => __('Describe the image you want to generate...', 'gpt3-ai-content-generator'),
+            'edit_placeholder' => __('Describe how you want to edit the uploaded image...', 'gpt3-ai-content-generator'),
+            'source_image_label' => __('Source image', 'gpt3-ai-content-generator'),
+            'upload_dropzone_title' => __('Drop image here or click to upload', 'gpt3-ai-content-generator'),
+            'upload_dropzone_meta' => __('JPG, PNG, WEBP, GIF up to 10MB', 'gpt3-ai-content-generator'),
+            'upload_hint' => __('Upload an image (JPG, PNG, WEBP, GIF up to 10MB), then describe the edits in the prompt.', 'gpt3-ai-content-generator'),
+            'history_title' => __('Your Images', 'gpt3-ai-content-generator'),
+            'results_empty' => __('Generated images will appear here.', 'gpt3-ai-content-generator'),
+        ];
+    }
+
+    /**
      * Get the default settings structure.
      */
     public static function get_default_settings(): array
@@ -46,6 +67,7 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
                 'allowed_providers' => '',
                 'allowed_models' => '',
             ],
+            'ui_text' => self::get_default_ui_text_settings(),
             'replicate' => [
                 'disable_safety_checker' => true, // Default to disabled safety check to avoid false positives
             ]
@@ -84,7 +106,14 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             $saved['frontend_display'] = array_merge($defaults['frontend_display'], $saved['frontend_display']);
         }
         $saved['frontend_display'] = array_intersect_key($saved['frontend_display'], $defaults['frontend_display']);
-        
+
+        if (!isset($saved['ui_text']) || !is_array($saved['ui_text'])) {
+            $saved['ui_text'] = $defaults['ui_text'];
+        } else {
+            $saved['ui_text'] = array_merge($defaults['ui_text'], $saved['ui_text']);
+        }
+        $saved['ui_text'] = array_intersect_key($saved['ui_text'], $defaults['ui_text']);
+
         // Handle Replicate settings
         if (!isset($saved['replicate']) || !is_array($saved['replicate'])) {
             $saved['replicate'] = $defaults['replicate'];
@@ -253,6 +282,34 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             }
         }
         $new_settings['frontend_display'] = $new_frontend_settings;
+
+        $ui_text_defaults = $defaults['ui_text'];
+        $new_ui_text_settings = $new_settings['ui_text'] ?? $ui_text_defaults;
+        $ui_text_field_map = [
+            'ui_text_generate_label' => 'generate_label',
+            'ui_text_edit_label' => 'edit_label',
+            'ui_text_mode_generate_label' => 'mode_generate_label',
+            'ui_text_mode_edit_label' => 'mode_edit_label',
+            'ui_text_generate_placeholder' => 'generate_placeholder',
+            'ui_text_edit_placeholder' => 'edit_placeholder',
+            'ui_text_source_image_label' => 'source_image_label',
+            'ui_text_upload_dropzone_title' => 'upload_dropzone_title',
+            'ui_text_upload_dropzone_meta' => 'upload_dropzone_meta',
+            'ui_text_upload_hint' => 'upload_hint',
+            'ui_text_history_title' => 'history_title',
+            'ui_text_results_empty' => 'results_empty',
+        ];
+        foreach ($ui_text_field_map as $post_key => $setting_key) {
+            if (!isset($post_data[$post_key])) {
+                continue;
+            }
+            $sanitized_value = sanitize_text_field($post_data[$post_key]);
+            $sanitized_value = trim($sanitized_value);
+            $new_ui_text_settings[$setting_key] = $sanitized_value !== ''
+                ? $sanitized_value
+                : ($ui_text_defaults[$setting_key] ?? '');
+        }
+        $new_settings['ui_text'] = $new_ui_text_settings;
 
         // Handle Replicate settings
         $replicate_defaults = $defaults['replicate'];

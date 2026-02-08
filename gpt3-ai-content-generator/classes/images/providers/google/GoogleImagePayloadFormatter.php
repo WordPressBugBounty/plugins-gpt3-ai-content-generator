@@ -10,6 +10,37 @@ if (!defined('ABSPATH')) {
  * Handles formatting request payloads for Google Image Generation models.
  */
 class GoogleImagePayloadFormatter {
+    /**
+     * Build Gemini parts payload for prompt-only or edit-mode requests.
+     *
+     * @param string $prompt User prompt text.
+     * @param array  $options Request options.
+     * @return array<int, array<string, mixed>>
+     */
+    public static function build_gemini_parts(string $prompt, array $options): array {
+        $image_mode = isset($options['image_mode']) && $options['image_mode'] === 'edit' ? 'edit' : 'generate';
+        $parts = [['text' => $prompt]];
+
+        $source_image = isset($options['source_image']) && is_array($options['source_image'])
+            ? $options['source_image']
+            : null;
+
+        if (
+            $image_mode === 'edit' &&
+            is_array($source_image) &&
+            !empty($source_image['mime_type']) &&
+            !empty($source_image['base64_data'])
+        ) {
+            $parts[] = [
+                'inline_data' => [
+                    'mime_type' => sanitize_text_field((string) $source_image['mime_type']),
+                    'data' => preg_replace('/\s+/', '', (string) $source_image['base64_data']),
+                ],
+            ];
+        }
+
+        return $parts;
+    }
 
     /**
      * Formats the payload for Google Image Generation API.
@@ -26,9 +57,11 @@ class GoogleImagePayloadFormatter {
 
         // Gemini image-generation models use the text+image modality on generateContent
         if (strpos($model_id, 'gemini') !== false && strpos($model_id, 'image-generation') !== false) {
+            $parts = self::build_gemini_parts($prompt, $options);
+
             $payload = [
                 'contents' => [[
-                    'parts' => [ ['text' => $prompt] ]
+                    'parts' => $parts,
                 ]],
                 'generationConfig' => [
                     'responseModalities' => ['TEXT', 'IMAGE'],

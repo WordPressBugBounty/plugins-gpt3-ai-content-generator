@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 
 /**
  * OpenAI Image Generation Provider Strategy.
- * Implements generation using OpenAI DALL-E API (v1/images/generations).
+ * Implements generation and edit flows using OpenAI Images API.
  * Delegates logic to specialized component classes.
  */
 class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_Strategy {
@@ -52,6 +52,7 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
         $api_key = $api_params['api_key'] ?? null;
         if (empty($api_key)) return new WP_Error('openai_image_missing_key', __('OpenAI API Key is required for image generation.', 'gpt3-ai-content-generator'));
         if (empty($prompt)) return new WP_Error('openai_image_missing_prompt', __('Prompt cannot be empty for image generation.', 'gpt3-ai-content-generator'));
+        $image_mode = isset($options['image_mode']) && $options['image_mode'] === 'edit' ? 'edit' : 'generate';
 
         // Ensure component classes are loaded (they should be by constructor, but defensive check)
         if (!class_exists(OpenAIImageUrlBuilder::class) || !class_exists(OpenAIPayloadFormatter::class) || !class_exists(OpenAIImageResponseParser::class)) {
@@ -63,21 +64,54 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
             'base_url' => $api_params['base_url'] ?? 'https://api.openai.com',
             'api_version' => $api_params['api_version'] ?? 'v1',
         ];
-        $url = OpenAIImageUrlBuilder::build('images/generations', $url_builder_params);
+        $operation = $image_mode === 'edit' ? 'images/edits' : 'images/generations';
+        $url = OpenAIImageUrlBuilder::build($operation, $url_builder_params);
         if (is_wp_error($url)) return $url;
 
-        // --- Build Payload using image-specific formatter ---
-        $payload = OpenAIPayloadFormatter::format($prompt, $options);
-        // --- End Build Payload ---
+        $headers_array = $this->get_api_headers($api_key, $image_mode);
+        $request_options = $this->get_request_options($image_mode);
 
-        $headers_array = $this->get_api_headers($api_key, 'generate');
-        $request_options = $this->get_request_options('generate');
-        $request_body_json = wp_json_encode($payload);
-        $request_args = array_merge($request_options, [
-            'headers' => $headers_array,
-            'body' => $request_body_json,
-            'data_format' => 'body',
-        ]);
+        if ($image_mode === 'edit') {
+            if (empty($options['source_image']) || !is_array($options['source_image'])) {
+                return new WP_Error(
+                    'openai_edit_missing_source_image',
+                    __('Source image is required for OpenAI edit mode.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+            $edit_model = isset($options['model']) && is_string($options['model']) ? $options['model'] : 'gpt-image-1.5';
+            $options['model'] = $edit_model;
+            if (!OpenAIPayloadFormatter::supports_edit_model($edit_model)) {
+                return new WP_Error(
+                    'openai_edit_model_not_supported',
+                    __('Selected OpenAI model does not support image editing.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+
+            $multipart_data = OpenAIPayloadFormatter::format_edit_multipart($prompt, $options);
+            if (is_wp_error($multipart_data)) {
+                return $multipart_data;
+            }
+
+            $headers_array['Content-Type'] = $multipart_data['content_type'];
+            $request_args = array_merge($request_options, [
+                'headers' => $headers_array,
+                'body' => $multipart_data['body'],
+                'data_format' => 'body',
+            ]);
+        } else {
+            // --- Build Payload using image-specific formatter ---
+            $payload = OpenAIPayloadFormatter::format($prompt, $options);
+            // --- End Build Payload ---
+
+            $request_body_json = wp_json_encode($payload);
+            $request_args = array_merge($request_options, [
+                'headers' => $headers_array,
+                'body' => $request_body_json,
+                'data_format' => 'body',
+            ]);
+        }
 
         $response = wp_remote_post($url, $request_args);
 
@@ -121,8 +155,10 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
      * Get API headers required for OpenAI Image requests.
      */
     public function get_api_headers(string $api_key, string $operation): array {
-         $headers = parent::get_api_headers($api_key, $operation); // Gets Content-Type
-         $headers['Authorization'] = 'Bearer ' . $api_key;
+         $headers = ['Authorization' => 'Bearer ' . $api_key];
+         if ($operation !== 'edit') {
+             $headers['Content-Type'] = 'application/json';
+         }
          return $headers;
     }
 }

@@ -38,6 +38,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
             'auto_text_contrast' => '1',
             'font_family' => 'inherit',
             'bubble_border_radius' => 18,
+            'container_border_radius' => 10,
             // --- NEW DIMENSION DEFAULTS (Fallback) ---
             'container_max_width' => 896,
             'popup_width' => 450,
@@ -343,6 +344,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['google_grounding_mode'] = isset($raw_settings['google_grounding_mode']) && in_array($raw_settings['google_grounding_mode'], ['DEFAULT_MODE', 'MODE_DYNAMIC']) ? $raw_settings['google_grounding_mode'] : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
     $raw_google_threshold = isset($raw_settings['google_grounding_dynamic_threshold']) ? floatval($raw_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
     $sanitized['google_grounding_dynamic_threshold'] = max(0.0, min($raw_google_threshold, 1.0));
+    $sanitized['web_toggle_default_on'] = (isset($raw_settings['web_toggle_default_on']) && $raw_settings['web_toggle_default_on'] === '1') ? '1' : '0';
 
     // --- Sanitize Realtime Voice Agent settings ---
     $sanitized['enable_realtime_voice'] = (isset($raw_settings['enable_realtime_voice']) && $raw_settings['enable_realtime_voice'] === '1') ? '1' : '0';
@@ -359,17 +361,36 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
 
     // --- NEW: Popup Label (Hint) above trigger ---
     $sanitized['popup_label_enabled'] = (isset($raw_settings['popup_label_enabled']) && $raw_settings['popup_label_enabled'] === '1') ? '1' : '0';
+    $raw_popup_label_mode = isset($raw_settings['popup_label_mode']) ? sanitize_key((string) $raw_settings['popup_label_mode']) : '';
+    $legacy_mode_map = [
+        'delay_once' => 'on_delay',
+        'delay_always' => 'on_delay',
+        'immediate_once' => 'always',
+        'immediate_always' => 'always',
+        'manual' => 'until_dismissed',
+    ];
+    $legacy_frequency_map = [
+        'delay_once' => 'once_per_visitor',
+        'delay_always' => 'always',
+        'immediate_once' => 'once_per_visitor',
+        'immediate_always' => 'always',
+    ];
+    $normalized_popup_label_mode = $legacy_mode_map[$raw_popup_label_mode] ?? $raw_popup_label_mode;
     $allowed_modes = ['always','on_delay','until_open','until_dismissed'];
-    $sanitized['popup_label_mode'] = isset($raw_settings['popup_label_mode']) && in_array($raw_settings['popup_label_mode'], $allowed_modes, true)
-        ? $raw_settings['popup_label_mode']
+    $sanitized['popup_label_mode'] = in_array($normalized_popup_label_mode, $allowed_modes, true)
+        ? $normalized_popup_label_mode
         : 'on_delay';
     $sanitized['popup_label_text'] = isset($raw_settings['popup_label_text']) ? sanitize_text_field($raw_settings['popup_label_text']) : '';
     $sanitized['popup_label_delay_seconds'] = isset($raw_settings['popup_label_delay_seconds']) ? max(0, absint($raw_settings['popup_label_delay_seconds'])) : 2;
     $sanitized['popup_label_auto_hide_seconds'] = isset($raw_settings['popup_label_auto_hide_seconds']) ? max(0, absint($raw_settings['popup_label_auto_hide_seconds'])) : 0;
     $sanitized['popup_label_dismissible'] = (isset($raw_settings['popup_label_dismissible']) && $raw_settings['popup_label_dismissible'] === '1') ? '1' : '0';
     $allowed_freq = ['always','once_per_session','once_per_visitor'];
-    $sanitized['popup_label_frequency'] = isset($raw_settings['popup_label_frequency']) && in_array($raw_settings['popup_label_frequency'], $allowed_freq, true)
-        ? $raw_settings['popup_label_frequency']
+    $raw_popup_label_frequency = isset($raw_settings['popup_label_frequency']) ? sanitize_key((string) $raw_settings['popup_label_frequency']) : '';
+    if ($raw_popup_label_frequency === '' && isset($legacy_frequency_map[$raw_popup_label_mode])) {
+        $raw_popup_label_frequency = $legacy_frequency_map[$raw_popup_label_mode];
+    }
+    $sanitized['popup_label_frequency'] = in_array($raw_popup_label_frequency, $allowed_freq, true)
+        ? $raw_popup_label_frequency
         : 'once_per_visitor';
     $sanitized['popup_label_show_on_mobile'] = (isset($raw_settings['popup_label_show_on_mobile']) && $raw_settings['popup_label_show_on_mobile'] === '1') ? '1' : '0';
     $sanitized['popup_label_show_on_desktop'] = (isset($raw_settings['popup_label_show_on_desktop']) && $raw_settings['popup_label_show_on_desktop'] === '1') ? '1' : '0';
@@ -420,6 +441,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         } elseif ($key === 'auto_text_contrast') {
             $custom_theme_settings_sanitized[$key] = ($value === '0' || $value === 0) ? '0' : '1';
         } elseif ($key === 'bubble_border_radius' ||
+                   $key === 'container_border_radius' ||
                    $key === 'container_max_width' ||
                    $key === 'popup_width' ||
                    $key === 'container_height' ||

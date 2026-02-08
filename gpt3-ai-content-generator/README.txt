@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.71
+Stable tag: 2.3.72
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,14 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.72 =
+
+- **Improved**: Added option to enable web search by default for chatbots.
+- **Added**: Image editing support for Image Generator (OpenAI, Google, OpenRouter models).
+- **Improved**: Simplified image generate/edit flow in the shortcode (`mode="generate|edit|both"` with default mode and switch).
+- **Improved**: Better image upload experience for edit mode (drag & drop, preview, clear errors).
+- **Improved**: One-click **Edit** from image history to reuse images without re-uploading.
 
 = 2.3.71 =
 

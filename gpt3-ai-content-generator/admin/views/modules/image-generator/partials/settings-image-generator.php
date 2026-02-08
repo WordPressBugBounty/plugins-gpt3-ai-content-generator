@@ -31,6 +31,7 @@ $settings_nonce = wp_create_nonce('aipkit_image_generator_settings_nonce');
         data-title-root="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
         data-title-token-management="<?php esc_attr_e('Token Management', 'gpt3-ai-content-generator'); ?>"
         data-title-replicate="<?php esc_attr_e('Replicate', 'gpt3-ai-content-generator'); ?>"
+        data-title-ui-text="<?php esc_attr_e('UI Text', 'gpt3-ai-content-generator'); ?>"
         data-title-custom-css="<?php esc_attr_e('Custom CSS', 'gpt3-ai-content-generator'); ?>"
         data-title-provider-filtering="<?php esc_attr_e('Provider Filtering', 'gpt3-ai-content-generator'); ?>"
     >
@@ -83,6 +84,28 @@ $settings_nonce = wp_create_nonce('aipkit_image_generator_settings_nonce');
                     </div>
                 </div>
                 <div class="aipkit_popover_option_group">
+                    <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
+                        <button
+                            type="button"
+                            class="aipkit_popover_option_nav aipkit_image_generator_settings_nav"
+                            data-aipkit-panel-target="ui-text"
+                        >
+                            <span class="aipkit_popover_option_label">
+                                <span class="aipkit_popover_option_icon dashicons dashicons-editor-textcolor" aria-hidden="true"></span>
+                                <span class="aipkit_popover_option_label_content">
+                                    <span class="aipkit_popover_option_label_text">
+                                        <?php esc_html_e('UI text', 'gpt3-ai-content-generator'); ?>
+                                    </span>
+                                    <span class="aipkit_popover_option_hint">
+                                        <?php esc_html_e('Frontend labels and placeholders', 'gpt3-ai-content-generator'); ?>
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="aipkit_popover_option_chevron" aria-hidden="true">
+                                <span class="dashicons dashicons-arrow-right-alt2"></span>
+                            </span>
+                        </button>
+                    </div>
                     <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
                         <button
                             type="button"
@@ -174,6 +197,25 @@ $settings_nonce = wp_create_nonce('aipkit_image_generator_settings_nonce');
                 <a
                     class="aipkit_popover_flyout_footer_link"
                     href="<?php echo esc_url('https://docs.aipower.org/docs/image-generator#replicate-settings'); ?>"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
+                </a>
+            </div>
+        </div>
+
+        <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="ui-text" hidden>
+            <div class="aipkit_popover_options_list">
+                <?php include __DIR__ . '/settings-ui-text.php'; ?>
+            </div>
+            <div class="aipkit_popover_flyout_footer">
+                <span class="aipkit_popover_flyout_footer_text">
+                    <?php esc_html_e('Need help? Read the docs.', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <a
+                    class="aipkit_popover_flyout_footer_link"
+                    href="<?php echo esc_url('https://docs.aipower.org/docs/image-generator'); ?>"
                     target="_blank"
                     rel="noopener noreferrer"
                 >

@@ -112,6 +112,8 @@ class BotSettingsManager
     public const DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE = 'auto';
     public const DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS = 5;
     public const DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT = '';
+    // --- Frontend Web Toggle Defaults ---
+    public const DEFAULT_WEB_TOGGLE_DEFAULT_ON = '0';
     // --- NEW: Google Search Grounding Constants ---
     public const DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED = '0'; // Master switch for bot
     public const DEFAULT_GOOGLE_GROUNDING_MODE = 'DEFAULT_MODE'; // Default: use Search as Tool for Gemini 2.0+, Retrieval for 1.5 Flash
@@ -272,6 +274,7 @@ class BotSettingsManager
             'auto_text_contrast' => self::DEFAULT_CTS_AUTO_TEXT_CONTRAST,
             'font_family' => self::DEFAULT_CUSTOM_THEME_FONT_FAMILY,
             'bubble_border_radius' => self::DEFAULT_CUSTOM_THEME_BUBBLE_BORDER_RADIUS,
+            'container_border_radius' => self::DEFAULT_CTS_CONTAINER_BORDER_RADIUS,
             // --- NEW DIMENSION DEFAULTS ---
             'container_max_width' => self::DEFAULT_CTS_CONTAINER_MAX_WIDTH,
             'popup_width' => self::DEFAULT_CTS_POPUP_WIDTH,

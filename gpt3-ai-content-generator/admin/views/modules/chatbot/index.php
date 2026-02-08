@@ -251,6 +251,8 @@ $openrouter_web_search_max_results_val = isset($active_bot_settings['openrouter_
 $openrouter_web_search_max_results_val = max(1, min($openrouter_web_search_max_results_val, 10));
 $openrouter_web_search_search_prompt_val = $active_bot_settings['openrouter_web_search_search_prompt']
     ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
+$web_toggle_default_on_val = $active_bot_settings['web_toggle_default_on']
+    ?? BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON;
 $google_search_grounding_enabled_val = $active_bot_settings['google_search_grounding_enabled']
     ?? BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED;
 $google_grounding_mode_val = $active_bot_settings['google_grounding_mode']
@@ -1146,11 +1148,10 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 name="popup_label_mode"
                                 class="aipkit_popover_option_select"
                             >
-                                <option value="delay_once" <?php selected($popup_label_mode, 'delay_once'); ?>><?php esc_html_e('On delay (once)', 'gpt3-ai-content-generator'); ?></option>
-                                <option value="delay_always" <?php selected($popup_label_mode, 'delay_always'); ?>><?php esc_html_e('On delay (always)', 'gpt3-ai-content-generator'); ?></option>
-                                <option value="immediate_once" <?php selected($popup_label_mode, 'immediate_once'); ?>><?php esc_html_e('Immediate (once)', 'gpt3-ai-content-generator'); ?></option>
-                                <option value="immediate_always" <?php selected($popup_label_mode, 'immediate_always'); ?>><?php esc_html_e('Immediate (always)', 'gpt3-ai-content-generator'); ?></option>
-                                <option value="manual" <?php selected($popup_label_mode, 'manual'); ?>><?php esc_html_e('Manual', 'gpt3-ai-content-generator'); ?></option>
+                                <option value="on_delay" <?php selected($popup_label_mode, 'on_delay'); ?>><?php esc_html_e('On delay', 'gpt3-ai-content-generator'); ?></option>
+                                <option value="always" <?php selected($popup_label_mode, 'always'); ?>><?php esc_html_e('Always (immediate)', 'gpt3-ai-content-generator'); ?></option>
+                                <option value="until_open" <?php selected($popup_label_mode, 'until_open'); ?>><?php esc_html_e('Until chat is opened', 'gpt3-ai-content-generator'); ?></option>
+                                <option value="until_dismissed" <?php selected($popup_label_mode, 'until_dismissed'); ?>><?php esc_html_e('Until hint is dismissed', 'gpt3-ai-content-generator'); ?></option>
                             </select>
                         </div>
                     </div>

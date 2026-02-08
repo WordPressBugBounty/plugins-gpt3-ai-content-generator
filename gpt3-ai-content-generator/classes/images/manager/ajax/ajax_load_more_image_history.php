@@ -20,6 +20,11 @@ function ajax_load_more_image_history_logic(): void
     }
 
     $page = isset($_POST['page']) ? absint($_POST['page']) : 2; // Start from page 2
+    $shortcode_mode = isset($_POST['shortcode_mode']) ? sanitize_key(wp_unslash((string) $_POST['shortcode_mode'])) : 'both';
+    if (!in_array($shortcode_mode, ['generate', 'edit', 'both'], true)) {
+        $shortcode_mode = 'both';
+    }
+    $allow_edit_action = in_array($shortcode_mode, ['edit', 'both'], true);
     $user_id = get_current_user_id();
 
     $args = [
@@ -112,6 +117,10 @@ function ajax_load_more_image_history_logic(): void
                 $provider = get_post_meta($attachment_id, '_aipkit_image_provider', true);
                 $model = get_post_meta($attachment_id, '_aipkit_image_model', true);
                 $size = get_post_meta($attachment_id, '_aipkit_image_size', true);
+                $image_url_path = wp_parse_url((string) $full_url, PHP_URL_PATH);
+                $image_file_name = is_string($image_url_path) && $image_url_path !== ''
+                    ? sanitize_file_name(wp_basename($image_url_path))
+                    : 'image-' . $attachment_id . '.png';
                 ?>
                 <div class="aipkit-image-history-item">
                     <a href="<?php echo esc_url($full_url); ?>" target="_blank" rel="noopener noreferrer">
@@ -121,6 +130,19 @@ function ajax_load_more_image_history_logic(): void
                             <span class="aipkit-media-type-badge"><?php esc_html_e('IMAGE', 'gpt3-ai-content-generator'); ?></span>
                         </div>
                     </a>
+                    <?php if ($allow_edit_action): ?>
+                        <button
+                            type="button"
+                            class="aipkit-image-history-edit-btn"
+                            data-image-url="<?php echo esc_url($full_url); ?>"
+                            data-image-name="<?php echo esc_attr($image_file_name); ?>"
+                            title="<?php esc_attr_e('Edit Image', 'gpt3-ai-content-generator'); ?>"
+                            aria-label="<?php esc_attr_e('Edit Image', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <span class="dashicons dashicons-edit"></span>
+                            <span class="aipkit_spinner" hidden></span>
+                        </button>
+                    <?php endif; ?>
                     <button type="button" class="aipkit-image-history-delete-btn" data-attachment-id="<?php echo esc_attr($attachment_id); ?>" title="<?php esc_attr_e('Delete Image', 'gpt3-ai-content-generator'); ?>">
                         <span class="dashicons dashicons-trash"></span>
                     </button>

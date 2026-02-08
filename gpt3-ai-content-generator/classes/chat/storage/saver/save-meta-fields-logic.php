@@ -227,6 +227,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         delete_post_meta($botId, '_aipkit_google_grounding_mode');
         delete_post_meta($botId, '_aipkit_google_grounding_dynamic_threshold');
     }
+    update_post_meta($botId, '_aipkit_web_toggle_default_on', $sanitized_settings['web_toggle_default_on']);
 
     if (isset($sanitized_settings['custom_theme_settings']) && is_array($sanitized_settings['custom_theme_settings'])) {
         foreach ($sanitized_settings['custom_theme_settings'] as $key => $value) {

@@ -258,6 +258,17 @@ function model_supports_web_search_plugin_logic(string $model_id): bool {
 }
 
 /**
+ * Checks whether selected OpenRouter model appears to support image input.
+ *
+ * @param string $model_id OpenRouter model id.
+ * @return bool
+ */
+function model_supports_image_input_logic(string $model_id): bool {
+    $resolved = resolve_model_capabilities_logic($model_id);
+    return !empty($resolved['image_input']);
+}
+
+/**
  * Checks whether selected OpenRouter model appears to support image output.
  *
  * @param string $model_id OpenRouter model id.
@@ -266,6 +277,18 @@ function model_supports_web_search_plugin_logic(string $model_id): bool {
 function model_supports_image_output_logic(string $model_id): bool {
     $resolved = resolve_model_capabilities_logic($model_id);
     return !empty($resolved['image_output']);
+}
+
+/**
+ * Checks whether selected OpenRouter model appears to support image editing.
+ * Edit support requires both image input and image output capabilities.
+ *
+ * @param string $model_id OpenRouter model id.
+ * @return bool
+ */
+function model_supports_image_editing_logic(string $model_id): bool {
+    $resolved = resolve_model_capabilities_logic($model_id);
+    return !empty($resolved['image_input']) && !empty($resolved['image_output']);
 }
 
 /**

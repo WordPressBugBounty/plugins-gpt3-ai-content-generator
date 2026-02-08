@@ -56,7 +56,20 @@ class AIPKit_Image_Storage_Helper
             if ($image_content_binary === false) {
                 return new WP_Error('image_decode_failed', __('Failed to decode base64 image data.', 'gpt3-ai-content-generator'));
             }
-            // Determine extension from output_format for GPT Image models
+            // Prefer provider-parsed data URI mime type when available.
+            $allowed_data_uri_mime_map = [
+                'image/png' => 'png',
+                'image/jpeg' => 'jpg',
+                'image/webp' => 'webp',
+                'image/gif' => 'gif',
+            ];
+            $parsed_mime_type = isset($image_data_item['mime_type']) ? strtolower(sanitize_text_field((string) $image_data_item['mime_type'])) : '';
+            if ($parsed_mime_type !== '' && isset($allowed_data_uri_mime_map[$parsed_mime_type])) {
+                $mime_type = $parsed_mime_type;
+                $extension = $allowed_data_uri_mime_map[$parsed_mime_type];
+            }
+
+            // Determine extension from output_format for GPT Image models.
             $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
             if (in_array(($generation_options['model'] ?? ''), $gpt_image_models, true) && !empty($generation_options['output_format'])) {
                 $extension = strtolower($generation_options['output_format']); // png, jpeg, webp

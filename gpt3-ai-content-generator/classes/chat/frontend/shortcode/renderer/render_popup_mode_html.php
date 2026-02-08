@@ -98,16 +98,19 @@ function render_popup_mode_html_logic(
     }
     // --- END NEW ---
 
-    $popup_wrapper_classes = 'aipkit_popup_wrapper';
+    $popup_theme_marker_class = 'aipkit-popup-theme-' . sanitize_html_class(!empty($theme) ? $theme : 'light');
+    $popup_wrapper_classes = 'aipkit_popup_wrapper ' . $popup_theme_marker_class;
     if (!empty($custom_theme_class)) {
         $popup_wrapper_classes .= ' ' . $custom_theme_class;
     }
+
+    $has_main_footer_class = !empty($frontend_config['footerText']) ? 'aipkit-has-main-footer' : '';
 
     // Build wrapper style attribute
     $wrapper_style_attr = !empty($trigger_inline_style) ? 'style="' . esc_attr($trigger_inline_style) . '"' : '';
     ?>
     <div class="<?php echo esc_attr($popup_wrapper_classes); ?>" id="aipkit_popup_wrapper_<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' data-bot-id="<?php echo esc_attr($bot_id); ?>" data-icon-size="<?php echo esc_attr($popup_icon_size); ?>" <?php echo $wrapper_style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-        <button class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" aria-expanded="false" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>">
+        <button type="button" class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" title="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" aria-haspopup="dialog" aria-controls="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-expanded="false" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>" data-label-open="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" data-label-close="<?php esc_attr_e('Close Chat', 'gpt3-ai-content-generator'); ?>">
             <span class="aipkit_popup_icon aipkit_popup_icon--open">
                 <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
             </span>
@@ -131,16 +134,17 @@ function render_popup_mode_html_logic(
                 id="aipkit_popup_hint_<?php echo esc_attr($bot_id); ?>"
                 role="status"
                 aria-live="polite"
+                aria-atomic="true"
                 aria-hidden="true"
                 data-bot-id="<?php echo esc_attr($bot_id); ?>"
             >
                 <span class="aipkit_popup_hint_text"><?php echo esc_html($hint_text); ?></span>
                 <?php if ($dismissible): ?>
-                    <button type="button" class="aipkit_popup_hint_close" aria-label="<?php echo esc_attr($frontend_config['text']['dismissHint'] ?? 'Dismiss'); ?>">&times;</button>
+                    <button type="button" class="aipkit_popup_hint_close" aria-label="<?php echo esc_attr($frontend_config['text']['dismissHint'] ?? 'Dismiss'); ?>" aria-controls="aipkit_popup_hint_<?php echo esc_attr($bot_id); ?>" title="<?php echo esc_attr($frontend_config['text']['dismissHint'] ?? 'Dismiss'); ?>">&times;</button>
                 <?php endif; ?>
             </div>
         <?php } // end hint_enabled ?>
-        <div class="aipkit_chat_container aipkit_popup_content aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-hidden="true" <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?> >
+        <div class="aipkit_chat_container aipkit_popup_content aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> <?php echo esc_attr($has_main_footer_class); ?> aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-hidden="true" <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?> >
             <div class="aipkit_chat_main">
                 <?php if ($feature_flags['show_header']): ?>
                     <?php $rendererInstance->render_header_html_internal($feature_flags, $frontend_config, true); ?>

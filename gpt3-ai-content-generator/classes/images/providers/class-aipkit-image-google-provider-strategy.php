@@ -8,6 +8,7 @@ use WPAICG\Images\AIPKit_Image_Base_Provider_Strategy;
 use WPAICG\Images\Providers\Google\GoogleImageUrlBuilder;
 use WPAICG\Images\Providers\Google\GoogleImagePayloadFormatter;
 use WPAICG\Images\Providers\Google\GoogleImageResponseParser;
+use WPAICG\Images\Providers\Google\GoogleImageTokenCounter;
 use WPAICG\Images\Providers\Google\GoogleVideoUrlBuilder;
 use WPAICG\Images\Providers\Google\GoogleVideoPayloadFormatter;
 use WPAICG\Images\Providers\Google\GoogleVideoResponseParser;
@@ -22,6 +23,7 @@ if (!defined('ABSPATH')) {
  * Supports Gemini Flash and Imagen 3 models for images, and Veo 3 for videos.
  */
 class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_Strategy {
+    private const GEMINI_FALLBACK_OUTPUT_TOKENS_PER_IMAGE = 2000;
 
     public function __construct() {
         $google_image_dir = __DIR__ . '/google/';
@@ -35,6 +37,9 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
         }
         if (!class_exists(GoogleImageResponseParser::class) && file_exists($google_image_dir . 'GoogleImageResponseParser.php')) {
             require_once $google_image_dir . 'GoogleImageResponseParser.php';
+        }
+        if (!class_exists(GoogleImageTokenCounter::class) && file_exists($google_image_dir . 'GoogleImageTokenCounter.php')) {
+            require_once $google_image_dir . 'GoogleImageTokenCounter.php';
         }
         
         // Load video components
@@ -62,10 +67,36 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
     public function generate_image(string $prompt, array $api_params, array $options = []): array|WP_Error {
         $api_key = $api_params['api_key'] ?? null;
         $model_id = $options['model'] ?? null; // Full model ID like 'gemini-2.0-flash-preview-image-generation' or 'veo-3.0-generate-preview'
+        $image_mode = isset($options['image_mode']) && $options['image_mode'] === 'edit' ? 'edit' : 'generate';
 
         if (empty($api_key)) return new WP_Error('google_missing_key', __('Google API Key is required for generation.', 'gpt3-ai-content-generator'));
         if (empty($model_id)) return new WP_Error('google_missing_model', __('Google model ID is required.', 'gpt3-ai-content-generator'));
         if (empty($prompt)) return new WP_Error('google_missing_prompt', __('Prompt cannot be empty for generation.', 'gpt3-ai-content-generator'));
+
+        if ($image_mode === 'edit') {
+            if ($this->is_video_model($model_id)) {
+                return new WP_Error(
+                    'google_video_model_not_supported_for_edit',
+                    __('Selected Google video model does not support image editing.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+            if (!$this->supports_image_editing_model((string) $model_id)) {
+                return new WP_Error(
+                    'google_model_not_supported_for_edit',
+                    __('Selected Google model does not support image editing.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+            $source_image = $options['source_image'] ?? null;
+            if (!is_array($source_image) || empty($source_image['mime_type']) || empty($source_image['base64_data'])) {
+                return new WP_Error(
+                    'missing_source_image_for_edit',
+                    __('Source image is required for edit mode.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+        }
 
         // Check if this is a video model and route accordingly
         if ($this->is_video_model($model_id)) {
@@ -116,7 +147,39 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
             return new WP_Error('google_image_api_error', sprintf(__('Google Image API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg));
         }
 
-        return GoogleImageResponseParser::parse($decoded_response, $model_id);
+        $parse_result = GoogleImageResponseParser::parse($decoded_response, $model_id);
+        if (is_wp_error($parse_result)) {
+            return $parse_result;
+        }
+
+        $usage = isset($parse_result['usage']) && is_array($parse_result['usage'])
+            ? $parse_result['usage']
+            : null;
+        $has_total_usage = is_array($usage) && !empty($usage['total_tokens']);
+
+        if ($image_mode === 'edit' && strpos($model_id, 'gemini') !== false && !$has_total_usage) {
+            $parts = GoogleImagePayloadFormatter::build_gemini_parts($prompt, $options);
+            $prompt_tokens = GoogleImageTokenCounter::count_prompt_tokens((string) $model_id, $api_params, $parts);
+            if (!is_wp_error($prompt_tokens)) {
+                $images_generated = isset($parse_result['images']) && is_array($parse_result['images'])
+                    ? count($parse_result['images'])
+                    : 0;
+                $estimated_output_tokens = $images_generated * self::GEMINI_FALLBACK_OUTPUT_TOKENS_PER_IMAGE;
+                $parse_result['usage'] = [
+                    'input_tokens' => $prompt_tokens,
+                    'output_tokens' => $estimated_output_tokens,
+                    'total_tokens' => $prompt_tokens + $estimated_output_tokens,
+                    'provider_raw' => [
+                        'source' => 'google_count_tokens_fallback',
+                        'prompt_tokens' => $prompt_tokens,
+                        'images_generated' => $images_generated,
+                        'estimated_output_tokens_per_image' => self::GEMINI_FALLBACK_OUTPUT_TOKENS_PER_IMAGE,
+                    ],
+                ];
+            }
+        }
+
+        return $parse_result;
     }
 
     /**
@@ -137,6 +200,16 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
             }
         }
         return strpos($model_id, 'veo') !== false;
+    }
+
+    /**
+     * Check whether a model supports image edit flow in this implementation.
+     *
+     * @param string $model_id Model identifier.
+     * @return bool
+     */
+    private function supports_image_editing_model(string $model_id): bool {
+        return strpos($model_id, 'gemini') !== false && strpos($model_id, 'image-generation') !== false;
     }
 
     /**

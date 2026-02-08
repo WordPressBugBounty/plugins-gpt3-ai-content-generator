@@ -111,7 +111,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
             : [];
         $token_keys = [
             'primary_color', 'secondary_color', 'auto_text_contrast',
-            'font_family', 'bubble_border_radius',
+            'font_family', 'bubble_border_radius', 'container_border_radius',
             'container_max_width', 'popup_width', 'container_height', 'container_min_height',
             'container_max_height', 'popup_height', 'popup_min_height', 'popup_max_height'
         ];
@@ -240,6 +240,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'vectorStoreProvider' => $settings['vector_store_provider'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER : 'openai'),
         'enableOpenAIConversationState' => $enable_openai_conv_state,
         'allowWebSearchTool' => $allow_openai_web_search_tool,
+        'webToggleDefaultOn' => ($settings['web_toggle_default_on'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON : '0')) === '1',
         'allowGoogleSearchGrounding' => $google_grounding_settings['allowGoogleSearchGrounding'],
         'googleGroundingMode' => $google_grounding_settings['googleGroundingMode'],
         'googleGroundingDynamicThreshold' => $google_grounding_settings['googleGroundingDynamicThreshold'],
