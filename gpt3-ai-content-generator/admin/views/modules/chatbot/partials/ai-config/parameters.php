@@ -86,7 +86,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
             <div class="aipkit_popover_params_list">
                 <!-- Temperature -->
                 <div class="aipkit_popover_param_row">
-                    <span class="aipkit_popover_param_label"><?php esc_html_e('Temperature', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_popover_param_label"><?php esc_html_e('Creativity', 'gpt3-ai-content-generator'); ?></span>
                     <div class="aipkit_popover_param_slider">
                         <input
                             type="range"
@@ -102,7 +102,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
 
                 <!-- Max Tokens -->
                 <div class="aipkit_popover_param_row">
-                    <span class="aipkit_popover_param_label"><?php esc_html_e('Max tokens', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_popover_param_label"><?php esc_html_e('Response length', 'gpt3-ai-content-generator'); ?></span>
                     <div class="aipkit_popover_param_slider">
                         <input
                             type="range"
@@ -118,7 +118,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
 
                 <!-- Max Messages -->
                 <div class="aipkit_popover_param_row">
-                    <span class="aipkit_popover_param_label"><?php esc_html_e('Context messages', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_popover_param_label"><?php esc_html_e('Memory', 'gpt3-ai-content-generator'); ?></span>
                     <div class="aipkit_popover_param_slider">
                         <input
                             type="range"
@@ -137,7 +137,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                         class="aipkit_popover_param_label"
                         data-tooltip="<?php echo esc_attr__('Controls thinking depth for reasoning models.', 'gpt3-ai-content-generator'); ?>"
                     >
-                        <?php esc_html_e('Reasoning effort', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Reasoning', 'gpt3-ai-content-generator'); ?>
                     </span>
                     <div class="aipkit_popover_param_slider">
                         <input

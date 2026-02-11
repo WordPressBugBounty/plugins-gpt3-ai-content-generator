@@ -41,10 +41,16 @@ function render_inline_mode_html_logic(
     // --- NEW: Add custom theme class and data attribute ---
     $custom_theme_class = '';
     $custom_theme_data_attr = '';
+    $custom_theme_preset_key = isset($frontend_config['customThemePresetKey'])
+        ? sanitize_key((string) $frontend_config['customThemePresetKey'])
+        : '';
+    $is_custom_theme_preset = ($theme === 'custom' && $custom_theme_preset_key !== '');
     if ($theme === 'custom' && !empty($frontend_config['customThemeSettings'])) {
-        $custom_theme_class = 'aipkit-theme-custom';
+        if (!$is_custom_theme_preset) {
+            $custom_theme_class = 'aipkit-theme-custom';
+        }
         $custom_theme_data_attr = 'data-custom-theme=\'' . esc_attr(wp_json_encode($frontend_config['customThemeSettings'])) . '\'';
-    } elseif ($theme === 'custom') { // Custom theme selected, but no settings (will fallback to light/base)
+    } elseif ($theme === 'custom' && !$is_custom_theme_preset) { // Custom theme selected, but no settings (will fallback to light/base)
         $custom_theme_class = 'aipkit-theme-custom';
     }
     // --- END NEW ---

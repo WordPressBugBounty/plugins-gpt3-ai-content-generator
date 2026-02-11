@@ -76,7 +76,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
     if (class_exists(AIPKit_Consent_Compliance::class)) {
         $consent_required = AIPKit_Consent_Compliance::is_required();
     }
-    $consent_toggle_enabled = ($settings['enable_consent_compliance'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE : '1')) === '1';
+    $consent_toggle_enabled = ($settings['enable_consent_compliance'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE : '0')) === '1';
 
     $current_post_id = 0;
     if (is_singular()) {
@@ -100,7 +100,61 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
 
     // --- Add custom theme settings to frontend config ---
     $custom_theme_settings_for_js = [];
+    $custom_theme_preset_key = isset($settings['theme_preset_key'])
+        ? sanitize_key((string) $settings['theme_preset_key'])
+        : '';
     if (($settings['theme'] ?? 'light') === 'custom') {
+        $raw_custom_theme_settings = isset($settings['custom_theme_settings']) && is_array($settings['custom_theme_settings'])
+            ? $settings['custom_theme_settings']
+            : [];
+        $preset_map = [];
+        if (class_exists(BotSettingsManager::class)) {
+            $custom_theme_presets = BotSettingsManager::get_custom_theme_presets();
+            foreach ($custom_theme_presets as $preset) {
+                if (!is_array($preset)) {
+                    continue;
+                }
+                $preset_key = isset($preset['key']) ? sanitize_key((string) $preset['key']) : '';
+                if ($preset_key === '') {
+                    continue;
+                }
+                $preset_map[$preset_key] = [
+                    'primary' => isset($preset['primary']) ? strtolower(trim((string) $preset['primary'])) : '',
+                    'secondary' => isset($preset['secondary']) ? strtolower(trim((string) $preset['secondary'])) : '',
+                ];
+            }
+        }
+
+        // Backward compatibility: old bots may not have an explicit preset key saved.
+        if (
+            $custom_theme_preset_key === '' &&
+            !empty($preset_map)
+        ) {
+            $saved_custom_primary = isset($raw_custom_theme_settings['primary_color'])
+                ? strtolower(trim((string) $raw_custom_theme_settings['primary_color']))
+                : '';
+            $saved_custom_secondary = isset($raw_custom_theme_settings['secondary_color'])
+                ? strtolower(trim((string) $raw_custom_theme_settings['secondary_color']))
+                : '';
+            if ($saved_custom_primary !== '' && $saved_custom_secondary !== '') {
+                foreach ($preset_map as $preset_key => $preset_colors) {
+                    if (
+                        $preset_colors['primary'] !== '' &&
+                        $preset_colors['secondary'] !== '' &&
+                        $saved_custom_primary === $preset_colors['primary'] &&
+                        $saved_custom_secondary === $preset_colors['secondary']
+                    ) {
+                        $custom_theme_preset_key = $preset_key;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ($custom_theme_preset_key !== '' && !isset($preset_map[$custom_theme_preset_key])) {
+            $custom_theme_preset_key = '';
+        }
+
         $custom_theme_settings_for_js = $settings['custom_theme_settings'] ?? [];
         $custom_theme_settings_for_js = array_filter($custom_theme_settings_for_js, function ($value) {
             return $value !== '' && $value !== null;
@@ -176,6 +230,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
             $val = $settings['popup_icon_size'] ?? 'medium';
             return in_array($val, ['small','medium','large','xlarge'], true) ? $val : 'medium';
         })(),
+        'customThemePresetKey' => $custom_theme_preset_key,
         // --- NEW: Popup Hint/Bubble above trigger ---
         'popupLabelEnabled' => ($settings['popup_label_enabled'] ?? '0') === '1',
         'popupLabelText' => isset($settings['popup_label_text']) ? wp_strip_all_tags((string)$settings['popup_label_text']) : '',

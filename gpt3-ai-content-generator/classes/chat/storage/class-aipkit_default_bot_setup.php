@@ -164,10 +164,20 @@ class DefaultBotSetup
             return new WP_Error('bot_not_found_reset', __('Chatbot post not found for reset.', 'gpt3-ai-content-generator'));
         }
 
+        $is_actually_default = (get_post_meta($bot_id, '_aipkit_default_bot', true) === '1');
+
+        // Keep the canonical default bot title stable.
+        if ($is_actually_default && $bot_post->post_title !== 'Default') {
+            wp_update_post([
+                'ID' => $bot_id,
+                'post_title' => 'Default',
+            ]);
+            $bot_post = get_post($bot_id);
+        }
+
         // *** Call the static method to reset settings ***
         BotSettingsManager::set_initial_bot_settings($bot_id, $bot_post->post_title);
 
-        $is_actually_default = (get_post_meta($bot_id, '_aipkit_default_bot', true) === '1');
         if (!$is_actually_default) {
             delete_post_meta($bot_id, '_aipkit_default_bot');
         } else {

@@ -15,7 +15,6 @@ $saved_stream_enabled = isset($bot_settings['stream_enabled'])
 
 // Get saved Azure deployment name if applicable
 $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
-$render_global_status = true;
 $shortcode_text_main = '';
 if (!empty($bot_id)) {
     $shortcode_text_main = sprintf('[aipkit_chatbot id=%d]', absint($bot_id));
@@ -61,60 +60,53 @@ $recommended_claude = array_values(array_filter($recommended_claude, static func
 }));
 $recommended_claude_ids = array_column($recommended_claude, 'id');
 $recommended_claude_lookup = array_fill_keys($recommended_claude_ids, true);
+$show_chatbot_selector = empty($is_next_layout) || !$is_next_layout;
 
 ?>
 <!-- Row container for Bot + Provider + Model -->
-<div class="aipkit_form-row aipkit_form-row-align-bottom aipkit_builder_inline_row" style="gap: 10px;">
-    <!-- Chatbot Selection Column -->
-    <div class="aipkit_form-group aipkit_form-col" style="flex: 0 1 140px;">
-        <label
-            class="aipkit_form-label aipkit_builder_label_with_action"
-            for="aipkit_chatbot_builder_bot_select"
-        >
-            <span><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></span>
-            <?php if ((empty($is_next_layout) || !$is_next_layout) && isset($is_default_active) && !$is_default_active) : ?>
-                <button
-                    type="button"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_builder_rename_btn aipkit_builder_rename_btn--label"
-                    aria-label="<?php echo esc_attr($rename_disabled_title ?? __('Rename chatbot', 'gpt3-ai-content-generator')); ?>"
-                    title="<?php echo esc_attr($rename_disabled_title ?? __('Rename chatbot', 'gpt3-ai-content-generator')); ?>"
-                >
-                    <span class="dashicons dashicons-edit"></span>
-                </button>
-            <?php endif; ?>
-        </label>
-        <div class="aipkit_input-with-button">
-            <select
-                id="aipkit_chatbot_builder_bot_select"
-                name="aipkit_chatbot_builder_bot_select"
-                class="aipkit_form-input aipkit_builder_bot_select_input"
-                <?php echo empty($all_bots_ordered_entries) ? 'disabled' : ''; ?>
+<div class="aipkit_form-row aipkit_form-row-align-bottom aipkit_builder_inline_row aipkit_chatbot_model_row">
+    <?php if ($show_chatbot_selector) : ?>
+        <!-- Chatbot Selection Column -->
+        <div class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--bot">
+            <label
+                class="aipkit_form-label"
+                for="aipkit_chatbot_builder_bot_select"
             >
-                <?php if (empty($all_bots_ordered_entries)) : ?>
-                    <option value="">
-                        <?php esc_html_e('No chatbots yet', 'gpt3-ai-content-generator'); ?>
-                    </option>
-                <?php else : ?>
-                    <option value="__new__">
-                        <?php esc_html_e('+ New Bot', 'gpt3-ai-content-generator'); ?>
-                    </option>
-                    <option value="" disabled>----------</option>
-                    <?php foreach ($all_bots_ordered_entries as $bot_entry) : ?>
-                        <?php $bot_post = $bot_entry['post']; ?>
-                        <option
-                            value="<?php echo esc_attr($bot_post->ID); ?>"
-                            <?php selected($bot_id, $bot_post->ID); ?>
-                        >
-                            <?php echo esc_html($bot_post->post_title); ?>
+                <span><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></span>
+            </label>
+            <div class="aipkit_input-with-button">
+                <select
+                    id="aipkit_chatbot_builder_bot_select"
+                    name="aipkit_chatbot_builder_bot_select"
+                    class="aipkit_form-input aipkit_builder_bot_select_input"
+                    <?php echo empty($all_bots_ordered_entries) ? 'disabled' : ''; ?>
+                >
+                    <?php if (empty($all_bots_ordered_entries)) : ?>
+                        <option value="">
+                            <?php esc_html_e('No chatbots yet', 'gpt3-ai-content-generator'); ?>
                         </option>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
+                    <?php else : ?>
+                        <option value="__new__">
+                            <?php esc_html_e('+ New Bot', 'gpt3-ai-content-generator'); ?>
+                        </option>
+                        <option value="" disabled>----------</option>
+                        <?php foreach ($all_bots_ordered_entries as $bot_entry) : ?>
+                            <?php $bot_post = $bot_entry['post']; ?>
+                            <option
+                                value="<?php echo esc_attr($bot_post->ID); ?>"
+                                <?php selected($bot_id, $bot_post->ID); ?>
+                            >
+                                <?php echo esc_html($bot_post->post_title); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+            </div>
         </div>
-    </div>
+    <?php endif; ?>
 
     <!-- AI Provider Column -->
-    <div class="aipkit_form-group aipkit_form-col" style="flex: 0 1 140px;">
+    <div class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--provider">
         <label
             class="aipkit_form-label"
             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_provider"
@@ -147,7 +139,7 @@ $recommended_claude_lookup = array_fill_keys($recommended_claude_ids, true);
     </div>
 
     <!-- Model Selection Column -->
-    <div class="aipkit_form-group aipkit_form-col" style="flex: 1 1 420px;">
+    <div class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--model">
         <!-- OpenAI Model -->
         <div
             class="aipkit_chatbot_model_field" <?php // JS targets this class?>
@@ -162,13 +154,6 @@ $recommended_claude_lookup = array_fill_keys($recommended_claude_ids, true);
                     <span class="aipkit_model_label_text"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></span>
                     <span class="aipkit_model_status_slot">
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
-                        <?php if ($render_global_status) : ?>
-                            <span
-                                id="aipkit_chatbot_global_save_status_container"
-                                class="aipkit_save_status_container aipkit_builder_save_status"
-                            ></span>
-                            <?php $render_global_status = false; ?>
-                        <?php endif; ?>
                     </span>
                 </label>
                 <?php echo $shortcode_label; ?>

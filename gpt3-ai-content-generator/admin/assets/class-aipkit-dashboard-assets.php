@@ -33,6 +33,18 @@ class DashboardAssets
         add_action('admin_enqueue_scripts', [$this, 'enqueue_core_dashboard_assets']);
     }
 
+    private function asset_ver(string $relative_path): string
+    {
+        $full_path = WPAICG_PLUGIN_DIR . ltrim($relative_path, '/');
+        if (file_exists($full_path)) {
+            $mtime = filemtime($full_path);
+            if (is_int($mtime) && $mtime > 0) {
+                return (string) $mtime;
+            }
+        }
+        return $this->version;
+    }
+
     private function register_core_admin_assets()
     {
         $dist_css_url = WPAICG_PLUGIN_URL . 'dist/css/';
@@ -55,7 +67,7 @@ class DashboardAssets
                     $handle,
                     $dist_css_url . $file,
                     ['dashicons'], // Common dependency
-                    $this->version
+                    $this->asset_ver('dist/css/' . $file)
                 );
             }
         }
@@ -67,7 +79,7 @@ class DashboardAssets
                 $admin_main_js_handle,
                 $dist_js_url . 'admin-main.bundle.js',
                 ['wp-i18n', 'aipkit_markdown-it'],
-                $this->version,
+                $this->asset_ver('dist/js/admin-main.bundle.js'),
                 true
             );
         }

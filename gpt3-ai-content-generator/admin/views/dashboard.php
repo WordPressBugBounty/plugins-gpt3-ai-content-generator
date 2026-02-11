@@ -30,12 +30,12 @@ $primaryModules = array(
         'data_module' => 'chatbot',
     ),
     'content_writer' => array(
-        'label'       => __('Write', 'gpt3-ai-content-generator'),
+        'label'       => __('Content Writer', 'gpt3-ai-content-generator'),
         'icon'        => 'edit',
         'data_module' => 'content-writer',
     ),
     'autogpt' => array(
-        'label'       => __('Automate', 'gpt3-ai-content-generator'),
+        'label'       => __('Automations', 'gpt3-ai-content-generator'),
         'icon'        => 'airplane',
         'data_module' => 'autogpt',
     ),
@@ -50,7 +50,7 @@ $primaryModules = array(
         'data_module' => 'image-generator',
     ),
     'sources' => array(
-        'label'       => __('Sources', 'gpt3-ai-content-generator'),
+        'label'       => __('Knowledge Base', 'gpt3-ai-content-generator'),
         'icon'        => 'media-document',
         'data_module' => 'sources',
     ),

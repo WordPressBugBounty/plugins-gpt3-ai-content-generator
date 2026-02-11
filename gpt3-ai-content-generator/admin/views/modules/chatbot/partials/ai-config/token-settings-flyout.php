@@ -16,111 +16,117 @@ $reset_period = $bot_settings['token_reset_period'] ?? $default_reset_period;
 $limit_message = $bot_settings['token_limit_message'] ?? $default_limit_message;
 $limit_mode = $bot_settings['token_limit_mode'] ?? BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
 $role_limits = $bot_settings['token_role_limits'] ?? [];
+$limits_primary_grid_class = 'aipkit_limits_primary_grid';
+if ($limit_mode === 'role_based') {
+  $limits_primary_grid_class .= ' aipkit_limits_primary_grid--role-based';
+}
 
 $guest_limit_value = ($guest_limit === null) ? '' : (string) $guest_limit;
 $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
 ?>
 
 <div class="aipkit_popover_options_list aipkit_popover_options_list--limits">
-  <div class="aipkit_popover_option_row">
-    <div class="aipkit_popover_option_main">
-      <label
-        class="aipkit_popover_option_label"
-        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_guest_limit_flyout"
-        data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
-      >
-        <?php esc_html_e('Guest limit', 'gpt3-ai-content-generator'); ?>
-      </label>
-      <input
-        type="number"
-        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_guest_limit_flyout"
-        name="token_guest_limit"
-        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact"
-        value="<?php echo esc_attr($guest_limit_value); ?>"
-        min="0"
-        step="1"
-        placeholder="<?php esc_attr_e('(Unlimited)', 'gpt3-ai-content-generator'); ?>"
-      />
+  <div class="<?php echo esc_attr($limits_primary_grid_class); ?>">
+    <div class="aipkit_popover_option_row aipkit_limits_primary_cell aipkit_limits_primary_cell--type">
+      <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
+        <label
+          class="aipkit_popover_option_label"
+          for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_limit_mode_flyout"
+          data-tooltip="<?php echo esc_attr__('For logged-in users.', 'gpt3-ai-content-generator'); ?>"
+        >
+          <?php esc_html_e('Limit type', 'gpt3-ai-content-generator'); ?>
+        </label>
+        <select
+          id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_limit_mode_flyout"
+          name="token_limit_mode"
+          class="aipkit_popover_option_select aipkit_token_limit_mode_select"
+        >
+          <option value="general" <?php selected($limit_mode, 'general'); ?>>
+            <?php esc_html_e('General limit', 'gpt3-ai-content-generator'); ?>
+          </option>
+          <option value="role_based" <?php selected($limit_mode, 'role_based'); ?>>
+            <?php esc_html_e('Role-based limits', 'gpt3-ai-content-generator'); ?>
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="aipkit_popover_option_row aipkit_limits_primary_cell aipkit_limits_primary_cell--guest">
+      <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
+        <label
+          class="aipkit_popover_option_label"
+          for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_guest_limit_flyout"
+          data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
+        >
+          <?php esc_html_e('Guest limit', 'gpt3-ai-content-generator'); ?>
+        </label>
+        <input
+          type="number"
+          id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_guest_limit_flyout"
+          name="token_guest_limit"
+          class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--compact"
+          value="<?php echo esc_attr($guest_limit_value); ?>"
+          min="0"
+          step="1"
+          placeholder="<?php esc_attr_e('(Unlimited)', 'gpt3-ai-content-generator'); ?>"
+        />
+      </div>
+    </div>
+
+    <div class="aipkit_popover_option_row aipkit_limits_primary_cell aipkit_limits_primary_cell--user aipkit_token_general_user_limit_field" style="display: <?php echo ($limit_mode === 'general') ? 'block' : 'none'; ?>;">
+      <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
+        <label
+          class="aipkit_popover_option_label"
+          for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_user_limit_flyout"
+          data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
+        >
+          <?php esc_html_e('User limit', 'gpt3-ai-content-generator'); ?>
+        </label>
+        <input
+          type="number"
+          id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_user_limit_flyout"
+          name="token_user_limit"
+          class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--compact"
+          value="<?php echo esc_attr($user_limit_value); ?>"
+          min="0"
+          step="1"
+          placeholder="<?php esc_attr_e('(Unlimited)', 'gpt3-ai-content-generator'); ?>"
+        />
+      </div>
+    </div>
+
+    <div class="aipkit_popover_option_row aipkit_limits_primary_cell aipkit_limits_primary_cell--reset">
+      <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
+        <label
+          class="aipkit_popover_option_label"
+          for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_reset_period_flyout"
+          data-tooltip="<?php echo esc_attr__('How often usage resets.', 'gpt3-ai-content-generator'); ?>"
+        >
+          <?php esc_html_e('Reset period', 'gpt3-ai-content-generator'); ?>
+        </label>
+        <select
+          id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_reset_period_flyout"
+          name="token_reset_period"
+          class="aipkit_popover_option_select"
+        >
+          <option value="never" <?php selected($reset_period, 'never'); ?>>
+            <?php esc_html_e('Never', 'gpt3-ai-content-generator'); ?>
+          </option>
+          <option value="daily" <?php selected($reset_period, 'daily'); ?>>
+            <?php esc_html_e('Daily', 'gpt3-ai-content-generator'); ?>
+          </option>
+          <option value="weekly" <?php selected($reset_period, 'weekly'); ?>>
+            <?php esc_html_e('Weekly', 'gpt3-ai-content-generator'); ?>
+          </option>
+          <option value="monthly" <?php selected($reset_period, 'monthly'); ?>>
+            <?php esc_html_e('Monthly', 'gpt3-ai-content-generator'); ?>
+          </option>
+        </select>
+      </div>
     </div>
   </div>
 
-  <div class="aipkit_popover_option_row">
-    <div class="aipkit_popover_option_main">
-      <label
-        class="aipkit_popover_option_label"
-        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_limit_mode_flyout"
-        data-tooltip="<?php echo esc_attr__('For logged-in users.', 'gpt3-ai-content-generator'); ?>"
-      >
-        <?php esc_html_e('Limit type', 'gpt3-ai-content-generator'); ?>
-      </label>
-      <select
-        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_limit_mode_flyout"
-        name="token_limit_mode"
-        class="aipkit_popover_option_select aipkit_token_limit_mode_select"
-      >
-        <option value="general" <?php selected($limit_mode, 'general'); ?>>
-          <?php esc_html_e('General limit', 'gpt3-ai-content-generator'); ?>
-        </option>
-        <option value="role_based" <?php selected($limit_mode, 'role_based'); ?>>
-          <?php esc_html_e('Role-based limits', 'gpt3-ai-content-generator'); ?>
-        </option>
-      </select>
-    </div>
-  </div>
-
-  <div class="aipkit_popover_option_row aipkit_token_general_user_limit_field" style="display: <?php echo ($limit_mode === 'general') ? 'block' : 'none'; ?>;">
-    <div class="aipkit_popover_option_main">
-      <label
-        class="aipkit_popover_option_label"
-        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_user_limit_flyout"
-        data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
-      >
-        <?php esc_html_e('User limit', 'gpt3-ai-content-generator'); ?>
-      </label>
-      <input
-        type="number"
-        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_user_limit_flyout"
-        name="token_user_limit"
-        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact"
-        value="<?php echo esc_attr($user_limit_value); ?>"
-        min="0"
-        step="1"
-        placeholder="<?php esc_attr_e('(Unlimited)', 'gpt3-ai-content-generator'); ?>"
-      />
-    </div>
-  </div>
-
-  <div class="aipkit_popover_option_row">
-    <div class="aipkit_popover_option_main">
-      <label
-        class="aipkit_popover_option_label"
-        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_reset_period_flyout"
-        data-tooltip="<?php echo esc_attr__('How often usage resets.', 'gpt3-ai-content-generator'); ?>"
-      >
-        <?php esc_html_e('Reset period', 'gpt3-ai-content-generator'); ?>
-      </label>
-      <select
-        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_reset_period_flyout"
-        name="token_reset_period"
-        class="aipkit_popover_option_select"
-      >
-        <option value="never" <?php selected($reset_period, 'never'); ?>>
-          <?php esc_html_e('Never', 'gpt3-ai-content-generator'); ?>
-        </option>
-        <option value="daily" <?php selected($reset_period, 'daily'); ?>>
-          <?php esc_html_e('Daily', 'gpt3-ai-content-generator'); ?>
-        </option>
-        <option value="weekly" <?php selected($reset_period, 'weekly'); ?>>
-          <?php esc_html_e('Weekly', 'gpt3-ai-content-generator'); ?>
-        </option>
-        <option value="monthly" <?php selected($reset_period, 'monthly'); ?>>
-          <?php esc_html_e('Monthly', 'gpt3-ai-content-generator'); ?>
-        </option>
-      </select>
-    </div>
-  </div>
-
-  <div class="aipkit_popover_option_row aipkit_token_role_limits_container" style="display: <?php echo ($limit_mode === 'role_based') ? 'block' : 'none'; ?>;">
+  <div class="aipkit_popover_option_row aipkit_token_role_limits_container aipkit_limits_role_row" style="display: <?php echo ($limit_mode === 'role_based') ? 'block' : 'none'; ?>;">
     <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
       <span
         class="aipkit_popover_option_label"
@@ -154,8 +160,8 @@ $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
     </div>
   </div>
 
-  <div class="aipkit_popover_option_row">
-    <div class="aipkit_popover_option_main">
+  <div class="aipkit_popover_option_row aipkit_limits_message_row">
+    <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
       <label
         class="aipkit_popover_option_label"
         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_limit_message_flyout"
@@ -167,7 +173,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
         type="text"
         id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_limit_message_flyout"
         name="token_limit_message"
-        class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
+        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide"
         value="<?php echo esc_attr($limit_message); ?>"
         placeholder="<?php echo esc_attr($default_limit_message); ?>"
       />

@@ -77,6 +77,188 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
     }
 
+    /**
+     * Return chatbot builder state for one bot or all bots.
+     * Used by the admin chatbot builder for state-driven bot switching.
+     *
+     * @return void
+     */
+    public function ajax_get_chatbot_switch_state()
+    {
+        $permission_check = $this->check_module_access_permissions('chatbot');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in check_module_access_permissions.
+        $requested_bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
+
+        if (!class_exists(DefaultBotSetup::class)) {
+            wp_send_json_error(['message' => __('Unable to load chatbot state.', 'gpt3-ai-content-generator')], 500);
+            return;
+        }
+
+        $default_bot_id = (int) DefaultBotSetup::get_default_bot_id();
+
+        if ($requested_bot_id > 0) {
+            if (!class_exists(AdminSetup::class)) {
+                wp_send_json_error(['message' => __('Unable to load chatbot state.', 'gpt3-ai-content-generator')], 500);
+                return;
+            }
+
+            if (
+                get_post_type($requested_bot_id) !== AdminSetup::POST_TYPE
+                || !in_array(get_post_status($requested_bot_id), ['publish', 'draft'], true)
+            ) {
+                wp_send_json_error(['message' => __('Invalid Chatbot ID.', 'gpt3-ai-content-generator')], 400);
+                return;
+            }
+
+            $post = get_post($requested_bot_id);
+            if (!$post instanceof \WP_Post) {
+                wp_send_json_error(['message' => __('Chatbot not found.', 'gpt3-ai-content-generator')], 404);
+                return;
+            }
+
+            $settings = $this->bot_storage->get_chatbot_settings($requested_bot_id);
+            $state = $this->build_bot_switch_state_payload(
+                $requested_bot_id,
+                (string) $post->post_title,
+                is_array($settings) ? $settings : [],
+                $default_bot_id
+            );
+
+            wp_send_json_success([
+                'bot' => $state,
+                'default_bot_id' => $default_bot_id,
+            ]);
+            return;
+        }
+
+        $bots_with_settings = $this->bot_storage->get_chatbots_with_settings();
+        $states = [];
+        $order = [];
+
+        foreach ($bots_with_settings as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            $post = $entry['post'] ?? null;
+            $settings = $entry['settings'] ?? [];
+            if (!$post instanceof \WP_Post) {
+                continue;
+            }
+            $bot_id = (int) $post->ID;
+            if ($bot_id <= 0) {
+                continue;
+            }
+            $order[] = $bot_id;
+            $states[(string) $bot_id] = $this->build_bot_switch_state_payload(
+                $bot_id,
+                (string) $post->post_title,
+                is_array($settings) ? $settings : [],
+                $default_bot_id
+            );
+        }
+
+        wp_send_json_success([
+            'bots' => $states,
+            'order' => $order,
+            'default_bot_id' => $default_bot_id,
+        ]);
+    }
+
+    /**
+     * Build the frontend embed snippet for a bot.
+     *
+     * @param int $bot_id Bot ID.
+     * @return string
+     */
+    private function build_embed_code_for_bot(int $bot_id): string
+    {
+        if ($bot_id <= 0) {
+            return '';
+        }
+
+        $embed_script_url = WPAICG_PLUGIN_URL . 'dist/js/embed-bootstrap.bundle.js';
+        $embed_target_div = 'aipkit-chatbot-container-' . $bot_id;
+        $site_url = preg_replace('#^https?://#i', '', site_url());
+        if (!is_string($site_url)) {
+            $site_url = '';
+        }
+
+        $embed_script = sprintf(
+            '(function(){var d=document;var c=d.createElement("div");c.id="%1$s";var s=d.createElement("script");s.src="%2$s";s.setAttribute("data-bot-id","%3$d");s.setAttribute("data-wp-site","%4$s");s.async=true;var t=d.currentScript||d.getElementsByTagName("script")[0];t.parentNode.insertBefore(c,t);t.parentNode.insertBefore(s,t);}());',
+            esc_js($embed_target_div),
+            esc_js($embed_script_url),
+            $bot_id,
+            esc_js($site_url)
+        );
+
+        return '<script type="text/javascript">' . $embed_script . '</script>';
+    }
+
+    /**
+     * Normalize triggers payload to a JSON string.
+     *
+     * @param mixed $value Raw triggers value.
+     * @return string
+     */
+    private function normalize_triggers_json($value): string
+    {
+        if (is_array($value)) {
+            return wp_json_encode($value) ?: '[]';
+        }
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            return $trimmed !== '' ? $trimmed : '[]';
+        }
+        return '[]';
+    }
+
+    /**
+     * Build normalized switch state payload for a bot.
+     *
+     * @param int    $bot_id Bot ID.
+     * @param string $bot_name Bot name.
+     * @param array  $settings Bot settings.
+     * @param int    $default_bot_id Default bot ID.
+     * @return array<string, mixed>
+     */
+    private function build_bot_switch_state_payload(
+        int $bot_id,
+        string $bot_name,
+        array $settings,
+        int $default_bot_id
+    ): array {
+        $popup_enabled = isset($settings['popup_enabled']) && (string) $settings['popup_enabled'] === '1';
+        $deploy_mode = $popup_enabled ? 'popup' : 'inline';
+
+        $conversation_starters = $settings['conversation_starters'] ?? [];
+        if (!is_array($conversation_starters)) {
+            $conversation_starters = is_scalar($conversation_starters) && (string) $conversation_starters !== ''
+                ? [(string) $conversation_starters]
+                : [];
+        }
+        $conversation_starters_text = implode("\n", array_map('strval', $conversation_starters));
+
+        $settings['triggers_json'] = $this->normalize_triggers_json($settings['triggers_json'] ?? '[]');
+
+        return [
+            'bot_id' => $bot_id,
+            'bot_name' => $bot_name,
+            'is_default' => ($bot_id === $default_bot_id),
+            'settings' => $settings,
+            'deploy_mode' => $deploy_mode,
+            'shortcode' => Shortcode::get_bot_shortcode($bot_id),
+            'embed_code' => $this->build_embed_code_for_bot($bot_id),
+            'embed_allowed_domains' => isset($settings['embed_allowed_domains']) ? (string) $settings['embed_allowed_domains'] : '',
+            'conversation_starters_text' => $conversation_starters_text,
+            'triggers_json' => $settings['triggers_json'],
+        ];
+    }
+
     public function ajax_save_chatbot_settings()
     {
         // REVISED: Use module access check
@@ -154,6 +336,122 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         } else {
             wp_send_json_success(['message' => __('Chatbot deleted successfully.', 'gpt3-ai-content-generator'), 'bot_id' => $botId]);
         }
+    }
+
+    public function ajax_duplicate_chatbot()
+    {
+        $permission_check = $this->check_module_access_permissions('chatbot');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
+        if (empty($bot_id)) {
+            wp_send_json_error(['message' => __('Invalid Chatbot ID.', 'gpt3-ai-content-generator')], 400);
+            return;
+        }
+
+        if (!class_exists(AdminSetup::class)) {
+            wp_send_json_error(['message' => __('Internal server error.', 'gpt3-ai-content-generator')], 500);
+            return;
+        }
+
+        if (get_post_type($bot_id) !== AdminSetup::POST_TYPE || !in_array(get_post_status($bot_id), ['publish', 'draft'], true)) {
+            wp_send_json_error(['message' => __('Invalid Chatbot ID.', 'gpt3-ai-content-generator')], 400);
+            return;
+        }
+
+        $source_post = get_post($bot_id);
+        if (!$source_post instanceof \WP_Post) {
+            wp_send_json_error(['message' => __('Chatbot not found.', 'gpt3-ai-content-generator')], 404);
+            return;
+        }
+
+        $source_title = sanitize_text_field((string) $source_post->post_title);
+        if ($source_title === '') {
+            $source_title = __('Chatbot', 'gpt3-ai-content-generator');
+        }
+        /* translators: %s is the chatbot name being duplicated. */
+        $new_title = sprintf(__('%s Copy', 'gpt3-ai-content-generator'), $source_title);
+
+        $new_bot_id = wp_insert_post([
+            'post_type' => AdminSetup::POST_TYPE,
+            'post_status' => 'publish',
+            'post_title' => $new_title,
+        ], true);
+
+        if (is_wp_error($new_bot_id) || empty($new_bot_id)) {
+            wp_send_json_error(['message' => __('Failed to duplicate chatbot.', 'gpt3-ai-content-generator')], 500);
+            return;
+        }
+
+        $all_meta = get_post_meta($bot_id);
+        if (is_array($all_meta)) {
+            foreach ($all_meta as $meta_key => $meta_values) {
+                if (!is_string($meta_key) || $meta_key === '' || in_array($meta_key, ['_edit_lock', '_edit_last', '_aipkit_default_bot'], true)) {
+                    continue;
+                }
+                if (!is_array($meta_values)) {
+                    continue;
+                }
+                foreach ($meta_values as $meta_value) {
+                    add_post_meta($new_bot_id, $meta_key, maybe_unserialize($meta_value));
+                }
+            }
+        }
+
+        // Ensure the duplicated bot is never marked as default.
+        delete_post_meta($new_bot_id, '_aipkit_default_bot');
+
+        // Normalize default markers so only one chatbot remains default.
+        $default_marker_ids = get_posts([
+            'post_type' => AdminSetup::POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'orderby' => 'date',
+            'order' => 'ASC',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- targeted admin maintenance query.
+            'meta_query' => [
+                [
+                    'key' => '_aipkit_default_bot',
+                    'value' => '1',
+                    'compare' => '=',
+                ],
+            ],
+        ]);
+
+        if (is_array($default_marker_ids) && !empty($default_marker_ids)) {
+            $canonical_default_id = 0;
+            foreach ($default_marker_ids as $default_marker_id) {
+                $default_marker_id = absint($default_marker_id);
+                if ($default_marker_id > 0 && get_the_title($default_marker_id) === 'Default') {
+                    $canonical_default_id = $default_marker_id;
+                    break;
+                }
+            }
+            if ($canonical_default_id === 0) {
+                $canonical_default_id = absint($default_marker_ids[0]);
+            }
+
+            if ($canonical_default_id > 0) {
+                update_post_meta($canonical_default_id, '_aipkit_default_bot', '1');
+                foreach ($default_marker_ids as $default_marker_id) {
+                    $default_marker_id = absint($default_marker_id);
+                    if ($default_marker_id > 0 && $default_marker_id !== $canonical_default_id) {
+                        delete_post_meta($default_marker_id, '_aipkit_default_bot');
+                    }
+                }
+            }
+        }
+
+        wp_send_json_success([
+            'message' => __('Chatbot duplicated successfully.', 'gpt3-ai-content-generator'),
+            'bot_id' => $new_bot_id,
+            'bot_name' => get_the_title($new_bot_id),
+        ]);
     }
 
     public function ajax_get_chatbot_shortcode()
@@ -604,6 +902,11 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             update_post_meta($bot_id, '_aipkit_custom_typing_text', $typing_text);
         }
 
+        $theme_for_preset = get_post_meta($bot_id, '_aipkit_theme', true);
+        if (!in_array($theme_for_preset, ['light', 'dark', 'custom', 'chatgpt'], true)) {
+            $theme_for_preset = 'dark';
+        }
+
         if (isset($_POST['theme'])) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $theme = sanitize_key(wp_unslash($_POST['theme']));
@@ -612,6 +915,33 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
                 $theme = 'dark';
             }
             update_post_meta($bot_id, '_aipkit_theme', $theme);
+            $theme_for_preset = $theme;
+        }
+
+        if ($theme_for_preset !== 'custom') {
+            delete_post_meta($bot_id, '_aipkit_theme_preset_key');
+        } elseif (isset($_POST['theme_preset_key'])) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+            $theme_preset_key = sanitize_key(wp_unslash($_POST['theme_preset_key']));
+            $valid_theme_preset_keys = [];
+            if (class_exists(BotSettingsManager::class)) {
+                $custom_theme_presets = BotSettingsManager::get_custom_theme_presets();
+                foreach ($custom_theme_presets as $preset) {
+                    if (!is_array($preset) || !isset($preset['key'])) {
+                        continue;
+                    }
+                    $preset_key = sanitize_key((string) $preset['key']);
+                    if ($preset_key !== '') {
+                        $valid_theme_preset_keys[$preset_key] = true;
+                    }
+                }
+            }
+
+            if ($theme_preset_key !== '' && isset($valid_theme_preset_keys[$theme_preset_key])) {
+                update_post_meta($bot_id, '_aipkit_theme_preset_key', $theme_preset_key);
+            } else {
+                delete_post_meta($bot_id, '_aipkit_theme_preset_key');
+            }
         }
 
         if (isset($_POST['enable_download'])) {

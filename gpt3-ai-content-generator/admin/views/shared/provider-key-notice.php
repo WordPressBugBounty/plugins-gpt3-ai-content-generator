@@ -26,24 +26,23 @@ $aipkit_settings_url = admin_url('admin.php?page=wpaicg');
     id="<?php echo esc_attr($aipkit_notice_id); ?>"
     class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_provider_key_notice aipkit_provider_notice--hidden <?php echo esc_attr($aipkit_notice_class); ?>"
     data-aipkit-provider-notice="1"
-    data-message-openai="<?php echo esc_attr__('OpenAI API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
-    data-message-openrouter="<?php echo esc_attr__('OpenRouter API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
-    data-message-google="<?php echo esc_attr__('Google API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
-    data-message-azure="<?php echo esc_attr__('Azure requires an API key and endpoint. Add them in AI Settings.', 'gpt3-ai-content-generator'); ?>"
-    data-message-claude="<?php echo esc_attr__('Claude API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
-    data-message-deepseek="<?php echo esc_attr__('DeepSeek API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
-    data-message-ollama="<?php echo esc_attr__('Ollama base URL is not set. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
-    data-message-replicate="<?php echo esc_attr__('Replicate API key is missing. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
-    data-message-default="<?php echo esc_attr__('API key is missing for the selected provider. Add it in AI Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-openai="<?php echo esc_attr__('You selected OpenAI as an AI provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-openrouter="<?php echo esc_attr__('You selected OpenRouter as an AI provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-google="<?php echo esc_attr__('You selected Google as an AI provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-azure="<?php echo esc_attr__('You selected Azure as an AI provider, but it is not configured yet. Add its API key and endpoint in Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-claude="<?php echo esc_attr__('You selected Claude as an AI provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-deepseek="<?php echo esc_attr__('You selected DeepSeek as an AI provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-ollama="<?php echo esc_attr__('You selected Ollama as an AI provider, but it is not configured yet. Add its connection URL in Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-replicate="<?php echo esc_attr__('You selected Replicate as an AI provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+    data-message-default="<?php echo esc_attr__('The selected AI provider is not configured yet. Add required credentials in Settings.', 'gpt3-ai-content-generator'); ?>"
 >
     <div class="aipkit_notification_bar__icon" aria-hidden="true">
         <span class="dashicons dashicons-warning"></span>
     </div>
     <div class="aipkit_notification_bar__content">
         <p>
-            <strong><?php esc_html_e('API setup required', 'gpt3-ai-content-generator'); ?></strong>
             <span class="aipkit_provider_notice_message">
-                <?php esc_html_e('Select a provider to see the requirement.', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('The selected AI provider is not configured yet. Add required credentials in Settings.', 'gpt3-ai-content-generator'); ?>
             </span>
         </p>
     </div>

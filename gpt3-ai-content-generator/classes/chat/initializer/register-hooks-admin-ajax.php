@@ -31,6 +31,7 @@ function register_hooks_admin_ajax_logic(
     add_action('wp_ajax_aipkit_create_chatbot', [$chatbot_ajax_handler, 'ajax_create_chatbot']);
     add_action('wp_ajax_aipkit_save_chatbot_settings', [$chatbot_ajax_handler, 'ajax_save_chatbot_settings']);
     add_action('wp_ajax_aipkit_delete_chatbot', [$chatbot_ajax_handler, 'ajax_delete_chatbot']);
+    add_action('wp_ajax_aipkit_duplicate_chatbot', [$chatbot_ajax_handler, 'ajax_duplicate_chatbot']);
     add_action('wp_ajax_aipkit_get_chatbot_shortcode', [$chatbot_ajax_handler, 'ajax_get_chatbot_shortcode']);
     add_action('wp_ajax_aipkit_reset_chatbot_settings', [$chatbot_ajax_handler, 'ajax_reset_chatbot_settings']);
     add_action('wp_ajax_aipkit_rename_chatbot', [$chatbot_ajax_handler, 'ajax_rename_chatbot']);
@@ -50,6 +51,7 @@ function register_hooks_admin_ajax_logic(
     add_action('wp_ajax_aipkit_update_chatbot_triggers', [$chatbot_ajax_handler, 'ajax_update_chatbot_triggers']);
     add_action('wp_ajax_aipkit_get_chatbot_training_source_count', [$chatbot_ajax_handler, 'ajax_get_chatbot_training_source_count']);
     add_action('wp_ajax_aipkit_get_chatbot_training_sources', [$chatbot_ajax_handler, 'ajax_get_chatbot_training_sources']);
+    add_action('wp_ajax_aipkit_get_chatbot_switch_state', [$chatbot_ajax_handler, 'ajax_get_chatbot_switch_state']);
 
     add_action('wp_ajax_aipkit_admin_get_conversation_history', [$conversation_ajax_handler, 'ajax_admin_get_conversation_history']);
 

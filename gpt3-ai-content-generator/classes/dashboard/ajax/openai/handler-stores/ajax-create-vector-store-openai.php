@@ -59,5 +59,5 @@ function do_ajax_create_vector_store_openai_logic(AIPKit_OpenAI_Vector_Stores_Aj
     }
 
     $vector_store_registry->add_registered_store('OpenAI', $store_result);
-    wp_send_json_success(['store' => $store_result, 'message' => __('Vector Store created/verified successfully.', 'gpt3-ai-content-generator')]);
+    wp_send_json_success(['store' => $store_result, 'message' => __('Vector Store created.', 'gpt3-ai-content-generator')]);
 }

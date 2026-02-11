@@ -6,8 +6,8 @@ $stt_model_count = (isset($openai_stt_models) && is_array($openai_stt_models)) ?
 $hide_stt_controls = $stt_model_count <= 1;
 ?>
 <div class="aipkit_popover_options_list">
-    <div class="aipkit_popover_option_group">
-        <div class="aipkit_popover_option_row">
+    <div class="aipkit_popover_option_group aipkit_audio_feature_group aipkit_audio_feature_group--stt">
+        <div class="aipkit_popover_option_row aipkit_audio_toggle_row aipkit_audio_toggle_row--stt">
             <div class="aipkit_popover_option_main">
                 <label
                     class="aipkit_popover_option_label"
@@ -17,17 +17,14 @@ $hide_stt_controls = $stt_model_count <= 1;
                     <?php esc_html_e('Speech to Text', 'gpt3-ai-content-generator'); ?>
                 </label>
                 <div class="aipkit_popover_option_actions">
-                    <label class="aipkit_switch">
-                        <input
-                            type="checkbox"
-                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_voice_input_sheet"
-                            name="enable_voice_input"
-                            class="aipkit_voice_input_toggle_switch"
-                            value="1"
-                            <?php checked($enable_voice_input, '1'); ?>
-                        />
-                        <span class="aipkit_switch_slider"></span>
-                    </label>
+                    <select
+                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_voice_input_sheet"
+                        name="enable_voice_input"
+                        class="aipkit_popover_option_select aipkit_popover_option_select--compact aipkit_voice_input_toggle_switch"
+                    >
+                        <option value="1" <?php selected($enable_voice_input, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="0" <?php selected($enable_voice_input, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -85,8 +82,8 @@ $hide_stt_controls = $stt_model_count <= 1;
         </div>
     </div>
 
-    <div class="aipkit_popover_option_group">
-            <div class="aipkit_popover_option_row">
+    <div class="aipkit_popover_option_group aipkit_audio_feature_group aipkit_audio_feature_group--tts">
+            <div class="aipkit_popover_option_row aipkit_audio_toggle_row aipkit_audio_toggle_row--tts">
                 <div class="aipkit_popover_option_main">
                     <label
                         class="aipkit_popover_option_label"
@@ -96,17 +93,14 @@ $hide_stt_controls = $stt_model_count <= 1;
                         <?php esc_html_e('Text to Speech', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <div class="aipkit_popover_option_actions">
-                        <label class="aipkit_switch">
-                            <input
-                                type="checkbox"
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_enabled_sheet"
-                                name="tts_enabled"
-                                class="aipkit_tts_toggle_switch"
-                                value="1"
-                                <?php checked($tts_enabled, '1'); ?>
-                            />
-                            <span class="aipkit_switch_slider"></span>
-                        </label>
+                        <select
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_enabled_sheet"
+                            name="tts_enabled"
+                            class="aipkit_popover_option_select aipkit_popover_option_select--compact aipkit_tts_toggle_switch"
+                        >
+                            <option value="1" <?php selected($tts_enabled, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="0" <?php selected($tts_enabled, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -295,23 +289,21 @@ $hide_stt_controls = $stt_model_count <= 1;
                     >
                         <?php esc_html_e('Auto play', 'gpt3-ai-content-generator'); ?>
                     </label>
-                    <label class="aipkit_switch">
-                        <input
-                            type="checkbox"
-                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_auto_play_sheet"
-                            name="tts_auto_play"
-                            value="1"
-                            <?php checked($tts_auto_play, '1'); ?>
-                        />
-                        <span class="aipkit_switch_slider"></span>
-                    </label>
+                    <select
+                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_auto_play_sheet"
+                        name="tts_auto_play"
+                        class="aipkit_popover_option_select aipkit_popover_option_select--compact"
+                    >
+                        <option value="1" <?php selected($tts_auto_play, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="0" <?php selected($tts_auto_play, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
                 </div>
             </div>
 
         </div>
 
-    <div class="aipkit_popover_option_group">
-            <div class="aipkit_popover_option_row">
+    <div class="aipkit_popover_option_group aipkit_audio_feature_group aipkit_audio_feature_group--realtime">
+            <div class="aipkit_popover_option_row aipkit_audio_toggle_row aipkit_audio_toggle_row--realtime">
                 <div class="aipkit_popover_option_main">
                     <label
                         class="aipkit_popover_option_label"
@@ -321,19 +313,16 @@ $hide_stt_controls = $stt_model_count <= 1;
                         <?php esc_html_e('Realtime voice agent', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <div class="aipkit_popover_option_actions">
-                        <label class="aipkit_switch">
-                            <input
-                                type="checkbox"
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_realtime_voice_sheet"
-                                name="enable_realtime_voice"
-                                class="aipkit_enable_realtime_voice_toggle"
-                                value="1"
-                                <?php checked($enable_realtime_voice, '1'); ?>
-                                <?php echo $rt_controls_disabled ? 'disabled' : ''; ?>
-                                title="<?php echo esc_attr($rt_disabled_by_plan ? __('Upgrade to Pro to enable.', 'gpt3-ai-content-generator') : ''); ?>"
-                            />
-                            <span class="aipkit_switch_slider"></span>
-                        </label>
+                        <select
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_realtime_voice_sheet"
+                            name="enable_realtime_voice"
+                            class="aipkit_popover_option_select aipkit_popover_option_select--compact aipkit_enable_realtime_voice_toggle"
+                            <?php echo $rt_controls_disabled ? 'disabled' : ''; ?>
+                            title="<?php echo esc_attr($rt_disabled_by_plan ? __('Upgrade to Pro to enable.', 'gpt3-ai-content-generator') : ''); ?>"
+                        >
+                            <option value="1" <?php selected($enable_realtime_voice, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="0" <?php selected($enable_realtime_voice, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
                         <?php if ($rt_disabled_by_plan) : ?>
                             <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipkit_popover_upgrade_link" title="<?php esc_attr_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>"><?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?></a>
                         <?php endif; ?>
@@ -385,17 +374,15 @@ $hide_stt_controls = $stt_model_count <= 1;
                     >
                         <?php esc_html_e('Direct voice mode', 'gpt3-ai-content-generator'); ?>
                     </label>
-                    <label class="aipkit_switch">
-                        <input
-                            type="checkbox"
-                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_direct_voice_mode_sheet"
-                            name="direct_voice_mode"
-                            value="1"
-                            <?php checked($direct_voice_mode, '1'); ?>
-                            <?php echo $rt_controls_disabled ? 'disabled' : ''; ?> <?php disabled($direct_voice_mode_disabled); ?>
-                        />
-                        <span class="aipkit_switch_slider"></span>
-                    </label>
+                    <select
+                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_direct_voice_mode_sheet"
+                        name="direct_voice_mode"
+                        class="aipkit_popover_option_select aipkit_popover_option_select--compact"
+                        <?php echo $rt_controls_disabled ? 'disabled' : ''; ?> <?php disabled($direct_voice_mode_disabled); ?>
+                    >
+                        <option value="1" <?php selected($direct_voice_mode, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="0" <?php selected($direct_voice_mode, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
                 </div>
             </div>
 
@@ -408,17 +395,15 @@ $hide_stt_controls = $stt_model_count <= 1;
                     >
                         <?php esc_html_e('Noise reduction', 'gpt3-ai-content-generator'); ?>
                     </label>
-                    <label class="aipkit_switch">
-                        <input
-                            type="checkbox"
-                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_input_audio_noise_reduction_sheet"
-                            name="input_audio_noise_reduction"
-                            value="1"
-                            <?php checked($input_audio_noise_reduction, '1'); ?>
-                            <?php echo $rt_controls_disabled ? 'disabled' : ''; ?>
-                        />
-                        <span class="aipkit_switch_slider"></span>
-                    </label>
+                    <select
+                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_input_audio_noise_reduction_sheet"
+                        name="input_audio_noise_reduction"
+                        class="aipkit_popover_option_select aipkit_popover_option_select--compact"
+                        <?php echo $rt_controls_disabled ? 'disabled' : ''; ?>
+                    >
+                        <option value="1" <?php selected($input_audio_noise_reduction, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="0" <?php selected($input_audio_noise_reduction, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
                 </div>
             </div>
 

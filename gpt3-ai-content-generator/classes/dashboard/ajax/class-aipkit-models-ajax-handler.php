@@ -84,7 +84,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
-        $valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate', 'Ollama'];
+        $valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'Replicate', 'Ollama'];
         if (!in_array($provider, $valid_providers, true)) {
             wp_send_json_error(['message' => __('Invalid provider selection.', 'gpt3-ai-content-generator')]);
             return;
@@ -93,6 +93,8 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         $provider_data_key = $provider;
         if ($provider === 'ElevenLabsModels') {
             $provider_data_key = 'ElevenLabs';
+        } elseif ($provider === 'OpenAIVectorStores') {
+            $provider_data_key = 'OpenAI';
         } elseif ($provider === 'PineconeIndexes') {
             $provider_data_key = 'Pinecone';
         } elseif ($provider === 'QdrantCollections') {
@@ -135,6 +137,14 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 $result = (is_wp_error($strategy) || !method_exists($strategy, 'get_models'))
                     ? new WP_Error('tts_model_sync_not_supported', 'TTS Model sync not supported for ElevenLabs.')
                     : $strategy->get_models($api_params);
+                break;
+            case 'OpenAIVectorStores':
+                if (!$this->vector_store_manager) {
+                    $result = new WP_Error('vsm_missing', 'Vector Store Manager not available.');
+                    break;
+                }
+                // Full sync pass for Dashboard autosync (no paging needed here)
+                $result = $this->vector_store_manager->list_all_indexes('OpenAI', $api_params, 100, 'desc', null, null);
                 break;
             case 'PineconeIndexes':
                 if (!$this->vector_store_manager) {
@@ -186,6 +196,27 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         $option_name = $option_map[$provider] ?? null;
         $response_models = $result; // Default to raw result
         $extra_response_payload = [];
+
+        if ($provider === 'OpenAIVectorStores' && $this->vector_store_registry) {
+            $stores_payload = $result;
+            if (is_array($stores_payload) && isset($stores_payload['data']) && is_array($stores_payload['data'])) {
+                $stores_payload = $stores_payload['data'];
+            }
+
+            $active_stores = [];
+            if (is_array($stores_payload)) {
+                foreach ($stores_payload as $store_item) {
+                    if (isset($store_item['status']) && $store_item['status'] === 'expired') {
+                        continue;
+                    }
+                    $active_stores[] = $store_item;
+                }
+            }
+
+            $this->vector_store_registry->update_registered_stores_for_provider('OpenAI', $active_stores);
+            $response_models = $active_stores;
+            $extra_response_payload['stores'] = $active_stores;
+        }
 
         if ($option_name) {
             $value_to_save = $result;

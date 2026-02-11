@@ -46,6 +46,10 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
         public static function init()
         {
+            if (is_admin()) {
+                add_filter('admin_title', [__CLASS__, 'filter_admin_title'], 20, 1);
+            }
+
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is not applicable for page routing checks on this hook.
             $current_page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
 
@@ -56,6 +60,38 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 self::check_and_init_module_settings();
                 self::register_ajax_handlers();
             }
+        }
+
+        /**
+         * Adds plugin name to browser tab title on AIPKit admin pages.
+         *
+         * @param string $admin_title Full admin browser title.
+         * @return string
+         */
+        public static function filter_admin_title($admin_title)
+        {
+            if (!self::is_aipkit_admin_page()) {
+                return $admin_title;
+            }
+
+            $plugin_name = __('AI Puffer', 'gpt3-ai-content-generator');
+            if ($plugin_name === '' || strpos($admin_title, $plugin_name) !== false) {
+                return $admin_title;
+            }
+
+            return $plugin_name . ' - ' . $admin_title;
+        }
+
+        /**
+         * Detects whether the current request is for an AIPKit admin screen.
+         *
+         * @return bool
+         */
+        private static function is_aipkit_admin_page()
+        {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page context.
+            $current_page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
+            return !empty($current_page) && (strpos($current_page, 'wpaicg') !== false || $current_page === 'aipkit-role-manager');
         }
 
         public static function register_ajax_handlers()

@@ -74,8 +74,14 @@ function render_popup_mode_html_logic(
     $custom_theme_class = '';
     $custom_theme_data_attr = '';
     $trigger_inline_style = '';
+    $custom_theme_preset_key = isset($frontend_config['customThemePresetKey'])
+        ? sanitize_key((string) $frontend_config['customThemePresetKey'])
+        : '';
+    $is_custom_theme_preset = ($theme === 'custom' && $custom_theme_preset_key !== '');
     if ($theme === 'custom' && !empty($frontend_config['customThemeSettings'])) {
-        $custom_theme_class = 'aipkit-theme-custom';
+        if (!$is_custom_theme_preset) {
+            $custom_theme_class = 'aipkit-theme-custom';
+        }
         $custom_theme_data_attr = 'data-custom-theme=\'' . esc_attr(wp_json_encode($frontend_config['customThemeSettings'])) . '\'';
 
         // Extract primary color for immediate trigger styling (prevents FOUC)
@@ -93,7 +99,7 @@ function render_popup_mode_html_logic(
         if (!empty($primary_color)) {
             $trigger_inline_style = '--aipkit-chat-popup-trigger-bg-color:' . esc_attr($primary_color) . ';--aipkit-chat-send-button-bg-color:' . esc_attr($primary_color) . ';';
         }
-    } elseif ($theme === 'custom') {
+    } elseif ($theme === 'custom' && !$is_custom_theme_preset) {
         $custom_theme_class = 'aipkit-theme-custom';
     }
     // --- END NEW ---

@@ -12,11 +12,63 @@ if (!defined('ABSPATH')) {
 // $is_pro is available from the parent scope (loader-vars.php)
 if (!$is_pro) {
     $upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : '#';
-    echo '<div class="aipkit_upgrade_notice">';
-    echo '<span class="dashicons dashicons-lock" aria-hidden="true"></span>';
-    echo '<p>' . esc_html__('RSS feed generation is a Pro feature. Upgrade to create content from RSS feeds.', 'gpt3-ai-content-generator') . '</p>';
-    echo '<a class="aipkit_btn aipkit_btn-primary aipkit_upgrade_btn" href="' . esc_url($upgrade_url) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Upgrade to Pro', 'gpt3-ai-content-generator') . '</a>';
-    echo '</div>';
+    ?>
+    <div class="aipkit_feature_promo aipkit_feature_promo--rss">
+        <!-- Hero -->
+        <div class="aipkit_feature_promo_hero">
+            <div class="aipkit_feature_promo_icon_ring">
+                <span class="dashicons dashicons-rss" aria-hidden="true"></span>
+            </div>
+            <h3 class="aipkit_feature_promo_title"><?php esc_html_e('RSS Feed Content Generation', 'gpt3-ai-content-generator'); ?></h3>
+            <p class="aipkit_feature_promo_subtitle"><?php esc_html_e('Automatically turn RSS feeds into unique, AI-written posts — hands-free.', 'gpt3-ai-content-generator'); ?></p>
+        </div>
+
+        <!-- Steps -->
+        <div class="aipkit_feature_promo_steps">
+            <div class="aipkit_feature_promo_step">
+                <span class="aipkit_feature_promo_step_num">1</span>
+                <span class="aipkit_feature_promo_step_text"><?php esc_html_e('Add your RSS feed URLs', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <span class="aipkit_feature_promo_step_arrow" aria-hidden="true">→</span>
+            <div class="aipkit_feature_promo_step">
+                <span class="aipkit_feature_promo_step_num">2</span>
+                <span class="aipkit_feature_promo_step_text"><?php esc_html_e('AI rewrites each item', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <span class="aipkit_feature_promo_step_arrow" aria-hidden="true">→</span>
+            <div class="aipkit_feature_promo_step">
+                <span class="aipkit_feature_promo_step_num">3</span>
+                <span class="aipkit_feature_promo_step_text"><?php esc_html_e('Auto-publish to WordPress', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+        </div>
+
+        <!-- Feature cards -->
+        <div class="aipkit_feature_promo_cards">
+            <div class="aipkit_feature_promo_card">
+                <span class="aipkit_feature_promo_card_icon" style="color:#c2410c" aria-hidden="true">⊞</span>
+                <span class="aipkit_feature_promo_card_label"><?php esc_html_e('Multiple Feeds', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_feature_promo_card">
+                <span class="aipkit_feature_promo_card_icon" style="color:#16a34a" aria-hidden="true">⚙</span>
+                <span class="aipkit_feature_promo_card_label"><?php esc_html_e('Smart Parsing', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_feature_promo_card">
+                <span class="aipkit_feature_promo_card_icon" style="color:#2563eb" aria-hidden="true">⏱</span>
+                <span class="aipkit_feature_promo_card_label"><?php esc_html_e('Auto-Schedule', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="aipkit_feature_promo_cta">
+            <a class="aipkit_btn aipkit_btn-primary aipkit_feature_promo_btn" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
+                <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+            </a>
+            <a class="aipkit_feature_promo_link" href="https://aipower.org/docs/" target="_blank" rel="noopener noreferrer">
+                <?php esc_html_e('Learn more', 'gpt3-ai-content-generator'); ?>
+                <span aria-hidden="true">→</span>
+            </a>
+        </div>
+    </div>
+    <?php
     return;
 }
 ?>

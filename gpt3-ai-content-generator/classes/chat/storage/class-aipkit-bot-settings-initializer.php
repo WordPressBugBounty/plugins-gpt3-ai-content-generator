@@ -60,6 +60,7 @@ class AIPKit_Bot_Settings_Initializer
         delete_post_meta($post_id, '_aipkit_azure_deployment');
         delete_post_meta($post_id, '_aipkit_azure_endpoint');
         update_post_meta($post_id, '_aipkit_theme', 'dark');
+        update_post_meta($post_id, '_aipkit_theme_preset_key', '');
         $default_instructions = __("You are a helpful AI Assistant. Please be friendly. Today's date is [date].", 'gpt3-ai-content-generator');
         update_post_meta($post_id, '_aipkit_instructions', $default_instructions);
         update_post_meta($post_id, '_aipkit_popup_enabled', '1');
@@ -196,6 +197,15 @@ class AIPKit_Bot_Settings_Initializer
 
         if (get_post_meta($post_id, '_aipkit_default_bot', true) === '1') {
             update_post_meta($post_id, '_aipkit_theme', 'dark');
+            update_post_meta($post_id, '_aipkit_popup_enabled', '1');
+            update_post_meta($post_id, '_aipkit_popup_label_enabled', '1');
+            update_post_meta($post_id, '_aipkit_popup_label_text', __('Need help? Ask me!', 'gpt3-ai-content-generator'));
+            update_post_meta($post_id, '_aipkit_enable_fullscreen', '1');
+            update_post_meta($post_id, '_aipkit_enable_download', '1');
+            update_post_meta($post_id, '_aipkit_enable_copy_button', '1');
+            update_post_meta($post_id, '_aipkit_enable_feedback', '1');
+            update_post_meta($post_id, '_aipkit_enable_conversation_starters', '1');
+            update_post_meta($post_id, '_aipkit_enable_voice_input', '0');
         }
     }
 }

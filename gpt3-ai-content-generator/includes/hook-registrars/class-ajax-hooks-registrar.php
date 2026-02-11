@@ -109,11 +109,6 @@ class Ajax_Hooks_Registrar
             if (method_exists($settings_ajax_handler, 'ajax_save_settings')) {
                 add_action('wp_ajax_aipkit_save_ai_settings', [$settings_ajax_handler, 'ajax_save_settings']);
             }
-            // --- ADDED: Register the Chatolia notice dismiss action ---
-            if (method_exists($settings_ajax_handler, 'ajax_dismiss_chatolia_notice')) {
-                add_action('wp_ajax_aipkit_dismiss_chatolia_notice', [$settings_ajax_handler, 'ajax_dismiss_chatolia_notice']);
-            }
-            // --- END ADDED ---
         }
 
         if ($models_ajax_handler) {

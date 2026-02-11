@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, gemini, chatgpt
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.72
+Stable tag: 2.3.73
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,13 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.73 =
+
+- **Added**: Duplicate functionality for the chatbots.
+- **Improved**: Redesigned Chatbot settings UI.
+- **Improved**: Trigger validation now avoids blocking incomplete payload fields while rules are inactive.
+- **Improved**: Admin asset cache busting now uses file modification timestamps for dashboard bundles.
 
 = 2.3.72 =
 

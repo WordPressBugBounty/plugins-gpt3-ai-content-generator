@@ -59,7 +59,32 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['subgreeting'] = isset($raw_settings['subgreeting']) ? sanitize_textarea_field($raw_settings['subgreeting']) : '';
     $sanitized['provider'] = isset($raw_settings['provider']) ? sanitize_text_field($raw_settings['provider']) : '';
     $valid_themes = ['light', 'dark', 'custom', 'chatgpt'];
-    $sanitized['theme'] = isset($raw_settings['theme']) && in_array($raw_settings['theme'], $valid_themes) ? sanitize_text_field($raw_settings['theme']) : 'dark';
+    $sanitized['theme'] = isset($raw_settings['theme']) && in_array($raw_settings['theme'], $valid_themes, true)
+        ? sanitize_text_field($raw_settings['theme'])
+        : 'dark';
+    $raw_theme_preset_key = isset($raw_settings['theme_preset_key'])
+        ? sanitize_key((string) $raw_settings['theme_preset_key'])
+        : '';
+    $valid_theme_preset_keys = [];
+    if (class_exists(BotSettingsManager::class)) {
+        $custom_theme_presets = BotSettingsManager::get_custom_theme_presets();
+        foreach ($custom_theme_presets as $preset) {
+            if (!is_array($preset) || !isset($preset['key'])) {
+                continue;
+            }
+            $preset_key = sanitize_key((string) $preset['key']);
+            if ($preset_key !== '') {
+                $valid_theme_preset_keys[$preset_key] = true;
+            }
+        }
+    }
+    $sanitized['theme_preset_key'] = (
+        $sanitized['theme'] === 'custom' &&
+        $raw_theme_preset_key !== '' &&
+        isset($valid_theme_preset_keys[$raw_theme_preset_key])
+    )
+        ? $raw_theme_preset_key
+        : '';
     $sanitized['instructions'] = isset($raw_settings['instructions']) ? sanitize_textarea_field($raw_settings['instructions']) : '';
     $sanitized['popup_enabled'] = (isset($raw_settings['popup_enabled']) && $raw_settings['popup_enabled'] === '1') ? '1' : '0';
     $sanitized['popup_position'] = isset($raw_settings['popup_position']) ? sanitize_key($raw_settings['popup_position']) : 'bottom-right';

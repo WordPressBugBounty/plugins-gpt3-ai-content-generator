@@ -32,7 +32,7 @@ class BotSettingsManager
     public const DEFAULT_STREAM_ENABLED = '1'; // ADDED: Default for stream mode
     public const DEFAULT_ENABLE_COPY_BUTTON = '1';
     public const DEFAULT_ENABLE_FEEDBACK = '1';
-    public const DEFAULT_ENABLE_CONSENT_COMPLIANCE = '1';
+    public const DEFAULT_ENABLE_CONSENT_COMPLIANCE = '0';
     public const DEFAULT_ENABLE_IP_ANONYMIZATION = '0';
     public const DEFAULT_ENABLE_OPENAI_MODERATION = '0';
     public const DEFAULT_OPENAI_MODERATION_MESSAGE = '';

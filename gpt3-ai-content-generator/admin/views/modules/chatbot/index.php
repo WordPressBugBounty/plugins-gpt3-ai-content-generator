@@ -80,6 +80,22 @@ if ($initial_active_bot_id) {
     }
 }
 
+// If a forced/stored bot ID no longer exists, gracefully fall back.
+if (!$active_bot_post) {
+    if ($default_bot_post instanceof \WP_Post) {
+        $active_bot_post = $default_bot_post;
+        $initial_active_bot_id = (int) $default_bot_post->ID;
+    } elseif (!empty($other_bots_posts) && $other_bots_posts[0] instanceof \WP_Post) {
+        $active_bot_post = $other_bots_posts[0];
+        $initial_active_bot_id = (int) $other_bots_posts[0]->ID;
+    } else {
+        $initial_active_bot_id = 0;
+    }
+}
+
+// Always initialize a bot ID variable for downstream partials/flyouts.
+$bot_id = (int) $initial_active_bot_id;
+
 $active_bot_settings = [];
 if ($active_bot_post && class_exists(AIPKit_Bot_Settings_Getter::class)) {
     $settings = AIPKit_Bot_Settings_Getter::get($active_bot_post->ID);
@@ -89,6 +105,8 @@ if ($active_bot_post && class_exists(AIPKit_Bot_Settings_Getter::class)) {
 }
 $active_bot_instructions = $active_bot_settings['instructions'] ?? '';
 $saved_theme = $active_bot_settings['theme'] ?? 'dark';
+$saved_greeting = $active_bot_settings['greeting'] ?? '';
+$saved_subgreeting = $active_bot_settings['subgreeting'] ?? '';
 $aipkit_hide_custom_theme = false;
 $available_themes = [
     'light'   => __('Light', 'gpt3-ai-content-generator'),
@@ -101,19 +119,86 @@ if (!$aipkit_hide_custom_theme || $saved_theme === 'custom') {
 $custom_theme_presets = class_exists(BotSettingsManager::class)
     ? BotSettingsManager::get_custom_theme_presets()
     : [];
+$selected_theme_preset_key = '';
+$selected_theme_preset_label = '';
+if ($saved_theme === 'custom' && !empty($custom_theme_presets)) {
+    $preset_label_map = [];
+    $preset_color_map = [];
+    foreach ($custom_theme_presets as $preset) {
+        if (!is_array($preset)) {
+            continue;
+        }
+        $preset_key = isset($preset['key']) ? sanitize_key((string) $preset['key']) : '';
+        if ($preset_key === '') {
+            continue;
+        }
+        $preset_label_map[$preset_key] = isset($preset['label']) ? (string) $preset['label'] : '';
+        $preset_color_map[$preset_key] = [
+            'primary' => isset($preset['primary']) ? strtolower(trim((string) $preset['primary'])) : '',
+            'secondary' => isset($preset['secondary']) ? strtolower(trim((string) $preset['secondary'])) : '',
+        ];
+    }
+
+    $stored_theme_preset_key = isset($active_bot_settings['theme_preset_key'])
+        ? sanitize_key((string) $active_bot_settings['theme_preset_key'])
+        : '';
+    if ($stored_theme_preset_key !== '' && isset($preset_label_map[$stored_theme_preset_key])) {
+        $selected_theme_preset_key = $stored_theme_preset_key;
+        $selected_theme_preset_label = $preset_label_map[$stored_theme_preset_key];
+    } else {
+        // Backward compatibility for bots saved before explicit preset keys.
+        $saved_custom_theme_settings = isset($active_bot_settings['custom_theme_settings']) && is_array($active_bot_settings['custom_theme_settings'])
+            ? $active_bot_settings['custom_theme_settings']
+            : [];
+        $saved_custom_primary = isset($saved_custom_theme_settings['primary_color'])
+            ? strtolower(trim((string) $saved_custom_theme_settings['primary_color']))
+            : '';
+        $saved_custom_secondary = isset($saved_custom_theme_settings['secondary_color'])
+            ? strtolower(trim((string) $saved_custom_theme_settings['secondary_color']))
+            : '';
+
+        if ($saved_custom_primary !== '' && $saved_custom_secondary !== '') {
+            foreach ($preset_color_map as $preset_key => $preset_colors) {
+                if (
+                    $preset_colors['primary'] !== '' &&
+                    $preset_colors['secondary'] !== '' &&
+                    $saved_custom_primary === $preset_colors['primary'] &&
+                    $saved_custom_secondary === $preset_colors['secondary']
+                ) {
+                    $selected_theme_preset_key = $preset_key;
+                    $selected_theme_preset_label = $preset_label_map[$preset_key] ?? '';
+                    break;
+                }
+            }
+        }
+    }
+}
 $popup_enabled = $active_bot_settings['popup_enabled'] ?? '0';
 $popup_enabled = in_array($popup_enabled, ['0', '1'], true) ? $popup_enabled : '0';
 $site_wide_enabled = $active_bot_settings['site_wide_enabled'] ?? '0';
 $site_wide_enabled = in_array($site_wide_enabled, ['0', '1'], true) ? $site_wide_enabled : '0';
 $deploy_mode = ($popup_enabled === '1') ? 'popup' : 'inline';
 $deploy_popup_scope = ($site_wide_enabled === '1') ? 'sitewide' : 'page';
-$deploy_scope = 'site';
+$shortcode_text = $active_bot_post
+    ? sprintf('[aipkit_chatbot id=%d]', absint($initial_active_bot_id))
+    : '';
 $is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
+$embed_anywhere_active = $is_pro_plan;
+$embed_allowed_domains = $active_bot_settings['embed_allowed_domains'] ?? '';
+$embed_script_url = WPAICG_PLUGIN_URL . 'dist/js/embed-bootstrap.bundle.js';
+$embed_target_div = 'aipkit-chatbot-container-' . absint($initial_active_bot_id);
+$embed_code = sprintf(
+    '(function(){var d=document;var c=d.createElement("div");c.id="%1$s";var s=d.createElement("script");s.src="%2$s";s.setAttribute("data-bot-id","%3$d");s.setAttribute("data-wp-site","%4$s");s.async=true;var t=d.currentScript||d.getElementsByTagName("script")[0];t.parentNode.insertBefore(c,t);t.parentNode.insertBefore(s,t);}());',
+    esc_js($embed_target_div),
+    esc_js($embed_script_url),
+    absint($initial_active_bot_id),
+    esc_js(home_url())
+);
+$embed_code = '<script type="text/javascript">' . $embed_code . '</script>';
+$embed_docs_url = 'https://docs.aipower.org/docs/chat#embed-anywhere-external-sites';
 $consent_feature_available = $is_pro_plan && class_exists('\\WPAICG\\Lib\\Addons\\AIPKit_Consent_Compliance');
 $openai_moderation_available = $is_pro_plan && class_exists('\\WPAICG\\Lib\\Addons\\AIPKit_OpenAI_Moderation');
-$embed_anywhere_active = $is_pro_plan;
 $triggers_available = $is_pro_plan;
-$embed_allowed_domains = $active_bot_settings['embed_allowed_domains'] ?? '';
 $pricing_url = admin_url('admin.php?page=wpaicg-pricing');
 $post_types_args = ['public' => true];
 $all_selectable_post_types = get_post_types($post_types_args, 'objects');
@@ -496,7 +581,7 @@ $realtime_models = ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime'];
 $realtime_voices = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'shimmer', 'verse'];
 $direct_voice_mode_disabled = !($popup_enabled === '1' && $enable_realtime_voice === '1');
 $direct_voice_mode_tooltip = $direct_voice_mode_disabled
-    ? __('Requires "Popup Enabled" (in Interface) and "Enable Realtime Voice Agent" to be active.', 'gpt3-ai-content-generator')
+    ? __('Requires "Popup Enabled" (in Appearance) and "Enable Realtime Voice Agent" to be active.', 'gpt3-ai-content-generator')
     : '';
 
 // Provider/model data for AI selection.
@@ -555,14 +640,6 @@ $preview_placeholder_text = $active_bot_post
     : __('Select a bot to see the preview.', 'gpt3-ai-content-generator');
 
 $is_default_active = ($active_bot_post && $default_bot_id && $active_bot_post->ID === $default_bot_id);
-$rename_disabled_title = $is_default_active
-    ? __('Default bot cannot be renamed.', 'gpt3-ai-content-generator')
-    : __('Rename chatbot', 'gpt3-ai-content-generator');
-// Chatolia notice
-$chatolia_notice_dismissed = get_option('aipkit_chatolia_notice_dismissed', '0') === '1';
-if (!$chatolia_notice_dismissed) {
-    include __DIR__ . '/partials/chatolia-notice.php';
-}
 
 $aipkit_notice_id = 'aipkit_provider_notice_chatbot';
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
@@ -595,422 +672,684 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             onsubmit="return false;"
                         >
                             <?php include WPAICG_PLUGIN_DIR . 'admin/views/shared/vector-store-nonce-fields.php'; ?>
-                            <section class="aipkit_builder_card aipkit_builder_card-primary aipkit_builder_card--status">
-                            <div class="aipkit_builder_field">
-                                <div class="aipkit_builder_ai_model">
-                                    <?php
-                                    $bot_id = $initial_active_bot_id;
-                                    $bot_settings = $active_bot_settings;
-                                    $is_next_layout = true;
-                                    include __DIR__ . '/partials/ai-config/provider-model.php';
-                                    ?>
+                            <?php if ($active_bot_post) : ?>
+                            <section class="aipkit_builder_card aipkit_builder_card--shortcode">
+                                <div class="aipkit_builder_shortcode_row">
+                                    <div class="aipkit_builder_shortcode_meta">
+                                        <button
+                                            type="button"
+                                            class="aipkit_shortcode_pill aipkit_builder_shortcode_pill"
+                                            data-shortcode="<?php echo esc_attr($shortcode_text); ?>"
+                                            title="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>"
+                                        >
+                                            <span class="aipkit_shortcode_text"><?php echo esc_html($shortcode_text); ?></span>
+                                        </button>
+                                        <div class="aipkit_builder_card_status aipkit_model_status_slot">
+                                            <span class="aipkit_model_sync_status" aria-live="polite"></span>
+                                            <span
+                                                id="aipkit_chatbot_global_save_status_container"
+                                                class="aipkit_save_status_container aipkit_builder_save_status"
+                                                aria-live="polite"
+                                            ></span>
+                                        </div>
+                                    </div>
+                                    <div class="aipkit_builder_mode_inline">
+                                        <label
+                                            for="aipkit_builder_top_mode_select"
+                                            class="aipkit_builder_mode_label"
+                                        >
+                                            <?php esc_html_e('Mode:', 'gpt3-ai-content-generator'); ?>
+                                        </label>
+                                        <select
+                                            id="aipkit_builder_top_mode_select"
+                                            class="aipkit_form-input aipkit_builder_mode_select"
+                                            data-aipkit-top-mode-select
+                                        >
+                                            <option value="inline" <?php selected($deploy_mode, 'inline'); ?>>
+                                                <?php esc_html_e('On-page', 'gpt3-ai-content-generator'); ?>
+                                            </option>
+                                            <option value="popup" <?php selected($deploy_mode, 'popup'); ?>>
+                                                <?php esc_html_e('Popup', 'gpt3-ai-content-generator'); ?>
+                                            </option>
+                                            <option value="external">
+                                                <?php esc_html_e('Embed Anywhere', 'gpt3-ai-content-generator'); ?>
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="aipkit_builder_field">
-                                <label for="aipkit_bot_<?php echo esc_attr($initial_active_bot_id); ?>_instructions" class="aipkit_builder_label">
-                                    <?php esc_html_e('Instructions', 'gpt3-ai-content-generator'); ?>
-                                </label>
-                                <div class="aipkit_builder_textarea_wrap">
-                                    <textarea
-                                        id="aipkit_bot_<?php echo esc_attr($initial_active_bot_id); ?>_instructions"
-                                        name="instructions"
-                                        class="aipkit_builder_textarea aipkit_form-input"
-                                        rows="5"
-                                        placeholder="<?php esc_attr_e('e.g., You are a helpful AI Assistant. Please be friendly.', 'gpt3-ai-content-generator'); ?>"
-                                    ><?php echo esc_textarea($active_bot_instructions); ?></textarea>
-                                    <button
-                                        type="button"
-                                        class="aipkit_builder_icon_btn aipkit_builder_textarea_expand aipkit_builder_instructions_expand"
-                                        aria-label="<?php esc_attr_e('Expand instructions editor', 'gpt3-ai-content-generator'); ?>"
-                                    >
-                                        <span class="dashicons dashicons-editor-expand"></span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="aipkit_builder_field aipkit_builder_field--themes">
-                                <div class="aipkit_builder_theme_row" role="group" aria-label="<?php esc_attr_e('Themes', 'gpt3-ai-content-generator'); ?>">
-                                    <button
-                                        type="button"
-                                        class="aipkit_builder_icon_btn aipkit_theme_scroll_btn aipkit_theme_scroll_btn--prev"
-                                        aria-label="<?php esc_attr_e('Scroll themes left', 'gpt3-ai-content-generator'); ?>"
-                                    >
-                                        <span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span>
-                                    </button>
-                                    <div class="aipkit_builder_theme_row_content">
-                                        <div class="aipkit_theme_choice_group" role="radiogroup" aria-label="<?php esc_attr_e('Theme', 'gpt3-ai-content-generator'); ?>">
-                                            <?php foreach ($available_themes as $theme_key => $theme_name) : ?>
+                            </section>
+                            <section class="aipkit_builder_card aipkit_builder_card--bot-tabs">
+                                <div class="aipkit_builder_bot_tabs_row">
+                                    <div class="aipkit_builder_bot_tabs_shell">
+                                        <div class="aipkit_builder_bot_tabs" data-aipkit-bot-tabs role="tablist" aria-label="<?php esc_attr_e('Chatbots', 'gpt3-ai-content-generator'); ?>">
+                                            <?php foreach ($all_bots_ordered_entries as $bot_entry_for_tabs) : ?>
                                                 <?php
-                                                $theme_card_class = 'aipkit_theme_choice_card';
-                                                if ($theme_key === 'custom') {
-                                                    $theme_card_class .= ' aipkit_theme_choice_card--custom';
-                                                }
+                                                $bot_post_for_tabs = $bot_entry_for_tabs['post'];
+                                                $is_active_tab = ((int) $initial_active_bot_id === (int) $bot_post_for_tabs->ID);
                                                 ?>
-                                                <label class="<?php echo esc_attr($theme_card_class); ?>">
-                                                    <input
-                                                        type="radio"
-                                                        name="theme"
-                                                        value="<?php echo esc_attr($theme_key); ?>"
-                                                        <?php checked($saved_theme, $theme_key); ?>
-                                                        <?php echo ($aipkit_hide_custom_theme && $theme_key === 'custom') ? 'disabled' : ''; ?>
-                                                    >
-                                                    <span class="aipkit_theme_choice_content">
-                                                        <span class="aipkit_theme_choice_preview aipkit_theme_choice_preview--<?php echo esc_attr($theme_key); ?>" aria-hidden="true"></span>
-                                                        <span class="aipkit_theme_choice_label">
-                                                            <?php echo esc_html($theme_name); ?>
-                                                        </span>
+                                                <button
+                                                    type="button"
+                                                    class="aipkit_builder_bot_tab<?php echo $is_active_tab ? ' is-active' : ''; ?>"
+                                                    data-bot-id="<?php echo esc_attr($bot_post_for_tabs->ID); ?>"
+                                                    role="tab"
+                                                    aria-selected="<?php echo $is_active_tab ? 'true' : 'false'; ?>"
+                                                    tabindex="<?php echo $is_active_tab ? '0' : '-1'; ?>"
+                                                >
+                                                    <span class="aipkit_builder_bot_tab_label">
+                                                        <?php echo esc_html($bot_post_for_tabs->post_title); ?>
                                                     </span>
-                                                </label>
+                                                </button>
                                             <?php endforeach; ?>
                                         </div>
-                                        <?php if (!empty($custom_theme_presets)) : ?>
-                                            <div class="aipkit_custom_theme_presets" data-bot-id="<?php echo esc_attr($initial_active_bot_id); ?>" role="group" aria-label="<?php esc_attr_e('Theme presets', 'gpt3-ai-content-generator'); ?>">
-                                                <?php foreach ($custom_theme_presets as $preset) : ?>
-                                                    <button
-                                                        type="button"
-                                                        class="aipkit_custom_theme_preset aipkit_custom_theme_preset--<?php echo esc_attr($preset['key']); ?>"
-                                                        data-primary="<?php echo esc_attr($preset['primary']); ?>"
-                                                        data-secondary="<?php echo esc_attr($preset['secondary']); ?>"
-                                                        data-bot-id="<?php echo esc_attr($initial_active_bot_id); ?>"
-                                                        aria-pressed="false"
-                                                    >
-                                                        <span class="aipkit_custom_theme_preset_swatch" aria-hidden="true"></span>
-                                                        <span class="aipkit_custom_theme_preset_label">
-                                                            <?php echo esc_html($preset['label']); ?>
-                                                        </span>
-                                                    </button>
-                                                <?php endforeach; ?>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        class="aipkit_builder_icon_btn aipkit_theme_scroll_btn aipkit_theme_scroll_btn--next"
-                                        aria-label="<?php esc_attr_e('Scroll themes right', 'gpt3-ai-content-generator'); ?>"
-                                    >
-                                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="aipkit_builder_action_row aipkit_builder_primary_actions" aria-label="<?php esc_attr_e('Chatbot configuration areas', 'gpt3-ai-content-generator'); ?>">
-                                <div class="aipkit_builder_action_group">
-                                    <button
-                                        type="button"
-                                        class="aipkit_btn aipkit_btn-primary aipkit_builder_action_btn aipkit_cb_ai_settings_toggle"
-                                    >
-                                        <span class="dashicons dashicons-admin-generic"></span>
-                                        <span><?php esc_html_e('Configure', 'gpt3-ai-content-generator'); ?></span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="aipkit_btn aipkit_btn-secondary aipkit_builder_action_btn aipkit_deploy_settings_trigger"
-                                        aria-controls="aipkit_deploy_settings_popover"
-                                        aria-expanded="false"
-                                    >
-                                        <span class="dashicons dashicons-cloud-upload"></span>
-                                        <span><?php esc_html_e('Deploy', 'gpt3-ai-content-generator'); ?></span>
-                                    </button>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section class="aipkit_builder_card aipkit_builder_card--training">
-                            <div class="aipkit_builder_card_header">
-                                <h3 class="aipkit_builder_card_title"><?php esc_html_e('Training', 'gpt3-ai-content-generator'); ?></h3>
-                                <div class="aipkit_builder_meta aipkit_training_meta">
-                                    <span class="aipkit_training_status" id="aipkit_training_status" aria-live="polite"></span>
-                                </div>
-                            </div>
-
-                            <div class="aipkit_builder_card_body">
-                                <div class="aipkit_builder_tabs aipkit_builder_tabs--training" role="tablist" aria-label="<?php esc_attr_e('Training sources', 'gpt3-ai-content-generator'); ?>" data-aipkit-tabs="training">
-                                    <button type="button" class="aipkit_builder_tab is-active" role="tab" aria-selected="true" data-aipkit-tab="qa">
-                                        <?php esc_html_e('Q&A', 'gpt3-ai-content-generator'); ?>
-                                    </button>
-                                    <button type="button" class="aipkit_builder_tab" role="tab" aria-selected="false" data-aipkit-tab="text">
-                                        <?php esc_html_e('Text', 'gpt3-ai-content-generator'); ?>
-                                    </button>
-                                    <button type="button" class="aipkit_builder_tab" role="tab" aria-selected="false" data-aipkit-tab="files">
-                                        <?php esc_html_e('Files', 'gpt3-ai-content-generator'); ?>
-                                    </button>
-                                    <button type="button" class="aipkit_builder_tab" role="tab" aria-selected="false" data-aipkit-tab="website">
-                                        <?php esc_html_e('Website', 'gpt3-ai-content-generator'); ?>
-                                    </button>
-                                </div>
-
-                                <div class="aipkit_builder_tab_panels aipkit_builder_tab_panels--training">
-                                    <div class="aipkit_builder_tab_panel is-active" data-aipkit-panel="qa">
-                                        <div class="aipkit_builder_training_qa">
-                                            <div class="aipkit_training_field">
-                                                <textarea
-                                                    id="aipkit_training_qa_question"
-                                                    class="aipkit_builder_textarea aipkit_training_textarea"
-                                                    rows="1"
-                                                    placeholder="<?php esc_attr_e('Question: What is your refund policy?', 'gpt3-ai-content-generator'); ?>"
-                                                ></textarea>
-                                            </div>
-                                            <div class="aipkit_training_field">
-                                                <textarea
-                                                    id="aipkit_training_qa_answer"
-                                                    class="aipkit_builder_textarea aipkit_training_textarea"
-                                                    rows="1"
-                                                    placeholder="<?php esc_attr_e('Answer: We offer refunds within 30 days of purchase.', 'gpt3-ai-content-generator'); ?>"
-                                                ></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_builder_tab_panel" data-aipkit-panel="text" hidden>
-                                        <div class="aipkit_training_field">
-                                            <textarea
-                                                id="aipkit_training_text_input"
-                                                name="training_text"
-                                                class="aipkit_builder_textarea aipkit_training_textarea aipkit_training_text_input"
-                                                rows="4"
-                                                placeholder="<?php esc_attr_e('Add training text...', 'gpt3-ai-content-generator'); ?>"
-                                            ></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_builder_tab_panel" data-aipkit-panel="files" hidden>
-                                        <div class="aipkit_training_field">
-                                            <div class="aipkit_builder_dropzone aipkit_training_dropzone">
-                                                <div class="aipkit_builder_dropzone_inner">
-                                                    <?php if ( $is_pro_plan ) : ?>
-                                                        <input
-                                                            id="aipkit_training_files_input"
-                                                            class="aipkit_training_files_input"
-                                                            type="file"
-                                                            multiple
-                                                            accept=".pdf,.docx,.txt,.md,.csv,.json"
-                                                            hidden
-                                                        >
-                                                        <button
-                                                            type="button"
-                                                            class="aipkit_btn aipkit_btn-secondary aipkit_builder_action_btn aipkit_training_files_button"
-                                                        >
-                                                            <?php esc_html_e('Choose files', 'gpt3-ai-content-generator'); ?>
-                                                        </button>
-                                                    <?php else : ?>
-                                                        <a
-                                                            class="aipkit_btn aipkit_btn-primary aipkit_builder_action_btn aipkit_training_files_button"
-                                                            href="<?php echo esc_url($pricing_url); ?>"
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                        >
-                                                            <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
-                                                        </a>
-                                                    <?php endif; ?>
-                                                    <p class="aipkit_builder_help_text">
-                                                        <?php esc_html_e('Supported: pdf, docx, txt, md, csv, json', 'gpt3-ai-content-generator'); ?>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="aipkit_training_file_list"
-                                            id="aipkit_training_file_list"
-                                            data-upgrade-url="<?php echo esc_url($pricing_url); ?>"
-                                        ></div>
-                                    </div>
-                                    <div class="aipkit_builder_tab_panel" data-aipkit-panel="website" hidden>
-                                        <div class="aipkit_training_website">
-                                            <div class="aipkit_training_site_row">
-                                                <span class="aipkit_training_site_label"><?php esc_html_e('Mode', 'gpt3-ai-content-generator'); ?></span>
-                                                <div class="aipkit_training_site_toggle">
-                                                    <label class="aipkit_training_site_option">
-                                                        <input type="radio" name="aipkit_wp_content_mode" id="aipkit_wp_content_mode_bulk" value="bulk" checked>
-                                                        <?php esc_html_e('All', 'gpt3-ai-content-generator'); ?>
-                                                    </label>
-                                                    <label class="aipkit_training_site_option">
-                                                        <input type="radio" name="aipkit_wp_content_mode" id="aipkit_wp_content_mode_specific" value="specific">
-                                                        <?php esc_html_e('Specific', 'gpt3-ai-content-generator'); ?>
-                                                    </label>
-                                                </div>
-                                                <span class="aipkit_training_site_divider" aria-hidden="true">|</span>
-                                                <div class="aipkit_training_site_group aipkit_training_site_group--status">
-                                                    <span class="aipkit_training_site_label"><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></span>
-                                                    <div id="aipkit_wp_content_status_wrap_bulk" class="aipkit_training_site_status_wrap">
-                                                        <select id="aipkit_vs_wp_content_status" class="aipkit_form-input aipkit_training_site_select">
-                                                            <option value="publish"><?php esc_html_e('Published', 'gpt3-ai-content-generator'); ?></option>
-                                                            <option value="draft"><?php esc_html_e('Draft', 'gpt3-ai-content-generator'); ?></option>
-                                                            <option value="any"><?php esc_html_e('Any', 'gpt3-ai-content-generator'); ?></option>
-                                                        </select>
-                                                    </div>
-                                                    <div id="aipkit_wp_content_status_wrap_specific" class="aipkit_training_site_status_wrap" hidden>
-                                                        <select id="aipkit_vs_wp_content_status_specific" class="aipkit_form-input aipkit_training_site_select">
-                                                            <option value="publish"><?php esc_html_e('Published', 'gpt3-ai-content-generator'); ?></option>
-                                                            <option value="draft"><?php esc_html_e('Draft', 'gpt3-ai-content-generator'); ?></option>
-                                                            <option value="any"><?php esc_html_e('Any', 'gpt3-ai-content-generator'); ?></option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <span class="aipkit_training_site_divider" aria-hidden="true">|</span>
-                                                <div id="aipkit_wp_content_bulk_panel" class="aipkit_training_site_group">
-                                                    <span class="aipkit_training_site_label"><?php esc_html_e('Types', 'gpt3-ai-content-generator'); ?></span>
-                                                    <div
-                                                        class="aipkit_training_site_dropdown"
-                                                        data-aipkit-training-types="bulk"
-                                                        data-placeholder="<?php echo esc_attr__('Select types', 'gpt3-ai-content-generator'); ?>"
-                                                        data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
-                                                    >
-                                                        <button
-                                                            type="button"
-                                                            class="aipkit_training_site_dropdown_btn"
-                                                            aria-expanded="false"
-                                                            aria-controls="aipkit_training_types_menu_bulk"
-                                                        >
-                                                            <span class="aipkit_training_site_dropdown_label">
-                                                                <?php esc_html_e('Select types', 'gpt3-ai-content-generator'); ?>
-                                                            </span>
-                                                        </button>
-                                                        <div
-                                                            id="aipkit_training_types_menu_bulk"
-                                                            class="aipkit_training_site_dropdown_panel"
-                                                            role="menu"
-                                                            hidden
-                                                        >
-                                                            <div id="aipkit_vs_wp_types_checkboxes" class="aipkit_training_site_checks aipkit_training_site_checks--dropdown">
-                                                                <?php foreach ($all_selectable_post_types as $post_type_slug => $post_type_obj) : ?>
-                                                                    <label class="aipkit_training_site_check" data-ptype="<?php echo esc_attr($post_type_slug); ?>">
-                                                                        <input type="checkbox" class="aipkit_wp_type_cb" value="<?php echo esc_attr($post_type_slug); ?>" <?php checked(in_array($post_type_slug, ['post', 'page'], true)); ?> />
-                                                                        <span class="aipkit_training_site_check_label"><?php echo esc_html($post_type_obj->label); ?></span>
-                                                                        <span class="aipkit_count_badge" data-count="-1"></span>
-                                                                    </label>
-                                                                <?php endforeach; ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <select id="aipkit_vs_wp_content_post_types" class="aipkit_training_site_hidden_select" multiple size="3">
-                                                        <?php foreach ($all_selectable_post_types as $post_type_slug => $post_type_obj) : ?>
-                                                            <option value="<?php echo esc_attr($post_type_slug); ?>" <?php selected(in_array($post_type_slug, ['post', 'page'], true)); ?>>
-                                                                <?php echo esc_html($post_type_obj->label); ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                                <div id="aipkit_wp_content_specific_types_panel" class="aipkit_training_site_group" hidden>
-                                                    <span class="aipkit_training_site_label"><?php esc_html_e('Types', 'gpt3-ai-content-generator'); ?></span>
-                                                    <div
-                                                        class="aipkit_training_site_dropdown"
-                                                        data-aipkit-training-types="specific"
-                                                        data-placeholder="<?php echo esc_attr__('Select types', 'gpt3-ai-content-generator'); ?>"
-                                                        data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
-                                                    >
-                                                        <button
-                                                            type="button"
-                                                            class="aipkit_training_site_dropdown_btn"
-                                                            aria-expanded="false"
-                                                            aria-controls="aipkit_training_types_menu_specific"
-                                                        >
-                                                            <span class="aipkit_training_site_dropdown_label">
-                                                                <?php esc_html_e('Select types', 'gpt3-ai-content-generator'); ?>
-                                                            </span>
-                                                        </button>
-                                                        <div
-                                                            id="aipkit_training_types_menu_specific"
-                                                            class="aipkit_training_site_dropdown_panel"
-                                                            role="menu"
-                                                            hidden
-                                                        >
-                                                            <div id="aipkit_vs_wp_types_checkboxes_specific" class="aipkit_training_site_checks aipkit_training_site_checks--dropdown">
-                                                                <?php foreach ($all_selectable_post_types as $post_type_slug => $post_type_obj) : ?>
-                                                                    <label class="aipkit_training_site_check" data-ptype="<?php echo esc_attr($post_type_slug); ?>">
-                                                                        <input type="checkbox" class="aipkit_wp_type_cb_specific" value="<?php echo esc_attr($post_type_slug); ?>" <?php checked(in_array($post_type_slug, ['post', 'page'], true)); ?> />
-                                                                        <span class="aipkit_training_site_check_label"><?php echo esc_html($post_type_obj->label); ?></span>
-                                                                        <span class="aipkit_count_badge" data-count="-1"></span>
-                                                                    </label>
-                                                                <?php endforeach; ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <select id="aipkit_vs_wp_content_post_types_specific" class="aipkit_training_site_hidden_select" multiple size="3">
-                                                        <?php foreach ($all_selectable_post_types as $post_type_slug => $post_type_obj) : ?>
-                                                            <option value="<?php echo esc_attr($post_type_slug); ?>" <?php selected(in_array($post_type_slug, ['post', 'page'], true)); ?>>
-                                                                <?php echo esc_html($post_type_obj->label); ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                                <input type="hidden" id="aipkit_vs_wp_content_mode" value="bulk" />
-                                            </div>
-
-                                            <div id="aipkit_wp_content_bulk_hint" class="aipkit_training_site_hint">
-                                                <p class="aipkit_builder_help_text">
-                                                    <?php esc_html_e('Select the content you want to add to your bot, then hit Train to start.', 'gpt3-ai-content-generator'); ?>
-                                                </p>
-                                            </div>
-
-                                            <div id="aipkit_background_indexing_confirm" class="aipkit_inline_confirm" hidden>
-                                                <div class="aipkit_inline_confirm_content">
-                                                    <p id="aipkit_background_indexing_message" class="aipkit_builder_help_text"></p>
-                                                    <div class="aipkit_inline_confirm_actions">
-                                                        <button type="button" id="aipkit_background_indexing_yes" class="aipkit_btn aipkit_btn-primary aipkit_btn-sm">
-                                                            <?php esc_html_e('Yes, run in background', 'gpt3-ai-content-generator'); ?>
-                                                        </button>
-                                                        <button type="button" id="aipkit_background_indexing_no" class="aipkit_btn aipkit_btn-secondary aipkit_btn-sm">
-                                                            <?php esc_html_e('No, run now', 'gpt3-ai-content-generator'); ?>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div id="aipkit_wp_content_specific_panel" class="aipkit_training_site_panel" hidden>
-                                                <div id="aipkit_vs_wp_content_list_area" class="aipkit_training_site_list">
-                                                    <p class="aipkit_builder_help_text">
-                                                        <?php esc_html_e('Select criteria to load content.', 'gpt3-ai-content-generator'); ?>
-                                                    </p>
-                                                </div>
-                                                <div id="aipkit_vs_wp_content_pagination" class="aipkit_training_site_pagination"></div>
-                                            </div>
-
-                                            <div id="aipkit_vs_wp_content_messages_area" class="aipkit_form-help aipkit_training_site_status" aria-live="polite"></div>
-                                            <select id="aipkit_vs_global_target_select" class="aipkit_training_site_target_select" aria-hidden="true" tabindex="-1">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="aipkit_training_footer">
-                                    <div class="aipkit_builder_action_row aipkit_training_action_row">
-                                        <div class="aipkit_builder_action_group aipkit_training_primary_actions">
+                                        <button
+                                            type="button"
+                                            class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_builder_new_bot_btn aipkit_builder_new_bot_btn--label"
+                                            aria-label="<?php esc_attr_e('Create new chatbot', 'gpt3-ai-content-generator'); ?>"
+                                            title="<?php esc_attr_e('Create new chatbot', 'gpt3-ai-content-generator'); ?>"
+                                        >
+                                            <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                        </button>
+                                        <div class="aipkit_builder_bot_overflow">
                                             <button
                                                 type="button"
-                                                class="aipkit_btn aipkit_btn-primary aipkit_builder_action_btn aipkit_training_action_btn"
-                                                data-training-action="add"
-                                            >
-                                                <?php esc_html_e('Train', 'gpt3-ai-content-generator'); ?>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="aipkit_btn aipkit_btn-secondary aipkit_builder_action_btn aipkit_training_stop_btn"
+                                                class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_builder_bot_overflow_trigger"
+                                                aria-label="<?php esc_attr_e('Show chatbot list', 'gpt3-ai-content-generator'); ?>"
+                                                title="<?php esc_attr_e('Show chatbot list', 'gpt3-ai-content-generator'); ?>"
+                                                aria-haspopup="menu"
+                                                aria-expanded="false"
                                                 hidden
                                             >
-                                                <?php esc_html_e('Stop', 'gpt3-ai-content-generator'); ?>
+                                                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                             </button>
+                                            <div class="aipkit_builder_bot_overflow_menu" role="menu" hidden></div>
                                         </div>
-                                        <div class="aipkit_builder_action_group aipkit_training_sources_row">
+                                    </div>
+                                </div>
+                                <div class="aipkit_builder_bot_select_shell" hidden>
+                                    <label for="aipkit_chatbot_builder_bot_select" class="screen-reader-text">
+                                        <?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?>
+                                    </label>
+                                    <select
+                                        id="aipkit_chatbot_builder_bot_select"
+                                        name="aipkit_chatbot_builder_bot_select"
+                                        class="aipkit_form-input aipkit_builder_bot_select_input"
+                                        <?php echo empty($all_bots_ordered_entries) ? 'disabled' : ''; ?>
+                                    >
+                                        <?php if (empty($all_bots_ordered_entries)) : ?>
+                                            <option value="">
+                                                <?php esc_html_e('No chatbots yet', 'gpt3-ai-content-generator'); ?>
+                                            </option>
+                                        <?php else : ?>
+                                            <option value="__new__">
+                                                <?php esc_html_e('+ New Bot', 'gpt3-ai-content-generator'); ?>
+                                            </option>
+                                            <option value="" disabled>----------</option>
+                                            <?php foreach ($all_bots_ordered_entries as $bot_entry_for_select) : ?>
+                                                <?php $bot_post_for_select = $bot_entry_for_select['post']; ?>
+                                                <option
+                                                    value="<?php echo esc_attr($bot_post_for_select->ID); ?>"
+                                                    <?php selected($initial_active_bot_id, $bot_post_for_select->ID); ?>
+                                                >
+                                                    <?php echo esc_html($bot_post_for_select->post_title); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                </div>
+                            </section>
+                            <section class="aipkit_builder_card aipkit_builder_card--settings aipkit_settings_accordion" id="aipkit_settings_accordion">
+                                <?php
+                                $bot_id = $initial_active_bot_id;
+                                $bot_settings = $active_bot_settings;
+                                $chatbot_summary_parts = [];
+                                if (!empty($saved_provider)) {
+                                    $chatbot_summary_parts[] = $saved_provider;
+                                }
+                                if (!empty($saved_model)) {
+                                    $chatbot_summary_parts[] = $saved_model;
+                                }
+                                $chatbot_summary_fallback = __('Select engine and model', 'gpt3-ai-content-generator');
+                                $chatbot_summary_text = !empty($chatbot_summary_parts)
+                                    ? implode(' | ', $chatbot_summary_parts)
+                                    : $chatbot_summary_fallback;
+                                $behavior_reasoning_labels = [
+                                    'none' => __('None', 'gpt3-ai-content-generator'),
+                                    'low' => __('Low', 'gpt3-ai-content-generator'),
+                                    'medium' => __('Medium', 'gpt3-ai-content-generator'),
+                                    'high' => __('High', 'gpt3-ai-content-generator'),
+                                    'xhigh' => __('Very high', 'gpt3-ai-content-generator'),
+                                ];
+                                $behavior_reasoning_key = isset($reasoning_effort_val)
+                                    ? sanitize_key((string) $reasoning_effort_val)
+                                    : BotSettingsManager::DEFAULT_REASONING_EFFORT;
+                                if (!isset($behavior_reasoning_labels[$behavior_reasoning_key])) {
+                                    $behavior_reasoning_key = BotSettingsManager::DEFAULT_REASONING_EFFORT;
+                                }
+                                $behavior_reasoning_label = $behavior_reasoning_labels[$behavior_reasoning_key]
+                                    ?? __('None', 'gpt3-ai-content-generator');
+                                $behavior_supports_reasoning = (
+                                    $saved_provider === 'OpenAI'
+                                    && class_exists('\WPAICG\Core\AIPKit_OpenAI_Reasoning')
+                                    && \WPAICG\Core\AIPKit_OpenAI_Reasoning::supports_reasoning((string) $saved_model)
+                                );
+                                $behavior_response_length_value = isset($active_bot_settings['max_completion_tokens'])
+                                    ? absint($active_bot_settings['max_completion_tokens'])
+                                    : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
+                                $behavior_response_length_value = max(1, min($behavior_response_length_value, 128000));
+                                $behavior_memory_value = isset($active_bot_settings['max_messages'])
+                                    ? absint($active_bot_settings['max_messages'])
+                                    : BotSettingsManager::DEFAULT_MAX_MESSAGES;
+                                $behavior_memory_value = max(1, min($behavior_memory_value, 1024));
+                                $behavior_summary_fallback = __('Response length and memory', 'gpt3-ai-content-generator');
+                                $behavior_summary_text = $behavior_supports_reasoning
+                                    ? sprintf(
+                                        /* translators: 1: response length value, 2: memory value, 3: reasoning label. */
+                                        __('Response length: %1$s | Memory: %2$s | Reasoning: %3$s', 'gpt3-ai-content-generator'),
+                                        number_format_i18n($behavior_response_length_value),
+                                        number_format_i18n($behavior_memory_value),
+                                        $behavior_reasoning_label
+                                    )
+                                    : sprintf(
+                                        /* translators: 1: response length value, 2: memory value. */
+                                        __('Response length: %1$s | Memory: %2$s', 'gpt3-ai-content-generator'),
+                                        number_format_i18n($behavior_response_length_value),
+                                        number_format_i18n($behavior_memory_value)
+                                    );
+                                $interface_summary_fallback = __('Select theme', 'gpt3-ai-content-generator');
+                                $saved_theme_key = isset($saved_theme) ? (string) $saved_theme : '';
+                                $interface_summary_text = '';
+                                if ($saved_theme_key === 'custom' && $selected_theme_preset_label !== '') {
+                                    $interface_summary_text = $selected_theme_preset_label;
+                                } elseif (!empty($saved_theme_key) && isset($available_themes[$saved_theme_key])) {
+                                    $interface_summary_text = (string) $available_themes[$saved_theme_key];
+                                } elseif (!empty($saved_theme_key)) {
+                                    $interface_summary_text = ucwords(str_replace(['-', '_'], ' ', $saved_theme_key));
+                                }
+                                if ($interface_summary_text === '') {
+                                    $interface_summary_text = $interface_summary_fallback;
+                                }
+                                $context_summary_fallback = '';
+                                $context_summary_parts = [];
+                                if ($enable_vector_store === '1') {
+                                    $vector_provider_labels = [
+                                        'openai' => __('OpenAI', 'gpt3-ai-content-generator'),
+                                        'pinecone' => __('Pinecone', 'gpt3-ai-content-generator'),
+                                        'qdrant' => __('Qdrant', 'gpt3-ai-content-generator'),
+                                        'claude_files' => __('Claude Files', 'gpt3-ai-content-generator'),
+                                    ];
+                                    $vector_provider_label = $vector_provider_labels[$vector_store_provider] ?? '';
+                                    $vector_source_names = [];
+
+                                    if ($vector_store_provider === 'openai') {
+                                        $openai_store_names = [];
+                                        foreach ($openai_vector_stores as $store_index => $store) {
+                                            if (!is_array($store)) {
+                                                continue;
+                                            }
+                                            $store_id = isset($store['id']) ? trim((string) $store['id']) : '';
+                                            if ($store_id === '') {
+                                                continue;
+                                            }
+                                            $store_name = isset($store['name']) ? trim((string) $store['name']) : '';
+                                            if ($store_name === '') {
+                                                $store_name = sprintf(
+                                                    /* translators: %d is the vector store index. */
+                                                    __('Untitled store %d', 'gpt3-ai-content-generator'),
+                                                    ((int) $store_index) + 1
+                                                );
+                                            }
+                                            $openai_store_names[$store_id] = $store_name;
+                                        }
+                                        foreach ($openai_vector_store_ids_saved as $saved_store_id) {
+                                            $saved_store_id = is_scalar($saved_store_id) ? trim((string) $saved_store_id) : '';
+                                            if ($saved_store_id === '') {
+                                                continue;
+                                            }
+                                            $vector_source_names[] = $openai_store_names[$saved_store_id] ?? $saved_store_id;
+                                        }
+                                    } elseif ($vector_store_provider === 'pinecone') {
+                                        if (!empty($pinecone_index_name)) {
+                                            $vector_source_names[] = (string) $pinecone_index_name;
+                                        }
+                                    } elseif ($vector_store_provider === 'qdrant') {
+                                        foreach ($qdrant_collection_names as $collection_name) {
+                                            $collection_name = is_scalar($collection_name) ? trim((string) $collection_name) : '';
+                                            if ($collection_name !== '') {
+                                                $vector_source_names[] = $collection_name;
+                                            }
+                                        }
+                                    }
+
+                                    $vector_source_names = array_values(
+                                        array_unique(
+                                            array_filter(
+                                                array_map('trim', $vector_source_names)
+                                            )
+                                        )
+                                    );
+
+                                    if ($vector_provider_label !== '') {
+                                        $knowledge_summary = $vector_provider_label;
+                                        if (!empty($vector_source_names)) {
+                                            $knowledge_summary .= ': ' . implode(', ', $vector_source_names);
+                                        }
+                                        $context_summary_parts[] = $knowledge_summary;
+                                    } elseif (!empty($vector_source_names)) {
+                                        $context_summary_parts[] = implode(', ', $vector_source_names);
+                                    }
+
+                                    if (
+                                        in_array($vector_store_provider, ['pinecone', 'qdrant'], true)
+                                        && !empty($vector_embedding_model)
+                                    ) {
+                                        $embedding_models_by_provider = [
+                                            'openai' => $openai_embedding_models,
+                                            'google' => $google_embedding_models,
+                                            'azure' => $azure_embedding_models,
+                                            'openrouter' => $openrouter_embedding_models,
+                                        ];
+                                        $embedding_model_label = trim((string) $vector_embedding_model);
+                                        $selected_embedding_provider = trim((string) $vector_embedding_provider);
+                                        if (
+                                            $selected_embedding_provider !== ''
+                                            && isset($embedding_models_by_provider[$selected_embedding_provider])
+                                            && is_array($embedding_models_by_provider[$selected_embedding_provider])
+                                        ) {
+                                            foreach ($embedding_models_by_provider[$selected_embedding_provider] as $embedding_model_option) {
+                                                if (!is_array($embedding_model_option)) {
+                                                    continue;
+                                                }
+                                                $embedding_option_id = isset($embedding_model_option['id'])
+                                                    ? trim((string) $embedding_model_option['id'])
+                                                    : '';
+                                                if ($embedding_option_id !== $embedding_model_label) {
+                                                    continue;
+                                                }
+                                                $embedding_option_name = isset($embedding_model_option['name'])
+                                                    ? trim((string) $embedding_model_option['name'])
+                                                    : '';
+                                                if ($embedding_option_name !== '') {
+                                                    $embedding_model_label = $embedding_option_name;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                        if ($embedding_model_label !== '') {
+                                            $context_summary_parts[] = $embedding_model_label;
+                                        }
+                                    }
+                                }
+                                if ($content_aware_enabled === '1') {
+                                    $context_summary_parts[] = __('Page context', 'gpt3-ai-content-generator');
+                                }
+                                $context_summary_text = !empty($context_summary_parts)
+                                    ? implode(' | ', $context_summary_parts)
+                                    : $context_summary_fallback;
+                                $tools_summary_fallback = '';
+                                $tools_summary_parts = [];
+                                if ($file_upload_toggle_value === '1') {
+                                    $tools_summary_parts[] = __('File Upload', 'gpt3-ai-content-generator');
+                                }
+                                if ($enable_image_upload === '1') {
+                                    $tools_summary_parts[] = __('Image Analysis', 'gpt3-ai-content-generator');
+                                }
+                                $web_search_enabled = false;
+                                if ($saved_provider === 'OpenAI') {
+                                    $web_search_enabled = ($openai_web_search_enabled_val === '1');
+                                } elseif ($saved_provider === 'Google') {
+                                    $web_search_enabled = ($google_search_grounding_enabled_val === '1');
+                                } elseif ($saved_provider === 'Claude') {
+                                    $web_search_enabled = ($claude_web_search_enabled_val === '1');
+                                } elseif ($saved_provider === 'OpenRouter') {
+                                    $web_search_enabled = ($openrouter_web_search_enabled_val === '1');
+                                }
+                                if ($web_search_enabled) {
+                                    $tools_summary_parts[] = __('Web Search', 'gpt3-ai-content-generator');
+                                }
+                                if ($enable_voice_input === '1') {
+                                    $tools_summary_parts[] = __('Speech to Text', 'gpt3-ai-content-generator');
+                                }
+                                if ($tts_enabled === '1') {
+                                    $tools_summary_parts[] = __('Text to Speech', 'gpt3-ai-content-generator');
+                                }
+                                if ($enable_realtime_voice === '1') {
+                                    $tools_summary_parts[] = __('Realtime Voice', 'gpt3-ai-content-generator');
+                                }
+                                $tools_summary_count = count($tools_summary_parts);
+                                if ($tools_summary_count > 3) {
+                                    $tools_summary_text = sprintf(
+                                        /* translators: %d is the number of enabled tools. */
+                                        __('Enabled: %d', 'gpt3-ai-content-generator'),
+                                        $tools_summary_count
+                                    );
+                                } elseif ($tools_summary_count > 0) {
+                                    $tools_summary_text = sprintf(
+                                        /* translators: %s is a comma-separated list of enabled tools. */
+                                        __('Enabled: %s', 'gpt3-ai-content-generator'),
+                                        implode(', ', $tools_summary_parts)
+                                    );
+                                } else {
+                                    $tools_summary_text = $tools_summary_fallback;
+                                }
+                                $enable_ip_anonymization_value = $active_bot_settings['enable_ip_anonymization']
+                                    ?? BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION;
+                                $enable_ip_anonymization_value = in_array($enable_ip_anonymization_value, ['0', '1'], true)
+                                    ? $enable_ip_anonymization_value
+                                    : BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION;
+                                $enable_consent_compliance_value = $active_bot_settings['enable_consent_compliance']
+                                    ?? BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE;
+                                $enable_consent_compliance_value = in_array($enable_consent_compliance_value, ['0', '1'], true)
+                                    ? $enable_consent_compliance_value
+                                    : BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE;
+                                $openai_moderation_enabled_value = $active_bot_settings['openai_moderation_enabled']
+                                    ?? BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION;
+                                $openai_moderation_enabled_value = in_array($openai_moderation_enabled_value, ['0', '1'], true)
+                                    ? $openai_moderation_enabled_value
+                                    : BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION;
+                                $safety_summary_fallback = '';
+                                $safety_summary_parts = [];
+                                if ($enable_ip_anonymization_value === '1') {
+                                    $safety_summary_parts[] = __('IP anonymization', 'gpt3-ai-content-generator');
+                                }
+                                if ($consent_feature_available && $enable_consent_compliance_value === '1') {
+                                    $safety_summary_parts[] = __('Consent notice', 'gpt3-ai-content-generator');
+                                }
+                                if (
+                                    $openai_moderation_available
+                                    && $saved_provider === 'OpenAI'
+                                    && $openai_moderation_enabled_value === '1'
+                                ) {
+                                    $safety_summary_parts[] = __('Moderation', 'gpt3-ai-content-generator');
+                                }
+                                $safety_summary_text = !empty($safety_summary_parts)
+                                    ? sprintf(
+                                        /* translators: %s is a comma-separated list of enabled safety controls. */
+                                        __('Enabled: %s', 'gpt3-ai-content-generator'),
+                                        implode(', ', $safety_summary_parts)
+                                    )
+                                    : $safety_summary_fallback;
+                                $token_limit_mode_value = $active_bot_settings['token_limit_mode']
+                                    ?? BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
+                                $token_limit_mode_value = is_scalar($token_limit_mode_value)
+                                    ? sanitize_key((string) $token_limit_mode_value)
+                                    : BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
+                                if (!in_array($token_limit_mode_value, ['general', 'role_based'], true)) {
+                                    $token_limit_mode_value = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
+                                }
+                                $token_guest_limit_value = $active_bot_settings['token_guest_limit'] ?? '';
+                                $token_guest_limit_value = is_scalar($token_guest_limit_value)
+                                    ? trim((string) $token_guest_limit_value)
+                                    : '';
+                                $token_user_limit_value = $active_bot_settings['token_user_limit'] ?? '';
+                                $token_user_limit_value = is_scalar($token_user_limit_value)
+                                    ? trim((string) $token_user_limit_value)
+                                    : '';
+                                $token_guest_summary_value = $token_guest_limit_value !== ''
+                                    ? $token_guest_limit_value
+                                    : __('Unlimited', 'gpt3-ai-content-generator');
+                                $token_user_summary_value = $token_user_limit_value !== ''
+                                    ? $token_user_limit_value
+                                    : __('Unlimited', 'gpt3-ai-content-generator');
+                                $token_reset_period_value = $active_bot_settings['token_reset_period']
+                                    ?? BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
+                                $token_reset_period_value = is_scalar($token_reset_period_value)
+                                    ? sanitize_key((string) $token_reset_period_value)
+                                    : BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
+                                $token_reset_period_labels = [
+                                    'never' => __('never', 'gpt3-ai-content-generator'),
+                                    'daily' => __('1 day', 'gpt3-ai-content-generator'),
+                                    'weekly' => __('1 week', 'gpt3-ai-content-generator'),
+                                    'monthly' => __('1 month', 'gpt3-ai-content-generator'),
+                                ];
+                                if (!isset($token_reset_period_labels[$token_reset_period_value])) {
+                                    $token_reset_period_value = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
+                                }
+                                if (!isset($token_reset_period_labels[$token_reset_period_value])) {
+                                    $token_reset_period_value = 'monthly';
+                                }
+                                $limits_summary_text = $token_limit_mode_value === 'role_based'
+                                    ? sprintf(
+                                        /* translators: %s is a token reset period label such as "1 month". */
+                                        __('Enabled: role based limit reset period: %s.', 'gpt3-ai-content-generator'),
+                                        $token_reset_period_labels[$token_reset_period_value]
+                                    )
+                                    : sprintf(
+                                        /* translators: 1: guest token limit summary, 2: user token limit summary. */
+                                        __('Guests: %1$s Users: %2$s', 'gpt3-ai-content-generator'),
+                                        $token_guest_summary_value,
+                                        $token_user_summary_value
+                                    );
+                                $limits_summary_fallback = $limits_summary_text;
+                                $rules_count = 0;
+                                if ($triggers_available) {
+                                    $saved_triggers_json = $active_bot_settings['triggers_json'] ?? '[]';
+                                    if (is_array($saved_triggers_json)) {
+                                        $rules_count = count($saved_triggers_json);
+                                    } elseif (is_string($saved_triggers_json) && $saved_triggers_json !== '') {
+                                        $decoded_rules = json_decode($saved_triggers_json, true);
+                                        if (is_array($decoded_rules)) {
+                                            if (isset($decoded_rules['triggers']) && is_array($decoded_rules['triggers'])) {
+                                                $rules_count = count($decoded_rules['triggers']);
+                                            } elseif (isset($decoded_rules['rules']) && is_array($decoded_rules['rules'])) {
+                                                $rules_count = count($decoded_rules['rules']);
+                                            } else {
+                                                $rules_count = count($decoded_rules);
+                                            }
+                                        }
+                                    }
+                                }
+                                $rules_summary_fallback = '';
+                                $rules_summary_text = $rules_count > 0
+                                    ? sprintf(
+                                        _n('%d rule', '%d rules', $rules_count, 'gpt3-ai-content-generator'),
+                                        $rules_count
+                                    )
+                                    : $rules_summary_fallback;
+                                ?>
+                                <div class="aipkit_accordion_section" data-aipkit-accordion="chatbot">
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-format-chat" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></span>
+                                    <span
+                                        class="aipkit_accordion_header_hint"
+                                        data-aipkit-chatbot-summary
+                                        data-default-summary="<?php echo esc_attr($chatbot_summary_fallback); ?>"
+                                        title="<?php echo esc_attr($chatbot_summary_text); ?>"
+                                    ><?php echo esc_html($chatbot_summary_text); ?></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="chatbot" hidden>
+                                    <div class="aipkit_builder_field">
+                                        <div class="aipkit_builder_ai_model aipkit_chatbot_tab_model_config">
+                                            <?php
+                                            $is_next_layout = true;
+                                            include __DIR__ . '/partials/ai-config/provider-model.php';
+                                            ?>
+                                        </div>
+                                    </div>
+                                    <div class="aipkit_builder_field">
+                                        <label for="aipkit_bot_<?php echo esc_attr($initial_active_bot_id); ?>_instructions" class="aipkit_builder_label">
+                                            <?php esc_html_e('Instructions', 'gpt3-ai-content-generator'); ?>
+                                        </label>
+                                        <div class="aipkit_builder_textarea_wrap">
+                                            <textarea
+                                                id="aipkit_bot_<?php echo esc_attr($initial_active_bot_id); ?>_instructions"
+                                                name="instructions"
+                                                class="aipkit_builder_textarea aipkit_form-input"
+                                                rows="5"
+                                                placeholder="<?php esc_attr_e('e.g., You are a helpful AI Assistant. Please be friendly.', 'gpt3-ai-content-generator'); ?>"
+                                            ><?php echo esc_textarea($active_bot_instructions); ?></textarea>
                                             <button
                                                 type="button"
-                                                class="aipkit_training_sources_btn aipkit_builder_sheet_trigger"
-                                                data-base-label="<?php echo esc_attr__('Sources', 'gpt3-ai-content-generator'); ?>"
-                                                data-sheet-title="<?php echo esc_attr__('Sources', 'gpt3-ai-content-generator'); ?>"
-                                                data-sheet-description="<?php echo esc_attr__('Browse and manage training sources for this chatbot.', 'gpt3-ai-content-generator'); ?>"
-                                                data-sheet-content="sources"
+                                                class="aipkit_builder_icon_btn aipkit_builder_textarea_expand aipkit_builder_instructions_expand"
+                                                aria-label="<?php esc_attr_e('Expand instructions editor', 'gpt3-ai-content-generator'); ?>"
                                             >
-                                                <span class="aipkit_training_sources_label">
-                                                    <?php echo esc_html__('Sources', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                                <span class="aipkit_training_sources_count" aria-hidden="true">0</span>
-                                                <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                                                <span class="dashicons dashicons-editor-expand"></span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
+                                </div>
+                            <div class="aipkit_accordion_section" data-aipkit-accordion="context_behavior">
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-admin-settings" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Context', 'gpt3-ai-content-generator'); ?></span>
+                                    <span
+                                        class="aipkit_accordion_header_hint"
+                                        data-aipkit-context-summary
+                                        data-default-summary="<?php echo esc_attr($context_summary_fallback); ?>"
+                                        title="<?php echo esc_attr($context_summary_text); ?>"
+                                    ><?php echo esc_html($context_summary_text); ?></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="context" hidden>
+                                    <div class="aipkit_accordion_subsection">
+                                        <?php include __DIR__ . '/partials/ai-config/context-settings.php'; ?>
+                                        <?php include __DIR__ . '/partials/ai-config/training-settings.php'; ?>
+                                    </div>
+                                </div>
                             </div>
-
+                            <div class="aipkit_accordion_section" data-aipkit-accordion="tools">
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-admin-tools" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Tools', 'gpt3-ai-content-generator'); ?></span>
+                                    <span
+                                        class="aipkit_accordion_header_hint"
+                                        data-aipkit-tools-summary
+                                        data-default-summary="<?php echo esc_attr($tools_summary_fallback); ?>"
+                                        title="<?php echo esc_attr($tools_summary_text); ?>"
+                                    ><?php echo esc_html($tools_summary_text); ?></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="tools" hidden>
+                                    <?php include __DIR__ . '/partials/ai-config/tools-settings.php'; ?>
+                                </div>
+                            </div>
+                            <div class="aipkit_accordion_section" data-aipkit-accordion="behavior">
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-controls-repeat" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Behaviour', 'gpt3-ai-content-generator'); ?></span>
+                                    <span
+                                        class="aipkit_accordion_header_hint"
+                                        data-aipkit-behavior-summary
+                                        data-default-summary="<?php echo esc_attr($behavior_summary_fallback); ?>"
+                                        title="<?php echo esc_attr($behavior_summary_text); ?>"
+                                    ><?php echo esc_html($behavior_summary_text); ?></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="behavior" hidden>
+                                    <?php include __DIR__ . '/partials/ai-config/behavior-settings.php'; ?>
+                                </div>
+                            </div>
+                            <div class="aipkit_accordion_section" data-aipkit-accordion="interface">
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-admin-appearance" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Appearance', 'gpt3-ai-content-generator'); ?></span>
+                                    <span
+                                        class="aipkit_accordion_header_hint"
+                                        data-aipkit-interface-summary
+                                        data-default-summary="<?php echo esc_attr($interface_summary_fallback); ?>"
+                                        title="<?php echo esc_attr($interface_summary_text); ?>"
+                                    ><?php echo esc_html($interface_summary_text); ?></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="appearance" hidden>
+                                    <?php include __DIR__ . '/partials/ai-config/appearance-settings.php'; ?>
+                                </div>
+                            </div>
+                            <div class="aipkit_accordion_section" data-aipkit-accordion="rules">
+                                <button
+                                    type="button"
+                                    class="aipkit_accordion_header aipkit_builder_sheet_trigger"
+                                    aria-expanded="false"
+                                    data-sheet-title="<?php echo esc_attr__('Rules', 'gpt3-ai-content-generator'); ?>"
+                                    data-sheet-description="<?php echo esc_attr__('Create and manage rule-based automations for this chatbot.', 'gpt3-ai-content-generator'); ?>"
+                                    data-sheet-content="triggers"
+                                >
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-controls-repeat" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Rules', 'gpt3-ai-content-generator'); ?></span>
+                                    <span
+                                        class="aipkit_accordion_header_hint"
+                                        data-aipkit-rules-summary
+                                        data-default-summary="<?php echo esc_attr($rules_summary_fallback); ?>"
+                                        title="<?php echo esc_attr($rules_summary_text); ?>"
+                                    ><?php echo esc_html($rules_summary_text); ?></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body aipkit_accordion_body--rules" data-aipkit-settings-panel="rules" hidden></div>
+                            </div>
+                            <div class="aipkit_accordion_section" data-aipkit-accordion="safety">
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-shield" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Safety', 'gpt3-ai-content-generator'); ?></span>
+                                    <span
+                                        class="aipkit_accordion_header_hint"
+                                        data-aipkit-safety-summary
+                                        data-default-summary="<?php echo esc_attr($safety_summary_fallback); ?>"
+                                        title="<?php echo esc_attr($safety_summary_text); ?>"
+                                    ><?php echo esc_html($safety_summary_text); ?></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="safety" hidden>
+                                    <?php include __DIR__ . '/partials/ai-config/safety-settings.php'; ?>
+                                </div>
+                            </div>
+                            <div class="aipkit_accordion_section" data-aipkit-accordion="limits">
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-chart-bar" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></span>
+                                    <span
+                                        class="aipkit_accordion_header_hint"
+                                        data-aipkit-limits-summary
+                                        data-default-summary="<?php echo esc_attr($limits_summary_fallback); ?>"
+                                        title="<?php echo esc_attr($limits_summary_text); ?>"
+                                    ><?php echo esc_html($limits_summary_text); ?></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="limits" hidden>
+                                    <?php include __DIR__ . '/partials/ai-config/limits-settings.php'; ?>
+                                </div>
+                            </div>
+                            <div class="aipkit_accordion_section" data-aipkit-accordion="actions">
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></span>
+                                    <span class="aipkit_accordion_header_hint" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body aipkit_accordion_body--actions" hidden>
+                                    <div class="aipkit_accordion_actions_row">
+                                        <button
+                                            type="button"
+                                            class="aipkit_popover_footer_btn aipkit_popover_footer_btn--secondary"
+                                            data-action="duplicate"
+                                            title="<?php esc_attr_e('Duplicate chatbot', 'gpt3-ai-content-generator'); ?>"
+                                        >
+                                            <?php esc_html_e('Duplicate', 'gpt3-ai-content-generator'); ?>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="aipkit_popover_footer_btn aipkit_popover_footer_btn--secondary"
+                                            data-action="reset"
+                                            title="<?php esc_attr_e('Reset chatbot settings', 'gpt3-ai-content-generator'); ?>"
+                                        >
+                                            <?php esc_html_e('Reset', 'gpt3-ai-content-generator'); ?>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="aipkit_popover_footer_btn aipkit_popover_footer_btn--danger"
+                                            data-action="delete"
+                                            <?php echo $is_default_active ? 'disabled aria-disabled="true"' : ''; ?>
+                                            title="<?php echo esc_attr($is_default_active ? __('Default bot cannot be deleted.', 'gpt3-ai-content-generator') : __('Delete chatbot', 'gpt3-ai-content-generator')); ?>"
+                                        >
+                                            <?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </section>
+                        <?php endif; ?>
+
                         </form>
                     </div>
                 </div>
@@ -1281,7 +1620,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
         >
         <div class="aipkit_popover_flyout_header">
             <span class="aipkit_popover_flyout_title">
-                <?php esc_html_e('Suggested prompts', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('Conversation starters', 'gpt3-ai-content-generator'); ?>
             </span>
             <button
                 type="button"
@@ -1306,7 +1645,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_conversation_starters"
                             data-tooltip="<?php echo esc_attr__('Enter one prompt per line. Users can click them to start a conversation. Defaults are used if empty.', 'gpt3-ai-content-generator'); ?>"
                         >
-                            <?php esc_html_e('Starter prompts (max 6)', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Conversation starters (max 6)', 'gpt3-ai-content-generator'); ?>
                         </label>
                         <textarea
                             id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_conversation_starters"
@@ -1333,106 +1672,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
         </div>
         </div>
     <?php endif; ?>
-    <div
-        class="aipkit-modal-overlay aipkit_builder_new_bot_modal"
-        id="aipkit_builder_new_bot_modal"
-        aria-hidden="true"
-    >
-        <div
-            class="aipkit-modal-content"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="aipkit_builder_new_bot_title"
-        >
-            <div class="aipkit-modal-header">
-                <h3 class="aipkit-modal-title" id="aipkit_builder_new_bot_title">
-                    <?php esc_html_e('Create New Bot', 'gpt3-ai-content-generator'); ?>
-                </h3>
-                <button
-                    type="button"
-                    class="aipkit-modal-close-btn aipkit_builder_new_bot_close"
-                    aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
-                >
-                    &times;
-                </button>
-            </div>
-            <div class="aipkit-modal-body" id="chatbot-create-new-content">
-                <div class="aipkit_builder_field">
-                    <label for="aipkit_new_bot_name" class="aipkit_builder_label">
-                        <?php esc_html_e('Bot name', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <input
-                        type="text"
-                        id="aipkit_new_bot_name"
-                        class="aipkit_builder_input"
-                        placeholder="<?php esc_attr_e('e.g., Support Assistant', 'gpt3-ai-content-generator'); ?>"
-                    >
-                </div>
-                <div class="aipkit_builder_action_row">
-                    <button
-                        type="button"
-                        id="aipkit_create_new_bot_btn"
-                        class="aipkit_btn aipkit_btn-primary aipkit_builder_action_btn"
-                    >
-                        <span class="aipkit_btn-text"><?php esc_html_e('Create Bot', 'gpt3-ai-content-generator'); ?></span>
-                        <span class="aipkit_spinner"></span>
-                    </button>
-                </div>
-                <div id="aipkit_create_bot_message" class="aipkit_form-help"></div>
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="aipkit-modal-overlay aipkit_builder_rename_bot_modal"
-        id="aipkit_builder_rename_bot_modal"
-        aria-hidden="true"
-    >
-        <div
-            class="aipkit-modal-content"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="aipkit_builder_rename_bot_title"
-        >
-            <div class="aipkit-modal-header">
-                <h3 class="aipkit-modal-title" id="aipkit_builder_rename_bot_title">
-                    <?php esc_html_e('Rename Bot', 'gpt3-ai-content-generator'); ?>
-                </h3>
-                <button
-                    type="button"
-                    class="aipkit-modal-close-btn aipkit_builder_rename_bot_close"
-                    aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
-                >
-                    &times;
-                </button>
-            </div>
-            <div class="aipkit-modal-body">
-                <div class="aipkit_builder_field">
-                    <label for="aipkit_rename_bot_name" class="aipkit_builder_label">
-                        <?php esc_html_e('Bot name', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <input
-                        type="text"
-                        id="aipkit_rename_bot_name"
-                        class="aipkit_builder_input"
-                        placeholder="<?php esc_attr_e('Enter a new name', 'gpt3-ai-content-generator'); ?>"
-                    >
-                </div>
-                <div class="aipkit_builder_action_row">
-                    <button
-                        type="button"
-                        id="aipkit_rename_bot_btn"
-                        class="aipkit_btn aipkit_btn-primary aipkit_builder_action_btn"
-                    >
-                        <span class="aipkit_btn-text"><?php esc_html_e('Save Name', 'gpt3-ai-content-generator'); ?></span>
-                        <span class="aipkit_spinner"></span>
-                    </button>
-                </div>
-                <div id="aipkit_rename_bot_message" class="aipkit_form-help"></div>
-            </div>
-        </div>
-    </div>
-
     <div
         class="aipkit-modal-overlay aipkit_builder_instructions_modal"
         id="aipkit_builder_instructions_modal"
@@ -1484,58 +1723,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     </div>
 
     <div
-        class="aipkit_builder_web_settings_modal aipkit_popover_web_flyout"
-        id="aipkit_builder_web_settings_modal"
-        aria-hidden="true"
-    >
-        <div
-            class="aipkit-modal-content"
-            role="dialog"
-            aria-modal="false"
-            aria-labelledby="aipkit_builder_web_settings_title"
-        >
-        <div class="aipkit_popover_flyout_header">
-            <span class="aipkit_popover_flyout_title" id="aipkit_builder_web_settings_title">
-                <?php esc_html_e('Web search', 'gpt3-ai-content-generator'); ?>
-            </span>
-            <button
-                type="button"
-                class="aipkit_popover_flyout_close aipkit_builder_web_settings_close"
-                aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
-            >
-                <span class="dashicons dashicons-no-alt"></span>
-            </button>
-        </div>
-        <div class="aipkit_popover_flyout_body aipkit_popover_web_body">
-            <?php if ($active_bot_post) : ?>
-                <?php
-                $bot_id = $initial_active_bot_id;
-                $bot_settings = $active_bot_settings;
-                ?>
-                <?php include __DIR__ . '/partials/ai-config/web-settings-flyout.php'; ?>
-            <?php else : ?>
-                <p class="aipkit_builder_help_text">
-                    <?php esc_html_e('Select a bot to configure web search options.', 'gpt3-ai-content-generator'); ?>
-                </p>
-            <?php endif; ?>
-        </div>
-        <div class="aipkit_popover_flyout_footer">
-            <span class="aipkit_popover_flyout_footer_text">
-                <?php esc_html_e('Need help? Read the docs.', 'gpt3-ai-content-generator'); ?>
-            </span>
-            <a
-                class="aipkit_popover_flyout_footer_link"
-                href="<?php echo esc_url('https://docs.aipower.org/docs/ai-configuration#web-search'); ?>"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
-            </a>
-        </div>
-        </div>
-    </div>
-
-    <div
         class="aipkit_builder_sheet_overlay"
         id="aipkit_builder_sheet"
         aria-hidden="true"
@@ -1553,7 +1740,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                         <h3 class="aipkit_builder_sheet_title" id="aipkit_builder_sheet_title">
                             <?php esc_html_e('Sheet', 'gpt3-ai-content-generator'); ?>
                         </h3>
-                        <span class="aipkit_popover_status_inline aipkit_triggers_status" aria-live="polite"></span>
                     </div>
                     <p class="aipkit_builder_sheet_description" id="aipkit_builder_sheet_description">
                         <?php esc_html_e('Settings will appear here.', 'gpt3-ai-content-generator'); ?>
@@ -1573,59 +1759,152 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                         <?php esc_html_e('This panel will contain the selected settings section.', 'gpt3-ai-content-generator'); ?>
                     </p>
                 </div>
-                <div class="aipkit_builder_sheet_section" data-sheet="triggers" hidden>
-                    <?php if ($active_bot_post) : ?>
+                <div class="aipkit_builder_sheet_section aipkit_accordion_body--rules" data-sheet="triggers" hidden>
+                    <span class="aipkit_popover_status_inline aipkit_triggers_status" aria-live="polite"></span>
+                    <?php if ($triggers_available && $active_bot_post && $bot_id > 0) : ?>
                         <?php
-                        $bot_id = $initial_active_bot_id;
                         $triggers_json = $active_bot_settings['triggers_json'] ?? '[]';
+                        $trigger_builder_view_path = defined('WPAICG_LIB_DIR')
+                            ? WPAICG_LIB_DIR . 'views/chatbot/partials/triggers/trigger-builder-main.php'
+                            : '';
+                        if (!empty($trigger_builder_view_path) && file_exists($trigger_builder_view_path)) {
+                            include $trigger_builder_view_path;
+                        } else {
+                            echo '<p class="aipkit_builder_help_text">' . esc_html__('Rules builder UI is not available.', 'gpt3-ai-content-generator') . '</p>';
+                        }
                         ?>
-                        <?php if ($triggers_available) : ?>
-                            <?php
-                            $trigger_builder_view_path = defined('WPAICG_LIB_DIR')
-                                ? WPAICG_LIB_DIR . 'views/chatbot/partials/triggers/trigger-builder-main.php'
-                                : '';
-                            if (!empty($trigger_builder_view_path) && file_exists($trigger_builder_view_path)) {
-                                include $trigger_builder_view_path;
-                            } else {
-                                echo '<p class="aipkit_builder_help_text">' . esc_html__('Rules builder UI is not available.', 'gpt3-ai-content-generator') . '</p>';
-                            }
-                            ?>
-                            <textarea
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_triggers_json"
-                                name="triggers_json"
-                                class="aipkit_trigger_hidden_textarea"
-                                aria-hidden="true"
-                                tabindex="-1"
-                            ><?php echo esc_textarea($triggers_json); ?></textarea>
-                            <p class="aipkit_builder_help_text">
-                                <?php esc_html_e('Use the UI above to configure rules.', 'gpt3-ai-content-generator'); ?>
-                                <a href="<?php echo esc_url('https://docs.aipower.org/docs/triggers'); ?>" target="_blank" rel="noopener noreferrer">
-                                    <?php esc_html_e('Learn More', 'gpt3-ai-content-generator'); ?>
-                                </a>
-                            </p>
-                        <?php else : ?>
-                            <div class="aipkit_popover_options_list">
-                                <div class="aipkit_popover_option_row aipkit_popover_option_row--notice">
-                                    <div class="aipkit_popover_option_main">
-                                        <span class="aipkit_popover_option_notice">
-                                            <?php esc_html_e('Rules are available on Pro plans.', 'gpt3-ai-content-generator'); ?>
-                                        </span>
-                                        <a
-                                            class="aipkit_popover_upgrade_link"
-                                            href="<?php echo esc_url($pricing_url); ?>"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
-                                        </a>
-                                    </div>
+                        <textarea
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_triggers_json"
+                            name="triggers_json"
+                            class="aipkit_trigger_hidden_textarea"
+                            aria-hidden="true"
+                            tabindex="-1"
+                        ><?php echo esc_textarea($triggers_json); ?></textarea>
+                        <p class="aipkit_builder_help_text">
+                            <?php esc_html_e('Use the UI above to configure rules.', 'gpt3-ai-content-generator'); ?>
+                            <a href="<?php echo esc_url('https://docs.aipower.org/docs/triggers'); ?>" target="_blank" rel="noopener noreferrer">
+                                <?php esc_html_e('Learn More', 'gpt3-ai-content-generator'); ?>
+                            </a>
+                        </p>
+                    <?php elseif ($triggers_available) : ?>
+                        <p class="aipkit_builder_help_text">
+                            <?php esc_html_e('Create or select a chatbot to configure rules.', 'gpt3-ai-content-generator'); ?>
+                        </p>
+                    <?php else : ?>
+                        <div class="aipkit_rules_promo">
+                            <!-- Hero -->
+                            <div class="aipkit_rules_promo_hero">
+                                <span class="aipkit_rules_promo_hero_icon" aria-hidden="true">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                                </span>
+                                <div class="aipkit_rules_promo_hero_text">
+                                    <h3 class="aipkit_rules_promo_hero_title"><?php esc_html_e('Automate your chatbot with Rules', 'gpt3-ai-content-generator'); ?></h3>
+                                    <p class="aipkit_rules_promo_hero_desc"><?php esc_html_e('Build event-driven workflows that respond to messages, show forms, call webhooks, and more — no code required.', 'gpt3-ai-content-generator'); ?></p>
                                 </div>
                             </div>
-                        <?php endif; ?>
-                    <?php else : ?>
-                        <p class="aipkit_builder_help_text">
-                            <?php esc_html_e('Select a bot to configure rules.', 'gpt3-ai-content-generator'); ?>
-                        </p>
+
+                            <!-- How it works -->
+                            <div class="aipkit_rules_promo_how">
+                                <div class="aipkit_rules_promo_step">
+                                    <span class="aipkit_rules_promo_step_num">1</span>
+                                    <span class="aipkit_rules_promo_step_label"><?php esc_html_e('Choose a trigger', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                                <span class="aipkit_rules_promo_step_arrow" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
+                                <div class="aipkit_rules_promo_step">
+                                    <span class="aipkit_rules_promo_step_num">2</span>
+                                    <span class="aipkit_rules_promo_step_label"><?php esc_html_e('Set conditions', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                                <span class="aipkit_rules_promo_step_arrow" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
+                                <div class="aipkit_rules_promo_step">
+                                    <span class="aipkit_rules_promo_step_num">3</span>
+                                    <span class="aipkit_rules_promo_step_label"><?php esc_html_e('Pick an action', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                            </div>
+
+                            <!-- Feature cards -->
+                            <div class="aipkit_rules_promo_grid" role="list">
+                                <!-- Triggers -->
+                                <div class="aipkit_rules_promo_card" role="listitem">
+                                    <span class="aipkit_rules_promo_card_icon aipkit_rules_promo_card_icon--triggers" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    </span>
+                                    <p class="aipkit_rules_promo_card_title"><?php esc_html_e('Trigger Events', 'gpt3-ai-content-generator'); ?></p>
+                                    <ul class="aipkit_rules_promo_card_list">
+                                        <li><?php esc_html_e('Message received', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('Session started', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('Form submitted', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('System error', 'gpt3-ai-content-generator'); ?></li>
+                                    </ul>
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="aipkit_rules_promo_card" role="listitem">
+                                    <span class="aipkit_rules_promo_card_icon aipkit_rules_promo_card_icon--actions" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+                                    </span>
+                                    <p class="aipkit_rules_promo_card_title"><?php esc_html_e('Action Types', 'gpt3-ai-content-generator'); ?></p>
+                                    <ul class="aipkit_rules_promo_card_list">
+                                        <li><?php esc_html_e('Send reply / Show form', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('Inject context', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('Block message', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('Set variable / Call webhook', 'gpt3-ai-content-generator'); ?></li>
+                                    </ul>
+                                </div>
+
+                                <!-- Conditions -->
+                                <div class="aipkit_rules_promo_card" role="listitem">
+                                    <span class="aipkit_rules_promo_card_icon aipkit_rules_promo_card_icon--conditions" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                    </span>
+                                    <p class="aipkit_rules_promo_card_title"><?php esc_html_e('Condition Groups', 'gpt3-ai-content-generator'); ?></p>
+                                    <ul class="aipkit_rules_promo_card_list">
+                                        <li><?php esc_html_e('Text / keyword matching', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('User role & auth state', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('Page & context filters', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('Regex & numeric operators', 'gpt3-ai-content-generator'); ?></li>
+                                    </ul>
+                                </div>
+
+                                <!-- Webhooks -->
+                                <div class="aipkit_rules_promo_card" role="listitem">
+                                    <span class="aipkit_rules_promo_card_icon aipkit_rules_promo_card_icon--webhooks" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                    </span>
+                                    <p class="aipkit_rules_promo_card_title"><?php esc_html_e('External Workflows', 'gpt3-ai-content-generator'); ?></p>
+                                    <ul class="aipkit_rules_promo_card_list">
+                                        <li><?php esc_html_e('Notify Slack on demo requests', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('Send leads to Make / Zapier', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('WhatsApp Cloud API relay', 'gpt3-ai-content-generator'); ?></li>
+                                        <li><?php esc_html_e('Tickets, emails & follow-ups', 'gpt3-ai-content-generator'); ?></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- CTA -->
+                            <div class="aipkit_rules_promo_cta">
+                                <a
+                                    class="aipkit_rules_promo_btn aipkit_rules_promo_btn--primary"
+                                    href="<?php echo esc_url($pricing_url); ?>"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                                </a>
+                                <a
+                                    class="aipkit_rules_promo_btn aipkit_rules_promo_btn--secondary"
+                                    href="<?php echo esc_url('https://docs.aipower.org/docs/triggers'); ?>"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <?php esc_html_e('Learn More', 'gpt3-ai-content-generator'); ?>
+                                </a>
+                            </div>
+                        </div>
                     <?php endif; ?>
                 </div>
                 <div class="aipkit_builder_sheet_section" data-sheet="sources" hidden>
@@ -1779,976 +2058,162 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
         </div>
     </div>
 
-    <div
-        class="aipkit_builder_audio_settings_modal aipkit_popover_audio_flyout"
-        id="aipkit_builder_audio_settings_modal"
-        aria-hidden="true"
-    >
+    <?php if ($active_bot_post) : ?>
         <div
-            class="aipkit-modal-content"
-            role="dialog"
-            aria-modal="false"
-            aria-labelledby="aipkit_builder_audio_settings_title"
+            class="aipkit-modal-overlay aipkit_builder_embed_modal"
+            id="aipkit_builder_embed_modal"
+            aria-hidden="true"
         >
-            <div class="aipkit_popover_flyout_header">
-                <div class="aipkit_popover_flyout_title_wrap">
-                    <span class="aipkit_popover_flyout_title" id="aipkit_builder_audio_settings_title">
-                        <?php esc_html_e('Audio', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                    <span class="aipkit_popover_status_inline aipkit_tts_sync_status" aria-live="polite"></span>
-                </div>
-                <button
-                    type="button"
-                    class="aipkit_popover_flyout_close aipkit_builder_audio_settings_close"
-                    aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <span class="dashicons dashicons-no-alt"></span>
-                </button>
-            </div>
-            <div class="aipkit_popover_flyout_body aipkit_popover_audio_body">
-                <?php if ($active_bot_post) : ?>
-                    <?php
-                    $bot_id = $initial_active_bot_id;
-                    $bot_settings = $active_bot_settings;
-                    ?>
-                    <?php include __DIR__ . '/partials/ai-config/audio-settings-flyout.php'; ?>
-                <?php else : ?>
-                    <p class="aipkit_builder_help_text">
-                        <?php esc_html_e('Select a bot to view audio settings.', 'gpt3-ai-content-generator'); ?>
-                    </p>
-                <?php endif; ?>
-            </div>
-            <div class="aipkit_popover_flyout_footer">
-                <span class="aipkit_popover_flyout_footer_text">
-                    <?php esc_html_e('Need help? Read the docs.', 'gpt3-ai-content-generator'); ?>
-                </span>
-                <a
-                    class="aipkit_popover_flyout_footer_link"
-                    href="<?php echo esc_url('https://docs.aipower.org/docs/voice-features'); ?>"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="aipkit_model_settings_popover"
-        id="aipkit_model_settings_popover"
-        aria-hidden="true"
-        data-title-root="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-        data-title-appearance="<?php esc_attr_e('Interface', 'gpt3-ai-content-generator'); ?>"
-        data-title-behavior="<?php esc_attr_e('Behavior', 'gpt3-ai-content-generator'); ?>"
-        data-title-context="<?php esc_attr_e('Context', 'gpt3-ai-content-generator'); ?>"
-        data-title-tools="<?php esc_attr_e('Tools', 'gpt3-ai-content-generator'); ?>"
-        data-title-safety="<?php esc_attr_e('Safety', 'gpt3-ai-content-generator'); ?>"
-        data-title-limits="<?php esc_attr_e('Limits', 'gpt3-ai-content-generator'); ?>"
-    >
-        <div
-            class="aipkit_model_settings_popover_panel aipkit_model_settings_popover_panel--allow-overflow"
-            role="dialog"
-            aria-modal="false"
-            aria-labelledby="aipkit_model_settings_popover_title"
-        >
-            <div class="aipkit_model_settings_popover_header">
-                <div class="aipkit_model_settings_popover_header_start">
+            <div
+                class="aipkit-modal-content"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="aipkit_builder_embed_title"
+                aria-describedby="aipkit_builder_embed_description"
+            >
+                <div class="aipkit-modal-header">
+                    <div>
+                        <h3 class="aipkit-modal-title" id="aipkit_builder_embed_title">
+                            <?php esc_html_e('Embed Anywhere Setup', 'gpt3-ai-content-generator'); ?>
+                        </h3>
+                        <p class="aipkit_builder_modal_subtitle" id="aipkit_builder_embed_description">
+                            <?php esc_html_e('Copy the snippet and set allowed domains for external websites.', 'gpt3-ai-content-generator'); ?>
+                        </p>
+                    </div>
                     <button
                         type="button"
-                        class="aipkit_model_settings_popover_back"
-                        aria-label="<?php esc_attr_e('Back', 'gpt3-ai-content-generator'); ?>"
-                        hidden
-                    >
-                        <span class="dashicons dashicons-arrow-left-alt2"></span>
-                    </button>
-                    <span class="aipkit_model_settings_popover_title" id="aipkit_model_settings_popover_title">
-                        <?php esc_html_e('Settings', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                    <span class="aipkit_popover_status_inline aipkit_model_sync_status" aria-live="polite"></span>
-                </div>
-                <div class="aipkit_model_settings_popover_header_end">
-                    <button
-                        type="button"
-                        class="aipkit_model_settings_popover_close"
+                        class="aipkit-modal-close-btn aipkit_builder_embed_close"
                         aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
                     >
                         <span class="dashicons dashicons-no-alt"></span>
                     </button>
                 </div>
-            </div>
-            <div class="aipkit_model_settings_popover_body">
-                <?php if ($active_bot_post) : ?>
-                    <?php
-                    $bot_id = $initial_active_bot_id;
-                    $bot_settings = $active_bot_settings;
-                    ?>
-                    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="root">
-                        <!-- Options List -->
-                        <div class="aipkit_popover_options_list aipkit_popover_options_list--settings-root">
-                            <div class="aipkit_popover_option_group">
-                                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
+                <div class="aipkit-modal-body">
+                    <?php if ($embed_anywhere_active) : ?>
+                        <div class="aipkit_builder_external_stack">
+                            <div class="aipkit_builder_external_field">
+                                <div class="aipkit_builder_external_field_header">
+                                    <label
+                                        class="aipkit_builder_external_label"
+                                        for="aipkit_embed_code_<?php echo esc_attr($initial_active_bot_id); ?>"
+                                    >
+                                        <?php esc_html_e('Embed code', 'gpt3-ai-content-generator'); ?>
+                                    </label>
                                     <button
                                         type="button"
-                                        class="aipkit_popover_option_nav aipkit_style_settings_trigger"
-                                        data-aipkit-panel-target="appearance"
+                                        class="aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_copy_embed_code_btn"
+                                        data-target="aipkit_embed_code_<?php echo esc_attr($initial_active_bot_id); ?>"
                                     >
-                                        <span class="aipkit_popover_option_label">
-                                            <span class="aipkit_popover_option_icon dashicons dashicons-admin-appearance" aria-hidden="true"></span>
-                                            <span class="aipkit_popover_option_label_content">
-                                                <span class="aipkit_popover_option_label_text">
-                                                    <?php esc_html_e('Interface', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                                <span class="aipkit_popover_option_hint">
-                                                    <?php esc_html_e('UI essentials', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                            </span>
-                                        </span>
-                                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                                        </span>
+                                        <?php esc_html_e('Copy code', 'gpt3-ai-content-generator'); ?>
                                     </button>
                                 </div>
-                                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                                    <button
-                                        type="button"
-                                        class="aipkit_popover_option_nav aipkit_style_settings_trigger"
-                                        data-aipkit-panel-target="behavior"
-                                    >
-                                        <span class="aipkit_popover_option_label">
-                                            <span class="aipkit_popover_option_icon dashicons dashicons-admin-settings" aria-hidden="true"></span>
-                                            <span class="aipkit_popover_option_label_content">
-                                                <span class="aipkit_popover_option_label_text">
-                                                    <?php esc_html_e('Behavior', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                                <span class="aipkit_popover_option_hint">
-                                                    <?php esc_html_e('Response settings', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                            </span>
-                                        </span>
-                                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                                        </span>
-                                    </button>
-                                </div>
-                                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                                    <button
-                                        type="button"
-                                        class="aipkit_popover_option_nav aipkit_style_settings_trigger"
-                                        data-aipkit-panel-target="context"
-                                    >
-                                        <span class="aipkit_popover_option_label">
-                                            <span class="aipkit_popover_option_icon dashicons dashicons-database" aria-hidden="true"></span>
-                                            <span class="aipkit_popover_option_label_content">
-                                                <span class="aipkit_popover_option_label_text">
-                                                    <?php esc_html_e('Context', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                                <span class="aipkit_popover_option_hint">
-                                                    <?php esc_html_e('Knowledge and data sources', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                            </span>
-                                        </span>
-                                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                                        </span>
-                                    </button>
-                                </div>
+                                <textarea
+                                    id="aipkit_embed_code_<?php echo esc_attr($initial_active_bot_id); ?>"
+                                    class="aipkit_builder_external_textarea aipkit_builder_external_textarea--code"
+                                    readonly
+                                ><?php echo esc_textarea($embed_code); ?></textarea>
                             </div>
-                            <div class="aipkit_popover_option_group">
-                                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                                    <button
-                                        type="button"
-                                        class="aipkit_popover_option_nav aipkit_style_settings_trigger"
-                                        data-aipkit-panel-target="tools"
-                                    >
-                                        <span class="aipkit_popover_option_label">
-                                            <span class="aipkit_popover_option_icon dashicons dashicons-admin-tools" aria-hidden="true"></span>
-                                            <span class="aipkit_popover_option_label_content">
-                                                <span class="aipkit_popover_option_label_text">
-                                                    <?php esc_html_e('Tools', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                                <span class="aipkit_popover_option_hint">
-                                                    <?php esc_html_e('Uploads, web, image, audio', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                            </span>
-                                        </span>
-                                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                                        </span>
-                                    </button>
-                                </div>
-                                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                                    <button
-                                        type="button"
-                                        class="aipkit_popover_option_nav aipkit_builder_sheet_trigger"
-                                        data-sheet-title="<?php esc_attr_e('Rules', 'gpt3-ai-content-generator'); ?>"
-                                        data-sheet-description="<?php esc_attr_e('Configure rules and automation behaviors.', 'gpt3-ai-content-generator'); ?>"
-                                        data-sheet-content="triggers"
-                                    >
-                                        <span class="aipkit_popover_option_label">
-                                            <span class="aipkit_popover_option_icon dashicons dashicons-controls-repeat" aria-hidden="true"></span>
-                                            <span class="aipkit_popover_option_label_content">
-                                                <span class="aipkit_popover_option_label_text">
-                                                    <?php esc_html_e('Rules', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                                <span class="aipkit_popover_option_hint">
-                                                    <?php esc_html_e('Triggers & Automation', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                            </span>
-                                        </span>
-                                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                                        </span>
-                                    </button>
-                                </div>
-                                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                                    <button
-                                        type="button"
-                                        class="aipkit_popover_option_nav aipkit_style_settings_trigger"
-                                        data-aipkit-panel-target="safety"
-                                    >
-                                        <span class="aipkit_popover_option_label">
-                                            <span class="aipkit_popover_option_icon dashicons dashicons-shield" aria-hidden="true"></span>
-                                            <span class="aipkit_popover_option_label_content">
-                                                <span class="aipkit_popover_option_label_text">
-                                                    <?php esc_html_e('Safety', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                                <span class="aipkit_popover_option_hint">
-                                                    <?php esc_html_e('Moderation and privacy', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                            </span>
-                                        </span>
-                                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                                        </span>
-                                    </button>
-                                </div>
-                                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                                    <button
-                                        type="button"
-                                        class="aipkit_popover_option_nav aipkit_style_settings_trigger"
-                                        data-aipkit-panel-target="limits"
-                                    >
-                                        <span class="aipkit_popover_option_label">
-                                            <span class="aipkit_popover_option_icon dashicons dashicons-chart-bar" aria-hidden="true"></span>
-                                            <span class="aipkit_popover_option_label_content">
-                                                <span class="aipkit_popover_option_label_text">
-                                                    <?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                                <span class="aipkit_popover_option_hint">
-                                                    <?php esc_html_e('Tokens and usage', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                            </span>
-                                        </span>
-                                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                                        </span>
-                                    </button>
-                                </div>
+                            <div class="aipkit_builder_external_field">
+                                <label
+                                    class="aipkit_builder_external_label"
+                                    for="aipkit_embed_allowed_domains_<?php echo esc_attr($initial_active_bot_id); ?>"
+                                >
+                                    <?php esc_html_e('Allowed domains (one URL per line)', 'gpt3-ai-content-generator'); ?>
+                                </label>
+                                <textarea
+                                    id="aipkit_embed_allowed_domains_<?php echo esc_attr($initial_active_bot_id); ?>"
+                                    name="embed_allowed_domains"
+                                    class="aipkit_builder_external_textarea aipkit_builder_external_textarea--domains"
+                                    placeholder="<?php esc_attr_e('https://example.com', 'gpt3-ai-content-generator'); ?>"
+                                ><?php echo esc_textarea($embed_allowed_domains); ?></textarea>
                             </div>
                         </div>
-                    </div>
-                    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="appearance" hidden>
-                        <?php include __DIR__ . '/partials/ai-config/appearance-settings.php'; ?>
-                    </div>
-                    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="behavior" hidden>
-                        <?php include __DIR__ . '/partials/ai-config/behavior-settings.php'; ?>
-                    </div>
-                    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="context" hidden>
-                        <?php include __DIR__ . '/partials/ai-config/context-settings.php'; ?>
-                    </div>
-                    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="tools" hidden>
-                        <?php include __DIR__ . '/partials/ai-config/tools-settings.php'; ?>
-                    </div>
-                    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="safety" hidden>
-                        <?php include __DIR__ . '/partials/ai-config/safety-settings.php'; ?>
-                    </div>
-                    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="limits" hidden>
-                        <?php include __DIR__ . '/partials/ai-config/limits-settings.php'; ?>
-                    </div>
+                        <div class="aipkit_builder_action_row aipkit_builder_action_row--end">
+                            <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_builder_embed_done">
+                                <?php esc_html_e('Done', 'gpt3-ai-content-generator'); ?>
+                            </button>
+                        </div>
+                    <?php else : ?>
+                        <div class="aipkit_embed_promo">
+                            <!-- Hero -->
+                            <div class="aipkit_embed_promo_hero">
+                                <span class="aipkit_embed_promo_hero_icon" aria-hidden="true">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                                </span>
+                                <div class="aipkit_embed_promo_hero_text">
+                                    <h4 class="aipkit_embed_promo_hero_title"><?php esc_html_e('Embed anywhere with one snippet', 'gpt3-ai-content-generator'); ?></h4>
+                                    <p class="aipkit_embed_promo_hero_desc"><?php esc_html_e('Add your AI chatbot to any website — Shopify, Wix, static HTML, or your custom app — with a single script tag.', 'gpt3-ai-content-generator'); ?></p>
+                                </div>
+                            </div>
 
-                <?php else : ?>
-                    <p class="aipkit_builder_help_text">
-                        <?php esc_html_e('Select a bot to view model settings.', 'gpt3-ai-content-generator'); ?>
-                    </p>
-                <?php endif; ?>
-            </div>
-            <?php if ($active_bot_post) : ?>
-                <div class="aipkit_model_settings_popover_footer">
-                    <button
-                        type="button"
-                        class="aipkit_popover_footer_btn aipkit_popover_footer_btn--danger"
-                        data-action="delete"
-                        <?php echo $is_default_active ? 'disabled aria-disabled="true"' : ''; ?>
-                        title="<?php echo esc_attr($is_default_active ? __('Default bot cannot be deleted.', 'gpt3-ai-content-generator') : __('Delete chatbot', 'gpt3-ai-content-generator')); ?>"
-                    >
-                        <?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?>
-                    </button>
-                    <button
-                        type="button"
-                        class="aipkit_popover_footer_btn aipkit_popover_footer_btn--secondary"
-                        data-action="reset"
-                        title="<?php esc_attr_e('Reset chatbot settings', 'gpt3-ai-content-generator'); ?>"
-                    >
-                        <?php esc_html_e('Reset', 'gpt3-ai-content-generator'); ?>
-                    </button>
+                            <!-- How it works -->
+                            <div class="aipkit_embed_promo_steps">
+                                <div class="aipkit_embed_promo_step">
+                                    <span class="aipkit_embed_promo_step_icon aipkit_embed_promo_step_icon--copy" aria-hidden="true">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    </span>
+                                    <span class="aipkit_embed_promo_step_text"><?php esc_html_e('Copy the embed snippet', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                                <div class="aipkit_embed_promo_step">
+                                    <span class="aipkit_embed_promo_step_icon aipkit_embed_promo_step_icon--paste" aria-hidden="true">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                                    </span>
+                                    <span class="aipkit_embed_promo_step_text"><?php esc_html_e('Paste into your site\'s HTML', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                                <div class="aipkit_embed_promo_step">
+                                    <span class="aipkit_embed_promo_step_icon aipkit_embed_promo_step_icon--secure" aria-hidden="true">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                    </span>
+                                    <span class="aipkit_embed_promo_step_text"><?php esc_html_e('Restrict with allowed domains', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                            </div>
+
+                            <!-- Fake code preview -->
+                            <div class="aipkit_embed_promo_code">
+                                <div class="aipkit_embed_promo_code_bar">
+                                    <span class="aipkit_embed_promo_code_dot"></span>
+                                    <span class="aipkit_embed_promo_code_dot"></span>
+                                    <span class="aipkit_embed_promo_code_dot"></span>
+                                    <span class="aipkit_embed_promo_code_label">HTML</span>
+                                </div>
+                                <pre class="aipkit_embed_promo_code_body" aria-hidden="true">&lt;script src="https://your-site.com/aipkit-embed.js"
+  data-bot-id="<?php echo esc_html($initial_active_bot_id ? $initial_active_bot_id : 'xxxxx'); ?>"
+  async&gt;&lt;/script&gt;</pre>
+                            </div>
+
+                            <!-- CTA -->
+                            <div class="aipkit_embed_promo_cta">
+                                <a
+                                    class="aipkit_embed_promo_btn aipkit_embed_promo_btn--primary"
+                                    href="<?php echo esc_url($pricing_url); ?>"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                                </a>
+                                <a
+                                    class="aipkit_embed_promo_btn aipkit_embed_promo_btn--secondary"
+                                    href="<?php echo esc_url($embed_docs_url); ?>"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <?php esc_html_e('Learn More', 'gpt3-ai-content-generator'); ?>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
-            <?php endif; ?>
+            </div>
         </div>
-    </div>
+    <?php endif; ?>
+
     <?php if ($active_bot_post && !$aipkit_hide_custom_theme) : ?>
         <?php
         $bot_id = $initial_active_bot_id;
         $bot_settings = $active_bot_settings;
         include __DIR__ . '/partials/appearance/custom-theme-flyout.php';
         ?>
-    <?php endif; ?>
-    <div
-        class="aipkit_model_settings_popover aipkit_deploy_settings_popover"
-        id="aipkit_deploy_settings_popover"
-        aria-hidden="true"
-    >
-        <div
-            class="aipkit_model_settings_popover_panel aipkit_deploy_settings_popover_panel"
-            role="dialog"
-            aria-modal="false"
-            aria-labelledby="aipkit_deploy_settings_popover_title"
-        >
-            <div class="aipkit_model_settings_popover_header">
-                <span class="aipkit_model_settings_popover_title" id="aipkit_deploy_settings_popover_title">
-                    <?php esc_html_e('Deploy', 'gpt3-ai-content-generator'); ?>
-                </span>
-                <button
-                    type="button"
-                    class="aipkit_model_settings_popover_close aipkit_deploy_settings_popover_close"
-                    aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <span class="dashicons dashicons-no-alt"></span>
-                </button>
-            </div>
-            <div class="aipkit_model_settings_popover_body">
-                <?php if ($active_bot_post) : ?>
-                    <?php
-                    $bot_id = $initial_active_bot_id;
-                    $shortcode_text = sprintf('[aipkit_chatbot id=%d]', $bot_id);
-                    $embed_script_url = WPAICG_PLUGIN_URL . 'dist/js/embed-bootstrap.bundle.js';
-                    $embed_target_div = 'aipkit-chatbot-container-' . $bot_id;
-                    $embed_code = sprintf(
-                        '(function() { var d = document; var c = d.createElement("div"); c.id = "%s"; var s = d.createElement("script"); s.src = "%s"; s.setAttribute("data-bot-id", "%d"); s.setAttribute("data-wp-site", "%s"); s.async = true; var t = d.currentScript || d.getElementsByTagName("script")[0]; t.parentNode.insertBefore(c, t); t.parentNode.insertBefore(s, t); })();',
-                        esc_js($embed_target_div),
-                        esc_js($embed_script_url),
-                        esc_js($bot_id),
-                        esc_js(home_url())
-                    );
-                    $embed_code = '<script type="text/javascript">' . $embed_code . '</script>';
-                    ?>
-                    <div class="aipkit_deploy_wizard">
-                        <div class="aipkit_popover_options_list aipkit_deploy_scope_options">
-                            <div class="aipkit_popover_option_row">
-                                <div class="aipkit_popover_option_main">
-                                    <span
-                                        class="aipkit_popover_option_label"
-                                        tabindex="0"
-                                        data-tooltip="<?php echo esc_attr__('Choose where this chatbot will be available.', 'gpt3-ai-content-generator'); ?>"
-                                    >
-                                        <?php esc_html_e('Location', 'gpt3-ai-content-generator'); ?>
-                                    </span>
-                                    <select name="aipkit_deploy_scope" class="aipkit_popover_option_select">
-                                        <option value="site" <?php selected($deploy_scope, 'site'); ?>><?php esc_html_e('This site', 'gpt3-ai-content-generator'); ?></option>
-                                        <option value="external" <?php selected($deploy_scope, 'external'); ?>><?php esc_html_e('External embed', 'gpt3-ai-content-generator'); ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="aipkit_popover_option_row aipkit_deploy_row_mode">
-                                <div class="aipkit_popover_option_main">
-                                    <span
-                                        class="aipkit_popover_option_label"
-                                        tabindex="0"
-                                        data-tooltip="<?php echo esc_attr__('Choose how the chatbot appears on your site.', 'gpt3-ai-content-generator'); ?>"
-                                    >
-                                        <?php esc_html_e('Mode', 'gpt3-ai-content-generator'); ?>
-                                    </span>
-                                    <select name="aipkit_deploy_mode" class="aipkit_popover_option_select">
-                                        <option value="inline" <?php selected($deploy_mode, 'inline'); ?>><?php esc_html_e('Inline (shortcode)', 'gpt3-ai-content-generator'); ?></option>
-                                        <option value="popup" <?php selected($deploy_mode, 'popup'); ?>><?php esc_html_e('Floating widget', 'gpt3-ai-content-generator'); ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="aipkit_popover_option_row aipkit_deploy_row_popup_scope">
-                                <div class="aipkit_popover_option_main">
-                                    <span
-                                        class="aipkit_popover_option_label"
-                                        tabindex="0"
-                                        data-tooltip="<?php echo esc_attr__('Show the widget on all pages or limit to specific pages.', 'gpt3-ai-content-generator'); ?>"
-                                    >
-                                        <?php esc_html_e('Show on', 'gpt3-ai-content-generator'); ?>
-                                    </span>
-                                    <select name="aipkit_deploy_popup_scope" class="aipkit_popover_option_select">
-                                        <option value="page" <?php selected($deploy_popup_scope, 'page'); ?>><?php esc_html_e('Limit to pages', 'gpt3-ai-content-generator'); ?></option>
-                                        <option value="sitewide" <?php selected($deploy_popup_scope, 'sitewide'); ?>><?php esc_html_e('All pages', 'gpt3-ai-content-generator'); ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="aipkit_deploy_panel" data-deploy-panel="inline" hidden>
-                            <div class="aipkit_popover_option_row aipkit_deploy_shortcode_row">
-                                <div class="aipkit_popover_option_main">
-                                    <span class="aipkit_popover_option_label">
-                                        <?php esc_html_e('Shortcode', 'gpt3-ai-content-generator'); ?>
-                                    </span>
-                                    <div class="aipkit_popover_option_actions">
-                                        <button
-                                            type="button"
-                                            class="aipkit_shortcode_pill aipkit_builder_shortcode_pill"
-                                            data-shortcode="<?php echo esc_attr($shortcode_text); ?>"
-                                            title="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>"
-                                        >
-                                            <span class="aipkit_shortcode_text"><?php echo esc_html($shortcode_text); ?></span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="aipkit_deploy_panel" data-deploy-panel="popup" hidden>
-                            <div class="aipkit_deploy_popup_settings" id="aipkit_builder_popup_settings_panel">
-                                <div class="aipkit_popover_options_list aipkit_deploy_popup_options">
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('Select the screen corner for the widget.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Widget position', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <select
-                                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_position_deploy"
-                                                name="popup_position"
-                                                class="aipkit_popover_option_select"
-                                            >
-                                                <option value="bottom-right" <?php selected($popup_position, 'bottom-right'); ?>><?php esc_html_e('Bottom Right', 'gpt3-ai-content-generator'); ?></option>
-                                                <option value="bottom-left" <?php selected($popup_position, 'bottom-left'); ?>><?php esc_html_e('Bottom Left', 'gpt3-ai-content-generator'); ?></option>
-                                                <option value="top-right" <?php selected($popup_position, 'top-right'); ?>><?php esc_html_e('Top Right', 'gpt3-ai-content-generator'); ?></option>
-                                                <option value="top-left" <?php selected($popup_position, 'top-left'); ?>><?php esc_html_e('Top Left', 'gpt3-ai-content-generator'); ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('0 disables auto-open.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Auto-open after (seconds)', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <input
-                                                type="number"
-                                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_delay_deploy"
-                                                name="popup_delay"
-                                                class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact"
-                                                value="<?php echo esc_attr($popup_delay); ?>"
-                                                min="0"
-                                                step="1"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('Adjust the launcher style, size, and source.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Launcher icon', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <div class="aipkit_popover_inline_controls">
-                                                <span class="aipkit_popover_inline_select">
-                                                    <select
-                                                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_icon_style_deploy"
-                                                        name="popup_icon_style"
-                                                        class="aipkit_popover_option_select aipkit_popover_option_select--fit"
-                                                    >
-                                                        <option value="circle" <?php selected($popup_icon_style, 'circle'); ?>><?php esc_html_e('Circle', 'gpt3-ai-content-generator'); ?></option>
-                                                        <option value="square" <?php selected($popup_icon_style, 'square'); ?>><?php esc_html_e('Square', 'gpt3-ai-content-generator'); ?></option>
-                                                        <option value="none" <?php selected($popup_icon_style, 'none'); ?>><?php esc_html_e('None', 'gpt3-ai-content-generator'); ?></option>
-                                                    </select>
-                                                </span>
-                                                <span class="aipkit_popover_inline_select">
-                                                    <select
-                                                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_icon_size_deploy"
-                                                        name="popup_icon_size"
-                                                        class="aipkit_popover_option_select aipkit_popover_option_select--fit"
-                                                    >
-                                                        <option value="small" <?php selected($popup_icon_size, 'small'); ?>><?php esc_html_e('Small', 'gpt3-ai-content-generator'); ?></option>
-                                                        <option value="medium" <?php selected($popup_icon_size, 'medium'); ?>><?php esc_html_e('Medium', 'gpt3-ai-content-generator'); ?></option>
-                                                        <option value="large" <?php selected($popup_icon_size, 'large'); ?>><?php esc_html_e('Large', 'gpt3-ai-content-generator'); ?></option>
-                                                        <option value="xlarge" <?php selected($popup_icon_size, 'xlarge'); ?>><?php esc_html_e('X-Large', 'gpt3-ai-content-generator'); ?></option>
-                                                    </select>
-                                                </span>
-                                                <span class="aipkit_popover_inline_select">
-                                                    <select
-                                                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_icon_type_deploy"
-                                                        name="popup_icon_type"
-                                                        class="aipkit_popover_option_select aipkit_popover_option_select--fit aipkit_popup_icon_type_select"
-                                                    >
-                                                        <option value="default" <?php selected($popup_icon_type, 'default'); ?>><?php esc_html_e('Default', 'gpt3-ai-content-generator'); ?></option>
-                                                        <option value="custom" <?php selected($popup_icon_type, 'custom'); ?>><?php esc_html_e('Custom', 'gpt3-ai-content-generator'); ?></option>
-                                                    </select>
-                                                </span>
-                                            </div>
-                                            <div hidden>
-                                                <input type="radio" name="popup_icon_style" value="circle" <?php checked($popup_icon_style, 'circle'); ?> />
-                                                <input type="radio" name="popup_icon_style" value="square" <?php checked($popup_icon_style, 'square'); ?> />
-                                                <input type="radio" name="popup_icon_style" value="none" <?php checked($popup_icon_style, 'none'); ?> />
-                                                <input type="radio" name="popup_icon_type" value="default" <?php checked($popup_icon_type, 'default'); ?> />
-                                                <input type="radio" name="popup_icon_type" value="custom" <?php checked($popup_icon_type, 'custom'); ?> />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row aipkit_popup_icon_default_selector_container" <?php echo ($popup_icon_type === 'default') ? '' : 'hidden'; ?>>
-                                        <div class="aipkit_popover_option_main">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('Select a default icon for the popup.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Choose icon', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <div class="aipkit_popover_option_actions">
-                                                <div class="aipkit_popup_icon_default_selector">
-                                                    <?php foreach ($popup_icons as $icon_key => $svg_html) : ?>
-                                                        <?php
-                                                        $radio_id = 'aipkit_bot_' . absint($bot_id) . '_popup_icon_deploy_' . sanitize_key($icon_key);
-                                                        $icon_checked = $popup_icon_value === $icon_key;
-                                                        ?>
-                                                        <label class="aipkit_option_card" for="<?php echo esc_attr($radio_id); ?>" title="<?php echo esc_attr(ucfirst(str_replace('-', ' ', $icon_key))); ?>">
-                                                            <input
-                                                                type="radio"
-                                                                id="<?php echo esc_attr($radio_id); ?>"
-                                                                name="popup_icon_default"
-                                                                value="<?php echo esc_attr($icon_key); ?>"
-                                                                <?php checked($icon_checked); ?>
-                                                            />
-                                                            <?php echo $svg_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                                                        </label>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row aipkit_popup_icon_custom_input_container" <?php echo ($popup_icon_type === 'custom') ? '' : 'hidden'; ?>>
-                                        <div class="aipkit_popover_option_main">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('Ideal ~32x32. PNG or SVG.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Launcher icon URL', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <input
-                                                type="url"
-                                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_icon_custom_url_deploy"
-                                                name="popup_icon_custom_url"
-                                                class="aipkit_popover_option_input aipkit_popover_option_input--framed"
-                                                value="<?php echo ($popup_icon_type === 'custom') ? esc_url($popup_icon_value) : ''; ?>"
-                                                placeholder="<?php esc_attr_e('Enter full URL (e.g., https://.../icon.png)', 'gpt3-ai-content-generator'); ?>"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('Choose a default icon or use a custom avatar.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Header avatar', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <div class="aipkit_popover_inline_controls">
-                                                <span class="aipkit_popover_inline_select">
-                                                    <select
-                                                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_header_avatar_type_deploy"
-                                                        name="header_avatar_type"
-                                                        class="aipkit_popover_option_select"
-                                                    >
-                                                        <option value="default" <?php selected($saved_header_avatar_type, 'default'); ?>><?php esc_html_e('Icon', 'gpt3-ai-content-generator'); ?></option>
-                                                        <option value="custom" <?php selected($saved_header_avatar_type, 'custom'); ?>><?php esc_html_e('Custom', 'gpt3-ai-content-generator'); ?></option>
-                                                    </select>
-                                                </span>
-                                            </div>
-                                            <div hidden>
-                                                <input type="radio" name="header_avatar_type" value="default" <?php checked($saved_header_avatar_type, 'default'); ?> />
-                                                <input type="radio" name="header_avatar_type" value="custom" <?php checked($saved_header_avatar_type, 'custom'); ?> />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row aipkit_header_avatar_default_selector_container" <?php echo ($saved_header_avatar_type === 'default') ? '' : 'hidden'; ?>>
-                                        <div class="aipkit_popover_option_main">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('Select a default avatar icon.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Choose avatar', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <div class="aipkit_popover_option_actions">
-                                                <div class="aipkit_popup_icon_default_selector">
-                                                    <?php foreach ($popup_icons as $icon_key => $svg_html) : ?>
-                                                        <?php
-                                                        $radio_id = 'aipkit_bot_' . absint($bot_id) . '_header_avatar_icon_deploy_' . sanitize_key($icon_key);
-                                                        $icon_checked = $saved_header_avatar_value === $icon_key;
-                                                        ?>
-                                                        <label class="aipkit_option_card" for="<?php echo esc_attr($radio_id); ?>" title="<?php echo esc_attr(ucfirst(str_replace('-', ' ', $icon_key))); ?>">
-                                                            <input
-                                                                type="radio"
-                                                                id="<?php echo esc_attr($radio_id); ?>"
-                                                                name="header_avatar_default"
-                                                                value="<?php echo esc_attr($icon_key); ?>"
-                                                                <?php checked($icon_checked); ?>
-                                                            />
-                                                            <?php echo $svg_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                                                        </label>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row aipkit_header_avatar_custom_input_container" <?php echo ($saved_header_avatar_type === 'custom') ? '' : 'hidden'; ?>>
-                                        <div class="aipkit_popover_option_main">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('Ideal ~32x32. PNG or SVG.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Avatar URL', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <input
-                                                type="url"
-                                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_header_avatar_url_deploy"
-                                                name="header_avatar_url"
-                                                class="aipkit_popover_option_input aipkit_popover_option_input--framed"
-                                                value="<?php echo ($saved_header_avatar_type === 'custom') ? esc_url($saved_header_avatar_url) : ''; ?>"
-                                                placeholder="<?php esc_attr_e('Enter full URL (e.g., https://.../avatar.png)', 'gpt3-ai-content-generator'); ?>"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main">
-                                            <label
-                                                class="aipkit_popover_option_label"
-                                                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_header_online_text_deploy"
-                                            >
-                                                <?php esc_html_e('Status text', 'gpt3-ai-content-generator'); ?>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_header_online_text_deploy"
-                                                name="header_online_text"
-                                                class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                                                value="<?php echo esc_attr($saved_header_online_text); ?>"
-                                                placeholder="<?php esc_attr_e('Online', 'gpt3-ai-content-generator'); ?>"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('Displays a short hint above the launcher.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Launcher hint', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <div class="aipkit_popover_option_actions">
-                                                <label class="aipkit_switch">
-                                                    <input
-                                                        type="checkbox"
-                                                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_label_enabled_deploy"
-                                                        name="popup_label_enabled"
-                                                        class="aipkit_toggle_switch aipkit_popup_hint_toggle_switch"
-                                                        value="1"
-                                                        <?php checked($popup_label_enabled, '1'); ?>
-                                                    >
-                                                    <span class="aipkit_switch_slider"></span>
-                                                </label>
-                                                <button
-                                                    type="button"
-                                                    class="aipkit_popover_option_btn aipkit_popup_hint_config_btn"
-                                                    aria-expanded="false"
-                                                    aria-controls="aipkit_popup_hint_flyout"
-                                                    style="<?php echo ($popup_label_enabled === '1') ? '' : 'display:none;'; ?>"
-                                                >
-                                                    <?php esc_html_e('Configure', 'gpt3-ai-content-generator'); ?>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="aipkit_deploy_popup_shortcode" data-deploy-popup-shortcode hidden>
-                                <div class="aipkit_popover_option_row aipkit_deploy_shortcode_row">
-                                    <div class="aipkit_popover_option_main">
-                                        <span class="aipkit_popover_option_label">
-                                            <?php esc_html_e('Shortcode', 'gpt3-ai-content-generator'); ?>
-                                        </span>
-                                        <div class="aipkit_popover_option_actions">
-                                            <button
-                                                type="button"
-                                                class="aipkit_shortcode_pill aipkit_builder_shortcode_pill"
-                                                data-shortcode="<?php echo esc_attr($shortcode_text); ?>"
-                                                title="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <span class="aipkit_shortcode_text"><?php echo esc_html($shortcode_text); ?></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="aipkit_deploy_panel" data-deploy-panel="external" hidden>
-                            <?php if ($embed_anywhere_active) : ?>
-                                <div class="aipkit_popover_options_list aipkit_deploy_external_options">
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
-                                            <div class="aipkit_popover_option_header">
-                                                <span
-                                                    class="aipkit_popover_option_label"
-                                                    tabindex="0"
-                                                    data-tooltip="<?php echo esc_attr__('Copy the script snippet to embed this chatbot on any site.', 'gpt3-ai-content-generator'); ?>"
-                                                >
-                                                    <?php esc_html_e('Embed code', 'gpt3-ai-content-generator'); ?>
-                                                </span>
-                                                <div class="aipkit_popover_option_actions">
-                                                    <button
-                                                        type="button"
-                                                        class="aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_copy_embed_code_btn"
-                                                        data-target="aipkit_embed_code_<?php echo esc_attr($bot_id); ?>"
-                                                    >
-                                                        <span class="dashicons dashicons-admin-page"></span>
-                                                        <?php esc_html_e('Copy Code', 'gpt3-ai-content-generator'); ?>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <textarea
-                                                id="aipkit_embed_code_<?php echo esc_attr($bot_id); ?>"
-                                                class="aipkit_builder_textarea aipkit_deploy_code_input"
-                                                rows="5"
-                                                readonly
-                                            ><?php echo esc_textarea($embed_code); ?></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
-                                            <span
-                                                class="aipkit_popover_option_label"
-                                                tabindex="0"
-                                                data-tooltip="<?php echo esc_attr__('Limit where the embed code can be used.', 'gpt3-ai-content-generator'); ?>"
-                                            >
-                                                <?php esc_html_e('Allowed domains', 'gpt3-ai-content-generator'); ?>
-                                            </span>
-                                            <textarea
-                                                id="aipkit_embed_allowed_domains_<?php echo esc_attr($bot_id); ?>"
-                                                name="embed_allowed_domains"
-                                                class="aipkit_builder_textarea aipkit_deploy_domains_input"
-                                                rows="3"
-                                                placeholder="<?php esc_attr_e('e.g., https://example.com', 'gpt3-ai-content-generator'); ?>"
-                                            ><?php echo esc_textarea($embed_allowed_domains); ?></textarea>
-                                            <p class="aipkit_builder_help_text">
-                                                <?php esc_html_e('Enter full domains (including https://). Leave empty to allow all domains.', 'gpt3-ai-content-generator'); ?>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php else : ?>
-                                <div class="aipkit_popover_options_list aipkit_deploy_external_options">
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
-                                            <div class="aipkit_deploy_locked_panel">
-                                                <div class="aipkit_deploy_panel_header">
-                                                    <div class="aipkit_deploy_panel_title"><?php esc_html_e('Embed anywhere', 'gpt3-ai-content-generator'); ?></div>
-                                                    <p class="aipkit_builder_help_text">
-                                                        <?php esc_html_e('Embed your chatbot on non-WordPress sites with a simple script tag. Great for landing pages, storefronts, and custom apps.', 'gpt3-ai-content-generator'); ?>
-                                                    </p>
-                                                </div>
-                                                <div class="aipkit_deploy_locked_cta">
-                                                    <a class="aipkit_btn aipkit_btn-primary" href="<?php echo esc_url($pricing_url); ?>">
-                                                        <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php else : ?>
-                    <p class="aipkit_builder_help_text">
-                        <?php esc_html_e('Select a bot to configure deployment options.', 'gpt3-ai-content-generator'); ?>
-                    </p>
-                <?php endif; ?>
-            </div>
-            <?php if ($active_bot_post) : ?>
-                <div class="aipkit_popover_flyout_footer">
-                    <span class="aipkit_popover_flyout_footer_text">
-                        <?php esc_html_e('Need help? Read the docs.', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                    <a
-                        class="aipkit_popover_flyout_footer_link"
-                        href="<?php echo esc_url('https://docs.aipower.org/docs/chat#embed-anywhere-external-sites'); ?>"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
-                    </a>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-    <?php if ($active_bot_post) : ?>
-        <div
-            class="aipkit_popover_image_flyout"
-            id="aipkit_image_settings_flyout"
-            aria-hidden="true"
-            role="dialog"
-        >
-            <div class="aipkit_popover_flyout_header">
-                <span class="aipkit_popover_flyout_title">
-                    <?php esc_html_e('Image settings', 'gpt3-ai-content-generator'); ?>
-                </span>
-                <button
-                    type="button"
-                    class="aipkit_popover_flyout_close"
-                    aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <span class="dashicons dashicons-no-alt"></span>
-                </button>
-            </div>
-            <div class="aipkit_popover_flyout_body aipkit_popover_image_body">
-                <div class="aipkit_popover_option_row aipkit_image_analysis_popover_row" style="<?php echo (($current_provider_for_this_bot === 'OpenAI' || $current_provider_for_this_bot === 'Claude' || $current_provider_for_this_bot === 'OpenRouter')) ? '' : 'display:none;'; ?>">
-                    <div class="aipkit_popover_option_main">
-                        <span
-                            class="aipkit_popover_option_label"
-                            tabindex="0"
-                            data-tooltip="<?php echo esc_attr__('Allow image uploads for analysis (OpenAI, Claude, and OpenRouter only).', 'gpt3-ai-content-generator'); ?>"
-                        >
-                            <?php esc_html_e('Image upload', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                        <label class="aipkit_switch">
-                            <input
-                                type="checkbox"
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_image_upload_popover"
-                                name="enable_image_upload"
-                                class="aipkit_image_analysis_checkbox"
-                                value="1"
-                                <?php checked($enable_image_upload, '1'); ?>
-                            />
-                            <span class="aipkit_switch_slider"></span>
-                        </label>
-                    </div>
-                </div>
-                <div class="aipkit_popover_option_row">
-                    <div class="aipkit_popover_option_main">
-                        <span
-                            class="aipkit_popover_option_label"
-                            tabindex="0"
-                            data-tooltip="<?php echo esc_attr__('Select the image model for this bot.', 'gpt3-ai-content-generator'); ?>"
-                        >
-                            <?php esc_html_e('Image generation', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                        <div class="aipkit_popover_option_actions aipkit_popover_option_actions--image">
-                            <select
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id_popover"
-                                name="chat_image_model_id"
-                                class="aipkit_popover_option_select aipkit_popover_option_select--compact"
-                            >
-                                <?php
-                                $found_current_model = false;
-                                foreach ($available_image_models as $provider_group => $models) {
-                                    echo '<optgroup label="' . esc_attr($provider_group) . '">';
-                                    foreach ($models as $model) {
-                                        if ((string) $chat_image_model_id === (string) $model['id']) {
-                                            $found_current_model = true;
-                                        }
-                                        echo '<option value="' . esc_attr($model['id']) . '"' . selected($chat_image_model_id, $model['id'], false) . '>' . esc_html($model['name']) . '</option>';
-                                    }
-                                    echo '</optgroup>';
-                                }
-                                if (!$found_current_model && !empty($chat_image_model_id)) {
-                                    echo '<option value="' . esc_attr($chat_image_model_id) . '" selected="selected">' . esc_html($chat_image_model_id) . ' (Manual/Current)</option>';
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="aipkit_popover_option_row">
-                    <div class="aipkit_popover_option_main">
-                        <label
-                            class="aipkit_popover_option_label"
-                            for="aipkit_chat_image_replicate_api_key"
-                        >
-                            <?php esc_html_e('Replicate API key', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                            <input
-                                type="password"
-                                id="aipkit_chat_image_replicate_api_key"
-                                name="replicate_api_key"
-                                class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                                value="<?php echo esc_attr($replicate_api_key); ?>"
-                                placeholder="<?php esc_attr_e('Enter your Replicate API key', 'gpt3-ai-content-generator'); ?>"
-                                autocomplete="new-password"
-                                data-lpignore="true"
-                                data-1p-ignore="true"
-                                data-form-type="other"
-                            />
-                            <span class="aipkit_api-key-toggle">
-                                <span class="dashicons dashicons-visibility"></span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="aipkit_popover_option_row">
-                    <div class="aipkit_popover_option_main">
-                        <label
-                            class="aipkit_popover_option_label"
-                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_image_triggers_popover"
-                            data-tooltip="<?php echo esc_attr__('Comma-separated commands (e.g., /image, /generate) to trigger.', 'gpt3-ai-content-generator'); ?>"
-                        >
-                            <?php esc_html_e('Triggers', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <input
-                            type="text"
-                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_image_triggers_popover"
-                            name="image_triggers"
-                            class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                            placeholder="/image, /generate"
-                            value="<?php echo esc_attr($image_triggers); ?>"
-                        />
-                    </div>
-                </div>
-            </div>
-            <div class="aipkit_popover_flyout_footer">
-                <span class="aipkit_popover_flyout_footer_text">
-                    <?php esc_html_e('Need help? Read the docs.', 'gpt3-ai-content-generator'); ?>
-                </span>
-                <a
-                    class="aipkit_popover_flyout_footer_link"
-                    href="<?php echo esc_url('https://docs.aipower.org/docs/image-features'); ?>"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
-                </a>
-            </div>
-        </div>
     <?php endif; ?>
 </div>
 

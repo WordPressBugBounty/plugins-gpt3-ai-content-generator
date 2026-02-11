@@ -1,38 +1,90 @@
 <?php
 $bot_id = $initial_active_bot_id;
 ?>
-<div class="aipkit_popover_options_list">
-    <div class="aipkit_popover_option_row aipkit_vector_store_popover_row">
-        <div class="aipkit_popover_option_main">
-            <span class="aipkit_popover_option_label_group">
-                <span
-                    class="aipkit_popover_option_label"
-                    tabindex="0"
-                    data-tooltip="<?php echo esc_attr__('Use your knowledge base for more accurate answers.', 'gpt3-ai-content-generator'); ?>"
+<div
+    class="aipkit_popover_options_list aipkit_context_layout"
+    data-vector-provider="<?php echo esc_attr(($enable_vector_store === '1') ? $vector_store_provider : ''); ?>"
+>
+    <div class="aipkit_popover_option_row aipkit_context_source_row">
+        <div class="aipkit_popover_option_main aipkit_context_source_main">
+            <label
+                class="aipkit_popover_option_label"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_context_sources_select"
+            >
+                <?php esc_html_e('Data Source', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <div
+                class="aipkit_popover_multiselect aipkit_context_sources_multiselect"
+                data-aipkit-context-source-dropdown
+                data-placeholder="<?php echo esc_attr__('Select data source', 'gpt3-ai-content-generator'); ?>"
+                data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
+            >
+                <button
+                    type="button"
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_context_sources_select"
+                    class="aipkit_popover_multiselect_btn"
+                    aria-expanded="false"
+                    aria-controls="aipkit_bot_<?php echo esc_attr($bot_id); ?>_context_sources_panel"
                 >
-                    <?php esc_html_e('Knowledge base', 'gpt3-ai-content-generator'); ?>
-                </span>
-                <span class="aipkit_popover_warning" data-tooltip="" aria-hidden="true">
-                    <span class="dashicons dashicons-warning"></span>
-                </span>
-            </span>
-            <div class="aipkit_popover_option_actions">
-                <label class="aipkit_switch">
-                    <input
-                        type="checkbox"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_vector_store_popover"
-                        name="enable_vector_store"
-                        class="aipkit_vector_store_enable_select"
-                        value="1"
-                        <?php checked($enable_vector_store, '1'); ?>
-                    />
-                    <span class="aipkit_switch_slider"></span>
-                </label>
+                    <span class="aipkit_popover_multiselect_label">
+                        <?php esc_html_e('Select data source', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </button>
+                <div
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_context_sources_panel"
+                    class="aipkit_popover_multiselect_panel"
+                    role="menu"
+                    hidden
+                >
+                    <div class="aipkit_popover_multiselect_options">
+                        <label class="aipkit_popover_multiselect_item">
+                            <input
+                                type="checkbox"
+                                class="aipkit_context_source_option"
+                                value="vector"
+                                <?php checked($enable_vector_store, '1'); ?>
+                            />
+                            <span class="aipkit_popover_multiselect_text"><?php esc_html_e('Vector', 'gpt3-ai-content-generator'); ?></span>
+                        </label>
+                        <label class="aipkit_popover_multiselect_item">
+                            <input
+                                type="checkbox"
+                                class="aipkit_context_source_option"
+                                value="page_context"
+                                <?php checked($content_aware_enabled, '1'); ?>
+                            />
+                            <span class="aipkit_popover_multiselect_text"><?php esc_html_e('Page Context', 'gpt3-ai-content-generator'); ?></span>
+                        </label>
+                    </div>
+                </div>
             </div>
+            <input
+                type="checkbox"
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_vector_store_popover"
+                name="enable_vector_store"
+                class="aipkit_vector_store_enable_select aipkit_context_source_hidden_toggle"
+                value="1"
+                <?php checked($enable_vector_store, '1'); ?>
+                hidden
+            />
+            <input
+                type="checkbox"
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_content_aware_enabled_popover"
+                name="content_aware_enabled"
+                class="aipkit_content_aware_enable_select aipkit_context_source_hidden_toggle"
+                value="1"
+                <?php checked($content_aware_enabled, '1'); ?>
+                hidden
+            />
         </div>
     </div>
-    <div class="aipkit_vector_store_settings_conditional_row" style="<?php echo ($enable_vector_store === '1') ? '' : 'display:none;'; ?>">
-        <div class="aipkit_popover_option_row">
+
+    <div
+        class="aipkit_vector_store_settings_conditional_row aipkit_context_grid"
+        data-vector-provider="<?php echo esc_attr(($enable_vector_store === '1') ? $vector_store_provider : ''); ?>"
+        style="<?php echo ($enable_vector_store === '1') ? '' : 'display:none;'; ?>"
+    >
+        <div class="aipkit_popover_option_row aipkit_vector_store_provider_field">
             <div class="aipkit_popover_option_main">
                 <label
                     class="aipkit_popover_option_label"
@@ -147,30 +199,141 @@ $bot_id = $initial_active_bot_id;
             <div class="aipkit_popover_option_main">
                 <label
                     class="aipkit_popover_option_label"
-                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_pinecone_index_name_modal"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_pinecone_index_dropdown_btn"
                 >
                     <?php esc_html_e('Index', 'gpt3-ai-content-generator'); ?>
                 </label>
+                <?php
+                $pinecone_dropdown_placeholder = __('Select index', 'gpt3-ai-content-generator');
+                $pinecone_dropdown_label = $pinecone_dropdown_placeholder;
+                $pinecone_option_rows = [];
+
+                if (!empty($pinecone_indexes)) {
+                    foreach ($pinecone_indexes as $index) {
+                        $index_name = is_array($index) ? ($index['name'] ?? '') : (string) $index;
+                        if ($index_name === '') {
+                            continue;
+                        }
+                        $pinecone_option_rows[] = [
+                            'value' => $index_name,
+                            'label' => $index_name,
+                            'disabled' => false,
+                        ];
+                        if ($pinecone_index_name === $index_name) {
+                            $pinecone_dropdown_label = $index_name;
+                        }
+                    }
+                }
+
+                if (!empty($pinecone_index_name)) {
+                    $known_pinecone_names = [];
+                    foreach ($pinecone_option_rows as $pinecone_option_row) {
+                        $known_pinecone_names[] = isset($pinecone_option_row['value'])
+                            ? (string) $pinecone_option_row['value']
+                            : '';
+                    }
+                    if (!in_array((string) $pinecone_index_name, $known_pinecone_names, true)) {
+                        $manual_label = sprintf(
+                            /* translators: %s is the manually entered Pinecone index name. */
+                            __('%s (Manual)', 'gpt3-ai-content-generator'),
+                            $pinecone_index_name
+                        );
+                        $pinecone_option_rows[] = [
+                            'value' => $pinecone_index_name,
+                            'label' => $manual_label,
+                            'disabled' => false,
+                        ];
+                        $pinecone_dropdown_label = $manual_label;
+                    }
+                }
+
+                if (empty($pinecone_option_rows) && empty($pinecone_index_name)) {
+                    $pinecone_option_rows[] = [
+                        'value' => '',
+                        'label' => __('-- No Indexes Found --', 'gpt3-ai-content-generator'),
+                        'disabled' => true,
+                    ];
+                }
+                ?>
                 <div class="aipkit_popover_inline_controls">
+                    <div
+                        class="aipkit_popover_multiselect aipkit_vector_store_pinecone_dropdown"
+                        data-aipkit-pinecone-index-dropdown
+                        data-placeholder="<?php echo esc_attr($pinecone_dropdown_placeholder); ?>"
+                    >
+                        <button
+                            type="button"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_pinecone_index_dropdown_btn"
+                            class="aipkit_popover_multiselect_btn"
+                            aria-expanded="false"
+                            aria-controls="aipkit_bot_<?php echo esc_attr($bot_id); ?>_pinecone_index_dropdown_panel"
+                        >
+                            <span class="aipkit_popover_multiselect_label">
+                                <?php echo esc_html($pinecone_dropdown_label); ?>
+                            </span>
+                        </button>
+                        <div
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_pinecone_index_dropdown_panel"
+                            class="aipkit_popover_multiselect_panel aipkit_vector_store_pinecone_panel"
+                            role="menu"
+                            hidden
+                        >
+                            <div class="aipkit_popover_multiselect_options aipkit_vector_store_pinecone_options">
+                                <?php foreach ($pinecone_option_rows as $option_row) : ?>
+                                    <?php
+                                    $option_value = isset($option_row['value']) ? (string) $option_row['value'] : '';
+                                    $option_label = isset($option_row['label']) ? (string) $option_row['label'] : '';
+                                    $option_disabled = !empty($option_row['disabled']);
+                                    $option_checked = (
+                                        !$option_disabled &&
+                                        $option_value !== '' &&
+                                        (string) $pinecone_index_name === $option_value
+                                    );
+                                    ?>
+                                    <label class="aipkit_popover_multiselect_item aipkit_vector_store_pinecone_item">
+                                        <span class="aipkit_vector_store_pinecone_item_label">
+                                            <input
+                                                type="radio"
+                                                class="aipkit_vector_store_pinecone_radio"
+                                                name="aipkit_pinecone_index_choice_<?php echo esc_attr($bot_id); ?>"
+                                                value="<?php echo esc_attr($option_value); ?>"
+                                                <?php checked($option_checked, true); ?>
+                                                <?php disabled($option_disabled); ?>
+                                            />
+                                            <span class="aipkit_popover_multiselect_text"><?php echo esc_html($option_label); ?></span>
+                                        </span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
                     <select
                         id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_pinecone_index_name_modal"
                         name="pinecone_index_name"
-                        class="aipkit_popover_option_select"
+                        class="aipkit_popover_option_select aipkit_vector_store_pinecone_hidden_select"
+                        hidden
+                        aria-hidden="true"
+                        tabindex="-1"
                     >
-                        <?php
-                        if (!empty($pinecone_indexes)) {
-                            foreach ($pinecone_indexes as $index) {
-                                $index_name = is_array($index) ? ($index['name'] ?? '') : (string) $index;
-                                echo '<option value="' . esc_attr($index_name) . '"' . selected($pinecone_index_name, $index_name, false) . '>' . esc_html($index_name) . '</option>';
-                            }
-                        }
-                        if (!empty($pinecone_index_name) && (empty($pinecone_indexes) || !in_array($pinecone_index_name, array_column($pinecone_indexes, 'name')))) {
-                            echo '<option value="' . esc_attr($pinecone_index_name) . '" selected="selected">' . esc_html($pinecone_index_name) . ' (Manual)</option>';
-                        }
-                        if (empty($pinecone_indexes) && empty($pinecone_index_name)) {
-                            echo '<option value="" disabled>' . esc_html__('-- No Indexes Found --', 'gpt3-ai-content-generator') . '</option>';
-                        }
-                        ?>
+                        <?php foreach ($pinecone_option_rows as $option_row) : ?>
+                            <?php
+                            $option_value = isset($option_row['value']) ? (string) $option_row['value'] : '';
+                            $option_label = isset($option_row['label']) ? (string) $option_row['label'] : '';
+                            $option_disabled = !empty($option_row['disabled']);
+                            $option_selected = (
+                                !$option_disabled &&
+                                $option_value !== '' &&
+                                (string) $pinecone_index_name === $option_value
+                            );
+                            ?>
+                            <option
+                                value="<?php echo esc_attr($option_value); ?>"
+                                <?php selected($option_selected, true); ?>
+                                <?php disabled($option_disabled); ?>
+                            >
+                                <?php echo esc_html($option_label); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>
@@ -214,7 +377,7 @@ $bot_id = $initial_active_bot_id;
                     type="url"
                     id="aipkit_qdrant_url_modal"
                     name="qdrant_url"
-                    class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
+                    class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
                     placeholder="<?php esc_attr_e('e.g., http://localhost:6333', 'gpt3-ai-content-generator'); ?>"
                     value="<?php echo esc_attr($qdrant_url); ?>"
                 />
@@ -440,94 +603,61 @@ $bot_id = $initial_active_bot_id;
             </div>
         </div>
 
-        <div class="aipkit_popover_option_row aipkit_vector_store_top_k_field" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'pinecone', 'qdrant'], true)) ? '' : 'display:none;'; ?>">
-            <div class="aipkit_popover_option_main">
-                <label
-                    class="aipkit_popover_option_label"
-                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_modal"
-                    data-tooltip="<?php echo esc_attr__('Number of results to retrieve from vector store.', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <?php esc_html_e('Limit', 'gpt3-ai-content-generator'); ?>
-                </label>
-                <div class="aipkit_popover_param_slider">
-                    <input
-                        type="range"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_modal"
-                        name="vector_store_top_k"
-                        class="aipkit_form-input aipkit_range_slider aipkit_popover_slider"
-                        min="1"
-                        max="20"
-                        step="1"
-                        value="<?php echo esc_attr($vector_store_top_k); ?>"
-                    />
-                    <span id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_modal_value" class="aipkit_popover_param_value">
-                        <?php echo esc_html($vector_store_top_k); ?>
-                    </span>
-                </div>
-            </div>
-        </div>
+        <div class="aipkit_popover_option_row aipkit_vector_store_advanced_field" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'pinecone', 'qdrant'], true)) ? '' : 'display:none;'; ?>">
+            <div class="aipkit_popover_option_main aipkit_vector_store_advanced_main">
+                <details class="aipkit_vector_store_advanced_disclosure">
+                    <summary class="aipkit_vector_store_advanced_summary">
+                        <span class="aipkit_vector_store_advanced_summary_title"><?php esc_html_e('Advanced retrieval', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_vector_store_advanced_summary_meta"><?php esc_html_e('Limit and threshold', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                    </summary>
+                    <div class="aipkit_vector_store_advanced_panel">
+                        <div class="aipkit_popover_option_row aipkit_vector_store_top_k_field">
+                            <div class="aipkit_popover_option_main">
+                                <label
+                                    class="aipkit_popover_option_label"
+                                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_modal"
+                                    data-tooltip="<?php echo esc_attr__('Number of results to retrieve from vector store.', 'gpt3-ai-content-generator'); ?>"
+                                >
+                                    <?php esc_html_e('Limit', 'gpt3-ai-content-generator'); ?>
+                                </label>
+                                <input
+                                    type="number"
+                                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_modal"
+                                    name="vector_store_top_k"
+                                    class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed"
+                                    min="1"
+                                    max="20"
+                                    step="1"
+                                    value="<?php echo esc_attr($vector_store_top_k); ?>"
+                                />
+                            </div>
+                        </div>
 
-        <div class="aipkit_popover_option_row aipkit_vector_store_confidence_field aipkit_popover_option_row--force-divider" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'pinecone', 'qdrant'], true)) ? '' : 'display:none;'; ?>">
-            <div class="aipkit_popover_option_main">
-                <label
-                    class="aipkit_popover_option_label"
-                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_modal"
-                    data-tooltip="<?php echo esc_attr__('Only use results with a similarity score above this.', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <?php esc_html_e('Score threshold', 'gpt3-ai-content-generator'); ?>
-                </label>
-                <div class="aipkit_popover_param_slider">
-                    <input
-                        type="range"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_modal"
-                        name="vector_store_confidence_threshold"
-                        class="aipkit_form-input aipkit_range_slider aipkit_popover_slider"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value="<?php echo esc_attr($vector_store_confidence_threshold); ?>"
-                        data-suffix="%"
-                    />
-                    <span id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_modal_value" class="aipkit_popover_param_value">
-                        <?php echo esc_html($vector_store_confidence_threshold); ?>%
-                    </span>
-                </div>
+                        <div class="aipkit_popover_option_row aipkit_vector_store_confidence_field">
+                            <div class="aipkit_popover_option_main">
+                                <label
+                                    class="aipkit_popover_option_label"
+                                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_modal"
+                                    data-tooltip="<?php echo esc_attr__('Only use results with a similarity score above this.', 'gpt3-ai-content-generator'); ?>"
+                                >
+                                    <?php esc_html_e('Threshold', 'gpt3-ai-content-generator'); ?>
+                                </label>
+                                <input
+                                    type="number"
+                                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_modal"
+                                    name="vector_store_confidence_threshold"
+                                    class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    value="<?php echo esc_attr($vector_store_confidence_threshold); ?>"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </details>
             </div>
         </div>
     </div>
-    <div class="aipkit_popover_option_row">
-        <div class="aipkit_popover_option_main">
-            <span
-                class="aipkit_popover_option_label"
-                tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Use the current page content as context (limited).', 'gpt3-ai-content-generator'); ?>"
-            >
-                <?php esc_html_e('Page context', 'gpt3-ai-content-generator'); ?>
-            </span>
-            <label class="aipkit_switch">
-                <input
-                    type="checkbox"
-                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_content_aware_enabled_popover"
-                    name="content_aware_enabled"
-                    class="aipkit_content_aware_enable_select"
-                    value="1"
-                    <?php checked($content_aware_enabled, '1'); ?>
-                />
-                <span class="aipkit_switch_slider"></span>
-            </label>
-        </div>
-    </div>
-</div>
-<div class="aipkit_popover_flyout_footer">
-    <span class="aipkit_popover_flyout_footer_text">
-        <?php esc_html_e('Need help? Read the docs.', 'gpt3-ai-content-generator'); ?>
-    </span>
-    <a
-        class="aipkit_popover_flyout_footer_link"
-        href="<?php echo esc_url('https://docs.aipower.org/docs/context'); ?>"
-        target="_blank"
-        rel="noopener noreferrer"
-    >
-        <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
-    </a>
 </div>

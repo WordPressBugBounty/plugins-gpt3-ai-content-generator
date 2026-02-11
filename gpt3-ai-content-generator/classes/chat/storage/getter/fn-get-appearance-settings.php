@@ -64,6 +64,27 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $settings['theme'] = in_array($get_meta_fn('_aipkit_theme', $default_theme), $valid_themes)
         ? $get_meta_fn('_aipkit_theme', $default_theme)
         : $default_theme;
+    $raw_theme_preset_key = sanitize_key((string) $get_meta_fn('_aipkit_theme_preset_key', ''));
+    $valid_theme_preset_keys = [];
+    if (class_exists(BotSettingsManager::class)) {
+        $custom_theme_presets = BotSettingsManager::get_custom_theme_presets();
+        foreach ($custom_theme_presets as $preset) {
+            if (!is_array($preset) || !isset($preset['key'])) {
+                continue;
+            }
+            $preset_key = sanitize_key((string) $preset['key']);
+            if ($preset_key !== '') {
+                $valid_theme_preset_keys[$preset_key] = true;
+            }
+        }
+    }
+    $settings['theme_preset_key'] = (
+        $settings['theme'] === 'custom' &&
+        $raw_theme_preset_key !== '' &&
+        isset($valid_theme_preset_keys[$raw_theme_preset_key])
+    )
+        ? $raw_theme_preset_key
+        : '';
     $settings['footer_text'] = $get_meta_fn('_aipkit_footer_text');
     $settings['input_placeholder'] = $get_meta_fn('_aipkit_input_placeholder', __('Type your message...', 'gpt3-ai-content-generator'));
     $header_avatar_url = $get_meta_fn('_aipkit_header_avatar_url', BotSettingsManager::DEFAULT_HEADER_AVATAR_URL);

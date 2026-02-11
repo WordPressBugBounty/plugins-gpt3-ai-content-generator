@@ -26,6 +26,14 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_subgreeting_message', $sanitized_settings['subgreeting']);
     update_post_meta($botId, '_aipkit_provider', $sanitized_settings['provider']);
     update_post_meta($botId, '_aipkit_theme', $sanitized_settings['theme']);
+    if (
+        ($sanitized_settings['theme'] ?? '') === 'custom' &&
+        !empty($sanitized_settings['theme_preset_key'])
+    ) {
+        update_post_meta($botId, '_aipkit_theme_preset_key', $sanitized_settings['theme_preset_key']);
+    } else {
+        delete_post_meta($botId, '_aipkit_theme_preset_key');
+    }
     update_post_meta($botId, '_aipkit_instructions', $sanitized_settings['instructions']);
     update_post_meta($botId, '_aipkit_popup_enabled', $sanitized_settings['popup_enabled']);
     update_post_meta($botId, '_aipkit_popup_position', $sanitized_settings['popup_position']);

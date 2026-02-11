@@ -16,17 +16,14 @@ if (!defined('ABSPATH')) {
                 <?php esc_html_e('Web toggle default on', 'gpt3-ai-content-generator'); ?>
             </span>
             <div class="aipkit_popover_option_actions">
-                <label class="aipkit_switch">
-                    <input
-                        type="checkbox"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_web_toggle_default_on_modal"
-                        name="web_toggle_default_on"
-                        class="aipkit_web_toggle_default_on"
-                        value="1"
-                        <?php checked($web_toggle_default_on_val, '1'); ?>
-                    />
-                    <span class="aipkit_switch_slider"></span>
-                </label>
+                <select
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_web_toggle_default_on_modal"
+                    name="web_toggle_default_on"
+                    class="aipkit_popover_option_select aipkit_popover_option_select--compact aipkit_web_toggle_default_on"
+                >
+                    <option value="1" <?php selected($web_toggle_default_on_val, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="0" <?php selected($web_toggle_default_on_val, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                </select>
             </div>
         </div>
     </div>

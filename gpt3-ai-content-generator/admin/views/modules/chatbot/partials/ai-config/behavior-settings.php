@@ -4,6 +4,9 @@ use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 
 $bot_id = $initial_active_bot_id;
 $bot_settings = $active_bot_settings;
+$saved_stream_enabled = isset($bot_settings['stream_enabled'])
+    ? $bot_settings['stream_enabled']
+    : BotSettingsManager::DEFAULT_STREAM_ENABLED;
 
 $saved_temperature = isset($bot_settings['temperature'])
     ? floatval($bot_settings['temperature'])
@@ -29,173 +32,122 @@ $reasoning_labels = [
 if (!in_array($reasoning_effort, $reasoning_options, true)) {
     $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT;
 }
-$reasoning_index = array_search($reasoning_effort, $reasoning_options, true);
-if ($reasoning_index === false) {
-    $reasoning_index = 0;
-}
 
 $saved_temperature = max(0.0, min($saved_temperature, 2.0));
 $saved_max_tokens = max(1, min($saved_max_tokens, 128000));
 $saved_max_messages = max(1, min($saved_max_messages, 1024));
 ?>
-<div class="aipkit_popover_options_list">
-    <div class="aipkit_popover_option_row">
-        <div class="aipkit_popover_option_main">
-            <span
+<div class="aipkit_popover_options_list aipkit_behavior_compact_options">
+    <div class="aipkit_behavior_compact_row">
+        <div class="aipkit_behavior_compact_cell">
+            <label
                 class="aipkit_popover_option_label"
-                tabindex="0"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_stream_enabled_select"
                 data-tooltip="<?php echo esc_attr__('Display responses word by word in real-time.', 'gpt3-ai-content-generator'); ?>"
             >
                 <?php esc_html_e('Streaming', 'gpt3-ai-content-generator'); ?>
-            </span>
-            <label class="aipkit_switch">
-                <input
-                    type="checkbox"
-                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_stream_enabled_popover"
-                    name="stream_enabled"
-                    class="aipkit_stream_enable_toggle"
-                    value="1"
-                    <?php checked($saved_stream_enabled, '1'); ?>
-                >
-                <span class="aipkit_switch_slider"></span>
             </label>
+            <select
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_stream_enabled_select"
+                name="stream_enabled"
+                class="aipkit_form-input aipkit_popover_option_select aipkit_stream_enable_toggle"
+            >
+                <option value="1" <?php selected($saved_stream_enabled, '1'); ?>>
+                    <?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?>
+                </option>
+                <option value="0" <?php selected($saved_stream_enabled, '0'); ?>>
+                    <?php esc_html_e('No', 'gpt3-ai-content-generator'); ?>
+                </option>
+            </select>
         </div>
-    </div>
-    <div
-        class="aipkit_popover_option_row aipkit_stateful_convo_group"
-        style="<?php echo ($current_provider_for_this_bot === 'OpenAI') ? '' : 'display:none;'; ?>"
-    >
-        <div class="aipkit_popover_option_main">
-            <span
+        <div
+            class="aipkit_behavior_compact_cell aipkit_stateful_convo_group"
+            style="<?php echo ($current_provider_for_this_bot === 'OpenAI') ? '' : 'display:none;'; ?>"
+        >
+            <label
                 class="aipkit_popover_option_label"
-                tabindex="0"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_select"
                 data-tooltip="<?php echo esc_attr__('Use OpenAI server-side memory.', 'gpt3-ai-content-generator'); ?>"
             >
-                <?php esc_html_e('Stateful memory', 'gpt3-ai-content-generator'); ?>
-            </span>
-            <label class="aipkit_switch">
-                <input
-                    type="checkbox"
-                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_popover"
-                    name="openai_conversation_state_enabled"
-                    class="aipkit_openai_conversation_state_enable_toggle aipkit_stateful_convo_checkbox"
-                    value="1"
-                    <?php checked($openai_conversation_state_enabled_val, '1'); ?>
-                >
-                <span class="aipkit_switch_slider"></span>
+                <?php esc_html_e('Session memory', 'gpt3-ai-content-generator'); ?>
             </label>
+            <select
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_select"
+                name="openai_conversation_state_enabled"
+                class="aipkit_form-input aipkit_popover_option_select aipkit_openai_conversation_state_enable_toggle aipkit_stateful_convo_checkbox"
+            >
+                <option value="1" <?php selected($openai_conversation_state_enabled_val, '1'); ?>>
+                    <?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?>
+                </option>
+                <option value="0" <?php selected($openai_conversation_state_enabled_val, '0'); ?>>
+                    <?php esc_html_e('No', 'gpt3-ai-content-generator'); ?>
+                </option>
+            </select>
+        </div>
+        <div class="aipkit_behavior_compact_cell">
+            <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_temperature">
+                <?php esc_html_e('Creativity', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <input
+                type="number"
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_temperature"
+                name="temperature"
+                class="aipkit_form-input"
+                min="0"
+                max="2"
+                step="0.1"
+                value="<?php echo esc_attr($saved_temperature); ?>"
+            />
+        </div>
+        <div class="aipkit_behavior_compact_cell">
+            <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_completion_tokens">
+                <?php esc_html_e('Response length', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <input
+                type="number"
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_completion_tokens"
+                name="max_completion_tokens"
+                class="aipkit_form-input"
+                min="1"
+                max="128000"
+                step="1"
+                value="<?php echo esc_attr($saved_max_tokens); ?>"
+            />
+        </div>
+        <div class="aipkit_behavior_compact_cell">
+            <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_messages">
+                <?php esc_html_e('Memory', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <input
+                type="number"
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_messages"
+                name="max_messages"
+                class="aipkit_form-input"
+                min="1"
+                max="1024"
+                step="1"
+                value="<?php echo esc_attr($saved_max_messages); ?>"
+            />
+        </div>
+        <div class="aipkit_behavior_compact_cell aipkit_reasoning_effort_field">
+            <label
+                class="aipkit_popover_option_label"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort"
+                data-tooltip="<?php echo esc_attr__('Controls thinking depth for reasoning models.', 'gpt3-ai-content-generator'); ?>"
+            >
+                <?php esc_html_e('Reasoning', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <select
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort"
+                name="reasoning_effort"
+                class="aipkit_form-input aipkit_popover_option_select aipkit_reasoning_effort_value"
+            >
+                <?php foreach ($reasoning_options as $option_index => $option_value) : ?>
+                    <option value="<?php echo esc_attr($option_value); ?>" <?php selected($reasoning_effort, $option_value); ?>>
+                        <?php echo esc_html($reasoning_labels[$option_index]); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
     </div>
-    <div class="aipkit_popover_option_row">
-        <div class="aipkit_popover_params_list">
-            <div class="aipkit_popover_param_row">
-                <span class="aipkit_popover_param_label">
-                    <?php esc_html_e('Temperature', 'gpt3-ai-content-generator'); ?>
-                </span>
-                <div class="aipkit_popover_param_slider">
-                    <input
-                        type="range"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_temperature"
-                        name="temperature"
-                        class="aipkit_form-input aipkit_range_slider aipkit_popover_slider"
-                        min="0" max="2" step="0.1"
-                        value="<?php echo esc_attr($saved_temperature); ?>"
-                    />
-                    <span
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_temperature_value"
-                        class="aipkit_popover_param_value"
-                    >
-                        <?php echo esc_html($saved_temperature); ?>
-                    </span>
-                </div>
-            </div>
-            <div class="aipkit_popover_param_row">
-                <span class="aipkit_popover_param_label">
-                    <?php esc_html_e('Max tokens', 'gpt3-ai-content-generator'); ?>
-                </span>
-                <div class="aipkit_popover_param_slider">
-                    <input
-                        type="range"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_completion_tokens"
-                        name="max_completion_tokens"
-                        class="aipkit_form-input aipkit_range_slider aipkit_popover_slider"
-                        min="1" max="128000" step="1"
-                        value="<?php echo esc_attr($saved_max_tokens); ?>"
-                    />
-                    <span
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_completion_tokens_value"
-                        class="aipkit_popover_param_value"
-                    >
-                        <?php echo esc_html($saved_max_tokens); ?>
-                    </span>
-                </div>
-            </div>
-            <div class="aipkit_popover_param_row">
-                <span class="aipkit_popover_param_label">
-                    <?php esc_html_e('Context messages', 'gpt3-ai-content-generator'); ?>
-                </span>
-                <div class="aipkit_popover_param_slider">
-                    <input
-                        type="range"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_messages"
-                        name="max_messages"
-                        class="aipkit_form-input aipkit_range_slider aipkit_popover_slider"
-                        min="1" max="1024" step="1"
-                        value="<?php echo esc_attr($saved_max_messages); ?>"
-                    />
-                    <span
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_messages_value"
-                        class="aipkit_popover_param_value"
-                    >
-                        <?php echo esc_html($saved_max_messages); ?>
-                    </span>
-                </div>
-            </div>
-            <div class="aipkit_popover_param_row aipkit_reasoning_effort_field">
-                <span
-                    class="aipkit_popover_param_label"
-                    data-tooltip="<?php echo esc_attr__('Controls thinking depth for reasoning models.', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <?php esc_html_e('Reasoning effort', 'gpt3-ai-content-generator'); ?>
-                </span>
-                <div class="aipkit_popover_param_slider">
-                    <input
-                        type="range"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort"
-                        name="reasoning_effort_range"
-                        class="aipkit_form-input aipkit_range_slider aipkit_popover_slider aipkit_reasoning_effort_slider"
-                        min="0" max="<?php echo esc_attr(count($reasoning_options) - 1); ?>" step="1"
-                        value="<?php echo esc_attr($reasoning_index); ?>"
-                        data-reasoning-values="<?php echo esc_attr(wp_json_encode($reasoning_options)); ?>"
-                        data-reasoning-labels="<?php echo esc_attr(wp_json_encode($reasoning_labels)); ?>"
-                    />
-                    <span
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort_value"
-                        class="aipkit_popover_param_value aipkit_reasoning_effort_label"
-                    >
-                        <?php echo esc_html($reasoning_labels[$reasoning_index]); ?>
-                    </span>
-                </div>
-                <input
-                    type="hidden"
-                    name="reasoning_effort"
-                    class="aipkit_reasoning_effort_value"
-                    value="<?php echo esc_attr($reasoning_effort); ?>"
-                />
-            </div>
-        </div>
-    </div>
-</div>
-<div class="aipkit_popover_flyout_footer">
-    <span class="aipkit_popover_flyout_footer_text">
-        <?php esc_html_e('Need help? Read the docs.', 'gpt3-ai-content-generator'); ?>
-    </span>
-    <a
-        class="aipkit_popover_flyout_footer_link"
-        href="<?php echo esc_url('https://docs.aipower.org/docs/ai-configuration'); ?>"
-        target="_blank"
-        rel="noopener noreferrer"
-    >
-        <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
-    </a>
 </div>

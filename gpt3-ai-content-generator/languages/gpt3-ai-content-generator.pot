@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – AI Chatbots, Content Writer & Forms (formerly AI Power) 2.3.72\n"
+"Project-Id-Version: AI Puffer – AI Chatbots, Content Writer & Forms (formerly AI Power) 2.3.73\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-08T13:39:26+00:00\n"
+"POT-Creation-Date: 2026-02-11T18:45:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -1194,10 +1194,10 @@ msgstr ""
 msgid "Chatbots"
 msgstr ""
 
-msgid "Write"
+msgid "Content Writer"
 msgstr ""
 
-msgid "Automate"
+msgid "Automations"
 msgstr ""
 
 msgid "Forms"
@@ -1206,7 +1206,7 @@ msgstr ""
 msgid "Images"
 msgstr ""
 
-msgid "Sources"
+msgid "Knowledge Base"
 msgstr ""
 
 msgid "Usage"
@@ -1854,6 +1854,9 @@ msgstr ""
 msgid "WP-Cron appears delayed. Automated tasks run on page loads, so low traffic can delay runs."
 msgstr ""
 
+msgid "Automate"
+msgstr ""
+
 msgid "Edit task name"
 msgstr ""
 
@@ -1962,7 +1965,31 @@ msgstr ""
 msgid "Enter your meta description prompt..."
 msgstr ""
 
-msgid "Updating existing content is a Pro feature. Upgrade to enhance posts in bulk."
+msgid "Bulk Content Enhancement"
+msgstr ""
+
+msgid "Automatically refresh and improve your existing posts with AI — at scale."
+msgstr ""
+
+msgid "Select posts to update"
+msgstr ""
+
+msgid "AI enhances content"
+msgstr ""
+
+msgid "Posts updated automatically"
+msgstr ""
+
+msgid "Rewrite & Polish"
+msgstr ""
+
+msgid "Custom Prompts"
+msgstr ""
+
+msgid "Bulk Processing"
+msgstr ""
+
+msgid "Learn more"
 msgstr ""
 
 msgid "Post Types to Update"
@@ -2468,9 +2495,6 @@ msgstr ""
 msgid "Image Settings"
 msgstr ""
 
-msgid "Knowledge Base"
-msgstr ""
-
 msgid "Post Settings"
 msgstr ""
 
@@ -2632,7 +2656,7 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-msgid "Requires \"Popup Enabled\" (in Interface) and \"Enable Realtime Voice Agent\" to be active."
+msgid "Requires \"Popup Enabled\" (in Appearance) and \"Enable Realtime Voice Agent\" to be active."
 msgstr ""
 
 msgid "Allow users upload files and chat with them."
@@ -2647,14 +2671,128 @@ msgstr ""
 msgid "Loading preview..."
 msgstr ""
 
-msgid "Default bot cannot be renamed."
-msgstr ""
-
-msgid "Rename chatbot"
-msgstr ""
-
 msgid "Configure model settings and behavior for this chatbot."
 msgstr ""
+
+msgid "Click to copy shortcode"
+msgstr ""
+
+msgid "Mode:"
+msgstr ""
+
+msgid "On-page"
+msgstr ""
+
+msgid "Popup"
+msgstr ""
+
+msgid "Embed Anywhere"
+msgstr ""
+
+msgid "Create new chatbot"
+msgstr ""
+
+msgid "Show chatbot list"
+msgstr ""
+
+msgid "Chatbot"
+msgstr ""
+
+msgid "No chatbots yet"
+msgstr ""
+
+msgid "+ New Bot"
+msgstr ""
+
+msgid "Select engine and model"
+msgstr ""
+
+msgid "Very high"
+msgstr ""
+
+msgid "Response length and memory"
+msgstr ""
+
+#. translators: 1: response length value, 2: memory value, 3: reasoning label.
+msgid "Response length: %1$s | Memory: %2$s | Reasoning: %3$s"
+msgstr ""
+
+#. translators: 1: response length value, 2: memory value.
+msgid "Response length: %1$s | Memory: %2$s"
+msgstr ""
+
+msgid "Select theme"
+msgstr ""
+
+msgid "Pinecone"
+msgstr ""
+
+msgid "Qdrant"
+msgstr ""
+
+msgid "Claude Files"
+msgstr ""
+
+msgid "Page context"
+msgstr ""
+
+msgid "Image Analysis"
+msgstr ""
+
+msgid "Speech to Text"
+msgstr ""
+
+msgid "Text to Speech"
+msgstr ""
+
+msgid "Realtime Voice"
+msgstr ""
+
+#. translators: %d is the number of enabled tools.
+msgid "Enabled: %d"
+msgstr ""
+
+#. translators: %s is a comma-separated list of enabled tools.
+#. translators: %s is a comma-separated list of enabled safety controls.
+msgid "Enabled: %s"
+msgstr ""
+
+msgid "IP anonymization"
+msgstr ""
+
+msgid "Consent notice"
+msgstr ""
+
+msgid "Moderation"
+msgstr ""
+
+msgid "Unlimited"
+msgstr ""
+
+msgid "never"
+msgstr ""
+
+msgid "1 day"
+msgstr ""
+
+msgid "1 week"
+msgstr ""
+
+msgid "1 month"
+msgstr ""
+
+#. translators: %s is a token reset period label such as "1 month".
+msgid "Enabled: role based limit reset period: %s."
+msgstr ""
+
+#. translators: 1: guest token limit summary, 2: user token limit summary.
+msgid "Guests: %1$s Users: %2$s"
+msgstr ""
+
+msgid "%d rule"
+msgid_plural "%d rules"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Instructions"
 msgstr ""
@@ -2665,88 +2803,37 @@ msgstr ""
 msgid "Expand instructions editor"
 msgstr ""
 
-msgid "Themes"
+msgid "Behaviour"
 msgstr ""
 
-msgid "Scroll themes left"
+msgid "Appearance"
 msgstr ""
 
-msgid "Theme"
+msgid "Rules"
 msgstr ""
 
-msgid "Theme presets"
+msgid "Create and manage rule-based automations for this chatbot."
 msgstr ""
 
-msgid "Scroll themes right"
+msgid "Safety"
 msgstr ""
 
-msgid "Chatbot configuration areas"
+msgid "Duplicate chatbot"
 msgstr ""
 
-msgid "Deploy"
+msgid "Duplicate"
 msgstr ""
 
-msgid "Training"
+msgid "Reset chatbot settings"
 msgstr ""
 
-msgid "Training sources"
+msgid "Reset"
 msgstr ""
 
-msgid "Q&A"
+msgid "Default bot cannot be deleted."
 msgstr ""
 
-msgid "Text"
-msgstr ""
-
-msgid "Files"
-msgstr ""
-
-msgid "Website"
-msgstr ""
-
-msgid "Question: What is your refund policy?"
-msgstr ""
-
-msgid "Answer: We offer refunds within 30 days of purchase."
-msgstr ""
-
-msgid "Add training text..."
-msgstr ""
-
-msgid "Choose files"
-msgstr ""
-
-msgid "Supported: pdf, docx, txt, md, csv, json"
-msgstr ""
-
-msgid "Mode"
-msgstr ""
-
-msgid "Specific"
-msgstr ""
-
-msgid "Types"
-msgstr ""
-
-msgid "Select types"
-msgstr ""
-
-msgid "Select the content you want to add to your bot, then hit Train to start."
-msgstr ""
-
-msgid "Yes, run in background"
-msgstr ""
-
-msgid "No, run now"
-msgstr ""
-
-msgid "Select criteria to load content."
-msgstr ""
-
-msgid "Train"
-msgstr ""
-
-msgid "Browse and manage training sources for this chatbot."
+msgid "Delete chatbot"
 msgstr ""
 
 msgid "Launcher hint"
@@ -2836,34 +2923,13 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-msgid "Suggested prompts"
+msgid "Conversation starters"
 msgstr ""
 
 msgid "Enter one prompt per line. Users can click them to start a conversation. Defaults are used if empty."
 msgstr ""
 
-msgid "Starter prompts (max 6)"
-msgstr ""
-
-msgid "Create New Bot"
-msgstr ""
-
-msgid "Bot name"
-msgstr ""
-
-msgid "e.g., Support Assistant"
-msgstr ""
-
-msgid "Create Bot"
-msgstr ""
-
-msgid "Rename Bot"
-msgstr ""
-
-msgid "Enter a new name"
-msgstr ""
-
-msgid "Save Name"
+msgid "Conversation starters (max 6)"
 msgstr ""
 
 msgid "Agent Instructions"
@@ -2873,12 +2939,6 @@ msgid "Define how your agent should behave. Changes are saved automatically when
 msgstr ""
 
 msgid "Agent instructions"
-msgstr ""
-
-msgid "Web search"
-msgstr ""
-
-msgid "Select a bot to configure web search options."
 msgstr ""
 
 msgid "Sheet"
@@ -2899,10 +2959,82 @@ msgstr ""
 msgid "Learn More"
 msgstr ""
 
-msgid "Rules are available on Pro plans."
+msgid "Create or select a chatbot to configure rules."
 msgstr ""
 
-msgid "Select a bot to configure rules."
+msgid "Automate your chatbot with Rules"
+msgstr ""
+
+msgid "Build event-driven workflows that respond to messages, show forms, call webhooks, and more — no code required."
+msgstr ""
+
+msgid "Choose a trigger"
+msgstr ""
+
+msgid "Set conditions"
+msgstr ""
+
+msgid "Pick an action"
+msgstr ""
+
+msgid "Trigger Events"
+msgstr ""
+
+msgid "Message received"
+msgstr ""
+
+msgid "Session started"
+msgstr ""
+
+msgid "Form submitted"
+msgstr ""
+
+msgid "System error"
+msgstr ""
+
+msgid "Action Types"
+msgstr ""
+
+msgid "Send reply / Show form"
+msgstr ""
+
+msgid "Inject context"
+msgstr ""
+
+msgid "Block message"
+msgstr ""
+
+msgid "Set variable / Call webhook"
+msgstr ""
+
+msgid "Condition Groups"
+msgstr ""
+
+msgid "Text / keyword matching"
+msgstr ""
+
+msgid "User role & auth state"
+msgstr ""
+
+msgid "Page & context filters"
+msgstr ""
+
+msgid "Regex & numeric operators"
+msgstr ""
+
+msgid "External Workflows"
+msgstr ""
+
+msgid "Notify Slack on demo requests"
+msgstr ""
+
+msgid "Send leads to Make / Zapier"
+msgstr ""
+
+msgid "WhatsApp Cloud API relay"
+msgstr ""
+
+msgid "Tickets, emails & follow-ups"
 msgstr ""
 
 msgid "Provider:"
@@ -2950,100 +3082,64 @@ msgstr ""
 msgid "This cannot be undone. The source will be removed from your knowledge base."
 msgstr ""
 
-msgid "Audio"
+msgid "Embed Anywhere Setup"
 msgstr ""
 
-msgid "Select a bot to view audio settings."
+msgid "Copy the snippet and set allowed domains for external websites."
 msgstr ""
 
-msgid "Interface"
+msgid "Embed code"
 msgstr ""
 
-msgid "Behavior"
+msgid "Copy code"
 msgstr ""
 
-msgid "Safety"
+msgid "Allowed domains (one URL per line)"
 msgstr ""
 
-msgid "UI essentials"
+msgid "https://example.com"
 msgstr ""
 
-msgid "Response settings"
+msgid "Embed anywhere with one snippet"
 msgstr ""
 
-msgid "Knowledge and data sources"
+msgid "Add your AI chatbot to any website — Shopify, Wix, static HTML, or your custom app — with a single script tag."
 msgstr ""
 
-msgid "Uploads, web, image, audio"
+msgid "Copy the embed snippet"
 msgstr ""
 
-msgid "Rules"
+msgid "Paste into your site's HTML"
 msgstr ""
 
-msgid "Configure rules and automation behaviors."
+msgid "Restrict with allowed domains"
 msgstr ""
 
-msgid "Triggers & Automation"
+msgid "Sidebar is not available when Popup mode is enabled."
 msgstr ""
 
-msgid "Moderation and privacy"
+msgid "Status text is only applicable to Popup mode."
 msgstr ""
 
-msgid "Select a bot to view model settings."
+msgid "Default bot name cannot be changed."
 msgstr ""
 
-msgid "Default bot cannot be deleted."
+msgid "Theme"
 msgstr ""
 
-msgid "Delete chatbot"
+msgid "Yes"
 msgstr ""
 
-msgid "Reset chatbot settings"
+msgid "No"
 msgstr ""
 
-msgid "Reset"
+msgid "Site-Wide"
 msgstr ""
 
-msgid "Choose where this chatbot will be available."
+msgid "Launcher"
 msgstr ""
 
-msgid "Location"
-msgstr ""
-
-msgid "This site"
-msgstr ""
-
-msgid "External embed"
-msgstr ""
-
-msgid "Choose how the chatbot appears on your site."
-msgstr ""
-
-msgid "Inline (shortcode)"
-msgstr ""
-
-msgid "Floating widget"
-msgstr ""
-
-msgid "Show the widget on all pages or limit to specific pages."
-msgstr ""
-
-msgid "Show on"
-msgstr ""
-
-msgid "Limit to pages"
-msgstr ""
-
-msgid "All pages"
-msgstr ""
-
-msgid "Click to copy shortcode"
-msgstr ""
-
-msgid "Select the screen corner for the widget."
-msgstr ""
-
-msgid "Widget position"
+msgid "Position, style, size"
 msgstr ""
 
 msgid "Bottom Right"
@@ -3058,16 +3154,7 @@ msgstr ""
 msgid "Top Left"
 msgstr ""
 
-msgid "0 disables auto-open."
-msgstr ""
-
-msgid "Auto-open after (seconds)"
-msgstr ""
-
-msgid "Adjust the launcher style, size, and source."
-msgstr ""
-
-msgid "Launcher icon"
+msgid "Style"
 msgstr ""
 
 msgid "Circle"
@@ -3076,106 +3163,16 @@ msgstr ""
 msgid "X-Large"
 msgstr ""
 
-msgid "Select a default icon for the popup."
+msgid "Behavior"
 msgstr ""
 
-msgid "Choose icon"
+msgid "Delay (s)"
 msgstr ""
 
-msgid "Ideal ~32x32. PNG or SVG."
+msgid "Hint"
 msgstr ""
 
-msgid "Launcher icon URL"
-msgstr ""
-
-msgid "Enter full URL (e.g., https://.../icon.png)"
-msgstr ""
-
-msgid "Choose a default icon or use a custom avatar."
-msgstr ""
-
-msgid "Header avatar"
-msgstr ""
-
-msgid "Icon"
-msgstr ""
-
-msgid "Select a default avatar icon."
-msgstr ""
-
-msgid "Choose avatar"
-msgstr ""
-
-msgid "Avatar URL"
-msgstr ""
-
-msgid "Enter full URL (e.g., https://.../avatar.png)"
-msgstr ""
-
-msgid "Status text"
-msgstr ""
-
-msgid "Displays a short hint above the launcher."
-msgstr ""
-
-msgid "Copy the script snippet to embed this chatbot on any site."
-msgstr ""
-
-msgid "Embed code"
-msgstr ""
-
-msgid "Copy Code"
-msgstr ""
-
-msgid "Limit where the embed code can be used."
-msgstr ""
-
-msgid "Allowed domains"
-msgstr ""
-
-msgid "e.g., https://example.com"
-msgstr ""
-
-msgid "Enter full domains (including https://). Leave empty to allow all domains."
-msgstr ""
-
-msgid "Embed anywhere"
-msgstr ""
-
-msgid "Embed your chatbot on non-WordPress sites with a simple script tag. Great for landing pages, storefronts, and custom apps."
-msgstr ""
-
-msgid "Select a bot to configure deployment options."
-msgstr ""
-
-msgid "Image settings"
-msgstr ""
-
-msgid "Allow image uploads for analysis (OpenAI, Claude, and OpenRouter only)."
-msgstr ""
-
-msgid "Image upload"
-msgstr ""
-
-msgid "Select the image model for this bot."
-msgstr ""
-
-msgid "Image generation"
-msgstr ""
-
-msgid "Replicate API key"
-msgstr ""
-
-msgid "Enter your Replicate API key"
-msgstr ""
-
-msgid "Comma-separated commands (e.g., /image, /generate) to trigger."
-msgstr ""
-
-msgid "Triggers"
-msgstr ""
-
-msgid "Sidebar is not available when Popup mode is enabled."
+msgid "Chatbot name"
 msgstr ""
 
 msgid "Bot Name"
@@ -3193,6 +3190,21 @@ msgstr ""
 msgid "How can I help you today?"
 msgstr ""
 
+msgid "UI features"
+msgstr ""
+
+msgid "Select controls"
+msgstr ""
+
+msgid "Feedback"
+msgstr ""
+
+msgid "Sidebar"
+msgstr ""
+
+msgid "Starters"
+msgstr ""
+
 msgid "Placeholder"
 msgstr ""
 
@@ -3205,22 +3217,13 @@ msgstr ""
 msgid "Typing text"
 msgstr ""
 
-msgid "Feedback"
-msgstr ""
-
-msgid "Sidebar"
+msgid "Status text"
 msgstr ""
 
 msgid "Speak to the bot using your mic."
 msgstr ""
 
-msgid "Speech to Text"
-msgstr ""
-
 msgid "Enable text to speech for bot responses."
-msgstr ""
-
-msgid "Text to Speech"
 msgstr ""
 
 msgid "TTS provider"
@@ -3335,26 +3338,33 @@ msgstr ""
 msgid "Use OpenAI server-side memory."
 msgstr ""
 
-msgid "Stateful memory"
+msgid "Session memory"
 msgstr ""
 
-msgid "Max tokens"
+msgid "Response length"
 msgstr ""
 
-msgid "Context messages"
+msgid "Memory"
 msgstr ""
 
 msgid "Controls thinking depth for reasoning models."
 msgstr ""
 
-msgid "Reasoning effort"
+msgid "Data Source"
 msgstr ""
 
-msgid "Claude Files"
+msgid "Select data source"
+msgstr ""
+
+msgid "Page Context"
 msgstr ""
 
 #. translators: %d is the manual vector store index.
 msgid "Manual store %d"
+msgstr ""
+
+#. translators: %s is the manually entered Pinecone index name.
+msgid "%s (Manual)"
 msgstr ""
 
 msgid "Select one or more collections."
@@ -3366,22 +3376,34 @@ msgstr ""
 msgid "Select collections"
 msgstr ""
 
-msgid "Use the current page content as context (limited)."
+msgid "Advanced retrieval"
 msgstr ""
 
-msgid "Page context"
+msgid "Limit and threshold"
+msgstr ""
+
+msgid "Threshold"
 msgstr ""
 
 msgid "AI Parameters"
 msgstr ""
 
-msgid "Chatbot"
+msgid "Icon"
 msgstr ""
 
-msgid "No chatbots yet"
+msgid "Launcher icon URL"
 msgstr ""
 
-msgid "+ New Bot"
+msgid "Enter full URL (e.g., https://.../icon.png)"
+msgstr ""
+
+msgid "Avatar"
+msgstr ""
+
+msgid "Avatar URL"
+msgstr ""
+
+msgid "Enter full URL (e.g., https://.../avatar.png)"
 msgstr ""
 
 msgid "(Sync models in main AI Settings)"
@@ -3414,22 +3436,31 @@ msgstr ""
 msgid "Access from your IP address has been blocked."
 msgstr ""
 
-msgid "IP anonymization"
+msgid "Mask visitor IPs."
 msgstr ""
 
-msgid "Consent notice"
+msgid "Filter unsafe content."
 msgstr ""
 
-msgid "Message"
+msgid "Notification message"
+msgstr ""
+
+msgid "Get user consent before chat."
 msgstr ""
 
 msgid "Button label"
 msgstr ""
 
-msgid "Moderation"
+msgid "Message"
 msgstr ""
 
-msgid "Notification message"
+msgid "Blocklists"
+msgstr ""
+
+msgid "Block specific words and IP addresses."
+msgstr ""
+
+msgid "Words"
 msgstr ""
 
 msgid "Banned words (comma-separated)"
@@ -3439,6 +3470,9 @@ msgid "e.g., word1, another word, specific phrase"
 msgstr ""
 
 msgid "Banned words message"
+msgstr ""
+
+msgid "IP addresses"
 msgstr ""
 
 msgid "Banned IPs (comma-separated)"
@@ -3462,22 +3496,178 @@ msgstr ""
 msgid "Warning: WP Cron task for resets is not scheduled!"
 msgstr ""
 
+msgid "Enable real-time voice conversation mode."
+msgstr ""
+
+msgid "Realtime voice is a paid feature. Please upgrade."
+msgstr ""
+
 msgid "File upload"
+msgstr ""
+
+msgid "Web search"
+msgstr ""
+
+msgid "Image analysis"
+msgstr ""
+
+msgid "Image generation"
+msgstr ""
+
+msgid "Select tools"
+msgstr ""
+
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s is the current custom model id
+msgid "%s (Manual/Current)"
+msgstr ""
+
+msgid "Select model"
+msgstr ""
+
+msgid "Enabled tools"
+msgstr ""
+
+msgid "Pick tools for this bot."
+msgstr ""
+
+msgid "Allow users to upload documents."
+msgstr ""
+
+msgid "Allow users to upload images for analysis."
+msgstr ""
+
+msgid "Let users attach images in chat."
+msgstr ""
+
+msgid "Select the image model for this bot."
+msgstr ""
+
+msgid "Generate images using chat."
+msgstr ""
+
+msgid "Set API Key"
+msgstr ""
+
+msgid "Image generation triggers"
+msgstr ""
+
+msgid "Replicate API key"
+msgstr ""
+
+msgid "Enter your Replicate API key"
 msgstr ""
 
 msgid "Let the assistant browse the web."
 msgstr ""
 
+msgid "Use online sources in responses."
+msgstr ""
+
+msgid "Options"
+msgstr ""
+
 msgid "Let the assistant browse the web. Availability depends on the selected OpenRouter model."
 msgstr ""
 
-msgid "Configure image uploads, models, and triggers."
+msgid "Allow users to speak using their microphone."
 msgstr ""
 
-msgid "Image"
+msgid "Capture voice input from users."
 msgstr ""
 
-msgid "Configure speech, playback, and realtime audio settings."
+msgid "Enable voice playback for assistant responses."
+msgstr ""
+
+msgid "Read assistant replies aloud."
+msgstr ""
+
+msgid "Realtime"
+msgstr ""
+
+msgid "Use low-latency live voice mode."
+msgstr ""
+
+msgid "Audio"
+msgstr ""
+
+msgid "Training Data"
+msgstr ""
+
+msgid "Add content, then click Train."
+msgstr ""
+
+msgid "Training sources"
+msgstr ""
+
+msgid "Q&A"
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+msgid "Files"
+msgstr ""
+
+msgid "Website"
+msgstr ""
+
+msgid "Question"
+msgstr ""
+
+msgid "Question: What is your refund policy?"
+msgstr ""
+
+msgid "Answer"
+msgstr ""
+
+msgid "Answer: We offer refunds within 30 days of purchase."
+msgstr ""
+
+msgid "Add training text..."
+msgstr ""
+
+msgid "Choose files"
+msgstr ""
+
+msgid "Supported: pdf, docx, txt, md, csv, json"
+msgstr ""
+
+msgid "Mode"
+msgstr ""
+
+msgid "Specific"
+msgstr ""
+
+msgid "Types"
+msgstr ""
+
+msgid "Select types"
+msgstr ""
+
+msgid "Select the content you want to add to your bot, then hit Train to start."
+msgstr ""
+
+msgid "Yes, run in background"
+msgstr ""
+
+msgid "No, run now"
+msgstr ""
+
+msgid "Select criteria to load content."
+msgstr ""
+
+msgid "Train"
+msgstr ""
+
+msgid "Sources"
+msgstr ""
+
+msgid "Browse and manage training sources for this chatbot."
 msgstr ""
 
 msgid "Enable this to keep the chat web toggle active by default on first load and after starting a new chat."
@@ -3517,6 +3707,9 @@ msgid "Max uses"
 msgstr ""
 
 msgid "Comma-separated domains to allow. Leave empty to allow all."
+msgstr ""
+
+msgid "Allowed domains"
 msgstr ""
 
 msgid "Comma-separated domains to block. Ignored when Allowed domains is set."
@@ -3699,25 +3892,7 @@ msgstr ""
 msgid "Reset all custom theme settings to their defaults."
 msgstr ""
 
-msgid "Did you know we also have a cloud-based chatbot? Go to Plugins > Add New and search for \"Chatolia\" to install it."
-msgstr ""
-
-msgid "Search Plugins"
-msgstr ""
-
-msgid "Visit chatolia.com"
-msgstr ""
-
-msgid "Dont Show Again"
-msgstr ""
-
-msgid "Dismiss for now"
-msgstr ""
-
 msgid "Low PHP timeouts detected (%s). Long content generations may time out. Increase max_execution_time/default_socket_timeout in php.ini and any web-server timeouts."
-msgstr ""
-
-msgid "Content Writer"
 msgstr ""
 
 msgid "Post settings"
@@ -3872,7 +4047,28 @@ msgstr ""
 msgid "e.g., A detailed scene of a cat lounging in sunlight."
 msgstr ""
 
-msgid "Google Sheets import is a Pro feature. Upgrade to generate content from spreadsheets."
+msgid "Google Sheets Import"
+msgstr ""
+
+msgid "Connect a spreadsheet, map columns to prompts, and bulk-generate content."
+msgstr ""
+
+msgid "Connect your Google Sheet"
+msgstr ""
+
+msgid "Map columns to fields"
+msgstr ""
+
+msgid "Bulk-generate content"
+msgstr ""
+
+msgid "Live Sync"
+msgstr ""
+
+msgid "Column Mapping"
+msgstr ""
+
+msgid "Bulk Generation"
 msgstr ""
 
 msgid "Google Sheet ID"
@@ -3905,7 +4101,28 @@ msgstr ""
 msgid "View sample"
 msgstr ""
 
-msgid "RSS feed generation is a Pro feature. Upgrade to create content from RSS feeds."
+msgid "RSS Feed Content Generation"
+msgstr ""
+
+msgid "Automatically turn RSS feeds into unique, AI-written posts — hands-free."
+msgstr ""
+
+msgid "Add your RSS feed URLs"
+msgstr ""
+
+msgid "AI rewrites each item"
+msgstr ""
+
+msgid "Auto-publish to WordPress"
+msgstr ""
+
+msgid "Multiple Feeds"
+msgstr ""
+
+msgid "Smart Parsing"
+msgstr ""
+
+msgid "Auto-Schedule"
 msgstr ""
 
 msgid "RSS Feed URLs"
@@ -3914,7 +4131,25 @@ msgstr ""
 msgid "Enter one feed URL per line"
 msgstr ""
 
-msgid "URL extracting is a Pro feature. Upgrade to generate content from website URLs."
+msgid "URL Content Extraction"
+msgstr ""
+
+msgid "Paste any URL and let AI extract, rewrite, and publish the content for you."
+msgstr ""
+
+msgid "Paste website URLs"
+msgstr ""
+
+msgid "AI extracts key content"
+msgstr ""
+
+msgid "Generate unique posts"
+msgstr ""
+
+msgid "Any Website"
+msgstr ""
+
+msgid "Smart Extraction"
 msgstr ""
 
 msgid "Website URLs"
@@ -4364,12 +4599,6 @@ msgstr ""
 msgid "Vector DB"
 msgstr ""
 
-msgid "Pinecone"
-msgstr ""
-
-msgid "Qdrant"
-msgstr ""
-
 msgid "-- Select --"
 msgstr ""
 
@@ -4584,25 +4813,13 @@ msgstr ""
 msgid "Overlap tokens"
 msgstr ""
 
-msgid "Question"
-msgstr ""
-
 msgid "What is your refund policy?"
-msgstr ""
-
-msgid "Answer"
 msgstr ""
 
 msgid "We offer refunds within 30 days of purchase."
 msgstr ""
 
 msgid "Select post types to index all matching content."
-msgstr ""
-
-msgid "Yes"
-msgstr ""
-
-msgid "No"
 msgstr ""
 
 msgid "Type filter"
@@ -4774,9 +4991,6 @@ msgstr ""
 msgid "Search by username or email"
 msgstr ""
 
-msgid "Options"
-msgstr ""
-
 msgid "Token Balance"
 msgstr ""
 
@@ -4789,37 +5003,31 @@ msgstr ""
 msgid "Last Reset"
 msgstr ""
 
-msgid "OpenAI API key is missing. Add it in AI Settings."
+msgid "You selected OpenAI as an AI provider, but it is not configured yet. Add its API key in Settings."
 msgstr ""
 
-msgid "OpenRouter API key is missing. Add it in AI Settings."
+msgid "You selected OpenRouter as an AI provider, but it is not configured yet. Add its API key in Settings."
 msgstr ""
 
-msgid "Google API key is missing. Add it in AI Settings."
+msgid "You selected Google as an AI provider, but it is not configured yet. Add its API key in Settings."
 msgstr ""
 
-msgid "Azure requires an API key and endpoint. Add them in AI Settings."
+msgid "You selected Azure as an AI provider, but it is not configured yet. Add its API key and endpoint in Settings."
 msgstr ""
 
-msgid "Claude API key is missing. Add it in AI Settings."
+msgid "You selected Claude as an AI provider, but it is not configured yet. Add its API key in Settings."
 msgstr ""
 
-msgid "DeepSeek API key is missing. Add it in AI Settings."
+msgid "You selected DeepSeek as an AI provider, but it is not configured yet. Add its API key in Settings."
 msgstr ""
 
-msgid "Ollama base URL is not set. Add it in AI Settings."
+msgid "You selected Ollama as an AI provider, but it is not configured yet. Add its connection URL in Settings."
 msgstr ""
 
-msgid "Replicate API key is missing. Add it in AI Settings."
+msgid "You selected Replicate as an AI provider, but it is not configured yet. Add its API key in Settings."
 msgstr ""
 
-msgid "API key is missing for the selected provider. Add it in AI Settings."
-msgstr ""
-
-msgid "API setup required"
-msgstr ""
-
-msgid "Select a provider to see the requirement."
+msgid "The selected AI provider is not configured yet. Add required credentials in Settings."
 msgstr ""
 
 msgid "Open Settings"
@@ -5035,7 +5243,13 @@ msgstr ""
 msgid "Chatbot created successfully!"
 msgstr ""
 
+msgid "Unable to load chatbot state."
+msgstr ""
+
 msgid "Invalid Chatbot ID."
+msgstr ""
+
+msgid "Chatbot not found."
 msgstr ""
 
 msgid "Chatbot settings saved successfully."
@@ -5048,6 +5262,16 @@ msgid "Chatbot deleted successfully."
 msgstr ""
 
 msgid "Internal server error."
+msgstr ""
+
+#. translators: %s is the chatbot name being duplicated.
+msgid "%s Copy"
+msgstr ""
+
+msgid "Failed to duplicate chatbot."
+msgstr ""
+
+msgid "Chatbot duplicated successfully."
 msgstr ""
 
 msgid "Invalid Chatbot ID provided."
@@ -5449,9 +5673,6 @@ msgid "Tell me a fun fact"
 msgstr ""
 
 msgid "Help me write something"
-msgstr ""
-
-msgid "Copy code"
 msgstr ""
 
 msgid "Please provide a description after the image command (e.g., /image a cat playing with a ball)."
@@ -8319,7 +8540,7 @@ msgstr ""
 msgid "Vector Store name is required."
 msgstr ""
 
-msgid "Vector Store created/verified successfully."
+msgid "Vector Store created."
 msgstr ""
 
 msgid "Vector Store deleted successfully."
@@ -8478,6 +8699,9 @@ msgstr ""
 msgid "Points upserted to Qdrant successfully."
 msgstr ""
 
+msgid "AI Puffer"
+msgstr ""
+
 msgid "You do not have permission to access this module."
 msgstr ""
 
@@ -8486,9 +8710,6 @@ msgstr ""
 
 #. translators: 1: rows, 2: size
 msgid "Usage data for the selected period is very large (rows: %1$s, size: %2$s). Showing no chart data. Consider reducing the period, pruning logs, or disabling conversation storage."
-msgstr ""
-
-msgid "AI Puffer"
 msgstr ""
 
 msgid "You do not have sufficient permissions to access this page."
@@ -8609,6 +8830,9 @@ msgid "No image URL or base64 data provided."
 msgstr ""
 
 msgid "Failed to upload image: "
+msgstr ""
+
+msgid "Image"
 msgstr ""
 
 msgid "You do not have permission to check video status."
@@ -9488,9 +9712,6 @@ msgid "Please log in to view your token usage."
 msgstr ""
 
 msgid "You do not have permission to view token usage."
-msgstr ""
-
-msgid "Unlimited"
 msgstr ""
 
 msgid "Used Tokens"
@@ -10640,9 +10861,6 @@ msgstr ""
 msgid "Light (default)"
 msgstr ""
 
-msgid "Duplicate"
-msgstr ""
-
 msgid "Export"
 msgstr ""
 
@@ -10703,6 +10921,54 @@ msgstr ""
 msgid "This text will appear under the field."
 msgstr ""
 
+msgid "Search chatbots..."
+msgstr ""
+
+msgid "Search chatbots"
+msgstr ""
+
+msgid "No matching chatbots."
+msgstr ""
+
+msgid "New Chatbot"
+msgstr ""
+
+msgid "Creating chatbot..."
+msgstr ""
+
+msgid "Chatbot created but no bot ID was returned."
+msgstr ""
+
+msgid "Chatbot created successfully."
+msgstr ""
+
+msgid "Failed to create chatbot."
+msgstr ""
+
+msgid "Error: Invalid chatbot selected."
+msgstr ""
+
+msgid "Web options (OpenAI)"
+msgstr ""
+
+msgid "Web options (Google)"
+msgstr ""
+
+msgid "Web options (Claude)"
+msgstr ""
+
+msgid "Web options (OpenRouter)"
+msgstr ""
+
+msgid "Speech to Text options"
+msgstr ""
+
+msgid "Text to Speech options"
+msgstr ""
+
+msgid "Realtime voice options"
+msgstr ""
+
 msgid "Prev"
 msgstr ""
 
@@ -10721,7 +10987,49 @@ msgstr ""
 msgid "Failed to load content."
 msgstr ""
 
+msgid "Training"
+msgstr ""
+
 msgid "Stopped."
+msgstr ""
+
+msgid "New Store"
+msgstr ""
+
+msgid "e.g. Product FAQ"
+msgstr ""
+
+msgid "Create"
+msgstr ""
+
+msgid "Store name is required."
+msgstr ""
+
+msgid "API request helper is unavailable."
+msgstr ""
+
+msgid "OpenAI nonce is missing."
+msgstr ""
+
+msgid "Creating..."
+msgstr ""
+
+msgid "OpenAI vector store creation failed."
+msgstr ""
+
+msgid "Vector store created."
+msgstr ""
+
+msgid "Create failed."
+msgstr ""
+
+msgid "Creation is unavailable right now."
+msgstr ""
+
+msgid "No stores found. Create your first one."
+msgstr ""
+
+msgid "Create Store"
 msgstr ""
 
 msgid "Writing"
@@ -10871,9 +11179,6 @@ msgstr ""
 msgid "Store name"
 msgstr ""
 
-msgid "e.g. Product FAQ"
-msgstr ""
-
 msgid "store"
 msgstr ""
 
@@ -10933,9 +11238,6 @@ msgstr ""
 msgid "Add credentials to create."
 msgstr ""
 
-msgid "Create"
-msgstr ""
-
 msgid "Dimension"
 msgstr ""
 
@@ -10990,13 +11292,7 @@ msgstr ""
 msgid "Dimension is required."
 msgstr ""
 
-msgid "Creating..."
-msgstr ""
-
 msgid "Store created."
-msgstr ""
-
-msgid "Create failed."
 msgstr ""
 
 msgid "Add credentials to load %s."
