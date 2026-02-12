@@ -57,14 +57,14 @@ if (!defined('ABSPATH')) {
                             echo '<option value="' . esc_attr($index_name) . '" ' . $is_selected . '>' . esc_html($index_name) . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $is_selected contains the result of the WP `selected()` function, which is safe for output.
                         }
                         if (!$found_current && !empty($current_pinecone_default_index)) {
-                            echo '<option value="' . esc_attr($current_pinecone_default_index) . '" selected>' . esc_html($current_pinecone_default_index) . ' (Manual/Not Synced)</option>';
+                            echo '<option value="' . esc_attr($current_pinecone_default_index) . '" selected>' . esc_html($current_pinecone_default_index) . '</option>';
                         }
                     } elseif (!empty($current_pinecone_default_index)) {
-                         echo '<option value="' . esc_attr($current_pinecone_default_index) . '" selected>' . esc_html($current_pinecone_default_index) . ' (Manual)</option>';
+                         echo '<option value="' . esc_attr($current_pinecone_default_index) . '" selected>' . esc_html($current_pinecone_default_index) . '</option>';
                     }
                     ?>
                 </select>
-                <button id="aipkit_sync_pinecone_indexes_btn" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="PineconeIndexes">
+                <button id="aipkit_sync_pinecone_indexes_btn" class="button button-primary aipkit_btn aipkit_btn-primary aipkit_sync_btn" data-provider="PineconeIndexes">
                     <span class="dashicons dashicons-update"></span>
                     <span class="aipkit_btn_label"><?php echo esc_html__('Sync Indexes', 'gpt3-ai-content-generator'); ?></span>
                 </button>
@@ -120,10 +120,10 @@ if (!defined('ABSPATH')) {
                              }
                              echo '<option value="' . esc_attr($collection_name) . '" ' . selected($current_qdrant_default_collection, $collection_name, false) . '>' . esc_html($collection_name) . '</option>';
                          } elseif (!empty($current_qdrant_default_collection)) :
-                             echo '<option value="' . esc_attr($current_qdrant_default_collection) . '" selected>' . esc_html($current_qdrant_default_collection) . ' (Manual/Not Synced)</option>';
+                             echo '<option value="' . esc_attr($current_qdrant_default_collection) . '" selected>' . esc_html($current_qdrant_default_collection) . '</option>';
                          endif; ?>
                 </select>
-                <button id="aipkit_sync_qdrant_collections_btn" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="QdrantCollections">
+                <button id="aipkit_sync_qdrant_collections_btn" class="button button-primary aipkit_btn aipkit_btn-primary aipkit_sync_btn" data-provider="QdrantCollections">
                     <span class="dashicons dashicons-update"></span>
                     <span class="aipkit_btn_label"><?php echo esc_html__('Sync Collections', 'gpt3-ai-content-generator'); ?></span>
                 </button>

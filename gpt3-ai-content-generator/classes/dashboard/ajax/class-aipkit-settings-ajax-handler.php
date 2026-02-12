@@ -20,6 +20,38 @@ if (!defined('ABSPATH')) {
  */
 class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 {
+    private const SETTINGS_RESTORE_POINT_OPTION = 'aipkit_settings_restore_point';
+
+    /**
+     * Model-list options that can be exported/imported by Settings Backup.
+     *
+     * @var array<int, string>
+     */
+    private const BACKUP_MODEL_LIST_OPTIONS = [
+        'aipkit_openai_model_list',
+        'aipkit_openai_embedding_model_list',
+        'aipkit_openai_tts_model_list',
+        'aipkit_openai_stt_model_list',
+        'aipkit_openrouter_model_list',
+        'aipkit_openrouter_embedding_model_list',
+        'aipkit_google_model_list',
+        'aipkit_google_embedding_model_list',
+        'aipkit_google_image_model_list',
+        'aipkit_google_video_model_list',
+        'aipkit_azure_deployment_list',
+        'aipkit_azure_embedding_model_list',
+        'aipkit_azure_image_model_list',
+        'aipkit_claude_model_list',
+        'aipkit_deepseek_model_list',
+        'aipkit_ollama_model_list',
+        'aipkit_ollama_embedding_model_list',
+        'aipkit_elevenlabs_voice_list',
+        'aipkit_elevenlabs_model_list',
+        'aipkit_pinecone_index_list',
+        'aipkit_qdrant_collection_list',
+        'aipkit_replicate_model_list',
+    ];
+
     public function ajax_save_settings()
     {
         $permission_check = $this->check_module_access_permissions('settings');
@@ -361,5 +393,473 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             $opts['semantic_search'] = $new_settings;
             update_option('aipkit_options', $opts, 'no');
         }
+    }
+
+    /**
+     * Exports settings backup payload for download.
+     */
+    public function ajax_export_settings_backup()
+    {
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        $export_payload = $this->build_settings_backup_payload();
+        $timestamp = gmdate('Y-m-d-His');
+
+        wp_send_json_success([
+            'message' => __('Settings backup is ready.', 'gpt3-ai-content-generator'),
+            'filename' => 'aipkit-settings-backup-' . $timestamp . '.json',
+            'export_data' => $export_payload,
+        ]);
+    }
+
+    /**
+     * Imports settings backup payload from uploaded JSON.
+     */
+    public function ajax_import_settings_backup()
+    {
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        if (
+            !isset($_FILES['settings_backup_file']) ||
+            !is_array($_FILES['settings_backup_file'])
+        ) {
+            $this->send_wp_error(new WP_Error(
+                'missing_import_file',
+                __('No backup file was uploaded.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            ));
+            return;
+        }
+
+        $uploaded_file = $_FILES['settings_backup_file'];
+        if (!empty($uploaded_file['error'])) {
+            $this->send_wp_error(new WP_Error(
+                'upload_error',
+                __('Failed to read uploaded backup file.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            ));
+            return;
+        }
+
+        $tmp_path = isset($uploaded_file['tmp_name']) ? (string) $uploaded_file['tmp_name'] : '';
+        if ($tmp_path === '' || !is_readable($tmp_path)) {
+            $this->send_wp_error(new WP_Error(
+                'invalid_upload_path',
+                __('Uploaded backup file is not readable.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            ));
+            return;
+        }
+
+        $raw_content = file_get_contents($tmp_path);
+        if ($raw_content === false || trim((string) $raw_content) === '') {
+            $this->send_wp_error(new WP_Error(
+                'empty_import_file',
+                __('Backup file is empty.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            ));
+            return;
+        }
+
+        $decoded_payload = json_decode($raw_content, true);
+        if (!is_array($decoded_payload)) {
+            $this->send_wp_error(new WP_Error(
+                'invalid_import_json',
+                __('Backup file must be valid JSON.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            ));
+            return;
+        }
+
+        $apply_result = $this->apply_imported_settings_payload($decoded_payload);
+        if (is_wp_error($apply_result)) {
+            $this->send_wp_error($apply_result);
+            return;
+        }
+
+        wp_send_json_success([
+            'message' => __('Settings backup imported successfully.', 'gpt3-ai-content-generator'),
+        ]);
+    }
+
+    /**
+     * Creates a server-side restore point from current settings.
+     */
+    public function ajax_create_settings_restore_point()
+    {
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        update_option(self::SETTINGS_RESTORE_POINT_OPTION, $this->build_settings_backup_payload(), 'no');
+
+        wp_send_json_success([
+            'message' => __('Restore point created.', 'gpt3-ai-content-generator'),
+        ]);
+    }
+
+    /**
+     * Restores settings from the latest server-side restore point.
+     */
+    public function ajax_restore_settings_restore_point()
+    {
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        $restore_payload = get_option(self::SETTINGS_RESTORE_POINT_OPTION, []);
+        if (!is_array($restore_payload) || empty($restore_payload)) {
+            $this->send_wp_error(new WP_Error(
+                'restore_point_missing',
+                __('No restore point found.', 'gpt3-ai-content-generator'),
+                ['status' => 404]
+            ));
+            return;
+        }
+
+        $apply_result = $this->apply_imported_settings_payload($restore_payload);
+        if (is_wp_error($apply_result)) {
+            $this->send_wp_error($apply_result);
+            return;
+        }
+
+        wp_send_json_success([
+            'message' => __('Restore point applied successfully.', 'gpt3-ai-content-generator'),
+        ]);
+    }
+
+    /**
+     * Clears in-memory and transient model caches.
+     */
+    public function ajax_clear_settings_model_cache()
+    {
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        if (class_exists(AIPKit_Providers::class) && method_exists(AIPKit_Providers::class, 'clear_model_caches')) {
+            AIPKit_Providers::clear_model_caches();
+        }
+
+        wp_send_json_success([
+            'message' => __('Model cache cleared.', 'gpt3-ai-content-generator'),
+        ]);
+    }
+
+    /**
+     * Clears AIPKit transients and flushes object cache.
+     */
+    public function ajax_clear_settings_transients()
+    {
+        global $wpdb;
+
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        $deleted_rows = 0;
+        $transient_like = $wpdb->esc_like('_transient_aipkit_') . '%';
+        $transient_timeout_like = $wpdb->esc_like('_transient_timeout_aipkit_') . '%';
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Maintenance action intentionally clears matching transient rows.
+        $deleted_data = $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $transient_like));
+        if (is_numeric($deleted_data)) {
+            $deleted_rows += (int) $deleted_data;
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Maintenance action intentionally clears matching transient rows.
+        $deleted_timeout = $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $transient_timeout_like));
+        if (is_numeric($deleted_timeout)) {
+            $deleted_rows += (int) $deleted_timeout;
+        }
+
+        wp_cache_flush();
+
+        wp_send_json_success([
+            /* translators: %d: number of transient rows removed */
+            'message' => sprintf(__('Transient cache cleared (%d rows removed).', 'gpt3-ai-content-generator'), $deleted_rows),
+        ]);
+    }
+
+    /**
+     * Builds a normalized backup payload.
+     */
+    private function build_settings_backup_payload(): array
+    {
+        $options = get_option('aipkit_options', []);
+        $options = is_array($options) ? $options : [];
+
+        return [
+            'format' => 'aipkit_settings_backup_v1',
+            'exported_at' => gmdate('c'),
+            'plugin_version' => defined('WPAICG_VERSION') ? WPAICG_VERSION : '',
+            'site_url' => home_url('/'),
+            'aipkit_options' => $this->sanitize_imported_ai_settings($options),
+            'model_lists' => $this->collect_model_list_options_for_backup(),
+        ];
+    }
+
+    /**
+     * Collects model-list options for backup.
+     */
+    private function collect_model_list_options_for_backup(): array
+    {
+        $model_lists = [];
+        foreach (self::BACKUP_MODEL_LIST_OPTIONS as $option_name) {
+            $value = get_option($option_name, []);
+            if (is_array($value) && !empty($value)) {
+                $model_lists[$option_name] = $this->sanitize_recursive_value($value);
+            }
+        }
+
+        return $model_lists;
+    }
+
+    /**
+     * Applies a backup payload to options/model lists.
+     *
+     * @param array $payload Decoded JSON backup payload.
+     * @return true|WP_Error
+     */
+    private function apply_imported_settings_payload(array $payload): bool|WP_Error
+    {
+        $imported_options = null;
+        if (isset($payload['aipkit_options']) && is_array($payload['aipkit_options'])) {
+            $imported_options = $payload['aipkit_options'];
+        } elseif (isset($payload['providers']) && is_array($payload['providers'])) {
+            // Support importing raw aipkit_options-shaped JSON.
+            $imported_options = $payload;
+        }
+
+        if (!is_array($imported_options)) {
+            return new WP_Error(
+                'invalid_import_format',
+                __('Backup payload is missing the settings block.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
+        }
+
+        $sanitized_options = $this->sanitize_imported_ai_settings($imported_options);
+        update_option('aipkit_options', $sanitized_options, 'no');
+
+        if (isset($payload['model_lists']) && is_array($payload['model_lists'])) {
+            foreach ($payload['model_lists'] as $option_name => $model_list_value) {
+                if (!in_array($option_name, self::BACKUP_MODEL_LIST_OPTIONS, true)) {
+                    continue;
+                }
+                if (!is_array($model_list_value)) {
+                    continue;
+                }
+                update_option($option_name, $this->sanitize_recursive_value($model_list_value), 'no');
+            }
+        }
+
+        if (class_exists(AIPKit_Providers::class) && method_exists(AIPKit_Providers::class, 'clear_model_caches')) {
+            AIPKit_Providers::clear_model_caches();
+        }
+
+        return true;
+    }
+
+    /**
+     * Sanitizes imported options to safe, known structures.
+     */
+    private function sanitize_imported_ai_settings(array $imported_options): array
+    {
+        $existing_options = get_option('aipkit_options', []);
+        $existing_options = is_array($existing_options) ? $existing_options : [];
+
+        $sanitized = $existing_options;
+        $provider_defaults = AIPKit_Providers::get_provider_defaults_all();
+        $allowed_top_level_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
+
+        $provider_value = isset($imported_options['provider']) ? sanitize_text_field((string) $imported_options['provider']) : 'OpenAI';
+        $sanitized['provider'] = in_array($provider_value, $allowed_top_level_providers, true) ? $provider_value : 'OpenAI';
+
+        $imported_providers = isset($imported_options['providers']) && is_array($imported_options['providers'])
+            ? $imported_options['providers']
+            : [];
+        $sanitized['providers'] = [];
+
+        foreach ($provider_defaults as $provider_name => $defaults) {
+            $incoming_provider_data = isset($imported_providers[$provider_name]) && is_array($imported_providers[$provider_name])
+                ? $imported_providers[$provider_name]
+                : [];
+            $provider_data = [];
+
+            foreach ($defaults as $provider_key => $default_value) {
+                if ($provider_key === 'safety_settings') {
+                    $incoming_safety = isset($incoming_provider_data[$provider_key]) && is_array($incoming_provider_data[$provider_key])
+                        ? $incoming_provider_data[$provider_key]
+                        : $default_value;
+                    $provider_data[$provider_key] = $this->normalize_safety_settings($incoming_safety);
+                    continue;
+                }
+
+                $raw_value = array_key_exists($provider_key, $incoming_provider_data)
+                    ? $incoming_provider_data[$provider_key]
+                    : $default_value;
+                $provider_data[$provider_key] = $this->sanitize_provider_value_by_key($provider_key, $raw_value, $default_value);
+            }
+
+            $sanitized['providers'][$provider_name] = $provider_data;
+        }
+
+        $imported_params = isset($imported_options['ai_parameters']) && is_array($imported_options['ai_parameters'])
+            ? $imported_options['ai_parameters']
+            : [];
+        $sanitized['ai_parameters'] = $this->normalize_ai_parameters($imported_params);
+
+        $imported_api_keys = isset($imported_options['api_keys']) && is_array($imported_options['api_keys'])
+            ? $imported_options['api_keys']
+            : [];
+        $sanitized['api_keys'] = [
+            'public_api_key' => sanitize_text_field((string) ($imported_api_keys['public_api_key'] ?? '')),
+        ];
+
+        $imported_semantic = isset($imported_options['semantic_search']) && is_array($imported_options['semantic_search'])
+            ? $imported_options['semantic_search']
+            : [];
+        $sanitized['semantic_search'] = [
+            'vector_provider' => sanitize_key((string) ($imported_semantic['vector_provider'] ?? 'pinecone')),
+            'target_id' => sanitize_text_field((string) ($imported_semantic['target_id'] ?? '')),
+            'embedding_provider' => sanitize_key((string) ($imported_semantic['embedding_provider'] ?? 'openai')),
+            'embedding_model' => sanitize_text_field((string) ($imported_semantic['embedding_model'] ?? '')),
+            'num_results' => max(1, min(50, absint($imported_semantic['num_results'] ?? 5))),
+            'no_results_text' => sanitize_text_field((string) ($imported_semantic['no_results_text'] ?? __('No results found.', 'gpt3-ai-content-generator'))),
+        ];
+
+        $imported_enhancer = isset($imported_options['enhancer_settings']) && is_array($imported_options['enhancer_settings'])
+            ? $imported_options['enhancer_settings']
+            : [];
+        $insert_position = sanitize_key((string) ($imported_enhancer['default_insert_position'] ?? 'replace'));
+        if (!in_array($insert_position, ['replace', 'after', 'before'], true)) {
+            $insert_position = 'replace';
+        }
+        $sanitized['enhancer_settings'] = [
+            'editor_integration' => ((string) ($imported_enhancer['editor_integration'] ?? '1') === '1') ? '1' : '0',
+            'default_insert_position' => $insert_position,
+            'show_list_button' => ((string) ($imported_enhancer['show_list_button'] ?? '1') === '1') ? '1' : '0',
+        ];
+
+        return $sanitized;
+    }
+
+    /**
+     * Sanitizes provider-specific values based on field type.
+     */
+    private function sanitize_provider_value_by_key(string $provider_key, mixed $raw_value, mixed $default_value): mixed
+    {
+        if ($provider_key === 'store_conversation') {
+            return ((string) $raw_value === '1') ? '1' : '0';
+        }
+
+        if ($provider_key === 'expiration_policy') {
+            $expiration = absint($raw_value);
+            if ($expiration < 1) {
+                $expiration = absint($default_value);
+            }
+            return max(1, min(365, $expiration));
+        }
+
+        if (in_array($provider_key, ['base_url', 'endpoint', 'url'], true)) {
+            return esc_url_raw((string) $raw_value);
+        }
+
+        return sanitize_text_field((string) $raw_value);
+    }
+
+    /**
+     * Sanitizes AI parameter values.
+     */
+    private function normalize_ai_parameters(array $ai_parameters): array
+    {
+        $defaults = AIPKIT_AI_Settings::$default_ai_params;
+        $normalized = [];
+
+        foreach ($defaults as $key => $default_value) {
+            $raw_value = $ai_parameters[$key] ?? $default_value;
+            switch ($key) {
+                case 'temperature':
+                case 'frequency_penalty':
+                case 'presence_penalty':
+                    $normalized[$key] = max(0.0, min(2.0, floatval($raw_value)));
+                    break;
+                case 'top_p':
+                    $normalized[$key] = max(0.0, min(1.0, floatval($raw_value)));
+                    break;
+                default:
+                    $normalized[$key] = sanitize_text_field((string) $raw_value);
+                    break;
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Sanitizes Google safety-settings structure.
+     */
+    private function normalize_safety_settings(array $safety_settings): array
+    {
+        $normalized = [];
+        foreach ($safety_settings as $setting) {
+            if (!is_array($setting)) {
+                continue;
+            }
+
+            $category = sanitize_text_field((string) ($setting['category'] ?? ''));
+            $threshold = sanitize_text_field((string) ($setting['threshold'] ?? ''));
+            if ($category === '' || $threshold === '') {
+                continue;
+            }
+
+            $normalized[] = [
+                'category' => $category,
+                'threshold' => $threshold,
+            ];
+        }
+        return $normalized;
+    }
+
+    /**
+     * Recursively sanitizes exported/imported array values.
+     */
+    private function sanitize_recursive_value(mixed $value): mixed
+    {
+        if (is_array($value)) {
+            $sanitized = [];
+            foreach ($value as $key => $item) {
+                $clean_key = is_string($key) ? sanitize_text_field($key) : $key;
+                $sanitized[$clean_key] = $this->sanitize_recursive_value($item);
+            }
+            return $sanitized;
+        }
+
+        if (is_string($value)) {
+            return sanitize_text_field($value);
+        }
+
+        if (is_bool($value) || is_int($value) || is_float($value) || $value === null) {
+            return $value;
+        }
+
+        return sanitize_text_field((string) $value);
     }
 }

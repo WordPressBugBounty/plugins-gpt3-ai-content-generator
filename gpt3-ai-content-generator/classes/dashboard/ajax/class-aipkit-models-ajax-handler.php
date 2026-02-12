@@ -196,6 +196,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         $option_name = $option_map[$provider] ?? null;
         $response_models = $result; // Default to raw result
         $extra_response_payload = [];
+        $value_to_save = $result;
 
         if ($provider === 'OpenAIVectorStores' && $this->vector_store_registry) {
             $stores_payload = $result;
@@ -382,15 +383,73 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         }
 
         AIPKit_Providers::clear_model_caches();
+
+        $recommended_models = $this->get_recommended_models_for_response(
+            $provider,
+            $response_models,
+            $value_to_save
+        );
+
         /* translators: %s: The provider name that was synced. */
         wp_send_json_success(
             array_merge(
                 [
                     'message' => sprintf(__('%s synced successfully.', 'gpt3-ai-content-generator'), $provider_data_key),
                     'models'  => $response_models,
+                    'recommended_models' => $recommended_models,
                 ],
                 $extra_response_payload
             )
         );
+    }
+
+    /**
+     * Builds a recommended-model payload for sync responses so UI grouping
+     * can be rendered immediately without a page refresh.
+     *
+     * @param string     $provider       Provider key.
+     * @param mixed      $response_models Models returned to UI.
+     * @param mixed      $stored_models   Models persisted to options.
+     * @return array<int, array{id:string,name:string}>
+     */
+    private function get_recommended_models_for_response(string $provider, $response_models, $stored_models): array
+    {
+        $supported = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'Ollama'];
+        if (!in_array($provider, $supported, true)) {
+            return [];
+        }
+
+        $recommended = AIPKit_Providers::get_recommended_models($provider);
+        if (!empty($recommended)) {
+            return is_array($recommended) ? $recommended : [];
+        }
+
+        // Keep fallback behavior aligned with model-list builder for providers
+        // that derive recommended entries from existing synced rows.
+        if (!in_array($provider, ['Azure', 'DeepSeek', 'Ollama'], true)) {
+            return [];
+        }
+
+        $source_rows = $provider === 'Azure' ? $stored_models : $response_models;
+        if (!is_array($source_rows)) {
+            return [];
+        }
+
+        $fallback = [];
+        foreach ($source_rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $id = (string) ($row['id'] ?? '');
+            if ($id === '') {
+                continue;
+            }
+            $fallback[] = [
+                'id' => $id,
+                'name' => (string) ($row['name'] ?? $id),
+            ];
+        }
+
+        return array_slice($fallback, 0, 3);
     }
 }

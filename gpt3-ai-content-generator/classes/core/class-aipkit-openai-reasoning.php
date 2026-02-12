@@ -42,6 +42,9 @@ class AIPKit_OpenAI_Reasoning
     public static function supports_reasoning(string $model): bool
     {
         $model_lower = strtolower($model);
+        if (self::is_chat_variant($model_lower)) {
+            return false;
+        }
         return strpos($model_lower, 'gpt-5') !== false
             || strpos($model_lower, 'o1') !== false
             || strpos($model_lower, 'o3') !== false
@@ -116,5 +119,14 @@ class AIPKit_OpenAI_Reasoning
             return ((int) $matches[1]) >= 6;
         }
         return false;
+    }
+
+    /**
+     * Detects chat-only variants that do not support reasoning controls.
+     * Examples: gpt-5-chat-latest, gpt-5.1-chat-latest, gpt-5.2-chat-latest.
+     */
+    private static function is_chat_variant(string $model_lower): bool
+    {
+        return (bool) preg_match('/(?:^|[-_])chat(?:[-_]|$)/', $model_lower);
     }
 }

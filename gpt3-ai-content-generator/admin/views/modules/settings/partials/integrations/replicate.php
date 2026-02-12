@@ -33,13 +33,13 @@ if (!defined('ABSPATH')) {
                     />
                     <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
                 </div>
-                <a href="https://replicate.com/account/api-tokens" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">
+                <a href="https://replicate.com/account/api-tokens" target="_blank" rel="noopener noreferrer" class="button button-primary aipkit_btn aipkit_btn-primary aipkit_get_key_btn">
                      <span class="aipkit_btn-text"><?php esc_html_e('Get Key', 'gpt3-ai-content-generator'); ?></span>
                 </a>
                  <button
                     type="button"
                     id="aipkit_sync_replicate_models_btn"
-                    class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn"
+                    class="button button-primary aipkit_btn aipkit_btn-primary aipkit_sync_btn"
                     data-provider="Replicate"
                     title="<?php esc_attr_e('Sync available models from Replicate', 'gpt3-ai-content-generator'); ?>"
                 >

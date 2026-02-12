@@ -70,7 +70,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                                 }
                             }
                             if (!$found_current_stt && !empty($stt_openai_model_id)) {
-                                echo '<option value="' . esc_attr($stt_openai_model_id) . '" selected>' . esc_html($stt_openai_model_id) . ' (Manual/Not Synced)</option>';
+                                echo '<option value="' . esc_attr($stt_openai_model_id) . '" selected>' . esc_html($stt_openai_model_id) . '</option>';
                             } elseif (empty($openai_stt_models) && empty($stt_openai_model_id)) {
                                 echo '<option value="whisper-1" selected>whisper-1 (Default)</option>';
                             }

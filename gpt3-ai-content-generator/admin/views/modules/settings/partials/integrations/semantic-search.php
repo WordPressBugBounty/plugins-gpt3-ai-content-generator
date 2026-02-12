@@ -81,7 +81,7 @@ foreach ($openrouter_embedding_models as $m) { $all_embedding_models_map[$m['id'
                     }
                     // If saved value is not in list, show it
                     if (!$found_saved && !empty($target_id)) {
-                         echo '<option value="' . esc_attr($target_id) . '" selected>' . esc_html($target_id) . ' (Manual)</option>';
+                         echo '<option value="' . esc_attr($target_id) . '" selected>' . esc_html($target_id) . '</option>';
                     }
                     ?>
                 </select>
@@ -114,7 +114,7 @@ foreach ($openrouter_embedding_models as $m) { $all_embedding_models_map[$m['id'
                         <?php endforeach; ?>
                     </optgroup>
                     <?php if (!empty($embedding_model) && !isset($all_embedding_models_map[$embedding_model])): ?>
-                        <option value="<?php echo esc_attr($embedding_model); ?>" data-provider="<?php echo esc_attr($embedding_provider); ?>" selected><?php echo esc_html($embedding_model); ?> (Manual)</option>
+                        <option value="<?php echo esc_attr($embedding_model); ?>" data-provider="<?php echo esc_attr($embedding_provider); ?>" selected><?php echo esc_html($embedding_model); ?></option>
                     <?php endif; ?>
                 </select>
                 <input type="hidden" id="aipkit_semantic_search_embedding_provider" name="semantic_search_embedding_provider" value="<?php echo esc_attr($embedding_provider); ?>" class="aipkit_autosave_trigger">
@@ -141,7 +141,7 @@ foreach ($openrouter_embedding_models as $m) { $all_embedding_models_map[$m['id'
             <label class="aipkit_form-label"><?php esc_html_e('Shortcode', 'gpt3-ai-content-generator'); ?></label>
             <div class="aipkit_input-with-button">
                 <input type="text" class="aipkit_form-input" value="[aipkit_semantic_search]" readonly>
-                <button type="button" class="aipkit_btn aipkit_btn-secondary" onclick="window.aipkit_copyShortcode('[aipkit_semantic_search]', this)">
+                <button type="button" class="button button-primary aipkit_btn aipkit_btn-primary" onclick="window.aipkit_copyShortcode('[aipkit_semantic_search]', this)">
                     <span class="aipkit_btn-text"><?php esc_html_e('Copy', 'gpt3-ai-content-generator'); ?></span>
                 </button>
             </div>

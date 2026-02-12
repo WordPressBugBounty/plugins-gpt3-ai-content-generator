@@ -5,6 +5,8 @@
 
 namespace WPAICG\Core\Providers\OpenAI\Methods;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -188,7 +190,7 @@ function format_chat_logic_for_payload_formatter(
     // --- END NEW ---
     // --- NEW: Unset unsupported parameters for specific models ---
     $model_lower = strtolower($model);
-    if (strpos($model_lower, 'gpt-5') !== false || strpos($model_lower, 'o1') !== false || strpos($model_lower, 'o3') !== false || strpos($model_lower, 'o4') !== false) {
+    if (AIPKit_OpenAI_Reasoning::supports_reasoning($model_lower)) {
         unset($body_data['temperature'], $body_data['top_p'], $body_data['frequency_penalty'], $body_data['presence_penalty']);
     }
     // --- END NEW ---

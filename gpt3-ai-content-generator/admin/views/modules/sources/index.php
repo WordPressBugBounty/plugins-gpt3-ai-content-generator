@@ -944,7 +944,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                                 }
                                             }
                                             if (!$semantic_target_found && !empty($semantic_target_id)) {
-                                                echo '<option value="' . esc_attr($semantic_target_id) . '" selected>' . esc_html($semantic_target_id) . ' (Manual)</option>';
+                                                echo '<option value="' . esc_attr($semantic_target_id) . '" selected>' . esc_html($semantic_target_id) . '</option>';
                                             }
                                             ?>
                                         </select>
@@ -974,7 +974,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                                 <?php endforeach; ?>
                                             </optgroup>
                                             <?php if (!empty($semantic_embedding_model) && !isset($all_embedding_models_map[$semantic_embedding_model])): ?>
-                                                <option value="<?php echo esc_attr($semantic_embedding_model); ?>" data-provider="<?php echo esc_attr($semantic_embedding_provider); ?>" selected><?php echo esc_html($semantic_embedding_model); ?> (Manual)</option>
+                                                <option value="<?php echo esc_attr($semantic_embedding_model); ?>" data-provider="<?php echo esc_attr($semantic_embedding_provider); ?>" selected><?php echo esc_html($semantic_embedding_model); ?></option>
                                             <?php endif; ?>
                                         </select>
                                         <input type="hidden" id="aipkit_sources_semantic_embedding_provider" name="semantic_search_embedding_provider" value="<?php echo esc_attr($semantic_embedding_provider); ?>">

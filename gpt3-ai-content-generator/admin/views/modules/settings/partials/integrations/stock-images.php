@@ -33,7 +33,7 @@ if (!defined('ABSPATH')) {
                     />
                     <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
                 </div>
-                <a href="https://pixabay.com/api/docs/" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">
+                <a href="https://pixabay.com/api/docs/" target="_blank" rel="noopener noreferrer" class="button button-primary aipkit_btn aipkit_btn-primary aipkit_get_key_btn">
                      <span class="aipkit_btn-text"><?php esc_html_e('Get Key', 'gpt3-ai-content-generator'); ?></span>
                 </a>
             </div>
@@ -55,7 +55,7 @@ if (!defined('ABSPATH')) {
                     />
                     <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
                 </div>
-                <a href="https://www.pexels.com/api/" target="_blank" rel="noopener noreferrer" class="aipkit_btn aipkit_btn-secondary aipkit_get_key_btn">
+                <a href="https://www.pexels.com/api/" target="_blank" rel="noopener noreferrer" class="button button-primary aipkit_btn aipkit_btn-primary aipkit_get_key_btn">
                      <span class="aipkit_btn-text"><?php esc_html_e('Get Key', 'gpt3-ai-content-generator'); ?></span>
                 </a>
             </div>

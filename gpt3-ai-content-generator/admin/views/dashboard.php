@@ -7,23 +7,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Use the Dashboard_Beta class to retrieve module settings
 use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKit_Role_Manager; // <-- Import Role Manager
 
-// Retrieve the currently saved module settings
-$moduleSettings = aipkit_dashboard::get_module_settings();
+$module_settings = aipkit_dashboard::get_module_settings();
+$can_access_dashboard = AIPKit_Role_Manager::user_can_access_module('settings');
+$can_access_settings = current_user_can('manage_options') && $can_access_dashboard;
 
-/**
- * Map each DB key to the nav label, dashicon, and the data-module attribute used for loading.
- * The data_module must match the folder name in /modules/ (e.g. 'chatbot', 'content-writer', etc.)
- * **AND** must match the keys used in AIPKit_Role_Manager::get_manageable_modules() for permission checks.
- *
- * Grouped by purpose for UX chunking:
- * - Primary: Core creation tools (always visible)
- * - Secondary: Supporting tools (in "More" dropdown on smaller screens or less used)
- */
-$primaryModules = array(
+$nav_modules = array(
     'chat_bot' => array(
         'label'       => __('Chatbots', 'gpt3-ai-content-generator'),
         'icon'        => 'format-chat',
@@ -61,64 +52,82 @@ $primaryModules = array(
     ),
 );
 
-// Combined for module settings dropdown
-$modulesMap = $primaryModules;
-
-// Create a nonce for AJAX requests
-$aipkit_nonce = wp_create_nonce('aipkit_nonce');
-
 ?>
 <div class="wrap aipkit_wrap">
     <div class="aipkit_module-tabs">
         <nav class="aipkit_module-tabs_list" role="tablist" aria-label="<?php esc_attr_e('Main navigation', 'gpt3-ai-content-generator'); ?>">
-            <!-- Dashboard (Home) - Icon Only -->
-            <?php if (AIPKit_Role_Manager::user_can_access_module('settings')): ?>
+            <?php if ($can_access_dashboard): ?>
                 <a
-                    href="javascript:void(0);"
+                    href="#"
                     class="aipkit_module-tab aipkit_module-tab--home aipkit_module-link"
-                    data-module="settings"
-                    onclick="aipkit_loadModule('settings');"
+                    data-module="dashboard-home"
+                    data-aipkit-open-module="dashboard-home"
                     aria-label="<?php esc_attr_e('Dashboard', 'gpt3-ai-content-generator'); ?>"
                     title="<?php esc_attr_e('Dashboard', 'gpt3-ai-content-generator'); ?>"
                     role="tab"
                 >
-                    <img
-                        src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>"
-                        alt=""
-                        class="aipkit_module-tab_home-logo"
-                        aria-hidden="true"
-                    />
+                    <span class="aipkit_module-tab_home-badge" aria-hidden="true">
+                        <img
+                            src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>"
+                            alt=""
+                            class="aipkit_module-tab_home-logo"
+                        />
+                    </span>
+                    <span class="aipkit_module-tab_label"><?php esc_html_e('Home', 'gpt3-ai-content-generator'); ?></span>
                 </a>
-            <?php endif; ?>
 
-            <!-- Primary Modules Group - Always visible with icons + labels -->
-            <div class="aipkit_nav_group aipkit_nav_group--primary">
-                <?php foreach ($primaryModules as $optionKey => $mod) :
-                    $module_slug = $mod['data_module'];
-                    $is_enabled = !isset($moduleSettings[$optionKey]) || !empty($moduleSettings[$optionKey]);
-                    if ($is_enabled && AIPKit_Role_Manager::user_can_access_module($module_slug)): ?>
+                <?php foreach ($nav_modules as $option_key => $module): ?>
+                    <?php
+                    $module_slug = $module['data_module'];
+                    $is_enabled = !isset($module_settings[$option_key]) || !empty($module_settings[$option_key]);
+                    if (!AIPKit_Role_Manager::user_can_access_module($module_slug)) {
+                        continue;
+                    }
+                    ?>
                     <a
-                        href="javascript:void(0);"
-                        class="aipkit_module-tab aipkit_module-link"
+                        href="#"
+                        class="aipkit_module-tab aipkit_module-link aipkit_module-tab--module<?php echo $is_enabled ? '' : ' aipkit_module-tab--is-hidden'; ?>"
                         data-module="<?php echo esc_attr($module_slug); ?>"
-                        onclick="aipkit_loadModule('<?php echo esc_js($module_slug); ?>')"
+                        data-option-key="<?php echo esc_attr($option_key); ?>"
+                        data-aipkit-open-module="<?php echo esc_attr($module_slug); ?>"
                         role="tab"
+                        title="<?php echo esc_attr($module['label']); ?>"
+                        <?php if (!$is_enabled): ?>
+                            hidden
+                            aria-hidden="true"
+                            tabindex="-1"
+                        <?php endif; ?>
                     >
-                        <span class="dashicons dashicons-<?php echo esc_attr($mod['icon']); ?>" aria-hidden="true"></span>
-                        <span class="aipkit_module-tab_label"><?php echo esc_html($mod['label']); ?></span>
+                        <span class="dashicons dashicons-<?php echo esc_attr($module['icon']); ?>" aria-hidden="true"></span>
+                        <span class="aipkit_module-tab_label"><?php echo esc_html($module['label']); ?></span>
                     </a>
-                    <?php endif; ?>
                 <?php endforeach; ?>
-            </div>
-
+            <?php endif; ?>
         </nav>
 
-        <?php if (current_user_can('manage_options')): ?>
+        <?php if ($can_access_dashboard): ?>
             <div class="aipkit_module-tabs_actions">
+                <?php if ($can_access_settings): ?>
+                <a
+                    href="#"
+                    class="aipkit_module-tab aipkit_module-tab--settings aipkit_module-link"
+                    data-module="settings"
+                    data-aipkit-open-module="settings"
+                    role="tab"
+                    title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <svg class="aipkit_settings-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="m19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <span class="aipkit_module-tab_label"><?php esc_html_e('Settings', 'gpt3-ai-content-generator'); ?></span>
+                </a>
+                <?php endif; ?>
+
                 <?php 
                 // Show upgrade button only for non-pro users
                 $is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false;
-                if (!$is_pro_plan): 
+                if (!$is_pro_plan):
                 ?>
                 <button 
                     type="button" 
@@ -134,51 +143,6 @@ $aipkit_nonce = wp_create_nonce('aipkit_nonce');
                     <span class="aipkit_upgrade_btn_label"><?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?></span>
                 </button>
                 <?php endif; ?>
-                <div
-                    class="aipkit_modules-menu"
-                    id="aipkit_modulesMenu"
-                    title="<?php echo esc_attr__('Module Settings', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <button class="aipkit_menu-trigger" type="button" aria-label="<?php echo esc_attr__('Module Settings', 'gpt3-ai-content-generator'); ?>" aria-haspopup="true" aria-expanded="false">
-                        <svg class="aipkit_menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="m19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                    </button>
-                    <div class="aipkit_dropdown-panel" role="dialog" aria-labelledby="aipkit_modules_panel_title">
-                        <div class="aipkit_panel-header">
-                            <h3 id="aipkit_modules_panel_title"><?php echo esc_html__('Modules', 'gpt3-ai-content-generator'); ?></h3>
-                            <p><?php echo esc_html__('Toggle visibility of modules', 'gpt3-ai-content-generator'); ?></p>
-                        </div>
-                        <div class="aipkit_modules-list">
-                            <?php foreach ($modulesMap as $optionKey => $mod) :
-                                $checked = !isset($moduleSettings[$optionKey]) || !empty($moduleSettings[$optionKey]) ? 'checked' : '';
-                                $inputId = 'aipkit_toggle_' . esc_attr($optionKey);
-                            ?>
-                                <label class="aipkit_module-item" for="<?php echo esc_attr($inputId); ?>">
-                                    <div class="aipkit_module-info">
-                                        <span class="aipkit_module-icon dashicons dashicons-<?php echo esc_attr($mod['icon']); ?>" aria-hidden="true"></span>
-                                        <span class="aipkit_module-label"><?php echo esc_html($mod['label']); ?></span>
-                                    </div>
-                                    <span class="aipkit_toggle-switch">
-                                        <input
-                                            type="checkbox"
-                                            id="<?php echo esc_attr($inputId); ?>"
-                                            name="<?php echo esc_attr($optionKey); ?>"
-                                            class="aipkit_module-toggle"
-                                            data-module="<?php echo esc_attr($mod['data_module']); ?>"
-                                            data-option-key="<?php echo esc_attr($optionKey); ?>"
-                                            data-icon="<?php echo esc_attr($mod['icon']); ?>"
-                                            data-label="<?php echo esc_attr($mod['label']); ?>"
-                                            <?php echo $checked ? 'checked' : ''; ?>
-                                        >
-                                        <span class="aipkit_toggle-slider"></span>
-                                    </span>
-                                </label>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </div>
             </div>
         <?php endif; ?>
     </div>

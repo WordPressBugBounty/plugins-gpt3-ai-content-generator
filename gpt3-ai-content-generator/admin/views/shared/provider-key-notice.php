@@ -49,7 +49,7 @@ $aipkit_settings_url = admin_url('admin.php?page=wpaicg');
     <div class="aipkit_notification_bar__actions">
         <a
             href="<?php echo esc_url($aipkit_settings_url); ?>"
-            class="aipkit_btn aipkit_btn-secondary aipkit_provider_notice_settings_link"
+            class="aipkit_btn aipkit_provider_notice_settings_link"
             data-aipkit-load-module="settings"
         >
             <?php esc_html_e('Open Settings', 'gpt3-ai-content-generator'); ?>

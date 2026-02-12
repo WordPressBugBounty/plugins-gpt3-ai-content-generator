@@ -47,11 +47,11 @@ if (!defined('ABSPATH')) {
                             echo '<option value="' . esc_attr($voice_id) . '" ' . selected($current_elevenlabs_default_voice, $voice_id, false) . '>' . esc_html($voice_name) . '</option>';
                         }
                     } elseif (!empty($current_elevenlabs_default_voice)) {
-                        echo '<option value="' . esc_attr($current_elevenlabs_default_voice) . '" selected>' . esc_html($current_elevenlabs_default_voice) . ' (Manual/Not Synced)</option>';
+                        echo '<option value="' . esc_attr($current_elevenlabs_default_voice) . '" selected>' . esc_html($current_elevenlabs_default_voice) . '</option>';
                     }
                     ?>
                 </select>
-                <button id="aipkit_sync_elevenlabs_voices" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="ElevenLabs">
+                <button id="aipkit_sync_elevenlabs_voices" class="button button-primary aipkit_btn aipkit_btn-primary aipkit_sync_btn" data-provider="ElevenLabs">
                     <span class="aipkit_btn-text"><?php echo esc_html__('Sync Voices', 'gpt3-ai-content-generator'); ?></span>
                      <span class="aipkit_spinner" style="display:none;"></span>
                 </button>
@@ -74,11 +74,11 @@ if (!defined('ABSPATH')) {
                              echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($current_elevenlabs_default_model, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>';
                          }
                      } elseif (!empty($current_elevenlabs_default_model)) {
-                         echo '<option value="' . esc_attr($current_elevenlabs_default_model) . '" selected>' . esc_html($current_elevenlabs_default_model) . ' (Manual/Not Synced)</option>';
+                         echo '<option value="' . esc_attr($current_elevenlabs_default_model) . '" selected>' . esc_html($current_elevenlabs_default_model) . '</option>';
                      }
                      ?>
                 </select>
-                <button id="aipkit_sync_elevenlabs_models_btn" class="aipkit_btn aipkit_btn-secondary aipkit_sync_btn" data-provider="ElevenLabsModels">
+                <button id="aipkit_sync_elevenlabs_models_btn" class="button button-primary aipkit_btn aipkit_btn-primary aipkit_sync_btn" data-provider="ElevenLabsModels">
                     <span class="aipkit_btn-text"><?php echo esc_html__('Sync Models', 'gpt3-ai-content-generator'); ?></span>
                      <span class="aipkit_spinner" style="display:none;"></span>
                 </button>

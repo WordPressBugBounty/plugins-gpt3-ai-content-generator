@@ -109,6 +109,24 @@ class Ajax_Hooks_Registrar
             if (method_exists($settings_ajax_handler, 'ajax_save_settings')) {
                 add_action('wp_ajax_aipkit_save_ai_settings', [$settings_ajax_handler, 'ajax_save_settings']);
             }
+            if (method_exists($settings_ajax_handler, 'ajax_export_settings_backup')) {
+                add_action('wp_ajax_aipkit_export_settings_backup', [$settings_ajax_handler, 'ajax_export_settings_backup']);
+            }
+            if (method_exists($settings_ajax_handler, 'ajax_import_settings_backup')) {
+                add_action('wp_ajax_aipkit_import_settings_backup', [$settings_ajax_handler, 'ajax_import_settings_backup']);
+            }
+            if (method_exists($settings_ajax_handler, 'ajax_create_settings_restore_point')) {
+                add_action('wp_ajax_aipkit_create_settings_restore_point', [$settings_ajax_handler, 'ajax_create_settings_restore_point']);
+            }
+            if (method_exists($settings_ajax_handler, 'ajax_restore_settings_restore_point')) {
+                add_action('wp_ajax_aipkit_restore_settings_restore_point', [$settings_ajax_handler, 'ajax_restore_settings_restore_point']);
+            }
+            if (method_exists($settings_ajax_handler, 'ajax_clear_settings_model_cache')) {
+                add_action('wp_ajax_aipkit_clear_settings_model_cache', [$settings_ajax_handler, 'ajax_clear_settings_model_cache']);
+            }
+            if (method_exists($settings_ajax_handler, 'ajax_clear_settings_transients')) {
+                add_action('wp_ajax_aipkit_clear_settings_transients', [$settings_ajax_handler, 'ajax_clear_settings_transients']);
+            }
         }
 
         if ($models_ajax_handler) {

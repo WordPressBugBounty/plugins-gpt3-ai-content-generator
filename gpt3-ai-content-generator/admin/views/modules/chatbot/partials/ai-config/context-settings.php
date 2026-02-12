@@ -178,11 +178,13 @@ $bot_id = $initial_active_bot_id;
                             }
                         }
                         if (!$found_in_list) {
-                            $manual_label = sprintf(
-                                /* translators: %d is the manual vector store index. */
-                                __('Manual store %d', 'gpt3-ai-content-generator'),
-                                $manual_index
-                            );
+                            $manual_label = $saved_id !== ''
+                                ? $saved_id
+                                : sprintf(
+                                    /* translators: %d is the saved vector store index. */
+                                    __('Store %d', 'gpt3-ai-content-generator'),
+                                    $manual_index
+                                );
                             echo '<option value="' . esc_attr($saved_id) . '" selected="selected">' . esc_html($manual_label) . '</option>';
                             $manual_index++;
                         }
@@ -235,7 +237,7 @@ $bot_id = $initial_active_bot_id;
                     if (!in_array((string) $pinecone_index_name, $known_pinecone_names, true)) {
                         $manual_label = sprintf(
                             /* translators: %s is the manually entered Pinecone index name. */
-                            __('%s (Manual)', 'gpt3-ai-content-generator'),
+                            __('%s', 'gpt3-ai-content-generator'),
                             $pinecone_index_name
                         );
                         $pinecone_option_rows[] = [
@@ -464,7 +466,7 @@ $bot_id = $initial_active_bot_id;
                     }
                     foreach ($qdrant_collection_names as $saved_name) {
                         if (!in_array($saved_name, array_map(function ($c) { return is_array($c) ? ($c['name'] ?? '') : (string) $c; }, $qdrant_collections), true)) {
-                            echo '<option value="' . esc_attr($saved_name) . '" selected="selected">' . esc_html($saved_name) . ' (Manual)</option>';
+                            echo '<option value="' . esc_attr($saved_name) . '" selected="selected">' . esc_html($saved_name) . '</option>';
                         }
                     }
                     if (empty($qdrant_collections) && empty($qdrant_collection_names)) {
@@ -539,7 +541,7 @@ $bot_id = $initial_active_bot_id;
                             }
                             if (!$manual_included && !empty($vector_embedding_model) && $vector_embedding_provider === $group_key && !isset($embedding_model_map[$vector_embedding_model])) {
                                 $manual_value = $vector_embedding_provider . '::' . $vector_embedding_model;
-                                echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($vector_embedding_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . ' (Manual)</option>';
+                                echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($vector_embedding_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
                                 $manual_included = true;
                             }
                             echo '</optgroup>';
@@ -548,7 +550,7 @@ $bot_id = $initial_active_bot_id;
                             $manual_provider = $vector_embedding_provider ?: 'manual';
                             $manual_value = $manual_provider . '::' . $vector_embedding_model;
                             echo '<optgroup label="' . esc_attr__('Manual', 'gpt3-ai-content-generator') . '">';
-                            echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($manual_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . ' (Manual)</option>';
+                            echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($manual_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
                             echo '</optgroup>';
                         }
                         ?>
@@ -592,7 +594,7 @@ $bot_id = $initial_active_bot_id;
                             }
                         }
                         if (!empty($vector_embedding_model) && (empty($current_embedding_list) || !in_array($vector_embedding_model, array_column($current_embedding_list, 'id'), true))) {
-                            echo '<option value="' . esc_attr($vector_embedding_model) . '" selected="selected">' . esc_html($vector_embedding_model) . ' (Manual)</option>';
+                            echo '<option value="' . esc_attr($vector_embedding_model) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
                         }
                         if (empty($current_embedding_list) && empty($vector_embedding_model)) {
                             echo '<option value="" disabled>' . esc_html__('-- Select Provider --', 'gpt3-ai-content-generator') . '</option>';

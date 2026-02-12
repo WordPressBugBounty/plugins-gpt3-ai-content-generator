@@ -116,7 +116,7 @@ foreach ($available_image_models as $provider_group => $models) {
 if ($image_model_dropdown_label === '' && !empty($chat_image_model_id)) {
     $image_model_dropdown_label = sprintf(
         /* translators: %s is the current custom model id */
-        __('%s (Manual/Current)', 'gpt3-ai-content-generator'),
+        __('%s', 'gpt3-ai-content-generator'),
         (string) $chat_image_model_id
     );
 }
@@ -337,7 +337,7 @@ if ($image_model_dropdown_label === '') {
                                                 echo esc_html(
                                                     sprintf(
                                                         /* translators: %s is the current custom model id */
-                                                        __('%s (Manual/Current)', 'gpt3-ai-content-generator'),
+                                                        __('%s', 'gpt3-ai-content-generator'),
                                                         (string) $chat_image_model_id
                                                     )
                                                 );
@@ -380,7 +380,7 @@ if ($image_model_dropdown_label === '') {
                         echo esc_html(
                             sprintf(
                                 /* translators: %s is the current custom model id */
-                                __('%s (Manual/Current)', 'gpt3-ai-content-generator'),
+                                __('%s', 'gpt3-ai-content-generator'),
                                 (string) $chat_image_model_id
                             )
                         );

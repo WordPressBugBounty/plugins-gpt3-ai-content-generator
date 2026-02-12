@@ -338,7 +338,7 @@ $vector_embedding_model = '';
                             }
                             if (!$manual_included && !empty($vector_embedding_model) && $vector_embedding_provider === $group_key && !isset($embedding_model_map[$vector_embedding_model])) {
                                 $manual_value = $vector_embedding_provider . '::' . $vector_embedding_model;
-                                echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($vector_embedding_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . ' (Manual)</option>';
+                                echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($vector_embedding_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
                                 $manual_included = true;
                             }
                             echo '</optgroup>';
@@ -347,7 +347,7 @@ $vector_embedding_model = '';
                             $manual_provider = $vector_embedding_provider ?: 'manual';
                             $manual_value = $manual_provider . '::' . $vector_embedding_model;
                             echo '<optgroup label="' . esc_attr__('Manual', 'gpt3-ai-content-generator') . '">';
-                            echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($manual_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . ' (Manual)</option>';
+                            echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($manual_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
                             echo '</optgroup>';
                         }
                         ?>
@@ -391,7 +391,7 @@ $vector_embedding_model = '';
                             }
                         }
                         if (!empty($vector_embedding_model) && (empty($current_embedding_list) || !in_array($vector_embedding_model, array_column($current_embedding_list, 'id'), true))) {
-                            echo '<option value="' . esc_attr($vector_embedding_model) . '" selected="selected">' . esc_html($vector_embedding_model) . ' (Manual)</option>';
+                            echo '<option value="' . esc_attr($vector_embedding_model) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
                         }
                         if (empty($current_embedding_list) && empty($vector_embedding_model)) {
                             echo '<option value="" disabled>' . esc_html__('-- Select Provider --', 'gpt3-ai-content-generator') . '</option>';

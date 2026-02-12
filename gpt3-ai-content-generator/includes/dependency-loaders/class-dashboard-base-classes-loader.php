@@ -10,6 +10,7 @@ class Dashboard_Base_Classes_Loader {
     public static function load() {
         $dashboard_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/';
         require_once $dashboard_path . 'class-aipkit_providers.php';
+        require_once $dashboard_path . 'class-aipkit_provider_model_list_builder.php';
         require_once $dashboard_path . 'class-aipkit_ai_settings.php';
         require_once $dashboard_path . 'class-aipkit_dashboard.php';
         require_once $dashboard_path . 'class-aipkit_role_manager.php';

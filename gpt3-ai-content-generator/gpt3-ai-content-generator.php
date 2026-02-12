@@ -9,9 +9,9 @@
  * @package           Wp_Ai_Content_Generator
  *
  * @wordpress-plugin
- * Plugin Name:       AI Puffer – AI Chatbots, Content Writer & Forms (formerly AI Power)
- * Description:       AI, Chatbot, ChatGPT, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more.
- * Version:           2.3.73
+ * Plugin Name:       AI Puffer
+ * Description:       Your AI engine for WordPress. Chat, write, automate, and generate — all in one workspace.
+ * Version:           2.3.74
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -22,7 +22,7 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.3.73' );
+define( 'WPAICG_VERSION', '2.3.74' );
 define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );

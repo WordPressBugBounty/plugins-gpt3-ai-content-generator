@@ -1,14 +1,14 @@
-=== AI Puffer – AI Chatbots, Content Writer & Forms (formerly AI Power) ===
+=== AI Puffer – Your AI engine for WordPress ===
 Contributors: senols
-Tags: ai, chatbot, openai, gemini, chatgpt
+Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.73
+Stable tag: 2.3.74
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI, Chatbot, ChatGPT, Content Writer, Auto Content Writer, WooCommerce Product Writer, Image Generator, ChatPDF, AI Training, Embeddings and more.
+Your AI engine for WordPress. Chat, write, automate, and generate — all in one workspace.
 
 == Description ==
 
@@ -124,6 +124,10 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.74 =
+
+- **Added**: New maintenance tools in Settings (backup/import, restore point, cache cleanup, sync all models).
 
 = 2.3.73 =
 

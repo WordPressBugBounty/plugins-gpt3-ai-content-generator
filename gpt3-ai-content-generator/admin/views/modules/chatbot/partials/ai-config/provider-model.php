@@ -213,7 +213,7 @@ $show_chatbot_selector = empty($is_next_layout) || !$is_next_layout;
                     // If saved model not found OR list is empty
                     // AND the saved model is NOT an OpenAI TTS model (as this dropdown is for CHAT models)
                     if (!$foundCurrentOpenAI && !empty($saved_model) && $saved_provider === 'OpenAI' && strpos($saved_model, 'tts-') !== 0) {
-                        echo '<option value="' . esc_attr($saved_model) . '" selected>' . esc_html($saved_model) . ' (Manual)</option>';
+                        echo '<option value="' . esc_attr($saved_model) . '" selected>' . esc_html($saved_model) . '</option>';
                     } elseif (empty($grouped_openai_models) && empty($recommended_openai) && (!$foundCurrentOpenAI || empty($saved_model) || strpos($saved_model, 'tts-') === 0)) {
                         echo '<option value="">'.esc_html__('(Sync models in main AI Settings)', 'gpt3-ai-content-generator').'</option>';
                     }
@@ -304,7 +304,7 @@ if (!empty($openrouter_model_list)) {
                         <?php endforeach;
 }
 if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter') { ?>
-                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?> (Manual)</option>
+                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?></option>
                     <?php } elseif (empty($openrouter_model_list) && empty($recommended_openrouter) && empty($saved_model)) { ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php } ?>
@@ -388,7 +388,7 @@ if (!empty($google_model_list)): ?>
                     <?php
                     if (!$foundCurrentGoogle && !empty($saved_model) && $saved_provider === 'Google'): ?>
                          <?php $displayModel = (strpos($saved_model, 'models/') === 0) ? substr($saved_model, 7) : $saved_model; ?>
-                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($displayModel); ?> (Manual)</option>
+                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($displayModel); ?></option>
                     <?php elseif (empty($google_model_list) && empty($recommended_google) && !$foundCurrentGoogle && empty($saved_model)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
@@ -469,7 +469,7 @@ if (!empty($claude_model_list)): ?>
                         <?php endif; ?>
                     <?php endif; ?>
                     <?php if (!$foundCurrentClaude && !empty($saved_model) && $saved_provider === 'Claude'): ?>
-                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?> (Manual)</option>
+                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?></option>
                     <?php elseif (empty($claude_model_list) && empty($recommended_claude) && !$foundCurrentClaude && empty($saved_model)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
@@ -518,7 +518,7 @@ if (is_array($azure_deployment_list) && !empty($azure_deployment_list)) {
     }
 }
 if (!$foundOldAzure && !empty($saved_azure_deployment)) {
-    echo '<option value="'.esc_attr($saved_azure_deployment).'" selected>'.esc_html($saved_azure_deployment . ($foundOldAzure === false && !empty($azure_deployment_list) ? ' (not in synced list)' : '')).' (Manual)</option>';
+    echo '<option value="'.esc_attr($saved_azure_deployment).'" selected>'.esc_html($saved_azure_deployment . ($foundOldAzure === false && !empty($azure_deployment_list) ? '' : '')).'</option>';
 } elseif (empty($saved_azure_deployment) && empty($azure_deployment_list)) {
     echo '<option value="">'.esc_html__('(Sync deployments in main AI Settings)', 'gpt3-ai-content-generator').'</option>';
 }
@@ -569,7 +569,7 @@ if (!empty($deepseek_model_list)): ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
                     <?php if (!$foundCurrentDeepSeek && !empty($saved_model) && $saved_provider === 'DeepSeek'): ?>
-                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?> (Manual)</option>
+                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?></option>
                     <?php elseif (empty($deepseek_model_list) && !$foundCurrentDeepSeek && empty($saved_model)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
@@ -619,7 +619,7 @@ if (!empty($deepseek_model_list)): ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
                     <?php if (!$foundCurrentOllama && !empty($saved_model) && $saved_provider === 'Ollama'): ?>
-                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?> (Manual)</option>
+                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?></option>
                     <?php elseif (empty($ollama_model_list) && !$foundCurrentOllama && empty($saved_model)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>

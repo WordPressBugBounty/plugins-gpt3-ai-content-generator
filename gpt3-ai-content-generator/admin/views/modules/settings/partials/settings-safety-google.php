@@ -42,7 +42,7 @@ $safety_categories_ordered = [
 
 ?>
 <div
-    class="aipkit_popover_option_group aipkit_model_field"
+    class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
     id="aipkit_safety_settings_accordion"
     style="display: <?php echo ($current_provider === 'Google') ? 'block' : 'none'; ?>;"
     data-provider-setting="Google"
@@ -53,11 +53,14 @@ $safety_categories_ordered = [
         $input_name_short = strtolower(str_replace('HARM_CATEGORY_', '', $category_key));
         $input_id = 'aipkit_safety_' . $input_name_short;
         ?>
-        <div class="aipkit_popover_option_row">
-            <div class="aipkit_popover_option_main">
-                <label class="aipkit_popover_option_label" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_html($category_label); ?></label>
+        <div class="aipkit_settings_advanced_row">
+            <div class="aipkit_settings_advanced_label_wrap">
+                <label class="aipkit_settings_advanced_label" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_html($category_label); ?></label>
+                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Safety threshold.', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_settings_advanced_control">
                 <div class="aipkit_popover_option_actions">
-                    <select id="<?php echo esc_attr($input_id); ?>" name="safety_<?php echo esc_attr($input_name_short); ?>" class="aipkit_popover_option_select aipkit_popover_option_select--compact aipkit_autosave_trigger">
+                    <select id="<?php echo esc_attr($input_id); ?>" name="safety_<?php echo esc_attr($input_name_short); ?>" class="aipkit_form-input aipkit_popover_option_select aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger">
                         <?php foreach ($safety_thresholds_map as $tKey => $tLabel): ?>
                             <option value="<?php echo esc_attr($tKey); ?>" <?php selected($current_threshold, $tKey); ?>>
                                 <?php echo esc_html($tLabel); ?>

@@ -2,24 +2,24 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – AI Chatbots, Content Writer & Forms (formerly AI Power) 2.3.73\n"
+"Project-Id-Version: AI Puffer 2.3.74\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-11T18:45:29+00:00\n"
+"POT-Creation-Date: 2026-02-12T14:25:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
 
 #. Plugin Name of the plugin
-msgid "AI Puffer – AI Chatbots, Content Writer & Forms (formerly AI Power)"
+msgid "AI Puffer"
 msgstr ""
 
 #. Description of the plugin
-msgid "AI, Chatbot, ChatGPT, Content Writer, Auto Content Writer, Product Writer, Image Generator, AutoGPT, ChatPDF, AI Training, Embeddings and more."
+msgid "Your AI engine for WordPress. Chat, write, automate, and generate — all in one workspace."
 msgstr ""
 
 #. Author of the plugin
@@ -1218,19 +1218,16 @@ msgstr ""
 msgid "Dashboard"
 msgstr ""
 
+msgid "Home"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
 msgid "Upgrade to Pro"
 msgstr ""
 
 msgid "Upgrade"
-msgstr ""
-
-msgid "Module Settings"
-msgstr ""
-
-msgid "Modules"
-msgstr ""
-
-msgid "Toggle visibility of modules"
 msgstr ""
 
 msgid "Unlock Pro Features"
@@ -1330,9 +1327,6 @@ msgid "Preview"
 msgstr ""
 
 msgid "Create New Form"
-msgstr ""
-
-msgid "Settings"
 msgstr ""
 
 msgid "Filters"
@@ -3359,12 +3353,14 @@ msgstr ""
 msgid "Page Context"
 msgstr ""
 
-#. translators: %d is the manual vector store index.
-msgid "Manual store %d"
+#. translators: %d is the saved vector store index.
+msgid "Store %d"
 msgstr ""
 
 #. translators: %s is the manually entered Pinecone index name.
-msgid "%s (Manual)"
+#. translators: %s is the current custom model id
+#. translators: %s model id
+msgid "%s"
 msgstr ""
 
 msgid "Select one or more collections."
@@ -3521,10 +3517,6 @@ msgid "%d selected"
 msgid_plural "%d selected"
 msgstr[0] ""
 msgstr[1] ""
-
-#. translators: %s is the current custom model id
-msgid "%s (Manual/Current)"
-msgstr ""
 
 msgid "Select model"
 msgstr ""
@@ -4346,6 +4338,63 @@ msgstr ""
 msgid "Welcome to the WooCommerce Product Writer. Features for generating and managing AI-powered product descriptions will appear here."
 msgstr ""
 
+msgid "Build assistants, configure behavior, and deploy chat experiences."
+msgstr ""
+
+msgid "Create articles, pages, and product content from structured prompts."
+msgstr ""
+
+msgid "Run scheduled workflows and recurring AI tasks with less manual work."
+msgstr ""
+
+msgid "Collect user input and generate AI-powered responses."
+msgstr ""
+
+msgid "Generate and iterate on images using model-specific settings."
+msgstr ""
+
+msgid "Manage data sources, embeddings, and retrieval context for AI."
+msgstr ""
+
+msgid "Track token consumption, activity trends, and usage patterns."
+msgstr ""
+
+msgid "AI Puffer Platform"
+msgstr ""
+
+msgid "Your AI engine for WordPress."
+msgstr ""
+
+msgid "Chat, write, automate, and generate — all in one workspace."
+msgstr ""
+
+msgid "Modules"
+msgstr ""
+
+msgid "No modules are available for your role right now."
+msgstr ""
+
+msgid "Enable module"
+msgstr ""
+
+msgid "Enable %s module"
+msgstr ""
+
+msgid "Quick Setup"
+msgstr ""
+
+msgid "Go to Settings."
+msgstr ""
+
+msgid "Select your provider and enter your API key."
+msgstr ""
+
+msgid "Open any module and start using."
+msgstr ""
+
+msgid "Token Usage"
+msgstr ""
+
 msgid "Image Generator"
 msgstr ""
 
@@ -4472,41 +4521,31 @@ msgstr ""
 msgid "Administrators always have access."
 msgstr ""
 
-#. translators: 1: rows, 2: bytes
-msgid "Usage data for the selected period is very large (rows: %1$s, size: %2$s). Token metrics are not shown. Consider deleting logs."
+msgid "Settings sections"
 msgstr ""
 
-msgid "Statistics component is unavailable."
+msgid "AI"
 msgstr ""
 
-msgid "Not set"
+msgid "REST API"
 msgstr ""
 
-msgid "Not selected"
+msgid "Others"
 msgstr ""
 
-msgid "Missing"
+msgid "Set your default provider, model, API key, and advanced options."
 msgstr ""
 
-msgid "API Key & Endpoint"
+msgid "REST API Settings"
 msgstr ""
 
-msgid "Set"
+msgid "Configure external access to AIPKit via REST API key."
 msgstr ""
 
-msgid "Incomplete"
+msgid "Other Settings"
 msgstr ""
 
-msgid "Base URL"
-msgstr ""
-
-msgid "Provider & Model"
-msgstr ""
-
-msgid "Integrations"
-msgstr ""
-
-msgid "Advanced settings"
+msgid "Manage backups and maintenance actions."
 msgstr ""
 
 msgid "Content Assistant"
@@ -4575,19 +4614,13 @@ msgstr ""
 msgid "Sync available models from Replicate"
 msgstr ""
 
-msgid "REST API"
-msgstr ""
-
 msgid "REST API Key"
 msgstr ""
 
 msgid "Leave blank to disable REST API access"
 msgstr ""
 
-msgid "Set a key to allow external access to certain plugin features via the REST API. Keep this key secure."
-msgstr ""
-
-msgid "REST API Documentation"
+msgid "REST API documentation"
 msgstr ""
 
 msgid "No results found."
@@ -4662,7 +4695,16 @@ msgstr ""
 msgid "Sync and select a default Qdrant collection. Collections are managed in AI Training."
 msgstr ""
 
+msgid "Paste the provider API key."
+msgstr ""
+
+msgid "Get your API key"
+msgstr ""
+
 msgid "Endpoint URL"
+msgstr ""
+
+msgid "Enter Azure resource endpoint URL."
 msgstr ""
 
 msgid "e.g., https://your-resource-name.openai.azure.com/"
@@ -4671,31 +4713,124 @@ msgstr ""
 msgid "Clear field"
 msgstr ""
 
+msgid "Base URL"
+msgstr ""
+
+msgid "Enter the Ollama server URL."
+msgstr ""
+
 msgid "e.g., http://localhost:11434"
 msgstr ""
 
 msgid "Restore default"
 msgstr ""
 
+msgid "Choose the default model."
+msgstr ""
+
 msgid "(Sync to load models)"
 msgstr ""
 
-msgid "(Sync to load deployments)"
+msgid "Settings Backup"
+msgstr ""
+
+msgid "Export or import settings JSON."
+msgstr ""
+
+msgid "Export JSON"
+msgstr ""
+
+msgid "Import JSON"
+msgstr ""
+
+msgid "Restore Point"
+msgstr ""
+
+msgid "Save a restore point."
+msgstr ""
+
+msgid "Create Restore Point"
+msgstr ""
+
+msgid "Restore Last Point"
+msgstr ""
+
+msgid "Model Cache"
+msgstr ""
+
+msgid "Clear cached model lists."
+msgstr ""
+
+msgid "Clear Model Cache"
+msgstr ""
+
+msgid "Transient Cache"
+msgstr ""
+
+msgid "Clear transients and object cache."
+msgstr ""
+
+msgid "Clear Transients"
+msgstr ""
+
+msgid "Sync All Models"
+msgstr ""
+
+msgid "Sync models for all providers."
+msgstr ""
+
+msgid "Sync All"
+msgstr ""
+
+msgid "Model List"
+msgstr ""
+
+msgid "Creativity level."
+msgstr ""
+
+msgid "Sampling diversity."
+msgstr ""
+
+msgid "Custom API endpoint."
 msgstr ""
 
 msgid "API Version"
 msgstr ""
 
+msgid "Endpoint version."
+msgstr ""
+
 msgid "Store Conversation"
 msgstr ""
 
-msgid "Vector Store File Expiration (Days)"
+msgid "Save chat history."
+msgstr ""
+
+msgid "File Expiration (Days)"
+msgstr ""
+
+msgid "Vector store retention period."
 msgstr ""
 
 msgid "Authoring API Version"
 msgstr ""
 
+msgid "Deployment management version."
+msgstr ""
+
 msgid "Inference API Version"
+msgstr ""
+
+msgid "Response generation version."
+msgstr ""
+
+msgid "Choose the default AI provider."
+msgstr ""
+
+msgid "Use this for external API requests."
+msgstr ""
+
+msgid "REST API docs"
 msgstr ""
 
 msgid "Harassment"
@@ -4711,6 +4846,9 @@ msgid "Dangerous Content"
 msgstr ""
 
 msgid "Civic Integrity"
+msgstr ""
+
+msgid "Safety threshold."
 msgstr ""
 
 msgid "Usage Overview"
@@ -8197,6 +8335,9 @@ msgstr ""
 msgid "Moderation check failed (API %1$d): %2$s"
 msgstr ""
 
+msgid "Incomplete"
+msgstr ""
+
 #. translators: %s: The reason why the response was incomplete.
 #. translators: %s: The reason why the OpenRouter response was incomplete.
 msgid "Response incomplete due to: %s"
@@ -8398,6 +8539,46 @@ msgid "%s synced successfully."
 msgstr ""
 
 msgid "Settings saved successfully."
+msgstr ""
+
+msgid "Settings backup is ready."
+msgstr ""
+
+msgid "No backup file was uploaded."
+msgstr ""
+
+msgid "Failed to read uploaded backup file."
+msgstr ""
+
+msgid "Uploaded backup file is not readable."
+msgstr ""
+
+msgid "Backup file is empty."
+msgstr ""
+
+msgid "Backup file must be valid JSON."
+msgstr ""
+
+msgid "Settings backup imported successfully."
+msgstr ""
+
+msgid "Restore point created."
+msgstr ""
+
+msgid "No restore point found."
+msgstr ""
+
+msgid "Restore point applied successfully."
+msgstr ""
+
+msgid "Model cache cleared."
+msgstr ""
+
+#. translators: %d: number of transient rows removed
+msgid "Transient cache cleared (%d rows removed)."
+msgstr ""
+
+msgid "Backup payload is missing the settings block."
 msgstr ""
 
 msgid "OpenAI API Key is not configured in global settings."
@@ -8697,9 +8878,6 @@ msgid "Invalid or empty points JSON format for Qdrant."
 msgstr ""
 
 msgid "Points upserted to Qdrant successfully."
-msgstr ""
-
-msgid "AI Puffer"
 msgstr ""
 
 msgid "You do not have permission to access this module."
@@ -9670,9 +9848,6 @@ msgstr ""
 
 #. translators: %d: Bot ID
 msgid "Bot #%d"
-msgstr ""
-
-msgid "Token Usage"
 msgstr ""
 
 msgid "Free Usage"
@@ -11116,6 +11291,57 @@ msgstr ""
 msgid "Verify access before generating."
 msgstr ""
 
+msgid "API helper missing."
+msgstr ""
+
+msgid "Export payload was empty."
+msgstr ""
+
+msgid "Settings export completed."
+msgstr ""
+
+msgid "Export failed: "
+msgstr ""
+
+msgid "Importing settings..."
+msgstr ""
+
+msgid "Settings imported. Reloading..."
+msgstr ""
+
+msgid "Import failed: "
+msgstr ""
+
+msgid "Working..."
+msgstr ""
+
+msgid "Action failed: "
+msgstr ""
+
+msgid "Model sync helper is not available."
+msgstr ""
+
+msgid "No providers are ready to sync yet."
+msgstr ""
+
+msgid "Syncing..."
+msgstr ""
+
+msgid "Running sync for all ready providers..."
+msgstr ""
+
+msgid "Sync completed with errors: "
+msgstr ""
+
+msgid "Models synced for: "
+msgstr ""
+
+msgid "Restore point applied. Reloading..."
+msgstr ""
+
+msgid "Transient cache cleared."
+msgstr ""
+
 msgid "Syncing models..."
 msgstr ""
 
@@ -11266,9 +11492,6 @@ msgid "Syncing stores..."
 msgstr ""
 
 msgid "Sync"
-msgstr ""
-
-msgid "Syncing..."
 msgstr ""
 
 msgid "Stores synced."

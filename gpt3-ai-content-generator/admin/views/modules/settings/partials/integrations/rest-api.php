@@ -34,8 +34,7 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
         <p class="aipkit_form-help">
-            <?php esc_html_e('Set a key to allow external access to certain plugin features via the REST API. Keep this key secure.', 'gpt3-ai-content-generator'); ?>
-            <a href="https://docs.aipower.org/docs/api-reference" target="_blank" rel="noopener noreferrer"><?php esc_html_e('REST API Documentation', 'gpt3-ai-content-generator'); ?></a>
+            <a href="https://docs.aipower.org/docs/api-reference" target="_blank" rel="noopener noreferrer"><?php esc_html_e('REST API documentation', 'gpt3-ai-content-generator'); ?></a>
         </p>
     </div>
 </div>
