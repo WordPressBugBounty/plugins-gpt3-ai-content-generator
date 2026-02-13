@@ -53,6 +53,9 @@ class ChatFormSubmissionAjaxHandler {
         $form_id = isset($post_data['form_id']) ? sanitize_text_field($post_data['form_id']) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
         $submitted_data_json = isset($post_data['submitted_data']) ? wp_kses_post($post_data['submitted_data']) : '{}';
+        // Optional compatibility payloads from newer frontend bundles.
+        $submitted_data_display_json = isset($post_data['submitted_data_display']) ? wp_kses_post($post_data['submitted_data_display']) : '{}';
+        $submitted_data_labels_json = isset($post_data['submitted_data_labels']) ? wp_kses_post($post_data['submitted_data_labels']) : '{}';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
         $conversation_uuid = isset($post_data['conversation_uuid']) ? sanitize_key($post_data['conversation_uuid']) : '';
         
@@ -78,6 +81,56 @@ class ChatFormSubmissionAjaxHandler {
         if (json_last_error() !== JSON_ERROR_NONE || !is_array($submitted_data)) {
             $this->send_wp_error(new WP_Error('invalid_submitted_data', __('Invalid submitted form data.', 'gpt3-ai-content-generator'), ['status' => 400]));
             return;
+        }
+        $submitted_data_display = json_decode($submitted_data_display_json, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($submitted_data_display)) {
+            $submitted_data_display = [];
+        }
+        $submitted_data_labels = json_decode($submitted_data_labels_json, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($submitted_data_labels)) {
+            $submitted_data_labels = [];
+        }
+
+        $sanitize_recursive_values = static function ($value) use (&$sanitize_recursive_values) {
+            if (is_array($value)) {
+                $sanitized = [];
+                foreach ($value as $key => $item) {
+                    $sanitized_key = sanitize_text_field((string) $key);
+                    if ($sanitized_key === '') {
+                        continue;
+                    }
+                    $sanitized[$sanitized_key] = $sanitize_recursive_values($item);
+                }
+                return $sanitized;
+            }
+            return sanitize_text_field((string) $value);
+        };
+        $sanitize_labels_map = static function (array $labels): array {
+            $sanitized = [];
+            foreach ($labels as $key => $label) {
+                $sanitized_key = sanitize_text_field((string) $key);
+                if ($sanitized_key === '') {
+                    continue;
+                }
+                $sanitized[$sanitized_key] = sanitize_text_field((string) $label);
+            }
+            return $sanitized;
+        };
+
+        $submitted_data_display = $sanitize_recursive_values($submitted_data_display);
+        $submitted_data_labels = $sanitize_labels_map($submitted_data_labels);
+
+        // Backward-compatible fallbacks for older frontend bundles.
+        if (empty($submitted_data_display) && !empty($submitted_data)) {
+            $submitted_data_display = $sanitize_recursive_values($submitted_data);
+        }
+        if (empty($submitted_data_labels) && !empty($submitted_data)) {
+            foreach ($submitted_data as $field_key => $_unused) {
+                $sanitized_key = sanitize_text_field((string) $field_key);
+                if ($sanitized_key !== '') {
+                    $submitted_data_labels[$sanitized_key] = $sanitized_key;
+                }
+            }
         }
 
         if (!$user_id && empty($final_session_id)) {
@@ -140,6 +193,10 @@ class ChatFormSubmissionAjaxHandler {
             'form_id'               => $form_id,
             'submitted_data'        => $submitted_data,
             'submitted_data_json'   => $submitted_data_json,
+            'submitted_data_display' => $submitted_data_display,
+            'submitted_data_display_json' => wp_json_encode($submitted_data_display, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'submitted_data_labels' => $submitted_data_labels,
+            'submitted_data_labels_json' => wp_json_encode($submitted_data_labels, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             'user_id'               => $user_id ?: null,
             'session_id'            => $final_session_id,
             'conversation_uuid'     => $conversation_uuid,

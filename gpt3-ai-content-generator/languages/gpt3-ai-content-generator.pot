@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.75\n"
+"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.76\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-13T13:01:32+00:00\n"
+"POT-Creation-Date: 2026-02-13T20:01:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -4392,7 +4392,7 @@ msgstr ""
 msgid "Quick Setup"
 msgstr ""
 
-msgid "Go to Settings."
+msgid "Go to %s."
 msgstr ""
 
 msgid "Select your provider and enter your API key."
@@ -4536,6 +4536,9 @@ msgstr ""
 msgid "AI"
 msgstr ""
 
+msgid "Integrations"
+msgstr ""
+
 msgid "REST API"
 msgstr ""
 
@@ -4545,10 +4548,13 @@ msgstr ""
 msgid "Set your default provider, model, API key, and advanced options."
 msgstr ""
 
+msgid "Manage API keys and sync controls for connected providers."
+msgstr ""
+
 msgid "REST API Settings"
 msgstr ""
 
-msgid "Configure external access to AIPKit via REST API key."
+msgid "Manage REST API access for external applications."
 msgstr ""
 
 msgid "Other Settings"
@@ -4734,6 +4740,102 @@ msgstr ""
 msgid "Restore default"
 msgstr ""
 
+msgid "Use this key for external requests."
+msgstr ""
+
+msgid "REST API docs"
+msgstr ""
+
+msgid "Choose integration to edit."
+msgstr ""
+
+msgid "Integration provider"
+msgstr ""
+
+msgid "ElevenLabs API Key"
+msgstr ""
+
+msgid "Required for ElevenLabs voices."
+msgstr ""
+
+msgid "ElevenLabs Voices"
+msgstr ""
+
+msgid "Sync voices."
+msgstr ""
+
+msgid "ElevenLabs Models"
+msgstr ""
+
+msgid "Sync models."
+msgstr ""
+
+msgid "Replicate API Key"
+msgstr ""
+
+msgid "Use Replicate for image generation."
+msgstr ""
+
+msgid "Replicate Models"
+msgstr ""
+
+msgid "No models synced yet."
+msgstr ""
+
+msgid "-- Select Synced Model --"
+msgstr ""
+
+msgid "Pinecone API Key"
+msgstr ""
+
+msgid "Enter your Pinecone API key."
+msgstr ""
+
+msgid "Synced Indexes"
+msgstr ""
+
+msgid "Synced Pinecone indexes."
+msgstr ""
+
+msgid "No indexes synced yet."
+msgstr ""
+
+msgid "-- Select Synced Index --"
+msgstr ""
+
+msgid "Sync available indexes from Pinecone"
+msgstr ""
+
+msgid "Qdrant URL"
+msgstr ""
+
+msgid "Enter your Qdrant endpoint."
+msgstr ""
+
+msgid "Enter your Qdrant URL"
+msgstr ""
+
+msgid "Qdrant API Key"
+msgstr ""
+
+msgid "Enter your Qdrant API key."
+msgstr ""
+
+msgid "Select a Qdrant collection."
+msgstr ""
+
+msgid "No collections synced yet."
+msgstr ""
+
+msgid "Sync available collections from Qdrant"
+msgstr ""
+
+msgid "Enter your Pexels API key."
+msgstr ""
+
+msgid "Enter your Pixabay API key."
+msgstr ""
+
 msgid "Choose the default model."
 msgstr ""
 
@@ -4836,12 +4938,6 @@ msgstr ""
 msgid "Choose the default AI provider."
 msgstr ""
 
-msgid "Use this for external API requests."
-msgstr ""
-
-msgid "REST API docs"
-msgstr ""
-
 msgid "Harassment"
 msgstr ""
 
@@ -4940,15 +5036,6 @@ msgid "Hide user uploads"
 msgstr ""
 
 msgid "Show index button"
-msgstr ""
-
-msgid "Pinecone API Key"
-msgstr ""
-
-msgid "Qdrant URL"
-msgstr ""
-
-msgid "Qdrant API Key"
 msgstr ""
 
 msgid "Avg chars per token"
@@ -10558,6 +10645,12 @@ msgstr ""
 msgid "Bot reply action is missing the message template."
 msgstr ""
 
+msgid "Webhook body template is not valid JSON after processing placeholders."
+msgstr ""
+
+msgid "Webhook body template could not be encoded as JSON after placeholder processing."
+msgstr ""
+
 msgid "Webhook endpoint URL is required."
 msgstr ""
 
@@ -10565,9 +10658,6 @@ msgid "Invalid HTTP method for webhook."
 msgstr ""
 
 msgid "Invalid or unsafe webhook URL after processing placeholders."
-msgstr ""
-
-msgid "Webhook body template is not valid JSON after processing placeholders."
 msgstr ""
 
 msgid "Webhook request failed: "
@@ -11771,6 +11861,9 @@ msgid "Purchase History for"
 msgstr ""
 
 msgid "Show less"
+msgstr ""
+
+msgid "Webhook placeholders: {{submitted_data_json}}, {{submitted_data_display_json}}, {{submitted_data_labels_json}}, {{submitted.field_id}}, {{submitted_display.field_id}}, {{submitted_label.field_id}}."
 msgstr ""
 
 msgid "Add Form Element"

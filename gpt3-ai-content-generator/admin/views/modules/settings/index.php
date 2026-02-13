@@ -1,7 +1,4 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/settings/index.php
-// Status: MODIFIED
-// I have added hidden divs to store Pinecone and Qdrant data for the Semantic Search UI.
 /**
  * AIPKit Global Settings Module
  */
@@ -55,8 +52,18 @@ $azure_data      = AIPKit_Providers::get_provider_data('Azure');
 $claude_data     = AIPKit_Providers::get_provider_data('Claude');
 $deepseek_data   = AIPKit_Providers::get_provider_data('DeepSeek');
 $ollama_data     = AIPKit_Providers::get_provider_data('Ollama');
+$elevenlabs_data = AIPKit_Providers::get_provider_data('ElevenLabs');
+$replicate_data  = AIPKit_Providers::get_provider_data('Replicate');
+$pexels_data     = AIPKit_Providers::get_provider_data('Pexels');
+$pixabay_data    = AIPKit_Providers::get_provider_data('Pixabay');
 $pinecone_data   = AIPKit_Providers::get_provider_data('Pinecone');
 $qdrant_data     = AIPKit_Providers::get_provider_data('Qdrant');
+
+$elevenlabs_voice_list = AIPKit_Providers::get_elevenlabs_voices();
+$elevenlabs_model_list = AIPKit_Providers::get_elevenlabs_models();
+$replicate_model_list  = AIPKit_Providers::get_replicate_models();
+$pinecone_index_list   = AIPKit_Providers::get_pinecone_indexes();
+$qdrant_collection_list = AIPKit_Providers::get_qdrant_collections();
 
 $temperature       = $ai_params['temperature'];
 $top_p             = $ai_params['top_p'];
@@ -91,7 +98,10 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
                 <button type="button" class="aipkit_settings_page_nav_link is-active" data-aipkit-settings-page-link="ai">
                     <?php esc_html_e('AI', 'gpt3-ai-content-generator'); ?>
                 </button>
-                <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="rest-api">
+                <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="integrations">
+                    <?php esc_html_e('Integrations', 'gpt3-ai-content-generator'); ?>
+                </button>
+                <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="api">
                     <?php esc_html_e('REST API', 'gpt3-ai-content-generator'); ?>
                 </button>
                 <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="others">
@@ -116,14 +126,25 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
                 </div>
             </section>
 
-            <section class="aipkit_settings_page_section" data-aipkit-settings-page="rest-api" hidden>
+            <section class="aipkit_settings_page_section" data-aipkit-settings-page="integrations" hidden>
                 <header class="aipkit_settings_page_header">
-                    <h3 class="aipkit_settings_page_title"><?php esc_html_e('REST API Settings', 'gpt3-ai-content-generator'); ?></h3>
-                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Configure external access to AIPKit via REST API key.', 'gpt3-ai-content-generator'); ?></p>
+                    <h3 class="aipkit_settings_page_title"><?php esc_html_e('Integrations', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Manage API keys and sync controls for connected providers.', 'gpt3-ai-content-generator'); ?></p>
                 </header>
 
-                <div class="aipkit_settings_simple_form aipkit_settings_simple_form--rest-api">
-                    <?php include __DIR__ . '/partials/settings-rest-api-page.php'; ?>
+                <div class="aipkit_settings_simple_form aipkit_settings_simple_form--integrations">
+                    <?php include __DIR__ . '/partials/settings-integrations-page.php'; ?>
+                </div>
+            </section>
+
+            <section class="aipkit_settings_page_section" data-aipkit-settings-page="api" hidden>
+                <header class="aipkit_settings_page_header">
+                    <h3 class="aipkit_settings_page_title"><?php esc_html_e('REST API Settings', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Manage REST API access for external applications.', 'gpt3-ai-content-generator'); ?></p>
+                </header>
+
+                <div class="aipkit_settings_simple_form aipkit_settings_simple_form--api">
+                    <?php include __DIR__ . '/partials/settings-api-page.php'; ?>
                 </div>
             </section>
 

@@ -151,7 +151,23 @@ $available_count = count($available_modules);
             <section class="aipkit_home_panel aipkit_home_panel--setup">
                 <h3 class="aipkit_home_panel_title"><?php esc_html_e('Quick Setup', 'gpt3-ai-content-generator'); ?></h3>
                 <ol class="aipkit_home_steps">
-                    <li><?php esc_html_e('Go to Settings.', 'gpt3-ai-content-generator'); ?></li>
+                    <li>
+                        <?php
+                        $settings_link = '<a href="#" data-aipkit-open-module="settings">' . esc_html__('Settings', 'gpt3-ai-content-generator') . '</a>';
+                        echo wp_kses(
+                            sprintf(
+                                __('Go to %s.', 'gpt3-ai-content-generator'),
+                                $settings_link
+                            ),
+                            [
+                                'a' => [
+                                    'href' => [],
+                                    'data-aipkit-open-module' => [],
+                                ],
+                            ]
+                        );
+                        ?>
+                    </li>
                     <li><?php esc_html_e('Select your provider and enter your API key.', 'gpt3-ai-content-generator'); ?></li>
                     <li><?php esc_html_e('Open any module and start using.', 'gpt3-ai-content-generator'); ?></li>
                 </ol>
