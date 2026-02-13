@@ -107,7 +107,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                 <button type="button" id="aipkit_preview_ai_form_btn" class="aipkit_btn aipkit_btn-secondary" disabled>
                     <span class="aipkit_btn-text"><?php esc_html_e('Preview', 'gpt3-ai-content-generator'); ?></span>
                 </button>
-                <button type="button" id="aipkit_cancel_edit_ai_form_btn" class="aipkit_btn aipkit_btn-secondary">
+                <button type="button" id="aipkit_cancel_edit_ai_form_btn" class="aipkit_btn aipkit_btn-danger">
                     <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
                 </button>
             </div>

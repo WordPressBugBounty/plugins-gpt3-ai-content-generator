@@ -10,6 +10,35 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Determine whether a saved nested form structure contains any field elements.
+ *
+ * @param mixed $structure
+ * @return bool
+ */
+function aipkit_structure_has_elements($structure): bool
+{
+    if (!is_array($structure) || empty($structure)) {
+        return false;
+    }
+
+    foreach ($structure as $row) {
+        if (!is_array($row) || empty($row['columns']) || !is_array($row['columns'])) {
+            continue;
+        }
+        foreach ($row['columns'] as $column) {
+            if (!is_array($column) || empty($column['elements']) || !is_array($column['elements'])) {
+                continue;
+            }
+            if (!empty($column['elements'])) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
  * Logic for saving AI Form settings.
  *
  * @param \WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $storageInstance The instance of the storage class.
@@ -26,6 +55,14 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
         $structure_json = $settings['form_structure'];
         $decoded_structure = json_decode($structure_json, true);
         if (is_array($decoded_structure)) {
+            $allow_empty_structure = !empty($settings['allow_empty_structure']);
+            if (!$allow_empty_structure && !aipkit_structure_has_elements($decoded_structure)) {
+                $existing_structure_json = get_post_meta($form_id, '_aipkit_ai_form_structure', true);
+                $existing_structure = json_decode((string) $existing_structure_json, true);
+                if (is_array($existing_structure) && aipkit_structure_has_elements($existing_structure)) {
+                    return false;
+                }
+            }
             update_post_meta($form_id, '_aipkit_ai_form_structure', wp_kses_post($structure_json));
         }
     }

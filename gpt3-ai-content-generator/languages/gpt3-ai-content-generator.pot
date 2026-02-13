@@ -2,20 +2,20 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer 2.3.74\n"
+"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.75\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-12T14:25:34+00:00\n"
+"POT-Creation-Date: 2026-02-13T13:01:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
 
 #. Plugin Name of the plugin
-msgid "AI Puffer"
+msgid "AI Puffer – Your AI engine for WordPress (formerly AI Power)"
 msgstr ""
 
 #. Description of the plugin
@@ -107,10 +107,16 @@ msgstr ""
 msgid "Invalid form structure data submitted."
 msgstr ""
 
+msgid "This form currently has no fields. Confirm saving to overwrite and remove the existing fields."
+msgstr ""
+
 msgid "Form title cannot be empty."
 msgstr ""
 
 msgid "Prompt template is required."
+msgstr ""
+
+msgid "Unable to save form settings."
 msgstr ""
 
 msgid "Form updated successfully."
@@ -162,6 +168,9 @@ msgid "Are you sure you want to delete ALL forms? This action cannot be undone."
 msgstr ""
 
 msgid "Form title is required."
+msgstr ""
+
+msgid "This form currently has no fields. Saving now will remove previously configured fields. Do you want to continue?"
 msgstr ""
 
 msgid "Edit AI Form"
@@ -8880,6 +8889,9 @@ msgstr ""
 msgid "Points upserted to Qdrant successfully."
 msgstr ""
 
+msgid "AI Puffer"
+msgstr ""
+
 msgid "You do not have permission to access this module."
 msgstr ""
 
@@ -10984,10 +10996,61 @@ msgstr ""
 msgid "Error reading the selected file."
 msgstr ""
 
+msgid "Unsaved changes"
+msgstr ""
+
+msgid "Save Empty Form"
+msgstr ""
+
+msgid "Save cancelled."
+msgstr ""
+
+msgid "Auto-saving..."
+msgstr ""
+
+msgid "All changes saved"
+msgstr ""
+
 msgid "Save AI Forms Settings"
 msgstr ""
 
 msgid "Settings saved!"
+msgstr ""
+
+msgid "A local unsaved draft was found. Do you want to restore it?"
+msgstr ""
+
+msgid "Restore local unsaved draft?"
+msgstr ""
+
+msgid "Restore Draft"
+msgstr ""
+
+msgid "Restore"
+msgstr ""
+
+msgid "Discard"
+msgstr ""
+
+msgid "Recovered local draft"
+msgstr ""
+
+msgid "You have unsaved AI Form changes. Choose what to do before leaving."
+msgstr ""
+
+msgid "Unsaved Changes"
+msgstr ""
+
+msgid "Save and Leave"
+msgstr ""
+
+msgid "Leave Without Saving"
+msgstr ""
+
+msgid "Stay"
+msgstr ""
+
+msgid "Leave without saving your recent changes?"
 msgstr ""
 
 msgid "You must save the form before you can preview it."
@@ -11576,9 +11639,6 @@ msgid "No content types found. Please add content and try again."
 msgstr ""
 
 msgid "Failed to load content types."
-msgstr ""
-
-msgid "Auto-saving..."
 msgstr ""
 
 msgid "Complete semantic search settings before running a demo."

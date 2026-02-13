@@ -71,7 +71,7 @@ if (!defined('ABSPATH')) {
             <!-- Snippets will be injected here by JS -->
         </div>
         <div class="aipkit_prompt_validation_area">
-            <button type="button" id="aipkit_validate_prompt_btn" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small">
+            <button type="button" id="aipkit_validate_prompt_btn" class="aipkit_btn aipkit_btn-secondary">
                 <span class="dashicons dashicons-editor-spellcheck"></span>
                 <span class="aipkit_btn-text"><?php esc_html_e('Validate Prompt', 'gpt3-ai-content-generator'); ?></span>
             </button>

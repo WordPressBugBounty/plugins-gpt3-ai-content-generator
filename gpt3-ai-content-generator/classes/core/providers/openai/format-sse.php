@@ -189,7 +189,7 @@ function format_sse_logic_for_payload_formatter(
     // --- END NEW ---
     // --- NEW: Unset unsupported parameters for specific models ---
     $model_lower = strtolower($model);
-    if (AIPKit_OpenAI_Reasoning::supports_reasoning($model_lower)) {
+    if (!AIPKit_OpenAI_Reasoning::supports_sampling_controls($model_lower)) {
         unset($body_data['temperature'], $body_data['top_p'], $body_data['frequency_penalty'], $body_data['presence_penalty']);
     }
     // --- END NEW ---

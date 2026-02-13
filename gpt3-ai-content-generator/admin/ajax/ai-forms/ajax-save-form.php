@@ -11,6 +11,35 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Check whether the nested AI Form structure has at least one configured field.
+ *
+ * @param mixed $structure
+ * @return bool
+ */
+function aipkit_aiform_structure_has_elements($structure): bool
+{
+    if (!is_array($structure) || empty($structure)) {
+        return false;
+    }
+
+    foreach ($structure as $row) {
+        if (!is_array($row) || empty($row['columns']) || !is_array($row['columns'])) {
+            continue;
+        }
+        foreach ($row['columns'] as $column) {
+            if (!is_array($column) || empty($column['elements']) || !is_array($column['elements'])) {
+                continue;
+            }
+            if (!empty($column['elements'])) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
  * Handles the logic for saving an AI form.
  * Called by AIPKit_AI_Form_Ajax_Handler::ajax_save_ai_form().
  *
@@ -31,6 +60,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $post_data = wp_unslash($_POST);
 
     $form_id = isset($post_data['form_id']) && !empty($post_data['form_id']) ? absint($post_data['form_id']) : null;
+    $allow_empty_structure = isset($post_data['allow_empty_structure']) && $post_data['allow_empty_structure'] === '1';
     $title = isset($post_data['title']) ? sanitize_text_field($post_data['title']) : '';
     $prompt_template = isset($post_data['prompt_template']) ? sanitize_textarea_field($post_data['prompt_template']) : '';
     $form_structure_json = isset($post_data['form_structure']) ? wp_kses_post($post_data['form_structure']) : '[]';
@@ -161,6 +191,20 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         $handler_instance->send_wp_error(new WP_Error('invalid_structure_json', __('Invalid form structure data submitted.', 'gpt3-ai-content-generator')), 400);
         return;
     }
+    if ($form_id && !$allow_empty_structure && !aipkit_aiform_structure_has_elements($decoded_structure)) {
+        $existing_structure_json = get_post_meta($form_id, '_aipkit_ai_form_structure', true);
+        $existing_structure = json_decode((string) $existing_structure_json, true);
+        if (is_array($existing_structure) && aipkit_aiform_structure_has_elements($existing_structure)) {
+            $handler_instance->send_wp_error(
+                new WP_Error(
+                    'empty_structure_confirmation_required',
+                    __('This form currently has no fields. Confirm saving to overwrite and remove the existing fields.', 'gpt3-ai-content-generator')
+                ),
+                400
+            );
+            return;
+        }
+    }
 
     if (empty($title)) {
         $handler_instance->send_wp_error(new WP_Error('title_required', __('Form title cannot be empty.', 'gpt3-ai-content-generator')), 400);
@@ -221,6 +265,8 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         // Google Search Grounding sub-settings
         'google_grounding_mode' => $google_grounding_mode,
         'google_grounding_dynamic_threshold' => $google_grounding_dynamic_threshold,
+        // Save protection flags
+        'allow_empty_structure' => $allow_empty_structure,
         // Labels
         'labels' => $final_labels,
     ];
@@ -235,7 +281,11 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
             $handler_instance->send_wp_error($updated_post_id);
             return;
         }
-        $form_storage->save_form_settings($form_id, $settings);
+        $saved = $form_storage->save_form_settings($form_id, $settings);
+        if (!$saved) {
+            $handler_instance->send_wp_error(new WP_Error('save_failed', __('Unable to save form settings.', 'gpt3-ai-content-generator')), 500);
+            return;
+        }
         wp_send_json_success(['message' => __('Form updated successfully.', 'gpt3-ai-content-generator'), 'form_id' => $form_id]);
     } else {
         $result = $form_storage->create_form($title, $settings);

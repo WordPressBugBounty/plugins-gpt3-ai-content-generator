@@ -125,6 +125,7 @@ class AIPKit_AI_Forms_Assets
         wp_localize_script($admin_main_js_handle, 'aipkit_ai_forms_config', [
             'nonce_manage_forms' => wp_create_nonce('aipkit_manage_ai_forms_nonce'),
             'nonce_settings' => wp_create_nonce('aipkit_ai_forms_settings_nonce'),
+            'current_user_id' => get_current_user_id(),
             // --- NEW: Add vector data ---
             'vectorStores' => [
                 'openai' => $openai_vector_stores,
@@ -155,6 +156,7 @@ class AIPKit_AI_Forms_Assets
                 'confirmDeleteAllForms' => __('Are you sure you want to delete ALL forms? This action cannot be undone.', 'gpt3-ai-content-generator'),
                 'formTitleRequired' => __('Form title is required.', 'gpt3-ai-content-generator'),
                 'promptTemplateRequired' => __('Prompt template is required.', 'gpt3-ai-content-generator'),
+                'confirmSaveEmptyForm' => __('This form currently has no fields. Saving now will remove previously configured fields. Do you want to continue?', 'gpt3-ai-content-generator'),
                 'editFormTitle' => __('Edit AI Form', 'gpt3-ai-content-generator'),
                 'createNewFormTitle' => __('Create New AI Form', 'gpt3-ai-content-generator'),
                 'confirmDeleteElement' => __('Are you sure you want to delete this form element?', 'gpt3-ai-content-generator'),

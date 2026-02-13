@@ -52,6 +52,27 @@ class AIPKit_OpenAI_Reasoning
     }
 
     /**
+     * Returns true when sampling controls (temperature/top_p/penalties) are supported.
+     *
+     * GPT-5 chat variants (e.g. gpt-5.2-chat-latest) do not accept temperature.
+     * Reasoning-capable models also require these controls to be omitted.
+     */
+    public static function supports_sampling_controls(string $model): bool
+    {
+        $model_lower = strtolower($model);
+
+        if (self::supports_reasoning($model_lower)) {
+            return false;
+        }
+
+        if (strpos($model_lower, 'gpt-5') !== false && self::is_chat_variant($model_lower)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Normalize the reasoning effort for a given model.
      * Returns empty string when unsupported or invalid (so caller can omit).
      *
