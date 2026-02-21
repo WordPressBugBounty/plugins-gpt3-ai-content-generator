@@ -58,9 +58,20 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
         $final_options['model'] = 'dall-e-2';
     } elseif (empty($final_options['model']) && $provider_normalized === 'OpenRouter') {
         $openrouter_image_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openrouter_image_models() : [];
-        $first_openrouter_model = (is_array($openrouter_image_models) && !empty($openrouter_image_models[0]['id']))
-            ? sanitize_text_field((string) $openrouter_image_models[0]['id'])
-            : '';
+        $first_openrouter_model = '';
+        if (is_array($openrouter_image_models) && !empty($openrouter_image_models)) {
+            foreach ($openrouter_image_models as $openrouter_model) {
+                if (!is_array($openrouter_model) || empty($openrouter_model['id'])) {
+                    continue;
+                }
+                $candidate_id = sanitize_text_field((string) $openrouter_model['id']);
+                if ($candidate_id === '' || in_array($candidate_id, ['openrouter/auto', 'auto'], true)) {
+                    continue;
+                }
+                $first_openrouter_model = $candidate_id;
+                break;
+            }
+        }
         $final_options['model'] = $first_openrouter_model !== '' ? $first_openrouter_model : 'google/gemini-2.5-flash-image-preview';
     } elseif (empty($final_options['model']) && $provider_normalized === 'Google') {
         $final_options['model'] = 'gemini-2.0-flash-preview-image-generation';

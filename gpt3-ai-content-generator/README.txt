@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.76
+Stable tag: 2.3.77
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,11 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.77 =
+
+- **Fixed**: OpenRouter image selection now shows only models that can actually create images, and Content Writer/Automated Tasks no longer report image success when no image is created.
+- **Fixed**: OpenRouter now correctly creates the requested number of content images in Content Writer and Automated Tasks.
 
 = 2.3.76 =
 

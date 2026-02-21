@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.76\n"
+"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.77\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-13T20:01:00+00:00\n"
+"POT-Creation-Date: 2026-02-21T09:21:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -5456,6 +5456,26 @@ msgstr ""
 msgid "License is not active."
 msgstr ""
 
+msgid "Image generation returned no images."
+msgstr ""
+
+#. translators: 1: provider name, 2: model name
+msgid "Provider: %1$s, Model: %2$s."
+msgstr ""
+
+msgid "unknown provider"
+msgstr ""
+
+msgid "unknown model"
+msgstr ""
+
+msgid "Image generation component is missing."
+msgstr ""
+
+#. translators: %s: warning details about image generation
+msgid "Image generation warning: %s"
+msgstr ""
+
 msgid "Google Sheets integration is a Pro feature or its components are missing."
 msgstr ""
 
@@ -6094,6 +6114,9 @@ msgid "Google Sheet ID and Credentials are required."
 msgstr ""
 
 msgid "(Untitled)"
+msgstr ""
+
+msgid "Image generation did not return any image data for the selected provider/model."
 msgstr ""
 
 msgid "You do not have permission to use this feature."

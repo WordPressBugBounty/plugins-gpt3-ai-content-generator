@@ -449,8 +449,34 @@ class AIPKit_Content_Writer_Image_Handler
                 'param_x' => absint($settings['image_placement_param_x'] ?? 2)
             ]
         ];
+        $image_warnings = [];
+        $append_image_warning = static function (array &$warnings, string $message): void {
+            $message = trim(wp_strip_all_tags($message));
+            if ($message === '' || in_array($message, $warnings, true)) {
+                return;
+            }
+            $warnings[] = $message;
+        };
 
         $current_user_id = get_current_user_id() ?: 1;
+        $resolved_image_model = sanitize_text_field((string) ($settings['image_model'] ?? 'gpt-image-1'));
+
+        if ($image_provider === 'openrouter' && in_array($resolved_image_model, ['', 'openrouter/auto', 'auto'], true)) {
+            $openrouter_image_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openrouter_image_models() : [];
+            if (is_array($openrouter_image_models) && !empty($openrouter_image_models)) {
+                foreach ($openrouter_image_models as $openrouter_model) {
+                    if (!is_array($openrouter_model) || empty($openrouter_model['id'])) {
+                        continue;
+                    }
+                    $candidate_id = sanitize_text_field((string) $openrouter_model['id']);
+                    if ($candidate_id === '' || in_array($candidate_id, ['openrouter/auto', 'auto'], true)) {
+                        continue;
+                    }
+                    $resolved_image_model = $candidate_id;
+                    break;
+                }
+            }
+        }
 
         if ($is_stock_provider) {
             $num_to_fetch = 0;
@@ -507,6 +533,7 @@ class AIPKit_Content_Writer_Image_Handler
                     $this->pexels_image_cache = $stock_result['images']; // Reusing this cache variable name for simplicity
                 } else {
                     $error_msg = is_wp_error($stock_result) ? $stock_result->get_error_message() : "No images returned from {$image_provider} API.";
+                    $append_image_warning($image_warnings, $error_msg);
                 }
             }
 
@@ -534,7 +561,7 @@ class AIPKit_Content_Writer_Image_Handler
         // --- Original AI Generation Logic (for OpenAI, Google, etc.) ---
         // Main image generation
         if (!$is_stock_provider && $generate_in_content && $image_count > 0 && !empty($prompt_for_main_images)) {
-            $image_model = $settings['image_model'] ?? 'gpt-image-1';
+            $image_model = $resolved_image_model;
             $generation_options = [
                 'provider' => strtolower($settings['image_provider'] ?? 'openai'),
                 'model' => $image_model,
@@ -551,7 +578,9 @@ class AIPKit_Content_Writer_Image_Handler
                 $models_with_n_equals_1[] = $image_model; // handle all Gemini image-generation variants
             }
 
-            $force_single_image_requests = ($image_provider === 'replicate');
+            // OpenRouter routes often return a single image even when n > 1 is requested.
+            // Force one-by-one requests so requested image_count is consistently honored.
+            $force_single_image_requests = in_array($image_provider, ['replicate', 'openrouter'], true);
 
             if ($force_single_image_requests || in_array($image_model, $models_with_n_equals_1, true)) {
                 for ($i = 0; $i < $image_count; $i++) {
@@ -569,6 +598,7 @@ class AIPKit_Content_Writer_Image_Handler
                         $final_image_data['in_content_images'][] = $result['images'][0];
                     } else {
                         $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No images returned from API.';
+                        $append_image_warning($image_warnings, $error_msg);
                         // Log the error for debugging bulk mode issues
                         error_log("AIPKit Image Generation Error (Image #" . ($i + 1) . "): " . $error_msg . " | Model: " . $image_model . " | Provider: " . ($generation_options['provider'] ?? 'unknown'));
                     }
@@ -602,6 +632,7 @@ class AIPKit_Content_Writer_Image_Handler
                     }
                 } else {
                     $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No images returned from API.';
+                    $append_image_warning($image_warnings, $error_msg);
                     // Log the error for debugging bulk mode issues
                     error_log("AIPKit Image Generation Error (Batch): " . $error_msg . " | Model: " . $image_model . " | Provider: " . ($generation_options['provider'] ?? 'unknown') . " | Count: " . $image_count);
                 }
@@ -614,7 +645,7 @@ class AIPKit_Content_Writer_Image_Handler
             // which is correct behavior as it might use a different prompt.
             $generation_options = [
                 'provider' => strtolower($settings['image_provider'] ?? 'openai'),
-                'model' => $settings['image_model'] ?? 'gpt-image-1',
+                'model' => $resolved_image_model,
                 'n' => 1,
                 'size' => '1024x1024',
                 'response_format' => 'url',
@@ -643,10 +674,12 @@ class AIPKit_Content_Writer_Image_Handler
                     $final_image_data['featured_image_url'] = $featured_image_url;
                 }
                 if (empty($final_image_data['featured_image_id']) && empty($final_image_data['featured_image_url'])) {
+                    $append_image_warning($image_warnings, 'No featured image URL returned.');
                     error_log("AIPKit Featured Image Generation Error: No featured image URL returned. | Model: " . ($generation_options['model'] ?? 'unknown') . " | Provider: " . ($generation_options['provider'] ?? 'unknown'));
                 }
             } else {
                 $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No featured image returned.';
+                $append_image_warning($image_warnings, $error_msg);
                 // Log the error for debugging
                 error_log("AIPKit Featured Image Generation Error: " . $error_msg . " | Model: " . ($generation_options['model'] ?? 'unknown') . " | Provider: " . ($generation_options['provider'] ?? 'unknown'));
             }
@@ -661,6 +694,11 @@ class AIPKit_Content_Writer_Image_Handler
             $excerpt,
             $meta_topic
         );
+
+        if (!empty($image_warnings)) {
+            $final_image_data['warnings'] = $image_warnings;
+            $final_image_data['warning'] = $image_warnings[0];
+        }
 
         return $final_image_data;
     }

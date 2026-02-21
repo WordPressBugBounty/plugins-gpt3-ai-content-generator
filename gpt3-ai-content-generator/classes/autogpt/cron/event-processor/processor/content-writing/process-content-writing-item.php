@@ -128,7 +128,12 @@ function process_content_writing_item_logic(array $item_config): array
     // 4. Generate Images
     $image_data = null;
     $image_usage = null;
-    if ((($item_config['generate_images_enabled'] ?? '0') === '1' || ($item_config['generate_featured_image'] ?? '0') === '1') && class_exists(AIPKit_Content_Writer_Image_Handler::class)) {
+    $image_generation_warning = null;
+    $requested_inline_images = ($item_config['generate_images_enabled'] ?? '0') === '1' && absint($item_config['image_count'] ?? 0) > 0;
+    $requested_featured_image = ($item_config['generate_featured_image'] ?? '0') === '1';
+    $requested_any_image = $requested_inline_images || $requested_featured_image;
+
+    if ($requested_any_image && class_exists(AIPKit_Content_Writer_Image_Handler::class)) {
         $image_handler = new AIPKit_Content_Writer_Image_Handler();
         $keywords_for_images = !empty($item_config['inline_keywords']) ? $item_config['inline_keywords'] : ($item_config['content_keywords'] ?? '');
         $image_result = $image_handler->generate_and_prepare_images($item_config, $final_title, $keywords_for_images, $item_config['content_title']);
@@ -138,11 +143,56 @@ function process_content_writing_item_logic(array $item_config): array
             $error_details = $image_result->get_error_message();
             $error_code = $image_result->get_error_code();
             error_log("AIPKit AutoGPT Image Generation Failed: [{$error_code}] {$error_details} | Title: {$final_title} | Provider: " . ($item_config['image_provider'] ?? 'unknown') . " | Model: " . ($item_config['image_model'] ?? 'unknown'));
+            $image_generation_warning = $error_details;
         } else {
-            $image_data = $image_result;
+            $inline_count = !empty($image_result['in_content_images']) && is_array($image_result['in_content_images'])
+                ? count($image_result['in_content_images'])
+                : 0;
+            $has_featured = !empty($image_result['featured_image_id']) || !empty($image_result['featured_image_url']);
+            $generated_any_image = $inline_count > 0 || $has_featured;
+
+            if ($generated_any_image) {
+                $image_data = $image_result;
+            } else {
+                $provider = sanitize_text_field((string) ($item_config['image_provider'] ?? ''));
+                $model = sanitize_text_field((string) ($item_config['image_model'] ?? ''));
+                $warning_messages = [];
+                if (!empty($image_result['warnings']) && is_array($image_result['warnings'])) {
+                    foreach ($image_result['warnings'] as $warning_message) {
+                        $normalized_warning = trim(wp_strip_all_tags((string) $warning_message));
+                        if ($normalized_warning === '' || in_array($normalized_warning, $warning_messages, true)) {
+                            continue;
+                        }
+                        $warning_messages[] = $normalized_warning;
+                    }
+                } elseif (!empty($image_result['warning']) && is_string($image_result['warning'])) {
+                    $normalized_warning = trim(wp_strip_all_tags($image_result['warning']));
+                    if ($normalized_warning !== '') {
+                        $warning_messages[] = $normalized_warning;
+                    }
+                }
+
+                if (!empty($warning_messages)) {
+                    $image_generation_warning = $warning_messages[0];
+                } else {
+                    $image_generation_warning = __('Image generation returned no images.', 'gpt3-ai-content-generator');
+                    if ($provider !== '' || $model !== '') {
+                        $image_generation_warning .= ' ' . sprintf(
+                            /* translators: 1: provider name, 2: model name */
+                            __('Provider: %1$s, Model: %2$s.', 'gpt3-ai-content-generator'),
+                            $provider !== '' ? $provider : __('unknown provider', 'gpt3-ai-content-generator'),
+                            $model !== '' ? $model : __('unknown model', 'gpt3-ai-content-generator')
+                        );
+                    }
+                }
+
+                error_log("AIPKit AutoGPT Image Generation Returned No Images | Title: {$final_title} | Provider: " . ($provider !== '' ? $provider : 'unknown') . " | Model: " . ($model !== '' ? $model : 'unknown') . " | Warning: " . $image_generation_warning);
+            }
             // The image handler does not currently return usage data.
             // $image_usage = $image_result['usage'] ?? null; // This line would be correct if handler returned usage
         }
+    } elseif ($requested_any_image) {
+        $image_generation_warning = __('Image generation component is missing.', 'gpt3-ai-content-generator');
     }
 
     // 5. Generate SEO Data
@@ -334,10 +384,19 @@ function process_content_writing_item_logic(array $item_config): array
             'ai_model'          => $item_config['ai_model'],
             'usage'             => $total_usage,
             'request_payload'   => ['item_config' => $item_config, 'prompts' => $prompts],
-            'response_data'     => ['post_id' => $new_post_id, 'title' => $final_title, 'meta' => $meta_description, 'keyword' => $focus_keyword, 'excerpt' => $excerpt, 'tags' => $tags] // ADDED tags
+            'response_data'     => ['post_id' => $new_post_id, 'title' => $final_title, 'meta' => $meta_description, 'keyword' => $focus_keyword, 'excerpt' => $excerpt, 'tags' => $tags, 'image_warning' => $image_generation_warning] // ADDED tags
         ];
         $log_storage->log_message($log_data);
     }
 
-    return ['status' => 'success', 'message' => 'Content generated and post created (ID: ' . $new_post_id . ').'];
+    $success_message = 'Content generated and post created (ID: ' . $new_post_id . ').';
+    if (!empty($image_generation_warning)) {
+        $success_message .= ' ' . sprintf(
+            /* translators: %s: warning details about image generation */
+            __('Image generation warning: %s', 'gpt3-ai-content-generator'),
+            $image_generation_warning
+        );
+    }
+
+    return ['status' => 'success', 'message' => $success_message];
 }

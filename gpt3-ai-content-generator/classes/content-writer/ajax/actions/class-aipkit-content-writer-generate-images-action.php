@@ -42,11 +42,66 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
         }
 
         $image_handler = new AIPKit_Content_Writer_Image_Handler();
-    $image_result = $image_handler->generate_and_prepare_images($settings, $final_title, $final_keywords, $original_topic);
+        $image_result = $image_handler->generate_and_prepare_images($settings, $final_title, $final_keywords, $original_topic);
 
         if (is_wp_error($image_result)) {
             $this->send_wp_error($image_result);
             return;
+        }
+
+        $requested_inline = ($settings['generate_images_enabled'] ?? '0') === '1' && absint($settings['image_count'] ?? 0) > 0;
+        $requested_featured = ($settings['generate_featured_image'] ?? '0') === '1';
+        $requested_any_image = $requested_inline || $requested_featured;
+        $inline_count = !empty($image_result['in_content_images']) && is_array($image_result['in_content_images'])
+            ? count($image_result['in_content_images'])
+            : 0;
+        $has_featured = !empty($image_result['featured_image_id']) || !empty($image_result['featured_image_url']);
+        $generated_any_image = $inline_count > 0 || $has_featured;
+        $warning_messages = [];
+        if (!empty($image_result['warnings']) && is_array($image_result['warnings'])) {
+            foreach ($image_result['warnings'] as $warning_message) {
+                $normalized_warning = trim(wp_strip_all_tags((string) $warning_message));
+                if ($normalized_warning === '' || in_array($normalized_warning, $warning_messages, true)) {
+                    continue;
+                }
+                $warning_messages[] = $normalized_warning;
+            }
+        } elseif (!empty($image_result['warning']) && is_string($image_result['warning'])) {
+            $normalized_warning = trim(wp_strip_all_tags($image_result['warning']));
+            if ($normalized_warning !== '') {
+                $warning_messages[] = $normalized_warning;
+            }
+        }
+
+        if ($requested_any_image && !$generated_any_image && empty($warning_messages)) {
+            $provider = isset($settings['image_provider']) ? sanitize_text_field((string) $settings['image_provider']) : '';
+            $model = isset($settings['image_model']) ? sanitize_text_field((string) $settings['image_model']) : '';
+            $fallback_warning = __('Image generation did not return any image data for the selected provider/model.', 'gpt3-ai-content-generator');
+            if ($provider !== '' || $model !== '') {
+                $fallback_warning .= ' ' . sprintf(
+                    /* translators: 1: provider name, 2: model name */
+                    __('Provider: %1$s, Model: %2$s.', 'gpt3-ai-content-generator'),
+                    $provider !== '' ? $provider : __('unknown provider', 'gpt3-ai-content-generator'),
+                    $model !== '' ? $model : __('unknown model', 'gpt3-ai-content-generator')
+                );
+            }
+            $warning_messages[] = $fallback_warning;
+        }
+
+        if (!empty($warning_messages)) {
+            $image_result['warnings'] = $warning_messages;
+            $image_result['warning'] = $warning_messages[0];
+        }
+
+        if ($requested_any_image && !$generated_any_image && !empty($warning_messages)) {
+            $provider_for_log = isset($settings['image_provider']) ? sanitize_text_field((string) $settings['image_provider']) : 'unknown';
+            $model_for_log = isset($settings['image_model']) ? sanitize_text_field((string) $settings['image_model']) : 'unknown';
+            error_log(
+                'AIPKit Content Writer Image Generation Skipped'
+                . ' | Provider: ' . ($provider_for_log !== '' ? $provider_for_log : 'unknown')
+                . ' | Model: ' . ($model_for_log !== '' ? $model_for_log : 'unknown')
+                . ' | Warning: ' . $warning_messages[0]
+            );
         }
 
         // --- START FIX: Strip b64_json from response to prevent 413 "Request Entity Too Large" on subsequent saves ---
@@ -106,15 +161,15 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
             }
 
             // Log the user intent
-        $this->log_storage->log_message(array_merge($base, [
+            $this->log_storage->log_message(array_merge($base, [
                 'message_role' => 'user',
                 'message_content' => 'Generate Images',
                 'request_payload' => [
                     'original_topic' => $original_topic,
                     'final_title' => $final_title,
                     'keywords' => $final_keywords,
-            'image_prompt' => isset($settings['image_prompt']) ? (string) $settings['image_prompt'] : null,
-            'featured_image_prompt' => isset($settings['featured_image_prompt']) ? (string) $settings['featured_image_prompt'] : null,
+                    'image_prompt' => isset($settings['image_prompt']) ? (string) $settings['image_prompt'] : null,
+                    'featured_image_prompt' => isset($settings['featured_image_prompt']) ? (string) $settings['featured_image_prompt'] : null,
                     'generate_images_enabled' => $generate_in_content ? 1 : 0,
                     'image_count' => $image_count,
                     'generate_featured_image' => $generate_featured ? 1 : 0,
@@ -128,12 +183,14 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
             // Log the result with compact metadata
             $this->log_storage->log_message(array_merge($base, [
                 'message_role' => 'bot',
-                'message_content' => 'Images Generated',
+                'message_content' => $generated_any_image ? 'Images Generated' : 'Images Skipped',
                 'usage' => null,
                 'request_payload' => [
                     'result_summary' => [
                         'inline_count' => count($inline_images_meta),
                         'featured_present' => !empty($featured_meta),
+                        'warning' => $image_result['warning'] ?? null,
+                        'warnings' => $image_result['warnings'] ?? [],
                     ],
                     'images' => [
                         'inline' => $inline_images_meta,

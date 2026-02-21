@@ -84,6 +84,9 @@ function sanitize_capabilities_payload_logic(mixed $capabilities): array {
  */
 function resolve_model_capabilities_from_metadata_logic(array $metadata): array {
     $resolved = get_capability_map_logic();
+    // Model-level image output should be opt-in from model metadata signals.
+    $resolved['image_output'] = false;
+    $resolved['image_generation'] = false;
 
     // If model already contains normalized capability payload, use it as base.
     $stored_capabilities = sanitize_capabilities_payload_logic($metadata['capabilities'] ?? null);
@@ -167,24 +170,50 @@ function resolve_model_capabilities_from_metadata_logic(array $metadata): array 
         $resolved['web_search_plugin'] = true;
     }
 
-    // Backward-compatible fallback for legacy sync payloads with no modality/features.
-    if (
-        empty($input_modalities)
-        && empty($output_modalities)
-        && empty($supported_features)
-        && empty($supported_parameters)
-        && !empty($metadata['id'])
-    ) {
-        $model_id_l = strtolower((string) $metadata['id']);
-        $looks_like_image_model = strpos($model_id_l, 'image') !== false
-            || strpos($model_id_l, 'flux') !== false
-            || strpos($model_id_l, 'stable-diffusion') !== false
-            || strpos($model_id_l, 'sdxl') !== false
-            || strpos($model_id_l, 'riverflow') !== false;
-        if ($looks_like_image_model) {
-            $resolved['image_output'] = true;
-            $resolved['image_generation'] = true;
-        }
+    // Resolve image output strictly:
+    // - If explicit image metadata exists (output modalities or features), trust it.
+    // - Otherwise, use conservative legacy heuristics (model id/name patterns + Auto Router).
+    $supports_image_output_by_modality = in_array('image', $output_modalities, true)
+        || in_array('image_url', $output_modalities, true)
+        || in_array('output_image', $output_modalities, true);
+
+    $supports_image_generation_by_feature = in_array('image_generation', $supported_features, true)
+        || in_array('image-generation', $supported_features, true)
+        || in_array('image_output', $supported_features, true)
+        || in_array('image-output', $supported_features, true);
+
+    $model_id_l = strtolower((string) ($metadata['id'] ?? ''));
+    $model_name_l = strtolower((string) ($metadata['name'] ?? ''));
+    $image_haystack = trim($model_id_l . ' ' . $model_name_l);
+    $is_auto_router = $model_id_l === 'openrouter/auto'
+        || $model_id_l === 'auto'
+        || strpos($model_id_l, 'auto-router') !== false
+        || strpos($model_name_l, 'auto router') !== false;
+
+    $looks_like_image_model = strpos($image_haystack, 'image') !== false
+        || strpos($image_haystack, 'dall-e') !== false
+        || strpos($image_haystack, 'gpt-image') !== false
+        || strpos($image_haystack, 'flux') !== false
+        || strpos($image_haystack, 'stable-diffusion') !== false
+        || strpos($image_haystack, 'sdxl') !== false
+        || strpos($image_haystack, 'riverflow') !== false
+        || strpos($image_haystack, 'imagen') !== false
+        || strpos($image_haystack, 'nano banana') !== false
+        || strpos($image_haystack, 'nano-banana') !== false;
+
+    $has_explicit_image_metadata = !empty($output_modalities) || !empty($supported_features);
+    if ($is_auto_router) {
+        $supports_image = true;
+        $resolved['image_output'] = true;
+        $resolved['image_generation'] = true;
+    } elseif ($has_explicit_image_metadata) {
+        $supports_image = $supports_image_output_by_modality || $supports_image_generation_by_feature;
+        $resolved['image_output'] = $supports_image;
+        $resolved['image_generation'] = $supports_image;
+    } else {
+        $supports_image = $looks_like_image_model;
+        $resolved['image_output'] = $supports_image;
+        $resolved['image_generation'] = $supports_image;
     }
 
     // Keep aliases aligned.
