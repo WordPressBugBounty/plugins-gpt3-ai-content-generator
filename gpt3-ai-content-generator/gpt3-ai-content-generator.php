@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       AI Puffer – Your AI engine for WordPress (formerly AI Power)
  * Description:       Your AI engine for WordPress. Chat, write, automate, and generate — all in one workspace.
- * Version:           2.3.77
+ * Version:           2.3.78
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -22,7 +22,7 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.3.77' );
+define( 'WPAICG_VERSION', '2.3.78' );
 define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );

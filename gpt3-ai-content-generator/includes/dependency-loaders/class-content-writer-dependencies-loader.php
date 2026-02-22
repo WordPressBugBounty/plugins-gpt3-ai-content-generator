@@ -18,8 +18,10 @@ class Content_Writer_Dependencies_Loader
         $files_to_load = [
             $content_writer_base_path . 'ajax/class-aipkit-content-writer-base-ajax-action.php',
             $content_writer_base_path . 'class-aipkit-content-writer-prompts.php',
+            $content_writer_base_path . 'class-aipkit-content-writer-prompt-library-manager.php',
             $content_writer_base_path . 'class-aipkit-content-writer-template-manager.php',
             $content_writer_base_path . 'ajax/class-aipkit-content-writer-template-ajax-handler.php',
+            $content_writer_base_path . 'ajax/class-aipkit-content-writer-prompt-library-ajax-handler.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-init-stream-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-standard-generation-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-title-action.php',

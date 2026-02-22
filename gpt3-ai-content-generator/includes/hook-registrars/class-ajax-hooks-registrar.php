@@ -47,6 +47,7 @@ use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Parse_Csv_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Fetch_Posts_Action;
 // --- END MODIFICATION ---
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Template_Ajax_Handler;
+use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Prompt_Library_Ajax_Handler;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Ajax_Handler;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler; // NEW
 use WPAICG\Chat\Frontend\Ajax\ChatFormSubmissionAjaxHandler;
@@ -89,7 +90,8 @@ class Ajax_Hooks_Registrar
         ?SettingsAjaxHandler $settings_ajax_handler = null,
         ?ModelsAjaxHandler $models_ajax_handler = null,
         ?AIPKit_Realtime_Session_Ajax_Handler $realtime_session_ajax_handler = null,
-        ?AIPKit_Semantic_Search_Ajax_Handler $semantic_search_ajax_handler = null // ADDED
+        ?AIPKit_Semantic_Search_Ajax_Handler $semantic_search_ajax_handler = null, // ADDED
+        ?AIPKit_Content_Writer_Prompt_Library_Ajax_Handler $content_writer_prompt_library_ajax_handler = null
     ) {
         // --- MODIFIED: Instantiate new SEO action classes ---
         $content_writer_generate_meta_action = class_exists(AIPKit_Content_Writer_Generate_Meta_Action::class) ? new AIPKit_Content_Writer_Generate_Meta_Action() : null;
@@ -254,6 +256,18 @@ class Ajax_Hooks_Registrar
         add_action('wp_ajax_aipkit_delete_cw_template', [$content_writer_template_ajax_handler, 'ajax_delete_template']);
         add_action('wp_ajax_aipkit_list_cw_templates', [$content_writer_template_ajax_handler, 'ajax_list_templates']);
         add_action('wp_ajax_aipkit_reset_cw_starter_templates', [$content_writer_template_ajax_handler, 'ajax_reset_starter_templates']);
+        if ($content_writer_prompt_library_ajax_handler && method_exists($content_writer_prompt_library_ajax_handler, 'ajax_list_prompt_library')) {
+            add_action('wp_ajax_aipkit_list_prompt_library', [$content_writer_prompt_library_ajax_handler, 'ajax_list_prompt_library']);
+        }
+        if ($content_writer_prompt_library_ajax_handler && method_exists($content_writer_prompt_library_ajax_handler, 'ajax_create_prompt_library_item')) {
+            add_action('wp_ajax_aipkit_create_prompt_library_item', [$content_writer_prompt_library_ajax_handler, 'ajax_create_prompt_library_item']);
+        }
+        if ($content_writer_prompt_library_ajax_handler && method_exists($content_writer_prompt_library_ajax_handler, 'ajax_update_prompt_library_item')) {
+            add_action('wp_ajax_aipkit_update_prompt_library_item', [$content_writer_prompt_library_ajax_handler, 'ajax_update_prompt_library_item']);
+        }
+        if ($content_writer_prompt_library_ajax_handler && method_exists($content_writer_prompt_library_ajax_handler, 'ajax_delete_prompt_library_item')) {
+            add_action('wp_ajax_aipkit_delete_prompt_library_item', [$content_writer_prompt_library_ajax_handler, 'ajax_delete_prompt_library_item']);
+        }
 
         if (method_exists($content_writer_save_post_action, 'handle')) {
             add_action('wp_ajax_aipkit_content_writer_save_post', [$content_writer_save_post_action, 'handle']);

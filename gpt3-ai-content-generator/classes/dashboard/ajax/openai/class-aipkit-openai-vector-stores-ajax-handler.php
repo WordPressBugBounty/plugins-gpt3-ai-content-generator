@@ -101,7 +101,7 @@ class AIPKit_OpenAI_Vector_Stores_Ajax_Handler extends BaseDashboardAjaxHandler
     public function ajax_list_vector_stores_openai()
     {
         $permission_check = $this->check_any_module_access_permissions(
-            ['sources', 'chatbot'],
+            ['sources', 'chatbot', 'vector_content_indexer'],
             'aipkit_vector_store_nonce_openai'
         );
         if (is_wp_error($permission_check)) {

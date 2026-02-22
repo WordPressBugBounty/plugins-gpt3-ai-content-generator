@@ -38,6 +38,7 @@ use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Keyword_Act
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Parse_Csv_Action;
 // --- END MODIFICATION ---
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Template_Ajax_Handler;
+use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Prompt_Library_Ajax_Handler;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Ajax_Handler;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler; // NEW
 use WPAICG\Chat\Frontend\Ajax\ChatFormSubmissionAjaxHandler;
@@ -107,6 +108,7 @@ class AIPKit_Hook_Manager
         $content_writer_save_post_action = class_exists(AIPKit_Content_Writer_Save_Post_Action::class) ? new AIPKit_Content_Writer_Save_Post_Action() : null;
         $content_writer_create_task_action = class_exists(AIPKit_Content_Writer_Create_Task_Action::class) ? new AIPKit_Content_Writer_Create_Task_Action() : null;
         $content_writer_template_ajax_handler = class_exists(AIPKit_Content_Writer_Template_Ajax_Handler::class) ? new AIPKit_Content_Writer_Template_Ajax_Handler() : null;
+        $content_writer_prompt_library_ajax_handler = class_exists(AIPKit_Content_Writer_Prompt_Library_Ajax_Handler::class) ? new AIPKit_Content_Writer_Prompt_Library_Ajax_Handler() : null;
         $ai_form_ajax_handler = class_exists(AIPKit_AI_Form_Ajax_Handler::class) ? new AIPKit_AI_Form_Ajax_Handler() : null;
         $ai_form_settings_ajax_handler = class_exists(AIPKit_AI_Form_Settings_Ajax_Handler::class) ? new AIPKit_AI_Form_Settings_Ajax_Handler() : null; // NEW
         $settings_ajax_handler = class_exists(SettingsAjaxHandler::class) ? new SettingsAjaxHandler() : null;
@@ -199,7 +201,8 @@ class AIPKit_Hook_Manager
                 $settings_ajax_handler,
                 $models_ajax_handler,
                 $realtime_session_ajax_handler,
-                $semantic_search_ajax_handler // ADDED
+                $semantic_search_ajax_handler, // ADDED
+                $content_writer_prompt_library_ajax_handler
             );
         }
         // --- END MODIFICATION ---

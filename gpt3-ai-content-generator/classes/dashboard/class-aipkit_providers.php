@@ -118,11 +118,12 @@ class AIPKit_Providers
 
     private static $recommended_model_lists = [
         'OpenAI' => [
+            'gpt-5.2-chat-latest',
+            'gpt-5-mini',
             'gpt-4.1-mini',
             'gpt-4.1',
             'gpt-4o-mini',
             'gpt-4o',
-            'gpt-5-mini',
         ],
         'Google' => [
             'gemini-2.5-flash',
@@ -146,6 +147,7 @@ class AIPKit_Providers
             'z-ai/glm-4.7',
         ],
         'Claude' => [
+            'claude-sonnet-4-6',
             'claude-opus-4-6',
             'claude-opus-4-5-20251101',
             'claude-sonnet-4-5-20250929',

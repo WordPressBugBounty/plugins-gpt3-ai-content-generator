@@ -151,6 +151,7 @@ class AIPKit_Vector_Post_Processor_Assets
             wp_localize_script($admin_main_js_handle, 'aipkit_vpp_config', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce_index_posts' => wp_create_nonce('aipkit_index_posts_to_vector_store_nonce'),
+                'nonce_openai_store_list' => wp_create_nonce('aipkit_vector_store_nonce_openai'),
                 'post_type' => $post_type,
                 'openai_vector_stores' => $openai_vector_stores,
                 'pinecone_indexes' => $pinecone_indexes,

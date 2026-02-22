@@ -185,6 +185,7 @@ class PostEnhancerAssets
                 'nonce_process_text' => wp_create_nonce('aipkit_process_enhancer_text_nonce'),
                 'nonce_manage_templates' => wp_create_nonce('aipkit_content_writer_template_nonce'),
                 'nonce_manage_actions' => wp_create_nonce('aipkit_enhancer_actions_nonce'),
+                'nonce_prompt_library' => wp_create_nonce('aipkit_nonce'),
                 'default_ai_provider' => $default_ai_config['provider'] ?? 'N/A',
                 'default_ai_model' => $default_ai_config['model'] ?? 'N/A',
                 'default_ai_params' => $default_ai_params,

@@ -43,7 +43,28 @@ function extract_post_data_logic(): array
     });
 
     // --- ADDED: Extract image data and alignment ---
-    $sanitized['image_data'] = isset($raw_data['image_data']) && !empty($raw_data['image_data']) ? json_decode(wp_unslash($raw_data['image_data']), true) : null;
+    $sanitized['image_data'] = null;
+    if (isset($raw_data['image_data']) && $raw_data['image_data'] !== '') {
+        if (is_array($raw_data['image_data'])) {
+            $sanitized['image_data'] = $raw_data['image_data'];
+        } elseif (is_string($raw_data['image_data'])) {
+            $image_data_json = trim($raw_data['image_data']);
+            if ($image_data_json !== '') {
+                $decoded_image_data = json_decode($image_data_json, true);
+
+                // Fallback for payloads that might still be over-escaped by transport.
+                if (!is_array($decoded_image_data)) {
+                    $decoded_image_data = json_decode(stripslashes($image_data_json), true);
+                }
+
+                if (is_array($decoded_image_data)) {
+                    $sanitized['image_data'] = $decoded_image_data;
+                } else {
+                    error_log('AIPKit Content Writer Save Post: Failed to decode image_data JSON payload.');
+                }
+            }
+        }
+    }
     $sanitized['image_alignment'] = isset($raw_data['image_alignment']) ? sanitize_key($raw_data['image_alignment']) : 'none';
     $sanitized['image_size'] = isset($raw_data['image_size']) ? sanitize_key($raw_data['image_size']) : 'large';
     // --- END ADDED ---
