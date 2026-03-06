@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       AI Puffer – Your AI engine for WordPress (formerly AI Power)
  * Description:       Your AI engine for WordPress. Chat, write, automate, and generate — all in one workspace.
- * Version:           2.3.78
+ * Version:           2.3.79
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -22,7 +22,7 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.3.78' );
+define( 'WPAICG_VERSION', '2.3.79' );
 define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );
@@ -43,20 +43,21 @@ if ( function_exists( 'wpaicg_gacg_fs' ) ) {
                 // Include Freemius SDK.
                 require_once dirname( __FILE__ ) . '/vendor/freemius/start.php';
                 $wpaicg_gacg_fs = fs_dynamic_init( array(
-                    'id'             => '11606',
-                    'slug'           => 'gpt3-ai-content-generator',
-                    'type'           => 'plugin',
-                    'public_key'     => 'pk_374fe2f12f24f09286bc6f89cd0c6',
-                    'is_premium'     => false,
-                    'premium_suffix' => 'Pro',
-                    'has_addons'     => false,
-                    'has_paid_plans' => true,
-                    'menu'           => array(
+                    'id'               => '11606',
+                    'slug'             => 'gpt3-ai-content-generator',
+                    'type'             => 'plugin',
+                    'public_key'       => 'pk_374fe2f12f24f09286bc6f89cd0c6',
+                    'is_premium'       => false,
+                    'premium_suffix'   => 'Pro',
+                    'has_addons'       => false,
+                    'has_paid_plans'   => true,
+                    'menu'             => array(
                         'slug'       => 'wpaicg',
                         'first-path' => 'admin.php?page=wpaicg',
                         'support'    => false,
                     ),
-                    'is_live'        => true,
+                    'is_live'          => true,
+                    'is_org_compliant' => true,
                 ) );
             }
             return $wpaicg_gacg_fs;
