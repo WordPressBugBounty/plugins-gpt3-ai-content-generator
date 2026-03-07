@@ -53,7 +53,7 @@ $tools_master_options = [
     ],
     'image_generation' => [
         'label'    => __('Image generation', 'gpt3-ai-content-generator'),
-        'enabled'  => false,
+        'enabled'  => ($enable_image_generation ?? '0') === '1',
         'disabled' => false,
     ],
     'speech_to_text' => [
@@ -247,7 +247,7 @@ if ($image_model_dropdown_label === '') {
         </div>
     </div>
 
-    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_tools_feature_row--image-generation aipkit_tools_feature_row--is-hidden" data-aipkit-tool-key="image_generation">
+    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_tools_feature_row--image-generation<?php echo (($enable_image_generation ?? '0') === '1') ? '' : ' aipkit_tools_feature_row--is-hidden'; ?>" data-aipkit-tool-key="image_generation">
         <div class="aipkit_tools_feature_left">
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
@@ -390,12 +390,13 @@ if ($image_model_dropdown_label === '') {
             </select>
             <select
                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_image_generation_visibility_tools"
+                name="enable_image_generation"
                 class="aipkit_form-input aipkit_popover_option_select aipkit_tools_image_generation_toggle aipkit_tools_image_model_hidden_select"
                 aria-hidden="true"
                 tabindex="-1"
             >
-                <option value="1"><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
-                <option value="0" selected="selected"><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                <option value="1" <?php selected($enable_image_generation ?? '0', '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                <option value="0" <?php selected($enable_image_generation ?? '0', '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
             </select>
             <div
                 id="aipkit_chat_image_replicate_key_popover_tools_<?php echo esc_attr($bot_id); ?>"

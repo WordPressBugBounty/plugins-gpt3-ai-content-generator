@@ -118,6 +118,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_stt_azure_model_id', $sanitized_settings['stt_azure_model_id']);
     update_post_meta($botId, '_aipkit_image_triggers', $sanitized_settings['image_triggers']);
     update_post_meta($botId, '_aipkit_chat_image_model_id', $sanitized_settings['chat_image_model_id']);
+    update_post_meta($botId, '_aipkit_enable_image_generation', $sanitized_settings['enable_image_generation']);
     update_post_meta($botId, '_aipkit_enable_file_upload', $sanitized_settings['enable_file_upload']);
     update_post_meta($botId, '_aipkit_enable_image_upload', $sanitized_settings['enable_image_upload']);
     update_post_meta($botId, '_aipkit_enable_vector_store', $sanitized_settings['enable_vector_store']);

@@ -230,6 +230,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $triggers_array = array_filter($triggers_array, function ($trigger) { return !empty($trigger) && preg_match('/^\/[a-zA-Z0-9_]+$/', $trigger); });
     $sanitized['image_triggers'] = !empty($triggers_array) ? implode(',', $triggers_array) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
     $sanitized['chat_image_model_id'] = isset($raw_settings['chat_image_model_id']) ? sanitize_text_field($raw_settings['chat_image_model_id']) : BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
+    $sanitized['enable_image_generation'] = (isset($raw_settings['enable_image_generation']) && $raw_settings['enable_image_generation'] === '1') ? '1' : '0';
     $sanitized['enable_file_upload'] = (isset($raw_settings['enable_file_upload']) && $raw_settings['enable_file_upload'] === '1') ? '1' : '0';
     $sanitized['enable_image_upload'] = (isset($raw_settings['enable_image_upload']) && $raw_settings['enable_image_upload'] === '1') ? '1' : '0';
     $sanitized['enable_vector_store'] = (isset($raw_settings['enable_vector_store']) && $raw_settings['enable_vector_store'] === '1') ? '1' : '0';

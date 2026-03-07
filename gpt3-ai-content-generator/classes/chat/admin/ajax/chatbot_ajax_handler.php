@@ -12,7 +12,7 @@ use WPAICG\Chat\Storage\DefaultBotSetup;
 use WPAICG\Chat\Storage\BotSettingsManager;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Chat\Storage\SiteWideBotManager;
-use WPAICG\Chat\Frontend\Shortcode; // Needed for get_chatbot_shortcode
+use WPAICG\Chat\Frontend\Shortcode;
 use WPAICG\Chat\Admin\AdminSetup; // Needed for POST_TYPE constant
 use WPAICG\AIPKit_Providers; // Added for updating global provider settings
 use function WPAICG\Chat\Storage\SaverMethods\sanitize_settings_logic;
@@ -68,12 +68,11 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         if (is_wp_error($result)) {
             $this->send_wp_error($result);
         } else {
-            wp_send_json_success([
-                'message' => __('Chatbot created successfully!', 'gpt3-ai-content-generator'),
-                'bot_id' => $result['bot_id'],
-                'bot_name' => $result['bot_name'],
-                'bot_settings' => $result['bot_settings']
-            ]);
+            $bot_id = isset($result['bot_id']) ? absint($result['bot_id']) : 0;
+            $this->send_saved_bot_state_success(
+                $bot_id,
+                __('Chatbot created successfully!', 'gpt3-ai-content-generator')
+            );
         }
     }
 
@@ -251,12 +250,73 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             'is_default' => ($bot_id === $default_bot_id),
             'settings' => $settings,
             'deploy_mode' => $deploy_mode,
-            'shortcode' => Shortcode::get_bot_shortcode($bot_id),
+            'shortcode' => sprintf('[aipkit_chatbot id=%d]', $bot_id),
             'embed_code' => $this->build_embed_code_for_bot($bot_id),
             'embed_allowed_domains' => isset($settings['embed_allowed_domains']) ? (string) $settings['embed_allowed_domains'] : '',
             'conversation_starters_text' => $conversation_starters_text,
             'triggers_json' => $settings['triggers_json'],
         ];
+    }
+
+    /**
+     * Build a standard successful save/autosave response for a chatbot.
+     *
+     * @param int                  $bot_id Chatbot ID.
+     * @param string               $message Success message.
+     * @param array<string, mixed> $extra Additional response fields.
+     * @return array<string, mixed>
+     */
+    private function build_saved_bot_state_success_payload(
+        int $bot_id,
+        string $message,
+        array $extra = []
+    ): array {
+        $default_bot_id = class_exists(DefaultBotSetup::class)
+            ? (int) DefaultBotSetup::get_default_bot_id()
+            : 0;
+        $bot_post = get_post($bot_id);
+        $bot_name = ($bot_post instanceof \WP_Post) ? (string) $bot_post->post_title : '';
+        $bot_settings = $this->bot_storage->get_chatbot_settings($bot_id);
+        if (!is_array($bot_settings)) {
+            $bot_settings = [];
+        }
+
+        $response = [
+            'message' => $message,
+            'bot_id' => $bot_id,
+            'bot_name' => $bot_name,
+            'bot' => $this->build_bot_switch_state_payload(
+                $bot_id,
+                $bot_name,
+                $bot_settings,
+                $default_bot_id
+            ),
+            'default_bot_id' => $default_bot_id,
+        ];
+
+        foreach ($extra as $key => $value) {
+            $response[$key] = $value;
+        }
+
+        return $response;
+    }
+
+    /**
+     * Send the standard successful save/autosave response for a chatbot.
+     *
+     * @param int                  $bot_id Chatbot ID.
+     * @param string               $message Success message.
+     * @param array<string, mixed> $extra Additional response fields.
+     * @return void
+     */
+    private function send_saved_bot_state_success(
+        int $bot_id,
+        string $message,
+        array $extra = []
+    ): void {
+        wp_send_json_success(
+            $this->build_saved_bot_state_success_payload($bot_id, $message, $extra)
+        );
     }
 
     public function ajax_save_chatbot_settings()
@@ -297,9 +357,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             }
             // --- END: Check and update global OpenAI store_conversation setting ---
 
-            wp_send_json_success([
-                'message' => __('Chatbot settings saved successfully.', 'gpt3-ai-content-generator'),
-            ]);
+            $this->send_saved_bot_state_success(
+                $botId,
+                __('Chatbot settings saved successfully.', 'gpt3-ai-content-generator')
+            );
         }
     }
 
@@ -334,7 +395,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         if (is_wp_error($result)) {
             $this->send_wp_error($result);
         } else {
-            wp_send_json_success(['message' => __('Chatbot deleted successfully.', 'gpt3-ai-content-generator'), 'bot_id' => $botId]);
+            wp_send_json_success([
+                'message' => __('Chatbot deleted successfully.', 'gpt3-ai-content-generator'),
+                'bot_id' => $botId,
+            ]);
         }
     }
 
@@ -447,11 +511,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             }
         }
 
-        wp_send_json_success([
-            'message' => __('Chatbot duplicated successfully.', 'gpt3-ai-content-generator'),
-            'bot_id' => $new_bot_id,
-            'bot_name' => get_the_title($new_bot_id),
-        ]);
+        $this->send_saved_bot_state_success(
+            (int) $new_bot_id,
+            __('Chatbot duplicated successfully.', 'gpt3-ai-content-generator')
+        );
     }
 
     public function ajax_get_chatbot_shortcode()
@@ -530,7 +593,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         if (is_wp_error($result)) {
             $this->send_wp_error($result);
         } else {
-            wp_send_json_success(['message' => __('Chatbot settings reset to defaults.', 'gpt3-ai-content-generator')]);
+            $this->send_saved_bot_state_success(
+                $botId,
+                __('Chatbot settings reset to defaults.', 'gpt3-ai-content-generator')
+            );
         }
     }
 
@@ -593,10 +659,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         if (is_wp_error($updated_post_id)) {
             wp_send_json_error(['message' => __('Failed to update chatbot name.', 'gpt3-ai-content-generator')], 500);
         } else {
-            wp_send_json_success([
-                'message' => __('Success!', 'gpt3-ai-content-generator'),
-                'new_name' => $new_name
-            ]);
+            $this->send_saved_bot_state_success(
+                $bot_id,
+                __('Success!', 'gpt3-ai-content-generator'),
+                [
+                    'new_name' => $new_name,
+                ]
+            );
         }
     }
 
@@ -634,9 +703,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         update_post_meta($bot_id, '_aipkit_instructions', $instructions);
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -686,9 +756,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             delete_post_meta($bot_id, '_aipkit_model');
         }
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -745,9 +816,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             update_post_meta($bot_id, '_aipkit_max_messages', $max_messages);
         }
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -796,9 +868,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         update_post_meta($bot_id, '_aipkit_openai_conversation_state_enabled', $openai_conversation_state_enabled);
         update_post_meta($bot_id, '_aipkit_reasoning_effort', $reasoning_effort);
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -1095,9 +1168,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             }
         }
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -1272,9 +1346,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         update_post_meta($bot_id, '_aipkit_google_grounding_dynamic_threshold', $google_grounding_dynamic_threshold);
         update_post_meta($bot_id, '_aipkit_web_toggle_default_on', $web_toggle_default_on);
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -1444,9 +1519,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         update_post_meta($bot_id, '_aipkit_vector_store_top_k', $vector_store_top_k);
         update_post_meta($bot_id, '_aipkit_vector_store_confidence_threshold', $vector_store_confidence_threshold);
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -1553,9 +1629,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             update_post_meta($bot_id, '_aipkit_token_role_limits', $role_limits_json);
         }
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -1606,15 +1683,20 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $enable_image_generation = (isset($_POST['enable_image_generation']) && wp_unslash($_POST['enable_image_generation']) === '1') ? '1' : '0';
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $enable_image_upload = (isset($_POST['enable_image_upload']) && wp_unslash($_POST['enable_image_upload']) === '1') ? '1' : '0';
 
         update_post_meta($bot_id, '_aipkit_chat_image_model_id', $chat_image_model_id);
         update_post_meta($bot_id, '_aipkit_image_triggers', $image_triggers);
+        update_post_meta($bot_id, '_aipkit_enable_image_generation', $enable_image_generation);
         update_post_meta($bot_id, '_aipkit_enable_image_upload', $enable_image_upload);
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -1651,9 +1733,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $enable_file_upload = (isset($_POST['enable_file_upload']) && wp_unslash($_POST['enable_file_upload']) === '1') ? '1' : '0';
         update_post_meta($bot_id, '_aipkit_enable_file_upload', $enable_file_upload);
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -1844,9 +1927,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             update_post_meta($bot_id, '_aipkit_output_audio_format', $output_audio_format);
         }
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -2081,9 +2165,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             update_post_meta($bot_id, '_aipkit_popup_label_version', $label_version);
         }
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -2174,9 +2259,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             return;
         }
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**
@@ -2254,9 +2340,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         update_post_meta($bot_id, $trigger_meta_key, $triggers_json);
 
-        wp_send_json_success([
-            'message' => __('Saved', 'gpt3-ai-content-generator'),
-        ]);
+        $this->send_saved_bot_state_success(
+            $bot_id,
+            __('Saved', 'gpt3-ai-content-generator')
+        );
     }
 
     /**

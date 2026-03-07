@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 use WPAICG\Chat\Storage\BotStorage;
 use WPAICG\Chat\Storage\DefaultBotSetup;
 use WPAICG\Chat\Storage\BotSettingsManager;
-use WPAICG\Chat\Storage\AIPKit_Bot_Settings_Getter;
+use WPAICG\Chat\Frontend\Shortcode;
 use WPAICG\Chat\Utils\AIPKit_SVG_Icons;
 use WPAICG\aipkit_dashboard; // Required for addon status checks
 use WPAICG\AIPKit_Providers;
@@ -22,8 +22,23 @@ use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 $bot_storage = new BotStorage();
 $default_setup = new DefaultBotSetup();
 
-// Fetch bot posts only to keep the initial module load lightweight.
-$all_chatbots = $bot_storage->get_chatbots(false);
+// Fetch all bot settings up front so switching can be state-driven client-side.
+$all_chatbots = [];
+$all_chatbot_settings_by_id = [];
+$all_chatbots_with_settings = $bot_storage->get_chatbots_with_settings();
+if (!empty($all_chatbots_with_settings)) {
+    foreach ($all_chatbots_with_settings as $bot_entry_with_settings) {
+        $bot_post = $bot_entry_with_settings['post'] ?? null;
+        if (!$bot_post instanceof \WP_Post) {
+            continue;
+        }
+
+        $all_chatbots[] = $bot_post;
+        $all_chatbot_settings_by_id[$bot_post->ID] = is_array($bot_entry_with_settings['settings'] ?? null)
+            ? $bot_entry_with_settings['settings']
+            : [];
+    }
+}
 
 // These variables are defined by the AJAX loader and sanitized there.
 $force_active_bot_id = isset($force_active_bot_id) ? intval($force_active_bot_id) : 0;
@@ -96,13 +111,94 @@ if (!$active_bot_post) {
 // Always initialize a bot ID variable for downstream partials/flyouts.
 $bot_id = (int) $initial_active_bot_id;
 
-$active_bot_settings = [];
-if ($active_bot_post && class_exists(AIPKit_Bot_Settings_Getter::class)) {
-    $settings = AIPKit_Bot_Settings_Getter::get($active_bot_post->ID);
-    if (!is_wp_error($settings)) {
-        $active_bot_settings = $settings;
+$build_inline_bot_switch_state_payload = static function (
+    int $bot_id,
+    string $bot_name,
+    array $settings,
+    int $default_bot_id
+): array {
+    $popup_enabled = isset($settings['popup_enabled']) && (string) $settings['popup_enabled'] === '1';
+    $deploy_mode = $popup_enabled ? 'popup' : 'inline';
+
+    $conversation_starters = $settings['conversation_starters'] ?? [];
+    if (!is_array($conversation_starters)) {
+        $conversation_starters = is_scalar($conversation_starters) && (string) $conversation_starters !== ''
+            ? [(string) $conversation_starters]
+            : [];
     }
+
+    $triggers_json = $settings['triggers_json'] ?? '[]';
+    if (is_array($triggers_json)) {
+        $triggers_json = wp_json_encode($triggers_json) ?: '[]';
+    } elseif (is_string($triggers_json)) {
+        $triggers_json = trim($triggers_json) !== '' ? trim($triggers_json) : '[]';
+    } else {
+        $triggers_json = '[]';
+    }
+    $settings['triggers_json'] = $triggers_json;
+
+    $embed_script_url = WPAICG_PLUGIN_URL . 'dist/js/embed-bootstrap.bundle.js';
+    $embed_target_div = 'aipkit-chatbot-container-' . $bot_id;
+    $site_url = preg_replace('#^https?://#i', '', site_url());
+    if (!is_string($site_url)) {
+        $site_url = '';
+    }
+
+    $embed_script = sprintf(
+        '(function(){var d=document;var c=d.createElement("div");c.id="%1$s";var s=d.createElement("script");s.src="%2$s";s.setAttribute("data-bot-id","%3$d");s.setAttribute("data-wp-site","%4$s");s.async=true;var t=d.currentScript||d.getElementsByTagName("script")[0];t.parentNode.insertBefore(c,t);t.parentNode.insertBefore(s,t);}());',
+        esc_js($embed_target_div),
+        esc_js($embed_script_url),
+        $bot_id,
+        esc_js($site_url)
+    );
+
+    return [
+        'bot_id' => $bot_id,
+        'bot_name' => $bot_name,
+        'is_default' => ($bot_id === $default_bot_id),
+        'settings' => $settings,
+        'deploy_mode' => $deploy_mode,
+        'shortcode' => sprintf('[aipkit_chatbot id=%d]', $bot_id),
+        'embed_code' => '<script type="text/javascript">' . $embed_script . '</script>',
+        'embed_allowed_domains' => isset($settings['embed_allowed_domains'])
+            ? (string) $settings['embed_allowed_domains']
+            : '',
+        'conversation_starters_text' => implode("\n", array_map('strval', $conversation_starters)),
+        'triggers_json' => $triggers_json,
+    ];
+};
+
+$inline_bot_switch_states = [];
+$inline_bot_switch_order = [];
+foreach ($all_bots_ordered_entries as $bot_entry_for_state) {
+    $bot_post_for_state = $bot_entry_for_state['post'] ?? null;
+    if (!$bot_post_for_state instanceof \WP_Post) {
+        continue;
+    }
+
+    $bot_id_for_state = (int) $bot_post_for_state->ID;
+    if ($bot_id_for_state <= 0) {
+        continue;
+    }
+
+    $inline_bot_switch_order[] = $bot_id_for_state;
+    $inline_bot_switch_states[(string) $bot_id_for_state] = $build_inline_bot_switch_state_payload(
+        $bot_id_for_state,
+        (string) $bot_post_for_state->post_title,
+        $all_chatbot_settings_by_id[$bot_id_for_state] ?? [],
+        (int) $default_bot_id
+    );
 }
+
+$inline_bot_switch_payload = [
+    'bots' => $inline_bot_switch_states,
+    'order' => $inline_bot_switch_order,
+    'default_bot_id' => (int) $default_bot_id,
+];
+
+$active_bot_settings = ($active_bot_post instanceof \WP_Post && isset($all_chatbot_settings_by_id[$active_bot_post->ID]))
+    ? $all_chatbot_settings_by_id[$active_bot_post->ID]
+    : [];
 $active_bot_instructions = $active_bot_settings['instructions'] ?? '';
 $saved_theme = $active_bot_settings['theme'] ?? 'dark';
 $saved_greeting = $active_bot_settings['greeting'] ?? '';
@@ -465,6 +561,11 @@ $image_triggers = $active_bot_settings['image_triggers']
     ?? BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
 $chat_image_model_id = $active_bot_settings['chat_image_model_id']
     ?? BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
+$enable_image_generation = $active_bot_settings['enable_image_generation']
+    ?? BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION;
+$enable_image_generation = in_array($enable_image_generation, ['0', '1'], true)
+    ? $enable_image_generation
+    : BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION;
 $replicate_model_list = AIPKit_Providers::get_replicate_models();
 $openrouter_image_model_list = AIPKit_Providers::get_openrouter_image_models();
 $available_image_models = [
@@ -992,6 +1093,9 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 }
                                 if ($enable_image_upload === '1') {
                                     $tools_summary_parts[] = __('Image Analysis', 'gpt3-ai-content-generator');
+                                }
+                                if ($enable_image_generation === '1') {
+                                    $tools_summary_parts[] = __('Image generation', 'gpt3-ai-content-generator');
                                 }
                                 $web_search_enabled = false;
                                 if ($saved_provider === 'OpenAI') {
@@ -2226,6 +2330,14 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     }
     echo esc_attr(wp_json_encode($bot_list_for_filter));
 ?>"></div>
+
+<script type="application/json" id="aipkit_chatbot_switch_state_json"><?php
+    $inline_bot_switch_payload_json = wp_json_encode(
+        $inline_bot_switch_payload,
+        JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+    );
+    echo $inline_bot_switch_payload_json !== false ? $inline_bot_switch_payload_json : '{}';
+?></script>
 
 <div id="aipkit_google_tts_voices_json_main" class="aipkit_hidden" data-voices="<?php
     $google_voices_main = class_exists('\WPAICG\Core\Providers\Google\GoogleSettingsHandler') ? \WPAICG\Core\Providers\Google\GoogleSettingsHandler::get_synced_google_tts_voices() : [];
