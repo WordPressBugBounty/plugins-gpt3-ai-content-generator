@@ -217,6 +217,46 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
     }
 
     /**
+     * Get IDs of popup bots (excluding target) currently marked as site-wide.
+     *
+     * @param int $exclude_bot_id Bot ID to exclude from the query.
+     * @return int[]
+     */
+    private function get_other_site_wide_popup_bot_ids(int $exclude_bot_id): array
+    {
+        if (!class_exists(AdminSetup::class)) {
+            return [];
+        }
+
+        $query = new \WP_Query([
+            'post_type'              => AdminSetup::POST_TYPE,
+            'post_status'            => ['publish', 'draft'],
+            'posts_per_page'         => -1,
+            'fields'                 => 'ids',
+            'post__not_in'           => [$exclude_bot_id],
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Targeted query over chatbot posts for uniqueness enforcement.
+            'meta_query'             => [
+                'relation' => 'AND',
+                ['key' => '_aipkit_site_wide_enabled', 'value' => '1', 'compare' => '='],
+                ['key' => '_aipkit_popup_enabled', 'value' => '1', 'compare' => '='],
+            ],
+            'no_found_rows'          => true,
+            'update_post_meta_cache' => false,
+            'update_post_term_cache' => false,
+        ]);
+
+        $ids = [];
+        foreach ((array) $query->get_posts() as $id) {
+            $id = absint($id);
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
      * Build normalized switch state payload for a bot.
      *
      * @param int    $bot_id Bot ID.
@@ -468,6 +508,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         // Ensure the duplicated bot is never marked as default.
         delete_post_meta($new_bot_id, '_aipkit_default_bot');
+        // Duplicated bots must always start as non-site-wide to avoid replacing live popup behavior.
+        update_post_meta($new_bot_id, '_aipkit_site_wide_enabled', '0');
 
         // Normalize default markers so only one chatbot remains default.
         $default_marker_ids = get_posts([
@@ -488,24 +530,21 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         ]);
 
         if (is_array($default_marker_ids) && !empty($default_marker_ids)) {
-            $canonical_default_id = 0;
-            foreach ($default_marker_ids as $default_marker_id) {
-                $default_marker_id = absint($default_marker_id);
-                if ($default_marker_id > 0 && get_the_title($default_marker_id) === 'Default') {
-                    $canonical_default_id = $default_marker_id;
-                    break;
+            $normalized_marker_ids = array_values(array_filter(array_map('absint', $default_marker_ids)));
+            if (!empty($normalized_marker_ids)) {
+                $canonical_default_id = class_exists(DefaultBotSetup::class)
+                    ? absint(DefaultBotSetup::get_default_bot_id())
+                    : 0;
+                if ($canonical_default_id <= 0 || !in_array($canonical_default_id, $normalized_marker_ids, true)) {
+                    $canonical_default_id = $normalized_marker_ids[0];
                 }
-            }
-            if ($canonical_default_id === 0) {
-                $canonical_default_id = absint($default_marker_ids[0]);
-            }
 
-            if ($canonical_default_id > 0) {
-                update_post_meta($canonical_default_id, '_aipkit_default_bot', '1');
-                foreach ($default_marker_ids as $default_marker_id) {
-                    $default_marker_id = absint($default_marker_id);
-                    if ($default_marker_id > 0 && $default_marker_id !== $canonical_default_id) {
-                        delete_post_meta($default_marker_id, '_aipkit_default_bot');
+                if ($canonical_default_id > 0) {
+                    update_post_meta($canonical_default_id, '_aipkit_default_bot', '1');
+                    foreach ($normalized_marker_ids as $default_marker_id) {
+                        if ($default_marker_id > 0 && $default_marker_id !== $canonical_default_id) {
+                            delete_post_meta($default_marker_id, '_aipkit_default_bot');
+                        }
                     }
                 }
             }
@@ -627,17 +666,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         // Check Bot ID
         if (empty($bot_id) || get_post_type($bot_id) !== AdminSetup::POST_TYPE || !in_array(get_post_status($bot_id), ['publish', 'draft'], true)) {
             wp_send_json_error(['message' => __('Invalid Chatbot ID.', 'gpt3-ai-content-generator')], 400);
-            return;
-        }
-
-        // Check if it's the default bot
-        if (!class_exists(DefaultBotSetup::class)) {
-            $this->send_wp_error(new WP_Error('dependency_missing', 'DefaultBotSetup class not found for rename check.', ['status' => 500]));
-            return;
-        }
-        $default_bot_id = DefaultBotSetup::get_default_bot_id();
-        if ($bot_id === $default_bot_id) {
-            $this->send_wp_error(new WP_Error('cannot_rename_default', __('The default chatbot cannot be renamed.', 'gpt3-ai-content-generator'), ['status' => 400]));
             return;
         }
 
@@ -2202,6 +2230,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         $updated_any = false;
+        $success_message = __('Saved', 'gpt3-ai-content-generator');
+        $response_extra = [];
+        $popup_enabled = (get_post_meta($bot_id, '_aipkit_popup_enabled', true) === '1') ? '1' : '0';
 
         if (isset($_POST['popup_enabled'])) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -2212,9 +2243,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         if (isset($_POST['site_wide_enabled'])) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $site_wide_enabled = (wp_unslash($_POST['site_wide_enabled']) === '1') ? '1' : '0';
-            update_post_meta($bot_id, '_aipkit_site_wide_enabled', $site_wide_enabled);
+            $requested_site_wide_enabled = (wp_unslash($_POST['site_wide_enabled']) === '1') ? '1' : '0';
+            $site_wide_enabled = ($requested_site_wide_enabled === '1' && $popup_enabled === '1') ? '1' : '0';
             $updated_any = true;
+            $disabled_site_wide_ids = [];
 
             if (!class_exists(SiteWideBotManager::class)) {
                 $site_wide_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/class-aipkit_site_wide_bot_manager.php';
@@ -2224,12 +2256,55 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             }
             if (class_exists(SiteWideBotManager::class)) {
                 $site_wide_manager = new SiteWideBotManager();
+                if ($site_wide_enabled === '1') {
+                    $disabled_site_wide_ids = $this->get_other_site_wide_popup_bot_ids($bot_id);
+                }
                 $clear_cache = $site_wide_manager->ensure_site_wide_uniqueness(
                     $bot_id,
                     $site_wide_enabled === '1'
                 );
+                update_post_meta($bot_id, '_aipkit_site_wide_enabled', $site_wide_enabled);
                 if ($clear_cache) {
                     $site_wide_manager->clear_site_wide_cache();
+                }
+            } else {
+                update_post_meta($bot_id, '_aipkit_site_wide_enabled', $site_wide_enabled);
+            }
+
+            if ($requested_site_wide_enabled === '1' && $site_wide_enabled !== '1') {
+                $success_message = __('Saved. Site-wide is available only in Popup mode.', 'gpt3-ai-content-generator');
+            }
+
+            if ($site_wide_enabled === '1' && !empty($disabled_site_wide_ids)) {
+                $default_bot_id = class_exists(DefaultBotSetup::class)
+                    ? (int) DefaultBotSetup::get_default_bot_id()
+                    : 0;
+                $updated_bots = [];
+                foreach ($disabled_site_wide_ids as $disabled_bot_id) {
+                    $disabled_bot_id = absint($disabled_bot_id);
+                    if ($disabled_bot_id <= 0) {
+                        continue;
+                    }
+                    $disabled_post = get_post($disabled_bot_id);
+                    if (!$disabled_post instanceof \WP_Post) {
+                        continue;
+                    }
+                    $disabled_settings = $this->bot_storage->get_chatbot_settings($disabled_bot_id);
+                    if (!is_array($disabled_settings)) {
+                        $disabled_settings = [];
+                    }
+                    $updated_bots[] = $this->build_bot_switch_state_payload(
+                        $disabled_bot_id,
+                        (string) $disabled_post->post_title,
+                        $disabled_settings,
+                        $default_bot_id
+                    );
+                }
+                if (!empty($updated_bots)) {
+                    $response_extra['updated_bots'] = $updated_bots;
+                    $success_message = (count($updated_bots) === 1)
+                        ? __('Saved.', 'gpt3-ai-content-generator')
+                        : __('Saved.', 'gpt3-ai-content-generator');
                 }
             }
         }
@@ -2259,10 +2334,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             return;
         }
 
-        $this->send_saved_bot_state_success(
-            $bot_id,
-            __('Saved', 'gpt3-ai-content-generator')
-        );
+        $this->send_saved_bot_state_success($bot_id, $success_message, $response_extra);
     }
 
     /**

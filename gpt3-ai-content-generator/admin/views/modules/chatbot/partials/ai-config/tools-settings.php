@@ -6,11 +6,6 @@ $current_provider_for_this_bot = isset($current_provider_for_this_bot)
 $rt_disabled_by_plan = isset($rt_disabled_by_plan)
     ? (bool) $rt_disabled_by_plan
     : !(isset($is_pro_plan) && $is_pro_plan);
-$realtime_voice_tooltip_default = __('Enable real-time voice conversation mode.', 'gpt3-ai-content-generator');
-$realtime_voice_tooltip_upgrade = __('Realtime voice is a paid feature. Please upgrade.', 'gpt3-ai-content-generator');
-$realtime_voice_tooltip = $rt_disabled_by_plan
-    ? $realtime_voice_tooltip_upgrade
-    : $realtime_voice_tooltip_default;
 $realtime_voice_toggle_value = (!$rt_disabled_by_plan && ($enable_realtime_voice ?? '0') === '1')
     ? '1'
     : '0';
@@ -163,12 +158,7 @@ if ($image_model_dropdown_label === '') {
                                 && !empty($tool_option['disabled'])
                                 && in_array($tool_key, ['file_upload', 'realtime_voice'], true);
                             ?>
-                            <label
-                                class="aipkit_popover_multiselect_item aipkit_tools_enabled_item<?php echo !empty($tool_option['disabled']) ? ' is-disabled' : ''; ?><?php echo $show_tools_menu_upgrade ? ' aipkit_tools_enabled_item--has-upgrade' : ''; ?>"
-                                <?php if (!empty($tool_option['disabled']) && in_array($tool_key, ['file_upload', 'realtime_voice'], true)) : ?>
-                                    title="<?php echo esc_attr($tool_key === 'file_upload' ? $file_upload_tooltip : $realtime_voice_tooltip); ?>"
-                                <?php endif; ?>
-                            >
+                            <label class="aipkit_popover_multiselect_item aipkit_tools_enabled_item<?php echo !empty($tool_option['disabled']) ? ' is-disabled' : ''; ?><?php echo $show_tools_menu_upgrade ? ' aipkit_tools_enabled_item--has-upgrade' : ''; ?>">
                                 <input
                                     type="checkbox"
                                     class="aipkit_tools_enabled_option"
@@ -202,7 +192,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr($file_upload_tooltip); ?>"
+
             >
                 <?php esc_html_e('File upload', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -214,8 +204,8 @@ if ($image_model_dropdown_label === '') {
                 name="enable_file_upload"
                 class="aipkit_popover_option_select aipkit_tools_toggle_select aipkit_file_upload_toggle_select aipkit_file_upload_toggle_switch"
                 data-is-pro-plan="<?php echo esc_attr($is_pro_plan ? 'true' : 'false'); ?>"
-                data-tooltip-default="<?php echo esc_attr($file_upload_tooltip_default); ?>"
-                data-tooltip-upgrade="<?php echo esc_attr($file_upload_tooltip_upgrade); ?>"
+
+
                 <?php disabled(!$can_enable_file_upload); ?>
             >
                 <option value="1" <?php selected($file_upload_toggle_value, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
@@ -229,7 +219,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Allow users to upload images for analysis.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Image analysis', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -252,7 +242,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Select the image model for this bot.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Image generation', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -443,7 +433,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Let the assistant browse the web.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Web search', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -476,7 +466,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Let the assistant browse the web.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Web search', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -509,7 +499,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Let the assistant browse the web.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Web search', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -542,7 +532,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Let the assistant browse the web. Availability depends on the selected OpenRouter model.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Web search', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -575,7 +565,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Allow users to speak using their microphone.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Speech to Text', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -608,7 +598,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Enable voice playback for assistant responses.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Text to Speech', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -641,7 +631,7 @@ if ($image_model_dropdown_label === '') {
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr($realtime_voice_tooltip); ?>"
+
             >
                 <?php esc_html_e('Realtime', 'gpt3-ai-content-generator'); ?>
             </span>

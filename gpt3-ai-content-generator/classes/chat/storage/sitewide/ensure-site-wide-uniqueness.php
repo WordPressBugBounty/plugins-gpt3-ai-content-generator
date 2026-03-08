@@ -5,6 +5,7 @@
 namespace WPAICG\Chat\Storage\SiteWide;
 
 use WPAICG\Chat\Storage\SiteWideBotManager; // To access methods
+use WPAICG\Chat\Admin\AdminSetup;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -20,24 +21,51 @@ if (!defined('ABSPATH')) {
  */
 function ensure_site_wide_uniqueness_logic(int $target_bot_id, bool $is_enabling, SiteWideBotManager $site_wide_manager_instance): bool {
     $clear_cache = false;
-    // Force cache refresh to get the absolute current site-wide bot
-    // Call the public method on the instance, which delegates to the logic function (this one)
-    $current_site_wide_id = $site_wide_manager_instance->get_site_wide_bot_id(true);
 
     if ($is_enabling) {
-        if ($current_site_wide_id && $current_site_wide_id !== $target_bot_id) {
-            // Another bot is currently site-wide, disable it first.
-            update_post_meta($current_site_wide_id, '_aipkit_site_wide_enabled', '0');
-            $clear_cache = true; // Mark cache for clearing
-        } elseif ($current_site_wide_id !== $target_bot_id) {
-             // No other bot was site-wide, but we are enabling this one, so cache needs update.
-             $clear_cache = true;
+        if (!class_exists(AdminSetup::class)) {
+            $admin_setup_path = WPAICG_PLUGIN_DIR . 'classes/chat/admin/chat_admin_setup.php';
+            if (file_exists($admin_setup_path)) {
+                require_once $admin_setup_path;
+            }
         }
+
+        if (class_exists(AdminSetup::class)) {
+            // Disable every other popup bot marked as site-wide.
+            $conflicting_query = new \WP_Query([
+                'post_type'              => AdminSetup::POST_TYPE,
+                'post_status'            => ['publish', 'draft'],
+                'posts_per_page'         => -1,
+                'fields'                 => 'ids',
+                'post__not_in'           => [$target_bot_id],
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Targeted query over chatbot posts for uniqueness enforcement.
+                'meta_query'             => [
+                    'relation' => 'AND',
+                    ['key' => '_aipkit_site_wide_enabled', 'value' => '1', 'compare' => '='],
+                    ['key' => '_aipkit_popup_enabled', 'value' => '1', 'compare' => '='],
+                ],
+                'no_found_rows'          => true,
+                'update_post_meta_cache' => false,
+                'update_post_term_cache' => false,
+            ]);
+            $conflicting_ids = $conflicting_query->get_posts();
+            foreach ($conflicting_ids as $conflicting_id) {
+                $conflicting_id = absint($conflicting_id);
+                if ($conflicting_id > 0) {
+                    update_post_meta($conflicting_id, '_aipkit_site_wide_enabled', '0');
+                    $clear_cache = true;
+                }
+            }
+        }
+
+        // Enabling site-wide on target always requires cache refresh.
+        $clear_cache = true;
     } else {
-         // If we are *disabling* site-wide for the current bot, check if it *was* the site-wide bot
-         if ($current_site_wide_id === $target_bot_id) {
-             $clear_cache = true; // Mark cache for clearing as this bot is no longer site-wide
-         }
+        // If target was site-wide, cache must be refreshed.
+        $was_site_wide = get_post_meta($target_bot_id, '_aipkit_site_wide_enabled', true) === '1';
+        if ($was_site_wide) {
+            $clear_cache = true;
+        }
     }
     return $clear_cache;
 }

@@ -43,7 +43,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
             <label
                 class="aipkit_popover_option_label"
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_stream_enabled_select"
-                data-tooltip="<?php echo esc_attr__('Display responses word by word in real-time.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Streaming', 'gpt3-ai-content-generator'); ?>
             </label>
@@ -67,7 +67,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
             <label
                 class="aipkit_popover_option_label"
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_select"
-                data-tooltip="<?php echo esc_attr__('Use OpenAI server-side memory.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Session memory', 'gpt3-ai-content-generator'); ?>
             </label>
@@ -133,7 +133,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
             <label
                 class="aipkit_popover_option_label"
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort"
-                data-tooltip="<?php echo esc_attr__('Controls thinking depth for reasoning models.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Reasoning', 'gpt3-ai-content-generator'); ?>
             </label>

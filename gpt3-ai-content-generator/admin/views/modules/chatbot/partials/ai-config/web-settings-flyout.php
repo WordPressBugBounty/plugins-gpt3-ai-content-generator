@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
             <span
                 class="aipkit_popover_option_label"
                 tabindex="0"
-                data-tooltip="<?php echo esc_attr__('Enable this to keep the chat web toggle active by default on first load and after starting a new chat.', 'gpt3-ai-content-generator'); ?>"
+
             >
                 <?php esc_html_e('Web toggle default on', 'gpt3-ai-content-generator'); ?>
             </span>
@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_web_search_context_size_modal"
-                        data-tooltip="<?php echo esc_attr__('Amount of web context to include.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Search context size', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -54,7 +54,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_web_search_loc_type_modal"
-                        data-tooltip="<?php echo esc_attr__('Improves local relevance when set to Approximate.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('User location', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -74,7 +74,7 @@ if (!defined('ABSPATH')) {
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_web_search_loc_country_modal"
-                            data-tooltip="<?php echo esc_attr__('2-letter code, e.g., US or GB.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('Country (ISO Code)', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -94,7 +94,7 @@ if (!defined('ABSPATH')) {
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_web_search_loc_city_modal"
-                            data-tooltip="<?php echo esc_attr__('Optional city name.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('City', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -113,7 +113,7 @@ if (!defined('ABSPATH')) {
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_web_search_loc_region_modal"
-                            data-tooltip="<?php echo esc_attr__('Optional region or state.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('Region/State', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -132,7 +132,7 @@ if (!defined('ABSPATH')) {
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_web_search_loc_timezone_modal"
-                            data-tooltip="<?php echo esc_attr__('IANA format, e.g., America/Chicago.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('Timezone (IANA)', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -157,7 +157,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_web_search_max_uses_modal"
-                        data-tooltip="<?php echo esc_attr__('Maximum web searches the model can perform per response.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Max uses', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -178,7 +178,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_web_search_loc_type_modal"
-                        data-tooltip="<?php echo esc_attr__('Improves local relevance when set to Approximate.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('User location', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -198,7 +198,7 @@ if (!defined('ABSPATH')) {
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_web_search_loc_country_modal"
-                            data-tooltip="<?php echo esc_attr__('2-letter code, e.g., US or GB.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('Country (ISO Code)', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -218,7 +218,7 @@ if (!defined('ABSPATH')) {
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_web_search_loc_city_modal"
-                            data-tooltip="<?php echo esc_attr__('Optional city name.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('City', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -237,7 +237,7 @@ if (!defined('ABSPATH')) {
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_web_search_loc_region_modal"
-                            data-tooltip="<?php echo esc_attr__('Optional region or state.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('Region/State', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -256,7 +256,7 @@ if (!defined('ABSPATH')) {
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_web_search_loc_timezone_modal"
-                            data-tooltip="<?php echo esc_attr__('IANA format, e.g., America/Chicago.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('Timezone (IANA)', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -276,7 +276,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_web_search_allowed_domains_modal"
-                        data-tooltip="<?php echo esc_attr__('Comma-separated domains to allow. Leave empty to allow all.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Allowed domains', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -295,7 +295,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_web_search_blocked_domains_modal"
-                        data-tooltip="<?php echo esc_attr__('Comma-separated domains to block. Ignored when Allowed domains is set.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Blocked domains', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -314,7 +314,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_web_search_cache_ttl_modal"
-                        data-tooltip="<?php echo esc_attr__('Optional cache TTL for repeated searches.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Cache TTL', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -342,7 +342,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_engine_modal"
-                        data-tooltip="<?php echo esc_attr__('Search backend used by OpenRouter web plugin.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Engine', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -362,7 +362,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_max_results_modal"
-                        data-tooltip="<?php echo esc_attr__('Maximum number of web results for each response.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Max results', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -383,7 +383,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_search_prompt_modal"
-                        data-tooltip="<?php echo esc_attr__('Optional hint to guide web search behavior.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Search prompt', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -407,7 +407,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_grounding_mode_modal"
-                        data-tooltip="<?php echo esc_attr__('Default lets the model decide; Dynamic always retrieves.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Mode', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -426,7 +426,7 @@ if (!defined('ABSPATH')) {
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_grounding_dynamic_threshold_modal"
-                        data-tooltip="<?php echo esc_attr__('Higher requires stronger evidence (0–1).', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Retrieval threshold', 'gpt3-ai-content-generator'); ?>
                     </label>

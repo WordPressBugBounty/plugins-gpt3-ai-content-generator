@@ -12,7 +12,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                 <label
                     class="aipkit_popover_option_label"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_voice_input_sheet"
-                    data-tooltip="<?php echo esc_attr__('Speak to the bot using your mic.', 'gpt3-ai-content-generator'); ?>"
+
                 >
                     <?php esc_html_e('Speech to Text', 'gpt3-ai-content-generator'); ?>
                 </label>
@@ -88,7 +88,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_enabled_sheet"
-                        data-tooltip="<?php echo esc_attr__('Enable text to speech for bot responses.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Text to Speech', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -122,7 +122,16 @@ $hide_stt_controls = $stt_model_count <= 1;
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="aipkit_popover_inline_select aipkit_tts_google_voice_inline" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'Google') ? 'block' : 'none'; ?>;">
+                    </div>
+                </div>
+            </div>
+            <div class="aipkit_popover_option_row aipkit_tts_field aipkit_tts_google_voice_row" data-provider="Google" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'Google') ? 'block' : 'none'; ?>;">
+                <div class="aipkit_popover_option_main">
+                    <span class="aipkit_popover_option_label">
+                        <?php esc_html_e('Voice', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                    <div class="aipkit_popover_inline_controls">
+                        <div class="aipkit_popover_inline_select">
                             <select
                                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_google_voice_id_sheet"
                                 name="tts_google_voice_id"
@@ -166,7 +175,16 @@ $hide_stt_controls = $stt_model_count <= 1;
                                 ?>
                             </select>
                         </div>
-                        <div class="aipkit_popover_inline_select aipkit_tts_openai_voice_inline" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'OpenAI') ? 'block' : 'none'; ?>;">
+                    </div>
+                </div>
+            </div>
+            <div class="aipkit_popover_option_row aipkit_tts_field aipkit_tts_openai_voice_row" data-provider="OpenAI" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'OpenAI') ? 'block' : 'none'; ?>;">
+                <div class="aipkit_popover_option_main">
+                    <span class="aipkit_popover_option_label">
+                        <?php esc_html_e('Voice', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                    <div class="aipkit_popover_inline_controls">
+                        <div class="aipkit_popover_inline_select">
                             <select
                                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_openai_voice_id_sheet"
                                 name="tts_openai_voice_id"
@@ -178,7 +196,16 @@ $hide_stt_controls = $stt_model_count <= 1;
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="aipkit_popover_inline_select aipkit_tts_openai_model_inline" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'OpenAI') ? 'block' : 'none'; ?>;">
+                    </div>
+                </div>
+            </div>
+            <div class="aipkit_popover_option_row aipkit_tts_field aipkit_tts_openai_model_row" data-provider="OpenAI" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'OpenAI') ? 'block' : 'none'; ?>;">
+                <div class="aipkit_popover_option_main">
+                    <span class="aipkit_popover_option_label">
+                        <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                    <div class="aipkit_popover_inline_controls">
+                        <div class="aipkit_popover_inline_select">
                             <select
                                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_openai_model_id_sheet"
                                 name="tts_openai_model_id"
@@ -200,7 +227,16 @@ $hide_stt_controls = $stt_model_count <= 1;
                                 ?>
                             </select>
                         </div>
-                        <div class="aipkit_popover_inline_select aipkit_tts_elevenlabs_voice_inline" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'ElevenLabs') ? 'block' : 'none'; ?>;">
+                    </div>
+                </div>
+            </div>
+            <div class="aipkit_popover_option_row aipkit_tts_field aipkit_tts_elevenlabs_voice_row" data-provider="ElevenLabs" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'ElevenLabs') ? 'block' : 'none'; ?>;">
+                <div class="aipkit_popover_option_main">
+                    <span class="aipkit_popover_option_label">
+                        <?php esc_html_e('Voice', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                    <div class="aipkit_popover_inline_controls">
+                        <div class="aipkit_popover_inline_select">
                             <select
                                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_elevenlabs_voice_id_sheet"
                                 name="tts_elevenlabs_voice_id"
@@ -222,7 +258,16 @@ $hide_stt_controls = $stt_model_count <= 1;
                                 ?>
                             </select>
                         </div>
-                        <div class="aipkit_popover_inline_select aipkit_tts_elevenlabs_model_inline" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'ElevenLabs') ? 'block' : 'none'; ?>;">
+                    </div>
+                </div>
+            </div>
+            <div class="aipkit_popover_option_row aipkit_tts_field aipkit_tts_elevenlabs_model_row" data-provider="ElevenLabs" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'ElevenLabs') ? 'block' : 'none'; ?>;">
+                <div class="aipkit_popover_option_main">
+                    <span class="aipkit_popover_option_label">
+                        <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                    <div class="aipkit_popover_inline_controls">
+                        <div class="aipkit_popover_inline_select">
                             <select
                                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_elevenlabs_model_id_sheet"
                                 name="tts_elevenlabs_model_id"
@@ -248,44 +293,12 @@ $hide_stt_controls = $stt_model_count <= 1;
                 </div>
             </div>
 
-            <div
-                class="aipkit_popover_option_row aipkit_tts_field aipkit_tts_elevenlabs_api_key_row"
-                data-provider="ElevenLabs"
-                style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'ElevenLabs') ? 'block' : 'none'; ?>;"
-            >
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_elevenlabs_api_key_sheet"
-                    >
-                        <?php esc_html_e('API key', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                        <input
-                            type="password"
-                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_elevenlabs_api_key_sheet"
-                            name="elevenlabs_api_key"
-                            class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                            value="<?php echo esc_attr($elevenlabs_api_key); ?>"
-                            placeholder="<?php esc_attr_e('Enter your ElevenLabs API key', 'gpt3-ai-content-generator'); ?>"
-                            autocomplete="new-password"
-                            data-lpignore="true"
-                            data-1p-ignore="true"
-                            data-form-type="other"
-                        />
-                        <span class="aipkit_api-key-toggle">
-                            <span class="dashicons dashicons-visibility"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="aipkit_popover_option_row aipkit_popover_option_row--force-divider aipkit_tts_auto_play_container" style="display: <?php echo $tts_enabled === '1' ? 'block' : 'none'; ?>;">
+            <div class="aipkit_popover_option_row aipkit_tts_auto_play_container" style="display: <?php echo $tts_enabled === '1' ? 'block' : 'none'; ?>;">
                 <div class="aipkit_popover_option_main">
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_auto_play_sheet"
-                        data-tooltip="<?php echo esc_attr__('Auto-play bot responses.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Auto play', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -308,7 +321,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_enable_realtime_voice_sheet"
-                        data-tooltip="<?php echo esc_attr($rt_disabled_by_plan ? __('Upgrade to Pro to enable.', 'gpt3-ai-content-generator') : __('Enable live voice conversation.', 'gpt3-ai-content-generator')); ?>"
+
                     >
                         <?php esc_html_e('Realtime voice agent', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -318,7 +331,6 @@ $hide_stt_controls = $stt_model_count <= 1;
                             name="enable_realtime_voice"
                             class="aipkit_popover_option_select aipkit_popover_option_select--compact aipkit_enable_realtime_voice_toggle"
                             <?php echo $rt_controls_disabled ? 'disabled' : ''; ?>
-                            title="<?php echo esc_attr($rt_disabled_by_plan ? __('Upgrade to Pro to enable.', 'gpt3-ai-content-generator') : ''); ?>"
                         >
                             <option value="1" <?php selected($enable_realtime_voice, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
                             <option value="0" <?php selected($enable_realtime_voice, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
@@ -365,12 +377,12 @@ $hide_stt_controls = $stt_model_count <= 1;
                 </div>
             </div>
 
-            <div class="aipkit_popover_option_row aipkit_rt_dependent" data-tooltip-disabled="<?php echo esc_attr($direct_voice_mode_tooltip); ?>" title="<?php echo esc_attr($direct_voice_mode_tooltip); ?>">
+            <div class="aipkit_popover_option_row aipkit_rt_dependent">
                 <div class="aipkit_popover_option_main">
                     <label
-                        class="aipkit_popover_option_label <?php echo $direct_voice_mode_disabled ? 'aipkit-disabled-tooltip' : ''; ?>"
+                        class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_direct_voice_mode_sheet"
-                        data-tooltip="<?php echo esc_attr__('Auto-listen when the chat opens.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Direct voice mode', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -391,7 +403,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_input_audio_noise_reduction_sheet"
-                        data-tooltip="<?php echo esc_attr__('Reduce background noise.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Noise reduction', 'gpt3-ai-content-generator'); ?>
                     </label>
@@ -413,7 +425,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_turn_detection_sheet"
-                            data-tooltip="<?php echo esc_attr__('Decide when speech has ended.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('Turn detection', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -428,7 +440,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                     <div class="aipkit_popover_option_main">
                         <label
                             class="aipkit_popover_option_label"
-                            data-tooltip="<?php echo esc_attr__('Format of audio sent and received.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('Audio format', 'gpt3-ai-content-generator'); ?>
                         </label>
@@ -489,7 +501,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_speed_sheet"
-                            data-tooltip="<?php echo esc_attr__('Controls reply pacing.', 'gpt3-ai-content-generator'); ?>"
+
                         >
                             <?php esc_html_e('Response speed', 'gpt3-ai-content-generator'); ?>
                         </label>

@@ -1,5 +1,6 @@
 <?php
 $bot_id = $initial_active_bot_id;
+$vector_notice_settings_url = admin_url('admin.php?page=wpaicg');
 ?>
 <div
     class="aipkit_popover_options_list aipkit_context_layout"
@@ -110,7 +111,7 @@ $bot_id = $initial_active_bot_id;
                 <label
                     class="aipkit_popover_option_label"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_vector_store_ids_modal"
-                    data-tooltip="<?php echo esc_attr__('Select up to two stores.', 'gpt3-ai-content-generator'); ?>"
+
                 >
                     <?php esc_html_e('Vector stores (max 2)', 'gpt3-ai-content-generator'); ?>
                 </label>
@@ -340,83 +341,12 @@ $bot_id = $initial_active_bot_id;
                 </div>
             </div>
         </div>
-        <div class="aipkit_popover_option_row aipkit_vector_store_pinecone_key_field" style="<?php echo ($enable_vector_store === '1' && $vector_store_provider === 'pinecone') ? '' : 'display:none;'; ?>">
-            <div class="aipkit_popover_option_main">
-                <label
-                    class="aipkit_popover_option_label"
-                    for="aipkit_pinecone_api_key_modal"
-                >
-                    <?php esc_html_e('API key', 'gpt3-ai-content-generator'); ?>
-                </label>
-                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                    <input
-                        type="password"
-                        id="aipkit_pinecone_api_key_modal"
-                        name="pinecone_api_key"
-                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
-                        value="<?php echo esc_attr($pinecone_api_key); ?>"
-                        autocomplete="new-password"
-                        data-lpignore="true"
-                        data-1p-ignore="true"
-                        data-form-type="other"
-                    />
-                    <span class="aipkit_api-key-toggle">
-                        <span class="dashicons dashicons-visibility"></span>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="aipkit_popover_option_row aipkit_vector_store_qdrant_url_field" style="<?php echo ($enable_vector_store === '1' && $vector_store_provider === 'qdrant') ? '' : 'display:none;'; ?>">
-            <div class="aipkit_popover_option_main">
-                <label
-                    class="aipkit_popover_option_label"
-                    for="aipkit_qdrant_url_modal"
-                >
-                    <?php esc_html_e('URL', 'gpt3-ai-content-generator'); ?>
-                </label>
-                <input
-                    type="url"
-                    id="aipkit_qdrant_url_modal"
-                    name="qdrant_url"
-                    class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
-                    placeholder="<?php esc_attr_e('e.g., http://localhost:6333', 'gpt3-ai-content-generator'); ?>"
-                    value="<?php echo esc_attr($qdrant_url); ?>"
-                />
-            </div>
-        </div>
-        <div class="aipkit_popover_option_row aipkit_vector_store_qdrant_key_field" style="<?php echo ($enable_vector_store === '1' && $vector_store_provider === 'qdrant') ? '' : 'display:none;'; ?>">
-            <div class="aipkit_popover_option_main">
-                <label
-                    class="aipkit_popover_option_label"
-                    for="aipkit_qdrant_api_key_modal"
-                >
-                    <?php esc_html_e('API key', 'gpt3-ai-content-generator'); ?>
-                </label>
-                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                    <input
-                        type="password"
-                        id="aipkit_qdrant_api_key_modal"
-                        name="qdrant_api_key"
-                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
-                        value="<?php echo esc_attr($qdrant_api_key); ?>"
-                        autocomplete="new-password"
-                        data-lpignore="true"
-                        data-1p-ignore="true"
-                        data-form-type="other"
-                    />
-                    <span class="aipkit_api-key-toggle">
-                        <span class="dashicons dashicons-visibility"></span>
-                    </span>
-                </div>
-            </div>
-        </div>
         <div class="aipkit_popover_option_row aipkit_vector_store_qdrant_field" style="<?php echo ($enable_vector_store === '1' && $vector_store_provider === 'qdrant') ? '' : 'display:none;'; ?>">
             <div class="aipkit_popover_option_main">
                 <label
                     class="aipkit_popover_option_label"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_qdrant_collection_names_modal"
-                    data-tooltip="<?php echo esc_attr__('Select one or more collections.', 'gpt3-ai-content-generator'); ?>"
+
                 >
                     <?php esc_html_e('Collections', 'gpt3-ai-content-generator'); ?>
                 </label>
@@ -525,7 +455,7 @@ $bot_id = $initial_active_bot_id;
                         if (!empty($vector_embedding_provider) && !empty($vector_embedding_model)) {
                             $selected_embedding_value = $vector_embedding_provider . '::' . $vector_embedding_model;
                         }
-                        echo '<option value="">' . esc_html__('-- Select Embedding --', 'gpt3-ai-content-generator') . '</option>';
+                        echo '<option value="" hidden></option>';
                         $manual_included = false;
                         foreach ($embedding_groups as $group_key => $group_data) {
                             echo '<optgroup label="' . esc_attr($group_data['label']) . '">';
@@ -607,58 +537,84 @@ $bot_id = $initial_active_bot_id;
 
         <div class="aipkit_popover_option_row aipkit_vector_store_advanced_field" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'pinecone', 'qdrant'], true)) ? '' : 'display:none;'; ?>">
             <div class="aipkit_popover_option_main aipkit_vector_store_advanced_main">
-                <details class="aipkit_vector_store_advanced_disclosure">
-                    <summary class="aipkit_vector_store_advanced_summary">
-                        <span class="aipkit_vector_store_advanced_summary_title"><?php esc_html_e('Advanced retrieval', 'gpt3-ai-content-generator'); ?></span>
-                        <span class="aipkit_vector_store_advanced_summary_meta"><?php esc_html_e('Limit and threshold', 'gpt3-ai-content-generator'); ?></span>
-                        <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
-                    </summary>
-                    <div class="aipkit_vector_store_advanced_panel">
-                        <div class="aipkit_popover_option_row aipkit_vector_store_top_k_field">
-                            <div class="aipkit_popover_option_main">
-                                <label
-                                    class="aipkit_popover_option_label"
-                                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_modal"
-                                    data-tooltip="<?php echo esc_attr__('Number of results to retrieve from vector store.', 'gpt3-ai-content-generator'); ?>"
-                                >
-                                    <?php esc_html_e('Limit', 'gpt3-ai-content-generator'); ?>
-                                </label>
-                                <input
-                                    type="number"
-                                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_modal"
-                                    name="vector_store_top_k"
-                                    class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed"
-                                    min="1"
-                                    max="20"
-                                    step="1"
-                                    value="<?php echo esc_attr($vector_store_top_k); ?>"
-                                />
-                            </div>
-                        </div>
+                <div class="aipkit_vector_store_advanced_panel">
+                    <div class="aipkit_popover_option_row aipkit_vector_store_top_k_field">
+                        <div class="aipkit_popover_option_main">
+                            <label
+                                class="aipkit_popover_option_label"
+                                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_modal"
 
-                        <div class="aipkit_popover_option_row aipkit_vector_store_confidence_field">
-                            <div class="aipkit_popover_option_main">
-                                <label
-                                    class="aipkit_popover_option_label"
-                                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_modal"
-                                    data-tooltip="<?php echo esc_attr__('Only use results with a similarity score above this.', 'gpt3-ai-content-generator'); ?>"
-                                >
-                                    <?php esc_html_e('Threshold', 'gpt3-ai-content-generator'); ?>
-                                </label>
-                                <input
-                                    type="number"
-                                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_modal"
-                                    name="vector_store_confidence_threshold"
-                                    class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed"
-                                    min="0"
-                                    max="100"
-                                    step="1"
-                                    value="<?php echo esc_attr($vector_store_confidence_threshold); ?>"
-                                />
-                            </div>
+                            >
+                                <?php esc_html_e('Limit', 'gpt3-ai-content-generator'); ?>
+                            </label>
+                            <input
+                                type="number"
+                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_top_k_modal"
+                                name="vector_store_top_k"
+                                class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed"
+                                min="1"
+                                max="20"
+                                step="1"
+                                value="<?php echo esc_attr($vector_store_top_k); ?>"
+                            />
                         </div>
                     </div>
-                </details>
+
+                    <div class="aipkit_popover_option_row aipkit_vector_store_confidence_field">
+                        <div class="aipkit_popover_option_main">
+                            <label
+                                class="aipkit_popover_option_label"
+                                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_modal"
+
+                            >
+                                <?php esc_html_e('Threshold', 'gpt3-ai-content-generator'); ?>
+                            </label>
+                            <input
+                                type="number"
+                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_store_confidence_threshold_modal"
+                                name="vector_store_confidence_threshold"
+                                class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed"
+                                min="0"
+                                max="100"
+                                step="1"
+                                value="<?php echo esc_attr($vector_store_confidence_threshold); ?>"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="aipkit_popover_option_row aipkit_context_vector_notice_row">
+        <div
+            class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_provider_key_notice aipkit_provider_notice--hidden aipkit_vector_provider_notice_chatbot"
+            data-message-openai="<?php echo esc_attr__('You selected OpenAI as a vector provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+            data-message-pinecone="<?php echo esc_attr__('You selected Pinecone as a vector provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+            data-message-qdrant="<?php echo esc_attr__('You selected Qdrant as a vector provider, but it is not configured yet. Add its API key and URL in Settings.', 'gpt3-ai-content-generator'); ?>"
+            data-message-qdrant-key="<?php echo esc_attr__('You selected Qdrant as a vector provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+            data-message-qdrant-url="<?php echo esc_attr__('You selected Qdrant as a vector provider, but it is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
+            data-message-claude_files="<?php echo esc_attr__('You selected Claude Files as a vector provider, but it is not configured yet. Add Claude API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+            data-message-claude_files-provider="<?php echo esc_attr__('You selected Claude Files as a vector provider, but it requires Claude as chatbot engine.', 'gpt3-ai-content-generator'); ?>"
+            data-message-default="<?php echo esc_attr__('The selected vector provider is not configured yet. Add required credentials in Settings.', 'gpt3-ai-content-generator'); ?>"
+        >
+            <div class="aipkit_notification_bar__icon" aria-hidden="true">
+                <span class="dashicons dashicons-warning"></span>
+            </div>
+            <div class="aipkit_notification_bar__content">
+                <p>
+                    <span class="aipkit_provider_notice_message">
+                        <?php esc_html_e('The selected vector provider is not configured yet. Add required credentials in Settings.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </p>
+            </div>
+            <div class="aipkit_notification_bar__actions">
+                <a
+                    href="<?php echo esc_url($vector_notice_settings_url); ?>"
+                    class="aipkit_btn aipkit_provider_notice_settings_link"
+                    data-aipkit-load-module="settings"
+                >
+                    <?php esc_html_e('Open Settings', 'gpt3-ai-content-generator'); ?>
+                </a>
             </div>
         </div>
     </div>

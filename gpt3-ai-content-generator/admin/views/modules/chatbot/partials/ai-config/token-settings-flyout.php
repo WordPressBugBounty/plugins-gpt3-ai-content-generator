@@ -32,7 +32,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
         <label
           class="aipkit_popover_option_label"
           for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_limit_mode_flyout"
-          data-tooltip="<?php echo esc_attr__('For logged-in users.', 'gpt3-ai-content-generator'); ?>"
+
         >
           <?php esc_html_e('Limit type', 'gpt3-ai-content-generator'); ?>
         </label>
@@ -56,7 +56,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
         <label
           class="aipkit_popover_option_label"
           for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_guest_limit_flyout"
-          data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
+
         >
           <?php esc_html_e('Guest limit', 'gpt3-ai-content-generator'); ?>
         </label>
@@ -78,7 +78,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
         <label
           class="aipkit_popover_option_label"
           for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_user_limit_flyout"
-          data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
+
         >
           <?php esc_html_e('User limit', 'gpt3-ai-content-generator'); ?>
         </label>
@@ -100,7 +100,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
         <label
           class="aipkit_popover_option_label"
           for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_reset_period_flyout"
-          data-tooltip="<?php echo esc_attr__('How often usage resets.', 'gpt3-ai-content-generator'); ?>"
+
         >
           <?php esc_html_e('Reset period', 'gpt3-ai-content-generator'); ?>
         </label>
@@ -131,7 +131,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
       <span
         class="aipkit_popover_option_label"
         tabindex="0"
-        data-tooltip="<?php echo esc_attr__('Set limits for specific roles. Leave empty for unlimited, use 0 to disable access for a role.', 'gpt3-ai-content-generator'); ?>"
+
       >
         <?php esc_html_e('Role limits', 'gpt3-ai-content-generator'); ?>
       </span>
@@ -165,7 +165,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
       <label
         class="aipkit_popover_option_label"
         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_token_limit_message_flyout"
-        data-tooltip="<?php echo esc_attr__('The message shown to users when they exceed their token limit for the period.', 'gpt3-ai-content-generator'); ?>"
+
       >
         <?php esc_html_e('Limit message', 'gpt3-ai-content-generator'); ?>
       </label>

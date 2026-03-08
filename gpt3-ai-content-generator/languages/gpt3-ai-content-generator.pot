@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.80\n"
+"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.81\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-07T10:16:29+00:00\n"
+"POT-Creation-Date: 2026-03-08T12:11:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -2659,18 +2659,6 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-msgid "Requires \"Popup Enabled\" (in Appearance) and \"Enable Realtime Voice Agent\" to be active."
-msgstr ""
-
-msgid "Allow users upload files and chat with them."
-msgstr ""
-
-msgid "File upload is a paid feature. Please upgrade."
-msgstr ""
-
-msgid "Cannot determine Pro status."
-msgstr ""
-
 msgid "Loading preview..."
 msgstr ""
 
@@ -2690,6 +2678,15 @@ msgid "Popup"
 msgstr ""
 
 msgid "Embed Anywhere"
+msgstr ""
+
+msgid "Site-Wide:"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "No"
 msgstr ""
 
 msgid "Create new chatbot"
@@ -2845,34 +2842,19 @@ msgstr ""
 msgid "Launcher hint"
 msgstr ""
 
-msgid "Users can manually hide the hint."
-msgstr ""
-
 msgid "Dismissible"
-msgstr ""
-
-msgid "Display the hint on desktop screens."
 msgstr ""
 
 msgid "Show on Desktop"
 msgstr ""
 
-msgid "Display the hint on mobile screens."
-msgstr ""
-
 msgid "Show on Mobile"
-msgstr ""
-
-msgid "Plain text only; keep it short (1–60 chars)."
 msgstr ""
 
 msgid "Hint Text"
 msgstr ""
 
 msgid "Need help? Ask me!"
-msgstr ""
-
-msgid "Choose when the hint appears and persists."
 msgstr ""
 
 msgid "Show Mode"
@@ -2890,28 +2872,16 @@ msgstr ""
 msgid "Until hint is dismissed"
 msgstr ""
 
-msgid "Controls hint font size and padding."
-msgstr ""
-
 msgid "Hint Size"
 msgstr ""
 
 msgid "Extra Large"
 msgstr ""
 
-msgid "Time to wait before showing. 0 = immediate."
-msgstr ""
-
 msgid "Delay (sec)"
 msgstr ""
 
-msgid "0 disables auto-hide."
-msgstr ""
-
 msgid "Auto-hide (sec)"
-msgstr ""
-
-msgid "Controls persistence after seen/dismissed."
 msgstr ""
 
 msgid "Once per visitor"
@@ -2923,16 +2893,10 @@ msgstr ""
 msgid "Always"
 msgstr ""
 
-msgid "Change to re-show the hint for everyone."
-msgstr ""
-
 msgid "Version"
 msgstr ""
 
 msgid "Conversation starters"
-msgstr ""
-
-msgid "Enter one prompt per line. Users can click them to start a conversation. Defaults are used if empty."
 msgstr ""
 
 msgid "Conversation starters (max 6)"
@@ -3121,31 +3085,10 @@ msgstr ""
 msgid "Restrict with allowed domains"
 msgstr ""
 
-msgid "Sidebar is not available when Popup mode is enabled."
-msgstr ""
-
-msgid "Status text is only applicable to Popup mode."
-msgstr ""
-
-msgid "Default bot name cannot be changed."
-msgstr ""
-
 msgid "Theme"
 msgstr ""
 
-msgid "Yes"
-msgstr ""
-
-msgid "No"
-msgstr ""
-
-msgid "Site-Wide"
-msgstr ""
-
 msgid "Launcher"
-msgstr ""
-
-msgid "Position, style, size"
 msgstr ""
 
 msgid "Bottom Right"
@@ -3169,31 +3112,16 @@ msgstr ""
 msgid "X-Large"
 msgstr ""
 
-msgid "Behavior"
+msgid "Delay"
 msgstr ""
 
-msgid "Delay (s)"
+msgid "sec"
 msgstr ""
 
 msgid "Hint"
 msgstr ""
 
-msgid "Chatbot name"
-msgstr ""
-
-msgid "Bot Name"
-msgstr ""
-
-msgid "Greeting"
-msgstr ""
-
-msgid "Hello there!"
-msgstr ""
-
-msgid "Subgreeting"
-msgstr ""
-
-msgid "How can I help you today?"
+msgid "Enable"
 msgstr ""
 
 msgid "UI features"
@@ -3211,6 +3139,18 @@ msgstr ""
 msgid "Starters"
 msgstr ""
 
+msgid "Greeting"
+msgstr ""
+
+msgid "Hello there!"
+msgstr ""
+
+msgid "Subgreeting"
+msgstr ""
+
+msgid "How can I help you today?"
+msgstr ""
+
 msgid "Placeholder"
 msgstr ""
 
@@ -3226,13 +3166,10 @@ msgstr ""
 msgid "Status text"
 msgstr ""
 
-msgid "Speak to the bot using your mic."
-msgstr ""
-
-msgid "Enable text to speech for bot responses."
-msgstr ""
-
 msgid "TTS provider"
+msgstr ""
+
+msgid "Voice"
 msgstr ""
 
 msgid "Voice name"
@@ -3247,19 +3184,7 @@ msgstr ""
 msgid "-- Select Model (Optional) --"
 msgstr ""
 
-msgid "Enter your ElevenLabs API key"
-msgstr ""
-
-msgid "Auto-play bot responses."
-msgstr ""
-
 msgid "Auto play"
-msgstr ""
-
-msgid "Upgrade to Pro to enable."
-msgstr ""
-
-msgid "Enable live voice conversation."
 msgstr ""
 
 msgid "Realtime voice agent"
@@ -3268,22 +3193,10 @@ msgstr ""
 msgid "Realtime model"
 msgstr ""
 
-msgid "Voice"
-msgstr ""
-
-msgid "Auto-listen when the chat opens."
-msgstr ""
-
 msgid "Direct voice mode"
 msgstr ""
 
-msgid "Reduce background noise."
-msgstr ""
-
 msgid "Noise reduction"
-msgstr ""
-
-msgid "Decide when speech has ended."
 msgstr ""
 
 msgid "Turn detection"
@@ -3298,9 +3211,6 @@ msgstr ""
 msgid "Smart (Semantic Detection)"
 msgstr ""
 
-msgid "Format of audio sent and received."
-msgstr ""
-
 msgid "Audio format"
 msgstr ""
 
@@ -3312,9 +3222,6 @@ msgid "Input"
 msgstr ""
 
 msgid "Output"
-msgstr ""
-
-msgid "Controls reply pacing."
 msgstr ""
 
 msgid "Response speed"
@@ -3335,13 +3242,7 @@ msgstr ""
 msgid "xhigh"
 msgstr ""
 
-msgid "Display responses word by word in real-time."
-msgstr ""
-
 msgid "Streaming"
-msgstr ""
-
-msgid "Use OpenAI server-side memory."
 msgstr ""
 
 msgid "Session memory"
@@ -3351,9 +3252,6 @@ msgid "Response length"
 msgstr ""
 
 msgid "Memory"
-msgstr ""
-
-msgid "Controls thinking depth for reasoning models."
 msgstr ""
 
 msgid "Data Source"
@@ -3375,22 +3273,40 @@ msgstr ""
 msgid "%s"
 msgstr ""
 
-msgid "Select one or more collections."
-msgstr ""
-
 msgid "Collections"
 msgstr ""
 
 msgid "Select collections"
 msgstr ""
 
-msgid "Advanced retrieval"
-msgstr ""
-
-msgid "Limit and threshold"
-msgstr ""
-
 msgid "Threshold"
+msgstr ""
+
+msgid "You selected OpenAI as a vector provider, but it is not configured yet. Add its API key in Settings."
+msgstr ""
+
+msgid "You selected Pinecone as a vector provider, but it is not configured yet. Add its API key in Settings."
+msgstr ""
+
+msgid "You selected Qdrant as a vector provider, but it is not configured yet. Add its API key and URL in Settings."
+msgstr ""
+
+msgid "You selected Qdrant as a vector provider, but it is not configured yet. Add its API key in Settings."
+msgstr ""
+
+msgid "You selected Qdrant as a vector provider, but it is not configured yet. Add its URL in Settings."
+msgstr ""
+
+msgid "You selected Claude Files as a vector provider, but it is not configured yet. Add Claude API key in Settings."
+msgstr ""
+
+msgid "You selected Claude Files as a vector provider, but it requires Claude as chatbot engine."
+msgstr ""
+
+msgid "The selected vector provider is not configured yet. Add required credentials in Settings."
+msgstr ""
+
+msgid "Open Settings"
 msgstr ""
 
 msgid "AI Parameters"
@@ -3412,6 +3328,9 @@ msgid "Avatar URL"
 msgstr ""
 
 msgid "Enter full URL (e.g., https://.../avatar.png)"
+msgstr ""
+
+msgid "Chatbot name"
 msgstr ""
 
 msgid "(Sync models in main AI Settings)"
@@ -3504,12 +3423,6 @@ msgstr ""
 msgid "Warning: WP Cron task for resets is not scheduled!"
 msgstr ""
 
-msgid "Enable real-time voice conversation mode."
-msgstr ""
-
-msgid "Realtime voice is a paid feature. Please upgrade."
-msgstr ""
-
 msgid "File upload"
 msgstr ""
 
@@ -3539,13 +3452,7 @@ msgstr ""
 msgid "Allow users to upload documents."
 msgstr ""
 
-msgid "Allow users to upload images for analysis."
-msgstr ""
-
 msgid "Let users attach images in chat."
-msgstr ""
-
-msgid "Select the image model for this bot."
 msgstr ""
 
 msgid "Generate images using chat."
@@ -3563,25 +3470,13 @@ msgstr ""
 msgid "Enter your Replicate API key"
 msgstr ""
 
-msgid "Let the assistant browse the web."
-msgstr ""
-
 msgid "Use online sources in responses."
 msgstr ""
 
 msgid "Options"
 msgstr ""
 
-msgid "Let the assistant browse the web. Availability depends on the selected OpenRouter model."
-msgstr ""
-
-msgid "Allow users to speak using their microphone."
-msgstr ""
-
 msgid "Capture voice input from users."
-msgstr ""
-
-msgid "Enable voice playback for assistant responses."
 msgstr ""
 
 msgid "Read assistant replies aloud."
@@ -3671,85 +3566,37 @@ msgstr ""
 msgid "Browse and manage training sources for this chatbot."
 msgstr ""
 
-msgid "Enable this to keep the chat web toggle active by default on first load and after starting a new chat."
-msgstr ""
-
 msgid "Web toggle default on"
-msgstr ""
-
-msgid "Amount of web context to include."
 msgstr ""
 
 msgid "Search context size"
 msgstr ""
 
-msgid "Improves local relevance when set to Approximate."
-msgstr ""
-
 msgid "User location"
-msgstr ""
-
-msgid "2-letter code, e.g., US or GB."
-msgstr ""
-
-msgid "Optional city name."
-msgstr ""
-
-msgid "Optional region or state."
-msgstr ""
-
-msgid "IANA format, e.g., America/Chicago."
-msgstr ""
-
-msgid "Maximum web searches the model can perform per response."
 msgstr ""
 
 msgid "Max uses"
 msgstr ""
 
-msgid "Comma-separated domains to allow. Leave empty to allow all."
-msgstr ""
-
 msgid "Allowed domains"
-msgstr ""
-
-msgid "Comma-separated domains to block. Ignored when Allowed domains is set."
 msgstr ""
 
 msgid "Blocked domains"
 msgstr ""
 
-msgid "Optional cache TTL for repeated searches."
-msgstr ""
-
 msgid "OpenRouter web search depends on the selected model and upstream route support."
-msgstr ""
-
-msgid "Search backend used by OpenRouter web plugin."
-msgstr ""
-
-msgid "Maximum number of web results for each response."
 msgstr ""
 
 msgid "Max results"
 msgstr ""
 
-msgid "Optional hint to guide web search behavior."
-msgstr ""
-
 msgid "Search prompt"
-msgstr ""
-
-msgid "Default lets the model decide; Dynamic always retrieves."
 msgstr ""
 
 msgid "Default (Model Decides)"
 msgstr ""
 
 msgid "Dynamic (Gemini 1.5 Flash only)"
-msgstr ""
-
-msgid "Higher requires stronger evidence (0–1)."
 msgstr ""
 
 msgid "Retrieval threshold"
@@ -4599,6 +4446,9 @@ msgstr ""
 msgid "ElevenLabs"
 msgstr ""
 
+msgid "Enter your ElevenLabs API key"
+msgstr ""
+
 msgid "Default Voice"
 msgstr ""
 
@@ -5264,9 +5114,6 @@ msgstr ""
 msgid "The selected AI provider is not configured yet. Add required credentials in Settings."
 msgstr ""
 
-msgid "Open Settings"
-msgstr ""
-
 msgctxt "post type general name"
 msgid "AI Forms"
 msgstr ""
@@ -5543,9 +5390,6 @@ msgstr ""
 msgid "Chatbot settings reset to defaults."
 msgstr ""
 
-msgid "The default chatbot cannot be renamed."
-msgstr ""
-
 msgid "Failed to update chatbot name."
 msgstr ""
 
@@ -5559,6 +5403,12 @@ msgid "Invalid provider."
 msgstr ""
 
 msgid "Invalid parameters."
+msgstr ""
+
+msgid "Saved. Site-wide is available only in Popup mode."
+msgstr ""
+
+msgid "Saved."
 msgstr ""
 
 msgid "No changes to save."
@@ -10994,9 +10844,6 @@ msgstr ""
 msgid "OpenAI Moderation"
 msgstr ""
 
-msgid "Enable"
-msgstr ""
-
 msgid "Notification Message"
 msgstr ""
 
@@ -11055,9 +10902,6 @@ msgid "Fetch Feeds"
 msgstr ""
 
 msgid "Invalid connectors payload."
-msgstr ""
-
-msgid "Saved."
 msgstr ""
 
 msgid "Recipient and message are required."
@@ -11146,9 +10990,6 @@ msgid "Save Empty Form"
 msgstr ""
 
 msgid "Save cancelled."
-msgstr ""
-
-msgid "Auto-saving..."
 msgstr ""
 
 msgid "All changes saved"
@@ -11302,6 +11143,9 @@ msgstr ""
 msgid "This text will appear under the field."
 msgstr ""
 
+msgid "Popup, site-wide"
+msgstr ""
+
 msgid "Search chatbots..."
 msgstr ""
 
@@ -11372,6 +11216,12 @@ msgid "Training"
 msgstr ""
 
 msgid "Stopped."
+msgstr ""
+
+msgid "Select embedding"
+msgstr ""
+
+msgid "Search embeddings..."
 msgstr ""
 
 msgid "New Store"

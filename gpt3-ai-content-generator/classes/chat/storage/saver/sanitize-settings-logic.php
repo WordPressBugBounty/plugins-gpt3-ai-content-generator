@@ -90,6 +90,9 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['popup_position'] = isset($raw_settings['popup_position']) ? sanitize_key($raw_settings['popup_position']) : 'bottom-right';
     $sanitized['popup_delay'] = isset($raw_settings['popup_delay']) ? absint($raw_settings['popup_delay']) : BotSettingsManager::DEFAULT_POPUP_DELAY;
     $sanitized['site_wide_enabled'] = (isset($raw_settings['site_wide_enabled']) && $raw_settings['site_wide_enabled'] === '1') ? '1' : '0';
+    if ($sanitized['popup_enabled'] !== '1') {
+        $sanitized['site_wide_enabled'] = '0';
+    }
     $sanitized['popup_icon_style'] = isset($raw_settings['popup_icon_style']) && in_array($raw_settings['popup_icon_style'], ['circle', 'square', 'none']) ? sanitize_key($raw_settings['popup_icon_style']) : BotSettingsManager::DEFAULT_POPUP_ICON_STYLE;
     // NEW: Popup icon size
     $allowed_icon_sizes = ['small','medium','large','xlarge'];

@@ -61,6 +61,9 @@ $recommended_claude = array_values(array_filter($recommended_claude, static func
 $recommended_claude_ids = array_column($recommended_claude, 'id');
 $recommended_claude_lookup = array_fill_keys($recommended_claude_ids, true);
 $show_chatbot_selector = empty($is_next_layout) || !$is_next_layout;
+$active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title))
+    ? (string) $active_bot_post->post_title
+    : '';
 
 ?>
 <!-- Row container for Bot + Provider + Model -->
@@ -104,6 +107,27 @@ $show_chatbot_selector = empty($is_next_layout) || !$is_next_layout;
             </div>
         </div>
     <?php endif; ?>
+
+    <!-- Bot Name Column -->
+    <div
+        class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--name aipkit_bot_name_group"
+    >
+        <label
+            class="aipkit_form-label"
+            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_name"
+            title="<?php echo esc_attr__('Chatbot name', 'gpt3-ai-content-generator'); ?>"
+        >
+            <?php esc_html_e('Name', 'gpt3-ai-content-generator'); ?>
+        </label>
+        <input
+            type="text"
+            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_name"
+            name="bot_name"
+            class="aipkit_form-input aipkit_bot_name_input"
+            value="<?php echo esc_attr($active_bot_name_value); ?>"
+            title="<?php echo esc_attr__('Chatbot name', 'gpt3-ai-content-generator'); ?>"
+        />
+    </div>
 
     <!-- AI Provider Column -->
     <div class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--provider">

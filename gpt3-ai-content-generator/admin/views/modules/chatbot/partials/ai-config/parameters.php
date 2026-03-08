@@ -135,7 +135,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                 <div class="aipkit_popover_param_row aipkit_reasoning_effort_field">
                     <span
                         class="aipkit_popover_param_label"
-                        data-tooltip="<?php echo esc_attr__('Controls thinking depth for reasoning models.', 'gpt3-ai-content-generator'); ?>"
+
                     >
                         <?php esc_html_e('Reasoning', 'gpt3-ai-content-generator'); ?>
                     </span>
