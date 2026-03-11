@@ -14,7 +14,6 @@ if (!defined('ABSPATH')) {
 use WPAICG\AIPKit_Providers;
 use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKIT_AI_Settings;
-use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 
 // Variable definitions
 $is_pro = aipkit_dashboard::is_pro_plan();
@@ -86,18 +85,20 @@ if ($is_pro && !function_exists('\WPAICG\Lib\ContentWriter\AIPKit_Google_Sheets_
 $openai_vector_stores = [];
 $pinecone_indexes = [];
 $qdrant_collections = [];
-$openai_embedding_models = [];
-$google_embedding_models = [];
-$azure_embedding_models = [];
-
-if (class_exists(AIPKit_Vector_Store_Registry::class)) {
-    $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
-    $pinecone_indexes = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Pinecone');
-    $qdrant_collections = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Qdrant');
-}
+$embedding_provider_options = [];
+$embedding_models_by_provider = [];
 if (class_exists(AIPKit_Providers::class)) {
-    $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
-    $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
-    $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
+    $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('content_writer_ui');
+    $openai_vector_stores = isset($vector_store_localization['openai_vector_stores']) && is_array($vector_store_localization['openai_vector_stores'])
+        ? $vector_store_localization['openai_vector_stores']
+        : [];
+    $pinecone_indexes = isset($vector_store_localization['pinecone_indexes']) && is_array($vector_store_localization['pinecone_indexes'])
+        ? $vector_store_localization['pinecone_indexes']
+        : [];
+    $qdrant_collections = isset($vector_store_localization['qdrant_collections']) && is_array($vector_store_localization['qdrant_collections'])
+        ? $vector_store_localization['qdrant_collections']
+        : [];
+    $embedding_provider_options = AIPKit_Providers::get_embedding_provider_map('content_writer_ui');
+    $embedding_models_by_provider = AIPKit_Providers::get_embedding_models_by_provider('content_writer_ui');
 }
 // --- End Load Vector Store Data ---

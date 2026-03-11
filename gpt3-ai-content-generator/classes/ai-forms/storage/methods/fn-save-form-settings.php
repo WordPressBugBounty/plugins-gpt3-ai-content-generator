@@ -5,6 +5,7 @@
 namespace WPAICG\AIForms\Storage\Methods;
 
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\AIPKit_Providers;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -67,7 +68,14 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
         }
     }
     if (isset($settings['ai_provider'])) {
-        update_post_meta($form_id, '_aipkit_ai_form_ai_provider', sanitize_text_field($settings['ai_provider']));
+        $ai_provider = sanitize_text_field($settings['ai_provider']);
+        if (class_exists(AIPKit_Providers::class)) {
+            $ai_provider = AIPKit_Providers::normalize_main_provider(
+                $ai_provider,
+                AIPKit_Providers::get_current_provider()
+            );
+        }
+        update_post_meta($form_id, '_aipkit_ai_form_ai_provider', $ai_provider);
     }
     if (isset($settings['ai_model'])) {
         update_post_meta($form_id, '_aipkit_ai_form_ai_model', sanitize_text_field($settings['ai_model']));

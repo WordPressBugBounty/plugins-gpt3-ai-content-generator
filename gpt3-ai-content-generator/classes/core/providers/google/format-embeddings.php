@@ -16,7 +16,33 @@ if (!defined('ABSPATH')) {
  * @return array The formatted request body data.
  */
 function format_embeddings_logic_for_payload_formatter($input, array $options): array {
-    $text_to_embed = is_array($input) ? ($input[0] ?? '') : $input;
+    $texts_to_embed = [];
+    if (is_array($input)) {
+        foreach ($input as $item) {
+            if (!is_scalar($item)) {
+                continue;
+            }
+            $text = trim((string) $item);
+            if ($text !== '') {
+                $texts_to_embed[] = $text;
+            }
+        }
+    } elseif (is_scalar($input)) {
+        $text = trim((string) $input);
+        if ($text !== '') {
+            $texts_to_embed[] = $text;
+        }
+    }
+
+    // Keep one empty part to preserve previous behavior for edge-case empty input.
+    if (empty($texts_to_embed)) {
+        $texts_to_embed[] = '';
+    }
+
+    $parts = [];
+    foreach ($texts_to_embed as $text) {
+        $parts[] = ['text' => $text];
+    }
 
     // Google Embeddings expects the model name in the form "models/<model-id>" in the request body
     $model_for_body = isset($options['model']) ? (string) $options['model'] : '';
@@ -27,7 +53,7 @@ function format_embeddings_logic_for_payload_formatter($input, array $options): 
     $payload = [
         'model' => $model_for_body,
         'content' => [
-            'parts' => [['text' => (string)$text_to_embed]]
+            'parts' => $parts
         ]
     ];
 

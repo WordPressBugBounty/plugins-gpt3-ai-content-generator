@@ -74,8 +74,15 @@ class AIPKit_Semantic_Search_Ajax_Handler extends BaseDashboardAjaxHandler
         // --- END FIX ---
 
         // Generate embedding for the user's query
-        $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
-        $embedding_provider_norm = $provider_map[$embedding_provider_key] ?? ucfirst($embedding_provider_key);
+        $embedding_provider_lookup = sanitize_key((string) strtolower($embedding_provider_key));
+        $embedding_provider_norm = AIPKit_Providers::resolve_embedding_provider_name(
+            $embedding_provider_lookup,
+            'semantic_search_ajax'
+        );
+        if (!is_string($embedding_provider_norm) || $embedding_provider_norm === '') {
+            $this->send_wp_error(new WP_Error('invalid_embedding_provider_semantic_search', __('Invalid embedding provider configured for Semantic Search.', 'gpt3-ai-content-generator'), ['status' => 500]));
+            return;
+        }
 
         $embedding_options = ['model' => $embedding_model];
         $embedding_result = $this->ai_caller->generate_embeddings($embedding_provider_norm, $query, $embedding_options);

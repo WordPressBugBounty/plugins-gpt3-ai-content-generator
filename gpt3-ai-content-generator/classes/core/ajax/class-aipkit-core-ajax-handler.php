@@ -133,8 +133,10 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         // Normalize provider name
-        $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
-        $embedding_provider = $provider_map[$embedding_provider_key] ?? '';
+        $embedding_provider = AIPKit_Providers::resolve_embedding_provider_name(
+            $embedding_provider_key,
+            'core_ajax_generate_embedding'
+        ) ?? '';
 
         if (empty($embedding_provider)) {
              $this->send_wp_error(new WP_Error('invalid_embedding_provider', __('Invalid embedding provider specified.', 'gpt3-ai-content-generator')));

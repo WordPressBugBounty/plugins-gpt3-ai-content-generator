@@ -86,6 +86,34 @@ function generate_response(
         return new WP_Error('missing_model_orchestrator', __('Chatbot AI Model or Deployment Name is missing in settings.', 'gpt3-ai-content-generator'));
     }
 
+    if (!empty($image_inputs_for_service)) {
+        /**
+         * Allow provider-specific image capability validation for chat requests.
+         *
+         * Return a WP_Error to block request when selected provider/model
+         * cannot accept image inputs.
+         *
+         * @param mixed $validation_error Existing validation error (null by default).
+         * @param array $image_inputs Normalized image input payload.
+         * @param string $provider Selected provider.
+         * @param string $model Selected model.
+         * @param array $bot_settings Bot settings.
+         * @param string $flow Request flow identifier.
+         */
+        $image_validation_error = apply_filters(
+            'aipkit_chat_image_input_validation_error',
+            null,
+            $image_inputs_for_service,
+            $main_provider,
+            $model,
+            $bot_settings,
+            'non_stream'
+        );
+        if (is_wp_error($image_validation_error)) {
+            return $image_validation_error;
+        }
+    }
+
     $im_load_result = GenerateResponse\load_instruction_manager_logic();
     if (is_wp_error($im_load_result)) {
         return $im_load_result;

@@ -281,7 +281,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $qdrant_names_clean = array_values(array_unique($qdrant_names_clean));
     $sanitized['qdrant_collection_names'] = wp_json_encode($qdrant_names_clean);
     $sanitized['qdrant_collection_name'] = $qdrant_names_clean[0] ?? '';
-    $allowed_embedding_providers = ['openai', 'google', 'azure', 'openrouter'];
+    $allowed_embedding_providers = AIPKit_Providers::get_embedding_provider_keys('chat_settings_sanitize');
     $sanitized['vector_embedding_provider'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_provider']))
         ? sanitize_key($raw_settings['vector_embedding_provider'])
         : BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;

@@ -9,7 +9,6 @@ namespace WPAICG\Admin\Assets;
 use WPAICG\AIPKit_Role_Manager;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
-use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler; // Added for default actions
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
@@ -134,13 +133,8 @@ class PostEnhancerAssets
             }
             $default_ai_config = AIPKit_Providers::get_default_provider_config();
             $default_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
-            $openai_vector_stores = class_exists(AIPKit_Vector_Store_Registry::class) ? AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI') : [];
-            $pinecone_indexes = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_pinecone_indexes() : [];
-            $qdrant_collections = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_qdrant_collections() : [];
-            $openai_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openai_embedding_models() : [];
-            $google_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_google_embedding_models() : [];
-            $openrouter_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openrouter_embedding_models() : [];
-            $azure_embedding_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_azure_embedding_models() : [];
+            $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('post_enhancer_ui');
+            $embedding_localization = AIPKit_Providers::get_embedding_localization_payload('post_enhancer_ui', false);
 
             // Define default prompts for the bulk enhancer modal
             $default_prompts = [
@@ -191,13 +185,11 @@ class PostEnhancerAssets
                 'default_ai_params' => $default_ai_params,
                 'default_prompts' => $default_prompts,
                 'prompt_library' => $prompt_library,
-                'openai_vector_stores' => $openai_vector_stores,
-                'pinecone_indexes' => $pinecone_indexes,
-                'qdrant_collections' => $qdrant_collections,
-                'openaiEmbeddingModels' => $openai_embedding_models,
-                'googleEmbeddingModels' => $google_embedding_models,
-                'openrouterEmbeddingModels' => $openrouter_embedding_models,
-                'azureEmbeddingModels' => $azure_embedding_models,
+                'openai_vector_stores' => $vector_store_localization['openai_vector_stores'],
+                'pinecone_indexes' => $vector_store_localization['pinecone_indexes'],
+                'qdrant_collections' => $vector_store_localization['qdrant_collections'],
+                'embeddingProviderMap' => $embedding_localization['embeddingProviderMap'],
+                'embeddingModelsByProvider' => $embedding_localization['embeddingModelsByProvider'],
                 'actions' => $enhancer_actions, // ADDED
                 'parse_html_formats' => (bool) $parse_formats_enabled,
                 'default_insert_position' => $default_insert_position,

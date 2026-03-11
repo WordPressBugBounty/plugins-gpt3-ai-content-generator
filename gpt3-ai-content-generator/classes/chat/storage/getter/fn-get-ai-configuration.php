@@ -47,6 +47,12 @@ function get_ai_configuration_logic(int $bot_id, ?string $current_provider_from_
 
     $default_provider = $current_provider_from_main_settings ?: (class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_current_provider() : 'OpenAI');
     $settings['provider'] = $get_meta_fn('_aipkit_provider', $default_provider);
+    if (class_exists(AIPKit_Providers::class)) {
+        $settings['provider'] = AIPKit_Providers::normalize_main_provider(
+            (string) $settings['provider'],
+            (string) $default_provider
+        );
+    }
     $settings['model'] = $get_meta_fn('_aipkit_model'); // No default model here, depends on provider sync
 
     $global_ai_params = class_exists(AIPKIT_AI_Settings::class) ? AIPKIT_AI_Settings::get_ai_parameters() : [];

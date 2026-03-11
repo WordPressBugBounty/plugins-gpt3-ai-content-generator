@@ -7,7 +7,6 @@ namespace WPAICG\Admin\Assets;
 
 use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Utils\AIPKit_Admin_Header_Action_Buttons;
-use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\AIPKit_Providers;
 
 if (! defined('ABSPATH')) {
@@ -128,38 +127,19 @@ class AIPKit_Vector_Post_Processor_Assets
         $admin_main_js_handle = 'aipkit-admin-main';
         static $vpp_localized = false;
         if (!$vpp_localized && wp_script_is($admin_main_js_handle, 'enqueued')) { // Ensure script is enqueued
-            $openai_vector_stores = [];
-            $pinecone_indexes = [];
-            $qdrant_collections = [];
-            $openai_embedding_models = [];
-            $google_embedding_models = [];
-            $openrouter_embedding_models = [];
-            $azure_embedding_models = [];
-
-            if (class_exists(AIPKit_Vector_Store_Registry::class)) {
-                $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
-                $pinecone_indexes = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Pinecone');
-                $qdrant_collections = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Qdrant');
-            }
-            if (class_exists(AIPKit_Providers::class)) {
-                $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
-                $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
-                $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
-                $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
-            }
+            $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('vector_post_processor_ui');
+            $embedding_localization = AIPKit_Providers::get_embedding_localization_payload('vector_post_processor_ui', false);
 
             wp_localize_script($admin_main_js_handle, 'aipkit_vpp_config', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce_index_posts' => wp_create_nonce('aipkit_index_posts_to_vector_store_nonce'),
                 'nonce_openai_store_list' => wp_create_nonce('aipkit_vector_store_nonce_openai'),
                 'post_type' => $post_type,
-                'openai_vector_stores' => $openai_vector_stores,
-                'pinecone_indexes' => $pinecone_indexes,
-                'qdrant_collections' => $qdrant_collections,
-                'openaiEmbeddingModels' => $openai_embedding_models,
-                'googleEmbeddingModels' => $google_embedding_models,
-                'openrouterEmbeddingModels' => $openrouter_embedding_models,
-                'azureEmbeddingModels' => $azure_embedding_models,
+                'openai_vector_stores' => $vector_store_localization['openai_vector_stores'],
+                'pinecone_indexes' => $vector_store_localization['pinecone_indexes'],
+                'qdrant_collections' => $vector_store_localization['qdrant_collections'],
+                'embeddingProviderMap' => $embedding_localization['embeddingProviderMap'],
+                'embeddingModelsByProvider' => $embedding_localization['embeddingModelsByProvider'],
                 'text' => [
                     'modal_title' => __('Add Content to Vector Store', 'gpt3-ai-content-generator'),
                     'provider_label' => __('Provider', 'gpt3-ai-content-generator'),

@@ -57,7 +57,6 @@ class DashboardAssets
             'aipkit-admin-autogpt' => 'admin-autogpt.bundle.css',
             'aipkit-admin-post-enhancer' => 'admin-post-enhancer.bundle.css',
             'aipkit-admin-vector-post-processor' => 'admin-vector-post-processor.bundle.css',
-            'aipkit-admin-woocommerce-writer' => 'admin-woocommerce-writer.bundle.css',
             'aipkit-lib-triggers-admin' => 'lib-triggers-admin.bundle.css',
         ];
 
@@ -103,7 +102,7 @@ class DashboardAssets
                 'aipkit-admin-main-css', 'aipkit-admin-chat',
                 'aipkit-admin-autogpt',
                 'aipkit-admin-post-enhancer', 'aipkit-admin-vector-post-processor',
-                'aipkit-admin-woocommerce-writer', 'aipkit-lib-triggers-admin',
+                'aipkit-lib-triggers-admin',
             ];
             foreach ($all_css_handles as $handle) {
                 if (wp_style_is($handle, 'registered') && !wp_style_is($handle, 'enqueued')) {
@@ -163,10 +162,6 @@ class DashboardAssets
         $claude_models = [];
         $deepseek_models = [];
         $ollama_models = [];
-        $openai_embedding_models = [];
-        $google_embedding_models = [];
-        $openrouter_embedding_models = [];
-        $azure_embedding_models = [];
         $google_image_models = [];
         $openrouter_image_models = [];
         $recommended_models = [];
@@ -178,12 +173,8 @@ class DashboardAssets
             $claude_models     = AIPKit_Providers::get_claude_models();
             $deepseek_models   = AIPKit_Providers::get_deepseek_models();
             $ollama_models     = AIPKit_Providers::get_ollama_models();
-            $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
-            $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
-            $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
             $google_image_models = AIPKit_Providers::get_google_image_models();
             $openrouter_image_models = AIPKit_Providers::get_openrouter_image_models();
-            $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
             $recommended_models = [
                 'openai' => AIPKit_Providers::get_recommended_models('OpenAI'),
                 'google' => AIPKit_Providers::get_recommended_models('Google'),
@@ -191,6 +182,9 @@ class DashboardAssets
                 'openrouter' => AIPKit_Providers::get_recommended_models('OpenRouter'),
             ];
         }
+
+        $normalized_embedding_provider_map = AIPKit_Providers::get_embedding_provider_map('dashboard_ui');
+        $normalized_embedding_models_by_provider = AIPKit_Providers::get_embedding_models_by_provider('dashboard_ui');
 
         $provider_status = [];
         if (class_exists('\\WPAICG\\AIPKit_Providers')) {
@@ -233,12 +227,8 @@ class DashboardAssets
                 'deepseek' => $deepseek_models,
             ],
             'recommendedModels' => $recommended_models,
-            'embeddingModels' => [
-                'openai' => $openai_embedding_models,
-                'google' => $google_embedding_models,
-                'openrouter' => $openrouter_embedding_models,
-                'azure' => $azure_embedding_models,
-            ],
+            'embeddingProviderMap' => $normalized_embedding_provider_map,
+            'embeddingModels' => $normalized_embedding_models_by_provider,
             'imageGeneratorModels' => [
                 'openai' => [
                     ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],

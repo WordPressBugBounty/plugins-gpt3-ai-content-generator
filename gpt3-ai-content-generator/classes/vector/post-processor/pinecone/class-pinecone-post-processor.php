@@ -4,6 +4,7 @@
 
 namespace WPAICG\Vector\PostProcessor\Pinecone;
 
+use WPAICG\AIPKit_Providers;
 use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WP_Error;
@@ -62,8 +63,17 @@ class PineconePostProcessor extends AIPKit_Vector_Post_Processor_Base {
         $post_obj = get_post($post_id);
         $post_title_for_log = $post_obj ? $post_obj->post_title : 'N/A';
         
-        $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
-        $embedding_provider_normalized = $provider_map[strtolower($embedding_provider_key)] ?? ucfirst($embedding_provider_key);
+        $provider_lookup = sanitize_key((string) strtolower($embedding_provider_key));
+        $embedding_provider_normalized = AIPKit_Providers::resolve_embedding_provider_name(
+            $provider_lookup,
+            'pinecone_post_processor'
+        );
+        if (!is_string($embedding_provider_normalized) || $embedding_provider_normalized === '') {
+            return [
+                'status' => 'error',
+                'message' => __('Invalid embedding provider for Pinecone indexing.', 'gpt3-ai-content-generator'),
+            ];
+        }
         $pinecone_vector_id = 'wp_post_' . $post_id;
 
         $log_entry_base = [

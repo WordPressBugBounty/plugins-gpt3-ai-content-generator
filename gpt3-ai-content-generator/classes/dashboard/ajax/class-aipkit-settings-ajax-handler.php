@@ -45,6 +45,8 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         'aipkit_deepseek_model_list',
         'aipkit_ollama_model_list',
         'aipkit_ollama_embedding_model_list',
+        'aipkit_ollama_vision_model_list',
+        'aipkit_ollama_model_capability_list',
         'aipkit_elevenlabs_voice_list',
         'aipkit_elevenlabs_model_list',
         'aipkit_pinecone_index_list',
@@ -687,10 +689,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 
         $sanitized = $existing_options;
         $provider_defaults = AIPKit_Providers::get_provider_defaults_all();
-        $allowed_top_level_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
+        $allowed_top_level_providers = AIPKit_Providers::get_main_provider_allowlist();
 
         $provider_value = isset($imported_options['provider']) ? sanitize_text_field((string) $imported_options['provider']) : 'OpenAI';
-        $sanitized['provider'] = in_array($provider_value, $allowed_top_level_providers, true) ? $provider_value : 'OpenAI';
+        $fallback_provider = $allowed_top_level_providers[0] ?? 'OpenAI';
+        $sanitized['provider'] = in_array($provider_value, $allowed_top_level_providers, true)
+            ? $provider_value
+            : $fallback_provider;
 
         $imported_providers = isset($imported_options['providers']) && is_array($imported_options['providers'])
             ? $imported_options['providers']

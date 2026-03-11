@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.81
+Stable tag: 2.3.82
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,15 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.82 =
+
+- **Added**: Ollama embedding support.
+- **Added**: Ollama image analysis support.
+- **Added**: New Google embedding model: `gemini-embedding-2-preview`.
+- **Fixed**: Google embedding batch inputs now process all provided text items instead of only the first one.
+- **Fixed**: REST embeddings `task_type` handling for Google now preserves valid uppercase task types (e.g. `RETRIEVAL_QUERY`).
+- General bug fixes and performance improvements.
 
 = 2.3.81 =
 

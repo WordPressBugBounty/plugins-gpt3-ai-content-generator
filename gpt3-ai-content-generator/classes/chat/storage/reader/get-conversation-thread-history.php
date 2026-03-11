@@ -6,9 +6,26 @@
 namespace WPAICG\Chat\Storage\ReaderMethods;
 
 use WPAICG\Chat\Storage\ConversationReader; // To access instance methods if needed (getters)
+use WPAICG\Core\AIPKit_Payload_Sanitizer;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
+}
+
+/**
+ * Redacts sensitive payload fields in an already-stored message object.
+ *
+ * @param array $message
+ * @return array
+ */
+function sanitize_message_payload_fields_for_history(array $message): array {
+    foreach (['request_payload', 'response_data'] as $field_key) {
+        if (array_key_exists($field_key, $message)) {
+            $message[$field_key] = AIPKit_Payload_Sanitizer::sanitize_payload_if_array($message[$field_key]);
+        }
+    }
+
+    return $message;
 }
 
 /**
@@ -89,6 +106,7 @@ function get_conversation_thread_history_logic(
         if (!isset($msg['message_id'])) {
             $msg['message_id'] = generate_message_id_logic(); // Call namespaced function
         }
+        $msg = sanitize_message_payload_fields_for_history($msg);
         $filtered_messages[] = $msg;
     }
 

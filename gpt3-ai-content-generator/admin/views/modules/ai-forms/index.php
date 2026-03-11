@@ -12,47 +12,31 @@ if (!defined('ABSPATH')) {
 }
 
 // --- ADDED: Fetch Vector Store and Model Data ---
-use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\AIPKit_Providers;
 
-$aipkit_openai_vector_stores = [];
-if (class_exists(AIPKit_Vector_Store_Registry::class)) {
-    $aipkit_openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
-}
-
-$aipkit_pinecone_indexes = [];
-if (class_exists(AIPKit_Providers::class)) {
-    $aipkit_pinecone_indexes = AIPKit_Providers::get_pinecone_indexes();
-}
-
-$aipkit_qdrant_collections = [];
-if (class_exists(AIPKit_Providers::class)) {
-    $aipkit_qdrant_collections = AIPKit_Providers::get_qdrant_collections();
-}
-
-$aipkit_openai_embedding_models = [];
-$aipkit_google_embedding_models = [];
-$aipkit_azure_embedding_models = [];
-$aipkit_openrouter_embedding_models = [];
+$aipkit_vector_store_localization = [
+    'openai_vector_stores' => [],
+    'pinecone_indexes' => [],
+    'qdrant_collections' => [],
+];
 $aipkit_openai_provider_data = [];
 $aipkit_pinecone_provider_data = [];
 $aipkit_qdrant_provider_data = [];
 if (class_exists(AIPKit_Providers::class)) {
-    $aipkit_openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
-    $aipkit_google_embedding_models = AIPKit_Providers::get_google_embedding_models();
-    $aipkit_azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
-    $aipkit_openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
+    $aipkit_vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('ai_forms_editor_ui');
     $aipkit_openai_provider_data = AIPKit_Providers::get_provider_data('OpenAI');
     $aipkit_pinecone_provider_data = AIPKit_Providers::get_provider_data('Pinecone');
     $aipkit_qdrant_provider_data = AIPKit_Providers::get_provider_data('Qdrant');
 }
-$openai_vector_stores = $aipkit_openai_vector_stores;
-$pinecone_indexes = $aipkit_pinecone_indexes;
-$qdrant_collections = $aipkit_qdrant_collections;
-$openai_embedding_models = $aipkit_openai_embedding_models;
-$google_embedding_models = $aipkit_google_embedding_models;
-$azure_embedding_models = $aipkit_azure_embedding_models;
-$openrouter_embedding_models = $aipkit_openrouter_embedding_models;
+$openai_vector_stores = isset($aipkit_vector_store_localization['openai_vector_stores']) && is_array($aipkit_vector_store_localization['openai_vector_stores'])
+    ? $aipkit_vector_store_localization['openai_vector_stores']
+    : [];
+$pinecone_indexes = isset($aipkit_vector_store_localization['pinecone_indexes']) && is_array($aipkit_vector_store_localization['pinecone_indexes'])
+    ? $aipkit_vector_store_localization['pinecone_indexes']
+    : [];
+$qdrant_collections = isset($aipkit_vector_store_localization['qdrant_collections']) && is_array($aipkit_vector_store_localization['qdrant_collections'])
+    ? $aipkit_vector_store_localization['qdrant_collections']
+    : [];
 $openai_api_key = $aipkit_openai_provider_data['api_key'] ?? '';
 $pinecone_api_key = $aipkit_pinecone_provider_data['api_key'] ?? '';
 $qdrant_url = $aipkit_qdrant_provider_data['url'] ?? '';

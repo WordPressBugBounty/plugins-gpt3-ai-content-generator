@@ -60,6 +60,13 @@ $recommended_claude = array_values(array_filter($recommended_claude, static func
 }));
 $recommended_claude_ids = array_column($recommended_claude, 'id');
 $recommended_claude_lookup = array_fill_keys($recommended_claude_ids, true);
+
+if (!isset($providers) || !is_array($providers) || empty($providers)) {
+    $providers = isset($allowed_main_providers) && is_array($allowed_main_providers)
+        ? $allowed_main_providers
+        : ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+}
+
 $show_chatbot_selector = empty($is_next_layout) || !$is_next_layout;
 $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title))
     ? (string) $active_bot_post->post_title

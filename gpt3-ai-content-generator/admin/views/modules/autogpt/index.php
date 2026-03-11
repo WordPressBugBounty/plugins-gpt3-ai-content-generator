@@ -12,7 +12,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\AIPKit_Providers; // For AI models
 use WPAICG\AIPKIT_AI_Settings; // For AI parameters
 use WPAICG\aipkit_dashboard; // For addon status
@@ -24,24 +23,23 @@ $all_selectable_post_types = array_filter($all_post_types, function ($pt_obj) {
     return $pt_obj->name !== 'attachment';
 });
 
-$openai_vector_stores = [];
-if (class_exists(AIPKit_Vector_Store_Registry::class)) {
-    $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
-}
-$pinecone_indexes = [];
-if (class_exists(AIPKit_Vector_Store_Registry::class)) {
-    $pinecone_indexes = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Pinecone');
-}
-$qdrant_collections = [];
-if (class_exists(AIPKit_Vector_Store_Registry::class)) {
-    $qdrant_collections = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Qdrant');
-}
-$openai_embedding_models = [];
-$google_embedding_models = [];
+$vector_store_localization = [
+    'openai_vector_stores' => [],
+    'pinecone_indexes' => [],
+    'qdrant_collections' => [],
+];
 if (class_exists(AIPKit_Providers::class)) {
-    $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
-    $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
+    $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('autogpt_ui');
 }
+$openai_vector_stores = isset($vector_store_localization['openai_vector_stores']) && is_array($vector_store_localization['openai_vector_stores'])
+    ? $vector_store_localization['openai_vector_stores']
+    : [];
+$pinecone_indexes = isset($vector_store_localization['pinecone_indexes']) && is_array($vector_store_localization['pinecone_indexes'])
+    ? $vector_store_localization['pinecone_indexes']
+    : [];
+$qdrant_collections = isset($vector_store_localization['qdrant_collections']) && is_array($vector_store_localization['qdrant_collections'])
+    ? $vector_store_localization['qdrant_collections']
+    : [];
 
 
 $task_categories = [

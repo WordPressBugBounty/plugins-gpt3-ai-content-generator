@@ -80,6 +80,34 @@ function build_ai_request_data_for_stream_logic(
         return new WP_Error('dependency_missing_openai_helper', 'OpenAI Stateful Helper component is missing.');
     }
 
+    if (!empty($image_inputs)) {
+        /**
+         * Allow provider-specific image capability validation for chat stream requests.
+         *
+         * Return a WP_Error to block request when selected provider/model
+         * cannot accept image inputs.
+         *
+         * @param mixed $validation_error Existing validation error (null by default).
+         * @param array $image_inputs Normalized image input payload.
+         * @param string $provider Selected provider.
+         * @param string $model Selected model.
+         * @param array $bot_settings Bot settings.
+         * @param string $flow Request flow identifier.
+         */
+        $image_validation_error = apply_filters(
+            'aipkit_chat_image_input_validation_error',
+            null,
+            $image_inputs,
+            $main_provider_for_ai,
+            $model_id_for_ai,
+            $bot_settings,
+            'stream'
+        );
+        if (is_wp_error($image_validation_error)) {
+            return $image_validation_error;
+        }
+    }
+
     $all_formatted_results_for_instruction = "";
     $vector_search_scores = []; // Initialize array to capture vector search scores
     if (function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {

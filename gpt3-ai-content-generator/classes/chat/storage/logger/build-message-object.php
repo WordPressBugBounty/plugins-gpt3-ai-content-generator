@@ -4,8 +4,20 @@
 
 namespace WPAICG\Chat\Storage\LoggerMethods;
 
+use WPAICG\Core\AIPKit_Payload_Sanitizer;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
+}
+
+/**
+ * Sanitizes a payload array for safe log persistence.
+ *
+ * @param mixed $payload
+ * @return mixed
+ */
+function sanitize_chat_log_payload_if_array($payload) {
+    return AIPKit_Payload_Sanitizer::sanitize_payload_if_array($payload);
 }
 
 /**
@@ -94,10 +106,10 @@ function build_message_object_logic(array $log_data, string $message_id, int $cu
         $new_message['feedback'] = sanitize_key($log_data['feedback']);
     }
     if (isset($log_data['request_payload'])) {
-        $new_message['request_payload'] = $log_data['request_payload'];
+        $new_message['request_payload'] = sanitize_chat_log_payload_if_array($log_data['request_payload']);
     }
     if (isset($log_data['response_data'])) {
-        $new_message['response_data'] = $log_data['response_data'];
+        $new_message['response_data'] = sanitize_chat_log_payload_if_array($log_data['response_data']);
     }
     // Store OpenAI specific IDs
     if (isset($log_data['openai_response_id']) && !empty($log_data['openai_response_id'])) {

@@ -5,6 +5,8 @@
 
 namespace WPAICG\Core\Stream\Vector\BuildContext;
 
+use WPAICG\AIPKit_Providers;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -17,6 +19,10 @@ if (!defined('ABSPATH')) {
  */
 function normalize_embedding_provider_logic(string $embedding_provider_key): string
 {
-    $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
-    return $provider_map[strtolower($embedding_provider_key)] ?? ucfirst($embedding_provider_key);
+    $provider_lookup = sanitize_key((string) strtolower($embedding_provider_key));
+
+    return AIPKit_Providers::normalize_embedding_provider_name(
+        $provider_lookup,
+        'stream_vector_build_context'
+    );
 }

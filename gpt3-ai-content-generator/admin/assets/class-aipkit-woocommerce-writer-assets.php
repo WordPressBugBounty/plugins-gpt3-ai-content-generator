@@ -17,7 +17,6 @@ if (! defined('ABSPATH')) {
 class AIPKit_Woocommerce_Writer_Assets
 {
     private $version;
-    private $is_woo_writer_css_enqueued = false;
     private $is_admin_main_js_enqueued = false;
 
 
@@ -60,20 +59,18 @@ class AIPKit_Woocommerce_Writer_Assets
     private function enqueue_styles()
     {
         $dist_css_url = WPAICG_PLUGIN_URL . 'dist/css/';
-        $woo_writer_css_handle = 'aipkit-admin-woocommerce-writer-css';
         $admin_main_css_handle = 'aipkit-admin-main-css';
 
-        if (!wp_style_is($woo_writer_css_handle, 'registered')) {
+        if (!wp_style_is($admin_main_css_handle, 'registered')) {
             wp_register_style(
-                $woo_writer_css_handle,
-                $dist_css_url . 'admin-woocommerce-writer.bundle.css',
-                [$admin_main_css_handle],
+                $admin_main_css_handle,
+                $dist_css_url . 'admin-main.bundle.css',
+                ['dashicons'],
                 $this->version
             );
         }
-        if (!$this->is_woo_writer_css_enqueued && !wp_style_is($woo_writer_css_handle, 'enqueued')) {
-            wp_enqueue_style($woo_writer_css_handle);
-            $this->is_woo_writer_css_enqueued = true;
+        if (!wp_style_is($admin_main_css_handle, 'enqueued')) {
+            wp_enqueue_style($admin_main_css_handle);
         }
     }
 

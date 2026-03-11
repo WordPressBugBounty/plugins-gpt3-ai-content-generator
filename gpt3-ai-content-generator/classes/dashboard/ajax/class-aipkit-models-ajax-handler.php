@@ -84,7 +84,17 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
-        $valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'Replicate', 'Ollama'];
+        $default_valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'Replicate'];
+        $valid_providers = apply_filters('aipkit_sync_provider_allowlist', $default_valid_providers);
+        if (!is_array($valid_providers) || empty($valid_providers)) {
+            $valid_providers = $default_valid_providers;
+        }
+        $valid_providers = array_values(array_unique(array_filter(array_map(
+            static function ($provider_name) {
+                return sanitize_text_field((string) $provider_name);
+            },
+            $valid_providers
+        ))));
         if (!in_array($provider, $valid_providers, true)) {
             wp_send_json_error(['message' => __('Invalid provider selection.', 'gpt3-ai-content-generator')]);
             return;
@@ -296,19 +306,108 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 }
                 $extra_response_payload['embedding_models'] = $openrouter_embedding_models;
             } elseif ($provider === 'Ollama') {
-                $chat_models = [];
+                $chat_models = is_array($result) ? $result : [];
                 $embedding_models = [];
-                foreach ($result as $model) {
-                    $id_lower = strtolower($model['id']);
-                    if (strpos($id_lower, 'embed') !== false) {
-                        $embedding_models[] = $model;
-                    } else {
+                $vision_models = [];
+                $all_models = is_array($result) ? $result : [];
+                $option_updates = [];
+
+                /**
+                 * Allow Pro/Ollama layer to classify synced Ollama models using
+                 * provider-specific capabilities (e.g. /api/show metadata).
+                 *
+                 * Expected return shape:
+                 * [
+                 *   'chat_models' => array,
+                 *   'embedding_models' => array,
+                 *   'vision_models' => array,
+                 *   'model_details_failures' => array,
+                 *   'cache_stats' => array,
+                 * ]
+                 */
+                $classification_result = apply_filters(
+                    'aipkit_ollama_sync_models_classification',
+                    null,
+                    $result,
+                    $api_params
+                );
+
+                if (is_array($classification_result)) {
+                    if (isset($classification_result['all_models']) && is_array($classification_result['all_models'])) {
+                        $all_models = $classification_result['all_models'];
+                    }
+                    if (isset($classification_result['chat_models']) && is_array($classification_result['chat_models'])) {
+                        $chat_models = $classification_result['chat_models'];
+                    }
+                    if (isset($classification_result['embedding_models']) && is_array($classification_result['embedding_models'])) {
+                        $embedding_models = $classification_result['embedding_models'];
+                    }
+                    if (isset($classification_result['vision_models']) && is_array($classification_result['vision_models'])) {
+                        $vision_models = $classification_result['vision_models'];
+                    }
+                    if (!empty($classification_result['model_details_failures']) && is_array($classification_result['model_details_failures'])) {
+                        $extra_response_payload['model_details_failures'] = $classification_result['model_details_failures'];
+                    }
+                    if (!empty($classification_result['cache_stats']) && is_array($classification_result['cache_stats'])) {
+                        $extra_response_payload['capability_cache'] = $classification_result['cache_stats'];
+                    }
+                    if (isset($classification_result['option_updates']) && is_array($classification_result['option_updates'])) {
+                        $option_updates = $classification_result['option_updates'];
+                    }
+                } else {
+                    // Backward-compatible fallback when capability classifier is unavailable.
+                    $chat_models = [];
+                    $embedding_models = [];
+                    $vision_models = [];
+                    foreach ($all_models as $model) {
+                        if (!is_array($model)) {
+                            continue;
+                        }
+                        $id_lower = strtolower((string) ($model['id'] ?? ''));
+                        $name_lower = strtolower((string) ($model['name'] ?? ''));
+                        $haystack = trim($id_lower . ' ' . $name_lower);
+                        $is_embedding = strpos($haystack, 'embed') !== false || strpos($haystack, 'embedding') !== false;
+                        $is_vision = strpos($haystack, 'vision') !== false
+                            || strpos($haystack, '-vl') !== false
+                            || strpos($haystack, '_vl') !== false
+                            || strpos($haystack, 'llava') !== false
+                            || strpos($haystack, 'moondream') !== false
+                            || strpos($haystack, 'gemma3') !== false;
+
+                        if ($is_embedding) {
+                            $embedding_models[] = $model;
+                            continue;
+                        }
+                        if ($is_vision) {
+                            $vision_models[] = $model;
+                        }
                         $chat_models[] = $model;
                     }
                 }
+
+                if (empty($option_updates)) {
+                    $option_updates = [
+                        'aipkit_ollama_embedding_model_list' => $embedding_models,
+                        'aipkit_ollama_vision_model_list' => $vision_models,
+                        'aipkit_ollama_model_capability_list' => $all_models,
+                    ];
+                }
+
                 $value_to_save = $chat_models;
                 $response_models = $value_to_save; // Set response to just the chat models
-                update_option('aipkit_ollama_embedding_model_list', $embedding_models, 'no');
+
+                foreach ($option_updates as $option_key => $option_value) {
+                    $option_key = sanitize_key((string) $option_key);
+                    if (!is_array($option_value) || $option_key === '' || strpos($option_key, 'aipkit_') !== 0) {
+                        continue;
+                    }
+                    update_option($option_key, $option_value, 'no');
+                }
+
+                $extra_response_payload['embedding_models'] = $embedding_models;
+                if (!empty($vision_models)) {
+                    $extra_response_payload['vision_models'] = $vision_models;
+                }
             } elseif ($provider === 'Azure') {
                 $chat_deployments = [];
                 $image_deployments = [];
@@ -414,7 +513,9 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
      */
     private function get_recommended_models_for_response(string $provider, $response_models, $stored_models): array
     {
-        $supported = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'Ollama'];
+        $default_supported = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek'];
+        $supported = apply_filters('aipkit_recommended_model_supported_providers', $default_supported);
+        $supported = is_array($supported) ? $supported : $default_supported;
         if (!in_array($provider, $supported, true)) {
             return [];
         }
@@ -426,7 +527,10 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // Keep fallback behavior aligned with model-list builder for providers
         // that derive recommended entries from existing synced rows.
-        if (!in_array($provider, ['Azure', 'DeepSeek', 'Ollama'], true)) {
+        $default_fallback_supported = ['Azure', 'DeepSeek'];
+        $fallback_supported = apply_filters('aipkit_recommended_model_fallback_providers', $default_fallback_supported);
+        $fallback_supported = is_array($fallback_supported) ? $fallback_supported : $default_fallback_supported;
+        if (!in_array($provider, $fallback_supported, true)) {
             return [];
         }
 

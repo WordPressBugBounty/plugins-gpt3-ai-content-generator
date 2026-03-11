@@ -6,6 +6,7 @@
 namespace WPAICG\Core\Stream\Contexts\Chat\Process;
 
 use WPAICG\Chat\Storage\LogStorage;
+use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -48,7 +49,11 @@ function log_user_message_logic(
 
 
     if (!empty($image_inputs)) {
-        $log_user_data['response_data'] = ['type' => 'user_image_upload', 'images' => $image_inputs];
+        $response_data_for_log = AIPKit_Payload_Sanitizer::sanitize_payload_if_array([
+            'type' => 'user_image_upload',
+            'images' => $image_inputs,
+        ]);
+        $log_user_data['response_data'] = $response_data_for_log;
     }
 
     $user_log_result = $log_storage->log_message($log_user_data);

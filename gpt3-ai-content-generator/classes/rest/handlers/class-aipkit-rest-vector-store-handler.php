@@ -35,6 +35,8 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
 
     public function get_endpoint_args(): array
     {
+        $embedding_provider_keys = AIPKit_Providers::get_embedding_provider_keys('rest_vector_store_endpoint_args');
+
         return array(
             'provider' => array(
                 'description' => __('The vector database provider.', 'gpt3-ai-content-generator'),
@@ -63,7 +65,7 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             'embedding_provider' => array(
                 'description' => __('The AI provider to use for generating embeddings.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'enum'        => ['openai', 'google', 'azure', 'openrouter'],
+                'enum'        => $embedding_provider_keys,
                 'required'    => true,
             ),
             'embedding_model' => array(
@@ -128,13 +130,10 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_no_content', __('Each object in the "vectors" array must have a "content" key.', 'gpt3-ai-content-generator'), ['status' => 400]));
         }
         
-        $embedding_provider_normalized = match(strtolower($embedding_provider_key)) {
-            'openai' => 'OpenAI',
-            'google' => 'Google',
-            'azure' => 'Azure',
-            'openrouter' => 'OpenRouter',
-            default => null,
-        };
+        $embedding_provider_normalized = AIPKit_Providers::resolve_embedding_provider_name(
+            $embedding_provider_key,
+            'rest_vector_store_handle_request'
+        );
         if(!$embedding_provider_normalized) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_embedding_provider', __('Invalid embedding provider.', 'gpt3-ai-content-generator'), ['status' => 400]));
         
         $embedding_result = $this->ai_caller->generate_embeddings($embedding_provider_normalized, $content_array_for_embedding, ['model' => $embedding_model]);

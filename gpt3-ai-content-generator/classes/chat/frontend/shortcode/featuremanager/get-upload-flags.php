@@ -37,7 +37,24 @@ function get_upload_flags_logic(array $core_flags): array {
     $provider = isset($core_flags['provider']) ? sanitize_text_field((string) $core_flags['provider']) : 'OpenAI';
     $model = isset($core_flags['model']) ? sanitize_text_field((string) $core_flags['model']) : '';
     $vector_store_provider = isset($core_flags['vector_store_provider']) ? sanitize_key((string) $core_flags['vector_store_provider']) : 'openai';
-    $image_upload_supported_providers = ['OpenAI', 'Claude', 'OpenRouter'];
+    $default_image_upload_supported_providers = ['OpenAI', 'Claude', 'OpenRouter'];
+    $image_upload_supported_providers = apply_filters(
+        'aipkit_chat_image_upload_supported_providers',
+        $default_image_upload_supported_providers,
+        $core_flags,
+        $is_pro
+    );
+    if (!is_array($image_upload_supported_providers)) {
+        $image_upload_supported_providers = $default_image_upload_supported_providers;
+    } else {
+        $image_upload_supported_providers = array_values(array_filter(array_map(
+            static fn($item) => is_string($item) ? sanitize_text_field($item) : '',
+            $image_upload_supported_providers
+        )));
+        if (empty($image_upload_supported_providers)) {
+            $image_upload_supported_providers = $default_image_upload_supported_providers;
+        }
+    }
     $is_image_upload_supported_provider = in_array($provider, $image_upload_supported_providers, true);
     $claude_files_compatible = !($vector_store_provider === 'claude_files' && $provider !== 'Claude');
 
@@ -54,6 +71,27 @@ function get_upload_flags_logic(array $core_flags): array {
             $is_image_upload_supported_provider = !empty($capabilities['image_input']);
         }
     }
+
+    /**
+     * Final gate for image-upload availability by provider/model on frontend.
+     *
+     * Allows paid integrations to enable/disable support without adding
+     * provider-specific logic in core frontend classes.
+     *
+     * @param bool  $is_image_upload_supported_provider Current support decision.
+     * @param array $context Gate context (provider, model, core_flags, is_pro_plan).
+     */
+    $is_image_upload_supported_provider = (bool) apply_filters(
+        'aipkit_chat_image_upload_model_supported',
+        $is_image_upload_supported_provider,
+        [
+            'provider' => $provider,
+            'model' => $model,
+            'core_flags' => $core_flags,
+            'is_pro_plan' => $is_pro,
+            'vector_store_provider' => $vector_store_provider,
+        ]
+    );
 
     // File upload UI is enabled if the setting is on AND it's a Pro feature
     $upload_flags['file_upload_ui_enabled'] = ($core_flags['enable_file_upload_setting'] ?? false) && $is_pro && $claude_files_compatible;

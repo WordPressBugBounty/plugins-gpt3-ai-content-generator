@@ -497,9 +497,17 @@ if (isset($active_bot_settings['openai_vector_store_ids'])) {
 }
 $pinecone_index_name = $active_bot_settings['pinecone_index_name'] ?? BotSettingsManager::DEFAULT_PINECONE_INDEX_NAME;
 $vector_embedding_provider = $active_bot_settings['vector_embedding_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
-$allowed_embedding_providers = ['openai', 'google', 'azure', 'openrouter'];
+$default_embedding_provider_map = AIPKit_Providers::get_default_embedding_provider_map();
+$embedding_provider_options = AIPKit_Providers::get_embedding_provider_map('chatbot_ui');
+$allowed_embedding_providers = array_values(array_unique(array_map('sanitize_key', array_keys($embedding_provider_options))));
+if (empty($allowed_embedding_providers)) {
+    $allowed_embedding_providers = array_keys($default_embedding_provider_map);
+}
+$default_embedding_provider_key = isset($embedding_provider_options[BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER])
+    ? BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER
+    : (array_key_first($embedding_provider_options) ?: BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
 if (!in_array($vector_embedding_provider, $allowed_embedding_providers, true)) {
-    $vector_embedding_provider = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
+    $vector_embedding_provider = $default_embedding_provider_key;
 }
 $vector_embedding_model = $active_bot_settings['vector_embedding_model'] ?? BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_MODEL;
 $qdrant_collection_names = [];
@@ -518,10 +526,7 @@ $vector_store_confidence_threshold = max(0, min(absint($vector_store_confidence_
 $openai_vector_stores = [];
 $pinecone_indexes = [];
 $qdrant_collections = [];
-$openai_embedding_models = [];
-$google_embedding_models = [];
-$azure_embedding_models = [];
-$openrouter_embedding_models = [];
+$embedding_models_by_provider = [];
 $openai_provider_data = [];
 $pinecone_provider_data = [];
 $qdrant_provider_data = [];
@@ -534,10 +539,7 @@ if (class_exists(AIPKit_Vector_Store_Registry::class)) {
 if (class_exists(AIPKit_Providers::class)) {
     $pinecone_indexes = AIPKit_Providers::get_pinecone_indexes();
     $qdrant_collections = AIPKit_Providers::get_qdrant_collections();
-    $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
-    $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
-    $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
-    $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
+    $embedding_models_by_provider = AIPKit_Providers::get_embedding_models_by_provider('chatbot_ui');
     $openai_provider_data = AIPKit_Providers::get_provider_data('OpenAI');
     $pinecone_provider_data = AIPKit_Providers::get_provider_data('Pinecone');
     $qdrant_provider_data = AIPKit_Providers::get_provider_data('Qdrant');
@@ -680,7 +682,15 @@ $realtime_voices = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 
 $direct_voice_mode_disabled = !($popup_enabled === '1' && $enable_realtime_voice === '1');
 
 // Provider/model data for AI selection.
-$providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
+$allowed_main_providers = class_exists(AIPKit_Providers::class)
+    ? AIPKit_Providers::get_main_provider_allowlist()
+    : ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+if (!is_array($allowed_main_providers) || empty($allowed_main_providers)) {
+    $allowed_main_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+}
+// Backward-compatible alias used by shared provider/model partials.
+$providers = $allowed_main_providers;
+$default_main_provider = $allowed_main_providers[0] ?? 'OpenAI';
 $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
 $rt_disabled_by_plan = !$is_pro_plan;
 $rt_controls_disabled = $rt_disabled_by_plan;
@@ -702,20 +712,31 @@ $claude_model_list = AIPKit_Providers::get_claude_models();
 $deepseek_model_list = AIPKit_Providers::get_deepseek_models();
 $ollama_model_list = AIPKit_Providers::get_ollama_models();
 
-$saved_provider = $active_bot_settings['provider'] ?? 'OpenAI';
+$saved_provider = isset($active_bot_settings['provider'])
+    ? sanitize_text_field((string) $active_bot_settings['provider'])
+    : $default_main_provider;
 $saved_model = $active_bot_settings['model'] ?? '';
-if (!in_array($saved_provider, $providers, true)) {
-    $provider_map = [
-        'openai' => 'OpenAI',
-        'openrouter' => 'OpenRouter',
-        'google' => 'Google',
-        'azure' => 'Azure',
-        'claude' => 'Claude',
-        'deepseek' => 'DeepSeek',
-        'ollama' => 'Ollama',
-    ];
-    $normalized_provider = $provider_map[strtolower((string) $saved_provider)] ?? '';
-    $saved_provider = $normalized_provider ?: ($providers[0] ?? 'OpenAI');
+if (class_exists(AIPKit_Providers::class)) {
+    // Normalize legacy lowercase values against the current allowlist.
+    $allowlist_by_lower = [];
+    foreach ($allowed_main_providers as $provider_name) {
+        if (!is_string($provider_name)) {
+            continue;
+        }
+        $provider_name = sanitize_text_field($provider_name);
+        if ($provider_name === '') {
+            continue;
+        }
+        $allowlist_by_lower[strtolower($provider_name)] = $provider_name;
+    }
+    $saved_provider_lookup = strtolower($saved_provider);
+    if (isset($allowlist_by_lower[$saved_provider_lookup])) {
+        $saved_provider = $allowlist_by_lower[$saved_provider_lookup];
+    }
+
+    $saved_provider = AIPKit_Providers::normalize_main_provider((string) $saved_provider, $default_main_provider);
+} elseif (!in_array($saved_provider, $allowed_main_providers, true)) {
+    $saved_provider = $default_main_provider;
 }
 
 // Preview placeholder content
@@ -1063,12 +1084,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                         in_array($vector_store_provider, ['pinecone', 'qdrant'], true)
                                         && !empty($vector_embedding_model)
                                     ) {
-                                        $embedding_models_by_provider = [
-                                            'openai' => $openai_embedding_models,
-                                            'google' => $google_embedding_models,
-                                            'azure' => $azure_embedding_models,
-                                            'openrouter' => $openrouter_embedding_models,
-                                        ];
                                         $embedding_model_label = trim((string) $vector_embedding_model);
                                         $selected_embedding_provider = trim((string) $vector_embedding_provider);
                                         if (

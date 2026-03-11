@@ -6,7 +6,6 @@
 namespace WPAICG\Admin\Assets;
 
 // --- ADDED: Use statements for vector store/provider data ---
-use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\AIPKit_Providers;
 
 // --- END ADDED ---
@@ -98,28 +97,8 @@ class AIPKit_AI_Forms_Assets
         }
 
         // --- NEW: Add vector store and embedding model data to localization ---
-        $openai_vector_stores = [];
-        if (class_exists(AIPKit_Vector_Store_Registry::class)) {
-            $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
-        }
-        $pinecone_indexes = [];
-        if (class_exists(AIPKit_Providers::class)) {
-            $pinecone_indexes = AIPKit_Providers::get_pinecone_indexes();
-        }
-        $qdrant_collections = [];
-        if (class_exists(AIPKit_Providers::class)) {
-            $qdrant_collections = AIPKit_Providers::get_qdrant_collections();
-        }
-        $openai_embedding_models = [];
-        $google_embedding_models = [];
-        $openrouter_embedding_models = [];
-        $azure_embedding_models = [];
-        if (class_exists(AIPKit_Providers::class)) {
-            $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
-            $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
-            $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
-            $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
-        }
+        $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('ai_forms_ui');
+        $embedding_localization = AIPKit_Providers::get_embedding_localization_payload('ai_forms_ui', false);
         // --- END NEW ---
 
         wp_localize_script($admin_main_js_handle, 'aipkit_ai_forms_config', [
@@ -127,17 +106,9 @@ class AIPKit_AI_Forms_Assets
             'nonce_settings' => wp_create_nonce('aipkit_ai_forms_settings_nonce'),
             'current_user_id' => get_current_user_id(),
             // --- NEW: Add vector data ---
-            'vectorStores' => [
-                'openai' => $openai_vector_stores,
-                'pinecone' => $pinecone_indexes,
-                'qdrant' => $qdrant_collections
-            ],
-            'embeddingModels' => [
-                'openai' => $openai_embedding_models,
-                'google' => $google_embedding_models,
-                'openrouter' => $openrouter_embedding_models,
-                'azure' => $azure_embedding_models,
-            ],
+            'vectorStores' => $vector_store_localization['vectorStores'],
+            'embeddingProviderMap' => $embedding_localization['embeddingProviderMap'],
+            'embeddingModels' => $embedding_localization['embeddingModels'],
             // --- END NEW ---
             'text' => [
                 'savingForm'      => __('Saving form...', 'gpt3-ai-content-generator'),

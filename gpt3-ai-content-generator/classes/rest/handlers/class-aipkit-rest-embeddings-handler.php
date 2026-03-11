@@ -7,6 +7,7 @@ namespace WPAICG\REST\Handlers;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
+use WPAICG\AIPKit_Providers;
 use WPAICG\Core\AIPKit_AI_Caller;
 
 if (!defined('ABSPATH')) {
@@ -23,11 +24,13 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
      */
     public function get_endpoint_args(): array
     {
+        $embedding_provider_keys = AIPKit_Providers::get_embedding_provider_keys('rest_embeddings_endpoint_args');
+
         return array(
             'provider' => array(
-                'description' => __('The AI provider for embeddings (OpenAI, Google, Azure, or OpenRouter).', 'gpt3-ai-content-generator'),
+                'description' => __('The AI provider key for embeddings (from enabled embedding providers).', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'enum'        => ['openai', 'google', 'azure', 'openrouter'],
+                'enum'        => $embedding_provider_keys,
                 'required'    => true,
             ),
             'model' => array(
@@ -147,13 +150,10 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
             }
         }
 
-        $provider = match(strtolower($provider_raw)) {
-            'openai' => 'OpenAI',
-            'google' => 'Google',
-            'azure' => 'Azure',
-            'openrouter' => 'OpenRouter',
-            default => null,
-        };
+        $provider = AIPKit_Providers::resolve_embedding_provider_name(
+            $provider_raw,
+            'rest_embeddings_handle_request'
+        );
         if ($provider === null) {
             /* translators: %s is the provider name */
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid provider specified for embeddings: %s', 'gpt3-ai-content-generator'), $provider_raw), ['status' => 400]));
@@ -181,7 +181,20 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
         }
         if ($provider === 'Google') {
             if (isset($params['task_type'])) {
-                $embedding_options['taskType'] = sanitize_key($params['task_type']);
+                $task_type = strtoupper(sanitize_text_field((string) $params['task_type']));
+                $allowed_task_types = [
+                    'SEMANTIC_SIMILARITY',
+                    'CLASSIFICATION',
+                    'CLUSTERING',
+                    'RETRIEVAL_DOCUMENT',
+                    'RETRIEVAL_QUERY',
+                    'QUESTION_ANSWERING',
+                    'FACT_VERIFICATION',
+                    'CODE_RETRIEVAL_QUERY',
+                ];
+                if (in_array($task_type, $allowed_task_types, true)) {
+                    $embedding_options['taskType'] = $task_type;
+                }
             }
             if (isset($params['output_dimensionality'])) {
                 $embedding_options['outputDimensionality'] = absint($params['output_dimensionality']);

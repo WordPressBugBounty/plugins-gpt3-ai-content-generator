@@ -11,11 +11,15 @@ if (!defined('ABSPATH')) {
 }
 // Variables passed from parent (index.php -> form-editor.php -> _form-editor-main-settings.php -> this):
 // $openai_vector_stores, $pinecone_indexes, $qdrant_collections
-// $openai_embedding_models, $google_embedding_models, $azure_embedding_models, $openrouter_embedding_models
 ?>
 <?php
 $vector_embedding_provider = '';
 $vector_embedding_model = '';
+$embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('ai_forms_editor_ui');
+$embedding_models_by_provider = \WPAICG\AIPKit_Providers::get_embedding_models_by_provider('ai_forms_editor_ui');
+if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vector_embedding_provider])) {
+    $vector_embedding_provider = array_key_first($embedding_provider_options) ?: 'openai';
+}
 ?>
 <div class="aipkit_popover_options_list">
     <div class="aipkit_popover_option_row aipkit_vector_store_popover_row">
@@ -291,65 +295,17 @@ $vector_embedding_model = '';
                         class="aipkit_popover_option_select aipkit_vector_embedding_select"
                     >
                         <?php
-                        $embedding_groups = [
-                            'openai' => [
-                                'label' => esc_html__('OpenAI', 'gpt3-ai-content-generator'),
-                                'models' => $openai_embedding_models,
-                            ],
-                            'google' => [
-                                'label' => esc_html__('Google', 'gpt3-ai-content-generator'),
-                                'models' => $google_embedding_models,
-                            ],
-                            'azure' => [
-                                'label' => esc_html__('Azure', 'gpt3-ai-content-generator'),
-                                'models' => $azure_embedding_models,
-                            ],
-                            'openrouter' => [
-                                'label' => esc_html__('OpenRouter', 'gpt3-ai-content-generator'),
-                                'models' => $openrouter_embedding_models,
-                            ],
-                        ];
-                        $embedding_model_map = [];
-                        foreach ($embedding_groups as $group_key => $group_data) {
-                            foreach ($group_data['models'] as $model) {
-                                $model_id_val = $model['id'] ?? '';
-                                if ($model_id_val !== '') {
-                                    $embedding_model_map[$model_id_val] = $group_key;
-                                }
-                            }
-                        }
-                        $selected_embedding_value = '';
-                        if (!empty($vector_embedding_provider) && !empty($vector_embedding_model)) {
-                            $selected_embedding_value = $vector_embedding_provider . '::' . $vector_embedding_model;
-                        }
                         echo '<option value="">' . esc_html__('-- Select Embedding --', 'gpt3-ai-content-generator') . '</option>';
-                        $manual_included = false;
-                        foreach ($embedding_groups as $group_key => $group_data) {
-                            echo '<optgroup label="' . esc_attr($group_data['label']) . '">';
-                            foreach ($group_data['models'] as $model) {
-                                $model_id_val = $model['id'] ?? '';
-                                if ($model_id_val === '') {
-                                    continue;
-                                }
-                                $model_name_val = $model['name'] ?? $model_id_val;
-                                $option_value = $group_key . '::' . $model_id_val;
-                                $is_selected = selected($selected_embedding_value, $option_value, false);
-                                echo '<option value="' . esc_attr($option_value) . '" data-provider="' . esc_attr($group_key) . '" ' . $is_selected . '>' . esc_html($model_name_val) . '</option>';
-                            }
-                            if (!$manual_included && !empty($vector_embedding_model) && $vector_embedding_provider === $group_key && !isset($embedding_model_map[$vector_embedding_model])) {
-                                $manual_value = $vector_embedding_provider . '::' . $vector_embedding_model;
-                                echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($vector_embedding_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
-                                $manual_included = true;
-                            }
-                            echo '</optgroup>';
-                        }
-                        if (!$manual_included && !empty($vector_embedding_model) && !isset($embedding_model_map[$vector_embedding_model])) {
-                            $manual_provider = $vector_embedding_provider ?: 'manual';
-                            $manual_value = $manual_provider . '::' . $vector_embedding_model;
-                            echo '<optgroup label="' . esc_attr__('Manual', 'gpt3-ai-content-generator') . '">';
-                            echo '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($manual_provider) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
-                            echo '</optgroup>';
-                        }
+                        echo \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
+                            $embedding_provider_options,
+                            $embedding_models_by_provider,
+                            $vector_embedding_provider,
+                            $vector_embedding_model,
+                            [
+                                'value_mode' => 'provider_model',
+                                'include_manual_fallback' => true,
+                            ]
+                        ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is fully escaped by the renderer.
                         ?>
                     </select>
                     <select
@@ -359,10 +315,11 @@ $vector_embedding_model = '';
                         aria-hidden="true"
                         tabindex="-1"
                     >
-                        <option value="openai" <?php selected($vector_embedding_provider, 'openai'); ?>>OpenAI</option>
-                        <option value="google" <?php selected($vector_embedding_provider, 'google'); ?>>Google</option>
-                        <option value="azure" <?php selected($vector_embedding_provider, 'azure'); ?>>Azure</option>
-                        <option value="openrouter" <?php selected($vector_embedding_provider, 'openrouter'); ?>>OpenRouter</option>
+                        <?php foreach ($embedding_provider_options as $provider_key => $provider_label): ?>
+                            <option value="<?php echo esc_attr($provider_key); ?>" <?php selected($vector_embedding_provider, $provider_key); ?>>
+                                <?php echo esc_html($provider_label); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                     <select
                         id="aipkit_ai_form_vector_embedding_model"
@@ -373,16 +330,9 @@ $vector_embedding_model = '';
                     >
                         <option value=""><?php esc_html_e('-- Select Model --', 'gpt3-ai-content-generator'); ?></option>
                         <?php
-                        $current_embedding_list = [];
-                        if ($vector_embedding_provider === 'openai') {
-                            $current_embedding_list = $openai_embedding_models;
-                        } elseif ($vector_embedding_provider === 'google') {
-                            $current_embedding_list = $google_embedding_models;
-                        } elseif ($vector_embedding_provider === 'azure') {
-                            $current_embedding_list = $azure_embedding_models;
-                        } elseif ($vector_embedding_provider === 'openrouter') {
-                            $current_embedding_list = $openrouter_embedding_models;
-                        }
+                        $current_embedding_list = isset($embedding_models_by_provider[$vector_embedding_provider]) && is_array($embedding_models_by_provider[$vector_embedding_provider])
+                            ? $embedding_models_by_provider[$vector_embedding_provider]
+                            : [];
                         if (!empty($current_embedding_list)) {
                             foreach ($current_embedding_list as $model) {
                                 $model_id_val = $model['id'] ?? '';

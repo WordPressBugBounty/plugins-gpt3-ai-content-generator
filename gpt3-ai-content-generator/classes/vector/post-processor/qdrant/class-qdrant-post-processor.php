@@ -4,6 +4,7 @@
 
 namespace WPAICG\Vector\PostProcessor\Qdrant;
 
+use WPAICG\AIPKit_Providers;
 use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WP_Error;
@@ -69,8 +70,17 @@ class QdrantPostProcessor extends AIPKit_Vector_Post_Processor_Base
         $post_obj = get_post($post_id);
         $post_title_for_log = $post_obj ? $post_obj->post_title : 'N/A';
         
-        $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
-        $embedding_provider_normalized = $provider_map[strtolower($embedding_provider_key)] ?? ucfirst($embedding_provider_key);
+        $provider_lookup = sanitize_key((string) strtolower($embedding_provider_key));
+        $embedding_provider_normalized = AIPKit_Providers::resolve_embedding_provider_name(
+            $provider_lookup,
+            'qdrant_post_processor'
+        );
+        if (!is_string($embedding_provider_normalized) || $embedding_provider_normalized === '') {
+            return [
+                'status' => 'error',
+                'message' => __('Invalid embedding provider for Qdrant indexing.', 'gpt3-ai-content-generator'),
+            ];
+        }
         // --- MODIFIED: Use wp_generate_uuid4() for Qdrant point ID ---
         $qdrant_point_id = wp_generate_uuid4();
         // --- END MODIFICATION ---

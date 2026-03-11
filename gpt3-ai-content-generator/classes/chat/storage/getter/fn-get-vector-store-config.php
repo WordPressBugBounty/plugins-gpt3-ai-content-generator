@@ -5,6 +5,7 @@
 
 namespace WPAICG\Chat\Storage\GetterMethods;
 
+use WPAICG\AIPKit_Providers;
 use WPAICG\Chat\Storage\BotSettingsManager; // For default constants
 
 if (!defined('ABSPATH')) {
@@ -65,8 +66,10 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
     }
     $settings['qdrant_collection_names'] = $qdrant_names_array;
 
+    $allowed_embedding_provider_keys = AIPKit_Providers::get_embedding_provider_keys('chat_vector_store_getter');
+
     $settings['vector_embedding_provider'] = $get_meta_fn('_aipkit_vector_embedding_provider', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
-    if (!in_array($settings['vector_embedding_provider'], ['openai', 'google', 'azure', 'openrouter'], true)) {
+    if (!in_array($settings['vector_embedding_provider'], $allowed_embedding_provider_keys, true)) {
         $settings['vector_embedding_provider'] = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
     }
     $settings['vector_embedding_model'] = $get_meta_fn('_aipkit_vector_embedding_model', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_MODEL);

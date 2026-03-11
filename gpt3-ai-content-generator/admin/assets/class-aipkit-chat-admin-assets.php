@@ -6,7 +6,6 @@
 namespace WPAICG\Admin\Assets;
 
 use WPAICG\aipkit_dashboard;
-use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Chat\Frontend\Assets as ChatFrontendAssetsOrchestrator;
 
@@ -179,29 +178,14 @@ class ChatAdminAssets
         $dashboard_texts_localized_obj = $dashboard_texts_data ? json_decode(str_replace('var aipkit_dashboard = ', '', rtrim($dashboard_texts_data, ';')), true) : null;
         $dashboard_texts = ($dashboard_texts_localized_obj && isset($dashboard_texts_localized_obj['text'])) ? $dashboard_texts_localized_obj['text'] : [];
 
-        $openai_vector_stores = [];
-        $pinecone_indexes = [];
-        $qdrant_collections = [];
-        $openai_embedding_models = [];
-        $google_embedding_models = [];
-        $openrouter_embedding_models = [];
-        $azure_embedding_models = [];
         $is_pro_plan = false;
 
-        if (class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Registry')) {
-            $openai_vector_stores = \WPAICG\Vector\AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
-        }
-        if (class_exists('\\WPAICG\\AIPKit_Providers')) {
-            $pinecone_indexes = \WPAICG\AIPKit_Providers::get_pinecone_indexes();
-            $qdrant_collections = \WPAICG\AIPKit_Providers::get_qdrant_collections();
-            $openai_embedding_models = \WPAICG\AIPKit_Providers::get_openai_embedding_models();
-            $google_embedding_models = \WPAICG\AIPKit_Providers::get_google_embedding_models();
-            $openrouter_embedding_models = \WPAICG\AIPKit_Providers::get_openrouter_embedding_models();
-            $azure_embedding_models = \WPAICG\AIPKit_Providers::get_azure_embedding_models();
-        }
+        $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('chat_admin_ui');
         if (class_exists('\\WPAICG\\aipkit_dashboard')) {
             $is_pro_plan = \WPAICG\aipkit_dashboard::is_pro_plan();
         }
+
+        $embedding_localization = AIPKit_Providers::get_embedding_localization_payload('chat_admin_ui', false);
 
         // --- FIX: Correctly sanitize the IP address ---
         // This addresses both the MissingUnslash and InputNotSanitized warnings.
@@ -211,9 +195,12 @@ class ChatAdminAssets
         $preview_config_for_js = [
             'nonce' => $aipkit_frontend_nonce, 'ajaxUrl' => admin_url('admin-ajax.php'),
             'userIp' => $user_ip_sanitized, 'requireConsentCompliance' => false,
-            'openaiVectorStores' => $openai_vector_stores, 'pineconeIndexes' => $pinecone_indexes,
-            'qdrantCollections' => $qdrant_collections, 'openaiEmbeddingModels' => $openai_embedding_models,
-            'googleEmbeddingModels' => $google_embedding_models, 'openrouterEmbeddingModels' => $openrouter_embedding_models, 'azureEmbeddingModels' => $azure_embedding_models, 'isProPlan' => $is_pro_plan,
+            'openaiVectorStores' => $vector_store_localization['openaiVectorStores'],
+            'pineconeIndexes' => $vector_store_localization['pineconeIndexes'],
+            'qdrantCollections' => $vector_store_localization['qdrantCollections'],
+            'embedding_provider_map' => $embedding_localization['embedding_provider_map'],
+            'embedding_models_by_provider' => $embedding_localization['embedding_models_by_provider'],
+            'isProPlan' => $is_pro_plan,
             'automationsNonce' => wp_create_nonce('aipkit_automated_tasks_manage_nonce'),
             'nonce_toggle_ip_block' => wp_create_nonce('aipkit_toggle_ip_block_nonce'), // ADDED
             'text' => array_merge($dashboard_texts, [

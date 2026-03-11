@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.81\n"
+"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.82\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-08T12:11:56+00:00\n"
+"POT-Creation-Date: 2026-03-11T11:13:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -1692,22 +1692,7 @@ msgstr ""
 msgid "-- No Collections Found --"
 msgstr ""
 
-msgid "OpenAI"
-msgstr ""
-
-msgid "Google"
-msgstr ""
-
-msgid "Azure"
-msgstr ""
-
-msgid "OpenRouter"
-msgstr ""
-
 msgid "-- Select Embedding --"
-msgstr ""
-
-msgid "Manual"
 msgstr ""
 
 msgid "-- Select Provider --"
@@ -2722,6 +2707,9 @@ msgid "Response length: %1$s | Memory: %2$s"
 msgstr ""
 
 msgid "Select theme"
+msgstr ""
+
+msgid "OpenAI"
 msgstr ""
 
 msgid "Pinecone"
@@ -8110,6 +8098,9 @@ msgstr ""
 msgid "Semantic Search is not configured correctly in AI Settings."
 msgstr ""
 
+msgid "Invalid embedding provider configured for Semantic Search."
+msgstr ""
+
 msgid "Failed to generate vector for the search query."
 msgstr ""
 
@@ -8783,6 +8774,9 @@ msgstr ""
 msgid "Embedding model must be specified for search."
 msgstr ""
 
+msgid "Invalid embedding provider for Pinecone search."
+msgstr ""
+
 msgid "Failed to generate query vector for Pinecone search."
 msgstr ""
 
@@ -8861,6 +8855,9 @@ msgstr ""
 msgid "Invalid JSON format for Qdrant filter."
 msgstr ""
 
+msgid "Invalid embedding provider for Qdrant search."
+msgstr ""
+
 msgid "Failed to generate query vector for Qdrant search."
 msgstr ""
 
@@ -8893,6 +8890,9 @@ msgid "Usage data for the selected period is very large (rows: %1$s, size: %2$s)
 msgstr ""
 
 msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+msgid "Manual"
 msgstr ""
 
 msgid "Auto Content Indexing"
@@ -9631,7 +9631,7 @@ msgstr ""
 msgid "This domain is not permitted to embed the chatbot."
 msgstr ""
 
-msgid "The AI provider for embeddings (OpenAI, Google, Azure, or OpenRouter)."
+msgid "The AI provider key for embeddings (from enabled embedding providers)."
 msgstr ""
 
 msgid "The specific embedding model ID (or Azure deployment ID)."
@@ -10158,10 +10158,16 @@ msgstr ""
 msgid "Post content is empty."
 msgstr ""
 
+msgid "Invalid embedding provider for Pinecone indexing."
+msgstr ""
+
 msgid "Pinecone processing components not available."
 msgstr ""
 
 msgid "Post content is empty for Pinecone."
+msgstr ""
+
+msgid "Invalid embedding provider for Qdrant indexing."
 msgstr ""
 
 msgid "Qdrant processing components not available."
@@ -10350,6 +10356,57 @@ msgid "File is too large (%1$s). Maximum allowed size is %2$s."
 msgstr ""
 
 msgid "Once Weekly"
+msgstr ""
+
+#. translators: %s: Request context label.
+msgid "Failed to decode JSON response from Ollama %s."
+msgstr ""
+
+#. translators: %d: HTTP status code returned by API.
+msgid "Ollama API request failed with HTTP %d."
+msgstr ""
+
+msgid "No embedding data found in Ollama legacy embeddings response."
+msgstr ""
+
+msgid "Ollama model name is required for model details lookup."
+msgstr ""
+
+msgid "Ollama embedding model is required."
+msgstr ""
+
+msgid "Embedding input array for Ollama is empty."
+msgstr ""
+
+msgid "Embedding input for Ollama must be a non-empty string or array of strings."
+msgstr ""
+
+msgid "Ollama capability resolver is missing."
+msgstr ""
+
+msgid "Ollama image analysis requires a selected model."
+msgstr ""
+
+msgid "Selected Ollama model does not support image analysis. Choose a vision-capable Ollama model and sync models if needed."
+msgstr ""
+
+msgid "Unable to confirm image support for the selected Ollama model. Please sync Ollama models and try again."
+msgstr ""
+
+msgid "Ollama embedding model ID is required."
+msgstr ""
+
+msgid "Embedding input for Ollama cannot be empty."
+msgstr ""
+
+msgid "Embedding input for Ollama must be a string or array of strings."
+msgstr ""
+
+msgid "No embedding data found in Ollama response."
+msgstr ""
+
+#. translators: 1: expected embedding count, 2: received embedding count
+msgid "Ollama returned %2$d embedding vectors for %1$d inputs."
 msgstr ""
 
 msgid "Your message was flagged."

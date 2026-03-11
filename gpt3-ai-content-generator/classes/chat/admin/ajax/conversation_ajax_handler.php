@@ -9,6 +9,7 @@ use WPAICG\Chat\Storage\FeedbackManager; // Use the specific FeedbackManager
 use WPAICG\Chat\Admin\AdminSetup; // Needed for Bot name lookup
 use WPAICG\Speech\AIPKit_Speech_Manager; // Use TTS Manager
 use WPAICG\aipkit_dashboard; // Use dashboard class
+use WPAICG\Core\AIPKit_Payload_Sanitizer;
 // --- MODIFIED: Correct namespace for BotSettingsManager ---
 use WPAICG\Chat\Storage\BotSettingsManager;
 // --- END MODIFICATION ---
@@ -45,6 +46,55 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         } else {
             $this->speech_manager = new AIPKit_Speech_Manager();
         }
+    }
+
+    /**
+     * Redacts request/response payload fields inside stored messages JSON.
+     *
+     * @param string $messages_json
+     * @return string
+     */
+    private function sanitize_messages_json_for_admin_view(string $messages_json): string {
+        if ($messages_json === '') {
+            return $messages_json;
+        }
+
+        $decoded = json_decode($messages_json, true);
+        if (!is_array($decoded)) {
+            return $messages_json;
+        }
+
+        $messages_key = null;
+        if (isset($decoded['messages']) && is_array($decoded['messages'])) {
+            $messages_key = 'messages';
+        } elseif ($decoded === [] || array_keys($decoded) === range(0, count($decoded) - 1)) {
+            $messages_key = null;
+        } else {
+            // Unexpected shape, but still try recursive sanitizer on top-level payload map.
+            $sanitized_top = AIPKit_Payload_Sanitizer::sanitize_payload_if_array($decoded);
+            return wp_json_encode($sanitized_top, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+
+        $messages = $messages_key === 'messages' ? $decoded['messages'] : $decoded;
+        foreach ($messages as $index => $message) {
+            if (!is_array($message)) {
+                continue;
+            }
+            foreach (['request_payload', 'response_data'] as $field_key) {
+                if (array_key_exists($field_key, $message)) {
+                    $message[$field_key] = AIPKit_Payload_Sanitizer::sanitize_payload_if_array($message[$field_key]);
+                }
+            }
+            $messages[$index] = $message;
+        }
+
+        if ($messages_key === 'messages') {
+            $decoded['messages'] = $messages;
+        } else {
+            $decoded = $messages;
+        }
+
+        return wp_json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -294,6 +344,10 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         if (!empty($log_data['bot_id'])) {
             $banned_ips_value = get_post_meta((int)$log_data['bot_id'], '_aipkit_banned_ips', true);
             $log_data['banned_ips'] = is_string($banned_ips_value) ? $banned_ips_value : '';
+        }
+
+        if (isset($log_data['messages']) && is_string($log_data['messages'])) {
+            $log_data['messages'] = $this->sanitize_messages_json_for_admin_view($log_data['messages']);
         }
 
         wp_send_json_success(['log_data' => $log_data]);

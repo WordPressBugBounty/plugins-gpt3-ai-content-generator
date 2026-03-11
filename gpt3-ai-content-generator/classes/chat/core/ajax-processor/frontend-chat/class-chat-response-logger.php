@@ -8,6 +8,7 @@ namespace WPAICG\Chat\Core\AjaxProcessor\FrontendChat;
 use WPAICG\Chat\Storage\LogStorage;
 use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants; // Corrected use statement
+use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -26,6 +27,17 @@ class ChatResponseLogger
     }
 
     /**
+     * Sanitizes response_data payloads before persistence.
+     *
+     * @param array $payload
+     * @return array
+     */
+    private function sanitize_payload_for_logging(array $payload): array
+    {
+        return AIPKit_Payload_Sanitizer::sanitize_payload_if_array($payload);
+    }
+
+    /**
      * Logs the initial user message.
      *
      * @param array $base_log_data
@@ -41,7 +53,7 @@ class ChatResponseLogger
             'timestamp'       => time(),
         ]);
         if (!empty($image_inputs_for_service)) {
-            $log_user_data['response_data'] = ['type' => 'user_image_upload', 'images' => $image_inputs_for_service];
+            $log_user_data['response_data'] = $this->sanitize_payload_for_logging(['type' => 'user_image_upload', 'images' => $image_inputs_for_service]);
         }
         $user_log_result = $this->log_storage->log_message($log_user_data);
         if ($user_log_result === false) {

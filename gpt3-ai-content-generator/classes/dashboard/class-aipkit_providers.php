@@ -6,6 +6,7 @@
 namespace WPAICG;
 
 use WPAICG\Core\AIPKit_Models_API;
+use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -28,7 +29,7 @@ class AIPKit_Providers
             'base_url' => 'https://openrouter.ai/api', 'api_version' => 'v1',
         ],
         'Google' => [
-            'api_key' => '', 'model' => '', 'embedding_model' => 'gemini-embedding-exp-03-07',
+            'api_key' => '', 'model' => '', 'embedding_model' => 'gemini-embedding-2-preview',
             'base_url' => 'https://generativelanguage.googleapis.com', 'api_version' => 'v1beta',
             'safety_settings' => []
         ],
@@ -97,9 +98,9 @@ class AIPKit_Providers
         'GoogleImage' => [],
         'GoogleVideo' => [],
         'GoogleEmbedding' => [
-            ['id' => 'gemini-embedding-exp-03-07', 'name' => 'Gemini Embedding (3072)'],
-            ['id' => 'models/text-embedding-004', 'name' => 'Embedding 004 (768)'],
-            ['id' => 'models/embedding-001', 'name' => 'Embedding 001 (768)'],
+            ['id' => 'gemini-embedding-2-preview', 'name' => 'Gemini Embedding 2 Preview (3072)', 'dimensions' => 3072],
+            ['id' => 'gemini-embedding-001', 'name' => 'Gemini Embedding 001 (3072)', 'dimensions' => 3072],
+            ['id' => 'models/text-embedding-004', 'name' => 'Embedding 004 (768)', 'dimensions' => 768],
         ],
         'Claude' => [
             'claude-opus-4-6',
@@ -181,6 +182,553 @@ class AIPKit_Providers
     private static $cached_model_lists = [];
     public const MODEL_LIST_TRANSIENT_TTL = 5 * MINUTE_IN_SECONDS;
 
+    /**
+     * Resolve main provider allowlist for provider-selection flows.
+     *
+     * Defaults intentionally exclude addon providers. Addons can extend this
+     * list using `aipkit_main_provider_allowlist`.
+     *
+     * @return array<int, string>
+     */
+    public static function get_main_provider_allowlist(): array
+    {
+        $default_allowlist = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+        $filtered_allowlist = apply_filters('aipkit_main_provider_allowlist', $default_allowlist);
+        if (!is_array($filtered_allowlist)) {
+            $filtered_allowlist = $default_allowlist;
+        }
+
+        $valid_provider_keys = array_keys(self::$provider_defaults);
+        $blocked_provider_keys = ['ElevenLabs', 'Pexels', 'Pixabay', 'Pinecone', 'Qdrant', 'Replicate'];
+        $normalized = [];
+
+        foreach ($filtered_allowlist as $provider) {
+            $provider = sanitize_text_field((string) $provider);
+            if (
+                $provider === ''
+                || !in_array($provider, $valid_provider_keys, true)
+                || in_array($provider, $blocked_provider_keys, true)
+            ) {
+                continue;
+            }
+
+            $normalized[$provider] = true;
+        }
+
+        if (empty($normalized)) {
+            foreach ($default_allowlist as $provider) {
+                $normalized[$provider] = true;
+            }
+        }
+
+        return array_keys($normalized);
+    }
+
+    /**
+     * Normalize a provider to a valid main-provider value.
+     *
+     * @param string $provider Raw provider value.
+     * @param string $fallback Fallback provider when input is invalid.
+     * @return string
+     */
+    public static function normalize_main_provider(string $provider, string $fallback = 'OpenAI'): string
+    {
+        $provider = sanitize_text_field(trim($provider));
+        $allowed_providers = self::get_main_provider_allowlist();
+
+        if (in_array($provider, $allowed_providers, true)) {
+            return $provider;
+        }
+
+        if (!in_array($fallback, $allowed_providers, true)) {
+            $fallback = $allowed_providers[0] ?? 'OpenAI';
+        }
+
+        return $fallback;
+    }
+
+    /**
+     * Returns the default embedding provider map used across vector flows.
+     *
+     * @return array<string, string>
+     */
+    public static function get_default_embedding_provider_map(): array
+    {
+        return [
+            'openai' => 'OpenAI',
+            'google' => 'Google',
+            'azure' => 'Azure',
+            'openrouter' => 'OpenRouter',
+        ];
+    }
+
+    /**
+     * Returns normalized embedding provider map, including filter extensions.
+     *
+     * @param string $context
+     * @return array<string, string>
+     */
+    public static function get_embedding_provider_map(string $context = ''): array
+    {
+        $default_map = self::get_default_embedding_provider_map();
+        $provider_map = apply_filters('aipkit_embedding_provider_map', $default_map, $context);
+        if (!is_array($provider_map)) {
+            $provider_map = $default_map;
+        }
+
+        $normalized_map = [];
+        foreach ($provider_map as $provider_key => $provider_label) {
+            if (!is_string($provider_key) || !is_string($provider_label)) {
+                continue;
+            }
+            $provider_key = sanitize_key($provider_key);
+            if ($provider_key === '') {
+                continue;
+            }
+            $normalized_map[$provider_key] = sanitize_text_field($provider_label);
+        }
+
+        return empty($normalized_map) ? $default_map : $normalized_map;
+    }
+
+    /**
+     * Returns normalized embedding provider keys for a given context.
+     *
+     * @param string $context
+     * @return array<int, string>
+     */
+    public static function get_embedding_provider_keys(string $context = ''): array
+    {
+        $provider_map = self::get_embedding_provider_map($context);
+        $provider_keys = array_values(array_unique(array_map('sanitize_key', array_keys($provider_map))));
+        if (empty($provider_keys)) {
+            $provider_keys = array_keys(self::get_default_embedding_provider_map());
+        }
+        return $provider_keys;
+    }
+
+    /**
+     * Resolves provider key (e.g. "openai") to provider name (e.g. "OpenAI").
+     *
+     * Returns null when key is not present in the normalized embedding provider map.
+     *
+     * @param string $provider_key
+     * @param string $context
+     * @return string|null
+     */
+    public static function resolve_embedding_provider_name(string $provider_key, string $context = ''): ?string
+    {
+        $provider_lookup = sanitize_key((string) strtolower($provider_key));
+        if ($provider_lookup === '') {
+            return null;
+        }
+
+        $provider_map = self::get_embedding_provider_map($context);
+        if (!isset($provider_map[$provider_lookup]) || !is_string($provider_map[$provider_lookup])) {
+            return null;
+        }
+
+        $provider_name = sanitize_text_field($provider_map[$provider_lookup]);
+        return $provider_name !== '' ? $provider_name : null;
+    }
+
+    /**
+     * Normalizes provider key (e.g. "openai") to provider name (e.g. "OpenAI").
+     *
+     * @param string $provider_key
+     * @param string $context
+     * @return string
+     */
+    public static function normalize_embedding_provider_name(string $provider_key, string $context = ''): string
+    {
+        $provider_lookup = sanitize_key((string) strtolower($provider_key));
+        $resolved_name = self::resolve_embedding_provider_name($provider_lookup, $context);
+        return $resolved_name !== null ? $resolved_name : ucfirst($provider_lookup);
+    }
+
+    /**
+     * Returns default embedding model rows grouped by provider key.
+     *
+     * @return array<string, array<int, array{id:string,name:string}>>
+     */
+    public static function get_default_embedding_models_by_provider(): array
+    {
+        return [
+            'openai' => self::normalize_embedding_model_rows(self::get_openai_embedding_models()),
+            'google' => self::normalize_embedding_model_rows(self::get_google_embedding_models()),
+            'openrouter' => self::normalize_embedding_model_rows(self::get_openrouter_embedding_models()),
+            'azure' => self::normalize_embedding_model_rows(self::get_azure_embedding_models()),
+        ];
+    }
+
+    /**
+     * Returns normalized embedding models by provider, including filter extensions.
+     *
+     * @param string $context
+     * @return array<string, array<int, array{id:string,name:string}>>
+     */
+    public static function get_embedding_models_by_provider(string $context = ''): array
+    {
+        $provider_map = self::get_embedding_provider_map($context);
+        $default_models_by_provider = self::get_default_embedding_models_by_provider();
+        $models_by_provider = apply_filters(
+            'aipkit_embedding_models_by_provider',
+            $default_models_by_provider,
+            $context
+        );
+
+        $normalized_models_by_provider = self::normalize_embedding_models_by_provider($models_by_provider);
+        if (empty($normalized_models_by_provider)) {
+            $normalized_models_by_provider = $default_models_by_provider;
+        }
+
+        foreach (array_keys($provider_map) as $provider_key) {
+            if (!isset($normalized_models_by_provider[$provider_key])) {
+                $normalized_models_by_provider[$provider_key] = $default_models_by_provider[$provider_key] ?? [];
+            }
+        }
+
+        return $normalized_models_by_provider;
+    }
+
+    /**
+     * Returns a lookup map of all known embedding model IDs for the given context.
+     *
+     * Useful for validating whether a saved model still exists in the current
+     * provider model lists.
+     *
+     * @param string $context
+     * @return array<string, bool>
+     */
+    public static function get_all_embedding_model_ids_map(string $context = ''): array
+    {
+        $models_by_provider = self::get_embedding_models_by_provider($context);
+        $model_ids_map = [];
+
+        foreach ($models_by_provider as $provider_models) {
+            $normalized_rows = self::normalize_embedding_model_rows($provider_models);
+            foreach ($normalized_rows as $model_row) {
+                $model_id = isset($model_row['id']) ? sanitize_text_field((string) $model_row['id']) : '';
+                if ($model_id !== '') {
+                    $model_ids_map[$model_id] = true;
+                }
+            }
+        }
+
+        return $model_ids_map;
+    }
+
+    /**
+     * Render `<optgroup>` options for embedding model select fields.
+     *
+     * Supports either plain model values (`model`) or combined provider/model
+     * values (`provider_model`, formatted as `provider::model`).
+     *
+     * @param array<string, string> $provider_options
+     * @param array<string, array<int, array{id:string,name:string}>> $models_by_provider
+     * @param string $selected_provider
+     * @param string $selected_model
+     * @param array<string, mixed> $args
+     * @return string
+     */
+    public static function render_embedding_optgroup_options(
+        array $provider_options,
+        array $models_by_provider,
+        string $selected_provider = '',
+        string $selected_model = '',
+        array $args = []
+    ): string {
+        $args = wp_parse_args($args, [
+            'value_mode' => 'model', // model | provider_model
+            'include_manual_fallback' => true,
+            'manual_group_label' => __('Manual', 'gpt3-ai-content-generator'),
+        ]);
+
+        $value_mode = isset($args['value_mode']) && $args['value_mode'] === 'provider_model'
+            ? 'provider_model'
+            : 'model';
+        $include_manual_fallback = !empty($args['include_manual_fallback']);
+        $manual_group_label = sanitize_text_field((string) ($args['manual_group_label'] ?? __('Manual', 'gpt3-ai-content-generator')));
+
+        $normalized_provider_options = [];
+        foreach ($provider_options as $provider_key => $provider_label) {
+            if (!is_string($provider_key) || !is_string($provider_label)) {
+                continue;
+            }
+            $provider_key = sanitize_key($provider_key);
+            if ($provider_key === '') {
+                continue;
+            }
+            $normalized_provider_options[$provider_key] = sanitize_text_field($provider_label);
+        }
+        if (empty($normalized_provider_options)) {
+            $normalized_provider_options = self::get_default_embedding_provider_map();
+        }
+
+        $normalized_models_by_provider = self::normalize_embedding_models_by_provider($models_by_provider);
+        foreach (array_keys($normalized_provider_options) as $provider_key) {
+            if (!isset($normalized_models_by_provider[$provider_key])) {
+                $normalized_models_by_provider[$provider_key] = [];
+            }
+        }
+
+        $selected_provider = sanitize_key($selected_provider);
+        $selected_model = sanitize_text_field($selected_model);
+        $selected_value = '';
+        if ($selected_model !== '') {
+            $selected_value = $value_mode === 'provider_model'
+                ? ($selected_provider !== '' ? $selected_provider . '::' . $selected_model : '')
+                : $selected_model;
+        }
+
+        $model_provider_lookup = [];
+        foreach ($normalized_models_by_provider as $provider_key => $provider_models) {
+            foreach ($provider_models as $model_row) {
+                $model_id = isset($model_row['id']) ? sanitize_text_field((string) $model_row['id']) : '';
+                if ($model_id === '' || isset($model_provider_lookup[$model_id])) {
+                    continue;
+                }
+                $model_provider_lookup[$model_id] = $provider_key;
+            }
+        }
+
+        $manual_needed = (
+            $include_manual_fallback
+            && $selected_model !== ''
+            && !isset($model_provider_lookup[$selected_model])
+        );
+
+        $html = '';
+        foreach ($normalized_provider_options as $provider_key => $provider_label) {
+            $provider_models = $normalized_models_by_provider[$provider_key] ?? [];
+            $html .= '<optgroup label="' . esc_attr($provider_label) . '">';
+
+            foreach ($provider_models as $model_row) {
+                $model_id = isset($model_row['id']) ? sanitize_text_field((string) $model_row['id']) : '';
+                if ($model_id === '') {
+                    continue;
+                }
+                $model_name = isset($model_row['name'])
+                    ? sanitize_text_field((string) $model_row['name'])
+                    : $model_id;
+                $option_value = $value_mode === 'provider_model'
+                    ? $provider_key . '::' . $model_id
+                    : $model_id;
+                $is_selected = selected($selected_value, $option_value, false);
+                $html .= '<option value="' . esc_attr($option_value) . '" data-provider="' . esc_attr($provider_key) . '" ' . $is_selected . '>' . esc_html($model_name) . '</option>';
+            }
+
+            if (
+                $manual_needed
+                && $value_mode === 'provider_model'
+                && $selected_provider !== ''
+                && $selected_provider === $provider_key
+            ) {
+                $manual_value = $selected_provider . '::' . $selected_model;
+                $html .= '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($selected_provider) . '" selected="selected">' . esc_html($selected_model) . '</option>';
+                $manual_needed = false;
+            }
+
+            $html .= '</optgroup>';
+        }
+
+        if ($manual_needed && $selected_model !== '') {
+            if ($value_mode === 'provider_model') {
+                $manual_provider = $selected_provider !== '' ? $selected_provider : 'manual';
+                $manual_value = $manual_provider . '::' . $selected_model;
+                $html .= '<optgroup label="' . esc_attr($manual_group_label) . '">';
+                $html .= '<option value="' . esc_attr($manual_value) . '" data-provider="' . esc_attr($manual_provider) . '" selected="selected">' . esc_html($selected_model) . '</option>';
+                $html .= '</optgroup>';
+            } else {
+                $manual_provider = $selected_provider !== '' ? $selected_provider : 'manual';
+                $html .= '<option value="' . esc_attr($selected_model) . '" data-provider="' . esc_attr($manual_provider) . '" selected="selected">' . esc_html($selected_model) . '</option>';
+            }
+        }
+
+        return $html;
+    }
+
+    /**
+     * Returns embedding localization payload for admin UI scripts.
+     *
+     * Includes both new grouped keys and legacy per-provider keys
+     * to keep existing JS modules backward-compatible.
+     *
+     * @param string $context
+     * @param bool $include_legacy Include deprecated per-provider arrays for backward compatibility.
+     * @return array<string, mixed>
+     */
+    public static function get_embedding_localization_payload(string $context = '', bool $include_legacy = true): array
+    {
+        $provider_map = self::get_embedding_provider_map($context);
+        $models_by_provider = self::get_embedding_models_by_provider($context);
+
+        $payload = [
+            'embeddingProviderMap' => $provider_map,
+            'embeddingModelsByProvider' => $models_by_provider,
+            'embeddingModels' => $models_by_provider,
+            'embedding_provider_map' => $provider_map,
+            'embedding_models_by_provider' => $models_by_provider,
+        ];
+
+        if (!$include_legacy) {
+            return $payload;
+        }
+
+        $openai_models = isset($models_by_provider['openai']) && is_array($models_by_provider['openai'])
+            ? $models_by_provider['openai']
+            : [];
+        $google_models = isset($models_by_provider['google']) && is_array($models_by_provider['google'])
+            ? $models_by_provider['google']
+            : [];
+        $openrouter_models = isset($models_by_provider['openrouter']) && is_array($models_by_provider['openrouter'])
+            ? $models_by_provider['openrouter']
+            : [];
+        $azure_models = isset($models_by_provider['azure']) && is_array($models_by_provider['azure'])
+            ? $models_by_provider['azure']
+            : [];
+        $ollama_models = isset($models_by_provider['ollama']) && is_array($models_by_provider['ollama'])
+            ? $models_by_provider['ollama']
+            : [];
+
+        return array_merge($payload, [
+            'openaiEmbeddingModels' => $openai_models,
+            'googleEmbeddingModels' => $google_models,
+            'openrouterEmbeddingModels' => $openrouter_models,
+            'azureEmbeddingModels' => $azure_models,
+            'ollamaEmbeddingModels' => $ollama_models,
+            'openai_embedding_models' => $openai_models,
+            'google_embedding_models' => $google_models,
+            'openrouter_embedding_models' => $openrouter_models,
+            'azure_embedding_models' => $azure_models,
+            'ollama_embedding_models' => $ollama_models,
+        ]);
+    }
+
+    /**
+     * Returns vector-store localization payload for admin UI scripts.
+     *
+     * Uses registry data when available and falls back to saved model-list
+     * options for Pinecone/Qdrant in partial-sync states.
+     *
+     * @param string $context
+     * @return array<string, mixed>
+     */
+    public static function get_vector_store_localization_payload(string $context = ''): array
+    {
+        $openai_vector_stores = [];
+        $pinecone_indexes = self::get_pinecone_indexes();
+        $qdrant_collections = self::get_qdrant_collections();
+
+        if (class_exists(AIPKit_Vector_Store_Registry::class)) {
+            $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
+
+            $registry_pinecone_indexes = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Pinecone');
+            if (is_array($registry_pinecone_indexes) && !empty($registry_pinecone_indexes)) {
+                $pinecone_indexes = $registry_pinecone_indexes;
+            }
+
+            $registry_qdrant_collections = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Qdrant');
+            if (is_array($registry_qdrant_collections) && !empty($registry_qdrant_collections)) {
+                $qdrant_collections = $registry_qdrant_collections;
+            }
+        }
+
+        $payload = [
+            'vectorStores' => [
+                'openai' => $openai_vector_stores,
+                'pinecone' => $pinecone_indexes,
+                'qdrant' => $qdrant_collections,
+            ],
+            'openaiVectorStores' => $openai_vector_stores,
+            'pineconeIndexes' => $pinecone_indexes,
+            'qdrantCollections' => $qdrant_collections,
+            'openai_vector_stores' => $openai_vector_stores,
+            'pinecone_indexes' => $pinecone_indexes,
+            'qdrant_collections' => $qdrant_collections,
+        ];
+
+        $filtered_payload = apply_filters('aipkit_vector_store_localization_payload', $payload, $context);
+        return is_array($filtered_payload) ? array_merge($payload, $filtered_payload) : $payload;
+    }
+
+    /**
+     * Normalize models-by-provider map into `{provider_key => [id,name]}` entries.
+     *
+     * @param mixed $models_by_provider
+     * @return array<string, array<int, array{id:string,name:string}>>
+     */
+    public static function normalize_embedding_models_by_provider($models_by_provider): array
+    {
+        $normalized_map = [];
+        if (!is_array($models_by_provider)) {
+            return $normalized_map;
+        }
+
+        foreach ($models_by_provider as $provider_key => $models) {
+            if (!is_string($provider_key)) {
+                continue;
+            }
+            $provider_key = sanitize_key($provider_key);
+            if ($provider_key === '') {
+                continue;
+            }
+            $normalized_map[$provider_key] = self::normalize_embedding_model_rows($models);
+        }
+
+        return $normalized_map;
+    }
+
+    /**
+     * Normalize mixed model rows to `[id, name]` entries.
+     *
+     * @param mixed $models
+     * @return array<int, array{id:string,name:string}>
+     */
+    public static function normalize_embedding_model_rows($models): array
+    {
+        $normalized_models = [];
+        if (!is_array($models)) {
+            return $normalized_models;
+        }
+
+        foreach ($models as $model_row) {
+            if (is_string($model_row)) {
+                $model_id = sanitize_text_field($model_row);
+                if ($model_id !== '') {
+                    $normalized_models[] = [
+                        'id' => $model_id,
+                        'name' => $model_id,
+                    ];
+                }
+                continue;
+            }
+
+            if (!is_array($model_row)) {
+                continue;
+            }
+
+            $model_id = isset($model_row['id']) ? sanitize_text_field((string) $model_row['id']) : '';
+            if ($model_id === '' && isset($model_row['name'])) {
+                $model_id = sanitize_text_field((string) $model_row['name']);
+            }
+            if ($model_id === '') {
+                continue;
+            }
+
+            $model_name = isset($model_row['name'])
+                ? sanitize_text_field((string) $model_row['name'])
+                : $model_id;
+
+            $normalized_row = $model_row;
+            $normalized_row['id'] = $model_id;
+            $normalized_row['name'] = $model_name;
+            $normalized_models[] = $normalized_row;
+        }
+
+        return $normalized_models;
+    }
+
 
     public static function get_current_provider()
     {
@@ -190,7 +738,15 @@ class AIPKit_Providers
             $opts = [];
         }
         // --- END FIX ---
-        return isset($opts['provider']) ? $opts['provider'] : 'OpenAI';
+        $stored_provider = isset($opts['provider']) ? sanitize_text_field((string) $opts['provider']) : 'OpenAI';
+        $normalized_provider = self::normalize_main_provider($stored_provider, 'OpenAI');
+
+        if ($normalized_provider !== $stored_provider) {
+            $opts['provider'] = $normalized_provider;
+            update_option('aipkit_options', $opts, 'no');
+        }
+
+        return $normalized_provider;
     }
 
     public static function get_all_providers()
@@ -410,10 +966,7 @@ class AIPKit_Providers
         }
         // --- END FIX ---
 
-        $valid_providers = array_keys(self::$provider_defaults);
-        if (!in_array($provider, $valid_providers, true) || in_array($provider, ['ElevenLabs', 'Pinecone', 'Qdrant'])) {
-            $provider = 'OpenAI';
-        }
+        $provider = self::normalize_main_provider((string) $provider, 'OpenAI');
         if (!isset($opts['provider']) || $opts['provider'] !== $provider) {
             $opts['provider'] = $provider;
             if (!isset($opts['providers']) || !is_array($opts['providers'])) {

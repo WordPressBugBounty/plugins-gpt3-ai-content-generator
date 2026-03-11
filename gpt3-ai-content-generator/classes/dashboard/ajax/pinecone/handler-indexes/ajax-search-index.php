@@ -6,6 +6,7 @@
 namespace WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes;
 
 use WP_Error;
+use WPAICG\AIPKit_Providers;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Pinecone_Ajax_Handler;
 
 if (!defined('ABSPATH')) {
@@ -56,8 +57,15 @@ function do_ajax_search_index_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
         return;
     }
 
-    $provider_map = ['openai' => 'OpenAI', 'google' => 'Google', 'azure' => 'Azure', 'openrouter' => 'OpenRouter'];
-    $embedding_provider_norm = $provider_map[$embedding_provider_key] ?? 'OpenAI';
+    $provider_lookup = sanitize_key((string) strtolower($embedding_provider_key));
+    $embedding_provider_norm = AIPKit_Providers::resolve_embedding_provider_name(
+        $provider_lookup,
+        'pinecone_dashboard_search'
+    );
+    if (!is_string($embedding_provider_norm) || $embedding_provider_norm === '') {
+        $handler_instance->send_wp_error(new WP_Error('invalid_embedding_provider_pinecone_search', __('Invalid embedding provider for Pinecone search.', 'gpt3-ai-content-generator'), ['status' => 400]));
+        return;
+    }
     $embedding_options = ['model' => $embedding_model];
 
     $embedding_result = $ai_caller->generate_embeddings($embedding_provider_norm, $query_text, $embedding_options);

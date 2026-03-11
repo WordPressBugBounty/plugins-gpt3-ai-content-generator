@@ -26,14 +26,11 @@ $no_results_text = $semantic_search_settings['no_results_text'] ?? __('No result
 $all_pinecone_indexes = \WPAICG\AIPKit_Providers::get_pinecone_indexes();
 $all_qdrant_collections = \WPAICG\AIPKit_Providers::get_qdrant_collections();
 
-// NEW: Get embedding models for the new dropdown
-$openai_embedding_models = \WPAICG\AIPKit_Providers::get_openai_embedding_models();
-$google_embedding_models = \WPAICG\AIPKit_Providers::get_google_embedding_models();
-$openrouter_embedding_models = \WPAICG\AIPKit_Providers::get_openrouter_embedding_models();
-$all_embedding_models_map = [];
-foreach ($openai_embedding_models as $m) { $all_embedding_models_map[$m['id']] = true; }
-foreach ($google_embedding_models as $m) { $all_embedding_models_map[$m['id']] = true; }
-foreach ($openrouter_embedding_models as $m) { $all_embedding_models_map[$m['id']] = true; }
+$embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('semantic_search_settings_ui');
+$embedding_models_by_provider = \WPAICG\AIPKit_Providers::get_embedding_models_by_provider('semantic_search_settings_ui');
+if (!isset($embedding_provider_options[$embedding_provider])) {
+    $embedding_provider = array_key_first($embedding_provider_options) ?: 'openai';
+}
 
 ?>
 <!-- Semantic Search Accordion -->
@@ -92,30 +89,18 @@ foreach ($openrouter_embedding_models as $m) { $all_embedding_models_map[$m['id'
             <div class="aipkit_form-group aipkit_form-col">
                 <label class="aipkit_form-label" for="aipkit_semantic_search_embedding_model"><?php esc_html_e('Embedding', 'gpt3-ai-content-generator'); ?></label>
                 <select id="aipkit_semantic_search_embedding_model" name="semantic_search_embedding_model" class="aipkit_form-input aipkit_autosave_trigger">
-                    <optgroup label="OpenAI">
-                        <?php foreach ($openai_embedding_models as $model_item): ?>
-                            <option value="<?php echo esc_attr($model_item['id']); ?>" <?php selected($embedding_model, $model_item['id']); ?> data-provider="openai">
-                                <?php echo esc_html($model_item['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                    <optgroup label="Google">
-                        <?php foreach ($google_embedding_models as $model_item): ?>
-                            <option value="<?php echo esc_attr($model_item['id']); ?>" <?php selected($embedding_model, $model_item['id']); ?> data-provider="google">
-                                <?php echo esc_html($model_item['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                    <optgroup label="OpenRouter">
-                        <?php foreach ($openrouter_embedding_models as $model_item): ?>
-                            <option value="<?php echo esc_attr($model_item['id']); ?>" <?php selected($embedding_model, $model_item['id']); ?> data-provider="openrouter">
-                                <?php echo esc_html($model_item['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                    <?php if (!empty($embedding_model) && !isset($all_embedding_models_map[$embedding_model])): ?>
-                        <option value="<?php echo esc_attr($embedding_model); ?>" data-provider="<?php echo esc_attr($embedding_provider); ?>" selected><?php echo esc_html($embedding_model); ?></option>
-                    <?php endif; ?>
+                    <?php
+                    echo \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
+                        $embedding_provider_options,
+                        $embedding_models_by_provider,
+                        $embedding_provider,
+                        $embedding_model,
+                        [
+                            'value_mode' => 'model',
+                            'include_manual_fallback' => true,
+                        ]
+                    ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is fully escaped by the renderer.
+                    ?>
                 </select>
                 <input type="hidden" id="aipkit_semantic_search_embedding_provider" name="semantic_search_embedding_provider" value="<?php echo esc_attr($embedding_provider); ?>" class="aipkit_autosave_trigger">
             </div>

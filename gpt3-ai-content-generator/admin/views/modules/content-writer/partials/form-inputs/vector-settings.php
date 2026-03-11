@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 
 // Variables from loader-vars.php:
 // $openai_vector_stores, $pinecone_indexes, $qdrant_collections
-// $openai_embedding_models, $google_embedding_models
+// $embedding_provider_options, $embedding_models_by_provider
 ?>
 
 <div class="aipkit_vector_settings_redesigned">
@@ -194,10 +194,16 @@ if (!defined('ABSPATH')) {
                         name="vector_embedding_provider" 
                         class="aipkit_vector_settings_select aipkit_autosave_trigger aipkit_cw_vector_embedding_provider_select"
                     >
-                        <option value="openai" selected>OpenAI</option>
-                        <option value="google">Google</option>
-                        <option value="azure">Azure</option>
-                        <option value="openrouter">OpenRouter</option>
+                        <?php
+                        $default_embedding_provider_key = isset($embedding_provider_options['openai'])
+                            ? 'openai'
+                            : (array_key_first($embedding_provider_options) ?: 'openai');
+                        foreach ($embedding_provider_options as $provider_key => $provider_label):
+                            ?>
+                            <option value="<?php echo esc_attr($provider_key); ?>" <?php selected($provider_key, $default_embedding_provider_key); ?>>
+                                <?php echo esc_html($provider_label); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 

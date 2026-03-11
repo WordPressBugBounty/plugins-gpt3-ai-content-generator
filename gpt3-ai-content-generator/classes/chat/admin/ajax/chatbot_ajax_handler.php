@@ -771,7 +771,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             return;
         }
 
-        $allowed_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
+        $default_allowed_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+        $allowed_providers = class_exists(AIPKit_Providers::class)
+            ? AIPKit_Providers::get_main_provider_allowlist()
+            : $default_allowed_providers;
+        if (empty($allowed_providers) || !is_array($allowed_providers)) {
+            $allowed_providers = $default_allowed_providers;
+        }
         if (!in_array($provider, $allowed_providers, true)) {
             wp_send_json_error(['message' => __('Invalid provider.', 'gpt3-ai-content-generator')], 400);
             return;
@@ -1478,7 +1484,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $vector_embedding_provider = isset($_POST['vector_embedding_provider'])
                 ? sanitize_key(wp_unslash($_POST['vector_embedding_provider']))
                 : BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
-            $allowed_embedding_providers = ['openai', 'google', 'azure', 'openrouter'];
+            $allowed_embedding_providers = AIPKit_Providers::get_embedding_provider_keys('chatbot_admin_save');
             if (!in_array($vector_embedding_provider, $allowed_embedding_providers, true)) {
                 $vector_embedding_provider = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
             }

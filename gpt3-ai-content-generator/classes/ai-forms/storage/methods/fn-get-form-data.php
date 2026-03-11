@@ -95,6 +95,13 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
         'reasoning_effort' => '',
     ];
 
+    if (class_exists(AIPKit_Providers::class)) {
+        $data['ai_provider'] = AIPKit_Providers::normalize_main_provider(
+            (string) ($data['ai_provider'] ?? ''),
+            (string) ($default_provider_config['provider'] ?? 'OpenAI')
+        );
+    }
+
     $stored_reasoning_effort = get_post_meta($form_id, '_aipkit_ai_form_reasoning_effort', true) ?: 'low';
     $normalized_reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($stored_reasoning_effort);
     $data['reasoning_effort'] = $normalized_reasoning_effort !== '' ? $normalized_reasoning_effort : 'low';
@@ -110,8 +117,10 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $data['pinecone_index_name'] = get_post_meta($form_id, '_aipkit_ai_form_pinecone_index_name', true) ?: '';
     $data['qdrant_collection_name'] = get_post_meta($form_id, '_aipkit_ai_form_qdrant_collection_name', true) ?: '';
 
+    $allowed_embedding_provider_keys = AIPKit_Providers::get_embedding_provider_keys('ai_forms_get_form_data');
+
     $vector_embedding_provider = get_post_meta($form_id, '_aipkit_ai_form_vector_embedding_provider', true) ?: 'openai';
-    if (!in_array($vector_embedding_provider, ['openai', 'google', 'azure', 'openrouter'], true)) {
+    if (!in_array($vector_embedding_provider, $allowed_embedding_provider_keys, true)) {
         $vector_embedding_provider = 'openai';
     }
     $data['vector_embedding_provider'] = $vector_embedding_provider;

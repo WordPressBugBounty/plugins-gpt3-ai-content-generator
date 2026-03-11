@@ -256,14 +256,77 @@ class AIPKit_AI_Caller
             $api_params['azure_endpoint'] = $provData['endpoint'] ?? '';
         }
 
-        if (empty($api_params['api_key'])) {
+        /**
+         * Allow provider integrations to adjust embedding API params.
+         *
+         * @param array $api_params
+         * @param string $provider
+         * @param array $embedding_options
+         * @param mixed $input
+         * @param array $provData
+         */
+        $api_params = apply_filters('aipkit_embedding_api_params', $api_params, $provider, $embedding_options, $input, $provData);
+        $api_params = is_array($api_params) ? $api_params : [];
+
+        /**
+         * Allow provider integrations to normalize/fallback embedding options (e.g. model).
+         *
+         * @param array $embedding_options
+         * @param string $provider
+         * @param array $api_params
+         * @param mixed $input
+         * @param array $provData
+         */
+        $embedding_options = apply_filters('aipkit_embedding_options', $embedding_options, $provider, $api_params, $input, $provData);
+        $embedding_options = is_array($embedding_options) ? $embedding_options : [];
+
+        /**
+         * Whether this provider requires an API key for embedding generation.
+         *
+         * @param bool $requires_api_key
+         * @param string $provider
+         * @param array $api_params
+         * @param array $embedding_options
+         * @param mixed $input
+         * @param array $provData
+         */
+        $requires_api_key = (bool) apply_filters(
+            'aipkit_embedding_requires_api_key',
+            true,
+            $provider,
+            $api_params,
+            $embedding_options,
+            $input,
+            $provData
+        );
+
+        if ($requires_api_key && empty($api_params['api_key'])) {
             /* translators: %s: The name of the AI provider (e.g., OpenAI, Google). */
             return new WP_Error('missing_api_key', sprintf(__('API key is missing for %s embedding generation.', 'gpt3-ai-content-generator'), $provider), ['provider' => $provider, 'model' => ($embedding_options['model'] ?? 'unknown')]);
         }
         if ($provider === 'Azure' && empty($api_params['azure_endpoint'])) {
             return new WP_Error('missing_azure_endpoint', __('Azure endpoint is missing for embedding generation.', 'gpt3-ai-content-generator'), ['provider' => $provider, 'model' => ($embedding_options['model'] ?? 'unknown')]);
         }
-        if (empty($embedding_options['model'])) {
+        /**
+         * Whether model/deployment is required for this provider.
+         *
+         * @param bool $model_required
+         * @param string $provider
+         * @param array $api_params
+         * @param array $embedding_options
+         * @param mixed $input
+         * @param array $provData
+         */
+        $model_required = (bool) apply_filters(
+            'aipkit_embedding_model_required',
+            true,
+            $provider,
+            $api_params,
+            $embedding_options,
+            $input,
+            $provData
+        );
+        if ($model_required && empty($embedding_options['model'])) {
             return new WP_Error('missing_embedding_model', __('Embedding model/deployment ID is required.', 'gpt3-ai-content-generator'), ['provider' => $provider, 'model' => ($embedding_options['model'] ?? 'unknown')]);
         }
 

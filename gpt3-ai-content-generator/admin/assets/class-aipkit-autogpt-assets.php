@@ -2,11 +2,9 @@
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/assets/class-aipkit-autogpt-assets.php
 // Status: MODIFIED
-// I have updated this file to include `azure_embedding_models` in the localized data for the frontend scripts.
 
 namespace WPAICG\Admin\Assets;
 
-use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\AIPKit_Providers;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
@@ -109,25 +107,8 @@ class AIPKit_Autogpt_Assets
             return;
         }
 
-        $openai_vector_stores = [];
-        $pinecone_indexes = [];
-        $qdrant_collections = [];
-        $openai_embedding_models = [];
-        $google_embedding_models = [];
-        $openrouter_embedding_models = [];
-        $azure_embedding_models = [];
-
-        if (class_exists(AIPKit_Vector_Store_Registry::class)) {
-            $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
-            $pinecone_indexes = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Pinecone');
-            $qdrant_collections = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Qdrant');
-        }
-        if (class_exists(AIPKit_Providers::class)) {
-            $openai_embedding_models = AIPKit_Providers::get_openai_embedding_models();
-            $google_embedding_models = AIPKit_Providers::get_google_embedding_models();
-            $openrouter_embedding_models = AIPKit_Providers::get_openrouter_embedding_models();
-            $azure_embedding_models = AIPKit_Providers::get_azure_embedding_models();
-        }
+        $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('autogpt_ui');
+        $embedding_localization = AIPKit_Providers::get_embedding_localization_payload('autogpt_ui', false);
         $task_types_for_js = [
             // --- NEW: Category: Knowledge Base ---
             'content_indexing' => [
@@ -200,13 +181,11 @@ class AIPKit_Autogpt_Assets
         wp_localize_script($admin_main_js_handle, 'aipkit_automated_tasks_config', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce_manage_tasks' => wp_create_nonce('aipkit_automated_tasks_manage_nonce'),
-            'openai_vector_stores' => $openai_vector_stores,
-            'pinecone_indexes' => $pinecone_indexes,
-            'qdrant_collections' => $qdrant_collections,
-            'openai_embedding_models' => $openai_embedding_models,
-            'google_embedding_models' => $google_embedding_models,
-            'openrouter_embedding_models' => $openrouter_embedding_models,
-            'azure_embedding_models' => $azure_embedding_models,
+            'openai_vector_stores' => $vector_store_localization['openai_vector_stores'],
+            'pinecone_indexes' => $vector_store_localization['pinecone_indexes'],
+            'qdrant_collections' => $vector_store_localization['qdrant_collections'],
+            'embedding_provider_map' => $embedding_localization['embedding_provider_map'],
+            'embedding_models_by_provider' => $embedding_localization['embedding_models_by_provider'],
             'task_types' => $task_types_for_js,
             'default_cw_prompts' => $default_cw_prompts,
             'frequencies' => $frequencies,
