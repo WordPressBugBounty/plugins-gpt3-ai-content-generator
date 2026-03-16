@@ -489,23 +489,5 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     
     $sanitized['triggers_json'] = isset($raw_settings['triggers_json']) ? trim(wp_unslash($raw_settings['triggers_json'])) : '[]';
 
-    // --- NEW: Sanitize WhatsApp connector mapping ---
-    $wa_ids = [];
-    if (isset($raw_settings['whatsapp_connector_ids'])) {
-        $raw_wa = $raw_settings['whatsapp_connector_ids'];
-        if (is_string($raw_wa)) {
-            $decoded = json_decode($raw_wa, true);
-            if (is_array($decoded)) { $raw_wa = $decoded; }
-        }
-        if (is_array($raw_wa)) {
-            foreach ($raw_wa as $id) {
-                $sid = sanitize_key((string)$id);
-                if ($sid !== '') { $wa_ids[] = $sid; }
-            }
-            $wa_ids = array_values(array_unique($wa_ids));
-        }
-    }
-    $sanitized['whatsapp_connector_ids'] = $wa_ids;
-    
     return $sanitized;
 }

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.82\n"
+"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.83\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-11T11:13:36+00:00\n"
+"POT-Creation-Date: 2026-03-16T20:26:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -56,6 +56,84 @@ msgid "Form duplicated successfully."
 msgstr ""
 
 msgid "No forms found to export."
+msgstr ""
+
+msgid "AI form generation is not available because required components are missing."
+msgstr ""
+
+msgid "Describe the AI task you want the form to handle."
+msgstr ""
+
+msgid "No usable AI provider is configured for form generation. Add an API key for OpenAI, Google, Claude, OpenRouter, or DeepSeek. To use Azure or Ollama, select that provider and a model in the editor first."
+msgstr ""
+
+msgid "Form draft generated. Review the fields and save when ready."
+msgstr ""
+
+msgid "Provider is not available."
+msgstr ""
+
+msgid "API key is not configured."
+msgstr ""
+
+msgid "Select Azure in the editor to use Azure as a fallback provider."
+msgstr ""
+
+msgid "Azure API key is not configured."
+msgstr ""
+
+msgid "Azure endpoint is not configured."
+msgstr ""
+
+msgid "Select an Azure model in the editor first."
+msgstr ""
+
+msgid "Select Ollama in the editor to use Ollama as a fallback provider."
+msgstr ""
+
+msgid "Ollama base URL is not configured."
+msgstr ""
+
+msgid "Select an Ollama model in the editor first."
+msgstr ""
+
+msgid "Provider is not supported for form generation."
+msgstr ""
+
+msgid "Form generation failed and no provider attempt produced a valid result."
+msgstr ""
+
+msgid "Provider"
+msgstr ""
+
+msgid "Unknown error."
+msgstr ""
+
+msgid "Form generation failed after trying all available providers. %s"
+msgstr ""
+
+msgid "The AI returned an empty response while generating the form draft."
+msgstr ""
+
+msgid "The AI response could not be converted into a valid form draft."
+msgstr ""
+
+msgid "The AI did not return any usable form fields."
+msgstr ""
+
+msgid "The generated draft did not contain any usable fields."
+msgstr ""
+
+msgid "Field %d"
+msgstr ""
+
+msgid "Option 1"
+msgstr ""
+
+msgid "Option 2"
+msgstr ""
+
+msgid "AI Form Draft"
 msgstr ""
 
 msgid "Form ID is required."
@@ -125,100 +203,425 @@ msgstr ""
 msgid "Form created successfully."
 msgstr ""
 
-msgid "Saving form..."
+msgid "Error: Fullscreen functionality is unavailable."
 msgstr ""
 
-msgid "Form saved successfully!"
+msgid "Copied!"
 msgstr ""
 
-msgid "Error saving form."
+msgid "Failed to copy"
 msgstr ""
 
-msgid "Loading forms..."
+msgid "Select OpenAI Store(s)"
 msgstr ""
 
-msgid "Deleting form..."
+msgid "Select Pinecone Index"
 msgstr ""
 
-msgid "Deleting all forms..."
+msgid "Select Qdrant Collection"
 msgstr ""
 
-msgid "Duplicating..."
+msgid "Select Embedding Provider"
 msgstr ""
 
-msgid "Form deleted."
+msgid "Select Embedding Model"
 msgstr ""
 
-msgid "All forms deleted."
+msgid "No OpenAI Stores Found (Sync in AI Training)"
 msgstr ""
 
-msgid "Error deleting form."
+msgid "No Pinecone Indexes Found (Sync in AI Settings)"
 msgstr ""
 
-msgid "Error deleting all forms."
+msgid "No Qdrant Collections Found (Sync in AI Settings)"
 msgstr ""
 
-msgid "Error duplicating form."
+msgid "No Models (Select Provider or Sync)"
 msgstr ""
 
-msgid "Are you sure you want to delete this form? This action cannot be undone."
+msgid "Saving..."
 msgstr ""
 
-msgid "Are you sure you want to delete ALL forms? This action cannot be undone."
+msgid "Save Permissions"
 msgstr ""
 
-msgid "Form title is required."
+msgid "Permissions saved!"
 msgstr ""
 
-msgid "This form currently has no fields. Saving now will remove previously configured fields. Do you want to continue?"
+msgid "Failed to save permissions."
 msgstr ""
 
-msgid "Edit AI Form"
+msgid "Title Suggestions"
 msgstr ""
 
-msgid "Create New AI Form"
+msgid "Generating Title Suggestions..."
 msgstr ""
 
-msgid "Are you sure you want to delete this form element?"
+msgid "Updating Title..."
 msgstr ""
 
-msgid "No options configured"
+msgid "Error loading title suggestions."
 msgstr ""
 
-msgid "Label Text"
+msgid "Error updating title."
 msgstr ""
 
-msgid "Field Variable Name (for prompt)"
+msgid "No title suggestions generated or AI Error."
 msgstr ""
 
-msgid "Use as {your_variable_name} in the Prompt Template. Must be unique and contain only letters, numbers, underscores."
+msgid "Click a title to apply:"
 msgstr ""
 
-msgid "Placeholder Text"
+msgid "Excerpt Suggestions"
 msgstr ""
 
-msgid "Required Field"
+msgid "Generating Excerpt Suggestions..."
 msgstr ""
 
-msgid "Options (Value|Text)"
+msgid "Updating Excerpt..."
 msgstr ""
 
-msgid "Value"
+msgid "Error loading excerpt suggestions."
 msgstr ""
 
-msgid "Display Text"
+msgid "Error updating excerpt."
 msgstr ""
 
-msgid "Add Option"
+msgid "No excerpt suggestions generated or AI Error."
 msgstr ""
 
-msgid "Remove Option"
+msgid "Click an excerpt to apply:"
 msgstr ""
 
-msgid "Done"
+msgid "Meta Description Suggestions"
 msgstr ""
 
-msgid "Field Variable Name must be unique and valid (letters, numbers, underscores)."
+msgid "Generating Meta Descriptions..."
+msgstr ""
+
+msgid "Updating Meta Description..."
+msgstr ""
+
+msgid "Error loading meta description suggestions."
+msgstr ""
+
+msgid "Error updating meta description."
+msgstr ""
+
+msgid "No meta description suggestions generated or AI Error."
+msgstr ""
+
+msgid "Click a meta description to apply:"
+msgstr ""
+
+msgid "Tag Suggestions"
+msgstr ""
+
+msgid "Generating Tag Suggestions..."
+msgstr ""
+
+msgid "Updating Tags..."
+msgstr ""
+
+msgid "Error loading tag suggestions."
+msgstr ""
+
+msgid "Error updating tags."
+msgstr ""
+
+msgid "No tag suggestions generated or AI Error."
+msgstr ""
+
+msgid "Click a tag set to apply:"
+msgstr ""
+
+msgid "Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)"
+msgstr ""
+
+#. translators: %s is the name of the token, e.g. "OpenAI"
+msgid "Close"
+msgstr ""
+
+msgid "Configure AI Actions"
+msgstr ""
+
+msgid "Add New"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Action Label"
+msgstr ""
+
+msgid "Action Prompt"
+msgstr ""
+
+msgid "Position"
+msgstr ""
+
+msgid "Use default"
+msgstr ""
+
+msgid "Replace selection"
+msgstr ""
+
+msgid "Insert after"
+msgstr ""
+
+msgid "Insert before"
+msgstr ""
+
+msgid "Reset to Defaults"
+msgstr ""
+
+msgid "Reset all actions to the default set? This will replace current customizations."
+msgstr ""
+
+msgid "Actions reset to defaults."
+msgstr ""
+
+msgid "Save Action"
+msgstr ""
+
+msgid "Are you sure you want to delete this action? This cannot be undone."
+msgstr ""
+
+msgid "Deleting..."
+msgstr ""
+
+msgid "Action deleted."
+msgstr ""
+
+msgid "Action saved."
+msgstr ""
+
+msgid "Loading actions..."
+msgstr ""
+
+msgid "Use %s as a placeholder for the selected text."
+msgstr ""
+
+msgid "Generating..."
+msgstr ""
+
+msgid "Editing..."
+msgstr ""
+
+msgid "Error generating image."
+msgstr ""
+
+msgid "Please enter a prompt."
+msgstr ""
+
+msgid "Generated images will appear here."
+msgstr ""
+
+msgid "Click to view full image"
+msgstr ""
+
+msgid "Click to view full video"
+msgstr ""
+
+msgid "Selected OpenRouter model does not support image generation."
+msgstr ""
+
+msgid "Please upload an image to edit."
+msgstr ""
+
+msgid "Image editing is currently supported only for Google, OpenAI and OpenRouter providers."
+msgstr ""
+
+msgid "Selected model does not support image editing."
+msgstr ""
+
+msgid "Invalid image type. Allowed types: JPG, PNG, WEBP, GIF."
+msgstr ""
+
+msgid "Source image is too large. Maximum allowed size is 10MB."
+msgstr ""
+
+msgid "Could not attach dropped file automatically. Click to choose file."
+msgstr ""
+
+msgid "Could not load the selected image for editing."
+msgstr ""
+
+msgid "Image editing is not available in the current setup."
+msgstr ""
+
+msgid "Source image loaded. Describe your edits and click Edit Image."
+msgstr ""
+
+msgid "(No edit-capable models available)"
+msgstr ""
+
+msgid "(No image-capable OpenRouter models found)"
+msgstr ""
+
+msgid "(No models available)"
+msgstr ""
+
+msgid "Image Models"
+msgstr ""
+
+msgid "Video Models"
+msgstr ""
+
+msgid "Error: Configuration missing."
+msgstr ""
+
+msgid "Error: Core UI elements missing."
+msgstr ""
+
+msgid "Error: Missing required image generation settings."
+msgstr ""
+
+msgid "Error: No video data found."
+msgstr ""
+
+msgid "Error: No image data found."
+msgstr ""
+
+msgid "Error: Cannot delete image. Configuration missing."
+msgstr ""
+
+msgid "Error deleting image:"
+msgstr ""
+
+msgid "Revised:"
+msgstr ""
+
+msgid "Generating Video..."
+msgstr ""
+
+msgid "Video generation in progress..."
+msgstr ""
+
+msgid "Generating video..."
+msgstr ""
+
+msgid "Video generation timed out. Please try again."
+msgstr ""
+
+msgid "Video generation failed:"
+msgstr ""
+
+msgid "Index"
+msgstr ""
+
+msgid "Add Content to Vector Store"
+msgstr ""
+
+msgid "Select OpenAI Store"
+msgstr ""
+
+msgid "No OpenAI stores found. Create one in AI Training > Knowledge Base."
+msgstr ""
+
+msgid "Loading stores..."
+msgstr ""
+
+msgid "Start Indexing"
+msgstr ""
+
+msgid "Processing..."
+msgstr ""
+
+msgid "Stopping..."
+msgstr ""
+
+msgid "Processing: %1$d/%2$d"
+msgstr ""
+
+msgid "Indexing complete!"
+msgstr ""
+
+msgid "Error fetching vector stores."
+msgstr ""
+
+msgid "Please select an existing OpenAI store."
+msgstr ""
+
+msgid "Please select at least one post to index."
+msgstr ""
+
+msgid "Are you sure you want to index the selected content?"
+msgstr ""
+
+msgid "Preparing content..."
+msgstr ""
+
+msgid "Uploading file %1$s of %2$s..."
+msgstr ""
+
+msgid "Adding files to vector store..."
+msgstr ""
+
+msgid "An error occurred."
+msgstr ""
+
+msgid "You have selected %d item to index."
+msgstr ""
+
+msgid "You have selected %d items to index."
+msgstr ""
+
+msgid "Loading indexes..."
+msgstr ""
+
+msgid "Error fetching indexes."
+msgstr ""
+
+msgid "No Pinecone indexes found. Create one in AI Training or via Pinecone console."
+msgstr ""
+
+msgid "Please select a Pinecone index."
+msgstr ""
+
+msgid "No Qdrant collections found. Create one in AI Training."
+msgstr ""
+
+msgid "Please select a Qdrant collection."
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Embedding"
+msgstr ""
+
+msgid "Embedding Provider"
+msgstr ""
+
+msgid "Embedding Model"
+msgstr ""
+
+msgid "Select Model"
+msgstr ""
+
+msgid "Embedding provider and model are required."
+msgstr ""
+
+msgid "Ensure API key is set for the selected embedding provider in AI Settings."
+msgstr ""
+
+msgid "Pending"
+msgstr ""
+
+msgid "Processing"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "Stopped"
 msgstr ""
 
 msgid "Index WordPress Content"
@@ -338,12 +741,6 @@ msgstr ""
 msgid "Create New Automated Task"
 msgstr ""
 
-msgid "Loading stores..."
-msgstr ""
-
-msgid "Loading indexes..."
-msgstr ""
-
 msgid "-- Select Target Store --"
 msgstr ""
 
@@ -371,9 +768,6 @@ msgstr ""
 msgid "No automated tasks configured yet."
 msgstr ""
 
-msgid "Edit"
-msgstr ""
-
 msgid "Pause"
 msgstr ""
 
@@ -384,9 +778,6 @@ msgid "Run Now"
 msgstr ""
 
 msgid "Task must be active to run"
-msgstr ""
-
-msgid "Delete"
 msgstr ""
 
 msgid "Never"
@@ -464,7 +855,6 @@ msgstr ""
 msgid "Are you sure you want to remove this item from the queue?"
 msgstr ""
 
-#. translators: %s is the status of the queue items, e.g. "Failed" or "Pending"
 msgid "Are you sure you want to delete all %s items from the queue? This cannot be undone."
 msgstr ""
 
@@ -495,422 +885,118 @@ msgstr ""
 msgid "tasks"
 msgstr ""
 
-msgid "Error: Fullscreen functionality is unavailable."
+msgid "Saving form..."
 msgstr ""
 
-msgid "Copied!"
+msgid "Form saved successfully!"
 msgstr ""
 
-msgid "Failed to copy"
+msgid "Error saving form."
 msgstr ""
 
-msgid "Select OpenAI Store(s)"
+msgid "Generating form draft..."
 msgstr ""
 
-msgid "Select Pinecone Index"
+msgid "Form draft generated. Review and save it when ready."
 msgstr ""
 
-msgid "Select Qdrant Collection"
+msgid "Error generating form draft."
 msgstr ""
 
-msgid "Select Embedding Provider"
+msgid "Loading forms..."
 msgstr ""
 
-msgid "Select Embedding Model"
+msgid "Deleting form..."
 msgstr ""
 
-msgid "No OpenAI Stores Found (Sync in AI Training)"
+msgid "Deleting all forms..."
 msgstr ""
 
-msgid "No Pinecone Indexes Found (Sync in AI Settings)"
+msgid "Duplicating..."
 msgstr ""
 
-msgid "No Qdrant Collections Found (Sync in AI Settings)"
+msgid "Form deleted."
 msgstr ""
 
-msgid "No Models (Select Provider or Sync)"
+msgid "All forms deleted."
 msgstr ""
 
-msgid "Generated images will appear here."
+msgid "Error deleting form."
 msgstr ""
 
-msgid "Generating..."
+msgid "Error deleting all forms."
 msgstr ""
 
-msgid "Editing..."
+msgid "Error duplicating form."
 msgstr ""
 
-msgid "Error generating image."
+msgid "Are you sure you want to delete this form? This action cannot be undone."
 msgstr ""
 
-msgid "Please enter a prompt."
+msgid "Are you sure you want to delete ALL forms? This action cannot be undone."
 msgstr ""
 
-msgid "Click to view full image"
+msgid "Generating a new draft will replace the current title, prompt, and fields in the editor. Continue?"
 msgstr ""
 
-msgid "Click to view full video"
+msgid "Form title is required."
 msgstr ""
 
-msgid "Selected OpenRouter model does not support image generation."
+msgid "Describe the AI task before generating a form draft."
 msgstr ""
 
-msgid "Please upload an image to edit."
+msgid "Select an engine and model before generating a form draft."
 msgstr ""
 
-msgid "Image editing is currently supported only for Google, OpenAI and OpenRouter providers."
+msgid "This form currently has no fields. Saving now will remove previously configured fields. Do you want to continue?"
 msgstr ""
 
-msgid "Selected model does not support image editing."
+msgid "Edit AI Form"
 msgstr ""
 
-msgid "Invalid image type. Allowed types: JPG, PNG, WEBP, GIF."
+msgid "Create New AI Form"
 msgstr ""
 
-msgid "Source image is too large. Maximum allowed size is 10MB."
+msgid "Are you sure you want to delete this form element?"
 msgstr ""
 
-msgid "Could not attach dropped file automatically. Click to choose file."
+msgid "No options configured"
 msgstr ""
 
-msgid "Could not load the selected image for editing."
+msgid "Label Text"
 msgstr ""
 
-msgid "Image editing is not available in the current setup."
+msgid "Field Variable Name (for prompt)"
 msgstr ""
 
-msgid "Source image loaded. Describe your edits and click Edit Image."
+msgid "Use as {your_variable_name} in the Prompt Template. Must be unique and contain only letters, numbers, underscores."
 msgstr ""
 
-msgid "(No edit-capable models available)"
+msgid "Placeholder Text"
 msgstr ""
 
-msgid "(No image-capable OpenRouter models found)"
+msgid "Required Field"
 msgstr ""
 
-msgid "(No models available)"
+msgid "Options (Value|Text)"
 msgstr ""
 
-msgid "Image Models"
+msgid "Value"
 msgstr ""
 
-msgid "Video Models"
+msgid "Display Text"
 msgstr ""
 
-msgid "Error: Configuration missing."
+msgid "Add Option"
 msgstr ""
 
-msgid "Error: Core UI elements missing."
+msgid "Remove Option"
 msgstr ""
 
-msgid "Error: Missing required image generation settings."
+msgid "Done"
 msgstr ""
 
-msgid "Error: No video data found."
-msgstr ""
-
-msgid "Error: No image data found."
-msgstr ""
-
-msgid "Error: Cannot delete image. Configuration missing."
-msgstr ""
-
-msgid "Error deleting image:"
-msgstr ""
-
-msgid "Revised:"
-msgstr ""
-
-msgid "Generating Video..."
-msgstr ""
-
-msgid "Video generation in progress..."
-msgstr ""
-
-msgid "Generating video..."
-msgstr ""
-
-msgid "Video generation timed out. Please try again."
-msgstr ""
-
-msgid "Video generation failed:"
-msgstr ""
-
-msgid "Title Suggestions"
-msgstr ""
-
-msgid "Generating Title Suggestions..."
-msgstr ""
-
-msgid "Updating Title..."
-msgstr ""
-
-msgid "Error loading title suggestions."
-msgstr ""
-
-msgid "Error updating title."
-msgstr ""
-
-msgid "No title suggestions generated or AI Error."
-msgstr ""
-
-msgid "Click a title to apply:"
-msgstr ""
-
-msgid "Excerpt Suggestions"
-msgstr ""
-
-msgid "Generating Excerpt Suggestions..."
-msgstr ""
-
-msgid "Updating Excerpt..."
-msgstr ""
-
-msgid "Error loading excerpt suggestions."
-msgstr ""
-
-msgid "Error updating excerpt."
-msgstr ""
-
-msgid "No excerpt suggestions generated or AI Error."
-msgstr ""
-
-msgid "Click an excerpt to apply:"
-msgstr ""
-
-msgid "Meta Description Suggestions"
-msgstr ""
-
-msgid "Generating Meta Descriptions..."
-msgstr ""
-
-msgid "Updating Meta Description..."
-msgstr ""
-
-msgid "Error loading meta description suggestions."
-msgstr ""
-
-msgid "Error updating meta description."
-msgstr ""
-
-msgid "No meta description suggestions generated or AI Error."
-msgstr ""
-
-msgid "Click a meta description to apply:"
-msgstr ""
-
-msgid "Tag Suggestions"
-msgstr ""
-
-msgid "Generating Tag Suggestions..."
-msgstr ""
-
-msgid "Updating Tags..."
-msgstr ""
-
-msgid "Error loading tag suggestions."
-msgstr ""
-
-msgid "Error updating tags."
-msgstr ""
-
-msgid "No tag suggestions generated or AI Error."
-msgstr ""
-
-msgid "Click a tag set to apply:"
-msgstr ""
-
-#. translators: %s is the name of the post type, e.g. "Post" or "Page"
-msgid "Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)"
-msgstr ""
-
-#. translators: %s is the name of the token, e.g. "OpenAI"
-msgid "Close"
-msgstr ""
-
-msgid "Configure AI Actions"
-msgstr ""
-
-msgid "Add New"
-msgstr ""
-
-msgid "Action Label"
-msgstr ""
-
-msgid "Action Prompt"
-msgstr ""
-
-msgid "Position"
-msgstr ""
-
-msgid "Use default"
-msgstr ""
-
-msgid "Replace selection"
-msgstr ""
-
-msgid "Insert after"
-msgstr ""
-
-msgid "Insert before"
-msgstr ""
-
-msgid "Reset to Defaults"
-msgstr ""
-
-msgid "Reset all actions to the default set? This will replace current customizations."
-msgstr ""
-
-msgid "Actions reset to defaults."
-msgstr ""
-
-msgid "Save Action"
-msgstr ""
-
-msgid "Saving..."
-msgstr ""
-
-msgid "Are you sure you want to delete this action? This cannot be undone."
-msgstr ""
-
-msgid "Deleting..."
-msgstr ""
-
-msgid "Action deleted."
-msgstr ""
-
-msgid "Action saved."
-msgstr ""
-
-msgid "Loading actions..."
-msgstr ""
-
-#. translators: %s is the name of the post type, e.g. "Post" or "Page"
-msgid "Use %s as a placeholder for the selected text."
-msgstr ""
-
-msgid "Save Permissions"
-msgstr ""
-
-msgid "Permissions saved!"
-msgstr ""
-
-msgid "Failed to save permissions."
-msgstr ""
-
-msgid "Index"
-msgstr ""
-
-msgid "Add Content to Vector Store"
-msgstr ""
-
-msgid "Provider"
-msgstr ""
-
-msgid "Select OpenAI Store"
-msgstr ""
-
-msgid "No OpenAI stores found. Create one in AI Training > Knowledge Base."
-msgstr ""
-
-msgid "Start Indexing"
-msgstr ""
-
-msgid "Processing..."
-msgstr ""
-
-msgid "Stopping..."
-msgstr ""
-
-#. translators: %1$d: current count, %2$d: total count
-msgid "Processing: %1$d/%2$d"
-msgstr ""
-
-msgid "Indexing complete!"
-msgstr ""
-
-msgid "Error fetching vector stores."
-msgstr ""
-
-msgid "Please select an existing OpenAI store."
-msgstr ""
-
-msgid "Please select at least one post to index."
-msgstr ""
-
-msgid "Are you sure you want to index the selected content?"
-msgstr ""
-
-msgid "Preparing content..."
-msgstr ""
-
-#. translators: %1$s is the file name, %2$s is the total number of files being indexed
-msgid "Uploading file %1$s of %2$s..."
-msgstr ""
-
-msgid "Adding files to vector store..."
-msgstr ""
-
-msgid "An error occurred."
-msgstr ""
-
-#. translators: %d is the number of items selected
-msgid "You have selected %d item to index."
-msgstr ""
-
-#. translators: %d is the number of items selected
-msgid "You have selected %d items to index."
-msgstr ""
-
-msgid "Error fetching indexes."
-msgstr ""
-
-msgid "No Pinecone indexes found. Create one in AI Training or via Pinecone console."
-msgstr ""
-
-msgid "Please select a Pinecone index."
-msgstr ""
-
-msgid "No Qdrant collections found. Create one in AI Training."
-msgstr ""
-
-msgid "Please select a Qdrant collection."
-msgstr ""
-
-msgid "Target"
-msgstr ""
-
-msgid "Embedding"
-msgstr ""
-
-msgid "Embedding Provider"
-msgstr ""
-
-msgid "Embedding Model"
-msgstr ""
-
-msgid "Select Model"
-msgstr ""
-
-msgid "Embedding provider and model are required."
-msgstr ""
-
-msgid "Ensure API key is set for the selected embedding provider in AI Settings."
-msgstr ""
-
-msgid "Pending"
-msgstr ""
-
-msgid "Processing"
-msgstr ""
-
-msgid "Completed"
-msgstr ""
-
-msgid "Failed"
-msgstr ""
-
-msgid "Stopped"
+msgid "Field Variable Name must be unique and valid (letters, numbers, underscores)."
 msgstr ""
 
 #. translators: %s is the name of the module being loaded
@@ -1109,6 +1195,12 @@ msgstr ""
 msgid "Conversations"
 msgstr ""
 
+msgid "Configure"
+msgstr ""
+
+msgid "Enable to configure"
+msgstr ""
+
 msgid "History unavailable for guests."
 msgstr ""
 
@@ -1119,6 +1211,15 @@ msgid "Play audio"
 msgstr ""
 
 msgid "Pause audio"
+msgstr ""
+
+msgid "Available for OpenAI only"
+msgstr ""
+
+msgid "Available for OpenAI reasoning models only"
+msgstr ""
+
+msgid "Available for OpenAI, Claude, and OpenRouter only"
 msgstr ""
 
 msgid "Loading user credits..."
@@ -1137,67 +1238,6 @@ msgid "Reset Period"
 msgstr ""
 
 msgid "Searching vector store..."
-msgstr ""
-
-msgid "Please select a target vector store."
-msgstr ""
-
-msgid "Edit generated post"
-msgstr ""
-
-msgid "Topic is required for Content Writing task."
-msgstr ""
-
-msgid "Your content writing task is queued. You can track it under the Automated Tasks tab."
-msgstr ""
-
-msgid "Error loading forms data."
-msgstr ""
-
-msgid "No AI Forms have been created yet."
-msgstr ""
-
-msgid "e.g., Product Description Generator"
-msgstr ""
-
-msgid "Prompt Template"
-msgstr ""
-
-msgid "Craft your prompt. Use {user_input} as a placeholder for the user's text from the form."
-msgstr ""
-
-msgid "Creating Form..."
-msgstr ""
-
-msgid "Form Elements"
-msgstr ""
-
-msgid "Form Designer"
-msgstr ""
-
-msgid "Drag Form Elements Here"
-msgstr ""
-
-msgid "Text Input"
-msgstr ""
-
-msgid "Text Area"
-msgstr ""
-
-msgid "Dropdown"
-msgstr ""
-
-msgid "Checkbox"
-msgstr ""
-
-msgid "Drag elements to the designer area."
-msgstr ""
-
-msgid "Element Settings"
-msgstr ""
-
-#. translators: %s is the type of form element, e.g. Text Input
-msgid "(%s)"
 msgstr ""
 
 msgid "Chatbots"
@@ -1332,6 +1372,9 @@ msgstr ""
 msgid "New Form"
 msgstr ""
 
+msgid "Generate Form"
+msgstr ""
+
 msgid "Preview"
 msgstr ""
 
@@ -1365,6 +1408,9 @@ msgstr ""
 msgid "Delete All"
 msgstr ""
 
+msgid "No AI Forms have been created yet."
+msgstr ""
+
 msgid "Limits"
 msgstr ""
 
@@ -1381,6 +1427,21 @@ msgid "Need help? Read the docs."
 msgstr ""
 
 msgid "Documentation"
+msgstr ""
+
+msgid "Form Elements"
+msgstr ""
+
+msgid "Text Input"
+msgstr ""
+
+msgid "Text Area"
+msgstr ""
+
+msgid "Dropdown"
+msgstr ""
+
+msgid "Checkbox"
 msgstr ""
 
 msgid "Radio Buttons"
@@ -1413,6 +1474,9 @@ msgstr ""
 msgid "Labels"
 msgstr ""
 
+msgid "Element Settings"
+msgstr ""
+
 msgid "Drag a Layout Here to Start"
 msgstr ""
 
@@ -1428,7 +1492,22 @@ msgstr ""
 msgid "0 characters"
 msgstr ""
 
-msgid "Press ESC to close"
+msgid "Generate AI Form"
+msgstr ""
+
+msgid "Describe the form you want. AI will generate it for you."
+msgstr ""
+
+msgid "Describe the AI form"
+msgstr ""
+
+msgid "e.g., Create a blog brief generator with fields for topic, audience, tone, keywords, and target length."
+msgstr ""
+
+msgid "Inspire Me"
+msgstr ""
+
+msgid "Tip: mention the output goal, the audience, and any fields or option lists you want the form to include."
 msgstr ""
 
 msgid "Engine"
@@ -2486,9 +2565,6 @@ msgstr ""
 msgid "Post Settings"
 msgstr ""
 
-msgid "Configure"
-msgstr ""
-
 msgid "Prompts"
 msgstr ""
 
@@ -2899,6 +2975,9 @@ msgstr ""
 msgid "Agent instructions"
 msgstr ""
 
+msgid "Press ESC to close"
+msgstr ""
+
 msgid "Sheet"
 msgstr ""
 
@@ -2987,9 +3066,6 @@ msgid "Notify Slack on demo requests"
 msgstr ""
 
 msgid "Send leads to Make / Zapier"
-msgstr ""
-
-msgid "WhatsApp Cloud API relay"
 msgstr ""
 
 msgid "Tickets, emails & follow-ups"
@@ -4843,16 +4919,10 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-msgid "Provider credentials"
-msgstr ""
-
 msgid "Document chunking"
 msgstr ""
 
 msgid "Visibility and basics"
-msgstr ""
-
-msgid "Keys and endpoints"
 msgstr ""
 
 msgid "Chunk size settings"
@@ -5949,6 +6019,9 @@ msgid "Last Clean Up: Never"
 msgstr ""
 
 msgid "Google Sheet ID and Credentials are required."
+msgstr ""
+
+msgid "Your content writing task is queued. You can track it under the Automated Tasks tab."
 msgstr ""
 
 msgid "(Untitled)"
@@ -10904,92 +10977,19 @@ msgstr ""
 msgid "Notification Message"
 msgstr ""
 
-msgid "WhatsApp"
-msgstr ""
-
-msgid "Webhook URL:"
-msgstr ""
-
-msgid "Paste this URL into your Meta App Webhooks (WhatsApp) configuration."
-msgstr ""
-
-msgid "Connectors"
-msgstr ""
-
-msgid "Load Existing"
-msgstr ""
-
-msgid "Add Connector"
-msgstr ""
-
-msgid "Connector"
-msgstr ""
-
-msgid "Remove"
-msgstr ""
-
-msgid "Label"
-msgstr ""
-
-msgid "Phone Number ID"
-msgstr ""
-
-msgid "Access Token"
-msgstr ""
-
-msgid "App Secret"
-msgstr ""
-
-msgid "Verify Token"
-msgstr ""
-
-msgid "Test Recipient (E.164)"
-msgstr ""
-
-msgid "Test Message"
-msgstr ""
-
-msgid "Send Test"
-msgstr ""
-
 msgid "Enter your Spreadsheet ID, e.g. 18QIWggMmbTVTb-nztTo7SFdGJTUC6kwRxgc841xq4x0"
 msgstr ""
 
 msgid "Fetch Feeds"
 msgstr ""
 
-msgid "Invalid connectors payload."
-msgstr ""
-
-msgid "Recipient and message are required."
-msgstr ""
-
-msgid "Connector not found or invalid."
-msgstr ""
-
-msgid "Connector is missing phone number ID or access token."
-msgstr ""
-
-msgid "WhatsApp client not available."
-msgstr ""
-
-msgid "Test message sent."
-msgstr ""
-
-msgid "Unknown error"
-msgstr ""
-
-#. translators: %s: error message
-msgid "Send failed: %s"
-msgstr ""
-
-msgid "Sorry, this message type is not supported yet."
-msgstr ""
-
 msgid "Image editing UI is enabled. Backend editing will be available in the next phase."
 msgstr ""
 
 msgid "Selected source image preview"
+msgstr ""
+
+msgid "Remove"
 msgstr ""
 
 msgid "(Select Provider)"
@@ -11153,6 +11153,12 @@ msgid "Loading vector stores..."
 msgstr ""
 
 msgid "Unable to load stores."
+msgstr ""
+
+msgid "Replace Draft"
+msgstr ""
+
+msgid "Generation cancelled."
 msgstr ""
 
 msgid "Missing form ID for preview."
@@ -11443,6 +11449,9 @@ msgstr ""
 msgid "Running sync for all ready providers..."
 msgstr ""
 
+msgid "Unknown error"
+msgstr ""
+
 msgid "Sync completed with errors: "
 msgstr ""
 
@@ -11590,9 +11599,6 @@ msgid "Are you sure you want to delete the %s \"%s\"? This action cannot be undo
 msgstr ""
 
 msgid "All %s"
-msgstr ""
-
-msgid "Save failed."
 msgstr ""
 
 msgid "Add provider credentials to load stores."

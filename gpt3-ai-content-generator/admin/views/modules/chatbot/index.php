@@ -2017,7 +2017,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     <ul class="aipkit_rules_promo_card_list">
                                         <li><?php esc_html_e('Notify Slack on demo requests', 'gpt3-ai-content-generator'); ?></li>
                                         <li><?php esc_html_e('Send leads to Make / Zapier', 'gpt3-ai-content-generator'); ?></li>
-                                        <li><?php esc_html_e('WhatsApp Cloud API relay', 'gpt3-ai-content-generator'); ?></li>
                                         <li><?php esc_html_e('Tickets, emails & follow-ups', 'gpt3-ai-content-generator'); ?></li>
                                     </ul>
                                 </div>

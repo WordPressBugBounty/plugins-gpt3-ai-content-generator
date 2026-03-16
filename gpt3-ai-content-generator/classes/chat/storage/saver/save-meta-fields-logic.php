@@ -314,12 +314,5 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     }
     update_post_meta($botId, $trigger_meta_key, $triggers_json_string);
 
-    // --- NEW: Save WhatsApp connector mapping ---
-    if (isset($sanitized_settings['whatsapp_connector_ids']) && is_array($sanitized_settings['whatsapp_connector_ids'])) {
-        update_post_meta($botId, '_aipkit_whatsapp_connector_ids', $sanitized_settings['whatsapp_connector_ids']);
-    } else {
-        delete_post_meta($botId, '_aipkit_whatsapp_connector_ids');
-    }
-
     return true;
 }

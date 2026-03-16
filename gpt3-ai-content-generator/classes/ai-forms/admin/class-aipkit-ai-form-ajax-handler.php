@@ -36,6 +36,7 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
         add_action('wp_ajax_aipkit_save_ai_form', [$this, 'ajax_save_ai_form']);
         add_action('wp_ajax_aipkit_list_ai_forms', [$this, 'ajax_list_ai_forms']);
         add_action('wp_ajax_aipkit_get_ai_form', [$this, 'ajax_get_ai_form']);
+        add_action('wp_ajax_aipkit_generate_ai_form_from_prompt', [$this, 'ajax_generate_ai_form_from_prompt']);
         add_action('wp_ajax_aipkit_delete_ai_form', [$this, 'ajax_delete_ai_form']);
         add_action('wp_ajax_aipkit_duplicate_ai_form', [$this, 'ajax_duplicate_ai_form']);
         add_action('wp_ajax_aipkit_get_form_preview', [$this, 'ajax_get_form_preview']);
@@ -96,6 +97,21 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
 
         require_once WPAICG_PLUGIN_DIR . 'admin/ajax/ai-forms/ajax-get-form.php';
         \WPAICG\Admin\Ajax\AIForms\do_ajax_get_form_logic($this);
+    }
+
+    /**
+     * AJAX: Generates an AI Form draft from a natural-language prompt.
+     */
+    public function ajax_generate_ai_form_from_prompt()
+    {
+        $permission_check = $this->check_module_access_permissions('ai-forms', 'aipkit_manage_ai_forms_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        require_once WPAICG_PLUGIN_DIR . 'admin/ajax/ai-forms/ajax-generate-form-from-prompt.php';
+        \WPAICG\Admin\Ajax\AIForms\do_ajax_generate_form_from_prompt_logic($this);
     }
 
     /**

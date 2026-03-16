@@ -84,6 +84,10 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
         </div>
         <div class="aipkit_container-actions">
             <div id="aipkit_ai_forms_editor_actions" class="aipkit_form_editor_actions aipkit_form_editor_actions--header" style="display: none;">
+                <button type="button" id="aipkit_generate_ai_form_btn" class="aipkit_btn aipkit_btn-secondary">
+                    <span class="dashicons dashicons-admin-customizer"></span>
+                    <span class="aipkit_btn-text"><?php esc_html_e('Generate Form', 'gpt3-ai-content-generator'); ?></span>
+                </button>
                 <button type="button" id="aipkit_save_ai_form_btn" class="aipkit_btn aipkit_btn-primary">
                     <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
                     <span class="aipkit_spinner" style="display:none;"></span>

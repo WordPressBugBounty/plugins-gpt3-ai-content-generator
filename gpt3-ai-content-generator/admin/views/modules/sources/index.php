@@ -7,16 +7,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$pinecone_data = [];
-$qdrant_data = [];
-if (class_exists('\\WPAICG\\AIPKit_Providers')) {
-    $pinecone_data = \WPAICG\AIPKit_Providers::get_provider_data('Pinecone');
-    $qdrant_data = \WPAICG\AIPKit_Providers::get_provider_data('Qdrant');
-}
-
-$pinecone_api_key = $pinecone_data['api_key'] ?? '';
-$qdrant_api_key = $qdrant_data['api_key'] ?? '';
-$qdrant_url = $qdrant_data['url'] ?? '';
 $aipkit_options = get_option('aipkit_options', []);
 $semantic_search_settings = $aipkit_options['semantic_search'] ?? [];
 $semantic_vector_provider = $semantic_search_settings['vector_provider'] ?? 'pinecone';
@@ -66,9 +56,6 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
 <div
     class="aipkit_container aipkit_sources_container"
     id="aipkit_sources_module_container"
-    data-pinecone-api-key="<?php echo esc_attr($pinecone_api_key); ?>"
-    data-qdrant-api-key="<?php echo esc_attr($qdrant_api_key); ?>"
-    data-qdrant-url="<?php echo esc_attr($qdrant_url); ?>"
     data-settings-nonce="<?php echo esc_attr(wp_create_nonce('aipkit_ai_training_settings_nonce')); ?>"
     data-settings-is-pro="<?php echo $is_pro_plan ? '1' : '0'; ?>"
     data-semantic-search-nonce="<?php echo esc_attr(wp_create_nonce('aipkit_semantic_search_nonce')); ?>"
@@ -172,7 +159,6 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                 aria-hidden="true"
                 data-title-root="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
                 data-title-general="<?php esc_attr_e('General', 'gpt3-ai-content-generator'); ?>"
-                data-title-provider-credentials="<?php esc_attr_e('Provider credentials', 'gpt3-ai-content-generator'); ?>"
                 data-title-document-chunking="<?php esc_attr_e('Document chunking', 'gpt3-ai-content-generator'); ?>"
             >
                 <div class="aipkit_model_settings_popover_panel" role="dialog" aria-modal="false" aria-labelledby="aipkit_sources_settings_title">
@@ -218,28 +204,6 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                                     </span>
                                                     <span class="aipkit_popover_option_hint">
                                                         <?php esc_html_e('Visibility and basics', 'gpt3-ai-content-generator'); ?>
-                                                    </span>
-                                                </span>
-                                            </span>
-                                            <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                                                <span class="dashicons dashicons-arrow-right-alt2"></span>
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                                        <button
-                                            type="button"
-                                            class="aipkit_popover_option_nav aipkit_sources_settings_nav"
-                                            data-aipkit-panel-target="provider-credentials"
-                                        >
-                                            <span class="aipkit_popover_option_label">
-                                                <span class="aipkit_popover_option_icon dashicons dashicons-lock" aria-hidden="true"></span>
-                                                <span class="aipkit_popover_option_label_content">
-                                                    <span class="aipkit_popover_option_label_text">
-                                                        <?php esc_html_e('Provider credentials', 'gpt3-ai-content-generator'); ?>
-                                                    </span>
-                                                    <span class="aipkit_popover_option_hint">
-                                                        <?php esc_html_e('Keys and endpoints', 'gpt3-ai-content-generator'); ?>
                                                     </span>
                                                 </span>
                                             </span>
@@ -363,75 +327,6 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                             >
                                             <span class="aipkit_switch_slider"></span>
                                         </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="provider-credentials" hidden>
-                            <div class="aipkit_popover_options_list">
-                                <div id="aipkit_sources_provider_popover_body" class="aipkit_popover_option_group">
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main">
-                                            <label class="aipkit_popover_option_label" for="aipkit_sources_pinecone_api_key">
-                                                <?php esc_html_e('Pinecone API Key', 'gpt3-ai-content-generator'); ?>
-                                            </label>
-                                            <div class="aipkit_popover_option_actions">
-                                                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                                                    <input
-                                                        type="password"
-                                                        id="aipkit_sources_pinecone_api_key"
-                                                        name="pinecone_api_key"
-                                                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
-                                                        value="<?php echo esc_attr($pinecone_api_key); ?>"
-                                                        placeholder="<?php esc_attr_e('Enter your Pinecone API key', 'gpt3-ai-content-generator'); ?>"
-                                                        data-aipkit-provider-config="pinecone_api_key"
-                                                    >
-                                                    <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main">
-                                            <label class="aipkit_popover_option_label" for="aipkit_sources_qdrant_url">
-                                                <?php esc_html_e('Qdrant URL', 'gpt3-ai-content-generator'); ?>
-                                            </label>
-                                            <div class="aipkit_popover_option_actions">
-                                                <div class="aipkit_input-with-icon-wrapper">
-                                                    <input
-                                                        type="url"
-                                                        id="aipkit_sources_qdrant_url"
-                                                        name="qdrant_url"
-                                                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
-                                                        value="<?php echo esc_attr($qdrant_url); ?>"
-                                                        placeholder="<?php esc_attr_e('e.g., http://localhost:6333 or https://your-cloud-id.qdrant.cloud', 'gpt3-ai-content-generator'); ?>"
-                                                        data-aipkit-provider-config="qdrant_url"
-                                                    >
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="aipkit_popover_option_row">
-                                        <div class="aipkit_popover_option_main">
-                                            <label class="aipkit_popover_option_label" for="aipkit_sources_qdrant_api_key">
-                                                <?php esc_html_e('Qdrant API Key', 'gpt3-ai-content-generator'); ?>
-                                            </label>
-                                            <div class="aipkit_popover_option_actions">
-                                                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                                                    <input
-                                                        type="password"
-                                                        id="aipkit_sources_qdrant_api_key"
-                                                        name="qdrant_api_key"
-                                                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
-                                                        value="<?php echo esc_attr($qdrant_api_key); ?>"
-                                                        placeholder="<?php esc_attr_e('Enter your Qdrant API key', 'gpt3-ai-content-generator'); ?>"
-                                                        data-aipkit-provider-config="qdrant_api_key"
-                                                    >
-                                                    <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

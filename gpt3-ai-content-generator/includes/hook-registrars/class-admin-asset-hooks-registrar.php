@@ -44,34 +44,11 @@ class Admin_Asset_Hooks_Registrar
         $content_writer_assets = new AIPKit_Content_Writer_Assets();
         $vector_post_processor_assets = new AIPKit_Vector_Post_Processor_Assets();
         $vector_post_processor_list_screen = new AIPKit_Vector_Post_Processor_List_Screen();
-        $autogpt_assets = null;
-        if (class_exists(AIPKit_Autogpt_Assets::class)) {
-            $autogpt_assets = new AIPKit_Autogpt_Assets();
-        }
-        // --- ADDED: Instantiate AI Forms Assets ---
-        $ai_forms_assets = null;
-        $ai_forms_assets_path = WPAICG_PLUGIN_DIR . 'admin/assets/class-aipkit-ai-forms-assets.php';
-        if (file_exists($ai_forms_assets_path)) {
-            if (!class_exists(AIPKit_AI_Forms_Assets::class)) { // Ensure it's not already loaded
-                require_once $ai_forms_assets_path;
-            }
-            if (class_exists(AIPKit_AI_Forms_Assets::class)) {
-                $ai_forms_assets = new AIPKit_AI_Forms_Assets();
-            }
-        }
-        // --- END ADDED ---
-        // --- ADDED: Instantiate WooCommerce Writer Assets ---
-        $woocommerce_writer_assets = null;
-        $woo_writer_assets_path = WPAICG_PLUGIN_DIR . 'admin/assets/class-aipkit-woocommerce-writer-assets.php';
-        if (file_exists($woo_writer_assets_path)) { // Check if file exists before trying to load
-            if (!class_exists(AIPKit_Woocommerce_Writer_Assets::class)) {
-                require_once $woo_writer_assets_path;
-            }
-            if (class_exists(AIPKit_Woocommerce_Writer_Assets::class)) {
-                $woocommerce_writer_assets = new AIPKit_Woocommerce_Writer_Assets();
-            }
-        }
-        // --- END ADDED ---
+        $autogpt_assets = class_exists(AIPKit_Autogpt_Assets::class) ? new AIPKit_Autogpt_Assets() : null;
+        $ai_forms_assets = class_exists(AIPKit_AI_Forms_Assets::class) ? new AIPKit_AI_Forms_Assets() : null;
+        $woocommerce_writer_assets = class_exists(AIPKit_Woocommerce_Writer_Assets::class)
+            ? new AIPKit_Woocommerce_Writer_Assets()
+            : null;
 
 
         $dashboard_assets->register_hooks();
@@ -86,15 +63,11 @@ class Admin_Asset_Hooks_Registrar
         if ($autogpt_assets) {
             $autogpt_assets->register_hooks();
         }
-        // --- ADDED: Register AI Forms Assets Hooks ---
         if ($ai_forms_assets) {
             $ai_forms_assets->register_hooks();
         }
-        // --- END ADDED ---
-        // --- ADDED: Register WooCommerce Writer Assets Hooks ---
         if ($woocommerce_writer_assets) {
             $woocommerce_writer_assets->register_hooks();
         }
-        // --- END ADDED ---
     }
 }
