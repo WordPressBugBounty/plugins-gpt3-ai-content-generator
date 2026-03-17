@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.83\n"
+"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.84\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-16T20:26:05+00:00\n"
+"POT-Creation-Date: 2026-03-16T23:39:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -180,6 +180,22 @@ msgid "AI Provider"
 msgstr ""
 
 msgid "AI Model"
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+#. translators: %s is the name of the token, e.g. "OpenAI"
+msgid "Next"
+msgstr ""
+
+msgid "Step {number}"
+msgstr ""
+
+msgid "Step {current} of {total}"
+msgstr ""
+
+msgid "Please complete this step before continuing."
 msgstr ""
 
 msgid "Invalid form structure data submitted."
@@ -848,10 +864,6 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#. translators: %s is the name of the token, e.g. "OpenAI"
-msgid "Next"
-msgstr ""
-
 msgid "Are you sure you want to remove this item from the queue?"
 msgstr ""
 
@@ -1420,13 +1432,40 @@ msgstr ""
 msgid "Provider Filtering"
 msgstr ""
 
-msgid "Back"
-msgstr ""
-
 msgid "Need help? Read the docs."
 msgstr ""
 
 msgid "Documentation"
+msgstr ""
+
+msgid "Enable Multi-Step"
+msgstr ""
+
+msgid "Hover a row in the builder and click the chat bubble to configure each step."
+msgstr ""
+
+msgid "Display Progress"
+msgstr ""
+
+msgid "Full"
+msgstr ""
+
+msgid "Compact"
+msgstr ""
+
+msgid "Minimal"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Choose how much step info to show."
+msgstr ""
+
+msgid "Turn forms into guided step-by-step flows."
+msgstr ""
+
+msgid "Show one step at a time with navigation and conditional branching."
 msgstr ""
 
 msgid "Form Elements"
@@ -1471,6 +1510,9 @@ msgstr ""
 msgid "3 Columns"
 msgstr ""
 
+msgid "Multi-Step"
+msgstr ""
+
 msgid "Labels"
 msgstr ""
 
@@ -1511,6 +1553,15 @@ msgid "Tip: mention the output goal, the audience, and any fields or option list
 msgstr ""
 
 msgid "Engine"
+msgstr ""
+
+msgid "Step Title"
+msgstr ""
+
+msgid "Step Progress"
+msgstr ""
+
+msgid "Validation Msg"
 msgstr ""
 
 msgid "Tokens and usage"
@@ -1838,9 +1889,6 @@ msgid "Presence Penalty"
 msgstr ""
 
 msgid "Reasoning Effort"
-msgstr ""
-
-msgid "None"
 msgstr ""
 
 msgid "Medium"
@@ -2246,9 +2294,6 @@ msgid "Count"
 msgstr ""
 
 msgid "Thumbnail"
-msgstr ""
-
-msgid "Full"
 msgstr ""
 
 msgid "Align"
@@ -11200,6 +11245,12 @@ msgstr ""
 msgid "Only letters, numbers, and underscores allowed. No spaces."
 msgstr ""
 
+msgid "Empty Option Text"
+msgstr ""
+
+msgid "Shown as the first empty dropdown option."
+msgstr ""
+
 msgid "Help Text (Optional)"
 msgstr ""
 
@@ -11827,6 +11878,60 @@ msgid "Purchase History for"
 msgstr ""
 
 msgid "Show less"
+msgstr ""
+
+msgid "Conversational step"
+msgstr ""
+
+msgid "Branch:"
+msgstr ""
+
+msgid "Conversational Step"
+msgstr ""
+
+msgid "Turn layout rows into a guided multi-step flow with optional branching."
+msgstr ""
+
+msgid "Step title"
+msgstr ""
+
+msgid "e.g. Project Brief"
+msgstr ""
+
+msgid "Step description"
+msgstr ""
+
+msgid "Optional helper text shown above this step."
+msgstr ""
+
+msgid "Branching is available from the second step onward."
+msgstr ""
+
+msgid "Branch only when"
+msgstr ""
+
+msgid "Use answers from previous rows to decide whether this step should appear."
+msgstr ""
+
+msgid "Condition"
+msgstr ""
+
+msgid "Value to compare against"
+msgstr ""
+
+msgid "Save Step"
+msgstr ""
+
+msgid "Always show this step"
+msgstr ""
+
+msgid "missing"
+msgstr ""
+
+msgid "Add fields to an earlier row before using branching."
+msgstr ""
+
+msgid "Conversational step settings"
 msgstr ""
 
 msgid "Webhook placeholders: {{submitted_data_json}}, {{submitted_data_display_json}}, {{submitted_data_labels_json}}, {{submitted.field_id}}, {{submitted_display.field_id}}, {{submitted_label.field_id}}."

@@ -141,6 +141,7 @@ class WP_AI_Content_Generator_Public
                     'ajaxUrl' => admin_url('admin-ajax.php'),
                     'ajaxNonce' => wp_create_nonce('aipkit_frontend_chat_nonce'), // Re-using chat nonce, consider specific AI Forms nonce
                     'is_user_logged_in' => is_user_logged_in(),
+                    'is_pro_plan' => class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan(),
                     'save_as_post_nonce' => wp_create_nonce('aipkit_ai_form_save_as_post_nonce'),
                     'allowed_providers' => $frontend_display_settings['allowed_providers'] ?? '', // NEW
                     'allowed_models' => $frontend_display_settings['allowed_models'] ?? '', // NEW

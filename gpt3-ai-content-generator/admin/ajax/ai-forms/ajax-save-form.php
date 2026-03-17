@@ -74,6 +74,11 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'copy_button'     => __('Copy', 'gpt3-ai-content-generator'),
         'provider_label'  => __('AI Provider', 'gpt3-ai-content-generator'),
         'model_label'     => __('AI Model', 'gpt3-ai-content-generator'),
+        'conversation_back_button' => __('Back', 'gpt3-ai-content-generator'),
+        'conversation_next_button' => __('Next', 'gpt3-ai-content-generator'),
+        'conversation_step_title' => __('Step {number}', 'gpt3-ai-content-generator'),
+        'conversation_step_progress' => __('Step {current} of {total}', 'gpt3-ai-content-generator'),
+        'conversation_validation_message' => __('Please complete this step before continuing.', 'gpt3-ai-content-generator'),
     ];
 
     $submitted_labels = [];
@@ -85,11 +90,29 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         }
     }
 
-    // Merge defaults: Use submitted value if not empty, otherwise use default.
+    $existing_labels = [];
+    if (!empty($form_id)) {
+        $existing_labels_json = get_post_meta($form_id, '_aipkit_ai_form_labels', true);
+        $decoded_existing_labels = json_decode($existing_labels_json, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_existing_labels)) {
+            $existing_labels = $decoded_existing_labels;
+        }
+    }
+
+    // Merge defaults: use submitted value if present, otherwise preserve existing saved values, otherwise use default.
     $final_labels = [];
     foreach ($default_labels as $key => $default_value) {
-        $submitted_value = isset($submitted_labels[$key]) ? trim($submitted_labels[$key]) : '';
-        $final_labels[sanitize_key($key)] = sanitize_text_field(!empty($submitted_value) ? $submitted_value : $default_value);
+        $has_submitted_value = array_key_exists($key, $submitted_labels);
+        $submitted_value = $has_submitted_value ? trim((string) $submitted_labels[$key]) : '';
+        $existing_value = isset($existing_labels[$key]) ? trim((string) $existing_labels[$key]) : '';
+        if ($has_submitted_value) {
+            $final_value = !empty($submitted_value) ? $submitted_value : $default_value;
+        } elseif (!empty($existing_value)) {
+            $final_value = $existing_value;
+        } else {
+            $final_value = $default_value;
+        }
+        $final_labels[sanitize_key($key)] = sanitize_text_field($final_value);
     }
 
 
@@ -104,6 +127,13 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data['reasoning_effort'] ?? '');
     if ($reasoning_effort === '') {
         $reasoning_effort = 'low';
+    }
+    $conversation_ui_preset = null;
+    if (isset($post_data['conversation_ui_preset']) && $post_data['conversation_ui_preset'] !== '') {
+        $conversation_ui_preset = sanitize_key($post_data['conversation_ui_preset']);
+        if (!in_array($conversation_ui_preset, ['full', 'compact', 'minimal', 'none'], true)) {
+            $conversation_ui_preset = 'full';
+        }
     }
 
     // --- Get Vector config fields from POST ---
@@ -226,6 +256,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'frequency_penalty' => $frequency_penalty,
         'presence_penalty' => $presence_penalty,
         'reasoning_effort' => $reasoning_effort,
+        'conversation_ui_preset' => $conversation_ui_preset,
         // Vector settings
         'enable_vector_store' => $enable_vector_store,
         'vector_store_provider' => $vector_store_provider,

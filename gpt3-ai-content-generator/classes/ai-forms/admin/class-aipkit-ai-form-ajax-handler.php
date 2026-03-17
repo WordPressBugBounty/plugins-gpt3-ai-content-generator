@@ -198,6 +198,22 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
             ],
         ];
 
+        $is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+        if ($is_pro_plan) {
+            $pro_public_css_relative = 'lib/css/ai-forms/conversational-form.css';
+            $pro_public_js_relative = 'lib/js/ai-forms/conversational-form.js';
+            $pro_public_css_path = WPAICG_PLUGIN_DIR . $pro_public_css_relative;
+            $pro_public_js_path = WPAICG_PLUGIN_DIR . $pro_public_js_relative;
+
+            if (file_exists($pro_public_css_path)) {
+                $assets['css']['lib-ai-forms-conversation'] = WPAICG_PLUGIN_URL . $pro_public_css_relative . '?ver=' . filemtime($pro_public_css_path);
+            }
+
+            if (file_exists($pro_public_js_path)) {
+                $assets['js']['lib-ai-forms-conversation'] = WPAICG_PLUGIN_URL . $pro_public_js_relative . '?ver=' . filemtime($pro_public_js_path);
+            }
+        }
+
         // 5. Generate the public config object that would normally be localized
         $frontend_display_settings = [];
         if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Settings_Ajax_Handler')) {
@@ -209,6 +225,7 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'ajaxNonce' => wp_create_nonce('aipkit_frontend_chat_nonce'),
             'is_user_logged_in' => is_user_logged_in(),
+            'is_pro_plan' => $is_pro_plan,
             'save_as_post_nonce' => wp_create_nonce('aipkit_ai_form_save_as_post_nonce'),
             'allowed_providers' => $frontend_display_settings['allowed_providers'] ?? '',
             'allowed_models' => $frontend_display_settings['allowed_models'] ?? '',
@@ -231,7 +248,7 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
             ];
             if (
                 class_exists('\\WPAICG\\aipkit_dashboard') &&
-                \WPAICG\aipkit_dashboard::is_pro_plan()
+                $is_pro_plan
             ) {
                 $models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
             }

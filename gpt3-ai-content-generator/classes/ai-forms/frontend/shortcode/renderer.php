@@ -47,6 +47,10 @@ function render_form_html_logic(
     ob_start();
     $labels = $form_data['labels'] ?? [];
     $save_as_post_nonce = wp_create_nonce('aipkit_ai_form_save_as_post_nonce');
+    $conversation_ui_preset = isset($form_data['conversation_ui_preset']) ? sanitize_key((string) $form_data['conversation_ui_preset']) : 'full';
+    if (!in_array($conversation_ui_preset, ['full', 'compact', 'minimal', 'none'], true)) {
+        $conversation_ui_preset = 'full';
+    }
     ?>
     <div 
         class="aipkit-ai-form-wrapper aipkit-theme-<?php echo esc_attr($theme); ?>" 
@@ -57,6 +61,7 @@ function render_form_html_logic(
         data-pdf-download-enabled="<?php echo $show_pdf_download ? 'true' : 'false'; ?>"
         data-show-copy-button="<?php echo $show_copy_button ? 'true' : 'false'; ?>"
         data-save-as-post-nonce="<?php echo esc_attr($save_as_post_nonce); ?>"
+        data-aipkit-conversation-ui-preset="<?php echo esc_attr($conversation_ui_preset); ?>"
         <?php foreach ($labels as $key => $value) : ?>
             data-label-<?php echo esc_attr(str_replace('_', '-', $key)); ?>="<?php echo esc_attr($value); ?>"
         <?php endforeach; ?>
@@ -119,7 +124,19 @@ function render_form_html_logic(
                         if (!isset($row['columns']) || !is_array($row['columns'])) {
                             continue;
                         }
-                        echo '<div class="aipkit-form-row">';
+                        $conversation_step = isset($row['aipkitConversationStep']) && is_array($row['aipkitConversationStep'])
+                            ? $row['aipkitConversationStep']
+                            : [];
+                        $row_attributes = [
+                            'class="aipkit-form-row"',
+                            'data-aipkit-conversation-enabled="' . (!empty($conversation_step['conversationEnabled']) ? '1' : '0') . '"',
+                            'data-aipkit-step-title="' . esc_attr((string) ($conversation_step['title'] ?? '')) . '"',
+                            'data-aipkit-step-description="' . esc_attr((string) ($conversation_step['description'] ?? '')) . '"',
+                            'data-aipkit-condition-field-id="' . esc_attr((string) ($conversation_step['conditionFieldId'] ?? '')) . '"',
+                            'data-aipkit-condition-operator="' . esc_attr((string) ($conversation_step['conditionOperator'] ?? '')) . '"',
+                            'data-aipkit-condition-value="' . esc_attr((string) ($conversation_step['conditionValue'] ?? '')) . '"',
+                        ];
+                        echo '<div ' . implode(' ', $row_attributes) . '>';
                         foreach ($row['columns'] as $column) {
                             if (!isset($column['elements']) || !is_array($column['elements'])) {
                                 continue;

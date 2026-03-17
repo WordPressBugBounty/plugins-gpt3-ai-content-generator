@@ -27,6 +27,9 @@ $default_max_tokens = $global_ai_params['max_completion_tokens'] ?? 4000;
 $default_top_p = $global_ai_params['top_p'] ?? 1.0;
 $default_frequency_penalty = $global_ai_params['frequency_penalty'] ?? 0.0;
 $default_presence_penalty = $global_ai_params['presence_penalty'] ?? 0.0;
+$upgrade_url = function_exists('wpaicg_gacg_fs')
+    ? wpaicg_gacg_fs()->get_upgrade_url()
+    : admin_url('admin.php?page=wpaicg-pricing');
 ?>
 <div class="aipkit_form_editor">
     <form id="aipkit_ai_form_editor_form" onsubmit="return false;">
@@ -111,6 +114,26 @@ $default_presence_penalty = $global_ai_params['presence_penalty'] ?? 0.0;
                                         <span class="dashicons dashicons-editor-table"></span>
                                         <?php esc_html_e('3 Columns', 'gpt3-ai-content-generator'); ?>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Multi-Step Accordion -->
+                            <div class="aipkit_accordion">
+                                <div class="aipkit_accordion-header">
+                                    <span class="dashicons dashicons-format-chat"></span>
+                                    <?php esc_html_e('Multi-Step', 'gpt3-ai-content-generator'); ?>
+                                    <?php if (!$is_pro): ?>
+                                        <a
+                                            href="<?php echo esc_url($upgrade_url); ?>"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="aipkit_pro_tag"
+                                            onclick="event.stopPropagation();"
+                                        ><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></a>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="aipkit_accordion-content">
+                                    <?php include __DIR__ . '/conversation-ui-config.php'; ?>
                                 </div>
                             </div>
 

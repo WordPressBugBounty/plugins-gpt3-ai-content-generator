@@ -103,6 +103,13 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
             $reasoning_effort !== '' ? $reasoning_effort : 'low'
         );
     }
+    if (isset($settings['conversation_ui_preset'])) {
+        $conversation_ui_preset = sanitize_key($settings['conversation_ui_preset']);
+        if (!in_array($conversation_ui_preset, ['full', 'compact', 'minimal', 'none'], true)) {
+            $conversation_ui_preset = 'full';
+        }
+        update_post_meta($form_id, '_aipkit_ai_form_conversation_ui_preset', $conversation_ui_preset);
+    }
 
     // --- Save Vector Settings ---
     if (isset($settings['enable_vector_store'])) {
@@ -236,8 +243,21 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
 
     // --- Save Labels ---
     if (isset($settings['labels']) && is_array($settings['labels'])) {
-            $sanitized_labels = [];
-        $allowed_keys = ['generate_button', 'stop_button', 'download_button', 'save_button', 'copy_button', 'provider_label', 'model_label'];
+        $sanitized_labels = [];
+        $allowed_keys = [
+            'generate_button',
+            'stop_button',
+            'download_button',
+            'save_button',
+            'copy_button',
+            'provider_label',
+            'model_label',
+            'conversation_back_button',
+            'conversation_next_button',
+            'conversation_step_title',
+            'conversation_step_progress',
+            'conversation_validation_message',
+        ];
         foreach ($settings['labels'] as $key => $value) {
             if (in_array($key, $allowed_keys, true)) {
                 $sanitized_labels[$key] = sanitize_text_field($value);

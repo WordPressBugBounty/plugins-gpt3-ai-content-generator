@@ -6,9 +6,8 @@
 namespace WPAICG\AIForms\Frontend;
 
 use WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage;
-// --- NEW: Import settings handler to get custom CSS ---
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler;
-// --- END NEW ---
+use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
 use WP_Error;
 
 // Load the new modular logic files
@@ -36,6 +35,238 @@ class AIPKit_AI_Form_Shortcode
         } else {
             $this->form_storage = null;
         }
+    }
+
+    private function ensure_public_assets_registered(): void
+    {
+        $version = defined('WPAICG_VERSION') ? (string) WPAICG_VERSION : '1.0.0';
+
+        if (class_exists(AIPKit_Shared_Assets_Manager::class)) {
+            AIPKit_Shared_Assets_Manager::register($version);
+        }
+
+        if (!wp_style_is('aipkit-public-ai-forms', 'registered')) {
+            wp_register_style(
+                'aipkit-public-ai-forms',
+                WPAICG_PLUGIN_URL . 'dist/css/public-ai-forms.bundle.css',
+                [],
+                $version
+            );
+        }
+
+        if (!wp_script_is('aipkit-public-main', 'registered')) {
+            wp_register_script(
+                'aipkit-public-main',
+                WPAICG_PLUGIN_URL . 'dist/js/public-main.bundle.js',
+                ['wp-i18n', 'aipkit_markdown-it'],
+                $version,
+                true
+            );
+        }
+    }
+
+    private function is_pro_plan_active(): bool
+    {
+        return class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+    }
+
+    private function register_pro_public_asset(string $type, string $handle, string $relative_path, array $deps = []): void
+    {
+        $full_path = WPAICG_PLUGIN_DIR . ltrim($relative_path, '/');
+        if (!file_exists($full_path)) {
+            return;
+        }
+
+        $version = (string) filemtime($full_path);
+        $asset_url = WPAICG_PLUGIN_URL . ltrim($relative_path, '/');
+
+        if ($type === 'style') {
+            if (!wp_style_is($handle, 'registered')) {
+                wp_register_style($handle, $asset_url, $deps, $version);
+            }
+            return;
+        }
+
+        if (!wp_script_is($handle, 'registered')) {
+            wp_register_script($handle, $asset_url, $deps, $version, true);
+        }
+    }
+
+    private function is_script_localized(string $handle, string $object_name): bool
+    {
+        $scripts = wp_scripts();
+        if (!$scripts) {
+            return false;
+        }
+
+        $data = $scripts->get_data($handle, 'data');
+        return is_string($data) && strpos($data, "var {$object_name} =") !== false;
+    }
+
+    private function enqueue_public_assets(array $frontend_display_settings): void
+    {
+        $this->ensure_public_assets_registered();
+
+        if (!wp_style_is('aipkit-public-ai-forms', 'enqueued')) {
+            wp_enqueue_style('aipkit-public-ai-forms');
+        }
+
+        if (!wp_script_is('aipkit-public-main', 'enqueued')) {
+            wp_enqueue_script('aipkit-public-main');
+            wp_set_script_translations('aipkit-public-main', 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
+        }
+
+        if (!$this->is_script_localized('aipkit-public-main', 'aipkit_ai_forms_public_config')) {
+            wp_localize_script('aipkit-public-main', 'aipkit_ai_forms_public_config', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'ajaxNonce' => wp_create_nonce('aipkit_frontend_chat_nonce'),
+                'is_user_logged_in' => is_user_logged_in(),
+                'is_pro_plan' => class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan(),
+                'save_as_post_nonce' => wp_create_nonce('aipkit_ai_form_save_as_post_nonce'),
+                'allowed_providers' => $frontend_display_settings['allowed_providers'] ?? '',
+                'allowed_models' => $frontend_display_settings['allowed_models'] ?? '',
+                'text' => [
+                    'processing' => __('Processing...', 'gpt3-ai-content-generator'),
+                    'error' => __('An error occurred.', 'gpt3-ai-content-generator'),
+                    'saveAsPost' => __('Save', 'gpt3-ai-content-generator'),
+                ],
+            ]);
+        }
+
+        if (
+            !$this->is_script_localized('aipkit-public-main', 'aipkit_ai_forms_models') &&
+            class_exists('\\WPAICG\\AIPKit_Providers')
+        ) {
+            $all_models = [
+                'openai' => \WPAICG\AIPKit_Providers::get_openai_models(),
+                'google' => \WPAICG\AIPKit_Providers::get_google_models(),
+                'claude' => \WPAICG\AIPKit_Providers::get_claude_models(),
+                'openrouter' => \WPAICG\AIPKit_Providers::get_openrouter_models(),
+                'azure' => \WPAICG\AIPKit_Providers::get_azure_deployments(),
+            ];
+
+            if (
+                class_exists('\\WPAICG\\aipkit_dashboard') &&
+                \WPAICG\aipkit_dashboard::is_pro_plan()
+            ) {
+                $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
+            }
+
+            $all_models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
+            wp_localize_script('aipkit-public-main', 'aipkit_ai_forms_models', $all_models);
+        }
+    }
+
+    private function enqueue_pro_ai_forms_public_assets(bool $include_pdf_download = false): void
+    {
+        if (!$this->is_pro_plan_active()) {
+            return;
+        }
+
+        $this->register_pro_public_asset(
+            'style',
+            'aipkit-lib-ai-forms-public-css',
+            'lib/css/ai-forms/conversational-form.css',
+            ['aipkit-public-ai-forms']
+        );
+        $this->register_pro_public_asset(
+            'script',
+            'aipkit-lib-ai-forms-conversation',
+            'lib/js/ai-forms/conversational-form.js',
+            ['wp-i18n', 'aipkit-public-main']
+        );
+
+        if (wp_style_is('aipkit-lib-ai-forms-public-css', 'registered') && !wp_style_is('aipkit-lib-ai-forms-public-css', 'enqueued')) {
+            wp_enqueue_style('aipkit-lib-ai-forms-public-css');
+        }
+
+        if (wp_script_is('aipkit-lib-ai-forms-conversation', 'registered') && !wp_script_is('aipkit-lib-ai-forms-conversation', 'enqueued')) {
+            wp_enqueue_script('aipkit-lib-ai-forms-conversation');
+        }
+
+        if (!$include_pdf_download) {
+            return;
+        }
+
+        $this->register_pro_public_asset(
+            'script',
+            'aipkit-lib-ai-forms-download-pdf',
+            'lib/js/ai-forms/download/download-as-pdf.js',
+            ['aipkit-public-main', 'aipkit_jspdf']
+        );
+
+        if (wp_script_is('aipkit_jspdf', 'registered') && !wp_script_is('aipkit_jspdf', 'enqueued')) {
+            wp_enqueue_script('aipkit_jspdf');
+        }
+
+        if (wp_script_is('aipkit-lib-ai-forms-download-pdf', 'registered') && !wp_script_is('aipkit-lib-ai-forms-download-pdf', 'enqueued')) {
+            wp_enqueue_script('aipkit-lib-ai-forms-download-pdf');
+        }
+    }
+
+    private function get_late_style_handles(): array
+    {
+        $handles = ['aipkit-public-ai-forms'];
+
+        if ($this->is_pro_plan_active()) {
+            $handles[] = 'aipkit-lib-ai-forms-public-css';
+        }
+
+        return $handles;
+    }
+
+    private function get_late_script_handles(bool $include_pdf_download = false): array
+    {
+        $handles = ['aipkit-public-main'];
+
+        if ($this->is_pro_plan_active()) {
+            $handles[] = 'aipkit-lib-ai-forms-conversation';
+
+            if ($include_pdf_download) {
+                $handles[] = 'aipkit_jspdf';
+                $handles[] = 'aipkit-lib-ai-forms-download-pdf';
+            }
+        }
+
+        return $handles;
+    }
+
+    private function capture_printed_styles(array $handles): string
+    {
+        if (empty($handles)) {
+            return '';
+        }
+
+        if (!did_action('wp_print_styles') && !did_action('wp_head')) {
+            return '';
+        }
+
+        ob_start();
+        wp_styles()->do_items($handles);
+        return trim((string) ob_get_clean());
+    }
+
+    private function capture_printed_scripts(array $handles): string
+    {
+        if (empty($handles)) {
+            return '';
+        }
+
+        if (!did_action('wp_print_footer_scripts') && !did_action('wp_footer')) {
+            return '';
+        }
+
+        ob_start();
+        wp_scripts()->do_items($handles);
+        return trim((string) ob_get_clean());
+    }
+
+    private function render_late_asset_fallbacks(bool $include_pdf_download = false): array
+    {
+        return [
+            'styles' => $this->capture_printed_styles($this->get_late_style_handles()),
+            'scripts' => $this->capture_printed_scripts($this->get_late_script_handles($include_pdf_download)),
+        ];
     }
 
     /**
@@ -93,34 +324,9 @@ class AIPKit_AI_Form_Shortcode
             $frontend_display_settings = $all_settings['frontend_display'] ?? [];
         }
         $allowed_providers_str = $frontend_display_settings['allowed_providers'] ?? '';
-        // --- END NEW ---
-
-        // 3. Localize Model Data (once per page)
-        static $models_localized = false;
-        if (!$models_localized) {
-            // We enqueue public-main.bundle.js for any AI Form, so we can localize against it.
-            // The WP_AI_Content_Generator_Public class handles enqueueing logic.
-            $public_main_js_handle = 'aipkit-public-main';
-        if (wp_script_is($public_main_js_handle, 'registered') && class_exists('\\WPAICG\\AIPKit_Providers')) {
-                $all_models = [
-            'openai' => \WPAICG\AIPKit_Providers::get_openai_models(),
-            'google' => \WPAICG\AIPKit_Providers::get_google_models(),
-            'claude' => \WPAICG\AIPKit_Providers::get_claude_models(),
-            'openrouter' => \WPAICG\AIPKit_Providers::get_openrouter_models(),
-            'azure' => \WPAICG\AIPKit_Providers::get_azure_deployments(),
-                ];
-                // Add Ollama models only for Pro plan
-                if (
-                    class_exists('\\WPAICG\\aipkit_dashboard') &&
-                    \WPAICG\aipkit_dashboard::is_pro_plan()
-                ) {
-            $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
-                }
-                $all_models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
-                wp_localize_script($public_main_js_handle, 'aipkit_ai_forms_models', $all_models);
-                $models_localized = true;
-            }
-        }
+        $this->enqueue_public_assets($frontend_display_settings);
+        $this->enqueue_pro_ai_forms_public_assets($show_pdf_download);
+        $late_asset_fallbacks = $this->render_late_asset_fallbacks($show_pdf_download);
 
         // 4. Conditionally enqueue jsPDF
         if ($show_pdf_download && class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan()) {
@@ -145,7 +351,13 @@ class AIPKit_AI_Form_Shortcode
         $ajax_nonce = wp_create_nonce('aipkit_process_ai_form_' . $form_id);
 
         // 7. Render HTML, passing the new theme and display flags
-        return Shortcode\render_form_html_logic($form_data, $unique_form_html_id, $ajax_nonce, $theme, $show_provider, $show_model, $show_save_button, $show_pdf_download, $show_copy_button, $custom_css, $allowed_providers_str);
+        $form_html = Shortcode\render_form_html_logic($form_data, $unique_form_html_id, $ajax_nonce, $theme, $show_provider, $show_model, $show_save_button, $show_pdf_download, $show_copy_button, $custom_css, $allowed_providers_str);
+
+        return implode("\n", array_filter([
+            $late_asset_fallbacks['styles'] ?? '',
+            $form_html,
+            $late_asset_fallbacks['scripts'] ?? '',
+        ]));
     }
 
     /**

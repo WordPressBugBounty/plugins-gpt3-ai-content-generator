@@ -93,6 +93,7 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
         'frequency_penalty' => (is_numeric($form_frequency_penalty) && $form_frequency_penalty !== '') ? floatval($form_frequency_penalty) : ($global_ai_params['frequency_penalty'] ?? 0.0),
         'presence_penalty' => (is_numeric($form_presence_penalty) && $form_presence_penalty !== '') ? floatval($form_presence_penalty) : ($global_ai_params['presence_penalty'] ?? 0.0),
         'reasoning_effort' => '',
+        'conversation_ui_preset' => 'full',
     ];
 
     if (class_exists(AIPKit_Providers::class)) {
@@ -105,6 +106,10 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $stored_reasoning_effort = get_post_meta($form_id, '_aipkit_ai_form_reasoning_effort', true) ?: 'low';
     $normalized_reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($stored_reasoning_effort);
     $data['reasoning_effort'] = $normalized_reasoning_effort !== '' ? $normalized_reasoning_effort : 'low';
+    $stored_conversation_ui_preset = sanitize_key((string) get_post_meta($form_id, '_aipkit_ai_form_conversation_ui_preset', true));
+    if (in_array($stored_conversation_ui_preset, ['full', 'compact', 'minimal', 'none'], true)) {
+        $data['conversation_ui_preset'] = $stored_conversation_ui_preset;
+    }
 
     // --- Add Vector Settings ---
     $data['enable_vector_store'] = get_post_meta($form_id, '_aipkit_ai_form_enable_vector_store', true) ?: '0';
@@ -189,6 +194,11 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
         'copy_button'     => __('Copy', 'gpt3-ai-content-generator'),
         'provider_label'  => __('AI Provider', 'gpt3-ai-content-generator'),
         'model_label'     => __('AI Model', 'gpt3-ai-content-generator'),
+        'conversation_back_button' => __('Back', 'gpt3-ai-content-generator'),
+        'conversation_next_button' => __('Next', 'gpt3-ai-content-generator'),
+        'conversation_step_title' => __('Step {number}', 'gpt3-ai-content-generator'),
+        'conversation_step_progress' => __('Step {current} of {total}', 'gpt3-ai-content-generator'),
+        'conversation_validation_message' => __('Please complete this step before continuing.', 'gpt3-ai-content-generator'),
     ];
 
     // Merge defaults: Use saved value if not empty, otherwise use default. This handles old forms with empty strings saved.
