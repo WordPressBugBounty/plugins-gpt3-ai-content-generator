@@ -45,6 +45,10 @@ class Base_Ajax_Handlers_Loader
         if (file_exists($settings_ajax_handler_path)) {
             require_once $settings_ajax_handler_path;
         }
+        $event_webhook_delivery_issues_handler_path = $dashboard_ajax_path . 'class-aipkit-event-webhook-delivery-issues-ajax-handler.php';
+        if (file_exists($event_webhook_delivery_issues_handler_path)) {
+            require_once $event_webhook_delivery_issues_handler_path;
+        }
         $models_ajax_handler_path = $dashboard_ajax_path . 'class-aipkit-models-ajax-handler.php';
         if (file_exists($models_ajax_handler_path)) {
             require_once $models_ajax_handler_path;

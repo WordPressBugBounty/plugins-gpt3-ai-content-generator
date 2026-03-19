@@ -15,6 +15,7 @@ use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder; // AD
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Handler;
 use WP_Error;
 use WPAICG\Chat\Storage\LogStorage;
+use WPAICG\Core\AIPKit_Event_Webhooks;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -89,9 +90,10 @@ if (!class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
  * Orchestrates the entire process of generating a single piece of content from a queue item.
  *
  * @param array $item_config The configuration for the specific queue item.
+ * @param array $queue_item The queue item record from the database.
  * @return array ['status' => 'success'|'error', 'message' => '...']
  */
-function process_content_writing_item_logic(array $item_config): array
+function process_content_writing_item_logic(array $item_config, array $queue_item = []): array
 {
     // --- START: Abuse Prevention ---
     $generation_mode = $item_config['cw_generation_mode'] ?? 'single';
@@ -136,7 +138,10 @@ function process_content_writing_item_logic(array $item_config): array
     if ($requested_any_image && class_exists(AIPKit_Content_Writer_Image_Handler::class)) {
         $image_handler = new AIPKit_Content_Writer_Image_Handler();
         $keywords_for_images = !empty($item_config['inline_keywords']) ? $item_config['inline_keywords'] : ($item_config['content_keywords'] ?? '');
-        $image_result = $image_handler->generate_and_prepare_images($item_config, $final_title, $keywords_for_images, $item_config['content_title']);
+        $image_settings = $item_config;
+        $image_settings['aipkit_event_module'] = 'automated_tasks';
+        $image_settings['aipkit_event_origin'] = 'automated_task_content_images';
+        $image_result = $image_handler->generate_and_prepare_images($image_settings, $final_title, $keywords_for_images, $item_config['content_title']);
 
         if (is_wp_error($image_result)) {
             // Don't stop the whole process, just log the error and continue without images.
@@ -387,6 +392,55 @@ function process_content_writing_item_logic(array $item_config): array
             'response_data'     => ['post_id' => $new_post_id, 'title' => $final_title, 'meta' => $meta_description, 'keyword' => $focus_keyword, 'excerpt' => $excerpt, 'tags' => $tags, 'image_warning' => $image_generation_warning] // ADDED tags
         ];
         $log_storage->log_message($log_data);
+    }
+
+    if (class_exists(AIPKit_Event_Webhooks::class)) {
+        AIPKit_Event_Webhooks::emit(
+            'content.generated',
+            [
+                'title' => $final_title,
+                'content' => $generated_content,
+                'post' => [
+                    'id' => $new_post_id,
+                    'status' => get_post_status($new_post_id),
+                    'url' => get_permalink($new_post_id),
+                ],
+                'excerpt' => $excerpt,
+                'meta_description' => $meta_description,
+                'focus_keyword' => $focus_keyword,
+                'tags' => $tags,
+                'ai' => [
+                    'provider' => $item_config['ai_provider'],
+                    'model' => $item_config['ai_model'],
+                ],
+                'task' => [
+                    'id' => isset($item_config['task_id']) ? (int) $item_config['task_id'] : 0,
+                    'queue_item_id' => isset($queue_item['id']) ? (int) $queue_item['id'] : 0,
+                ],
+            ],
+            [
+                'module' => 'content_writer',
+                'origin' => 'automated_task_content_writing',
+                'resource' => [
+                    'type' => 'post',
+                    'id' => $new_post_id,
+                    'label' => $final_title !== '' ? $final_title : __('Generated content', 'gpt3-ai-content-generator'),
+                ],
+                'meta' => [
+                    'task_id' => isset($item_config['task_id']) ? (int) $item_config['task_id'] : 0,
+                    'queue_item_id' => isset($queue_item['id']) ? (int) $queue_item['id'] : 0,
+                    'provider' => $item_config['ai_provider'],
+                    'model' => $item_config['ai_model'],
+                ],
+                'idempotency_key' => sha1(implode('|', [
+                    'content.generated',
+                    'automated_task_content_writing',
+                    (string) $new_post_id,
+                    (string) ($queue_item['id'] ?? 0),
+                    $final_title,
+                ])),
+            ]
+        );
     }
 
     $success_message = 'Content generated and post created (ID: ' . $new_post_id . ').';

@@ -148,6 +148,24 @@ class AIPKit_Content_Writer_Image_Handler
         return trim($prompt);
     }
 
+    private function get_image_event_context_options(array $settings): array
+    {
+        $module = sanitize_key((string) ($settings['aipkit_event_module'] ?? 'content_writer'));
+        if ($module === '') {
+            $module = 'content_writer';
+        }
+
+        $origin = sanitize_key((string) ($settings['aipkit_event_origin'] ?? 'content_writer_images'));
+        if ($origin === '') {
+            $origin = 'content_writer_images';
+        }
+
+        return [
+            'aipkit_event_module' => $module,
+            'aipkit_event_origin' => $origin,
+        ];
+    }
+
     private function maybe_generate_image_metadata(
         array $settings,
         array &$image_data,
@@ -457,6 +475,7 @@ class AIPKit_Content_Writer_Image_Handler
             }
             $warnings[] = $message;
         };
+        $event_context_options = $this->get_image_event_context_options($settings);
 
         $current_user_id = get_current_user_id() ?: 1;
         $resolved_image_model = sanitize_text_field((string) ($settings['image_model'] ?? 'gpt-image-1'));
@@ -488,7 +507,7 @@ class AIPKit_Content_Writer_Image_Handler
             }
 
             if ($num_to_fetch > 0) {
-                $generation_options = ['n' => $num_to_fetch];
+                $generation_options = array_merge($event_context_options, ['n' => $num_to_fetch]);
                 $meta_list = [];
                 if ($generate_in_content && $image_count > 0) {
                     for ($i = 1; $i <= $image_count; $i++) {
@@ -562,7 +581,7 @@ class AIPKit_Content_Writer_Image_Handler
         // Main image generation
         if (!$is_stock_provider && $generate_in_content && $image_count > 0 && !empty($prompt_for_main_images)) {
             $image_model = $resolved_image_model;
-            $generation_options = [
+            $generation_options = array_merge($event_context_options, [
                 'provider' => strtolower($settings['image_provider'] ?? 'openai'),
                 'model' => $image_model,
                 'size' => '1024x1024',
@@ -570,7 +589,7 @@ class AIPKit_Content_Writer_Image_Handler
                 'user' => 'cw_user_' . $current_user_id,
                 'quality' => 'standard',
                 'style' => 'vivid'
-            ];
+            ]);
 
             // Models/providers that only support returning one image per request
             $models_with_n_equals_1 = ['dall-e-3', 'gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
@@ -643,7 +662,7 @@ class AIPKit_Content_Writer_Image_Handler
         if (!$is_stock_provider && $generate_featured && !empty($prompt_for_featured_image)) {
             // Note: The original logic already had a separate call for the featured image for AI providers,
             // which is correct behavior as it might use a different prompt.
-            $generation_options = [
+            $generation_options = array_merge($event_context_options, [
                 'provider' => strtolower($settings['image_provider'] ?? 'openai'),
                 'model' => $resolved_image_model,
                 'n' => 1,
@@ -652,7 +671,7 @@ class AIPKit_Content_Writer_Image_Handler
                 'user' => 'cw_user_featured_' . $current_user_id,
                 'quality' => 'hd',
                 'style' => 'vivid'
-            ];
+            ]);
             $generation_options['aipkit_attachment_meta'] = $this->build_attachment_meta(
                 $meta_topic,
                 $final_keywords,

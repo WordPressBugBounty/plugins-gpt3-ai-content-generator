@@ -37,7 +37,7 @@ function process_queue_item_logic(array $item): array
     $item_config = json_decode($item['item_config'], true) ?: [];
 
     if (str_starts_with($item_task_type, 'content_writing')) {
-        return ContentWriting\process_content_writing_item_logic($item_config);
+        return ContentWriting\process_content_writing_item_logic($item_config, $item);
     } elseif ($item_task_type === 'content_indexing') {
         $provider = $item_config['target_store_provider'] ?? null;
         switch ($provider) {

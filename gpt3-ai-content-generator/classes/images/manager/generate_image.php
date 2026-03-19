@@ -124,5 +124,7 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
         $result_from_strategy['images'] = $saved_image_data;
     }
 
+    $managerInstance->emit_generated_event($prompt, $result_from_strategy, $final_options, $wp_user_id);
+
     return $result_from_strategy;
 }

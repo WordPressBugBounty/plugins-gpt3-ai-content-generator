@@ -159,7 +159,9 @@ class WP_AI_Content_Generator
             'aipkit_automated_tasks',
             'aipkit_automated_task_queue',
             'aipkit_content_writer_templates',
-            'aipkit_rss_history'
+            'aipkit_rss_history',
+            'aipkit_event_delivery_queue',
+            'aipkit_recipe_delivery_logs',
         ];
 
         foreach ($required_tables as $table_suffix) {

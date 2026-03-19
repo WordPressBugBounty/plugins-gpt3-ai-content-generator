@@ -5,6 +5,7 @@
 
 namespace WPAICG\Vector\PostProcessor\Base;
 
+use WPAICG\Core\AIPKit_Event_Webhooks;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -64,6 +65,64 @@ abstract class AIPKit_Vector_Post_Processor_Base
         unset($data_to_insert['source_type_for_log']);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table for logging. Cache is invalidated.
         $result = $wpdb->insert($this->data_source_table_name, $data_to_insert);
+        $log_id = (int) $wpdb->insert_id;
+
+        if (
+            class_exists(AIPKit_Event_Webhooks::class)
+            && (string) ($data_to_insert['status'] ?? '') === 'indexed'
+        ) {
+            $event_name = 'kb.source_indexed';
+            $post_id = isset($data_to_insert['post_id']) ? (int) $data_to_insert['post_id'] : 0;
+
+            AIPKit_Event_Webhooks::emit(
+                $event_name,
+                [
+                    'source' => [
+                        'log_id' => $log_id,
+                        'post_id' => $post_id,
+                        'post_title' => (string) ($data_to_insert['post_title'] ?? ''),
+                        'post_url' => $post_id > 0 ? get_permalink($post_id) : '',
+                    ],
+                    'provider' => (string) ($data_to_insert['provider'] ?? ''),
+                    'store' => [
+                        'id' => (string) ($data_to_insert['vector_store_id'] ?? ''),
+                        'name' => (string) ($data_to_insert['vector_store_name'] ?? ''),
+                    ],
+                    'status' => (string) ($data_to_insert['status'] ?? ''),
+                    'message' => (string) ($data_to_insert['message'] ?? ''),
+                    'file_id' => (string) ($data_to_insert['file_id'] ?? ''),
+                    'batch_id' => (string) ($data_to_insert['batch_id'] ?? ''),
+                    'embedding' => [
+                        'provider' => (string) ($data_to_insert['embedding_provider'] ?? ''),
+                        'model' => (string) ($data_to_insert['embedding_model'] ?? ''),
+                    ],
+                ],
+                [
+                    'module' => 'knowledge_base',
+                    'origin' => 'vector_post_processor_log',
+                    'resource' => [
+                        'type' => 'vector_source',
+                        'id' => $log_id > 0 ? $log_id : ((string) ($data_to_insert['vector_store_id'] ?? '')),
+                        'label' => (string) ($data_to_insert['post_title'] ?? __('KB source', 'gpt3-ai-content-generator')),
+                    ],
+                    'meta' => [
+                        'provider' => (string) ($data_to_insert['provider'] ?? ''),
+                        'vector_store_id' => (string) ($data_to_insert['vector_store_id'] ?? ''),
+                        'post_id' => $post_id,
+                        'log_status' => (string) ($data_to_insert['status'] ?? ''),
+                    ],
+                    'idempotency_key' => sha1(implode('|', [
+                        $event_name,
+                        (string) $log_id,
+                        (string) ($data_to_insert['provider'] ?? ''),
+                        (string) ($data_to_insert['vector_store_id'] ?? ''),
+                        (string) $post_id,
+                        (string) ($data_to_insert['status'] ?? ''),
+                        (string) ($data_to_insert['message'] ?? ''),
+                    ])),
+                ]
+            );
+        }
     }
 
     /**

@@ -79,6 +79,75 @@ if (!defined('ABSPATH')) {
         </div>
     </div>
 
+    <section
+        class="aipkit_ai_form_connected_apps_card"
+        data-aipkit-ai-form-connected-apps
+        data-manage-url="<?php echo esc_url($connected_apps_manage_url); ?>"
+    >
+        <?php if ($is_pro): ?>
+            <div class="aipkit_ai_form_connected_apps_card_header">
+                <div class="aipkit_ai_form_connected_apps_card_heading">
+                    <strong><?php esc_html_e('Connected Apps', 'gpt3-ai-content-generator'); ?></strong>
+                </div>
+                <div class="aipkit_ai_form_connected_apps_card_actions">
+                    <a
+                        href="<?php echo esc_url($connected_apps_manage_url); ?>"
+                        class="button button-primary aipkit_btn aipkit_btn-primary"
+                        data-aipkit-ai-form-connected-apps-manage
+                    >
+                        <?php esc_html_e('Manage in Apps', 'gpt3-ai-content-generator'); ?>
+                    </a>
+                </div>
+            </div>
+            <div
+                class="aipkit_ai_form_connected_apps_summary"
+                data-aipkit-ai-form-connected-apps-summary
+                data-default-summary="<?php esc_attr_e('No recipes yet', 'gpt3-ai-content-generator'); ?>"
+            >
+                <?php esc_html_e('No recipes yet', 'gpt3-ai-content-generator'); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($is_pro): ?>
+            <div class="aipkit_chatbot_connected_apps_list" data-aipkit-ai-form-connected-apps-list>
+                <?php $render_ai_form_connected_apps_cards($initial_ai_form_connected_apps); ?>
+            </div>
+            <p class="aipkit_chatbot_connected_apps_empty" data-aipkit-ai-form-connected-apps-empty>
+                <?php esc_html_e('Save this form to connect apps.', 'gpt3-ai-content-generator'); ?>
+            </p>
+        <?php else : ?>
+            <div class="aipkit_ai_form_connected_apps_upsell">
+                <p class="aipkit_chatbot_connected_apps_intro_text">
+                    <?php esc_html_e('Send AI Form submissions and responses to Slack, HubSpot, Notion, Pipedrive, Zapier, Make, and n8n.', 'gpt3-ai-content-generator'); ?>
+                </p>
+                <div class="aipkit_chatbot_connected_apps_logo_grid" aria-label="<?php esc_attr_e('Supported app destinations', 'gpt3-ai-content-generator'); ?>">
+                    <?php foreach ($connected_apps_supported_destinations as $connected_app_destination) : ?>
+                        <span
+                            class="aipkit_chatbot_connected_apps_logo_item"
+                            title="<?php echo esc_attr((string) $connected_app_destination['name']); ?>"
+                        >
+                            <img
+                                class="aipkit_chatbot_connected_apps_logo"
+                                src="<?php echo esc_url((string) $connected_app_destination['logo_url']); ?>"
+                                alt="<?php echo esc_attr((string) $connected_app_destination['name']); ?>"
+                                loading="lazy"
+                                decoding="async"
+                            />
+                        </span>
+                    <?php endforeach; ?>
+                    <a
+                        href="<?php echo esc_url($upgrade_url); ?>"
+                        class="aipkit_btn aipkit_btn-primary aipkit_ai_form_connected_apps_grid_cta"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <span class="aipkit_btn-text"><?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?></span>
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+    </section>
+
     <div
         class="aipkit_model_settings_popover aipkit_ai_form_settings_popover"
         id="aipkit_ai_form_settings_popover"

@@ -146,6 +146,8 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
             'style'           => isset($params['style']) ? sanitize_text_field($params['style']) : null,
             'response_format' => isset($params['response_format']) ? sanitize_text_field($params['response_format']) : 'url',
             'user'            => 'rest_api_user',
+            'aipkit_event_module' => 'rest_api',
+            'aipkit_event_origin' => 'rest_image_request',
         ];
 
         if (empty($prompt)) {

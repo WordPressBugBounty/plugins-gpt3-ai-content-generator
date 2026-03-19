@@ -165,6 +165,14 @@ $build_inline_bot_switch_state_payload = static function (
             : '',
         'conversation_starters_text' => implode("\n", array_map('strval', $conversation_starters)),
         'triggers_json' => $triggers_json,
+        'connected_apps' => class_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes')
+            && method_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes', 'get_chatbot_connected_apps_payload')
+            ? \WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes::get_chatbot_connected_apps_payload($bot_id)
+            : [
+                'count' => 0,
+                'summary' => '',
+                'recipes' => [],
+            ],
     ];
 };
 
@@ -296,6 +304,104 @@ $consent_feature_available = $is_pro_plan && class_exists('\\WPAICG\\Lib\\Addons
 $openai_moderation_available = $is_pro_plan && class_exists('\\WPAICG\\Lib\\Addons\\AIPKit_OpenAI_Moderation');
 $triggers_available = $is_pro_plan;
 $pricing_url = admin_url('admin.php?page=wpaicg-pricing');
+$apps_logo_base_url = defined('WPAICG_PLUGIN_URL')
+    ? WPAICG_PLUGIN_URL . 'admin/images/apps/'
+    : '';
+$connected_apps_supported_destinations = [
+    [
+        'name' => __('Slack', 'gpt3-ai-content-generator'),
+        'logo_url' => $apps_logo_base_url . 'slack.svg',
+    ],
+    [
+        'name' => __('HubSpot', 'gpt3-ai-content-generator'),
+        'logo_url' => $apps_logo_base_url . 'hubspot.svg',
+    ],
+    [
+        'name' => __('Notion', 'gpt3-ai-content-generator'),
+        'logo_url' => $apps_logo_base_url . 'notion.svg',
+    ],
+    [
+        'name' => __('Pipedrive', 'gpt3-ai-content-generator'),
+        'logo_url' => $apps_logo_base_url . 'pipedrive.svg',
+    ],
+    [
+        'name' => __('Zapier', 'gpt3-ai-content-generator'),
+        'logo_url' => $apps_logo_base_url . 'zapier.svg',
+    ],
+    [
+        'name' => __('Make', 'gpt3-ai-content-generator'),
+        'logo_url' => $apps_logo_base_url . 'make.svg',
+    ],
+    [
+        'name' => __('n8n', 'gpt3-ai-content-generator'),
+        'logo_url' => $apps_logo_base_url . 'n8n.svg',
+    ],
+];
+$connected_apps_manage_url = admin_url('admin.php?page=wpaicg&aipkit_module=settings&aipkit_settings_page=apps');
+$connected_apps_store_class = '\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes';
+$active_chatbot_connected_apps = (
+    $initial_active_bot_id > 0
+    && class_exists($connected_apps_store_class)
+    && method_exists($connected_apps_store_class, 'get_chatbot_connected_apps_payload')
+)
+    ? $connected_apps_store_class::get_chatbot_connected_apps_payload($initial_active_bot_id)
+    : [
+        'count' => 0,
+        'summary' => '',
+        'recipes' => [],
+    ];
+$connected_apps_summary_fallback = '';
+$connected_apps_summary_text = $is_pro_plan
+    ? sanitize_text_field((string) ($active_chatbot_connected_apps['summary'] ?? ''))
+    : $connected_apps_summary_fallback;
+$render_chatbot_connected_apps_cards = static function (array $connected_apps_payload): void {
+    $recipes = isset($connected_apps_payload['recipes']) && is_array($connected_apps_payload['recipes'])
+        ? $connected_apps_payload['recipes']
+        : [];
+
+    foreach ($recipes as $connected_recipe) :
+        if (!is_array($connected_recipe)) {
+            continue;
+        }
+
+        $recipe_name = sanitize_text_field((string) ($connected_recipe['name'] ?? __('Untitled Recipe', 'gpt3-ai-content-generator')));
+        $connection_label = sanitize_text_field((string) ($connected_recipe['connection_label'] ?? __('No connection', 'gpt3-ai-content-generator')));
+        $event_label = sanitize_text_field((string) ($connected_recipe['event_label'] ?? __('No event', 'gpt3-ai-content-generator')));
+        $action_label = sanitize_text_field((string) ($connected_recipe['action_label'] ?? __('No action', 'gpt3-ai-content-generator')));
+        $status_key = sanitize_key((string) ($connected_recipe['status_key'] ?? 'warning'));
+        if (!in_array($status_key, ['ready', 'warning', 'error', 'reauth_required'], true)) {
+            $status_key = 'warning';
+        }
+        $status_label = sanitize_text_field((string) ($connected_recipe['status_label'] ?? __('Warning', 'gpt3-ai-content-generator')));
+        $scope_label = sanitize_text_field((string) ($connected_recipe['scope_label'] ?? __('All Chatbots', 'gpt3-ai-content-generator')));
+        $validation_summary = sanitize_text_field((string) ($connected_recipe['validation_summary'] ?? ''));
+        $is_enabled = !empty($connected_recipe['is_enabled']);
+        ?>
+        <article class="aipkit_chatbot_connected_apps_recipe">
+            <div class="aipkit_chatbot_connected_apps_recipe_header">
+                <strong class="aipkit_chatbot_connected_apps_recipe_title"><?php echo esc_html($recipe_name); ?></strong>
+                <div class="aipkit_chatbot_connected_apps_recipe_flags">
+                    <span class="aipkit_settings_recipe_status aipkit_settings_recipe_status--<?php echo esc_attr($status_key); ?>">
+                        <?php echo esc_html($status_label); ?>
+                    </span>
+                    <span class="aipkit_settings_recipe_enabled_flag aipkit_settings_recipe_enabled_flag--<?php echo $is_enabled ? 'enabled' : 'disabled'; ?>">
+                        <?php echo $is_enabled ? esc_html__('Enabled', 'gpt3-ai-content-generator') : esc_html__('Disabled', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+            </div>
+            <p class="aipkit_chatbot_connected_apps_recipe_summary">
+                <?php echo esc_html($connection_label . ' | ' . $event_label . ' | ' . $action_label); ?>
+            </p>
+            <div class="aipkit_chatbot_connected_apps_recipe_meta">
+                <span class="aipkit_chatbot_connected_apps_recipe_scope"><?php echo esc_html($scope_label); ?></span>
+            </div>
+            <p class="aipkit_chatbot_connected_apps_recipe_validation aipkit_chatbot_connected_apps_recipe_validation--<?php echo esc_attr($status_key); ?>">
+                <?php echo esc_html($validation_summary); ?>
+            </p>
+        </article>
+        <?php
+    endforeach;
+};
 $post_types_args = ['public' => true];
 $all_selectable_post_types = get_post_types($post_types_args, 'objects');
 $all_selectable_post_types = array_filter($all_selectable_post_types, function ($post_type_obj) {
@@ -1406,7 +1512,12 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     data-sheet-content="triggers"
                                 >
                                     <span class="aipkit_accordion_header_icon dashicons dashicons-controls-repeat" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Rules', 'gpt3-ai-content-generator'); ?></span>
+                                    <span class="aipkit_accordion_header_title_group">
+                                        <span class="aipkit_accordion_header_text"><?php esc_html_e('Rules', 'gpt3-ai-content-generator'); ?></span>
+                                        <?php if (!$is_pro_plan) : ?>
+                                            <span class="aipkit_chatbot_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                                        <?php endif; ?>
+                                    </span>
                                     <span
                                         class="aipkit_accordion_header_hint"
                                         data-aipkit-rules-summary
@@ -1416,6 +1527,85 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                 </button>
                                 <div class="aipkit_accordion_body aipkit_accordion_body--rules" data-aipkit-settings-panel="rules" hidden></div>
+                            </div>
+                            <div class="aipkit_accordion_section" data-aipkit-accordion="connected_apps">
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-share" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_title_group">
+                                        <span class="aipkit_accordion_header_text"><?php esc_html_e('Connected Apps', 'gpt3-ai-content-generator'); ?></span>
+                                        <?php if (!$is_pro_plan) : ?>
+                                            <span class="aipkit_chatbot_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                                        <?php endif; ?>
+                                    </span>
+                                    <span
+                                        class="aipkit_accordion_header_hint"
+                                        data-aipkit-connected-apps-summary
+                                        data-default-summary="<?php echo esc_attr($connected_apps_summary_fallback); ?>"
+                                        title="<?php echo esc_attr($connected_apps_summary_text); ?>"
+                                    ><?php echo esc_html($connected_apps_summary_text); ?></span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="connected_apps" hidden>
+                                    <?php if ($is_pro_plan) : ?>
+                                        <?php
+                                        $initial_connected_app_recipes = isset($active_chatbot_connected_apps['recipes']) && is_array($active_chatbot_connected_apps['recipes'])
+                                            ? $active_chatbot_connected_apps['recipes']
+                                            : [];
+                                        ?>
+                                        <div class="aipkit_chatbot_connected_apps_panel">
+                                            <div class="aipkit_chatbot_connected_apps_intro">
+                                                <div class="aipkit_chatbot_connected_apps_actions">
+                                                    <a
+                                                        href="<?php echo esc_url($connected_apps_manage_url); ?>"
+                                                        class="button button-primary aipkit_btn aipkit_btn-primary"
+                                                    >
+                                                        <?php esc_html_e('Manage in Apps', 'gpt3-ai-content-generator'); ?>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="aipkit_chatbot_connected_apps_list" data-aipkit-chatbot-connected-apps-list>
+                                                <?php $render_chatbot_connected_apps_cards($active_chatbot_connected_apps); ?>
+                                            </div>
+                                            <p
+                                                class="aipkit_chatbot_connected_apps_empty"
+                                                data-aipkit-chatbot-connected-apps-empty
+                                                <?php echo !empty($initial_connected_app_recipes) ? 'hidden' : ''; ?>
+                                            >
+                                                <?php esc_html_e('No Connected Apps yet for this chatbot.', 'gpt3-ai-content-generator'); ?>
+                                            </p>
+                                        </div>
+                                    <?php else : ?>
+                                        <div class="aipkit_chatbot_connected_apps_upsell">
+                                            <p class="aipkit_chatbot_connected_apps_intro_text">
+                                                <?php esc_html_e('Send chatbot sessions, questions, responses, and feedback to Slack, HubSpot, Notion, Pipedrive, Make, and n8n.', 'gpt3-ai-content-generator'); ?>
+                                            </p>
+                                            <div class="aipkit_chatbot_connected_apps_logo_grid" aria-label="<?php esc_attr_e('Supported app destinations', 'gpt3-ai-content-generator'); ?>">
+                                                <?php foreach ($connected_apps_supported_destinations as $connected_app_destination) : ?>
+                                                    <span
+                                                        class="aipkit_chatbot_connected_apps_logo_item"
+                                                        title="<?php echo esc_attr((string) $connected_app_destination['name']); ?>"
+                                                    >
+                                                        <img
+                                                            class="aipkit_chatbot_connected_apps_logo"
+                                                            src="<?php echo esc_url((string) $connected_app_destination['logo_url']); ?>"
+                                                            alt="<?php echo esc_attr((string) $connected_app_destination['name']); ?>"
+                                                            loading="lazy"
+                                                            decoding="async"
+                                                        />
+                                                    </span>
+                                                <?php endforeach; ?>
+                                                <a
+                                                    href="<?php echo esc_url($pricing_url); ?>"
+                                                    class="aipkit_btn aipkit_btn-primary aipkit_chatbot_connected_apps_grid_cta"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <span class="aipkit_btn-text"><?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?></span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <div class="aipkit_accordion_section" data-aipkit-accordion="safety">
                                 <button type="button" class="aipkit_accordion_header" aria-expanded="false">

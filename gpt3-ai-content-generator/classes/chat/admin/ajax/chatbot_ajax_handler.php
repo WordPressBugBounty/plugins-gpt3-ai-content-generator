@@ -295,6 +295,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             'embed_allowed_domains' => isset($settings['embed_allowed_domains']) ? (string) $settings['embed_allowed_domains'] : '',
             'conversation_starters_text' => $conversation_starters_text,
             'triggers_json' => $settings['triggers_json'],
+            'connected_apps' => class_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes')
+                && method_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes', 'get_chatbot_connected_apps_payload')
+                ? \WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes::get_chatbot_connected_apps_payload($bot_id)
+                : [
+                    'count' => 0,
+                    'summary' => '',
+                    'recipes' => [],
+                ],
         ];
     }
 

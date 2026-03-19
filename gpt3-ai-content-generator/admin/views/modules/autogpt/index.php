@@ -207,7 +207,7 @@ if (!empty($aipkit_autogpt_cron_summary)) {
 <div class="aipkit_container aipkit_module_autogpt" id="aipkit_autogpt_container">
     <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">
-            <div class="aipkit_container-title" id="aipkit_autogpt_header_title_default"><?php esc_html_e('Automate', 'gpt3-ai-content-generator'); ?></div>
+            <div class="aipkit_container-title" id="aipkit_autogpt_header_title_default"><?php esc_html_e('Automations', 'gpt3-ai-content-generator'); ?></div>
             <div class="aipkit_autogpt_header_title_editor" id="aipkit_autogpt_header_title_editor" style="display: none;">
                 <button
                     type="button"
@@ -240,13 +240,13 @@ if (!empty($aipkit_autogpt_cron_summary)) {
                     <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
                 </button>
                 <button type="submit" id="aipkit_save_task_btn" class="aipkit_btn aipkit_btn-primary" form="aipkit_automated_task_form">
-                    <span class="aipkit_btn-text"><?php esc_html_e('Save Task', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
                     <span class="aipkit_spinner" style="display:none;"></span>
                 </button>
             </div>
             <button id="aipkit_add_new_task_btn" class="aipkit_btn aipkit_btn-primary">
                 <span class="dashicons dashicons-plus-alt2" style="margin-top:0px;"></span>
-                <?php esc_html_e('Add New Task', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('New Automation', 'gpt3-ai-content-generator'); ?>
             </button>
             <details class="aipkit_autogpt_cron_info" id="aipkit_autogpt_cron_info">
                 <summary

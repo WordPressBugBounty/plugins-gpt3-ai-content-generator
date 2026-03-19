@@ -137,6 +137,8 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         'style' => isset($post_data['style']) ? sanitize_text_field($post_data['style']) : null,
         'response_format' => isset($post_data['response_format']) ? sanitize_text_field($post_data['response_format']) : 'url',
         'user' => $user_identifier,
+        'aipkit_event_module' => 'image_generator',
+        'aipkit_event_origin' => 'image_generator_ajax',
     ], function ($value) { return $value !== null; });
 
     if ($image_mode === 'edit' && is_array($source_image_payload)) {

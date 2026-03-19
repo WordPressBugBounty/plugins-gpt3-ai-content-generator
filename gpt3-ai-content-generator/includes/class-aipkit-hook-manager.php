@@ -44,6 +44,7 @@ use WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler; // NEW
 use WPAICG\Chat\Frontend\Ajax\ChatFormSubmissionAjaxHandler;
 use WPAICG\Lib\Chat\Frontend\Ajax\ChatFileUploadAjaxDispatcher as LibChatFileUploadAjaxDispatcher;
 use WPAICG\Dashboard\Ajax\SettingsAjaxHandler;
+use WPAICG\Dashboard\Ajax\AIPKit_Event_Webhook_Delivery_Issues_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\ModelsAjaxHandler;
 // --- NEW: Post Enhancer Actions Handler ---
 use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
@@ -112,6 +113,7 @@ class AIPKit_Hook_Manager
         $ai_form_ajax_handler = class_exists(AIPKit_AI_Form_Ajax_Handler::class) ? new AIPKit_AI_Form_Ajax_Handler() : null;
         $ai_form_settings_ajax_handler = class_exists(AIPKit_AI_Form_Settings_Ajax_Handler::class) ? new AIPKit_AI_Form_Settings_Ajax_Handler() : null; // NEW
         $settings_ajax_handler = class_exists(SettingsAjaxHandler::class) ? new SettingsAjaxHandler() : null;
+        $event_webhook_delivery_issues_ajax_handler = class_exists(AIPKit_Event_Webhook_Delivery_Issues_Ajax_Handler::class) ? new AIPKit_Event_Webhook_Delivery_Issues_Ajax_Handler() : null;
         $models_ajax_handler = class_exists(ModelsAjaxHandler::class) ? new ModelsAjaxHandler() : null;
         // --- ADDED: Instantiate Semantic Search handler ---
         $semantic_search_ajax_handler = class_exists(AIPKit_Semantic_Search_Ajax_Handler::class) ? new AIPKit_Semantic_Search_Ajax_Handler() : null;
@@ -199,6 +201,7 @@ class AIPKit_Hook_Manager
                 $chat_form_submission_ajax_handler,
                 $chat_file_upload_ajax_dispatcher,
                 $settings_ajax_handler,
+                $event_webhook_delivery_issues_ajax_handler,
                 $models_ajax_handler,
                 $realtime_session_ajax_handler,
                 $semantic_search_ajax_handler, // ADDED

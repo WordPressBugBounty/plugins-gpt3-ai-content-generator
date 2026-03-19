@@ -272,3 +272,88 @@ function aipkit_create_rss_history_table()
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
 }
+
+/**
+ * Creates or updates the event delivery queue table.
+ * This is the durable foundation for async webhook and app delivery.
+ */
+function aipkit_create_event_delivery_queue_table()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'aipkit_event_delivery_queue';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE $table_name (
+        id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        job_uuid varchar(36) NOT NULL,
+        event_id varchar(36) NOT NULL,
+        event_name varchar(191) NOT NULL,
+        event_idempotency_key varchar(191) DEFAULT NULL,
+        source_module varchar(50) DEFAULT NULL,
+        status varchar(20) NOT NULL DEFAULT 'pending',
+        attempt_count int unsigned NOT NULL DEFAULT 0,
+        target_count int unsigned NOT NULL DEFAULT 0,
+        available_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        locked_at datetime DEFAULT NULL,
+        processed_at datetime DEFAULT NULL,
+        last_error_message text DEFAULT NULL,
+        envelope_json longtext NOT NULL,
+        context_json longtext DEFAULT NULL,
+        created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY  (id),
+        UNIQUE KEY job_uuid (job_uuid),
+        UNIQUE KEY event_id (event_id),
+        KEY status_available_at (status, available_at),
+        KEY event_name_created_at (event_name, created_at),
+        KEY source_module_status (source_module, status),
+        KEY processed_at (processed_at)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}
+
+/**
+ * Creates or updates the recipe delivery logs table.
+ * This powers Delivery Issues, replay, and async failure history.
+ */
+function aipkit_create_recipe_delivery_logs_table()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'aipkit_recipe_delivery_logs';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE {$table_name} (
+        id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        attempt_uuid varchar(36) NOT NULL,
+        recipe_id varchar(36) NOT NULL,
+        connection_id varchar(36) NOT NULL,
+        event_name varchar(191) NOT NULL,
+        event_id varchar(191) DEFAULT NULL,
+        event_idempotency_key varchar(191) DEFAULT NULL,
+        status varchar(20) NOT NULL DEFAULT 'failed',
+        attempt_count int unsigned NOT NULL DEFAULT 1,
+        max_attempts int unsigned NOT NULL DEFAULT 1,
+        http_status int unsigned DEFAULT NULL,
+        destination_identifier varchar(191) DEFAULT NULL,
+        error_message text DEFAULT NULL,
+        request_summary longtext DEFAULT NULL,
+        response_summary longtext DEFAULT NULL,
+        event_snapshot longtext DEFAULT NULL,
+        replayed_from_attempt_uuid varchar(36) DEFAULT NULL,
+        created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        completed_at datetime DEFAULT NULL,
+        PRIMARY KEY  (id),
+        UNIQUE KEY attempt_uuid (attempt_uuid),
+        KEY recipe_status_created (recipe_id, status, created_at),
+        KEY connection_status_created (connection_id, status, created_at),
+        KEY event_name (event_name),
+        KEY status_created (status, created_at),
+        KEY replayed_from_attempt_uuid (replayed_from_attempt_uuid)
+    ) {$charset_collate};";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}

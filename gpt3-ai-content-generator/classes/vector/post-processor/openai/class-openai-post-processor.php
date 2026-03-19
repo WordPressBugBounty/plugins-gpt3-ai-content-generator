@@ -65,21 +65,37 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
             'source_type_for_log' => 'wordpress_post'
         ];
 
+        $return_error = function (string $error_msg, ?string $file_id = null, ?string $batch_id = null) use ($log_entry_base): array {
+            $failure_log = array_merge($log_entry_base, [
+                'status' => 'failed',
+                'message' => $error_msg,
+            ]);
+            if ($file_id !== null) {
+                $failure_log['file_id'] = $file_id;
+            }
+            if ($batch_id !== null) {
+                $failure_log['batch_id'] = $batch_id;
+            }
+            $this->log_event($failure_log);
+
+            return ['status' => 'error', 'message' => $error_msg, 'file_id' => $file_id, 'batch_id' => $batch_id];
+        };
+
         if (!$this->config_handler || !$this->vector_store_manager) {
             $error_msg = __('OpenAI processing components not available.', 'gpt3-ai-content-generator');
-            return ['status' => 'error', 'message' => $error_msg, 'file_id' => null, 'batch_id' => null];
+            return $return_error($error_msg);
         }
 
         $openai_config = $this->config_handler->get_config();
         if (is_wp_error($openai_config)) {
             $error_msg = $openai_config->get_error_message();
-            return ['status' => 'error', 'message' => $error_msg, 'file_id' => null, 'batch_id' => null];
+            return $return_error($error_msg);
         }
 
         $strategy = AIPKit_Vector_Provider_Strategy_Factory::get_strategy('OpenAI');
         if (is_wp_error($strategy) || !method_exists($strategy, 'delete_openai_file_object') || !method_exists($strategy, 'upload_file_for_vector_store')) {
             $error_msg = __('OpenAI file processing strategy not available.', 'gpt3-ai-content-generator');
-            return ['status' => 'error', 'message' => $error_msg, 'file_id' => null, 'batch_id' => null];
+            return $return_error($error_msg);
         }
         $strategy->connect($openai_config); // Connect strategy with fetched config
 
@@ -96,7 +112,7 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
         $content_string_or_error = $this->get_post_content_as_string($post_id);
         if (is_wp_error($content_string_or_error) || empty(trim($content_string_or_error))) {
             $error_msg = is_wp_error($content_string_or_error) ? 'Content retrieval error: ' . $content_string_or_error->get_error_message() : __('Post content is empty.', 'gpt3-ai-content-generator');
-            return ['status' => 'error', 'message' => $error_msg, 'file_id' => null, 'batch_id' => null];
+            return $return_error($error_msg);
         }
         
         $log_entry_base['indexed_content'] = $content_string_or_error;
@@ -104,7 +120,7 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
         $temp_file_result = $this->create_temp_file_from_string($content_string_or_error, 'post-' . $post_id . '-vs-' . $vector_store_id . '-'); // Call base method
         if (is_wp_error($temp_file_result)) {
             $error_msg = 'Temp file error: ' . $temp_file_result->get_error_message();
-            return ['status' => 'error', 'message' => $error_msg, 'file_id' => null, 'batch_id' => null];
+            return $return_error($error_msg);
         }
 
         $upload_result = $strategy->upload_file_for_vector_store($temp_file_result, basename($temp_file_result), 'user_data'); // Call strategy method
@@ -112,14 +128,14 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
 
         if (is_wp_error($upload_result) || !isset($upload_result['id'])) {
             $err_msg = is_wp_error($upload_result) ? $upload_result->get_error_message() : 'Missing file ID in response.';
-            return ['status' => 'error', 'message' => 'Upload error: ' . $err_msg, 'file_id' => null, 'batch_id' => null];
+            return $return_error('Upload error: ' . $err_msg);
         }
         $uploaded_file_id = $upload_result['id'];
 
         $batch_result = $this->vector_store_manager->upsert_vectors('OpenAI', $vector_store_id, ['file_ids' => [$uploaded_file_id]], $openai_config);
         if (is_wp_error($batch_result)) {
             $error_msg = 'Batch add error: ' . $batch_result->get_error_message();
-            return ['status' => 'error', 'message' => $error_msg, 'file_id' => $uploaded_file_id, 'batch_id' => null];
+            return $return_error($error_msg, $uploaded_file_id);
         }
         $batch_id = $batch_result['id'] ?? null;
         $this->log_event(array_merge($log_entry_base, ['status' => 'indexed', 'message' => 'WordPress post content submitted for indexing.', 'file_id' => $uploaded_file_id, 'batch_id' => $batch_id]));

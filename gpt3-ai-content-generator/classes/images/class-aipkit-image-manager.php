@@ -17,6 +17,7 @@ require_once $manager_path . '__construct.php';
 require_once $manager_path . 'init_hooks.php';
 require_once $manager_path . 'get_image_settings.php';
 require_once $manager_path . 'generate_image.php';
+require_once $manager_path . 'emit-generated-event.php';
 require_once $manager_path . 'ajax/ajax_generate_image.php';
 require_once $manager_path . 'ajax/ajax_delete_generated_image.php';
 require_once $manager_path . 'ajax/ajax_load_more_image_history.php';
@@ -59,6 +60,16 @@ class AIPKit_Image_Manager
     public function generate_image(string $prompt, array $options = [], ?int $wp_user_id = null): array|WP_Error
     {
         return Manager\generate_image_logic($this, $prompt, $options, $wp_user_id);
+    }
+
+    public function emit_generated_event(
+        string $prompt,
+        array $result,
+        array $options = [],
+        ?int $user_id = null,
+        ?string $session_id = null
+    ): void {
+        Manager\emit_generated_event_logic($this, $prompt, $result, $options, $user_id, $session_id);
     }
 
     public function ajax_generate_image()

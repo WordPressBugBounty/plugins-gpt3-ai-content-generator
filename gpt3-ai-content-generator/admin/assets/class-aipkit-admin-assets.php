@@ -1081,7 +1081,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 'running_task' => __('Initiating Run...', 'gpt3-ai-content-generator'),
                 'pausing_task' => __('Pausing Task...', 'gpt3-ai-content-generator'),
                 'resuming_task' => __('Resuming Task...', 'gpt3-ai-content-generator'),
-                'save_task_button' => __('Save Task', 'gpt3-ai-content-generator'),
+                'save_task_button' => __('Save', 'gpt3-ai-content-generator'),
                 'create_task_button' => __('Create Task', 'gpt3-ai-content-generator'),
                 'edit_task_title' => __('Edit Automated Task', 'gpt3-ai-content-generator'),
                 'create_task_title' => __('Create New Automated Task', 'gpt3-ai-content-generator'),

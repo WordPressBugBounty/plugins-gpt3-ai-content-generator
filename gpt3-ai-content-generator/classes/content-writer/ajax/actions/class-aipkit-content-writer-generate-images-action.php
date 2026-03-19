@@ -29,6 +29,8 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
         $settings = isset($_POST) ? wp_unslash($_POST) : [];
+        $settings['aipkit_event_module'] = 'content_writer';
+        $settings['aipkit_event_origin'] = 'content_writer_direct_images';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
         $final_title = isset($settings['final_title']) ? sanitize_text_field($settings['final_title']) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.

@@ -6,6 +6,7 @@
 namespace WPAICG\Core\Stream\Contexts\AIForms\Process;
 
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WPAICG\Core\Stream\Contexts\AIForms\SSEAIFormsStreamContextHandler;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
@@ -14,6 +15,78 @@ use WP_Error;
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+/**
+ * Normalizes submitted AI Form values for outbound webhook payloads.
+ *
+ * @param mixed $value
+ * @return mixed
+ */
+function normalize_form_submission_value_for_event($value)
+{
+    if (is_array($value)) {
+        $normalized = [];
+        foreach ($value as $key => $child_value) {
+            $normalized_key = is_int($key) ? $key : sanitize_key((string) $key);
+            if ($normalized_key === '') {
+                continue;
+            }
+            $normalized[$normalized_key] = normalize_form_submission_value_for_event($child_value);
+        }
+        return AIPKit_Payload_Sanitizer::sanitize_payload_if_array($normalized);
+    }
+
+    if (is_bool($value) || is_int($value) || is_float($value)) {
+        return $value;
+    }
+
+    if (is_string($value)) {
+        // Preserve the exact submitted string shape for outbound automations.
+        return sanitize_textarea_field($value);
+    }
+
+    if (is_scalar($value)) {
+        return sanitize_textarea_field((string) $value);
+    }
+
+    return '';
+}
+
+/**
+ * Builds AI Forms event metadata for later emission after the AI response is complete.
+ *
+ * @param array $validated_params
+ * @param array $form_config
+ * @param string $provider
+ * @param string $model
+ * @param int $submission_count
+ * @return array<string, mixed>
+ */
+function build_form_submitted_event_meta_logic(
+    array $validated_params,
+    array $form_config,
+    string $provider,
+    string $model,
+    int $submission_count
+): array {
+    $form_id = absint($validated_params['form_id'] ?? 0);
+    $form_title = isset($form_config['title']) ? sanitize_text_field((string) $form_config['title']) : '';
+    $submitted_inputs_raw = $validated_params['user_input_values'] ?? [];
+    $submitted_inputs = is_array($submitted_inputs_raw)
+        ? normalize_form_submission_value_for_event($submitted_inputs_raw)
+        : [];
+
+    return [
+        'form_id' => $form_id,
+        'form_name' => $form_title !== '' ? $form_title : '',
+        'submission_count' => $submission_count,
+        'ai' => [
+            'provider' => $provider,
+            'model' => $model,
+        ],
+        'inputs' => is_array($submitted_inputs) ? $submitted_inputs : [],
+    ];
 }
 
 /**
@@ -68,8 +141,19 @@ function prepare_stream_data_logic(
     if ($form_id > 0) {
         $count_meta_key = '_aipkit_ai_form_submission_count';
         $current_count = (int) get_post_meta($form_id, $count_meta_key, true);
-        update_post_meta($form_id, $count_meta_key, $current_count + 1);
+        $submission_count = $current_count + 1;
+        update_post_meta($form_id, $count_meta_key, $submission_count);
+    } else {
+        $submission_count = 0;
     }
+
+    $base_log_data['aipkit_form_event_meta'] = build_form_submitted_event_meta_logic(
+        $validated_params,
+        $form_config,
+        $provider,
+        $model,
+        $submission_count
+    );
 
     // 2. Prepare AI and API Parameters
     $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();

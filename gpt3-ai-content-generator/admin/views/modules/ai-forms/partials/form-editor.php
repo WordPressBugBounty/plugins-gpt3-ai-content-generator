@@ -30,6 +30,89 @@ $default_presence_penalty = $global_ai_params['presence_penalty'] ?? 0.0;
 $upgrade_url = function_exists('wpaicg_gacg_fs')
     ? wpaicg_gacg_fs()->get_upgrade_url()
     : admin_url('admin.php?page=wpaicg-pricing');
+$connected_apps_manage_url = admin_url('admin.php?page=wpaicg&aipkit_module=settings&aipkit_settings_page=apps');
+$connected_apps_supported_destinations = [
+    [
+        'name' => 'Slack',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/slack.svg',
+    ],
+    [
+        'name' => 'HubSpot',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/hubspot.svg',
+    ],
+    [
+        'name' => 'Notion',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/notion.svg',
+    ],
+    [
+        'name' => 'Pipedrive',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/pipedrive.svg',
+    ],
+    [
+        'name' => 'Zapier',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/zapier.svg',
+    ],
+    [
+        'name' => 'Make',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/make.svg',
+    ],
+    [
+        'name' => 'n8n',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/n8n.svg',
+    ],
+];
+$initial_ai_form_connected_apps = [
+    'count' => 0,
+    'summary' => '',
+    'recipes' => [],
+];
+$render_ai_form_connected_apps_cards = static function (array $connected_apps_payload): void {
+    $recipes = isset($connected_apps_payload['recipes']) && is_array($connected_apps_payload['recipes'])
+        ? $connected_apps_payload['recipes']
+        : [];
+
+    foreach ($recipes as $recipe) {
+        if (!is_array($recipe)) {
+            continue;
+        }
+
+        $recipe_name = sanitize_text_field((string) ($recipe['name'] ?? __('Untitled Recipe', 'gpt3-ai-content-generator')));
+        $status_key = sanitize_key((string) ($recipe['status_key'] ?? 'warning'));
+        if (!in_array($status_key, ['ready', 'warning', 'error', 'reauth_required'], true)) {
+            $status_key = 'warning';
+        }
+        $status_label = sanitize_text_field((string) ($recipe['status_label'] ?? __('Warning', 'gpt3-ai-content-generator')));
+        $connection_label = sanitize_text_field((string) ($recipe['connection_label'] ?? __('No connection', 'gpt3-ai-content-generator')));
+        $event_label = sanitize_text_field((string) ($recipe['event_label'] ?? __('No event', 'gpt3-ai-content-generator')));
+        $action_label = sanitize_text_field((string) ($recipe['action_label'] ?? __('No action', 'gpt3-ai-content-generator')));
+        $scope_label = sanitize_text_field((string) ($recipe['scope_label'] ?? __('All AI Forms', 'gpt3-ai-content-generator')));
+        $validation_summary = sanitize_text_field((string) ($recipe['validation_summary'] ?? __('Validation unavailable.', 'gpt3-ai-content-generator')));
+        ?>
+        <article class="aipkit_chatbot_connected_apps_recipe">
+            <div class="aipkit_chatbot_connected_apps_recipe_header">
+                <strong class="aipkit_chatbot_connected_apps_recipe_title"><?php echo esc_html($recipe_name); ?></strong>
+                <div class="aipkit_chatbot_connected_apps_recipe_flags">
+                    <span class="aipkit_settings_recipe_status aipkit_settings_recipe_status--<?php echo esc_attr($status_key); ?>">
+                        <?php echo esc_html($status_label); ?>
+                    </span>
+                    <span class="aipkit_settings_recipe_enabled_flag aipkit_settings_recipe_enabled_flag--<?php echo !empty($recipe['is_enabled']) ? 'enabled' : 'disabled'; ?>">
+                        <?php echo !empty($recipe['is_enabled']) ? esc_html__('Enabled', 'gpt3-ai-content-generator') : esc_html__('Disabled', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+            </div>
+            <p class="aipkit_chatbot_connected_apps_recipe_summary">
+                <?php echo esc_html(implode(' | ', [$connection_label, $event_label, $action_label])); ?>
+            </p>
+            <div class="aipkit_chatbot_connected_apps_recipe_meta">
+                <span class="aipkit_chatbot_connected_apps_recipe_scope"><?php echo esc_html($scope_label); ?></span>
+            </div>
+            <p class="aipkit_chatbot_connected_apps_recipe_validation aipkit_chatbot_connected_apps_recipe_validation--<?php echo esc_attr($status_key); ?>">
+                <?php echo esc_html($validation_summary); ?>
+            </p>
+        </article>
+        <?php
+    }
+};
 ?>
 <div class="aipkit_form_editor">
     <form id="aipkit_ai_form_editor_form" onsubmit="return false;">

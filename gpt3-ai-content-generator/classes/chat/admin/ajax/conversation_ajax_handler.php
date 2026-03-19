@@ -10,6 +10,7 @@ use WPAICG\Chat\Admin\AdminSetup; // Needed for Bot name lookup
 use WPAICG\Speech\AIPKit_Speech_Manager; // Use TTS Manager
 use WPAICG\aipkit_dashboard; // Use dashboard class
 use WPAICG\Core\AIPKit_Payload_Sanitizer;
+use WPAICG\Core\AIPKit_Event_Webhooks;
 // --- MODIFIED: Correct namespace for BotSettingsManager ---
 use WPAICG\Chat\Storage\BotSettingsManager;
 // --- END MODIFICATION ---
@@ -181,6 +182,77 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             'created_at' => $meta_row['first_message_ts'] ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $meta_row['first_message_ts']) : 'N/A',
             'updated_at' => $meta_row['last_message_ts'] ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $meta_row['last_message_ts']) : 'N/A',
         ];
+    }
+
+    /**
+     * Emits the canonical chatbot feedback event without impacting the frontend response.
+     *
+     * @param int|null    $user_id
+     * @param int         $bot_id
+     * @param string      $conversation_uuid
+     * @param string      $message_id
+     * @param string      $feedback_type
+     * @return void
+     */
+    private function emit_feedback_submitted_event(?int $user_id, int $bot_id, string $conversation_uuid, string $message_id, string $feedback_type): void
+    {
+        if (!class_exists(AIPKit_Event_Webhooks::class)) {
+            return;
+        }
+
+        $bot_title = $bot_id > 0 ? get_the_title($bot_id) : '';
+        $payload = [
+            'feedback' => $feedback_type,
+            'bot' => [
+                'id' => $bot_id,
+                'name' => $bot_title ? $bot_title : '',
+            ],
+            'conversation' => [
+                'id' => $conversation_uuid,
+            ],
+            'message' => [
+                'id' => $message_id,
+            ],
+            'actor' => [
+                'type' => $user_id ? 'user' : 'guest',
+            ],
+        ];
+
+        if ($user_id) {
+            $payload['actor']['user_id'] = $user_id;
+        }
+
+        AIPKit_Event_Webhooks::emit(
+            'chatbot.fb_submitted',
+            $payload,
+            [
+                'module' => 'chatbot',
+                'origin' => 'frontend_feedback',
+                'resource' => [
+                    'type' => 'conversation_message',
+                    'id' => $message_id,
+                    'label' => $bot_title ? sprintf(
+                        /* translators: %s: chatbot title */
+                        __('Feedback for %s', 'gpt3-ai-content-generator'),
+                        $bot_title
+                    ) : __('Chatbot feedback', 'gpt3-ai-content-generator'),
+                ],
+                'meta' => [
+                    'bot_id' => $bot_id,
+                    'conversation_uuid' => $conversation_uuid,
+                    'feedback' => $feedback_type,
+                    'is_guest' => $user_id ? 0 : 1,
+                ],
+                'idempotency_key' => sha1(implode('|', [
+                    'chatbot.fb_submitted',
+                    (string) $bot_id,
+                    $conversation_uuid,
+                    $message_id,
+                    $feedback_type,
+                    $user_id ? (string) $user_id : 'guest',
+                ])),
+            ]
+        );
     }
 
     /**
@@ -384,6 +456,13 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         if (is_wp_error($result)) {
             $this->send_wp_error($result);
         } else {
+            $this->emit_feedback_submitted_event(
+                $user_id ?: null,
+                $bot_id,
+                $conversation_uuid,
+                $message_id,
+                $feedback_type
+            );
             // --- ADDED: Invalidate cache after feedback is stored ---
             if ($conversation_uuid) {
                 wp_cache_delete('conv_full_log_' . $conversation_uuid, 'aipkit_chat_logs');

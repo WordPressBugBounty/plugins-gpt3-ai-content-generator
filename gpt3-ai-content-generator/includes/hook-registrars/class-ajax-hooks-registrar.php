@@ -53,6 +53,7 @@ use WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler; // NEW
 use WPAICG\Chat\Frontend\Ajax\ChatFormSubmissionAjaxHandler;
 use WPAICG\Lib\Chat\Frontend\Ajax\ChatFileUploadAjaxDispatcher as LibChatFileUploadAjaxDispatcher;
 use WPAICG\Dashboard\Ajax\SettingsAjaxHandler;
+use WPAICG\Dashboard\Ajax\AIPKit_Event_Webhook_Delivery_Issues_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\ModelsAjaxHandler;
 // --- NEW: Post Enhancer Actions Handler ---
 use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
@@ -88,6 +89,7 @@ class Ajax_Hooks_Registrar
         ?ChatFormSubmissionAjaxHandler $chat_form_submission_ajax_handler = null,
         ?LibChatFileUploadAjaxDispatcher $chat_file_upload_ajax_dispatcher = null,
         ?SettingsAjaxHandler $settings_ajax_handler = null,
+        ?AIPKit_Event_Webhook_Delivery_Issues_Ajax_Handler $event_webhook_delivery_issues_ajax_handler = null,
         ?ModelsAjaxHandler $models_ajax_handler = null,
         ?AIPKit_Realtime_Session_Ajax_Handler $realtime_session_ajax_handler = null,
         ?AIPKit_Semantic_Search_Ajax_Handler $semantic_search_ajax_handler = null, // ADDED
@@ -128,6 +130,15 @@ class Ajax_Hooks_Registrar
             }
             if (method_exists($settings_ajax_handler, 'ajax_clear_settings_transients')) {
                 add_action('wp_ajax_aipkit_clear_settings_transients', [$settings_ajax_handler, 'ajax_clear_settings_transients']);
+            }
+        }
+
+        if ($event_webhook_delivery_issues_ajax_handler) {
+            if (method_exists($event_webhook_delivery_issues_ajax_handler, 'ajax_retry_event_webhook_delivery_issue')) {
+                add_action('wp_ajax_aipkit_retry_event_webhook_delivery_issue', [$event_webhook_delivery_issues_ajax_handler, 'ajax_retry_event_webhook_delivery_issue']);
+            }
+            if (method_exists($event_webhook_delivery_issues_ajax_handler, 'ajax_clear_event_webhook_delivery_issue')) {
+                add_action('wp_ajax_aipkit_clear_event_webhook_delivery_issue', [$event_webhook_delivery_issues_ajax_handler, 'ajax_clear_event_webhook_delivery_issue']);
             }
         }
 

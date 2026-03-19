@@ -23,6 +23,28 @@ class Core_Services_Loader {
         require_once $core_path . 'class-aipkit-instruction-manager.php';
         require_once $core_path . 'class-aipkit-content-moderator.php';
         require_once $core_path . 'class-aipkit-payload-sanitizer.php';
+        require_once $core_path . 'class-aipkit-event-registry.php';
+        require_once $core_path . 'class-aipkit-event-webhooks-settings.php';
+        require_once $core_path . 'class-aipkit-event-payload-builder.php';
+        require_once $core_path . 'class-aipkit-event-delivery-policy.php';
+        require_once $core_path . 'class-aipkit-event-queue-store.php';
+        require_once $core_path . 'class-aipkit-event-queue-worker.php';
+        require_once $core_path . 'class-aipkit-event-signature.php';
+        require_once $core_path . 'class-aipkit-event-delivery-manager.php';
+        require_once $core_path . 'class-aipkit-event-dispatcher.php';
+        require_once $core_path . 'class-aipkit-event-webhooks.php';
+
+        if (class_exists(\WPAICG\Core\AIPKit_Event_Webhooks_Settings::class)) {
+            \WPAICG\Core\AIPKit_Event_Webhooks_Settings::init();
+        }
+
+        if (class_exists(\WPAICG\Core\AIPKit_Event_Delivery_Policy::class)) {
+            \WPAICG\Core\AIPKit_Event_Delivery_Policy::register_hooks();
+        }
+
+        if (class_exists(\WPAICG\Core\AIPKit_Event_Queue_Worker::class)) {
+            \WPAICG\Core\AIPKit_Event_Queue_Worker::register_hooks();
+        }
 
         $stream_path_base = $core_path . 'stream/';
         $sse_classes_to_load = [

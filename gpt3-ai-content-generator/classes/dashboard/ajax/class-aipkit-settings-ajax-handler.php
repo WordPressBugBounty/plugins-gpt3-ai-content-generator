@@ -7,6 +7,7 @@ namespace WPAICG\Dashboard\Ajax;
 
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
+use WPAICG\Core\AIPKit_Event_Webhooks_Settings;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WP_Error;
 
@@ -67,6 +68,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 
         // Store initial states to detect if any actual change occurred
         $initial_core_opts_json = wp_json_encode(get_option('aipkit_options', []));
+        $initial_native_app_recipes_json = wp_json_encode(get_option('aipkit_native_app_recipes', []));
         // --- Perform Save Operations for Different Setting Groups ---
         $this->save_main_provider_selection($post_data);
         $this->save_all_provider_api_details($post_data);
@@ -75,14 +77,19 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $this->save_google_safety_settings_if_applicable($post_data);
         $enhancer_settings_changed = $this->save_enhancer_settings($post_data);
         $this->save_semantic_search_settings($post_data);
+        $this->save_event_webhooks_settings($post_data);
+        $this->save_native_app_connections($post_data);
+        $this->save_native_app_recipes($post_data);
         $updated_enhancer_actions = $this->save_enhancer_actions($post_data); // NEW
 
         // --- Check if any options actually changed ---
         $final_core_opts_json = wp_json_encode(get_option('aipkit_options', []));
+        $final_native_app_recipes_json = wp_json_encode(get_option('aipkit_native_app_recipes', []));
 
         $core_changed = ($initial_core_opts_json !== $final_core_opts_json);
+        $native_app_recipes_changed = ($initial_native_app_recipes_json !== $final_native_app_recipes_json);
 
-        if ($core_changed || $enhancer_settings_changed || $updated_enhancer_actions !== null) {
+        if ($core_changed || $native_app_recipes_changed || $enhancer_settings_changed || $updated_enhancer_actions !== null) {
             $response = ['message' => __('Settings saved successfully.', 'gpt3-ai-content-generator')];
             if ($updated_enhancer_actions !== null) {
                 $response['updated_enhancer_actions'] = $updated_enhancer_actions;
@@ -238,6 +245,74 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         if (class_exists(GoogleSettingsHandler::class) && method_exists(GoogleSettingsHandler::class, 'save_safety_settings')) {
             GoogleSettingsHandler::save_safety_settings($post_data);
         }
+    }
+
+    /**
+     * Saves Universal Event Webhooks settings to aipkit_options.
+     *
+     * @param array<string, mixed> $post_data
+     * @return void
+     */
+    private function save_event_webhooks_settings(array $post_data): void
+    {
+        $raw_settings = $post_data['event_webhooks'] ?? null;
+        if (!is_array($raw_settings)) {
+            return;
+        }
+
+        AIPKit_Event_Webhooks_Settings::save_settings($raw_settings);
+    }
+
+    /**
+     * Saves premium Native App Recipe connection drafts via the lib runtime.
+     *
+     * @param array<string, mixed> $post_data
+     * @return void
+     */
+    private function save_native_app_connections(array $post_data): void
+    {
+        $raw_settings = $post_data['native_app_recipes'] ?? null;
+        if (!is_array($raw_settings)) {
+            return;
+        }
+
+        $raw_connections = $raw_settings['connections'] ?? [];
+        if (!is_array($raw_connections)) {
+            $raw_connections = [];
+        }
+
+        $connections_class = '\WPAICG\Lib\Integrations\Apps\AIPKit_App_Connections';
+        if (!class_exists($connections_class) || !method_exists($connections_class, 'save_connections')) {
+            return;
+        }
+
+        $connections_class::save_connections($raw_connections, get_current_user_id());
+    }
+
+    /**
+     * Saves premium Native App Recipe drafts via the lib runtime.
+     *
+     * @param array<string, mixed> $post_data
+     * @return void
+     */
+    private function save_native_app_recipes(array $post_data): void
+    {
+        $raw_settings = $post_data['native_app_recipes'] ?? null;
+        if (!is_array($raw_settings)) {
+            return;
+        }
+
+        $raw_recipes = $raw_settings['recipes'] ?? [];
+        if (!is_array($raw_recipes)) {
+            $raw_recipes = [];
+        }
+
+        $recipes_class = '\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes';
+        if (!class_exists($recipes_class) || !method_exists($recipes_class, 'save_recipes')) {
+            return;
+        }
+
+        $recipes_class::save_recipes($raw_recipes, get_current_user_id());
     }
 
     /**

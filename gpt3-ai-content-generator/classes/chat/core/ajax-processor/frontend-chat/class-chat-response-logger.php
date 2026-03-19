@@ -63,6 +63,40 @@ class ChatResponseLogger
     }
 
     /**
+     * Emits chatbot session-started and user-message-submitted events for the
+     * non-streaming AJAX chat flow using the same canonical emitter as the SSE
+     * path.
+     *
+     * @param array<string, mixed> $context
+     * @param array<string, mixed> $user_log_result
+     * @return void
+     */
+    public function emit_logged_user_events(array $context, array $user_log_result): void
+    {
+        $emitter_path = WPAICG_PLUGIN_DIR . 'classes/core/stream/contexts/chat/process/emit-chatbot-events.php';
+        if (
+            !function_exists('\WPAICG\Core\Stream\Contexts\Chat\Process\emit_chatbot_user_events_logic') &&
+            file_exists($emitter_path)
+        ) {
+            require_once $emitter_path;
+        }
+
+        if (!function_exists('\WPAICG\Core\Stream\Contexts\Chat\Process\emit_chatbot_user_events_logic')) {
+            return;
+        }
+
+        \WPAICG\Core\Stream\Contexts\Chat\Process\emit_chatbot_user_events_logic(
+            $this->log_storage,
+            $context,
+            $user_log_result,
+            [
+                'provider' => sanitize_text_field((string) ($context['current_provider'] ?? '')),
+                'model' => sanitize_text_field((string) ($context['current_model_id'] ?? '')),
+            ]
+        );
+    }
+
+    /**
      * Logs AI response (success or error) and sends JSON response.
      *
      * @param array|WP_Error $ai_result Result from ChatAIRequestRunner.
@@ -70,11 +104,22 @@ class ChatResponseLogger
      * @param array $bot_settings
      * @param int|null $user_id
      * @param string|null $session_id
+     * @param string|null $current_provider
+     * @param string|null $current_model
      * @return void
      */
-    public function log_and_send_response(array|WP_Error $ai_result, array $base_log_data, array $bot_settings, ?int $user_id, ?string $session_id): void
+    public function log_and_send_response(
+        array|WP_Error $ai_result,
+        array $base_log_data,
+        array $bot_settings,
+        ?int $user_id,
+        ?string $session_id,
+        ?string $current_provider = null,
+        ?string $current_model = null
+    ): void
     {
-        $provider = $bot_settings['provider'] ?? \WPAICG\AIPKit_Providers::get_current_provider(); // For logging
+        $provider = $current_provider ?: ($bot_settings['provider'] ?? \WPAICG\AIPKit_Providers::get_current_provider()); // For logging
+        $model = $current_model ?: ($bot_settings['model'] ?? '');
 
         if (is_wp_error($ai_result)) {
             $error_data = $ai_result->get_error_data();
@@ -84,7 +129,7 @@ class ChatResponseLogger
                 'message_content' => "Error: " . $ai_result->get_error_message(),
                 'timestamp'       => time(),
                 'ai_provider'     => $provider,
-                'ai_model'        => $bot_settings['model'] ?? '',
+                'ai_model'        => $model,
                 'usage'           => null,
                 'request_payload' => $request_payload_on_error,
             ]);
@@ -107,12 +152,22 @@ class ChatResponseLogger
 
             $log_bot_data = array_merge($base_log_data, [
                 'message_role'    => 'bot', 'message_content' => $ai_response, 'timestamp' => time(),
-                'ai_provider'     => $provider, 'ai_model' => $bot_settings['model'] ?? '', 'usage' => $usage_data,
+                'ai_provider'     => $provider, 'ai_model' => $model, 'usage' => $usage_data,
                 'request_payload' => $request_payload_log, 'openai_response_id' => $openai_response_id_for_log,
                 'used_previous_response_id' => $used_previous_id_for_log, 'grounding_metadata' => $grounding_metadata_for_log,
                 'vector_search_scores' => $vector_search_scores_for_log,
             ]);
             $bot_log_result = $this->log_storage->log_message($log_bot_data);
+
+            if (is_array($bot_log_result)) {
+                $this->emit_response_generated_event(
+                    $base_log_data,
+                    $ai_response,
+                    $provider,
+                    $model,
+                    $bot_log_result
+                );
+            }
 
             $response_payload = ['reply' => $ai_response, 'message_id' => ($bot_log_result !== false) ? $bot_log_result['message_id'] : null];
             if ($openai_response_id_for_log) {
@@ -123,6 +178,48 @@ class ChatResponseLogger
             }
             wp_send_json_success($response_payload);
         }
+    }
+
+    /**
+     * Emits chatbot.response_generated for non-streaming AJAX replies using
+     * the same canonical emitter as the SSE path.
+     *
+     * @param array<string, mixed> $base_log_data
+     * @param string $ai_response
+     * @param string $provider
+     * @param string $model
+     * @param array<string, mixed> $bot_log_result
+     * @return void
+     */
+    private function emit_response_generated_event(
+        array $base_log_data,
+        string $ai_response,
+        string $provider,
+        string $model,
+        array $bot_log_result
+    ): void {
+        $emitter_path = WPAICG_PLUGIN_DIR . 'classes/core/stream/processor/fn-log-bot-response.php';
+        if (
+            !function_exists('\WPAICG\Core\Stream\Processor\emit_chatbot_response_generated_event_logic') &&
+            file_exists($emitter_path)
+        ) {
+            require_once $emitter_path;
+        }
+
+        if (!function_exists('\WPAICG\Core\Stream\Processor\emit_chatbot_response_generated_event_logic')) {
+            return;
+        }
+
+        \WPAICG\Core\Stream\Processor\emit_chatbot_response_generated_event_logic(
+            $this->log_storage,
+            $base_log_data,
+            $ai_response,
+            $provider,
+            $model,
+            sanitize_key((string) ($base_log_data['conversation_uuid'] ?? '')),
+            sanitize_key((string) ($bot_log_result['message_id'] ?? '')),
+            $bot_log_result
+        );
     }
 
     /**

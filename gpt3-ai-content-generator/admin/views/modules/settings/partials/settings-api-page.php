@@ -36,3 +36,5 @@ if (!defined('ABSPATH')) {
         <span class="aipkit_input-button-spacer"></span>
     </div>
 </div>
+
+<?php include __DIR__ . '/settings-event-webhooks.php'; ?>

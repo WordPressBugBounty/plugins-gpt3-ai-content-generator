@@ -317,13 +317,38 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
             $handler_instance->send_wp_error(new WP_Error('save_failed', __('Unable to save form settings.', 'gpt3-ai-content-generator')), 500);
             return;
         }
-        wp_send_json_success(['message' => __('Form updated successfully.', 'gpt3-ai-content-generator'), 'form_id' => $form_id]);
+        $connected_apps = class_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes')
+            && method_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes', 'get_ai_form_connected_apps_payload')
+            ? \WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes::get_ai_form_connected_apps_payload($form_id)
+            : [
+                'count' => 0,
+                'summary' => '',
+                'recipes' => [],
+            ];
+        wp_send_json_success([
+            'message' => __('Form updated successfully.', 'gpt3-ai-content-generator'),
+            'form_id' => $form_id,
+            'connected_apps' => $connected_apps,
+        ]);
     } else {
         $result = $form_storage->create_form($title, $settings);
         if (is_wp_error($result)) {
             $handler_instance->send_wp_error($result);
         } else {
-            wp_send_json_success(['message' => __('Form created successfully.', 'gpt3-ai-content-generator'), 'form_id' => $result]);
+            $new_form_id = absint($result);
+            $connected_apps = class_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes')
+                && method_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes', 'get_ai_form_connected_apps_payload')
+                ? \WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes::get_ai_form_connected_apps_payload($new_form_id)
+                : [
+                    'count' => 0,
+                    'summary' => '',
+                    'recipes' => [],
+                ];
+            wp_send_json_success([
+                'message' => __('Form created successfully.', 'gpt3-ai-content-generator'),
+                'form_id' => $new_form_id,
+                'connected_apps' => $connected_apps,
+            ]);
         }
     }
 }

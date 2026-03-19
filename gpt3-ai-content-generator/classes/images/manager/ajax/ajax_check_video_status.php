@@ -162,6 +162,23 @@ function ajax_check_video_status_logic(AIPKit_Image_Manager $managerInstance): v
                     $token_manager->record_token_usage($user_id ?: null, $session_id_for_guest, $context_id_for_token_record, $tokens_to_record, 'image_generator');
                 }
             }
+
+            $managerInstance->emit_generated_event(
+                $prompt,
+                [
+                    'videos' => $videos_array,
+                    'usage' => $usage_data,
+                ],
+                [
+                    'provider' => 'Google',
+                    'model' => $model_id,
+                    'image_mode' => 'generate',
+                    'aipkit_event_module' => 'image_generator',
+                    'aipkit_event_origin' => 'image_generator_ajax',
+                ],
+                $is_logged_in ? $user_id : null,
+                !$is_logged_in ? ($session_id_for_guest ?? null) : null
+            );
             
             wp_send_json_success([
                 'status' => 'completed',

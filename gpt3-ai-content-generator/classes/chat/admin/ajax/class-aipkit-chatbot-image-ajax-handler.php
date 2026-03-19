@@ -241,6 +241,8 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
                 'model'    => $selected_image_model,
                 'n'        => 1,
                 'user'     => $user_identifier, // ADDED
+                'aipkit_event_module' => 'chatbot',
+                'aipkit_event_origin' => 'chatbot_image_ajax',
             ]
         );
         $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
@@ -300,7 +302,7 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
         }
     }
 
-    private function log_image_generation_attempt(string $conversation_uuid, string $extracted_prompt, array $request_options_for_log, array|WP_Error $result, ?array $usage_data, ?int $user_id, ?string $session_id, ?string $client_ip, int $bot_id_for_log, ?string $user_wp_role, bool $ip_anonymize = false, string $bot_response_message_id = null)
+    private function log_image_generation_attempt(string $conversation_uuid, string $extracted_prompt, array $request_options_for_log, array|WP_Error $result, ?array $usage_data, ?int $user_id, ?string $session_id, ?string $client_ip, int $bot_id_for_log, ?string $user_wp_role, bool $ip_anonymize = false, ?string $bot_response_message_id = null)
     {
         if (!$this->log_storage) {
             return;

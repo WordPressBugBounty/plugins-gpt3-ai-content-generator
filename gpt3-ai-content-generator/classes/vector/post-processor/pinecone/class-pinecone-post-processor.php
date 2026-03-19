@@ -68,7 +68,21 @@ class PineconePostProcessor extends AIPKit_Vector_Post_Processor_Base {
             $provider_lookup,
             'pinecone_post_processor'
         );
+        $base_failure_log = [
+            'provider' => 'Pinecone',
+            'vector_store_id' => $index_name,
+            'vector_store_name' => $index_name,
+            'post_id' => $post_id,
+            'post_title' => $post_title_for_log,
+            'embedding_provider' => $provider_lookup,
+            'embedding_model' => $embedding_model,
+            'source_type_for_log' => 'wordpress_post',
+        ];
         if (!is_string($embedding_provider_normalized) || $embedding_provider_normalized === '') {
+            $this->log_event(array_merge($base_failure_log, [
+                'status' => 'failed',
+                'message' => __('Invalid embedding provider for Pinecone indexing.', 'gpt3-ai-content-generator'),
+            ]));
             return [
                 'status' => 'error',
                 'message' => __('Invalid embedding provider for Pinecone indexing.', 'gpt3-ai-content-generator'),
@@ -84,33 +98,42 @@ class PineconePostProcessor extends AIPKit_Vector_Post_Processor_Base {
             'source_type_for_log' => 'wordpress_post'
         ];
 
+        $return_error = function (string $error_msg) use ($log_entry_base): array {
+            $this->log_event(array_merge($log_entry_base, [
+                'status' => 'failed',
+                'message' => $error_msg,
+            ]));
+
+            return ['status' => 'error', 'message' => $error_msg];
+        };
+
         if (!$this->embedding_handler || !$this->vector_store_manager || !$this->config_handler) {
             $error_msg = __('Pinecone processing components not available.', 'gpt3-ai-content-generator');
-            return ['status' => 'error', 'message' => $error_msg];
+            return $return_error($error_msg);
         }
 
         $pinecone_api_config = $this->config_handler->get_config();
         if (is_wp_error($pinecone_api_config)) {
             $error_msg = $pinecone_api_config->get_error_message();
-            return ['status' => 'error', 'message' => $error_msg];
+            return $return_error($error_msg);
         }
         
         $content_string_or_error = $this->get_post_content_as_string($post_id);
         if (is_wp_error($content_string_or_error)) {
             $error_msg = 'Content retrieval error: ' . $content_string_or_error->get_error_message();
-            return ['status' => 'error', 'message' => $error_msg];
+            return $return_error($error_msg);
         }
         $log_entry_base['indexed_content'] = $content_string_or_error;
 
         if (empty(trim($content_string_or_error))) {
             $error_msg = __('Post content is empty for Pinecone.', 'gpt3-ai-content-generator');
-            return ['status' => 'error', 'message' => $error_msg];
+            return $return_error($error_msg);
         }
         
         $embedding_result = $this->embedding_handler->generate_embedding($content_string_or_error, $embedding_provider_normalized, $embedding_model);
         if (is_wp_error($embedding_result)) {
             $error_msg = 'Embedding failed: ' . $embedding_result->get_error_message();
-            return ['status' => 'error', 'message' => $error_msg];
+            return $return_error($error_msg);
         }
         $vector_values = $embedding_result['embeddings'][0];
         
@@ -120,7 +143,7 @@ class PineconePostProcessor extends AIPKit_Vector_Post_Processor_Base {
         $upsert_result = $this->vector_store_manager->upsert_vectors('Pinecone', $index_name, ['vectors' => $vectors_to_upsert], $pinecone_api_config);
         if (is_wp_error($upsert_result)) {
             $error_msg = 'Upsert to Pinecone failed: ' . $upsert_result->get_error_message();
-            return ['status' => 'error', 'message' => $error_msg];
+            return $return_error($error_msg);
         }
         
         $this->log_event(array_merge($log_entry_base, ['status' => 'indexed', 'message' => 'WordPress post content submitted for indexing.']));

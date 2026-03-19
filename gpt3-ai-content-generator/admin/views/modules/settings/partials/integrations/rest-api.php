@@ -4,7 +4,7 @@
 
 /**
  * Partial: REST API Access
- * Displayed under Integrations.
+ * Displayed under Developers.
  */
 if (!defined('ABSPATH')) {
     exit;

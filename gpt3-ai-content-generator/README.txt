@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.84
+Stable tag: 2.3.85
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,11 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.85 =
+
+- **New**: App integrations for Slack, HubSpot, Notion, Pipedrive, Zapier, Make, and n8n.
+- **New**: Event Webhooks for chatbot, AI Forms, content generation, image generation, automated tasks, and knowledge base events.
 
 = 2.3.84 =
 

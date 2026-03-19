@@ -159,6 +159,8 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
     }
     $is_new_session = $user_log_result['is_new_session'] ?? false;
 
+    $response_logger->emit_logged_user_events($context, $user_log_result);
+
     // --- 5. Get Conversation History ---
     $history_for_ai = $history_manager->get_limited_history($user_id, $session_id, $bot_id, $conversation_uuid, $bot_settings);
     $context['current_history'] = $history_for_ai;
@@ -207,5 +209,13 @@ function ajax_frontend_chat_message(\WPAICG\Chat\Core\AjaxProcessor $processorIn
 
     // --- 9. Log AI Response & Send JSON ---
     $base_log_data_for_bot_response = $context['base_log_data'];
-    $response_logger->log_and_send_response($ai_result, $base_log_data_for_bot_response, $bot_settings, $user_id, $session_id);
+    $response_logger->log_and_send_response(
+        $ai_result,
+        $base_log_data_for_bot_response,
+        $bot_settings,
+        $user_id,
+        $session_id,
+        $context['current_provider'] ?? null,
+        $context['current_model_id'] ?? null
+    );
 }

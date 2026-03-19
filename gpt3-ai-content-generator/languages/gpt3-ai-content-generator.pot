@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.84\n"
+"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.85\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-16T23:39:06+00:00\n"
+"POT-Creation-Date: 2026-03-19T10:56:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -745,9 +745,6 @@ msgstr ""
 msgid "Resuming Task..."
 msgstr ""
 
-msgid "Save Task"
-msgstr ""
-
 msgid "Create Task"
 msgstr ""
 
@@ -1294,31 +1291,25 @@ msgstr ""
 msgid "Unlock Pro Features"
 msgstr ""
 
-msgid "Upgrade to Pro and unlock local AI, automation triggers, voice agents, and more."
-msgstr ""
-
-msgid "Note: Purchasing the plugin does not include API credits. It only unlocks Pro features."
-msgstr ""
-
 msgid "Free"
 msgstr ""
 
 msgid "Current"
 msgstr ""
 
-msgid "AI Chatbot with Voice I/O"
+msgid "Chatbot"
 msgstr ""
 
-msgid "Content Writer & Image Generator"
+msgid "Image Generator"
 msgstr ""
 
-msgid "AI Forms & WooCommerce Writer"
+msgid "AI Forms"
 msgstr ""
 
-msgid "Knowledge Base / Training"
+msgid "WooCommerce Writer"
 msgstr ""
 
-msgid "OpenAI, Google, Azure, DeepSeek"
+msgid "OpenAI, Google, Azure, and DeepSeek"
 msgstr ""
 
 msgid "Semantic Search & Vector Stores"
@@ -1327,7 +1318,25 @@ msgstr ""
 msgid "Basic Automation Tasks"
 msgstr ""
 
-msgid "Ollama (Local AI)"
+msgid "Pro"
+msgstr ""
+
+msgid "Most Popular"
+msgstr ""
+
+msgid "/ month"
+msgstr ""
+
+msgid "Purchase now"
+msgstr ""
+
+msgid "Priority Email Support"
+msgstr ""
+
+msgid "Slack, HubSpot, Notion, Pipedrive, Zapier, Make, n8n integrations"
+msgstr ""
+
+msgid "Ollama Integration"
 msgstr ""
 
 msgid "Chatbot Triggers & Automation"
@@ -1336,46 +1345,28 @@ msgstr ""
 msgid "Realtime Voice Agent"
 msgstr ""
 
-msgid "Pro"
-msgstr ""
-
-msgid "Recommended"
-msgstr ""
-
-msgid "/ mo"
-msgstr ""
-
-msgid "Purchase now"
-msgstr ""
-
-msgid "Everything in Free, plus:"
-msgstr ""
-
-msgid "Ollama Integration (Local AI)"
-msgstr ""
-
 msgid "File Upload for Context (PDF, TXT)"
 msgstr ""
 
-msgid "Embed Anywhere (External Sites)"
+msgid "Embed Chatbot External Sites"
 msgstr ""
 
 msgid "PDF Download of Transcripts"
 msgstr ""
 
-msgid "Index Custom Post Types"
-msgstr ""
-
-msgid "RSS, URL & Google Sheets Import"
-msgstr ""
-
 msgid "Moderation & Consent Compliance"
 msgstr ""
 
-msgid "Priority Email Support"
+msgid "AI Forms Conditional Steps"
 msgstr ""
 
-msgid "AI Forms"
+msgid "Index Custom Post Types"
+msgstr ""
+
+msgid "Content Generation via RSS, URL, and Google Sheets"
+msgstr ""
+
+msgid "Purchasing our plugin does not provide any API credits. It only unlocks the Pro features."
 msgstr ""
 
 msgid "Edit form title"
@@ -1466,6 +1457,33 @@ msgid "Turn forms into guided step-by-step flows."
 msgstr ""
 
 msgid "Show one step at a time with navigation and conditional branching."
+msgstr ""
+
+msgid "Untitled Recipe"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "No connection"
+msgstr ""
+
+msgid "No event"
+msgstr ""
+
+msgid "No action"
+msgstr ""
+
+msgid "All AI Forms"
+msgstr ""
+
+msgid "Validation unavailable."
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Disabled"
 msgstr ""
 
 msgid "Form Elements"
@@ -1855,6 +1873,24 @@ msgstr ""
 msgid "Validate Prompt"
 msgstr ""
 
+msgid "Connected Apps"
+msgstr ""
+
+msgid "Manage in Apps"
+msgstr ""
+
+msgid "No recipes yet"
+msgstr ""
+
+msgid "Save this form to connect apps."
+msgstr ""
+
+msgid "Send AI Form submissions and responses to Slack, HubSpot, Notion, Pipedrive, Zapier, Make, and n8n."
+msgstr ""
+
+msgid "Supported app destinations"
+msgstr ""
+
 msgid "Parameters"
 msgstr ""
 
@@ -1945,12 +1981,6 @@ msgstr ""
 msgid "Paused"
 msgstr ""
 
-msgid "Disabled"
-msgstr ""
-
-msgid "Enabled"
-msgstr ""
-
 msgid "Enabled (Alternate)"
 msgstr ""
 
@@ -1969,16 +1999,13 @@ msgstr ""
 msgid "WP-Cron appears delayed. Automated tasks run on page loads, so low traffic can delay runs."
 msgstr ""
 
-msgid "Automate"
-msgstr ""
-
 msgid "Edit task name"
 msgstr ""
 
 msgid "New Task"
 msgstr ""
 
-msgid "Add New Task"
+msgid "New Automation"
 msgstr ""
 
 msgid "Cron Status"
@@ -2762,6 +2789,30 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
+msgid "Slack"
+msgstr ""
+
+msgid "HubSpot"
+msgstr ""
+
+msgid "Notion"
+msgstr ""
+
+msgid "Pipedrive"
+msgstr ""
+
+msgid "Zapier"
+msgstr ""
+
+msgid "Make"
+msgstr ""
+
+msgid "n8n"
+msgstr ""
+
+msgid "All Chatbots"
+msgstr ""
+
 msgid "Online"
 msgstr ""
 
@@ -2799,9 +2850,6 @@ msgid "Create new chatbot"
 msgstr ""
 
 msgid "Show chatbot list"
-msgstr ""
-
-msgid "Chatbot"
 msgstr ""
 
 msgid "No chatbots yet"
@@ -2925,6 +2973,12 @@ msgid "Rules"
 msgstr ""
 
 msgid "Create and manage rule-based automations for this chatbot."
+msgstr ""
+
+msgid "No Connected Apps yet for this chatbot."
+msgstr ""
+
+msgid "Send chatbot sessions, questions, responses, and feedback to Slack, HubSpot, Notion, Pipedrive, Make, and n8n."
 msgstr ""
 
 msgid "Safety"
@@ -3440,6 +3494,9 @@ msgid "Enter full URL (e.g., https://.../avatar.png)"
 msgstr ""
 
 msgid "Chatbot name"
+msgstr ""
+
+msgid "Recommended"
 msgstr ""
 
 msgid "(Sync models in main AI Settings)"
@@ -4360,9 +4417,6 @@ msgstr ""
 msgid "Token Usage"
 msgstr ""
 
-msgid "Image Generator"
-msgstr ""
-
 msgid "Configure Shortcode Options"
 msgstr ""
 
@@ -4495,7 +4549,10 @@ msgstr ""
 msgid "Integrations"
 msgstr ""
 
-msgid "REST API"
+msgid "Apps"
+msgstr ""
+
+msgid "Developers"
 msgstr ""
 
 msgid "Others"
@@ -4504,13 +4561,16 @@ msgstr ""
 msgid "Set your default provider, model, API key, and advanced options."
 msgstr ""
 
-msgid "Manage API keys and sync controls for connected providers."
+msgid "Manage provider credentials and sync controls for connected services."
 msgstr ""
 
-msgid "REST API Settings"
+msgid "Developer Settings"
 msgstr ""
 
-msgid "Manage REST API access for external applications."
+msgid "Manage REST API access and outbound event webhook endpoints for developer workflows."
+msgstr ""
+
+msgid "Manage reusable app connections and event-driven recipe automations."
 msgstr ""
 
 msgid "Other Settings"
@@ -4586,6 +4646,9 @@ msgid "Get Key"
 msgstr ""
 
 msgid "Sync available models from Replicate"
+msgstr ""
+
+msgid "REST API"
 msgstr ""
 
 msgid "REST API Key"
@@ -4703,6 +4766,147 @@ msgid "Use this key for external requests."
 msgstr ""
 
 msgid "REST API docs"
+msgstr ""
+
+msgid "Connection details saved."
+msgstr ""
+
+msgid "Test Connection"
+msgstr ""
+
+msgid "Untitled Connection"
+msgstr ""
+
+msgid "Select an app and auth type."
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Sales Slack"
+msgstr ""
+
+msgid "App"
+msgstr ""
+
+msgid "Auth Type"
+msgstr ""
+
+msgid "Connection details"
+msgstr ""
+
+msgid "App Connections"
+msgstr ""
+
+msgid "Create reusable app connections."
+msgstr ""
+
+msgid "Add Connection"
+msgstr ""
+
+msgid "Delivery Issues"
+msgstr ""
+
+msgid "Showing the 5 most recent failed recipe deliveries."
+msgstr ""
+
+msgid "Clear removes items from this list immediately. Old rows are still purged automatically by retention cleanup."
+msgstr ""
+
+msgid "Clear All"
+msgstr ""
+
+msgid "Reauth Required"
+msgstr ""
+
+msgid "Recipe"
+msgstr ""
+
+msgid "Replay"
+msgstr ""
+
+msgid "Slack alerts and team notifications."
+msgstr ""
+
+msgid "HubSpot contacts and CRM handoff."
+msgstr ""
+
+msgid "Notion pages and database items."
+msgstr ""
+
+msgid "Pipedrive people and pipeline-ready leads."
+msgstr ""
+
+msgid "Zapier webhook-based automation flows."
+msgstr ""
+
+msgid "Make scenarios triggered by events."
+msgstr ""
+
+msgid "n8n webhook workflows."
+msgstr ""
+
+msgid "Task Automation"
+msgstr ""
+
+msgid "Connect apps and automate real workflows."
+msgstr ""
+
+msgid "Turn AI Puffer events into connected app actions with reusable connections and recipe templates."
+msgstr ""
+
+msgid "Supported apps"
+msgstr ""
+
+msgid "Supported modules"
+msgstr ""
+
+msgid "Automated Tasks"
+msgstr ""
+
+msgid "Endpoint"
+msgstr ""
+
+msgid "https://example.com/webhooks/aipkit"
+msgstr ""
+
+msgid "Subscribed Events"
+msgstr ""
+
+msgid "Webhook endpoint"
+msgstr ""
+
+msgid "Webhook delivery failed."
+msgstr ""
+
+msgid "Event Webhooks"
+msgstr ""
+
+msgid "Enable outbound event webhooks."
+msgstr ""
+
+msgid "Signing Secret"
+msgstr ""
+
+msgid "Sign outgoing webhook requests."
+msgstr ""
+
+msgid "Enter a shared secret"
+msgstr ""
+
+msgid "Endpoints"
+msgstr ""
+
+msgid "Choose events for each endpoint."
+msgstr ""
+
+msgid "Add Endpoint"
+msgstr ""
+
+msgid "Webhook Delivery Issues"
+msgstr ""
+
+msgid "Showing the 5 most recent failed webhook deliveries."
 msgstr ""
 
 msgid "Choose integration to edit."
@@ -4897,6 +5101,131 @@ msgstr ""
 msgid "Choose the default AI provider."
 msgstr ""
 
+msgid "Other"
+msgstr ""
+
+msgid "Other Sources"
+msgstr ""
+
+msgid "Core Sources"
+msgstr ""
+
+msgid "Target Field"
+msgstr ""
+
+msgid "-- Select Target --"
+msgstr ""
+
+msgid "Source Field"
+msgstr ""
+
+msgid "-- Select Source --"
+msgstr ""
+
+msgid "Transform"
+msgstr ""
+
+msgid "Fallback Value"
+msgstr ""
+
+msgid "Optional fallback."
+msgstr ""
+
+msgid "Required"
+msgstr ""
+
+#. translators: %d: chatbot post ID
+msgid "Chatbot #%d"
+msgstr ""
+
+#. translators: %d: number of selected chatbots
+msgid "%d Chatbots"
+msgstr ""
+
+#. translators: %d: AI Form post ID
+msgid "AI Form #%d"
+msgstr ""
+
+#. translators: %d: number of selected AI Forms
+msgid "%d AI Forms"
+msgstr ""
+
+msgid "Event Record"
+msgstr ""
+
+msgid "Ready"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Disable"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Choose what should trigger this recipe."
+msgstr ""
+
+msgid "Choose where the event should go."
+msgstr ""
+
+msgid "Action"
+msgstr ""
+
+msgid "Choose what the app should do."
+msgstr ""
+
+msgid "Connection"
+msgstr ""
+
+msgid "Choose a connection for this app."
+msgstr ""
+
+msgid "-- Select Connection --"
+msgstr ""
+
+msgid "New Recipe"
+msgstr ""
+
+msgid "Chatbot Scope"
+msgstr ""
+
+msgid "Optionally limit this recipe to one chatbot."
+msgstr ""
+
+msgid "AI Form Scope"
+msgstr ""
+
+msgid "Optionally limit this recipe to one AI Form."
+msgstr ""
+
+msgid "Field Mapping"
+msgstr ""
+
+#. translators: %s: mapping object label
+msgid "Map this %s into the destination app."
+msgstr ""
+
+msgid "Add Mapping"
+msgstr ""
+
+msgid "Recipes"
+msgstr ""
+
+msgid "Create event-to-app recipes."
+msgstr ""
+
+msgid "Add Blank"
+msgstr ""
+
+msgid "Start With Template"
+msgstr ""
+
+msgid "Use Template"
+msgstr ""
+
 msgid "Harassment"
 msgstr ""
 
@@ -5067,6 +5396,9 @@ msgid "60 Days"
 msgstr ""
 
 msgid "90 Days"
+msgstr ""
+
+msgid "Automate"
 msgstr ""
 
 msgid "Unknown"
@@ -5246,9 +5578,6 @@ msgstr ""
 msgid "View AI Form"
 msgstr ""
 
-msgid "All AI Forms"
-msgstr ""
-
 msgid "Search AI Forms"
 msgstr ""
 
@@ -5403,6 +5732,13 @@ msgstr ""
 msgid "Task status updated successfully."
 msgstr ""
 
+#. translators: %s: automated task name
+msgid "Queue item for %s"
+msgstr ""
+
+msgid "Automated task queue item"
+msgstr ""
+
 msgid "License is not active."
 msgstr ""
 
@@ -5420,6 +5756,9 @@ msgid "unknown model"
 msgstr ""
 
 msgid "Image generation component is missing."
+msgstr ""
+
+msgid "Generated content"
 msgstr ""
 
 #. translators: %s: warning details about image generation
@@ -5601,6 +5940,13 @@ msgid "(Deleted User)"
 msgstr ""
 
 msgid "Guest"
+msgstr ""
+
+#. translators: %s: chatbot title
+msgid "Feedback for %s"
+msgstr ""
+
+msgid "Chatbot feedback"
 msgstr ""
 
 msgid "User or Session ID is required."
@@ -8228,6 +8574,57 @@ msgstr ""
 msgid "No snippet available."
 msgstr ""
 
+msgid "Failed to encode webhook payload."
+msgstr ""
+
+#. translators: %d: HTTP response code
+msgid "Webhook returned HTTP %d."
+msgstr ""
+
+msgid "Event name is required."
+msgstr ""
+
+#. translators: %s: event name
+msgid "Unsupported event: %s"
+msgstr ""
+
+msgid "Event queue payload is missing required identifiers."
+msgstr ""
+
+msgid "Failed to encode the event envelope for queue storage."
+msgstr ""
+
+msgid "Failed to queue the emitted event."
+msgstr ""
+
+msgid "Queue job exceeded stale-processing recovery attempts."
+msgstr ""
+
+msgid "Recovered stale queue job after worker timeout."
+msgstr ""
+
+#. translators: %d: remaining endpoint count
+msgid " +%d more"
+msgstr ""
+
+msgid "Unauthorized event queue worker request."
+msgstr ""
+
+msgid "Event queue processing is not enabled yet."
+msgstr ""
+
+msgid "Queued event payload is incomplete."
+msgstr ""
+
+msgid "Event delivery worker processing failed."
+msgstr ""
+
+msgid "Retrying failed webhook delivery."
+msgstr ""
+
+msgid "Event delivery failed after retry attempts were exhausted."
+msgstr ""
+
 msgid "You are a helpful AI Assistant."
 msgstr ""
 
@@ -8407,9 +8804,6 @@ msgstr ""
 msgid "No embedding data found in Google response."
 msgstr ""
 
-msgid "Warning"
-msgstr ""
-
 msgid "Note"
 msgstr ""
 
@@ -8461,9 +8855,6 @@ msgid "Refusal"
 msgstr ""
 
 msgid "Response failed"
-msgstr ""
-
-msgid "Error"
 msgstr ""
 
 msgid "OpenRouter Base URL is required."
@@ -8545,6 +8936,20 @@ msgstr ""
 msgid "API key missing for %s."
 msgstr ""
 
+#. translators: %s: chatbot name
+msgid "Conversation started for %s"
+msgstr ""
+
+msgid "Chat session started"
+msgstr ""
+
+#. translators: %s: chatbot name
+msgid "User message to %s"
+msgstr ""
+
+msgid "Chat user message"
+msgstr ""
+
 msgid "Form display requested by trigger."
 msgstr ""
 
@@ -8594,6 +8999,20 @@ msgstr ""
 msgid "Critical error: Stream processing cannot start."
 msgstr ""
 
+#. translators: %s: AI Form title
+msgid "Submission for %s"
+msgstr ""
+
+msgid "AI Form submission"
+msgstr ""
+
+#. translators: %s: chatbot name
+msgid "Response from %s"
+msgstr ""
+
+msgid "Chat response generated"
+msgstr ""
+
 msgid "Message cache key is missing."
 msgstr ""
 
@@ -8631,6 +9050,36 @@ msgid "Access disabled for guests."
 msgstr ""
 
 msgid "Access disabled for your account/role."
+msgstr ""
+
+msgid "Webhook delivery issue ID is required."
+msgstr ""
+
+msgid "The selected webhook delivery issue is not available for retry."
+msgstr ""
+
+msgid "Failed to prepare the webhook delivery issue for retry."
+msgstr ""
+
+msgid "Failed to claim the webhook delivery issue for retry."
+msgstr ""
+
+msgid "Webhook delivery retry succeeded."
+msgstr ""
+
+msgid "Webhook delivery retry failed again."
+msgstr ""
+
+msgid "Webhook delivery retry was queued."
+msgstr ""
+
+msgid "The selected webhook delivery issue is not available to clear."
+msgstr ""
+
+msgid "Failed to clear the selected webhook delivery issue."
+msgstr ""
+
+msgid "Webhook delivery issue cleared."
 msgstr ""
 
 msgid "Invalid provider selection."
@@ -10243,6 +10692,9 @@ msgstr ""
 msgid "Listing files is not supported by this provider strategy."
 msgstr ""
 
+msgid "KB source"
+msgstr ""
+
 msgid "Vector store provider is required."
 msgstr ""
 
@@ -10919,6 +11371,775 @@ msgstr ""
 msgid "Permission denied. Ensure the sheet is shared with the service account email."
 msgstr ""
 
+msgid "Connection ID is required."
+msgstr ""
+
+msgid "Recipe connection could not be resolved."
+msgstr ""
+
+msgid "Recipe app and connection app do not match."
+msgstr ""
+
+msgid "The selected app connection is disabled."
+msgstr ""
+
+#. translators: %s: action slug
+msgid "Recipe action `%s` is not supported yet."
+msgstr ""
+
+msgid "AIPKit event received."
+msgstr ""
+
+msgid "Slack webhook auth requires a webhook URL."
+msgstr ""
+
+msgid "Slack needs either a webhook URL or a bot token with a default channel."
+msgstr ""
+
+msgid "Slack message sent."
+msgstr ""
+
+msgid "Slack rejected the message."
+msgstr ""
+
+msgid "HubSpot contact upsert requires an email mapping."
+msgstr ""
+
+msgid "HubSpot private app token is required."
+msgstr ""
+
+msgid "HubSpot contact synced."
+msgstr ""
+
+msgid "HubSpot did not return a contact result."
+msgstr ""
+
+msgid "AIPKit Recipe Page"
+msgstr ""
+
+msgid "Notion page creation needs an integration token and parent page ID."
+msgstr ""
+
+msgid "Notion page created."
+msgstr ""
+
+msgid "Notion did not return a page ID."
+msgstr ""
+
+msgid "Notion database items need an integration token and database ID."
+msgstr ""
+
+msgid "No valid Notion database properties could be built from the current mapping."
+msgstr ""
+
+msgid "Notion database item created."
+msgstr ""
+
+msgid "Notion did not return a database item ID."
+msgstr ""
+
+msgid "Pipedrive person recipes need an API token and company domain."
+msgstr ""
+
+msgid "Pipedrive person recipes need a Name mapping."
+msgstr ""
+
+msgid "Pipedrive person synced."
+msgstr ""
+
+msgid "Pipedrive did not return a person result."
+msgstr ""
+
+msgid "This recipe needs a webhook URL on the selected app connection."
+msgstr ""
+
+#. translators: %s: app label
+msgid "%s webhook delivered."
+msgstr ""
+
+msgid "Pipedrive organization created."
+msgstr ""
+
+msgid "Pipedrive did not return an organization result."
+msgstr ""
+
+msgid "Slack webhook delivered."
+msgstr ""
+
+msgid "Recipe executed successfully."
+msgstr ""
+
+#. translators: %d: HTTP status code
+msgid "Remote request failed with HTTP %d."
+msgstr ""
+
+msgid "Destination endpoint is missing."
+msgstr ""
+
+msgid "The app request could not reach the remote destination."
+msgstr ""
+
+msgid "The app request failed after all retry attempts."
+msgstr ""
+
+msgid "AIPKit Item"
+msgstr ""
+
+msgid "Ready to Test"
+msgstr ""
+
+msgid "Credentials saved. Run a live connection test."
+msgstr ""
+
+msgid "Webhook connection is ready. Delivery is verified at runtime."
+msgstr ""
+
+msgid "This app uses runtime delivery without a live auth test."
+msgstr ""
+
+msgid "Connected"
+msgstr ""
+
+msgid "Connection verified successfully."
+msgstr ""
+
+#. translators: %s: Date/time string
+msgid "Last tested %s."
+msgstr ""
+
+msgid "Reconnect or refresh this app connection."
+msgstr ""
+
+msgid "Connection Error"
+msgstr ""
+
+msgid "The last connection test failed."
+msgstr ""
+
+msgid "Retest Connection"
+msgstr ""
+
+msgid "Add a Slack webhook URL before using this connection."
+msgstr ""
+
+msgid "Add a Slack bot token before using this connection."
+msgstr ""
+
+msgid "Add a Slack default channel before using this connection."
+msgstr ""
+
+msgid "Add a Zapier webhook URL before using this connection."
+msgstr ""
+
+msgid "Add a Make webhook URL before using this connection."
+msgstr ""
+
+msgid "Add an n8n webhook URL before using this connection."
+msgstr ""
+
+msgid "App connection not found."
+msgstr ""
+
+msgid "Slack webhook connections do not support live auth testing."
+msgstr ""
+
+msgid "Add a Slack bot token to run a live connection test."
+msgstr ""
+
+msgid "Add a Slack default channel to run a live connection test."
+msgstr ""
+
+msgid "Add a HubSpot private app token to test this connection."
+msgstr ""
+
+msgid "Add a Notion integration token to test this connection."
+msgstr ""
+
+msgid "Add a Pipedrive API token to test this connection."
+msgstr ""
+
+msgid "Add a Pipedrive company domain to test this connection."
+msgstr ""
+
+msgid "This app does not support live auth testing yet."
+msgstr ""
+
+msgid "Slack connection test failed to reach the API."
+msgstr ""
+
+msgid "Connected to %1$s as %2$s. Verified channel %3$s."
+msgstr ""
+
+msgid "Connected to %1$s. Verified channel %2$s."
+msgstr ""
+
+msgid "Slack connection test failed: %s."
+msgstr ""
+
+msgid "AIPKit Slack connection test. This message will be removed automatically."
+msgstr ""
+
+msgid "Slack channel test failed: %s."
+msgstr ""
+
+msgid "Slack channel was verified, but the temporary test message could not be removed automatically."
+msgstr ""
+
+msgid "Connected to HubSpot portal %s."
+msgstr ""
+
+msgid "Connected to HubSpot."
+msgstr ""
+
+msgid "HubSpot connection test failed."
+msgstr ""
+
+msgid "Connected to Notion as %s."
+msgstr ""
+
+msgid "Connected to Notion."
+msgstr ""
+
+msgid "Notion connection test failed."
+msgstr ""
+
+msgid "Enter a valid Pipedrive company domain."
+msgstr ""
+
+msgid "Connected to Pipedrive as %s."
+msgstr ""
+
+msgid "Connected to Pipedrive."
+msgstr ""
+
+msgid "Pipedrive connection test failed."
+msgstr ""
+
+msgid "Connection test failed to reach the remote app API."
+msgstr ""
+
+msgid "Webhook"
+msgstr ""
+
+msgid "Token"
+msgstr ""
+
+msgid "OAuth 2"
+msgstr ""
+
+msgid "Default Channel"
+msgstr ""
+
+msgid "Webhook URL"
+msgstr ""
+
+msgid "Bot Token"
+msgstr ""
+
+msgid "Private App Token"
+msgstr ""
+
+msgid "Portal ID"
+msgstr ""
+
+msgid "Default List ID"
+msgstr ""
+
+msgid "Integration Token"
+msgstr ""
+
+msgid "Parent Page ID"
+msgstr ""
+
+msgid "Enter parent page ID"
+msgstr ""
+
+msgid "Database ID"
+msgstr ""
+
+msgid "Target database for items"
+msgstr ""
+
+msgid "API Token"
+msgstr ""
+
+msgid "Enter API token"
+msgstr ""
+
+msgid "Company Domain"
+msgstr ""
+
+msgid "Default Owner ID"
+msgstr ""
+
+msgid "Pipeline ID"
+msgstr ""
+
+msgid "Zap Name"
+msgstr ""
+
+msgid "Lead Router"
+msgstr ""
+
+msgid "Scenario Name"
+msgstr ""
+
+msgid "Content Sync"
+msgstr ""
+
+msgid "Workflow Name"
+msgstr ""
+
+msgid "Feedback Intake"
+msgstr ""
+
+msgid "Add the required credentials before testing this connection."
+msgstr ""
+
+msgid "Delivery issues were cleared."
+msgstr ""
+
+msgid "There were no delivery issues to clear."
+msgstr ""
+
+msgid "Delivery issue ID is required."
+msgstr ""
+
+msgid "The selected delivery issue is not available to clear."
+msgstr ""
+
+msgid "Failed to clear the selected delivery issue."
+msgstr ""
+
+msgid "Delivery issue cleared."
+msgstr ""
+
+msgid "The selected delivery issue is not available for replay."
+msgstr ""
+
+msgid "This delivery issue cannot be replayed because the event snapshot is missing."
+msgstr ""
+
+msgid "The original recipe no longer exists."
+msgstr ""
+
+msgid "The recipe connection could not be resolved."
+msgstr ""
+
+msgid "Replay was attempted and failed again."
+msgstr ""
+
+msgid "Replay failed. A new delivery issue was recorded."
+msgstr ""
+
+msgid "Replay succeeded and the delivery issue was resolved."
+msgstr ""
+
+msgid "Replay succeeded. The delivery issue was resolved."
+msgstr ""
+
+msgid "Failed to store the recipe delivery issue."
+msgstr ""
+
+msgid "Delivery issue was cleared manually."
+msgstr ""
+
+msgid "Native App Recipes is not available for the current plan or runtime context."
+msgstr ""
+
+msgid "Recipe is missing one or more required execution fields."
+msgstr ""
+
+msgid "Recipe cannot execute for the supplied event envelope."
+msgstr ""
+
+#. translators: %s: recipe template slug
+msgid "Recipe template `%s` is not registered."
+msgstr ""
+
+msgid "No premium app adapter is registered yet for this recipe action."
+msgstr ""
+
+msgid "Recipe executor returned an invalid result payload."
+msgstr ""
+
+#. translators: 1: target field, 2: source path
+msgid "Missing required mapped value for `%1$s` from `%2$s`."
+msgstr ""
+
+msgid "Recipe template is missing one or more required fields."
+msgstr ""
+
+#. translators: %s: unsupported event name
+msgid "Recipe template references unsupported event `%s`."
+msgstr ""
+
+msgid "HubSpot contact recipes need a private app token."
+msgstr ""
+
+msgid "Notion page recipes need an integration token and parent page ID."
+msgstr ""
+
+msgid "Notion database item recipes need an integration token and database ID."
+msgstr ""
+
+msgid "Zapier webhook recipes need a webhook URL."
+msgstr ""
+
+msgid "Make webhook recipes need a webhook URL."
+msgstr ""
+
+msgid "n8n webhook recipes need a webhook URL."
+msgstr ""
+
+msgid "HubSpot contact recipes need an Email mapping."
+msgstr ""
+
+msgid "This recipe action is not available yet."
+msgstr ""
+
+msgid "Select a connection before enabling this recipe."
+msgstr ""
+
+msgid "The selected app connection could not be resolved."
+msgstr ""
+
+msgid "The selected connection belongs to a different app."
+msgstr ""
+
+msgid "The selected connection is disabled."
+msgstr ""
+
+msgid "Reconnect this app connection before using the recipe."
+msgstr ""
+
+msgid "Connection is saved but has not been verified yet."
+msgstr ""
+
+msgid "Recipe is ready to run."
+msgstr ""
+
+msgid "Slack webhook recipes need a webhook URL."
+msgstr ""
+
+msgid "Slack token recipes need a bot token and default channel."
+msgstr ""
+
+msgid "This app action is missing required connection fields."
+msgstr ""
+
+msgid "This recipe is missing a required field mapping."
+msgstr ""
+
+msgid "%d recipe"
+msgid_plural "%d recipes"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Slack Message"
+msgstr ""
+
+msgid "HubSpot Contact"
+msgstr ""
+
+msgid "Notion Page"
+msgstr ""
+
+msgid "Notion Database Item"
+msgstr ""
+
+msgid "Pipedrive Person"
+msgstr ""
+
+msgid "Zapier Webhook"
+msgstr ""
+
+msgid "Make Webhook"
+msgstr ""
+
+msgid "n8n Webhook"
+msgstr ""
+
+msgid "Conversation Record"
+msgstr ""
+
+msgid "Message Record"
+msgstr ""
+
+msgid "Response Record"
+msgstr ""
+
+msgid "Feedback Record"
+msgstr ""
+
+msgid "Content Record"
+msgstr ""
+
+msgid "Submission Record"
+msgstr ""
+
+msgid "Asset Record"
+msgstr ""
+
+msgid "Chatbot ID"
+msgstr ""
+
+msgid "Chatbot Name"
+msgstr ""
+
+msgid "Conversation ID"
+msgstr ""
+
+msgid "Message Count"
+msgstr ""
+
+msgid "Actor Type"
+msgstr ""
+
+msgid "User ID"
+msgstr ""
+
+msgid "Message ID"
+msgstr ""
+
+msgid "User Message"
+msgstr ""
+
+msgid "User Message ID"
+msgstr ""
+
+msgid "Response ID"
+msgstr ""
+
+msgid "Bot Response"
+msgstr ""
+
+msgid "Post ID"
+msgstr ""
+
+msgid "Post Status"
+msgstr ""
+
+msgid "Post URL"
+msgstr ""
+
+msgid "Task ID"
+msgstr ""
+
+msgid "Queue Item ID"
+msgstr ""
+
+msgid "Task Name"
+msgstr ""
+
+msgid "Task Type"
+msgstr ""
+
+msgid "Target Identifier"
+msgstr ""
+
+msgid "Queue Status"
+msgstr ""
+
+msgid "Attempts"
+msgstr ""
+
+msgid "Result Message"
+msgstr ""
+
+msgid "Generated Post ID"
+msgstr ""
+
+msgid "Content Title"
+msgstr ""
+
+msgid "Content Keywords"
+msgstr ""
+
+msgid "Generation Mode"
+msgstr ""
+
+msgid "Form ID"
+msgstr ""
+
+msgid "Form Name"
+msgstr ""
+
+msgid "Submission ID"
+msgstr ""
+
+msgid "Submission Count"
+msgstr ""
+
+msgid "AI Response"
+msgstr ""
+
+msgid "All Submitted Inputs"
+msgstr ""
+
+msgid "Media Type"
+msgstr ""
+
+msgid "Output Count"
+msgstr ""
+
+msgid "First Image URL"
+msgstr ""
+
+msgid "First Media Library URL"
+msgstr ""
+
+msgid "First Attachment ID"
+msgstr ""
+
+msgid "First Video URL"
+msgstr ""
+
+msgid "Post Title"
+msgstr ""
+
+msgid "Store ID"
+msgstr ""
+
+msgid "Store Name"
+msgstr ""
+
+msgid "Body"
+msgstr ""
+
+msgid "Channel Override"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Icon Emoji"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "First Name"
+msgstr ""
+
+msgid "Last Name"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Company"
+msgstr ""
+
+msgid "Job Title"
+msgstr ""
+
+msgid "Internal Note"
+msgstr ""
+
+msgid "Summary"
+msgstr ""
+
+msgid "Asset URL"
+msgstr ""
+
+msgid "Bot Name"
+msgstr ""
+
+msgid "Organization"
+msgstr ""
+
+msgid "Payload JSON"
+msgstr ""
+
+msgid "No Transform"
+msgstr ""
+
+msgid "JSON Encode"
+msgstr ""
+
+msgid "Join With Line Breaks"
+msgstr ""
+
+msgid "Yes / No"
+msgstr ""
+
+msgid "Lowercase"
+msgstr ""
+
+msgid "Uppercase"
+msgstr ""
+
+msgid "AI Form Inputs"
+msgstr ""
+
+msgid "Conversation"
+msgstr ""
+
+msgid "Actor"
+msgstr ""
+
+#. translators: %s: AI Form field label
+msgid "Input: %s"
+msgstr ""
+
+msgid "AI Form Submission to Slack"
+msgstr ""
+
+msgid "AI Form Submission to HubSpot Contact"
+msgstr ""
+
+msgid "Generated Content to Notion Page"
+msgstr ""
+
+msgid "Generated Content to Slack"
+msgstr ""
+
+msgid "Completed Task to Slack"
+msgstr ""
+
+msgid "Generated Image to Notion"
+msgstr ""
+
+msgid "Indexed KB Source to Slack"
+msgstr ""
+
+msgid "Chat User Message to Slack"
+msgstr ""
+
+msgid "Chat Response to Slack"
+msgstr ""
+
+msgid "Chat Feedback to Notion"
+msgstr ""
+
+msgid "AI Form Submission to Pipedrive Person"
+msgstr ""
+
+msgid "Generated Content to Zapier"
+msgstr ""
+
+msgid "Completed Task to Make"
+msgstr ""
+
+msgid "Chat Session Started to n8n"
+msgstr ""
+
+msgid "Chat Feedback to n8n"
+msgstr ""
+
+msgid "This Chatbot"
+msgstr ""
+
+msgid "Selected Chatbots"
+msgstr ""
+
+msgid "This AI Form"
+msgstr ""
+
+msgid "Selected AI Forms"
+msgstr ""
+
 msgid "Could not read file content."
 msgstr ""
 
@@ -11032,9 +12253,6 @@ msgid "Image editing UI is enabled. Backend editing will be available in the nex
 msgstr ""
 
 msgid "Selected source image preview"
-msgstr ""
-
-msgid "Remove"
 msgstr ""
 
 msgid "(Select Provider)"
@@ -11611,9 +12829,6 @@ msgstr ""
 msgid "vector store"
 msgstr ""
 
-msgid "Connected"
-msgstr ""
-
 msgid "Needs setup"
 msgstr ""
 
@@ -11973,9 +13188,6 @@ msgstr ""
 msgid "Trigger Name"
 msgstr ""
 
-msgid "Event"
-msgstr ""
-
 msgid "Priority"
 msgstr ""
 
@@ -11986,9 +13198,6 @@ msgid "No conditions defined. This trigger will run if the event occurs."
 msgstr ""
 
 msgid "Add Condition"
-msgstr ""
-
-msgid "Action"
 msgstr ""
 
 msgid "Action Type"

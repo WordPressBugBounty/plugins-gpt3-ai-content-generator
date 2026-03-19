@@ -15,6 +15,7 @@ use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder; // AD
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Handler; // Added for images
 use WP_Error;
 use WPAICG\Chat\Storage\LogStorage;
+use WPAICG\Core\AIPKit_Event_Webhooks;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -262,6 +263,59 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
         }
     }
     // --- END REFACTORED SEO LOGIC ---
+
+    if (class_exists(AIPKit_Event_Webhooks::class) && !empty($content)) {
+        $actor_user_id = get_current_user_id();
+        AIPKit_Event_Webhooks::emit(
+            'content.generated',
+            [
+                'title' => $final_title,
+                'content' => $content,
+                'excerpt' => $excerpt,
+                'meta_description' => $meta_description,
+                'focus_keyword' => $focus_keyword,
+                'tags' => $tags,
+                'conversation' => [
+                    'id' => $conversation_uuid,
+                ],
+                'ai' => [
+                    'provider' => $validated_params['provider'],
+                    'model' => $validated_params['model'],
+                ],
+                'input' => [
+                    'keywords' => $keywords_for_prompts,
+                    'source_url' => $validated_params['source_url'] ?? '',
+                    'content_length' => $validated_params['content_length'] ?? '',
+                ],
+                'actor' => [
+                    'type' => $actor_user_id ? 'user' : 'guest',
+                    'user_id' => $actor_user_id ?: null,
+                ],
+            ],
+            [
+                'module' => 'content_writer',
+                'origin' => 'direct_standard',
+                'resource' => [
+                    'type' => 'content_generation',
+                    'id' => $conversation_uuid,
+                    'label' => $final_title !== '' ? $final_title : __('Generated content', 'gpt3-ai-content-generator'),
+                ],
+                'meta' => [
+                    'provider' => $validated_params['provider'],
+                    'model' => $validated_params['model'],
+                    'conversation_uuid' => $conversation_uuid,
+                ],
+                'idempotency_key' => sha1(implode('|', [
+                    'content.generated',
+                    'direct_standard',
+                    $conversation_uuid,
+                    $final_title,
+                    $validated_params['provider'],
+                    $validated_params['model'],
+                ])),
+            ]
+        );
+    }
 
     wp_send_json_success([
         'content' => $content,

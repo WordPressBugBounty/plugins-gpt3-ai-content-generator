@@ -101,8 +101,11 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
                 <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="integrations">
                     <?php esc_html_e('Integrations', 'gpt3-ai-content-generator'); ?>
                 </button>
+                <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="apps">
+                    <span class="aipkit_settings_page_nav_link_label"><?php esc_html_e('Apps', 'gpt3-ai-content-generator'); ?></span>
+                </button>
                 <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="api">
-                    <?php esc_html_e('REST API', 'gpt3-ai-content-generator'); ?>
+                    <?php esc_html_e('Developers', 'gpt3-ai-content-generator'); ?>
                 </button>
                 <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="others">
                     <?php esc_html_e('Others', 'gpt3-ai-content-generator'); ?>
@@ -129,7 +132,7 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
             <section class="aipkit_settings_page_section" data-aipkit-settings-page="integrations" hidden>
                 <header class="aipkit_settings_page_header">
                     <h3 class="aipkit_settings_page_title"><?php esc_html_e('Integrations', 'gpt3-ai-content-generator'); ?></h3>
-                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Manage API keys and sync controls for connected providers.', 'gpt3-ai-content-generator'); ?></p>
+                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Manage provider credentials and sync controls for connected services.', 'gpt3-ai-content-generator'); ?></p>
                 </header>
 
                 <div class="aipkit_settings_simple_form aipkit_settings_simple_form--integrations">
@@ -139,12 +142,25 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
 
             <section class="aipkit_settings_page_section" data-aipkit-settings-page="api" hidden>
                 <header class="aipkit_settings_page_header">
-                    <h3 class="aipkit_settings_page_title"><?php esc_html_e('REST API Settings', 'gpt3-ai-content-generator'); ?></h3>
-                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Manage REST API access for external applications.', 'gpt3-ai-content-generator'); ?></p>
+                    <h3 class="aipkit_settings_page_title"><?php esc_html_e('Developer Settings', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Manage REST API access and outbound event webhook endpoints for developer workflows.', 'gpt3-ai-content-generator'); ?></p>
                 </header>
 
                 <div class="aipkit_settings_simple_form aipkit_settings_simple_form--api">
                     <?php include __DIR__ . '/partials/settings-api-page.php'; ?>
+                </div>
+            </section>
+
+            <section class="aipkit_settings_page_section" data-aipkit-settings-page="apps" hidden>
+                <?php if ($is_pro) : ?>
+                    <header class="aipkit_settings_page_header">
+                        <h3 class="aipkit_settings_page_title"><?php esc_html_e('Apps', 'gpt3-ai-content-generator'); ?></h3>
+                        <p class="aipkit_settings_page_helper"><?php esc_html_e('Manage reusable app connections and event-driven recipe automations.', 'gpt3-ai-content-generator'); ?></p>
+                    </header>
+                <?php endif; ?>
+
+                <div class="aipkit_settings_simple_form aipkit_settings_simple_form--apps">
+                    <?php include __DIR__ . '/partials/settings-apps-page.php'; ?>
                 </div>
             </section>
 

@@ -8,10 +8,12 @@ namespace WPAICG;
 // --- MODIFIED: Use new Token Manager namespace ---
 use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
 // --- END MODIFICATION ---
+use WPAICG\Core\AIPKit_Event_Queue_Worker;
 use WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache;
 use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Scheduler;
 use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Event_Processor;
 use WPAICG\Chat\Storage\LogCronManager; // NEW: For unscheduling
+use WPAICG\Lib\Integrations\Logs\AIPKit_Recipe_Delivery_Log_Maintenance;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -37,6 +39,22 @@ class WP_AI_Content_Generator_Deactivator
         // NEW: Unschedule log pruning cron
         if (class_exists('\\WPAICG\\Chat\\Storage\\LogCronManager')) {
             LogCronManager::unschedule_event();
+        }
+
+        $recipe_log_maintenance_path = WPAICG_PLUGIN_DIR . 'lib/integrations/logs/class-aipkit-recipe-delivery-log-maintenance.php';
+        if (file_exists($recipe_log_maintenance_path) && !class_exists(\WPAICG\Lib\Integrations\Logs\AIPKit_Recipe_Delivery_Log_Maintenance::class)) {
+            require_once $recipe_log_maintenance_path;
+        }
+        if (class_exists('\\WPAICG\\Lib\\Integrations\\Logs\\AIPKit_Recipe_Delivery_Log_Maintenance')) {
+            AIPKit_Recipe_Delivery_Log_Maintenance::unschedule_cleanup();
+        }
+
+        $event_queue_worker_path = WPAICG_PLUGIN_DIR . 'classes/core/class-aipkit-event-queue-worker.php';
+        if (file_exists($event_queue_worker_path) && !class_exists(\WPAICG\Core\AIPKit_Event_Queue_Worker::class)) {
+            require_once $event_queue_worker_path;
+        }
+        if (class_exists('\\WPAICG\\Core\\AIPKit_Event_Queue_Worker')) {
+            AIPKit_Event_Queue_Worker::unschedule_cron();
         }
 
         $automated_task_scheduler_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/class-aipkit-automated-task-scheduler.php';

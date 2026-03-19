@@ -36,6 +36,18 @@ function do_ajax_get_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance): 
     if (is_wp_error($form_data)) {
         $handler_instance->send_wp_error($form_data);
     } else {
-        wp_send_json_success(['form' => $form_data]);
+        $connected_apps = class_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes')
+            && method_exists('\WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes', 'get_ai_form_connected_apps_payload')
+            ? \WPAICG\Lib\Integrations\Recipes\AIPKit_Stored_Recipes::get_ai_form_connected_apps_payload($form_id)
+            : [
+                'count' => 0,
+                'summary' => '',
+                'recipes' => [],
+            ];
+
+        wp_send_json_success([
+            'form' => $form_data,
+            'connected_apps' => $connected_apps,
+        ]);
     }
 }

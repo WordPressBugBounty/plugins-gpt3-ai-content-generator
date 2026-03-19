@@ -14,6 +14,7 @@ require_once $process_path . 'validate-stream-requirements.php';
 require_once $process_path . 'run-token-check.php';
 require_once $process_path . 'run-content-moderation.php';
 require_once $process_path . 'log-user-message.php';
+require_once $process_path . 'emit-chatbot-events.php';
 require_once $process_path . 'trigger-session-start.php';
 require_once $process_path . 'trigger-user-message.php';
 require_once $process_path . 'build-ai-request-data-for-stream.php';
@@ -108,6 +109,21 @@ function process_chat_logic(
     } else {
         $provider_model_info = ['provider' => $bot_settings['provider'] ?? null, 'model' => $bot_settings['model'] ?? null];
     }
+
+    Process\emit_chatbot_user_events_logic(
+        $handlerInstance->get_log_storage(),
+        [
+            'bot_id' => $params['bot_id'],
+            'user_id' => $params['user_id'],
+            'conversation_uuid' => $params['conversation_uuid'],
+            'user_message_text' => $params['user_message_text'],
+            'current_provider' => $provider_model_info['provider'] ?? null,
+            'current_model_id' => $provider_model_info['model'] ?? null,
+            'base_log_data' => $base_log_data,
+        ],
+        $user_log_result,
+        $provider_model_info
+    );
 
     $trigger_context = [
         'bot_id' => $params['bot_id'], 'bot_settings' => $bot_settings, 'user_id' => $params['user_id'], 'session_id' => $params['session_id'],

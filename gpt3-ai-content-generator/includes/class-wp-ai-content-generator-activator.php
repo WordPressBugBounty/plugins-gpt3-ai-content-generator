@@ -137,6 +137,12 @@ class WP_AI_Content_Generator_Activator
         if (function_exists('aipkit_create_rss_history_table')) {
             aipkit_create_rss_history_table();
         }
+        if (function_exists('aipkit_create_event_delivery_queue_table')) {
+            aipkit_create_event_delivery_queue_table();
+        }
+        if (function_exists('aipkit_create_recipe_delivery_logs_table')) {
+            aipkit_create_recipe_delivery_logs_table();
+        }
         if ($switched) {
             restore_current_blog();
         }
