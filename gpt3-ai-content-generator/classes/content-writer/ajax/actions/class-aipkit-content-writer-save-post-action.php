@@ -27,6 +27,9 @@ require_once $logic_path . 'save-seo-meta.php';
 require_once $logic_path . 'save-seo-focus-keyword.php';
 require_once $logic_path . 'set-post-tags.php';
 
+$shared_path = __DIR__ . '/shared/';
+require_once $shared_path . 'update-gsheets-row-status.php';
+
 
 /**
  * Handles the AJAX action for saving generated content as a new WordPress post.
@@ -110,6 +113,11 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
             \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($post_id_result);
         }
         // --- END MODIFICATION ---
+
+        $gsheets_processed_status = Shared\maybe_update_gsheets_row_status_logic($post_data, 'Processed on');
+        if (is_wp_error($gsheets_processed_status)) {
+            error_log('AIPKit Content Writer Google Sheets processed status update failed: ' . $gsheets_processed_status->get_error_message());
+        }
 
         $post_status = get_post_status($post_id_result);
         $view_link = get_permalink($post_id_result);

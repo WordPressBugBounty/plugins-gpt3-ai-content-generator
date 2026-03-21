@@ -18,6 +18,7 @@ require_once $shared_path . 'validate-and-normalize-input.php';
 require_once $shared_path . 'build-prompts.php';
 require_once $shared_path . 'prepare-ai-params.php';
 require_once $shared_path . 'log-initial-request.php';
+require_once $shared_path . 'update-gsheets-row-status.php';
 
 $standard_gen_path = __DIR__ . '/standard-generation/';
 require_once $standard_gen_path . 'call-ai-provider.php';
@@ -47,6 +48,11 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
         }
 
         $this->maybe_extend_execution_limits(300);
+
+        $gsheets_queue_status = Shared\maybe_update_gsheets_row_status_logic($validated_params, 'Queued on');
+        if (is_wp_error($gsheets_queue_status)) {
+            error_log('AIPKit Content Writer Google Sheets queued status update failed: ' . $gsheets_queue_status->get_error_message());
+        }
 
         // 2. Check for required dependencies (AI Caller, Logger)
         if (!$this->ai_caller) {

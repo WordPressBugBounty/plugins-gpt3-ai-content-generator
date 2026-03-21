@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.85\n"
+"Project-Id-Version: AI Puffer – Your AI engine for WordPress (formerly AI Power) 2.3.86\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gpt3-ai-content-generator\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-19T10:56:10+00:00\n"
+"POT-Creation-Date: 2026-03-21T12:25:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: gpt3-ai-content-generator\n"
@@ -6487,6 +6487,22 @@ msgstr ""
 msgid "Invalid post status specified."
 msgstr ""
 
+msgid "Google Sheets status update is missing the sheet ID or row index."
+msgstr ""
+
+msgid "Google Sheets credentials handler is unavailable."
+msgstr ""
+
+msgid "Google Sheets status update is missing valid service account credentials."
+msgstr ""
+
+msgid "Google Sheets parser component is missing."
+msgstr ""
+
+#. translators: %s: Exception message.
+msgid "Failed to update Google Sheets status: %s"
+msgstr ""
+
 msgid "Content title/topic is required."
 msgstr ""
 
@@ -11133,7 +11149,13 @@ msgstr ""
 msgid "Could not read file content or file is empty."
 msgstr ""
 
+msgid "Vector text chunker is not available for Pinecone chat upload."
+msgstr ""
+
 msgid "Invalid embedding provider for Pinecone chat upload."
+msgstr ""
+
+msgid "Could not prepare file chunks for Pinecone chat upload."
 msgstr ""
 
 msgid "Failed to generate vector for file content."
@@ -11160,7 +11182,13 @@ msgstr ""
 msgid "Unsupported file type for Qdrant chat upload. Given: "
 msgstr ""
 
+msgid "Vector text chunker is not available for Qdrant chat upload."
+msgstr ""
+
 msgid "Invalid embedding provider for Qdrant chat upload."
+msgstr ""
+
+msgid "Could not prepare file chunks for Qdrant chat upload."
 msgstr ""
 
 msgid "Identifier utility is missing."
@@ -11347,9 +11375,6 @@ msgstr ""
 msgid "The provided credentials are not in a valid JSON format."
 msgstr ""
 
-msgid "Google Sheets parser component is missing."
-msgstr ""
-
 msgid "Connection successful."
 msgstr ""
 
@@ -11369,6 +11394,19 @@ msgid "Sheet not found or not shared with the service account email."
 msgstr ""
 
 msgid "Permission denied. Ensure the sheet is shared with the service account email."
+msgstr ""
+
+msgid "Google Sheets returned an unexpected values response."
+msgstr ""
+
+#. translators: %s: Network error message returned by WordPress HTTP API.
+msgid "Google Sheets request failed: %s"
+msgstr ""
+
+msgid "Google Sheets returned invalid JSON."
+msgstr ""
+
+msgid "Unknown Google Sheets API error."
 msgstr ""
 
 msgid "Connection ID is required."
@@ -12163,6 +12201,41 @@ msgid "DOCX main document.xml not found."
 msgstr ""
 
 msgid "Failed to read DOCX XML."
+msgstr ""
+
+msgid "Google service account credentials are missing the client email."
+msgstr ""
+
+msgid "Google service account credentials are missing the private key."
+msgstr ""
+
+msgid "Google service account credentials are missing the token URI."
+msgstr ""
+
+msgid "Failed to encode the Google service account JWT payload."
+msgstr ""
+
+msgid "The Google service account private key is invalid."
+msgstr ""
+
+msgid "Failed to sign the Google service account JWT."
+msgstr ""
+
+#. translators: %s: Network error message from WordPress HTTP API.
+msgid "Failed to request a Google access token: %s"
+msgstr ""
+
+#. translators: 1: HTTP status code, 2: Google token endpoint error message.
+msgid "Google token exchange failed (%1$d): %2$s"
+msgstr ""
+
+msgid "The Google token response was not valid JSON."
+msgstr ""
+
+msgid "The Google token response was missing required fields."
+msgstr ""
+
+msgid "Unknown Google token service error."
 msgstr ""
 
 msgid "PDF parsing library is not available."

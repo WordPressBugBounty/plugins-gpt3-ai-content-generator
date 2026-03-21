@@ -6,6 +6,8 @@
 
 namespace WPAICG\ContentWriter\Ajax\Actions\SavePost;
 
+use WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -30,10 +32,16 @@ function extract_post_data_logic(): array
     $sanitized['post_type']    = isset($raw_data['post_type']) ? sanitize_key($raw_data['post_type']) : 'post';
     $sanitized['post_author']  = isset($raw_data['post_author']) ? absint($raw_data['post_author']) : get_current_user_id();
     $sanitized['post_status']  = isset($raw_data['post_status']) ? sanitize_key($raw_data['post_status']) : 'draft';
+    $sanitized['cw_generation_mode'] = isset($raw_data['cw_generation_mode']) ? sanitize_key($raw_data['cw_generation_mode']) : 'task';
     $sanitized['schedule_date'] = isset($raw_data['post_schedule_date']) ? sanitize_text_field($raw_data['post_schedule_date']) : '';
     $sanitized['schedule_time'] = isset($raw_data['post_schedule_time']) ? sanitize_text_field($raw_data['post_schedule_time']) : '';
     $sanitized['generate_toc'] = isset($raw_data['generate_toc']) && $raw_data['generate_toc'] === '1' ? '1' : '0';
     $sanitized['generate_seo_slug'] = isset($raw_data['generate_seo_slug']) && $raw_data['generate_seo_slug'] === '1' ? '1' : '0'; // NEW
+    $sanitized['gsheets_sheet_id'] = isset($raw_data['gsheets_sheet_id']) ? sanitize_text_field($raw_data['gsheets_sheet_id']) : '';
+    $sanitized['gsheets_row_index'] = isset($raw_data['gsheets_row_index']) ? absint($raw_data['gsheets_row_index']) : 0;
+    $sanitized['gsheets_credentials'] = class_exists(AIPKit_Google_Credentials_Handler::class)
+        ? AIPKit_Google_Credentials_Handler::process_credentials($raw_data['gsheets_credentials'] ?? null)
+        : null;
 
     $category_ids_from_post = isset($raw_data['post_categories']) && is_array($raw_data['post_categories'])
         ? array_map('absint', $raw_data['post_categories'])
