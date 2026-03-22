@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.86
+Stable tag: 2.3.87
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,10 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 
 == Changelog ==
 
+= 2.3.87 =
+
+Performance improvements.
+
 = 2.3.86 =
 
 Performance improvements.
@@ -224,50 +228,3 @@ Capabilities:
 - Generate content and run chatbot conversations with Claude.
 - Analyze images in Chatbot with Claude vision support.
 - Use chatbot file uploads with Claude Files.
-
-= 2.3.69 =
-
-- Our new name is now AI Puffeer with a cute puffer fish.
-- Fixed conversation titles in the chatbot sidebar.
-
-= 2.3.68 =
-
-- **Improved**: OpenAI streaming now sends small status updates to keep streams stable.
-- **Improved**: Increased default SSE timeout for AI Forms and Content Writer (can be changed with `aipkit_stream_timeout` filter).
-
-= 2.3.67 =
-
-- **Fixed**: Chatbot webhooks now send reliably (including JSON body payloads).
-- **Fixed**: AutoGPT prompt placeholders now update correctly by task type.
-
-= 2.3.66 =
-
-- **Improved**: Moved assistant settings from Dashboard into the Content Writer module.
-- **Improved**: UI/UX improvements for the Content Assistant, the post list assistant modal, and the “Add to Vector Store” modal.
-- **Fixed**: Chat logs pagination now renders correctly.
-- **Fixed**: Reasoning effort options now align with OpenAI model rules (e.g., minimal mapped to low).
-
-= 2.3.65 =
-
-- **Improved**: Automated Tasks UI polish.
-
-= 2.3.64 =
-
-- **Improved**: Chatbot custom themes.
-
-= 2.3.63 =
-
-- **Improved**: Chatbot custom themes.
-
-= 2.3.62 =
-
-- - **Fixed**: Chatbot theme override issues.
-
-= 2.3.61 =
-
-- **Improved**: Image Generator UI polish.
-
-= 2.3.60 =
-
-- **Improved**: AI Forms UI polish.
-- **Improved**: Pinecone vector store operations now cache index overview for fewer API calls.
