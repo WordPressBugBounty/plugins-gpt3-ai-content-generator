@@ -5,6 +5,7 @@ namespace WPAICG\Core;
 // Use statements for the new checker components
 use WPAICG\Core\Moderation\AIPKit_BannedIP_Checker;
 use WPAICG\Core\Moderation\AIPKit_BannedWords_Checker;
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Core\Moderation\AIPKit_OpenAI_Moderation_Checker;
 use WP_Error;
 
@@ -26,46 +27,36 @@ class AIPKit_Content_Moderator {
      * @param array $context Associative array containing context information.
      *                      Expected keys:
      *                      - 'client_ip': (string) The IP address of the user making the request.
-     *                      - 'bot_settings': (array) Settings of the current bot (needed for OpenAI provider check).
-     *                      - 'banned_ips_settings': (array) Optional override for banned IP settings.
-     *                      - 'banned_words_settings': (array) Optional override for banned words settings.
-     *                      - 'skip_banned_checks': (bool) Optional flag to skip banned words/IP checks.
+     *                      - 'module': (string) The current module slug (e.g. chat, image_generator, ai_forms).
+     *                      - 'bot_settings': (array) Current request settings/context (provider and module-specific options).
      * @return WP_Error|null Returns a WP_Error if the content is flagged (with user-facing message),
      *                       or null if the content passes all checks or moderation is not applicable/failed internally.
      */
     public static function check_content(string $text, array $context = []): ?WP_Error {
         $client_ip = $context['client_ip'] ?? null;
+        $module = isset($context['module']) ? sanitize_key((string) $context['module']) : 'chat';
         $bot_settings = $context['bot_settings'] ?? [];
-        $skip_banned_checks = !empty($context['skip_banned_checks']);
+        $global_blocklists = class_exists(AIPKit_Global_Security_Settings::class)
+            ? AIPKit_Global_Security_Settings::get_blocklists_for_module($module)
+            : [
+                'banned_ips_settings' => ['ips' => '', 'message' => ''],
+                'banned_words_settings' => ['words' => '', 'message' => ''],
+            ];
 
-        if (!$skip_banned_checks) {
-            $banned_ips_settings = $context['banned_ips_settings']
-                ?? [
-                    'ips' => $bot_settings['banned_ips'] ?? '',
-                    'message' => $bot_settings['banned_ips_message'] ?? '',
-                ];
-            if (!is_array($banned_ips_settings)) {
-                $banned_ips_settings = ['ips' => '', 'message' => ''];
-            }
+        $banned_ips_settings = isset($global_blocklists['banned_ips_settings']) && is_array($global_blocklists['banned_ips_settings'])
+            ? $global_blocklists['banned_ips_settings']
+            : ['ips' => '', 'message' => ''];
+        $ip_check_result = AIPKit_BannedIP_Checker::check($client_ip, $banned_ips_settings);
+        if (is_wp_error($ip_check_result)) {
+            return $ip_check_result;
+        }
 
-            $ip_check_result = AIPKit_BannedIP_Checker::check($client_ip, $banned_ips_settings);
-            if (is_wp_error($ip_check_result)) {
-                return $ip_check_result;
-            }
-
-            $banned_words_settings = $context['banned_words_settings']
-                ?? [
-                    'words' => $bot_settings['banned_words'] ?? '',
-                    'message' => $bot_settings['banned_words_message'] ?? '',
-                ];
-            if (!is_array($banned_words_settings)) {
-                $banned_words_settings = ['words' => '', 'message' => ''];
-            }
-
-            $words_check_result = AIPKit_BannedWords_Checker::check($text, $banned_words_settings);
-            if (is_wp_error($words_check_result)) {
-                return $words_check_result;
-            }
+        $banned_words_settings = isset($global_blocklists['banned_words_settings']) && is_array($global_blocklists['banned_words_settings'])
+            ? $global_blocklists['banned_words_settings']
+            : ['words' => '', 'message' => ''];
+        $words_check_result = AIPKit_BannedWords_Checker::check($text, $banned_words_settings);
+        if (is_wp_error($words_check_result)) {
+            return $words_check_result;
         }
 
         // OpenAI Moderation API Check (delegates to a checker that uses the Pro Addon Helper)

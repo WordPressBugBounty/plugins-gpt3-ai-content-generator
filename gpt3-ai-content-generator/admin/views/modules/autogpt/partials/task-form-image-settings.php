@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+$image_provider_settings_url = admin_url('admin.php?page=wpaicg');
 
 ?>
 <div id="aipkit_task_form_image_settings" class="aipkit_task_config_section">
@@ -29,7 +30,7 @@ if (!defined('ABSPATH')) {
         <div class="aipkit_form-row">
             <div class="aipkit_form-group aipkit_form-col">
                 <label class="aipkit_form-label" for="aipkit_task_cw_image_provider"><?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?></label>
-                <select id="aipkit_task_cw_image_provider" name="image_provider" class="aipkit_form-input" data-aipkit-provider-notice-target="aipkit_provider_notice_autogpt" data-aipkit-provider-notice-defer="1">
+                <select id="aipkit_task_cw_image_provider" name="image_provider" class="aipkit_form-input">
                     <option value="openai" selected>OpenAI</option>
                     <option value="google">Google</option>
                     <option value="openrouter">OpenRouter</option>
@@ -81,6 +82,27 @@ if (!defined('ABSPATH')) {
                     <option value="center"><?php esc_html_e('Center', 'gpt3-ai-content-generator'); ?></option>
                     <option value="right"><?php esc_html_e('Right', 'gpt3-ai-content-generator'); ?></option>
                 </select>
+            </div>
+        </div>
+        <div
+            id="aipkit_task_cw_replicate_notice"
+            class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_task_cw_image_provider_notice"
+            hidden
+        >
+            <div class="aipkit_notification_bar__icon" aria-hidden="true">
+                <span class="dashicons dashicons-warning"></span>
+            </div>
+            <div class="aipkit_notification_bar__content">
+                <p><?php esc_html_e('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?></p>
+            </div>
+            <div class="aipkit_notification_bar__actions">
+                <a
+                    href="<?php echo esc_url($image_provider_settings_url); ?>"
+                    class="aipkit_btn aipkit_provider_notice_settings_link"
+                    data-aipkit-load-module="settings"
+                >
+                    <?php esc_html_e('Open Settings', 'gpt3-ai-content-generator'); ?>
+                </a>
             </div>
         </div>
         <div class="aipkit_form-row" id="aipkit_task_cw_pexels_options" style="display: none;">

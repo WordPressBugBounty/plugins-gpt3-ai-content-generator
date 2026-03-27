@@ -11,7 +11,7 @@ use WPAICG\Chat\Storage\LogManager; // NEW: For pruning
 use WPAICG\Chat\Utils\LogStatusRenderer; // For cron status display
 use WPAICG\Chat\Utils\LogConfig; // For centralized configuration
 use WPAICG\aipkit_dashboard;
-use WPAICG\Chat\Admin\AdminSetup;
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WP_Error; // Added use statement
 
 if (!defined('ABSPATH')) {
@@ -49,22 +49,24 @@ class LogAjaxHandler extends BaseAjaxHandler
         $post_data = wp_unslash($_POST);
         $ip_to_toggle = isset($post_data['ip']) ? sanitize_text_field($post_data['ip']) : '';
         $is_currently_banned = isset($post_data['is_banned']) ? ($post_data['is_banned'] === 'true') : false;
-        $bot_id = isset($post_data['bot_id']) ? absint($post_data['bot_id']) : 0;
 
         if (empty($ip_to_toggle) || !filter_var($ip_to_toggle, FILTER_VALIDATE_IP)) {
             $this->send_wp_error(new WP_Error('invalid_ip', __('Invalid IP address provided.', 'gpt3-ai-content-generator')), 400);
             return;
         }
 
-        if (empty($bot_id) || !class_exists(AdminSetup::class) || get_post_type($bot_id) !== AdminSetup::POST_TYPE) {
-            $this->send_wp_error(new WP_Error('invalid_bot', __('Invalid chatbot for IP block.', 'gpt3-ai-content-generator')), 400);
+        if (!class_exists(AIPKit_Global_Security_Settings::class)) {
+            $this->send_wp_error(new WP_Error('security_settings_missing', __('Global security settings are unavailable.', 'gpt3-ai-content-generator')), 500);
             return;
         }
 
-        $banned_ips_raw = get_post_meta($bot_id, '_aipkit_banned_ips', true);
-        if (!is_string($banned_ips_raw)) {
-            $banned_ips_raw = '';
-        }
+        $security_settings = AIPKit_Global_Security_Settings::get_settings();
+        $blocklists = isset($security_settings['blocklists']) && is_array($security_settings['blocklists'])
+            ? $security_settings['blocklists']
+            : [];
+        $banned_ips_raw = isset($blocklists['banned_ips']) && is_string($blocklists['banned_ips'])
+            ? $blocklists['banned_ips']
+            : '';
 
         $banned_ips_list = array_map('trim', explode(',', $banned_ips_raw));
         $banned_ips_list = array_filter($banned_ips_list, 'strlen');
@@ -90,7 +92,8 @@ class LogAjaxHandler extends BaseAjaxHandler
         }
 
         $new_banned_ips_string = implode(', ', array_unique($banned_ips_list));
-        update_post_meta($bot_id, '_aipkit_banned_ips', $new_banned_ips_string);
+        $security_settings['blocklists']['banned_ips'] = $new_banned_ips_string;
+        AIPKit_Global_Security_Settings::save_settings($security_settings);
 
         wp_send_json_success([
             'message' => $message,

@@ -17,10 +17,9 @@ $default_image_prompt = AIPKit_Content_Writer_Prompts::get_default_image_prompt(
 $default_featured_image_prompt = AIPKit_Content_Writer_Prompts::get_default_featured_image_prompt();
 $pexels_data = AIPKit_Providers::get_provider_data('Pexels');
 $pixabay_data = AIPKit_Providers::get_provider_data('Pixabay');
-$replicate_data = AIPKit_Providers::get_provider_data('Replicate');
 $current_pexels_api_key = $pexels_data['api_key'] ?? '';
 $current_pixabay_api_key = $pixabay_data['api_key'] ?? '';
-$current_replicate_api_key = $replicate_data['api_key'] ?? '';
+$image_provider_settings_url = admin_url('admin.php?page=wpaicg');
 
 $render_prompt_library_options = static function (array $options): void {
     foreach ($options as $option) {
@@ -115,8 +114,6 @@ $render_prompt_library_options = static function (array $options): void {
                             id="aipkit_task_cw_image_provider"
                             name="image_provider"
                             class="aipkit_image_settings_select"
-                            data-aipkit-provider-notice-target="aipkit_provider_notice_autogpt"
-                            data-aipkit-provider-notice-defer="1"
                         >
                             <optgroup label="<?php echo esc_attr__('AI Providers', 'gpt3-ai-content-generator'); ?>">
                                 <option value="openai" selected>OpenAI</option>
@@ -146,40 +143,27 @@ $render_prompt_library_options = static function (array $options): void {
                     </div>
                 </div>
 
-                <div class="aipkit_image_provider_options" id="aipkit_task_cw_replicate_options" style="display: none;">
-                    <div class="aipkit_image_provider_header">
-                        <span class="aipkit_image_provider_badge aipkit_image_provider_badge--replicate">
-                            <span class="dashicons dashicons-controls-play" aria-hidden="true"></span>
-                            Replicate
-                        </span>
+                <div
+                    id="aipkit_task_cw_replicate_notice"
+                    class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_task_cw_image_provider_notice"
+                    hidden
+                >
+                    <div class="aipkit_notification_bar__icon" aria-hidden="true">
+                        <span class="dashicons dashicons-warning"></span>
                     </div>
-
-                    <div class="aipkit_image_api_key_row">
-                        <label class="aipkit_image_settings_label" for="aipkit_task_cw_replicate_api_key">
-                            <?php esc_html_e('API Key', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <div class="aipkit_image_api_key_input">
-                            <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                                <input
-                                    type="password"
-                                    id="aipkit_task_cw_replicate_api_key"
-                                    name="replicate_api_key"
-                                    class="aipkit_form-input aipkit_image_settings_input aipkit_task_cw_replicate_api_key"
-                                    value="<?php echo esc_attr($current_replicate_api_key); ?>"
-                                    placeholder="<?php esc_attr_e('Enter API key', 'gpt3-ai-content-generator'); ?>"
-                                    autocomplete="new-password"
-                                    data-lpignore="true"
-                                    data-1p-ignore="true"
-                                />
-                                <span class="aipkit_api-key-toggle">
-                                    <span class="dashicons dashicons-visibility"></span>
-                                </span>
-                            </div>
-                            <a href="https://replicate.com/account/api-tokens" target="_blank" rel="noopener noreferrer" class="aipkit_image_get_key_link">
-                                <?php esc_html_e('Get key', 'gpt3-ai-content-generator'); ?>
-                                <span class="dashicons dashicons-external" aria-hidden="true"></span>
-                            </a>
-                        </div>
+                    <div class="aipkit_notification_bar__content">
+                        <p>
+                            <?php esc_html_e('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>
+                        </p>
+                    </div>
+                    <div class="aipkit_notification_bar__actions">
+                        <a
+                            href="<?php echo esc_url($image_provider_settings_url); ?>"
+                            class="aipkit_btn aipkit_provider_notice_settings_link"
+                            data-aipkit-load-module="settings"
+                        >
+                            <?php esc_html_e('Open Settings', 'gpt3-ai-content-generator'); ?>
+                        </a>
                     </div>
                 </div>
 

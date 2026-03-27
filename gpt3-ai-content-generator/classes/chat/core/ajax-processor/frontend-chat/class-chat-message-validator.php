@@ -101,14 +101,7 @@ class ChatMessageValidator
             $moderation_context = [
                 'client_ip' => $client_ip,
                 'bot_settings' => $bot_settings,
-                'banned_ips_settings' => [
-                    'ips' => $bot_settings['banned_ips'] ?? '',
-                    'message' => $bot_settings['banned_ips_message'] ?? '',
-                ],
-                'banned_words_settings' => [
-                    'words' => $bot_settings['banned_words'] ?? '',
-                    'message' => $bot_settings['banned_words_message'] ?? '',
-                ],
+                'module' => 'chat',
             ];
             $moderation_check = AIPKit_Content_Moderator::check_content($user_message_text, $moderation_context);
             if (is_wp_error($moderation_check)) {

@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Performs content moderation checks (banned IPs, words, OpenAI moderation).
+ * Performs content moderation checks (global blocklists and OpenAI moderation).
  * Dispatches a 'system_error_occurred' trigger if moderation fails.
  *
  * @param string $user_message_text The user's text message.
@@ -48,14 +48,7 @@ function run_content_moderation_logic(
     $moderation_context = [
         'client_ip' => $client_ip,
         'bot_settings' => $bot_settings,
-        'banned_ips_settings' => [
-            'ips' => $bot_settings['banned_ips'] ?? '',
-            'message' => $bot_settings['banned_ips_message'] ?? '',
-        ],
-        'banned_words_settings' => [
-            'words' => $bot_settings['banned_words'] ?? '',
-            'message' => $bot_settings['banned_words_message'] ?? '',
-        ],
+        'module' => 'chat',
     ];
     $moderation_check = AIPKit_Content_Moderator::check_content($user_message_text, $moderation_context);
 

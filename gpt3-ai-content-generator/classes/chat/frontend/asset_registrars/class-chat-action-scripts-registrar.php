@@ -35,7 +35,6 @@ class Chat_Action_Scripts_Registrar {
         $dep_show_image_loader = $dependencies['dom-show-image-loader'] ?? null;
         $dep_feature_tts = $dependencies['feature-tts'] ?? null;
         $dep_feature_image_generation = $dependencies['feature-image-generation'] ?? null;
-        $dep_feature_moderation = $dependencies['feature-moderation'] ?? null;
         $dep_feature_stream = $dependencies['feature-stream'] ?? null;
 
 
@@ -57,7 +56,7 @@ class Chat_Action_Scripts_Registrar {
             $dep_api_frontend_request, 'aipkit-chat-ui-ajax', $dep_feature_stream, 
             $dep_append_message, $dep_show_typing_indicator, $dep_show_image_loader, 
             $action_handles['set-button-state'], $action_handles['handle-error'], 
-            $dep_feature_image_generation, $dep_feature_moderation,
+            $dep_feature_image_generation,
             // --- MODIFIED: Use new util dependencies ---
             $dep_util_auto_resize, $dep_util_gen_id,
             // --- END MODIFICATION ---

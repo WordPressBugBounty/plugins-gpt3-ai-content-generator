@@ -1089,12 +1089,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             update_post_meta($bot_id, '_aipkit_enable_consent_compliance', $enable_consent);
         }
 
-        if (isset($_POST['enable_ip_anonymization'])) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $enable_ip_anonymization = (wp_unslash($_POST['enable_ip_anonymization']) === '1') ? '1' : '0';
-            update_post_meta($bot_id, '_aipkit_enable_ip_anonymization', $enable_ip_anonymization);
-        }
-
         if (isset($_POST['consent_title'])) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $consent_title = sanitize_text_field(wp_unslash($_POST['consent_title']));
@@ -1111,46 +1105,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $consent_button = sanitize_text_field(wp_unslash($_POST['consent_button']));
             update_post_meta($bot_id, '_aipkit_consent_button', $consent_button);
-        }
-
-        if (isset($_POST['openai_moderation_enabled'])) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $openai_moderation_enabled = (wp_unslash($_POST['openai_moderation_enabled']) === '1') ? '1' : '0';
-            update_post_meta($bot_id, '_aipkit_openai_moderation_enabled', $openai_moderation_enabled);
-        }
-
-        if (isset($_POST['openai_moderation_message'])) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $openai_moderation_message = sanitize_text_field(wp_unslash($_POST['openai_moderation_message']));
-            update_post_meta($bot_id, '_aipkit_openai_moderation_message', $openai_moderation_message);
-        }
-
-        if (isset($_POST['banned_words'])) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $banned_words_raw = sanitize_textarea_field(wp_unslash($_POST['banned_words']));
-            $banned_words_array = array_map('trim', explode(',', strtolower($banned_words_raw)));
-            $banned_words_clean = implode(',', array_filter($banned_words_array, 'strlen'));
-            update_post_meta($bot_id, '_aipkit_banned_words', $banned_words_clean);
-        }
-
-        if (isset($_POST['banned_words_message'])) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $banned_words_message = sanitize_text_field(wp_unslash($_POST['banned_words_message']));
-            update_post_meta($bot_id, '_aipkit_banned_words_message', $banned_words_message);
-        }
-
-        if (isset($_POST['banned_ips'])) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $banned_ips_raw = sanitize_textarea_field(wp_unslash($_POST['banned_ips']));
-            $banned_ips_array = array_map('trim', explode(',', $banned_ips_raw));
-            $banned_ips_clean = implode(',', array_filter($banned_ips_array, 'strlen'));
-            update_post_meta($bot_id, '_aipkit_banned_ips', $banned_ips_clean);
-        }
-
-        if (isset($_POST['banned_ips_message'])) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $banned_ips_message = sanitize_text_field(wp_unslash($_POST['banned_ips_message']));
-            update_post_meta($bot_id, '_aipkit_banned_ips_message', $banned_ips_message);
         }
 
         if (isset($_POST['enable_conversation_sidebar'])) {

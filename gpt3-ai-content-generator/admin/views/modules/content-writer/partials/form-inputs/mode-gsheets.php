@@ -92,7 +92,7 @@ if (!$is_pro) {
                 placeholder="<?php esc_attr_e('e.g. 18QIWggMmbTVTb-nztTo7SFdGJTUC6kwRxgc841xq4x0', 'gpt3-ai-content-generator'); ?>"
             >
             <div class="aipkit_gsheets_shortcut_link_wrapper" style="display: none;">
-                <a href="#" target="_blank" rel="noopener noreferrer" class="aipkit_gsheets_shortcut_link" aria-label="<?php esc_attr_e('Open spreadsheet in new tab', 'gpt3-ai-content-generator'); ?>">
+                <a href="#" target="_blank" rel="noopener noreferrer" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_cw_button_match aipkit_gsheets_shortcut_link" aria-label="<?php esc_attr_e('Open spreadsheet in new tab', 'gpt3-ai-content-generator'); ?>">
                     <span class="dashicons dashicons-external" aria-hidden="true"></span>
                     <span class="aipkit_gsheets_shortcut_label"><?php esc_html_e('Open spreadsheet', 'gpt3-ai-content-generator'); ?></span>
                 </a>
@@ -145,9 +145,8 @@ if (!$is_pro) {
 
     <div class="aipkit_csv_help_content">
         <div class="aipkit_csv_columns_row">
-            <div class="aipkit_csv_column_chip aipkit_csv_column_chip--required">
+            <div class="aipkit_csv_column_chip">
                 <span class="aipkit_csv_column_label"><?php esc_html_e('Topic', 'gpt3-ai-content-generator'); ?></span>
-                <span class="aipkit_csv_column_tag"><?php esc_html_e('required', 'gpt3-ai-content-generator'); ?></span>
             </div>
             <span class="aipkit_csv_column_divider">→</span>
             <div class="aipkit_csv_column_chip">

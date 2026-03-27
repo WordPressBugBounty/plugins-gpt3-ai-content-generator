@@ -87,7 +87,7 @@ if ($tools_master_selected_count > 2) {
 $image_model_groups = [];
 $known_image_model_ids = [];
 $image_model_dropdown_label = '';
-$replicate_group_trigger_rendered = false;
+$image_provider_settings_url = admin_url('admin.php?page=wpaicg');
 foreach ($available_image_models as $provider_group => $models) {
     foreach ($models as $model) {
         $model_id = isset($model['id']) ? (string) $model['id'] : '';
@@ -107,6 +107,9 @@ foreach ($available_image_models as $provider_group => $models) {
             $image_model_dropdown_label = $model_name;
         }
     }
+}
+if (!isset($image_model_groups['Replicate'])) {
+    $image_model_groups['Replicate'] = [];
 }
 if ($image_model_dropdown_label === '' && !empty($chat_image_model_id)) {
     $image_model_dropdown_label = sprintf(
@@ -279,19 +282,18 @@ if ($image_model_dropdown_label === '') {
                                         <p class="aipkit_tools_image_model_group_title">
                                             <?php echo esc_html($provider_group); ?>
                                         </p>
-                                        <?php if (!$replicate_group_trigger_rendered && stripos((string) $provider_group, 'replicate') !== false) : ?>
+                                    </div>
+                                    <?php if (empty($image_model_options) && stripos((string) $provider_group, 'replicate') !== false) : ?>
+                                        <div class="aipkit_tools_image_model_group_notice">
                                             <button
                                                 type="button"
-                                                class="aipkit_popover_option_btn aipkit_tools_replicate_key_trigger aipkit_tools_replicate_key_trigger--panel"
-                                                data-aipkit-replicate-key-trigger
-                                                aria-expanded="false"
-                                                aria-controls="aipkit_chat_image_replicate_key_popover_tools_<?php echo esc_attr($bot_id); ?>"
+                                                class="aipkit_popover_option_btn aipkit_tools_image_model_notice_btn"
+                                                data-aipkit-image-provider-notice-trigger="replicate"
                                             >
-                                                <?php esc_html_e('Set API Key', 'gpt3-ai-content-generator'); ?>
+                                                <?php esc_html_e('Configure in Settings', 'gpt3-ai-content-generator'); ?>
                                             </button>
-                                            <?php $replicate_group_trigger_rendered = true; ?>
-                                        <?php endif; ?>
-                                    </div>
+                                        </div>
+                                    <?php endif; ?>
                                     <?php foreach ($image_model_options as $image_model_option) : ?>
                                         <label class="aipkit_popover_multiselect_item aipkit_tools_image_model_item">
                                             <span class="aipkit_tools_image_model_item_label">
@@ -300,6 +302,7 @@ if ($image_model_dropdown_label === '') {
                                                     class="aipkit_tools_image_model_radio"
                                                     name="aipkit_image_model_choice_<?php echo esc_attr($bot_id); ?>"
                                                     value="<?php echo esc_attr($image_model_option['id']); ?>"
+                                                    data-provider-group="<?php echo esc_attr($provider_group); ?>"
                                                     <?php checked((string) $chat_image_model_id, (string) $image_model_option['id']); ?>
                                                 />
                                                 <span class="aipkit_popover_multiselect_text"><?php echo esc_html($image_model_option['name']); ?></span>
@@ -355,10 +358,21 @@ if ($image_model_dropdown_label === '') {
                 name="chat_image_model_id"
                 class="aipkit_form-input aipkit_popover_option_select aipkit_tools_image_model_hidden_select"
             >
+                <option
+                    value=""
+                    data-provider-group=""
+                    <?php selected((string) $chat_image_model_id, ''); ?>
+                >
+                    <?php esc_html_e('Select model', 'gpt3-ai-content-generator'); ?>
+                </option>
                 <?php foreach ($available_image_models as $provider_group => $models) : ?>
                     <optgroup label="<?php echo esc_attr($provider_group); ?>">
                         <?php foreach ($models as $model) : ?>
-                            <option value="<?php echo esc_attr($model['id']); ?>" <?php selected($chat_image_model_id, $model['id']); ?>>
+                            <option
+                                value="<?php echo esc_attr($model['id']); ?>"
+                                data-provider-group="<?php echo esc_attr($provider_group); ?>"
+                                <?php selected($chat_image_model_id, $model['id']); ?>
+                            >
                                 <?php echo esc_html($model['name']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -389,40 +403,24 @@ if ($image_model_dropdown_label === '') {
                 <option value="0" <?php selected($enable_image_generation ?? '0', '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
             </select>
             <div
-                id="aipkit_chat_image_replicate_key_popover_tools_<?php echo esc_attr($bot_id); ?>"
-                class="aipkit_tools_replicate_key_popover"
-                data-aipkit-replicate-key-popover
+                class="aipkit_tools_image_provider_warning"
+                data-aipkit-image-provider-warning
+                data-message-replicate="<?php echo esc_attr__('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>"
+                aria-hidden="true"
                 hidden
             >
-                <div class="aipkit_tools_replicate_key_popover_header">
-                    <span class="aipkit_tools_replicate_key_popover_title">
-                        <?php esc_html_e('Replicate API key', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                    <button
-                        type="button"
-                        class="aipkit_tools_replicate_key_popover_close"
-                        data-aipkit-replicate-key-close
-                        aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
+                <span class="dashicons dashicons-warning aipkit_tools_image_provider_warning_icon" aria-hidden="true"></span>
+                <div class="aipkit_tools_image_provider_warning_content">
+                    <p class="aipkit_tools_image_provider_warning_message" data-aipkit-image-provider-warning-message>
+                        <?php esc_html_e('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>
+                    </p>
+                    <a
+                        href="<?php echo esc_url($image_provider_settings_url); ?>"
+                        class="aipkit_tools_image_provider_warning_link"
+                        data-aipkit-load-module="settings"
                     >
-                        <span class="dashicons dashicons-no-alt"></span>
-                    </button>
-                </div>
-                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                    <input
-                        type="password"
-                        id="aipkit_chat_image_replicate_api_key_tools"
-                        name="replicate_api_key"
-                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                        value="<?php echo esc_attr($replicate_api_key); ?>"
-                        placeholder="<?php esc_attr_e('Enter your Replicate API key', 'gpt3-ai-content-generator'); ?>"
-                        autocomplete="new-password"
-                        data-lpignore="true"
-                        data-1p-ignore="true"
-                        data-form-type="other"
-                    />
-                    <span class="aipkit_api-key-toggle">
-                        <span class="dashicons dashicons-visibility"></span>
-                    </span>
+                        <?php esc_html_e('Open Settings', 'gpt3-ai-content-generator'); ?>
+                    </a>
                 </div>
             </div>
         </div>

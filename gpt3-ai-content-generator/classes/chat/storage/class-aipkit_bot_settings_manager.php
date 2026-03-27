@@ -33,13 +33,6 @@ class BotSettingsManager
     public const DEFAULT_ENABLE_COPY_BUTTON = '1';
     public const DEFAULT_ENABLE_FEEDBACK = '1';
     public const DEFAULT_ENABLE_CONSENT_COMPLIANCE = '0';
-    public const DEFAULT_ENABLE_IP_ANONYMIZATION = '0';
-    public const DEFAULT_ENABLE_OPENAI_MODERATION = '0';
-    public const DEFAULT_OPENAI_MODERATION_MESSAGE = '';
-    public const DEFAULT_BANNED_WORDS = '';
-    public const DEFAULT_BANNED_WORDS_MESSAGE = '';
-    public const DEFAULT_BANNED_IPS = '';
-    public const DEFAULT_BANNED_IPS_MESSAGE = '';
     public const DEFAULT_POPUP_DELAY = 1;
     public const DEFAULT_ENABLE_CONVERSATION_STARTERS = '1';
     public const DEFAULT_ENABLE_CONVERSATION_SIDEBAR = '0';

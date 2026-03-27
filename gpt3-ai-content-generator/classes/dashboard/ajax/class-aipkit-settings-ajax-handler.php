@@ -9,6 +9,8 @@ use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\AIPKit_Event_Webhooks_Settings;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
+use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -69,12 +71,15 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         // Store initial states to detect if any actual change occurred
         $initial_core_opts_json = wp_json_encode(get_option('aipkit_options', []));
         $initial_native_app_recipes_json = wp_json_encode(get_option('aipkit_native_app_recipes', []));
+        $initial_image_generator_settings_json = wp_json_encode(get_option(AIPKit_Image_Settings_Ajax_Handler::SETTINGS_OPTION_NAME, []));
         // --- Perform Save Operations for Different Setting Groups ---
         $this->save_main_provider_selection($post_data);
         $this->save_all_provider_api_details($post_data);
+        $this->save_replicate_integration_settings($post_data);
         $this->save_global_ai_parameters($post_data);
         $this->save_public_api_key($post_data);
         $this->save_google_safety_settings_if_applicable($post_data);
+        $this->save_global_security_settings($post_data);
         $enhancer_settings_changed = $this->save_enhancer_settings($post_data);
         $this->save_semantic_search_settings($post_data);
         $this->save_event_webhooks_settings($post_data);
@@ -85,11 +90,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         // --- Check if any options actually changed ---
         $final_core_opts_json = wp_json_encode(get_option('aipkit_options', []));
         $final_native_app_recipes_json = wp_json_encode(get_option('aipkit_native_app_recipes', []));
+        $final_image_generator_settings_json = wp_json_encode(get_option(AIPKit_Image_Settings_Ajax_Handler::SETTINGS_OPTION_NAME, []));
 
         $core_changed = ($initial_core_opts_json !== $final_core_opts_json);
         $native_app_recipes_changed = ($initial_native_app_recipes_json !== $final_native_app_recipes_json);
+        $image_generator_settings_changed = ($initial_image_generator_settings_json !== $final_image_generator_settings_json);
 
-        if ($core_changed || $native_app_recipes_changed || $enhancer_settings_changed || $updated_enhancer_actions !== null) {
+        if ($core_changed || $native_app_recipes_changed || $image_generator_settings_changed || $enhancer_settings_changed || $updated_enhancer_actions !== null) {
             $response = ['message' => __('Settings saved successfully.', 'gpt3-ai-content-generator')];
             if ($updated_enhancer_actions !== null) {
                 $response['updated_enhancer_actions'] = $updated_enhancer_actions;
@@ -158,6 +165,24 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                 AIPKit_Providers::save_provider_data($provider_name, $provider_data_from_post);
             }
         }
+    }
+
+    /**
+     * Saves Replicate image integration settings that are managed from Settings > Integrations.
+     */
+    private function save_replicate_integration_settings(array $post_data): void
+    {
+        if (!array_key_exists('replicate_disable_safety_checker', $post_data)) {
+            return;
+        }
+
+        if (!class_exists(AIPKit_Image_Settings_Ajax_Handler::class) || !method_exists(AIPKit_Image_Settings_Ajax_Handler::class, 'save_replicate_settings')) {
+            return;
+        }
+
+        AIPKit_Image_Settings_Ajax_Handler::save_replicate_settings([
+            'disable_safety_checker' => $post_data['replicate_disable_safety_checker'],
+        ]);
     }
 
     /**
@@ -245,6 +270,19 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         if (class_exists(GoogleSettingsHandler::class) && method_exists(GoogleSettingsHandler::class, 'save_safety_settings')) {
             GoogleSettingsHandler::save_safety_settings($post_data);
         }
+    }
+
+    /**
+     * Saves global security settings to aipkit_options.
+     */
+    private function save_global_security_settings(array $post_data): void
+    {
+        $raw_settings = $post_data['security'] ?? null;
+        if (!is_array($raw_settings) || !class_exists(AIPKit_Global_Security_Settings::class)) {
+            return;
+        }
+
+        AIPKit_Global_Security_Settings::save_settings($raw_settings);
     }
 
     /**
@@ -812,6 +850,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $sanitized['api_keys'] = [
             'public_api_key' => sanitize_text_field((string) ($imported_api_keys['public_api_key'] ?? '')),
         ];
+
+        $imported_security = isset($imported_options['security']) && is_array($imported_options['security'])
+            ? $imported_options['security']
+            : [];
+        if (class_exists(AIPKit_Global_Security_Settings::class)) {
+            $sanitized['security'] = AIPKit_Global_Security_Settings::sanitize_settings_input($imported_security);
+        }
 
         $imported_semantic = isset($imported_options['semantic_search']) && is_array($imported_options['semantic_search'])
             ? $imported_options['semantic_search']

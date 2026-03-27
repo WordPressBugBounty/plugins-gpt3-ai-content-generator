@@ -7,6 +7,7 @@ namespace WPAICG\Images\Manager\Ajax;
 
 use WPAICG\Images\AIPKit_Image_Manager;
 use WPAICG\AIPKit_Role_Manager;
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 use WPAICG\Core\AIPKit_Content_Moderator;
 use function WPAICG\Images\Manager\Utils\parse_edit_source_image_upload_logic;
@@ -26,10 +27,11 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     $user_id = get_current_user_id();
     $is_logged_in = $user_id > 0;
     $session_id_from_post = isset($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : null;
-    $session_id_for_guest = $is_logged_in ? null : $client_ip;
-    if (!$is_logged_in && empty($session_id_for_guest) && !empty($session_id_from_post)) {
-        $session_id_for_guest = $session_id_from_post;
-    }
+    $session_id_for_guest = $is_logged_in
+        ? null
+        : (class_exists(AIPKit_Global_Security_Settings::class)
+            ? AIPKit_Global_Security_Settings::resolve_guest_session_id($session_id_from_post, $client_ip)
+            : (!empty($session_id_from_post) ? $session_id_from_post : $client_ip));
 
     $request_time = time();
     $conversation_uuid = 'imagegen-' . $request_time . '-' . wp_generate_password(12, false);
@@ -73,7 +75,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         $moderation_context = [
             'client_ip' => $client_ip,
             'bot_settings' => ['provider' => $provider], // Provide a minimal settings array for the check
-            'skip_banned_checks' => true,
+            'module' => 'image_generator',
         ];
         $moderation_check = AIPKit_Content_Moderator::check_content($prompt, $moderation_context);
         if (is_wp_error($moderation_check)) {

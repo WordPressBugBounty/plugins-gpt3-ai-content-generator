@@ -1,6 +1,4 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/content-writer/index.php
-// Status: MODIFIED
 /**
  * AIPKit Content Writer Module - Main View
  * UPDATED: Re-architected into a two-column layout with a central tabbed input panel and action bar.
@@ -95,24 +93,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     <option value="<?php echo esc_attr($value); ?>" <?php selected($value, 'daily'); ?>><?php echo esc_html($label); ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <button
-                                type="button"
-                                class="aipkit_cw_post_summary_trigger aipkit_cw_popover_trigger"
-                                data-aipkit-popover-target="aipkit_cw_post_settings_popover"
-                                data-aipkit-popover-placement="bottom"
-                                aria-controls="aipkit_cw_post_settings_popover"
-                                aria-expanded="false"
-                                aria-label="<?php esc_attr_e('Post settings', 'gpt3-ai-content-generator'); ?>"
-                            >
-                                <span class="screen-reader-text"><?php esc_html_e('Post settings', 'gpt3-ai-content-generator'); ?></span>
-                                <span class="aipkit_cw_post_summary_icon" aria-hidden="true">
-                                    <span class="dashicons dashicons-admin-post"></span>
-                                </span>
-                                <span class="aipkit_cw_post_summary_value" data-aipkit-cw-summary="post" data-aipkit-placeholder="<?php esc_attr_e('Configure', 'gpt3-ai-content-generator'); ?>">
-                                    <?php esc_html_e('Configure', 'gpt3-ai-content-generator'); ?>
-                                </span>
-                                <span class="dashicons dashicons-arrow-down-alt2 aipkit_cw_post_summary_chevron" aria-hidden="true"></span>
-                            </button>
                             <div class="aipkit_cw_generate_split" data-aipkit-cw-action="generate">
                                 <button type="button" id="aipkit_content_writer_generate_btn" class="aipkit_btn aipkit_btn-primary">
                                     <span class="aipkit_cw_btn_timer" aria-hidden="true" hidden></span>
@@ -164,13 +144,20 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                     
                     <div id="aipkit_cw_batch_queue" class="aipkit_cw_batch_queue" hidden>
                         <div class="aipkit_cw_batch_header">
-                            <div class="aipkit_cw_batch_summary">
-                                <span class="aipkit_cw_batch_count">0/0</span>
-                                <span class="aipkit_cw_batch_label"><?php esc_html_e('completed', 'gpt3-ai-content-generator'); ?></span>
+                            <div class="aipkit_cw_batch_header_main">
+                                <div class="aipkit_cw_batch_run_meta" hidden>
+                                    <span class="aipkit_cw_batch_run_mode"></span>
+                                    <span class="aipkit_cw_batch_run_detail"></span>
+                                </div>
+                                <div class="aipkit_cw_batch_summary">
+                                    <span class="aipkit_cw_batch_count">0/0</span>
+                                    <span class="aipkit_cw_batch_label"><?php esc_html_e('completed', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
                             </div>
-                            <div class="aipkit_cw_batch_progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                                <span class="aipkit_cw_batch_progress_bar"></span>
-                            </div>
+                            <div class="aipkit_cw_batch_header_actions"></div>
+                        </div>
+                        <div class="aipkit_cw_batch_progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <span class="aipkit_cw_batch_progress_bar"></span>
                         </div>
                         <div class="aipkit_cw_batch_list" role="list"></div>
                     </div>
@@ -188,6 +175,12 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             <?php include __DIR__ . '/partials/form-inputs.php'; ?>
                         </div>
                     </div>
+                    <div class="aipkit_sub_container aipkit_cw_settings_card">
+                        <div class="aipkit_sub_container_body">
+                            <?php include __DIR__ . '/partials/advanced-settings.php'; ?>
+                        </div>
+                    </div>
+                    <?php include __DIR__ . '/partials/existing-update-tip.php'; ?>
                 </div>
 
             </div>

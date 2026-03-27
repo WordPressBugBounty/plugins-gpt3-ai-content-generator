@@ -97,7 +97,7 @@ if (!$is_pro) {
             </div>
         </div>
         <div class="aipkit_url_actions">
-            <button type="button" id="aipkit_cw_test_scrape_btn" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_url_test_btn">
+            <button type="button" id="aipkit_cw_test_scrape_btn" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_cw_button_match aipkit_url_test_btn">
                 <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                 <span class="aipkit_btn-text"><?php esc_html_e('Test First URL', 'gpt3-ai-content-generator'); ?></span>
                 <span class="aipkit_spinner" style="display:none;"></span>

@@ -1,12 +1,5 @@
 <?php
 
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/content-writer/partials/form-inputs/loader-vars.php
-// Status: MODIFIED
-/**
- * Partial: Content Writer Form Inputs - Shared Variable Loader
- * Defines variables used across multiple form input partials.
- */
-
 if (!defined('ABSPATH')) {
     exit;
 }

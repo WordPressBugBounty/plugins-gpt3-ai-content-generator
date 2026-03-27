@@ -75,6 +75,8 @@ function process_ai_forms_logic(
         return $final_prompt;
     }
 
+    $moderation_text = Process\build_moderation_text_logic($form_config, $submitted_fields);
+
     // --- ADDED: Content Moderation Check ---
     if (class_exists(\WPAICG\Core\AIPKit_Content_Moderator::class)) {
         $moderation_context = [
@@ -82,9 +84,9 @@ function process_ai_forms_logic(
             'bot_settings' => [ // Minimal settings needed for OpenAI moderation provider check
                 'provider' => $form_config['ai_provider'] ?? 'OpenAI'
             ],
-            'skip_banned_checks' => true,
+            'module' => 'ai_forms',
         ];
-        $moderation_check = \WPAICG\Core\AIPKit_Content_Moderator::check_content($final_prompt, $moderation_context);
+        $moderation_check = \WPAICG\Core\AIPKit_Content_Moderator::check_content($moderation_text, $moderation_context);
         if (is_wp_error($moderation_check)) {
             // The error object from the moderator should already have a user-friendly message and status code.
             return $moderation_check;

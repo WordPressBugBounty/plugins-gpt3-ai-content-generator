@@ -40,7 +40,6 @@ class Chat_Feature_Handler_Registrar
             'consent-hide' => 'aipkit-chat-consent-hide-box',
             'consent-agree' => 'aipkit-chat-consent-handle-agree',
             'consent' => 'aipkit-chat-ui-consent-init',
-            'moderation' => 'aipkit-chat-ui-moderation',
             // Message action sub-components
             'extract-text-from-bubble' => 'aipkit-chat-extract-text-from-bubble',
             'show-success-icon'       => 'aipkit-chat-show-success-icon',
@@ -90,7 +89,6 @@ class Chat_Feature_Handler_Registrar
             'message-actions-init'     => ['message-actions/init-message-actions.js', ['handle-copy-action', 'handle-feedback-action']],
             'starters'                 => ['chat-ui-starters.js', [$dep_api_frontend]],
             'sidebar'                  => ['chat-ui-sidebar.js', array_unique(array_filter(array_merge([$dep_api_frontend, $dep_action_clear_chat], $dep_sidebar_components)))],
-            'moderation'               => ['chat-ui-moderation.js', []],
             'image-generation'         => ['chat-ui-image-generation.js', [$dep_api_frontend, $dep_dom_show_img_loader, $dep_dom_remove_img_loader, $dep_dom_append_msg]],
             'stt-ui'                   => ['stt/handle-voice-input-action.js', array_filter([$dep_stt_public, 'aipkit-chat-stt-transcribe-audio'])],
         ];

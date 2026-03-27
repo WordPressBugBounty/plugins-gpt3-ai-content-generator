@@ -15,7 +15,6 @@ if (!defined('ABSPATH')) {
 }
 
 // Load the individual logic files this orchestrator depends on
-require_once __DIR__ . '/get-client-ip.php';
 require_once __DIR__ . '/get-conversation-starters.php';
 require_once __DIR__ . '/get-consent-settings.php';
 require_once __DIR__ . '/get-tts-settings.php';
@@ -64,7 +63,6 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         }
     }
 
-    $client_ip = get_client_ip_logic();
     $starters_array = get_conversation_starters_logic($settings, $feature_flags['starters_ui_enabled']);
     $consent_texts = get_consent_settings_logic($settings);
     $tts_settings = get_tts_settings_logic($settings);
@@ -92,11 +90,6 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
     $allow_openai_web_search_tool = $feature_flags['allowWebSearchTool'] ?? false;
 
     $text_labels = get_text_labels_logic($settings, $consent_texts);
-
-    $banned_ips_list = isset($settings['banned_ips']) ? sanitize_textarea_field((string) $settings['banned_ips']) : '';
-    $banned_ips_message = isset($settings['banned_ips_message']) ? sanitize_text_field((string) $settings['banned_ips_message']) : '';
-    $banned_words_list = isset($settings['banned_words']) ? sanitize_textarea_field((string) $settings['banned_words']) : '';
-    $banned_words_message = isset($settings['banned_words_message']) ? sanitize_text_field((string) $settings['banned_words_message']) : '';
 
     // --- Add custom theme settings to frontend config ---
     $custom_theme_settings_for_js = [];
@@ -265,15 +258,6 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'headerName' => $bot_post->post_title ?: '',
         'enableStarters' => $feature_flags['starters_ui_enabled'],
         'starters' => $starters_array,
-        'userIp' => $client_ip,
-        'bannedIpsConfig' => [
-            'ipsList' => $banned_ips_list,
-            'message' => $banned_ips_message,
-        ],
-        'bannedWordsConfig' => [
-            'wordsList' => $banned_words_list,
-            'message' => $banned_words_message,
-        ],
         'requireConsentCompliance' => $consent_required && $consent_toggle_enabled,
         'ttsEnabled' => $feature_flags['tts_ui_enabled'],
         'ttsAutoPlay' => $tts_settings['tts_auto_play'],

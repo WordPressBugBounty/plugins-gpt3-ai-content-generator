@@ -6,6 +6,7 @@
 namespace WPAICG\Chat\Storage;
 
 use WPAICG\AIPKit\Addons\AIPKit_IP_Anonymization;
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 // Use new LoggerMethods namespace
 use WPAICG\Chat\Storage\LoggerMethods;
 
@@ -35,6 +36,12 @@ class ConversationLogger
             $ip_anon_path = WPAICG_PLUGIN_DIR . 'classes/addons/class-aipkit-ip-anonymization.php';
             if (file_exists($ip_anon_path)) {
                 require_once $ip_anon_path;
+            }
+        }
+        if (!class_exists(AIPKit_Global_Security_Settings::class)) {
+            $security_settings_path = WPAICG_PLUGIN_DIR . 'classes/core/moderation/AIPKit_Global_Security_Settings.php';
+            if (file_exists($security_settings_path)) {
+                require_once $security_settings_path;
             }
         }
     }
@@ -76,7 +83,10 @@ class ConversationLogger
         $module            = sanitize_key($log_data['module']);
         $is_guest          = $user_id ? 0 : 1;
         $original_ip = isset($log_data['ip_address']) ? sanitize_text_field($log_data['ip_address']) : null;
-        $ip_anonymize = isset($log_data['ip_anonymize']) && in_array($log_data['ip_anonymize'], ['1', 1, true], true);
+        $global_ip_anonymize = class_exists(AIPKit_Global_Security_Settings::class)
+            && AIPKit_Global_Security_Settings::is_ip_anonymization_enabled();
+        $ip_anonymize = $global_ip_anonymize
+            || (isset($log_data['ip_anonymize']) && in_array($log_data['ip_anonymize'], ['1', 1, true], true));
         $ip_to_store = ($ip_anonymize && class_exists(AIPKit_IP_Anonymization::class))
             ? AIPKit_IP_Anonymization::maybe_anonymize($original_ip, true)
             : $original_ip;

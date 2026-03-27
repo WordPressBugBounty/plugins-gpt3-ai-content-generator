@@ -14,6 +14,17 @@ $enable_conversation_sidebar = $bot_settings['enable_conversation_sidebar']
     ?? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR;
 $enable_feedback = $bot_settings['enable_feedback']
     ?? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_ENABLE_FEEDBACK;
+$enable_consent_compliance = $bot_settings['enable_consent_compliance']
+    ?? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE;
+$enable_consent_compliance = in_array($enable_consent_compliance, ['0', '1'], true)
+    ? $enable_consent_compliance
+    : \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE;
+$consent_title = $bot_settings['consent_title'] ?? __('Consent Required', 'gpt3-ai-content-generator');
+$consent_message = $bot_settings['consent_message'] ?? __('Before starting the conversation, please agree to our Terms of Service and Privacy Policy.', 'gpt3-ai-content-generator');
+$consent_button = $bot_settings['consent_button'] ?? __('I Agree', 'gpt3-ai-content-generator');
+$consent_toggle_id = 'aipkit_bot_' . $bot_id . '_enable_consent_compliance';
+$consent_toggle_display_id = $consent_toggle_id . '_display';
+$consent_toggle_value = ($consent_feature_available && $enable_consent_compliance === '1') ? '1' : '0';
 ?>
 <div class="aipkit_popover_options_list aipkit_interface_options">
     <div class="aipkit_builder_field aipkit_builder_field--theme-row">
@@ -61,7 +72,7 @@ $enable_feedback = $bot_settings['enable_feedback']
                             role="menu"
                             hidden
                         >
-                            <div class="aipkit_popover_multiselect_options aipkit_interface_theme_options">
+                            <div class="aipkit_popover_multiselect_options aipkit_popover_multiselect_options--unbounded aipkit_interface_theme_options">
                                 <?php foreach ($available_themes as $theme_key => $theme_name) : ?>
                                     <?php
                                     if ($theme_key === 'custom') {
@@ -245,7 +256,7 @@ $enable_feedback = $bot_settings['enable_feedback']
                             role="menu"
                             hidden
                         >
-                            <div class="aipkit_popover_multiselect_options aipkit_popup_launcher_options">
+                            <div class="aipkit_popover_multiselect_options aipkit_popover_multiselect_options--unbounded aipkit_popup_launcher_options">
                                 <div class="aipkit_popup_launcher_row aipkit_popup_launcher_row--position">
                                     <p class="aipkit_popup_launcher_row_label"><?php esc_html_e('Position', 'gpt3-ai-content-generator'); ?></p>
                                     <div class="aipkit_popup_launcher_row_controls aipkit_popup_launcher_row_controls--radios" role="group" aria-label="<?php echo esc_attr__('Position', 'gpt3-ai-content-generator'); ?>">
@@ -397,7 +408,7 @@ $enable_feedback = $bot_settings['enable_feedback']
                             role="menu"
                             hidden
                         >
-                            <div class="aipkit_popover_multiselect_options">
+                            <div class="aipkit_popover_multiselect_options aipkit_popover_multiselect_options--unbounded">
                                 <label class="aipkit_popover_multiselect_item aipkit_interface_control_item">
                                     <input
                                         type="checkbox"
@@ -467,6 +478,40 @@ $enable_feedback = $bot_settings['enable_feedback']
                                         <?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?>
                                     </button>
                                 </div>
+                                <div class="aipkit_popover_multiselect_item aipkit_interface_control_item aipkit_interface_control_item--consent<?php echo !$consent_feature_available ? ' is-disabled' : ''; ?>">
+                                    <label class="aipkit_interface_control_item_main" for="<?php echo esc_attr($consent_toggle_display_id); ?>">
+                                        <input
+                                            type="checkbox"
+                                            id="<?php echo esc_attr($consent_toggle_display_id); ?>"
+                                            class="aipkit_interface_control_option"
+                                            value="enable_consent_compliance"
+                                            <?php checked($consent_toggle_value, '1'); ?>
+                                            <?php disabled(!$consent_feature_available); ?>
+                                        />
+                                        <span class="aipkit_popover_multiselect_text"><?php esc_html_e('Consent', 'gpt3-ai-content-generator'); ?></span>
+                                    </label>
+                                    <?php if ($consent_feature_available) : ?>
+                                        <button
+                                            type="button"
+                                            class="aipkit_popover_option_btn aipkit_consent_config_btn aipkit_consent_config_btn--inline"
+                                            data-feature="consent_notice"
+                                            aria-expanded="false"
+                                            aria-controls="aipkit_consent_flyout"
+                                            <?php echo ($enable_consent_compliance === '1') ? '' : 'hidden'; ?>
+                                        >
+                                            <?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?>
+                                        </button>
+                                    <?php else : ?>
+                                        <a
+                                            class="aipkit_tools_enabled_item_upgrade aipkit_popover_upgrade_link"
+                                            href="<?php echo esc_url($pricing_url); ?>"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -527,6 +572,15 @@ $enable_feedback = $bot_settings['enable_feedback']
                         >
                             <option value="1" <?php selected($enable_conversation_starters, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
                             <option value="0" <?php selected($enable_conversation_starters, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
+                        <select
+                            id="<?php echo esc_attr($consent_toggle_id); ?>"
+                            name="enable_consent_compliance"
+                            class="aipkit_form-input aipkit_popover_option_select aipkit_toggle_switch_select aipkit_consent_toggle_switch aipkit_interface_control_hidden_select"
+                            <?php disabled(!$consent_feature_available); ?>
+                        >
+                            <option value="1" <?php selected($consent_toggle_value, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="0" <?php selected($consent_toggle_value, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
                         </select>
                     </div>
                 </div>

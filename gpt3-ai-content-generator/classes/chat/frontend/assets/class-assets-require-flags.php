@@ -55,7 +55,6 @@ class AssetsRequireFlags {
 
         AssetsOrchestrator::$shortcode_rendered = true;
         AssetsOrchestrator::$consent_needed = true;
-        AssetsOrchestrator::$moderation_needed = true;
 
         if ($needs_pdf && aipkit_dashboard::is_pro_plan()) {
             AssetsOrchestrator::$jspdf_needed = true;

@@ -37,7 +37,7 @@ $vector_notice_settings_url = admin_url('admin.php?page=wpaicg');
                     role="menu"
                     hidden
                 >
-                    <div class="aipkit_popover_multiselect_options">
+                    <div class="aipkit_popover_multiselect_options aipkit_popover_multiselect_options--unbounded">
                         <label class="aipkit_popover_multiselect_item">
                             <input
                                 type="checkbox"

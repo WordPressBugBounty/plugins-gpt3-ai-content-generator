@@ -64,6 +64,7 @@ if (class_exists('\\WPAICG\\Chat\\Admin\\AdminSetup')) {
 $module_labels = [
     'chatbot' => __('Chatbot', 'gpt3-ai-content-generator'),
     'content_writer' => __('Content Writer', 'gpt3-ai-content-generator'),
+    'content_writer_automation' => __('Automation', 'gpt3-ai-content-generator'),
     'image_generator' => __('Image Generator', 'gpt3-ai-content-generator'),
     'ai_forms' => __('AI Forms', 'gpt3-ai-content-generator'),
     'autogpt' => __('Automate', 'gpt3-ai-content-generator'),

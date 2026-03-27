@@ -101,7 +101,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
         </div>
         <div class="aipkit_behavior_compact_cell">
             <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_completion_tokens">
-                <?php esc_html_e('Response length', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('Context', 'gpt3-ai-content-generator'); ?>
             </label>
             <input
                 type="number"
@@ -116,7 +116,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
         </div>
         <div class="aipkit_behavior_compact_cell">
             <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_messages">
-                <?php esc_html_e('Memory', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('Messages', 'gpt3-ai-content-generator'); ?>
             </label>
             <input
                 type="number"

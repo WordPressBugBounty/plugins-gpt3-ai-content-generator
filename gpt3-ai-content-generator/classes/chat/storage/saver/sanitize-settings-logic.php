@@ -140,28 +140,9 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['enable_copy_button'] = (isset($raw_settings['enable_copy_button']) && $raw_settings['enable_copy_button'] === '1') ? '1' : '0';
     $sanitized['enable_feedback'] = (isset($raw_settings['enable_feedback']) && $raw_settings['enable_feedback'] === '1') ? '1' : '0';
     $sanitized['enable_consent_compliance'] = (isset($raw_settings['enable_consent_compliance']) && $raw_settings['enable_consent_compliance'] === '1') ? '1' : '0';
-    $sanitized['enable_ip_anonymization'] = (isset($raw_settings['enable_ip_anonymization']) && $raw_settings['enable_ip_anonymization'] === '1') ? '1' : '0';
     $sanitized['consent_title'] = isset($raw_settings['consent_title']) ? sanitize_text_field($raw_settings['consent_title']) : '';
     $sanitized['consent_message'] = isset($raw_settings['consent_message']) ? wp_kses_post($raw_settings['consent_message']) : '';
     $sanitized['consent_button'] = isset($raw_settings['consent_button']) ? sanitize_text_field($raw_settings['consent_button']) : '';
-    $sanitized['openai_moderation_enabled'] = (isset($raw_settings['openai_moderation_enabled']) && $raw_settings['openai_moderation_enabled'] === '1') ? '1' : '0';
-    $sanitized['openai_moderation_message'] = isset($raw_settings['openai_moderation_message']) ? sanitize_text_field($raw_settings['openai_moderation_message']) : '';
-    $banned_words_raw = isset($raw_settings['banned_words']) ? sanitize_textarea_field($raw_settings['banned_words']) : BotSettingsManager::DEFAULT_BANNED_WORDS;
-    $banned_words_array = array_map('trim', explode(',', strtolower($banned_words_raw)));
-    $sanitized['banned_words'] = implode(',', array_filter($banned_words_array, function ($word) {
-        return $word !== '';
-    }));
-    $sanitized['banned_words_message'] = isset($raw_settings['banned_words_message'])
-        ? sanitize_text_field($raw_settings['banned_words_message'])
-        : BotSettingsManager::DEFAULT_BANNED_WORDS_MESSAGE;
-    $banned_ips_raw = isset($raw_settings['banned_ips']) ? sanitize_textarea_field($raw_settings['banned_ips']) : BotSettingsManager::DEFAULT_BANNED_IPS;
-    $banned_ips_array = array_map('trim', explode(',', $banned_ips_raw));
-    $sanitized['banned_ips'] = implode(',', array_filter($banned_ips_array, function ($ip) {
-        return $ip !== '';
-    }));
-    $sanitized['banned_ips_message'] = isset($raw_settings['banned_ips_message'])
-        ? sanitize_text_field($raw_settings['banned_ips_message'])
-        : BotSettingsManager::DEFAULT_BANNED_IPS_MESSAGE;
     $sanitized['enable_conversation_sidebar'] = (isset($raw_settings['enable_conversation_sidebar']) && $raw_settings['enable_conversation_sidebar'] === '1') ? '1' : '0';
     // Typing indicator customization
     $sanitized['custom_typing_text'] = isset($raw_settings['custom_typing_text']) ? sanitize_text_field($raw_settings['custom_typing_text']) : '';

@@ -8,6 +8,7 @@ namespace WPAICG\Images\Manager\Ajax;
 use WPAICG\Images\AIPKit_Image_Manager;
 use WPAICG\Images\Providers\Google\GoogleVideoResponseParser;
 use WPAICG\AIPKit_Role_Manager;
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 use WP_Error;
 
@@ -152,11 +153,11 @@ function ajax_check_video_status_logic(AIPKit_Image_Manager $managerInstance): v
                     // Get session ID for guests (this should match the session from the original generation request)
                     $session_id_for_guest = null;
                     if (!$is_logged_in) {
-                        $session_id_for_guest = isset($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : null;
-                        if (empty($session_id_for_guest)) {
-                            $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
-                            $session_id_for_guest = $client_ip;
-                        }
+                        $posted_session_id = isset($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : null;
+                        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
+                        $session_id_for_guest = class_exists(AIPKit_Global_Security_Settings::class)
+                            ? AIPKit_Global_Security_Settings::resolve_guest_session_id($posted_session_id, $client_ip)
+                            : (!empty($posted_session_id) ? $posted_session_id : $client_ip);
                     }
                     
                     $token_manager->record_token_usage($user_id ?: null, $session_id_for_guest, $context_id_for_token_record, $tokens_to_record, 'image_generator');

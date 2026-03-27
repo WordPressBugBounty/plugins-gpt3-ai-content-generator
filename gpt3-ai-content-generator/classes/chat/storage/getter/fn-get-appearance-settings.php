@@ -124,9 +124,6 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $settings['enable_consent_compliance'] = in_array($get_meta_fn('_aipkit_enable_consent_compliance', BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE), ['0','1'])
         ? $get_meta_fn('_aipkit_enable_consent_compliance', BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE)
         : BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE;
-    $settings['enable_ip_anonymization'] = in_array($get_meta_fn('_aipkit_enable_ip_anonymization', BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION), ['0','1'])
-        ? $get_meta_fn('_aipkit_enable_ip_anonymization', BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION)
-        : BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION;
     $settings['consent_title'] = $get_meta_fn(
         '_aipkit_consent_title',
         __('Consent Required', 'gpt3-ai-content-generator')
@@ -139,30 +136,6 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
         '_aipkit_consent_button',
         __('I Agree', 'gpt3-ai-content-generator')
     );
-    $settings['openai_moderation_enabled'] = in_array($get_meta_fn('_aipkit_openai_moderation_enabled', BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION), ['0','1'])
-        ? $get_meta_fn('_aipkit_openai_moderation_enabled', BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION)
-        : BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION;
-    $settings['openai_moderation_message'] = $get_meta_fn(
-        '_aipkit_openai_moderation_message',
-        __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator')
-    );
-    $settings['banned_words'] = $get_meta_fn(
-        '_aipkit_banned_words',
-        BotSettingsManager::DEFAULT_BANNED_WORDS
-    );
-    $settings['banned_words_message'] = $get_meta_fn(
-        '_aipkit_banned_words_message',
-        BotSettingsManager::DEFAULT_BANNED_WORDS_MESSAGE
-    );
-    $settings['banned_ips'] = $get_meta_fn(
-        '_aipkit_banned_ips',
-        BotSettingsManager::DEFAULT_BANNED_IPS
-    );
-    $settings['banned_ips_message'] = $get_meta_fn(
-        '_aipkit_banned_ips_message',
-        BotSettingsManager::DEFAULT_BANNED_IPS_MESSAGE
-    );
-
     $settings['enable_conversation_sidebar'] = in_array($get_meta_fn('_aipkit_enable_conversation_sidebar', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR), ['0','1'])
         ? $get_meta_fn('_aipkit_enable_conversation_sidebar', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR)
         : BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR;

@@ -534,10 +534,25 @@ function reset_starter_templates_logic(\WPAICG\ContentWriter\AIPKit_Content_Writ
         return new WP_Error('not_logged_in', __('User must be logged in to reset starter templates.', 'gpt3-ai-content-generator'));
     }
 
+    $base_config = get_cw_base_template_config($user_id);
+    if (empty($base_config)) {
+        return new WP_Error('starter_reset_failed', __('Starter templates could not be restored.', 'gpt3-ai-content-generator'));
+    }
+
+    $definitions = get_cw_starter_template_definitions($base_config);
+    if (empty($definitions)) {
+        return new WP_Error('starter_reset_failed', __('Starter templates could not be restored.', 'gpt3-ai-content-generator'));
+    }
+
+    $expected_count = count($definitions);
+
     $starter_ids = get_cw_starter_template_ids_for_user($user_id);
     if (!empty($starter_ids)) {
         foreach ($starter_ids as $template_id) {
-            delete_template_logic($managerInstance, (int)$template_id);
+            $delete_result = delete_template_logic($managerInstance, (int)$template_id);
+            if (is_wp_error($delete_result)) {
+                return $delete_result;
+            }
         }
     }
 
@@ -546,5 +561,10 @@ function reset_starter_templates_logic(\WPAICG\ContentWriter\AIPKit_Content_Writ
 
     ensure_starter_templates_exist_logic($managerInstance);
 
-    return get_cw_starter_template_ids_for_user($user_id);
+    $reset_starter_ids = get_cw_starter_template_ids_for_user($user_id);
+    if (count($reset_starter_ids) !== $expected_count) {
+        return new WP_Error('starter_reset_failed', __('Starter templates could not be fully restored.', 'gpt3-ai-content-generator'));
+    }
+
+    return $reset_starter_ids;
 }

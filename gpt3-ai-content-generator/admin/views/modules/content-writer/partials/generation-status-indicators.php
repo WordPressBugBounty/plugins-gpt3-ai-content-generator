@@ -1,12 +1,4 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/content-writer/partials/generation-status-indicators.php
-// Status: MODIFIED
-// I have added a new step for "Tags" to the generation status indicators.
-
-/**
- * Partial: Content Writer - Generation Status Indicators
- * Displays modern visual progress indicators for the content generation workflow.
- */
 
 if (!defined('ABSPATH')) {
     exit;

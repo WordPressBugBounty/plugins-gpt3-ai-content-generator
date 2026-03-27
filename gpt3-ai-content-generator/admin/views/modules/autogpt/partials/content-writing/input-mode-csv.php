@@ -50,9 +50,8 @@ if (!defined('ABSPATH')) {
 
         <div class="aipkit_csv_help_content">
             <div class="aipkit_csv_columns_row">
-                <div class="aipkit_csv_column_chip aipkit_csv_column_chip--required">
+                <div class="aipkit_csv_column_chip">
                     <span class="aipkit_csv_column_label"><?php esc_html_e('Topic', 'gpt3-ai-content-generator'); ?></span>
-                    <span class="aipkit_csv_column_tag"><?php esc_html_e('required', 'gpt3-ai-content-generator'); ?></span>
                 </div>
                 <span class="aipkit_csv_column_divider">→</span>
                 <div class="aipkit_csv_column_chip">

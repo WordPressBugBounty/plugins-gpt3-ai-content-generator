@@ -22,6 +22,14 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
     public const SETTINGS_OPTION_NAME = 'aipkit_image_generator_settings';
 
     /**
+     * Normalize checkbox-like values to booleans.
+     */
+    private static function normalize_checkbox_value($value): bool
+    {
+        return $value === true || $value === 1 || $value === '1' || $value === 'true';
+    }
+
+    /**
      * Get default UI text values for the frontend image generator.
      */
     public static function get_default_ui_text_settings(): array
@@ -123,6 +131,38 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
         $saved['replicate'] = array_intersect_key($saved['replicate'], $defaults['replicate']);
         
         return $saved;
+    }
+
+    /**
+     * Save Replicate-specific image settings outside the Image Generator module UI.
+     */
+    public static function save_replicate_settings(array $raw_settings): bool
+    {
+        $defaults = self::get_default_settings();
+        $current_settings = self::get_settings();
+        $current_replicate = isset($current_settings['replicate']) && is_array($current_settings['replicate'])
+            ? $current_settings['replicate']
+            : $defaults['replicate'];
+
+        $next_replicate = array_merge($defaults['replicate'], $current_replicate);
+        $changed = false;
+
+        if (array_key_exists('disable_safety_checker', $raw_settings)) {
+            $next_value = self::normalize_checkbox_value($raw_settings['disable_safety_checker']);
+            if (!array_key_exists('disable_safety_checker', $current_replicate) || (bool) $current_replicate['disable_safety_checker'] !== $next_value) {
+                $next_replicate['disable_safety_checker'] = $next_value;
+                $changed = true;
+            }
+        }
+
+        if (!$changed) {
+            return false;
+        }
+
+        $current_settings['replicate'] = $next_replicate;
+        update_option(self::SETTINGS_OPTION_NAME, $current_settings, 'no');
+
+        return true;
     }
 
     /**
@@ -311,12 +351,13 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
         }
         $new_settings['ui_text'] = $new_ui_text_settings;
 
-        // Handle Replicate settings
-        $replicate_defaults = $defaults['replicate'];
-        $new_replicate_settings = $new_settings['replicate'] ?? $replicate_defaults;
-        // Handle checkbox: when unchecked, POST data won't contain the field, so treat as false
-        $new_replicate_settings['disable_safety_checker'] = isset($post_data['replicate_disable_safety_checker']) && ($post_data['replicate_disable_safety_checker'] === '1');
-        $new_settings['replicate'] = $new_replicate_settings;
+        // Handle Replicate settings only when this field is part of the request.
+        if (array_key_exists('replicate_disable_safety_checker', $post_data)) {
+            $replicate_defaults = $defaults['replicate'];
+            $new_replicate_settings = $new_settings['replicate'] ?? $replicate_defaults;
+            $new_replicate_settings['disable_safety_checker'] = self::normalize_checkbox_value($post_data['replicate_disable_safety_checker']);
+            $new_settings['replicate'] = $new_replicate_settings;
+        }
 
         $current_json = wp_json_encode($current_settings);
         $new_json     = wp_json_encode($new_settings);

@@ -33,7 +33,6 @@ class Assets {
     public static $sidebar_needed = false;
     public static $tts_needed = false;
     public static $consent_needed = false;
-    public static $moderation_needed = false;
     public static $stt_needed = false;
     public static $image_gen_needed = false;
     public static $chat_image_upload_needed = false;

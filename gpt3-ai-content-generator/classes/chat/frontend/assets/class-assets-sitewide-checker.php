@@ -56,7 +56,6 @@ class AssetsSiteWideChecker {
             $enable_image_gen_command = true;
 
             AssetsOrchestrator::$consent_needed = true;
-            AssetsOrchestrator::$moderation_needed = true;
 
             if ($enable_download_setting === '1' && aipkit_dashboard::is_pro_plan()) {
                 AssetsOrchestrator::$jspdf_needed = true;

@@ -18,6 +18,7 @@ class Core_Moderation_Dependencies_Loader {
         $moderation_base_path = WPAICG_PLUGIN_DIR . 'classes/core/moderation/';
 
         $moderation_files = [
+            'AIPKit_Global_Security_Settings.php',
             'AIPKit_BannedIP_Checker.php',
             'AIPKit_BannedWords_Checker.php',
             'AIPKit_OpenAI_Moderation_Checker.php',

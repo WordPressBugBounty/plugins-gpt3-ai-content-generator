@@ -54,16 +54,9 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_enable_copy_button', $sanitized_settings['enable_copy_button']);
     update_post_meta($botId, '_aipkit_enable_feedback', $sanitized_settings['enable_feedback']);
     update_post_meta($botId, '_aipkit_enable_consent_compliance', $sanitized_settings['enable_consent_compliance']);
-    update_post_meta($botId, '_aipkit_enable_ip_anonymization', $sanitized_settings['enable_ip_anonymization']);
     update_post_meta($botId, '_aipkit_consent_title', $sanitized_settings['consent_title']);
     update_post_meta($botId, '_aipkit_consent_message', $sanitized_settings['consent_message']);
     update_post_meta($botId, '_aipkit_consent_button', $sanitized_settings['consent_button']);
-    update_post_meta($botId, '_aipkit_openai_moderation_enabled', $sanitized_settings['openai_moderation_enabled']);
-    update_post_meta($botId, '_aipkit_openai_moderation_message', $sanitized_settings['openai_moderation_message']);
-    update_post_meta($botId, '_aipkit_banned_words', $sanitized_settings['banned_words']);
-    update_post_meta($botId, '_aipkit_banned_words_message', $sanitized_settings['banned_words_message']);
-    update_post_meta($botId, '_aipkit_banned_ips', $sanitized_settings['banned_ips']);
-    update_post_meta($botId, '_aipkit_banned_ips_message', $sanitized_settings['banned_ips_message']);
     update_post_meta($botId, '_aipkit_enable_conversation_sidebar', $sanitized_settings['enable_conversation_sidebar']);
     update_post_meta($botId, '_aipkit_custom_typing_text', $sanitized_settings['custom_typing_text']);
     update_post_meta($botId, '_aipkit_input_placeholder', $sanitized_settings['input_placeholder']);

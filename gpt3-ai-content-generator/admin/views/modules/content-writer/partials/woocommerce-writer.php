@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Partial: WooCommerce Product Writer Tab Content
- *
- * Placeholder content for the WooCommerce Product Writer functionality.
- */
-
 if (!defined('ABSPATH')) {
     exit;
 }

@@ -120,6 +120,8 @@ class AIPKit_Providers
     private static $recommended_model_lists = [
         'OpenAI' => [
             'gpt-5.4',
+            'gpt-5.4-mini',
+            'gpt-5.4-nano',
             'gpt-5.2-chat-latest',
             'gpt-5-mini',
             'gpt-4.1-mini',

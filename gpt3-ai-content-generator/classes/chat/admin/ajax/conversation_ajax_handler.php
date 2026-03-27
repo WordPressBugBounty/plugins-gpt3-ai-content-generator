@@ -11,6 +11,7 @@ use WPAICG\Speech\AIPKit_Speech_Manager; // Use TTS Manager
 use WPAICG\aipkit_dashboard; // Use dashboard class
 use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WPAICG\Core\AIPKit_Event_Webhooks;
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 // --- MODIFIED: Correct namespace for BotSettingsManager ---
 use WPAICG\Chat\Storage\BotSettingsManager;
 // --- END MODIFICATION ---
@@ -413,9 +414,14 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         }
 
         $log_data['banned_ips'] = '';
-        if (!empty($log_data['bot_id'])) {
-            $banned_ips_value = get_post_meta((int)$log_data['bot_id'], '_aipkit_banned_ips', true);
-            $log_data['banned_ips'] = is_string($banned_ips_value) ? $banned_ips_value : '';
+        if (class_exists(AIPKit_Global_Security_Settings::class)) {
+            $security_settings = AIPKit_Global_Security_Settings::get_settings();
+            $blocklists = isset($security_settings['blocklists']) && is_array($security_settings['blocklists'])
+                ? $security_settings['blocklists']
+                : [];
+            $log_data['banned_ips'] = isset($blocklists['banned_ips']) && is_string($blocklists['banned_ips'])
+                ? $blocklists['banned_ips']
+                : '';
         }
 
         if (isset($log_data['messages']) && is_string($log_data['messages'])) {

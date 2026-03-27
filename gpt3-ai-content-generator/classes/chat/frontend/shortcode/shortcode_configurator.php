@@ -35,6 +35,4 @@ class Configurator {
         // Call the main orchestrator function from the new structure
         return ConfiguratorMethods\build_config_array_logic($bot_id, $bot_post, $settings, $feature_flags);
     }
-
-    // Removed get_client_ip() static method as it's moved to configurator/get-client-ip.php
 }

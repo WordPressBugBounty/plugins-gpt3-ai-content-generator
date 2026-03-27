@@ -45,68 +45,7 @@ function build_prompt_logic(array $form_config, array $submitted_fields): string
                     }
 
                     $placeholder = '{' . $field_id . '}';
-                    $value_to_substitute = ''; // Default to empty string if field not submitted
-
-                    if (isset($submitted_fields[$field_id])) {
-                        $submitted_value = $submitted_fields[$field_id];
-                        $element_type = $element['type'] ?? 'text-input';
-
-                        switch ($element_type) {
-                            case 'select':
-                            case 'radio-button':
-                                $options = $element['options'] ?? [];
-                                $found_option_text = false;
-                                foreach ($options as $option) {
-                                    if (isset($option['value']) && $option['value'] == $submitted_value) { // Use == for loose comparison
-                                        $value_to_substitute = $option['text'] ?? $submitted_value;
-                                        $found_option_text = true;
-                                        break;
-                                    }
-                                }
-                                if (!$found_option_text) {
-                                    $value_to_substitute = $submitted_value; // Fallback to raw value if no matching option text found
-                                }
-                                break;
-
-                            case 'checkbox':
-                                // Handle both array and single/comma-separated string value for robustness.
-                                $submitted_values_array = [];
-                                if (is_array($submitted_value)) {
-                                    $submitted_values_array = $submitted_value;
-                                } elseif (is_string($submitted_value) && !empty($submitted_value)) {
-                                    // This handles both a single value string and a comma-separated string
-                                    $submitted_values_array = array_map('trim', explode(',', $submitted_value));
-                                }
-
-                                if (!empty($submitted_values_array)) {
-                                    $labels_to_substitute = [];
-                                    $options = $element['options'] ?? [];
-                                    // Loop through submitted values and find their corresponding display text.
-                                    foreach ($submitted_values_array as $val) {
-                                        $found_text = false;
-                                        foreach ($options as $option) {
-                                            if (isset($option['value']) && $option['value'] == $val) { // Use == for loose comparison
-                                                $labels_to_substitute[] = $option['text'] ?? $val;
-                                                $found_text = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!$found_text) {
-                                            $labels_to_substitute[] = $val; // Fallback to the raw value
-                                        }
-                                    }
-                                    $value_to_substitute = implode(', ', $labels_to_substitute);
-                                } else {
-                                    // If nothing is selected, substitute with an empty string.
-                                    $value_to_substitute = '';
-                                }
-                                break;
-
-                            default: // 'text-input', 'textarea', 'file-upload' etc.
-                                $value_to_substitute = $submitted_value;
-                                break;
-                        }
-                    }
+                    $value_to_substitute = resolve_submitted_field_value_logic($element, $submitted_fields);
 
                     // Replace placeholder in the prompt with the determined value.
                     // This will also replace with '' if the field wasn't submitted, effectively removing the placeholder.
@@ -123,4 +62,140 @@ function build_prompt_logic(array $form_config, array $submitted_fields): string
     }
 
     return $final_prompt;
+}
+
+/**
+ * Builds a moderation-safe text string from submitted field values only.
+ *
+ * @param array $form_config
+ * @param array $submitted_fields
+ * @return string
+ */
+function build_moderation_text_logic(array $form_config, array $submitted_fields): string
+{
+    $form_structure = $form_config['structure'] ?? [];
+    $moderation_segments = [];
+
+    if (!empty($form_structure) && is_array($form_structure)) {
+        foreach ($form_structure as $row) {
+            if (empty($row['columns']) || !is_array($row['columns'])) {
+                continue;
+            }
+            foreach ($row['columns'] as $column) {
+                if (empty($column['elements']) || !is_array($column['elements'])) {
+                    continue;
+                }
+                foreach ($column['elements'] as $element) {
+                    $field_id = $element['fieldId'] ?? null;
+                    if (!$field_id) {
+                        continue;
+                    }
+
+                    $resolved_value = trim(resolve_submitted_field_value_logic($element, $submitted_fields));
+                    if ($resolved_value !== '') {
+                        $moderation_segments[] = $resolved_value;
+                    }
+                }
+            }
+        }
+    }
+
+    if (empty($moderation_segments)) {
+        collect_scalar_values_logic($submitted_fields, $moderation_segments);
+    }
+
+    return implode("\n", array_filter(array_map('trim', $moderation_segments), 'strlen'));
+}
+
+/**
+ * Resolves one submitted field into the display string used in prompts and moderation.
+ *
+ * @param array $element
+ * @param array $submitted_fields
+ * @return string
+ */
+function resolve_submitted_field_value_logic(array $element, array $submitted_fields): string
+{
+    $field_id = $element['fieldId'] ?? null;
+    if (!$field_id || !array_key_exists($field_id, $submitted_fields)) {
+        return '';
+    }
+
+    $submitted_value = $submitted_fields[$field_id];
+    $element_type = $element['type'] ?? 'text-input';
+
+    switch ($element_type) {
+        case 'select':
+        case 'radio-button':
+            $options = $element['options'] ?? [];
+            foreach ($options as $option) {
+                if (isset($option['value']) && $option['value'] == $submitted_value) {
+                    return (string) ($option['text'] ?? $submitted_value);
+                }
+            }
+
+            return is_scalar($submitted_value) ? (string) $submitted_value : '';
+
+        case 'checkbox':
+            $submitted_values_array = [];
+            if (is_array($submitted_value)) {
+                $submitted_values_array = $submitted_value;
+            } elseif (is_string($submitted_value) && $submitted_value !== '') {
+                $submitted_values_array = array_map('trim', explode(',', $submitted_value));
+            }
+
+            if (empty($submitted_values_array)) {
+                return '';
+            }
+
+            $labels_to_substitute = [];
+            $options = $element['options'] ?? [];
+            foreach ($submitted_values_array as $value) {
+                $resolved_label = is_scalar($value) ? (string) $value : '';
+                foreach ($options as $option) {
+                    if (isset($option['value']) && $option['value'] == $value) {
+                        $resolved_label = (string) ($option['text'] ?? $value);
+                        break;
+                    }
+                }
+                if ($resolved_label !== '') {
+                    $labels_to_substitute[] = $resolved_label;
+                }
+            }
+
+            return implode(', ', $labels_to_substitute);
+
+        default:
+            if (is_array($submitted_value)) {
+                $scalar_values = [];
+                collect_scalar_values_logic($submitted_value, $scalar_values);
+                return implode(', ', $scalar_values);
+            }
+
+            return is_scalar($submitted_value) ? (string) $submitted_value : '';
+    }
+}
+
+/**
+ * Recursively collects scalar values from nested arrays.
+ *
+ * @param mixed $value
+ * @param array<int, string> $segments
+ * @return void
+ */
+function collect_scalar_values_logic($value, array &$segments): void
+{
+    if (is_array($value)) {
+        foreach ($value as $item) {
+            collect_scalar_values_logic($item, $segments);
+        }
+        return;
+    }
+
+    if (is_scalar($value)) {
+        $scalar_value = trim((string) $value);
+        if ($scalar_value !== '') {
+            $segments[] = $scalar_value;
+        }
+    }
 }

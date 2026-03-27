@@ -254,6 +254,26 @@ $qdrant_synced_collection_options = $normalize_synced_select_options($qdrant_col
     </div>
 </div>
 
+<div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_replicate_safety_row" data-aipkit-integration-provider="replicate" hidden>
+    <label class="aipkit_form-label" for="aipkit_replicate_disable_safety_checker">
+        <?php esc_html_e('Disable Safety Checker', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Apply Replicate safety-checker override to image generation.', 'gpt3-ai-content-generator'); ?></span>
+    </label>
+    <div class="aipkit_settings_security_toggle">
+        <label class="aipkit_switch" for="aipkit_replicate_disable_safety_checker">
+            <input
+                type="checkbox"
+                id="aipkit_replicate_disable_safety_checker"
+                name="replicate_disable_safety_checker"
+                value="1"
+                class="aipkit_autosave_trigger"
+                <?php checked($replicate_disable_safety_checker, true); ?>
+            />
+            <span class="aipkit_switch_slider"></span>
+        </label>
+    </div>
+</div>
+
 <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_pinecone_api_key_row" data-aipkit-integration-provider="pinecone" hidden>
     <label class="aipkit_form-label" for="aipkit_pinecone_api_key">
         <?php esc_html_e('Pinecone API Key', 'gpt3-ai-content-generator'); ?>

@@ -90,16 +90,9 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_enable_copy_button', BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON);
         update_post_meta($post_id, '_aipkit_enable_feedback', BotSettingsManager::DEFAULT_ENABLE_FEEDBACK);
         update_post_meta($post_id, '_aipkit_enable_consent_compliance', BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE);
-        update_post_meta($post_id, '_aipkit_enable_ip_anonymization', BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION);
         update_post_meta($post_id, '_aipkit_consent_title', __('Consent Required', 'gpt3-ai-content-generator'));
         update_post_meta($post_id, '_aipkit_consent_message', __('Before starting the conversation, please agree to our Terms of Service and Privacy Policy.', 'gpt3-ai-content-generator'));
         update_post_meta($post_id, '_aipkit_consent_button', __('I Agree', 'gpt3-ai-content-generator'));
-        update_post_meta($post_id, '_aipkit_openai_moderation_enabled', BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION);
-        update_post_meta($post_id, '_aipkit_openai_moderation_message', __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'));
-        update_post_meta($post_id, '_aipkit_banned_words', BotSettingsManager::DEFAULT_BANNED_WORDS);
-        update_post_meta($post_id, '_aipkit_banned_words_message', BotSettingsManager::DEFAULT_BANNED_WORDS_MESSAGE);
-        update_post_meta($post_id, '_aipkit_banned_ips', BotSettingsManager::DEFAULT_BANNED_IPS);
-        update_post_meta($post_id, '_aipkit_banned_ips_message', BotSettingsManager::DEFAULT_BANNED_IPS_MESSAGE);
         update_post_meta($post_id, '_aipkit_enable_conversation_sidebar', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR);
         $default_placeholder = __('Type your message...', 'gpt3-ai-content-generator');
         update_post_meta($post_id, '_aipkit_input_placeholder', $default_placeholder);

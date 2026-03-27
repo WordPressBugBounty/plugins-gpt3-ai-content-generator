@@ -7,6 +7,7 @@ use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\AIPKit_Providers;
 use WPAICG\aipkit_dashboard;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
+use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -64,6 +65,15 @@ $elevenlabs_model_list = AIPKit_Providers::get_elevenlabs_models();
 $replicate_model_list  = AIPKit_Providers::get_replicate_models();
 $pinecone_index_list   = AIPKit_Providers::get_pinecone_indexes();
 $qdrant_collection_list = AIPKit_Providers::get_qdrant_collections();
+$image_generator_settings = class_exists(AIPKit_Image_Settings_Ajax_Handler::class)
+    ? AIPKit_Image_Settings_Ajax_Handler::get_settings()
+    : [];
+$replicate_image_settings = isset($image_generator_settings['replicate']) && is_array($image_generator_settings['replicate'])
+    ? $image_generator_settings['replicate']
+    : [];
+$replicate_disable_safety_checker = array_key_exists('disable_safety_checker', $replicate_image_settings)
+    ? (bool) $replicate_image_settings['disable_safety_checker']
+    : true;
 
 $temperature       = $ai_params['temperature'];
 $top_p             = $ai_params['top_p'];
@@ -104,6 +114,9 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
                 <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="apps">
                     <span class="aipkit_settings_page_nav_link_label"><?php esc_html_e('Apps', 'gpt3-ai-content-generator'); ?></span>
                 </button>
+                <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="security">
+                    <?php esc_html_e('Security', 'gpt3-ai-content-generator'); ?>
+                </button>
                 <button type="button" class="aipkit_settings_page_nav_link" data-aipkit-settings-page-link="api">
                     <?php esc_html_e('Developers', 'gpt3-ai-content-generator'); ?>
                 </button>
@@ -137,6 +150,17 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
 
                 <div class="aipkit_settings_simple_form aipkit_settings_simple_form--integrations">
                     <?php include __DIR__ . '/partials/settings-integrations-page.php'; ?>
+                </div>
+            </section>
+
+            <section class="aipkit_settings_page_section" data-aipkit-settings-page="security" hidden>
+                <header class="aipkit_settings_page_header">
+                    <h3 class="aipkit_settings_page_title"><?php esc_html_e('Security Settings', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Manage global word and IP blocklists shared across supported modules.', 'gpt3-ai-content-generator'); ?></p>
+                </header>
+
+                <div class="aipkit_settings_simple_form aipkit_settings_simple_form--security">
+                    <?php include __DIR__ . '/partials/settings-security-page.php'; ?>
                 </div>
             </section>
 

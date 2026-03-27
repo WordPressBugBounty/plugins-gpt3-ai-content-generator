@@ -301,7 +301,6 @@ $embed_code = sprintf(
 $embed_code = '<script type="text/javascript">' . $embed_code . '</script>';
 $embed_docs_url = 'https://docs.aipower.org/docs/chat#embed-anywhere-external-sites';
 $consent_feature_available = $is_pro_plan && class_exists('\\WPAICG\\Lib\\Addons\\AIPKit_Consent_Compliance');
-$openai_moderation_available = $is_pro_plan && class_exists('\\WPAICG\\Lib\\Addons\\AIPKit_OpenAI_Moderation');
 $triggers_available = $is_pro_plan;
 $pricing_url = admin_url('admin.php?page=wpaicg-pricing');
 $apps_logo_base_url = defined('WPAICG_PLUGIN_URL')
@@ -652,7 +651,6 @@ if (class_exists(AIPKit_Providers::class)) {
     $google_provider_data = AIPKit_Providers::get_provider_data('Google');
     $azure_provider_data = AIPKit_Providers::get_provider_data('Azure');
     $claude_provider_data = AIPKit_Providers::get_provider_data('Claude');
-    $replicate_provider_data = AIPKit_Providers::get_provider_data('Replicate');
 }
 $openai_api_key = $openai_provider_data['api_key'] ?? '';
 $pinecone_api_key = $pinecone_provider_data['api_key'] ?? '';
@@ -661,7 +659,6 @@ $qdrant_api_key = $qdrant_provider_data['api_key'] ?? '';
 $google_api_key = $google_provider_data['api_key'] ?? '';
 $azure_api_key = $azure_provider_data['api_key'] ?? '';
 $claude_api_key = $claude_provider_data['api_key'] ?? '';
-$replicate_api_key = $replicate_provider_data['api_key'] ?? '';
 $image_triggers = $active_bot_settings['image_triggers']
     ?? BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
 $chat_image_model_id = $active_bot_settings['chat_image_model_id']
@@ -980,7 +977,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                         </div>
                                         <button
                                             type="button"
-                                            class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_builder_new_bot_btn aipkit_builder_new_bot_btn--label"
+                                            class="aipkit_btn aipkit_btn-secondary aipkit_icon_btn aipkit_builder_new_bot_btn"
                                             aria-label="<?php esc_attr_e('Create new chatbot', 'gpt3-ai-content-generator'); ?>"
                                             title="<?php esc_attr_e('Create new chatbot', 'gpt3-ai-content-generator'); ?>"
                                         >
@@ -1060,26 +1057,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 $chatbot_summary_text = !empty($chatbot_summary_parts)
                                     ? implode(' | ', $chatbot_summary_parts)
                                     : $chatbot_summary_fallback;
-                                $behavior_reasoning_labels = [
-                                    'none' => __('None', 'gpt3-ai-content-generator'),
-                                    'low' => __('Low', 'gpt3-ai-content-generator'),
-                                    'medium' => __('Medium', 'gpt3-ai-content-generator'),
-                                    'high' => __('High', 'gpt3-ai-content-generator'),
-                                    'xhigh' => __('Very high', 'gpt3-ai-content-generator'),
-                                ];
-                                $behavior_reasoning_key = isset($reasoning_effort_val)
-                                    ? sanitize_key((string) $reasoning_effort_val)
-                                    : BotSettingsManager::DEFAULT_REASONING_EFFORT;
-                                if (!isset($behavior_reasoning_labels[$behavior_reasoning_key])) {
-                                    $behavior_reasoning_key = BotSettingsManager::DEFAULT_REASONING_EFFORT;
-                                }
-                                $behavior_reasoning_label = $behavior_reasoning_labels[$behavior_reasoning_key]
-                                    ?? __('None', 'gpt3-ai-content-generator');
-                                $behavior_supports_reasoning = (
-                                    $saved_provider === 'OpenAI'
-                                    && class_exists('\WPAICG\Core\AIPKit_OpenAI_Reasoning')
-                                    && \WPAICG\Core\AIPKit_OpenAI_Reasoning::supports_reasoning((string) $saved_model)
-                                );
                                 $behavior_response_length_value = isset($active_bot_settings['max_completion_tokens'])
                                     ? absint($active_bot_settings['max_completion_tokens'])
                                     : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
@@ -1088,21 +1065,13 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     ? absint($active_bot_settings['max_messages'])
                                     : BotSettingsManager::DEFAULT_MAX_MESSAGES;
                                 $behavior_memory_value = max(1, min($behavior_memory_value, 1024));
-                                $behavior_summary_fallback = __('Response length and memory', 'gpt3-ai-content-generator');
-                                $behavior_summary_text = $behavior_supports_reasoning
-                                    ? sprintf(
-                                        /* translators: 1: response length value, 2: memory value, 3: reasoning label. */
-                                        __('Response length: %1$s | Memory: %2$s | Reasoning: %3$s', 'gpt3-ai-content-generator'),
-                                        number_format_i18n($behavior_response_length_value),
-                                        number_format_i18n($behavior_memory_value),
-                                        $behavior_reasoning_label
-                                    )
-                                    : sprintf(
-                                        /* translators: 1: response length value, 2: memory value. */
-                                        __('Response length: %1$s | Memory: %2$s', 'gpt3-ai-content-generator'),
-                                        number_format_i18n($behavior_response_length_value),
-                                        number_format_i18n($behavior_memory_value)
-                                    );
+                                $behavior_summary_fallback = __('Context and messages', 'gpt3-ai-content-generator');
+                                $behavior_summary_text = sprintf(
+                                    /* translators: 1: context value, 2: messages value. */
+                                    __('Context: %1$s | Messages: %2$s', 'gpt3-ai-content-generator'),
+                                    number_format_i18n($behavior_response_length_value),
+                                    number_format_i18n($behavior_memory_value)
+                                );
                                 $interface_summary_fallback = __('Select theme', 'gpt3-ai-content-generator');
                                 $saved_theme_key = isset($saved_theme) ? (string) $saved_theme : '';
                                 $interface_summary_text = '';
@@ -1276,43 +1245,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 } else {
                                     $tools_summary_text = $tools_summary_fallback;
                                 }
-                                $enable_ip_anonymization_value = $active_bot_settings['enable_ip_anonymization']
-                                    ?? BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION;
-                                $enable_ip_anonymization_value = in_array($enable_ip_anonymization_value, ['0', '1'], true)
-                                    ? $enable_ip_anonymization_value
-                                    : BotSettingsManager::DEFAULT_ENABLE_IP_ANONYMIZATION;
-                                $enable_consent_compliance_value = $active_bot_settings['enable_consent_compliance']
-                                    ?? BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE;
-                                $enable_consent_compliance_value = in_array($enable_consent_compliance_value, ['0', '1'], true)
-                                    ? $enable_consent_compliance_value
-                                    : BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE;
-                                $openai_moderation_enabled_value = $active_bot_settings['openai_moderation_enabled']
-                                    ?? BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION;
-                                $openai_moderation_enabled_value = in_array($openai_moderation_enabled_value, ['0', '1'], true)
-                                    ? $openai_moderation_enabled_value
-                                    : BotSettingsManager::DEFAULT_ENABLE_OPENAI_MODERATION;
-                                $safety_summary_fallback = '';
-                                $safety_summary_parts = [];
-                                if ($enable_ip_anonymization_value === '1') {
-                                    $safety_summary_parts[] = __('IP anonymization', 'gpt3-ai-content-generator');
-                                }
-                                if ($consent_feature_available && $enable_consent_compliance_value === '1') {
-                                    $safety_summary_parts[] = __('Consent notice', 'gpt3-ai-content-generator');
-                                }
-                                if (
-                                    $openai_moderation_available
-                                    && $saved_provider === 'OpenAI'
-                                    && $openai_moderation_enabled_value === '1'
-                                ) {
-                                    $safety_summary_parts[] = __('Moderation', 'gpt3-ai-content-generator');
-                                }
-                                $safety_summary_text = !empty($safety_summary_parts)
-                                    ? sprintf(
-                                        /* translators: %s is a comma-separated list of enabled safety controls. */
-                                        __('Enabled: %s', 'gpt3-ai-content-generator'),
-                                        implode(', ', $safety_summary_parts)
-                                    )
-                                    : $safety_summary_fallback;
                                 $token_limit_mode_value = $active_bot_settings['token_limit_mode']
                                     ?? BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
                                 $token_limit_mode_value = is_scalar($token_limit_mode_value)
@@ -1605,22 +1537,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                             </div>
                                         </div>
                                     <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class="aipkit_accordion_section" data-aipkit-accordion="safety">
-                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
-                                    <span class="aipkit_accordion_header_icon dashicons dashicons-shield" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Safety', 'gpt3-ai-content-generator'); ?></span>
-                                    <span
-                                        class="aipkit_accordion_header_hint"
-                                        data-aipkit-safety-summary
-                                        data-default-summary="<?php echo esc_attr($safety_summary_fallback); ?>"
-                                        title="<?php echo esc_attr($safety_summary_text); ?>"
-                                    ><?php echo esc_html($safety_summary_text); ?></span>
-                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
-                                </button>
-                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="safety" hidden>
-                                    <?php include __DIR__ . '/partials/ai-config/safety-settings.php'; ?>
                                 </div>
                             </div>
                             <div class="aipkit_accordion_section" data-aipkit-accordion="limits">
@@ -1997,9 +1913,114 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                     rel="noopener noreferrer"
                 >
                 <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
-            </a>
+                </a>
+            </div>
         </div>
-        </div>
+        <?php if ($consent_feature_available) : ?>
+            <div
+                class="aipkit_popover_consent_flyout"
+                id="aipkit_consent_flyout"
+                aria-hidden="true"
+                role="dialog"
+            >
+                <div class="aipkit_popover_flyout_header">
+                    <span class="aipkit_popover_flyout_title">
+                        <?php esc_html_e('Consent notice', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                    <button
+                        type="button"
+                        class="aipkit_popover_flyout_close aipkit_consent_flyout_close"
+                        aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
+                    >
+                        <span class="dashicons dashicons-no-alt"></span>
+                    </button>
+                </div>
+                <div class="aipkit_popover_flyout_body aipkit_popover_consent_body">
+                    <?php
+                    $bot_id = $initial_active_bot_id;
+                    $bot_settings = $active_bot_settings;
+                    $consent_title = $bot_settings['consent_title'] ?? __('Consent Required', 'gpt3-ai-content-generator');
+                    $consent_message = $bot_settings['consent_message'] ?? __('Before starting the conversation, please agree to our Terms of Service and Privacy Policy.', 'gpt3-ai-content-generator');
+                    $consent_button = $bot_settings['consent_button'] ?? __('I Agree', 'gpt3-ai-content-generator');
+                    ?>
+                    <div class="aipkit_popover_options_list">
+                        <div class="aipkit_popover_option_row">
+                            <div class="aipkit_popover_option_main">
+                                <label
+                                    class="aipkit_popover_option_label"
+                                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_consent_title"
+                                >
+                                    <?php esc_html_e('Title', 'gpt3-ai-content-generator'); ?>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_consent_title"
+                                    name="consent_title"
+                                    class="aipkit_popover_option_input aipkit_popover_option_input--framed"
+                                    value="<?php echo esc_attr($consent_title); ?>"
+                                    placeholder="<?php esc_attr_e('Consent Required', 'gpt3-ai-content-generator'); ?>"
+                                    autocomplete="off"
+                                    data-lpignore="true"
+                                    data-1p-ignore="true"
+                                    data-form-type="other"
+                                />
+                            </div>
+                        </div>
+                        <div class="aipkit_popover_option_row">
+                            <div class="aipkit_popover_option_main">
+                                <label
+                                    class="aipkit_popover_option_label"
+                                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_consent_button"
+                                >
+                                    <?php esc_html_e('Button label', 'gpt3-ai-content-generator'); ?>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_consent_button"
+                                    name="consent_button"
+                                    class="aipkit_popover_option_input aipkit_popover_option_input--framed"
+                                    value="<?php echo esc_attr($consent_button); ?>"
+                                    placeholder="<?php esc_attr_e('I Agree', 'gpt3-ai-content-generator'); ?>"
+                                    autocomplete="off"
+                                    data-lpignore="true"
+                                    data-1p-ignore="true"
+                                    data-form-type="other"
+                                />
+                            </div>
+                        </div>
+                        <div class="aipkit_popover_option_row">
+                            <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
+                                <label
+                                    class="aipkit_popover_option_label"
+                                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_consent_message"
+                                >
+                                    <?php esc_html_e('Message', 'gpt3-ai-content-generator'); ?>
+                                </label>
+                                <textarea
+                                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_consent_message"
+                                    name="consent_message"
+                                    class="aipkit_popover_option_textarea"
+                                    rows="4"
+                                ><?php echo esc_textarea($consent_message); ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="aipkit_popover_flyout_footer">
+                    <span class="aipkit_popover_flyout_footer_text">
+                        <?php esc_html_e('Need help? Read the docs.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                    <a
+                        class="aipkit_popover_flyout_footer_link"
+                        href="<?php echo esc_url('https://docs.aipower.org/docs/chat#consent-notice'); ?>"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
     <div
         class="aipkit-modal-overlay aipkit_builder_instructions_modal"

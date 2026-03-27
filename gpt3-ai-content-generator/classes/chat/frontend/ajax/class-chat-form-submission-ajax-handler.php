@@ -163,7 +163,6 @@ class ChatFormSubmissionAjaxHandler {
             $this->send_wp_error(new WP_Error('bot_not_found', __('Chatbot configuration not found.', 'gpt3-ai-content-generator'), ['status' => 404]));
             return;
         }
-        $enable_ip_anonymization = isset($bot_settings['enable_ip_anonymization']) && $bot_settings['enable_ip_anonymization'] === '1';
 
         $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
         $http_referer = isset($_SERVER['HTTP_REFERER']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_REFERER'])) : '';
@@ -183,7 +182,6 @@ class ChatFormSubmissionAjaxHandler {
             'module'            => 'chat', // This ensures trigger meta-logs go to the right conversation
             'is_guest'          => ($user_id === 0 || $user_id === null),
             'ip_address'        => $client_ip,
-            'ip_anonymize'      => $enable_ip_anonymization,
             'role'              => $user_wp_roles ? implode(', ', $user_wp_roles) : null,
         ];
 
