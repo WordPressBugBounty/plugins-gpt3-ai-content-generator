@@ -110,7 +110,7 @@ class AIPKit_Shortcodes_Manager
         $dist_js_url = WPAICG_PLUGIN_URL . 'dist/js/';
         $public_main_js_handle = 'aipkit-public-main'; // Central handle for public JS
 
-        $ai_forms_present = has_shortcode($content, 'aipkit_ai_form');
+        $ai_forms_present = has_shortcode($content, 'aipkit_ai_form') || has_block('aipkit/ai-form', $content);
         $force_load_ai_forms = apply_filters('aipkit_enqueue_public_ai_forms_assets', false);
         if ($ai_forms_present || $force_load_ai_forms) {
             $public_ai_forms_css_handle = 'aipkit-public-ai-forms';
@@ -139,7 +139,9 @@ class AIPKit_Shortcodes_Manager
             }
         }
 
-        $image_generator_present = $this->is_image_generator_active && has_shortcode($content, 'aipkit_image_generator');
+        $image_generator_present = $this->is_image_generator_active && (
+            has_shortcode($content, 'aipkit_image_generator') || has_block('aipkit/image-generator', $content)
+        );
         $force_load_image_gen = apply_filters('aipkit_enqueue_public_image_generator_assets', false);
 
         if ($image_generator_present || $force_load_image_gen) {

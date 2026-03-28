@@ -6,6 +6,7 @@ namespace WPAICG\Includes\HookRegistrars;
 
 use WPAICG\WP_AI_Content_Generator_i18n;
 use WPAICG\Public\WP_AI_Content_Generator_Public;
+use WPAICG\Includes\AIPKit_Blocks_Manager;
 use WPAICG\Shortcodes\AIPKit_Shortcodes_Manager;
 use WPAICG\PostEnhancer\Core as PostEnhancerCore;
 use WPAICG\Speech\AIPKit_Speech_Manager;
@@ -25,6 +26,7 @@ class Core_Hooks_Registrar {
     public static function register(
         WP_AI_Content_Generator_i18n $i18n,
         WP_AI_Content_Generator_Public $public,
+        AIPKit_Blocks_Manager $blocks_manager,
         AIPKit_Shortcodes_Manager $shortcodes,
         PostEnhancerCore $post_enhancer,
         ?AIPKit_Speech_Manager $speech_manager, // Nullable if class might not exist
@@ -33,6 +35,7 @@ class Core_Hooks_Registrar {
     ) {
         add_action('init', [$i18n, 'init_hooks'], 0);
         $public->init_hooks();
+        $blocks_manager->init_hooks();
         $shortcodes->init_hooks();
         $post_enhancer->init_hooks();
 

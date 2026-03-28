@@ -51,6 +51,7 @@ class AIPKit_Dependency_Loader
         // Core Plugin Files (Loaded directly before specialized loaders)
         require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator-i18n.php';
         require_once WPAICG_PLUGIN_DIR . 'public/class-wp-ai-content-generator-public.php';
+        require_once WPAICG_PLUGIN_DIR . 'includes/class-aipkit-blocks-manager.php';
         require_once WPAICG_PLUGIN_DIR . 'includes/class-aipkit-shortcodes-manager.php';
         require_once WPAICG_PLUGIN_DIR . 'includes/database-schema.php';
         require_once WPAICG_PLUGIN_DIR . 'classes/seo/seo-helper.php';

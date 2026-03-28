@@ -47,7 +47,7 @@ class AssetsEnqueuer
 
         global $post;
         $content = is_a($post, 'WP_Post') ? $post->post_content : '';
-        $found_in_content = has_shortcode($content, 'aipkit_chatbot');
+        $found_in_content = has_shortcode($content, 'aipkit_chatbot') || has_block('aipkit/chatbot', $content);
 
         $should_enqueue_core_css = AssetsOrchestrator::$shortcode_rendered || AssetsOrchestrator::$site_wide_injection_needed || $found_in_content;
         $should_enqueue_core_js = $should_enqueue_core_css; // JS likely needed if CSS is

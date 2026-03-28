@@ -9,6 +9,7 @@ namespace WPAICG\Includes;
 // Core Functionality
 use WPAICG\WP_AI_Content_Generator_i18n;
 use WPAICG\Public\WP_AI_Content_Generator_Public;
+use WPAICG\Includes\AIPKit_Blocks_Manager;
 use WPAICG\Shortcodes\AIPKit_Shortcodes_Manager;
 use WPAICG\PostEnhancer\Core as PostEnhancerCore;
 use WPAICG\Speech\AIPKit_Speech_Manager;
@@ -87,6 +88,7 @@ class AIPKit_Hook_Manager
         // --- Instantiate ALL services/handlers needed by ANY registrar ---
         $i18n            = new WP_AI_Content_Generator_i18n();
         $public_handler  = new WP_AI_Content_Generator_Public();
+        $blocks_manager  = new AIPKit_Blocks_Manager($plugin_version);
         $shortcodes      = new AIPKit_Shortcodes_Manager($plugin_version);
         $post_enhancer   = new PostEnhancerCore();
         $speech_manager  = class_exists(AIPKit_Speech_Manager::class) ? new AIPKit_Speech_Manager() : null;
@@ -154,6 +156,7 @@ class AIPKit_Hook_Manager
             Core_Hooks_Registrar::register(
                 $i18n,
                 $public_handler,
+                $blocks_manager,
                 $shortcodes,
                 $post_enhancer,
                 $speech_manager,
