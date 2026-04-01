@@ -268,7 +268,6 @@ class AIPKit_Content_Writer_Image_Handler
             $provider,
             $model,
             $temperature,
-            $allow_reasoning,
             $reasoning_effort,
             $prompt_templates,
             $field_flags,

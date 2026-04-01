@@ -59,7 +59,7 @@ if (!$is_pro) {
             <a class="aipkit_btn aipkit_btn-primary aipkit_feature_promo_btn" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
                 <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
             </a>
-            <a class="aipkit_feature_promo_link" href="https://aipower.org/docs/" target="_blank" rel="noopener noreferrer">
+            <a class="aipkit_feature_promo_link" href="https://docs.aipower.org/" target="_blank" rel="noopener noreferrer">
                 <?php esc_html_e('Learn more', 'gpt3-ai-content-generator'); ?>
                 <span aria-hidden="true">→</span>
             </a>

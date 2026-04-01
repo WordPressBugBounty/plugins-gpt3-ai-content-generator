@@ -12,23 +12,63 @@ $enhancer_editor_integration_enabled = $aipkit_options['enhancer_settings']['edi
 $enhancer_default_insert_position = $aipkit_options['enhancer_settings']['default_insert_position'] ?? 'replace';
 $aipkit_render_assistant_accordion = false;
 $aipkit_render_assistant_footer = true;
+$content_length_options = [
+    'short' => __('Short', 'gpt3-ai-content-generator'),
+    'medium' => __('Medium', 'gpt3-ai-content-generator'),
+    'long' => __('Long', 'gpt3-ai-content-generator'),
+];
 
 ?>
-<?php include __DIR__ . '/template-controls.php'; ?>
+<div class="aipkit_cw_inspector_stack">
+    <section class="aipkit_cw_inspector_card aipkit_cw_inspector_card--run">
+        <div class="aipkit_cw_inspector_card_header">
+            <div class="aipkit_cw_inspector_card_header_copy">
+                <div class="aipkit_cw_inspector_card_title">
+                    <?php esc_html_e('Setup', 'gpt3-ai-content-generator'); ?>
+                </div>
+            </div>
+        </div>
+        <div class="aipkit_cw_inspector_card_body aipkit_cw_inspector_card_body--run">
+            <?php include __DIR__ . '/template-controls.php'; ?>
+            <?php include __DIR__ . '/form-inputs/ai-settings.php'; ?>
+            <div class="aipkit_cw_ai_row">
+                <div class="aipkit_cw_panel_label_wrap">
+                    <label class="aipkit_cw_panel_label" for="aipkit_content_writer_content_length">
+                        <?php esc_html_e('Length', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                </div>
+                <div class="aipkit_cw_ai_control aipkit_cw_ai_control--compact">
+                    <select
+                        id="aipkit_content_writer_content_length"
+                        name="content_length"
+                        class="aipkit_autosave_trigger aipkit_form-input aipkit_cw_blended_chevron_select"
+                    >
+                        <?php foreach ($content_length_options as $content_length_value => $content_length_label) : ?>
+                            <option value="<?php echo esc_attr($content_length_value); ?>" <?php selected($content_length_value, 'medium'); ?>>
+                                <?php echo esc_html($content_length_label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <?php include __DIR__ . '/form-inputs/publishing-settings.php'; ?>
+            <?php include __DIR__ . '/form-inputs/prompts-settings.php'; ?>
+        </div>
+    </section>
 
-<?php include __DIR__ . '/form-inputs/ai-settings.php'; ?>
-
-<section class="aipkit_cw_inline_section aipkit_cw_inline_section--images">
-    <?php include __DIR__ . '/form-inputs/image-settings.php'; ?>
-</section>
-
-<section class="aipkit_cw_inline_section aipkit_cw_inline_section--prompts">
-    <?php include __DIR__ . '/form-inputs/prompts-settings.php'; ?>
-</section>
-
-<section class="aipkit_cw_inline_section aipkit_cw_inline_section--publishing">
-    <?php include __DIR__ . '/form-inputs/publishing-settings.php'; ?>
-</section>
+    <section class="aipkit_cw_inspector_card aipkit_cw_inspector_card--media">
+        <div class="aipkit_cw_inspector_card_header">
+            <div class="aipkit_cw_inspector_card_header_copy">
+                <div class="aipkit_cw_inspector_card_title">
+                    <?php esc_html_e('Media', 'gpt3-ai-content-generator'); ?>
+                </div>
+            </div>
+        </div>
+        <div class="aipkit_cw_inspector_card_body aipkit_cw_inspector_card_body--media">
+            <?php include __DIR__ . '/form-inputs/image-settings.php'; ?>
+        </div>
+    </section>
+</div>
 
 <div
     class="aipkit_builder_sheet_overlay"

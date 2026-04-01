@@ -21,7 +21,6 @@ $pexels_data = AIPKit_Providers::get_provider_data('Pexels');
 $pixabay_data = AIPKit_Providers::get_provider_data('Pixabay');
 $current_pexels_api_key = $pexels_data['api_key'] ?? '';
 $current_pixabay_api_key = $pixabay_data['api_key'] ?? '';
-$image_provider_settings_url = admin_url('admin.php?page=wpaicg');
 $render_prompt_library_options = static function(array $options, string $mode = ''): void {
     foreach ($options as $option) {
         if (empty($option['label']) || empty($option['prompt'])) {
@@ -114,30 +113,6 @@ $render_prompt_library_options = static function(array $options, string $mode = 
                 </select>
                 <?php $aipkit_cw_image_display_settings_render_mode = 'trigger'; ?>
                 <?php include __DIR__ . '/image-display-settings.php'; ?>
-            </div>
-
-            <div
-                id="aipkit_cw_replicate_notice"
-                class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_cw_image_provider_notice"
-                hidden
-            >
-                <div class="aipkit_notification_bar__icon" aria-hidden="true">
-                    <span class="dashicons dashicons-warning"></span>
-                </div>
-                <div class="aipkit_notification_bar__content">
-                    <p>
-                        <?php esc_html_e('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>
-                    </p>
-                </div>
-                <div class="aipkit_notification_bar__actions">
-                    <a
-                        href="<?php echo esc_url($image_provider_settings_url); ?>"
-                        class="aipkit_btn aipkit_provider_notice_settings_link"
-                        data-aipkit-load-module="settings"
-                    >
-                        <?php esc_html_e('Open Settings', 'gpt3-ai-content-generator'); ?>
-                    </a>
-                </div>
             </div>
         </div>
     </div>

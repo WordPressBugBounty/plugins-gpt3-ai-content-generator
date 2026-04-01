@@ -131,8 +131,7 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         $curl_error = curl_error($ch);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_close -- Reason: Using cURL for streaming.
-        curl_close($ch);
+        $ch = null;
         wp_delete_file($tmp_filename); // Clean up temporary file
 
         // Handle cURL errors

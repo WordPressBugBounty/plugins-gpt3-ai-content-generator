@@ -77,8 +77,7 @@ function _request_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstance, string 
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
         $curl_error = curl_error($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_close -- Reason: Using cURL for streaming.
-        curl_close($ch);
+        $ch = null;
         if ($curl_error) {
             return new WP_Error('openai_vector_curl_error', 'cURL error during request: ' . $curl_error);
         }

@@ -229,8 +229,7 @@ function start_stream_logic(
         $curl_error_num  = curl_errno($ch);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
         $curl_error_msg  = curl_error($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_close -- Reason: Using cURL for streaming.
-        curl_close($ch);
+        $ch = null;
 
         if (!$processorInstance->get_error_occurred_status() && !empty($processorInstance->get_full_bot_response())) {
             log_bot_response_logic($processorInstance);

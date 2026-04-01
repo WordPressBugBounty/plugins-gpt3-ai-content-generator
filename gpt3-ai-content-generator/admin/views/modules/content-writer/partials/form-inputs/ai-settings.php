@@ -4,11 +4,6 @@ if (!defined('ABSPATH')) {
 }
 
 $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
-$content_length_options = [
-    'short' => __('Short', 'gpt3-ai-content-generator'),
-    'medium' => __('Medium', 'gpt3-ai-content-generator'),
-    'long' => __('Long', 'gpt3-ai-content-generator'),
-];
 ?>
 
 <select

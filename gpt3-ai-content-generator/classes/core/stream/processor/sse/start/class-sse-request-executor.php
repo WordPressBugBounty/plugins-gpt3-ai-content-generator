@@ -90,8 +90,7 @@ class SSERequestExecutor {
         $curl_error_num  = curl_errno($ch);
         // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
         $curl_error_msg  = curl_error($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_close -- Reason: Using cURL for streaming.
-        curl_close($ch);
+        $ch = null;
         return [
             'final_http_code' => $final_http_code,
             'curl_error_num'  => $curl_error_num,

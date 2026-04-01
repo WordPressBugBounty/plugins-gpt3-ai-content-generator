@@ -8,32 +8,32 @@ $has_woocommerce = class_exists('WooCommerce') && post_type_exists('product');
 $create_modes = [
     [
         'mode' => 'task',
+        'icon' => 'dashicons-edit-page',
         'title' => __('Manual Entry', 'gpt3-ai-content-generator'),
-        'desc' => __('Type topics directly', 'gpt3-ai-content-generator'),
         'active' => true,
     ],
     [
         'mode' => 'csv',
+        'icon' => 'dashicons-media-spreadsheet',
         'title' => __('Import CSV', 'gpt3-ai-content-generator'),
-        'desc' => __('Upload topics as CSV', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
     [
         'mode' => 'rss',
+        'icon' => 'dashicons-rss',
         'title' => __('RSS Feed', 'gpt3-ai-content-generator'),
-        'desc' => __('Pull from a feed', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
     [
         'mode' => 'url',
+        'icon' => 'dashicons-admin-links',
         'title' => __('Web Page', 'gpt3-ai-content-generator'),
-        'desc' => __('Extract from a page', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
     [
         'mode' => 'gsheets',
+        'icon' => 'dashicons-table-col-before',
         'title' => __('Google Sheets', 'gpt3-ai-content-generator'),
-        'desc' => __('Sync from Sheets', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
 ];
@@ -41,14 +41,14 @@ $create_modes = [
 $optimize_modes = [
     [
         'mode' => 'existing-content',
+        'icon' => 'dashicons-edit-large',
         'title' => __('Rewrite Content', 'gpt3-ai-content-generator'),
-        'desc' => __('Rewrite existing copy', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
     [
         'mode' => 'existing-images',
+        'icon' => 'dashicons-format-image',
         'title' => __('Image Metadata', 'gpt3-ai-content-generator'),
-        'desc' => __('Alt text and captions', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
 ];
@@ -56,28 +56,32 @@ $optimize_modes = [
 if ($has_woocommerce) {
     $optimize_modes[] = [
         'mode' => 'existing-products',
+        'icon' => 'dashicons-cart',
         'title' => __('Optimize Products', 'gpt3-ai-content-generator'),
-        'desc' => __('Improve product copy', 'gpt3-ai-content-generator'),
         'active' => false,
     ];
 }
 ?>
-<div class="aipkit_cw_source_selector_wrapper">
+<div class="aipkit_cw_source_selector_wrapper" data-template-ready="0">
+    <div class="aipkit_cw_workflow_header">
+        <div class="aipkit_cw_workflow_title"><?php esc_html_e('Workflow', 'gpt3-ai-content-generator'); ?></div>
+    </div>
+
     <div class="aipkit_cw_mode_section" aria-labelledby="aipkit_cw_mode_section_create">
         <div class="aipkit_cw_mode_section_heading" id="aipkit_cw_mode_section_create">
             <?php esc_html_e('Create', 'gpt3-ai-content-generator'); ?>
         </div>
-        <div class="aipkit_cw_mode_group_list" role="list" aria-labelledby="aipkit_cw_mode_section_create">
+        <div class="aipkit_cw_mode_group_list aipkit_cw_mode_group_list--workflow" role="list" aria-labelledby="aipkit_cw_mode_section_create">
             <?php foreach ($create_modes as $item) : ?>
                 <button
                     type="button"
-                    class="aipkit_cw_mode_card<?php echo $item['active'] ? ' is-active' : ''; ?>"
+                    class="aipkit_cw_mode_card<?php echo !empty($item['active']) ? ' is-active' : ''; ?>"
                     data-mode="<?php echo esc_attr($item['mode']); ?>"
-                    aria-pressed="<?php echo $item['active'] ? 'true' : 'false'; ?>"
+                    aria-pressed="<?php echo !empty($item['active']) ? 'true' : 'false'; ?>"
                 >
+                    <span class="aipkit_cw_mode_icon dashicons <?php echo esc_attr($item['icon']); ?>" aria-hidden="true"></span>
                     <span class="aipkit_cw_mode_text">
                         <span class="aipkit_cw_mode_title"><?php echo esc_html($item['title']); ?></span>
-                        <span class="aipkit_cw_mode_desc"><?php echo esc_html($item['desc']); ?></span>
                     </span>
                 </button>
             <?php endforeach; ?>
@@ -88,17 +92,17 @@ if ($has_woocommerce) {
         <div class="aipkit_cw_mode_section_heading" id="aipkit_cw_mode_section_optimize">
             <?php esc_html_e('Optimize', 'gpt3-ai-content-generator'); ?>
         </div>
-        <div class="aipkit_cw_mode_group_list" role="list" aria-labelledby="aipkit_cw_mode_section_optimize">
+        <div class="aipkit_cw_mode_group_list aipkit_cw_mode_group_list--workflow" role="list" aria-labelledby="aipkit_cw_mode_section_optimize">
             <?php foreach ($optimize_modes as $item) : ?>
                 <button
                     type="button"
-                    class="aipkit_cw_mode_card<?php echo $item['active'] ? ' is-active' : ''; ?>"
+                    class="aipkit_cw_mode_card<?php echo !empty($item['active']) ? ' is-active' : ''; ?>"
                     data-mode="<?php echo esc_attr($item['mode']); ?>"
-                    aria-pressed="<?php echo $item['active'] ? 'true' : 'false'; ?>"
+                    aria-pressed="<?php echo !empty($item['active']) ? 'true' : 'false'; ?>"
                 >
+                    <span class="aipkit_cw_mode_icon dashicons <?php echo esc_attr($item['icon']); ?>" aria-hidden="true"></span>
                     <span class="aipkit_cw_mode_text">
                         <span class="aipkit_cw_mode_title"><?php echo esc_html($item['title']); ?></span>
-                        <span class="aipkit_cw_mode_desc"><?php echo esc_html($item['desc']); ?></span>
                     </span>
                 </button>
             <?php endforeach; ?>

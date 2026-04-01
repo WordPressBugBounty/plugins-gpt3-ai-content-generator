@@ -51,7 +51,7 @@ class SSERequestHandler
     private $ai_forms_context_handler;
 
 
-    public function __construct(LogStorage $log_storage_passed = null)
+    public function __construct(?LogStorage $log_storage_passed = null)
     {
         // Dependencies should be loaded by AIPKit_Dependency_Loader.
         // Constructors now assume classes are available.

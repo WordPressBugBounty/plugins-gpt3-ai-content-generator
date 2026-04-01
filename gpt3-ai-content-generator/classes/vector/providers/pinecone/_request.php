@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
  * @param string|null $index_host_url Optional. If provided, this URL is used as the base instead of controller API.
  * @return array|WP_Error Decoded JSON response or WP_Error.
  */
-function _request_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $method, string $path, array $body = [], string $index_host_url = null): array|WP_Error {
+function _request_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $method, string $path, array $body = [], ?string $index_host_url = null): array|WP_Error {
     if (!$strategyInstance->get_is_connected_status() && empty($index_host_url) && $path !== '/indexes?limit=1' /* Allow initial connection test */) {
         return new WP_Error('not_connected_pinecone', __('Not connected to Pinecone. Call connect() first or provide index host URL.', 'gpt3-ai-content-generator'));
     }

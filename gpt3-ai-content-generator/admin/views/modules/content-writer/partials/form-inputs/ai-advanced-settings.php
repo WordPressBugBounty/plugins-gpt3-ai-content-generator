@@ -36,30 +36,6 @@ $reasoning_options = [
                 <div class="aipkit_popover_option_row">
                     <div class="aipkit_popover_option_main">
                         <div class="aipkit_cw_settings_option_text">
-                            <label class="aipkit_popover_option_label" for="aipkit_content_writer_content_length">
-                                <?php esc_html_e('Length', 'gpt3-ai-content-generator'); ?>
-                            </label>
-                            <span class="aipkit_popover_option_helper">
-                                <?php esc_html_e('Sets content length.', 'gpt3-ai-content-generator'); ?>
-                            </span>
-                        </div>
-                        <select
-                            id="aipkit_content_writer_content_length"
-                            name="content_length"
-                            class="aipkit_autosave_trigger aipkit_popover_option_select aipkit_popover_option_select--fit aipkit_cw_blended_chevron_select"
-                        >
-                            <?php foreach ($content_length_options as $content_length_value => $content_length_label) : ?>
-                                <option value="<?php echo esc_attr($content_length_value); ?>" <?php selected($content_length_value, 'medium'); ?>>
-                                    <?php echo esc_html($content_length_label); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="aipkit_popover_option_row">
-                    <div class="aipkit_popover_option_main">
-                        <div class="aipkit_cw_settings_option_text">
                             <label class="aipkit_popover_option_label" for="aipkit_content_writer_temperature">
                                 <?php esc_html_e('Temperature', 'gpt3-ai-content-generator'); ?>
                             </label>

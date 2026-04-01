@@ -85,101 +85,103 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                     <!-- Mode Input Panel -->
                     <?php include __DIR__ . '/partials/form-inputs/generation-mode.php'; ?>
 
-                    <div class="aipkit_cw_topbar">
-                        <div class="aipkit_cw_topbar_primary"></div>
-                        <div class="aipkit_cw_topbar_actions">
-                            <select id="aipkit_cw_task_frequency" name="task_frequency" class="aipkit_cw_task_frequency" aria-hidden="true" tabindex="-1" hidden>
-                                <?php foreach ($task_frequencies as $value => $label): ?>
-                                    <option value="<?php echo esc_attr($value); ?>" <?php selected($value, 'daily'); ?>><?php echo esc_html($label); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <div class="aipkit_cw_generate_split" data-aipkit-cw-action="generate">
-                                <button type="button" id="aipkit_content_writer_generate_btn" class="aipkit_btn aipkit_btn-primary">
-                                    <span class="aipkit_cw_btn_timer" aria-hidden="true" hidden></span>
-                                    <span class="aipkit_btn-text"><?php esc_html_e('Generate', 'gpt3-ai-content-generator'); ?></span>
-                                    <span class="aipkit_cw_task_suffix" hidden></span>
-                                    <span class="aipkit_spinner" style="display:none;"></span>
-                                </button>
-                                <button
-                                    type="button"
-                                    class="aipkit_btn aipkit_btn-primary aipkit_cw_generate_toggle"
-                                    aria-haspopup="true"
-                                    aria-expanded="false"
-                                    aria-controls="aipkit_cw_generate_menu"
-                                >
-                                    <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
-                                    <span class="screen-reader-text"><?php esc_html_e('More actions', 'gpt3-ai-content-generator'); ?></span>
-                                </button>
-                                <div id="aipkit_cw_generate_menu" class="aipkit_cw_generate_menu" role="menu" hidden>
-                                    <div class="aipkit_cw_generate_menu_panel" data-menu-panel="actions">
-                                        <button type="button" class="aipkit_cw_generate_menu_item is-active" data-action="generate" role="menuitemradio" aria-checked="true">
-                                            <span class="dashicons dashicons-yes aipkit_cw_generate_menu_check" aria-hidden="true"></span>
-                                            <?php esc_html_e('Generate', 'gpt3-ai-content-generator'); ?>
-                                        </button>
-                                        <button type="button" class="aipkit_cw_generate_menu_item" data-action="create_task" role="menuitemradio" aria-checked="false">
-                                            <span class="dashicons dashicons-yes aipkit_cw_generate_menu_check" aria-hidden="true"></span>
-                                            <?php esc_html_e('Create Task', 'gpt3-ai-content-generator'); ?>
-                                        </button>
-                                    </div>
-                                    <div class="aipkit_cw_generate_menu_panel" data-menu-panel="intervals" hidden>
-                                        <button type="button" class="aipkit_cw_generate_menu_back" data-menu-back>
-                                            <span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span>
-                                            <?php esc_html_e('Back', 'gpt3-ai-content-generator'); ?>
-                                        </button>
-                                        <?php foreach ($task_frequencies as $value => $label): ?>
-                                            <button type="button" class="aipkit_cw_generate_menu_item" data-interval="<?php echo esc_attr($value); ?>" role="menuitemradio" aria-checked="<?php echo $value === 'daily' ? 'true' : 'false'; ?>">
-                                                <span class="dashicons dashicons-yes aipkit_cw_generate_menu_check" aria-hidden="true"></span>
-                                                <?php echo esc_html($label); ?>
-                                            </button>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="button" id="aipkit_content_writer_stop_btn" class="aipkit_btn aipkit_btn-secondary" style="display:none;">
-                                <?php esc_html_e('Stop', 'gpt3-ai-content-generator'); ?>
-                            </button>
-                            <span id="aipkit_cw_action_validation" class="aipkit_cw_action_validation" aria-live="polite"></span>
-                        </div>
-                    </div>
-                    
                     <div id="aipkit_cw_batch_queue" class="aipkit_cw_batch_queue" hidden>
-                        <div class="aipkit_cw_batch_header">
-                            <div class="aipkit_cw_batch_header_main">
-                                <div class="aipkit_cw_batch_run_meta" hidden>
-                                    <span class="aipkit_cw_batch_run_mode"></span>
-                                    <span class="aipkit_cw_batch_run_detail"></span>
+                        <div class="aipkit_cw_batch_workspace aipkit_cw_output_workspace aipkit_cw_output_workspace--studio">
+                            <aside class="aipkit_cw_output_brief aipkit_cw_batch_brief">
+                                <div class="aipkit_cw_studio_panel">
+                                    <div class="aipkit_cw_studio_panel_header">
+                                        <span class="aipkit_cw_studio_panel_label"><?php esc_html_e('Brief', 'gpt3-ai-content-generator'); ?></span>
+                                        <span class="aipkit_cw_studio_panel_hint"><?php esc_html_e('Live snapshot of the current batch run', 'gpt3-ai-content-generator'); ?></span>
+                                    </div>
+                                    <dl class="aipkit_cw_studio_brief_list">
+                                        <div class="aipkit_cw_studio_brief_row">
+                                            <dt><?php esc_html_e('Source', 'gpt3-ai-content-generator'); ?></dt>
+                                            <dd id="aipkit_cw_batch_brief_source_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
+                                        </div>
+                                        <div class="aipkit_cw_studio_brief_row">
+                                            <dt><?php esc_html_e('Mode', 'gpt3-ai-content-generator'); ?></dt>
+                                            <dd id="aipkit_cw_batch_brief_mode_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
+                                        </div>
+                                        <div class="aipkit_cw_studio_brief_row">
+                                            <dt><?php esc_html_e('Items', 'gpt3-ai-content-generator'); ?></dt>
+                                            <dd id="aipkit_cw_batch_brief_items_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
+                                        </div>
+                                        <div class="aipkit_cw_studio_brief_row">
+                                            <dt><?php esc_html_e('Publish Target', 'gpt3-ai-content-generator'); ?></dt>
+                                            <dd id="aipkit_cw_batch_brief_publish_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
+                                        </div>
+                                        <div class="aipkit_cw_studio_brief_row">
+                                            <dt><?php esc_html_e('Outputs', 'gpt3-ai-content-generator'); ?></dt>
+                                            <dd id="aipkit_cw_batch_brief_outputs_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
+                                        </div>
+                                    </dl>
                                 </div>
-                                <div class="aipkit_cw_batch_summary">
-                                    <span class="aipkit_cw_batch_count">0/0</span>
-                                    <span class="aipkit_cw_batch_label"><?php esc_html_e('completed', 'gpt3-ai-content-generator'); ?></span>
-                                </div>
+                            </aside>
+
+                            <div class="aipkit_cw_output_main aipkit_cw_batch_main">
+                                <section class="aipkit_cw_output_chunk aipkit_cw_output_chunk--primary aipkit_cw_batch_ledger_surface">
+                                    <div class="aipkit_cw_chunk_header">
+                                        <div class="aipkit_cw_chunk_title_row">
+                                            <span class="aipkit_cw_chunk_icon dashicons dashicons-list-view" aria-hidden="true"></span>
+                                            <span class="aipkit_cw_chunk_label"><?php esc_html_e('Queue', 'gpt3-ai-content-generator'); ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="aipkit_cw_batch_queue_body">
+                                        <div class="aipkit_cw_batch_list" role="list"></div>
+                                    </div>
+                                </section>
                             </div>
-                            <div class="aipkit_cw_batch_header_actions"></div>
+
+                            <aside class="aipkit_cw_output_sidebar aipkit_cw_batch_sidebar">
+                                <section class="aipkit_cw_output_sidebar_card aipkit_cw_output_sidebar_card--session aipkit_cw_batch_session_card">
+                                    <div class="aipkit_cw_output_sidebar_header aipkit_cw_output_sidebar_header--progress">
+                                        <div class="aipkit_cw_output_sidebar_header_copy">
+                                            <div class="aipkit_cw_output_sidebar_title"><?php esc_html_e('Progress', 'gpt3-ai-content-generator'); ?></div>
+                                            <p class="aipkit_cw_output_sidebar_hint"><?php esc_html_e('Track each queued item as it completes.', 'gpt3-ai-content-generator'); ?></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="aipkit_cw_batch_header_actions"></div>
+
+                                    <div class="aipkit_cw_batch_session_actions" hidden>
+                                        <button
+                                            type="button"
+                                            id="aipkit_cw_batch_start_over_btn"
+                                            class="button aipkit_btn aipkit_cw_output_action_btn aipkit_cw_output_action_btn--reset"
+                                        >
+                                            <span class="aipkit_btn-text"><?php esc_html_e('Start Over', 'gpt3-ai-content-generator'); ?></span>
+                                        </button>
+                                    </div>
+
+                                    <div class="aipkit_cw_batch_summary">
+                                        <span class="aipkit_cw_batch_count">0/0</span>
+                                        <span class="aipkit_cw_batch_label"><?php esc_html_e('processed', 'gpt3-ai-content-generator'); ?></span>
+                                    </div>
+
+                                    <div class="aipkit_cw_batch_progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                        <span class="aipkit_cw_batch_progress_bar"></span>
+                                    </div>
+
+                                    <div class="aipkit_cw_output_sidebar_meta aipkit_cw_batch_stats">
+                                        <span id="aipkit_cw_batch_stat_waiting" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('queued', 'gpt3-ai-content-generator'); ?></span>
+                                        <span id="aipkit_cw_batch_stat_running" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('running', 'gpt3-ai-content-generator'); ?></span>
+                                        <span id="aipkit_cw_batch_stat_success" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('done', 'gpt3-ai-content-generator'); ?></span>
+                                        <span id="aipkit_cw_batch_stat_failed" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('failed', 'gpt3-ai-content-generator'); ?></span>
+                                        <span id="aipkit_cw_batch_stat_stopped" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('stopped', 'gpt3-ai-content-generator'); ?></span>
+                                    </div>
+                                </section>
+                            </aside>
                         </div>
-                        <div class="aipkit_cw_batch_progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                            <span class="aipkit_cw_batch_progress_bar"></span>
-                        </div>
-                        <div class="aipkit_cw_batch_list" role="list"></div>
                     </div>
 
                     <!-- Main Output Area -->
-                    <div class="aipkit_cw_output_card" id="aipkit_cw_output_card" style="display: none;">
-                        <?php include __DIR__ . '/partials/output-area.php'; ?>
-                    </div>
+                    <?php include __DIR__ . '/partials/output-area.php'; ?>
                 </div>
 
                 <!-- Settings rail -->
                 <div class="aipkit_content_writer_column aipkit_content_writer_inputs">
-                    <div class="aipkit_sub_container aipkit_cw_settings_card">
-                        <div class="aipkit_sub_container_body">
-                            <?php include __DIR__ . '/partials/form-inputs.php'; ?>
-                        </div>
-                    </div>
-                    <div class="aipkit_sub_container aipkit_cw_settings_card">
-                        <div class="aipkit_sub_container_body">
-                            <?php include __DIR__ . '/partials/advanced-settings.php'; ?>
-                        </div>
-                    </div>
+                    <?php include __DIR__ . '/partials/form-inputs.php'; ?>
+                    <?php include __DIR__ . '/partials/advanced-settings.php'; ?>
                     <?php include __DIR__ . '/partials/existing-update-tip.php'; ?>
                 </div>
 

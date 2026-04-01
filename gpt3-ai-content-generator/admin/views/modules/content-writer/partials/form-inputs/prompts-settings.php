@@ -147,30 +147,24 @@ $render_prompt_library_options = static function(array $options): void {
 <input type="hidden" name="custom_excerpt_prompt_update" id="aipkit_cw_custom_excerpt_prompt_update" value="">
 <input type="hidden" name="custom_tags_prompt_update" id="aipkit_cw_custom_tags_prompt_update" value="">
 
-<div class="aipkit_cw_prompt_section">
-    <div class="aipkit_cw_prompt_field">
-        <label class="aipkit_cw_panel_label" for="aipkit_cw_prompt_trigger">
+<div class="aipkit_cw_ai_row">
+    <div class="aipkit_cw_panel_label_wrap">
+        <div class="aipkit_cw_panel_label">
             <?php esc_html_e('Prompts', 'gpt3-ai-content-generator'); ?>
-        </label>
-        <div class="aipkit_popover_multiselect aipkit_cw_prompt_dropdown">
-            <button
-                type="button"
-                id="aipkit_cw_prompt_trigger"
-                class="aipkit_popover_multiselect_btn aipkit_cw_prompt_trigger aipkit_cw_popover_trigger aipkit_cw_blended_chevron_btn"
-                data-aipkit-popover-target="aipkit_cw_prompt_settings_popover"
-                data-aipkit-popover-placement="left"
-                aria-controls="aipkit_cw_prompt_settings_popover"
-                aria-expanded="false"
-            >
-                <span
-                    class="aipkit_popover_multiselect_label aipkit_cw_prompt_trigger_value"
-                    data-aipkit-cw-summary="prompts"
-                    data-aipkit-placeholder="<?php esc_attr_e('Configure', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <?php esc_html_e('Configure', 'gpt3-ai-content-generator'); ?>
-                </span>
-            </button>
         </div>
+    </div>
+    <div class="aipkit_cw_ai_control aipkit_cw_ai_control--compact">
+        <button
+            type="button"
+            id="aipkit_cw_prompt_trigger"
+            class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_cw_popover_trigger"
+            data-aipkit-popover-target="aipkit_cw_prompt_settings_popover"
+            data-aipkit-popover-placement="left"
+            aria-controls="aipkit_cw_prompt_settings_popover"
+            aria-expanded="false"
+        >
+            <?php esc_html_e('Customize', 'gpt3-ai-content-generator'); ?>
+        </button>
     </div>
 </div>
 
