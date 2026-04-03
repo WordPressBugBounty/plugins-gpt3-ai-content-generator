@@ -27,6 +27,65 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
     </div>
+    <div class="aipkit_popover_option_row aipkit_show_sources_row">
+        <div class="aipkit_popover_option_main">
+            <span
+                class="aipkit_popover_option_label"
+                tabindex="0"
+
+            >
+                <?php esc_html_e('Show sources', 'gpt3-ai-content-generator'); ?>
+            </span>
+            <div class="aipkit_popover_option_actions">
+                <select
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_show_sources_modal"
+                    name="show_sources"
+                    class="aipkit_popover_option_select aipkit_popover_option_select--compact aipkit_show_sources_toggle"
+                >
+                    <option value="1" <?php selected($show_sources_val, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="0" <?php selected($show_sources_val, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="aipkit_popover_option_row aipkit_sources_label_row">
+        <div class="aipkit_popover_option_main">
+            <label
+                class="aipkit_popover_option_label"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_sources_label_modal"
+
+            >
+                <?php esc_html_e('Sources label', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <input
+                type="text"
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_sources_label_modal"
+                name="sources_label"
+                class="aipkit_popover_option_input aipkit_popover_option_input--framed"
+                value="<?php echo esc_attr($sources_label_val); ?>"
+                placeholder="<?php esc_attr_e('Sources', 'gpt3-ai-content-generator'); ?>"
+            />
+        </div>
+    </div>
+    <div class="aipkit_popover_option_row aipkit_searching_web_text_row">
+        <div class="aipkit_popover_option_main">
+            <label
+                class="aipkit_popover_option_label"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_searching_web_text_modal"
+
+            >
+                <?php esc_html_e('Searching web text', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <input
+                type="text"
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_searching_web_text_modal"
+                name="searching_web_text"
+                class="aipkit_popover_option_input aipkit_popover_option_input--framed"
+                value="<?php echo esc_attr($searching_web_text_val); ?>"
+                placeholder="<?php esc_attr_e('Searching web...', 'gpt3-ai-content-generator'); ?>"
+            />
+        </div>
+    </div>
     <div class="aipkit_popover_option_group aipkit_web_modal_section_openai" style="<?php echo ($current_provider_for_this_bot === 'OpenAI') ? '' : 'display:none;'; ?>">
         <div class="aipkit_openai_web_search_conditional_settings" style="<?php echo ($current_provider_for_this_bot === 'OpenAI' && $openai_web_search_enabled_val === '1') ? '' : 'display:none;'; ?>">
             <div class="aipkit_popover_option_row">

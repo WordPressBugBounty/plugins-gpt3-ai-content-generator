@@ -14,6 +14,10 @@ if (!defined('ABSPATH')) {
 // Load method logic files
 require_once __DIR__ . '/parse-chat.php';
 require_once __DIR__ . '/parse-error.php';
+require_once __DIR__ . '/extract-sse-event-blocks.php';
+require_once __DIR__ . '/decode-sse-event-block.php';
+require_once __DIR__ . '/map-sse-event.php';
+require_once __DIR__ . '/reduce-sse-event.php';
 require_once __DIR__ . '/parse-sse.php';
 
 /**

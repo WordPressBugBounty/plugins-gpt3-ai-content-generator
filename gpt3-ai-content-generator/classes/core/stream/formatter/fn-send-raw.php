@@ -18,8 +18,8 @@ function send_raw_logic(string $output): void {
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SSE output, not HTML
         echo $output;
         if (ob_get_level() > 0) {
-            ob_flush();
+            @ob_flush();
         }
-        flush();
+        @flush();
     }
 }

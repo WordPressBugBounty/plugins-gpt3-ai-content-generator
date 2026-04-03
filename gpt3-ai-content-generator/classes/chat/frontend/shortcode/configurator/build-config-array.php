@@ -280,6 +280,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'enableOpenAIConversationState' => $enable_openai_conv_state,
         'allowWebSearchTool' => $allow_openai_web_search_tool,
         'webToggleDefaultOn' => ($settings['web_toggle_default_on'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON : '0')) === '1',
+        'showSources' => ($settings['show_sources'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_SHOW_SOURCES : '1')) === '1',
         'allowGoogleSearchGrounding' => $google_grounding_settings['allowGoogleSearchGrounding'],
         'googleGroundingMode' => $google_grounding_settings['googleGroundingMode'],
         'googleGroundingDynamicThreshold' => $google_grounding_settings['googleGroundingDynamicThreshold'],

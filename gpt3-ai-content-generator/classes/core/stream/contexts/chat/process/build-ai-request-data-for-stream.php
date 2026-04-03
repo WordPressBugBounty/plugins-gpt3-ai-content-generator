@@ -201,7 +201,6 @@ function build_ai_request_data_for_stream_logic(
             }
             $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;
         }
-        // --- NEW: Add reasoning parameter ---
         $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
             (string) $model_id_for_ai,
             $bot_settings['reasoning_effort'] ?? ''
@@ -209,7 +208,6 @@ function build_ai_request_data_for_stream_logic(
         if ($reasoning_effort !== '') {
             $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
         }
-        // --- END NEW ---
     } elseif ($main_provider_for_ai === 'Claude') {
         if (($bot_settings['claude_web_search_enabled'] ?? '0') === '1') {
             $web_search_config = [
@@ -322,6 +320,11 @@ function build_ai_request_data_for_stream_logic(
             $ai_params_for_payload['frontend_google_search_grounding_active'] = $frontend_google_search_grounding_active;
         }
         $ai_params_for_payload['model_id_for_grounding'] = $model_id_for_ai;
+    } elseif ($main_provider_for_ai === 'Ollama') {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($bot_settings['reasoning_effort'] ?? '');
+        if ($reasoning_effort !== '' && $reasoning_effort !== 'none') {
+            $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
+        }
     }
 
     $provData = AIPKit_Providers::get_provider_data($main_provider_for_ai);

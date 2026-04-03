@@ -18,10 +18,15 @@ require_once $methods_path . '_shared-format.php';
 require_once $methods_path . 'build-api-url.php';
 require_once $methods_path . 'get-api-headers.php';
 require_once $methods_path . 'format-chat-payload.php';
+require_once $methods_path . 'extract-citations.php';
 require_once $methods_path . 'parse-chat-response.php';
 require_once $methods_path . 'parse-error-response.php';
 require_once $methods_path . 'get-models.php';
 require_once $methods_path . 'build-sse-payload.php';
+require_once $methods_path . 'extract-sse-event-blocks.php';
+require_once $methods_path . 'decode-sse-event-block.php';
+require_once $methods_path . 'map-sse-event.php';
+require_once $methods_path . 'reduce-sse-event.php';
 require_once $methods_path . 'parse-sse-chunk.php';
 require_once $methods_path . 'generate-embeddings.php';
 

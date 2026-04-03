@@ -21,113 +21,19 @@ function parse_sse_chunk_logic_for_response_parser(string $sse_chunk, string &$c
         'is_done' => false,
         'openai_response_id' => null,
         'status' => null,
+        'citations' => null,
     ];
 
-    while (($line_end_pos = strpos($current_buffer, "\n\n")) !== false) {
-        $event_block = substr($current_buffer, 0, $line_end_pos);
-        $current_buffer = substr($current_buffer, $line_end_pos + 2);
-
-        $event_data_json = null;
-        $event_type = 'message';
-
-        foreach (explode("\n", $event_block) as $line) {
-             $line = rtrim($line, "\r");
-             if (empty($line) || strpos($line, ':') === false) continue;
-             [$field, $value] = explode(':', $line, 2);
-             $field = trim($field);
-             $value = trim($value);
-            if ($field === 'event') $event_type = $value;
-            elseif ($field === 'data') $event_data_json = $value;
+    foreach (extract_sse_event_blocks_logic_for_response_parser($current_buffer) as $event_block) {
+        $decoded_event = decode_sse_event_block_logic_for_response_parser($event_block);
+        if ($decoded_event === null) {
+            continue;
         }
 
-        if ($event_type === 'error' && $event_data_json) {
-            $decoded_error = json_decode($event_data_json, true);
-            $error_message = parse_error_logic_for_response_parser($decoded_error, 500); // Use the local error parser
-            $result['delta'] = $error_message;
-            $result['is_error'] = true;
+        $mapped_event = map_sse_event_logic_for_response_parser($decoded_event);
+        $should_stop = reduce_sse_event_logic_for_response_parser($mapped_event, $result);
+        if ($should_stop) {
             return $result;
-        }
-
-        if ($event_data_json) {
-            $decoded_data = json_decode($event_data_json, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_data)) {
-                $set_status = function (string $type, array $payload = []) use (&$result): void {
-                    $status = ['type' => $type];
-                    if (isset($payload['response']['status'])) {
-                        $status['status'] = $payload['response']['status'];
-                    }
-                    if (isset($payload['response']['id'])) {
-                        $status['response_id'] = $payload['response']['id'];
-                    }
-                    if (isset($payload['item_id'])) {
-                        $status['item_id'] = $payload['item_id'];
-                    }
-                    if (isset($payload['output_index'])) {
-                        $status['output_index'] = $payload['output_index'];
-                    }
-                    $result['status'] = $status;
-                };
-
-                switch ($event_type) {
-                    case 'response.created':
-                    case 'response.in_progress':
-                    case 'response.queued':
-                    case 'response.web_search_call.in_progress':
-                    case 'response.web_search_call.searching':
-                    case 'response.web_search_call.completed':
-                    case 'response.file_search_call.in_progress':
-                    case 'response.file_search_call.searching':
-                    case 'response.file_search_call.completed':
-                    case 'response.image_generation_call.in_progress':
-                    case 'response.image_generation_call.generating':
-                    case 'response.image_generation_call.completed':
-                        $set_status($event_type, $decoded_data);
-                        break;
-                    case 'response.output_text.delta':
-                        $delta_text = $decoded_data['delta'] ?? '';
-                        if ($delta_text !== '') {
-                            if ($result['delta'] === null) $result['delta'] = '';
-                            $result['delta'] .= $delta_text;
-                        }
-                        break;
-                    case 'response.refusal.delta':
-                        $refusal_text = $decoded_data['delta'] ?? '';
-                        if ($refusal_text !== '') {
-                            if ($result['delta'] === null) $result['delta'] = '';
-                            $result['delta'] .= sprintf(' (%s: %s)', __('Refusal', 'gpt3-ai-content-generator'), $refusal_text);
-                            $result['is_warning'] = true;
-                        }
-                        break;
-                    case 'response.completed':
-                    case 'response.incomplete':
-                        $result['is_done'] = true;
-                        if (isset($decoded_data['response']['usage']) && is_array($decoded_data['response']['usage'])) {
-                            $result['usage'] = [
-                                'input_tokens'  => $decoded_data['response']['usage']['input_tokens'] ?? 0,
-                                'output_tokens' => $decoded_data['response']['usage']['output_tokens'] ?? 0,
-                                'total_tokens'  => $decoded_data['response']['usage']['total_tokens'] ?? 0,
-                                'provider_raw' => $decoded_data['response']['usage'],
-                            ];
-                        }
-                        if ($event_type === 'response.incomplete') {
-                            $reason = $decoded_data['response']['incomplete_details']['reason'] ?? 'unknown';
-                            if ($result['delta'] === null) $result['delta'] = '';
-                            $result['delta'] .= sprintf(' (%s: %s)', __('Incomplete', 'gpt3-ai-content-generator'), $reason);
-                            $result['is_warning'] = true;
-                        }
-                        if (isset($decoded_data['response']['id'])) {
-                            $result['openai_response_id'] = $decoded_data['response']['id'];
-                        }
-                        break;
-                    case 'response.failed':
-                        $error_message = $decoded_data['response']['error']['message'] ?? __('Response failed', 'gpt3-ai-content-generator');
-                        if ($result['delta'] === null) $result['delta'] = '';
-                        $result['delta'] .= sprintf(' (%s: %s)', __('Error', 'gpt3-ai-content-generator'), $error_message);
-                        $result['is_error'] = true;
-                        break;
-                    // Ignore other event types like response.created, response.in_progress, etc.
-                }
-            }
         }
     }
 

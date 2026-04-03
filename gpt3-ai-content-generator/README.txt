@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.92
+Stable tag: 2.3.93
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,15 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.3.93 =
+
+- Improved streaming reliability across chatbot, AI Forms, and Content Writer.
+- Added source and citation handling with per-bot web searches for showing sources and custom searching-web text.
+- Improved chatbot and AI Forms rendering for streaming markdown, tables, links, citations, and theme-adaptive UI elements.
+- Added Ollama thinking support and normalized Ollama usage reporting.
+
+Please clear your cache after the update.
 
 = 2.3.92 =
 

@@ -25,13 +25,25 @@ function parse_chat_response_logic(
     }
 
     $content_parts = [];
+    $citations = [];
     if (!empty($decoded_response['content']) && is_array($decoded_response['content'])) {
         foreach ($decoded_response['content'] as $block) {
             if (!is_array($block)) {
                 continue;
             }
+            $tool_error_message = extract_claude_non_stream_tool_error_message_logic($block);
+            if ($tool_error_message !== null) {
+                return new WP_Error(
+                    'claude_tool_error',
+                    $tool_error_message
+                );
+            }
             if (($block['type'] ?? '') === 'text' && isset($block['text'])) {
                 $content_parts[] = (string) $block['text'];
+                $citations = array_merge(
+                    $citations,
+                    extract_claude_citations_from_text_block_logic_for_response_parser($block)
+                );
             }
         }
     }
@@ -56,8 +68,70 @@ function parse_chat_response_logic(
         ];
     }
 
-    return [
+    $return_data = [
         'content' => $content,
         'usage' => $usage,
     ];
+
+    if (!empty($citations)) {
+        $return_data['citations'] = $citations;
+    }
+
+    return $return_data;
+}
+
+/**
+ * Detect Claude server-tool error blocks returned inside a successful 200 response body.
+ *
+ * @param array<string, mixed> $block
+ * @return string|null
+ */
+function extract_claude_non_stream_tool_error_message_logic(array $block): ?string
+{
+    if (($block['type'] ?? '') !== 'web_search_tool_result') {
+        return null;
+    }
+
+    $content = $block['content'] ?? null;
+    $error_payload = null;
+
+    if (is_array($content) && isset($content['type']) && $content['type'] === 'web_search_tool_result_error') {
+        $error_payload = $content;
+    } elseif (is_array($content)) {
+        foreach ($content as $item) {
+            if (is_array($item) && (($item['type'] ?? '') === 'web_search_tool_result_error')) {
+                $error_payload = $item;
+                break;
+            }
+        }
+    }
+
+    if ($error_payload === null) {
+        return null;
+    }
+
+    $error_code = isset($error_payload['error_code']) ? (string) $error_payload['error_code'] : 'unknown';
+
+    switch ($error_code) {
+        case 'too_many_requests':
+            $detail = __('rate limit exceeded', 'gpt3-ai-content-generator');
+            break;
+        case 'invalid_input':
+            $detail = __('invalid search query', 'gpt3-ai-content-generator');
+            break;
+        case 'max_uses_exceeded':
+            $detail = __('maximum web search uses exceeded', 'gpt3-ai-content-generator');
+            break;
+        case 'query_too_long':
+            $detail = __('search query is too long', 'gpt3-ai-content-generator');
+            break;
+        case 'unavailable':
+            $detail = __('service temporarily unavailable', 'gpt3-ai-content-generator');
+            break;
+        default:
+            $detail = str_replace('_', ' ', $error_code);
+            break;
+    }
+
+    return sprintf(__('Claude web search failed: %s.', 'gpt3-ai-content-generator'), $detail);
 }

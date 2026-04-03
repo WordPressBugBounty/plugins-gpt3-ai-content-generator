@@ -1017,6 +1017,12 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             update_post_meta($bot_id, '_aipkit_custom_typing_text', $typing_text);
         }
 
+        if (isset($_POST['retrieving_context_text'])) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+            $retrieving_context_text = sanitize_text_field(wp_unslash($_POST['retrieving_context_text']));
+            update_post_meta($bot_id, '_aipkit_retrieving_context_text', $retrieving_context_text);
+        }
+
         $theme_for_preset = get_post_meta($bot_id, '_aipkit_theme', true);
         if (!in_array($theme_for_preset, ['light', 'dark', 'custom', 'chatgpt'], true)) {
             $theme_for_preset = 'dark';
@@ -1315,6 +1321,18 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $google_grounding_dynamic_threshold = max(0.0, min($google_grounding_dynamic_threshold, 1.0));
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $web_toggle_default_on = (isset($_POST['web_toggle_default_on']) && wp_unslash($_POST['web_toggle_default_on']) === '1') ? '1' : '0';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $show_sources = isset($_POST['show_sources'])
+            ? ((wp_unslash($_POST['show_sources']) === '1') ? '1' : '0')
+            : BotSettingsManager::DEFAULT_SHOW_SOURCES;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $sources_label = isset($_POST['sources_label'])
+            ? sanitize_text_field(wp_unslash($_POST['sources_label']))
+            : BotSettingsManager::DEFAULT_SOURCES_LABEL;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $searching_web_text = isset($_POST['searching_web_text'])
+            ? sanitize_text_field(wp_unslash($_POST['searching_web_text']))
+            : BotSettingsManager::DEFAULT_SEARCHING_WEB_TEXT;
 
         update_post_meta($bot_id, '_aipkit_openai_web_search_enabled', $openai_web_search_enabled);
         update_post_meta($bot_id, '_aipkit_openai_web_search_context_size', $openai_web_search_context_size);
@@ -1341,6 +1359,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         update_post_meta($bot_id, '_aipkit_google_grounding_mode', $google_grounding_mode);
         update_post_meta($bot_id, '_aipkit_google_grounding_dynamic_threshold', $google_grounding_dynamic_threshold);
         update_post_meta($bot_id, '_aipkit_web_toggle_default_on', $web_toggle_default_on);
+        update_post_meta($bot_id, '_aipkit_show_sources', $show_sources);
+        update_post_meta($bot_id, '_aipkit_sources_label', $sources_label);
+        update_post_meta($bot_id, '_aipkit_searching_web_text', $searching_web_text);
 
         $this->send_saved_bot_state_success(
             $bot_id,

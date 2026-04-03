@@ -32,6 +32,9 @@ $reasoning_labels = [
 if (!in_array($reasoning_effort, $reasoning_options, true)) {
     $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT;
 }
+$reasoning_label_text = $current_provider_for_this_bot === 'Ollama'
+    ? __('Thinking', 'gpt3-ai-content-generator')
+    : __('Reasoning', 'gpt3-ai-content-generator');
 
 $saved_temperature = max(0.0, min($saved_temperature, 2.0));
 $saved_max_tokens = max(1, min($saved_max_tokens, 128000));
@@ -86,7 +89,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
         </div>
         <div class="aipkit_behavior_compact_cell">
             <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_temperature">
-                <?php esc_html_e('Creativity', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('Temperature', 'gpt3-ai-content-generator'); ?>
             </label>
             <input
                 type="number"
@@ -135,7 +138,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort"
 
             >
-                <?php esc_html_e('Reasoning', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_reasoning_effort_label_text"><?php echo esc_html($reasoning_label_text); ?></span>
             </label>
             <select
                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort"

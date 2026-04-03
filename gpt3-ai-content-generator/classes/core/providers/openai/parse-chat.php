@@ -16,6 +16,7 @@ if (!defined('ABSPATH')) {
 function parse_chat_logic_for_response_parser(array $decoded_response): array|WP_Error {
     $content = null;
     $usage = null;
+    $citations = extract_openai_citations_from_response_logic_for_response_parser($decoded_response);
 
     if (isset($decoded_response['output']) && is_array($decoded_response['output'])) {
         foreach ($decoded_response['output'] as $output_item) {
@@ -55,5 +56,10 @@ function parse_chat_logic_for_response_parser(array $decoded_response): array|WP
     }
 
     // openai_response_id will be added by the caller (OpenAIProviderStrategy::parse_chat_response)
-    return ['content' => $content, 'usage' => $usage];
+    $return_data = ['content' => $content, 'usage' => $usage];
+    if (!empty($citations)) {
+        $return_data['citations'] = $citations;
+    }
+
+    return $return_data;
 }

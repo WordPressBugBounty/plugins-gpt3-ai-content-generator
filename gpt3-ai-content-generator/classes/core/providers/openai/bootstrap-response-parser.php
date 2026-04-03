@@ -14,6 +14,11 @@ if (!defined('ABSPATH')) {
 $methods_path = __DIR__ . '/';
 require_once $methods_path . 'parse-chat.php';
 require_once $methods_path . 'parse-error.php';
+require_once $methods_path . 'extract-citations.php';
+require_once $methods_path . 'extract-sse-event-blocks.php';
+require_once $methods_path . 'decode-sse-event-block.php';
+require_once $methods_path . 'map-sse-event.php';
+require_once $methods_path . 'reduce-sse-event.php';
 require_once $methods_path . 'parse-sse.php';
 require_once $methods_path . 'parse-moderation.php';
 require_once $methods_path . 'parse-embeddings.php';

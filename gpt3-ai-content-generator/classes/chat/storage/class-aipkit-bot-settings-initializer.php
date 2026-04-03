@@ -98,6 +98,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_input_placeholder', $default_placeholder);
         // Typing indicator customization defaults
         update_post_meta($post_id, '_aipkit_custom_typing_text', BotSettingsManager::DEFAULT_CUSTOM_TYPING_TEXT);
+        update_post_meta($post_id, '_aipkit_retrieving_context_text', BotSettingsManager::DEFAULT_RETRIEVING_CONTEXT_TEXT);
         update_post_meta($post_id, '_aipkit_temperature', (string)BotSettingsManager::DEFAULT_TEMPERATURE);
         update_post_meta($post_id, '_aipkit_max_completion_tokens', BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS);
         update_post_meta($post_id, '_aipkit_max_messages', BotSettingsManager::DEFAULT_MAX_MESSAGES);
@@ -164,6 +165,9 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_openrouter_web_search_max_results', (string) BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS);
         update_post_meta($post_id, '_aipkit_openrouter_web_search_search_prompt', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT);
         update_post_meta($post_id, '_aipkit_web_toggle_default_on', BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON);
+        update_post_meta($post_id, '_aipkit_show_sources', BotSettingsManager::DEFAULT_SHOW_SOURCES);
+        update_post_meta($post_id, '_aipkit_sources_label', BotSettingsManager::DEFAULT_SOURCES_LABEL);
+        update_post_meta($post_id, '_aipkit_searching_web_text', BotSettingsManager::DEFAULT_SEARCHING_WEB_TEXT);
         update_post_meta($post_id, '_aipkit_google_search_grounding_enabled', BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED);
         update_post_meta($post_id, '_aipkit_google_grounding_mode', BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE);
         update_post_meta($post_id, '_aipkit_google_grounding_dynamic_threshold', (string)BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD);

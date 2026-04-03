@@ -203,10 +203,8 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
         
         $response_formatter->send_sse_done();
     } finally {
-        if (function_exists('fastcgi_finish_request')) {
-             fastcgi_finish_request();
-        } elseif (function_exists('litespeed_finish_request')) {
-             litespeed_finish_request();
+        if ($response_formatter) {
+            $response_formatter->finish_request();
         }
         // Ensure script exits after sending all SSE data or handling errors
         exit;

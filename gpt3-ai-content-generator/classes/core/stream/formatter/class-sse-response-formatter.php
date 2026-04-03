@@ -8,6 +8,11 @@ if (!defined('ABSPATH')) {
 }
 
 // Load method logic files
+require_once __DIR__ . '/fn-get-runtime-capabilities.php';
+require_once __DIR__ . '/fn-apply-runtime-mitigations.php';
+require_once __DIR__ . '/fn-send-response-headers.php';
+require_once __DIR__ . '/fn-send-preamble.php';
+require_once __DIR__ . '/fn-finish-request.php';
 require_once __DIR__ . '/fn-set-headers.php';
 require_once __DIR__ . '/fn-send-sse-data.php';
 require_once __DIR__ . '/fn-send-sse-event.php';
@@ -21,6 +26,7 @@ require_once __DIR__ . '/fn-send-raw.php';
 class SSEResponseFormatter {
 
     private $headers_sent = false;
+    private $preamble_sent = false;
 
     public function set_sse_headers() {
         set_sse_headers_logic($this);
@@ -42,6 +48,10 @@ class SSEResponseFormatter {
         send_sse_done_logic($this);
     }
 
+    public function finish_request(): void {
+        finish_sse_request_logic();
+    }
+
     // Public wrapper for the private send_raw logic
     public function send_raw_public_wrapper(string $output): void {
         send_raw_logic($output);
@@ -54,5 +64,13 @@ class SSEResponseFormatter {
 
     public function set_headers_sent_status(bool $status): void {
         $this->headers_sent = $status;
+    }
+
+    public function get_preamble_sent_status(): bool {
+        return $this->preamble_sent;
+    }
+
+    public function set_preamble_sent_status(bool $status): void {
+        $this->preamble_sent = $status;
     }
 }

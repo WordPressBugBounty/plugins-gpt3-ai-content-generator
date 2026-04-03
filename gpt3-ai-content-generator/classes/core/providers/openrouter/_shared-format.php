@@ -132,6 +132,13 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
         'input' => $input_array,
     ];
 
+    if (isset($ai_params['previous_response_id']) && is_string($ai_params['previous_response_id'])) {
+        $previous_response_id = sanitize_text_field($ai_params['previous_response_id']);
+        if ($previous_response_id !== '') {
+            $body_data['previous_response_id'] = $previous_response_id;
+        }
+    }
+
     $param_map = [
         'temperature'           => 'temperature',
         'max_completion_tokens' => 'max_output_tokens',

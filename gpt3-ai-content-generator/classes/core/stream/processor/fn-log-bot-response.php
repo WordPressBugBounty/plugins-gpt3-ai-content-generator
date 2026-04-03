@@ -264,6 +264,7 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
     $current_openai_response_id = $processorInstance->get_current_openai_response_id();
     $used_previous_openai_response_id = $processorInstance->get_used_previous_openai_response_id_status();
     $grounding_metadata = $processorInstance->get_grounding_metadata();
+    $citations = $processorInstance->get_citations();
     $token_manager = $processorInstance->get_token_manager();
     $vector_search_scores = $processorInstance->get_vector_search_scores();
 
@@ -294,6 +295,9 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
         }
         if ($current_provider === 'Google' && $grounding_metadata !== null) {
             $log_bot_data['grounding_metadata'] = $grounding_metadata;
+        }
+        if (!empty($citations)) {
+            $log_bot_data['citations'] = $citations;
         }
         if (!empty($vector_search_scores)) {
             $log_bot_data['vector_search_scores'] = $vector_search_scores;

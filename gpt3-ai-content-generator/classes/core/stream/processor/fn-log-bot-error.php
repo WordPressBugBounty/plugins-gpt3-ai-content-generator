@@ -27,6 +27,7 @@ function log_bot_error_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor $p
     $current_openai_response_id = $processorInstance->get_current_openai_response_id();
     $used_previous_openai_response_id = $processorInstance->get_used_previous_openai_response_id_status();
     $grounding_metadata = $processorInstance->get_grounding_metadata();
+    $citations = $processorInstance->get_citations();
 
     if (!$log_storage) { 
         return;
@@ -50,6 +51,9 @@ function log_bot_error_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor $p
         }
         if ($current_provider === 'Google' && $grounding_metadata !== null) {
             $log_error_data['grounding_metadata'] = $grounding_metadata;
+        }
+        if (!empty($citations)) {
+            $log_error_data['citations'] = $citations;
         }
          $log_storage->log_message($log_error_data);
     }

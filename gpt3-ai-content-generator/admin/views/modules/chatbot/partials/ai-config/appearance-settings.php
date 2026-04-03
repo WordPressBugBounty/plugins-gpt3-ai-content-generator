@@ -4,6 +4,7 @@ $bot_settings = $active_bot_settings;
 $saved_footer_text = $bot_settings['footer_text'] ?? '';
 $saved_placeholder = $bot_settings['input_placeholder'] ?? __('Type your message...', 'gpt3-ai-content-generator');
 $custom_typing_text = $bot_settings['custom_typing_text'] ?? '';
+$retrieving_context_text = $bot_settings['retrieving_context_text'] ?? '';
 $enable_fullscreen = $bot_settings['enable_fullscreen'] ?? '0';
 $enable_download = $bot_settings['enable_download'] ?? '0';
 $enable_copy_button = $bot_settings['enable_copy_button']
@@ -586,65 +587,71 @@ $consent_toggle_value = ($consent_feature_available && $enable_consent_complianc
                 </div>
             </div>
             <div class="aipkit_interface_theme_top_row aipkit_interface_theme_top_row--identity">
-                <div class="aipkit_interface_theme_top_cell">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_greeting"
-                    >
-                        <?php esc_html_e('Greeting', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <input
-                        type="text"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_greeting"
-                        name="greeting"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                        value="<?php echo esc_attr($saved_greeting); ?>"
-                        placeholder="<?php esc_attr_e('Hello there!', 'gpt3-ai-content-generator'); ?>"
-                        autocomplete="off"
-                        data-lpignore="true"
-                        data-1p-ignore="true"
-                        data-form-type="other"
-                    />
+                <div class="aipkit_interface_theme_top_cell aipkit_interface_theme_top_cell--identity-stack">
+                    <div class="aipkit_interface_identity_stack">
+                        <div class="aipkit_interface_identity_stack_item">
+                            <label
+                                class="aipkit_popover_option_label"
+                                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_greeting"
+                            >
+                                <?php esc_html_e('Greeting', 'gpt3-ai-content-generator'); ?>
+                            </label>
+                            <input
+                                type="text"
+                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_greeting"
+                                name="greeting"
+                                class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
+                                value="<?php echo esc_attr($saved_greeting); ?>"
+                                placeholder="<?php esc_attr_e('Hello there!', 'gpt3-ai-content-generator'); ?>"
+                                autocomplete="off"
+                                data-lpignore="true"
+                                data-1p-ignore="true"
+                                data-form-type="other"
+                            />
+                        </div>
+                        <div class="aipkit_interface_identity_stack_item">
+                            <label
+                                class="aipkit_popover_option_label"
+                                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_subgreeting"
+                            >
+                                <?php esc_html_e('Subgreeting', 'gpt3-ai-content-generator'); ?>
+                            </label>
+                            <input
+                                type="text"
+                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_subgreeting"
+                                name="subgreeting"
+                                class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
+                                value="<?php echo esc_attr($saved_subgreeting); ?>"
+                                placeholder="<?php esc_attr_e('How can I help you today?', 'gpt3-ai-content-generator'); ?>"
+                                autocomplete="off"
+                                data-lpignore="true"
+                                data-1p-ignore="true"
+                                data-form-type="other"
+                            />
+                        </div>
+                    </div>
                 </div>
                 <div class="aipkit_interface_theme_top_cell">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_subgreeting"
-                    >
-                        <?php esc_html_e('Subgreeting', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <input
-                        type="text"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_subgreeting"
-                        name="subgreeting"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                        value="<?php echo esc_attr($saved_subgreeting); ?>"
-                        placeholder="<?php esc_attr_e('How can I help you today?', 'gpt3-ai-content-generator'); ?>"
-                        autocomplete="off"
-                        data-lpignore="true"
-                        data-1p-ignore="true"
-                        data-form-type="other"
-                    />
-                </div>
-                <div class="aipkit_interface_theme_top_cell">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_input_placeholder"
-                    >
-                        <?php esc_html_e('Placeholder', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <input
-                        type="text"
-                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_input_placeholder"
-                        name="input_placeholder"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                        value="<?php echo esc_attr($saved_placeholder); ?>"
-                        placeholder="<?php esc_attr_e('Type your message...', 'gpt3-ai-content-generator'); ?>"
-                        autocomplete="off"
-                        data-lpignore="true"
-                        data-1p-ignore="true"
-                        data-form-type="other"
-                    />
+                    <div class="aipkit_interface_identity_stack_item aipkit_interface_identity_stack_item--placeholder">
+                        <label
+                            class="aipkit_popover_option_label"
+                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_input_placeholder"
+                        >
+                            <?php esc_html_e('Placeholder', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <input
+                            type="text"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_input_placeholder"
+                            name="input_placeholder"
+                            class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
+                            value="<?php echo esc_attr($saved_placeholder); ?>"
+                            placeholder="<?php esc_attr_e('Type your message...', 'gpt3-ai-content-generator'); ?>"
+                            autocomplete="off"
+                            data-lpignore="true"
+                            data-1p-ignore="true"
+                            data-form-type="other"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -696,6 +703,30 @@ $consent_toggle_value = ($consent_feature_available && $enable_consent_complianc
                 </div>
             </div>
             <div
+                class="aipkit_popover_option_row aipkit_interface_cell aipkit_interface_cell--text"
+            >
+                <div class="aipkit_popover_option_main">
+                    <label
+                        class="aipkit_popover_option_label"
+                        for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_retrieving_context_text"
+                    >
+                        <?php esc_html_e('Status text', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <input
+                        type="text"
+                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_retrieving_context_text"
+                        name="retrieving_context_text"
+                        class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
+                        value="<?php echo esc_attr($retrieving_context_text); ?>"
+                        placeholder="<?php esc_attr_e('Retrieving context...', 'gpt3-ai-content-generator'); ?>"
+                        autocomplete="off"
+                        data-lpignore="true"
+                        data-1p-ignore="true"
+                        data-form-type="other"
+                    />
+                </div>
+            </div>
+            <div
                 class="aipkit_popover_option_row aipkit_interface_cell aipkit_interface_cell--text aipkit_popup_status_text_group"
             >
                 <div class="aipkit_popover_option_main">
@@ -703,7 +734,7 @@ $consent_toggle_value = ($consent_feature_available && $enable_consent_complianc
                         class="aipkit_popover_option_label"
                         for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_header_online_text"
                     >
-                        <?php esc_html_e('Status text', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Online text', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <input
                         type="text"

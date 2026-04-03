@@ -167,6 +167,7 @@ function format_chat_logic_for_payload_formatter(
             }
         }
         $tools[] = $web_search_tool;
+        $body_data['include'] = ['web_search_call.action.sources'];
     }
 
     if (!empty($tools)) {

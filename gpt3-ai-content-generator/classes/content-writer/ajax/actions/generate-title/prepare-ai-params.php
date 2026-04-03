@@ -26,13 +26,18 @@ function prepare_ai_params_logic(array $validated_params): array
         $ai_params_override['temperature'] = floatval($validated_params['ai_temperature']);
     }
 
-    // Add reasoning effort to AI params if present and model is compatible
+    // Add provider-specific reasoning / think controls.
     if (($validated_params['provider'] ?? '') === 'OpenAI') {
         $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
             (string) ($validated_params['ai_model'] ?? ''),
             $validated_params['reasoning_effort'] ?? ''
         );
         if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
+        }
+    } elseif (($validated_params['provider'] ?? '') === 'Ollama') {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($validated_params['reasoning_effort'] ?? '');
+        if ($reasoning_effort !== '' && $reasoning_effort !== 'none') {
             $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
         }
     }

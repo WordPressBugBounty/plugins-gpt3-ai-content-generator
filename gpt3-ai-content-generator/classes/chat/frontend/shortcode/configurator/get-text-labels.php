@@ -16,14 +16,31 @@ if (!defined('ABSPATH')) {
  * @return array The array of text labels.
  */
 function get_text_labels_logic(array $settings, array $consent_texts): array {
+    $custom_sources_label = isset($settings['sources_label'])
+        ? sanitize_text_field((string) $settings['sources_label'])
+        : '';
+    $custom_searching_web_text = isset($settings['searching_web_text'])
+        ? sanitize_text_field((string) $settings['searching_web_text'])
+        : '';
+    $custom_retrieving_context_text = isset($settings['retrieving_context_text'])
+        ? sanitize_text_field((string) $settings['retrieving_context_text'])
+        : '';
+
     return [
         'sendMessage' => __('Send Message', 'gpt3-ai-content-generator'),
         'sending' => __('Sending...', 'gpt3-ai-content-generator'),
         'typeMessage' => $settings['input_placeholder'] ?? __('Type your message...', 'gpt3-ai-content-generator'),
         'thinking' => __('Thinking', 'gpt3-ai-content-generator'),
         'streaming' => __('Streaming...', 'gpt3-ai-content-generator'),
+        'statusThinking' => __('Thinking...', 'gpt3-ai-content-generator'),
+        'statusProcessing' => __('Processing...', 'gpt3-ai-content-generator'),
+        'statusSearchingWeb' => $custom_searching_web_text !== '' ? $custom_searching_web_text : __('Searching web...', 'gpt3-ai-content-generator'),
+        'statusRetrievingContext' => $custom_retrieving_context_text,
+        'statusCallingTool' => __('Calling tool...', 'gpt3-ai-content-generator'),
         'errorPrefix' => __('Error:', 'gpt3-ai-content-generator'),
         'userPrefix' => __('User', 'gpt3-ai-content-generator'),
+        'sources' => $custom_sources_label !== '' ? $custom_sources_label : __('Sources', 'gpt3-ai-content-generator'),
+        'source' => $custom_sources_label !== '' ? $custom_sources_label : __('Source', 'gpt3-ai-content-generator'),
         'clearChat' => __('Clear Chat', 'gpt3-ai-content-generator'),
         'fullscreen' => __('Fullscreen', 'gpt3-ai-content-generator'),
         'exitFullscreen' => __('Exit Fullscreen', 'gpt3-ai-content-generator'),

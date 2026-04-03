@@ -59,6 +59,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_consent_button', $sanitized_settings['consent_button']);
     update_post_meta($botId, '_aipkit_enable_conversation_sidebar', $sanitized_settings['enable_conversation_sidebar']);
     update_post_meta($botId, '_aipkit_custom_typing_text', $sanitized_settings['custom_typing_text']);
+    update_post_meta($botId, '_aipkit_retrieving_context_text', $sanitized_settings['retrieving_context_text']);
     update_post_meta($botId, '_aipkit_input_placeholder', $sanitized_settings['input_placeholder']);
     update_post_meta($botId, '_aipkit_temperature', (string)$sanitized_settings['temperature']);
     update_post_meta($botId, '_aipkit_max_completion_tokens', $sanitized_settings['max_completion_tokens']);
@@ -230,6 +231,9 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         delete_post_meta($botId, '_aipkit_google_grounding_dynamic_threshold');
     }
     update_post_meta($botId, '_aipkit_web_toggle_default_on', $sanitized_settings['web_toggle_default_on']);
+    update_post_meta($botId, '_aipkit_show_sources', $sanitized_settings['show_sources']);
+    update_post_meta($botId, '_aipkit_sources_label', $sanitized_settings['sources_label']);
+    update_post_meta($botId, '_aipkit_searching_web_text', $sanitized_settings['searching_web_text']);
 
     if (isset($sanitized_settings['custom_theme_settings']) && is_array($sanitized_settings['custom_theme_settings'])) {
         foreach ($sanitized_settings['custom_theme_settings'] as $key => $value) {

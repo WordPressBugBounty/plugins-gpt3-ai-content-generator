@@ -48,13 +48,18 @@ function prepare_ai_params_logic(array $settings): array
     if ($max_completion_tokens) {
         $ai_params_override['max_completion_tokens'] = $max_completion_tokens;
     }
-    // Add reasoning effort to AI params if present and model is compatible
+    // Add provider-specific reasoning / think controls.
     if (($settings['provider'] ?? '') === 'OpenAI') {
         $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
             (string) ($settings['ai_model'] ?? ''),
             $settings['reasoning_effort'] ?? ''
         );
         if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
+        }
+    } elseif (($settings['provider'] ?? '') === 'Ollama') {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($settings['reasoning_effort'] ?? '');
+        if ($reasoning_effort !== '' && $reasoning_effort !== 'none') {
             $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
         }
     }

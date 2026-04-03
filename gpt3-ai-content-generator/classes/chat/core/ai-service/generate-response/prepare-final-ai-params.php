@@ -18,6 +18,7 @@ require_once $ai_params_logic_path . 'apply-openrouter-web-search.php';
 require_once $ai_params_logic_path . 'apply-google-search-grounding.php';
 // --- NEW: Require reasoning logic file ---
 require_once $ai_params_logic_path . 'apply-openai-reasoning.php';
+require_once $ai_params_logic_path . 'apply-ollama-thinking.php';
 // --- END NEW ---
 
 
@@ -131,6 +132,11 @@ function prepare_final_ai_params_logic(
             $final_ai_params,
             $bot_settings,
             $frontend_google_search_grounding_active
+        );
+    } elseif ($main_provider === 'Ollama') {
+        AiParams\apply_ollama_thinking_logic(
+            $final_ai_params,
+            $bot_settings
         );
     }
 

@@ -539,6 +539,17 @@ $openrouter_web_search_search_prompt_val = $active_bot_settings['openrouter_web_
     ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
 $web_toggle_default_on_val = $active_bot_settings['web_toggle_default_on']
     ?? BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON;
+$show_sources_val = $active_bot_settings['show_sources']
+    ?? BotSettingsManager::DEFAULT_SHOW_SOURCES;
+$show_sources_val = in_array($show_sources_val, ['0', '1'], true)
+    ? $show_sources_val
+    : BotSettingsManager::DEFAULT_SHOW_SOURCES;
+$sources_label_val = isset($active_bot_settings['sources_label'])
+    ? sanitize_text_field((string) $active_bot_settings['sources_label'])
+    : BotSettingsManager::DEFAULT_SOURCES_LABEL;
+$searching_web_text_val = isset($active_bot_settings['searching_web_text'])
+    ? sanitize_text_field((string) $active_bot_settings['searching_web_text'])
+    : BotSettingsManager::DEFAULT_SEARCHING_WEB_TEXT;
 $google_search_grounding_enabled_val = $active_bot_settings['google_search_grounding_enabled']
     ?? BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED;
 $google_grounding_mode_val = $active_bot_settings['google_grounding_mode']

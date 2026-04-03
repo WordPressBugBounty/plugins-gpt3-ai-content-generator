@@ -146,6 +146,9 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['enable_conversation_sidebar'] = (isset($raw_settings['enable_conversation_sidebar']) && $raw_settings['enable_conversation_sidebar'] === '1') ? '1' : '0';
     // Typing indicator customization
     $sanitized['custom_typing_text'] = isset($raw_settings['custom_typing_text']) ? sanitize_text_field($raw_settings['custom_typing_text']) : '';
+    $sanitized['retrieving_context_text'] = isset($raw_settings['retrieving_context_text'])
+        ? sanitize_text_field((string) $raw_settings['retrieving_context_text'])
+        : BotSettingsManager::DEFAULT_RETRIEVING_CONTEXT_TEXT;
     $sanitized['input_placeholder'] = isset($raw_settings['input_placeholder']) ? sanitize_text_field($raw_settings['input_placeholder']) : __('Type your message...', 'gpt3-ai-content-generator');
     $sanitized['temperature'] = isset($raw_settings['temperature']) ? floatval($raw_settings['temperature']) : BotSettingsManager::DEFAULT_TEMPERATURE;
     $sanitized['max_completion_tokens'] = isset($raw_settings['max_completion_tokens']) ? absint($raw_settings['max_completion_tokens']) : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
@@ -355,6 +358,15 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $raw_google_threshold = isset($raw_settings['google_grounding_dynamic_threshold']) ? floatval($raw_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
     $sanitized['google_grounding_dynamic_threshold'] = max(0.0, min($raw_google_threshold, 1.0));
     $sanitized['web_toggle_default_on'] = (isset($raw_settings['web_toggle_default_on']) && $raw_settings['web_toggle_default_on'] === '1') ? '1' : '0';
+    $sanitized['show_sources'] = isset($raw_settings['show_sources'])
+        ? (($raw_settings['show_sources'] === '1') ? '1' : '0')
+        : BotSettingsManager::DEFAULT_SHOW_SOURCES;
+    $sanitized['sources_label'] = isset($raw_settings['sources_label'])
+        ? sanitize_text_field((string) $raw_settings['sources_label'])
+        : BotSettingsManager::DEFAULT_SOURCES_LABEL;
+    $sanitized['searching_web_text'] = isset($raw_settings['searching_web_text'])
+        ? sanitize_text_field((string) $raw_settings['searching_web_text'])
+        : BotSettingsManager::DEFAULT_SEARCHING_WEB_TEXT;
 
     // --- Sanitize Realtime Voice Agent settings ---
     $sanitized['enable_realtime_voice'] = (isset($raw_settings['enable_realtime_voice']) && $raw_settings['enable_realtime_voice'] === '1') ? '1' : '0';

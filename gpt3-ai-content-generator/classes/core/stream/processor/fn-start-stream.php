@@ -293,6 +293,9 @@ function start_stream_logic(
             if ($processorInstance->get_grounding_metadata() !== null) {
                 $done_data['grounding_metadata'] = $processorInstance->get_grounding_metadata();
             }
+            if ($processorInstance->get_citations() !== null) {
+                $done_data['citations'] = $processorInstance->get_citations();
+            }
             $formatter->send_sse_event('done', $done_data);
         } else {
             $formatter->send_sse_done();
@@ -319,10 +322,8 @@ function start_stream_logic(
 
         $formatter->send_sse_done();
     } finally {
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
-        } elseif (function_exists('litespeed_finish_request')) {
-            litespeed_finish_request();
+        if ($formatter) {
+            $formatter->finish_request();
         }
         exit;
     }

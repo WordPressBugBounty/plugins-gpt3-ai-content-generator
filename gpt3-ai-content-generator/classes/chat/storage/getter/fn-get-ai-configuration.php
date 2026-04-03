@@ -87,6 +87,18 @@ function get_ai_configuration_logic(int $bot_id, ?string $current_provider_from_
         true
     ) ? $get_meta_fn('_aipkit_web_toggle_default_on', BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON)
       : BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON;
+    $settings['show_sources'] = in_array(
+        $get_meta_fn('_aipkit_show_sources', BotSettingsManager::DEFAULT_SHOW_SOURCES),
+        ['0', '1'],
+        true
+    ) ? $get_meta_fn('_aipkit_show_sources', BotSettingsManager::DEFAULT_SHOW_SOURCES)
+      : BotSettingsManager::DEFAULT_SHOW_SOURCES;
+    $settings['sources_label'] = sanitize_text_field(
+        (string) $get_meta_fn('_aipkit_sources_label', BotSettingsManager::DEFAULT_SOURCES_LABEL)
+    );
+    $settings['searching_web_text'] = sanitize_text_field(
+        (string) $get_meta_fn('_aipkit_searching_web_text', BotSettingsManager::DEFAULT_SEARCHING_WEB_TEXT)
+    );
 
     return $settings;
 }

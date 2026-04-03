@@ -175,13 +175,18 @@ function prepare_stream_data_logic(
     if (isset($form_config['presence_penalty']) && is_numeric($form_config['presence_penalty'])) {
         $ai_params_for_payload['presence_penalty'] = floatval($form_config['presence_penalty']);
     }
-    // Add reasoning effort to AI params
+    // Add provider-specific reasoning / think controls.
     if ($provider === 'OpenAI') {
         $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
             (string) $model,
             $form_config['reasoning_effort'] ?? ''
         );
         if ($reasoning_effort !== '') {
+            $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
+        }
+    } elseif ($provider === 'Ollama') {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($form_config['reasoning_effort'] ?? '');
+        if ($reasoning_effort !== '' && $reasoning_effort !== 'none') {
             $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
         }
     }

@@ -108,6 +108,10 @@ class BotSettingsManager
     public const DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT = '';
     // --- Frontend Web Toggle Defaults ---
     public const DEFAULT_WEB_TOGGLE_DEFAULT_ON = '0';
+    public const DEFAULT_SHOW_SOURCES = '1';
+    public const DEFAULT_SOURCES_LABEL = '';
+    public const DEFAULT_SEARCHING_WEB_TEXT = '';
+    public const DEFAULT_RETRIEVING_CONTEXT_TEXT = '';
     // --- NEW: Google Search Grounding Constants ---
     public const DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED = '0'; // Master switch for bot
     public const DEFAULT_GOOGLE_GROUNDING_MODE = 'DEFAULT_MODE'; // Default: use Search as Tool for Gemini 2.0+, Retrieval for 1.5 Flash

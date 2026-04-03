@@ -18,6 +18,7 @@ class Chat_Dom_Utils_Asset_Registrar {
             'remove-image-loader' => 'aipkit-chat-dom-remove-image-loader',
             'show-typing-indicator' => 'aipkit-chat-dom-show-typing-indicator',
             'show-image-loader' => 'aipkit-chat-dom-show-image-loader',
+            'render-message-meta' => 'aipkit-chat-dom-render-message-meta',
             'append-message' => 'aipkit-chat-dom-append-message',
             'position-stream-indicator' => 'aipkit-chat-dom-position-stream-indicator',
             'append-or-update-message' => 'aipkit-chat-dom-append-or-update-message',
@@ -30,9 +31,10 @@ class Chat_Dom_Utils_Asset_Registrar {
         wp_register_script($dom_handles['remove-image-loader'], $public_chat_dom_js_url . 'remove-image-loader.js', [], $version, true);
         wp_register_script($dom_handles['show-typing-indicator'], $public_chat_dom_js_url . 'show-typing-indicator.js', [$dom_handles['remove-typing-indicator'], $dom_handles['remove-image-loader'], $dom_handles['scroll-to-bottom']], $version, true);
         wp_register_script($dom_handles['show-image-loader'], $public_chat_dom_js_url . 'show-image-loader.js', [$dom_handles['remove-typing-indicator'], $dom_handles['remove-image-loader'], $dom_handles['scroll-to-bottom']], $version, true);
-        wp_register_script($dom_handles['append-message'], $public_chat_dom_js_url . 'append-message.js', array_filter([$dependencies['html-escaper'], $dom_handles['scroll-to-bottom'], 'aipkit-chat-create-actions-html']), $version, true);
+        wp_register_script($dom_handles['render-message-meta'], $public_chat_dom_js_url . 'render-message-meta.js', [], $version, true);
+        wp_register_script($dom_handles['append-message'], $public_chat_dom_js_url . 'append-message.js', array_filter([$dependencies['html-escaper'], $dom_handles['scroll-to-bottom'], $dom_handles['render-message-meta'], 'aipkit-chat-create-actions-html']), $version, true);
         wp_register_script($dom_handles['position-stream-indicator'], $public_chat_dom_js_url . 'position-stream-indicator.js', [], $version, true);
-        wp_register_script($dom_handles['append-or-update-message'], $public_chat_dom_js_url . 'append-or-update-message.js', array_filter(['aipkit_markdown-it', $dom_handles['position-stream-indicator'], 'aipkit-chat-create-actions-html', $dom_handles['scroll-to-bottom']]), $version, true);
+        wp_register_script($dom_handles['append-or-update-message'], $public_chat_dom_js_url . 'append-or-update-message.js', array_filter(['aipkit_markdown-it', $dom_handles['position-stream-indicator'], $dom_handles['render-message-meta'], 'aipkit-chat-create-actions-html', $dom_handles['scroll-to-bottom']]), $version, true);
         // --- NEW: Register render-chat-form.js ---
         wp_register_script($dom_handles['render-chat-form'], $public_chat_dom_js_url . 'render-chat-form.js', array_filter([$dependencies['html-escaper']]), $version, true);
         // --- END NEW ---

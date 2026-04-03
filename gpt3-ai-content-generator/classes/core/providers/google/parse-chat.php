@@ -23,6 +23,7 @@ function parse_chat_logic_for_response_parser(array $decoded_response): array|WP
     $content = null;
     $usage = null;
     $grounding_metadata = null;
+    $citations = [];
 
     if (!empty($decoded_response['promptFeedback']['blockReason'])) {
         $block_reason = $decoded_response['promptFeedback']['blockReason'];
@@ -39,12 +40,18 @@ function parse_chat_logic_for_response_parser(array $decoded_response): array|WP
         return new WP_Error('google_content_filtered_logic', sprintf(__('Response filtered by Google due to: %s.', 'gpt3-ai-content-generator'), $reason));
     }
 
-    if (!empty($decoded_response['candidates'][0]['content']['parts'][0]['text'])) {
-        $content = trim($decoded_response['candidates'][0]['content']['parts'][0]['text']);
+    if (isset($decoded_response['candidates'][0]) && is_array($decoded_response['candidates'][0])) {
+        $candidate_text = extract_candidate_text_logic_for_response_parser($decoded_response['candidates'][0]);
+        if ($candidate_text !== null) {
+            $content = trim($candidate_text);
+        }
     }
 
     if (isset($decoded_response['candidates'][0]['groundingMetadata'])) {
         $grounding_metadata = $decoded_response['candidates'][0]['groundingMetadata'];
+        if (is_array($grounding_metadata)) {
+            $citations = extract_google_citations_from_grounding_metadata_logic_for_response_parser($grounding_metadata);
+        }
     }
 
     if (isset($decoded_response['usageMetadata']) && is_array($decoded_response['usageMetadata'])) {
@@ -66,6 +73,9 @@ function parse_chat_logic_for_response_parser(array $decoded_response): array|WP
     $return_data = ['content' => $content, 'usage' => $usage];
     if ($grounding_metadata !== null) {
         $return_data['grounding_metadata'] = $grounding_metadata;
+    }
+    if (!empty($citations)) {
+        $return_data['citations'] = $citations;
     }
     return $return_data;
 }

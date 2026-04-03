@@ -91,6 +91,9 @@ class SSEConnectionValidator {
             if ($this->processorInstance->get_grounding_metadata() !== null) {
                 $done_data['grounding_metadata'] = $this->processorInstance->get_grounding_metadata();
             }
+            if ($this->processorInstance->get_citations() !== null) {
+                $done_data['citations'] = $this->processorInstance->get_citations();
+            }
             $this->formatter->send_sse_event('done', $done_data);
         } else {
             // If an error occurred and was sent by the callback/validator, still send a final 'done'

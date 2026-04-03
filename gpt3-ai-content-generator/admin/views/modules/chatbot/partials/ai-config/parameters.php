@@ -56,6 +56,12 @@ $reasoning_index = array_search($reasoning_effort, $reasoning_options, true);
 if ($reasoning_index === false) {
     $reasoning_index = 0;
 }
+$reasoning_label_text = $current_provider_for_this_bot === 'Ollama'
+    ? __('Thinking', 'gpt3-ai-content-generator')
+    : __('Reasoning', 'gpt3-ai-content-generator');
+$reasoning_help_text = $current_provider_for_this_bot === 'Ollama'
+    ? __('Maps to Ollama think mode. GPT-OSS uses levels, while most other thinking-capable Ollama models use on or off.', 'gpt3-ai-content-generator')
+    : '';
 
 // Ensure they are clamped
 $saved_temperature = max(0.0, min($saved_temperature, 2.0));
@@ -86,7 +92,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
             <div class="aipkit_popover_params_list">
                 <!-- Temperature -->
                 <div class="aipkit_popover_param_row">
-                    <span class="aipkit_popover_param_label"><?php esc_html_e('Creativity', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_popover_param_label"><?php esc_html_e('Temperature', 'gpt3-ai-content-generator'); ?></span>
                     <div class="aipkit_popover_param_slider">
                         <input
                             type="range"
@@ -137,7 +143,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                         class="aipkit_popover_param_label"
 
                     >
-                        <?php esc_html_e('Reasoning', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_reasoning_effort_label_text"><?php echo esc_html($reasoning_label_text); ?></span>
                     </span>
                     <div class="aipkit_popover_param_slider">
                         <input
@@ -158,6 +164,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                         class="aipkit_reasoning_effort_value"
                         value="<?php echo esc_attr($reasoning_effort); ?>"
                     />
+                    <span class="aipkit_popover_option_helper aipkit_reasoning_effort_help" style="<?php echo $reasoning_help_text === '' ? 'display:none;' : ''; ?>"><?php echo esc_html($reasoning_help_text); ?></span>
                 </div>
             </div>
         </div>

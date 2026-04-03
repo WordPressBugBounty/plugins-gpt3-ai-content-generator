@@ -53,6 +53,7 @@ class SSEStreamProcessor {
     public $current_openai_response_id = null;
     public $used_previous_openai_response_id = false;
     public $grounding_metadata = null;
+    public $citations = null;
     public $current_stream_context = 'chat';
     public $vector_search_scores = []; // Store vector search scores for logging
 
@@ -132,6 +133,34 @@ class SSEStreamProcessor {
     public function get_used_previous_openai_response_id_status(): bool { return $this->used_previous_openai_response_id; }
     public function get_grounding_metadata(): ?array { return $this->grounding_metadata; }
     public function set_grounding_metadata(?array $metadata): void { $this->grounding_metadata = $metadata; }
+    public function get_citations(): ?array { return $this->citations; }
+    public function append_citations(array $citations): void {
+        if ($this->citations === null) {
+            $this->citations = [];
+        }
+
+        $seen = [];
+        foreach ($this->citations as $existing_citation) {
+            $encoded = wp_json_encode($existing_citation);
+            if (is_string($encoded)) {
+                $seen[$encoded] = true;
+            }
+        }
+
+        foreach ($citations as $citation) {
+            if (!is_array($citation) || empty($citation)) {
+                continue;
+            }
+
+            $encoded = wp_json_encode($citation);
+            if (!is_string($encoded) || isset($seen[$encoded])) {
+                continue;
+            }
+
+            $seen[$encoded] = true;
+            $this->citations[] = $citation;
+        }
+    }
     public function get_current_stream_context(): string { return $this->current_stream_context; }
     public function get_vector_search_scores(): array { 
         return $this->vector_search_scores; 
@@ -147,7 +176,7 @@ class SSEStreamProcessor {
         $this->data_sent_to_frontend = false; $this->full_bot_response = ''; $this->final_usage_data = null;
         $this->log_base_data = $base_log_data; $this->current_stream_context = $stream_context;
         $this->error_occurred = false; $this->request_payload_log = null; $this->current_openai_response_id = null;
-        $this->used_previous_openai_response_id = $used_previous_openai_id; $this->grounding_metadata = null;
+        $this->used_previous_openai_response_id = $used_previous_openai_id; $this->grounding_metadata = null; $this->citations = null;
         // NOTE: vector_search_scores should NOT be reset here as they are set before streaming starts
     }
     // --- End Getters and Setters ---

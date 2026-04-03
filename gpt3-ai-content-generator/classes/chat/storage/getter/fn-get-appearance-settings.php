@@ -142,6 +142,7 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
 
     // Typing indicator customization
     $settings['custom_typing_text'] = $get_meta_fn('_aipkit_custom_typing_text', BotSettingsManager::DEFAULT_CUSTOM_TYPING_TEXT);
+    $settings['retrieving_context_text'] = $get_meta_fn('_aipkit_retrieving_context_text', BotSettingsManager::DEFAULT_RETRIEVING_CONTEXT_TEXT);
 
     // Popup settings
     $settings['popup_enabled'] = in_array($get_meta_fn('_aipkit_popup_enabled', '0'), ['0','1'])

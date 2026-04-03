@@ -12,6 +12,9 @@ class Chat_Stream_Asset_Registrar {
     public static function register(string $version, string $public_chat_js_url, array $core_dependencies): array {
         $public_chat_stream_js_url = $public_chat_js_url . 'stream/';
         $handles = [];
+        $dep_render_message_meta = $core_dependencies['dom-render-message-meta']
+            ?? $core_dependencies['render-message-meta']
+            ?? null;
 
         $script_definitions = [
             'cache-sse-message'              => ['aipkit-chat-stream-cache-message', $public_chat_stream_js_url . 'cache-sse-message.js', []],
@@ -19,6 +22,8 @@ class Chat_Stream_Asset_Registrar {
             'handle-message-start-event'     => ['aipkit-chat-stream-handle-message-start', $public_chat_stream_js_url . 'handle-message-start-event.js', []],
             'handle-openai-response-id-event'=> ['aipkit-chat-stream-handle-openai-id', $public_chat_stream_js_url . 'handle-openai-response-id-event.js', []],
             'handle-grounding-metadata-event'=> ['aipkit-chat-stream-handle-grounding-metadata', $public_chat_stream_js_url . 'handle-grounding-metadata-event.js', []],
+            'handle-status-event'            => ['aipkit-chat-stream-handle-status', $public_chat_stream_js_url . 'handle-status-event.js', [$dep_render_message_meta]],
+            'handle-citations-event'         => ['aipkit-chat-stream-handle-citations', $public_chat_stream_js_url . 'handle-citations-event.js', [$dep_render_message_meta]],
             'handle-onmessage-event'         => ['aipkit-chat-stream-handle-onmessage', $public_chat_stream_js_url . 'handle-onmessage-event.js', [$core_dependencies['dom-remove-typing-indicator'], $core_dependencies['dom-append-or-update-message'], $core_dependencies['dom-scroll-to-bottom']]],
             'handle-done-event'              => ['aipkit-chat-stream-handle-done', $public_chat_stream_js_url . 'handle-done-event.js', [$core_dependencies['dom-append-or-update-message'], $core_dependencies['dom-scroll-to-bottom']]],
             'handle-warning-event'           => ['aipkit-chat-stream-handle-warning', $public_chat_stream_js_url . 'handle-warning-event.js', [$core_dependencies['dom-append-or-update-message'], $core_dependencies['dom-scroll-to-bottom']]],
