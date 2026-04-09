@@ -43,6 +43,7 @@ class WP_AI_Content_Generator_Activator
         // Set the current version in the database. This is crucial for the `check_for_updates`
         // routine to correctly trigger on new installs and version changes.
         update_option(WP_AI_Content_Generator::DB_VERSION_OPTION, WPAICG_VERSION, 'no');
+        update_option(WP_AI_Content_Generator::TOKEN_MANAGER_SCHEMA_VERSION_OPTION, WP_AI_Content_Generator::TOKEN_MANAGER_SCHEMA_VERSION, 'no');
 
         // --- MODIFICATION: Consolidate all one-time/update tasks here ---
         // This ensures that fresh installs and reactivations get all necessary setup routines.
@@ -142,6 +143,12 @@ class WP_AI_Content_Generator_Activator
         }
         if (function_exists('aipkit_create_recipe_delivery_logs_table')) {
             aipkit_create_recipe_delivery_logs_table();
+        }
+        if (function_exists('aipkit_create_pricing_rules_table')) {
+            aipkit_create_pricing_rules_table();
+        }
+        if (function_exists('aipkit_create_token_ledger_table')) {
+            aipkit_create_token_ledger_table();
         }
         if ($switched) {
             restore_current_blog();

@@ -18,13 +18,13 @@ if (!defined('ABSPATH')) {
 function render_progress_bar_logic($percentage): string
 {
     $percentage = max(0, min(100, (int)$percentage));
-    $color = '#4CAF50'; // Green
+    $color = '#4a6fa5';
     if ($percentage > 90) {
-        $color = '#f44336';
-    } // Red
+        $color = '#c45144';
+    }
     elseif ($percentage > 70) {
-        $color = '#ff9800';
-    } // Orange
+        $color = '#d18b28';
+    }
 
     return sprintf(
         '<div class="aipkit_progress_bar_container" title="%1$d%%">' .

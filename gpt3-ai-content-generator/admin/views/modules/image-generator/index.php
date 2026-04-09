@@ -17,8 +17,13 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 <div class="aipkit_container aipkit_module_image_generator" id="aipkit_image_generator_container">
     <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">
-            <div class="aipkit_container-title"><?php esc_html_e('Image Generator', 'gpt3-ai-content-generator'); ?></div>
-            <span id="aipkit_image_generator_status" class="aipkit_training_status aipkit_global_status_area" aria-live="polite"></span>
+            <div class="aipkit_image_generator_header_copy">
+                <div class="aipkit_image_generator_header_title_row">
+                    <div class="aipkit_container-title"><?php esc_html_e('Image Generator', 'gpt3-ai-content-generator'); ?></div>
+                    <span id="aipkit_image_generator_status" class="aipkit_training_status aipkit_global_status_area" aria-live="polite"></span>
+                </div>
+                <p class="aipkit_image_generator_header_hint"><?php esc_html_e('Generate, edit, and preview image experiences with shortcode and frontend controls.', 'gpt3-ai-content-generator'); ?></p>
+            </div>
         </div>
         <div class="aipkit_container-actions">
             <div class="aipkit_tabs_module_controls">

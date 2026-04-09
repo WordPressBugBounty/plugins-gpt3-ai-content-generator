@@ -55,26 +55,36 @@ function process_chat_logic(
         return $validation_result;
     }
 
-    // 3. Token Check
-    $token_manager = $handlerInstance->get_token_manager();
-    if (!$token_manager) {
-        return new WP_Error('dependency_missing_token_manager', 'Token manager is unavailable.', ['status' => 500]);
-    }
-    $token_check_result = Process\run_token_check_logic($token_manager, $params['user_id'], $params['session_id'], $params['bot_id'], $handlerInstance->get_log_storage());
-    if (is_wp_error($token_check_result)) {
-        return $token_check_result;
-    }
-
-    // 4. Content Moderation
     $bot_storage = $handlerInstance->get_bot_storage();
     if (!$bot_storage) {
         return new WP_Error('dependency_missing_bot_storage_moderation', 'Bot storage is unavailable for moderation.', ['status' => 500]);
     }
+
     $bot_settings = $bot_storage->get_chatbot_settings($params['bot_id']);
     if (empty($bot_settings)) {
         return new WP_Error('settings_load_failure_moderation', __('Could not load chatbot configuration.', 'gpt3-ai-content-generator'), ['status' => 500]);
     }
 
+    // 3. Token Check
+    $token_manager = $handlerInstance->get_token_manager();
+    if (!$token_manager) {
+        return new WP_Error('dependency_missing_token_manager', 'Token manager is unavailable.', ['status' => 500]);
+    }
+    $token_check_result = Process\run_token_check_logic(
+        $token_manager,
+        $params['user_id'],
+        $params['session_id'],
+        $params['bot_id'],
+        $bot_settings,
+        $params['user_message_text'],
+        $params['image_inputs'],
+        $handlerInstance->get_log_storage()
+    );
+    if (is_wp_error($token_check_result)) {
+        return $token_check_result;
+    }
+
+    // 4. Content Moderation
     $moderation_result = Process\run_content_moderation_logic($params['user_message_text'], $params['client_ip'], $bot_settings, $handlerInstance->get_log_storage(), $params['bot_id'], $params['user_id'], $params['session_id']);
     if (is_wp_error($moderation_result)) {
         return $moderation_result;
@@ -86,7 +96,7 @@ function process_chat_logic(
         'conversation_uuid' => $params['conversation_uuid'], 'module' => 'chat', 'is_guest' => ($params['user_id'] === 0),
         'role' => ($params['user_id'] > 0 && class_exists('WP_User') && ($u = get_user_by('id', $params['user_id'])) && isset($u->roles) && is_array($u->roles)) ? implode(', ', $u->roles) : 'guest',
         'ip_address' => $params['client_ip'], 'form_id' => null,
-        'user_message_id_from_client' => $params['client_user_message_id']
+        'user_message_id_from_client' => $params['client_user_message_id'],
     ];
     $bot_message_id_for_stream = 'aipkit-msg-' . uniqid('', true);
     $base_log_data['bot_message_id'] = $bot_message_id_for_stream;

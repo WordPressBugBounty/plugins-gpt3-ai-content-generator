@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once WPAICG_PLUGIN_DIR . 'classes/ai-forms/core/pricing/fn-build-ai-form-pricing-check-context.php';
+
 /**
  * Validates the request and checks token limits for an AI Forms stream request.
  *
@@ -41,6 +43,29 @@ function validate_request_logic(
         return new WP_Error('missing_input_values_ai_forms_logic', __('User input values are missing for AI Forms stream.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
 
+    $submitted_fields = [];
+    foreach ($user_input_values as $raw_key => $value) {
+        $key_match = [];
+        if (preg_match('/aipkit_form_field\[(.*?)\]/', (string) $raw_key, $key_match)) {
+            $submitted_fields[$key_match[1]] = $value;
+            continue;
+        }
+
+        $submitted_fields[$raw_key] = $value;
+    }
+
+    $form_config = $handlerInstance->get_ai_form_storage()->get_form_data($form_id);
+    if (is_wp_error($form_config)) {
+        return $form_config;
+    }
+
+    if (isset($submitted_fields['ai_provider']) && $submitted_fields['ai_provider'] !== '') {
+        $form_config['ai_provider'] = sanitize_text_field((string) $submitted_fields['ai_provider']);
+    }
+    if (isset($submitted_fields['ai_model']) && $submitted_fields['ai_model'] !== '') {
+        $form_config['ai_model'] = sanitize_text_field((string) $submitted_fields['ai_model']);
+    }
+
     // 3. Perform Token Check
     $token_manager = $handlerInstance->get_token_manager();
     if (!$token_manager) {
@@ -48,7 +73,12 @@ function validate_request_logic(
     }
 
     $context_id_for_tokens = !$user_id ? GuestTableConstants::AI_FORMS_GUEST_CONTEXT_ID : null;
-    $token_check_result = $token_manager->check_and_reset_tokens($user_id ?: null, $session_id, $context_id_for_tokens, 'ai_forms');
+    $usage_context = \WPAICG\AIForms\Core\Pricing\build_ai_form_pricing_check_context_logic(
+        $form_id,
+        $form_config,
+        $submitted_fields
+    );
+    $token_check_result = $token_manager->check_and_reset_tokens($user_id ?: null, $session_id, $context_id_for_tokens, 'ai_forms', $usage_context);
 
     if (is_wp_error($token_check_result)) {
         return $token_check_result;
@@ -58,7 +88,8 @@ function validate_request_logic(
     return [
         'user_id'           => $user_id,
         'form_id'           => $form_id,
-        'user_input_values' => $user_input_values,
+        'user_input_values' => $submitted_fields,
+        'form_config'       => $form_config,
         'conversation_uuid' => $conversation_uuid,
         'session_id'        => $session_id,
         'client_ip'         => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,

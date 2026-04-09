@@ -3,8 +3,8 @@
 // Status: MODIFIED
 
 /**
- * Partial: AI Forms Token Management Settings
- * Renders token limit settings for the AI Forms module.
+ * Partial: AI Forms Usage Settings
+ * Renders quota settings for the AI Forms module.
  */
 
 if (!defined('ABSPATH')) {
@@ -89,7 +89,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                                     <?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?>
                                 </span>
                                 <span class="aipkit_popover_option_hint">
-                                    <?php esc_html_e('Tokens and usage', 'gpt3-ai-content-generator'); ?>
+                                    <?php esc_html_e('Quotas and reset rules', 'gpt3-ai-content-generator'); ?>
                                 </span>
                             </span>
                         </span>
@@ -170,7 +170,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                         for="aipkit_aiforms_token_guest_limit"
                         data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
                     >
-                        <?php esc_html_e('Guest limit', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Guest quota', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <input
                         type="number"
@@ -191,7 +191,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                         for="aipkit_aiforms_token_limit_mode"
                         data-tooltip="<?php echo esc_attr__('For logged-in users.', 'gpt3-ai-content-generator'); ?>"
                     >
-                        <?php esc_html_e('User limit type', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Quota mode', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <select
                         id="aipkit_aiforms_token_limit_mode"
@@ -199,10 +199,10 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                         class="aipkit_popover_option_select aipkit_token_limit_mode_select aipkit_autosave_trigger"
                     >
                         <option value="general" <?php selected($limit_mode, 'general'); ?>>
-                            <?php esc_html_e('General limit', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Same quota for all logged-in users', 'gpt3-ai-content-generator'); ?>
                         </option>
                         <option value="role_based" <?php selected($limit_mode, 'role_based'); ?>>
-                            <?php esc_html_e('Role-based limits', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Role-based quotas', 'gpt3-ai-content-generator'); ?>
                         </option>
                     </select>
                 </div>
@@ -217,7 +217,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                         for="aipkit_aiforms_token_user_limit"
                         data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
                     >
-                        <?php esc_html_e('General user limit', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('User quota', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <input
                         type="number"
@@ -270,7 +270,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                         tabindex="0"
                         data-tooltip="<?php echo esc_attr__('Set limits for specific roles. Leave empty for unlimited, use 0 to disable access for a role.', 'gpt3-ai-content-generator'); ?>"
                     >
-                        <?php esc_html_e('Role limits', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Role-based quotas', 'gpt3-ai-content-generator'); ?>
                     </span>
                     <div class="aipkit_popover_role_limits">
                         <?php
@@ -302,9 +302,9 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_aiforms_token_limit_message"
-                        data-tooltip="<?php echo esc_attr__('The message shown to users when they exceed their token limit for the period.', 'gpt3-ai-content-generator'); ?>"
+                        data-tooltip="<?php echo esc_attr__('The message shown to users when they reach their quota for the current period.', 'gpt3-ai-content-generator'); ?>"
                     >
-                        <?php esc_html_e('Limit message', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Quota reached message', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <input
                         type="text"

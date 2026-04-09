@@ -107,6 +107,9 @@ class Initializer
             if (method_exists($user_credits_handler, 'ajax_admin_update_token_balance') && !has_action('wp_ajax_aipkit_admin_update_token_balance', [$user_credits_handler, 'ajax_admin_update_token_balance'])) {
                 add_action('wp_ajax_aipkit_admin_update_token_balance', [$user_credits_handler, 'ajax_admin_update_token_balance']);
             }
+            if (method_exists($user_credits_handler, 'ajax_admin_reset_usage_scope') && !has_action('wp_ajax_aipkit_admin_reset_usage_scope', [$user_credits_handler, 'ajax_admin_reset_usage_scope'])) {
+                add_action('wp_ajax_aipkit_admin_reset_usage_scope', [$user_credits_handler, 'ajax_admin_reset_usage_scope']);
+            }
             // --- END NEW ---
         }
 

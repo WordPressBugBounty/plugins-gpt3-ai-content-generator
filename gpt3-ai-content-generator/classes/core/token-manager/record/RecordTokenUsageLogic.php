@@ -10,6 +10,7 @@ use WPAICG\Core\TokenManager\Constants\MetaKeysConstants;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler;
+use function WPAICG\Core\TokenManager\Helpers\GetGuestQuotaIdentifiersLogic;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -32,7 +33,8 @@ function RecordTokenUsageLogic(
     ?string $session_id,
     ?int $context_id_or_bot_id,
     int $tokens_used,
-    string $module_context = 'chat'
+    string $module_context = 'chat',
+    array $usage_context = []
 ): void {
     global $wpdb;
 
@@ -40,26 +42,56 @@ function RecordTokenUsageLogic(
         return;
     }
 
-    $tokens_left_to_deduct = $tokens_used;
-
-    // --- MODIFIED: Deduct from persistent balance first, then periodic ---
-    if ($user_id) {
-        $token_balance_raw = get_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, true);
-        if (is_numeric($token_balance_raw) && (int)$token_balance_raw > 0) {
-            $current_balance = (int) $token_balance_raw;
-            $deducted_from_balance = min($current_balance, $tokens_left_to_deduct);
-            $new_balance = $current_balance - $deducted_from_balance;
-            update_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, $new_balance);
-            $tokens_left_to_deduct -= $deducted_from_balance;
+    $charge_estimate = $managerInstance->estimate_usage_charge($tokens_used, $module_context, $usage_context);
+    $resolved_rule = is_array($charge_estimate['resolved_rule'] ?? null) ? $charge_estimate['resolved_rule'] : null;
+    $billed_units = max(0, (int) ($charge_estimate['billed_credits'] ?? $tokens_used));
+    $normalized_usage = is_array($charge_estimate['normalized_usage'] ?? null) ? $charge_estimate['normalized_usage'] : [];
+    $provider = sanitize_text_field((string) ($usage_context['provider'] ?? ''));
+    $model = sanitize_text_field((string) ($usage_context['model'] ?? ''));
+    $operation = sanitize_text_field((string) ($usage_context['operation'] ?? ''));
+    $pricing_module = sanitize_key((string) ($charge_estimate['pricing_module'] ?? ($usage_context['pricing_module'] ?? $module_context)));
+    if ($operation === '') {
+        if ($module_context === 'chat') {
+            $operation = 'chat';
+        } elseif ($module_context === 'ai_forms') {
+            $operation = 'form_submit';
+        } elseif ($module_context === 'image_generator') {
+            $operation = 'generate';
+        } else {
+            $operation = 'usage';
         }
     }
 
-    if ($tokens_left_to_deduct <= 0) {
-        return; // All tokens were covered by the persistent balance.
+    $tokens_left_to_deduct = $billed_units;
+    $deducted_from_balance = 0;
+    $balance_before = 0;
+    $balance_after = 0;
+    $ledger_repository = $managerInstance->get_ledger_repository();
+    $balance_service = $managerInstance->get_balance_service();
+
+    // --- MODIFIED: Deduct from persistent balance first, then periodic ---
+    if ($user_id) {
+        if ($balance_service && method_exists($balance_service, 'deduct_available_balance')) {
+            $balance_result = $balance_service->deduct_available_balance($user_id, $tokens_left_to_deduct);
+            $balance_before = (int) ($balance_result['balance_before'] ?? 0);
+            $deducted_from_balance = (int) ($balance_result['deducted'] ?? 0);
+            $balance_after = (int) ($balance_result['balance_after'] ?? 0);
+            $tokens_left_to_deduct = (int) ($balance_result['remaining'] ?? $tokens_left_to_deduct);
+        } else {
+            $token_balance_raw = get_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, true);
+            if (is_numeric($token_balance_raw) && (int)$token_balance_raw > 0) {
+                $balance_before = (int) $token_balance_raw;
+                $deducted_from_balance = min($balance_before, $tokens_left_to_deduct);
+                $balance_after = $balance_before - $deducted_from_balance;
+                update_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, $balance_after);
+                $tokens_left_to_deduct -= $deducted_from_balance;
+            } else {
+                $balance_before = is_numeric($token_balance_raw) ? (int) $token_balance_raw : 0;
+                $balance_after = $balance_before;
+            }
+        }
     }
     // --- END MODIFICATION ---
-
-    // If tokens are still left to deduct, proceed with the original periodic usage tracking logic.
 
     // Validation
     if ($module_context === 'chat' && empty($context_id_or_bot_id)) {
@@ -72,11 +104,12 @@ function RecordTokenUsageLogic(
         return;
     }
 
-    if (!$user_id && empty($session_id)) {
+    $is_guest = !$user_id;
+    $guest_identifiers = $is_guest ? GetGuestQuotaIdentifiersLogic($session_id) : [];
+    if ($is_guest && empty($guest_identifiers)) {
         return;
     }
 
-    $is_guest = !$user_id;
     $settings = [];
     $usage_key = '';
     $reset_key = '';
@@ -139,20 +172,24 @@ function RecordTokenUsageLogic(
         }
     }
 
-    if ($should_record) {
+    if ($should_record && $tokens_left_to_deduct > 0) {
         $guest_table_name = $wpdb->prefix . GuestTableConstants::GUEST_TABLE_NAME_SUFFIX;
         $new_usage = 0;
         if ($is_guest && $guest_context_table_id !== null) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Caches will be invalidated.
-            $guest_row = $wpdb->get_row($wpdb->prepare("SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d", $session_id, $guest_context_table_id), ARRAY_A);
-            $current_usage = $guest_row ? (int) $guest_row['tokens_used'] : 0;
-            $last_reset = $guest_row ? (int) $guest_row['last_reset_timestamp'] : 0;
-            $new_usage = $current_usage + $tokens_left_to_deduct; // Use remaining tokens
-            if ($last_reset === 0 && $reset_period !== 'never') {
-                $last_reset = time();
-            } // Set initial reset time if not set
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $upsert_result = $wpdb->replace($guest_table_name, ['session_id' => $session_id, 'bot_id' => $guest_context_table_id, 'tokens_used' => $new_usage, 'last_reset_timestamp' => $last_reset, 'last_updated_at' => current_time('mysql', 1)], ['%s', '%d', '%d', '%d', '%s']);
+            foreach ($guest_identifiers as $guest_identifier) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Direct query to a custom table. Cache is invalidated after each write.
+                $guest_row = $wpdb->get_row($wpdb->prepare("SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d", $guest_identifier, $guest_context_table_id), ARRAY_A);
+                $current_usage = $guest_row ? (int) $guest_row['tokens_used'] : 0;
+                $last_reset = $guest_row ? (int) $guest_row['last_reset_timestamp'] : 0;
+                $new_usage = $current_usage + $tokens_left_to_deduct; // Use remaining tokens
+                if ($last_reset === 0 && $reset_period !== 'never') {
+                    $last_reset = time();
+                } // Set initial reset time if not set
+
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->replace($guest_table_name, ['session_id' => $guest_identifier, 'bot_id' => $guest_context_table_id, 'tokens_used' => $new_usage, 'last_reset_timestamp' => $last_reset, 'last_updated_at' => current_time('mysql', 1)], ['%s', '%d', '%d', '%d', '%s']);
+                wp_cache_delete("aipkit_guest_usage_{$guest_identifier}_{$guest_context_table_id}", 'aipkit_token_usage');
+            }
         } elseif (!$is_guest) {
             $current_usage = (int) get_user_meta($user_id, $usage_key, true);
             $new_usage = $current_usage + $tokens_left_to_deduct; // Use remaining tokens
@@ -168,5 +205,41 @@ function RecordTokenUsageLogic(
     } else {
         $log_context_str = $is_guest ? "Guest {$session_id}" : "User {$user_id}";
         $log_module_str = ($module_context === 'chat') ? "Bot {$context_id_or_bot_id}" : "Module {$module_context}";
+    }
+
+    if ($ledger_repository && method_exists($ledger_repository, 'insert_entry')) {
+        $context_type = $module_context === 'chat' ? 'chatbot' : 'module';
+        $context_id = $module_context === 'chat' && is_numeric($context_id_or_bot_id) ? absint($context_id_or_bot_id) : null;
+
+        $ledger_repository->insert_entry([
+            'user_id' => $user_id,
+            'session_id' => $user_id ? null : $session_id,
+            'module' => $module_context,
+            'context_type' => $context_type,
+            'context_id' => $context_id,
+            'provider' => $provider !== '' ? $provider : null,
+            'model' => $model !== '' ? $model : null,
+            'operation' => $operation,
+            'usage_input_units' => max(0, (int) ($normalized_usage['input_units'] ?? 0)),
+            'usage_output_units' => max(0, (int) ($normalized_usage['output_units'] ?? 0)),
+            'usage_total_units' => max(0, (int) ($normalized_usage['total_units'] ?? $tokens_used)),
+            'credits_delta' => 0 - $deducted_from_balance,
+            'entry_type' => 'usage',
+            'meta' => [
+                'legacy_total_units' => $tokens_used,
+                'billed_credits' => $billed_units,
+                'pricing_module' => $pricing_module !== '' ? $pricing_module : $module_context,
+                'billing_method' => sanitize_key((string) ($charge_estimate['billing_method'] ?? 'legacy_fallback')),
+                'raw_charge' => isset($charge_estimate['raw_charge']) ? (float) $charge_estimate['raw_charge'] : (float) $billed_units,
+                'used_legacy_fallback' => !empty($charge_estimate['used_legacy_fallback']),
+                'resolved_rule_id' => is_array($resolved_rule) && isset($resolved_rule['id']) ? absint($resolved_rule['id']) : null,
+                'balance_before' => $balance_before,
+                'balance_after' => $balance_after,
+                'balance_units' => $deducted_from_balance,
+                'quota_units' => $tokens_left_to_deduct,
+                'quota_recorded' => $should_record && $tokens_left_to_deduct > 0,
+                'raw_usage_data' => $normalized_usage['raw_usage_data'] ?? [],
+            ],
+        ]);
     }
 }

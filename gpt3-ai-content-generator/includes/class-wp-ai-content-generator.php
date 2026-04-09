@@ -38,6 +38,8 @@ class WP_AI_Content_Generator
     private $version;
     private $plugin_name;
     public const DB_VERSION_OPTION = 'aipkit_plugin_version'; // Option to store current DB version
+    public const TOKEN_MANAGER_SCHEMA_VERSION_OPTION = 'aipkit_token_manager_schema_version';
+    public const TOKEN_MANAGER_SCHEMA_VERSION = '3';
 
     public static function get_instance(): WP_AI_Content_Generator
     {
@@ -92,13 +94,15 @@ class WP_AI_Content_Generator
     {
         $current_version = $this->version;
         $saved_version = get_option(self::DB_VERSION_OPTION);
+        $saved_token_manager_schema_version = get_option(self::TOKEN_MANAGER_SCHEMA_VERSION_OPTION);
 
         // --- NEW: Check if any tables are missing as a fallback for incomplete activations/updates ---
         $tables_are_missing = $this->are_plugin_tables_missing();
         // --- END NEW ---
         $vector_index_missing = $this->is_vector_data_source_index_missing();
+        $token_manager_schema_needs_update = version_compare((string) $saved_token_manager_schema_version, self::TOKEN_MANAGER_SCHEMA_VERSION, '<');
 
-        if (version_compare((string)$saved_version, $current_version, '<') || $tables_are_missing || $vector_index_missing) { // MODIFIED to include table/index check
+        if (version_compare((string)$saved_version, $current_version, '<') || $tables_are_missing || $vector_index_missing || $token_manager_schema_needs_update) { // MODIFIED to include table/index check
 
             // --- ADDED: Clear caches first to ensure users get new assets ---
             $this->clear_external_caches();
@@ -106,6 +110,7 @@ class WP_AI_Content_Generator
 
             // Run DB table setup on version change to apply any schema updates.
             WP_AI_Content_Generator_Activator::setup_tables_for_blog();
+            $this->cleanup_legacy_chatbot_pricing_overrides();
 
             // Ensure Role Manager Permissions are Updated/Initialized
             if (class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
@@ -140,7 +145,29 @@ class WP_AI_Content_Generator
 
             // Update the stored version
             update_option(self::DB_VERSION_OPTION, $current_version, 'no'); // Use autoload 'no'
+            update_option(self::TOKEN_MANAGER_SCHEMA_VERSION_OPTION, self::TOKEN_MANAGER_SCHEMA_VERSION, 'no');
         }
+    }
+
+    private function cleanup_legacy_chatbot_pricing_overrides(): void
+    {
+        global $wpdb;
+
+        $pricing_rules_table = $wpdb->prefix . 'aipkit_pricing_rules';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time plugin migration cleanup.
+        $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $pricing_rules_table));
+        if ($table_exists === $pricing_rules_table) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time plugin migration cleanup.
+            $wpdb->query(
+                $wpdb->prepare(
+                    "DELETE FROM {$pricing_rules_table} WHERE scope_type IN (%s, %s)",
+                    'chatbot',
+                    'bot'
+                )
+            );
+        }
+
+        delete_post_meta_by_key('_aipkit_token_pricing_mode');
     }
 
     /**
@@ -162,6 +189,8 @@ class WP_AI_Content_Generator
             'aipkit_rss_history',
             'aipkit_event_delivery_queue',
             'aipkit_recipe_delivery_logs',
+            'aipkit_pricing_rules',
+            'aipkit_token_ledger',
         ];
 
         foreach ($required_tables as $table_suffix) {

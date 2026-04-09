@@ -35,25 +35,28 @@ function render_usage_row_logic(\WPAICG\Shortcodes\AIPKit_Token_Usage_Shortcode 
         $progress_percent = round(($used / $limit) * 100);
         $progress_percent = min(100, $progress_percent);
         $progress_display = \WPAICG\Shortcodes\TokenUsage\Render\render_progress_bar_logic($progress_percent);
+    } else {
+        $remaining_display = '&mdash;';
+        $progress_display = '<span class="aipkit_usage_progress_na">' . esc_html__('Not capped', 'gpt3-ai-content-generator') . '</span>';
     }
 
     ob_start();
     ?>
     <tr class="aipkit-usage-main-row">
         <td data-label="<?php echo esc_attr($first_column_label); ?>"><?php echo esc_html($item['title']); ?></td>
-        <td data-label="<?php esc_attr_e('Used Tokens', 'gpt3-ai-content-generator'); ?>">
+        <td data-label="<?php esc_attr_e('Used', 'gpt3-ai-content-generator'); ?>">
              <button
                 type="button"
                 class="aipkit-usage-details-btn aipkit-btn-as-link"
-                title="<?php esc_attr_e('Click to view details', 'gpt3-ai-content-generator'); ?>"
+                title="<?php esc_attr_e('Click to view recent usage activity', 'gpt3-ai-content-generator'); ?>"
                 data-module="<?php echo esc_attr($module); ?>"
                 data-context-id="<?php echo esc_attr($context_id); ?>"
             >
                 <?php echo esc_html(number_format_i18n($used)); ?>
             </button>
         </td>
-        <td data-label="<?php esc_attr_e('Limit', 'gpt3-ai-content-generator'); ?>"><?php echo wp_kses_post($limit_display); ?></td>
-        <td data-label="<?php esc_attr_e('Remaining Tokens', 'gpt3-ai-content-generator'); ?>"><?php echo wp_kses_post($remaining_display); ?></td>
+        <td data-label="<?php esc_attr_e('Quota', 'gpt3-ai-content-generator'); ?>"><?php echo wp_kses_post($limit_display); ?></td>
+        <td data-label="<?php esc_attr_e('Remaining', 'gpt3-ai-content-generator'); ?>"><?php echo wp_kses_post($remaining_display); ?></td>
         <td data-label="<?php esc_attr_e('Progress', 'gpt3-ai-content-generator'); ?>"><?php echo wp_kses_post($progress_display); ?></td>
     </tr>
     <?php

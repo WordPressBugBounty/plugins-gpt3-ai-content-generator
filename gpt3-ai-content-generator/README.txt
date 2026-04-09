@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.3.93
+Stable tag: 2.3.94
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 * **All-in-One** – Chatbot, AI Writer, AI Forms, Image Generator, Automation, WooCommerce AI tools, and more.
 * **Train on Your Data** – Build your own **AI knowledge base** from posts, pages, products, PDFs, or files.
 * **Voice + Chat** – Real-time voice agents and voice input for interactive AI experiences.
-* **WooCommerce AI** – Generate product descriptions, titles, SEO tags, and even sell AI tokens to customers.
+* **WooCommerce AI** – Generate product descriptions, titles, SEO tags, and sell AI credits to customers.
 * **Fast & Flexible** – Works with OpenAI GPT-5/4o, Google Gemini & Imagen, Azure, Replicate, and others.
 * **Secure** – 100% hosted on your WordPress site. Your data stays with you.
 
@@ -62,7 +62,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 
 #### 🛒 WooCommerce AI Tools
 - Bulk-generate or enhance product descriptions, titles, and tags.
-- Sell **AI tokens** to customers via WooCommerce.
+- Sell **AI credits** to customers via WooCommerce.
 
 #### 🛠 Content Assistant
 - Bulk-enhance existing posts, generate SEO titles/excerpts.
@@ -95,10 +95,10 @@ We support **OpenAI** (GPT-5, GPT-4o, GPT-3.5, DALL·E 3, etc.), **Google** (Gem
 Yes. Use the **Train** module to index posts, pages, WooCommerce products, PDFs, or uploaded files into a **vector store**. Then link that knowledge base to your Chatbot or Forms.
 
 = How do I limit AI usage for visitors or members? =  
-The **Token Management** add-on lets you set role-based or guest usage limits for Chat, Forms, Images, etc. Limits can reset daily, weekly, monthly, or never.
+The **Usage & Billing** tools let you set guest, user, or role-based usage limits for Chat, Forms, and Images. Limits can reset daily, weekly, monthly, or never.
 
 = Can I monetize my AI tools? =  
-Yes. Sell **token packages** via WooCommerce. Tokens are consumed when users access AI features.
+Yes. Sell **credit packages** via WooCommerce. Credits are deducted when pricing rules apply to AI usage.
 
 = What makes AIP different from other AI plugins? =  
 AIP is **all-in-one** — instead of installing separate plugins for chatbots, content writing, AI forms, and WooCommerce AI, you get them all in one optimized toolkit with centralized settings.
@@ -118,12 +118,18 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 6. Drag-and-drop AI Form builder.
 7. AI Image Generator interface.
 8. AI Training vector store management.
-9. Token Management system.
+9. Usage & Billing system.
 10. WooCommerce AI integration.
 
 ---
 
 == Changelog ==
+
+= 2.3.94 =
+
+- Added a new **Usage & Billing** workspace with dedicated tabs for Pricing, Activity, Balances, and WooCommerce.
+- Add flexible **pricing rules**, credit balance tracking, and ledger activity for Chatbot, AI Forms, and Image Generator.
+- Updated the customer-facing credits and usage dashboard, including WooCommerce credit purchase guidance and shortcode customization.
 
 = 2.3.93 =
 

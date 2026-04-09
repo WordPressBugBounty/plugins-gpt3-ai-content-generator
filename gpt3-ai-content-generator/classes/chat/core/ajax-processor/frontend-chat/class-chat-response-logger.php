@@ -150,7 +150,21 @@ class ChatResponseLogger
 
             $tokens_consumed = $usage_data['total_tokens'] ?? 0;
             if ($tokens_consumed > 0) {
-                $this->token_manager->record_token_usage($user_id, $session_id, $bot_settings['bot_id'], $tokens_consumed);
+                $usage_context = [
+                    'provider' => $provider,
+                    'model' => $model,
+                    'operation' => 'chat',
+                    'usage_data' => is_array($usage_data) ? $usage_data : [],
+                ];
+
+                $this->token_manager->record_token_usage(
+                    $user_id,
+                    $session_id,
+                    $bot_settings['bot_id'],
+                    $tokens_consumed,
+                    'chat',
+                    $usage_context
+                );
             }
 
             $log_bot_data = array_merge($base_log_data, [

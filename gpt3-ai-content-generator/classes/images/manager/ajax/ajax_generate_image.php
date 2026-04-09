@@ -111,12 +111,44 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
 
     $num_images_to_generate = isset($post_data['n']) ? absint($post_data['n']) : 1;
     $num_images_to_generate = max(1, $num_images_to_generate);
+    $selected_model = isset($post_data['model']) ? sanitize_text_field($post_data['model']) : '';
+    $pricing_operation = $image_mode;
+
+    if (strtolower($provider) === 'google' && $selected_model !== '') {
+        $google_video_model_ids = [];
+        if (class_exists('\WPAICG\AIPKit_Providers')) {
+            $google_video_models = \WPAICG\AIPKit_Providers::get_google_video_models();
+            if (!empty($google_video_models)) {
+                $google_video_model_ids = wp_list_pluck($google_video_models, 'id');
+            }
+        }
+
+        if (in_array($selected_model, $google_video_model_ids, true) || strpos($selected_model, 'veo') !== false) {
+            $pricing_operation = 'video_generate';
+        }
+    }
 
     $token_manager = $managerInstance->get_token_manager();
     if ($token_manager) {
         $token_check_result = null;
         $context_id_for_token_check = $is_logged_in ? GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
-        $token_check_result = $token_manager->check_and_reset_tokens($user_id ?: null, $session_id_for_guest, $context_id_for_token_check, 'image_generator');
+        $token_check_result = $token_manager->check_and_reset_tokens(
+            $user_id ?: null,
+            $session_id_for_guest,
+            $context_id_for_token_check,
+            'image_generator',
+            [
+                'provider' => $provider,
+                'model' => $selected_model,
+                'operation' => $pricing_operation,
+                'usage_data' => [
+                    'unit_count' => $num_images_to_generate,
+                    'image_count' => $num_images_to_generate,
+                    'total_units' => $num_images_to_generate,
+                ],
+                'fallback_units' => $num_images_to_generate * $managerInstance::TOKENS_PER_IMAGE,
+            ]
+        );
 
         if (is_wp_error($token_check_result)) {
             $managerInstance->log_image_generation_attempt($conversation_uuid, $prompt, $post_data, $token_check_result, null, $user_id, $session_id_for_guest, $client_ip);
@@ -132,7 +164,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     $runtime_options = array_filter([
         'image_mode' => $image_mode,
         'provider' => $provider,
-        'model' => isset($post_data['model']) ? sanitize_text_field($post_data['model']) : null,
+        'model' => $selected_model !== '' ? $selected_model : null,
         'size' => isset($post_data['size']) ? sanitize_text_field($post_data['size']) : null,
         'n' => $num_images_to_generate,
         'quality' => isset($post_data['quality']) ? sanitize_text_field($post_data['quality']) : null,
@@ -205,7 +237,24 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
 
         if ($token_manager && $tokens_to_record > 0) {
             $context_id_for_token_record = $is_logged_in ? GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
-            $token_manager->record_token_usage($user_id ?: null, $session_id_for_guest, $context_id_for_token_record, $tokens_to_record, 'image_generator');
+            $token_manager->record_token_usage(
+                $user_id ?: null,
+                $session_id_for_guest,
+                $context_id_for_token_record,
+                $tokens_to_record,
+                'image_generator',
+                [
+                    'provider' => $provider,
+                    'model' => $selected_model,
+                    'operation' => !empty($videos_array) ? 'video_generate' : $pricing_operation,
+                    'usage_data' => array_merge(
+                        is_array($usage_data) ? $usage_data : [],
+                        !empty($videos_array)
+                            ? ['unit_count' => count($videos_array), 'video_count' => count($videos_array)]
+                            : ['unit_count' => $media_generated_count, 'image_count' => $media_generated_count]
+                    ),
+                ]
+            );
         }
     }
 

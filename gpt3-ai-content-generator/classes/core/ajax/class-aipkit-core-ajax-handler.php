@@ -18,6 +18,7 @@ use WPAICG\Chat\Storage\LogCronManager;
 use WPAICG\Chat\Storage\LogManager;
 use WPAICG\Chat\Utils\LogConfig;
 use WPAICG\Stats\AIPKit_Stats;
+use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
 use WP_Error; // For WP_Error usage
 
 if (!defined('ABSPATH')) {
@@ -876,100 +877,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         return [
             'start_ts' => $start_datetime->getTimestamp(),
             'end_ts' => $end_datetime->getTimestamp(),
-            'period_label' => sprintf(
-                /* translators: %d: number of days */
-                __('Last %d days', 'gpt3-ai-content-generator'),
-                $days
-            ),
         ];
-    }
-
-    public function ajax_get_stats_overview()
-    {
-        $permission_check = $this->check_module_access_permissions('stats', 'aipkit_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
-        $post_data = wp_unslash($_POST);
-        $days = $this->resolve_stats_days($post_data['days'] ?? 30);
-        $range = $this->get_stats_time_range($days);
-
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'aipkit_chat_logs';
-
-        $total_conversations = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d",
-            $range['start_ts'],
-            $range['end_ts']
-        ));
-
-        $total_messages = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COALESCE(SUM(message_count), 0) FROM {$table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d",
-            $range['start_ts'],
-            $range['end_ts']
-        ));
-
-        $unique_users = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(DISTINCT CASE
-                WHEN is_guest = 1 AND session_id IS NOT NULL AND session_id != '' THEN CONCAT('g:', session_id)
-                WHEN user_id IS NOT NULL THEN CONCAT('u:', user_id)
-                ELSE NULL
-            END)
-            FROM {$table_name}
-            WHERE last_message_ts >= %d AND last_message_ts <= %d",
-            $range['start_ts'],
-            $range['end_ts']
-        ));
-
-        $daily_rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT FROM_UNIXTIME(last_message_ts, '%%Y-%%m-%%d') AS day, COUNT(*) AS cnt
-             FROM {$table_name}
-             WHERE last_message_ts >= %d AND last_message_ts <= %d
-             GROUP BY day
-             ORDER BY day ASC",
-            $range['start_ts'],
-            $range['end_ts']
-        ), ARRAY_A);
-
-        $daily_conversations = [];
-        if (!empty($daily_rows)) {
-            foreach ($daily_rows as $row) {
-                if (!empty($row['day'])) {
-                    $daily_conversations[$row['day']] = (int) $row['cnt'];
-                }
-            }
-        }
-
-        $avg_tokens = 0;
-        $daily_tokens = [];
-        if (class_exists(AIPKit_Stats::class)) {
-            $stats = new AIPKit_Stats();
-            $token_stats = $stats->get_token_stats_last_days($days);
-            if (!is_wp_error($token_stats)) {
-                $avg_tokens = (int) ($token_stats['avg_tokens_per_interaction'] ?? 0);
-            }
-            $daily_stats = $stats->get_daily_token_stats($days);
-            if (!is_wp_error($daily_stats)) {
-                $daily_tokens = $daily_stats;
-            }
-        }
-
-        wp_send_json_success([
-            'summary' => [
-                'total_conversations' => $total_conversations,
-                'total_messages' => $total_messages,
-                'unique_users' => $unique_users,
-                'avg_tokens' => $avg_tokens,
-                'period_label' => $range['period_label'],
-            ],
-            'charts' => [
-                'daily_conversations' => $daily_conversations,
-                'daily_tokens' => $daily_tokens,
-            ],
-        ]);
     }
 
     public function ajax_get_stats_logs()
@@ -1393,6 +1301,156 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         ]);
     }
 
+    public function ajax_get_stats_pricing_management()
+    {
+        $permission_check = $this->check_module_access_permissions('stats', 'aipkit_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+        $post_data = wp_unslash($_POST);
+        $days = $this->resolve_stats_days($post_data['days'] ?? 30);
+
+        $token_manager = class_exists(AIPKit_Token_Manager::class) ? new AIPKit_Token_Manager() : null;
+        $price_resolver = $token_manager ? $token_manager->get_price_resolver() : null;
+        if (!$price_resolver) {
+            $this->send_wp_error(new WP_Error('missing_price_resolver', __('Pricing service is unavailable.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $rules = $price_resolver->list_rules(['scope_type' => 'module']);
+        $ledger_summary = [];
+        $recent_activity = [];
+
+        if (class_exists(AIPKit_Stats::class)) {
+            $stats = new AIPKit_Stats();
+            $ledger_summary = $stats->get_ledger_summary($days);
+            $recent_activity = $stats->get_recent_ledger_activity($days, 12);
+            if (is_wp_error($ledger_summary)) {
+                $this->send_wp_error($ledger_summary);
+                return;
+            }
+            if (is_wp_error($recent_activity)) {
+                $this->send_wp_error($recent_activity);
+                return;
+            }
+        }
+
+        wp_send_json_success([
+            'pricing_rules' => $rules,
+            'ledger_summary' => $ledger_summary,
+            'recent_activity' => $recent_activity,
+        ]);
+    }
+
+    public function ajax_save_stats_pricing_rule()
+    {
+        $permission_check = $this->check_module_access_permissions('stats', 'aipkit_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+        $post_data = wp_unslash($_POST);
+        $rule_id = isset($post_data['id']) ? absint($post_data['id']) : 0;
+        $module = isset($post_data['module']) ? sanitize_key($post_data['module']) : '';
+        $provider = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : '';
+        $model = isset($post_data['model']) ? sanitize_text_field($post_data['model']) : '';
+        $operation = isset($post_data['operation']) ? sanitize_key($post_data['operation']) : '';
+        $billing_method = isset($post_data['billing_method']) ? sanitize_key($post_data['billing_method']) : '';
+        $enabled = isset($post_data['enabled']) ? ($post_data['enabled'] === '1' || $post_data['enabled'] === 1) : true;
+
+        $allowed_modules = $this->get_allowed_pricing_modules();
+        if (!in_array($module, $allowed_modules, true)) {
+            $this->send_wp_error(new WP_Error('invalid_pricing_module', __('Invalid pricing module.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $allowed_operations = $this->get_allowed_pricing_operations($module);
+        if (!in_array($operation, $allowed_operations, true)) {
+            $this->send_wp_error(new WP_Error('invalid_pricing_operation', __('Invalid pricing operation.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $allowed_billing_methods = $this->get_allowed_billing_methods($operation);
+        if (!in_array($billing_method, $allowed_billing_methods, true)) {
+            $this->send_wp_error(new WP_Error('invalid_billing_method', __('Invalid billing method.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $token_manager = class_exists(AIPKit_Token_Manager::class) ? new AIPKit_Token_Manager() : null;
+        $price_resolver = $token_manager ? $token_manager->get_price_resolver() : null;
+        if (!$price_resolver) {
+            $this->send_wp_error(new WP_Error('missing_price_resolver', __('Pricing service is unavailable.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $result = $price_resolver->save_rule([
+            'id' => $rule_id,
+            'scope_type' => 'module',
+            'scope_id' => null,
+            'module' => $module,
+            'provider' => $provider,
+            'model' => $model,
+            'operation' => $operation,
+            'billing_method' => $billing_method,
+            'input_rate' => $post_data['input_rate'] ?? null,
+            'output_rate' => $post_data['output_rate'] ?? null,
+            'unit_rate' => $post_data['unit_rate'] ?? null,
+            'enabled' => $enabled ? 1 : 0,
+        ]);
+
+        if (is_wp_error($result)) {
+            $this->send_wp_error($result);
+            return;
+        }
+
+        wp_send_json_success([
+            'message' => $rule_id > 0
+                ? __('Pricing rule updated.', 'gpt3-ai-content-generator')
+                : __('Pricing rule created.', 'gpt3-ai-content-generator'),
+            'rule_id' => (int) $result,
+        ]);
+    }
+
+    public function ajax_delete_stats_pricing_rule()
+    {
+        $permission_check = $this->check_module_access_permissions('stats', 'aipkit_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+        $post_data = wp_unslash($_POST);
+        $rule_id = isset($post_data['id']) ? absint($post_data['id']) : 0;
+        if ($rule_id <= 0) {
+            $this->send_wp_error(new WP_Error('missing_pricing_rule_id', __('Pricing rule ID is required.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $token_manager = class_exists(AIPKit_Token_Manager::class) ? new AIPKit_Token_Manager() : null;
+        $price_resolver = $token_manager ? $token_manager->get_price_resolver() : null;
+        if (!$price_resolver) {
+            $this->send_wp_error(new WP_Error('missing_price_resolver', __('Pricing service is unavailable.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $deleted = $price_resolver->delete_rule($rule_id);
+        if (!$deleted) {
+            $this->send_wp_error(new WP_Error('delete_pricing_rule_failed', __('Failed to delete pricing rule.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        wp_send_json_success([
+            'message' => __('Pricing rule deleted.', 'gpt3-ai-content-generator'),
+            'rule_id' => $rule_id,
+        ]);
+    }
+
     private function build_stats_log_filters(array $post_data): array
     {
         $days = $this->resolve_stats_days($post_data['days'] ?? 30);
@@ -1427,6 +1485,40 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         $string_value = str_replace(["\r\n", "\n", "\r"], ' ', $string_value);
         $string_value = str_replace('"', '""', $string_value);
         return '"' . $string_value . '"';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function get_allowed_pricing_modules(): array
+    {
+        return ['chat', 'ai_forms', 'image_generator'];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function get_allowed_pricing_operations(string $module): array
+    {
+        return match ($module) {
+            'chat' => ['chat'],
+            'ai_forms' => ['form_submit'],
+            'image_generator' => ['generate', 'edit', 'video_generate'],
+            default => [],
+        };
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function get_allowed_billing_methods(string $operation): array
+    {
+        return match ($operation) {
+            'chat', 'form_submit' => ['per_1k_tokens', 'flat'],
+            'generate', 'edit' => ['per_image', 'flat'],
+            'video_generate' => ['per_video', 'flat'],
+            default => ['flat'],
+        };
     }
 
 }

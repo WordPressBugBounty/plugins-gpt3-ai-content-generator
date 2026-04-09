@@ -207,32 +207,37 @@ if (!empty($aipkit_autogpt_cron_summary)) {
 <div class="aipkit_container aipkit_module_autogpt" id="aipkit_autogpt_container">
     <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">
-            <div class="aipkit_container-title" id="aipkit_autogpt_header_title_default"><?php esc_html_e('Automations', 'gpt3-ai-content-generator'); ?></div>
-            <div class="aipkit_autogpt_header_title_editor" id="aipkit_autogpt_header_title_editor" style="display: none;">
-                <button
-                    type="button"
-                    class="aipkit_autogpt_title_display"
-                    id="aipkit_autogpt_title_display"
-                    aria-label="<?php esc_attr_e('Edit task name', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <span class="aipkit_autogpt_title_text" id="aipkit_autogpt_title_text" data-default-label="<?php esc_attr_e('New Task', 'gpt3-ai-content-generator'); ?>">
-                        <?php esc_html_e('New Task', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                    <span class="dashicons dashicons-edit" aria-hidden="true"></span>
-                </button>
-                <input
-                    type="text"
-                    id="aipkit_autogpt_task_title_input"
-                    class="aipkit_form-input aipkit_autogpt_title_input"
-                    placeholder="<?php esc_attr_e('New Task', 'gpt3-ai-content-generator'); ?>"
-                    style="display: none;"
-                >
+            <div class="aipkit_autogpt_header_copy">
+                <div class="aipkit_autogpt_header_title_row">
+                    <div class="aipkit_container-title" id="aipkit_autogpt_header_title_default"><?php esc_html_e('Automations', 'gpt3-ai-content-generator'); ?></div>
+                    <div class="aipkit_autogpt_header_title_editor" id="aipkit_autogpt_header_title_editor" style="display: none;">
+                        <button
+                            type="button"
+                            class="aipkit_autogpt_title_display"
+                            id="aipkit_autogpt_title_display"
+                            aria-label="<?php esc_attr_e('Edit task name', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <span class="aipkit_autogpt_title_text" id="aipkit_autogpt_title_text" data-default-label="<?php esc_attr_e('New Task', 'gpt3-ai-content-generator'); ?>">
+                                <?php esc_html_e('New Task', 'gpt3-ai-content-generator'); ?>
+                            </span>
+                            <span class="dashicons dashicons-edit" aria-hidden="true"></span>
+                        </button>
+                        <input
+                            type="text"
+                            id="aipkit_autogpt_task_title_input"
+                            class="aipkit_form-input aipkit_autogpt_title_input"
+                            placeholder="<?php esc_attr_e('New Task', 'gpt3-ai-content-generator'); ?>"
+                            style="display: none;"
+                        >
+                    </div>
+                    <span
+                        id="aipkit_automated_task_form_status"
+                        class="aipkit_training_status aipkit_global_status_area"
+                        aria-live="polite"
+                    ></span>
+                </div>
+                <p class="aipkit_autogpt_header_hint"><?php esc_html_e('Create, schedule, and monitor recurring AI automations.', 'gpt3-ai-content-generator'); ?></p>
             </div>
-            <span
-                id="aipkit_automated_task_form_status"
-                class="aipkit_training_status aipkit_global_status_area"
-                aria-live="polite"
-            ></span>
         </div>
         <div class="aipkit_container-actions">
             <div id="aipkit_autogpt_editor_actions" class="aipkit_form_editor_actions aipkit_form_editor_actions--header" style="display: none;">

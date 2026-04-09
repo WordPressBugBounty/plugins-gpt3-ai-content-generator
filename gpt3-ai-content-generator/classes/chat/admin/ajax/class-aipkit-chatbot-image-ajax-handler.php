@@ -132,52 +132,6 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             'ip_address'         => $client_ip,
         ];
 
-        if ($this->token_manager) {
-            $token_check_result = null;
-            // --- MODIFIED: Use new GuestTableConstant ---
-            $context_id_for_token_check = $is_logged_in ? 0 : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
-            // --- END MODIFICATION ---
-            $token_check_result = $this->token_manager->check_and_reset_tokens($user_id ?: null, $session_id, $context_id_for_token_check, 'image_generator');
-
-            if (is_wp_error($token_check_result)) {
-                $user_command_log_data = array_merge($base_log_data, [
-                   'message_role'    => 'user',
-                   'message_content' => $original_user_text,
-                   'timestamp'       => $request_time,
-                   'message_id'      => $user_message_id_from_post,
-                ]);
-                $this->log_storage->log_message($user_command_log_data);
-                $this->log_image_generation_attempt(
-                    $conversation_uuid,
-                    $prompt,
-                    [],
-                    $token_check_result,
-                    null,
-                    $user_id,
-                    $session_id,
-                    $client_ip,
-                    $bot_id,
-                    $user_wp_role
-                );
-                $this->send_wp_error($token_check_result);
-                return;
-            }
-        }
-
-        $user_command_log_data = array_merge($base_log_data, [
-            'message_role'    => 'user',
-            'message_content' => $original_user_text,
-            'timestamp'       => $request_time,
-            'message_id'      => $user_message_id_from_post,
-            'ai_provider'     => null,
-            'ai_model'        => null,
-            'usage'           => null,
-            'request_payload' => ['command' => $original_user_text, 'extracted_prompt' => $prompt],
-            'response_data'   => null,
-        ]);
-        $bot_response_message_id = $this->log_storage->log_message($user_command_log_data)['message_id'] ?? ('aipkit-bot-msg-' . uniqid());
-
-
         $selected_image_model = $bot_settings['chat_image_model_id'] ?? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
         $provider_for_image = 'OpenAI';
 
@@ -225,6 +179,66 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             $provider_for_image = 'Replicate';
         }
 
+        if ($this->token_manager) {
+            $module_for_token_check = $is_logged_in ? 'chat' : 'image_generator';
+            $context_id_for_token_check = $is_logged_in ? $bot_id : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
+            $token_check_result = $this->token_manager->check_and_reset_tokens(
+                $user_id ?: null,
+                $session_id,
+                $context_id_for_token_check,
+                $module_for_token_check,
+                [
+                    'pricing_module' => 'image_generator',
+                    'provider' => $provider_for_image,
+                    'model' => $selected_image_model,
+                    'operation' => 'generate',
+                    'usage_data' => [
+                        'unit_count' => 1,
+                        'image_count' => 1,
+                        'total_units' => 1,
+                    ],
+                    'fallback_units' => AIPKit_Image_Manager::TOKENS_PER_IMAGE,
+                ]
+            );
+
+            if (is_wp_error($token_check_result)) {
+                $user_command_log_data = array_merge($base_log_data, [
+                   'message_role'    => 'user',
+                   'message_content' => $original_user_text,
+                   'timestamp'       => $request_time,
+                   'message_id'      => $user_message_id_from_post,
+                ]);
+                $this->log_storage->log_message($user_command_log_data);
+                $this->log_image_generation_attempt(
+                    $conversation_uuid,
+                    $prompt,
+                    [],
+                    $token_check_result,
+                    null,
+                    $user_id,
+                    $session_id,
+                    $client_ip,
+                    $bot_id,
+                    $user_wp_role
+                );
+                $this->send_wp_error($token_check_result);
+                return;
+            }
+        }
+
+        $user_command_log_data = array_merge($base_log_data, [
+            'message_role'    => 'user',
+            'message_content' => $original_user_text,
+            'timestamp'       => $request_time,
+            'message_id'      => $user_message_id_from_post,
+            'ai_provider'     => null,
+            'ai_model'        => null,
+            'usage'           => null,
+            'request_payload' => ['command' => $original_user_text, 'extracted_prompt' => $prompt],
+            'response_data'   => null,
+        ]);
+        $bot_response_message_id = $this->log_storage->log_message($user_command_log_data)['message_id'] ?? ('aipkit-bot-msg-' . uniqid());
+
         // --- MODIFICATION: Add user identifier to options ---
         $user_identifier = $is_logged_in ? (string)$user_id : 'guest';
         // --- END MODIFICATION ---
@@ -266,7 +280,26 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
                 // --- MODIFIED: Use new GuestTableConstant ---
                 $context_id_for_token_record = $is_logged_in ? $bot_id : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
                 $module_to_record_against = $is_logged_in ? 'chat' : 'image_generator';
-                $this->token_manager->record_token_usage($user_id ?: null, $session_id, $context_id_for_token_record, $tokens_to_record_for_chatbot, $module_to_record_against);
+                $this->token_manager->record_token_usage(
+                    $user_id ?: null,
+                    $session_id,
+                    $context_id_for_token_record,
+                    $tokens_to_record_for_chatbot,
+                    $module_to_record_against,
+                    [
+                        'pricing_module' => 'image_generator',
+                        'provider' => $provider_for_image,
+                        'model' => $selected_image_model,
+                        'operation' => 'generate',
+                        'usage_data' => array_merge(
+                            is_array($usage_data) ? $usage_data : [],
+                            [
+                                'unit_count' => $images_generated_count,
+                                'image_count' => $images_generated_count,
+                            ]
+                        ),
+                    ]
+                );
                 // --- END MODIFICATION ---
             }
         }

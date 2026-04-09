@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+require_once WPAICG_PLUGIN_DIR . 'classes/chat/core/pricing/fn-build-chat-pricing-check-context.php';
+
 class ChatMessageValidator
 {
     private $token_manager;
@@ -91,7 +93,12 @@ class ChatMessageValidator
         }
 
         // 4. Token Limit Check
-        $token_check_result = $this->token_manager->check_and_reset_tokens($user_id ?: null, $session_id, $bot_id);
+        $usage_context = \WPAICG\Chat\Core\Pricing\build_chat_pricing_check_context_logic(
+            $bot_id,
+            $bot_settings,
+            $user_message_text
+        );
+        $token_check_result = $this->token_manager->check_and_reset_tokens($user_id ?: null, $session_id, $bot_id, 'chat', $usage_context);
         if (is_wp_error($token_check_result)) {
             return new WP_Error($token_check_result->get_error_code(), $token_check_result->get_error_message(), ['status' => 429]);
         }

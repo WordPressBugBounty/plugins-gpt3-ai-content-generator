@@ -54,10 +54,15 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 <div class="aipkit_container aipkit_module_content_writer" id="aipkit_content_writer_container">
     <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">
-            <h2 class="aipkit_container-title"><?php esc_html_e('Content Writer', 'gpt3-ai-content-generator'); ?></h2>
-            <div class="aipkit_global_status_area aipkit_content_writer_header_status" aria-live="polite">
-                <span id="aipkit_content_writer_form_status" class="aipkit_cw_status_badge"></span>
-                <div id="aipkit_content_writer_messages" class="aipkit_settings_messages" role="status" aria-live="polite"></div>
+            <div class="aipkit_content_writer_header_copy">
+                <div class="aipkit_content_writer_header_title_row">
+                    <h2 class="aipkit_container-title"><?php esc_html_e('Content Writer', 'gpt3-ai-content-generator'); ?></h2>
+                    <div class="aipkit_global_status_area aipkit_content_writer_header_status" aria-live="polite">
+                        <span id="aipkit_content_writer_form_status" class="aipkit_cw_status_badge"></span>
+                        <div id="aipkit_content_writer_messages" class="aipkit_settings_messages" role="status" aria-live="polite"></div>
+                    </div>
+                </div>
+                <p class="aipkit_content_writer_header_hint"><?php esc_html_e('Generate structured content from prompts, feeds, URLs, or spreadsheets.', 'gpt3-ai-content-generator'); ?></p>
             </div>
         </div>
     </div>

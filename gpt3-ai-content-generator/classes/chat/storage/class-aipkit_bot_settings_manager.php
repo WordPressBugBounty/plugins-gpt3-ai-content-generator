@@ -61,7 +61,7 @@ class BotSettingsManager
     public const DEFAULT_TOKEN_GUEST_LIMIT = null;
     public const DEFAULT_TOKEN_USER_LIMIT = null;
     public const DEFAULT_TOKEN_RESET_PERIOD = 'never';
-    public const DEFAULT_TOKEN_LIMIT_MESSAGE = 'You have reached your token limit for this period.';
+    public const DEFAULT_TOKEN_LIMIT_MESSAGE = 'You have reached your quota for this period.';
     public const DEFAULT_TOKEN_LIMIT_MODE = 'general';
     public const DEFAULT_TTS_ENABLED = '0';
     public const DEFAULT_TTS_PROVIDER = 'Google';

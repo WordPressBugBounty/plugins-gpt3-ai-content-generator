@@ -160,7 +160,25 @@ function ajax_check_video_status_logic(AIPKit_Image_Manager $managerInstance): v
                             : (!empty($posted_session_id) ? $posted_session_id : $client_ip);
                     }
                     
-                    $token_manager->record_token_usage($user_id ?: null, $session_id_for_guest, $context_id_for_token_record, $tokens_to_record, 'image_generator');
+                    $token_manager->record_token_usage(
+                        $user_id ?: null,
+                        $session_id_for_guest,
+                        $context_id_for_token_record,
+                        $tokens_to_record,
+                        'image_generator',
+                        [
+                            'provider' => 'Google',
+                            'model' => $model_id,
+                            'operation' => 'video_generate',
+                            'usage_data' => array_merge(
+                                is_array($usage_data) ? $usage_data : [],
+                                [
+                                    'unit_count' => $videos_generated_count,
+                                    'video_count' => $videos_generated_count,
+                                ]
+                            ),
+                        ]
+                    );
                 }
             }
 

@@ -327,12 +327,29 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
 
 
             if ($context_id_for_tokens !== null || !$log_base_data['is_guest']) {
+                $usage_context = [
+                    'provider' => $current_provider,
+                    'model' => $current_model,
+                    'usage_data' => is_array($final_usage_data) ? $final_usage_data : [],
+                ];
+
+                if ($module_for_tokens === 'chat' && !empty($log_base_data['bot_id'])) {
+                    $usage_context['operation'] = 'chat';
+                } elseif ($module_for_tokens === 'ai_forms') {
+                    $usage_context['operation'] = 'form_submit';
+                    if (!empty($log_base_data['form_id'])) {
+                        $usage_context['pricing_scope_type'] = 'ai_form';
+                        $usage_context['pricing_scope_id'] = absint($log_base_data['form_id']);
+                    }
+                }
+
                 $token_manager->record_token_usage(
                     $log_base_data['user_id'],
                     $log_base_data['session_id'],
                     $context_id_for_tokens,
                     $tokens_consumed,
-                    $module_for_tokens
+                    $module_for_tokens,
+                    $usage_context
                 );
             }
         }

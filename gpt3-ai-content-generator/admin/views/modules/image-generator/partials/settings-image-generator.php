@@ -26,7 +26,7 @@ $settings_nonce = wp_create_nonce('aipkit_image_generator_settings_nonce');
     <div
         id="aipkit_image_generator_settings_panel"
         data-title-root="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-        data-title-token-management="<?php esc_attr_e('Token Management', 'gpt3-ai-content-generator'); ?>"
+        data-title-token-management="<?php esc_attr_e('Limits', 'gpt3-ai-content-generator'); ?>"
         data-title-ui-text="<?php esc_attr_e('UI Text', 'gpt3-ai-content-generator'); ?>"
         data-title-custom-css="<?php esc_attr_e('Custom CSS', 'gpt3-ai-content-generator'); ?>"
         data-title-provider-filtering="<?php esc_attr_e('Provider Filtering', 'gpt3-ai-content-generator'); ?>"
@@ -44,10 +44,10 @@ $settings_nonce = wp_create_nonce('aipkit_image_generator_settings_nonce');
                                 <span class="aipkit_popover_option_icon dashicons dashicons-chart-bar" aria-hidden="true"></span>
                                 <span class="aipkit_popover_option_label_content">
                                     <span class="aipkit_popover_option_label_text">
-                                        <?php esc_html_e('Token management', 'gpt3-ai-content-generator'); ?>
+                                        <?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?>
                                     </span>
                                     <span class="aipkit_popover_option_hint">
-                                        <?php esc_html_e('Usage limits and resets', 'gpt3-ai-content-generator'); ?>
+                                        <?php esc_html_e('Global guest and user quotas', 'gpt3-ai-content-generator'); ?>
                                     </span>
                                 </span>
                             </span>

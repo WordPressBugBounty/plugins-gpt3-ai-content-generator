@@ -1579,6 +1579,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $guest_limit_raw = isset($_POST['token_guest_limit']) ? trim(wp_unslash($_POST['token_guest_limit'])) : '';
         $token_guest_limit = ($guest_limit_raw === '0' || (ctype_digit($guest_limit_raw) && $guest_limit_raw > 0))
             ? (string) absint($guest_limit_raw)
@@ -1618,6 +1619,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         update_post_meta($bot_id, '_aipkit_token_limit_mode', $token_limit_mode);
+        delete_post_meta($bot_id, '_aipkit_token_pricing_mode');
 
         if ($token_guest_limit === '') {
             delete_post_meta($bot_id, '_aipkit_token_guest_limit');

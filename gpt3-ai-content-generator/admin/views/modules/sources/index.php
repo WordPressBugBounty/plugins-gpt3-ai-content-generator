@@ -64,13 +64,18 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
 >
     <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">
-            <div class="aipkit_container-title"><?php esc_html_e('Sources', 'gpt3-ai-content-generator'); ?></div>
-            <span id="aipkit_sources_status" class="aipkit_training_status aipkit_global_status_area" aria-live="polite"></span>
-            <span
-                id="aipkit_indexing_settings_messages"
-                class="aipkit_training_status aipkit_global_status_area"
-                aria-live="polite"
-            ></span>
+            <div class="aipkit_sources_header_copy">
+                <div class="aipkit_sources_header_title_row">
+                    <div class="aipkit_container-title"><?php esc_html_e('Sources', 'gpt3-ai-content-generator'); ?></div>
+                    <span id="aipkit_sources_status" class="aipkit_training_status aipkit_global_status_area" aria-live="polite"></span>
+                    <span
+                        id="aipkit_indexing_settings_messages"
+                        class="aipkit_training_status aipkit_global_status_area"
+                        aria-live="polite"
+                    ></span>
+                </div>
+                <p class="aipkit_sources_header_hint"><?php esc_html_e('Manage the data sources and vector stores that power your knowledge base.', 'gpt3-ai-content-generator'); ?></p>
+            </div>
         </div>
         <div class="aipkit_container-actions">
             <button

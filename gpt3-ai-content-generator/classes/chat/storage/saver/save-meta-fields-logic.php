@@ -70,6 +70,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     update_post_meta($botId, '_aipkit_content_aware_enabled', $sanitized_settings['content_aware_enabled']);
     update_post_meta($botId, '_aipkit_openai_conversation_state_enabled', $sanitized_settings['openai_conversation_state_enabled']);
     update_post_meta($botId, '_aipkit_token_limit_mode', $sanitized_settings['token_limit_mode']);
+    delete_post_meta($botId, '_aipkit_token_pricing_mode');
     if ($sanitized_settings['token_guest_limit'] === '') {
         delete_post_meta($botId, '_aipkit_token_guest_limit');
     } else {

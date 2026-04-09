@@ -12,6 +12,7 @@ use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler;
 use WPAICG\Chat\Storage\BotSettingsManager; // For default constants
 use WP_Error;
+use function WPAICG\Core\TokenManager\Helpers\GetGuestQuotaIdentifiersLogic;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -33,22 +34,32 @@ function CheckAndResetTokensLogic(
     ?int $user_id,
     ?string $session_id,
     ?int $context_id_or_bot_id,
-    string $module_context = 'chat'
+    string $module_context = 'chat',
+    array $usage_context = []
 ): bool|WP_Error {
     global $wpdb;
 
-    // --- NEW: First, check for a persistent token balance for logged-in users ---
+    // If no balance, or a guest, proceed with the original periodic usage tracking logic.
+
+    $fallback_units = isset($usage_context['fallback_units']) && is_numeric($usage_context['fallback_units'])
+        ? max(0, (int) $usage_context['fallback_units'])
+        : 0;
+    $charge_estimate = $managerInstance->estimate_usage_charge($fallback_units, $module_context, $usage_context);
+    $resolved_rule = is_array($charge_estimate['resolved_rule'] ?? null) ? $charge_estimate['resolved_rule'] : null;
+    $use_pricing_estimate = !empty($resolved_rule);
+    $required_units = max(0, (int) ($charge_estimate['required_units'] ?? $fallback_units));
+    $balance_service = $managerInstance->get_balance_service();
+    $available_balance = 0;
+
     if ($user_id) {
-        $token_balance = get_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, true);
-        if (is_numeric($token_balance) && (int)$token_balance > 0) {
-            // User has a positive balance, so they are allowed to proceed.
-            // The deduction will happen in RecordTokenUsageLogic.
+        $available_balance = ($balance_service && method_exists($balance_service, 'get_current_balance'))
+            ? (int) $balance_service->get_current_balance($user_id)
+            : max(0, (int) get_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, true));
+
+        if (!$use_pricing_estimate && $available_balance > 0) {
             return true;
         }
     }
-    // --- END NEW ---
-
-    // If no balance, or a guest, proceed with the original periodic usage tracking logic.
 
     // Validation
     if ($module_context === 'chat' && empty($context_id_or_bot_id)) {
@@ -62,15 +73,17 @@ function CheckAndResetTokensLogic(
         return new WP_Error('token_check_no_aiforms_context_logic', __('AI Forms context ID missing for guest token check.', 'gpt3-ai-content-generator'));
     }
 
-    if (!$user_id && empty($session_id)) {
+    $is_guest = !$user_id;
+    $guest_identifiers = $is_guest ? GetGuestQuotaIdentifiersLogic($session_id) : [];
+    if ($is_guest && empty($guest_identifiers)) {
         return new WP_Error('token_check_no_identifier_logic', __('User/Session ID missing for token check.', 'gpt3-ai-content-generator'));
     }
 
-    $is_guest = !$user_id;
     $settings = [];
     $usage_key = '';
     $reset_key = '';
     $guest_context_table_id = is_numeric($context_id_or_bot_id) ? $context_id_or_bot_id : null;
+    $guest_usage_rows = [];
 
     // Fetch settings based on module context
     if ($module_context === 'chat') {
@@ -117,7 +130,7 @@ function CheckAndResetTokensLogic(
     // Determine limit and reset period
     $limit = null;
     $reset_period = $settings['token_reset_period'] ?? 'never';
-    $default_limit_message = class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_TOKEN_LIMIT_MESSAGE : __('You have reached your token limit for this period.', 'gpt3-ai-content-generator');
+    $default_limit_message = class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_TOKEN_LIMIT_MESSAGE : __('You have reached your quota for this period.', 'gpt3-ai-content-generator');
     $limit_message_template = $settings['token_limit_message'] ?? '';
     $limit_message = !empty($limit_message_template) ? $limit_message_template : $default_limit_message;
 
@@ -135,19 +148,25 @@ function CheckAndResetTokensLogic(
         } // Unlimited for this context
 
         if ($guest_context_table_id !== null) {
-            $cache_key = "aipkit_guest_usage_{$session_id}_{$guest_context_table_id}";
-            $guest_row = wp_cache_get($cache_key, 'aipkit_token_usage');
-            if (false === $guest_row) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table query; unavoidable.
-                $guest_row = $wpdb->get_row($wpdb->prepare("SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d",
-                    $session_id,
-                    $guest_context_table_id
-                ), ARRAY_A);
-                wp_cache_set($cache_key, $guest_row, 'aipkit_token_usage', 300); // Cache for 5 minutes
-            }
-            if ($guest_row) {
-                $current_usage = (int) $guest_row['tokens_used'];
-                $last_reset_time = (int) $guest_row['last_reset_timestamp'];
+            foreach ($guest_identifiers as $guest_identifier) {
+                $cache_key = "aipkit_guest_usage_{$guest_identifier}_{$guest_context_table_id}";
+                $guest_row = wp_cache_get($cache_key, 'aipkit_token_usage');
+                if (false === $guest_row) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table query; unavoidable.
+                    $guest_row = $wpdb->get_row($wpdb->prepare("SELECT tokens_used, last_reset_timestamp FROM {$guest_table_name} WHERE session_id = %s AND bot_id = %d",
+                        $guest_identifier,
+                        $guest_context_table_id
+                    ), ARRAY_A);
+                    wp_cache_set($cache_key, $guest_row, 'aipkit_token_usage', 300); // Cache for 5 minutes
+                }
+
+                $guest_usage_rows[$guest_identifier] = [
+                    'current_usage' => $guest_row ? (int) $guest_row['tokens_used'] : 0,
+                    'last_reset_time' => $guest_row ? (int) $guest_row['last_reset_timestamp'] : 0,
+                ];
+
+                $current_usage = max($current_usage, $guest_usage_rows[$guest_identifier]['current_usage']);
+                $last_reset_time = max($last_reset_time, $guest_usage_rows[$guest_identifier]['last_reset_time']);
             }
         } else {
             return true; // Should have been caught earlier
@@ -197,20 +216,39 @@ function CheckAndResetTokensLogic(
         $last_reset_time = (int) get_user_meta($user_id, $reset_key, true);
     }
 
+    $guest_reset_due = false;
+    if ($is_guest && !empty($guest_usage_rows) && $reset_period !== 'never') {
+        foreach ($guest_usage_rows as $guest_usage_row) {
+            if (\WPAICG\Core\TokenManager\Reset\IsResetDueLogic((int) $guest_usage_row['last_reset_time'], $reset_period)) {
+                $guest_reset_due = true;
+                break;
+            }
+        }
+    }
+
     // Fail-safe reset if due (not relying on cron exclusively for active users)
     if ($reset_period !== 'never' && ($limit !== null && $limit !== '')) { // Only reset if there's a limit
-        if (\WPAICG\Core\TokenManager\Reset\IsResetDueLogic($last_reset_time, $reset_period)) { // Call the reset due logic
+        if (($is_guest && $guest_reset_due) || (!$is_guest && \WPAICG\Core\TokenManager\Reset\IsResetDueLogic($last_reset_time, $reset_period))) {
             $log_context_str = $is_guest ? "Guest {$session_id}" : "User {$user_id}";
             $log_module_str = ($module_context === 'chat') ? "Bot {$context_id_or_bot_id}" : "Module {$module_context}";
 
             $current_usage = 0;
             $last_reset_time_new = time(); // Use a different var name for new reset time
             if ($is_guest && $guest_context_table_id !== null) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching is not applicable for a write operation (REPLACE). Cache is invalidated after.
-                $wpdb->replace($guest_table_name, ['session_id' => $session_id, 'bot_id' => $guest_context_table_id, 'tokens_used' => 0, 'last_reset_timestamp' => $last_reset_time_new, 'last_updated_at' => current_time('mysql', 1)], ['%s', '%d', '%d', '%d', '%s']);
-                // Invalidate cache after write
-                $cache_key = "aipkit_guest_usage_{$session_id}_{$guest_context_table_id}";
-                wp_cache_delete($cache_key, 'aipkit_token_usage');
+                foreach ($guest_usage_rows as $guest_identifier => $guest_usage_row) {
+                    if (!\WPAICG\Core\TokenManager\Reset\IsResetDueLogic((int) $guest_usage_row['last_reset_time'], $reset_period)) {
+                        continue;
+                    }
+
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching is not applicable for a write operation (REPLACE). Cache is invalidated after.
+                    $wpdb->replace($guest_table_name, ['session_id' => $guest_identifier, 'bot_id' => $guest_context_table_id, 'tokens_used' => 0, 'last_reset_timestamp' => $last_reset_time_new, 'last_updated_at' => current_time('mysql', 1)], ['%s', '%d', '%d', '%d', '%s']);
+                    $guest_usage_rows[$guest_identifier]['current_usage'] = 0;
+                    $guest_usage_rows[$guest_identifier]['last_reset_time'] = $last_reset_time_new;
+
+                    // Invalidate cache after write
+                    $cache_key = "aipkit_guest_usage_{$guest_identifier}_{$guest_context_table_id}";
+                    wp_cache_delete($cache_key, 'aipkit_token_usage');
+                }
             } elseif (!$is_guest) {
                 update_user_meta($user_id, $usage_key, 0);
                 update_user_meta($user_id, $reset_key, $last_reset_time_new);
@@ -218,9 +256,40 @@ function CheckAndResetTokensLogic(
         }
     }
 
+    if ($is_guest && !empty($guest_usage_rows)) {
+        $current_usage = 0;
+        $last_reset_time = 0;
+        foreach ($guest_usage_rows as $guest_usage_row) {
+            $current_usage = max($current_usage, (int) $guest_usage_row['current_usage']);
+            $last_reset_time = max($last_reset_time, (int) $guest_usage_row['last_reset_time']);
+        }
+    }
+
+    $required_quota_units = 0;
+    if ($use_pricing_estimate) {
+        $required_quota_units = $required_units;
+        if (!$is_guest && $available_balance > 0) {
+            $required_quota_units = max(0, $required_units - $available_balance);
+        }
+
+        if (!$is_guest && $required_quota_units <= 0) {
+            return true;
+        }
+    }
+
     // Final Limit Check
-    if (($limit !== null && $limit !== '') && $current_usage >= (int)$limit) {
+    if ($use_pricing_estimate && ($limit !== null && $limit !== '')) {
+        $quota_service = $managerInstance->get_quota_service();
+        $can_consume = $quota_service && method_exists($quota_service, 'can_consume')
+            ? $quota_service->can_consume((int) $limit, $current_usage, $required_quota_units)
+            : (($current_usage + $required_quota_units) <= (int) $limit);
+
+        if (!$can_consume) {
+            return new WP_Error('token_limit_exceeded_final_logic', $limit_message);
+        }
+    } elseif (($limit !== null && $limit !== '') && $current_usage >= (int)$limit) {
         return new WP_Error('token_limit_exceeded_final_logic', $limit_message);
     }
+
     return true; // Allowed
 }

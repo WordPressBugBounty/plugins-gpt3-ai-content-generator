@@ -112,7 +112,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_token_guest_limit', $default_guest_limit_value);
         update_post_meta($post_id, '_aipkit_token_user_limit', $default_user_limit_value);
         update_post_meta($post_id, '_aipkit_token_reset_period', BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD);
-        update_post_meta($post_id, '_aipkit_token_limit_message', __('You have reached your token limit for this period.', 'gpt3-ai-content-generator'));
+        update_post_meta($post_id, '_aipkit_token_limit_message', __('You have reached your quota for this period.', 'gpt3-ai-content-generator'));
         update_post_meta($post_id, '_aipkit_token_limit_mode', BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE);
         update_post_meta($post_id, '_aipkit_token_role_limits', '[]');
         update_post_meta($post_id, '_aipkit_tts_enabled', BotSettingsManager::DEFAULT_TTS_ENABLED);

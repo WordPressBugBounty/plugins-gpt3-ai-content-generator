@@ -302,6 +302,9 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'azure' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_azure_image_models() : [],
                 'replicate' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_replicate_models() : [],
             ],
+            'imageGeneratorVideoModels' => [
+                'google' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_google_video_models() : [],
+            ],
             'providerStatus' => $provider_status,
             'text' => self::dashboard_texts(),
             'currentUserId' => get_current_user_id(),

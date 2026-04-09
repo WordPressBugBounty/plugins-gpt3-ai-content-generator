@@ -29,6 +29,8 @@ if (!defined('ABSPATH')) {
  */
 class UserCreditsAjaxHandler extends BaseAjaxHandler
 {
+    private const CACHE_VERSION_OPTION = 'aipkit_user_credits_cache_version';
+
     private $token_manager;
 
     public function __construct()
@@ -78,21 +80,156 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
         $post_data = wp_unslash($_POST);
 
         $user_id = isset($post_data['user_id']) ? absint($post_data['user_id']) : 0;
-        $new_balance_raw = isset($post_data['balance']) ? $post_data['balance'] : null;
+        $new_balance_raw = isset($post_data['balance']) ? trim((string) $post_data['balance']) : null;
 
         if (empty($user_id) || !get_userdata($user_id)) {
             wp_send_json_error(['message' => __('Invalid user ID.', 'gpt3-ai-content-generator')], 400);
             return;
         }
+        if ($new_balance_raw === '') {
+            $new_balance_raw = '0';
+        }
+
         if ($new_balance_raw === null || !is_numeric($new_balance_raw)) {
             wp_send_json_error(['message' => __('Invalid balance amount. Please provide a number.', 'gpt3-ai-content-generator')], 400);
             return;
         }
 
         $new_balance = max(0, intval($new_balance_raw));
-        update_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, $new_balance);
+        $balance_service = $this->token_manager ? $this->token_manager->get_balance_service() : null;
+        $ledger_repository = $this->token_manager ? $this->token_manager->get_ledger_repository() : null;
+        $current_balance = $balance_service
+            ? $balance_service->get_current_balance($user_id)
+            : (int) get_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, true);
 
-        wp_send_json_success(['message' => __('Token balance updated successfully.', 'gpt3-ai-content-generator'), 'new_balance' => $new_balance]);
+        if ($balance_service) {
+            $balance_service->set_current_balance($user_id, $new_balance);
+        } else {
+            update_user_meta($user_id, MetaKeysConstants::TOKEN_BALANCE_META_KEY, $new_balance);
+        }
+
+        $delta = $new_balance - $current_balance;
+        if ($delta !== 0 && $ledger_repository && method_exists($ledger_repository, 'insert_entry')) {
+            $ledger_repository->insert_entry([
+                'user_id' => $user_id,
+                'module' => 'credits',
+                'context_type' => 'manual',
+                'operation' => 'manual_adjustment',
+                'credits_delta' => $delta,
+                'entry_type' => 'admin_adjustment',
+                'reference_type' => 'manual',
+                'reference_id' => 'admin:' . get_current_user_id(),
+                'meta' => [
+                    'edited_by_user_id' => get_current_user_id(),
+                    'balance_before' => $current_balance,
+                    'balance_after' => $new_balance,
+                ],
+            ]);
+        }
+
+        $this->bust_user_credits_cache();
+
+        wp_send_json_success(['message' => __('Credit balance updated successfully.', 'gpt3-ai-content-generator'), 'new_balance' => $new_balance]);
+    }
+
+    /**
+     * AJAX: Resets a single user's periodic usage for one scope.
+     *
+     * Supported scopes:
+     * - chatbot (requires scope_id)
+     * - image_generator
+     * - ai_forms
+     * - all
+     *
+     * @since 2.2
+     */
+    public function ajax_admin_reset_usage_scope()
+    {
+        $permission_check = $this->check_module_access_permissions('stats', 'aipkit_user_credits_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions method.
+        $post_data = wp_unslash($_POST);
+        $user_id = isset($post_data['user_id']) ? absint($post_data['user_id']) : 0;
+        $scope_type = isset($post_data['scope_type']) ? sanitize_key($post_data['scope_type']) : '';
+        $scope_id = isset($post_data['scope_id']) ? absint($post_data['scope_id']) : 0;
+
+        if (empty($user_id) || !get_userdata($user_id)) {
+            wp_send_json_error(['message' => __('Invalid user ID.', 'gpt3-ai-content-generator')], 400);
+            return;
+        }
+
+        $reset_timestamp = time();
+
+        switch ($scope_type) {
+            case 'chatbot':
+                if ($scope_id <= 0) {
+                    wp_send_json_error(['message' => __('Invalid chatbot scope.', 'gpt3-ai-content-generator')], 400);
+                    return;
+                }
+                delete_user_meta($user_id, MetaKeysConstants::CHAT_USAGE_META_KEY_PREFIX . $scope_id);
+                update_user_meta($user_id, MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX . $scope_id, $reset_timestamp);
+                break;
+
+            case 'image_generator':
+                delete_user_meta($user_id, MetaKeysConstants::IMG_USAGE_META_KEY);
+                update_user_meta($user_id, MetaKeysConstants::IMG_RESET_META_KEY, $reset_timestamp);
+                break;
+
+            case 'ai_forms':
+                delete_user_meta($user_id, MetaKeysConstants::AIFORMS_USAGE_META_KEY);
+                update_user_meta($user_id, MetaKeysConstants::AIFORMS_RESET_META_KEY, $reset_timestamp);
+                break;
+
+            case 'all':
+                $user_meta = get_user_meta($user_id);
+                $chatbot_ids = [];
+
+                if (is_array($user_meta)) {
+                    foreach (array_keys($user_meta) as $meta_key) {
+                        if (strpos($meta_key, MetaKeysConstants::CHAT_USAGE_META_KEY_PREFIX) === 0) {
+                            $bot_id = (int) str_replace(MetaKeysConstants::CHAT_USAGE_META_KEY_PREFIX, '', $meta_key);
+                            if ($bot_id > 0) {
+                                $chatbot_ids[$bot_id] = true;
+                            }
+                        } elseif (strpos($meta_key, MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX) === 0) {
+                            $bot_id = (int) str_replace(MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX, '', $meta_key);
+                            if ($bot_id > 0) {
+                                $chatbot_ids[$bot_id] = true;
+                            }
+                        }
+                    }
+                }
+
+                foreach (array_keys($chatbot_ids) as $bot_id) {
+                    delete_user_meta($user_id, MetaKeysConstants::CHAT_USAGE_META_KEY_PREFIX . $bot_id);
+                    update_user_meta($user_id, MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX . $bot_id, $reset_timestamp);
+                }
+
+                delete_user_meta($user_id, MetaKeysConstants::IMG_USAGE_META_KEY);
+                update_user_meta($user_id, MetaKeysConstants::IMG_RESET_META_KEY, $reset_timestamp);
+
+                delete_user_meta($user_id, MetaKeysConstants::AIFORMS_USAGE_META_KEY);
+                update_user_meta($user_id, MetaKeysConstants::AIFORMS_RESET_META_KEY, $reset_timestamp);
+                break;
+
+            default:
+                wp_send_json_error(['message' => __('Invalid usage scope.', 'gpt3-ai-content-generator')], 400);
+                return;
+        }
+
+        $this->bust_user_credits_cache();
+
+        wp_send_json_success([
+            'message' => __('Usage reset successfully.', 'gpt3-ai-content-generator'),
+            'user_id' => $user_id,
+            'scope_type' => $scope_type,
+            'scope_id' => $scope_id,
+            'reset_at' => $reset_timestamp,
+        ]);
     }
 
     /**
@@ -113,6 +250,7 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
     {
         global $wpdb;
         $offset = ($page - 1) * $number;
+        $cache_version = $this->get_user_credits_cache_version();
 
         // --- Base User Query Args ---
         $args = [
@@ -131,6 +269,8 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
         $chat_reset_prefix = MetaKeysConstants::CHAT_RESET_META_KEY_PREFIX;
         $img_usage_key = MetaKeysConstants::IMG_USAGE_META_KEY;
         $img_reset_key = MetaKeysConstants::IMG_RESET_META_KEY;
+        $aiforms_usage_key = MetaKeysConstants::AIFORMS_USAGE_META_KEY;
+        $aiforms_reset_key = MetaKeysConstants::AIFORMS_RESET_META_KEY;
         // --- NEW: Add balance key ---
         $balance_key = MetaKeysConstants::TOKEN_BALANCE_META_KEY;
         // --- END NEW ---
@@ -147,20 +287,22 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
             $count_query = new WP_User_Query($count_args);
             $total_users_for_pagination = $count_query->get_total();
         } else {
-            // Not Searching: Find user IDs with EITHER chat OR image usage OR balance meta
+            // Not Searching: Find user IDs with chat, image, AI Forms usage, or balance meta
             $chat_usage_like = $wpdb->esc_like($chat_usage_prefix) . '%';
-            $cache_key_user_ids = 'aipkit_credits_all_user_ids';
+            $cache_key_user_ids = 'aipkit_credits_all_user_ids_' . $cache_version;
             $cache_group_user_ids = 'aipkit_user_credits';
             $user_ids_with_any_usage = wp_cache_get($cache_key_user_ids, $cache_group_user_ids);
 
             if (false === $user_ids_with_any_usage) {
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $user_ids_with_any_usage = $wpdb->get_col($wpdb->prepare(
-                    "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE %s OR meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s ORDER BY user_id",
+                    "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE %s OR meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s OR meta_key = %s OR meta_key = %s ORDER BY user_id",
                     $chat_usage_like,
                     $wpdb->esc_like($chat_reset_prefix) . '%',
                     $img_usage_key,
                     $img_reset_key,
+                    $aiforms_usage_key,
+                    $aiforms_reset_key,
                     $balance_key
                 ));
                 wp_cache_set($cache_key_user_ids, $user_ids_with_any_usage, $cache_group_user_ids, MINUTE_IN_SECONDS);
@@ -194,18 +336,20 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
             $meta_keys_to_fetch_patterns = [
                 $wpdb->esc_like($chat_usage_prefix) . '%',
                 $wpdb->esc_like($chat_reset_prefix) . '%',
-                $img_usage_key,
-                $img_reset_key,
-                $balance_key // NEW
-            ];
+                    $img_usage_key,
+                    $img_reset_key,
+                    $aiforms_usage_key,
+                    $aiforms_reset_key,
+                    $balance_key // NEW
+                ];
 
-            $cache_key_meta = 'aipkit_credits_meta_' . md5(implode(',', $user_ids));
+            $cache_key_meta = 'aipkit_credits_meta_' . $cache_version . '_' . md5(implode(',', $user_ids));
             $cache_group_meta = 'aipkit_user_credits';
             $all_meta = wp_cache_get($cache_key_meta, $cache_group_meta);
 
             if (false === $all_meta) {
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- The dynamic IN clause is securely built with %d placeholders, and the number of arguments is correctly matched. This is a false positive from the linter.
-                $all_meta = $wpdb->get_results($wpdb->prepare("SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id IN ($user_ids_placeholder) AND (meta_key LIKE %s OR meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s)", array_merge($user_ids, $meta_keys_to_fetch_patterns)), ARRAY_A);
+                $all_meta = $wpdb->get_results($wpdb->prepare("SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id IN ($user_ids_placeholder) AND (meta_key LIKE %s OR meta_key LIKE %s OR meta_key = %s OR meta_key = %s OR meta_key = %s OR meta_key = %s OR meta_key = %s)", array_merge($user_ids, $meta_keys_to_fetch_patterns)), ARRAY_A);
                 wp_cache_set($cache_key_meta, $all_meta, $cache_group_meta, MINUTE_IN_SECONDS);
             }
             // --- End Fetch Meta ---
@@ -264,6 +408,7 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
 
                 // Image Generator Specific Data
                 $image_usage = ['used' => 0, 'last_reset' => 0];
+                $ai_forms_usage = ['used' => 0, 'last_reset' => 0];
 
                 foreach ($user_specific_meta as $meta_key => $meta_value) {
                     if (strpos($meta_key, $chat_usage_prefix) === 0) {
@@ -284,6 +429,12 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
                         $total_used_all_bots += $usage;
                     } elseif ($meta_key === MetaKeysConstants::IMG_RESET_META_KEY) {
                         $image_usage['last_reset'] = absint($meta_value);
+                    } elseif ($meta_key === MetaKeysConstants::AIFORMS_USAGE_META_KEY) {
+                        $usage = absint($meta_value);
+                        $ai_forms_usage['used'] = $usage;
+                        $total_used_all_bots += $usage;
+                    } elseif ($meta_key === MetaKeysConstants::AIFORMS_RESET_META_KEY) {
+                        $ai_forms_usage['last_reset'] = absint($meta_value);
                     }
                 }
 
@@ -302,6 +453,7 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
                     'tokens_used' => $tokens_used_per_bot,
                     'last_reset' => $last_reset_per_bot,
                     'image_usage' => $image_usage,
+                    'ai_forms_usage' => $ai_forms_usage,
                     'purchase_history' => $purchase_history,
                 ];
             }
@@ -313,5 +465,23 @@ class UserCreditsAjaxHandler extends BaseAjaxHandler
             'pagination' => ['total_users' => $total_users_for_pagination, 'total_pages' => $total_pages, 'current_page' => $page, 'per_page' => $number],
             'bot_titles' => $bot_titles,
         ];
+    }
+
+    /**
+     * Returns the current cache version for Balances data.
+     */
+    private function get_user_credits_cache_version(): string
+    {
+        $version = get_option(self::CACHE_VERSION_OPTION, '1');
+
+        return is_scalar($version) ? (string) $version : '1';
+    }
+
+    /**
+     * Invalidates Balances data caches.
+     */
+    private function bust_user_credits_cache(): void
+    {
+        update_option(self::CACHE_VERSION_OPTION, (string) microtime(true), false);
     }
 }

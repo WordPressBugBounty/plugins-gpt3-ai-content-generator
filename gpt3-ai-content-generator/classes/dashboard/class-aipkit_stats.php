@@ -5,7 +5,6 @@ namespace WPAICG\Stats; // Use a dedicated Stats namespace
 use wpdb;
 use WP_Error;
 use DateTime;
-use DateTimeZone;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -20,6 +19,7 @@ class AIPKit_Stats
 
     private $wpdb;
     private $log_table_name;
+    private $ledger_table_name;
     // Hard caps to prevent memory exhaustion on large sites; can be filtered.
     private const DEFAULT_MAX_BYTES_FOR_STATS = 64000000; // ~64 MB
     private const DEFAULT_MAX_ROWS_FOR_STATS  = 5000;       // cap rows to scan
@@ -30,6 +30,37 @@ class AIPKit_Stats
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->log_table_name = $wpdb->prefix . 'aipkit_chat_logs'; // Table name remains the same
+        $this->ledger_table_name = $wpdb->prefix . 'aipkit_token_ledger';
+    }
+
+    /**
+     * @return array{start_utc:string,end_utc:string}
+     */
+    private function get_ledger_date_range(int $days): array
+    {
+        $wp_timezone = wp_timezone();
+        $end_datetime = new DateTime('now', $wp_timezone);
+        $start_datetime = new DateTime("-{$days} days", $wp_timezone);
+        $start_datetime->setTime(0, 0, 0);
+
+        return [
+            'start_utc' => gmdate('Y-m-d H:i:s', $start_datetime->getTimestamp()),
+            'end_utc' => gmdate('Y-m-d H:i:s', $end_datetime->getTimestamp()),
+        ];
+    }
+
+    private function ledger_table_exists(): bool
+    {
+        static $exists = null;
+
+        if ($exists !== null) {
+            return $exists;
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time table existence check.
+        $exists = $this->wpdb->get_var($this->wpdb->prepare('SHOW TABLES LIKE %s', $this->ledger_table_name)) === $this->ledger_table_name;
+
+        return $exists;
     }
 
     /**
@@ -58,107 +89,6 @@ class AIPKit_Stats
     }
 
     
-
-    /**
-     * Calculates token usage statistics across all modules for the last X days.
-     *
-     * @param int $days Number of past days to include.
-     * @return array|WP_Error An array containing stats ['total_tokens', 'total_interactions', 'avg_tokens_per_interaction', 'module_counts', 'days_period'] or WP_Error.
-     */
-    public function get_token_stats_last_days(int $days = 30): array|WP_Error
-    {
-        if ($days <= 0) {
-            return new WP_Error('invalid_days', __('Number of days must be positive.', 'gpt3-ai-content-generator'));
-        }
-
-        $wp_timezone = wp_timezone();
-        $end_datetime = new DateTime('now', $wp_timezone);
-        $start_datetime = new DateTime("-$days days", $wp_timezone);
-        $start_datetime->setTime(0, 0, 0);
-
-        $timestamp_threshold_start = $start_datetime->getTimestamp();
-        $timestamp_threshold_end = $end_datetime->getTimestamp();
-
-        // Guardrail: estimate volume and bail out if too heavy
-        $vol = $this->estimate_volume($timestamp_threshold_start, $timestamp_threshold_end);
-        if (is_wp_error($vol)) {
-            return $vol;
-        }
-        $max_bytes = (int) apply_filters('aipkit_stats_max_bytes', self::DEFAULT_MAX_BYTES_FOR_STATS);
-        $max_rows  = (int) apply_filters('aipkit_stats_max_rows', self::DEFAULT_MAX_ROWS_FOR_STATS);
-        
-        if ($vol['rows'] > $max_rows || $vol['bytes'] > $max_bytes) {
-            return new WP_Error(
-                'stats_volume_too_large',
-                sprintf(
-                    /* translators: 1: number of rows, 2: number of bytes */
-                    __('Usage data volume is too large to compute statistics right now (rows: %1$s, bytes: %2$s). Try reducing retention or disabling conversation storage.', 'gpt3-ai-content-generator'),
-                    number_format_i18n($vol['rows']),
-                    size_format($vol['bytes'])
-                ),
-                [ 'rows' => (int) $vol['rows'], 'bytes' => (int) $vol['bytes'] ]
-            );
-        }
-
-        // Query to fetch conversation logs within the date range based on last_message_ts
-        // Select 'messages' and 'module' columns
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Using prepare to safely insert timestamps
-        $query = $this->wpdb->prepare("SELECT messages, module FROM {$this->log_table_name} WHERE last_message_ts >= %d AND last_message_ts <= %d", $timestamp_threshold_start, $timestamp_threshold_end);
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Using prepare to safely insert timestamps
-        $results = $this->wpdb->get_results($query, ARRAY_A);
-
-        if ($this->wpdb->last_error) {
-            return new WP_Error('db_query_error', __('Database error fetching logs for stats.', 'gpt3-ai-content-generator'));
-        }
-
-        $total_tokens = 0;
-        $total_interactions = count($results); // Count each log row as an interaction/conversation
-        $module_counts = []; // Count how many interactions per module
-
-        if ($total_interactions > 0) {
-            foreach ($results as $row) {
-                $module_name = !empty($row['module']) ? $row['module'] : 'unknown';
-                $messages_json = $row['messages'] ?? '[]';
-                $conversation_data = json_decode($messages_json, true);
-                $messages_array = null;
-
-                // Handle new/old structure
-                if (is_array($conversation_data) && isset($conversation_data['messages']) && is_array($conversation_data['messages'])) {
-                    $messages_array = $conversation_data['messages'];
-                } elseif (is_array($conversation_data)) {
-                    $messages_array = $conversation_data; // Backward compat
-                }
-
-                if (is_array($messages_array)) {
-                    foreach ($messages_array as $msg) {
-                        // Sum tokens from bot messages or wherever usage is logged
-                        $tokens_in_message = 0;
-                        if (isset($msg['usage']['total_tokens']) && is_numeric($msg['usage']['total_tokens'])) {
-                            $tokens_in_message = (int) $msg['usage']['total_tokens'];
-                        } elseif (isset($msg['usage']['totalTokenCount']) && is_numeric($msg['usage']['totalTokenCount'])) { // Google compatibility
-                            $tokens_in_message = (int) $msg['usage']['totalTokenCount'];
-                        }
-                        $total_tokens += $tokens_in_message;
-                    }
-                }
-                // Count the interaction for this module
-                $module_counts[$module_name] = ($module_counts[$module_name] ?? 0) + 1;
-
-            } // End foreach $results
-        } // End if $total_interactions
-
-        $avg_tokens_per_interaction = ($total_interactions > 0) ? round($total_tokens / $total_interactions) : 0;
-        arsort($module_counts); // Sort modules by interaction count descending
-
-        return [
-            'total_tokens' => $total_tokens,
-            'total_interactions' => $total_interactions, // Renamed from total_conversations
-            'avg_tokens_per_interaction' => $avg_tokens_per_interaction, // Renamed
-            'module_counts' => $module_counts, // Interaction counts per module
-            'days_period' => $days,
-        ];
-    }
 
     /**
      * Calculates daily token usage grouped by the top N modules and 'Other' for the last X days.
@@ -367,29 +297,128 @@ class AIPKit_Stats
     }
 
     /**
-     * Gets the most used module from the calculated module counts.
+     * Returns ledger-backed summary values for the selected period.
      *
-     * @param array $module_counts Associative array of module => count.
-     * @return string|null The name of the most used module, or null if none.
+     * @return array<string, int>|WP_Error
      */
-    public function get_most_used_module(array $module_counts): ?string
+    public function get_ledger_summary(int $days = 30): array|WP_Error
     {
-        if (empty($module_counts)) {
-            return null;
-        }
-        // arsort($module_counts); // Ensure sorted (should be done in get_token_stats_last_days)
-        $first_key = array_key_first($module_counts);
-        if (!$first_key) {
-            return null;
+        if ($days <= 0) {
+            return new WP_Error('invalid_days', __('Number of days must be positive.', 'gpt3-ai-content-generator'));
         }
 
-        // Map known module slugs to user-facing names
-        switch ($first_key) {
-            case 'ai_post_enhancer':
-                return __('Content Assistant', 'gpt3-ai-content-generator');
-            default:
-                // Format the module name nicely for display
-                return ucfirst(str_replace(['-', '_'], ' ', $first_key));
+        if (!$this->ledger_table_exists()) {
+            return [
+                'credits_added' => 0,
+                'credits_spent' => 0,
+                'quota_only_usage_count' => 0,
+                'usage_entry_count' => 0,
+                'total_entries' => 0,
+            ];
         }
+
+        $range = $this->get_ledger_date_range($days);
+        $query = $this->wpdb->prepare(
+            "SELECT
+                COALESCE(SUM(CASE WHEN credits_delta > 0 THEN credits_delta ELSE 0 END), 0) AS credits_added,
+                COALESCE(ABS(SUM(CASE WHEN credits_delta < 0 THEN credits_delta ELSE 0 END)), 0) AS credits_spent,
+                COALESCE(SUM(CASE WHEN entry_type = 'usage' AND credits_delta = 0 AND usage_total_units > 0 THEN 1 ELSE 0 END), 0) AS quota_only_usage_count,
+                COALESCE(SUM(CASE WHEN entry_type = 'usage' THEN 1 ELSE 0 END), 0) AS usage_entry_count,
+                COUNT(*) AS total_entries
+             FROM {$this->ledger_table_name}
+             WHERE created_at >= %s AND created_at <= %s",
+            $range['start_utc'],
+            $range['end_utc']
+        );
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
+        $row = $this->wpdb->get_row($query, ARRAY_A);
+        if ($this->wpdb->last_error) {
+            return new WP_Error('db_query_error', __('Database error fetching ledger summary.', 'gpt3-ai-content-generator'));
+        }
+
+        return [
+            'credits_added' => isset($row['credits_added']) ? (int) $row['credits_added'] : 0,
+            'credits_spent' => isset($row['credits_spent']) ? (int) $row['credits_spent'] : 0,
+            'quota_only_usage_count' => isset($row['quota_only_usage_count']) ? (int) $row['quota_only_usage_count'] : 0,
+            'usage_entry_count' => isset($row['usage_entry_count']) ? (int) $row['usage_entry_count'] : 0,
+            'total_entries' => isset($row['total_entries']) ? (int) $row['total_entries'] : 0,
+        ];
+    }
+
+    /**
+     * Returns recent ledger activity for the selected period.
+     *
+     * @return array<int, array<string, mixed>>|WP_Error
+     */
+    public function get_recent_ledger_activity(int $days = 30, int $limit = 12): array|WP_Error
+    {
+        if ($days <= 0) {
+            return new WP_Error('invalid_days', __('Number of days must be positive.', 'gpt3-ai-content-generator'));
+        }
+
+        if (!$this->ledger_table_exists()) {
+            return [];
+        }
+
+        $limit = max(1, min(50, $limit));
+        $range = $this->get_ledger_date_range($days);
+        $users_table = $this->wpdb->users;
+
+        $query = $this->wpdb->prepare(
+            "SELECT l.*, u.display_name, u.user_email
+             FROM {$this->ledger_table_name} l
+             LEFT JOIN {$users_table} u ON u.ID = l.user_id
+             WHERE l.created_at >= %s AND l.created_at <= %s
+             ORDER BY l.created_at DESC, l.id DESC
+             LIMIT %d",
+            $range['start_utc'],
+            $range['end_utc'],
+            $limit
+        );
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
+        $rows = $this->wpdb->get_results($query, ARRAY_A);
+        if ($this->wpdb->last_error) {
+            return new WP_Error('db_query_error', __('Database error fetching recent ledger activity.', 'gpt3-ai-content-generator'));
+        }
+
+        if (!is_array($rows) || empty($rows)) {
+            return [];
+        }
+
+        $activity = [];
+        foreach ($rows as $row) {
+            $display_name = isset($row['display_name']) ? (string) $row['display_name'] : '';
+            $user_email = isset($row['user_email']) ? (string) $row['user_email'] : '';
+            $session_id = isset($row['session_id']) ? (string) $row['session_id'] : '';
+            $actor_label = __('System', 'gpt3-ai-content-generator');
+
+            if (!empty($row['user_id'])) {
+                $actor_label = $display_name !== '' ? $display_name : $user_email;
+            } elseif ($session_id !== '') {
+                /* translators: %s: guest session fragment */
+                $actor_label = sprintf(__('Guest %s', 'gpt3-ai-content-generator'), substr($session_id, 0, 8));
+            }
+
+            $created_at = isset($row['created_at']) ? (string) $row['created_at'] : '';
+            $activity[] = [
+                'id' => isset($row['id']) ? (int) $row['id'] : 0,
+                'actor_label' => $actor_label,
+                'module' => isset($row['module']) ? (string) $row['module'] : '',
+                'entry_type' => isset($row['entry_type']) ? (string) $row['entry_type'] : '',
+                'operation' => isset($row['operation']) ? (string) $row['operation'] : '',
+                'provider' => isset($row['provider']) ? (string) $row['provider'] : '',
+                'model' => isset($row['model']) ? (string) $row['model'] : '',
+                'credits_delta' => isset($row['credits_delta']) ? (int) $row['credits_delta'] : 0,
+                'usage_total_units' => isset($row['usage_total_units']) ? (int) $row['usage_total_units'] : 0,
+                'reference_type' => isset($row['reference_type']) ? (string) $row['reference_type'] : '',
+                'reference_id' => isset($row['reference_id']) ? (string) $row['reference_id'] : '',
+                'created_at' => $created_at,
+                'created_at_ts' => $created_at !== '' ? (int) strtotime($created_at . ' UTC') : 0,
+            ];
+        }
+
+        return $activity;
     }
 }

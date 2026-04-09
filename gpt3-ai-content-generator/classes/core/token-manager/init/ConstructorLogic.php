@@ -7,6 +7,12 @@ use WPAICG\Chat\Storage\BotStorage;
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
+use WPAICG\Core\TokenManager\Pricing\AIPKit_Price_Resolver;
+use WPAICG\Core\TokenManager\Pricing\AIPKit_Usage_Normalizer;
+use WPAICG\Core\TokenManager\Pricing\AIPKit_Charge_Calculator;
+use WPAICG\Core\TokenManager\Ledger\AIPKit_Ledger_Repository;
+use WPAICG\Core\TokenManager\Ledger\AIPKit_Balance_Service;
+use WPAICG\Core\TokenManager\Limits\AIPKit_Quota_Service;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -47,4 +53,18 @@ function ConstructorLogic(AIPKit_Token_Manager $managerInstance): void {
              require_once $image_settings_handler_path;
          }
     }
+
+    $price_resolver = new AIPKit_Price_Resolver();
+    $usage_normalizer = new AIPKit_Usage_Normalizer();
+    $charge_calculator = new AIPKit_Charge_Calculator();
+    $ledger_repository = new AIPKit_Ledger_Repository();
+    $balance_service = new AIPKit_Balance_Service($ledger_repository);
+    $quota_service = new AIPKit_Quota_Service();
+
+    $managerInstance->set_price_resolver($price_resolver);
+    $managerInstance->set_usage_normalizer($usage_normalizer);
+    $managerInstance->set_charge_calculator($charge_calculator);
+    $managerInstance->set_ledger_repository($ledger_repository);
+    $managerInstance->set_balance_service($balance_service);
+    $managerInstance->set_quota_service($quota_service);
 }

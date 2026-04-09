@@ -36,38 +36,8 @@ function process_ai_forms_logic(
     }
 
     $form_id = $validated_params['form_id'];
-    $submitted_fields_raw = $validated_params['user_input_values'];
-
-    // --- FIX: Sanitize the keys in the submitted fields array ---
-    $submitted_fields = [];
-    foreach ($submitted_fields_raw as $raw_key => $value) {
-        $key_match = [];
-        if (preg_match('/aipkit_form_field\[(.*?)\]/', $raw_key, $key_match)) {
-            $corrected_key = $key_match[1];
-            $submitted_fields[$corrected_key] = $value;
-        } else {
-            $submitted_fields[$raw_key] = $value; // Keep as is if it doesn't match
-        }
-    }
-    // Update validated_params with the corrected fields for later use if needed
-    $validated_params['user_input_values'] = $submitted_fields;
-    // --- END FIX ---
-
-
-    // 2. Get form configuration
-    $form_config = $handlerInstance->get_ai_form_storage()->get_form_data($validated_params['form_id']);
-    if (is_wp_error($form_config)) {
-        return $form_config;
-    }
-
-    // --- Override form config with user selection from frontend, if provided ---
-    if (isset($submitted_fields['ai_provider']) && !empty($submitted_fields['ai_provider'])) {
-        $form_config['ai_provider'] = sanitize_text_field($submitted_fields['ai_provider']);
-    }
-    if (isset($submitted_fields['ai_model']) && !empty($submitted_fields['ai_model'])) {
-        $form_config['ai_model'] = sanitize_text_field($submitted_fields['ai_model']);
-    }
-    // --- END ---
+    $submitted_fields = $validated_params['user_input_values'];
+    $form_config = $validated_params['form_config'];
 
     // 3. Build the AI prompt
     $final_prompt = Process\build_prompt_logic($form_config, $submitted_fields);

@@ -49,7 +49,7 @@ function get_token_management_config_logic(int $bot_id, callable $get_meta_fn): 
         $settings['token_reset_period'] = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
     }
 
-    $default_limit_message = __('You have reached your token limit for this period.', 'gpt3-ai-content-generator');
+    $default_limit_message = __('You have reached your quota for this period.', 'gpt3-ai-content-generator');
     $settings['token_limit_message'] = $get_meta_fn('_aipkit_token_limit_message', $default_limit_message);
     if (empty($settings['token_limit_message'])) {
         $settings['token_limit_message'] = $default_limit_message;

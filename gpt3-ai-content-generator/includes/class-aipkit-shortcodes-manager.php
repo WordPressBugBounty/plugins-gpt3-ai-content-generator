@@ -288,7 +288,7 @@ class AIPKit_Shortcodes_Manager
                 wp_localize_script($public_main_js_handle, 'aipkit_token_usage_config', [
                     'ajaxUrl' => admin_url('admin-ajax.php'), 'nonce'   => wp_create_nonce('aipkit_token_usage_details_nonce'),
                     /* translators: %s is the name of the token, e.g. "OpenAI" */
-                    'text' => ['loadingDetails' => __('Loading details...', 'gpt3-ai-content-generator'), 'errorLoading' => __('Error loading details.', 'gpt3-ai-content-generator'), 'close' => __('Close', 'gpt3-ai-content-generator'), 'usageDetailsTitle' => __('Usage Details for %s', 'gpt3-ai-content-generator'), 'pageLabel' => __('Page', 'gpt3-ai-content-generator'), 'ofLabel' => __('of', 'gpt3-ai-content-generator'), 'previous' => __('Previous', 'gpt3-ai-content-generator'), 'next' => __('Next', 'gpt3-ai-content-generator'),]
+                    'text' => ['loadingDetails' => __('Loading activity...', 'gpt3-ai-content-generator'), 'errorLoading' => __('Error loading activity.', 'gpt3-ai-content-generator'), 'close' => __('Close', 'gpt3-ai-content-generator'), 'usageDetailsTitle' => __('Usage Activity for %s', 'gpt3-ai-content-generator'), 'pageLabel' => __('Page', 'gpt3-ai-content-generator'), 'ofLabel' => __('of', 'gpt3-ai-content-generator'), 'previous' => __('Previous', 'gpt3-ai-content-generator'), 'next' => __('Next', 'gpt3-ai-content-generator'),]
                 ]);
                 $token_usage_localized = true;
             }

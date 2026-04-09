@@ -48,7 +48,7 @@ class AIPKit_Role_Manager
             'settings'              => __('Dashboard', 'gpt3-ai-content-generator'),
             'stats'                 => __('Stats', 'gpt3-ai-content-generator'),
             // Frontend / Non-Dashboard Modules
-            'token_usage_shortcode' => __('Token Usage Shortcode', 'gpt3-ai-content-generator'),
+            'token_usage_shortcode' => __('Customer Dashboard', 'gpt3-ai-content-generator'),
             'ai_post_enhancer'      => __('Content Assistant', 'gpt3-ai-content-generator'),
             'vector_content_indexer' => __('Vector Content Indexer', 'gpt3-ai-content-generator'),
         ];

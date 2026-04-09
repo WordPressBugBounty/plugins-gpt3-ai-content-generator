@@ -222,9 +222,6 @@ class Ajax_Hooks_Registrar
         if (method_exists($core_ajax_handler, 'ajax_save_cpt_indexing_options')) {
             add_action('wp_ajax_aipkit_save_cpt_indexing_options', [$core_ajax_handler, 'ajax_save_cpt_indexing_options']);
         }
-        if (method_exists($core_ajax_handler, 'ajax_get_stats_overview')) {
-            add_action('wp_ajax_aipkit_stats_get_overview', [$core_ajax_handler, 'ajax_get_stats_overview']);
-        }
         if (method_exists($core_ajax_handler, 'ajax_get_stats_logs')) {
             add_action('wp_ajax_aipkit_stats_get_logs', [$core_ajax_handler, 'ajax_get_stats_logs']);
         }
@@ -248,6 +245,15 @@ class Ajax_Hooks_Registrar
         }
         if (method_exists($core_ajax_handler, 'ajax_prune_stats_logs_now')) {
             add_action('wp_ajax_aipkit_stats_prune_logs_now', [$core_ajax_handler, 'ajax_prune_stats_logs_now']);
+        }
+        if (method_exists($core_ajax_handler, 'ajax_get_stats_pricing_management')) {
+            add_action('wp_ajax_aipkit_stats_get_pricing_management', [$core_ajax_handler, 'ajax_get_stats_pricing_management']);
+        }
+        if (method_exists($core_ajax_handler, 'ajax_save_stats_pricing_rule')) {
+            add_action('wp_ajax_aipkit_stats_save_pricing_rule', [$core_ajax_handler, 'ajax_save_stats_pricing_rule']);
+        }
+        if (method_exists($core_ajax_handler, 'ajax_delete_stats_pricing_rule')) {
+            add_action('wp_ajax_aipkit_stats_delete_pricing_rule', [$core_ajax_handler, 'ajax_delete_stats_pricing_rule']);
         }
         if (method_exists($automated_task_manager, 'init_ajax_hooks')) {
             $automated_task_manager->init_ajax_hooks();

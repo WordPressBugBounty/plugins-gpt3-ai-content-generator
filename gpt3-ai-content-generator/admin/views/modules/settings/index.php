@@ -101,7 +101,24 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
     ? \WPAICG\AIPKit_Provider_Model_List_Builder::get_provider_options($providers, $is_pro)
     : [];
 ?>
-<div class="aipkit_settings_main_container" id="aipkit_settings_container">
+<div class="aipkit_container aipkit_settings_main_container" id="aipkit_settings_container">
+    <div class="aipkit_container-header">
+        <div class="aipkit_container-header-left">
+            <div class="aipkit_settings_header_copy">
+                <div class="aipkit_settings_header_title_row">
+                    <h2 class="aipkit_container-title"><?php esc_html_e('Settings', 'gpt3-ai-content-generator'); ?></h2>
+                    <div
+                        id="aipkit_settings_global_messages"
+                        class="aipkit_settings_messages aipkit_global_status_area aipkit_settings_header_status"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+                </div>
+                <p class="aipkit_settings_header_hint"><?php esc_html_e('Configure AI defaults, integrations, apps, security, developer tools, and maintenance.', 'gpt3-ai-content-generator'); ?></p>
+            </div>
+        </div>
+    </div>
+    <div class="aipkit_container-body">
     <section class="aipkit_settings_simple_panel aipkit_settings_pages_shell">
         <div class="aipkit_settings_page_nav_row">
             <nav class="aipkit_settings_page_nav" aria-label="<?php esc_attr_e('Settings sections', 'gpt3-ai-content-generator'); ?>">
@@ -124,7 +141,6 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
                     <?php esc_html_e('Others', 'gpt3-ai-content-generator'); ?>
                 </button>
             </nav>
-            <div id="aipkit_settings_global_messages" class="aipkit_settings_messages" role="status" aria-live="polite"></div>
         </div>
 
         <div class="aipkit_settings_pages">
@@ -200,6 +216,7 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
             </section>
         </div>
     </section>
+    </div>
 </div>
 
 <!-- Hidden div for storing synced Google TTS Voices -->

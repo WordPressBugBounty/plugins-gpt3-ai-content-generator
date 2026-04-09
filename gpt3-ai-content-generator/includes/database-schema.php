@@ -357,3 +357,81 @@ function aipkit_create_recipe_delivery_logs_table()
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
 }
+
+/**
+ * Creates or updates the pricing rules table used for model-aware billing.
+ */
+function aipkit_create_pricing_rules_table()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'aipkit_pricing_rules';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE {$table_name} (
+        id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        scope_type varchar(32) NOT NULL,
+        scope_id bigint(20) unsigned NOT NULL DEFAULT 0,
+        module varchar(50) NOT NULL,
+        provider varchar(50) NOT NULL,
+        model varchar(191) NOT NULL,
+        operation varchar(50) NOT NULL,
+        billing_method varchar(32) NOT NULL,
+        input_rate decimal(20,6) DEFAULT NULL,
+        output_rate decimal(20,6) DEFAULT NULL,
+        unit_rate decimal(20,6) DEFAULT NULL,
+        enabled tinyint(1) NOT NULL DEFAULT 1,
+        created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY  (id),
+        UNIQUE KEY unique_scope_rule (scope_type, scope_id, module, provider, model, operation),
+        KEY module_model_operation (module, provider, model, operation),
+        KEY scope_lookup (scope_type, scope_id),
+        KEY enabled (enabled)
+    ) {$charset_collate};";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}
+
+/**
+ * Creates or updates the ledger table used for purchases, usage, and adjustments.
+ */
+function aipkit_create_token_ledger_table()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'aipkit_token_ledger';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE {$table_name} (
+        id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        user_id bigint(20) unsigned DEFAULT NULL,
+        session_id varchar(64) DEFAULT NULL,
+        actor_type varchar(16) NOT NULL,
+        module varchar(50) NOT NULL,
+        context_type varchar(32) DEFAULT NULL,
+        context_id bigint(20) unsigned DEFAULT NULL,
+        provider varchar(50) DEFAULT NULL,
+        model varchar(191) DEFAULT NULL,
+        operation varchar(50) NOT NULL,
+        usage_input_units bigint(20) unsigned NOT NULL DEFAULT 0,
+        usage_output_units bigint(20) unsigned NOT NULL DEFAULT 0,
+        usage_total_units bigint(20) unsigned NOT NULL DEFAULT 0,
+        credits_delta bigint(20) NOT NULL DEFAULT 0,
+        entry_type varchar(32) NOT NULL,
+        reference_type varchar(32) DEFAULT NULL,
+        reference_id varchar(191) DEFAULT NULL,
+        idempotency_key varchar(191) DEFAULT NULL,
+        meta longtext DEFAULT NULL,
+        created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY  (id),
+        UNIQUE KEY idempotency_key (idempotency_key),
+        KEY user_created_at (user_id, created_at),
+        KEY session_created_at (session_id, created_at),
+        KEY module_context_created_at (module, context_type, context_id, created_at),
+        KEY provider_model_operation (provider, model, operation),
+        KEY entry_type_created_at (entry_type, created_at)
+    ) {$charset_collate};";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}

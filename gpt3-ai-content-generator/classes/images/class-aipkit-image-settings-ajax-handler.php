@@ -55,7 +55,7 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
      */
     public static function get_default_settings(): array
     {
-        $default_limit_message = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MESSAGE ?: __('You have reached your token limit for this period.', 'gpt3-ai-content-generator');
+        $default_limit_message = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MESSAGE ?: __('You have reached your quota for this period.', 'gpt3-ai-content-generator');
         $default_limit_mode = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
         $default_reset_period = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
 
@@ -378,4 +378,5 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             wp_send_json_success(['message' => __('No changes detected.', 'gpt3-ai-content-generator')]);
         }
     }
+
 }

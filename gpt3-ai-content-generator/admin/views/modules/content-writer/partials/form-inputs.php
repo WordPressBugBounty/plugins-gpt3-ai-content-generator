@@ -70,6 +70,8 @@ $content_length_options = [
     </section>
 </div>
 
+<?php include __DIR__ . '/form-inputs/image-prompt-flyouts.php'; ?>
+
 <div
     class="aipkit_builder_sheet_overlay"
     id="aipkit_cw_builder_sheet"

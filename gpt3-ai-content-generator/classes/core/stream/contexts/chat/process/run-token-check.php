@@ -15,6 +15,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+require_once WPAICG_PLUGIN_DIR . 'classes/chat/core/pricing/fn-build-chat-pricing-check-context.php';
+
 /**
  * Performs token limit checks for a chat stream request.
  * Dispatches a 'system_error_occurred' trigger if the token check fails.
@@ -23,6 +25,9 @@ if (!defined('ABSPATH')) {
  * @param int|null    $user_id          User ID, or null for guests.
  * @param string|null $session_id       Session ID for guests.
  * @param int         $bot_id           Bot ID for the current chat context.
+ * @param array<string, mixed> $bot_settings Bot configuration used to estimate priced usage.
+ * @param string $user_message_text Current user message for conservative token estimation.
+ * @param array<int, mixed>|null $image_inputs Optional image inputs for multimodal estimation.
  * @param LogStorage|null $log_storage    Instance of LogStorage (for trigger manager).
  * @return true|WP_Error True if token check passes or not applicable, WP_Error if limit exceeded.
  */
@@ -31,10 +36,18 @@ function run_token_check_logic(
     ?int $user_id,
     ?string $session_id,
     int $bot_id,
+    array $bot_settings,
+    string $user_message_text,
+    ?array $image_inputs,
     ?LogStorage $log_storage
 ): bool|WP_Error {
-
-    $token_check_result = $token_manager->check_and_reset_tokens($user_id ?: null, $session_id, $bot_id, 'chat');
+    $usage_context = \WPAICG\Chat\Core\Pricing\build_chat_pricing_check_context_logic(
+        $bot_id,
+        $bot_settings,
+        $user_message_text,
+        $image_inputs
+    );
+    $token_check_result = $token_manager->check_and_reset_tokens($user_id ?: null, $session_id, $bot_id, 'chat', $usage_context);
 
     if (is_wp_error($token_check_result)) {
         $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';

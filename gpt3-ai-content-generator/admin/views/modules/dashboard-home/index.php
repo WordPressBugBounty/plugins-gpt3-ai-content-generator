@@ -85,109 +85,125 @@ $available_count = count($available_modules);
 
             <section class="aipkit_home_section aipkit_home_section--modules" aria-labelledby="aipkit_home_modules_title">
                 <div class="aipkit_home_section_header">
-                    <h3 class="aipkit_home_section_title" id="aipkit_home_modules_title"><?php esc_html_e('Modules', 'gpt3-ai-content-generator'); ?></h3>
+                    <div class="aipkit_home_section_header_copy">
+                        <h3 class="aipkit_home_section_title" id="aipkit_home_modules_title"><?php esc_html_e('Modules', 'gpt3-ai-content-generator'); ?></h3>
+                        <p class="aipkit_home_section_hint"><?php esc_html_e('Open each workspace and control access for the modules available to this site.', 'gpt3-ai-content-generator'); ?></p>
+                    </div>
                 </div>
-
-                <?php if ($available_count === 0): ?>
-                    <div class="aipkit_home_module_empty">
-                        <p><?php esc_html_e('No modules are available for your role right now.', 'gpt3-ai-content-generator'); ?></p>
-                    </div>
-                <?php else: ?>
-                    <div class="aipkit_home_module_list" id="aipkit_home_module_list">
-                        <?php foreach ($available_modules as $module): ?>
-                            <?php
-                            $row_class = 'aipkit_home_module_row';
-                            if (!$module['is_enabled']) {
-                                $row_class .= ' is-disabled';
-                            }
-                            ?>
-                            <article
-                                class="<?php echo esc_attr($row_class); ?>"
-                                data-module="<?php echo esc_attr($module['data_module']); ?>"
-                                data-module-label="<?php echo esc_attr($module['label']); ?>"
-                            >
-                                <div
-                                    class="aipkit_home_module_main"
-                                    role="button"
-                                    tabindex="<?php echo $module['is_enabled'] ? '0' : '-1'; ?>"
-                                    aria-disabled="<?php echo $module['is_enabled'] ? 'false' : 'true'; ?>"
-                                    <?php if ($module['is_enabled']): ?>
-                                        data-aipkit-open-module="<?php echo esc_attr($module['data_module']); ?>"
-                                    <?php endif; ?>
+                <div class="aipkit_home_section_body">
+                    <?php if ($available_count === 0): ?>
+                        <div class="aipkit_home_module_empty">
+                            <p><?php esc_html_e('No modules are available for your role right now.', 'gpt3-ai-content-generator'); ?></p>
+                        </div>
+                    <?php else: ?>
+                        <div class="aipkit_home_module_list" id="aipkit_home_module_list">
+                            <?php foreach ($available_modules as $module): ?>
+                                <?php
+                                $row_class = 'aipkit_home_module_row';
+                                if (!$module['is_enabled']) {
+                                    $row_class .= ' is-disabled';
+                                }
+                                ?>
+                                <article
+                                    class="<?php echo esc_attr($row_class); ?>"
+                                    data-module="<?php echo esc_attr($module['data_module']); ?>"
+                                    data-module-label="<?php echo esc_attr($module['label']); ?>"
                                 >
-                                    <div class="aipkit_home_module_text">
-                                        <h4 class="aipkit_home_module_title"><?php echo esc_html($module['label']); ?></h4>
-                                        <p class="aipkit_home_module_desc"><?php echo esc_html($module['description']); ?></p>
+                                    <div
+                                        class="aipkit_home_module_main"
+                                        role="button"
+                                        tabindex="<?php echo $module['is_enabled'] ? '0' : '-1'; ?>"
+                                        aria-disabled="<?php echo $module['is_enabled'] ? 'false' : 'true'; ?>"
+                                        <?php if ($module['is_enabled']): ?>
+                                            data-aipkit-open-module="<?php echo esc_attr($module['data_module']); ?>"
+                                        <?php endif; ?>
+                                    >
+                                        <div class="aipkit_home_module_text">
+                                            <h4 class="aipkit_home_module_title"><?php echo esc_html($module['label']); ?></h4>
+                                            <p class="aipkit_home_module_desc"><?php echo esc_html($module['description']); ?></p>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <?php if ($is_admin): ?>
-                                    <div class="aipkit_home_module_controls">
-                                        <label class="aipkit_home_toggle" for="aipkit_home_toggle_<?php echo esc_attr($module['option_key']); ?>">
-                                            <span class="screen-reader-text"><?php esc_html_e('Enable module', 'gpt3-ai-content-generator'); ?></span>
-                                            <span class="aipkit_home_toggle_switch">
-                                                <input
-                                                    type="checkbox"
-                                                    id="aipkit_home_toggle_<?php echo esc_attr($module['option_key']); ?>"
-                                                    class="aipkit_home_toggle_input"
-                                                    data-option-key="<?php echo esc_attr($module['option_key']); ?>"
-                                                    data-module="<?php echo esc_attr($module['data_module']); ?>"
-                                                    <?php checked($module['is_enabled']); ?>
-                                                    aria-label="<?php echo esc_attr(sprintf(__('Enable %s module', 'gpt3-ai-content-generator'), $module['label'])); ?>"
-                                                />
-                                                <span class="aipkit_home_toggle_slider" aria-hidden="true"></span>
-                                            </span>
-                                        </label>
-                                    </div>
-                                <?php endif; ?>
-                            </article>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
+                                    <?php if ($is_admin): ?>
+                                        <div class="aipkit_home_module_controls">
+                                            <label class="aipkit_home_toggle" for="aipkit_home_toggle_<?php echo esc_attr($module['option_key']); ?>">
+                                                <span class="screen-reader-text"><?php esc_html_e('Enable module', 'gpt3-ai-content-generator'); ?></span>
+                                                <span class="aipkit_home_toggle_switch">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="aipkit_home_toggle_<?php echo esc_attr($module['option_key']); ?>"
+                                                        class="aipkit_home_toggle_input"
+                                                        data-option-key="<?php echo esc_attr($module['option_key']); ?>"
+                                                        data-module="<?php echo esc_attr($module['data_module']); ?>"
+                                                        <?php checked($module['is_enabled']); ?>
+                                                        aria-label="<?php echo esc_attr(sprintf(__('Enable %s module', 'gpt3-ai-content-generator'), $module['label'])); ?>"
+                                                    />
+                                                    <span class="aipkit_home_toggle_slider" aria-hidden="true"></span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    <?php endif; ?>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </section>
         </section>
 
         <aside class="aipkit_home_sidebar">
             <section class="aipkit_home_panel aipkit_home_panel--setup">
-                <h3 class="aipkit_home_panel_title"><?php esc_html_e('Quick Setup', 'gpt3-ai-content-generator'); ?></h3>
-                <ol class="aipkit_home_steps">
-                    <li>
-                        <?php
-                        $settings_link = '<a href="#" data-aipkit-open-module="settings">' . esc_html__('Settings', 'gpt3-ai-content-generator') . '</a>';
-                        echo wp_kses(
-                            sprintf(
-                                __('Go to %s.', 'gpt3-ai-content-generator'),
-                                $settings_link
-                            ),
-                            [
-                                'a' => [
-                                    'href' => [],
-                                    'data-aipkit-open-module' => [],
-                                ],
-                            ]
-                        );
-                        ?>
-                    </li>
-                    <li><?php esc_html_e('Select your provider and enter your API key.', 'gpt3-ai-content-generator'); ?></li>
-                    <li><?php esc_html_e('Open any module and start using.', 'gpt3-ai-content-generator'); ?></li>
-                </ol>
+                <div class="aipkit_home_panel_header">
+                    <div class="aipkit_home_panel_header_copy">
+                        <h3 class="aipkit_home_panel_title"><?php esc_html_e('Quick Setup', 'gpt3-ai-content-generator'); ?></h3>
+                        <p class="aipkit_home_panel_hint"><?php esc_html_e('A short path to get providers connected and the workspace ready to use.', 'gpt3-ai-content-generator'); ?></p>
+                    </div>
+                </div>
+                <div class="aipkit_home_panel_body">
+                    <ol class="aipkit_home_steps">
+                        <li>
+                            <?php
+                            $settings_link = '<a href="#" data-aipkit-open-module="settings">' . esc_html__('Settings', 'gpt3-ai-content-generator') . '</a>';
+                            echo wp_kses(
+                                sprintf(
+                                    __('Go to %s.', 'gpt3-ai-content-generator'),
+                                    $settings_link
+                                ),
+                                [
+                                    'a' => [
+                                        'href' => [],
+                                        'data-aipkit-open-module' => [],
+                                    ],
+                                ]
+                            );
+                            ?>
+                        </li>
+                        <li><?php esc_html_e('Select your provider and enter your API key.', 'gpt3-ai-content-generator'); ?></li>
+                        <li><?php esc_html_e('Open any module and start using.', 'gpt3-ai-content-generator'); ?></li>
+                    </ol>
+                </div>
             </section>
 
             <section class="aipkit_home_panel aipkit_home_panel--chart" aria-labelledby="aipkit_home_chart_title">
                 <div class="aipkit_home_panel_header">
-                    <h3 class="aipkit_home_panel_title" id="aipkit_home_chart_title"><?php esc_html_e('Token Usage', 'gpt3-ai-content-generator'); ?></h3>
-                </div>
-                <div
-                    id="aipkit_token_usage_chart_container"
-                    class="aipkit_token_usage_chart_container aipkit_home_chart_canvas"
-                    data-default-days="7"
-                >
-                    <div class="aipkit_chart_loading_placeholder">
-                        <span class="aipkit_spinner" aria-hidden="true"></span>
-                        <span><?php esc_html_e('Loading chart data...', 'gpt3-ai-content-generator'); ?></span>
+                    <div class="aipkit_home_panel_header_copy">
+                        <h3 class="aipkit_home_panel_title" id="aipkit_home_chart_title"><?php esc_html_e('Token Usage', 'gpt3-ai-content-generator'); ?></h3>
+                        <p class="aipkit_home_panel_hint"><?php esc_html_e('A quick snapshot of recent token activity across the available modules.', 'gpt3-ai-content-generator'); ?></p>
                     </div>
-                    <div class="aipkit_chart_error_placeholder"></div>
-                    <div class="aipkit_chart_nodata_placeholder"></div>
+                </div>
+                <div class="aipkit_home_panel_body">
+                    <div
+                        id="aipkit_token_usage_chart_container"
+                        class="aipkit_token_usage_chart_container aipkit_home_chart_canvas"
+                        data-default-days="7"
+                    >
+                        <div class="aipkit_chart_loading_placeholder">
+                            <span class="aipkit_spinner" aria-hidden="true"></span>
+                            <span><?php esc_html_e('Loading chart data...', 'gpt3-ai-content-generator'); ?></span>
+                        </div>
+                        <div class="aipkit_chart_error_placeholder"></div>
+                        <div class="aipkit_chart_nodata_placeholder"></div>
+                    </div>
                 </div>
             </section>
         </aside>

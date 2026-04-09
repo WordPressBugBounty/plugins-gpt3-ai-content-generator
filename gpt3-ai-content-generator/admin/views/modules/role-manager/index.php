@@ -37,9 +37,16 @@ $nonce = wp_create_nonce('aipkit_role_manager_nonce');
 ?>
 <div class="aipkit_container aipkit_role_manager_container" id="aipkit_role_manager_container">
     <div class="aipkit_container-header">
-        <div class="aipkit_container-title"><?php esc_html_e('Role Manager', 'gpt3-ai-content-generator'); ?></div>
-        <div id="aipkit_role_manager_messages" class="aipkit_settings_messages">
-            <!-- Status messages go here -->
+        <div class="aipkit_container-header-left">
+            <div class="aipkit_role_manager_header_copy">
+                <div class="aipkit_role_manager_header_title_row">
+                    <div class="aipkit_container-title"><?php esc_html_e('Role Manager', 'gpt3-ai-content-generator'); ?></div>
+                    <div id="aipkit_role_manager_messages" class="aipkit_settings_messages aipkit_role_manager_header_status">
+                        <!-- Status messages go here -->
+                    </div>
+                </div>
+                <p class="aipkit_role_manager_header_hint"><?php esc_html_e('Control which WordPress roles can access each AI Puffer workspace and tool.', 'gpt3-ai-content-generator'); ?></p>
+            </div>
         </div>
         <div class="aipkit_container-actions">
             <button id="aipkit_save_roles_btn" class="aipkit_btn aipkit_btn-primary">
@@ -49,7 +56,7 @@ $nonce = wp_create_nonce('aipkit_role_manager_nonce');
         </div>
     </div>
     <div class="aipkit_container-body">
-        <p><?php esc_html_e('Select which user roles should have access to each AI Power module.', 'gpt3-ai-content-generator'); ?></p>
+        <p><?php esc_html_e('Select which user roles should have access to each module.', 'gpt3-ai-content-generator'); ?></p>
         <form id="aipkit_role_manager_form">
             <input type="hidden" name="_ajax_nonce" value="<?php echo esc_attr($nonce); ?>">
             <table class="aipkit_data-table aipkit_role_manager_table">

@@ -59,28 +59,33 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     <?php include WPAICG_PLUGIN_DIR . 'admin/views/shared/vector-store-nonce-fields.php'; ?>
     <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">
-            <div class="aipkit_container-title" id="aipkit_ai_forms_header_title_default"><?php esc_html_e('AI Forms', 'gpt3-ai-content-generator'); ?></div>
-            <div class="aipkit_ai_forms_header_title_editor" id="aipkit_ai_forms_header_title_editor" style="display: none;">
-                <button
-                    type="button"
-                    class="aipkit_ai_forms_title_display"
-                    id="aipkit_ai_forms_title_display"
-                    aria-label="<?php esc_attr_e('Edit form title', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <span class="aipkit_ai_forms_title_text" id="aipkit_ai_forms_title_text"><?php esc_html_e('New Form', 'gpt3-ai-content-generator'); ?></span>
-                    <span class="dashicons dashicons-edit" aria-hidden="true"></span>
-                </button>
-                <input
-                    type="text"
-                    id="aipkit_ai_form_title"
-                    name="title"
-                    class="aipkit_form-input aipkit_ai_forms_title_input"
-                    placeholder="<?php esc_attr_e('New Form', 'gpt3-ai-content-generator'); ?>"
-                    required
-                    style="display: none;"
-                >
+            <div class="aipkit_ai_forms_header_copy">
+                <div class="aipkit_ai_forms_header_title_row">
+                    <div class="aipkit_container-title" id="aipkit_ai_forms_header_title_default"><?php esc_html_e('AI Forms', 'gpt3-ai-content-generator'); ?></div>
+                    <div class="aipkit_ai_forms_header_title_editor" id="aipkit_ai_forms_header_title_editor" style="display: none;">
+                        <button
+                            type="button"
+                            class="aipkit_ai_forms_title_display"
+                            id="aipkit_ai_forms_title_display"
+                            aria-label="<?php esc_attr_e('Edit form title', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <span class="aipkit_ai_forms_title_text" id="aipkit_ai_forms_title_text"><?php esc_html_e('New Form', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="dashicons dashicons-edit" aria-hidden="true"></span>
+                        </button>
+                        <input
+                            type="text"
+                            id="aipkit_ai_form_title"
+                            name="title"
+                            class="aipkit_form-input aipkit_ai_forms_title_input"
+                            placeholder="<?php esc_attr_e('New Form', 'gpt3-ai-content-generator'); ?>"
+                            required
+                            style="display: none;"
+                        >
+                    </div>
+                    <span id="aipkit_ai_forms_status" class="aipkit_training_status aipkit_global_status_area" aria-live="polite"></span>
+                </div>
+                <p class="aipkit_ai_forms_header_hint"><?php esc_html_e('Build, manage, and preview AI-powered forms with reusable actions and prompts.', 'gpt3-ai-content-generator'); ?></p>
             </div>
-            <span id="aipkit_ai_forms_status" class="aipkit_training_status aipkit_global_status_area" aria-live="polite"></span>
         </div>
         <div class="aipkit_container-actions">
             <div id="aipkit_ai_forms_editor_actions" class="aipkit_form_editor_actions aipkit_form_editor_actions--header" style="display: none;">
