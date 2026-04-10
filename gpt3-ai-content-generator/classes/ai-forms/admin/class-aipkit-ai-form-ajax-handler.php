@@ -7,6 +7,7 @@ namespace WPAICG\AIForms\Admin;
 
 use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
 use WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage;
+use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -194,7 +195,7 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
                 'public-ai-forms' => $dist_url . 'css/public-ai-forms.bundle.css?ver=' . $version,
             ],
             'js' => [
-                'public-main' => $dist_url . 'js/public-main.bundle.js?ver=' . $version,
+                'public-ai-forms' => $dist_url . 'js/public-ai-forms.bundle.js?ver=' . $version,
             ],
         ];
 
@@ -236,6 +237,10 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
             ]
         ];
 
+        $asset_urls = class_exists(AIPKit_Shared_Assets_Manager::class)
+            ? AIPKit_Shared_Assets_Manager::get_public_asset_urls()
+            : [];
+
         // 5b. Get models data
         $models = [];
         if (class_exists('\\WPAICG\\AIPKit_Providers')) {
@@ -259,6 +264,7 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
         wp_send_json_success([
             'html'   => $rendered_html,
             'assets' => $assets,
+            'assetUrls' => $asset_urls,
             'config' => $public_config,
             'models' => $models, // Add models to response
         ]);

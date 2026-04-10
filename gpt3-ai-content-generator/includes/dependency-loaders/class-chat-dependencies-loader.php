@@ -53,16 +53,28 @@ class Chat_Dependencies_Loader
             'storage/class-aipkit_chat_bot_storage.php',
             'storage/class-aipkit_chat_log_storage.php', 'storage/class-aipkit-bot-settings-getter.php',
             'storage/class-aipkit-bot-settings-saver.php', 'storage/class-aipkit-bot-settings-initializer.php',
-            'admin/ajax/chatbot_ajax_handler.php', 'admin/ajax/chatbot_export_ajax_handler.php',
-            'admin/ajax/chatbot_import_ajax_handler.php', 'admin/ajax/conversation_ajax_handler.php',
-            'admin/ajax/log_ajax_handler.php', 'admin/ajax/user_credits_ajax_handler.php',
-            'admin/ajax/class-aipkit-chatbot-image-ajax-handler.php',
             'frontend/chat_assets.php', 'frontend/chat_shortcode.php',
             'frontend/shortcode/shortcode_configurator.php', 'frontend/shortcode/shortcode_dataprovider.php',
             'frontend/shortcode/shortcode_featuremanager.php', 'frontend/shortcode/shortcode_renderer.php',
             'frontend/shortcode/shortcode_sitewidehandler.php', 'frontend/shortcode/shortcode_validator.php',
             'class-aipkit_chat_initializer.php'
         ];
+
+        if (self::should_load_ajax_handlers()) {
+            $paths = array_merge(
+                $paths,
+                [
+                    'admin/ajax/chatbot_ajax_handler.php',
+                    'admin/ajax/chatbot_export_ajax_handler.php',
+                    'admin/ajax/chatbot_import_ajax_handler.php',
+                    'admin/ajax/conversation_ajax_handler.php',
+                    'admin/ajax/log_ajax_handler.php',
+                    'admin/ajax/user_credits_ajax_handler.php',
+                    'admin/ajax/class-aipkit-chatbot-image-ajax-handler.php',
+                ]
+            );
+        }
+
         foreach ($paths as $file) {
             if (strpos($file, $frontend_chat_ajax_path) === 0 || strpos($file, $frontend_ajax_handlers_path) === 0) {
                 $full_path = $file;
@@ -104,5 +116,10 @@ class Chat_Dependencies_Loader
                 }
             }
         }
+    }
+
+    private static function should_load_ajax_handlers(): bool
+    {
+        return is_admin() || wp_doing_ajax();
     }
 }

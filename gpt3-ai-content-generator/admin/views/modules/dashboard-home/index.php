@@ -87,7 +87,6 @@ $available_count = count($available_modules);
                 <div class="aipkit_home_section_header">
                     <div class="aipkit_home_section_header_copy">
                         <h3 class="aipkit_home_section_title" id="aipkit_home_modules_title"><?php esc_html_e('Modules', 'gpt3-ai-content-generator'); ?></h3>
-                        <p class="aipkit_home_section_hint"><?php esc_html_e('Open each workspace and control access for the modules available to this site.', 'gpt3-ai-content-generator'); ?></p>
                     </div>
                 </div>
                 <div class="aipkit_home_section_body">
@@ -156,7 +155,6 @@ $available_count = count($available_modules);
                 <div class="aipkit_home_panel_header">
                     <div class="aipkit_home_panel_header_copy">
                         <h3 class="aipkit_home_panel_title"><?php esc_html_e('Quick Setup', 'gpt3-ai-content-generator'); ?></h3>
-                        <p class="aipkit_home_panel_hint"><?php esc_html_e('A short path to get providers connected and the workspace ready to use.', 'gpt3-ai-content-generator'); ?></p>
                     </div>
                 </div>
                 <div class="aipkit_home_panel_body">
@@ -188,7 +186,6 @@ $available_count = count($available_modules);
                 <div class="aipkit_home_panel_header">
                     <div class="aipkit_home_panel_header_copy">
                         <h3 class="aipkit_home_panel_title" id="aipkit_home_chart_title"><?php esc_html_e('Token Usage', 'gpt3-ai-content-generator'); ?></h3>
-                        <p class="aipkit_home_panel_hint"><?php esc_html_e('A quick snapshot of recent token activity across the available modules.', 'gpt3-ai-content-generator'); ?></p>
                     </div>
                 </div>
                 <div class="aipkit_home_panel_body">

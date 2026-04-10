@@ -83,7 +83,14 @@ class Shortcode {
             $feature_flags['pdf_ui_enabled'],
             $feature_flags['enable_copy_button'],
             $feature_flags['starters_ui_enabled'],
-            $feature_flags['sidebar_ui_enabled']
+            $feature_flags['sidebar_ui_enabled'],
+            $feature_flags['feedback_ui_enabled'],
+            $feature_flags['tts_ui_enabled'],
+            $feature_flags['enable_voice_input_ui'],
+            true,
+            $feature_flags['image_upload_ui_enabled'],
+            $feature_flags['file_upload_ui_enabled'],
+            $feature_flags['enable_realtime_voice_ui']
         );
 
         // --- THE FIX: Manually trigger the enqueuer logic ---

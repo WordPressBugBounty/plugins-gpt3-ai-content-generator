@@ -71,6 +71,7 @@ class Renderer {
                 $feature_flags['enable_voice_input_ui'],
                 true, // Assume image generation command is always potentially available
                 $feature_flags['image_upload_ui_enabled'],
+                $feature_flags['file_upload_ui_enabled'],
                 $feature_flags['enable_realtime_voice_ui']
             );
         }

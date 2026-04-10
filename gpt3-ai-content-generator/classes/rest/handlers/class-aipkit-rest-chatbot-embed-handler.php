@@ -7,6 +7,7 @@ namespace WPAICG\REST\Handlers;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
+use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
 use WPAICG\Chat\Frontend\Shortcode\DataProvider;
 use WPAICG\Chat\Frontend\Shortcode\FeatureManager;
 use WPAICG\Chat\Frontend\Shortcode\Configurator;
@@ -134,15 +135,10 @@ class AIPKit_REST_Chatbot_Embed_Handler extends AIPKit_REST_Base_Handler
         
         // Add plugin asset URLs to the config for the embed script
         $version = defined('WPAICG_VERSION') ? WPAICG_VERSION : '1.0.0';
-        $frontend_config['assetUrls'] = [
+        $frontend_config['assetUrls'] = array_merge(AIPKit_Shared_Assets_Manager::get_public_asset_urls(), [
             'css' => WPAICG_PLUGIN_URL . 'dist/css/public-main.bundle.css?ver=' . $version,
-            'markdownit' => WPAICG_PLUGIN_URL . 'dist/vendor/js/markdown-it.min.js',
             'mainJs' => WPAICG_PLUGIN_URL . 'dist/js/public-main.bundle.js?ver=' . $version,
-        ];
-        
-        if (!empty($feature_flags['pdf_ui_enabled'])) {
-            $frontend_config['assetUrls']['jspdf'] = WPAICG_PLUGIN_URL . 'lib/js/jspdf.umd.min.js';
-        }
+        ]);
         
         // Render the HTML for the chatbot
         $renderer = new Renderer();

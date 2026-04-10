@@ -22,6 +22,10 @@ class AIPKit_Module_Initializer {
      * @param string $plugin_version The current plugin version.
      */
     public static function init(string $plugin_version) {
+        if (!self::should_initialize_dashboard()) {
+            return;
+        }
+
         // Dashboard Initializer
         $dashboard_initializer_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_dashboard_initializer.php';
         if (file_exists($dashboard_initializer_path)) {
@@ -32,5 +36,14 @@ class AIPKit_Module_Initializer {
                 DashboardInitializer::init($plugin_version);
             }
         }
+    }
+
+    private static function should_initialize_dashboard(): bool
+    {
+        if (is_admin() || wp_doing_ajax()) {
+            return true;
+        }
+
+        return defined('WP_CLI') && WP_CLI;
     }
 }

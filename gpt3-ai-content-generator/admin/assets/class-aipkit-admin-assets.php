@@ -141,6 +141,9 @@ abstract class AIPKit_Admin_Asset_Base
     {
         $this->register_public_main_script($version);
         $this->enqueue_script_handle('aipkit-public-main');
+        if (class_exists(AIPKit_Shared_Assets_Manager::class)) {
+            AIPKit_Shared_Assets_Manager::attach_public_asset_urls('aipkit-public-main');
+        }
     }
 
     protected function ensure_dashboard_core_data(): void
@@ -678,21 +681,39 @@ class ImageGeneratorAssets extends AIPKit_Admin_Asset_Base
 
     private function enqueue_styles(): void
     {
-        $this->register_style_bundle('aipkit-public-image-generator-css', 'public-image-generator.bundle.css', []);
+        $this->register_style_bundle(
+            'aipkit-public-image-generator-css',
+            'public-image-generator.bundle.css',
+            [],
+            self::asset_version('dist/css/public-image-generator.bundle.css', $this->version)
+        );
         $this->enqueue_style_handle('aipkit-public-image-generator-css');
     }
 
     private function enqueue_scripts(): void
     {
         $this->enqueue_admin_main_script();
-        $this->enqueue_public_main_script();
+        $public_js_version = self::asset_version('dist/js/public-image-generator.bundle.js', $this->version);
+        $this->register_script_bundle(
+            'aipkit-public-image-generator-js',
+            'public-image-generator.bundle.js',
+            ['wp-i18n'],
+            $public_js_version
+        );
+        $this->enqueue_script_handle('aipkit-public-image-generator-js');
     }
 
     private function localize_data(): void
     {
-        $this->register_public_main_script();
+        $public_js_version = self::asset_version('dist/js/public-image-generator.bundle.js', $this->version);
+        $this->register_script_bundle(
+            'aipkit-public-image-generator-js',
+            'public-image-generator.bundle.js',
+            ['wp-i18n'],
+            $public_js_version
+        );
 
-        if (self::is_script_localized('aipkit-public-main', 'aipkit_image_generator_config_public')) {
+        if (self::is_script_localized('aipkit-public-image-generator-js', 'aipkit_image_generator_config_public')) {
             return;
         }
 
@@ -711,7 +732,7 @@ class ImageGeneratorAssets extends AIPKit_Admin_Asset_Base
             return $value !== '' ? $value : $default;
         };
 
-        wp_localize_script('aipkit-public-main', 'aipkit_image_generator_config_public', [
+        wp_localize_script('aipkit-public-image-generator-js', 'aipkit_image_generator_config_public', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('aipkit_image_generator_nonce'),
             'text' => [

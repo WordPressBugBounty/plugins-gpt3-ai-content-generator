@@ -33,6 +33,10 @@ class AIPKit_Event_Queue_Worker
 
     public static function bootstrap_cron(): void
     {
+        if (!self::should_bootstrap_cron()) {
+            return;
+        }
+
         if (!wp_next_scheduled(self::CRON_HOOK)) {
             $recurrence = (string) apply_filters('aipkit_event_delivery_queue_cron_recurrence', 'aipkit_five_minutes');
             if ($recurrence === '') {
@@ -702,5 +706,14 @@ class AIPKit_Event_Queue_Worker
     private static function get_hook_suffix(string $event_name): string
     {
         return str_replace(['.', '-'], '_', sanitize_key($event_name));
+    }
+
+    private static function should_bootstrap_cron(): bool
+    {
+        if (is_admin() || wp_doing_cron()) {
+            return true;
+        }
+
+        return defined('WP_CLI') && WP_CLI;
     }
 }

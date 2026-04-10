@@ -48,6 +48,10 @@ class AIPKit_Dependency_Loader
      */
     public static function load()
     {
+        $admin_like_request = self::is_admin_like_request();
+        $automation_request = self::is_automation_request();
+        $rest_request = self::is_rest_request();
+
         // Core Plugin Files (Loaded directly before specialized loaders)
         require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator-i18n.php';
         require_once WPAICG_PLUGIN_DIR . 'public/class-wp-ai-content-generator-public.php';
@@ -112,7 +116,9 @@ class AIPKit_Dependency_Loader
         // --- END Load the new specialized loader class files ---
 
         // Call specialized loaders
-        Admin_Asset_Handlers_Loader::load();
+        if ($admin_like_request) {
+            Admin_Asset_Handlers_Loader::load();
+        }
         Provider_Dependencies_Loader::load();
         Core_Services_Loader::load();
         Dashboard_Base_Classes_Loader::load();
@@ -120,20 +126,51 @@ class AIPKit_Dependency_Loader
         Chat_Dependencies_Loader::load();
         Speech_Dependencies_Loader::load();
         Stt_Dependencies_Loader::load();
-        Rest_Dependencies_Loader::load();
+        if ($rest_request) {
+            Rest_Dependencies_Loader::load();
+        }
         Image_Dependencies_Loader::load();
         Vector_Store_Dependencies_Loader::load();
-        Vector_Store_Ajax_Handlers_Loader::load();
-        Vector_Post_Processor_Classes_Loader::load();
-        Content_Writer_Dependencies_Loader::load();
+        if ($admin_like_request) {
+            Vector_Store_Ajax_Handlers_Loader::load();
+            Vector_Post_Processor_Classes_Loader::load();
+        }
+        if ($admin_like_request || $automation_request) {
+            Content_Writer_Dependencies_Loader::load();
+        }
         Addon_Dependencies_Loader::load();
-        Post_Enhancer_Core_Loader::load();
+        if ($admin_like_request) {
+            Post_Enhancer_Core_Loader::load();
+        }
         Woocommerce_Writer_Loader::load();
-        Automated_Task_Dependencies_Loader::load();
-        Automated_Task_Ajax_Handlers_Loader::load();
-        Automated_Task_Cron_Helpers_Loader::load();
+        if ($admin_like_request || $automation_request) {
+            Automated_Task_Dependencies_Loader::load();
+            Automated_Task_Cron_Helpers_Loader::load();
+        }
+        if ($admin_like_request) {
+            Automated_Task_Ajax_Handlers_Loader::load();
+        }
         Hook_Registrars_Loader::load();
         AI_Forms_Dependencies_Loader::load();
         Core_Moderation_Dependencies_Loader::load();
+    }
+
+    private static function is_admin_like_request(): bool
+    {
+        return is_admin() || wp_doing_ajax();
+    }
+
+    private static function is_automation_request(): bool
+    {
+        if (wp_doing_cron()) {
+            return true;
+        }
+
+        return defined('WP_CLI') && WP_CLI;
+    }
+
+    private static function is_rest_request(): bool
+    {
+        return defined('REST_REQUEST') && REST_REQUEST;
     }
 }

@@ -8,6 +8,7 @@ namespace WPAICG\Shortcodes;
 use WPAICG\Shortcodes\AIPKit_Token_Usage_Shortcode;
 use WPAICG\Shortcodes\AIPKit_Image_Generator_Shortcode;
 use WPAICG\Shortcodes\AIPKit_Semantic_Search_Shortcode;
+use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
 use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKit_Providers;
 
@@ -108,7 +109,10 @@ class AIPKit_Shortcodes_Manager
         $content = is_a($post, 'WP_Post') ? $post->post_content : '';
         $dist_css_url = WPAICG_PLUGIN_URL . 'dist/css/';
         $dist_js_url = WPAICG_PLUGIN_URL . 'dist/js/';
-        $public_main_js_handle = 'aipkit-public-main'; // Central handle for public JS
+        $public_ai_forms_js_handle = 'aipkit-public-ai-forms-js';
+        $public_image_generator_js_handle = 'aipkit-public-image-generator-js';
+        $public_token_usage_js_handle = 'aipkit-public-token-usage-js';
+        $public_semantic_search_js_handle = 'aipkit-public-semantic-search-js';
 
         $ai_forms_present = has_shortcode($content, 'aipkit_ai_form') || has_block('aipkit/ai-form', $content);
         $force_load_ai_forms = apply_filters('aipkit_enqueue_public_ai_forms_assets', false);
@@ -126,6 +130,22 @@ class AIPKit_Shortcodes_Manager
                 wp_enqueue_style($public_ai_forms_css_handle);
                 $this->is_ai_forms_css_enqueued = true;
             }
+            if (!wp_script_is($public_ai_forms_js_handle, 'registered')) {
+                wp_register_script(
+                    $public_ai_forms_js_handle,
+                    $dist_js_url . 'public-ai-forms.bundle.js',
+                    ['wp-i18n'],
+                    $this->version,
+                    true
+                );
+            }
+            if (!wp_script_is($public_ai_forms_js_handle, 'enqueued')) {
+                wp_enqueue_script($public_ai_forms_js_handle);
+                wp_set_script_translations($public_ai_forms_js_handle, 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
+            }
+            if (class_exists(AIPKit_Shared_Assets_Manager::class)) {
+                AIPKit_Shared_Assets_Manager::attach_public_asset_urls($public_ai_forms_js_handle);
+            }
         }
 
         if ($this->is_token_management_active && has_shortcode($content, 'aipkit_token_usage')) {
@@ -136,6 +156,12 @@ class AIPKit_Shortcodes_Manager
             if (!$this->is_token_usage_css_enqueued && !wp_style_is($token_usage_css_handle, 'enqueued')) {
                 wp_enqueue_style($token_usage_css_handle);
                 $this->is_token_usage_css_enqueued = true;
+            }
+            if (!wp_script_is($public_token_usage_js_handle, 'registered')) {
+                wp_register_script($public_token_usage_js_handle, $dist_js_url . 'public-token-usage.bundle.js', [], $this->version, true);
+            }
+            if (!wp_script_is($public_token_usage_js_handle, 'enqueued')) {
+                wp_enqueue_script($public_token_usage_js_handle);
             }
         }
 
@@ -153,6 +179,12 @@ class AIPKit_Shortcodes_Manager
                 wp_enqueue_style($public_img_gen_css_handle);
                 $this->is_image_generator_css_enqueued = true;
             }
+            if (!wp_script_is($public_image_generator_js_handle, 'registered')) {
+                wp_register_script($public_image_generator_js_handle, $dist_js_url . 'public-image-generator.bundle.js', [], $this->version, true);
+            }
+            if (!wp_script_is($public_image_generator_js_handle, 'enqueued')) {
+                wp_enqueue_script($public_image_generator_js_handle);
+            }
         }
 
         if ($this->is_semantic_search_active && has_shortcode($content, 'aipkit_semantic_search')) {
@@ -164,22 +196,16 @@ class AIPKit_Shortcodes_Manager
                 wp_enqueue_style($semantic_search_css_handle);
                 $this->is_semantic_search_css_enqueued = true;
             }
-        }
-
-        // Enqueue main public script if any of our shortcodes are present
-        if ($ai_forms_present || ($this->is_token_management_active && has_shortcode($content, 'aipkit_token_usage')) || $image_generator_present || ($this->is_semantic_search_active && has_shortcode($content, 'aipkit_semantic_search')) || $force_load_ai_forms || $force_load_image_gen) {
-            if (!wp_script_is($public_main_js_handle, 'registered')) {
-                wp_register_script($public_main_js_handle, $dist_js_url . 'public-main.bundle.js', ['wp-i18n', 'aipkit_markdown-it'], $this->version, true);
+            if (!wp_script_is($public_semantic_search_js_handle, 'registered')) {
+                wp_register_script($public_semantic_search_js_handle, $dist_js_url . 'public-semantic-search.bundle.js', [], $this->version, true);
             }
-            if (!$this->is_public_main_js_enqueued_by_shortcodes && !wp_script_is($public_main_js_handle, 'enqueued')) {
-                wp_enqueue_script($public_main_js_handle);
-                wp_set_script_translations($public_main_js_handle, 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
-                $this->is_public_main_js_enqueued_by_shortcodes = true;
+            if (!wp_script_is($public_semantic_search_js_handle, 'enqueued')) {
+                wp_enqueue_script($public_semantic_search_js_handle);
             }
         }
 
         // --- START FIX: Localize data for Image Generator shortcode ---
-        if (($image_generator_present || $force_load_image_gen) && wp_script_is($public_main_js_handle, 'enqueued')) {
+        if (($image_generator_present || $force_load_image_gen) && wp_script_is($public_image_generator_js_handle, 'enqueued')) {
             static $image_gen_localized = false;
             if (!$image_gen_localized) {
                 if (!class_exists('\\WPAICG\\AIPKit_Providers')) {
@@ -217,7 +243,7 @@ class AIPKit_Shortcodes_Manager
                 $generate_label = $get_ui_text('generate_label', __('Generate', 'gpt3-ai-content-generator'));
                 $results_empty = $get_ui_text('results_empty', __('Generated images will appear here.', 'gpt3-ai-content-generator'));
 
-                wp_localize_script($public_main_js_handle, 'aipkit_image_generator_config_public', [
+                wp_localize_script($public_image_generator_js_handle, 'aipkit_image_generator_config_public', [
                     'ajaxUrl' => admin_url('admin-ajax.php'),
                     'nonce' => wp_create_nonce('aipkit_image_generator_nonce'),
                     'allowed_models' => $allowed_models_str,
@@ -282,10 +308,10 @@ class AIPKit_Shortcodes_Manager
         // --- END FIX ---
 
         // Localize data for each shortcode if present and script is enqueued
-        if ($this->is_token_management_active && has_shortcode($content, 'aipkit_token_usage') && wp_script_is($public_main_js_handle, 'enqueued')) {
+        if ($this->is_token_management_active && has_shortcode($content, 'aipkit_token_usage') && wp_script_is($public_token_usage_js_handle, 'enqueued')) {
             static $token_usage_localized = false;
             if (!$token_usage_localized) {
-                wp_localize_script($public_main_js_handle, 'aipkit_token_usage_config', [
+                wp_localize_script($public_token_usage_js_handle, 'aipkit_token_usage_config', [
                     'ajaxUrl' => admin_url('admin-ajax.php'), 'nonce'   => wp_create_nonce('aipkit_token_usage_details_nonce'),
                     /* translators: %s is the name of the token, e.g. "OpenAI" */
                     'text' => ['loadingDetails' => __('Loading activity...', 'gpt3-ai-content-generator'), 'errorLoading' => __('Error loading activity.', 'gpt3-ai-content-generator'), 'close' => __('Close', 'gpt3-ai-content-generator'), 'usageDetailsTitle' => __('Usage Activity for %s', 'gpt3-ai-content-generator'), 'pageLabel' => __('Page', 'gpt3-ai-content-generator'), 'ofLabel' => __('of', 'gpt3-ai-content-generator'), 'previous' => __('Previous', 'gpt3-ai-content-generator'), 'next' => __('Next', 'gpt3-ai-content-generator'),]
@@ -293,12 +319,12 @@ class AIPKit_Shortcodes_Manager
                 $token_usage_localized = true;
             }
         }
-        if ($this->is_semantic_search_active && has_shortcode($content, 'aipkit_semantic_search') && wp_script_is($public_main_js_handle, 'enqueued')) {
+        if ($this->is_semantic_search_active && has_shortcode($content, 'aipkit_semantic_search') && wp_script_is($public_semantic_search_js_handle, 'enqueued')) {
             static $semantic_search_localized = false;
             if (!$semantic_search_localized) {
                 $opts = get_option('aipkit_options', []);
                 $semantic_search_settings = $opts['semantic_search'] ?? [];
-                wp_localize_script($public_main_js_handle, 'aipkit_semantic_search_config', [
+                wp_localize_script($public_semantic_search_js_handle, 'aipkit_semantic_search_config', [
                     'ajaxUrl' => admin_url('admin-ajax.php'), 'nonce' => wp_create_nonce('aipkit_semantic_search_nonce'),
                     'settings' => $semantic_search_settings,
                     'text' => ['searching' => __('Searching...', 'gpt3-ai-content-generator'), 'error' => __('An error occurred while searching.', 'gpt3-ai-content-generator'),]

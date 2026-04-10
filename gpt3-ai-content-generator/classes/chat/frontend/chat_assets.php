@@ -26,7 +26,6 @@ class Assets {
     public static $assets_registered = false;
     public static $shortcode_rendered = false;
     public static $site_wide_injection_needed = false;
-    public static $jspdf_needed = false;
     public static $copy_button_needed = false;
     public static $feedback_needed = false;
     public static $starters_needed = false;

@@ -7,6 +7,7 @@
 namespace WPAICG\Chat\Frontend\Assets;
 
 use WPAICG\Chat\Frontend\Assets as AssetsOrchestrator;
+use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -15,7 +16,7 @@ if (!defined('ABSPATH')) {
 /**
  * Handles the actual enqueuing of frontend assets based on set flags.
  * REVISED: Enqueues public-main.bundle.js and public-main.bundle.css.
- * MODIFIED: Explicitly enqueues 'aipkit_jspdf' if AssetsOrchestrator::$jspdf_needed is true and script is registered.
+ * Optional chat features such as PDF download are lazy-loaded via asset URLs.
  */
 class AssetsEnqueuer
 {
@@ -58,7 +59,7 @@ class AssetsEnqueuer
             wp_register_style(
                 $public_main_css_handle,
                 WPAICG_PLUGIN_URL . 'dist/css/public-main.bundle.css',
-                ['dashicons'], // Assuming dashicons is a common dependency
+                [],
                 defined('WPAICG_VERSION') ? WPAICG_VERSION : '1.0.0'
             );
         }
@@ -79,7 +80,7 @@ class AssetsEnqueuer
             wp_register_script(
                 $public_main_js_handle,
                 WPAICG_PLUGIN_URL . 'dist/js/public-main.bundle.js',
-                ['wp-i18n', 'aipkit_markdown-it'], // No 'aipkit_jspdf' here
+                [],
                 defined('WPAICG_VERSION') ? WPAICG_VERSION : '1.0.0',
                 true
             );
@@ -88,17 +89,17 @@ class AssetsEnqueuer
         if ($should_enqueue_core_js) {
             if (!wp_script_is($public_main_js_handle, 'enqueued')) {
                 wp_enqueue_script($public_main_js_handle);
-                wp_set_script_translations($public_main_js_handle, 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
                 $this->is_public_main_js_enqueued_by_this = true;
             }
+            if (class_exists(AIPKit_Shared_Assets_Manager::class)) {
+                AIPKit_Shared_Assets_Manager::attach_public_asset_urls($public_main_js_handle);
+            }
 
-            // --- MODIFICATION: Conditionally enqueue jspdf ---
-            if (AssetsOrchestrator::$jspdf_needed && wp_script_is('aipkit_jspdf', 'registered')) {
-                if (!wp_script_is('aipkit_jspdf', 'enqueued')) {
-                    wp_enqueue_script('aipkit_jspdf');
+            if (AssetsOrchestrator::$sidebar_needed && wp_script_is('aipkit-public-chat-sidebar', 'registered')) {
+                if (!wp_script_is('aipkit-public-chat-sidebar', 'enqueued')) {
+                    wp_enqueue_script('aipkit-public-chat-sidebar');
                 }
             }
-            // --- END MODIFICATION ---
 
 
             // Global localization (if not already done by WP_AI_Content_Generator_Public or Shortcodes_Manager)

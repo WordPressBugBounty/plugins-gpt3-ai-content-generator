@@ -61,8 +61,6 @@ class Initializer
 
         // Instantiate handlers needed for hook registration
         $admin_setup     = new AdminSetup();
-        $ajax_processor  = class_exists(Core\AjaxProcessor::class) ? new Core\AjaxProcessor() : null;
-        $sse_handler     = class_exists(SSEHandler::class) ? new SSEHandler() : null;
         $shortcode       = new Frontend\Shortcode();
         // --- MODIFIED: Frontend\Assets is now the orchestrator ---
         $assets          = new Frontend\Assets();
@@ -73,6 +71,15 @@ class Initializer
             add_action(Storage\LogCronManager::HOOK_NAME, ['WPAICG\Chat\Storage\LogCronManager', 'run_pruning']);
         }
 
+        // Core hooks (CPT, Shortcode, Assets) are needed on every request.
+        Initializer\register_hooks_core_logic($admin_setup, $shortcode, $assets);
+
+        if (!(is_admin() || wp_doing_ajax())) {
+            return;
+        }
+
+        $ajax_processor  = class_exists(Core\AjaxProcessor::class) ? new Core\AjaxProcessor() : null;
+        $sse_handler     = class_exists(SSEHandler::class) ? new SSEHandler() : null;
 
         // Instantiate specific Admin AJAX Handlers
         if (!class_exists('\\WPAICG\\Chat\\Admin\\Ajax\\BaseAjaxHandler')) {
@@ -105,11 +112,6 @@ class Initializer
             );
             // SSE AJAX hooks
             Initializer\register_hooks_sse_ajax_logic($sse_handler);
-        } else {
-            // For frontend-only (non-AJAX) specific hook registration if any in the future.
-            // Currently, core hooks cover CPT (init), shortcode (init), and frontend assets.
         }
-        // Core hooks (CPT, Shortcode, Assets)
-        Initializer\register_hooks_core_logic($admin_setup, $shortcode, $assets);
     }
 }

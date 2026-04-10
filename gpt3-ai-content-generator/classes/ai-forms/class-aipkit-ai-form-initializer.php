@@ -74,6 +74,10 @@ class AIPKit_AI_Form_Initializer
             add_shortcode('aipkit_ai_form', [$shortcode_handler, 'render_shortcode']);
         }
 
+        if (!wp_doing_ajax()) {
+            return;
+        }
+
         // AJAX action hooks for form submissions (frontend)
         if (class_exists(AIPKit_AI_Form_Processor::class)) {
             $form_processor = new AIPKit_AI_Form_Processor();

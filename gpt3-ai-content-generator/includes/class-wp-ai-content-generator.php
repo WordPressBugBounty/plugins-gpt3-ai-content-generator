@@ -40,6 +40,7 @@ class WP_AI_Content_Generator
     public const DB_VERSION_OPTION = 'aipkit_plugin_version'; // Option to store current DB version
     public const TOKEN_MANAGER_SCHEMA_VERSION_OPTION = 'aipkit_token_manager_schema_version';
     public const TOKEN_MANAGER_SCHEMA_VERSION = '3';
+    private const INSTALL_INTEGRITY_TRANSIENT = 'aipkit_install_integrity_checked';
 
     public static function get_instance(): WP_AI_Content_Generator
     {
@@ -92,61 +93,97 @@ class WP_AI_Content_Generator
      */
     public function check_for_updates()
     {
+        if (!$this->should_run_update_check()) {
+            return;
+        }
+
         $current_version = $this->version;
         $saved_version = get_option(self::DB_VERSION_OPTION);
         $saved_token_manager_schema_version = get_option(self::TOKEN_MANAGER_SCHEMA_VERSION_OPTION);
 
-        // --- NEW: Check if any tables are missing as a fallback for incomplete activations/updates ---
-        $tables_are_missing = $this->are_plugin_tables_missing();
-        // --- END NEW ---
-        $vector_index_missing = $this->is_vector_data_source_index_missing();
-        $token_manager_schema_needs_update = version_compare((string) $saved_token_manager_schema_version, self::TOKEN_MANAGER_SCHEMA_VERSION, '<');
+        $version_needs_update = version_compare((string) $saved_version, $current_version, '<');
+        $token_manager_schema_needs_update = version_compare(
+            (string) $saved_token_manager_schema_version,
+            self::TOKEN_MANAGER_SCHEMA_VERSION,
+            '<'
+        );
 
-        if (version_compare((string)$saved_version, $current_version, '<') || $tables_are_missing || $vector_index_missing || $token_manager_schema_needs_update) { // MODIFIED to include table/index check
+        $tables_are_missing = false;
+        $vector_index_missing = false;
 
-            // --- ADDED: Clear caches first to ensure users get new assets ---
-            $this->clear_external_caches();
-            // --- END ADDED ---
-
-            // Run DB table setup on version change to apply any schema updates.
-            WP_AI_Content_Generator_Activator::setup_tables_for_blog();
-            $this->cleanup_legacy_chatbot_pricing_overrides();
-
-            // Ensure Role Manager Permissions are Updated/Initialized
-            if (class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
-                \WPAICG\AIPKit_Role_Manager::update_permissions_on_activation();
-            }
-
-            // Ensure Default Chatbot exists
-            if (class_exists('\\WPAICG\\Chat\\Storage\\DefaultBotSetup')) {
-                \WPAICG\Chat\Storage\DefaultBotSetup::ensure_default_chatbot();
-            }
-
-            // Ensure Default Content Writer Template exists
-            if (class_exists('\\WPAICG\\ContentWriter\\AIPKit_Content_Writer_Template_Manager')) {
-                \WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager::ensure_default_template_exists();
-            }
-
-            // Ensure Default AI Forms exist
-            if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Defaults')) {
-                \WPAICG\AIForms\Admin\AIPKit_AI_Form_Defaults::ensure_default_forms_exist();
-            }
-
-            // Ensure Cron Jobs are scheduled
-            if (class_exists('\\WPAICG\\Core\\TokenManager\\AIPKit_Token_Manager')) {
-                \WPAICG\Core\TokenManager\AIPKit_Token_Manager::schedule_token_reset_event();
-            }
-            if (class_exists('\\WPAICG\\Core\\Stream\\Cache\\AIPKit_SSE_Message_Cache')) {
-                \WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache::schedule_cleanup_event();
-            }
-            if (class_exists('\\WPAICG\\AutoGPT\\AIPKit_Automated_Task_Cron')) {
-                \WPAICG\AutoGPT\AIPKit_Automated_Task_Cron::init();
-            }
-
-            // Update the stored version
-            update_option(self::DB_VERSION_OPTION, $current_version, 'no'); // Use autoload 'no'
-            update_option(self::TOKEN_MANAGER_SCHEMA_VERSION_OPTION, self::TOKEN_MANAGER_SCHEMA_VERSION, 'no');
+        if ($version_needs_update || $token_manager_schema_needs_update || $this->should_run_install_integrity_check()) {
+            $tables_are_missing = $this->are_plugin_tables_missing();
+            $vector_index_missing = $this->is_vector_data_source_index_missing();
         }
+
+        if (!$version_needs_update && !$tables_are_missing && !$vector_index_missing && !$token_manager_schema_needs_update) {
+            set_transient(self::INSTALL_INTEGRITY_TRANSIENT, '1', DAY_IN_SECONDS);
+            return;
+        }
+
+        delete_transient(self::INSTALL_INTEGRITY_TRANSIENT);
+
+        // --- ADDED: Clear caches first to ensure users get new assets ---
+        $this->clear_external_caches();
+        // --- END ADDED ---
+
+        // Run DB table setup on version change to apply any schema updates.
+        WP_AI_Content_Generator_Activator::setup_tables_for_blog();
+        $this->cleanup_legacy_chatbot_pricing_overrides();
+
+        // Ensure Role Manager Permissions are Updated/Initialized
+        if (class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
+            \WPAICG\AIPKit_Role_Manager::update_permissions_on_activation();
+        }
+
+        // Ensure Default Chatbot exists
+        if (class_exists('\\WPAICG\\Chat\\Storage\\DefaultBotSetup')) {
+            \WPAICG\Chat\Storage\DefaultBotSetup::ensure_default_chatbot();
+        }
+
+        // Ensure Default Content Writer Template exists
+        if (class_exists('\\WPAICG\\ContentWriter\\AIPKit_Content_Writer_Template_Manager')) {
+            \WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager::ensure_default_template_exists();
+        }
+
+        // Ensure Default AI Forms exist
+        if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Defaults')) {
+            \WPAICG\AIForms\Admin\AIPKit_AI_Form_Defaults::ensure_default_forms_exist();
+        }
+
+        // Ensure Cron Jobs are scheduled
+        if (class_exists('\\WPAICG\\Core\\TokenManager\\AIPKit_Token_Manager')) {
+            \WPAICG\Core\TokenManager\AIPKit_Token_Manager::schedule_token_reset_event();
+        }
+        if (class_exists('\\WPAICG\\Core\\Stream\\Cache\\AIPKit_SSE_Message_Cache')) {
+            \WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache::schedule_cleanup_event();
+        }
+        if (class_exists('\\WPAICG\\AutoGPT\\AIPKit_Automated_Task_Cron')) {
+            \WPAICG\AutoGPT\AIPKit_Automated_Task_Cron::init();
+        }
+
+        // Update the stored version
+        update_option(self::DB_VERSION_OPTION, $current_version, 'no'); // Use autoload 'no'
+        update_option(self::TOKEN_MANAGER_SCHEMA_VERSION_OPTION, self::TOKEN_MANAGER_SCHEMA_VERSION, 'no');
+        set_transient(self::INSTALL_INTEGRITY_TRANSIENT, '1', DAY_IN_SECONDS);
+    }
+
+    private function should_run_update_check(): bool
+    {
+        if (function_exists('wp_installing') && wp_installing()) {
+            return true;
+        }
+
+        if (is_admin() || wp_doing_cron()) {
+            return true;
+        }
+
+        return defined('WP_CLI') && WP_CLI;
+    }
+
+    private function should_run_install_integrity_check(): bool
+    {
+        return false === get_transient(self::INSTALL_INTEGRITY_TRANSIENT);
     }
 
     private function cleanup_legacy_chatbot_pricing_overrides(): void

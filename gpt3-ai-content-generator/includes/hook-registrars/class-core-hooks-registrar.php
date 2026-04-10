@@ -28,7 +28,7 @@ class Core_Hooks_Registrar {
         WP_AI_Content_Generator_Public $public,
         AIPKit_Blocks_Manager $blocks_manager,
         AIPKit_Shortcodes_Manager $shortcodes,
-        PostEnhancerCore $post_enhancer,
+        ?PostEnhancerCore $post_enhancer,
         ?AIPKit_Speech_Manager $speech_manager, // Nullable if class might not exist
         ?AIPKit_STT_Manager $stt_manager,       // Nullable
         ?AIPKit_Image_Manager $image_manager     // Nullable
@@ -37,7 +37,9 @@ class Core_Hooks_Registrar {
         $public->init_hooks();
         $blocks_manager->init_hooks();
         $shortcodes->init_hooks();
-        $post_enhancer->init_hooks();
+        if ($post_enhancer && method_exists($post_enhancer, 'init_hooks')) {
+            $post_enhancer->init_hooks();
+        }
 
         if ($speech_manager && method_exists($speech_manager, 'init_hooks')) {
             $speech_manager->init_hooks();

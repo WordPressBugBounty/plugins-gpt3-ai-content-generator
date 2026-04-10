@@ -8,6 +8,7 @@ use WPAICG\Chat\Storage\SiteWideBotManager;
 use WPAICG\aipkit_dashboard;
 use WPAICG\Chat\Storage\BotStorage;
 use WPAICG\Chat\Storage\BotSettingsManager;
+use WPAICG\Chat\Frontend\Shortcode\FeatureManager;
 use WPAICG\Chat\Frontend\Assets as AssetsOrchestrator; // Use the main orchestrator
 
 if (!defined('ABSPATH')) {
@@ -45,32 +46,36 @@ class AssetsSiteWideChecker {
 
             $bot_storage = new BotStorage();
             $settings = $bot_storage->get_chatbot_settings($bot_id);
-            $enable_download_setting = $settings['enable_download'] ?? '0';
-            $enable_copy_button_setting = $settings['enable_copy_button'] ?? BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON;
-            $enable_feedback_setting = $settings['enable_feedback'] ?? BotSettingsManager::DEFAULT_ENABLE_FEEDBACK;
-            $enable_starters_setting = ($settings['enable_conversation_starters'] ?? BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS) === '1';
-            $enable_sidebar_setting = ($settings['enable_conversation_sidebar'] ?? BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_SIDEBAR) === '1';
-            $popup_enabled_setting = ($settings['popup_enabled'] ?? '0') === '1';
-            $enable_tts_setting = ($settings['tts_enabled'] ?? BotSettingsManager::DEFAULT_TTS_ENABLED) === '1';
-            $enable_stt_setting = ($settings['enable_voice_input'] ?? BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT) === '1';
-            $enable_image_gen_command = true;
+            if (!class_exists(FeatureManager::class)) {
+                $feature_manager_path = WPAICG_PLUGIN_DIR . 'classes/chat/frontend/shortcode/shortcode_featuremanager.php';
+                if (file_exists($feature_manager_path)) {
+                    require_once $feature_manager_path;
+                }
+            }
+
+            $feature_flags = class_exists(FeatureManager::class)
+                ? FeatureManager::determine_flags($settings)
+                : [];
 
             AssetsOrchestrator::$consent_needed = true;
 
-            if ($enable_download_setting === '1' && aipkit_dashboard::is_pro_plan()) {
-                AssetsOrchestrator::$jspdf_needed = true;
-            }
-            if ($enable_copy_button_setting === '1') AssetsOrchestrator::$copy_button_needed = true;
-            if ($enable_feedback_setting === '1') AssetsOrchestrator::$feedback_needed = true;
-            if ($enable_starters_setting === true) AssetsOrchestrator::$starters_needed = true; // Corrected variable name
-            if ($enable_sidebar_setting === true && !$popup_enabled_setting) AssetsOrchestrator::$sidebar_needed = true;
-            if ($enable_tts_setting === true) AssetsOrchestrator::$tts_needed = true;
-            if ($enable_stt_setting === true) AssetsOrchestrator::$stt_needed = true; // Corrected variable name
-            if ($enable_image_gen_command) AssetsOrchestrator::$image_gen_needed = true;
+            if (!empty($feature_flags['enable_copy_button'])) AssetsOrchestrator::$copy_button_needed = true;
+            if (!empty($feature_flags['feedback_ui_enabled'])) AssetsOrchestrator::$feedback_needed = true;
+            if (!empty($feature_flags['starters_ui_enabled'])) AssetsOrchestrator::$starters_needed = true;
+            if (!empty($feature_flags['sidebar_ui_enabled'])) AssetsOrchestrator::$sidebar_needed = true;
+            if (!empty($feature_flags['tts_ui_enabled'])) AssetsOrchestrator::$tts_needed = true;
+            if (!empty($feature_flags['enable_voice_input_ui'])) AssetsOrchestrator::$stt_needed = true;
 
-            $enable_image_upload_setting = ($settings['enable_image_upload'] ?? '0') === '1';
-            if ($enable_image_upload_setting) {
+            AssetsOrchestrator::$image_gen_needed = true;
+
+            if (!empty($feature_flags['image_upload_ui_enabled'])) {
                 AssetsOrchestrator::$chat_image_upload_needed = true;
+            }
+            if (!empty($feature_flags['file_upload_ui_enabled']) && aipkit_dashboard::is_pro_plan()) {
+                AssetsOrchestrator::$chat_file_upload_needed = true;
+            }
+            if (!empty($feature_flags['enable_realtime_voice_ui']) && aipkit_dashboard::is_pro_plan()) {
+                AssetsOrchestrator::$realtime_voice_needed = true;
             }
         }
     }

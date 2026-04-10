@@ -29,7 +29,9 @@ class Module_Initializer_Hooks_Registrar {
         }
 
         // Automated Task Cron - Called Statically
-        if (class_exists(AIPKit_Automated_Task_Cron::class) && method_exists(AIPKit_Automated_Task_Cron::class, 'init')) {
+        if (self::should_boot_automated_tasks() &&
+            class_exists(AIPKit_Automated_Task_Cron::class) &&
+            method_exists(AIPKit_Automated_Task_Cron::class, 'init')) {
             AIPKit_Automated_Task_Cron::init(); // Call statically
         }
 
@@ -37,5 +39,14 @@ class Module_Initializer_Hooks_Registrar {
         if (class_exists(AIPKit_AI_Form_Initializer::class) && method_exists(AIPKit_AI_Form_Initializer::class, 'register_hooks')) {
             AIPKit_AI_Form_Initializer::register_hooks();
         }
+    }
+
+    private static function should_boot_automated_tasks(): bool
+    {
+        if (is_admin() || wp_doing_cron()) {
+            return true;
+        }
+
+        return defined('WP_CLI') && WP_CLI;
     }
 }

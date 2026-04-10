@@ -39,6 +39,10 @@ class Base_Ajax_Handlers_Loader
             require_once $base_dashboard_ajax_handler_path;
         }
 
+        if (!self::should_load_concrete_handlers()) {
+            return;
+        }
+
         // --- ADDED: Load Dashboard specific AJAX handlers here ---
         $dashboard_ajax_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/ajax/';
         $settings_ajax_handler_path = $dashboard_ajax_path . 'class-aipkit-settings-ajax-handler.php';
@@ -67,5 +71,10 @@ class Base_Ajax_Handlers_Loader
             require_once $semantic_search_ajax_handler_path;
         }
         // --- END NEW ---
+    }
+
+    private static function should_load_concrete_handlers(): bool
+    {
+        return is_admin() || wp_doing_ajax();
     }
 }

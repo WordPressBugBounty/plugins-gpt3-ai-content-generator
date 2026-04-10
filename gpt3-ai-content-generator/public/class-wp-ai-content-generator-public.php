@@ -6,6 +6,7 @@
 namespace WPAICG\Public;
 
 use WPAICG\Chat\Frontend\Assets as ChatAssetsOrchestrator;
+use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
 use WPAICG\aipkit_dashboard;
 
 if (! defined('ABSPATH')) {
@@ -14,17 +15,14 @@ if (! defined('ABSPATH')) {
 
 /**
 * The public-facing functionality of the plugin.
-* REVISED: Enqueues bundled assets instead of individual files.
-* Localization for AI Forms now attached to public-main bundle.
+* Registers shared public bundles and enqueues chat-specific assets.
 */
 class WP_AI_Content_Generator_Public
 {
     private $plugin_name;
     private $version;
     private $is_public_main_js_enqueued = false;
-    // --- MODIFIED: Added CSS enqueue trackers ---
     private $is_public_ai_forms_css_enqueued = false;
-    // --- END MODIFICATION ---
 
 
     /**
@@ -102,12 +100,22 @@ class WP_AI_Content_Generator_Public
         // --- Register Bundled JS ---
         $dist_js_url = WPAICG_PLUGIN_URL . 'dist/js/';
         $public_main_js_handle = 'aipkit-public-main';
+        $public_ai_forms_js_handle = 'aipkit-public-ai-forms-js';
 
         if (!wp_script_is($public_main_js_handle, 'registered')) {
             wp_register_script(
                 $public_main_js_handle,
                 $dist_js_url . 'public-main.bundle.js',
-                ['wp-i18n', 'aipkit_markdown-it'], // Markdown-it is a vendor script
+                [],
+                $this->version,
+                true
+            );
+        }
+        if (!wp_script_is($public_ai_forms_js_handle, 'registered')) {
+            wp_register_script(
+                $public_ai_forms_js_handle,
+                $dist_js_url . 'public-ai-forms.bundle.js',
+                ['wp-i18n'],
                 $this->version,
                 true
             );
@@ -116,18 +124,26 @@ class WP_AI_Content_Generator_Public
         // --- Conditional Enqueueing based on shortcode presence ---
         global $post;
         $content = is_a($post, 'WP_Post') ? $post->post_content : '';
-        $should_enqueue_public_main_js = false;
 
         // AI Forms
-        if (has_shortcode($content, 'aipkit_ai_form')) {
+        $ai_forms_present = has_shortcode($content, 'aipkit_ai_form') || has_block('aipkit/ai-form', $content);
+        $force_load_ai_forms = apply_filters('aipkit_enqueue_public_ai_forms_assets', false);
+
+        if ($ai_forms_present || $force_load_ai_forms) {
             // --- MODIFIED: Enqueue specific CSS if not already done ---
             if (!$this->is_public_ai_forms_css_enqueued && !wp_style_is($public_ai_forms_css_handle, 'enqueued')) {
                 wp_enqueue_style($public_ai_forms_css_handle);
                 $this->is_public_ai_forms_css_enqueued = true;
             }
             // --- END MODIFICATION ---
-            $should_enqueue_public_main_js = true;
-            // Localize for AI Forms (attached to the main public bundle)
+            if (!wp_script_is($public_ai_forms_js_handle, 'enqueued')) {
+                wp_enqueue_script($public_ai_forms_js_handle);
+                wp_set_script_translations($public_ai_forms_js_handle, 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
+            }
+            if (class_exists(AIPKit_Shared_Assets_Manager::class)) {
+                AIPKit_Shared_Assets_Manager::attach_public_asset_urls($public_ai_forms_js_handle);
+            }
+            // Localize for AI Forms (attached to the dedicated AI Forms bundle)
             static $ai_forms_localized = false;
             if (!$ai_forms_localized) {
                 // ADDED: Get settings and add to localization data
@@ -137,7 +153,7 @@ class WP_AI_Content_Generator_Public
                     $frontend_display_settings = $all_settings['frontend_display'] ?? [];
                 }
 
-                wp_localize_script($public_main_js_handle, 'aipkit_ai_forms_public_config', [
+                wp_localize_script($public_ai_forms_js_handle, 'aipkit_ai_forms_public_config', [
                     'ajaxUrl' => admin_url('admin-ajax.php'),
                     'ajaxNonce' => wp_create_nonce('aipkit_frontend_chat_nonce'), // Re-using chat nonce, consider specific AI Forms nonce
                     'is_user_logged_in' => is_user_logged_in(),
@@ -168,7 +184,7 @@ class WP_AI_Content_Generator_Public
                         $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
                     }
                     $all_models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
-                    wp_localize_script($public_main_js_handle, 'aipkit_ai_forms_models', $all_models);
+                    wp_localize_script($public_ai_forms_js_handle, 'aipkit_ai_forms_models', $all_models);
                 }
                 $ai_forms_localized = true;
             }
@@ -181,10 +197,12 @@ class WP_AI_Content_Generator_Public
         // Enqueue public-main.bundle.js if any relevant shortcode is present OR if ChatAssetsOrchestrator signals need
         $chat_assets_needed = class_exists(ChatAssetsOrchestrator::class) && (ChatAssetsOrchestrator::$shortcode_rendered || ChatAssetsOrchestrator::$site_wide_injection_needed);
 
-        if (($should_enqueue_public_main_js || $chat_assets_needed) && !$this->is_public_main_js_enqueued) {
+        if ($chat_assets_needed && !$this->is_public_main_js_enqueued) {
             if (!wp_script_is($public_main_js_handle, 'enqueued')) {
                 wp_enqueue_script($public_main_js_handle);
-                wp_set_script_translations($public_main_js_handle, 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
+            }
+            if (class_exists(AIPKit_Shared_Assets_Manager::class)) {
+                AIPKit_Shared_Assets_Manager::attach_public_asset_urls($public_main_js_handle);
             }
             $this->is_public_main_js_enqueued = true;
         }

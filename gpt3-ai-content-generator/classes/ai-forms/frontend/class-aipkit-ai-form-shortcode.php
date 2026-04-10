@@ -54,11 +54,11 @@ class AIPKit_AI_Form_Shortcode
             );
         }
 
-        if (!wp_script_is('aipkit-public-main', 'registered')) {
+        if (!wp_script_is('aipkit-public-ai-forms-js', 'registered')) {
             wp_register_script(
-                'aipkit-public-main',
-                WPAICG_PLUGIN_URL . 'dist/js/public-main.bundle.js',
-                ['wp-i18n', 'aipkit_markdown-it'],
+                'aipkit-public-ai-forms-js',
+                WPAICG_PLUGIN_URL . 'dist/js/public-ai-forms.bundle.js',
+                ['wp-i18n'],
                 $version,
                 true
             );
@@ -111,13 +111,16 @@ class AIPKit_AI_Form_Shortcode
             wp_enqueue_style('aipkit-public-ai-forms');
         }
 
-        if (!wp_script_is('aipkit-public-main', 'enqueued')) {
-            wp_enqueue_script('aipkit-public-main');
-            wp_set_script_translations('aipkit-public-main', 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
+        if (!wp_script_is('aipkit-public-ai-forms-js', 'enqueued')) {
+            wp_enqueue_script('aipkit-public-ai-forms-js');
+            wp_set_script_translations('aipkit-public-ai-forms-js', 'gpt3-ai-content-generator', WPAICG_PLUGIN_DIR . 'languages');
+        }
+        if (class_exists(AIPKit_Shared_Assets_Manager::class)) {
+            AIPKit_Shared_Assets_Manager::attach_public_asset_urls('aipkit-public-ai-forms-js');
         }
 
-        if (!$this->is_script_localized('aipkit-public-main', 'aipkit_ai_forms_public_config')) {
-            wp_localize_script('aipkit-public-main', 'aipkit_ai_forms_public_config', [
+        if (!$this->is_script_localized('aipkit-public-ai-forms-js', 'aipkit_ai_forms_public_config')) {
+            wp_localize_script('aipkit-public-ai-forms-js', 'aipkit_ai_forms_public_config', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'ajaxNonce' => wp_create_nonce('aipkit_frontend_chat_nonce'),
                 'is_user_logged_in' => is_user_logged_in(),
@@ -134,7 +137,7 @@ class AIPKit_AI_Form_Shortcode
         }
 
         if (
-            !$this->is_script_localized('aipkit-public-main', 'aipkit_ai_forms_models') &&
+            !$this->is_script_localized('aipkit-public-ai-forms-js', 'aipkit_ai_forms_models') &&
             class_exists('\\WPAICG\\AIPKit_Providers')
         ) {
             $all_models = [
@@ -153,7 +156,7 @@ class AIPKit_AI_Form_Shortcode
             }
 
             $all_models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
-            wp_localize_script('aipkit-public-main', 'aipkit_ai_forms_models', $all_models);
+            wp_localize_script('aipkit-public-ai-forms-js', 'aipkit_ai_forms_models', $all_models);
         }
     }
 
@@ -173,7 +176,7 @@ class AIPKit_AI_Form_Shortcode
             'script',
             'aipkit-lib-ai-forms-conversation',
             'lib/js/ai-forms/conversational-form.js',
-            ['wp-i18n', 'aipkit-public-main']
+            ['wp-i18n', 'aipkit-public-ai-forms-js']
         );
 
         if (wp_style_is('aipkit-lib-ai-forms-public-css', 'registered') && !wp_style_is('aipkit-lib-ai-forms-public-css', 'enqueued')) {
@@ -192,7 +195,7 @@ class AIPKit_AI_Form_Shortcode
             'script',
             'aipkit-lib-ai-forms-download-pdf',
             'lib/js/ai-forms/download/download-as-pdf.js',
-            ['aipkit-public-main', 'aipkit_jspdf']
+            ['aipkit-public-ai-forms-js', 'aipkit_jspdf']
         );
 
         if (wp_script_is('aipkit_jspdf', 'registered') && !wp_script_is('aipkit_jspdf', 'enqueued')) {
@@ -217,7 +220,7 @@ class AIPKit_AI_Form_Shortcode
 
     private function get_late_script_handles(bool $include_pdf_download = false): array
     {
-        $handles = ['aipkit-public-main'];
+        $handles = ['aipkit-public-ai-forms-js'];
 
         if ($this->is_pro_plan_active()) {
             $handles[] = 'aipkit-lib-ai-forms-conversation';
