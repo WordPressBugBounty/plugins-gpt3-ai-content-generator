@@ -273,7 +273,7 @@ $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard
                             'icon'  => 'dashicons-chart-line',
                         ],
                     ];
-                    $reasoning_default = 'medium';
+                    $reasoning_default = 'none';
                     foreach ($reasoning_options as $value => $option) : ?>
                         <label class="aipkit_ai_reasoning_option <?php echo $value === $reasoning_default ? 'aipkit_ai_reasoning_option--selected' : ''; ?>">
                             <input
@@ -311,7 +311,7 @@ $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard
     >
         <option value="none"><?php esc_html_e('None', 'gpt3-ai-content-generator'); ?></option>
         <option value="low"><?php esc_html_e('Low', 'gpt3-ai-content-generator'); ?></option>
-        <option value="medium" selected><?php esc_html_e('Medium', 'gpt3-ai-content-generator'); ?></option>
+        <option value="medium"><?php esc_html_e('Medium', 'gpt3-ai-content-generator'); ?></option>
         <option value="high"><?php esc_html_e('High', 'gpt3-ai-content-generator'); ?></option>
         <option value="xhigh"><?php esc_html_e('XHigh', 'gpt3-ai-content-generator'); ?></option>
     </select>

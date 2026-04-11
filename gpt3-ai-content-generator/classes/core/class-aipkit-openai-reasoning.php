@@ -105,17 +105,68 @@ class AIPKit_OpenAI_Reasoning
      */
     private static function get_allowed_efforts(string $model_lower): array
     {
+        return self::get_reasoning_rule($model_lower)['allowed'];
+    }
+
+    /**
+     * Resolve the current reasoning rule for the given model family.
+     *
+     * The plugin exposes the effort values it can safely handle today. We do
+     * not surface OpenAI's legacy "minimal" level in the UI, so GPT-5 family
+     * models are restricted to low/medium/high here even though the base model
+     * supports "minimal" as well.
+     *
+     * @return array{allowed: string[], default: string}
+     */
+    private static function get_reasoning_rule(string $model_lower): array
+    {
         if (self::is_gpt_5_pro($model_lower)) {
-            return ['high'];
+            if (self::is_post_gpt_5_1_pro($model_lower)) {
+                return [
+                    'allowed' => ['medium', 'high', 'xhigh'],
+                    'default' => 'medium',
+                ];
+            }
+
+            return [
+                'allowed' => ['high'],
+                'default' => 'high',
+            ];
         }
+
+        if (self::is_codex_model($model_lower)) {
+            if (self::is_post_gpt_5_1_codex($model_lower)) {
+                return [
+                    'allowed' => ['low', 'medium', 'high', 'xhigh'],
+                    'default' => 'medium',
+                ];
+            }
+
+            return [
+                'allowed' => ['low', 'medium', 'high'],
+                'default' => 'medium',
+            ];
+        }
+
         if (self::is_gpt_5_1($model_lower)) {
-            return ['none', 'low', 'medium', 'high'];
+            return [
+                'allowed' => ['none', 'low', 'medium', 'high'],
+                'default' => 'none',
+            ];
         }
+
         if (self::is_post_gpt_5_1($model_lower)) {
-            return ['none', 'low', 'medium', 'high', 'xhigh'];
+            return [
+                'allowed' => ['none', 'low', 'medium', 'high', 'xhigh'],
+                'default' => 'none',
+            ];
         }
+
         // Pre gpt-5.1 (gpt-5, o-series). "minimal" is mapped to "low".
-        return ['low', 'medium', 'high'];
+        return [
+            'allowed' => ['low', 'medium', 'high'],
+            'default' => 'medium',
+        ];
     }
 
     private static function is_gpt_5_pro(string $model_lower): bool
@@ -140,6 +191,33 @@ class AIPKit_OpenAI_Reasoning
             return ((int) $matches[1]) >= 6;
         }
         return false;
+    }
+
+    private static function is_post_gpt_5_1_pro(string $model_lower): bool
+    {
+        if (!self::is_gpt_5_pro($model_lower)) {
+            return false;
+        }
+
+        if (preg_match('/gpt-5\.(\d+)-pro/', $model_lower, $matches)) {
+            return ((int) $matches[1]) >= 2;
+        }
+
+        if (preg_match('/gpt-(\d+)-pro/', $model_lower, $matches)) {
+            return ((int) $matches[1]) >= 6;
+        }
+
+        return false;
+    }
+
+    private static function is_codex_model(string $model_lower): bool
+    {
+        return strpos($model_lower, 'codex') !== false;
+    }
+
+    private static function is_post_gpt_5_1_codex(string $model_lower): bool
+    {
+        return self::is_codex_model($model_lower) && self::is_post_gpt_5_1($model_lower);
     }
 
     /**

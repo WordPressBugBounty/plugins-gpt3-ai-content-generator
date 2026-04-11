@@ -73,7 +73,7 @@ $reasoning_options = [
                             class="aipkit_autosave_trigger aipkit_popover_option_select aipkit_popover_option_select--fit aipkit_cw_blended_chevron_select"
                         >
                             <?php foreach ($reasoning_options as $reasoning_value => $reasoning_label) : ?>
-                                <option value="<?php echo esc_attr($reasoning_value); ?>" <?php selected($reasoning_value, 'medium'); ?>>
+                                <option value="<?php echo esc_attr($reasoning_value); ?>" <?php selected($reasoning_value, 'none'); ?>>
                                     <?php echo esc_html($reasoning_label); ?>
                                 </option>
                             <?php endforeach; ?>

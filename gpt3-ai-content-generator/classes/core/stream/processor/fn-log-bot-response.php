@@ -338,6 +338,7 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
                 } elseif ($module_for_tokens === 'ai_forms') {
                     $usage_context['operation'] = 'form_submit';
                     if (!empty($log_base_data['form_id'])) {
+                        $usage_context['form_id'] = absint($log_base_data['form_id']);
                         $usage_context['pricing_scope_type'] = 'ai_form';
                         $usage_context['pricing_scope_id'] = absint($log_base_data['form_id']);
                     }

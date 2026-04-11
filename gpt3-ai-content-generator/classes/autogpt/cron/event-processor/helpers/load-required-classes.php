@@ -8,6 +8,7 @@ namespace WPAICG\AutoGPT\Cron\EventProcessor\Helpers;
 use WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor;
 use WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor;
 use WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor;
+use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_System_Instruction_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_User_Prompt_Builder;
@@ -24,6 +25,7 @@ if (!defined('ABSPATH')) {
 function load_required_classes_logic(): void
 {
     $classes_to_load = [
+        AIPKit_Vector_Post_Processor_Base::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php',
         OpenAIPostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/openai/class-openai-post-processor.php',
         PineconePostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/pinecone/class-pinecone-post-processor.php',
         QdrantPostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/qdrant/class-qdrant-post-processor.php',

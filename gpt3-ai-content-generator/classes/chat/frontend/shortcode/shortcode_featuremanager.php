@@ -42,7 +42,6 @@ class FeatureManager {
         $core_flags = FeatureManagerMethods\get_core_flag_values_logic($settings);
         $flags = array_merge($flags, [
             'popup_enabled'      => $core_flags['popup_enabled'],
-            'stream_enabled'     => $core_flags['stream_enabled'],
             'enable_fullscreen'  => $core_flags['enable_fullscreen'],
             'enable_download'    => $core_flags['enable_download'],
             'enable_copy_button' => $core_flags['enable_copy_button'],

@@ -60,7 +60,6 @@ function get_core_flag_values_logic(array $settings): array {
         'vector_store_provider' => isset($settings['vector_store_provider']) ? sanitize_key((string) $settings['vector_store_provider']) : 'openai',
         // Directly derived flags (boolean)
         'popup_enabled'      => ($settings['popup_enabled'] ?? '0') === '1',
-        'stream_enabled'     => ($settings['stream_enabled'] ?? '0') === '1',
         'enable_fullscreen'  => ($settings['enable_fullscreen'] ?? '0') === '1',
         'enable_download'    => ($settings['enable_download'] ?? '0') === '1',
         'enable_copy_button' => ($settings['enable_copy_button'] ?? $defaults['DEFAULT_ENABLE_COPY_BUTTON']) === '1',

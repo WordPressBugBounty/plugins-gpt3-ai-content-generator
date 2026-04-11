@@ -5,10 +5,8 @@ namespace WPAICG\Chat;
 
 // Core classes instantiated in register_hooks
 use WPAICG\Chat\Admin\AdminSetup;
-use WPAICG\Chat\Core;
 use WPAICG\Chat\Frontend; // Keep this as the new Frontend\Assets is here
 use WPAICG\Chat\Storage;
-use WPAICG\Chat\Utils;
 use WPAICG\Chat\Admin\Ajax;
 use WPAICG\Core\Stream\Handler\SSEHandler;
 
@@ -78,7 +76,6 @@ class Initializer
             return;
         }
 
-        $ajax_processor  = class_exists(Core\AjaxProcessor::class) ? new Core\AjaxProcessor() : null;
         $sse_handler     = class_exists(SSEHandler::class) ? new SSEHandler() : null;
 
         // Instantiate specific Admin AJAX Handlers
@@ -106,7 +103,6 @@ class Initializer
             );
             // General AJAX hooks (frontend messages, speech, etc.) that also need admin context
             Initializer\register_hooks_general_ajax_logic(
-                $ajax_processor,
                 $conversation_ajax_handler,
                 $chatbot_image_ajax_handler
             );

@@ -94,7 +94,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
                     $content_writer_config[$key] = array_map('sanitize_text_field', $settings[$key]);
                 } elseif ($key === 'reasoning_effort') {
                     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($settings[$key] ?? '');
-                    $content_writer_config[$key] = $reasoning_effort !== '' ? $reasoning_effort : 'low';
+                    $content_writer_config[$key] = $reasoning_effort !== '' ? $reasoning_effort : 'none';
                 } elseif (in_array($key, ['post_type', 'post_status', 'prompt_mode', 'cw_generation_mode', 'image_provider', 'image_placement', 'image_alignment', 'image_size', 'vector_store_provider', 'vector_embedding_provider', 'pexels_orientation', 'pexels_size', 'pexels_color', 'pixabay_orientation', 'pixabay_image_type', 'pixabay_category', 'schedule_mode', 'smart_schedule_interval_unit'], true)) {
                     $content_writer_config[$key] = sanitize_key($settings[$key]);
                 } elseif (is_string($settings[$key])) {

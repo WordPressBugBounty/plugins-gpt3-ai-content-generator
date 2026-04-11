@@ -13,20 +13,11 @@ class Chat_Dependencies_Loader
     public static function load()
     {
         $chat_base_path = WPAICG_PLUGIN_DIR . 'classes/chat/';
-        $frontend_chat_ajax_path = $chat_base_path . 'core/ajax-processor/frontend-chat/';
         $frontend_ajax_handlers_path = $chat_base_path . 'frontend/ajax/'; // Path for ChatFormSubmissionAjaxHandler
 
         $paths = [
             'core/ai_service.php',
-            'core/ajax_processor.php',
             'core/class-aipkit_content_aware.php',
-            $frontend_chat_ajax_path . 'class-chat-message-validator.php',
-            $frontend_chat_ajax_path . 'class-chat-image-input-processor.php',
-            $frontend_chat_ajax_path . 'class-chat-trigger-runner.php',
-            $frontend_chat_ajax_path . 'class-chat-context-builder.php',
-            $frontend_chat_ajax_path . 'class-chat-history-manager.php',
-            $frontend_chat_ajax_path . 'class-chat-ai-request-runner.php',
-            $frontend_chat_ajax_path . 'class-chat-response-logger.php',
             $frontend_ajax_handlers_path . 'class-chat-form-submission-ajax-handler.php',
             // --- REMOVED: class-chat-file-upload-ajax-handler.php is now a Pro feature ---
             // $frontend_ajax_handlers_path . 'class-chat-file-upload-ajax-handler.php',
@@ -76,7 +67,7 @@ class Chat_Dependencies_Loader
         }
 
         foreach ($paths as $file) {
-            if (strpos($file, $frontend_chat_ajax_path) === 0 || strpos($file, $frontend_ajax_handlers_path) === 0) {
+            if (strpos($file, $frontend_ajax_handlers_path) === 0) {
                 $full_path = $file;
             } else {
                 $full_path = $chat_base_path . $file;

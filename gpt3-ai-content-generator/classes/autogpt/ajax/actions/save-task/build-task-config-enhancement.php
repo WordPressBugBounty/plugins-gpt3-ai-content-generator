@@ -55,7 +55,7 @@ function build_task_config_enhancement_logic(array $post_data): array|WP_Error
     $task_config['ai_temperature'] = isset($post_data['ai_temperature']) ? floatval($post_data['ai_temperature']) : 1.0;
     $task_config['content_max_tokens'] = isset($post_data['content_max_tokens']) ? absint($post_data['content_max_tokens']) : 4000;
     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data['reasoning_effort'] ?? '');
-    $task_config['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : 'low';
+    $task_config['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : 'none';
 
     // Task Frequency
     $task_config['task_frequency'] = isset($post_data['task_frequency']) ? sanitize_key($post_data['task_frequency']) : 'daily';

@@ -19,7 +19,7 @@ class AIPKit_Providers
 {
     private static $provider_defaults = [
         'OpenAI' => [
-            'api_key' => '', 'model' => 'gpt-4.1-mini', 'embedding_model' => 'text-embedding-3-small',
+            'api_key' => '', 'model' => '', 'embedding_model' => '',
             'base_url' => 'https://api.openai.com', 'api_version' => 'v1',
             'store_conversation' => '0',
             'expiration_policy' => 7, // NEW: Default expiration policy in days
@@ -29,7 +29,7 @@ class AIPKit_Providers
             'base_url' => 'https://openrouter.ai/api', 'api_version' => 'v1',
         ],
         'Google' => [
-            'api_key' => '', 'model' => '', 'embedding_model' => 'gemini-embedding-2-preview',
+            'api_key' => '', 'model' => '', 'embedding_model' => '',
             'base_url' => 'https://generativelanguage.googleapis.com', 'api_version' => 'v1beta',
             'safety_settings' => []
         ],
@@ -39,7 +39,7 @@ class AIPKit_Providers
             'api_version_images' => '2024-04-01-preview'
         ],
         'Claude' => [
-            'api_key' => '', 'model' => 'claude-opus-4-6',
+            'api_key' => '', 'model' => '',
             'base_url' => 'https://api.anthropic.com', 'api_version' => '2023-06-01',
         ],
         'DeepSeek' => [
@@ -71,90 +71,118 @@ class AIPKit_Providers
         ],
     ];
 
-    private static $default_model_lists = [
-        'OpenAI' => ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'],
+    private static $model_catalog = [
+        'OpenAI' => [
+            'default' => 'gpt-5.4-mini',
+            'models' => ['gpt-5.4-mini', 'gpt-5.4', 'gpt-5.4-nano', 'gpt-4.1-mini', 'gpt-4.1'],
+        ],
         'OpenAIEmbedding' => [
-            ['id' => 'text-embedding-3-small', 'name' => 'Text Embedding 3 Small (1536)'],
-            ['id' => 'text-embedding-3-large', 'name' => 'Text Embedding 3 Large (3072)'],
-            ['id' => 'text-embedding-ada-002', 'name' => 'Text Embedding Ada 002 (1536)'],
+            'default' => 'text-embedding-3-small',
+            'models' => [
+                ['id' => 'text-embedding-3-small', 'name' => 'Text Embedding 3 Small (1536)'],
+                ['id' => 'text-embedding-3-large', 'name' => 'Text Embedding 3 Large (3072)'],
+                ['id' => 'text-embedding-ada-002', 'name' => 'Text Embedding Ada 002 (1536)'],
+            ],
         ],
         'OpenRouter' => [
-            'deepseek/deepseek-v3.2',
-            'anthropic/claude-opus-4.5',
-            'anthropic/claude-opus-4.6',
-            'anthropic/claude-sonnet-4.5',
-            'google/gemini-2.5-flash',
-            'google/gemini-2.5-flash-lite',
-            'google/gemini-3-flash-preview',
-            'minimax/minimax-m2.1',
-            'moonshotai/kimi-k2.5',
-            'openai/gpt-5-nano',
-            'x-ai/grok-4.1-fast',
-            'z-ai/glm-4.7',
+            'default' => 'moonshotai/kimi-k2.5',
+            'models' => [
+                ['id' => 'moonshotai/kimi-k2.5', 'name' => 'Kimi K2.5'],
+                ['id' => 'anthropic/claude-sonnet-4.5', 'name' => 'Claude Sonnet 4.5'],
+                ['id' => 'anthropic/claude-opus-4.6', 'name' => 'Claude Opus 4.6'],
+                ['id' => 'google/gemini-2.5-flash', 'name' => 'Gemini 2.5 Flash'],
+                ['id' => 'deepseek/deepseek-v3.2', 'name' => 'DeepSeek V3.2'],
+                ['id' => 'openai/gpt-5-nano', 'name' => 'GPT-5 Nano'],
+                ['id' => 'x-ai/grok-4.1-fast', 'name' => 'Grok 4.1 Fast'],
+                ['id' => 'z-ai/glm-4.7', 'name' => 'GLM 4.7'],
+            ],
         ],
-        'OpenRouterEmbedding' => [],
-        'Google' => ['gemini-1.5-pro-latest', 'gemini-1.5-flash-latest', 'gemini-pro'],
-        // Default lists for Google Image/Video models (empty; populated via Sync)
-        'GoogleImage' => [],
-        'GoogleVideo' => [],
-        'GoogleEmbedding' => [
-            ['id' => 'gemini-embedding-2-preview', 'name' => 'Gemini Embedding 2 Preview (3072)', 'dimensions' => 3072],
-            ['id' => 'gemini-embedding-001', 'name' => 'Gemini Embedding 001 (3072)', 'dimensions' => 3072],
-            ['id' => 'models/text-embedding-004', 'name' => 'Embedding 004 (768)', 'dimensions' => 768],
-        ],
-        'Claude' => [
-            'claude-opus-4-6',
-            'claude-opus-4-5-20251101',
-            'claude-sonnet-4-5-20250929',
-        ],
-        'Azure' => [], 'AzureImage' => [], 'AzureEmbedding' => [], 'DeepSeek' => ['deepseek-chat', 'deepseek-coder'],
-        'Ollama' => [],
-        'ElevenLabs' => [], 'ElevenLabsModels' => ['eleven_multilingual_v2'],
-        'OpenAITTS' => [['id' => 'tts-1', 'name' => 'TTS-1'], ['id' => 'tts-1-hd', 'name' => 'TTS-1-HD']],
-        'OpenAISTT' => [['id' => 'whisper-1', 'name' => 'Whisper-1']],
-        'PineconeIndexes'   => [],
-        'QdrantCollections' => [], // Added Qdrant default
-        'Replicate' => [],
-    ];
-
-    private static $recommended_model_lists = [
-        'OpenAI' => [
-            'gpt-5.4',
-            'gpt-5.4-mini',
-            'gpt-5.4-nano',
-            'gpt-5.2-chat-latest',
-            'gpt-5-mini',
-            'gpt-4.1-mini',
-            'gpt-4.1',
-            'gpt-4o-mini',
-            'gpt-4o',
+        'OpenRouterEmbedding' => [
+            'default' => '',
+            'models' => [],
         ],
         'Google' => [
-            'gemini-2.5-flash',
-            'gemini-3-flash-preview',
-            'gemini-2.5-flash-lite',
-            'gemini-2.0-flash',
-            'gemini-2.0-flash-lite',
+            'default' => 'gemini-2.5-flash',
+            'models' => [
+                ['id' => 'gemini-3.1-flash-lite-preview', 'name' => 'Gemini 3.1 Flash Lite Preview'],
+                ['id' => 'gemini-3-flash-preview', 'name' => 'Gemini 3 Flash Preview'],
+                ['id' => 'gemini-3-pro-preview', 'name' => 'Gemini 3 Pro Preview'],
+                ['id' => 'gemini-2.5-flash', 'name' => 'Gemini 2.5 Flash'],
+                ['id' => 'gemini-2.5-flash-lite', 'name' => 'Gemini 2.5 Flash Lite'],
+            ],
         ],
-        'OpenRouter' => [
-            'anthropic/claude-opus-4.5',
-            'anthropic/claude-opus-4.6',
-            'anthropic/claude-sonnet-4.5',
-            'deepseek/deepseek-v3.2',
-            'google/gemini-2.5-flash',
-            'google/gemini-2.5-flash-lite',
-            'google/gemini-3-flash-preview',
-            'minimax/minimax-m2.1',
-            'moonshotai/kimi-k2.5',
-            'openai/gpt-5-nano',
-            'x-ai/grok-4.1-fast',
-            'z-ai/glm-4.7',
+        'GoogleImage' => [
+            'default' => '',
+            'models' => [],
+        ],
+        'GoogleVideo' => [
+            'default' => '',
+            'models' => [],
+        ],
+        'GoogleEmbedding' => [
+            'default' => 'gemini-embedding-2-preview',
+            'models' => [
+                ['id' => 'gemini-embedding-2-preview', 'name' => 'Gemini Embedding 2 Preview (3072)', 'dimensions' => 3072],
+                ['id' => 'gemini-embedding-001', 'name' => 'Gemini Embedding 001 (3072)', 'dimensions' => 3072],
+                ['id' => 'models/text-embedding-004', 'name' => 'Embedding 004 (768)', 'dimensions' => 768],
+            ],
         ],
         'Claude' => [
-            'claude-sonnet-4-6',
-            'claude-opus-4-6',
-            'claude-opus-4-5-20251101',
-            'claude-sonnet-4-5-20250929',
+            'default' => 'claude-sonnet-4-6',
+            'models' => [
+                ['id' => 'claude-sonnet-4-6', 'name' => 'Claude Sonnet 4.6'],
+                ['id' => 'claude-opus-4-6', 'name' => 'Claude Opus 4.6'],
+                ['id' => 'claude-sonnet-4-5-20250929', 'name' => 'Claude Sonnet 4.5'],
+                ['id' => 'claude-opus-4-5-20251101', 'name' => 'Claude Opus 4.5'],
+            ],
+        ],
+        'Azure' => [
+            'default' => '',
+            'models' => [],
+        ],
+        'AzureImage' => [
+            'default' => '',
+            'models' => [],
+        ],
+        'AzureEmbedding' => [
+            'default' => '',
+            'models' => [],
+        ],
+        'DeepSeek' => [
+            'default' => 'deepseek-chat',
+            'models' => ['deepseek-chat', 'deepseek-reasoner'],
+        ],
+        'Ollama' => [
+            'default' => '',
+            'models' => [],
+        ],
+        'ElevenLabs' => [
+            'default' => '',
+            'models' => [],
+        ],
+        'ElevenLabsModels' => [
+            'default' => 'eleven_multilingual_v2',
+            'models' => ['eleven_multilingual_v2'],
+        ],
+        'OpenAITTS' => [
+            'default' => 'tts-1',
+            'models' => [['id' => 'tts-1', 'name' => 'TTS-1'], ['id' => 'tts-1-hd', 'name' => 'TTS-1-HD']],
+        ],
+        'OpenAISTT' => [
+            'default' => 'whisper-1',
+            'models' => [['id' => 'whisper-1', 'name' => 'Whisper-1']],
+        ],
+        'PineconeIndexes' => [
+            'default' => '',
+            'models' => [],
+        ],
+        'QdrantCollections' => [
+            'default' => '',
+            'models' => [],
+        ],
+        'Replicate' => [
+            'default' => '',
+            'models' => [],
         ],
     ];
 
@@ -224,6 +252,87 @@ class AIPKit_Providers
         }
 
         return array_keys($normalized);
+    }
+
+    private static function get_model_catalog_entry(string $provider_key): array
+    {
+        $entry = self::$model_catalog[$provider_key] ?? ['default' => '', 'models' => []];
+        if (!is_array($entry)) {
+            return ['default' => '', 'models' => []];
+        }
+
+        return [
+            'default' => isset($entry['default']) ? sanitize_text_field((string) $entry['default']) : '',
+            'models' => isset($entry['models']) && is_array($entry['models']) ? $entry['models'] : [],
+        ];
+    }
+
+    private static function get_catalog_model_rows(string $provider_key): array
+    {
+        $entry = self::get_model_catalog_entry($provider_key);
+        return $entry['models'];
+    }
+
+    private static function get_catalog_model_ids(string $provider_key): array
+    {
+        $models = self::get_catalog_model_rows($provider_key);
+        $ids = [];
+
+        foreach ($models as $model) {
+            if (is_string($model)) {
+                $model_id = sanitize_text_field($model);
+            } elseif (is_array($model) && isset($model['id'])) {
+                $model_id = sanitize_text_field((string) $model['id']);
+            } else {
+                $model_id = '';
+            }
+
+            if ($model_id === '') {
+                continue;
+            }
+
+            $ids[] = $model_id;
+        }
+
+        return $ids;
+    }
+
+    public static function get_default_model_id(string $provider_key): string
+    {
+        $entry = self::get_model_catalog_entry($provider_key);
+        if ($entry['default'] !== '') {
+            return $entry['default'];
+        }
+
+        $catalog_ids = self::get_catalog_model_ids($provider_key);
+        return $catalog_ids[0] ?? '';
+    }
+
+    private static function get_hydrated_provider_defaults_all(): array
+    {
+        $defaults = self::$provider_defaults;
+        $provider_model_fields = [
+            'OpenAI' => ['model' => 'OpenAI', 'embedding_model' => 'OpenAIEmbedding'],
+            'OpenRouter' => ['model' => 'OpenRouter'],
+            'Google' => ['model' => 'Google', 'embedding_model' => 'GoogleEmbedding'],
+            'Azure' => ['model' => 'Azure', 'embeddings' => 'AzureEmbedding'],
+            'Claude' => ['model' => 'Claude'],
+            'DeepSeek' => ['model' => 'DeepSeek'],
+            'Ollama' => ['model' => 'Ollama'],
+            'ElevenLabs' => ['model_id' => 'ElevenLabsModels'],
+        ];
+
+        foreach ($provider_model_fields as $provider_name => $field_map) {
+            if (!isset($defaults[$provider_name]) || !is_array($defaults[$provider_name])) {
+                continue;
+            }
+
+            foreach ($field_map as $field_name => $catalog_key) {
+                $defaults[$provider_name][$field_name] = self::get_default_model_id($catalog_key);
+            }
+        }
+
+        return $defaults;
     }
 
     /**
@@ -753,6 +862,8 @@ class AIPKit_Providers
 
     public static function get_all_providers()
     {
+        $provider_defaults = self::get_hydrated_provider_defaults_all();
+
         // --- FIX: Safely retrieve options ---
         $opts = get_option('aipkit_options');
         if (!is_array($opts)) {
@@ -767,7 +878,7 @@ class AIPKit_Providers
             // from causing a permanent wipe of all saved API keys. The next successful save
             // from the settings page will restore the correct structure.
             $temporary_providers = [];
-            foreach (self::$provider_defaults as $provider_name => $defaults) {
+            foreach ($provider_defaults as $provider_name => $defaults) {
                 $temporary_providers[$provider_name] = $defaults;
             }
             return $temporary_providers;
@@ -779,7 +890,7 @@ class AIPKit_Providers
         $changed = false;
 
         // Loop through the master list of defaults to ensure structure is always correct.
-        foreach (self::$provider_defaults as $provider_name => $defaults) {
+        foreach ($provider_defaults as $provider_name => $defaults) {
             $current_settings = $providers_from_db[$provider_name] ?? [];
             if (!is_array($current_settings)) {
                 $current_settings = []; // Treat a corrupted entry for a single provider as empty
@@ -800,16 +911,17 @@ class AIPKit_Providers
     public static function get_provider_data($provider)
     {
         $all = self::get_all_providers();
-        $defaults = self::$provider_defaults[$provider] ?? [];
+        $provider_defaults = self::get_hydrated_provider_defaults_all();
+        $defaults = $provider_defaults[$provider] ?? [];
         $provider_data = isset($all[$provider]) ? array_merge($defaults, $all[$provider]) : $defaults;
 
-        // Backward compatibility: older installs may have an empty stored Claude model.
+        // Backward compatibility: older installs may have an empty stored model.
         if (
-            $provider === 'Claude'
-            && isset($provider_data['model'])
+            isset($provider_data['model'])
             && trim((string) $provider_data['model']) === ''
+            && !empty($defaults['model'])
         ) {
-            $provider_data['model'] = $defaults['model'] ?? 'claude-opus-4-6';
+            $provider_data['model'] = $defaults['model'];
         }
 
         return $provider_data;
@@ -820,7 +932,7 @@ class AIPKit_Providers
         $currentProvider = self::get_current_provider();
         $provData = self::get_provider_data($currentProvider);
         $all_possible_keys = [];
-        foreach (self::$provider_defaults as $def_val) {
+        foreach (self::get_hydrated_provider_defaults_all() as $def_val) {
             $all_possible_keys = array_merge($all_possible_keys, array_keys($def_val));
         }
         $all_possible_keys = array_unique($all_possible_keys);
@@ -836,11 +948,12 @@ class AIPKit_Providers
 
     public static function get_provider_defaults($provider)
     {
-        return self::$provider_defaults[$provider] ?? [];
+        $provider_defaults = self::get_hydrated_provider_defaults_all();
+        return $provider_defaults[$provider] ?? [];
     }
     public static function get_provider_defaults_all(): array
     {
-        return self::$provider_defaults;
+        return self::get_hydrated_provider_defaults_all();
     }
 
     public static function get_recommended_models(string $provider_key): array
@@ -855,9 +968,11 @@ class AIPKit_Providers
             $normalized_key = 'Google';
         } elseif ('claude' === $key_lower) {
             $normalized_key = 'Claude';
+        } elseif ('deepseek' === $key_lower) {
+            $normalized_key = 'DeepSeek';
         }
 
-        $recommended_ids = self::$recommended_model_lists[$normalized_key] ?? [];
+        $recommended_ids = self::get_catalog_model_ids($normalized_key);
         if (empty($recommended_ids)) {
             return [];
         }
@@ -910,6 +1025,8 @@ class AIPKit_Providers
 
     public static function save_provider_data($provider, $data)
     {
+        $provider_defaults = self::get_hydrated_provider_defaults_all();
+
         // --- FIX: Safely retrieve options ---
         $opts = get_option('aipkit_options');
         if (!is_array($opts)) {
@@ -921,11 +1038,11 @@ class AIPKit_Providers
             $opts['providers'] = array();
         }
         if (!isset($opts['providers'][$provider]) || !is_array($opts['providers'][$provider])) {
-            $opts['providers'][$provider] = self::$provider_defaults[$provider] ?? [];
+            $opts['providers'][$provider] = $provider_defaults[$provider] ?? [];
         }
 
         $current_provider_settings_ref = & $opts['providers'][$provider];
-        $defaults_for_provider = self::$provider_defaults[$provider] ?? [];
+        $defaults_for_provider = $provider_defaults[$provider] ?? [];
         $changed_for_this_provider = false;
 
         foreach ($defaults_for_provider as $key => $default_value) {
@@ -961,6 +1078,8 @@ class AIPKit_Providers
 
     public static function save_current_provider($provider)
     {
+        $provider_defaults = self::get_hydrated_provider_defaults_all();
+
         // --- FIX: Safely retrieve options ---
         $opts = get_option('aipkit_options');
         if (!is_array($opts)) {
@@ -975,7 +1094,7 @@ class AIPKit_Providers
                 $opts['providers'] = array();
             }
             if (!isset($opts['providers'][$provider]) || !is_array($opts['providers'][$provider])) {
-                $opts['providers'][$provider] = self::$provider_defaults[$provider] ?? [];
+                $opts['providers'][$provider] = $provider_defaults[$provider] ?? [];
             }
             update_option('aipkit_options', $opts, 'no');
         }
@@ -1007,14 +1126,9 @@ class AIPKit_Providers
         $use_defaults = (empty($model_list_from_option) || !is_array($model_list_from_option));
 
         if ($use_defaults) {
-            $default_list_raw = self::$default_model_lists[$provider_key] ?? [];
-            if (in_array($provider_key, ['Google', 'Claude', 'Azure', 'DeepSeek'])) {
-                $processed_model_list = array_map(fn ($id) => ['id' => $id, 'name' => $id], $default_list_raw);
-            } elseif ($provider_key === 'OpenRouter') {
-                $processed_model_list = array_map(function ($id) {
-                    $name = ucfirst(str_replace(['-', '_'], ' ', preg_replace('/^[^\/]+\//', '', $id)));
-                    return ['id' => $id, 'name' => $name];
-                }, $default_list_raw);
+            $default_list_raw = self::get_catalog_model_rows($provider_key);
+            if (in_array($provider_key, ['Google', 'Claude', 'Azure', 'DeepSeek', 'OpenRouter'])) {
+                $processed_model_list = self::normalize_embedding_model_rows($default_list_raw);
             } elseif ($provider_key === 'OpenAI') {
                 $formatted_list = array_map(fn ($id) => ['id' => $id, 'name' => $id], $default_list_raw);
                 if (class_exists(AIPKit_Models_API::class)) {

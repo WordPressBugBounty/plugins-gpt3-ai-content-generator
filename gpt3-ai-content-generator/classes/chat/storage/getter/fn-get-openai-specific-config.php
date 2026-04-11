@@ -59,7 +59,7 @@ function get_openai_specific_config_logic(int $bot_id, callable $get_meta_fn): a
     $settings['openai_web_search_loc_timezone'] = $get_meta_fn('_aipkit_openai_web_search_loc_timezone', '');
     
     // Reasoning Effort Setting
-    $default_reasoning_effort = defined('WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_REASONING_EFFORT') ? BotSettingsManager::DEFAULT_REASONING_EFFORT : 'medium';
+    $default_reasoning_effort = defined('WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_REASONING_EFFORT') ? BotSettingsManager::DEFAULT_REASONING_EFFORT : 'none';
     $settings['reasoning_effort'] = $get_meta_fn('_aipkit_reasoning_effort', $default_reasoning_effort);
     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($settings['reasoning_effort']);
     $settings['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : $default_reasoning_effort;

@@ -19,7 +19,6 @@ class AIPKit_CORS_Manager
      * List of AJAX actions that require CORS support for embedded chatbots.
      */
     private static $cors_enabled_actions = [
-        'aipkit_frontend_chat_message',
         'aipkit_get_conversations_list',
         'aipkit_get_conversation_history',
         'aipkit_store_feedback',

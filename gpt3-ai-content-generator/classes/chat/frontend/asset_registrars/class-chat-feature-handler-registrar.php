@@ -24,7 +24,6 @@ class Chat_Feature_Handler_Registrar
         $final_registered_handles = []; // Store only successfully registered handles
 
         $base_handles_map = [ // Map keys to actual handle names
-            'ajax' => 'aipkit-chat-ui-ajax',
             'stream' => 'aipkit-chat-stream-message',
             'fullscreen' => 'aipkit-chat-ui-fullscreen',
             'message-actions-init' => 'aipkit-chat-init-message-actions',
@@ -56,11 +55,7 @@ class Chat_Feature_Handler_Registrar
 
 
         $dep_api_frontend = $dependencies['api-frontend-request'] ?? null;
-        $dep_html_escaper = $dependencies['html-escaper'] ?? null;
         $dep_stt_public = $dependencies['stt-public'] ?? null;
-        $dep_dom_show_typing = $dependencies['dom-show-typing-indicator'] ?? null;
-        $dep_dom_remove_typing = $dependencies['dom-remove-typing-indicator'] ?? null;
-        $dep_dom_append_update = $dependencies['dom-append-or-update-message'] ?? null;
         $dep_dom_scroll = $dependencies['dom-scroll-to-bottom'] ?? null;
         $dep_dom_show_img_loader = $dependencies['dom-show-image-loader'] ?? null;
         $dep_dom_remove_img_loader = $dependencies['dom-remove-image-loader'] ?? null;
@@ -71,7 +66,6 @@ class Chat_Feature_Handler_Registrar
         // Scripts that are always available (not in /lib/)
         $always_available_scripts = [
             // Key in $base_handles_map => [ path_relative_to_public_chat_js_url, [dependency_keys_from_base_handles_map_or_dependencies_array] ]
-            'ajax'                     => ['chat-ui-ajax.js', [$dep_dom_show_typing, $dep_dom_remove_typing, $dep_api_frontend]],
             'tts-state-init'           => ['tts/state-init.js', []],
             'tts-stop-audio'           => ['tts/stop-audio.js', ['tts-state-init']],
             'tts-handlers'             => ['tts/tts-handlers.js', ['tts-state-init', 'tts-stop-audio']],

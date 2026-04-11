@@ -107,7 +107,6 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     } elseif ($sanitized['popup_icon_type'] === 'custom') {
         $sanitized['popup_icon_value'] = isset($raw_settings['popup_icon_custom_url']) ? esc_url_raw(trim($raw_settings['popup_icon_custom_url'])) : '';
     }
-    $sanitized['stream_enabled'] = (isset($raw_settings['stream_enabled']) && $raw_settings['stream_enabled'] === '1') ? '1' : '0';
     $sanitized['footer_text'] = isset($raw_settings['footer_text']) ? wp_kses_post($raw_settings['footer_text']) : '';
     $allowed_header_icons = ['chat-bubble', 'spark', 'openai', 'plus', 'question-mark'];
     $header_avatar_type = isset($raw_settings['header_avatar_type']) && in_array($raw_settings['header_avatar_type'], ['default', 'custom'], true)

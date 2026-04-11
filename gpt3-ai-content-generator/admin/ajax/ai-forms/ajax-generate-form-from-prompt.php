@@ -116,9 +116,9 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
 /**
  * Build a fixed retry plan for form generation based on configured providers.
  *
- * Preferred models are hardcoded for the providers where IDs are known. Azure
- * and Ollama use the editor-selected model because deployment/model names are
- * instance-specific.
+ * Fallback models come from the shared provider defaults catalog so the retry
+ * plan stays aligned with the rest of the plugin. Azure and Ollama use the
+ * editor-selected model because deployment/model names are instance-specific.
  *
  * @param string $selected_provider
  * @param string $selected_model
@@ -127,13 +127,14 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
 function aipkit_ai_forms_build_generation_retry_plan(string $selected_provider, string $selected_model): array
 {
     $provider_priority = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek', 'Azure', 'Ollama'];
-    $preferred_models = [
-        'OpenAI' => 'gpt-5.4',
-        'Google' => 'gemini-3-flash-preview',
-        'Claude' => 'claude-sonnet-4-6',
-        'OpenRouter' => 'anthropic/claude-sonnet-4.6',
-        'DeepSeek' => 'deepseek-chat',
-    ];
+    $preferred_models = [];
+
+    foreach (['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek'] as $provider_name) {
+        $preferred_model = AIPKit_Providers::get_default_model_id($provider_name);
+        if ($preferred_model !== '') {
+            $preferred_models[$provider_name] = $preferred_model;
+        }
+    }
 
     $attempts = [];
     $skipped = [];

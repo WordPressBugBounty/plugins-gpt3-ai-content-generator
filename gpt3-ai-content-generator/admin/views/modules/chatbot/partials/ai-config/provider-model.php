@@ -7,12 +7,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use WPAICG\Chat\Storage\BotSettingsManager; // Use new class for constants
-
-$saved_stream_enabled = isset($bot_settings['stream_enabled'])
-                        ? $bot_settings['stream_enabled']
-                        : \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_STREAM_ENABLED;
-
 // Get saved Azure deployment name if applicable
 $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
 $shortcode_text_main = '';

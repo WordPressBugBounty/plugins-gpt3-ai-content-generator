@@ -231,6 +231,8 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
         $openrouter_image_models = [];
         $recommended_models = [];
         $provider_status = [];
+        $default_models = [];
+        $current_provider = 'openai';
 
         if (class_exists(AIPKit_Providers::class)) {
             $openai_models = AIPKit_Providers::get_openai_models();
@@ -247,9 +249,17 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'google' => AIPKit_Providers::get_recommended_models('Google'),
                 'claude' => AIPKit_Providers::get_recommended_models('Claude'),
                 'openrouter' => AIPKit_Providers::get_recommended_models('OpenRouter'),
+                'deepseek' => AIPKit_Providers::get_recommended_models('DeepSeek'),
             ];
 
             $providers = AIPKit_Providers::get_all_providers();
+            $current_provider = strtolower(AIPKit_Providers::get_current_provider());
+            foreach (array_keys(AIPKit_Providers::get_provider_defaults_all()) as $provider_name) {
+                $provider_data = AIPKit_Providers::get_provider_data($provider_name);
+                $default_models[strtolower($provider_name)] = isset($provider_data['model'])
+                    ? sanitize_text_field((string) $provider_data['model'])
+                    : '';
+            }
             $provider_status = [
                 'openai' => ! empty($providers['OpenAI']['api_key']),
                 'google' => ! empty($providers['Google']['api_key']),
@@ -280,6 +290,7 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
             'modulesUrl' => WPAICG_PLUGIN_URL . 'admin/views/modules/',
             'upgradeUrl' => admin_url('admin.php?page=wpaicg-pricing'),
             'adminUrl' => admin_url(),
+            'main_provider' => $current_provider,
             'models' => [
                 'openai' => $openai_models,
                 'google' => $google_models,
@@ -289,6 +300,7 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'ollama' => $ollama_models,
                 'deepseek' => $deepseek_models,
             ],
+            'defaultModels' => $default_models,
             'recommendedModels' => $recommended_models,
             'embeddingProviderMap' => $embedding_provider_map,
             'embeddingModels' => $embedding_models,

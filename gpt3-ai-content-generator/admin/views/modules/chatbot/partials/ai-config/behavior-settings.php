@@ -4,10 +4,6 @@ use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 
 $bot_id = $initial_active_bot_id;
 $bot_settings = $active_bot_settings;
-$saved_stream_enabled = isset($bot_settings['stream_enabled'])
-    ? $bot_settings['stream_enabled']
-    : BotSettingsManager::DEFAULT_STREAM_ENABLED;
-
 $saved_temperature = isset($bot_settings['temperature'])
     ? floatval($bot_settings['temperature'])
     : BotSettingsManager::DEFAULT_TEMPERATURE;
@@ -42,51 +38,6 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
 ?>
 <div class="aipkit_popover_options_list aipkit_behavior_compact_options">
     <div class="aipkit_behavior_compact_row">
-        <div class="aipkit_behavior_compact_cell">
-            <label
-                class="aipkit_popover_option_label"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_stream_enabled_select"
-
-            >
-                <?php esc_html_e('Streaming', 'gpt3-ai-content-generator'); ?>
-            </label>
-            <select
-                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_stream_enabled_select"
-                name="stream_enabled"
-                class="aipkit_form-input aipkit_popover_option_select aipkit_stream_enable_toggle"
-            >
-                <option value="1" <?php selected($saved_stream_enabled, '1'); ?>>
-                    <?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?>
-                </option>
-                <option value="0" <?php selected($saved_stream_enabled, '0'); ?>>
-                    <?php esc_html_e('No', 'gpt3-ai-content-generator'); ?>
-                </option>
-            </select>
-        </div>
-        <div
-            class="aipkit_behavior_compact_cell aipkit_stateful_convo_group"
-            style="<?php echo ($current_provider_for_this_bot === 'OpenAI') ? '' : 'display:none;'; ?>"
-        >
-            <label
-                class="aipkit_popover_option_label"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_select"
-
-            >
-                <?php esc_html_e('Session memory', 'gpt3-ai-content-generator'); ?>
-            </label>
-            <select
-                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_select"
-                name="openai_conversation_state_enabled"
-                class="aipkit_form-input aipkit_popover_option_select aipkit_openai_conversation_state_enable_toggle aipkit_stateful_convo_checkbox"
-            >
-                <option value="1" <?php selected($openai_conversation_state_enabled_val, '1'); ?>>
-                    <?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?>
-                </option>
-                <option value="0" <?php selected($openai_conversation_state_enabled_val, '0'); ?>>
-                    <?php esc_html_e('No', 'gpt3-ai-content-generator'); ?>
-                </option>
-            </select>
-        </div>
         <div class="aipkit_behavior_compact_cell">
             <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_temperature">
                 <?php esc_html_e('Temperature', 'gpt3-ai-content-generator'); ?>
@@ -131,6 +82,30 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                 step="1"
                 value="<?php echo esc_attr($saved_max_messages); ?>"
             />
+        </div>
+        <div
+            class="aipkit_behavior_compact_cell aipkit_stateful_convo_group"
+            style="<?php echo ($current_provider_for_this_bot === 'OpenAI') ? '' : 'display:none;'; ?>"
+        >
+            <label
+                class="aipkit_popover_option_label"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_select"
+
+            >
+                <?php esc_html_e('Session memory', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <select
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_select"
+                name="openai_conversation_state_enabled"
+                class="aipkit_form-input aipkit_popover_option_select aipkit_openai_conversation_state_enable_toggle aipkit_stateful_convo_checkbox"
+            >
+                <option value="1" <?php selected($openai_conversation_state_enabled_val, '1'); ?>>
+                    <?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?>
+                </option>
+                <option value="0" <?php selected($openai_conversation_state_enabled_val, '0'); ?>>
+                    <?php esc_html_e('No', 'gpt3-ai-content-generator'); ?>
+                </option>
+            </select>
         </div>
         <div class="aipkit_behavior_compact_cell aipkit_reasoning_effort_field">
             <label

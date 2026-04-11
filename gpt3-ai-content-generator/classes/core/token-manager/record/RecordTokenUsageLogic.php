@@ -209,7 +209,37 @@ function RecordTokenUsageLogic(
 
     if ($ledger_repository && method_exists($ledger_repository, 'insert_entry')) {
         $context_type = $module_context === 'chat' ? 'chatbot' : 'module';
-        $context_id = $module_context === 'chat' && is_numeric($context_id_or_bot_id) ? absint($context_id_or_bot_id) : null;
+        $context_id = null;
+        $reference_type = null;
+        $reference_id = null;
+
+        if ($module_context === 'chat' && is_numeric($context_id_or_bot_id)) {
+            $context_id = absint($context_id_or_bot_id);
+        } elseif ($module_context === 'image_generator') {
+            $context_id = is_numeric($context_id_or_bot_id)
+                ? absint($context_id_or_bot_id)
+                : GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
+        } elseif ($module_context === 'ai_forms') {
+            $form_id = 0;
+            if (!empty($usage_context['form_id']) && is_numeric($usage_context['form_id'])) {
+                $form_id = absint($usage_context['form_id']);
+            } elseif (
+                ($usage_context['pricing_scope_type'] ?? '') === 'ai_form' &&
+                !empty($usage_context['pricing_scope_id']) &&
+                is_numeric($usage_context['pricing_scope_id'])
+            ) {
+                $form_id = absint($usage_context['pricing_scope_id']);
+            }
+
+            if ($form_id > 0) {
+                $context_type = 'ai_form';
+                $context_id = $form_id;
+                $reference_type = 'ai_form';
+                $reference_id = (string) $form_id;
+            } else {
+                $context_id = GuestTableConstants::AI_FORMS_GUEST_CONTEXT_ID;
+            }
+        }
 
         $ledger_repository->insert_entry([
             'user_id' => $user_id,
@@ -225,6 +255,8 @@ function RecordTokenUsageLogic(
             'usage_total_units' => max(0, (int) ($normalized_usage['total_units'] ?? $tokens_used)),
             'credits_delta' => 0 - $deducted_from_balance,
             'entry_type' => 'usage',
+            'reference_type' => $reference_type,
+            'reference_id' => $reference_id,
             'meta' => [
                 'legacy_total_units' => $tokens_used,
                 'billed_credits' => $billed_units,

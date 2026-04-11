@@ -126,7 +126,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $presence_penalty = isset($post_data['presence_penalty']) ? sanitize_text_field($post_data['presence_penalty']) : null;
     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data['reasoning_effort'] ?? '');
     if ($reasoning_effort === '') {
-        $reasoning_effort = 'low';
+        $reasoning_effort = 'none';
     }
     $conversation_ui_preset = null;
     if (isset($post_data['conversation_ui_preset']) && $post_data['conversation_ui_preset'] !== '') {

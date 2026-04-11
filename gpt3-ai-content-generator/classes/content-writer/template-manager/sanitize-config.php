@@ -65,7 +65,7 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                 $sanitized[$key] = ($config[$key] === '1' || $config[$key] === true || $config[$key] === 1) ? '1' : '0';
             } elseif ($key === 'reasoning_effort') {
                 $effort = AIPKit_OpenAI_Reasoning::sanitize_effort($config[$key] ?? '');
-                $sanitized[$key] = $effort !== '' ? $effort : 'low';
+                $sanitized[$key] = $effort !== '' ? $effort : 'none';
             } elseif (in_array($key, ['post_type', 'post_status', 'ai_provider', 'prompt_mode', 'cw_generation_mode', 'image_provider', 'image_placement', 'image_alignment', 'image_size', 'vector_store_provider', 'vector_embedding_provider', 'pexels_orientation', 'pexels_size', 'pexels_color', 'pixabay_orientation', 'pixabay_image_type', 'pixabay_category'], true)) {
                 $sanitized[$key] = sanitize_key($config[$key]);
             } elseif (is_string($config[$key])) {

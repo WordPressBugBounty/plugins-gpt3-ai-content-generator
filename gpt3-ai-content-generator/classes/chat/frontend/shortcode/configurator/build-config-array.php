@@ -241,7 +241,6 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'popupLabelVersion' => isset($settings['popup_label_version']) ? (string)$settings['popup_label_version'] : '',
         // NEW: Popup hint size option passed to frontend
         'popupLabelSize' => in_array(($settings['popup_label_size'] ?? 'medium'), ['small','medium','large','xlarge'], true) ? $settings['popup_label_size'] : 'medium',
-        'streamEnabled' => $feature_flags['stream_enabled'],
         'footerText' => $settings['footer_text'] ?? '',
         'headerAvatarType' => $settings['header_avatar_type'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE : 'default'),
         'headerAvatarValue' => $settings['header_avatar_value'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE : 'chat-bubble'),

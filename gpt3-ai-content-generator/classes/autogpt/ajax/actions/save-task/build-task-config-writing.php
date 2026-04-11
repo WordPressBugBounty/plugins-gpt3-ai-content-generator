@@ -91,7 +91,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                     $content_writer_config[$key] = array_map('sanitize_text_field', $post_data[$key]);
                 } elseif ($key === 'reasoning_effort') {
                     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data[$key] ?? '');
-                    $content_writer_config[$key] = $reasoning_effort !== '' ? $reasoning_effort : 'low';
+                    $content_writer_config[$key] = $reasoning_effort !== '' ? $reasoning_effort : 'none';
                 } elseif (in_array($key, ['schedule_mode', 'smart_schedule_interval_unit', 'content_length'], true)) {
                     $content_writer_config[$key] = sanitize_key($post_data[$key]);
                 } elseif (is_string($post_data[$key])) {

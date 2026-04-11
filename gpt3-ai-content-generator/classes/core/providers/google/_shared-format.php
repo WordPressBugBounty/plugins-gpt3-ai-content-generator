@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
  * Shared formatting logic, previously a private static method in GooglePayloadFormatter.
  * UPDATED: Adds grounding tools to payload if active.
  * FIXED: Correctly maps internal 'bot' role to 'model' for Google API.
- * FIXED: Correctly assigns 'google_search' or 'google_search_retrieval' tool based on model.
+ * FIXED: Correctly assigns 'google_search' or 'google_search_retrieval' tool based on model family.
  * FIXED: Exclude messages with original role 'system' from Google's 'contents' array.
  *
  * @param string $instructions System instructions.
@@ -118,13 +118,12 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
     }
 
     $google_search_grounding_active = $ai_params['frontend_google_search_grounding_active'] ?? false;
-    $model_name_for_grounding = $ai_params['model_id_for_grounding'] ?? '';
+    $model_name_for_grounding = strtolower((string) ($ai_params['model_id_for_grounding'] ?? ''));
 
     if ($google_search_grounding_active) {
         $tools = [];
-        // --- FIXED: Tool selection logic based on model name ---
+        // Gemini 1.5 Flash still uses the legacy retrieval tool; current Gemini families use google_search.
         if (strpos($model_name_for_grounding, 'gemini-1.5-flash') !== false) {
-            // Gemini 1.5 Flash uses google_search_retrieval
             $grounding_mode = $ai_params['google_grounding_mode'] ?? 'DEFAULT_MODE';
             if ($grounding_mode === 'MODE_DYNAMIC') {
                 $dynamic_threshold = $ai_params['google_grounding_dynamic_threshold'] ?? 0.3;
@@ -139,11 +138,9 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
             } else { 
                 $tools[] = ['google_search_retrieval' => new \stdClass()];
             }
-        } elseif (strpos($model_name_for_grounding, 'gemini-pro') !== false || strpos($model_name_for_grounding, 'gemini-1.5-pro') !== false || strpos($model_name_for_grounding, 'gemini-2.0') !== false) {
-            // Other Gemini Pro / 1.5 Pro / 2.0 models use google_search (Search as a tool)
+        } elseif (strpos($model_name_for_grounding, 'gemini') !== false) {
             $tools[] = ['google_search' => new \stdClass()];
         }
-        // --- END FIXED ---
         
         if (!empty($tools)) {
             $body_data['tools'] = $tools;

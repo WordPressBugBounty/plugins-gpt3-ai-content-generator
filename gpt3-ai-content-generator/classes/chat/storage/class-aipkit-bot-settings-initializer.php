@@ -83,7 +83,6 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_popup_label_show_on_desktop', BotSettingsManager::DEFAULT_POPUP_LABEL_SHOW_ON_DESKTOP);
         update_post_meta($post_id, '_aipkit_popup_label_version', BotSettingsManager::DEFAULT_POPUP_LABEL_VERSION);
         update_post_meta($post_id, '_aipkit_popup_label_size', BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE);
-        update_post_meta($post_id, '_aipkit_stream_enabled', BotSettingsManager::DEFAULT_STREAM_ENABLED);
         update_post_meta($post_id, '_aipkit_footer_text', '');
         update_post_meta($post_id, '_aipkit_enable_fullscreen', '1');
         update_post_meta($post_id, '_aipkit_enable_download', '1');

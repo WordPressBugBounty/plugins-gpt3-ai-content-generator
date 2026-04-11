@@ -38,7 +38,7 @@ function build_task_config_comment_reply_logic(array $post_data): array|WP_Error
     $task_config['ai_temperature'] = isset($post_data['cc_ai_temperature']) ? floatval($post_data['cc_ai_temperature']) : 1.0;
     $task_config['content_max_tokens'] = isset($post_data['cc_content_max_tokens']) ? absint($post_data['cc_content_max_tokens']) : 4000;
     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data['cc_reasoning_effort'] ?? '');
-    $task_config['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : 'low';
+    $task_config['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : 'none';
     $task_config['custom_content_prompt'] = isset($post_data['cc_custom_content_prompt']) ? sanitize_textarea_field(wp_unslash($post_data['cc_custom_content_prompt'])) : '';
 
     // Comment-specific settings

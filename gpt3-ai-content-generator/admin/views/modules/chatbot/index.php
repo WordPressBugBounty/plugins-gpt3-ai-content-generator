@@ -560,11 +560,6 @@ $google_grounding_dynamic_threshold_val = isset($active_bot_settings['google_gro
 $google_grounding_dynamic_threshold_val = max(0.0, min($google_grounding_dynamic_threshold_val, 1.0));
 
 // Conversations settings values (used in model settings sheet).
-$saved_stream_enabled = $active_bot_settings['stream_enabled']
-    ?? BotSettingsManager::DEFAULT_STREAM_ENABLED;
-$saved_stream_enabled = in_array($saved_stream_enabled, ['0', '1'], true)
-    ? $saved_stream_enabled
-    : BotSettingsManager::DEFAULT_STREAM_ENABLED;
 $openai_conversation_state_enabled_val = $active_bot_settings['openai_conversation_state_enabled']
     ?? BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED;
 $openai_conversation_state_enabled_val = in_array($openai_conversation_state_enabled_val, ['0', '1'], true)
@@ -1070,32 +1065,10 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 <?php
                                 $bot_id = $initial_active_bot_id;
                                 $bot_settings = $active_bot_settings;
-                                $chatbot_summary_parts = [];
-                                if (!empty($saved_provider)) {
-                                    $chatbot_summary_parts[] = $saved_provider;
-                                }
-                                if (!empty($saved_model)) {
-                                    $chatbot_summary_parts[] = $saved_model;
-                                }
-                                $chatbot_summary_fallback = __('Select engine and model', 'gpt3-ai-content-generator');
-                                $chatbot_summary_text = !empty($chatbot_summary_parts)
-                                    ? implode(' | ', $chatbot_summary_parts)
+                                $chatbot_summary_fallback = __('Select model', 'gpt3-ai-content-generator');
+                                $chatbot_summary_text = !empty($saved_model)
+                                    ? $saved_model
                                     : $chatbot_summary_fallback;
-                                $behavior_response_length_value = isset($active_bot_settings['max_completion_tokens'])
-                                    ? absint($active_bot_settings['max_completion_tokens'])
-                                    : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
-                                $behavior_response_length_value = max(1, min($behavior_response_length_value, 128000));
-                                $behavior_memory_value = isset($active_bot_settings['max_messages'])
-                                    ? absint($active_bot_settings['max_messages'])
-                                    : BotSettingsManager::DEFAULT_MAX_MESSAGES;
-                                $behavior_memory_value = max(1, min($behavior_memory_value, 1024));
-                                $behavior_summary_fallback = __('Context and messages', 'gpt3-ai-content-generator');
-                                $behavior_summary_text = sprintf(
-                                    /* translators: 1: context value, 2: messages value. */
-                                    __('Context: %1$s | Messages: %2$s', 'gpt3-ai-content-generator'),
-                                    number_format_i18n($behavior_response_length_value),
-                                    number_format_i18n($behavior_memory_value)
-                                );
                                 $interface_summary_fallback = __('Select theme', 'gpt3-ai-content-generator');
                                 $saved_theme_key = isset($saved_theme) ? (string) $saved_theme : '';
                                 $interface_summary_text = '';
@@ -1330,13 +1303,17 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 <div class="aipkit_accordion_section" data-aipkit-accordion="chatbot">
                                 <button type="button" class="aipkit_accordion_header" aria-expanded="false">
                                     <span class="aipkit_accordion_header_icon dashicons dashicons-format-chat" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></span>
+                                    <span class="aipkit_accordion_header_main">
+                                        <span class="aipkit_accordion_header_title_group">
+                                        <span class="aipkit_accordion_header_text"><?php esc_html_e('General', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
                                     <span
                                         class="aipkit_accordion_header_hint"
                                         data-aipkit-chatbot-summary
                                         data-default-summary="<?php echo esc_attr($chatbot_summary_fallback); ?>"
                                         title="<?php echo esc_attr($chatbot_summary_text); ?>"
                                     ><?php echo esc_html($chatbot_summary_text); ?></span>
+                                    </span>
                                     <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                 </button>
                                 <div class="aipkit_accordion_body" data-aipkit-settings-panel="chatbot" hidden>
@@ -1369,18 +1346,25 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                             </button>
                                         </div>
                                     </div>
+                                    <div class="aipkit_builder_field aipkit_chatbot_response_settings">
+                                        <?php include __DIR__ . '/partials/ai-config/behavior-settings.php'; ?>
+                                    </div>
                                 </div>
                                 </div>
                             <div class="aipkit_accordion_section" data-aipkit-accordion="context_behavior">
                                 <button type="button" class="aipkit_accordion_header" aria-expanded="false">
                                     <span class="aipkit_accordion_header_icon dashicons dashicons-admin-settings" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Context', 'gpt3-ai-content-generator'); ?></span>
+                                    <span class="aipkit_accordion_header_main">
+                                        <span class="aipkit_accordion_header_title_group">
+                                        <span class="aipkit_accordion_header_text"><?php esc_html_e('Knowledge', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
                                     <span
                                         class="aipkit_accordion_header_hint"
                                         data-aipkit-context-summary
                                         data-default-summary="<?php echo esc_attr($context_summary_fallback); ?>"
                                         title="<?php echo esc_attr($context_summary_text); ?>"
                                     ><?php echo esc_html($context_summary_text); ?></span>
+                                    </span>
                                     <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                 </button>
                                 <div class="aipkit_accordion_body" data-aipkit-settings-panel="context" hidden>
@@ -1393,45 +1377,37 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             <div class="aipkit_accordion_section" data-aipkit-accordion="tools">
                                 <button type="button" class="aipkit_accordion_header" aria-expanded="false">
                                     <span class="aipkit_accordion_header_icon dashicons dashicons-admin-tools" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Tools', 'gpt3-ai-content-generator'); ?></span>
-                                    <span
-                                        class="aipkit_accordion_header_hint"
-                                        data-aipkit-tools-summary
-                                        data-default-summary="<?php echo esc_attr($tools_summary_fallback); ?>"
-                                        title="<?php echo esc_attr($tools_summary_text); ?>"
-                                    ><?php echo esc_html($tools_summary_text); ?></span>
+                                    <span class="aipkit_accordion_header_main">
+                                        <span class="aipkit_accordion_header_title_group">
+                                            <span class="aipkit_accordion_header_text"><?php esc_html_e('Tools', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
+                                        <span
+                                            class="aipkit_accordion_header_hint"
+                                            data-aipkit-tools-summary
+                                            data-default-summary="<?php echo esc_attr($tools_summary_fallback); ?>"
+                                            title="<?php echo esc_attr($tools_summary_text); ?>"
+                                        ><?php echo esc_html($tools_summary_text); ?></span>
+                                    </span>
                                     <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                 </button>
                                 <div class="aipkit_accordion_body" data-aipkit-settings-panel="tools" hidden>
                                     <?php include __DIR__ . '/partials/ai-config/tools-settings.php'; ?>
                                 </div>
                             </div>
-                            <div class="aipkit_accordion_section" data-aipkit-accordion="behavior">
-                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
-                                    <span class="aipkit_accordion_header_icon dashicons dashicons-controls-repeat" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Behaviour', 'gpt3-ai-content-generator'); ?></span>
-                                    <span
-                                        class="aipkit_accordion_header_hint"
-                                        data-aipkit-behavior-summary
-                                        data-default-summary="<?php echo esc_attr($behavior_summary_fallback); ?>"
-                                        title="<?php echo esc_attr($behavior_summary_text); ?>"
-                                    ><?php echo esc_html($behavior_summary_text); ?></span>
-                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
-                                </button>
-                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="behavior" hidden>
-                                    <?php include __DIR__ . '/partials/ai-config/behavior-settings.php'; ?>
-                                </div>
-                            </div>
                             <div class="aipkit_accordion_section" data-aipkit-accordion="interface">
                                 <button type="button" class="aipkit_accordion_header" aria-expanded="false">
                                     <span class="aipkit_accordion_header_icon dashicons dashicons-admin-appearance" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Appearance', 'gpt3-ai-content-generator'); ?></span>
+                                    <span class="aipkit_accordion_header_main">
+                                        <span class="aipkit_accordion_header_title_group">
+                                        <span class="aipkit_accordion_header_text"><?php esc_html_e('Interface', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
                                     <span
                                         class="aipkit_accordion_header_hint"
                                         data-aipkit-interface-summary
                                         data-default-summary="<?php echo esc_attr($interface_summary_fallback); ?>"
                                         title="<?php echo esc_attr($interface_summary_text); ?>"
                                     ><?php echo esc_html($interface_summary_text); ?></span>
+                                    </span>
                                     <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                 </button>
                                 <div class="aipkit_accordion_body" data-aipkit-settings-panel="appearance" hidden>
@@ -1448,18 +1424,20 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     data-sheet-content="triggers"
                                 >
                                     <span class="aipkit_accordion_header_icon dashicons dashicons-controls-repeat" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_title_group">
-                                        <span class="aipkit_accordion_header_text"><?php esc_html_e('Rules', 'gpt3-ai-content-generator'); ?></span>
-                                        <?php if (!$is_pro_plan) : ?>
-                                            <span class="aipkit_chatbot_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
-                                        <?php endif; ?>
+                                    <span class="aipkit_accordion_header_main">
+                                        <span class="aipkit_accordion_header_title_group">
+                                            <span class="aipkit_accordion_header_text"><?php esc_html_e('Rules', 'gpt3-ai-content-generator'); ?></span>
+                                            <?php if (!$is_pro_plan) : ?>
+                                                <span class="aipkit_chatbot_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                                            <?php endif; ?>
+                                        </span>
+                                        <span
+                                            class="aipkit_accordion_header_hint"
+                                            data-aipkit-rules-summary
+                                            data-default-summary="<?php echo esc_attr($rules_summary_fallback); ?>"
+                                            title="<?php echo esc_attr($rules_summary_text); ?>"
+                                        ><?php echo esc_html($rules_summary_text); ?></span>
                                     </span>
-                                    <span
-                                        class="aipkit_accordion_header_hint"
-                                        data-aipkit-rules-summary
-                                        data-default-summary="<?php echo esc_attr($rules_summary_fallback); ?>"
-                                        title="<?php echo esc_attr($rules_summary_text); ?>"
-                                    ><?php echo esc_html($rules_summary_text); ?></span>
                                     <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                 </button>
                                 <div class="aipkit_accordion_body aipkit_accordion_body--rules" data-aipkit-settings-panel="rules" hidden></div>
@@ -1467,18 +1445,20 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             <div class="aipkit_accordion_section" data-aipkit-accordion="connected_apps">
                                 <button type="button" class="aipkit_accordion_header" aria-expanded="false">
                                     <span class="aipkit_accordion_header_icon dashicons dashicons-share" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_title_group">
-                                        <span class="aipkit_accordion_header_text"><?php esc_html_e('Connected Apps', 'gpt3-ai-content-generator'); ?></span>
-                                        <?php if (!$is_pro_plan) : ?>
-                                            <span class="aipkit_chatbot_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
-                                        <?php endif; ?>
+                                    <span class="aipkit_accordion_header_main">
+                                        <span class="aipkit_accordion_header_title_group">
+                                            <span class="aipkit_accordion_header_text"><?php esc_html_e('Connected Apps', 'gpt3-ai-content-generator'); ?></span>
+                                            <?php if (!$is_pro_plan) : ?>
+                                                <span class="aipkit_chatbot_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                                            <?php endif; ?>
+                                        </span>
+                                        <span
+                                            class="aipkit_accordion_header_hint"
+                                            data-aipkit-connected-apps-summary
+                                            data-default-summary="<?php echo esc_attr($connected_apps_summary_fallback); ?>"
+                                            title="<?php echo esc_attr($connected_apps_summary_text); ?>"
+                                        ><?php echo esc_html($connected_apps_summary_text); ?></span>
                                     </span>
-                                    <span
-                                        class="aipkit_accordion_header_hint"
-                                        data-aipkit-connected-apps-summary
-                                        data-default-summary="<?php echo esc_attr($connected_apps_summary_fallback); ?>"
-                                        title="<?php echo esc_attr($connected_apps_summary_text); ?>"
-                                    ><?php echo esc_html($connected_apps_summary_text); ?></span>
                                     <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                 </button>
                                 <div class="aipkit_accordion_body" data-aipkit-settings-panel="connected_apps" hidden>
@@ -1546,13 +1526,17 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             <div class="aipkit_accordion_section" data-aipkit-accordion="limits">
                                 <button type="button" class="aipkit_accordion_header" aria-expanded="false">
                                     <span class="aipkit_accordion_header_icon dashicons dashicons-chart-bar" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></span>
-                                    <span
-                                        class="aipkit_accordion_header_hint"
-                                        data-aipkit-limits-summary
-                                        data-default-summary="<?php echo esc_attr($limits_summary_fallback); ?>"
-                                        title="<?php echo esc_attr($limits_summary_text); ?>"
-                                    ><?php echo esc_html($limits_summary_text); ?></span>
+                                    <span class="aipkit_accordion_header_main">
+                                        <span class="aipkit_accordion_header_title_group">
+                                            <span class="aipkit_accordion_header_text"><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
+                                        <span
+                                            class="aipkit_accordion_header_hint"
+                                            data-aipkit-limits-summary
+                                            data-default-summary="<?php echo esc_attr($limits_summary_fallback); ?>"
+                                            title="<?php echo esc_attr($limits_summary_text); ?>"
+                                        ><?php echo esc_html($limits_summary_text); ?></span>
+                                    </span>
                                     <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                 </button>
                                 <div class="aipkit_accordion_body" data-aipkit-settings-panel="limits" hidden>
@@ -1562,8 +1546,12 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             <div class="aipkit_accordion_section" data-aipkit-accordion="actions">
                                 <button type="button" class="aipkit_accordion_header" aria-expanded="false">
                                     <span class="aipkit_accordion_header_icon dashicons dashicons-admin-generic" aria-hidden="true"></span>
-                                    <span class="aipkit_accordion_header_text"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></span>
-                                    <span class="aipkit_accordion_header_hint" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_main">
+                                        <span class="aipkit_accordion_header_title_group">
+                                            <span class="aipkit_accordion_header_text"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
+                                        <span class="aipkit_accordion_header_hint" aria-hidden="true"></span>
+                                    </span>
                                     <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                 </button>
                                 <div class="aipkit_accordion_body aipkit_accordion_body--actions" hidden>

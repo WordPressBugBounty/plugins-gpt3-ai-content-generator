@@ -895,8 +895,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-        $stream_enabled = (isset($_POST['stream_enabled']) && wp_unslash($_POST['stream_enabled']) === '1') ? '1' : '0';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_conversation_state_enabled = (isset($_POST['openai_conversation_state_enabled']) && wp_unslash($_POST['openai_conversation_state_enabled']) === '1') ? '1' : '0';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort(
@@ -906,7 +904,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT;
         }
 
-        update_post_meta($bot_id, '_aipkit_stream_enabled', $stream_enabled);
         update_post_meta($bot_id, '_aipkit_openai_conversation_state_enabled', $openai_conversation_state_enabled);
         update_post_meta($bot_id, '_aipkit_reasoning_effort', $reasoning_effort);
 

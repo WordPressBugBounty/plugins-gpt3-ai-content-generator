@@ -100,7 +100,7 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
         update_post_meta(
             $form_id,
             '_aipkit_ai_form_reasoning_effort',
-            $reasoning_effort !== '' ? $reasoning_effort : 'low'
+            $reasoning_effort !== '' ? $reasoning_effort : 'none'
         );
     }
     if (isset($settings['conversation_ui_preset'])) {

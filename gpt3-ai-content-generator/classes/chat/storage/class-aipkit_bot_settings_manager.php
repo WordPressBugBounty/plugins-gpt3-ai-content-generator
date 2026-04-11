@@ -29,7 +29,6 @@ class BotSettingsManager
     public const DEFAULT_TEMPERATURE = 1.0;
     public const DEFAULT_MAX_COMPLETION_TOKENS = 4000;
     public const DEFAULT_MAX_MESSAGES = 15;
-    public const DEFAULT_STREAM_ENABLED = '1'; // ADDED: Default for stream mode
     public const DEFAULT_ENABLE_COPY_BUTTON = '1';
     public const DEFAULT_ENABLE_FEEDBACK = '1';
     public const DEFAULT_ENABLE_CONSENT_COMPLIANCE = '0';
@@ -127,7 +126,7 @@ class BotSettingsManager
     public const DEFAULT_OUTPUT_AUDIO_FORMAT = 'pcm16';
     public const DEFAULT_INPUT_AUDIO_NOISE_REDUCTION = '1';
     // --- NEW: Reasoning Effort ---
-    public const DEFAULT_REASONING_EFFORT = 'low';
+    public const DEFAULT_REASONING_EFFORT = 'none';
     // --- END NEW ---
 
     // --- NEW: Custom Theme Defaults ---

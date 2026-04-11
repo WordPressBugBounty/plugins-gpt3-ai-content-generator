@@ -587,52 +587,52 @@ $consent_toggle_value = ($consent_feature_available && $enable_consent_complianc
                 </div>
             </div>
             <div class="aipkit_interface_theme_top_row aipkit_interface_theme_top_row--identity">
-                <div class="aipkit_interface_theme_top_cell aipkit_interface_theme_top_cell--identity-stack">
-                    <div class="aipkit_interface_identity_stack">
-                        <div class="aipkit_interface_identity_stack_item">
-                            <label
-                                class="aipkit_popover_option_label"
-                                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_greeting"
-                            >
-                                <?php esc_html_e('Greeting', 'gpt3-ai-content-generator'); ?>
-                            </label>
-                            <input
-                                type="text"
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_greeting"
-                                name="greeting"
-                                class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                                value="<?php echo esc_attr($saved_greeting); ?>"
-                                placeholder="<?php esc_attr_e('Hello there!', 'gpt3-ai-content-generator'); ?>"
-                                autocomplete="off"
-                                data-lpignore="true"
-                                data-1p-ignore="true"
-                                data-form-type="other"
-                            />
-                        </div>
-                        <div class="aipkit_interface_identity_stack_item">
-                            <label
-                                class="aipkit_popover_option_label"
-                                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_subgreeting"
-                            >
-                                <?php esc_html_e('Subgreeting', 'gpt3-ai-content-generator'); ?>
-                            </label>
-                            <input
-                                type="text"
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_subgreeting"
-                                name="subgreeting"
-                                class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
-                                value="<?php echo esc_attr($saved_subgreeting); ?>"
-                                placeholder="<?php esc_attr_e('How can I help you today?', 'gpt3-ai-content-generator'); ?>"
-                                autocomplete="off"
-                                data-lpignore="true"
-                                data-1p-ignore="true"
-                                data-form-type="other"
-                            />
-                        </div>
+                <div class="aipkit_interface_theme_top_cell">
+                    <div class="aipkit_interface_identity_stack_item">
+                        <label
+                            class="aipkit_popover_option_label"
+                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_greeting"
+                        >
+                            <?php esc_html_e('Greeting', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <input
+                            type="text"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_greeting"
+                            name="greeting"
+                            class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
+                            value="<?php echo esc_attr($saved_greeting); ?>"
+                            placeholder="<?php esc_attr_e('Hello there!', 'gpt3-ai-content-generator'); ?>"
+                            autocomplete="off"
+                            data-lpignore="true"
+                            data-1p-ignore="true"
+                            data-form-type="other"
+                        />
                     </div>
                 </div>
                 <div class="aipkit_interface_theme_top_cell">
-                    <div class="aipkit_interface_identity_stack_item aipkit_interface_identity_stack_item--placeholder">
+                    <div class="aipkit_interface_identity_stack_item">
+                        <label
+                            class="aipkit_popover_option_label"
+                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_subgreeting"
+                        >
+                            <?php esc_html_e('Subgreeting', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <input
+                            type="text"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_subgreeting"
+                            name="subgreeting"
+                            class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--framed"
+                            value="<?php echo esc_attr($saved_subgreeting); ?>"
+                            placeholder="<?php esc_attr_e('How can I help you today?', 'gpt3-ai-content-generator'); ?>"
+                            autocomplete="off"
+                            data-lpignore="true"
+                            data-1p-ignore="true"
+                            data-form-type="other"
+                        />
+                    </div>
+                </div>
+                <div class="aipkit_interface_theme_top_cell">
+                    <div class="aipkit_interface_identity_stack_item">
                         <label
                             class="aipkit_popover_option_label"
                             for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_input_placeholder"

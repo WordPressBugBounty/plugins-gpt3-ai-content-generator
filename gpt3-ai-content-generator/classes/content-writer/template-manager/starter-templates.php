@@ -317,8 +317,11 @@ function get_cw_starter_template_definitions(array $base_config): array
 
     $default_provider = $base_config['ai_provider'] ?? 'OpenAI';
     $default_model = $base_config['ai_model'] ?? '';
-    if (strtolower($default_provider) === 'google') {
-        $default_model = 'gemini-2.5-flash';
+    if (class_exists(AIPKit_Providers::class) && strtolower($default_provider) === 'google') {
+        $google_default_model = AIPKit_Providers::get_default_model_id('Google');
+        if ($google_default_model !== '') {
+            $default_model = $google_default_model;
+        }
     }
     $image_defaults = get_cw_starter_template_image_defaults($default_provider);
     $default_image_provider = $image_defaults['provider'] ?? 'openai';

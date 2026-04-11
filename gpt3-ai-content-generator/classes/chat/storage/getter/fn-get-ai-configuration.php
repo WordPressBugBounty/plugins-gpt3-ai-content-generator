@@ -78,9 +78,6 @@ function get_ai_configuration_logic(int $bot_id, ?string $current_provider_from_
         : absint($max_msgs_val);
     $settings['max_messages'] = max(1, min($settings['max_messages'], 1024));
 
-    $settings['stream_enabled'] = in_array($get_meta_fn('_aipkit_stream_enabled', '0'), ['0','1'])
-        ? $get_meta_fn('_aipkit_stream_enabled', '0')
-        : '0';
     $settings['web_toggle_default_on'] = in_array(
         $get_meta_fn('_aipkit_web_toggle_default_on', BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON),
         ['0', '1'],

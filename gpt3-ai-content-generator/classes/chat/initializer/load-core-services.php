@@ -16,7 +16,6 @@ function load_core_services_logic(): void {
     $base_path = WPAICG_PLUGIN_DIR . 'classes/chat/core/';
     $core_service_paths = [
         'ai_service.php' => \WPAICG\Chat\Core\AIService::class,
-        'ajax_processor.php' => \WPAICG\Chat\Core\AjaxProcessor::class,
         'class-aipkit_content_aware.php' => \WPAICG\Chat\Core\AIPKit_Content_Aware::class,
     ];
 

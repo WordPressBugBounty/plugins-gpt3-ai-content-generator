@@ -5,6 +5,7 @@
 
 namespace WPAICG\AIForms\Admin;
 
+use WPAICG\AIPKit_Providers;
 use WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage;
 use WP_Error;
 
@@ -70,12 +71,23 @@ class AIPKit_AI_Form_Defaults
      */
     private static function get_default_forms_data(): array
     {
+        $default_openai_model = 'gpt-5.4-mini';
+        if (!class_exists(AIPKit_Providers::class)) {
+            $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
+            if (file_exists($providers_path)) {
+                require_once $providers_path;
+            }
+        }
+        if (class_exists(AIPKit_Providers::class)) {
+            $default_openai_model = AIPKit_Providers::get_default_model_id('OpenAI');
+        }
+
         return [
             'blog_post_generator' => [
                 'title' => 'Blog Post Generator',
                 'settings' => [
                     'ai_provider' => 'OpenAI',
-                    'ai_model' => 'gpt-4o-mini',
+                    'ai_model' => $default_openai_model,
                     'prompt_template' => "You are an expert SEO content writer and professional blogger. Your task is to write a high-quality, engaging, and SEO-friendly blog post.\n\n**Instructions:**\n1.  **Analyze the Input:** Carefully consider the provided topic, target audience, desired length, and tone.\n2.  **Structure the Article:** The article must have a clear structure:\n    - An engaging introduction that hooks the reader.\n    - A well-organized body with multiple sections, using H2 and H3 headings.\n    - A concise and impactful conclusion that summarizes the key points.\n3.  **Incorporate Keywords:** Naturally weave the provided keywords throughout the article, especially in headings and the introduction.\n4.  **Tone:** Strictly adhere to the specified tone of voice.\n5.  **Length:** Adjust the depth and detail of the content to match the desired length.\n6.  **Output:** Return only the full article content in Markdown format. Do not include any pre-amble, notes, or post-article commentary.\n\n---\n**Blog Post Details:**\n*   **Topic/Title:** {topic}\n*   **Target Audience:** {audience}\n*   **Desired Length:** {length}\n*   **Tone of Voice:** {tone}\n*   **Keywords:** {keywords}\n---\n\nBegin the blog post now:",
                     'form_structure' => wp_json_encode([
                         ['internalId' => 'row-1', 'type' => 'layout-row', 'columns' => [
@@ -117,7 +129,7 @@ class AIPKit_AI_Form_Defaults
                 'title' => 'YouTube Script Writer',
                 'settings' => [
                     'ai_provider' => 'OpenAI',
-                    'ai_model' => 'gpt-4o-mini',
+                    'ai_model' => $default_openai_model,
                     'prompt_template' => "You are an expert YouTube scriptwriter with a knack for creating highly engaging and shareable video content. Your goal is to write a complete video script based on the details provided.\n\n**Instructions:**\n1.  **Script Structure:** The script should be structured logically with clear sections:\n    - **Hook (0-15 seconds):** A captivating opening to grab the viewer's attention immediately.\n    - **Intro:** Briefly introduce the video's topic and what the viewer will learn or experience.\n    - **Main Content:** Break down the core content into logical segments or talking points. Use bullet points for clarity.\n    - **Call to Action (CTA):** Integrate the provided Call to Action seamlessly. If none is provided, suggest a relevant one (e.g., \"like, comment, and subscribe\").\n    - **Outro:** A concluding segment that wraps up the video and gives a final thought.\n2.  **Timestamps:** Provide approximate timestamps (e.g., [00:30]) for each major section to guide the creator, based on the target duration.\n3.  **Visual Cues:** Include suggestions for on-screen text, B-roll, or graphics in brackets, like [Show on-screen: Key takeaway point].\n4.  **Tone & Style:** The script must match the specified video style.\n\n---\n**Video Details:**\n*   **Title/Topic:** {video_topic}\n*   **Target Duration:** {duration} minutes\n*   **Style:** {style}\n*   **Call to Action:** {cta}\n---\n\nWrite the complete YouTube script now:",
                     'form_structure' => wp_json_encode([
                         ['internalId' => 'row-5', 'type' => 'layout-row', 'columns' => [
@@ -150,7 +162,7 @@ class AIPKit_AI_Form_Defaults
                 'title' => 'Customer Support Reply Builder',
                 'settings' => [
                     'ai_provider' => 'OpenAI',
-                    'ai_model' => 'gpt-4o-mini',
+                    'ai_model' => $default_openai_model,
                     'prompt_template' => "You are a highly skilled and empathetic customer support professional. Your task is to draft a helpful and well-written reply to the customer's message below.\n\n**Instructions:**\n1.  **Acknowledge:** Start by acknowledging the customer's issue or question.\n2.  **Address the Core Problem:** Directly address the main points from the customer's message.\n3.  **Maintain Tone:** Adhere strictly to the specified response tone.\n4.  **Incorporate Details:** Use the provided Product/Service Name and any additional notes to make the reply specific and helpful.\n5.  **Clarity and Conciseness:** Write a clear, concise, and easy-to-understand response.\n6.  **Format:** Output the reply only. Do not include any surrounding text, greetings to me, or explanations of what you did.\n\n---\n**Support Ticket Details:**\n*   **Customer's Message:**\n{customer_message}\n\n*   **Product/Service Mentioned:** {product_name}\n*   **Desired Response Tone:** {tone}\n*   **Internal Notes for your reply:** {notes}\n---\n\nDraft the customer support reply now:",
                     'form_structure' => wp_json_encode([
                         ['internalId' => 'row-8', 'type' => 'layout-row', 'columns' => [

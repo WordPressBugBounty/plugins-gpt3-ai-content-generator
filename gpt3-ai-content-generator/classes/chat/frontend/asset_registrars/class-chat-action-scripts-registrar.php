@@ -53,7 +53,7 @@ class Chat_Action_Scripts_Registrar {
         wp_register_script($action_handles['handle-error'], $public_chat_actions_js_url . 'handle-error.js', array_filter([$dep_append_message, $dep_remove_typing_indicator, $action_handles['set-button-state'], $action_handles['focus-input'], $dep_util_gen_id]), $version, true);
         
         $send_message_deps = array_filter([
-            $dep_api_frontend_request, 'aipkit-chat-ui-ajax', $dep_feature_stream, 
+            $dep_api_frontend_request, $dep_feature_stream, 
             $dep_append_message, $dep_show_typing_indicator, $dep_show_image_loader, 
             $action_handles['set-button-state'], $action_handles['handle-error'], 
             $dep_feature_image_generation,

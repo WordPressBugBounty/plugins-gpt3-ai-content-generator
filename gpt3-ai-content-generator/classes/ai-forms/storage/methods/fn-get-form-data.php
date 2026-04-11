@@ -103,9 +103,9 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
         );
     }
 
-    $stored_reasoning_effort = get_post_meta($form_id, '_aipkit_ai_form_reasoning_effort', true) ?: 'low';
+    $stored_reasoning_effort = get_post_meta($form_id, '_aipkit_ai_form_reasoning_effort', true) ?: 'none';
     $normalized_reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($stored_reasoning_effort);
-    $data['reasoning_effort'] = $normalized_reasoning_effort !== '' ? $normalized_reasoning_effort : 'low';
+    $data['reasoning_effort'] = $normalized_reasoning_effort !== '' ? $normalized_reasoning_effort : 'none';
     $stored_conversation_ui_preset = sanitize_key((string) get_post_meta($form_id, '_aipkit_ai_form_conversation_ui_preset', true));
     if (in_array($stored_conversation_ui_preset, ['full', 'compact', 'minimal', 'none'], true)) {
         $data['conversation_ui_preset'] = $stored_conversation_ui_preset;

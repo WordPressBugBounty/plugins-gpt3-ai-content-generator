@@ -6,7 +6,7 @@
 namespace WPAICG\Core\Stream\Handler\Ajax;
 
 use WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache; // Corrected namespace for Cache
-use WPAICG\Chat\Core\AjaxProcessor\FrontendChat\ChatImageInputValidator;
+use WPAICG\Chat\Core\Validation\ChatImageInputValidator;
 use WPAICG\Utils\AIPKit_CORS_Manager; // For CORS handling
 use WP_Error;
 
@@ -102,7 +102,7 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     $active_claude_file_id = isset($_POST['active_claude_file_id']) ? sanitize_text_field(wp_unslash($_POST['active_claude_file_id'])) : null;
 
     if (!class_exists(ChatImageInputValidator::class)) {
-        $validator_path = WPAICG_PLUGIN_DIR . 'classes/chat/core/ajax-processor/frontend-chat/class-chat-image-input-validator.php';
+        $validator_path = WPAICG_PLUGIN_DIR . 'classes/chat/core/validation/class-chat-image-input-validator.php';
         if (file_exists($validator_path)) {
             require_once $validator_path;
         }
