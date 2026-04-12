@@ -803,14 +803,14 @@ function aipkit_ai_forms_normalize_column_width($width, int $column_count, int $
     if (is_numeric($raw)) {
         $numeric = round((float) $raw, 2);
         $allowed = [
-            100.0 => '100%',
-            70.0 => '70%',
-            50.0 => '50%',
-            30.0 => '30%',
-            33.33 => '33.33%',
-            33.0 => '33.33%',
+            [100.0, '100%'],
+            [70.0, '70%'],
+            [50.0, '50%'],
+            [30.0, '30%'],
+            [33.33, '33.33%'],
+            [33.0, '33.33%'],
         ];
-        foreach ($allowed as $allowed_numeric => $allowed_width) {
+        foreach ($allowed as [$allowed_numeric, $allowed_width]) {
             if (abs($numeric - $allowed_numeric) < 0.2) {
                 return $allowed_width;
             }

@@ -111,6 +111,47 @@ function set_cw_starter_template_ids_for_user(int $user_id, array $ids): void
 }
 
 /**
+ * Returns only the starter template IDs that still exist for the user.
+ *
+ * This is used to recover from partial local resets where the user meta still
+ * references starter template IDs that no longer exist in the custom table.
+ *
+ * @param \WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager $managerInstance
+ * @param int $user_id
+ * @return array
+ */
+function get_existing_cw_starter_template_ids_for_user(
+    \WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager $managerInstance,
+    int $user_id
+): array {
+    $starter_ids = get_cw_starter_template_ids_for_user($user_id);
+    if (!$user_id || empty($starter_ids)) {
+        return [];
+    }
+
+    $wpdb = $managerInstance->get_wpdb();
+    $table_name = $managerInstance->get_table_name();
+    $placeholders = implode(', ', array_fill(0, count($starter_ids), '%d'));
+    $prepared = $wpdb->prepare(
+        "SELECT id FROM {$table_name} WHERE user_id = %d AND template_type = 'content_writer' AND id IN ({$placeholders})",
+        array_merge([$user_id], $starter_ids)
+    );
+
+    if (!$prepared) {
+        return [];
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct read from a custom table.
+    $existing_ids = $wpdb->get_col($prepared);
+    $existing_lookup = array_fill_keys(array_map('intval', $existing_ids), true);
+
+    return array_values(array_filter(
+        array_map('intval', $starter_ids),
+        static fn($id) => isset($existing_lookup[(int)$id])
+    ));
+}
+
+/**
  * Removes a starter template ID from a user's meta.
  *
  * @param int $user_id
@@ -549,7 +590,7 @@ function reset_starter_templates_logic(\WPAICG\ContentWriter\AIPKit_Content_Writ
 
     $expected_count = count($definitions);
 
-    $starter_ids = get_cw_starter_template_ids_for_user($user_id);
+    $starter_ids = get_existing_cw_starter_template_ids_for_user($managerInstance, $user_id);
     if (!empty($starter_ids)) {
         foreach ($starter_ids as $template_id) {
             $delete_result = delete_template_logic($managerInstance, (int)$template_id);
