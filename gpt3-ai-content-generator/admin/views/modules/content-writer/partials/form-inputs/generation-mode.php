@@ -202,7 +202,7 @@ if (!defined('ABSPATH')) {
                                             </div>
                                             <span class="aipkit_csv_column_divider">→</span>
                                             <div class="aipkit_csv_column_chip">
-                                                <span class="aipkit_csv_column_label"><?php esc_html_e('Author', 'gpt3-ai-content-generator'); ?></span>
+                                                <span class="aipkit_csv_column_label"><?php esc_html_e('Author Login', 'gpt3-ai-content-generator'); ?></span>
                                             </div>
                                             <span class="aipkit_csv_column_divider">→</span>
                                             <div class="aipkit_csv_column_chip">
@@ -285,7 +285,7 @@ if (!defined('ABSPATH')) {
                             </div>
                             <span class="aipkit_csv_column_divider">→</span>
                             <div class="aipkit_csv_column_chip">
-                                <span class="aipkit_csv_column_label"><?php esc_html_e('Author', 'gpt3-ai-content-generator'); ?></span>
+                                <span class="aipkit_csv_column_label"><?php esc_html_e('Author Login', 'gpt3-ai-content-generator'); ?></span>
                             </div>
                             <span class="aipkit_csv_column_divider">→</span>
                             <div class="aipkit_csv_column_chip">
@@ -406,11 +406,11 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
 
-        <div class="aipkit_cw_topbar aipkit_cw_topbar--dock">
-            <div class="aipkit_cw_topbar_primary">
+        <div class="aipkit_cw_action_dock aipkit_cw_action_dock--dock">
+            <div class="aipkit_cw_action_dock_primary">
                 <span id="aipkit_cw_action_validation" class="aipkit_cw_action_validation" aria-live="polite"></span>
             </div>
-            <div class="aipkit_cw_topbar_actions">
+            <div class="aipkit_cw_action_dock_actions">
                 <select id="aipkit_cw_task_frequency" name="task_frequency" class="aipkit_cw_task_frequency" aria-hidden="true" tabindex="-1" hidden>
                     <?php foreach ($task_frequencies as $value => $label): ?>
                         <option value="<?php echo esc_attr($value); ?>" <?php selected($value, 'daily'); ?>><?php echo esc_html($label); ?></option>
@@ -419,6 +419,7 @@ if (!defined('ABSPATH')) {
                 <div class="aipkit_cw_action_shell" data-aipkit-cw-primary-action="generate">
                     <button type="button" id="aipkit_content_writer_generate_btn" class="aipkit_cw_action_primary">
                         <span class="aipkit_cw_action_timer" aria-hidden="true" hidden></span>
+                        <span class="dashicons dashicons-rss aipkit_cw_action_icon" aria-hidden="true" hidden></span>
                         <span class="aipkit_btn-text"><?php esc_html_e('Generate', 'gpt3-ai-content-generator'); ?></span>
                         <span class="aipkit_cw_action_suffix" hidden></span>
                         <span class="aipkit_spinner" style="display:none;"></span>

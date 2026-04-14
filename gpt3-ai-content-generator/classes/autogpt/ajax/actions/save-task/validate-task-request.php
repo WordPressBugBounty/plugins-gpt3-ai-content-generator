@@ -3,11 +3,14 @@
 namespace WPAICG\AutoGPT\Ajax\Actions\SaveTask;
 
 use WPAICG\AutoGPT\Ajax\AIPKit_Save_Automated_Task_Action;
+use WPAICG\AutoGPT\Helpers;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
     exit;
 }
+
+require_once WPAICG_PLUGIN_DIR . 'classes/autogpt/helpers/task-type-access.php';
 
 /**
 * Validates the AJAX request for saving an automated task.
@@ -30,6 +33,9 @@ function validate_task_request_logic(AIPKit_Save_Automated_Task_Action $handler,
     }
     if (empty($task_type)) {
         return new WP_Error('missing_task_type', __('Task type is required.', 'gpt3-ai-content-generator'), ['status' => 400]);
+    }
+    if (Helpers\task_type_requires_pro_plan($task_type) && !Helpers\is_pro_plan_active()) {
+        return new WP_Error('task_type_requires_pro_plan', __('This is a Pro feature.', 'gpt3-ai-content-generator'), ['status' => 403]);
     }
 
     return [

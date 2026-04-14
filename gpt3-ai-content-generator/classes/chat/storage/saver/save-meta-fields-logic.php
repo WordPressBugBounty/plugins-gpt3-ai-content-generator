@@ -35,6 +35,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         delete_post_meta($botId, '_aipkit_theme_preset_key');
     }
     update_post_meta($botId, '_aipkit_instructions', $sanitized_settings['instructions']);
+    update_post_meta($botId, '_aipkit_deploy_mode', $sanitized_settings['deploy_mode']);
     update_post_meta($botId, '_aipkit_popup_enabled', $sanitized_settings['popup_enabled']);
     update_post_meta($botId, '_aipkit_popup_position', $sanitized_settings['popup_position']);
     update_post_meta($botId, '_aipkit_popup_delay', $sanitized_settings['popup_delay']);

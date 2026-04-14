@@ -486,7 +486,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
-                                                <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                                                <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                                             </a>
                                         <?php endif; ?>
                                         <p class="aipkit_builder_help_text">
@@ -754,7 +754,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                     data-upgrade-only="1"
                                     data-upgrade-url="<?php echo esc_url($upgrade_url); ?>"
                                 >
-                                    <span class="aipkit_btn-text"><?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?></span>
+                                    <span class="aipkit_btn-text"><?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?></span>
                                 </button>
                             <?php endif; ?>
                         </div>

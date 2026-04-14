@@ -67,7 +67,7 @@ function generate_title_logic(array $cw_config, AIPKit_AI_Caller $ai_caller): ar
 
     if (is_wp_error($title_result)) {
         $error_msg = $title_result->get_error_message();
-        return new WP_Error('title_generation_failed', 'Title generation failed: ' . $error_msg);
+        return new WP_Error('title_generation_failed', $error_msg);
     }
 
     $generated_title_raw = trim($title_result['content'] ?? '');

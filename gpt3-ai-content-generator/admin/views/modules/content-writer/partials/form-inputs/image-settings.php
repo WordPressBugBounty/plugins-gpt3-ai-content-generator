@@ -129,7 +129,7 @@ $render_prompt_library_options = static function(array $options, string $mode = 
                 class="aipkit_cw_settings_icon_trigger"
                 id="aipkit_cw_image_display_settings_trigger_fallback"
                 data-aipkit-popover-target="aipkit_cw_image_display_settings_popover"
-                data-aipkit-popover-placement="left"
+                data-aipkit-popover-placement="top"
                 aria-controls="aipkit_cw_image_display_settings_popover"
                 aria-expanded="false"
                 aria-label="<?php esc_attr_e('Image settings', 'gpt3-ai-content-generator'); ?>"

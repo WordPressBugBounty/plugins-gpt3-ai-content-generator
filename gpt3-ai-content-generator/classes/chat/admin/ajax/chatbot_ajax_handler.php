@@ -182,8 +182,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         $embed_script_url = WPAICG_PLUGIN_URL . 'dist/js/embed-bootstrap.bundle.js';
         $embed_target_div = 'aipkit-chatbot-container-' . $bot_id;
-        $site_url = preg_replace('#^https?://#i', '', site_url());
-        if (!is_string($site_url)) {
+        $site_url = home_url();
+        if (!is_string($site_url) || $site_url === '') {
             $site_url = '';
         }
 
@@ -196,6 +196,27 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         );
 
         return '<script type="text/javascript">' . $embed_script . '</script>';
+    }
+
+    /**
+     * Resolve the persisted deploy mode for a bot.
+     *
+     * Falls back to legacy popup/inline behavior for bots saved before deploy mode
+     * was stored separately.
+     *
+     * @param string|null $stored_mode Raw stored deploy mode.
+     * @param array       $settings    Bot settings used for fallback inference.
+     * @return string
+     */
+    private function resolve_deploy_mode(?string $stored_mode, array $settings = []): string
+    {
+        $normalized_mode = is_string($stored_mode) ? sanitize_key($stored_mode) : '';
+        if (in_array($normalized_mode, ['inline', 'popup', 'external'], true)) {
+            return $normalized_mode;
+        }
+
+        $popup_enabled = isset($settings['popup_enabled']) && (string) $settings['popup_enabled'] === '1';
+        return $popup_enabled ? 'popup' : 'inline';
     }
 
     /**
@@ -271,8 +292,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         array $settings,
         int $default_bot_id
     ): array {
-        $popup_enabled = isset($settings['popup_enabled']) && (string) $settings['popup_enabled'] === '1';
-        $deploy_mode = $popup_enabled ? 'popup' : 'inline';
+        $deploy_mode = $this->resolve_deploy_mode($settings['deploy_mode'] ?? null, $settings);
 
         $conversation_starters = $settings['conversation_starters'] ?? [];
         if (!is_array($conversation_starters)) {
@@ -2221,12 +2241,31 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $success_message = __('Saved', 'gpt3-ai-content-generator');
         $response_extra = [];
         $popup_enabled = (get_post_meta($bot_id, '_aipkit_popup_enabled', true) === '1') ? '1' : '0';
+        $deploy_mode = $this->resolve_deploy_mode(
+            (string) get_post_meta($bot_id, '_aipkit_deploy_mode', true),
+            ['popup_enabled' => $popup_enabled]
+        );
+        $deploy_mode_explicit = false;
+
+        if (isset($_POST['deploy_mode'])) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+            $deploy_mode = $this->resolve_deploy_mode(
+                sanitize_key((string) wp_unslash($_POST['deploy_mode'])),
+                ['popup_enabled' => $popup_enabled]
+            );
+            $deploy_mode_explicit = true;
+            $updated_any = true;
+        }
 
         if (isset($_POST['popup_enabled'])) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $popup_enabled = (wp_unslash($_POST['popup_enabled']) === '1') ? '1' : '0';
             update_post_meta($bot_id, '_aipkit_popup_enabled', $popup_enabled);
             $updated_any = true;
+
+            if (!$deploy_mode_explicit) {
+                $deploy_mode = ($popup_enabled === '1') ? 'popup' : 'inline';
+            }
         }
 
         if (isset($_POST['site_wide_enabled'])) {
@@ -2316,6 +2355,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             update_post_meta($bot_id, '_aipkit_embed_allowed_domains', $sanitized_domains);
             $updated_any = true;
         }
+
+        update_post_meta($bot_id, '_aipkit_deploy_mode', $deploy_mode);
 
         if (!$updated_any) {
             wp_send_json_error(['message' => __('No changes to save.', 'gpt3-ai-content-generator')], 400);

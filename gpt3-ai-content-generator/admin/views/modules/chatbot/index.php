@@ -118,7 +118,10 @@ $build_inline_bot_switch_state_payload = static function (
     int $default_bot_id
 ): array {
     $popup_enabled = isset($settings['popup_enabled']) && (string) $settings['popup_enabled'] === '1';
-    $deploy_mode = $popup_enabled ? 'popup' : 'inline';
+    $raw_deploy_mode = isset($settings['deploy_mode']) ? sanitize_key((string) $settings['deploy_mode']) : '';
+    $deploy_mode = in_array($raw_deploy_mode, ['inline', 'popup', 'external'], true)
+        ? $raw_deploy_mode
+        : ($popup_enabled ? 'popup' : 'inline');
 
     $conversation_starters = $settings['conversation_starters'] ?? [];
     if (!is_array($conversation_starters)) {
@@ -139,8 +142,8 @@ $build_inline_bot_switch_state_payload = static function (
 
     $embed_script_url = WPAICG_PLUGIN_URL . 'dist/js/embed-bootstrap.bundle.js';
     $embed_target_div = 'aipkit-chatbot-container-' . $bot_id;
-    $site_url = preg_replace('#^https?://#i', '', site_url());
-    if (!is_string($site_url)) {
+    $site_url = home_url();
+    if (!is_string($site_url) || $site_url === '') {
         $site_url = '';
     }
 
@@ -281,7 +284,12 @@ $popup_enabled = $active_bot_settings['popup_enabled'] ?? '0';
 $popup_enabled = in_array($popup_enabled, ['0', '1'], true) ? $popup_enabled : '0';
 $site_wide_enabled = $active_bot_settings['site_wide_enabled'] ?? '0';
 $site_wide_enabled = in_array($site_wide_enabled, ['0', '1'], true) ? $site_wide_enabled : '0';
-$deploy_mode = ($popup_enabled === '1') ? 'popup' : 'inline';
+$raw_deploy_mode = isset($active_bot_settings['deploy_mode'])
+    ? sanitize_key((string) $active_bot_settings['deploy_mode'])
+    : '';
+$deploy_mode = in_array($raw_deploy_mode, ['inline', 'popup', 'external'], true)
+    ? $raw_deploy_mode
+    : (($popup_enabled === '1') ? 'popup' : 'inline');
 $deploy_popup_scope = ($site_wide_enabled === '1') ? 'sitewide' : 'page';
 $shortcode_text = $active_bot_post
     ? sprintf('[aipkit_chatbot id=%d]', absint($initial_active_bot_id))
@@ -923,6 +931,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                                         id="aipkit_builder_top_mode_select"
                                                         class="aipkit_form-input aipkit_builder_mode_select"
                                                         data-aipkit-top-mode-select
+                                                        data-aipkit-external-popup-enabled="<?php echo esc_attr($popup_enabled === '1' ? '1' : '0'); ?>"
                                                     >
                                                         <option value="inline" <?php selected($deploy_mode, 'inline'); ?>>
                                                             <?php esc_html_e('On-page', 'gpt3-ai-content-generator'); ?>
@@ -930,7 +939,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                                         <option value="popup" <?php selected($deploy_mode, 'popup'); ?>>
                                                             <?php esc_html_e('Popup', 'gpt3-ai-content-generator'); ?>
                                                         </option>
-                                                        <option value="external">
+                                                        <option value="external" <?php selected($deploy_mode, 'external'); ?>>
                                                             <?php esc_html_e('Embed Anywhere', 'gpt3-ai-content-generator'); ?>
                                                         </option>
                                                     </select>
@@ -2246,7 +2255,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     rel="noopener noreferrer"
                                 >
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                    <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                                    <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                                 </a>
                                 <a
                                     class="aipkit_rules_promo_btn aipkit_rules_promo_btn--secondary"
@@ -2543,7 +2552,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     rel="noopener noreferrer"
                                 >
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                    <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                                    <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                                 </a>
                                 <a
                                     class="aipkit_embed_promo_btn aipkit_embed_promo_btn--secondary"

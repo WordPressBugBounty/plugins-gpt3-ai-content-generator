@@ -21,6 +21,11 @@ function get_embed_settings_logic(int $bot_id, callable $get_meta_fn): array
 {
     $settings = [];
 
+    $deploy_mode = sanitize_key((string) $get_meta_fn('_aipkit_deploy_mode', ''));
+    $settings['deploy_mode'] = in_array($deploy_mode, ['inline', 'popup', 'external'], true)
+        ? $deploy_mode
+        : '';
+
     // Get the allowed domains, default to an empty string if not set.
     $settings['embed_allowed_domains'] = $get_meta_fn('_aipkit_embed_allowed_domains', '');
 

@@ -6,6 +6,7 @@ use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKit_Role_Manager;
 use WPAICG\AIPKIT_AI_Settings;
+use WPAICG\AutoGPT\Helpers\AIPKit_AutoGPT_Prompt_Definitions;
 use WPAICG\Chat\Frontend\Assets as ChatFrontendAssetsOrchestrator;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
@@ -568,10 +569,10 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
         $default_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
         $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('post_enhancer_ui');
         $embedding_localization = AIPKit_Providers::get_embedding_localization_payload('post_enhancer_ui', false);
-        $prompt_library = class_exists(AIPKit_Content_Writer_Prompts::class)
-            ? AIPKit_Content_Writer_Prompts::get_prompt_library()
-            : [];
         $enhancer_actions = get_option('aipkit_enhancer_actions', []);
+        $enhancer_prompt_items = class_exists(AIPKit_AutoGPT_Prompt_Definitions::class)
+            ? AIPKit_AutoGPT_Prompt_Definitions::get_post_enhancer_prompt_items(true)
+            : [];
 
         if (empty($enhancer_actions) && class_exists(AIPKit_Enhancer_Actions_Ajax_Handler::class)) {
             $enhancer_actions = (new AIPKit_Enhancer_Actions_Ajax_Handler())->get_default_actions_public();
@@ -594,15 +595,7 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
             'default_ai_provider' => $default_ai_config['provider'] ?? 'N/A',
             'default_ai_model' => $default_ai_config['model'] ?? 'N/A',
             'default_ai_params' => $default_ai_params,
-            'default_prompts' => [
-                'title' => "You are an expert SEO copywriter. Generate the single best and most compelling SEO title based on the provided information. The title must:\n- Be under 60 characters\n- Start with the main focus keyword\n- Include at least one power word (e.g., Stunning, Must-Have, Exclusive)\n- Include a positive or negative sentiment word (e.g., Best, Effortless, Affordable)\n\nReturn ONLY the new title text. Do not include any introduction, explanation, or quotation marks.\n\nOriginal title: \"{original_title}\"\nPost content snippet: \"{original_content}\"\nFocus keyword: \"{original_focus_keyword}\"",
-                'excerpt' => "Rewrite the post excerpt to be more compelling and engaging based on the information provided. Use a friendly tone and aim for 1-2 concise sentences. Return ONLY the new excerpt without any explanation or formatting.\n\nPost title: \"{original_title}\"\nPost content snippet: \"{original_content}\"",
-                'content' => "You are an expert editor. Rewrite and improve the following article to make it more engaging, clear, and informative. Maintain the original tone and intent, but enhance the writing quality. Ensure the following:\n- The revised content is at least 600 words long\n- The focus keyword appears in one or more subheadings (H2 or H3)\n- The focus keyword is used naturally throughout the article, especially in the introduction and conclusion\n\nThe article title is: {original_title}\nFocus keyword: {original_focus_keyword}\n\nOriginal Content:\n{original_content}",
-                'meta' => "Generate a single, concise, and SEO-friendly meta description (under 155 characters) for a web page based on the provided information. The description must:\n- Begin with or include the focus keyword near the start\n- Use an active voice\n- Include a clear call-to-action\n\nReturn ONLY the new meta description without any introduction or formatting.\n\nPage title: \"{original_title}\"\nPage content snippet: \"{original_content}\"\nFocus keyword: \"{original_focus_keyword}\"",
-                'keyword' => "You are an SEO expert. Your task is to identify the single most important and relevant focus keyphrase for the following article. The keyphrase should be concise (ideally 2-4 words) and must be present within the provided content.\n\nReturn ONLY the keyphrase. Do not add any explanation, labels, or quotation marks.\n\nArticle Title: \"{original_title}\"\nArticle Content:\n{original_content}",
-                'tags' => "You are an SEO expert. Generate a list of 5-10 relevant tags for a blog post titled \"{original_title}\". Return ONLY a comma-separated list of the tags. Do not include any introduction, explanation, or numbering.\n\nArticle Content Snippet:\n{original_content}",
-            ],
-            'prompt_library' => $prompt_library,
+            'prompt_items' => $enhancer_prompt_items,
             'openai_vector_stores' => $vector_store_localization['openai_vector_stores'],
             'pinecone_indexes' => $vector_store_localization['pinecone_indexes'],
             'qdrant_collections' => $vector_store_localization['qdrant_collections'],
@@ -1022,6 +1015,12 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
         $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('autogpt_ui');
         $embedding_localization = AIPKit_Providers::get_embedding_localization_payload('autogpt_ui', false);
         $default_cw_prompts = [];
+        $default_ce_prompts = class_exists(AIPKit_AutoGPT_Prompt_Definitions::class)
+            ? AIPKit_AutoGPT_Prompt_Definitions::get_content_enhancement_defaults()
+            : [];
+        $default_cc_prompts = class_exists(AIPKit_AutoGPT_Prompt_Definitions::class)
+            ? AIPKit_AutoGPT_Prompt_Definitions::get_comment_reply_defaults()
+            : [];
 
         if (class_exists(AIPKit_Content_Writer_Prompts::class)) {
             $default_cw_prompts = [
@@ -1096,6 +1095,8 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 ],
             ],
             'default_cw_prompts' => $default_cw_prompts,
+            'default_ce_prompts' => $default_ce_prompts,
+            'default_cc_prompts' => $default_cc_prompts,
             'frequencies' => $frequencies,
             'text' => [
                 'confirm_delete_task' => __('Are you sure you want to delete this automated task? This action cannot be undone.', 'gpt3-ai-content-generator'),
@@ -1156,6 +1157,9 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 'scheduled_for_label' => __('Scheduled', 'gpt3-ai-content-generator'),
                 'item_singular' => __('item', 'gpt3-ai-content-generator'),
                 'item_plural' => __('items', 'gpt3-ai-content-generator'),
+                'queue_summary_pending' => __('Pending', 'gpt3-ai-content-generator'),
+                'queue_summary_running' => __('Running', 'gpt3-ai-content-generator'),
+                'queue_summary_failed' => __('Failed', 'gpt3-ai-content-generator'),
                 'page_label' => __('Page', 'gpt3-ai-content-generator'),
                 'of_label' => __('of', 'gpt3-ai-content-generator'),
                 'previous_button' => __('Previous', 'gpt3-ai-content-generator'),

@@ -133,7 +133,7 @@ $nav_modules = array(
                     type="button" 
                     class="aipkit_module-tab aipkit_module-tab--settings aipkit_upgrade_btn" 
                     id="aipkit_upgradeBtn"
-                    title="<?php echo esc_attr__('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>"
+                    title="<?php echo esc_attr__('Upgrade', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="aipkit_upgrade_btn_icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -93,6 +93,10 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     if ($sanitized['popup_enabled'] !== '1') {
         $sanitized['site_wide_enabled'] = '0';
     }
+    $raw_deploy_mode = isset($raw_settings['deploy_mode']) ? sanitize_key((string) $raw_settings['deploy_mode']) : '';
+    $sanitized['deploy_mode'] = in_array($raw_deploy_mode, ['inline', 'popup', 'external'], true)
+        ? $raw_deploy_mode
+        : (($sanitized['popup_enabled'] === '1') ? 'popup' : 'inline');
     $sanitized['popup_icon_style'] = isset($raw_settings['popup_icon_style']) && in_array($raw_settings['popup_icon_style'], ['circle', 'square', 'none']) ? sanitize_key($raw_settings['popup_icon_style']) : BotSettingsManager::DEFAULT_POPUP_ICON_STYLE;
     // NEW: Popup icon size
     $allowed_icon_sizes = ['small','medium','large','xlarge'];

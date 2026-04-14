@@ -103,7 +103,7 @@ if (!$is_pro_plan) :
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                         </a>
                     </article>
                 </div>

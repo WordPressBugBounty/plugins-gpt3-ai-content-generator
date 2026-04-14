@@ -64,7 +64,7 @@ if ($has_woocommerce) {
 ?>
 <div class="aipkit_cw_source_selector_wrapper" data-template-ready="0">
     <div class="aipkit_cw_workflow_header">
-        <div class="aipkit_cw_workflow_title"><?php esc_html_e('Workflow', 'gpt3-ai-content-generator'); ?></div>
+        <div class="aipkit_cw_workflow_title"><?php esc_html_e('Mode', 'gpt3-ai-content-generator'); ?></div>
     </div>
 
     <div class="aipkit_cw_mode_section" aria-labelledby="aipkit_cw_mode_section_create">

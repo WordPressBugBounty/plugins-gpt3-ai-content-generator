@@ -51,7 +51,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
             'pixabay_orientation', 'pixabay_image_type', 'pixabay_category',
             'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids',
             'pinecone_index_name', 'qdrant_collection_name', 'vector_embedding_provider',
-            'vector_embedding_model', 'vector_store_top_k',
+            'vector_embedding_model', 'vector_store_top_k', 'vector_store_confidence_threshold',
             'rss_include_keywords', 'rss_exclude_keywords',
             'reasoning_effort',
         ];
@@ -83,7 +83,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                     $content_writer_config[$key] = ($post_data[$key] === '1' || $post_data[$key] === true || $post_data[$key] === 1) ? '1' : '0';
                 } elseif ($key === 'post_categories' && is_array($post_data[$key])) {
                     $content_writer_config[$key] = array_map('absint', $post_data[$key]);
-                } elseif ($key === 'post_author' || in_array($key, ['image_count', 'image_placement_param_x', 'vector_store_top_k', 'smart_schedule_interval_value'], true)) {
+                } elseif ($key === 'post_author' || in_array($key, ['image_count', 'image_placement_param_x', 'vector_store_top_k', 'vector_store_confidence_threshold', 'smart_schedule_interval_value'], true)) {
                     $content_writer_config[$key] = absint($post_data[$key]);
                 } elseif ($key === 'ai_temperature') {
                     $content_writer_config[$key] = (string)floatval($post_data[$key]);

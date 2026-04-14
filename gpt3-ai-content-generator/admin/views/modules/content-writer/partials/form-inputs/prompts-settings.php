@@ -5,76 +5,8 @@ if (!defined('ABSPATH')) {
 
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
-// --- Define Default Prompt Templates ---
-$default_custom_content_prompt = AIPKit_Content_Writer_Prompts::get_default_content_prompt();
-$default_custom_title_prompt = AIPKit_Content_Writer_Prompts::get_default_title_prompt();
-$default_custom_meta_prompt = AIPKit_Content_Writer_Prompts::get_default_meta_prompt();
-$default_custom_keyword_prompt = AIPKit_Content_Writer_Prompts::get_default_keyword_prompt();
-$default_custom_excerpt_prompt = AIPKit_Content_Writer_Prompts::get_default_excerpt_prompt();
-$default_custom_tags_prompt = AIPKit_Content_Writer_Prompts::get_default_tags_prompt();
-$prompt_library = AIPKit_Content_Writer_Prompts::get_prompt_library();
-$prompt_items = [
-    [
-        'key' => 'title',
-        'label' => __('Title', 'gpt3-ai-content-generator'),
-        'desc' => __('Generate post headline', 'gpt3-ai-content-generator'),
-        'field_id' => 'aipkit_cw_generate_title',
-        'field_name' => 'generate_title',
-        'flyout_id' => 'aipkit_cw_title_prompt_flyout',
-        'checked' => true,
-        'update_only' => true,
-    ],
-    [
-        'key' => 'content',
-        'label' => __('Content', 'gpt3-ai-content-generator'),
-        'desc' => __('Generate main article body', 'gpt3-ai-content-generator'),
-        'field_id' => 'aipkit_cw_generate_content',
-        'field_name' => 'generate_content',
-        'flyout_id' => 'aipkit_cw_content_prompt_flyout',
-        'checked' => true,
-        'update_only' => true,
-    ],
-    [
-        'key' => 'meta',
-        'label' => __('Meta Description', 'gpt3-ai-content-generator'),
-        'desc' => __('SEO meta for search engines', 'gpt3-ai-content-generator'),
-        'field_id' => 'aipkit_cw_generate_meta_desc',
-        'field_name' => 'generate_meta_description',
-        'flyout_id' => 'aipkit_cw_meta_prompt_flyout',
-        'checked' => true,
-        'update_only' => false,
-    ],
-    [
-        'key' => 'keyword',
-        'label' => __('Focus Keyword', 'gpt3-ai-content-generator'),
-        'desc' => __('Primary keyword for SEO', 'gpt3-ai-content-generator'),
-        'field_id' => 'aipkit_cw_generate_focus_keyword',
-        'field_name' => 'generate_focus_keyword',
-        'flyout_id' => 'aipkit_cw_keyword_prompt_flyout',
-        'checked' => true,
-        'update_only' => false,
-    ],
-    [
-        'key' => 'excerpt',
-        'label' => __('Excerpt', 'gpt3-ai-content-generator'),
-        'desc' => __('Short summary of the post', 'gpt3-ai-content-generator'),
-        'field_id' => 'aipkit_cw_generate_excerpt',
-        'field_name' => 'generate_excerpt',
-        'flyout_id' => 'aipkit_cw_excerpt_prompt_flyout',
-        'checked' => false,
-        'update_only' => false,
-    ],
-    [
-        'key' => 'tags',
-        'label' => __('Tags', 'gpt3-ai-content-generator'),
-        'desc' => __('Auto-generate post tags', 'gpt3-ai-content-generator'),
-        'field_id' => 'aipkit_cw_generate_tags',
-        'field_name' => 'generate_tags',
-        'flyout_id' => 'aipkit_cw_tags_prompt_flyout',
-        'checked' => false,
-        'update_only' => false,
-    ],
-];
+$prompt_items = AIPKit_Content_Writer_Prompts::get_content_writer_prompt_items();
+$prompt_flyout_items = AIPKit_Content_Writer_Prompts::get_content_writer_prompt_flyout_items();
 
 $image_prompt_main_items = [
     [
@@ -305,224 +237,54 @@ $render_prompt_library_options = static function(array $options): void {
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════════════════
-     PROMPT FLYOUTS (Edit Panels) - REDESIGNED
-     Clean, minimal design following 3 core UX principles:
-     1. Aesthetic - No headers, clean layout
-     2. Choice Overload Prevention - Template dropdown tucked away top-right
-     3. Chunking - Textarea is the hero, placeholders grouped below
-═══════════════════════════════════════════════════════════════════════════════ -->
-
-<!-- Title Prompt Flyout -->
-<div
-    class="aipkit_cw_prompt_flyout"
-    id="aipkit_cw_title_prompt_flyout"
-    aria-hidden="true"
-    data-default-title="<?php esc_attr_e('Title Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-images-title="<?php esc_attr_e('Image Title Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-products-title="<?php esc_attr_e('Product Title Prompt', 'gpt3-ai-content-generator'); ?>"
->
-    <div class="aipkit_cw_prompt_panel aipkit_cw_prompt_panel--tall" role="dialog" aria-label="<?php esc_attr_e('Title Prompt', 'gpt3-ai-content-generator'); ?>">
-        <div class="aipkit_cw_prompt_editor">
-            <div class="aipkit_cw_prompt_editor_toolbar">
-                <span class="aipkit_cw_prompt_editor_title"><?php esc_html_e('Title Prompt', 'gpt3-ai-content-generator'); ?></span>
-                <select
-                    id="aipkit_cw_title_prompt_library"
-                    class="aipkit_cw_prompt_template_select aipkit_cw_prompt_library_select"
-                    data-aipkit-prompt-target="aipkit_cw_custom_title_prompt"
-                    title="<?php esc_attr_e('Load template', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <option value="<?php echo esc_attr($default_custom_title_prompt); ?>"><?php esc_html_e('Default', 'gpt3-ai-content-generator'); ?></option>
-                    <?php $render_prompt_library_options($prompt_library['title'] ?? []); ?>
-                </select>
-            </div>
-            <textarea id="aipkit_cw_custom_title_prompt" name="custom_title_prompt" class="aipkit_cw_prompt_editor_textarea aipkit_autosave_trigger" placeholder="<?php esc_attr_e('Enter your title prompt...', 'gpt3-ai-content-generator'); ?>"><?php echo esc_textarea($default_custom_title_prompt); ?></textarea>
-            <div class="aipkit_cw_prompt_editor_footer">
-                <span
-                    class="aipkit_cw_prompt_editor_placeholders"
-                    data-prompt-type="title"
-                    data-label="<?php esc_attr_e('Variables:', 'gpt3-ai-content-generator'); ?>"
-                    data-copy-title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>"
-                ><?php esc_html_e('Variables:', 'gpt3-ai-content-generator'); ?> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{topic}</code> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{keywords}</code></span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Content Prompt Flyout -->
-<div
-    class="aipkit_cw_prompt_flyout"
-    id="aipkit_cw_content_prompt_flyout"
-    aria-hidden="true"
-    data-default-title="<?php esc_attr_e('Content Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-images-title="<?php esc_attr_e('Image Description Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-products-title="<?php esc_attr_e('Product Description Prompt', 'gpt3-ai-content-generator'); ?>"
->
-    <div class="aipkit_cw_prompt_panel aipkit_cw_prompt_panel--tall" role="dialog" aria-label="<?php esc_attr_e('Content Prompt', 'gpt3-ai-content-generator'); ?>">
-        <div class="aipkit_cw_prompt_editor">
-            <div class="aipkit_cw_prompt_editor_toolbar">
-                <span class="aipkit_cw_prompt_editor_title"><?php esc_html_e('Content Prompt', 'gpt3-ai-content-generator'); ?></span>
-                <select
-                    id="aipkit_cw_content_prompt_library"
-                    class="aipkit_cw_prompt_template_select aipkit_cw_prompt_library_select"
-                    data-aipkit-prompt-target="aipkit_cw_custom_content_prompt"
-                    title="<?php esc_attr_e('Load template', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <option value="<?php echo esc_attr($default_custom_content_prompt); ?>"><?php esc_html_e('Default', 'gpt3-ai-content-generator'); ?></option>
-                    <?php $render_prompt_library_options($prompt_library['content'] ?? []); ?>
-                </select>
-            </div>
-            <textarea id="aipkit_cw_custom_content_prompt" name="custom_content_prompt" class="aipkit_cw_prompt_editor_textarea aipkit_autosave_trigger" placeholder="<?php esc_attr_e('Enter your content prompt...', 'gpt3-ai-content-generator'); ?>"><?php echo esc_textarea($default_custom_content_prompt); ?></textarea>
-            <div class="aipkit_cw_prompt_editor_footer">
-                <span
-                    class="aipkit_cw_prompt_editor_placeholders"
-                    data-prompt-type="content"
-                    data-label="<?php esc_attr_e('Variables:', 'gpt3-ai-content-generator'); ?>"
-                    data-copy-title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>"
-                ><?php esc_html_e('Variables:', 'gpt3-ai-content-generator'); ?> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{topic}</code> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{keywords}</code></span>
+<?php foreach ($prompt_flyout_items as $item) : ?>
+    <?php
+    $data_titles = isset($item['data_titles']) && is_array($item['data_titles']) ? $item['data_titles'] : [];
+    $textarea = isset($item['textarea']) && is_array($item['textarea']) ? $item['textarea'] : [];
+    $library = isset($item['library']) && is_array($item['library']) ? $item['library'] : [];
+    $placeholders = isset($item['placeholders']) && is_array($item['placeholders']) ? $item['placeholders'] : [];
+    ?>
+    <div
+        class="aipkit_cw_prompt_flyout"
+        id="<?php echo esc_attr($item['flyout_id']); ?>"
+        aria-hidden="true"
+        <?php foreach ($data_titles as $data_key => $data_value) : ?>
+            data-<?php echo esc_attr(str_replace('_', '-', $data_key)); ?>-title="<?php echo esc_attr($data_value); ?>"
+        <?php endforeach; ?>
+    >
+        <div class="aipkit_cw_prompt_panel aipkit_cw_prompt_panel--tall" role="dialog" aria-label="<?php echo esc_attr($item['flyout_title']); ?>">
+            <div class="aipkit_cw_prompt_editor">
+                <div class="aipkit_cw_prompt_editor_toolbar">
+                    <span class="aipkit_cw_prompt_editor_title"><?php echo esc_html($item['flyout_title']); ?></span>
+                    <select
+                        id="<?php echo esc_attr($library['select_id'] ?? ''); ?>"
+                        class="aipkit_cw_prompt_template_select aipkit_cw_prompt_library_select"
+                        data-aipkit-prompt-target="<?php echo esc_attr($textarea['id'] ?? ''); ?>"
+                        title="<?php esc_attr_e('Load template', 'gpt3-ai-content-generator'); ?>"
+                    >
+                        <option value="<?php echo esc_attr($library['default_prompt'] ?? ''); ?>"><?php esc_html_e('Default', 'gpt3-ai-content-generator'); ?></option>
+                        <?php $render_prompt_library_options($library['options'] ?? []); ?>
+                    </select>
+                </div>
+                <textarea
+                    id="<?php echo esc_attr($textarea['id'] ?? ''); ?>"
+                    name="<?php echo esc_attr($textarea['name'] ?? ''); ?>"
+                    class="aipkit_cw_prompt_editor_textarea aipkit_autosave_trigger"
+                    placeholder="<?php echo esc_attr($textarea['placeholder'] ?? ''); ?>"
+                ><?php echo esc_textarea($textarea['value'] ?? ''); ?></textarea>
+                <div class="aipkit_cw_prompt_editor_footer">
+                    <span
+                        class="aipkit_cw_prompt_editor_placeholders"
+                        data-prompt-type="<?php echo esc_attr($item['placeholders_prompt_type'] ?? ''); ?>"
+                        data-label="<?php esc_attr_e('Variables:', 'gpt3-ai-content-generator'); ?>"
+                        data-copy-title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>"
+                    ><?php esc_html_e('Variables:', 'gpt3-ai-content-generator'); ?>
+                        <?php foreach ($placeholders as $placeholder) : ?>
+                            <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>"><?php echo esc_html($placeholder); ?></code>
+                        <?php endforeach; ?>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Meta Description Prompt Flyout -->
-<div
-    class="aipkit_cw_prompt_flyout"
-    id="aipkit_cw_meta_prompt_flyout"
-    aria-hidden="true"
-    data-default-title="<?php esc_attr_e('Meta Description Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-products-title="<?php esc_attr_e('Product Meta Description Prompt', 'gpt3-ai-content-generator'); ?>"
->
-    <div class="aipkit_cw_prompt_panel aipkit_cw_prompt_panel--tall" role="dialog" aria-label="<?php esc_attr_e('Meta Description Prompt', 'gpt3-ai-content-generator'); ?>">
-        <div class="aipkit_cw_prompt_editor">
-            <div class="aipkit_cw_prompt_editor_toolbar">
-                <span class="aipkit_cw_prompt_editor_title"><?php esc_html_e('Meta Description Prompt', 'gpt3-ai-content-generator'); ?></span>
-                <select
-                    id="aipkit_cw_meta_prompt_library"
-                    class="aipkit_cw_prompt_template_select aipkit_cw_prompt_library_select"
-                    data-aipkit-prompt-target="aipkit_cw_custom_meta_prompt"
-                    title="<?php esc_attr_e('Load template', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <option value="<?php echo esc_attr($default_custom_meta_prompt); ?>"><?php esc_html_e('Default', 'gpt3-ai-content-generator'); ?></option>
-                    <?php $render_prompt_library_options($prompt_library['meta'] ?? []); ?>
-                </select>
-            </div>
-            <textarea id="aipkit_cw_custom_meta_prompt" name="custom_meta_prompt" class="aipkit_cw_prompt_editor_textarea aipkit_autosave_trigger" placeholder="<?php esc_attr_e('Enter your meta description prompt...', 'gpt3-ai-content-generator'); ?>"><?php echo esc_textarea($default_custom_meta_prompt); ?></textarea>
-            <div class="aipkit_cw_prompt_editor_footer">
-                <span
-                    class="aipkit_cw_prompt_editor_placeholders"
-                    data-prompt-type="meta"
-                    data-label="<?php esc_attr_e('Variables:', 'gpt3-ai-content-generator'); ?>"
-                    data-copy-title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>"
-                ><?php esc_html_e('Variables:', 'gpt3-ai-content-generator'); ?> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{topic}</code> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{content_summary}</code> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{keywords}</code></span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Focus Keyword Prompt Flyout -->
-<div
-    class="aipkit_cw_prompt_flyout"
-    id="aipkit_cw_keyword_prompt_flyout"
-    aria-hidden="true"
-    data-default-title="<?php esc_attr_e('Focus Keyword Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-images-title="<?php esc_attr_e('Image Alt Text Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-products-title="<?php esc_attr_e('Product Focus Keyword Prompt', 'gpt3-ai-content-generator'); ?>"
->
-    <div class="aipkit_cw_prompt_panel aipkit_cw_prompt_panel--tall" role="dialog" aria-label="<?php esc_attr_e('Focus Keyword Prompt', 'gpt3-ai-content-generator'); ?>">
-        <div class="aipkit_cw_prompt_editor">
-            <div class="aipkit_cw_prompt_editor_toolbar">
-                <span class="aipkit_cw_prompt_editor_title"><?php esc_html_e('Focus Keyword Prompt', 'gpt3-ai-content-generator'); ?></span>
-                <select
-                    id="aipkit_cw_keyword_prompt_library"
-                    class="aipkit_cw_prompt_template_select aipkit_cw_prompt_library_select"
-                    data-aipkit-prompt-target="aipkit_cw_custom_keyword_prompt"
-                    title="<?php esc_attr_e('Load template', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <option value="<?php echo esc_attr($default_custom_keyword_prompt); ?>"><?php esc_html_e('Default', 'gpt3-ai-content-generator'); ?></option>
-                    <?php $render_prompt_library_options($prompt_library['keyword'] ?? []); ?>
-                </select>
-            </div>
-            <textarea id="aipkit_cw_custom_keyword_prompt" name="custom_keyword_prompt" class="aipkit_cw_prompt_editor_textarea aipkit_autosave_trigger" placeholder="<?php esc_attr_e('Enter your focus keyword prompt...', 'gpt3-ai-content-generator'); ?>"><?php echo esc_textarea($default_custom_keyword_prompt); ?></textarea>
-            <div class="aipkit_cw_prompt_editor_footer">
-                <span
-                    class="aipkit_cw_prompt_editor_placeholders"
-                    data-prompt-type="keyword"
-                    data-label="<?php esc_attr_e('Variables:', 'gpt3-ai-content-generator'); ?>"
-                    data-copy-title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>"
-                ><?php esc_html_e('Variables:', 'gpt3-ai-content-generator'); ?> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{topic}</code> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{content_summary}</code></span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Excerpt Prompt Flyout -->
-<div
-    class="aipkit_cw_prompt_flyout"
-    id="aipkit_cw_excerpt_prompt_flyout"
-    aria-hidden="true"
-    data-default-title="<?php esc_attr_e('Excerpt Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-images-title="<?php esc_attr_e('Image Caption Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-products-title="<?php esc_attr_e('Product Excerpt Prompt', 'gpt3-ai-content-generator'); ?>"
->
-    <div class="aipkit_cw_prompt_panel aipkit_cw_prompt_panel--tall" role="dialog" aria-label="<?php esc_attr_e('Excerpt Prompt', 'gpt3-ai-content-generator'); ?>">
-        <div class="aipkit_cw_prompt_editor">
-            <div class="aipkit_cw_prompt_editor_toolbar">
-                <span class="aipkit_cw_prompt_editor_title"><?php esc_html_e('Excerpt Prompt', 'gpt3-ai-content-generator'); ?></span>
-                <select
-                    id="aipkit_cw_excerpt_prompt_library"
-                    class="aipkit_cw_prompt_template_select aipkit_cw_prompt_library_select"
-                    data-aipkit-prompt-target="aipkit_cw_custom_excerpt_prompt"
-                    title="<?php esc_attr_e('Load template', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <option value="<?php echo esc_attr($default_custom_excerpt_prompt); ?>"><?php esc_html_e('Default', 'gpt3-ai-content-generator'); ?></option>
-                    <?php $render_prompt_library_options($prompt_library['excerpt'] ?? []); ?>
-                </select>
-            </div>
-            <textarea id="aipkit_cw_custom_excerpt_prompt" name="custom_excerpt_prompt" class="aipkit_cw_prompt_editor_textarea aipkit_autosave_trigger" placeholder="<?php esc_attr_e('Enter your excerpt prompt...', 'gpt3-ai-content-generator'); ?>"><?php echo esc_textarea($default_custom_excerpt_prompt); ?></textarea>
-            <div class="aipkit_cw_prompt_editor_footer">
-                <span
-                    class="aipkit_cw_prompt_editor_placeholders"
-                    data-prompt-type="excerpt"
-                    data-label="<?php esc_attr_e('Variables:', 'gpt3-ai-content-generator'); ?>"
-                    data-copy-title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>"
-                ><?php esc_html_e('Variables:', 'gpt3-ai-content-generator'); ?> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{topic}</code> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{keywords}</code> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{content_summary}</code></span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Tags Prompt Flyout -->
-<div
-    class="aipkit_cw_prompt_flyout"
-    id="aipkit_cw_tags_prompt_flyout"
-    aria-hidden="true"
-    data-default-title="<?php esc_attr_e('Tags Prompt', 'gpt3-ai-content-generator'); ?>"
-    data-existing-products-title="<?php esc_attr_e('Product Tags Prompt', 'gpt3-ai-content-generator'); ?>"
->
-    <div class="aipkit_cw_prompt_panel aipkit_cw_prompt_panel--tall" role="dialog" aria-label="<?php esc_attr_e('Tags Prompt', 'gpt3-ai-content-generator'); ?>">
-        <div class="aipkit_cw_prompt_editor">
-            <div class="aipkit_cw_prompt_editor_toolbar">
-                <span class="aipkit_cw_prompt_editor_title"><?php esc_html_e('Tags Prompt', 'gpt3-ai-content-generator'); ?></span>
-                <select
-                    id="aipkit_cw_tags_prompt_library"
-                    class="aipkit_cw_prompt_template_select aipkit_cw_prompt_library_select"
-                    data-aipkit-prompt-target="aipkit_cw_custom_tags_prompt"
-                    title="<?php esc_attr_e('Load template', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <option value="<?php echo esc_attr($default_custom_tags_prompt); ?>"><?php esc_html_e('Default', 'gpt3-ai-content-generator'); ?></option>
-                    <?php $render_prompt_library_options($prompt_library['tags'] ?? []); ?>
-                </select>
-            </div>
-            <textarea id="aipkit_cw_custom_tags_prompt" name="custom_tags_prompt" class="aipkit_cw_prompt_editor_textarea aipkit_autosave_trigger" placeholder="<?php esc_attr_e('Enter your tags prompt...', 'gpt3-ai-content-generator'); ?>"><?php echo esc_textarea($default_custom_tags_prompt); ?></textarea>
-            <div class="aipkit_cw_prompt_editor_footer">
-                <span
-                    class="aipkit_cw_prompt_editor_placeholders"
-                    data-prompt-type="tags"
-                    data-label="<?php esc_attr_e('Variables:', 'gpt3-ai-content-generator'); ?>"
-                    data-copy-title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>"
-                ><?php esc_html_e('Variables:', 'gpt3-ai-content-generator'); ?> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{topic}</code> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{keywords}</code> <code class="aipkit-placeholder" title="<?php esc_attr_e('Click to copy', 'gpt3-ai-content-generator'); ?>">{content_summary}</code></span>
-            </div>
-        </div>
-    </div>
-</div>
+<?php endforeach; ?>

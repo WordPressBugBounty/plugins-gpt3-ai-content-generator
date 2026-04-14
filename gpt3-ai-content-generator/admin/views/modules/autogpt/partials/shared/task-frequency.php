@@ -16,14 +16,16 @@ $default_frequency = array_key_exists('daily', $frequencies)
     : (array_key_first($frequencies) ?: '');
 ?>
 <div class="aipkit_task_schedule_frequency">
-    <div class="aipkit_post_status_row aipkit_task_schedule_frequency_row">
-        <label class="aipkit_post_settings_label aipkit_cw_setting_chip_label" for="aipkit_automated_task_frequency">
+    <div class="aipkit_cw_publishing_row aipkit_task_schedule_frequency_row">
+        <label class="aipkit_cw_panel_label" for="aipkit_automated_task_frequency">
             <?php esc_html_e('Frequency', 'gpt3-ai-content-generator'); ?>
         </label>
-        <select id="aipkit_automated_task_frequency" name="task_frequency" class="aipkit_post_settings_select aipkit_task_schedule_frequency_select">
-        <?php foreach ($frequencies as $value => $label): ?>
-            <option value="<?php echo esc_attr($value); ?>" <?php selected($value, $default_frequency); ?>><?php echo esc_html($label); ?></option>
-        <?php endforeach; ?>
-        </select>
+        <div class="aipkit_cw_publishing_row_actions">
+            <select id="aipkit_automated_task_frequency" name="task_frequency" class="aipkit_post_settings_select aipkit_form-input aipkit_cw_publishing_select aipkit_cw_blended_chevron_select aipkit_task_schedule_select aipkit_task_schedule_frequency_select">
+            <?php foreach ($frequencies as $value => $label): ?>
+                <option value="<?php echo esc_attr($value); ?>" <?php selected($value, $default_frequency); ?>><?php echo esc_html($label); ?></option>
+            <?php endforeach; ?>
+            </select>
+        </div>
     </div>
 </div>

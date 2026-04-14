@@ -48,28 +48,59 @@ class AIPKit_Get_Automated_Task_Queue_Items_Action extends AIPKit_Automated_Task
             $orderby_col = 'q.added_at';
         }
 
-        $where_clauses = [];
-        $prepare_args = [];
+        $search_where_clauses = [];
+        $search_prepare_args = [];
 
         if (!empty($search_term)) {
-            $where_clauses[] = "(q.target_identifier LIKE %s OR t.task_name LIKE %s)";
-            $prepare_args[] = '%' . $wpdb->esc_like($search_term) . '%';
-            $prepare_args[] = '%' . $wpdb->esc_like($search_term) . '%';
+            $search_where_clauses[] = "(q.target_identifier LIKE %s OR t.task_name LIKE %s)";
+            $search_prepare_args[] = '%' . $wpdb->esc_like($search_term) . '%';
+            $search_prepare_args[] = '%' . $wpdb->esc_like($search_term) . '%';
         }
+
+        $where_clauses = $search_where_clauses;
+        $prepare_args = $search_prepare_args;
 
         if (!empty($status_filter) && $status_filter !== 'all') {
             $where_clauses[] = "q.status = %s";
             $prepare_args[] = $status_filter;
         }
 
+        $search_where_sql = '';
+        if (!empty($search_where_clauses)) {
+            $search_where_sql = ' WHERE ' . implode(' AND ', $search_where_clauses);
+        }
+
         $where_sql = '';
         if (!empty($where_clauses)) {
-            $where_sql = " WHERE " . implode(' AND ', $where_clauses);
+            $where_sql = ' WHERE ' . implode(' AND ', $where_clauses);
         }
 
         $total_items_query = "SELECT COUNT(*) FROM {$this->queue_table_name} q LEFT JOIN {$this->tasks_table_name} t ON q.task_id = t.id" . $where_sql;
+        $prepared_total_items_query = !empty($prepare_args)
+            ? $wpdb->prepare($total_items_query, $prepare_args)
+            : $total_items_query;
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: This is a direct query for counting, caching is not applicable here.
-        $total_items = $wpdb->get_var($wpdb->prepare($total_items_query, $prepare_args));
+        $total_items = $wpdb->get_var($prepared_total_items_query);
+
+        $summary_query = "SELECT q.status, COUNT(*) AS item_count FROM {$this->queue_table_name} q LEFT JOIN {$this->tasks_table_name} t ON q.task_id = t.id" . $search_where_sql . ' GROUP BY q.status';
+        $prepared_summary_query = !empty($search_prepare_args)
+            ? $wpdb->prepare($summary_query, $search_prepare_args)
+            : $summary_query;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: This is a direct grouped count query for queue summary metadata.
+        $summary_rows = $wpdb->get_results($prepared_summary_query, ARRAY_A);
+        $summary = [
+            'pending' => 0,
+            'processing' => 0,
+            'failed' => 0,
+        ];
+        if (!empty($summary_rows)) {
+            foreach ($summary_rows as $summary_row) {
+                $status = isset($summary_row['status']) ? sanitize_key((string) $summary_row['status']) : '';
+                if (array_key_exists($status, $summary)) {
+                    $summary[$status] = (int) ($summary_row['item_count'] ?? 0);
+                }
+            }
+        }
 
         $use_processing_priority = ($orderby_col === 'q.added_at' && $order_dir === 'DESC');
         $order_by_sql = $use_processing_priority
@@ -124,7 +155,8 @@ class AIPKit_Get_Automated_Task_Queue_Items_Action extends AIPKit_Automated_Task
                 'total_pages' => ceil($total_items / $items_per_page),
                 'current_page' => $current_page,
                 'per_page' => $items_per_page,
-            ]
+            ],
+            'summary' => $summary,
         ]);
     }
 }

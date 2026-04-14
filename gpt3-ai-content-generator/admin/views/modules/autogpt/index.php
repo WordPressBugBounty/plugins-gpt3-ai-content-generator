@@ -45,7 +45,7 @@ $qdrant_collections = isset($vector_store_localization['qdrant_collections']) &&
 $task_categories = [
     '' => __('-- Select Category --', 'gpt3-ai-content-generator'),
     'content_creation' => __('Create New Content', 'gpt3-ai-content-generator'),
-    'content_enhancement' => __('Update Existing Content', 'gpt3-ai-content-generator'),
+    'content_enhancement' => __('Rewrite Content', 'gpt3-ai-content-generator'),
     'knowledge_base' => __('Content Indexing', 'gpt3-ai-content-generator'),
     'community_engagement' => __('Engagement', 'gpt3-ai-content-generator'),
 ];
@@ -75,7 +75,7 @@ $__aipkit_user_list_cap = 200;
 $cw_users_for_author = get_users([
     'orderby' => 'display_name',
     'order'   => 'ASC',
-    'fields'  => ['ID', 'display_name'],
+    'fields'  => ['ID', 'display_name', 'user_login'],
     'number'  => $__aipkit_user_list_cap,
 ]);
 if ($cw_current_user_id) {
@@ -89,6 +89,7 @@ if ($cw_current_user_id) {
             $cw_users_for_author[] = (object) [
                 'ID' => (int) $u->ID,
                 'display_name' => (string) $u->display_name,
+                'user_login' => (string) $u->user_login,
             ];
         }
     }
@@ -160,7 +161,7 @@ $aipkit_cron_tip = '';
 if ($aipkit_cron_disabled) {
     $aipkit_cron_tip = sprintf(
         __('WP-Cron is disabled. Enable WP-Cron to run automated tasks. <a href="%s" target="_blank" rel="noopener noreferrer">Learn how to enable WP-Cron</a>.', 'gpt3-ai-content-generator'),
-        esc_url('https://docs.aipower.org/docs/category/automate')
+        esc_url('https://www.siteground.com/kb/enable-wordpress-cron/')
     );
 } elseif ($aipkit_cron_overdue) {
     $aipkit_cron_tip = __('Next run is overdue. WP-Cron runs on page loads.', 'gpt3-ai-content-generator');
@@ -187,7 +188,7 @@ if (!empty($aipkit_autogpt_cron_summary)) {
     if (($aipkit_autogpt_cron_summary['state'] ?? '') === 'disabled') {
         $aipkit_autogpt_cron_warning = sprintf(
             __('WP-Cron is disabled. Automated tasks will not run. <a href="%s" target="_blank" rel="noopener noreferrer">Learn how to enable WP-Cron</a>.', 'gpt3-ai-content-generator'),
-            esc_url('https://docs.aipower.org/docs/category/automate')
+            esc_url('https://www.siteground.com/kb/enable-wordpress-cron/')
         );
     } elseif (($aipkit_autogpt_cron_summary['state'] ?? '') === 'overdue') {
         $aipkit_autogpt_cron_warning = __('WP-Cron appears delayed. Automated tasks run on page loads, so low traffic can delay runs.', 'gpt3-ai-content-generator');
@@ -238,34 +239,6 @@ if (!empty($aipkit_autogpt_cron_summary)) {
                 </div>
                 <p class="aipkit_autogpt_header_hint"><?php esc_html_e('Create, schedule, and monitor recurring AI automations.', 'gpt3-ai-content-generator'); ?></p>
             </div>
-        </div>
-        <div class="aipkit_container-actions">
-            <div id="aipkit_autogpt_editor_actions" class="aipkit_form_editor_actions aipkit_form_editor_actions--header" style="display: none;">
-                <button type="button" id="aipkit_cancel_edit_task_btn" class="aipkit_btn aipkit_btn-secondary">
-                    <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
-                </button>
-                <button type="submit" id="aipkit_save_task_btn" class="aipkit_btn aipkit_btn-primary" form="aipkit_automated_task_form">
-                    <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
-                    <span class="aipkit_spinner" style="display:none;"></span>
-                </button>
-            </div>
-            <button id="aipkit_add_new_task_btn" class="aipkit_btn aipkit_btn-primary">
-                <span class="dashicons dashicons-plus-alt2" style="margin-top:0px;"></span>
-                <?php esc_html_e('New Automation', 'gpt3-ai-content-generator'); ?>
-            </button>
-            <details class="aipkit_autogpt_cron_info" id="aipkit_autogpt_cron_info">
-                <summary
-                    class="aipkit_autogpt_cron_info_trigger"
-                    id="aipkit_autogpt_cron_info_trigger"
-                    aria-controls="aipkit_autogpt_cron_status"
-                    aria-label="<?php esc_attr_e('Cron Status', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <span class="dashicons dashicons-info-outline" aria-hidden="true"></span>
-                </summary>
-                <div id="aipkit_autogpt_cron_status" class="aipkit_autogpt_cron_status">
-                    <?php include __DIR__ . '/partials/settings-popover.php'; ?>
-                </div>
-            </details>
         </div>
     </div>
 

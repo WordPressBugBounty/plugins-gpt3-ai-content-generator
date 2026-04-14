@@ -6,11 +6,14 @@
 namespace WPAICG\AutoGPT\Ajax\Actions\RunNow;
 
 use WPAICG\AutoGPT\Ajax\AIPKit_Run_Automated_Task_Now_Action;
+use WPAICG\AutoGPT\Helpers;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
     exit;
 }
+
+require_once WPAICG_PLUGIN_DIR . 'classes/autogpt/helpers/task-type-access.php';
 
 /**
  * Validates the request for running a task now.
@@ -47,6 +50,9 @@ function validate_task_and_permissions_logic(AIPKit_Run_Automated_Task_Now_Actio
 
     if ($task['status'] !== 'active') {
         return new WP_Error('task_not_active_run', __('Task must be active to run now.', 'gpt3-ai-content-generator'), ['status' => 400]);
+    }
+    if (Helpers\task_type_requires_pro_plan((string) ($task['task_type'] ?? '')) && !Helpers\is_pro_plan_active()) {
+        return new WP_Error('task_type_requires_pro_plan_run_now', __('This is a Pro feature.', 'gpt3-ai-content-generator'), ['status' => 403]);
     }
 
     return $task;

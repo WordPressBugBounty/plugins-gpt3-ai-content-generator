@@ -63,6 +63,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_theme_preset_key', '');
         $default_instructions = __("You are a helpful AI Assistant. Please be friendly. Today's date is [date].", 'gpt3-ai-content-generator');
         update_post_meta($post_id, '_aipkit_instructions', $default_instructions);
+        update_post_meta($post_id, '_aipkit_deploy_mode', 'popup');
         update_post_meta($post_id, '_aipkit_popup_enabled', '1');
         update_post_meta($post_id, '_aipkit_popup_position', 'bottom-right');
         update_post_meta($post_id, '_aipkit_popup_delay', BotSettingsManager::DEFAULT_POPUP_DELAY);
@@ -194,6 +195,7 @@ class AIPKit_Bot_Settings_Initializer
 
         if (get_post_meta($post_id, '_aipkit_default_bot', true) === '1') {
             update_post_meta($post_id, '_aipkit_theme', 'dark');
+            update_post_meta($post_id, '_aipkit_deploy_mode', 'inline');
             update_post_meta($post_id, '_aipkit_popup_enabled', '0');
             update_post_meta($post_id, '_aipkit_popup_label_enabled', '1');
             update_post_meta($post_id, '_aipkit_popup_label_text', __('Need help? Ask me!', 'gpt3-ai-content-generator'));

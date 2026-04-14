@@ -16,6 +16,362 @@ if (!defined('ABSPATH')) {
 class AIPKit_Content_Writer_Prompts
 {
     /**
+     * @return array<string, array<string, mixed>>
+     */
+    private static function get_text_prompt_definitions(): array
+    {
+        $prompt_library = self::get_prompt_library();
+
+        return [
+            'title' => [
+                'label' => __('Title', 'gpt3-ai-content-generator'),
+                'description' => __('Generate post headline', 'gpt3-ai-content-generator'),
+                'flyout_title' => __('Title Prompt', 'gpt3-ai-content-generator'),
+                'default_prompt' => self::get_default_title_prompt(),
+                'placeholder' => __('Enter your title prompt...', 'gpt3-ai-content-generator'),
+                'library_options' => $prompt_library['title'] ?? [],
+                'placeholders' => ['{topic}', '{keywords}'],
+                'placeholders_prompt_type' => 'title',
+                'dynamic_titles' => [
+                    'default' => __('Title Prompt', 'gpt3-ai-content-generator'),
+                    'existing_images' => __('Image Title Prompt', 'gpt3-ai-content-generator'),
+                    'existing_products' => __('Product Title Prompt', 'gpt3-ai-content-generator'),
+                ],
+                'content_writer_toggle' => [
+                    'id' => 'aipkit_cw_generate_title',
+                    'name' => 'generate_title',
+                    'checked' => true,
+                    'update_only' => true,
+                ],
+                'content_writer_textarea' => [
+                    'id' => 'aipkit_cw_custom_title_prompt',
+                    'name' => 'custom_title_prompt',
+                ],
+                'content_writer_library_select_id' => 'aipkit_cw_title_prompt_library',
+                'autogpt_textarea' => [
+                    'id' => 'aipkit_task_cw_custom_title_prompt',
+                    'name' => 'custom_title_prompt',
+                ],
+                'autogpt_library_select_id' => 'aipkit_task_cw_title_prompt_library',
+            ],
+            'content' => [
+                'label' => __('Content', 'gpt3-ai-content-generator'),
+                'description' => __('Generate main article body', 'gpt3-ai-content-generator'),
+                'flyout_title' => __('Content Prompt', 'gpt3-ai-content-generator'),
+                'default_prompt' => self::get_default_content_prompt(),
+                'placeholder' => __('Enter your content prompt...', 'gpt3-ai-content-generator'),
+                'library_options' => $prompt_library['content'] ?? [],
+                'placeholders' => ['{topic}', '{keywords}'],
+                'placeholders_prompt_type' => 'content',
+                'dynamic_titles' => [
+                    'default' => __('Content Prompt', 'gpt3-ai-content-generator'),
+                    'existing_images' => __('Image Description Prompt', 'gpt3-ai-content-generator'),
+                    'existing_products' => __('Product Description Prompt', 'gpt3-ai-content-generator'),
+                ],
+                'content_writer_toggle' => [
+                    'id' => 'aipkit_cw_generate_content',
+                    'name' => 'generate_content',
+                    'checked' => true,
+                    'update_only' => true,
+                ],
+                'content_writer_textarea' => [
+                    'id' => 'aipkit_cw_custom_content_prompt',
+                    'name' => 'custom_content_prompt',
+                ],
+                'content_writer_library_select_id' => 'aipkit_cw_content_prompt_library',
+                'autogpt_textarea' => [
+                    'id' => 'aipkit_task_cw_custom_content_prompt',
+                    'name' => 'custom_content_prompt',
+                ],
+                'autogpt_library_select_id' => 'aipkit_task_cw_content_prompt_library',
+            ],
+            'meta' => [
+                'label' => __('Meta Description', 'gpt3-ai-content-generator'),
+                'description' => __('SEO meta for search engines', 'gpt3-ai-content-generator'),
+                'flyout_title' => __('Meta Description Prompt', 'gpt3-ai-content-generator'),
+                'default_prompt' => self::get_default_meta_prompt(),
+                'placeholder' => __('Enter your meta description prompt...', 'gpt3-ai-content-generator'),
+                'library_options' => $prompt_library['meta'] ?? [],
+                'placeholders' => ['{topic}', '{content_summary}', '{keywords}'],
+                'placeholders_prompt_type' => 'meta',
+                'dynamic_titles' => [
+                    'default' => __('Meta Description Prompt', 'gpt3-ai-content-generator'),
+                    'existing_products' => __('Product Meta Description Prompt', 'gpt3-ai-content-generator'),
+                ],
+                'content_writer_toggle' => [
+                    'id' => 'aipkit_cw_generate_meta_desc',
+                    'name' => 'generate_meta_description',
+                    'checked' => true,
+                    'update_only' => false,
+                ],
+                'content_writer_textarea' => [
+                    'id' => 'aipkit_cw_custom_meta_prompt',
+                    'name' => 'custom_meta_prompt',
+                ],
+                'content_writer_library_select_id' => 'aipkit_cw_meta_prompt_library',
+                'autogpt_toggle' => [
+                    'id' => 'aipkit_task_cw_generate_meta_desc',
+                    'name' => 'generate_meta_description',
+                    'checked' => true,
+                ],
+                'autogpt_textarea' => [
+                    'id' => 'aipkit_task_cw_custom_meta_prompt',
+                    'name' => 'custom_meta_prompt',
+                ],
+                'autogpt_library_select_id' => 'aipkit_task_cw_meta_prompt_library',
+            ],
+            'keyword' => [
+                'label' => __('Focus Keyword', 'gpt3-ai-content-generator'),
+                'description' => __('Primary keyword for SEO', 'gpt3-ai-content-generator'),
+                'flyout_title' => __('Focus Keyword Prompt', 'gpt3-ai-content-generator'),
+                'default_prompt' => self::get_default_keyword_prompt(),
+                'placeholder' => __('Enter your focus keyword prompt...', 'gpt3-ai-content-generator'),
+                'library_options' => $prompt_library['keyword'] ?? [],
+                'placeholders' => ['{topic}', '{content_summary}'],
+                'placeholders_prompt_type' => 'keyword',
+                'dynamic_titles' => [
+                    'default' => __('Focus Keyword Prompt', 'gpt3-ai-content-generator'),
+                    'existing_images' => __('Image Alt Text Prompt', 'gpt3-ai-content-generator'),
+                    'existing_products' => __('Product Focus Keyword Prompt', 'gpt3-ai-content-generator'),
+                ],
+                'content_writer_toggle' => [
+                    'id' => 'aipkit_cw_generate_focus_keyword',
+                    'name' => 'generate_focus_keyword',
+                    'checked' => true,
+                    'update_only' => false,
+                ],
+                'content_writer_textarea' => [
+                    'id' => 'aipkit_cw_custom_keyword_prompt',
+                    'name' => 'custom_keyword_prompt',
+                ],
+                'content_writer_library_select_id' => 'aipkit_cw_keyword_prompt_library',
+                'autogpt_toggle' => [
+                    'id' => 'aipkit_task_cw_generate_focus_keyword',
+                    'name' => 'generate_focus_keyword',
+                    'checked' => true,
+                ],
+                'autogpt_textarea' => [
+                    'id' => 'aipkit_task_cw_custom_keyword_prompt',
+                    'name' => 'custom_keyword_prompt',
+                ],
+                'autogpt_library_select_id' => 'aipkit_task_cw_keyword_prompt_library',
+            ],
+            'excerpt' => [
+                'label' => __('Excerpt', 'gpt3-ai-content-generator'),
+                'description' => __('Short summary of the post', 'gpt3-ai-content-generator'),
+                'flyout_title' => __('Excerpt Prompt', 'gpt3-ai-content-generator'),
+                'default_prompt' => self::get_default_excerpt_prompt(),
+                'placeholder' => __('Enter your excerpt prompt...', 'gpt3-ai-content-generator'),
+                'library_options' => $prompt_library['excerpt'] ?? [],
+                'placeholders' => ['{topic}', '{keywords}', '{content_summary}'],
+                'placeholders_prompt_type' => 'excerpt',
+                'dynamic_titles' => [
+                    'default' => __('Excerpt Prompt', 'gpt3-ai-content-generator'),
+                    'existing_images' => __('Image Caption Prompt', 'gpt3-ai-content-generator'),
+                    'existing_products' => __('Product Excerpt Prompt', 'gpt3-ai-content-generator'),
+                ],
+                'content_writer_toggle' => [
+                    'id' => 'aipkit_cw_generate_excerpt',
+                    'name' => 'generate_excerpt',
+                    'checked' => false,
+                    'update_only' => false,
+                ],
+                'content_writer_textarea' => [
+                    'id' => 'aipkit_cw_custom_excerpt_prompt',
+                    'name' => 'custom_excerpt_prompt',
+                ],
+                'content_writer_library_select_id' => 'aipkit_cw_excerpt_prompt_library',
+                'autogpt_toggle' => [
+                    'id' => 'aipkit_task_cw_generate_excerpt',
+                    'name' => 'generate_excerpt',
+                    'checked' => true,
+                ],
+                'autogpt_textarea' => [
+                    'id' => 'aipkit_task_cw_custom_excerpt_prompt',
+                    'name' => 'custom_excerpt_prompt',
+                ],
+                'autogpt_library_select_id' => 'aipkit_task_cw_excerpt_prompt_library',
+            ],
+            'tags' => [
+                'label' => __('Tags', 'gpt3-ai-content-generator'),
+                'description' => __('Auto-generate post tags', 'gpt3-ai-content-generator'),
+                'flyout_title' => __('Tags Prompt', 'gpt3-ai-content-generator'),
+                'default_prompt' => self::get_default_tags_prompt(),
+                'placeholder' => __('Enter your tags prompt...', 'gpt3-ai-content-generator'),
+                'library_options' => $prompt_library['tags'] ?? [],
+                'placeholders' => ['{topic}', '{keywords}', '{content_summary}'],
+                'placeholders_prompt_type' => 'tags',
+                'dynamic_titles' => [
+                    'default' => __('Tags Prompt', 'gpt3-ai-content-generator'),
+                    'existing_products' => __('Product Tags Prompt', 'gpt3-ai-content-generator'),
+                ],
+                'content_writer_toggle' => [
+                    'id' => 'aipkit_cw_generate_tags',
+                    'name' => 'generate_tags',
+                    'checked' => false,
+                    'update_only' => false,
+                ],
+                'content_writer_textarea' => [
+                    'id' => 'aipkit_cw_custom_tags_prompt',
+                    'name' => 'custom_tags_prompt',
+                ],
+                'content_writer_library_select_id' => 'aipkit_cw_tags_prompt_library',
+                'autogpt_toggle' => [
+                    'id' => 'aipkit_task_cw_generate_tags',
+                    'name' => 'generate_tags',
+                    'checked' => true,
+                ],
+                'autogpt_textarea' => [
+                    'id' => 'aipkit_task_cw_custom_tags_prompt',
+                    'name' => 'custom_tags_prompt',
+                ],
+                'autogpt_library_select_id' => 'aipkit_task_cw_tags_prompt_library',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function get_content_writer_prompt_items(): array
+    {
+        $items = [];
+        foreach (self::get_text_prompt_definitions() as $key => $definition) {
+            $toggle = $definition['content_writer_toggle'] ?? [];
+            $items[] = [
+                'key' => $key,
+                'label' => $definition['label'],
+                'desc' => $definition['description'],
+                'field_id' => $toggle['id'] ?? '',
+                'field_name' => $toggle['name'] ?? '',
+                'flyout_id' => sprintf('aipkit_cw_%s_prompt_flyout', $key),
+                'checked' => !empty($toggle['checked']),
+                'update_only' => !empty($toggle['update_only']),
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function get_content_writer_prompt_flyout_items(): array
+    {
+        $items = [];
+        foreach (self::get_text_prompt_definitions() as $key => $definition) {
+            $dynamic_titles = is_array($definition['dynamic_titles'] ?? null)
+                ? $definition['dynamic_titles']
+                : [];
+            $items[] = [
+                'key' => $key,
+                'flyout_id' => sprintf('aipkit_cw_%s_prompt_flyout', $key),
+                'flyout_title' => $definition['flyout_title'],
+                'data_titles' => $dynamic_titles,
+                'textarea' => [
+                    'id' => $definition['content_writer_textarea']['id'] ?? '',
+                    'name' => $definition['content_writer_textarea']['name'] ?? '',
+                    'value' => $definition['default_prompt'],
+                    'placeholder' => $definition['placeholder'],
+                ],
+                'library' => [
+                    'select_id' => $definition['content_writer_library_select_id'] ?? '',
+                    'options' => $definition['library_options'],
+                    'default_prompt' => $definition['default_prompt'],
+                ],
+                'placeholders' => $definition['placeholders'],
+                'placeholders_prompt_type' => $definition['placeholders_prompt_type'],
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function get_autogpt_content_writing_prompt_items(): array
+    {
+        $items = [];
+
+        foreach (self::get_text_prompt_definitions() as $key => $definition) {
+            $item = [
+                'key' => $key,
+                'label' => $definition['label'],
+                'description' => $definition['description'],
+                'flyout_id' => sprintf('aipkit_task_cw_%s_prompt_flyout', $key),
+                'flyout_title' => $definition['flyout_title'],
+                'textarea' => [
+                    'id' => $definition['autogpt_textarea']['id'] ?? '',
+                    'name' => $definition['autogpt_textarea']['name'] ?? '',
+                    'value' => $definition['default_prompt'],
+                    'placeholder' => $definition['placeholder'],
+                ],
+                'library' => [
+                    'select_id' => $definition['autogpt_library_select_id'] ?? '',
+                    'options' => $definition['library_options'],
+                    'default_prompt' => $definition['default_prompt'],
+                ],
+                'placeholders' => $definition['placeholders'],
+                'placeholders_prompt_type' => $definition['placeholders_prompt_type'],
+            ];
+
+            if (!empty($definition['autogpt_toggle'])) {
+                $item['toggle'] = $definition['autogpt_toggle'];
+            }
+
+            $items[] = $item;
+        }
+
+        $prompt_library = self::get_prompt_library();
+
+        $items[] = [
+            'key' => 'image',
+            'label' => __('Content Image', 'gpt3-ai-content-generator'),
+            'description' => __('Prompt for inline article images', 'gpt3-ai-content-generator'),
+            'flyout_id' => 'aipkit_task_cw_image_prompt_flyout',
+            'flyout_title' => __('Image Prompt', 'gpt3-ai-content-generator'),
+            'textarea' => [
+                'id' => 'aipkit_task_cw_image_prompt',
+                'name' => 'image_prompt',
+                'value' => self::get_default_image_prompt(),
+                'placeholder' => __('e.g., A photo of a freshly baked chocolate cake on a wooden table.', 'gpt3-ai-content-generator'),
+            ],
+            'library' => [
+                'select_id' => 'aipkit_task_cw_image_prompt_library',
+                'options' => $prompt_library['image'] ?? [],
+                'default_prompt' => self::get_default_image_prompt(),
+            ],
+            'placeholders' => ['{topic}', '{keywords}', '{excerpt}', '{post_title}'],
+            'placeholders_prompt_type' => 'image',
+            'placeholders_id' => 'aipkit_task_cw_image_prompt_placeholders',
+        ];
+
+        $items[] = [
+            'key' => 'featured_image',
+            'label' => __('Featured Image', 'gpt3-ai-content-generator'),
+            'description' => __('Prompt for the post thumbnail', 'gpt3-ai-content-generator'),
+            'flyout_id' => 'aipkit_task_cw_featured_image_prompt_flyout',
+            'flyout_title' => __('Featured Image Prompt', 'gpt3-ai-content-generator'),
+            'textarea' => [
+                'id' => 'aipkit_task_cw_featured_image_prompt',
+                'name' => 'featured_image_prompt',
+                'value' => self::get_default_featured_image_prompt(),
+                'placeholder' => __('Leave blank to use the main image prompt.', 'gpt3-ai-content-generator'),
+            ],
+            'library' => [
+                'select_id' => 'aipkit_task_cw_featured_image_prompt_library',
+                'options' => $prompt_library['featured_image'] ?? [],
+                'default_prompt' => self::get_default_featured_image_prompt(),
+            ],
+            'placeholders' => ['{topic}', '{post_title}', '{excerpt}', '{keywords}'],
+            'placeholders_prompt_type' => 'featured_image',
+        ];
+
+        return $items;
+    }
+
+    /**
      * @return string The default prompt for generating a new title.
      */
     public static function get_default_title_prompt(): string

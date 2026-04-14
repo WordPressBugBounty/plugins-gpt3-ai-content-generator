@@ -10,7 +10,14 @@ if (!defined('ABSPATH')) {
 }
 
 // $is_pro is available from the parent scope (loader-vars.php)
-if (!$is_pro) {
+$aipkit_premium_partial = WPAICG_LIB_DIR . 'views/modules/content-writer/partials/form-inputs/mode-url.php';
+
+if ($is_pro && file_exists($aipkit_premium_partial)) {
+    include $aipkit_premium_partial;
+    return;
+}
+
+{
     $upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : '#';
     ?>
     <div class="aipkit_feature_promo aipkit_feature_promo--url">
@@ -56,7 +63,7 @@ if (!$is_pro) {
 
         <div class="aipkit_feature_promo_cta">
             <a class="aipkit_btn aipkit_btn-primary aipkit_feature_promo_btn" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
-                <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
             </a>
             <a class="aipkit_feature_promo_link" href="https://docs.aipower.org/" target="_blank" rel="noopener noreferrer">
                 <?php esc_html_e('Learn more', 'gpt3-ai-content-generator'); ?>
@@ -65,60 +72,4 @@ if (!$is_pro) {
         </div>
     </div>
     <?php
-    return;
 }
-?>
-<div class="aipkit_url_import_container aipkit_cw_source_mode_shell aipkit_cw_source_mode_shell--url" data-url-container>
-    <div class="aipkit_cw_source_mode_header">
-        <h3 class="aipkit_cw_source_mode_title"><?php esc_html_e('Import from web pages', 'gpt3-ai-content-generator'); ?></h3>
-        <p class="aipkit_cw_source_mode_desc"><?php esc_html_e('Add one URL per line, then preview the first page before generating from the list.', 'gpt3-ai-content-generator'); ?></p>
-    </div>
-
-    <div class="aipkit_cw_source_mode_stage">
-        <div class="aipkit_url_input_section" data-url-input-zone>
-            <div class="aipkit_url_textarea_wrapper">
-                <textarea
-                    id="aipkit_cw_url_list"
-                    name="url_list"
-                    class="aipkit_form-input aipkit_url_textarea aipkit_autosave_trigger"
-                    rows="6"
-                    placeholder="<?php esc_attr_e("https://example.com/article-1\nhttps://blog.example.org/post", 'gpt3-ai-content-generator'); ?>"
-                ></textarea>
-                <div class="aipkit_url_counter">
-                    <span class="aipkit_url_count" data-url-count>0</span>
-                    <span><?php esc_html_e('URLs', 'gpt3-ai-content-generator'); ?></span>
-                </div>
-            </div>
-        </div>
-
-        <div class="aipkit_url_status_container" id="aipkit_cw_scrape_results_wrapper" data-url-status hidden>
-            <div class="aipkit_url_status_card" data-url-status-card>
-                <div class="aipkit_url_status_header">
-                    <div class="aipkit_url_status_icon" data-url-status-icon>
-                        <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
-                    </div>
-                    <div class="aipkit_url_status_title_block">
-                        <span class="aipkit_url_status_title"><?php esc_html_e('Content Preview', 'gpt3-ai-content-generator'); ?></span>
-                        <span class="aipkit_url_status_hint" data-url-preview-hint></span>
-                    </div>
-                    <button type="button" class="aipkit_url_status_close_btn" data-url-preview-close aria-label="<?php esc_attr_e('Close preview', 'gpt3-ai-content-generator'); ?>">
-                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
-                    </button>
-                </div>
-                <div class="aipkit_url_preview_content">
-                    <pre id="aipkit_cw_scrape_results" class="aipkit_url_preview_text" data-url-preview-text></pre>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="aipkit_cw_source_mode_footer aipkit_url_footer">
-        <div class="aipkit_url_actions">
-            <button type="button" id="aipkit_cw_test_scrape_btn" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_cw_button_match aipkit_url_test_btn">
-                <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-                <span class="aipkit_btn-text"><?php esc_html_e('Test First URL', 'gpt3-ai-content-generator'); ?></span>
-                <span class="aipkit_spinner" style="display:none;"></span>
-            </button>
-        </div>
-    </div>
-</div>

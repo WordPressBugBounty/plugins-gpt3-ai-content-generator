@@ -67,7 +67,7 @@ class AIPKit_Content_Writer_Parse_Csv_Action extends AIPKit_Content_Writer_Base_
         $tasks_found = 0;
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Reading from a temporary uploaded file is a standard and safe use case for these functions.
         if (($handle = fopen($csv_file_path, "r")) !== false) {
-            while (($row = fgetcsv($handle)) !== false) {
+            while (($row = fgetcsv($handle, 0, ',', '"', '\\')) !== false) {
                 // Skip empty rows
                 if (empty(array_filter($row))) {
                     continue;

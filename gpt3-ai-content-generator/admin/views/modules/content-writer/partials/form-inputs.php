@@ -24,7 +24,7 @@ $content_length_options = [
         <div class="aipkit_cw_inspector_card_header">
             <div class="aipkit_cw_inspector_card_header_copy">
                 <div class="aipkit_cw_inspector_card_title">
-                    <?php esc_html_e('Setup', 'gpt3-ai-content-generator'); ?>
+                    <?php esc_html_e('General', 'gpt3-ai-content-generator'); ?>
                 </div>
             </div>
         </div>
