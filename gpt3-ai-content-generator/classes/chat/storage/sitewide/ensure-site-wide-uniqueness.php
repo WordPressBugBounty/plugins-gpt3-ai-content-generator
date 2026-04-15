@@ -37,7 +37,6 @@ function ensure_site_wide_uniqueness_logic(int $target_bot_id, bool $is_enabling
                 'post_status'            => ['publish', 'draft'],
                 'posts_per_page'         => -1,
                 'fields'                 => 'ids',
-                'post__not_in'           => [$target_bot_id],
                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Targeted query over chatbot posts for uniqueness enforcement.
                 'meta_query'             => [
                     'relation' => 'AND',
@@ -51,7 +50,7 @@ function ensure_site_wide_uniqueness_logic(int $target_bot_id, bool $is_enabling
             $conflicting_ids = $conflicting_query->get_posts();
             foreach ($conflicting_ids as $conflicting_id) {
                 $conflicting_id = absint($conflicting_id);
-                if ($conflicting_id > 0) {
+                if ($conflicting_id > 0 && $conflicting_id !== $target_bot_id) {
                     update_post_meta($conflicting_id, '_aipkit_site_wide_enabled', '0');
                     $clear_cache = true;
                 }

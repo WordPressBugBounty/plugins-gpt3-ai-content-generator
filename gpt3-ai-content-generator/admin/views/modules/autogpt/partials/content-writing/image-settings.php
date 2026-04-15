@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 use WPAICG\AIPKit_Providers;
 
 $pexels_data = AIPKit_Providers::get_provider_data('Pexels');

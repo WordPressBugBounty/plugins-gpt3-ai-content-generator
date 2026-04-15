@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Ensure Interface and Base are loaded (normally loaded by Provider_Dependencies_Loader)
 if (!interface_exists(ProviderStrategyInterface::class)) {
     $base_path = __DIR__ . '/../';

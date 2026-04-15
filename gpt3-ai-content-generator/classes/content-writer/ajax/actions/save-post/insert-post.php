@@ -19,6 +19,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Ensure dependencies are loaded
 if (!function_exists('WPAICG\ContentWriter\TemplateManagerMethods\calculate_schedule_datetime_logic')) {
     $path = WPAICG_PLUGIN_DIR . 'classes/content-writer/template-manager/calculate-schedule-datetime.php';

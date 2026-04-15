@@ -9,9 +9,9 @@
  * @package           Wp_Ai_Content_Generator
  *
  * @wordpress-plugin
- * Plugin Name:       AI Puffer – Your AI engine for WordPress (formerly AI Power)
- * Description:       Your AI engine for WordPress. Chat, write, automate, and generate — all in one workspace.
- * Version:           2.4.3
+ * Plugin Name:       AI Puffer – Chat. Create. Automate. (formerly AI Power)
+ * Description:       Chat. Create. Automate. All your AI tools in one workspace.
+ * Version:           2.4.4
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -19,10 +19,11 @@
  * Text Domain:       gpt3-ai-content-generator
  * Domain Path:       /languages
  */
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.4.3' );
+define( 'WPAICG_VERSION', '2.4.4' );
 define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );

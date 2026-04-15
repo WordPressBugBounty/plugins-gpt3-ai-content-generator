@@ -110,8 +110,9 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
-        $order_raw = isset($_POST['order']) ? wp_unslash($_POST['order']) : [];
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in the parent class.
+        $post_data = wp_unslash($_POST);
+        $order_raw = $post_data['order'] ?? [];
         if (!is_array($order_raw)) {
             $this->send_wp_error(new WP_Error('invalid_order', __('Invalid action order provided.', 'gpt3-ai-content-generator')));
             return;
@@ -192,13 +193,12 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
-        $action_id = isset($_POST['id']) && !empty($_POST['id']) ? sanitize_text_field(wp_unslash($_POST['id'])) : null;
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
-        $label = isset($_POST['label']) ? sanitize_text_field(wp_unslash($_POST['label'])) : '';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in the parent class.
-        $prompt = isset($_POST['prompt']) ? sanitize_textarea_field(wp_unslash($_POST['prompt'])) : '';
-        $insert_position_raw = isset($_POST['insert_position']) ? sanitize_key(wp_unslash($_POST['insert_position'])) : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in the parent class.
+        $post_data = wp_unslash($_POST);
+        $action_id = isset($post_data['id']) && !empty($post_data['id']) ? sanitize_text_field((string) $post_data['id']) : null;
+        $label = isset($post_data['label']) ? sanitize_text_field((string) $post_data['label']) : '';
+        $prompt = isset($post_data['prompt']) ? sanitize_textarea_field((string) $post_data['prompt']) : '';
+        $insert_position_raw = isset($post_data['insert_position']) ? sanitize_key((string) $post_data['insert_position']) : null;
         $allowed_positions = ['replace','after','before'];
 
         if (empty($label) || empty($prompt)) {

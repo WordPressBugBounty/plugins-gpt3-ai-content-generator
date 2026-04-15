@@ -3,6 +3,8 @@
 /**
  * Partial: AI Parameters & Advanced Settings
  */
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 if (!defined('ABSPATH')) exit;
 
 // Variables required: $current_provider, $temperature, $top_p
@@ -406,3 +408,4 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
     }
     ?>
 </div>
+

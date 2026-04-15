@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $event_webhook_settings = \WPAICG\Core\AIPKit_Event_Webhooks_Settings::get_settings();
 $event_webhooks_enabled = (string) ($event_webhook_settings['enabled'] ?? '0') === '1' ? '1' : '0';
 $event_webhook_signing_secret = (string) ($event_webhook_settings['signing_secret'] ?? '');

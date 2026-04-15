@@ -3,6 +3,8 @@
 /**
  * Partial: API Key Input Fields for different providers.
  */
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 if (!defined('ABSPATH')) exit;
 
 // Variables required: $current_provider, $openai_data, $openrouter_data, $google_data, $azure_data, $claude_data, $deepseek_data, $azure_defaults

@@ -50,8 +50,6 @@ class AIPKit_Dependency_Loader
     {
         $admin_like_request = self::is_admin_like_request();
         $automation_request = self::is_automation_request();
-        $rest_request = self::is_rest_request();
-
         // Core Plugin Files (Loaded directly before specialized loaders)
         require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator-i18n.php';
         require_once WPAICG_PLUGIN_DIR . 'public/class-wp-ai-content-generator-public.php';
@@ -126,9 +124,9 @@ class AIPKit_Dependency_Loader
         Chat_Dependencies_Loader::load();
         Speech_Dependencies_Loader::load();
         Stt_Dependencies_Loader::load();
-        if ($rest_request) {
-            Rest_Dependencies_Loader::load();
-        }
+        // REST route registration happens during plugin bootstrap, before REST_REQUEST
+        // is reliably defined for the current request.
+        Rest_Dependencies_Loader::load();
         Image_Dependencies_Loader::load();
         Vector_Store_Dependencies_Loader::load();
         if ($admin_like_request) {
@@ -169,8 +167,4 @@ class AIPKit_Dependency_Loader
         return defined('WP_CLI') && WP_CLI;
     }
 
-    private static function is_rest_request(): bool
-    {
-        return defined('REST_REQUEST') && REST_REQUEST;
-    }
 }

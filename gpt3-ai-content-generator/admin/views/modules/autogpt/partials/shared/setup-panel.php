@@ -100,25 +100,6 @@ $aipkit_autogpt_setup_prompt_popover_id = 'aipkit_autogpt_' . $aipkit_autogpt_se
 $aipkit_autogpt_setup_content_length_id = $aipkit_autogpt_setup_base . '_content_length';
 $aipkit_autogpt_setup_content_max_tokens_id = $aipkit_autogpt_setup_base . '_content_max_tokens';
 
-$aipkit_autogpt_setup_render_attrs = static function (array $attributes): string {
-    if (empty($attributes)) {
-        return '';
-    }
-
-    $parts = [];
-    foreach ($attributes as $attribute => $value) {
-        if ($value === null || $value === false) {
-            continue;
-        }
-        if ($value === true) {
-            $parts[] = esc_attr((string) $attribute);
-            continue;
-        }
-        $parts[] = sprintf('%s="%s"', esc_attr((string) $attribute), esc_attr((string) $value));
-    }
-
-    return $parts ? ' ' . implode(' ', $parts) : '';
-};
 ?>
 <div class="aipkit_content_writer_inputs aipkit_autogpt_setup_fields">
     <select
@@ -333,7 +314,16 @@ $aipkit_autogpt_setup_render_attrs = static function (array $attributes): string
     <div
         class="aipkit_model_settings_popover aipkit_cw_settings_popover aipkit_cw_prompt_popover"
         id="<?php echo esc_attr($aipkit_autogpt_setup_prompt_popover_id); ?>"
-        aria-hidden="true"<?php echo $aipkit_autogpt_setup_render_attrs($aipkit_autogpt_setup_prompt_root_attrs); ?>
+        aria-hidden="true"<?php foreach ($aipkit_autogpt_setup_prompt_root_attrs as $aipkit_autogpt_setup_attr => $aipkit_autogpt_setup_value) : ?>
+            <?php if ($aipkit_autogpt_setup_value === null || $aipkit_autogpt_setup_value === false) : ?>
+                <?php continue; ?>
+            <?php endif; ?>
+            <?php if ($aipkit_autogpt_setup_value === true) : ?>
+                <?php echo ' ' . esc_attr((string) $aipkit_autogpt_setup_attr); ?>
+            <?php else : ?>
+                <?php printf(' %1$s="%2$s"', esc_attr((string) $aipkit_autogpt_setup_attr), esc_attr((string) $aipkit_autogpt_setup_value)); ?>
+            <?php endif; ?>
+        <?php endforeach; ?>
     >
         <div
             class="aipkit_model_settings_popover_panel aipkit_cw_settings_popover_panel aipkit_cw_prompts_panel aipkit_cw_prompt_popover_panel"

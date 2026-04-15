@@ -85,7 +85,6 @@ class AIPKit_Hook_Manager
     public static function register_hooks(string $plugin_version)
     {
         $admin_like_request = is_admin() || wp_doing_ajax();
-        $rest_request = defined('REST_REQUEST') && REST_REQUEST;
 
         // --- Instantiate ALL services/handlers needed by ANY registrar ---
         $i18n            = new WP_AI_Content_Generator_i18n();
@@ -96,7 +95,7 @@ class AIPKit_Hook_Manager
         $speech_manager  = class_exists(AIPKit_Speech_Manager::class) ? new AIPKit_Speech_Manager() : null;
         $stt_manager     = class_exists(AIPKit_STT_Manager::class) ? new AIPKit_STT_Manager() : null;
         $image_manager   = class_exists(AIPKit_Image_Manager::class) ? new AIPKit_Image_Manager() : null;
-        $rest_controller = ($rest_request && class_exists(AIPKit_REST_Controller::class)) ? new AIPKit_REST_Controller() : null;
+        $rest_controller = class_exists(AIPKit_REST_Controller::class) ? new AIPKit_REST_Controller() : null;
 
         $image_settings_ajax_handler = null;
         $vector_post_processor_ajax_handler = null;
@@ -233,7 +232,7 @@ class AIPKit_Hook_Manager
         // --- END MODIFICATION ---
 
 
-        if ($rest_request && class_exists(Rest_Api_Hooks_Registrar::class)) {
+        if ($rest_controller && class_exists(Rest_Api_Hooks_Registrar::class)) {
             Rest_Api_Hooks_Registrar::register($rest_controller);
         }
 

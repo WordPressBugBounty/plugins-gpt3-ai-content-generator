@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $upgrade_url = isset($upgrade_url) && !empty($upgrade_url)
     ? $upgrade_url
     : (function_exists('wpaicg_gacg_fs')

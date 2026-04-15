@@ -37,10 +37,10 @@ class AIPKit_Content_Writer_Fetch_Posts_Action extends AIPKit_Content_Writer_Bas
         if ($paged < 1) {
             $paged = 1;
         }
-        if ($per_page < 1) {
+        $allowed_per_page = [10, 25, 50, 100, 200, 500, 1000];
+        if (!in_array($per_page, $allowed_per_page, true)) {
             $per_page = 10;
         }
-        $per_page = min($per_page, 50);
 
         $post_types = get_post_types(['public' => true], 'objects');
         $allowed_types = array_keys($post_types);

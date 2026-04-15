@@ -3,6 +3,8 @@
 // Status: MODIFIED
 // Was: classes/core/providers/openrouter-provider-strategy.php
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Core\Providers;
 
 use WP_Error;
@@ -25,7 +27,6 @@ require_once $methods_path . 'build-sse-payload.php';
 require_once $methods_path . 'parse-sse-chunk.php';
 require_once $methods_path . 'generate-embeddings.php';
 require_once $methods_path . 'get-embedding-models.php';
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

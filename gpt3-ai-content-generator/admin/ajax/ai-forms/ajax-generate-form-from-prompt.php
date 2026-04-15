@@ -342,6 +342,7 @@ function aipkit_ai_forms_build_generation_failure_message(array $failures): stri
     }
 
     return sprintf(
+        /* translators: %s: summary of provider failure details. */
         __('Form generation failed after trying all available providers. %s', 'gpt3-ai-content-generator'),
         $summary
     );
@@ -663,7 +664,11 @@ function aipkit_ai_forms_normalize_generated_field(array $field, int $element_co
         : filter_var($required_raw, FILTER_VALIDATE_BOOLEAN);
 
     if ($label === '') {
-        $label = sprintf(__('Field %d', 'gpt3-ai-content-generator'), $element_counter);
+        $label = sprintf(
+            /* translators: %d: generated fallback field number. */
+            __('Field %d', 'gpt3-ai-content-generator'),
+            $element_counter
+        );
     }
 
     $field_id = aipkit_ai_forms_build_unique_field_id(

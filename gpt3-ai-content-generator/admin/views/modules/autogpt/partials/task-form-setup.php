@@ -9,6 +9,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 // Variables from parent: $task_categories, $frequencies, $aipkit_task_statuses_for_select, etc.
 ?>
 <label class="screen-reader-text" for="aipkit_automated_task_category"><?php esc_html_e('Category', 'gpt3-ai-content-generator'); ?></label>

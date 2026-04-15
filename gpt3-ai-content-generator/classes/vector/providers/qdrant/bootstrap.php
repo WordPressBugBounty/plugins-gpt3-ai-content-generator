@@ -1,6 +1,8 @@
 <?php
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/vector/providers/qdrant/bootstrap.php
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Vector\Providers;
 
 use WPAICG\Vector\AIPKit_Vector_Base_Provider_Strategy;
@@ -26,7 +28,6 @@ foreach ($method_files as $file) {
         require_once $file_path;
     }
 }
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

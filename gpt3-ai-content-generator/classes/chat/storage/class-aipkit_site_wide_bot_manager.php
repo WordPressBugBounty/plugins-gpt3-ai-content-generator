@@ -4,6 +4,8 @@
 // Status: MODIFIED
 // I have updated this file to load all its logic from new, modularized files in the sitewide/ subdirectory.
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Chat\Storage;
 
 use WPAICG\Chat\Admin\AdminSetup; // Keep for POST_TYPE constant access in logic files if needed
@@ -13,7 +15,6 @@ $sitewide_logic_path = __DIR__ . '/sitewide/';
 require_once $sitewide_logic_path . 'get-site-wide-bot-id.php';
 require_once $sitewide_logic_path . 'ensure-site-wide-uniqueness.php';
 require_once $sitewide_logic_path . 'clear-site-wide-cache.php';
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

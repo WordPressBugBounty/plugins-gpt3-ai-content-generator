@@ -3,6 +3,8 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/autogpt/ajax/actions/run-now/run-now-content-writing.php
 // Status: MODIFIED
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\AutoGPT\Ajax\Actions\RunNow;
 
 // NEW: Use the shared modular logic
@@ -18,7 +20,6 @@ require_once $modules_path . 'gsheets-task-generator.php';
 require_once $modules_path . 'url-task-generator.php';
 require_once $modules_path . 'manual-task-generator.php';
 require_once $modules_path . 'parse-schedule-utils.php';
-
 
 if (!defined('ABSPATH')) {
     exit;

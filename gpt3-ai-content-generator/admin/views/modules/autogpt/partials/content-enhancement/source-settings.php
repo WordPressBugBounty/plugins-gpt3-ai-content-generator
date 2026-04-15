@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $aipkit_premium_partial = WPAICG_LIB_DIR . 'views/modules/autogpt/partials/content-enhancement/source-settings.php';
 
 if (!empty($is_pro) && file_exists($aipkit_premium_partial)) {

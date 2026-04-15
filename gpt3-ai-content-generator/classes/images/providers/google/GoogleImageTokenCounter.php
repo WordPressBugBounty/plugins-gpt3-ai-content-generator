@@ -8,6 +8,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- This file intentionally uses core WordPress hook names.
+
 /**
  * Provides token counting utilities for Google Gemini image requests.
  */

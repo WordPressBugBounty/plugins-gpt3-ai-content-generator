@@ -2,6 +2,8 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/frontend/shortcode/class-aipkit-chat-featuremanager.php
 // Status: MODIFIED
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Chat\Frontend\Shortcode;
 
 use WPAICG\aipkit_dashboard;
@@ -17,7 +19,6 @@ require_once $featuremanager_methods_path . 'get-web-search-flag.php';
 require_once $featuremanager_methods_path . 'get-google-grounding-flags.php';
 require_once $featuremanager_methods_path . 'get-realtime-voice-flag.php';
 require_once $featuremanager_methods_path . 'compute-derived-flags.php';
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -50,7 +51,6 @@ class FeatureManager {
         ]);
         // Rename for consistency if needed, or use directly
         $flags['feedback_ui_enabled'] = $flags['enable_feedback'];
-
 
         // 2. Determine plan status
         $is_pro_plan = class_exists(aipkit_dashboard::class) ? aipkit_dashboard::is_pro_plan() : false;

@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Load the new modular logic files
 $actions_path = __DIR__ . '/actions/save-task/';
 require_once $actions_path . 'validate-task-request.php';

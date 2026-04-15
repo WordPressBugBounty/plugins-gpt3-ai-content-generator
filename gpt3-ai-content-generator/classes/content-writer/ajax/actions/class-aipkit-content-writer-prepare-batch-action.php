@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $logic_path = __DIR__ . '/create-task/';
 require_once $logic_path . 'build-content-writer-config.php';
 require_once $logic_path . 'validate-task-requirements.php';

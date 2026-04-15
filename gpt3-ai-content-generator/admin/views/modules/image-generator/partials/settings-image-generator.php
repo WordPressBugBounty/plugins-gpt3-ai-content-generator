@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler; // Import the handler class
 // Fetch current settings using the handler method
 $settings_data = AIPKit_Image_Settings_Ajax_Handler::get_settings();

@@ -22,20 +22,23 @@ if (!defined('ABSPATH')) {
 */
 function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $handlerInstance): void
 {
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Frontend nonce is verified below before processing request data.
+    $post_data = wp_unslash($_POST);
+
     // --- Handle preflight OPTIONS request ---
     AIPKit_CORS_Manager::handle_preflight_request();
 
     // --- CORS Check ---
     $bot_id = 0;
-    if (isset($_POST['bot_id'])) {
-        $bot_id = absint(wp_unslash($_POST['bot_id']));
+    if (isset($post_data['bot_id'])) {
+        $bot_id = absint($post_data['bot_id']);
     }
 
     if ($bot_id > 0) {
         // Check if this is a cross-origin request (actual embed usage)
         $is_cross_origin = false;
         if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
-            $origin = $_SERVER['HTTP_ORIGIN'];
+            $origin = esc_url_raw(wp_unslash((string) $_SERVER['HTTP_ORIGIN']));
             $site_url = get_site_url();
             $site_parsed = wp_parse_url($site_url);
             $origin_parsed = wp_parse_url($origin);
@@ -74,8 +77,7 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     }
 
     // --- MODIFICATION: Improved Nonce Check and Error Reporting ---
-    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_POST['_ajax_nonce'] is sanitized with sanitize_key before use.
-    if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce(sanitize_key($_POST['_ajax_nonce']), 'aipkit_frontend_chat_nonce')) {
+    if (!isset($post_data['_ajax_nonce']) || !wp_verify_nonce(sanitize_key((string) $post_data['_ajax_nonce']), 'aipkit_frontend_chat_nonce')) {
         $error_data_for_response = [
             'message' => __('Your session has expired or the request is invalid. Please refresh the page and try again.', 'gpt3-ai-content-generator'),
             'code'    => 'nonce_failure_cache_sse' // Specific code for nonce failure
@@ -85,21 +87,16 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     }
     // --- END MODIFICATION ---
 
-    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
-    $raw_user_message = isset($_POST['message']) ? wp_unslash($_POST['message']) : '';
+    $raw_user_message = isset($post_data['message']) ? (string) $post_data['message'] : '';
     
     // Custom sanitization for code content - preserve code structure while ensuring security
     $user_message = wp_check_invalid_utf8($raw_user_message);
     $user_message = str_replace(chr(0), '', $user_message); // Remove null bytes
     
-    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
-    $image_inputs_json = isset($_POST['image_inputs']) ? wp_unslash($_POST['image_inputs']) : null;
-    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
-    $client_user_message_id = isset($_POST['user_client_message_id']) ? sanitize_key(wp_unslash($_POST['user_client_message_id'])) : null;
-    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
-    $active_openai_vs_id = isset($_POST['active_openai_vs_id']) ? sanitize_text_field(wp_unslash($_POST['active_openai_vs_id'])) : null;
-    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
-    $active_claude_file_id = isset($_POST['active_claude_file_id']) ? sanitize_text_field(wp_unslash($_POST['active_claude_file_id'])) : null;
+    $image_inputs_json = isset($post_data['image_inputs']) ? (string) $post_data['image_inputs'] : null;
+    $client_user_message_id = isset($post_data['user_client_message_id']) ? sanitize_key((string) $post_data['user_client_message_id']) : null;
+    $active_openai_vs_id = isset($post_data['active_openai_vs_id']) ? sanitize_text_field((string) $post_data['active_openai_vs_id']) : null;
+    $active_claude_file_id = isset($post_data['active_claude_file_id']) ? sanitize_text_field((string) $post_data['active_claude_file_id']) : null;
 
     if (!class_exists(ChatImageInputValidator::class)) {
         $validator_path = WPAICG_PLUGIN_DIR . 'classes/chat/core/validation/class-chat-image-input-validator.php';

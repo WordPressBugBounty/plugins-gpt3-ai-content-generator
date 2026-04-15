@@ -633,6 +633,7 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
                 'error_updating_tags' => __('Error updating tags.', 'gpt3-ai-content-generator'),
                 'no_suggestions_tags' => __('No tag suggestions generated or AI Error.', 'gpt3-ai-content-generator'),
                 'select_tags' => __('Click a tag set to apply:', 'gpt3-ai-content-generator'),
+                /* translators: 1: provider label, 2: model label, 3: temperature value. */
                 'loading_info_template' => __('Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)', 'gpt3-ai-content-generator'),
                 'close' => __('Close', 'gpt3-ai-content-generator'),
                 'config_modal_title' => __('Configure AI Actions', 'gpt3-ai-content-generator'),
@@ -656,6 +657,7 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
                 'action_deleted' => __('Action deleted.', 'gpt3-ai-content-generator'),
                 'action_saved' => __('Action saved.', 'gpt3-ai-content-generator'),
                 'loading_actions' => __('Loading actions...', 'gpt3-ai-content-generator'),
+                /* translators: %s: placeholder token that will be replaced by the selected text. */
                 'prompt_placeholder_info' => __('Use %s as a placeholder for the selected text.', 'gpt3-ai-content-generator'),
             ],
             'settings_url' => admin_url('admin.php?page=wpaicg#settings'),
@@ -932,6 +934,7 @@ class AIPKit_Vector_Post_Processor_Assets extends AIPKit_Admin_Asset_Base
                 'close' => __('Close', 'gpt3-ai-content-generator'),
                 'stop' => __('Stop', 'gpt3-ai-content-generator'),
                 'stopping' => __('Stopping...', 'gpt3-ai-content-generator'),
+                /* translators: 1: processed item count, 2: total item count. */
                 'indexing_progress' => __('Processing: %1$d/%2$d', 'gpt3-ai-content-generator'),
                 'indexing_complete' => __('Indexing complete!', 'gpt3-ai-content-generator'),
                 'error_fetching_stores' => __('Error fetching vector stores.', 'gpt3-ai-content-generator'),
@@ -939,10 +942,13 @@ class AIPKit_Vector_Post_Processor_Assets extends AIPKit_Admin_Asset_Base
                 'error_no_posts_selected' => __('Please select at least one post to index.', 'gpt3-ai-content-generator'),
                 'confirm_start_indexing' => __('Are you sure you want to index the selected content?', 'gpt3-ai-content-generator'),
                 'status_preparing' => __('Preparing content...', 'gpt3-ai-content-generator'),
+                /* translators: 1: current file number, 2: total file count. */
                 'status_uploading' => __('Uploading file %1$s of %2$s...', 'gpt3-ai-content-generator'),
                 'status_adding_files' => __('Adding files to vector store...', 'gpt3-ai-content-generator'),
                 'status_error' => __('An error occurred.', 'gpt3-ai-content-generator'),
+                /* translators: %d: number of selected items. */
                 'items_selected_singular' => __('You have selected %d item to index.', 'gpt3-ai-content-generator'),
+                /* translators: %d: number of selected items. */
                 'items_selected_plural' => __('You have selected %d items to index.', 'gpt3-ai-content-generator'),
                 'select_pinecone_index' => __('Select Pinecone Index', 'gpt3-ai-content-generator'),
                 'loading_indexes' => __('Loading indexes...', 'gpt3-ai-content-generator'),
@@ -1165,6 +1171,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 'previous_button' => __('Previous', 'gpt3-ai-content-generator'),
                 'next_button' => __('Next', 'gpt3-ai-content-generator'),
                 'confirm_delete_queue_item' => __('Are you sure you want to remove this item from the queue?', 'gpt3-ai-content-generator'),
+                /* translators: %s: queue status label. */
                 'confirmDeleteQueueByStatus' => __('Are you sure you want to delete all %s items from the queue? This cannot be undone.', 'gpt3-ai-content-generator'),
                 'confirmDeleteQueueAll' => __('Are you sure you want to delete ALL items from the queue? This cannot be undone.', 'gpt3-ai-content-generator'),
                 'queue_item_deleted' => __('Queue item deleted.', 'gpt3-ai-content-generator'),

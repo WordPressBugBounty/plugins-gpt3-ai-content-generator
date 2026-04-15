@@ -1,6 +1,24 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $bot_id = $initial_active_bot_id;
 $vector_notice_settings_url = admin_url('admin.php?page=wpaicg');
+$aipkit_embedding_options_allowed_html = [
+	'optgroup' => [
+		'label' => true,
+	],
+	'option' => [
+		'value' => true,
+		'data-provider' => true,
+		'selected' => true,
+		'hidden' => true,
+		'disabled' => true,
+	],
+];
 ?>
 <div
     class="aipkit_popover_options_list aipkit_context_layout"
@@ -236,11 +254,7 @@ $vector_notice_settings_url = admin_url('admin.php?page=wpaicg');
                             : '';
                     }
                     if (!in_array((string) $pinecone_index_name, $known_pinecone_names, true)) {
-                        $manual_label = sprintf(
-                            /* translators: %s is the manually entered Pinecone index name. */
-                            __('%s', 'gpt3-ai-content-generator'),
-                            $pinecone_index_name
-                        );
+                        $manual_label = (string) $pinecone_index_name;
                         $pinecone_option_rows[] = [
                             'value' => $pinecone_index_name,
                             'label' => $manual_label,
@@ -425,16 +439,19 @@ $vector_notice_settings_url = admin_url('admin.php?page=wpaicg');
                     >
                         <?php
                         echo '<option value="" hidden></option>';
-                        echo \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
-                            $embedding_provider_options,
-                            $embedding_models_by_provider,
-                            $vector_embedding_provider,
-                            $vector_embedding_model,
-                            [
-                                'value_mode' => 'provider_model',
-                                'include_manual_fallback' => true,
-                            ]
-                        ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is fully escaped by the renderer.
+                        echo wp_kses(
+                            \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
+                                $embedding_provider_options,
+                                $embedding_models_by_provider,
+                                $vector_embedding_provider,
+                                $vector_embedding_model,
+                                [
+                                    'value_mode' => 'provider_model',
+                                    'include_manual_fallback' => true,
+                                ]
+                            ),
+                            $aipkit_embedding_options_allowed_html
+                        );
                         ?>
                     </select>
                     <select

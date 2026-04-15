@@ -10,6 +10,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Variables from parent: $current_elevenlabs_api_key, $elevenlabs_voice_list, $current_elevenlabs_default_voice, $elevenlabs_model_list, $current_elevenlabs_default_model
 ?>
 <!-- ElevenLabs TTS Accordion -->

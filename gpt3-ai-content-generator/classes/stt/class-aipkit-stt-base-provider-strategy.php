@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- This file intentionally uses core WordPress hook names.
+
 /**
  * Abstract Base class for STT Provider Strategies.
  * Provides common helper methods (optional).

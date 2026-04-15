@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Variables available from parent: $all_selectable_post_types, $is_pro
 ?>
 <div id="aipkit_task_config_comment_reply_main" class="aipkit_task_config_section">

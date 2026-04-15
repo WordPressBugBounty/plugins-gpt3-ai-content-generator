@@ -3,6 +3,8 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/content-writer/ajax/actions/class-aipkit-content-writer-init-stream-action.php
 // Status: MODIFIED
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\ContentWriter\Ajax\Actions;
 
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Base_Ajax_Action;

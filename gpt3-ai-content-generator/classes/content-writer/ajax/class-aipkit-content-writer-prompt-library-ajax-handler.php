@@ -56,13 +56,12 @@ class AIPKit_Content_Writer_Prompt_Library_Ajax_Handler extends BaseDashboardAja
             return;
         }
 
-        $prompt_type = '';
-        if (isset($_POST['prompt_type'])) {
-            $prompt_type = sanitize_key((string) wp_unslash($_POST['prompt_type']));
-        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in check_permissions().
+        $post_data = wp_unslash($_POST);
+        $prompt_type = isset($post_data['prompt_type']) ? sanitize_key((string) $post_data['prompt_type']) : '';
 
-        $include_builtin = $this->read_post_bool('include_builtin', true);
-        $include_custom = $this->read_post_bool('include_custom', true);
+        $include_builtin = $this->read_post_bool($post_data, 'include_builtin', true);
+        $include_custom = $this->read_post_bool($post_data, 'include_custom', true);
 
         $result = $this->prompt_library_manager->get_library_entries(
             $prompt_type !== '' ? $prompt_type : null,
@@ -94,9 +93,11 @@ class AIPKit_Content_Writer_Prompt_Library_Ajax_Handler extends BaseDashboardAja
             return;
         }
 
-        $prompt_type = isset($_POST['prompt_type']) ? sanitize_key((string) wp_unslash($_POST['prompt_type'])) : '';
-        $label = isset($_POST['label']) ? sanitize_text_field((string) wp_unslash($_POST['label'])) : '';
-        $prompt = isset($_POST['prompt']) ? sanitize_textarea_field((string) wp_unslash($_POST['prompt'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in check_permissions().
+        $post_data = wp_unslash($_POST);
+        $prompt_type = isset($post_data['prompt_type']) ? sanitize_key((string) $post_data['prompt_type']) : '';
+        $label = isset($post_data['label']) ? sanitize_text_field((string) $post_data['label']) : '';
+        $prompt = isset($post_data['prompt']) ? sanitize_textarea_field((string) $post_data['prompt']) : '';
 
         $item = $this->prompt_library_manager->create_custom_prompt(
             $prompt_type,
@@ -138,17 +139,19 @@ class AIPKit_Content_Writer_Prompt_Library_Ajax_Handler extends BaseDashboardAja
             return;
         }
 
-        $prompt_id = isset($_POST['prompt_id']) ? sanitize_key((string) wp_unslash($_POST['prompt_id'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in check_permissions().
+        $post_data = wp_unslash($_POST);
+        $prompt_id = isset($post_data['prompt_id']) ? sanitize_key((string) $post_data['prompt_id']) : '';
         $updates = [];
 
-        if (array_key_exists('prompt_type', $_POST)) {
-            $updates['type'] = sanitize_key((string) wp_unslash($_POST['prompt_type']));
+        if (array_key_exists('prompt_type', $post_data)) {
+            $updates['type'] = sanitize_key((string) $post_data['prompt_type']);
         }
-        if (array_key_exists('label', $_POST)) {
-            $updates['label'] = sanitize_text_field((string) wp_unslash($_POST['label']));
+        if (array_key_exists('label', $post_data)) {
+            $updates['label'] = sanitize_text_field((string) $post_data['label']);
         }
-        if (array_key_exists('prompt', $_POST)) {
-            $updates['prompt'] = sanitize_textarea_field((string) wp_unslash($_POST['prompt']));
+        if (array_key_exists('prompt', $post_data)) {
+            $updates['prompt'] = sanitize_textarea_field((string) $post_data['prompt']);
         }
 
         $item = $this->prompt_library_manager->update_custom_prompt($prompt_id, $updates);
@@ -186,8 +189,10 @@ class AIPKit_Content_Writer_Prompt_Library_Ajax_Handler extends BaseDashboardAja
             return;
         }
 
-        $prompt_id = isset($_POST['prompt_id']) ? sanitize_key((string) wp_unslash($_POST['prompt_id'])) : '';
-        $prompt_type = isset($_POST['prompt_type']) ? sanitize_key((string) wp_unslash($_POST['prompt_type'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in check_permissions().
+        $post_data = wp_unslash($_POST);
+        $prompt_id = isset($post_data['prompt_id']) ? sanitize_key((string) $post_data['prompt_id']) : '';
+        $prompt_type = isset($post_data['prompt_type']) ? sanitize_key((string) $post_data['prompt_type']) : '';
 
         $deleted = $this->prompt_library_manager->delete_custom_prompt($prompt_id);
         if (is_wp_error($deleted)) {
@@ -215,13 +220,13 @@ class AIPKit_Content_Writer_Prompt_Library_Ajax_Handler extends BaseDashboardAja
         return $this->check_any_module_access_permissions(self::ALLOWED_MODULES, self::NONCE_ACTION);
     }
 
-    private function read_post_bool(string $key, bool $default): bool
+    private function read_post_bool(array $post_data, string $key, bool $default): bool
     {
-        if (!array_key_exists($key, $_POST)) {
+        if (!array_key_exists($key, $post_data)) {
             return $default;
         }
 
-        $value = wp_unslash($_POST[$key]);
+        $value = $post_data[$key];
         if (is_bool($value)) {
             return $value;
         }
@@ -237,4 +242,3 @@ class AIPKit_Content_Writer_Prompt_Library_Ajax_Handler extends BaseDashboardAja
         return in_array($normalized, ['1', 'true', 'yes', 'on'], true);
     }
 }
-

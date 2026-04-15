@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Pinecone context resolution only reads plugin-owned vector log tables with prepared scalar values.
+
 /**
  * Resolves Pinecone vector search context.
  *

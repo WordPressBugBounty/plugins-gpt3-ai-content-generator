@@ -2,6 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 ?>
 
 <div class="aipkit_popover_options_list aipkit_popover_options_list--web">

@@ -39,7 +39,12 @@ function get_embedding_models_logic(OpenRouterProviderStrategy $strategyInstance
         /* translators: %1$d: HTTP status code, %2$s: API error message. */
         return new WP_Error(
             'api_error_openrouter_embedding_models_logic',
-            sprintf(__('OpenRouter Embedding Models API Error (HTTP %1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg))
+            sprintf(
+                /* translators: 1: HTTP status code, 2: API error message. */
+                __('OpenRouter Embedding Models API Error (HTTP %1$d): %2$s', 'gpt3-ai-content-generator'),
+                $status_code,
+                esc_html($error_msg)
+            )
         );
     }
 
@@ -83,4 +88,3 @@ function get_embedding_models_logic(OpenRouterProviderStrategy $strategyInstance
 
     return $formatted;
 }
-

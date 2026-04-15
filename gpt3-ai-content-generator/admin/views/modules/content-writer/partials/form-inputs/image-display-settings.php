@@ -3,6 +3,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $aipkit_cw_image_display_settings_render_mode = $aipkit_cw_image_display_settings_render_mode ?? 'both';
 $aipkit_cw_render_image_settings_trigger = $aipkit_cw_image_display_settings_render_mode !== 'popover';
 $aipkit_cw_render_image_settings_popover = $aipkit_cw_image_display_settings_render_mode !== 'trigger';

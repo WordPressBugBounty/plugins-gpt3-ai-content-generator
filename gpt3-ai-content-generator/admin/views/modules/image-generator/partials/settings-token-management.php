@@ -10,6 +10,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 use WPAICG\Chat\Storage\BotSettingsManager;
 

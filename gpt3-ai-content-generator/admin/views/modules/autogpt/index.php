@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 use WPAICG\AIPKit_Providers; // For AI models
 use WPAICG\AIPKIT_AI_Settings; // For AI parameters
 use WPAICG\aipkit_dashboard; // For addon status
@@ -160,6 +162,7 @@ $aipkit_cron_next_label = $aipkit_cron_next_timestamp
 $aipkit_cron_tip = '';
 if ($aipkit_cron_disabled) {
     $aipkit_cron_tip = sprintf(
+        /* translators: %s: URL to documentation about enabling WP-Cron. */
         __('WP-Cron is disabled. Enable WP-Cron to run automated tasks. <a href="%s" target="_blank" rel="noopener noreferrer">Learn how to enable WP-Cron</a>.', 'gpt3-ai-content-generator'),
         esc_url('https://www.siteground.com/kb/enable-wordpress-cron/')
     );
@@ -187,6 +190,7 @@ $aipkit_autogpt_cron_warning = '';
 if (!empty($aipkit_autogpt_cron_summary)) {
     if (($aipkit_autogpt_cron_summary['state'] ?? '') === 'disabled') {
         $aipkit_autogpt_cron_warning = sprintf(
+            /* translators: %s: URL to documentation about enabling WP-Cron. */
             __('WP-Cron is disabled. Automated tasks will not run. <a href="%s" target="_blank" rel="noopener noreferrer">Learn how to enable WP-Cron</a>.', 'gpt3-ai-content-generator'),
             esc_url('https://www.siteground.com/kb/enable-wordpress-cron/')
         );

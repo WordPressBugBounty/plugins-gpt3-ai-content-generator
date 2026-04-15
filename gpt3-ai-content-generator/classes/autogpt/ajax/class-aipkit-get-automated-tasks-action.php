@@ -31,12 +31,11 @@ class AIPKit_Get_Automated_Tasks_Action extends AIPKit_Automated_Task_Base_Ajax_
         $items_per_page = 10;
         $offset = ($current_page - 1) * $items_per_page;
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: This is a direct query for counting, caching is not applicable here.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin pagination count over a plugin-owned custom table.
         $total_items = $wpdb->get_var("SELECT COUNT(*) FROM {$this->tasks_table_name}");
 
-        $query = "SELECT * FROM {$this->tasks_table_name} ORDER BY created_at DESC LIMIT %d OFFSET %d";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: This is a direct query for selecting items, caching is not applicable here.
-        $tasks = $wpdb->get_results($wpdb->prepare($query, $items_per_page, $offset), ARRAY_A);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin pagination query over a plugin-owned custom table.
+        $tasks = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$this->tasks_table_name} ORDER BY created_at DESC LIMIT %d OFFSET %d", $items_per_page, $offset), ARRAY_A);
 
 
         wp_send_json_success([

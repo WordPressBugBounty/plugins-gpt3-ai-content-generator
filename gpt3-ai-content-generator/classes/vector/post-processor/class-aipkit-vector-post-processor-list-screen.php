@@ -95,7 +95,8 @@ class AIPKit_Vector_Post_Processor_List_Screen
             return;
         }
 
-        $current_filter = isset($_GET['ai_indexed_status']) ? sanitize_text_field($_GET['ai_indexed_status']) : 'all';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- List-table filters are read-only admin GET parameters.
+        $current_filter = isset($_GET['ai_indexed_status']) ? sanitize_text_field(wp_unslash($_GET['ai_indexed_status'])) : 'all';
         ?>
         <select name="ai_indexed_status" id="ai_indexed_status_filter">
             <option value="all"><?php esc_html_e('Index Status', 'gpt3-ai-content-generator'); ?></option>
@@ -115,14 +116,16 @@ class AIPKit_Vector_Post_Processor_List_Screen
         // Determine the current post type without relying on get_current_screen
         $post_type = $query->get('post_type');
         if (empty($post_type)) {
-            $post_type = isset($_GET['post_type']) ? sanitize_key($_GET['post_type']) : 'post';
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- List-table filters are read-only admin GET parameters.
+            $post_type = isset($_GET['post_type']) ? sanitize_key(wp_unslash($_GET['post_type'])) : 'post';
         }
         // If an array or unsupported type, bail
         if (is_array($post_type) || !in_array($post_type, $this->supported_post_types, true)) {
             return;
         }
 
-        $filter_status = isset($_GET['ai_indexed_status']) ? sanitize_text_field($_GET['ai_indexed_status']) : 'all';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- List-table filters are read-only admin GET parameters.
+        $filter_status = isset($_GET['ai_indexed_status']) ? sanitize_text_field(wp_unslash($_GET['ai_indexed_status'])) : 'all';
         if ($filter_status !== 'indexed' && $filter_status !== 'not_indexed') {
             return;
         }
@@ -132,12 +135,7 @@ class AIPKit_Vector_Post_Processor_List_Screen
         
         // Get all post IDs that have been indexed successfully
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table lookup for admin filter.
-        $indexed_post_ids = $wpdb->get_col(
-            $wpdb->prepare(
-                "SELECT DISTINCT post_id FROM {$table_name} WHERE post_id IS NOT NULL AND status = %s",
-                'indexed'
-            )
-        );
+        $indexed_post_ids = $wpdb->get_col($wpdb->prepare("SELECT DISTINCT post_id FROM {$table_name} WHERE post_id IS NOT NULL AND status = %s", 'indexed'));
 
         if ($filter_status === 'indexed') {
             if (empty($indexed_post_ids)) {
@@ -255,8 +253,8 @@ class AIPKit_Vector_Post_Processor_List_Screen
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
         $ids_placeholder = implode(',', array_fill(0, count($post_ids), '%d'));
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table lookup for list screen cache.
-        $results = $wpdb->get_results($wpdb->prepare("SELECT post_id, vector_store_id, vector_store_name, provider FROM {$table_name} WHERE post_id IN ({$ids_placeholder}) AND status = 'indexed'", $post_ids), ARRAY_A);
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table lookup for list screen cache.
+        $results = $wpdb->get_results($wpdb->prepare("SELECT post_id, vector_store_id, vector_store_name, provider FROM {$table_name} WHERE post_id IN ({$ids_placeholder}) AND status = 'indexed'", ...$post_ids), ARRAY_A);
 
         $grouped_results = [];
         if ($results) {

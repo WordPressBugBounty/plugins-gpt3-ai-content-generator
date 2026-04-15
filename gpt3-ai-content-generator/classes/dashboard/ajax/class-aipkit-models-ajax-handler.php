@@ -489,11 +489,15 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             $value_to_save
         );
 
-        /* translators: %s: The provider name that was synced. */
+        $success_message = sprintf(
+            /* translators: %s: the provider name that was synced. */
+            __('%s synced successfully.', 'gpt3-ai-content-generator'),
+            $provider_data_key
+        );
         wp_send_json_success(
             array_merge(
                 [
-                    'message' => sprintf(__('%s synced successfully.', 'gpt3-ai-content-generator'), $provider_data_key),
+                    'message' => $success_message,
                     'models'  => $response_models,
                     'recommended_models' => $recommended_models,
                 ],

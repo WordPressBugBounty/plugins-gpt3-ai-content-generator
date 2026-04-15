@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Load method logic files
 $manager_methods_path = __DIR__ . '/manager/';
 require_once $manager_methods_path . 'get-connected-strategy.php';

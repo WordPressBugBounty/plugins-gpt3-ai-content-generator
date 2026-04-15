@@ -2,6 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 $stt_model_count = (isset($openai_stt_models) && is_array($openai_stt_models)) ? count($openai_stt_models) : 0;
 $hide_stt_controls = $stt_model_count <= 1;
 ?>

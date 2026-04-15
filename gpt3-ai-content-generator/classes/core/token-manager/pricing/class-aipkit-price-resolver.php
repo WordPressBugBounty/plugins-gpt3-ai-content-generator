@@ -8,6 +8,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- This resolver only queries plugin-owned pricing tables and scalar values are normalized before each prepared call.
+
 class AIPKit_Price_Resolver
 {
     private $table_name;
@@ -153,12 +155,16 @@ class AIPKit_Price_Resolver
 
         $sql = "SELECT * FROM {$this->table_name} WHERE " . implode(' AND ', $conditions) . ' ORDER BY updated_at DESC, id DESC';
         if (!empty($values)) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared dynamically from placeholders above.
-            $sql = $wpdb->prepare($sql, ...$values);
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin/runtime reads from a custom table.
+            $rows = $wpdb->get_results(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamic table and WHERE clause assembly is prepared at runtime.
+                $wpdb->prepare($sql, $values),
+                ARRAY_A
+            );
+        } else {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Query contains no placeholders when no filters are active.
+            $rows = $wpdb->get_results($sql, ARRAY_A);
         }
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin/runtime reads from a custom table.
-        $rows = $wpdb->get_results($sql, ARRAY_A);
         if (!is_array($rows)) {
             return [];
         }
@@ -227,6 +233,7 @@ class AIPKit_Price_Resolver
         }
 
         if ($rule_id > 0) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Mutation against a plugin-owned pricing table.
             $updated = $wpdb->update(
                 $this->table_name,
                 $data,
@@ -242,6 +249,7 @@ class AIPKit_Price_Resolver
             return $rule_id;
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Mutation against a plugin-owned pricing table.
         $inserted = $wpdb->insert($this->table_name, $data, $formats);
         if ($inserted === false) {
             return new WP_Error('aipkit_pricing_rule_insert_failed', __('Failed to insert pricing rule.', 'gpt3-ai-content-generator'));
@@ -258,6 +266,7 @@ class AIPKit_Price_Resolver
             return false;
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Mutation against a plugin-owned pricing table.
         $deleted = $wpdb->delete($this->table_name, ['id' => $rule_id], ['%d']);
 
         return $deleted !== false;

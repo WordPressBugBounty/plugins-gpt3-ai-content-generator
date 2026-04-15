@@ -30,6 +30,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $aipkit_prompt_items = isset($aipkit_prompt_items) && is_array($aipkit_prompt_items) ? $aipkit_prompt_items : [];
 $aipkit_prompts_render_list = isset($aipkit_prompts_render_list)
     ? (bool) $aipkit_prompts_render_list

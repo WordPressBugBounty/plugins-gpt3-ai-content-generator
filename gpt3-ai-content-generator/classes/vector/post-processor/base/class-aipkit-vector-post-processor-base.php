@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- This file intentionally uses core WordPress hook names.
+
 /**
  * Base class for Vector Post Processor provider-specific classes.
  * Contains common utility methods for fetching content and logging.

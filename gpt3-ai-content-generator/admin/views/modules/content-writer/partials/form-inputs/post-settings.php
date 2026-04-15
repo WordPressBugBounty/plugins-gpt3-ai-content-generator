@@ -2,6 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 // Variables from loader-vars.php: $available_post_types, $users_for_author, $current_user_id, $wp_categories
 ?>
 

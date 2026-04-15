@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $stats_default_days = 7;
 $log_settings = get_option('aipkit_log_settings', [
     'enable_pruning' => false,
@@ -102,7 +104,9 @@ if ($woo_active) {
         'posts_per_page' => 8,
         'orderby' => 'modified',
         'order' => 'DESC',
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Small admin-only WooCommerce lookup for token packages.
         'meta_key' => '_aipkit_is_token_package',
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Small admin-only WooCommerce lookup for token packages.
         'meta_value' => 'yes',
         'no_found_rows' => true,
     ]);

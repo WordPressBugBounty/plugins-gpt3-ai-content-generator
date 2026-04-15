@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- This template query layer only reads plugin-owned template tables plus wp_users with prepared scalar values.
+
 /**
 * Logic for retrieving all templates for the current user.
 *

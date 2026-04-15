@@ -19,10 +19,12 @@ class AIPKit_CORS_Manager
      * List of AJAX actions that require CORS support for embedded chatbots.
      */
     private static $cors_enabled_actions = [
+        'aipkit_get_frontend_chat_nonce',
         'aipkit_get_conversations_list',
         'aipkit_get_conversation_history',
         'aipkit_store_feedback',
         'aipkit_generate_speech',
+        'aipkit_transcribe_audio',
         'aipkit_delete_single_conversation',
         'aipkit_cache_sse_message',
         'aipkit_frontend_chat_stream',
@@ -75,6 +77,7 @@ class AIPKit_CORS_Manager
         }
 
         // Check if this is one of our CORS-enabled actions
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is non-mutating routing logic that runs before individual AJAX handlers verify their own nonces.
         $action = isset($_REQUEST['action']) ? sanitize_text_field(wp_unslash($_REQUEST['action'])) : '';
         
         if (!in_array($action, self::$cors_enabled_actions, true)) {
@@ -85,12 +88,14 @@ class AIPKit_CORS_Manager
         self::handle_preflight_request();
 
         // Extract bot_id for CORS check
+        // phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- This block only scopes CORS headers before the target handler verifies its own nonce.
         $bot_id = 0;
         if (isset($_POST['bot_id'])) {
             $bot_id = absint(wp_unslash($_POST['bot_id']));
         } elseif (isset($_GET['bot_id'])) {
             $bot_id = absint(wp_unslash($_GET['bot_id']));
         }
+        // phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
 
         // Set CORS headers if bot_id is provided and origin is allowed
         if ($bot_id > 0) {
@@ -213,7 +218,8 @@ class AIPKit_CORS_Manager
      */
     public static function handle_preflight_request(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        $request_method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper(sanitize_text_field(wp_unslash((string) $_SERVER['REQUEST_METHOD']))) : '';
+        if ($request_method === 'OPTIONS') {
             self::set_cors_headers();
             status_header(200);
             exit;

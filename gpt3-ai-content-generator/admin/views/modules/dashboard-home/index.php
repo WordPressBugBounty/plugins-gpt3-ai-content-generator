@@ -10,6 +10,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $module_settings = aipkit_dashboard::get_module_settings();
 $is_admin = current_user_can('manage_options');
 
@@ -76,7 +78,7 @@ $available_count = count($available_modules);
     <div class="aipkit_home_layout">
         <section class="aipkit_home_primary" aria-labelledby="aipkit_home_title">
             <header class="aipkit_home_hero">
-                <p class="aipkit_home_eyebrow"><?php esc_html_e('AI Puffer Platform', 'gpt3-ai-content-generator'); ?></p>
+                <p class="aipkit_home_eyebrow"><?php esc_html_e('AI Puffer', 'gpt3-ai-content-generator'); ?></p>
                 <h2 class="aipkit_home_title" id="aipkit_home_title"><?php esc_html_e('Your AI engine for WordPress.', 'gpt3-ai-content-generator'); ?></h2>
                 <p class="aipkit_home_summary">
                     <?php esc_html_e('Chat, write, automate, and generate — all in one workspace.', 'gpt3-ai-content-generator'); ?>
@@ -124,6 +126,13 @@ $available_count = count($available_modules);
                                     </div>
 
                                     <?php if ($is_admin): ?>
+                                        <?php
+                                        $aipkit_module_toggle_label = sprintf(
+                                            /* translators: %s: dashboard module label. */
+                                            __('Enable %s module', 'gpt3-ai-content-generator'),
+                                            $module['label']
+                                        );
+                                        ?>
                                         <div class="aipkit_home_module_controls">
                                             <label class="aipkit_home_toggle" for="aipkit_home_toggle_<?php echo esc_attr($module['option_key']); ?>">
                                                 <span class="screen-reader-text"><?php esc_html_e('Enable module', 'gpt3-ai-content-generator'); ?></span>
@@ -135,7 +144,7 @@ $available_count = count($available_modules);
                                                         data-option-key="<?php echo esc_attr($module['option_key']); ?>"
                                                         data-module="<?php echo esc_attr($module['data_module']); ?>"
                                                         <?php checked($module['is_enabled']); ?>
-                                                        aria-label="<?php echo esc_attr(sprintf(__('Enable %s module', 'gpt3-ai-content-generator'), $module['label'])); ?>"
+                                                        aria-label="<?php echo esc_attr($aipkit_module_toggle_label); ?>"
                                                     />
                                                     <span class="aipkit_home_toggle_slider" aria-hidden="true"></span>
                                                 </span>
@@ -162,11 +171,13 @@ $available_count = count($available_modules);
                         <li>
                             <?php
                             $settings_link = '<a href="#" data-aipkit-open-module="settings">' . esc_html__('Settings', 'gpt3-ai-content-generator') . '</a>';
+                            $aipkit_settings_step = sprintf(
+                                /* translators: %s: link to the Settings module. */
+                                __('Go to %s.', 'gpt3-ai-content-generator'),
+                                $settings_link
+                            );
                             echo wp_kses(
-                                sprintf(
-                                    __('Go to %s.', 'gpt3-ai-content-generator'),
-                                    $settings_link
-                                ),
+                                $aipkit_settings_step,
                                 [
                                     'a' => [
                                         'href' => [],

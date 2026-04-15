@@ -15,6 +15,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // --- Require the new logic files ---
 $init_logic_path = __DIR__ . '/cron/init/';
 require_once $init_logic_path . 'ensure-dashboard-loaded.php';

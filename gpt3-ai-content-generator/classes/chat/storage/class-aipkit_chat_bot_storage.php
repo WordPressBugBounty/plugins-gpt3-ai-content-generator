@@ -193,7 +193,13 @@ class BotStorage
         if (!$this->settings_manager) {
             return [];
         } // Return empty if manager failed
-        return $this->settings_manager->get_chatbot_settings($bot_id);
+        $settings = $this->settings_manager->get_chatbot_settings($bot_id);
+
+        if (is_wp_error($settings) || !is_array($settings)) {
+            return [];
+        }
+
+        return $settings;
     }
 
     /**

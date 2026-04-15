@@ -46,7 +46,7 @@ function _aipkit_qdrant_ajax_get_vector_data_source_logs_logic(AIPKit_Vector_Sto
     $total_logs = wp_cache_get($total_logs_count_cache_key, $cache_group);
 
     if (false === $total_logs) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $data_source_table_name is safe.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $data_source_table_name is safe.
         $total_logs = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$data_source_table_name} WHERE provider = %s AND vector_store_id = %s", $provider, $store_id));
         wp_cache_set($total_logs_count_cache_key, $total_logs, $cache_group, MINUTE_IN_SECONDS * 5);
     }

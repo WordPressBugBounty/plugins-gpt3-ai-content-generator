@@ -10,6 +10,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- This stats service only reads plugin-owned tables plus wp_users with prepared scalar values.
+
 /**
  * Calculates statistics related to overall AI usage across different modules.
  * Includes filtering for top N modules in daily stats.
@@ -57,8 +59,9 @@ class AIPKit_Stats
             return $exists;
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time table existence check.
-        $exists = $this->wpdb->get_var($this->wpdb->prepare('SHOW TABLES LIKE %s', $this->ledger_table_name)) === $this->ledger_table_name;
+        $table_exists_query = $this->wpdb->prepare('SHOW TABLES LIKE %s', $this->ledger_table_name);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- One-time table existence check using the prepared query above.
+        $exists = $this->wpdb->get_var($table_exists_query) === $this->ledger_table_name;
 
         return $exists;
     }

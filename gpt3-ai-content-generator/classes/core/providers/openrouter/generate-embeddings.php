@@ -88,7 +88,12 @@ function generate_embeddings_logic(
         /* translators: %1$d: HTTP status code, %2$s: API error message. */
         return new WP_Error(
             'openrouter_embedding_api_error_logic',
-            sprintf(__('OpenRouter Embeddings API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg))
+            sprintf(
+                /* translators: 1: HTTP status code, 2: API error message. */
+                __('OpenRouter Embeddings API Error (%1$d): %2$s', 'gpt3-ai-content-generator'),
+                $status_code,
+                esc_html($error_msg)
+            )
         );
     }
 

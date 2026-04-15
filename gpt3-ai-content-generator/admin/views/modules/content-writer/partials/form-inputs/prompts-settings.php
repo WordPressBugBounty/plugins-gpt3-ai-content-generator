@@ -3,6 +3,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
 $prompt_items = AIPKit_Content_Writer_Prompts::get_content_writer_prompt_items();
@@ -172,6 +174,13 @@ $render_prompt_library_options = static function(array $options): void {
                     <div class="aipkit_popover_options_list">
                         <div id="aipkit_cw_image_prompt_main_block" hidden>
                             <?php foreach ($image_prompt_main_items as $item): ?>
+                                <?php
+                                $aipkit_prompt_edit_aria_label = sprintf(
+                                    /* translators: %s: prompt label. */
+                                    __('Edit %s prompt', 'gpt3-ai-content-generator'),
+                                    $item['label']
+                                );
+                                ?>
                                 <div class="aipkit_popover_option_row" id="<?php echo esc_attr($item['row_id']); ?>" hidden>
                                     <div class="aipkit_popover_option_main">
                                         <div class="aipkit_cw_settings_option_text">
@@ -186,7 +195,7 @@ $render_prompt_library_options = static function(array $options): void {
                                             aria-controls="<?php echo esc_attr($item['flyout_id']); ?>"
                                             aria-expanded="false"
                                             title="<?php esc_attr_e('Edit prompt', 'gpt3-ai-content-generator'); ?>"
-                                            aria-label="<?php printf(esc_attr__('Edit %s prompt', 'gpt3-ai-content-generator'), esc_attr($item['label'])); ?>"
+                                            aria-label="<?php echo esc_attr($aipkit_prompt_edit_aria_label); ?>"
                                         >
                                             <span class="dashicons dashicons-edit" aria-hidden="true"></span>
                                         </button>
@@ -197,6 +206,13 @@ $render_prompt_library_options = static function(array $options): void {
 
                         <div id="aipkit_cw_image_metadata_block" hidden>
                             <?php foreach ($image_prompt_metadata_items as $item): ?>
+                                <?php
+                                $aipkit_prompt_edit_aria_label = sprintf(
+                                    /* translators: %s: prompt label. */
+                                    __('Edit %s prompt', 'gpt3-ai-content-generator'),
+                                    $item['label']
+                                );
+                                ?>
                                 <div class="aipkit_popover_option_row aipkit_cw_image_metadata_row">
                                     <div class="aipkit_popover_option_main">
                                         <div class="aipkit_cw_settings_option_text">
@@ -221,7 +237,7 @@ $render_prompt_library_options = static function(array $options): void {
                                                 aria-controls="<?php echo esc_attr($item['flyout_id']); ?>"
                                                 aria-expanded="false"
                                                 title="<?php esc_attr_e('Edit prompt', 'gpt3-ai-content-generator'); ?>"
-                                                aria-label="<?php printf(esc_attr__('Edit %s prompt', 'gpt3-ai-content-generator'), esc_attr($item['label'])); ?>"
+                                                aria-label="<?php echo esc_attr($aipkit_prompt_edit_aria_label); ?>"
                                             >
                                                 <span class="dashicons dashicons-edit" aria-hidden="true"></span>
                                             </button>

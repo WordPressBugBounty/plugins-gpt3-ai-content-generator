@@ -75,19 +75,21 @@ class AIPKit_Get_Automated_Task_Queue_Items_Action extends AIPKit_Automated_Task
             $where_sql = ' WHERE ' . implode(' AND ', $where_clauses);
         }
 
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin queue aggregation over plugin-owned custom tables with controlled SQL fragments.
         $total_items_query = "SELECT COUNT(*) FROM {$this->queue_table_name} q LEFT JOIN {$this->tasks_table_name} t ON q.task_id = t.id" . $where_sql;
-        $prepared_total_items_query = !empty($prepare_args)
-            ? $wpdb->prepare($total_items_query, $prepare_args)
-            : $total_items_query;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: This is a direct query for counting, caching is not applicable here.
-        $total_items = $wpdb->get_var($prepared_total_items_query);
+        if (!empty($prepare_args)) {
+            $total_items = $wpdb->get_var($wpdb->prepare($total_items_query, $prepare_args));
+        } else {
+            $total_items = $wpdb->get_var($total_items_query);
+        }
 
         $summary_query = "SELECT q.status, COUNT(*) AS item_count FROM {$this->queue_table_name} q LEFT JOIN {$this->tasks_table_name} t ON q.task_id = t.id" . $search_where_sql . ' GROUP BY q.status';
-        $prepared_summary_query = !empty($search_prepare_args)
-            ? $wpdb->prepare($summary_query, $search_prepare_args)
-            : $summary_query;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: This is a direct grouped count query for queue summary metadata.
-        $summary_rows = $wpdb->get_results($prepared_summary_query, ARRAY_A);
+        if (!empty($search_prepare_args)) {
+            $summary_rows = $wpdb->get_results($wpdb->prepare($summary_query, $search_prepare_args), ARRAY_A);
+        } else {
+            $summary_rows = $wpdb->get_results($summary_query, ARRAY_A);
+        }
+        // phpcs:enable
         $summary = [
             'pending' => 0,
             'processing' => 0,
@@ -111,7 +113,7 @@ class AIPKit_Get_Automated_Task_Queue_Items_Action extends AIPKit_Automated_Task
         $prepare_args_for_select[] = $items_per_page;
         $prepare_args_for_select[] = $offset;
         $query = "SELECT q.*, t.task_name FROM {$this->queue_table_name} q LEFT JOIN {$this->tasks_table_name} t ON q.task_id = t.id" . $where_sql . " ORDER BY " . $order_by_sql . " LIMIT %d OFFSET %d";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: This is a direct query for selecting items, caching is not applicable here.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin queue listing query over plugin-owned custom tables with prepared scalar values.
         $items = $wpdb->get_results($wpdb->prepare($query, $prepare_args_for_select), ARRAY_A);
 
         $enriched_items = [];

@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Require the new initializer method files
 $initializer_methods_path = WPAICG_PLUGIN_DIR . 'classes/chat/initializer/';
 require_once $initializer_methods_path . 'load-core-services.php';

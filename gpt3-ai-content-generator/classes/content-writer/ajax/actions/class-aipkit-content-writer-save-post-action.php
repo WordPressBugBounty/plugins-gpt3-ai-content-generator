@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Load the new modular logic files
 $logic_path = __DIR__ . '/save-post/';
 require_once $logic_path . 'validate-permissions.php';
@@ -114,10 +116,7 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         }
         // --- END MODIFICATION ---
 
-        $gsheets_processed_status = Shared\maybe_update_gsheets_row_status_logic($post_data, 'Processed on');
-        if (is_wp_error($gsheets_processed_status)) {
-            error_log('AIPKit Content Writer Google Sheets processed status update failed: ' . $gsheets_processed_status->get_error_message());
-        }
+        Shared\maybe_update_gsheets_row_status_logic($post_data, 'Processed on');
 
         $post_status = get_post_status($post_id_result);
         $view_link = get_permalink($post_id_result);

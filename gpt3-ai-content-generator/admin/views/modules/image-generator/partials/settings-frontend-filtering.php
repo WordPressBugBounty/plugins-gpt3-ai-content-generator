@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Variables required from parent settings-image-generator.php:
 // $settings_data (array containing frontend_display settings)
 $frontend_display_settings = $settings_data['frontend_display'] ?? [];

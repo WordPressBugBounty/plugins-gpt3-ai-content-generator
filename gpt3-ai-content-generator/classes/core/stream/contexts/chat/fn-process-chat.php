@@ -3,6 +3,8 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/contexts/chat/fn-process-chat.php
 // Status: MODIFIED (Became Orchestrator)
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Core\Stream\Contexts\Chat;
 
 use WP_Error;
@@ -20,7 +22,6 @@ require_once $process_path . 'trigger-user-message.php';
 require_once $process_path . 'build-ai-request-data-for-stream.php';
 require_once $process_path . 'construct-sse-processor-input.php';
 // --- END ADDED ---
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

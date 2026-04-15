@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('autogpt_content_enhancement_ui');
 $default_embedding_provider_key = isset($embedding_provider_options['openai'])
     ? 'openai'

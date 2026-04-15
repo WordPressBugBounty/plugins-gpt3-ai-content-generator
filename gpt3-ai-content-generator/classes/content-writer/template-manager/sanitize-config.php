@@ -9,6 +9,8 @@ namespace WPAICG\ContentWriter\TemplateManagerMethods;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WP_Error;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Load all the new method logic files
 $methods_path = __DIR__ . '/';
 // No direct dependencies needed for this file's logic

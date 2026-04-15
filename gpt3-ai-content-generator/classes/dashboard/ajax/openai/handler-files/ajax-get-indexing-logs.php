@@ -44,7 +44,7 @@ function do_ajax_get_indexing_logs_logic(AIPKit_OpenAI_Vector_Store_Files_Ajax_H
     $total_logs = wp_cache_get($total_logs_count_cache_key, $cache_group);
 
     if (false === $total_logs) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $data_source_table_name is safe.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $data_source_table_name is safe.
         $total_logs = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$data_source_table_name} WHERE provider = 'OpenAI' AND vector_store_id = %s", $store_id));
         wp_cache_set($total_logs_count_cache_key, $total_logs, $cache_group, MINUTE_IN_SECONDS * 5);
     }

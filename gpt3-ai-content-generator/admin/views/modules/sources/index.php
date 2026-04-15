@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $aipkit_options = get_option('aipkit_options', []);
 $semantic_search_settings = $aipkit_options['semantic_search'] ?? [];
 $semantic_vector_provider = $semantic_search_settings['vector_provider'] ?? 'pinecone';
@@ -19,6 +21,18 @@ $pinecone_index_list = [];
 $qdrant_collection_list = [];
 $embedding_provider_options = [];
 $embedding_models_by_provider = [];
+$aipkit_embedding_options_allowed_html = [
+    'optgroup' => [
+        'label' => true,
+    ],
+    'option' => [
+        'value' => true,
+        'data-provider' => true,
+        'selected' => true,
+        'hidden' => true,
+        'disabled' => true,
+    ],
+];
 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
     $pinecone_index_list = \WPAICG\AIPKit_Providers::get_pinecone_indexes();
     $qdrant_collection_list = \WPAICG\AIPKit_Providers::get_qdrant_collections();
@@ -838,16 +852,19 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                         <label class="aipkit_form-label" for="aipkit_sources_semantic_embedding_model"><?php esc_html_e('Embedding', 'gpt3-ai-content-generator'); ?></label>
                                         <select id="aipkit_sources_semantic_embedding_model" name="semantic_search_embedding_model" class="aipkit_form-input">
                                             <?php
-                                            echo \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
-                                                $embedding_provider_options,
-                                                $embedding_models_by_provider,
-                                                $semantic_embedding_provider,
-                                                $semantic_embedding_model,
-                                                [
-                                                    'value_mode' => 'model',
-                                                    'include_manual_fallback' => true,
-                                                ]
-                                            ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is fully escaped by the renderer.
+                                            echo wp_kses(
+                                                \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
+                                                    $embedding_provider_options,
+                                                    $embedding_models_by_provider,
+                                                    $semantic_embedding_provider,
+                                                    $semantic_embedding_model,
+                                                    [
+                                                        'value_mode' => 'model',
+                                                        'include_manual_fallback' => true,
+                                                    ]
+                                                ),
+                                                $aipkit_embedding_options_allowed_html
+                                            );
                                             ?>
                                         </select>
                                         <input type="hidden" id="aipkit_sources_semantic_embedding_provider" name="semantic_search_embedding_provider" value="<?php echo esc_attr($semantic_embedding_provider); ?>">

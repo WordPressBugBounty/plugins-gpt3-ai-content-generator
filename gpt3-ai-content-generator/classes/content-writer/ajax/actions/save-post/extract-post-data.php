@@ -67,8 +67,6 @@ function extract_post_data_logic(): array
 
                 if (is_array($decoded_image_data)) {
                     $sanitized['image_data'] = $decoded_image_data;
-                } else {
-                    error_log('AIPKit Content Writer Save Post: Failed to decode image_data JSON payload.');
                 }
             }
         }

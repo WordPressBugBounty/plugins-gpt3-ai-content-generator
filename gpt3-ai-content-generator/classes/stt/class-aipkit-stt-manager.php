@@ -8,6 +8,7 @@ namespace WPAICG\STT; // Use new STT namespace
 use WP_Error;
 use WPAICG\AIPKit_Providers; // Needed for API Keys
 use WPAICG\Chat\Storage\BotStorage;
+use WPAICG\Utils\AIPKit_CORS_Manager;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -120,12 +121,59 @@ class AIPKit_STT_Manager
      */
     public function ajax_transcribe_audio()
     {
+        // Handle cross-origin embed requests before nonce validation.
+        AIPKit_CORS_Manager::handle_preflight_request();
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- The frontend nonce is verified below before processing audio payloads.
+        $post_data = wp_unslash($_POST);
+        $bot_id = isset($post_data['bot_id']) ? absint($post_data['bot_id']) : 0;
+
+        if ($bot_id > 0) {
+            $is_cross_origin = false;
+            if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+                $origin = esc_url_raw(wp_unslash((string) $_SERVER['HTTP_ORIGIN']));
+                $site_url = get_site_url();
+                $site_parsed = wp_parse_url($site_url);
+                $origin_parsed = wp_parse_url($origin);
+
+                if (
+                    $origin_parsed &&
+                    $site_parsed &&
+                    (
+                        ($origin_parsed['host'] ?? '') !== ($site_parsed['host'] ?? '') ||
+                        ($origin_parsed['scheme'] ?? 'http') !== ($site_parsed['scheme'] ?? 'http')
+                    )
+                ) {
+                    $is_cross_origin = true;
+                }
+            }
+
+            if ($is_cross_origin) {
+                if (class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan()) {
+                    $origin_allowed = AIPKit_CORS_Manager::check_and_set_cors_headers($bot_id);
+                    if (!$origin_allowed) {
+                        wp_send_json_error([
+                            'message' => __('This domain is not permitted to access the chatbot.', 'gpt3-ai-content-generator'),
+                            'code'    => 'cors_denied',
+                        ], 403);
+                        return;
+                    }
+                } else {
+                    wp_send_json_error([
+                        'message' => __('Embed feature is not available with your current plan.', 'gpt3-ai-content-generator'),
+                        'code'    => 'embed_not_available',
+                    ], 403);
+                    return;
+                }
+            }
+        }
+
         // Use frontend nonce check as this is called from chat UI
         if (!check_ajax_referer('aipkit_frontend_chat_nonce', '_ajax_nonce', false)) {
             wp_send_json_error(['message' => __('Security check failed (nonce).', 'gpt3-ai-content-generator')], 403);
             return;
         }
-        $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0; // Get bot ID to read its STT provider setting
+
         if (empty($bot_id)) {
             wp_send_json_error(['message' => __('Bot ID is required for transcription.', 'gpt3-ai-content-generator')], 400);
             return;
@@ -133,18 +181,28 @@ class AIPKit_STT_Manager
 
         // Prepare options early
         $options = ['bot_id' => $bot_id];
-        if (isset($_POST['language'])) {
-            $options['language'] = sanitize_text_field($_POST['language']);
+        if (isset($post_data['language'])) {
+            $options['language'] = sanitize_text_field((string) $post_data['language']);
         }
 
         $audio_data_binary = '';
         $audio_format = 'webm'; // default fallback
 
         // 1. Preferred path: multipart file upload (avoids large base64 payloads that WAFs like WordFence can flag)
-        if (!empty($_FILES['audio_file']) && is_uploaded_file($_FILES['audio_file']['tmp_name'])) {
-            $tmp_name = $_FILES['audio_file']['tmp_name'];
-            $file_size = (int) ($_FILES['audio_file']['size'] ?? 0);
-            $original_name = sanitize_file_name($_FILES['audio_file']['name'] ?? 'audio');
+        $audio_file = (isset($_FILES['audio_file']) && is_array($_FILES['audio_file']))
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Frontend nonce is checked above and the upload array is validated before use.
+            ? $_FILES['audio_file']
+            : null;
+        if (
+            is_array($audio_file)
+            && isset($audio_file['tmp_name'])
+            && is_string($audio_file['tmp_name'])
+            && $audio_file['tmp_name'] !== ''
+            && is_uploaded_file($audio_file['tmp_name'])
+        ) {
+            $tmp_name = $audio_file['tmp_name'];
+            $file_size = isset($audio_file['size']) ? (int) $audio_file['size'] : 0;
+            $original_name = sanitize_file_name((string) ($audio_file['name'] ?? 'audio'));
 
             // Allow filtering max size; default 4MB
             $max_size = (int) apply_filters('aipkit_stt_max_audio_bytes', 4 * 1024 * 1024);
@@ -159,7 +217,7 @@ class AIPKit_STT_Manager
             }
 
             // MIME detection
-            $mime = function_exists('mime_content_type') ? mime_content_type($tmp_name) : ($_FILES['audio_file']['type'] ?? '');
+            $mime = function_exists('mime_content_type') ? mime_content_type($tmp_name) : ((isset($audio_file['type']) && is_string($audio_file['type'])) ? $audio_file['type'] : '');
             $allowed_mime_map = [
                 'audio/webm' => 'webm',
                 'audio/wav' => 'wav',
@@ -190,12 +248,12 @@ class AIPKit_STT_Manager
         }
         // 2. Legacy path: base64 data (kept for backward compatibility with older frontends)
         else {
-            $audio_base64 = isset($_POST['audio_data']) ? $_POST['audio_data'] : '';
+            $audio_base64 = isset($post_data['audio_data']) ? (string) $post_data['audio_data'] : '';
             if (strpos($audio_base64, 'base64,') !== false) {
                 $audio_base64 = substr($audio_base64, strpos($audio_base64, 'base64,') + 7);
             }
             $audio_data_binary = base64_decode($audio_base64, true); // strict mode
-            $audio_format = isset($_POST['audio_format']) ? sanitize_text_field($_POST['audio_format']) : 'webm';
+            $audio_format = isset($post_data['audio_format']) ? sanitize_text_field((string) $post_data['audio_format']) : 'webm';
             if (empty($audio_data_binary)) {
                 wp_send_json_error(['message' => __('Invalid or empty audio data received.', 'gpt3-ai-content-generator')], 400);
                 return;

@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $current_elevenlabs_api_key = (string) ($elevenlabs_data['api_key'] ?? '');
 $current_elevenlabs_default_voice = (string) ($elevenlabs_data['voice_id'] ?? '');
 $current_elevenlabs_default_model = (string) ($elevenlabs_data['model_id'] ?? '');

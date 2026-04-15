@@ -2,6 +2,8 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/frontend/shortcode/shortcode_renderer.php
 // Status: MODIFIED
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Chat\Frontend\Shortcode;
 
 use WPAICG\Chat\Storage\BotSettingsManager;
@@ -20,7 +22,6 @@ require_once $renderer_methods_path . 'render_input_area_html.php';
 require_once $renderer_methods_path . 'render_footer_html.php';
 require_once $renderer_methods_path . 'render_sidebar_html.php';
 require_once $renderer_methods_path . 'createActionsContainerHTML.php';
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

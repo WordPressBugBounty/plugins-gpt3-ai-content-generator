@@ -3,6 +3,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 use WPAICG\AIPKit_Providers;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
@@ -26,13 +28,11 @@ $render_prompt_library_options = static function(array $options, string $mode = 
         if (empty($option['label']) || empty($option['prompt'])) {
             continue;
         }
-        $mode_attr = $mode !== '' ? sprintf(' data-aipkit-mode="%s"', esc_attr($mode)) : '';
-        printf(
-            '<option value="%s"%s>%s</option>',
-            esc_attr($option['prompt']),
-            $mode_attr,
-            esc_html($option['label'])
-        );
+        echo '<option value="' . esc_attr($option['prompt']) . '"';
+        if ($mode !== '') {
+            echo ' data-aipkit-mode="' . esc_attr($mode) . '"';
+        }
+        echo '>' . esc_html($option['label']) . '</option>';
     }
 };
 ?>

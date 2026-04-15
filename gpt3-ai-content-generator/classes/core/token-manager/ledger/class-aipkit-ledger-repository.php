@@ -8,6 +8,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- This repository only queries plugin-owned ledger tables and scalar values are normalized before each prepared call.
+
 class AIPKit_Ledger_Repository
 {
     private $table_name;
@@ -96,6 +98,7 @@ class AIPKit_Ledger_Repository
             '%s',
         ];
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Insert into a plugin-owned ledger table.
         $inserted = $wpdb->insert($this->table_name, $data, $formats);
         if ($inserted === false) {
             return new WP_Error('aipkit_token_ledger_insert_failed', __('Failed to write token ledger entry.', 'gpt3-ai-content-generator'));
@@ -115,14 +118,16 @@ class AIPKit_Ledger_Repository
             return null;
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger lookup from a custom table.
-        $row = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT * FROM {$this->table_name} WHERE idempotency_key = %s LIMIT 1",
-                $idempotency_key
-            ),
-            ARRAY_A
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Safe custom table name on a prepared ledger lookup.
+        $lookup_query = "SELECT * FROM {$this->table_name} WHERE idempotency_key = %s LIMIT 1";
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+        $prepared_lookup_query = $wpdb->prepare(
+            $lookup_query,
+            $idempotency_key
         );
+        // phpcs:enable
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared lookup against a plugin-owned ledger table.
+        $row = $wpdb->get_row($prepared_lookup_query, ARRAY_A);
 
         return is_array($row) ? $row : null;
     }
@@ -135,13 +140,16 @@ class AIPKit_Ledger_Repository
             return 0;
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregate from a custom table.
-        $sum = $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT COALESCE(SUM(credits_delta), 0) FROM {$this->table_name} WHERE user_id = %d",
-                $user_id
-            )
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Safe custom table name on a prepared ledger aggregate.
+        $balance_query = "SELECT COALESCE(SUM(credits_delta), 0) FROM {$this->table_name} WHERE user_id = %d";
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+        $prepared_balance_query = $wpdb->prepare(
+            $balance_query,
+            $user_id
         );
+        // phpcs:enable
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared aggregate lookup against a plugin-owned ledger table.
+        $sum = $wpdb->get_var($prepared_balance_query);
 
         return (int) $sum;
     }
@@ -179,13 +187,11 @@ class AIPKit_Ledger_Repository
         }
 
         $limit = max(1, min(100, $limit));
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Dynamic ledger query over a plugin-owned custom table with controlled placeholders.
         $sql = "SELECT * FROM {$this->table_name} WHERE " . implode(' AND ', $conditions) . ' ORDER BY created_at DESC, id DESC LIMIT %d';
         $values[] = $limit;
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared dynamically from placeholders above.
-        $prepared = $wpdb->prepare($sql, ...$values);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read from a custom table.
-        $rows = $wpdb->get_results($prepared, ARRAY_A);
+        $rows = $wpdb->get_results($wpdb->prepare($sql, $values), ARRAY_A);
+        // phpcs:enable
 
         return is_array($rows) ? $rows : [];
     }

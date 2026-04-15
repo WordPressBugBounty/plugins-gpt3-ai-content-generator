@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- This file intentionally uses core WordPress hook names.
+
 function get_post_content_snippet_logic(\WP_Post $post, int $length = 500): string
 {
     $content_raw = $post->post_content;

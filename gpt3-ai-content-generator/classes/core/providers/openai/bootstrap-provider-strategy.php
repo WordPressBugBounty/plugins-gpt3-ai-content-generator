@@ -2,6 +2,8 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/providers/openai/bootstrap-provider-strategy.php
 // Status: NEW FILE
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Core\Providers;
 
 use WP_Error;
@@ -31,7 +33,6 @@ require_once $methods_path . 'build-sse-payload.php';
 require_once $methods_path . 'parse-sse-chunk.php';
 require_once $methods_path . 'moderate-text.php';
 require_once $methods_path . 'generate-embeddings.php';
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

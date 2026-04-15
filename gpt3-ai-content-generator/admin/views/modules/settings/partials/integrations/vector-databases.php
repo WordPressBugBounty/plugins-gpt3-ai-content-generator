@@ -10,6 +10,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Variables from parent:
 // $current_pinecone_api_key, $pinecone_index_list, $current_pinecone_default_index
 // $qdrant_defaults, $current_qdrant_url, $current_qdrant_api_key, $qdrant_collection_list, $current_qdrant_default_collection

@@ -617,8 +617,6 @@ class AIPKit_Content_Writer_Image_Handler
                     } else {
                         $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No images returned from API.';
                         $append_image_warning($image_warnings, $error_msg);
-                        // Log the error for debugging bulk mode issues
-                        error_log("AIPKit Image Generation Error (Image #" . ($i + 1) . "): " . $error_msg . " | Model: " . $image_model . " | Provider: " . ($generation_options['provider'] ?? 'unknown'));
                     }
                 }
             } else { // Models that support n > 1
@@ -651,8 +649,6 @@ class AIPKit_Content_Writer_Image_Handler
                 } else {
                     $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No images returned from API.';
                     $append_image_warning($image_warnings, $error_msg);
-                    // Log the error for debugging bulk mode issues
-                    error_log("AIPKit Image Generation Error (Batch): " . $error_msg . " | Model: " . $image_model . " | Provider: " . ($generation_options['provider'] ?? 'unknown') . " | Count: " . $image_count);
                 }
             }
         }
@@ -693,13 +689,10 @@ class AIPKit_Content_Writer_Image_Handler
                 }
                 if (empty($final_image_data['featured_image_id']) && empty($final_image_data['featured_image_url'])) {
                     $append_image_warning($image_warnings, 'No featured image URL returned.');
-                    error_log("AIPKit Featured Image Generation Error: No featured image URL returned. | Model: " . ($generation_options['model'] ?? 'unknown') . " | Provider: " . ($generation_options['provider'] ?? 'unknown'));
                 }
             } else {
                 $error_msg = is_wp_error($result) ? $result->get_error_message() : 'No featured image returned.';
                 $append_image_warning($image_warnings, $error_msg);
-                // Log the error for debugging
-                error_log("AIPKit Featured Image Generation Error: " . $error_msg . " | Model: " . ($generation_options['model'] ?? 'unknown') . " | Provider: " . ($generation_options['provider'] ?? 'unknown'));
             }
         }
 

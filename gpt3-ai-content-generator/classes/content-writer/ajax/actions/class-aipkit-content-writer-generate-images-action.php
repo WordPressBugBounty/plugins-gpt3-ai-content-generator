@@ -95,17 +95,6 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
             $image_result['warning'] = $warning_messages[0];
         }
 
-        if ($requested_any_image && !$generated_any_image && !empty($warning_messages)) {
-            $provider_for_log = isset($settings['image_provider']) ? sanitize_text_field((string) $settings['image_provider']) : 'unknown';
-            $model_for_log = isset($settings['image_model']) ? sanitize_text_field((string) $settings['image_model']) : 'unknown';
-            error_log(
-                'AIPKit Content Writer Image Generation Skipped'
-                . ' | Provider: ' . ($provider_for_log !== '' ? $provider_for_log : 'unknown')
-                . ' | Model: ' . ($model_for_log !== '' ? $model_for_log : 'unknown')
-                . ' | Warning: ' . $warning_messages[0]
-            );
-        }
-
         // --- START FIX: Strip b64_json from response to prevent 413 "Request Entity Too Large" on subsequent saves ---
         if (isset($image_result['in_content_images']) && is_array($image_result['in_content_images'])) {
             foreach ($image_result['in_content_images'] as &$image_item) {

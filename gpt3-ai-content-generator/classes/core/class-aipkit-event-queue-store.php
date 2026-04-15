@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- This store only queries plugin-owned queue tables and scalar values are normalized before each prepared call.
+
 /**
  * Durable queue storage for emitted events before async delivery.
  */
@@ -81,6 +83,7 @@ class AIPKit_Event_Queue_Store
         $available_at = gmdate('Y-m-d H:i:s');
         $initial_status = self::normalize_status((string) ($meta['initial_status'] ?? 'captured'));
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Insert into a plugin-owned queue table.
         $inserted = $wpdb->insert(
             $table_name,
             [

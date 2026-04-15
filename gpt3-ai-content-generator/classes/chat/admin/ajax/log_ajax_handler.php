@@ -46,6 +46,7 @@ class LogAjaxHandler extends BaseAjaxHandler
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by check_module_access_permissions() above.
         $post_data = wp_unslash($_POST);
         $ip_to_toggle = isset($post_data['ip']) ? sanitize_text_field($post_data['ip']) : '';
         $is_currently_banned = isset($post_data['is_banned']) ? ($post_data['is_banned'] === 'true') : false;

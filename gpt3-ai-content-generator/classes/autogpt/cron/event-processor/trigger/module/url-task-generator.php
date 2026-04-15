@@ -8,6 +8,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $premium_logic_path = WPAICG_LIB_DIR . 'autogpt/cron/event-processor/trigger/module/url-task-generator.php';
 if (file_exists($premium_logic_path)) {
     require_once $premium_logic_path;

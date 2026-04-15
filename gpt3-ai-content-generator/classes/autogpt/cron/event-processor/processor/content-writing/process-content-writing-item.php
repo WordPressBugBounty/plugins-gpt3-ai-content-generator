@@ -21,6 +21,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Load dependencies
 require_once __DIR__ . '/generate-title-helper.php';
 require_once __DIR__ . '/build-content-prompt.php';
@@ -146,8 +148,6 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
         if (is_wp_error($image_result)) {
             // Don't stop the whole process, just log the error and continue without images.
             $error_details = $image_result->get_error_message();
-            $error_code = $image_result->get_error_code();
-            error_log("AIPKit AutoGPT Image Generation Failed: [{$error_code}] {$error_details} | Title: {$final_title} | Provider: " . ($item_config['image_provider'] ?? 'unknown') . " | Model: " . ($item_config['image_model'] ?? 'unknown'));
             $image_generation_warning = $error_details;
         } else {
             $inline_count = !empty($image_result['in_content_images']) && is_array($image_result['in_content_images'])
@@ -190,8 +190,6 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
                         );
                     }
                 }
-
-                error_log("AIPKit AutoGPT Image Generation Returned No Images | Title: {$final_title} | Provider: " . ($provider !== '' ? $provider : 'unknown') . " | Model: " . ($model !== '' ? $model : 'unknown') . " | Warning: " . $image_generation_warning);
             }
             // The image handler does not currently return usage data.
             // $image_usage = $image_result['usage'] ?? null; // This line would be correct if handler returned usage

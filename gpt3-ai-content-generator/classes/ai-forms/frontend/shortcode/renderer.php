@@ -127,16 +127,15 @@ function render_form_html_logic(
                         $conversation_step = isset($row['aipkitConversationStep']) && is_array($row['aipkitConversationStep'])
                             ? $row['aipkitConversationStep']
                             : [];
-                        $row_attributes = [
-                            'class="aipkit-form-row"',
-                            'data-aipkit-conversation-enabled="' . (!empty($conversation_step['conversationEnabled']) ? '1' : '0') . '"',
-                            'data-aipkit-step-title="' . esc_attr((string) ($conversation_step['title'] ?? '')) . '"',
-                            'data-aipkit-step-description="' . esc_attr((string) ($conversation_step['description'] ?? '')) . '"',
-                            'data-aipkit-condition-field-id="' . esc_attr((string) ($conversation_step['conditionFieldId'] ?? '')) . '"',
-                            'data-aipkit-condition-operator="' . esc_attr((string) ($conversation_step['conditionOperator'] ?? '')) . '"',
-                            'data-aipkit-condition-value="' . esc_attr((string) ($conversation_step['conditionValue'] ?? '')) . '"',
-                        ];
-                        echo '<div ' . implode(' ', $row_attributes) . '>';
+                        printf(
+                            '<div class="aipkit-form-row" data-aipkit-conversation-enabled="%1$s" data-aipkit-step-title="%2$s" data-aipkit-step-description="%3$s" data-aipkit-condition-field-id="%4$s" data-aipkit-condition-operator="%5$s" data-aipkit-condition-value="%6$s">',
+                            !empty($conversation_step['conversationEnabled']) ? '1' : '0',
+                            esc_attr((string) ($conversation_step['title'] ?? '')),
+                            esc_attr((string) ($conversation_step['description'] ?? '')),
+                            esc_attr((string) ($conversation_step['conditionFieldId'] ?? '')),
+                            esc_attr((string) ($conversation_step['conditionOperator'] ?? '')),
+                            esc_attr((string) ($conversation_step['conditionValue'] ?? ''))
+                        );
                         foreach ($row['columns'] as $column) {
                             if (!isset($column['elements']) || !is_array($column['elements'])) {
                                 continue;

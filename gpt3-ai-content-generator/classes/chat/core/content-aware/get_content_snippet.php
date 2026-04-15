@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- This file intentionally uses core WordPress hook names.
+
 // Require helper for is_suitable_page if not already loaded by the class wrapper
 require_once __DIR__ . '/is_suitable_page.php';
 

@@ -3,6 +3,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $aipkit_task_cw_image_display_settings_render_mode =
     isset($aipkit_task_cw_image_display_settings_render_mode)
         ? (string) $aipkit_task_cw_image_display_settings_render_mode

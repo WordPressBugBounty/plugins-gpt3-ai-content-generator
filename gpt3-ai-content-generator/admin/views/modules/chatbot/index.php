@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template-local view variables here do not create public globals.
+
 use WPAICG\Chat\Storage\BotStorage;
 use WPAICG\Chat\Storage\DefaultBotSetup;
 use WPAICG\Chat\Storage\BotSettingsManager;
@@ -1304,6 +1306,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 $rules_summary_fallback = '';
                                 $rules_summary_text = $rules_count > 0
                                     ? sprintf(
+                                        /* translators: %d: number of chatbot rules. */
                                         _n('%d rule', '%d rules', $rules_count, 'gpt3-ai-content-generator'),
                                         $rules_count
                                     )
@@ -2594,6 +2597,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
         $inline_bot_switch_payload,
         JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
     );
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON_HEX_* encoded payload for an application/json script tag.
     echo $inline_bot_switch_payload_json !== false ? $inline_bot_switch_payload_json : '{}';
 ?></script>
 

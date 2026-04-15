@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $notice_id = isset($notice_id) ? (string) $notice_id : '';
 $notice_class = isset($notice_class) ? (string) $notice_class : '';
 $aipkit_notice_id = isset($aipkit_notice_id) ? (string) $aipkit_notice_id : $notice_id;

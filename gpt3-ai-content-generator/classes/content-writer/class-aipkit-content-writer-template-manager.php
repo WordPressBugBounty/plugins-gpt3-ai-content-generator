@@ -4,6 +4,8 @@
 // Status: MODIFIED
 // I have added 'tags' to the list of allowed config keys to fix a bug where the enhancer template would not save the state of the 'Tags' checkbox.
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\ContentWriter;
 
 use WP_Error;
@@ -20,7 +22,6 @@ require_once $methods_path . 'delete-template.php';
 require_once $methods_path . 'get-template.php';
 require_once $methods_path . 'get-templates-for-user.php';
 require_once $methods_path . 'calculate-schedule-datetime.php';
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -72,7 +73,6 @@ class AIPKit_Content_Writer_Template_Manager
         'title', 'excerpt', 'content', 'meta', 'keyword', 'tags', // These are the keys for bulk enhancer templates
         'reasoning_effort' // For o1 models reasoning effort setting
     ];
-
 
     public function __construct()
     {

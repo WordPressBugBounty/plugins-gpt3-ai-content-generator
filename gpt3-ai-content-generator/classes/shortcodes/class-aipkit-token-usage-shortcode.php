@@ -3,6 +3,8 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/shortcodes/class-aipkit-token-usage-shortcode.php
 // Status: MODIFIED
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Shortcodes; // Correct namespace
 
 use WPAICG\Shortcodes\TokenUsage\Render as TokenUsageRenderer;
@@ -129,7 +131,6 @@ class AIPKit_Token_Usage_Shortcode
             ]
         ]);
     }
-
 
     /**
      * Render the shortcode output.

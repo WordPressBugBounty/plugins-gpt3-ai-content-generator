@@ -17,6 +17,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Load method logic files for this orchestrator
 $logic_path = __DIR__ . '/generate-response/';
 require_once $logic_path . 'validate-request.php';

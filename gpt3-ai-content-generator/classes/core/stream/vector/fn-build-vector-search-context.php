@@ -3,6 +3,8 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/stream/vector/fn-build-vector-search-context.php
 // Status: MODIFIED (Orchestrator)
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Core\Stream\Vector;
 
 use WPAICG\Core\AIPKit_AI_Caller;
@@ -18,7 +20,6 @@ require_once $build_context_path . 'resolve-embedding-vector.php';
 require_once $build_context_path . 'resolve-openai-context.php';
 require_once $build_context_path . 'resolve-pinecone-context.php';
 require_once $build_context_path . 'resolve-qdrant-context.php';
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

@@ -259,7 +259,8 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
-        // Sanitize all inputs
+        // Sanitize all inputs.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by check_module_access_permissions() above.
         $post_data = wp_unslash($_POST);
         $provider = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : '';
         $store_id = isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '';
@@ -352,18 +353,12 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is safe.
-        $total_logs = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", $params));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
+        $total_logs = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", ...$params));
 
         $logs_params = array_merge($params, [$filters['per_page'], $filters['offset']]);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is safe.
-        $logs = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT id, timestamp, provider, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d",
-                $logs_params
-            ),
-            ARRAY_A
-        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
+        $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, provider, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d", ...$logs_params), ARRAY_A);
 
         $total_pages = $filters['per_page'] > 0 ? (int) ceil($total_logs / $filters['per_page']) : 0;
 
@@ -552,7 +547,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         global $wpdb;
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Distinct providers from custom table.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Distinct providers from a plugin-owned custom table.
         $provider_labels = $wpdb->get_col("SELECT DISTINCT provider FROM {$table_name} WHERE provider <> ''");
         $provider_labels = array_filter(array_map('sanitize_text_field', (array) $provider_labels));
 
@@ -602,15 +597,9 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         $offset = ($page - 1) * $per_page;
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is safe; logs are dynamic.
-        $total = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s",
-            $provider, $store_id, $batch_id
-        ));
+        $total = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s", $provider, $store_id, $batch_id));
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is safe; logs are dynamic.
-        $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT id, file_id, indexed_content, timestamp FROM {$table} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s ORDER BY id ASC LIMIT %d OFFSET %d",
-            $provider, $store_id, $batch_id, $per_page, $offset
-        ), ARRAY_A);
+        $rows = $wpdb->get_results($wpdb->prepare("SELECT id, file_id, indexed_content, timestamp FROM {$table} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s ORDER BY id ASC LIMIT %d OFFSET %d", $provider, $store_id, $batch_id, $per_page, $offset), ARRAY_A);
 
         if ($wpdb->last_error) {
             $this->send_wp_error(new \WP_Error('db_error_chunk_logs', __('Failed to fetch chunk logs.', 'gpt3-ai-content-generator'), ['status' => 500]));
@@ -703,7 +692,9 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             $this->send_wp_error($permission_check);
             return;
         }
-        $settings_json = isset($_POST['settings']) ? wp_unslash($_POST['settings']) : '{}';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by check_module_access_permissions() above.
+        $post_data = wp_unslash($_POST);
+        $settings_json = isset($post_data['settings']) ? (string) $post_data['settings'] : '{}';
         $settings = json_decode($settings_json, true);
 
         if (json_last_error() !== JSON_ERROR_NONE || !is_array($settings)) {
@@ -976,10 +967,8 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'aipkit_chat_logs';
-        $messages_json = $wpdb->get_var($wpdb->prepare(
-            "SELECT messages FROM {$table_name} WHERE id = %d",
-            $log_id
-        ));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Chat log lookup by primary key on a plugin-owned custom table.
+        $messages_json = $wpdb->get_var($wpdb->prepare("SELECT messages FROM {$table_name} WHERE id = %d", $log_id));
 
         $messages = [];
         if (!empty($messages_json)) {

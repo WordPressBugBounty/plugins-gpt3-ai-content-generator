@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Get saved Azure deployment name if applicable
 $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
 $shortcode_text_main = '';
@@ -15,6 +17,16 @@ if (!empty($bot_id)) {
 }
 $shortcode_label = '';
 $shortcode_pill = '';
+$shortcode_allowed_html = [
+    'span' => [
+        'class' => true,
+    ],
+    'div' => [
+        'class' => true,
+        'data-shortcode' => true,
+        'title' => true,
+    ],
+];
 if (!empty($shortcode_text_main)) {
     $shortcode_label = '<span class="aipkit_form-label aipkit_form-label--inline aipkit_shortcode_label">' .
         esc_html__('Shortcode', 'gpt3-ai-content-generator') .
@@ -181,7 +193,7 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo $shortcode_label; ?>
+                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_model"
                     name="openai_model"
@@ -244,7 +256,7 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
                     }
 ?>
                 </select>
-                <?php echo $shortcode_pill; ?>
+                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
                 <!-- OpenAI Web Search checkbox moved to Features subsection -->
             </div> <?php // END WRAPPER?>
         </div>
@@ -265,7 +277,7 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo $shortcode_label; ?>
+                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_model"
                     name="openrouter_model"
@@ -334,7 +346,7 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php } ?>
                 </select>
-                <?php echo $shortcode_pill; ?>
+                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -354,7 +366,7 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo $shortcode_label; ?>
+                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_model"
                     name="google_model"
@@ -418,7 +430,7 @@ if (!empty($google_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <?php echo $shortcode_pill; ?>
+                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
                 <!-- Google Search Grounding checkbox moved to Features subsection -->
             </div> <?php // END WRAPPER?>
         </div>
@@ -439,7 +451,7 @@ if (!empty($google_model_list)): ?>
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo $shortcode_label; ?>
+                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_model"
                     name="claude_model"
@@ -499,7 +511,7 @@ if (!empty($claude_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <?php echo $shortcode_pill; ?>
+                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -519,7 +531,7 @@ if (!empty($claude_model_list)): ?>
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo $shortcode_label; ?>
+                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_azure_deployment"
                     name="azure_deployment"
@@ -549,7 +561,7 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
 }
 ?>
                 </select>
-                <?php echo $shortcode_pill; ?>
+                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -569,7 +581,7 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo $shortcode_label; ?>
+                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_deepseek_model"
                     name="deepseek_model"
@@ -599,7 +611,7 @@ if (!empty($deepseek_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <?php echo $shortcode_pill; ?>
+                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
             </div> <?php // END WRAPPER?>
         </div>
 
@@ -619,7 +631,7 @@ if (!empty($deepseek_model_list)): ?>
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo $shortcode_label; ?>
+                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_ollama_model"
                     name="ollama_model"
@@ -649,7 +661,7 @@ if (!empty($deepseek_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <?php echo $shortcode_pill; ?>
+                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
             </div> <?php // END WRAPPER?>
         </div>
 

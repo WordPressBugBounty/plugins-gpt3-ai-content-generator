@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $is_pro_plan = class_exists('\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
 $log_store_class = '\WPAICG\\Lib\\Integrations\\Logs\\AIPKit_Recipe_Delivery_Log_Store';
 $recipe_store_class = '\WPAICG\\Lib\\Integrations\\Recipes\\AIPKit_Stored_Recipes';

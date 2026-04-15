@@ -4,6 +4,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 use WPAICG\AIPKit_Providers;
 use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKIT_AI_Settings;

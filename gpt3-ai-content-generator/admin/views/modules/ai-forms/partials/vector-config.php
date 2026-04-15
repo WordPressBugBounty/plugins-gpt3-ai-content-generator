@@ -9,6 +9,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 // Variables passed from parent (index.php -> form-editor.php -> _form-editor-main-settings.php -> this):
 // $openai_vector_stores, $pinecone_indexes, $qdrant_collections
 ?>
@@ -17,6 +19,18 @@ $vector_embedding_provider = '';
 $vector_embedding_model = '';
 $embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('ai_forms_editor_ui');
 $embedding_models_by_provider = \WPAICG\AIPKit_Providers::get_embedding_models_by_provider('ai_forms_editor_ui');
+$aipkit_embedding_options_allowed_html = [
+    'optgroup' => [
+        'label' => true,
+    ],
+    'option' => [
+        'value' => true,
+        'data-provider' => true,
+        'selected' => true,
+        'hidden' => true,
+        'disabled' => true,
+    ],
+];
 if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vector_embedding_provider])) {
     $vector_embedding_provider = array_key_first($embedding_provider_options) ?: 'openai';
 }
@@ -296,16 +310,19 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                     >
                         <?php
                         echo '<option value="">' . esc_html__('-- Select Embedding --', 'gpt3-ai-content-generator') . '</option>';
-                        echo \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
-                            $embedding_provider_options,
-                            $embedding_models_by_provider,
-                            $vector_embedding_provider,
-                            $vector_embedding_model,
-                            [
-                                'value_mode' => 'provider_model',
-                                'include_manual_fallback' => true,
-                            ]
-                        ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is fully escaped by the renderer.
+                        echo wp_kses(
+                            \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
+                                $embedding_provider_options,
+                                $embedding_models_by_provider,
+                                $vector_embedding_provider,
+                                $vector_embedding_model,
+                                [
+                                    'value_mode' => 'provider_model',
+                                    'include_manual_fallback' => true,
+                                ]
+                            ),
+                            $aipkit_embedding_options_allowed_html
+                        );
                         ?>
                     </select>
                     <select

@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- This file intentionally uses the core https_local_ssl_verify hook.
+
 /**
  * Loopback worker, cron fallback, and queue health support for async delivery.
  */
@@ -133,6 +135,7 @@ class AIPKit_Event_Queue_Worker
             ]);
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Internal worker requests are authorized with a signed worker token instead of a nonce.
         $batch_size = isset($_REQUEST['batch_size']) ? max(1, min(20, (int) $_REQUEST['batch_size'])) : self::DEFAULT_BATCH_SIZE;
         $processed_count = self::process_queue_batch($batch_size);
 
@@ -437,6 +440,7 @@ class AIPKit_Event_Queue_Worker
         }
 
         if (function_exists('wp_doing_ajax') && wp_doing_ajax()) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Internal shutdown guard only inspects the current AJAX action for routing.
             $action = sanitize_key((string) ($_REQUEST['action'] ?? ''));
             if ($action === self::AJAX_ACTION) {
                 return;
@@ -502,6 +506,7 @@ class AIPKit_Event_Queue_Worker
         $errno = 0;
         $errstr = '';
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen -- Raw socket dispatch preserves the non-loopback async worker trigger path.
         $socket = @fsockopen($transport_host, $port, $errno, $errstr, $timeout);
         if (!is_resource($socket)) {
             return false;
@@ -523,7 +528,9 @@ class AIPKit_Event_Queue_Worker
         $request .= "Connection: Close\r\n\r\n";
         $request .= $body;
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- Raw socket dispatch preserves the non-loopback async worker trigger path.
         $written = @fwrite($socket, $request);
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Raw socket dispatch preserves the non-loopback async worker trigger path.
         fclose($socket);
 
         return $written !== false;

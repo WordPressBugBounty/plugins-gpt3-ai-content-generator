@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 
 $security_settings = class_exists(AIPKit_Global_Security_Settings::class)

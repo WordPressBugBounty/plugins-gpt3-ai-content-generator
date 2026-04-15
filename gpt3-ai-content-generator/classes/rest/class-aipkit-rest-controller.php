@@ -101,106 +101,114 @@ class AIPKit_REST_Controller extends WP_REST_Controller
      */
     public function register_routes()
     {
-        if (!$this->text_handler || !$this->image_handler || !$this->embeddings_handler || !$this->chat_handler || !$this->vector_store_handler || !$this->base_handler || !$this->chatbot_embed_handler || !$this->logs_handler) {
-            return;
-        }
-        
-        // NEW: Register Chatbot Embed Config route
-        register_rest_route(
-            $this->namespace,
-            '/' . $this->rest_base_chatbot_embed . '/(?P<bot_id>\d+)/embed-config',
-            array(
-                'methods'             => \WP_REST_Server::READABLE,
-                'callback'            => array($this->chatbot_embed_handler, 'handle_request'),
-                'permission_callback' => '__return_true', // Publicly accessible
-                'args'                => $this->chatbot_embed_handler->get_endpoint_args(),
-            )
-        );
-
-        register_rest_route(
-            $this->namespace,
-            '/' . $this->rest_base_generate,
-            array(
-                array(
-                    'methods'             => \WP_REST_Server::CREATABLE,
-                    'callback'            => array($this->text_handler, 'handle_request'),
-                    'permission_callback' => array($this->base_handler, 'check_permissions'),
-                    'args'                => $this->text_handler->get_endpoint_args(),
-                ),
-                'schema' => array($this->text_handler, 'get_item_schema'),
-            )
-        );
-
-        register_rest_route(
-            $this->namespace,
-            '/' . $this->rest_base_images,
-            array(
-                array(
-                    'methods'             => \WP_REST_Server::CREATABLE,
-                    'callback'            => array($this->image_handler, 'handle_request'),
-                    'permission_callback' => array($this->base_handler, 'check_permissions'),
-                    'args'                => $this->image_handler->get_endpoint_args(),
-                ),
-                'schema' => array($this->image_handler, 'get_item_schema'),
-            )
-        );
-
-        register_rest_route(
-            $this->namespace,
-            '/' . $this->rest_base_embeddings,
-            array(
-                array(
-                    'methods'             => \WP_REST_Server::CREATABLE,
-                    'callback'            => array($this->embeddings_handler, 'handle_request'),
-                    'permission_callback' => array($this->base_handler, 'check_permissions'),
-                    'args'                => $this->embeddings_handler->get_endpoint_args(),
-                ),
-                'schema' => array($this->embeddings_handler, 'get_item_schema'),
-            )
-        );
-
-        register_rest_route(
-            $this->namespace,
-            '/' . $this->rest_base_chat . '/(?P<bot_id>\d+)/message',
-            array(
-                array(
-                    'methods'             => \WP_REST_Server::CREATABLE,
-                    'callback'            => array($this->chat_handler, 'handle_request'),
-                    'permission_callback' => array($this->base_handler, 'check_permissions'),
-                    'args'                => $this->chat_handler->get_endpoint_args(),
-                ),
-                'schema' => array($this->chat_handler, 'get_item_schema'),
-            )
-        );
-        
-        register_rest_route(
-            $this->namespace,
-            '/' . $this->rest_base_vectors . '/upsert',
-            array(
-                array(
-                    'methods'             => \WP_REST_Server::CREATABLE,
-                    'callback'            => array($this->vector_store_handler, 'handle_request'),
-                    'permission_callback' => array($this->base_handler, 'check_permissions'),
-                    'args'                => $this->vector_store_handler->get_endpoint_args(),
-                ),
-                'schema' => array($this->vector_store_handler, 'get_item_schema'),
-            )
-        );
-
-        // NEW: Register Logs route
-        register_rest_route(
-            $this->namespace,
-            '/' . $this->rest_base_logs,
-            array(
+        if ($this->chatbot_embed_handler) {
+            register_rest_route(
+                $this->namespace,
+                '/' . $this->rest_base_chatbot_embed . '/(?P<bot_id>\d+)/embed-config',
                 array(
                     'methods'             => \WP_REST_Server::READABLE,
-                    'callback'            => array($this->logs_handler, 'handle_request'),
-                    'permission_callback' => array($this->base_handler, 'check_permissions'),
-                    'args'                => $this->logs_handler->get_endpoint_args(),
-                ),
-                'schema' => array($this->logs_handler, 'get_item_schema'),
-            )
-        );
+                    'callback'            => array($this->chatbot_embed_handler, 'handle_request'),
+                    'permission_callback' => '__return_true',
+                    'args'                => $this->chatbot_embed_handler->get_endpoint_args(),
+                )
+            );
+        }
+
+        if ($this->text_handler && $this->base_handler) {
+            register_rest_route(
+                $this->namespace,
+                '/' . $this->rest_base_generate,
+                array(
+                    array(
+                        'methods'             => \WP_REST_Server::CREATABLE,
+                        'callback'            => array($this->text_handler, 'handle_request'),
+                        'permission_callback' => array($this->base_handler, 'check_permissions'),
+                        'args'                => $this->text_handler->get_endpoint_args(),
+                    ),
+                    'schema' => array($this->text_handler, 'get_item_schema'),
+                )
+            );
+        }
+
+        if ($this->image_handler && $this->base_handler) {
+            register_rest_route(
+                $this->namespace,
+                '/' . $this->rest_base_images,
+                array(
+                    array(
+                        'methods'             => \WP_REST_Server::CREATABLE,
+                        'callback'            => array($this->image_handler, 'handle_request'),
+                        'permission_callback' => array($this->base_handler, 'check_permissions'),
+                        'args'                => $this->image_handler->get_endpoint_args(),
+                    ),
+                    'schema' => array($this->image_handler, 'get_item_schema'),
+                )
+            );
+        }
+
+        if ($this->embeddings_handler && $this->base_handler) {
+            register_rest_route(
+                $this->namespace,
+                '/' . $this->rest_base_embeddings,
+                array(
+                    array(
+                        'methods'             => \WP_REST_Server::CREATABLE,
+                        'callback'            => array($this->embeddings_handler, 'handle_request'),
+                        'permission_callback' => array($this->base_handler, 'check_permissions'),
+                        'args'                => $this->embeddings_handler->get_endpoint_args(),
+                    ),
+                    'schema' => array($this->embeddings_handler, 'get_item_schema'),
+                )
+            );
+        }
+
+        if ($this->chat_handler && $this->base_handler) {
+            register_rest_route(
+                $this->namespace,
+                '/' . $this->rest_base_chat . '/(?P<bot_id>\d+)/message',
+                array(
+                    array(
+                        'methods'             => \WP_REST_Server::CREATABLE,
+                        'callback'            => array($this->chat_handler, 'handle_request'),
+                        'permission_callback' => array($this->base_handler, 'check_permissions'),
+                        'args'                => $this->chat_handler->get_endpoint_args(),
+                    ),
+                    'schema' => array($this->chat_handler, 'get_item_schema'),
+                )
+            );
+        }
+
+        if ($this->vector_store_handler && $this->base_handler) {
+            register_rest_route(
+                $this->namespace,
+                '/' . $this->rest_base_vectors . '/upsert',
+                array(
+                    array(
+                        'methods'             => \WP_REST_Server::CREATABLE,
+                        'callback'            => array($this->vector_store_handler, 'handle_request'),
+                        'permission_callback' => array($this->base_handler, 'check_permissions'),
+                        'args'                => $this->vector_store_handler->get_endpoint_args(),
+                    ),
+                    'schema' => array($this->vector_store_handler, 'get_item_schema'),
+                )
+            );
+        }
+
+        if ($this->logs_handler && $this->base_handler) {
+            register_rest_route(
+                $this->namespace,
+                '/' . $this->rest_base_logs,
+                array(
+                    array(
+                        'methods'             => \WP_REST_Server::READABLE,
+                        'callback'            => array($this->logs_handler, 'handle_request'),
+                        'permission_callback' => array($this->base_handler, 'check_permissions'),
+                        'args'                => $this->logs_handler->get_endpoint_args(),
+                    ),
+                    'schema' => array($this->logs_handler, 'get_item_schema'),
+                )
+            );
+        }
     }
 
 }

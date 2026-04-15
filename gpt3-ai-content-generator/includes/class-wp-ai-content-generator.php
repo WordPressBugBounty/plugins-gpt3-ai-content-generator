@@ -194,14 +194,8 @@ class WP_AI_Content_Generator
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time plugin migration cleanup.
         $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $pricing_rules_table));
         if ($table_exists === $pricing_rules_table) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time plugin migration cleanup.
-            $wpdb->query(
-                $wpdb->prepare(
-                    "DELETE FROM {$pricing_rules_table} WHERE scope_type IN (%s, %s)",
-                    'chatbot',
-                    'bot'
-                )
-            );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- One-time plugin migration cleanup against a plugin-owned table.
+            $wpdb->query($wpdb->prepare("DELETE FROM {$pricing_rules_table} WHERE scope_type IN (%s, %s)", 'chatbot', 'bot'));
         }
 
         delete_post_meta_by_key('_aipkit_token_pricing_mode');
@@ -256,7 +250,7 @@ class WP_AI_Content_Generator
             return false;
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name is safe from $wpdb->prefix.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is derived from $wpdb->prefix and the index name is prepared.
         $index_rows = $wpdb->get_results($wpdb->prepare("SHOW INDEX FROM {$table_name} WHERE Key_name = %s", $index_name));
 
         return empty($index_rows);

@@ -133,5 +133,9 @@ function extract_claude_non_stream_tool_error_message_logic(array $block): ?stri
             break;
     }
 
-    return sprintf(__('Claude web search failed: %s.', 'gpt3-ai-content-generator'), $detail);
+    return sprintf(
+        /* translators: %s: human-readable Claude web search error detail. */
+        __('Claude web search failed: %s.', 'gpt3-ai-content-generator'),
+        $detail
+    );
 }

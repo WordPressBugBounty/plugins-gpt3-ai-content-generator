@@ -542,10 +542,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             return;
         }
 
-        if (
-            !isset($_FILES['settings_backup_file']) ||
-            !is_array($_FILES['settings_backup_file'])
-        ) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified above and the uploaded file array is validated structurally before use.
+        $uploaded_file = (isset($_FILES['settings_backup_file']) && is_array($_FILES['settings_backup_file']))
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Returning the validated upload array for further structural checks below.
+            ? $_FILES['settings_backup_file']
+            : null;
+
+        if (!is_array($uploaded_file)) {
             $this->send_wp_error(new WP_Error(
                 'missing_import_file',
                 __('No backup file was uploaded.', 'gpt3-ai-content-generator'),
@@ -554,7 +557,6 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             return;
         }
 
-        $uploaded_file = $_FILES['settings_backup_file'];
         if (!empty($uploaded_file['error'])) {
             $this->send_wp_error(new WP_Error(
                 'upload_error',

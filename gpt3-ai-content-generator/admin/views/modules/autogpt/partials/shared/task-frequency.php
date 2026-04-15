@@ -10,6 +10,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $frequencies = isset($frequencies) && is_array($frequencies) ? $frequencies : [];
 $default_frequency = array_key_exists('daily', $frequencies)
     ? 'daily'

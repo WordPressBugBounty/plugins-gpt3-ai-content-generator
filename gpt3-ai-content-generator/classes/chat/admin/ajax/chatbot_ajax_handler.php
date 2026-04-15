@@ -254,7 +254,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             'post_status'            => ['publish', 'draft'],
             'posts_per_page'         => -1,
             'fields'                 => 'ids',
-            'post__not_in'           => [$exclude_bot_id],
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Targeted query over chatbot posts for uniqueness enforcement.
             'meta_query'             => [
                 'relation' => 'AND',
@@ -269,7 +268,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $ids = [];
         foreach ((array) $query->get_posts() as $id) {
             $id = absint($id);
-            if ($id > 0) {
+            if ($id > 0 && $id !== $exclude_bot_id) {
                 $ids[] = $id;
             }
         }
@@ -828,6 +827,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
      * AJAX: Updates chatbot AI parameters only (autosave).
      * @since NEXT_VERSION
      */
+    // phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Every handler in this autosave/training block verifies access via check_module_access_permissions(); remaining superglobal reads are immediately unslashed and normalized per field.
     public function ajax_update_chatbot_ai_parameters()
     {
         $permission_check = $this->check_module_access_permissions('chatbot');
@@ -2599,13 +2599,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
         $placeholders = implode(',', array_fill(0, count($store_ids), '%s'));
         $params = array_merge([$provider_name], $store_ids);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is safe and placeholders are prepared below.
-        $count = (int) $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table_name} WHERE provider = %s AND vector_store_id IN ($placeholders) AND (post_id IS NOT NULL OR file_id IS NOT NULL OR indexed_content IS NOT NULL)",
-                $params
-            )
-        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is safe and the dynamic placeholder list is prepared below.
+        $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE provider = %s AND vector_store_id IN ($placeholders) AND (post_id IS NOT NULL OR file_id IS NOT NULL OR indexed_content IS NOT NULL)", ...$params));
 
         set_transient($cache_key, [
             'count' => $count,
@@ -2788,18 +2783,12 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         $where_sql = implode(' AND ', $where_clauses);
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is safe.
-        $total_logs = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", $params));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
+        $total_logs = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", ...$params));
 
         $logs_params = array_merge($params, [$per_page, $offset]);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is safe.
-        $logs = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT id, timestamp, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d",
-                $logs_params
-            ),
-            ARRAY_A
-        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
+        $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d", ...$logs_params), ARRAY_A);
 
         $total_pages = $per_page > 0 ? (int) ceil($total_logs / $per_page) : 0;
 
@@ -2813,4 +2802,5 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             'provider' => $provider_label,
         ]);
     }
+    // phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 }

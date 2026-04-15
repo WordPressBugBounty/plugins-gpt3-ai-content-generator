@@ -71,18 +71,34 @@ abstract class AIPKit_Content_Writer_Base_Ajax_Action extends BaseDashboardAjaxH
 
         $max_execution_time = function_exists('ini_get') ? (int) ini_get('max_execution_time') : 0;
         if ($max_execution_time > 0 && $max_execution_time < $seconds) {
-            if ($this->can_use_function('set_time_limit')) {
-                set_time_limit($seconds);
-            }
-            if ($this->can_use_function('ini_set')) {
-                ini_set('max_execution_time', (string) $seconds);
-            }
+            $this->maybe_set_time_limit($seconds);
+            $this->maybe_set_ini_value('max_execution_time', (string) $seconds);
         }
 
         $socket_timeout = function_exists('ini_get') ? (int) ini_get('default_socket_timeout') : 0;
-        if ($socket_timeout > 0 && $socket_timeout < $seconds && $this->can_use_function('ini_set')) {
-            ini_set('default_socket_timeout', (string) $seconds);
+        if ($socket_timeout > 0 && $socket_timeout < $seconds) {
+            $this->maybe_set_ini_value('default_socket_timeout', (string) $seconds);
         }
+    }
+
+    private function maybe_set_time_limit(int $seconds): void
+    {
+        if (!$this->can_use_function('set_time_limit')) {
+            return;
+        }
+
+        // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Content generation requests may legitimately need a longer admin-request window.
+        set_time_limit($seconds);
+    }
+
+    private function maybe_set_ini_value(string $option_name, string $value): void
+    {
+        if (!$this->can_use_function('ini_set')) {
+            return;
+        }
+
+        // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Scoped runtime tuning is intentional for long-running admin-triggered generation requests.
+        ini_set($option_name, $value);
     }
 
     private function can_use_function(string $function_name): bool

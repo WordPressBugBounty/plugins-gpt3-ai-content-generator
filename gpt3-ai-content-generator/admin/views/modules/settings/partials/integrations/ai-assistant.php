@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Variables from parent: $enhancer_editor_integration_enabled
 $aipkit_render_assistant_accordion = isset($aipkit_render_assistant_accordion)
     ? (bool) $aipkit_render_assistant_accordion

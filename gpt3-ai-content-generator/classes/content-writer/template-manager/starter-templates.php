@@ -132,17 +132,14 @@ function get_existing_cw_starter_template_ids_for_user(
     $wpdb = $managerInstance->get_wpdb();
     $table_name = $managerInstance->get_table_name();
     $placeholders = implode(', ', array_fill(0, count($starter_ids), '%d'));
-    $prepared = $wpdb->prepare(
-        "SELECT id FROM {$table_name} WHERE user_id = %d AND template_type = 'content_writer' AND id IN ({$placeholders})",
-        array_merge([$user_id], $starter_ids)
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Direct read from a plugin-owned custom table with a prepared placeholder list.
+    $existing_ids = $wpdb->get_col(
+        $wpdb->prepare(
+            "SELECT id FROM {$table_name} WHERE user_id = %d AND template_type = 'content_writer' AND id IN ({$placeholders})",
+            ...array_merge([$user_id], $starter_ids)
+        )
     );
-
-    if (!$prepared) {
-        return [];
-    }
-
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct read from a custom table.
-    $existing_ids = $wpdb->get_col($prepared);
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $existing_lookup = array_fill_keys(array_map('intval', $existing_ids), true);
 
     return array_values(array_filter(
@@ -197,7 +194,7 @@ function set_cw_short_starter_as_default(\WPAICG\ContentWriter\AIPKit_Content_Wr
     $wpdb = $managerInstance->get_wpdb();
     $table_name = $managerInstance->get_table_name();
 
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated.
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Direct query to a plugin-owned custom table. Caches will be invalidated.
     $default_template = $wpdb->get_row(
         $wpdb->prepare(
             "SELECT id, template_name FROM {$table_name} WHERE user_id = %d AND template_type = 'content_writer' AND is_default = 1 LIMIT 1",
@@ -205,6 +202,7 @@ function set_cw_short_starter_as_default(\WPAICG\ContentWriter\AIPKit_Content_Wr
         ),
         ARRAY_A
     );
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
     $default_id = isset($default_template['id']) ? (int) $default_template['id'] : 0;
     if ($default_id !== $short_template_id) {
@@ -234,11 +232,11 @@ function set_cw_short_starter_as_default(\WPAICG\ContentWriter\AIPKit_Content_Wr
     $default_names = array_filter($default_names, static fn($name) => $name !== '');
     if (!empty($default_names)) {
         $placeholders = implode(', ', array_fill(0, count($default_names), '%s'));
-        $query = "DELETE FROM {$table_name} WHERE user_id = %d AND template_type = 'content_writer' AND template_name IN ({$placeholders}) AND id != %d";
-        $prepared = $wpdb->prepare($query, array_merge([$user_id], $default_names, [$short_template_id]));
-        if ($prepared) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct delete to a custom table. Caches will be invalidated.
-            $wpdb->query($prepared);
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic placeholder list for plugin-owned template cleanup.
+        $delete_query = $wpdb->prepare("DELETE FROM {$table_name} WHERE user_id = %d AND template_type = 'content_writer' AND template_name IN ({$placeholders}) AND id != %d", ...array_merge([$user_id], $default_names, [$short_template_id]));
+        if ($delete_query) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query string is prepared above for the dynamic placeholder list against a plugin-owned table.
+            $wpdb->query($delete_query);
         }
     }
 }

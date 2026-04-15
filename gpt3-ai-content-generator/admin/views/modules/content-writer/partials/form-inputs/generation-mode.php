@@ -3,6 +3,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 // Variables from loader-vars.php: $is_pro
 ?>
 <div class="aipkit_cw_mode_container" data-template-ready="0">
@@ -389,13 +391,27 @@ if (!defined('ABSPATH')) {
                             </table>
                         </div>
                         <div class="aipkit_cw_existing_pagination" id="aipkit_cw_existing_pagination">
-                            <button type="button" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_cw_button_match" id="aipkit_cw_existing_page_prev" disabled>
-                                <?php esc_html_e('Previous', 'gpt3-ai-content-generator'); ?>
-                            </button>
-                            <span class="aipkit_cw_existing_page_status" id="aipkit_cw_existing_page_status"><?php esc_html_e('Page 1 of 1', 'gpt3-ai-content-generator'); ?></span>
-                            <button type="button" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_cw_button_match" id="aipkit_cw_existing_page_next" disabled>
-                                <?php esc_html_e('Next', 'gpt3-ai-content-generator'); ?>
-                            </button>
+                            <div class="aipkit_cw_existing_page_size">
+                                <label class="screen-reader-text" for="aipkit_cw_existing_per_page"><?php esc_html_e('Rows per page', 'gpt3-ai-content-generator'); ?></label>
+                                <select id="aipkit_cw_existing_per_page" class="aipkit_form-input">
+                                    <option value="10"><?php esc_html_e('10', 'gpt3-ai-content-generator'); ?></option>
+                                    <option value="25"><?php esc_html_e('25', 'gpt3-ai-content-generator'); ?></option>
+                                    <option value="50"><?php esc_html_e('50', 'gpt3-ai-content-generator'); ?></option>
+                                    <option value="100"><?php esc_html_e('100', 'gpt3-ai-content-generator'); ?></option>
+                                    <option value="200"><?php esc_html_e('200', 'gpt3-ai-content-generator'); ?></option>
+                                    <option value="500"><?php esc_html_e('500', 'gpt3-ai-content-generator'); ?></option>
+                                    <option value="1000"><?php esc_html_e('1000', 'gpt3-ai-content-generator'); ?></option>
+                                </select>
+                            </div>
+                            <div class="aipkit_cw_existing_page_nav">
+                                <button type="button" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_cw_button_match" id="aipkit_cw_existing_page_prev" disabled>
+                                    <?php esc_html_e('Previous', 'gpt3-ai-content-generator'); ?>
+                                </button>
+                                <span class="aipkit_cw_existing_page_status" id="aipkit_cw_existing_page_status"><?php esc_html_e('Page 1 of 1', 'gpt3-ai-content-generator'); ?></span>
+                                <button type="button" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_cw_button_match" id="aipkit_cw_existing_page_next" disabled>
+                                    <?php esc_html_e('Next', 'gpt3-ai-content-generator'); ?>
+                                </button>
+                            </div>
                         </div>
                     </div>
 

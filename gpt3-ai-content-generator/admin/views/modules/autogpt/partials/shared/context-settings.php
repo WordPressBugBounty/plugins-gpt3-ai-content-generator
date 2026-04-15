@@ -15,6 +15,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $aipkit_autogpt_context_config = isset($aipkit_autogpt_context_config) && is_array($aipkit_autogpt_context_config)
     ? $aipkit_autogpt_context_config
     : [];

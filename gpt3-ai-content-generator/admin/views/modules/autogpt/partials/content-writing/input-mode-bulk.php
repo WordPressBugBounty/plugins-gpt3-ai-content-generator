@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $aipkit_render_autogpt_bulk_row = static function () use ($cw_available_post_types, $cw_users_for_author, $cw_wp_categories) {
     ?>
     <div class="aipkit_cw_bulk_row" data-aipkit-bulk-row>

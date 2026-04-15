@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Fetch necessary data using the Role Manager class
 $modules     = AIPKit_Role_Manager::get_manageable_modules();
 $roles       = AIPKit_Role_Manager::get_editable_roles();

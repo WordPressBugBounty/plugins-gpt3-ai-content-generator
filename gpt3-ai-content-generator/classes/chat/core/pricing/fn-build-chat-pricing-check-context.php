@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 if (!function_exists(__NAMESPACE__ . '\\build_chat_pricing_check_context_logic')) {
     $determine_provider_model_path = dirname(__DIR__) . '/ai-service/determine_provider_model.php';
     if (file_exists($determine_provider_model_path)) {

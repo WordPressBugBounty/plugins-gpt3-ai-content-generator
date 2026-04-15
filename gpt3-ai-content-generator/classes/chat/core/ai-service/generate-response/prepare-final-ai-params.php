@@ -3,6 +3,8 @@
 // File: classes/chat/core/ai-service/generate-response/prepare-final-ai-params.php
 // Status: MODIFIED
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Chat\Core\AIService\GenerateResponse;
 
 use WPAICG\AIPKit_Providers;
@@ -20,7 +22,6 @@ require_once $ai_params_logic_path . 'apply-google-search-grounding.php';
 require_once $ai_params_logic_path . 'apply-openai-reasoning.php';
 require_once $ai_params_logic_path . 'apply-ollama-thinking.php';
 // --- END NEW ---
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

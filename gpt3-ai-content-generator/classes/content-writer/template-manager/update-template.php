@@ -15,6 +15,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- This template mutation layer only reads plugin-owned template tables with prepared scalar values.
+
 /**
 * Logic for updating an existing template.
 *

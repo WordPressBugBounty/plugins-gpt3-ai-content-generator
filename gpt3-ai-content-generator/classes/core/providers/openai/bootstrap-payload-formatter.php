@@ -8,6 +8,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Load individual method logic files
 $methods_path = __DIR__ . '/';
 require_once $methods_path . 'format-chat.php';

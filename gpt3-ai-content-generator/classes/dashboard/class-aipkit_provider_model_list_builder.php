@@ -149,11 +149,7 @@ class AIPKit_Provider_Model_List_Builder
         if (!$found_current && $current_model !== '' && strpos($current_model, 'tts-') !== 0) {
             $payload['manual_option'] = [
                 'value' => $current_model,
-                'label' => sprintf(
-                    /* translators: %s model id */
-                    __('%s', 'gpt3-ai-content-generator'),
-                    $current_model
-                ),
+                'label' => $current_model,
             ];
         }
 
@@ -227,11 +223,7 @@ class AIPKit_Provider_Model_List_Builder
         if (!$found_current && $current_model !== '') {
             $payload['manual_option'] = [
                 'value' => $current_model,
-                'label' => sprintf(
-                    /* translators: %s model id */
-                    __('%s', 'gpt3-ai-content-generator'),
-                    $current_model
-                ),
+                'label' => $current_model,
             ];
         }
 
@@ -311,11 +303,7 @@ class AIPKit_Provider_Model_List_Builder
             }
             $payload['manual_option'] = [
                 'value' => $current_model,
-                'label' => sprintf(
-                    /* translators: %s model id */
-                    __('%s', 'gpt3-ai-content-generator'),
-                    $display_model
-                ),
+                'label' => $display_model,
             ];
         }
 
@@ -372,11 +360,7 @@ class AIPKit_Provider_Model_List_Builder
         if (!$found_current && $current_model !== '') {
             $payload['manual_option'] = [
                 'value' => $current_model,
-                'label' => sprintf(
-                    /* translators: %s model id */
-                    __('%s', 'gpt3-ai-content-generator'),
-                    $current_model
-                ),
+                'label' => $current_model,
             ];
         }
 
@@ -485,11 +469,7 @@ class AIPKit_Provider_Model_List_Builder
         if (!$found_current && $current_model !== '') {
             $payload['manual_option'] = [
                 'value' => $current_model,
-                'label' => sprintf(
-                    /* translators: %s model id */
-                    __('%s', 'gpt3-ai-content-generator'),
-                    $current_model
-                ),
+                'label' => $current_model,
             ];
         }
 
@@ -544,11 +524,7 @@ class AIPKit_Provider_Model_List_Builder
         if (!$found_current && $current_model !== '') {
             $payload['manual_option'] = [
                 'value' => $current_model,
-                'label' => sprintf(
-                    /* translators: %s model id */
-                    __('%s', 'gpt3-ai-content-generator'),
-                    $current_model
-                ),
+                'label' => $current_model,
             ];
         }
 
@@ -603,11 +579,7 @@ class AIPKit_Provider_Model_List_Builder
         if (!$found_current && $current_model !== '') {
             $payload['manual_option'] = [
                 'value' => $current_model,
-                'label' => sprintf(
-                    /* translators: %s model id */
-                    __('%s', 'gpt3-ai-content-generator'),
-                    $current_model
-                ),
+                'label' => $current_model,
             ];
         }
 

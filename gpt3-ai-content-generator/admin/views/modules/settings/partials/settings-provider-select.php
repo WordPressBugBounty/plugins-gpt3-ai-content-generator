@@ -2,6 +2,8 @@
 /**
  * Partial: AI Provider Selection Dropdown
  */
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 if (!defined('ABSPATH')) exit;
 
 // Variables required: $current_provider, $providers, $is_pro, $provider_select_options

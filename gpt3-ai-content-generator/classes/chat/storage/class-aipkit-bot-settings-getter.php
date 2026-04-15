@@ -3,6 +3,8 @@
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/chat/storage/class-aipkit-bot-settings-getter.php
 // Status: MODIFIED
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 namespace WPAICG\Chat\Storage;
 
 use WPAICG\AIPKit_Providers;
@@ -29,7 +31,6 @@ require_once $getter_logic_path . 'fn-get-google-specific-config.php';
 require_once $getter_logic_path . 'fn-get-trigger-config.php';
 require_once $getter_logic_path . 'fn-get-voice-agent-config.php';
 require_once $getter_logic_path . 'fn-get-embed-settings.php'; // ADDED
-
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

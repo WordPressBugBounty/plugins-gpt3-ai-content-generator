@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // --- MODIFIED: Load shared variables at the top level ---
 require_once __DIR__ . '/partials/form-inputs/loader-vars.php';
 // --- END MODIFICATION ---
@@ -40,6 +42,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
         <p>
             <?php
             printf(
+                /* translators: %s: comma-separated list of PHP timeout settings that are too low. */
                 esc_html__(
                     'Low PHP timeouts detected (%s). Long content generations may time out. Increase max_execution_time/default_socket_timeout in php.ini and any web-server timeouts.',
                     'gpt3-ai-content-generator'

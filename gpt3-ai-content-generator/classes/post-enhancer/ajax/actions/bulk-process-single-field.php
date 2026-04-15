@@ -24,6 +24,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // --- Dependency loader for vector context functions ---
 $vector_logic_base_path = WPAICG_PLUGIN_DIR . 'classes/core/stream/vector/';
 if (file_exists($vector_logic_base_path . 'fn-build-vector-search-context.php')) {

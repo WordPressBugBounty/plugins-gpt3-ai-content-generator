@@ -1,4 +1,10 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $aipkit_popup_default_icon_url = esc_url((defined('WPAICG_PLUGIN_URL') ? WPAICG_PLUGIN_URL : plugin_dir_url(dirname(dirname(dirname(dirname(dirname(__FILE__))))))) . 'public/images/icon.svg');
 $aipkit_validate_url = static function ($url) {
     $url = trim((string)$url);

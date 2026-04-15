@@ -1,4 +1,10 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $bot_id = $initial_active_bot_id;
 $current_provider_for_this_bot = isset($current_provider_for_this_bot)
     ? (string) $current_provider_for_this_bot
@@ -77,6 +83,7 @@ $tools_master_selected_count = count($tools_master_selected_labels);
 $tools_master_dropdown_label = __('Select tools', 'gpt3-ai-content-generator');
 if ($tools_master_selected_count > 2) {
     $tools_master_dropdown_label = sprintf(
+        /* translators: %d: number of selected tools. */
         _n('%d selected', '%d selected', $tools_master_selected_count, 'gpt3-ai-content-generator'),
         $tools_master_selected_count
     );
@@ -112,11 +119,7 @@ if (!isset($image_model_groups['Replicate'])) {
     $image_model_groups['Replicate'] = [];
 }
 if ($image_model_dropdown_label === '' && !empty($chat_image_model_id)) {
-    $image_model_dropdown_label = sprintf(
-        /* translators: %s is the current custom model id */
-        __('%s', 'gpt3-ai-content-generator'),
-        (string) $chat_image_model_id
-    );
+    $image_model_dropdown_label = (string) $chat_image_model_id;
 }
 if ($image_model_dropdown_label === '') {
     $image_model_dropdown_label = __('Select model', 'gpt3-ai-content-generator');
@@ -327,13 +330,7 @@ if ($image_model_dropdown_label === '') {
                                             />
                                             <span class="aipkit_popover_multiselect_text">
                                                 <?php
-                                                echo esc_html(
-                                                    sprintf(
-                                                        /* translators: %s is the current custom model id */
-                                                        __('%s', 'gpt3-ai-content-generator'),
-                                                        (string) $chat_image_model_id
-                                                    )
-                                                );
+                                                echo esc_html((string) $chat_image_model_id);
                                                 ?>
                                             </span>
                                         </span>
@@ -381,13 +378,7 @@ if ($image_model_dropdown_label === '') {
                 <?php if (!empty($chat_image_model_id) && !in_array((string) $chat_image_model_id, $known_image_model_ids, true)) : ?>
                     <option value="<?php echo esc_attr($chat_image_model_id); ?>" selected="selected">
                         <?php
-                        echo esc_html(
-                            sprintf(
-                                /* translators: %s is the current custom model id */
-                                __('%s', 'gpt3-ai-content-generator'),
-                                (string) $chat_image_model_id
-                            )
-                        );
+                        echo esc_html((string) $chat_image_model_id);
                         ?>
                     </option>
                 <?php endif; ?>

@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Ensure the helper function is available. It is loaded by the main Dependency Loader.
 if (!class_exists('\WPAICG\SEO\AIPKit_SEO_Helper')) {
     $seo_helper_path = WPAICG_PLUGIN_DIR . 'classes/seo/seo-helper.php';

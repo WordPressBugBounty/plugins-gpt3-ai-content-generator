@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 // Load the new modular logic files
 $shared_path = __DIR__ . '/shared/';
 require_once $shared_path . 'validate-and-normalize-input.php';
@@ -49,10 +51,7 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
 
         $this->maybe_extend_execution_limits(300);
 
-        $gsheets_queue_status = Shared\maybe_update_gsheets_row_status_logic($validated_params, 'Queued on');
-        if (is_wp_error($gsheets_queue_status)) {
-            error_log('AIPKit Content Writer Google Sheets queued status update failed: ' . $gsheets_queue_status->get_error_message());
-        }
+        Shared\maybe_update_gsheets_row_status_logic($validated_params, 'Queued on');
 
         // 2. Check for required dependencies (AI Caller, Logger)
         if (!$this->ai_caller) {
@@ -76,9 +75,8 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
         $ai_params_override = Shared\prepare_ai_params_logic($validated_params);
 
         // 5. Determine conversation UUID (reuse if provided, else create)
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing
-        $conversation_uuid = isset($_POST['conversation_uuid']) && !empty($_POST['conversation_uuid'])
-            ? sanitize_text_field(wp_unslash($_POST['conversation_uuid']))
+        $conversation_uuid = isset($settings['conversation_uuid']) && !empty($settings['conversation_uuid'])
+            ? sanitize_text_field((string) $settings['conversation_uuid'])
             : wp_generate_uuid4();
         // Attach to params so the initial log uses the same conversation
         $validated_params['conversation_uuid'] = $conversation_uuid;

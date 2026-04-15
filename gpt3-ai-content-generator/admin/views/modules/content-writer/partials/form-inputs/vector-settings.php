@@ -3,6 +3,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
 $default_embedding_provider_key = isset($embedding_provider_options['openai'])
     ? 'openai'
     : (array_key_first($embedding_provider_options) ?: 'openai');

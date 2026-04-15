@@ -20,20 +20,24 @@ if (!defined('ABSPATH')) {
  */
 function ajax_get_frontend_chat_nonce_logic(): void
 {
+    // This endpoint intentionally issues a nonce for unauthenticated frontend users.
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- A fresh nonce is the purpose of this endpoint; the request data only scopes CORS checks.
+    $post_data = wp_unslash($_POST);
+
     // Handle preflight OPTIONS
     AIPKit_CORS_Manager::handle_preflight_request();
 
     // Optionally honor embed domain restrictions if a bot_id is posted
     $bot_id = 0;
-    if (isset($_POST['bot_id'])) {
-        $bot_id = absint(wp_unslash($_POST['bot_id']));
+    if (isset($post_data['bot_id'])) {
+        $bot_id = absint($post_data['bot_id']);
     }
 
     if ($bot_id > 0) {
         // Only enforce CORS for true cross-origin
         $is_cross_origin = false;
         if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
-            $origin = $_SERVER['HTTP_ORIGIN'];
+            $origin = esc_url_raw(wp_unslash((string) $_SERVER['HTTP_ORIGIN']));
             $site_url = get_site_url();
             $site_parsed = wp_parse_url($site_url);
             $origin_parsed = wp_parse_url($origin);

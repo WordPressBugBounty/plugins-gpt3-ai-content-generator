@@ -6,6 +6,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 ?>
 <div class="aipkit_model_settings_popover_header aipkit_cw_settings_sheet_header">
     <span class="aipkit_model_settings_popover_title"><?php esc_html_e('Post settings', 'gpt3-ai-content-generator'); ?></span>
