@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.4.7
+Stable tag: 2.4.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,11 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.8 =
+
+- **Added**: `gpt-image-2` is now the default OpenAI image model across Chatbot, Content Writer, AutoGPT, and Image Generator.
+- **Deprecation**: Removed `dall-e-2` and `dall-e-3` from the plugin because OpenAI is deprecating them.
 
 = 2.4.7 =
 

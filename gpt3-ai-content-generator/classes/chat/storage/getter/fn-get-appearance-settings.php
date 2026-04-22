@@ -179,7 +179,11 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $settings['popup_label_enabled'] = in_array($get_meta_fn('_aipkit_popup_label_enabled', BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED), ['0','1'])
         ? $get_meta_fn('_aipkit_popup_label_enabled', BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED)
         : BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED;
-    $settings['popup_label_text'] = $get_meta_fn('_aipkit_popup_label_text', BotSettingsManager::DEFAULT_POPUP_LABEL_TEXT);
+    $popup_label_text = trim((string) $get_meta_fn('_aipkit_popup_label_text', BotSettingsManager::DEFAULT_POPUP_LABEL_TEXT));
+    if ($popup_label_text === '') {
+        $popup_label_text = BotSettingsManager::DEFAULT_POPUP_LABEL_TEXT;
+    }
+    $settings['popup_label_text'] = $popup_label_text;
     $allowed_modes = ['always','on_delay','until_open','until_dismissed'];
     $raw_label_mode = $get_meta_fn('_aipkit_popup_label_mode', BotSettingsManager::DEFAULT_POPUP_LABEL_MODE);
     $legacy_mode_map = [

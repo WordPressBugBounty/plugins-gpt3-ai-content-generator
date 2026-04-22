@@ -43,7 +43,7 @@ class BotSettingsManager
     public const DEFAULT_POPUP_ICON_SIZE = 'medium'; // allowed: small|medium|large|xlarge
     // --- Popup Hint/Label Defaults ---
     public const DEFAULT_POPUP_LABEL_ENABLED = '0';
-    public const DEFAULT_POPUP_LABEL_TEXT = '';
+    public const DEFAULT_POPUP_LABEL_TEXT = 'Need help? Ask me!';
     public const DEFAULT_POPUP_LABEL_MODE = 'on_delay'; // allowed: always|on_delay|until_open|until_dismissed
     public const DEFAULT_POPUP_LABEL_DELAY_SECONDS = 2;
     public const DEFAULT_POPUP_LABEL_AUTO_HIDE_SECONDS = 0; // 0 = never auto-hide

@@ -460,7 +460,10 @@ $popup_label_enabled = $active_bot_settings['popup_label_enabled'] ?? BotSetting
 $popup_label_enabled = in_array($popup_label_enabled, ['0', '1'], true)
     ? $popup_label_enabled
     : BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED;
-$popup_label_text = $active_bot_settings['popup_label_text'] ?? '';
+$popup_label_text = trim((string) ($active_bot_settings['popup_label_text'] ?? ''));
+if ($popup_label_text === '') {
+    $popup_label_text = BotSettingsManager::DEFAULT_POPUP_LABEL_TEXT;
+}
 $popup_label_mode = $active_bot_settings['popup_label_mode'] ?? BotSettingsManager::DEFAULT_POPUP_LABEL_MODE;
 $popup_label_mode = in_array($popup_label_mode, ['on_delay', 'until_open', 'until_dismissed', 'always'], true)
     ? $popup_label_mode
@@ -1098,6 +1101,20 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 if ($interface_summary_text === '') {
                                     $interface_summary_text = $interface_summary_fallback;
                                 }
+                                $popup_summary_fallback = __('Popup settings', 'gpt3-ai-content-generator');
+                                $popup_position_labels = [
+                                    'bottom-right' => __('Bottom Right', 'gpt3-ai-content-generator'),
+                                    'bottom-left' => __('Bottom Left', 'gpt3-ai-content-generator'),
+                                    'top-right' => __('Top Right', 'gpt3-ai-content-generator'),
+                                    'top-left' => __('Top Left', 'gpt3-ai-content-generator'),
+                                ];
+                                $popup_summary_parts = [];
+                                if (isset($popup_position_labels[$popup_position])) {
+                                    $popup_summary_parts[] = $popup_position_labels[$popup_position];
+                                }
+                                $popup_summary_text = !empty($popup_summary_parts)
+                                    ? implode(' | ', $popup_summary_parts)
+                                    : $popup_summary_fallback;
                                 $context_summary_fallback = '';
                                 $context_summary_parts = [];
                                 if ($enable_vector_store === '1') {
@@ -1429,6 +1446,31 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 </button>
                                 <div class="aipkit_accordion_body" data-aipkit-settings-panel="appearance" hidden>
                                     <?php include __DIR__ . '/partials/ai-config/appearance-settings.php'; ?>
+                                </div>
+                            </div>
+                            <div
+                                class="aipkit_accordion_section"
+                                data-aipkit-accordion="popup"
+                                data-aipkit-popup-options
+                                <?php echo ($popup_enabled === '1') ? '' : 'hidden'; ?>
+                            >
+                                <button type="button" class="aipkit_accordion_header" aria-expanded="false">
+                                    <span class="aipkit_accordion_header_icon dashicons dashicons-format-chat" aria-hidden="true"></span>
+                                    <span class="aipkit_accordion_header_main">
+                                        <span class="aipkit_accordion_header_title_group">
+                                            <span class="aipkit_accordion_header_text"><?php esc_html_e('Popup', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
+                                        <span
+                                            class="aipkit_accordion_header_hint"
+                                            data-aipkit-popup-summary
+                                            data-default-summary="<?php echo esc_attr($popup_summary_fallback); ?>"
+                                            title="<?php echo esc_attr($popup_summary_text); ?>"
+                                        ><?php echo esc_html($popup_summary_text); ?></span>
+                                    </span>
+                                    <span class="aipkit_accordion_chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="aipkit_accordion_body" data-aipkit-settings-panel="popup" hidden>
+                                    <?php include __DIR__ . '/partials/ai-config/popup-settings.php'; ?>
                                 </div>
                             </div>
                             <div class="aipkit_accordion_section" data-aipkit-accordion="rules">

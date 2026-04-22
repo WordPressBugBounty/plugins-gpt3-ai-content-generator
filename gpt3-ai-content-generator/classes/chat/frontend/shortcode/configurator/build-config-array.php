@@ -226,7 +226,16 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'customThemePresetKey' => $custom_theme_preset_key,
         // --- NEW: Popup Hint/Bubble above trigger ---
         'popupLabelEnabled' => ($settings['popup_label_enabled'] ?? '0') === '1',
-        'popupLabelText' => isset($settings['popup_label_text']) ? wp_strip_all_tags((string)$settings['popup_label_text']) : '',
+        'popupLabelText' => (function() use ($settings) {
+            $fallback = class_exists(BotSettingsManager::class)
+                ? BotSettingsManager::DEFAULT_POPUP_LABEL_TEXT
+                : 'Need help? Ask me!';
+            $text = isset($settings['popup_label_text'])
+                ? wp_strip_all_tags((string) $settings['popup_label_text'])
+                : '';
+            $text = trim($text);
+            return $text !== '' ? $text : $fallback;
+        })(),
         // Modes: 'always', 'on_delay', 'until_open', 'until_dismissed'
         'popupLabelMode' => in_array(($settings['popup_label_mode'] ?? 'on_delay'), ['always','on_delay','until_open','until_dismissed'], true) ? $settings['popup_label_mode'] : 'on_delay',
         'popupLabelDelaySeconds' => max(0, absint($settings['popup_label_delay_seconds'] ?? 2)),
