@@ -55,7 +55,7 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
     }
 
     if (empty($final_options['model']) && $provider_normalized === 'OpenAI') {
-        $final_options['model'] = 'dall-e-2';
+        $final_options['model'] = AIPKit_Providers::get_default_openai_image_model();
     } elseif (empty($final_options['model']) && $provider_normalized === 'OpenRouter') {
         $openrouter_image_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openrouter_image_models() : [];
         $first_openrouter_model = '';
@@ -76,6 +76,11 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
     } elseif (empty($final_options['model']) && $provider_normalized === 'Google') {
         $final_options['model'] = 'gemini-2.0-flash-preview-image-generation';
     }
+    if ($provider_normalized === 'OpenAI') {
+        $final_options['model'] = AIPKit_Providers::normalize_openai_image_model(
+            isset($final_options['model']) ? (string) $final_options['model'] : null
+        );
+    }
     if (empty($final_options['size'])) {
         $final_options['size'] = '1024x1024';
     }
@@ -83,8 +88,10 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
         $final_options['n'] = 1;
     }
 
-    $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
-    if (in_array(($final_options['model'] ?? ''), $gpt_image_models, true)) {
+    if (
+        $provider_normalized === 'OpenAI'
+        && AIPKit_Providers::is_openai_gpt_image_model((string) ($final_options['model'] ?? ''))
+    ) {
         if (isset($final_options['response_format']) && !isset($final_options['output_format'])) {
             if ($final_options['response_format'] === 'b64_json') {
                 $final_options['output_format'] = 'png';

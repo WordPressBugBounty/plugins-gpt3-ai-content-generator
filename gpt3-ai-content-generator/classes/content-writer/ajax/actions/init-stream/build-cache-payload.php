@@ -52,7 +52,7 @@ function build_cache_payload_logic(
     'custom_keyword_prompt' => $settings['custom_keyword_prompt'] ?? '',
     'generate_images_enabled' => $settings['generate_images_enabled'] ?? '0',
     'image_provider' => $settings['image_provider'] ?? 'openai',
-    'image_model' => $settings['image_model'] ?? 'gpt-image-1',
+    'image_model' => $settings['image_model'] ?? 'gpt-image-2',
     'image_prompt' => $settings['image_prompt'] ?? '',
     'image_count' => $settings['image_count'] ?? 1,
     'image_placement' => $settings['image_placement'] ?? 'after_first_h2',

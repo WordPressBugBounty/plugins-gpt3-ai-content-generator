@@ -17,6 +17,14 @@ if (!defined('ABSPATH')) {
  */
 class AIPKit_Providers
 {
+    private const OPENAI_DEFAULT_IMAGE_MODEL = 'gpt-image-2';
+    private const OPENAI_IMAGE_MODELS = [
+        ['id' => 'gpt-image-2', 'name' => 'GPT Image 2'],
+        ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],
+        ['id' => 'gpt-image-1', 'name' => 'GPT Image 1'],
+        ['id' => 'gpt-image-1-mini', 'name' => 'GPT Image 1 mini'],
+    ];
+
     private static $provider_defaults = [
         'OpenAI' => [
             'api_key' => '', 'model' => '', 'embedding_model' => '',
@@ -1189,6 +1197,38 @@ class AIPKit_Providers
     public static function get_openai_models(): array
     {
         return self::get_model_list('OpenAI');
+    }
+    public static function get_openai_image_models(): array
+    {
+        return self::OPENAI_IMAGE_MODELS;
+    }
+    public static function get_default_openai_image_model(): string
+    {
+        return self::OPENAI_DEFAULT_IMAGE_MODEL;
+    }
+    public static function get_openai_image_model_ids(): array
+    {
+        return wp_list_pluck(self::get_openai_image_models(), 'id');
+    }
+    public static function is_openai_gpt_image_model(string $model): bool
+    {
+        $normalized_model = strtolower(trim($model));
+
+        return $normalized_model !== '' && strpos($normalized_model, 'gpt-image') === 0;
+    }
+    public static function is_supported_openai_image_model(string $model): bool
+    {
+        return in_array(trim($model), self::get_openai_image_model_ids(), true);
+    }
+    public static function normalize_openai_image_model(?string $model): string
+    {
+        $normalized_model = is_string($model) ? trim($model) : '';
+
+        if ($normalized_model !== '' && self::is_supported_openai_image_model($normalized_model)) {
+            return $normalized_model;
+        }
+
+        return self::get_default_openai_image_model();
     }
     public static function get_openai_embedding_models(): array
     {

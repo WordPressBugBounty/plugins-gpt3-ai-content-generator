@@ -36,7 +36,7 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
                 'sanitize_callback' => 'sanitize_text_field',
             ),
             'model' => array(
-                'description' => __('The specific image model ID (e.g., dall-e-3, gemini-2.0-flash-preview-image-generation).', 'gpt3-ai-content-generator'),
+                'description' => __('The specific image model ID (e.g., gpt-image-2, gemini-2.0-flash-preview-image-generation).', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
                 'required'    => false,
                 'sanitize_callback' => 'sanitize_text_field',
@@ -57,14 +57,14 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
                 'sanitize_callback' => 'sanitize_text_field',
             ),
             'quality' => array(
-                'description' => __('The quality of the image (DALL-E 3/GPT Image 1: standard or hd).', 'gpt3-ai-content-generator'),
+                'description' => __('The quality of the image (for supported provider/model combinations: standard or hd).', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
                 'enum'        => ['standard', 'hd'],
                 'required'    => false,
                 'sanitize_callback' => 'sanitize_text_field',
             ),
              'style' => array(
-                'description' => __('The style of the generated images (DALL-E 3: vivid or natural).', 'gpt3-ai-content-generator'),
+                'description' => __('The style of the generated images when supported by the selected model.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
                 'enum'        => ['vivid', 'natural'],
                 'required'    => false,

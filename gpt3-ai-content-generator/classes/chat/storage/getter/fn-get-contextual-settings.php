@@ -52,7 +52,9 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
         ? $get_meta_fn('_aipkit_enable_image_generation', BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION)
         : BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION;
     // Build valid image models dynamically
-    $valid_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini', 'dall-e-3', 'dall-e-2'];
+    $valid_image_models = class_exists('\\WPAICG\\AIPKit_Providers')
+        ? \WPAICG\AIPKit_Providers::get_openai_image_model_ids()
+        : [BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID];
     if (class_exists('\\WPAICG\\AIPKit_Providers')) {
         // Add Google image models
         $google_models = \WPAICG\AIPKit_Providers::get_google_image_models();

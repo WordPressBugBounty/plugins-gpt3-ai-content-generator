@@ -5,6 +5,7 @@
 
 namespace WPAICG\Images\Providers\OpenAI;
 
+use WPAICG\AIPKit_Providers;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -16,7 +17,6 @@ if (!defined('ABSPATH')) {
  */
 class OpenAIPayloadFormatter
 {
-    private const OPENAI_EDIT_SUPPORTED_MODELS = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
     private const OPENAI_EDIT_ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
     /**
@@ -28,7 +28,9 @@ class OpenAIPayloadFormatter
      */
     public static function format(string $prompt, array $options): array
     {
-        $model = $options['model'] ?? 'dall-e-2'; // Fallback default if not provided in options
+        $model = AIPKit_Providers::normalize_openai_image_model(
+            isset($options['model']) ? (string) $options['model'] : null
+        );
 
         $payload = [
             'model' => $model,
@@ -36,8 +38,7 @@ class OpenAIPayloadFormatter
         ];
 
         // Apply options based on the selected model
-        $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
-        if (in_array($model, $gpt_image_models, true)) {
+        if (AIPKit_Providers::is_openai_gpt_image_model($model)) {
             $payload['n'] = 1; // GPT Image models only support n=1
             if (isset($options['size'])) {
                 $payload['size'] = $options['size'];
@@ -61,24 +62,9 @@ class OpenAIPayloadFormatter
                 $payload['output_compression'] = $options['output_compression'];
             }
 
-        } elseif ($model === 'dall-e-3') {
-            $payload['n'] = 1; // DALL-E 3 only supports n=1
-            if (isset($options['quality'])) {
-                $payload['quality'] = $options['quality'];
-            }
-            if (isset($options['size'])) {
-                $payload['size'] = $options['size'];
-            }
-            if (isset($options['style'])) {
-                $payload['style'] = $options['style'];
-            }
-            if (isset($options['response_format'])) {
-                $payload['response_format'] = $options['response_format'];
-            }
-
-        } else { // Defaults for dall-e-2 (or other future models that might use these params)
+        } else {
             $n = isset($options['n']) ? absint($options['n']) : 1;
-            $payload['n'] = max(1, min($n, 10)); // DALL-E 2 supports n=1 to 10
+            $payload['n'] = max(1, min($n, 10));
             if (isset($options['size'])) {
                 $payload['size'] = $options['size'];
             }
@@ -107,7 +93,9 @@ class OpenAIPayloadFormatter
      */
     public static function format_edit_multipart(string $prompt, array $options): array|WP_Error
     {
-        $model = isset($options['model']) ? sanitize_text_field((string) $options['model']) : 'gpt-image-1.5';
+        $model = isset($options['model'])
+            ? sanitize_text_field((string) $options['model'])
+            : AIPKit_Providers::get_default_openai_image_model();
         if (!self::supports_edit_model($model)) {
             return new WP_Error(
                 'openai_edit_model_not_supported',
@@ -168,7 +156,7 @@ class OpenAIPayloadFormatter
         if (!empty($options['background'])) {
             $fields['background'] = sanitize_text_field((string) $options['background']);
         }
-        if ($model === 'gpt-image-1' && !empty($options['input_fidelity'])) {
+        if (AIPKit_Providers::is_openai_gpt_image_model($model) && !empty($options['input_fidelity'])) {
             $input_fidelity = sanitize_text_field((string) $options['input_fidelity']);
             if (in_array($input_fidelity, ['low', 'high'], true)) {
                 $fields['input_fidelity'] = $input_fidelity;
@@ -212,6 +200,6 @@ class OpenAIPayloadFormatter
      */
     public static function supports_edit_model(string $model): bool
     {
-        return in_array(strtolower($model), self::OPENAI_EDIT_SUPPORTED_MODELS, true);
+        return AIPKit_Providers::is_openai_gpt_image_model($model);
     }
 }

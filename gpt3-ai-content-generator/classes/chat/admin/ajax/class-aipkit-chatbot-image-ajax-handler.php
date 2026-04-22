@@ -178,6 +178,9 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
         } elseif (in_array($selected_image_model, $replicate_model_ids, true)) {
             $provider_for_image = 'Replicate';
         }
+        if ($provider_for_image === 'OpenAI') {
+            $selected_image_model = \WPAICG\AIPKit_Providers::normalize_openai_image_model($selected_image_model);
+        }
 
         if ($this->token_manager) {
             $module_for_token_check = $is_logged_in ? 'chat' : 'image_generator';
@@ -256,14 +259,12 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
                 'aipkit_event_origin' => 'chatbot_image_ajax',
             ]
         );
-        $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
-        if (in_array(($final_generation_options['model'] ?? ''), $gpt_image_models, true) && $provider_for_image === 'OpenAI') {
+        if (
+            $provider_for_image === 'OpenAI'
+            && \WPAICG\AIPKit_Providers::is_openai_gpt_image_model((string) ($final_generation_options['model'] ?? ''))
+        ) {
             unset($final_generation_options['response_format']);
             $final_generation_options['output_format'] = 'png';
-        } elseif (($final_generation_options['model'] ?? '') === 'dall-e-3' && $provider_for_image === 'OpenAI') {
-            $final_generation_options['response_format'] = 'url';
-        } elseif (($final_generation_options['model'] ?? '') === 'dall-e-2' && $provider_for_image === 'OpenAI') {
-            $final_generation_options['response_format'] = 'url';
         }
 
         $result = $this->image_manager->generate_image($prompt, $final_generation_options, $is_logged_in ? $user_id : null);

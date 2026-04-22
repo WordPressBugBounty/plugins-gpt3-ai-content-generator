@@ -3,6 +3,7 @@
 
 namespace WPAICG\Images\Providers;
 
+use WPAICG\AIPKit_Providers;
 use WPAICG\Images\AIPKit_Image_Base_Provider_Strategy;
 // NEW: Use the component classes from the openai image subdirectory
 use WPAICG\Images\Providers\OpenAI\OpenAIImageUrlBuilder;
@@ -41,7 +42,7 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
     }
 
     /**
-     * Generate an image based on a text prompt using OpenAI DALL-E or GPT Image.
+     * Generate an image based on a text prompt using OpenAI image models.
      *
      * @param string $prompt The text prompt describing the image.
      * @param array $api_params API connection parameters ('api_key', 'base_url', 'api_version').
@@ -79,7 +80,9 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
                     ['status' => 400]
                 );
             }
-            $edit_model = isset($options['model']) && is_string($options['model']) ? $options['model'] : 'gpt-image-1.5';
+            $edit_model = AIPKit_Providers::normalize_openai_image_model(
+                isset($options['model']) && is_string($options['model']) ? $options['model'] : null
+            );
             $options['model'] = $edit_model;
             if (!OpenAIPayloadFormatter::supports_edit_model($edit_model)) {
                 return new WP_Error(
@@ -134,7 +137,11 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
         }
 
         // --- Parse response using image-specific parser ---
-        $parsed_data = OpenAIImageResponseParser::parse($decoded_response, $options['model'] ?? 'dall-e-3', $prompt);
+        $parsed_data = OpenAIImageResponseParser::parse(
+            $decoded_response,
+            isset($options['model']) ? (string) $options['model'] : AIPKit_Providers::get_default_openai_image_model(),
+            $prompt
+        );
         if (!isset($parsed_data['images']) || !is_array($parsed_data['images'])) { // Check if 'images' key exists and is an array
 
             return new WP_Error('openai_image_no_data_parsed', __('OpenAI API returned success but image data structure is invalid.', 'gpt3-ai-content-generator'));
@@ -145,7 +152,7 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
     }
 
     /**
-     * Get the supported image sizes for OpenAI DALL-E (all possible).
+     * Get the supported image sizes for OpenAI image generation.
      */
     public function get_supported_sizes(): array {
         return ['1024x1024', '1792x1024', '1024x1792', '1536x1024', '1024x1536', '512x512', '256x256'];

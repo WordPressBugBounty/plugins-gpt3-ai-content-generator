@@ -80,7 +80,7 @@ function get_cw_base_template_config(int $user_id): array
         'generate_toc' => '0',
         'generate_images_enabled' => '0',
         'image_provider' => 'openai',
-        'image_model' => 'gpt-image-1',
+        'image_model' => 'gpt-image-2',
         'image_prompt' => AIPKit_Content_Writer_Prompts::get_default_image_prompt(),
         'image_prompt_update' => '',
         'image_count' => '1',

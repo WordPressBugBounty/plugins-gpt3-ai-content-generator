@@ -308,7 +308,7 @@ function get_cw_starter_template_image_defaults(string $main_provider): array
 {
     $fallback = [
         'provider' => 'openai',
-        'model' => 'dall-e-3',
+        'model' => 'gpt-image-2',
     ];
 
     if (!class_exists(AIPKit_Providers::class)) {
@@ -364,7 +364,7 @@ function get_cw_starter_template_definitions(array $base_config): array
     }
     $image_defaults = get_cw_starter_template_image_defaults($default_provider);
     $default_image_provider = $image_defaults['provider'] ?? 'openai';
-    $default_image_model = $image_defaults['model'] ?? 'gpt-image-1';
+    $default_image_model = $image_defaults['model'] ?? 'gpt-image-2';
     $default_image_count = $base_config['image_count'] ?? '1';
     $default_image_size = $base_config['image_size'] ?? 'large';
     $default_image_alignment = $base_config['image_alignment'] ?? 'none';

@@ -23,19 +23,23 @@ use WPAICG\AIPKit_Providers;
 // $mode, $default_mode, $show_mode_switch,
 // $ui_text
 
-$openai_models_display = [ // For display in dropdown
-    'gpt-image-1.5' => 'GPT Image 1.5',
-    'gpt-image-1' => 'GPT Image 1',
-    'gpt-image-1-mini' => 'GPT Image 1 mini',
-    'dall-e-3' => 'DALL-E 3',
-    'dall-e-2' => 'DALL-E 2',
-];
+$openai_models_display = [];
 // Build Google models dynamically from synced option
 $google_models_display = [ 'image' => [], 'video' => [] ];
 $openrouter_models_display = [];
 $replicate_models_display = [];
 $azure_models_display = [];
 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+    $openai_models = AIPKit_Providers::get_openai_image_models();
+    if (!empty($openai_models)) {
+        foreach ($openai_models as $mdl) {
+            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
+            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
+            if ($mid) {
+                $openai_models_display[$mid] = $mname;
+            }
+        }
+    }
     $google_image_models = AIPKit_Providers::get_google_image_models();
     if (!empty($google_image_models)) {
         foreach ($google_image_models as $mdl) {
@@ -318,8 +322,8 @@ $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate
                                  <?php // Options populated by JS, but set selected based on final_model?>
                                  <?php if ($final_provider === 'OpenAI'): ?>
                                     <?php
-                            // Sort OpenAI models for display: gpt-image-1.5, gpt-image-1, gpt-image-1-mini, dall-e-3, dall-e-2
-                            $sorted_openai_keys_render = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini', 'dall-e-3', 'dall-e-2'];
+                            // Sort OpenAI models for display with the current default first.
+                            $sorted_openai_keys_render = ['gpt-image-2', 'gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
                                      $final_openai_models_render = [];
                                      foreach ($sorted_openai_keys_render as $key) {
                                          if (isset($openai_models_display[$key])) {

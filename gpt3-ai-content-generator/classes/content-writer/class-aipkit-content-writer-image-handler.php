@@ -477,7 +477,10 @@ class AIPKit_Content_Writer_Image_Handler
         $event_context_options = $this->get_image_event_context_options($settings);
 
         $current_user_id = get_current_user_id() ?: 1;
-        $resolved_image_model = sanitize_text_field((string) ($settings['image_model'] ?? 'gpt-image-1'));
+        $resolved_image_model = sanitize_text_field((string) ($settings['image_model'] ?? 'gpt-image-2'));
+        if ($image_provider === 'openai') {
+            $resolved_image_model = AIPKit_Providers::normalize_openai_image_model($resolved_image_model);
+        }
 
         if ($image_provider === 'openrouter' && in_array($resolved_image_model, ['', 'openrouter/auto', 'auto'], true)) {
             $openrouter_image_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openrouter_image_models() : [];
@@ -591,7 +594,10 @@ class AIPKit_Content_Writer_Image_Handler
             ]);
 
             // Models/providers that only support returning one image per request
-            $models_with_n_equals_1 = ['dall-e-3', 'gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
+            $models_with_n_equals_1 = [];
+            if ($image_provider === 'openai' && AIPKit_Providers::is_openai_gpt_image_model($image_model)) {
+                $models_with_n_equals_1[] = $image_model;
+            }
             if (strpos($image_model, 'gemini') !== false && strpos($image_model, 'image-generation') !== false) {
                 $models_with_n_equals_1[] = $image_model; // handle all Gemini image-generation variants
             }

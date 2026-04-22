@@ -414,10 +414,24 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 $embedding_deployments = [];
                 if (is_array($result)) {
                     foreach ($result as $deployment) {
-                        $model_name = strtolower($deployment['name'] ?? '');
-                        if (strpos($model_name, 'dall-e') !== false) {
+                        $deployment_haystack = strtolower(trim(
+                            (string) ($deployment['name'] ?? '') . ' ' .
+                            (string) ($deployment['model'] ?? '') . ' ' .
+                            (string) ($deployment['id'] ?? '')
+                        ));
+                        $is_embedding_deployment = strpos($deployment_haystack, 'embedding') !== false
+                            || strpos($deployment_haystack, 'embed') !== false;
+                        $is_image_deployment = strpos($deployment_haystack, 'gpt-image') !== false
+                            || (
+                                strpos($deployment_haystack, 'image') !== false
+                                && strpos($deployment_haystack, 'embedding') === false
+                                && strpos($deployment_haystack, 'embed') === false
+                                && strpos($deployment_haystack, 'vision') === false
+                            );
+
+                        if ($is_image_deployment) {
                             $image_deployments[] = $deployment;
-                        } elseif (strpos($model_name, 'embedding') !== false) {
+                        } elseif ($is_embedding_deployment) {
                             $embedding_deployments[] = $deployment;
                         } else {
                             $chat_deployments[] = $deployment;

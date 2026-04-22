@@ -6,6 +6,7 @@
 namespace WPAICG\Images\Manager\Ajax;
 
 use WPAICG\Images\AIPKit_Image_Manager;
+use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
@@ -188,8 +189,10 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         ];
     }
 
-    $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
-    if (strtolower($provider) === 'openai' && in_array(($runtime_options['model'] ?? ''), $gpt_image_models, true)) {
+    if (
+        strtolower($provider) === 'openai'
+        && AIPKit_Providers::is_openai_gpt_image_model((string) ($runtime_options['model'] ?? ''))
+    ) {
         $runtime_options['output_format'] = 'png';
         unset($runtime_options['response_format']);
     }

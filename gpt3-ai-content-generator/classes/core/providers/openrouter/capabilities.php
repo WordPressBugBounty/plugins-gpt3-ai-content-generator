@@ -191,7 +191,6 @@ function resolve_model_capabilities_from_metadata_logic(array $metadata): array 
         || strpos($model_name_l, 'auto router') !== false;
 
     $looks_like_image_model = strpos($image_haystack, 'image') !== false
-        || strpos($image_haystack, 'dall-e') !== false
         || strpos($image_haystack, 'gpt-image') !== false
         || strpos($image_haystack, 'flux') !== false
         || strpos($image_haystack, 'stable-diffusion') !== false

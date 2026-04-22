@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 
 /**
  * Azure Image Generation Provider Strategy.
- * Implements generation using Azure OpenAI DALL-E deployments.
+ * Implements generation using Azure OpenAI image deployments.
  */
 class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_Strategy
 {
@@ -41,7 +41,7 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
     }
 
     /**
-     * Generate an image based on a text prompt using Azure DALL-E.
+     * Generate an image based on a text prompt using Azure image deployments.
      *
      * @param string $prompt The text prompt describing the image.
      * @param array $api_params API connection parameters ('api_key', 'endpoint', 'api_version_images').
@@ -66,10 +66,10 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
             return $url;
         }
 
-        // Build a payload compatible with OpenAI DALL-E 3
+        // Build a payload compatible with Azure OpenAI image generation.
         $payload = [
             'prompt' => wp_strip_all_tags($prompt),
-            'n' => 1, // DALL-E 3 on Azure supports n=1
+            'n' => 1, // Azure image deployments support one image per request here.
         ];
         if (isset($options['size'])) {
             $payload['size'] = $options['size'];
@@ -117,13 +117,13 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
                 ];
             }
         }
-        // --- ADDED: Estimate token usage for Azure DALL-E ---
+        // --- ADDED: Estimate token usage for Azure image generation ---
         $estimated_usage = null;
         if (!empty($images)) {
             $num_images = count($images);
             $prompt_words = str_word_count($prompt);
             $estimated_input_tokens = max(1, (int)($prompt_words * 1.3));
-            $tokens_per_image = 2000; // DALL-E 3 estimate
+            $tokens_per_image = 2000;
             $estimated_output_tokens = $num_images * $tokens_per_image;
             $total_tokens = $estimated_input_tokens + $estimated_output_tokens;
             
@@ -132,8 +132,8 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
                 'output_tokens' => $estimated_output_tokens,
                 'total_tokens' => $total_tokens,
                 'provider_raw' => [
-                    'source' => 'estimated_azure_dalle3_cost',
-                    'model' => $options['model'] ?? 'dall-e-3',
+                    'source' => 'estimated_azure_image_cost',
+                    'model' => $options['model'] ?? '',
                     'images_generated' => $num_images,
                     'tokens_per_image' => $tokens_per_image,
                     'prompt_tokens_estimated' => $estimated_input_tokens,
@@ -146,7 +146,7 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
     }
 
     /**
-     * Get the supported image sizes for Azure DALL-E 3.
+     * Get the supported image sizes for Azure image generation.
      */
     public function get_supported_sizes(): array
     {

@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.4.6
+Stable tag: 2.4.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,7 +51,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 - Automate content creation, comment replies, or vector indexing.
 
 #### 🎨 AI Image Generator
-- Convert text to image with **OpenAI DALL·E 3, GPT-4o, Google Imagen, Replicate models**.
+- Convert text to image with **OpenAI GPT Image, Google Imagen, and Replicate models**.
 - Pull free stock images from **Pexels** or **Pixabay**.
 - Works in posts, tasks, chatbot, and forms.
 
@@ -89,7 +89,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 No. AIP works with your **own API key** from AI providers like OpenAI, Google Gemini, etc. You pay them directly for usage.
 
 = Which AI providers and models are supported? =  
-We support **OpenAI** (GPT-5, GPT-4o, GPT-3.5, DALL·E 3, etc.), **Google** (Gemini, Imagen), **Microsoft Azure OpenAI**, **OpenRouter**, **DeepSeek**, **Ollama** and **Replicate**.
+We support **OpenAI** (GPT-5, GPT-4o, GPT-3.5, GPT Image, etc.), **Google** (Gemini, Imagen), **Microsoft Azure OpenAI**, **OpenRouter**, **DeepSeek**, **Ollama** and **Replicate**.
 
 = Can I train the AI on my own content? =  
 Yes. Use the **Train** module to index posts, pages, WooCommerce products, PDFs, or uploaded files into a **vector store**. Then link that knowledge base to your Chatbot or Forms.
@@ -124,6 +124,11 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.7 =
+
+- **Added**: `gpt-image-2` is now the default OpenAI image model across Chatbot, Content Writer, AutoGPT, and Image Generator.
+- **Deprecation**: Removed `dall-e-2` and `dall-e-3` from the plugin because OpenAI is deprecating them.
 
 = 2.4.6 =
 

@@ -5,6 +5,7 @@
 
 namespace WPAICG\Images;
 
+use WPAICG\AIPKit_Providers;
 use WP_Error;
 use WP_User;
 
@@ -70,15 +71,16 @@ class AIPKit_Image_Storage_Helper
             }
 
             // Determine extension from output_format for GPT Image models.
-            $gpt_image_models = ['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
-            if (in_array(($generation_options['model'] ?? ''), $gpt_image_models, true) && !empty($generation_options['output_format'])) {
+            if (
+                AIPKit_Providers::is_openai_gpt_image_model((string) ($generation_options['model'] ?? ''))
+                && !empty($generation_options['output_format'])
+            ) {
                 $extension = strtolower($generation_options['output_format']); // png, jpeg, webp
                 if ($extension === 'jpeg') {
                     $extension = 'jpg';
                 } // common alias
                 $mime_type = 'image/' . ($extension === 'jpg' ? 'jpeg' : $extension);
             }
-            // For DALL-E 2/3, if b64_json is used, it's typically PNG.
         } elseif (!empty($image_data_item['url'])) {
             $response = wp_safe_remote_get($image_data_item['url'], ['timeout' => 60]);
             if (is_wp_error($response)) {

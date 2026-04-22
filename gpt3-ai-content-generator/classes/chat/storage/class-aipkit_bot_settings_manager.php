@@ -80,7 +80,7 @@ class BotSettingsManager
     public const DEFAULT_STT_OPENAI_MODEL_ID = 'whisper-1';
     public const DEFAULT_STT_AZURE_MODEL_ID = '';
     public const DEFAULT_IMAGE_TRIGGERS = '/image, /generate';
-    public const DEFAULT_CHAT_IMAGE_MODEL_ID = 'gpt-image-1';
+    public const DEFAULT_CHAT_IMAGE_MODEL_ID = 'gpt-image-2';
     public const DEFAULT_ENABLE_IMAGE_GENERATION = '0';
     public const DEFAULT_ENABLE_FILE_UPLOAD = '0';
     public const DEFAULT_ENABLE_IMAGE_UPLOAD = '0';

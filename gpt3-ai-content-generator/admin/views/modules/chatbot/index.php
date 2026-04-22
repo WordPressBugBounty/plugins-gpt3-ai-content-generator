@@ -685,13 +685,7 @@ $enable_image_generation = in_array($enable_image_generation, ['0', '1'], true)
 $replicate_model_list = AIPKit_Providers::get_replicate_models();
 $openrouter_image_model_list = AIPKit_Providers::get_openrouter_image_models();
 $available_image_models = [
-    'OpenAI' => [
-        ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],
-        ['id' => 'gpt-image-1', 'name' => 'GPT Image 1'],
-        ['id' => 'gpt-image-1-mini', 'name' => 'GPT Image 1 mini'],
-        ['id' => 'dall-e-3', 'name' => 'DALL-E 3'],
-        ['id' => 'dall-e-2', 'name' => 'DALL-E 2'],
-    ],
+    'OpenAI' => AIPKit_Providers::get_openai_image_models(),
     'Azure' => AIPKit_Providers::get_azure_image_models(),
     'Google' => AIPKit_Providers::get_google_image_models(),
 ];

@@ -287,13 +287,7 @@ class AIPKit_Shortcodes_Manager
                     ],
                     'edit_upload_max_bytes' => 10 * 1024 * 1024,
                     'edit_upload_allowed_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-                    'openai_models' => [
-                        ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],
-                        ['id' => 'gpt-image-1', 'name' => 'GPT Image 1'],
-                        ['id' => 'gpt-image-1-mini', 'name' => 'GPT Image 1 mini'],
-                        ['id' => 'dall-e-3', 'name' => 'DALL-E 3'],
-                        ['id' => 'dall-e-2', 'name' => 'DALL-E 2'],
-                    ],
+                    'openai_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_openai_image_models() : [],
                     'azure_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_azure_image_models() : [],
                     'google_models' => [
                         'image' => (class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_google_image_models() : []),

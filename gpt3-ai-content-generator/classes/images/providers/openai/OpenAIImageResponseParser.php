@@ -3,6 +3,7 @@
 
 namespace WPAICG\Images\Providers\OpenAI;
 
+use WPAICG\AIPKit_Providers;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -15,9 +16,8 @@ if (!defined('ABSPATH')) {
 class OpenAIImageResponseParser {
 
     // Token cost estimates for OpenAI image generation (when API doesn't provide usage data)
-    const DALLE2_TOKENS_PER_IMAGE = 1000;  // Reasonable estimate for DALL-E 2
-    const DALLE3_TOKENS_PER_IMAGE = 2000;  // Higher estimate for DALL-E 3
-    const GPT_IMAGE_1_TOKENS_PER_IMAGE = 2500;  // Estimate for GPT Image 1
+    const OPENAI_LEGACY_IMAGE_TOKENS_PER_IMAGE = 2000;
+    const GPT_IMAGE_TOKENS_PER_IMAGE = 2500;
 
     /**
      * Parses the successful response from OpenAI Image Generation API.
@@ -62,14 +62,9 @@ class OpenAIImageResponseParser {
         $num_images = count($images);
         
         // Estimate tokens per image based on model
-        $tokens_per_image = match (strtolower($model)) {
-            'dall-e-2' => self::DALLE2_TOKENS_PER_IMAGE,
-            'dall-e-3' => self::DALLE3_TOKENS_PER_IMAGE,
-            'gpt-image-1' => self::GPT_IMAGE_1_TOKENS_PER_IMAGE,
-            'gpt-image-1.5' => self::GPT_IMAGE_1_TOKENS_PER_IMAGE,
-            'gpt-image-1-mini' => self::GPT_IMAGE_1_TOKENS_PER_IMAGE,
-            default => self::DALLE3_TOKENS_PER_IMAGE, // Default to DALL-E 3 estimate
-        };
+        $tokens_per_image = AIPKit_Providers::is_openai_gpt_image_model($model)
+            ? self::GPT_IMAGE_TOKENS_PER_IMAGE
+            : self::OPENAI_LEGACY_IMAGE_TOKENS_PER_IMAGE;
         
         // Estimate input tokens based on prompt length (rough approximation)
         $prompt_words = str_word_count($prompt);
