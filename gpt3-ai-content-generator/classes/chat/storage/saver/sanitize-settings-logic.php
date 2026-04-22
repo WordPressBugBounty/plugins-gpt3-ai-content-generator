@@ -45,9 +45,9 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
             'container_height' => 560,
             'container_min_height' => 320,
             'container_max_height' => 70,
-            'popup_height' => 680,
-            'popup_min_height' => 320,
-            'popup_max_height' => 90,
+                'popup_height' => 560,
+                'popup_min_height' => 320,
+                'popup_max_height' => 70,
             // --- END NEW DIMENSION DEFAULTS (Fallback) ---
         ];
     } else {

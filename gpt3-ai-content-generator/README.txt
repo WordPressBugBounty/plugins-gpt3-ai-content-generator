@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.4.5
+Stable tag: 2.4.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -124,6 +124,12 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.6 =
+
+- Added a stop button with elapsed timer while chatbot responses are streaming.
+- Improved chatbot popup UX: the launcher now hides while the popup is open, the popup takes the launcher position, desktop close behavior is clearer, and popup dragging is supported on desktop.
+- Improved popup/mobile behavior with better viewport handling, safer fullscreen mobile presentation.
 
 = 2.4.5 =
 

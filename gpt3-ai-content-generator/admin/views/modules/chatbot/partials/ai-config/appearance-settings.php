@@ -11,8 +11,10 @@ $saved_footer_text = $bot_settings['footer_text'] ?? '';
 $saved_placeholder = $bot_settings['input_placeholder'] ?? __('Type your message...', 'gpt3-ai-content-generator');
 $custom_typing_text = $bot_settings['custom_typing_text'] ?? '';
 $retrieving_context_text = $bot_settings['retrieving_context_text'] ?? '';
-$enable_fullscreen = $bot_settings['enable_fullscreen'] ?? '0';
-$enable_download = $bot_settings['enable_download'] ?? '0';
+$enable_fullscreen = $bot_settings['enable_fullscreen']
+    ?? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_ENABLE_FULLSCREEN;
+$enable_download = $bot_settings['enable_download']
+    ?? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD;
 $enable_copy_button = $bot_settings['enable_copy_button']
     ?? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON;
 $enable_conversation_starters = $bot_settings['enable_conversation_starters']

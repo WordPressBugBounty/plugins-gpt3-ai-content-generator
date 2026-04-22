@@ -45,8 +45,6 @@ function render_popup_mode_html_logic(
         ? $frontend_config['popupIconSize']
         : BotSettingsManager::DEFAULT_POPUP_ICON_SIZE;
     $icon_html = '';
-    $close_icon_html = AIPKit_SVG_Icons::get_chevron_down_svg();
-
     if ($popup_icon_type === 'custom' && !empty($popup_icon_value)) {
         // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function (e.g., `wp_get_attachment_image_url`). The `<img>` tag is constructed manually to build a custom HTML structure with specific wrappers, classes, or attributes that are not achievable with the standard `wp_get_attachment_image()` function.
         $icon_html = '<img src="' . esc_url($popup_icon_value) . '" alt="' . esc_attr__('Open Chat', 'gpt3-ai-content-generator') . '" class="aipkit_popup_custom_icon" />';
@@ -105,7 +103,11 @@ function render_popup_mode_html_logic(
     // --- END NEW ---
 
     $popup_theme_marker_class = 'aipkit-popup-theme-' . sanitize_html_class(!empty($theme) ? $theme : 'light');
+    $is_direct_voice_mode = !empty($frontend_config['directVoiceMode']);
     $popup_wrapper_classes = 'aipkit_popup_wrapper ' . $popup_theme_marker_class;
+    if (!$is_direct_voice_mode) {
+        $popup_wrapper_classes .= ' aipkit-popup-standard';
+    }
     if (!empty($custom_theme_class)) {
         $popup_wrapper_classes .= ' ' . $custom_theme_class;
     }
@@ -119,9 +121,6 @@ function render_popup_mode_html_logic(
         <button type="button" class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" title="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" aria-haspopup="dialog" aria-controls="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-expanded="false" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>" data-label-open="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" data-label-close="<?php esc_attr_e('Close Chat', 'gpt3-ai-content-generator'); ?>">
             <span class="aipkit_popup_icon aipkit_popup_icon--open">
                 <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
-            </span>
-            <span class="aipkit_popup_icon aipkit_popup_icon--close" aria-hidden="true">
-                <?php echo $close_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
             </span>
         </button>
         <?php

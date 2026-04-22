@@ -24,12 +24,14 @@ function get_core_flag_values_logic(array $settings): array {
         // the behavior might be unexpected. Consider logging an error.
         // Provide hardcoded fallbacks if class is missing, though this indicates a deeper issue.
         $defaults = [
+            'DEFAULT_ENABLE_FULLSCREEN' => '1',
+            'DEFAULT_ENABLE_DOWNLOAD' => '1',
             'DEFAULT_ENABLE_COPY_BUTTON' => '1',
             'DEFAULT_ENABLE_FEEDBACK' => '1',
             'DEFAULT_ENABLE_CONVERSATION_STARTERS' => '1',
             'DEFAULT_ENABLE_CONVERSATION_SIDEBAR' => '0',
             'DEFAULT_TTS_ENABLED' => '0',
-            'DEFAULT_ENABLE_VOICE_INPUT' => '0',
+            'DEFAULT_ENABLE_VOICE_INPUT' => '1',
             'DEFAULT_ENABLE_FILE_UPLOAD' => '0',
             'DEFAULT_ENABLE_IMAGE_UPLOAD' => '0',
             'DEFAULT_OPENAI_WEB_SEARCH_ENABLED' => '0',
@@ -39,6 +41,8 @@ function get_core_flag_values_logic(array $settings): array {
         ];
     } else {
         $defaults = [
+            'DEFAULT_ENABLE_FULLSCREEN' => BotSettingsManager::DEFAULT_ENABLE_FULLSCREEN,
+            'DEFAULT_ENABLE_DOWNLOAD' => BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD,
             'DEFAULT_ENABLE_COPY_BUTTON' => BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON,
             'DEFAULT_ENABLE_FEEDBACK' => BotSettingsManager::DEFAULT_ENABLE_FEEDBACK,
             'DEFAULT_ENABLE_CONVERSATION_STARTERS' => BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS,
@@ -60,8 +64,8 @@ function get_core_flag_values_logic(array $settings): array {
         'vector_store_provider' => isset($settings['vector_store_provider']) ? sanitize_key((string) $settings['vector_store_provider']) : 'openai',
         // Directly derived flags (boolean)
         'popup_enabled'      => ($settings['popup_enabled'] ?? '0') === '1',
-        'enable_fullscreen'  => ($settings['enable_fullscreen'] ?? '0') === '1',
-        'enable_download'    => ($settings['enable_download'] ?? '0') === '1',
+        'enable_fullscreen'  => ($settings['enable_fullscreen'] ?? $defaults['DEFAULT_ENABLE_FULLSCREEN']) === '1',
+        'enable_download'    => ($settings['enable_download'] ?? $defaults['DEFAULT_ENABLE_DOWNLOAD']) === '1',
         'enable_copy_button' => ($settings['enable_copy_button'] ?? $defaults['DEFAULT_ENABLE_COPY_BUTTON']) === '1',
         'enable_feedback'    => ($settings['enable_feedback'] ?? $defaults['DEFAULT_ENABLE_FEEDBACK']) === '1',
         'enable_voice_input_ui' => ($settings['enable_voice_input'] ?? $defaults['DEFAULT_ENABLE_VOICE_INPUT']) === '1', // Direct UI flag

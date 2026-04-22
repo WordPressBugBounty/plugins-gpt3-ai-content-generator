@@ -85,8 +85,8 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_popup_label_version', BotSettingsManager::DEFAULT_POPUP_LABEL_VERSION);
         update_post_meta($post_id, '_aipkit_popup_label_size', BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE);
         update_post_meta($post_id, '_aipkit_footer_text', '');
-        update_post_meta($post_id, '_aipkit_enable_fullscreen', '1');
-        update_post_meta($post_id, '_aipkit_enable_download', '1');
+        update_post_meta($post_id, '_aipkit_enable_fullscreen', BotSettingsManager::DEFAULT_ENABLE_FULLSCREEN);
+        update_post_meta($post_id, '_aipkit_enable_download', BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD);
         update_post_meta($post_id, '_aipkit_enable_copy_button', BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON);
         update_post_meta($post_id, '_aipkit_enable_feedback', BotSettingsManager::DEFAULT_ENABLE_FEEDBACK);
         update_post_meta($post_id, '_aipkit_enable_consent_compliance', BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE);
@@ -204,12 +204,13 @@ class AIPKit_Bot_Settings_Initializer
             update_post_meta($post_id, '_aipkit_theme', 'dark');
             update_post_meta($post_id, '_aipkit_deploy_mode', 'inline');
             update_post_meta($post_id, '_aipkit_popup_enabled', '0');
-            update_post_meta($post_id, '_aipkit_enable_fullscreen', '0');
-            update_post_meta($post_id, '_aipkit_enable_download', '0');
-            update_post_meta($post_id, '_aipkit_enable_copy_button', '1');
-            update_post_meta($post_id, '_aipkit_enable_feedback', '1');
-            update_post_meta($post_id, '_aipkit_enable_conversation_starters', '1');
-            update_post_meta($post_id, '_aipkit_enable_voice_input', '0');
+            update_post_meta($post_id, '_aipkit_enable_fullscreen', BotSettingsManager::DEFAULT_ENABLE_FULLSCREEN);
+            update_post_meta($post_id, '_aipkit_enable_download', BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD);
+            update_post_meta($post_id, '_aipkit_enable_copy_button', BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON);
+            update_post_meta($post_id, '_aipkit_enable_feedback', BotSettingsManager::DEFAULT_ENABLE_FEEDBACK);
+            update_post_meta($post_id, '_aipkit_enable_conversation_starters', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS);
+            update_post_meta($post_id, '_aipkit_enable_conversation_sidebar', '1');
+            update_post_meta($post_id, '_aipkit_enable_voice_input', BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT);
         }
     }
 }

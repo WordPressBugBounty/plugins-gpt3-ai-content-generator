@@ -126,6 +126,9 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
                 </div>
             <?php endif; ?>
         </div>
+        <?php if ($is_popup): ?>
+            <div class="aipkit_header_drag_zone" aria-hidden="true"></div>
+        <?php endif; ?>
         <div class="aipkit_header_actions">
             <?php if ($feature_flags['enable_fullscreen']): ?>
                 <button type="button" class="aipkit_header_btn aipkit_fullscreen_btn" title="<?php echo esc_attr($frontend_config['text']['fullscreen']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['fullscreen']); ?>" aria-expanded="false">

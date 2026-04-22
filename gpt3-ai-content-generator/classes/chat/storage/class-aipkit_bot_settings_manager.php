@@ -29,6 +29,8 @@ class BotSettingsManager
     public const DEFAULT_TEMPERATURE = 1.0;
     public const DEFAULT_MAX_COMPLETION_TOKENS = 4000;
     public const DEFAULT_MAX_MESSAGES = 15;
+    public const DEFAULT_ENABLE_FULLSCREEN = '1';
+    public const DEFAULT_ENABLE_DOWNLOAD = '1';
     public const DEFAULT_ENABLE_COPY_BUTTON = '1';
     public const DEFAULT_ENABLE_FEEDBACK = '1';
     public const DEFAULT_ENABLE_CONSENT_COMPLIANCE = '0';
@@ -197,9 +199,9 @@ class BotSettingsManager
     public const DEFAULT_CTS_CONTAINER_HEIGHT = 560;    // px
     public const DEFAULT_CTS_CONTAINER_MAX_HEIGHT = 70; // vh (number only)
     public const DEFAULT_CTS_CONTAINER_MIN_HEIGHT = 320;  // px
-    public const DEFAULT_CTS_POPUP_HEIGHT = 680;        // px (can inherit from container_height)
+    public const DEFAULT_CTS_POPUP_HEIGHT = 560;        // px (can inherit from container_height)
     public const DEFAULT_CTS_POPUP_MIN_HEIGHT = 320;    // px (can inherit)
-    public const DEFAULT_CTS_POPUP_MAX_HEIGHT = 90;     // vh (can inherit, number only)
+    public const DEFAULT_CTS_POPUP_MAX_HEIGHT = 70;     // vh (can inherit, number only)
     // --- END NEW DIMENSION DEFAULTS ---
 
 

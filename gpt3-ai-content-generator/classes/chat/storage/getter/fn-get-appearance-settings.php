@@ -46,9 +46,9 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
                 'container_height' => 560,
                 'container_min_height' => 320,
                 'container_max_height' => 70,
-                'popup_height' => 680,
+                'popup_height' => 560,
                 'popup_min_height' => 320,
-                'popup_max_height' => 90,
+                'popup_max_height' => 70,
                 // --- END NEW DIMENSION DEFAULTS (Fallback) ---
             ];
         }
@@ -109,12 +109,12 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $settings['header_avatar_value'] = $header_avatar_value;
     $settings['header_avatar_url'] = ($header_avatar_type === 'custom') ? $header_avatar_url : '';
     $settings['header_online_text'] = $get_meta_fn('_aipkit_header_online_text', __('Online', 'gpt3-ai-content-generator'));
-    $settings['enable_fullscreen'] = in_array($get_meta_fn('_aipkit_enable_fullscreen', '0'), ['0','1'])
-        ? $get_meta_fn('_aipkit_enable_fullscreen', '0')
-        : '0';
-    $settings['enable_download'] = in_array($get_meta_fn('_aipkit_enable_download', '0'), ['0','1'])
-        ? $get_meta_fn('_aipkit_enable_download', '0')
-        : '0';
+    $settings['enable_fullscreen'] = in_array($get_meta_fn('_aipkit_enable_fullscreen', BotSettingsManager::DEFAULT_ENABLE_FULLSCREEN), ['0','1'])
+        ? $get_meta_fn('_aipkit_enable_fullscreen', BotSettingsManager::DEFAULT_ENABLE_FULLSCREEN)
+        : BotSettingsManager::DEFAULT_ENABLE_FULLSCREEN;
+    $settings['enable_download'] = in_array($get_meta_fn('_aipkit_enable_download', BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD), ['0','1'])
+        ? $get_meta_fn('_aipkit_enable_download', BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD)
+        : BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD;
     $settings['enable_copy_button'] = in_array($get_meta_fn('_aipkit_enable_copy_button', BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON), ['0','1'])
         ? $get_meta_fn('_aipkit_enable_copy_button', BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON)
         : BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON;

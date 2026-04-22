@@ -29,6 +29,7 @@ function get_text_labels_logic(array $settings, array $consent_texts): array {
     return [
         'sendMessage' => __('Send Message', 'gpt3-ai-content-generator'),
         'sending' => __('Sending...', 'gpt3-ai-content-generator'),
+        'stopResponse' => __('Stop Response', 'gpt3-ai-content-generator'),
         'typeMessage' => $settings['input_placeholder'] ?? __('Type your message...', 'gpt3-ai-content-generator'),
         'thinking' => __('Thinking', 'gpt3-ai-content-generator'),
         'streaming' => __('Streaming...', 'gpt3-ai-content-generator'),
