@@ -59,8 +59,10 @@ $settings_nonce = wp_create_nonce('aipkit_ai_forms_settings_nonce'); // Nonce fo
 
 // --- Defaults ---
 $default_reset_period = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
-$default_limit_message = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MESSAGE;
+$default_limit_message = BotSettingsManager::get_default_token_limit_message();
 $default_limit_mode = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
+$default_token_limit_actions = BotSettingsManager::get_default_token_limit_action_settings();
+$token_limit_action_options = BotSettingsManager::get_token_limit_action_options();
 
 // --- Get saved values ---
 $guest_limit = $token_settings['token_guest_limit'] ?? null;
@@ -69,9 +71,19 @@ $reset_period = $token_settings['token_reset_period'] ?? $default_reset_period;
 $limit_message = $token_settings['token_limit_message'] ?? $default_limit_message;
 $limit_mode = $token_settings['token_limit_mode'] ?? $default_limit_mode;
 $role_limits = $token_settings['token_role_limits'] ?? [];
+$token_limit_primary_action_type = $token_settings['token_limit_primary_action_type'] ?? $default_token_limit_actions['primary_type'];
+$token_limit_primary_action_label = $token_settings['token_limit_primary_action_label'] ?? $default_token_limit_actions['primary_label'];
+$token_limit_primary_action_url = $token_settings['token_limit_primary_action_url'] ?? $default_token_limit_actions['primary_url'];
+$token_limit_secondary_action_type = $token_settings['token_limit_secondary_action_type'] ?? $default_token_limit_actions['secondary_type'];
+$token_limit_secondary_action_label = $token_settings['token_limit_secondary_action_label'] ?? $default_token_limit_actions['secondary_label'];
+$token_limit_secondary_action_url = $token_settings['token_limit_secondary_action_url'] ?? $default_token_limit_actions['secondary_url'];
 
 $guest_limit_value = ($guest_limit === null) ? '' : (string)$guest_limit;
 $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
+$primary_action_show_label = $token_limit_primary_action_type !== 'none';
+$primary_action_show_url = $token_limit_primary_action_type === 'custom_url';
+$secondary_action_show_label = $token_limit_secondary_action_type !== 'none';
+$secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url';
 ?>
 <form id="aipkit_ai_forms_settings_form">
     <input type="hidden" name="_ajax_nonce" value="<?php echo esc_attr($settings_nonce); ?>">
@@ -263,7 +275,7 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                 </div>
             </div>
             <div
-                class="aipkit_popover_option_row aipkit_token_role_limits_container"
+                class="aipkit_popover_option_row aipkit_token_role_limits_container aipkit_limits_role_row"
                 <?php echo ($limit_mode === 'role_based') ? '' : 'hidden'; ?>
             >
                 <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
@@ -299,8 +311,8 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                     </div>
                 </div>
             </div>
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
+            <div class="aipkit_popover_option_row aipkit_limits_message_row aipkit_limits_row_shell">
+                <div class="aipkit_popover_option_main aipkit_limits_message_main">
                     <label
                         class="aipkit_popover_option_label"
                         for="aipkit_aiforms_token_limit_message"
@@ -315,6 +327,154 @@ $user_limit_value = ($user_limit === null) ? '' : (string)$user_limit;
                         class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
                         value="<?php echo esc_attr($limit_message); ?>"
                         placeholder="<?php echo esc_attr($default_limit_message); ?>"
+                    />
+                </div>
+            </div>
+            <div
+                class="aipkit_popover_option_row aipkit_limits_row_shell"
+                data-aipkit-limit-action-row="primary"
+            >
+                <div class="aipkit_popover_option_main">
+                    <label
+                        class="aipkit_popover_option_label"
+                        for="aipkit_aiforms_token_limit_primary_action_type"
+                    >
+                        <?php esc_html_e('Primary button', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <select
+                        id="aipkit_aiforms_token_limit_primary_action_type"
+                        name="aiforms_token_limit_primary_action_type"
+                        class="aipkit_popover_option_select aipkit_autosave_trigger"
+                    >
+                        <?php foreach ($token_limit_action_options as $action_value => $action_label) : ?>
+                            <option
+                                value="<?php echo esc_attr($action_value); ?>"
+                                data-default-label="<?php echo esc_attr(BotSettingsManager::get_token_limit_action_default_label($action_value)); ?>"
+                                <?php selected($token_limit_primary_action_type, $action_value); ?>
+                            >
+                                <?php echo esc_html($action_label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div
+                class="aipkit_popover_option_row aipkit_limits_row_shell"
+                data-aipkit-limit-action-dependent-for="primary"
+                data-aipkit-limit-action-field="label"
+                <?php if (!$primary_action_show_label) : ?>hidden<?php endif; ?>
+            >
+                <div class="aipkit_popover_option_main">
+                    <label
+                        class="aipkit_popover_option_label"
+                        for="aipkit_aiforms_token_limit_primary_action_label"
+                    >
+                        <?php esc_html_e('Primary button label', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <input
+                        type="text"
+                        id="aipkit_aiforms_token_limit_primary_action_label"
+                        name="aiforms_token_limit_primary_action_label"
+                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
+                        value="<?php echo esc_attr($token_limit_primary_action_label); ?>"
+                        placeholder="<?php echo esc_attr(BotSettingsManager::get_token_limit_action_default_label($token_limit_primary_action_type)); ?>"
+                    />
+                </div>
+            </div>
+            <div
+                class="aipkit_popover_option_row aipkit_limits_row_shell"
+                data-aipkit-limit-action-dependent-for="primary"
+                data-aipkit-limit-action-field="url"
+                <?php if (!$primary_action_show_url) : ?>hidden<?php endif; ?>
+            >
+                <div class="aipkit_popover_option_main">
+                    <label
+                        class="aipkit_popover_option_label"
+                        for="aipkit_aiforms_token_limit_primary_action_url"
+                    >
+                        <?php esc_html_e('Primary button custom URL', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <input
+                        type="url"
+                        id="aipkit_aiforms_token_limit_primary_action_url"
+                        name="aiforms_token_limit_primary_action_url"
+                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
+                        value="<?php echo esc_attr($token_limit_primary_action_url); ?>"
+                        placeholder="<?php esc_attr_e('https://example.com/account', 'gpt3-ai-content-generator'); ?>"
+                    />
+                </div>
+            </div>
+            <div
+                class="aipkit_popover_option_row aipkit_limits_row_shell"
+                data-aipkit-limit-action-row="secondary"
+            >
+                <div class="aipkit_popover_option_main">
+                    <label
+                        class="aipkit_popover_option_label"
+                        for="aipkit_aiforms_token_limit_secondary_action_type"
+                    >
+                        <?php esc_html_e('Secondary button', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <select
+                        id="aipkit_aiforms_token_limit_secondary_action_type"
+                        name="aiforms_token_limit_secondary_action_type"
+                        class="aipkit_popover_option_select aipkit_autosave_trigger"
+                    >
+                        <?php foreach ($token_limit_action_options as $action_value => $action_label) : ?>
+                            <option
+                                value="<?php echo esc_attr($action_value); ?>"
+                                data-default-label="<?php echo esc_attr(BotSettingsManager::get_token_limit_action_default_label($action_value)); ?>"
+                                <?php selected($token_limit_secondary_action_type, $action_value); ?>
+                            >
+                                <?php echo esc_html($action_label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div
+                class="aipkit_popover_option_row aipkit_limits_row_shell"
+                data-aipkit-limit-action-dependent-for="secondary"
+                data-aipkit-limit-action-field="label"
+                <?php if (!$secondary_action_show_label) : ?>hidden<?php endif; ?>
+            >
+                <div class="aipkit_popover_option_main">
+                    <label
+                        class="aipkit_popover_option_label"
+                        for="aipkit_aiforms_token_limit_secondary_action_label"
+                    >
+                        <?php esc_html_e('Secondary button label', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <input
+                        type="text"
+                        id="aipkit_aiforms_token_limit_secondary_action_label"
+                        name="aiforms_token_limit_secondary_action_label"
+                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
+                        value="<?php echo esc_attr($token_limit_secondary_action_label); ?>"
+                        placeholder="<?php echo esc_attr(BotSettingsManager::get_token_limit_action_default_label($token_limit_secondary_action_type)); ?>"
+                    />
+                </div>
+            </div>
+            <div
+                class="aipkit_popover_option_row aipkit_limits_row_shell"
+                data-aipkit-limit-action-dependent-for="secondary"
+                data-aipkit-limit-action-field="url"
+                <?php if (!$secondary_action_show_url) : ?>hidden<?php endif; ?>
+            >
+                <div class="aipkit_popover_option_main">
+                    <label
+                        class="aipkit_popover_option_label"
+                        for="aipkit_aiforms_token_limit_secondary_action_url"
+                    >
+                        <?php esc_html_e('Secondary button custom URL', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <input
+                        type="url"
+                        id="aipkit_aiforms_token_limit_secondary_action_url"
+                        name="aiforms_token_limit_secondary_action_url"
+                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
+                        value="<?php echo esc_attr($token_limit_secondary_action_url); ?>"
+                        placeholder="<?php esc_attr_e('https://example.com/support', 'gpt3-ai-content-generator'); ?>"
                     />
                 </div>
             </div>

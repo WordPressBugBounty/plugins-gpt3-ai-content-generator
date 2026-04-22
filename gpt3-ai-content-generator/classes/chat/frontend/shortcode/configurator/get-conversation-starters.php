@@ -32,11 +32,12 @@ function get_conversation_starters_logic(array $settings, bool $starters_ui_enab
 
         if (empty($starters_array)) {
             // Fallback to default starters if the setting is empty or invalid
-            $starters_array = [
-                __('What can you do?', 'gpt3-ai-content-generator'),
-                __('Tell me a fun fact', 'gpt3-ai-content-generator'),
-                __('Help me write something', 'gpt3-ai-content-generator')
-            ];
+            $starters_array = method_exists(BotSettingsManager::class, 'get_default_conversation_starters')
+                ? BotSettingsManager::get_default_conversation_starters()
+                : [
+                    __('What can you do?', 'gpt3-ai-content-generator'),
+                    __('Tell me a fun fact', 'gpt3-ai-content-generator'),
+                ];
         }
     }
     return $starters_array;

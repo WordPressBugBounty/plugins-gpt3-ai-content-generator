@@ -91,7 +91,9 @@ sort($module_options);
 $woo_active = class_exists('WooCommerce') && post_type_exists('product') && function_exists('wc_get_product');
 $woo_create_product_url = admin_url('post-new.php?post_type=product');
 $woo_products_url = admin_url('edit.php?post_type=product');
-$customer_dashboard_buycredits_default_url = (string) get_option('aipkit_token_shop_page_url', '');
+$customer_dashboard_page_url = (string) get_option('aipkit_token_dashboard_page_url', '');
+$customer_dashboard_buycredits_saved_url = (string) get_option('aipkit_token_shop_page_url', '');
+$customer_dashboard_buycredits_default_url = $customer_dashboard_buycredits_saved_url;
 if ($customer_dashboard_buycredits_default_url === '' && function_exists('wc_get_page_id')) {
     $customer_dashboard_buycredits_default_url = (string) get_permalink(wc_get_page_id('shop'));
 }
@@ -209,67 +211,99 @@ if ($woo_active) {
                                     id="aipkit_stats_table_menu_trigger"
                                     aria-expanded="false"
                                     aria-controls="aipkit_stats_table_menu"
+                                    aria-haspopup="dialog"
                                 >
                                     <span class="aipkit_stats_table_menu_trigger_dots" aria-hidden="true">
                                         <span class="aipkit_stats_table_menu_trigger_dot"></span>
                                         <span class="aipkit_stats_table_menu_trigger_dot"></span>
                                         <span class="aipkit_stats_table_menu_trigger_dot"></span>
                                     </span>
-                                    <span class="screen-reader-text"><?php esc_html_e('Log actions', 'gpt3-ai-content-generator'); ?></span>
+                                    <span class="screen-reader-text"><?php esc_html_e('Log filters and actions', 'gpt3-ai-content-generator'); ?></span>
                                 </button>
-                                <div class="aipkit_stats_table_menu" id="aipkit_stats_table_menu" role="menu" hidden>
-                                    <button type="button" class="aipkit_stats_table_menu_item" id="aipkit_stats_export_btn" role="menuitem">
-                                        <span class="aipkit_stats_table_menu_item_icon" aria-hidden="true">
-                                            <span class="dashicons dashicons-download"></span>
-                                        </span>
-                                        <span class="aipkit_stats_table_menu_item_label"><?php esc_html_e('Export all', 'gpt3-ai-content-generator'); ?></span>
-                                    </button>
-                                    <button type="button" class="aipkit_stats_table_menu_item aipkit_stats_table_menu_item--danger" id="aipkit_stats_delete_all_btn" role="menuitem">
-                                        <span class="aipkit_stats_table_menu_item_icon" aria-hidden="true">
-                                            <span class="dashicons dashicons-trash"></span>
-                                        </span>
-                                        <span class="aipkit_stats_table_menu_item_label"><?php esc_html_e('Delete all', 'gpt3-ai-content-generator'); ?></span>
-                                    </button>
+                                <div
+                                    class="aipkit_stats_table_menu"
+                                    id="aipkit_stats_table_menu"
+                                    role="dialog"
+                                    aria-label="<?php esc_attr_e('Log filters and actions', 'gpt3-ai-content-generator'); ?>"
+                                    hidden
+                                >
+                                    <div class="aipkit_stats_table_menu_section">
+                                        <div class="aipkit_stats_table_menu_section_header">
+                                            <div class="aipkit_stats_table_menu_section_title"><?php esc_html_e('Filters', 'gpt3-ai-content-generator'); ?></div>
+                                            <button type="button" class="aipkit_stats_table_menu_reset" id="aipkit_stats_filters_reset_btn">
+                                                <?php esc_html_e('Reset', 'gpt3-ai-content-generator'); ?>
+                                            </button>
+                                        </div>
+                                        <div class="aipkit_stats_table_menu_fields">
+                                            <div class="aipkit_stats_table_menu_field aipkit_stats_table_menu_field--full">
+                                                <label class="aipkit_stats_table_menu_label" for="aipkit_stats_search_input"><?php esc_html_e('Search logs', 'gpt3-ai-content-generator'); ?></label>
+                                                <div class="aipkit_stats_search_control aipkit_stats_search_control--menu">
+                                                    <input
+                                                        type="search"
+                                                        id="aipkit_stats_search_input"
+                                                        class="aipkit_stats_search_input"
+                                                        placeholder="<?php esc_attr_e('Search logs', 'gpt3-ai-content-generator'); ?>"
+                                                        autocomplete="off"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div class="aipkit_stats_table_menu_field">
+                                                <label class="aipkit_stats_table_menu_label" for="aipkit_stats_bot_filter"><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></label>
+                                                <select id="aipkit_stats_bot_filter" class="aipkit_popover_select">
+                                                    <option value=""><?php esc_html_e('All bots', 'gpt3-ai-content-generator'); ?></option>
+                                                    <option value="0"><?php esc_html_e('No bot', 'gpt3-ai-content-generator'); ?></option>
+                                                    <?php foreach ($chatbot_posts as $chatbot_post): ?>
+                                                        <option value="<?php echo esc_attr($chatbot_post->ID); ?>">
+                                                            <?php echo esc_html($chatbot_post->post_title); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="aipkit_stats_table_menu_field">
+                                                <label class="aipkit_stats_table_menu_label" for="aipkit_stats_module_filter"><?php esc_html_e('Module', 'gpt3-ai-content-generator'); ?></label>
+                                                <select id="aipkit_stats_module_filter" class="aipkit_popover_select">
+                                                    <option value=""><?php esc_html_e('All modules', 'gpt3-ai-content-generator'); ?></option>
+                                                    <?php foreach ($module_options as $module_key): ?>
+                                                        <option value="<?php echo esc_attr($module_key); ?>">
+                                                            <?php echo esc_html($module_labels[$module_key] ?? ucfirst(str_replace('_', ' ', $module_key))); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="aipkit_stats_table_menu_field aipkit_stats_table_menu_field--full">
+                                                <label class="aipkit_stats_table_menu_label" for="aipkit_stats_logs_days_filter"><?php esc_html_e('Date range', 'gpt3-ai-content-generator'); ?></label>
+                                                <select id="aipkit_stats_logs_days_filter" class="aipkit_popover_select" data-aipkit-stats-days-filter>
+                                                    <option value="7" <?php selected($stats_default_days, 7); ?>><?php esc_html_e('Last 7 days', 'gpt3-ai-content-generator'); ?></option>
+                                                    <option value="30" <?php selected($stats_default_days, 30); ?>><?php esc_html_e('Last 30 days', 'gpt3-ai-content-generator'); ?></option>
+                                                    <option value="90" <?php selected($stats_default_days, 90); ?>><?php esc_html_e('Last 90 days', 'gpt3-ai-content-generator'); ?></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="aipkit_stats_table_menu_divider" aria-hidden="true"></div>
+
+                                    <div class="aipkit_stats_table_menu_section">
+                                        <div class="aipkit_stats_table_menu_section_title"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></div>
+                                        <div class="aipkit_stats_table_menu_actions">
+                                            <button type="button" class="aipkit_stats_table_menu_item" id="aipkit_stats_export_btn">
+                                                <span class="aipkit_stats_table_menu_item_icon" aria-hidden="true">
+                                                    <span class="dashicons dashicons-download"></span>
+                                                </span>
+                                                <span class="aipkit_stats_table_menu_item_label"><?php esc_html_e('Export logs', 'gpt3-ai-content-generator'); ?></span>
+                                            </button>
+                                            <button type="button" class="aipkit_stats_table_menu_item aipkit_stats_table_menu_item--danger" id="aipkit_stats_delete_all_btn">
+                                                <span class="aipkit_stats_table_menu_item_icon" aria-hidden="true">
+                                                    <span class="dashicons dashicons-trash"></span>
+                                                </span>
+                                                <span class="aipkit_stats_table_menu_item_label"><?php esc_html_e('Delete logs', 'gpt3-ai-content-generator'); ?></span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="aipkit_stats_filters" aria-label="<?php esc_attr_e('Log Filters', 'gpt3-ai-content-generator'); ?>">
-                            <label class="screen-reader-text" for="aipkit_stats_bot_filter"><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></label>
-                            <select id="aipkit_stats_bot_filter" class="aipkit_popover_select">
-                                <option value=""><?php esc_html_e('All bots', 'gpt3-ai-content-generator'); ?></option>
-                                <option value="0"><?php esc_html_e('No bot', 'gpt3-ai-content-generator'); ?></option>
-                                <?php foreach ($chatbot_posts as $chatbot_post): ?>
-                                    <option value="<?php echo esc_attr($chatbot_post->ID); ?>">
-                                        <?php echo esc_html($chatbot_post->post_title); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-
-                            <label class="screen-reader-text" for="aipkit_stats_module_filter"><?php esc_html_e('Module', 'gpt3-ai-content-generator'); ?></label>
-                            <select id="aipkit_stats_module_filter" class="aipkit_popover_select">
-                                <option value=""><?php esc_html_e('All modules', 'gpt3-ai-content-generator'); ?></option>
-                                <?php foreach ($module_options as $module_key): ?>
-                                    <option value="<?php echo esc_attr($module_key); ?>">
-                                        <?php echo esc_html($module_labels[$module_key] ?? ucfirst(str_replace('_', ' ', $module_key))); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-
-                            <label class="screen-reader-text" for="aipkit_stats_logs_days_filter"><?php esc_html_e('Date range', 'gpt3-ai-content-generator'); ?></label>
-                            <select id="aipkit_stats_logs_days_filter" class="aipkit_popover_select" data-aipkit-stats-days-filter>
-                                <option value="7" <?php selected($stats_default_days, 7); ?>><?php esc_html_e('Last 7 days', 'gpt3-ai-content-generator'); ?></option>
-                                <option value="30" <?php selected($stats_default_days, 30); ?>><?php esc_html_e('Last 30 days', 'gpt3-ai-content-generator'); ?></option>
-                                <option value="90" <?php selected($stats_default_days, 90); ?>><?php esc_html_e('Last 90 days', 'gpt3-ai-content-generator'); ?></option>
-                            </select>
-
-                            <label class="screen-reader-text" for="aipkit_stats_search_input"><?php esc_html_e('Search logs', 'gpt3-ai-content-generator'); ?></label>
-                            <div class="aipkit_stats_search_control">
-                                <input
-                                    type="search"
-                                    id="aipkit_stats_search_input"
-                                    class="aipkit_stats_search_input"
-                                    placeholder="<?php esc_attr_e('Search logs', 'gpt3-ai-content-generator'); ?>"
-                                />
                             </div>
                         </div>
                         <div class="aipkit_data-table aipkit_stats_table">
@@ -681,6 +715,38 @@ if ($woo_active) {
                                         </div>
                                         <div class="aipkit_stats_shortcode_fields_card">
                                             <div class="aipkit_stats_shortcode_fields">
+                                                <label class="aipkit_stats_shortcode_field aipkit_stats_shortcode_field--full">
+                                                    <span class="aipkit_stats_shortcode_field_label"><?php esc_html_e('Intro text', 'gpt3-ai-content-generator'); ?></span>
+                                                    <input
+                                                        type="text"
+                                                        class="aipkit_form-input aipkit_stats_shortcode_text_option"
+                                                        name="cfg_dashboard_intro"
+                                                        value="<?php echo esc_attr__('View your credits, purchases, and quotas.', 'gpt3-ai-content-generator'); ?>"
+                                                        data-default-value="<?php echo esc_attr__('View your credits, purchases, and quotas.', 'gpt3-ai-content-generator'); ?>"
+                                                    >
+                                                </label>
+                                                <label class="aipkit_stats_shortcode_field">
+                                                    <span class="aipkit_stats_shortcode_field_label"><?php esc_html_e('Customer dashboard URL', 'gpt3-ai-content-generator'); ?></span>
+                                                    <input
+                                                        type="url"
+                                                        class="aipkit_form-input aipkit_stats_shortcode_text_option"
+                                                        name="cfg_dashboard_url"
+                                                        value="<?php echo esc_attr($customer_dashboard_page_url); ?>"
+                                                        data-default-value="<?php echo esc_attr($customer_dashboard_page_url); ?>"
+                                                        placeholder="<?php esc_attr_e('https://example.com/customer-dashboard', 'gpt3-ai-content-generator'); ?>"
+                                                    >
+                                                </label>
+                                                <label class="aipkit_stats_shortcode_field">
+                                                    <span class="aipkit_stats_shortcode_field_label"><?php esc_html_e('Default buy credits URL', 'gpt3-ai-content-generator'); ?></span>
+                                                    <input
+                                                        type="url"
+                                                        class="aipkit_form-input aipkit_stats_shortcode_text_option"
+                                                        name="cfg_buycredits_url"
+                                                        value="<?php echo esc_attr($customer_dashboard_buycredits_saved_url); ?>"
+                                                        data-default-value="<?php echo esc_attr($customer_dashboard_buycredits_saved_url); ?>"
+                                                        placeholder="<?php echo esc_attr($customer_dashboard_buycredits_default_url); ?>"
+                                                    >
+                                                </label>
                                                 <label class="aipkit_stats_shortcode_field">
                                                     <span class="aipkit_stats_shortcode_field_label"><?php esc_html_e('Dashboard title', 'gpt3-ai-content-generator'); ?></span>
                                                     <input
@@ -691,16 +757,6 @@ if ($woo_active) {
                                                         data-default-value="<?php echo esc_attr__('Credits & Usage', 'gpt3-ai-content-generator'); ?>"
                                                     >
                                                 </label>
-                                            <label class="aipkit_stats_shortcode_field">
-                                                <span class="aipkit_stats_shortcode_field_label"><?php esc_html_e('Intro text', 'gpt3-ai-content-generator'); ?></span>
-                                                <input
-                                                    type="text"
-                                                    class="aipkit_form-input aipkit_stats_shortcode_text_option"
-                                                    name="cfg_dashboard_intro"
-                                                    value="<?php echo esc_attr__('View your credits, purchases, and quotas.', 'gpt3-ai-content-generator'); ?>"
-                                                    data-default-value="<?php echo esc_attr__('View your credits, purchases, and quotas.', 'gpt3-ai-content-generator'); ?>"
-                                                >
-                                            </label>
                                                 <label class="aipkit_stats_shortcode_field">
                                                     <span class="aipkit_stats_shortcode_field_label"><?php esc_html_e('Buy credits button label', 'gpt3-ai-content-generator'); ?></span>
                                                     <input
@@ -709,17 +765,6 @@ if ($woo_active) {
                                                         name="cfg_buycredits_label"
                                                         value="<?php echo esc_attr__('Buy credits', 'gpt3-ai-content-generator'); ?>"
                                                         data-default-value="<?php echo esc_attr__('Buy credits', 'gpt3-ai-content-generator'); ?>"
-                                                    >
-                                                </label>
-                                                <label class="aipkit_stats_shortcode_field">
-                                                    <span class="aipkit_stats_shortcode_field_label"><?php esc_html_e('Buy credits URL', 'gpt3-ai-content-generator'); ?></span>
-                                                    <input
-                                                        type="text"
-                                                        class="aipkit_form-input aipkit_stats_shortcode_text_option"
-                                                        name="cfg_buycredits_url"
-                                                        value=""
-                                                        data-default-value=""
-                                                        placeholder="<?php echo esc_attr($customer_dashboard_buycredits_default_url); ?>"
                                                     >
                                                 </label>
                                             </div>

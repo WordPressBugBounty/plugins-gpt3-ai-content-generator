@@ -144,17 +144,14 @@ $build_inline_bot_switch_state_payload = static function (
 
     $embed_script_url = WPAICG_PLUGIN_URL . 'dist/js/embed-bootstrap.bundle.js';
     $embed_target_div = 'aipkit-chatbot-container-' . $bot_id;
-    $site_url = home_url();
-    if (!is_string($site_url) || $site_url === '') {
-        $site_url = '';
-    }
+    $embed_config_url = rest_url('aipkit/v1/chatbots/' . $bot_id . '/embed-config');
 
     $embed_script = sprintf(
-        '(function(){var d=document;var c=d.createElement("div");c.id="%1$s";var s=d.createElement("script");s.src="%2$s";s.setAttribute("data-bot-id","%3$d");s.setAttribute("data-wp-site","%4$s");s.async=true;var t=d.currentScript||d.getElementsByTagName("script")[0];t.parentNode.insertBefore(c,t);t.parentNode.insertBefore(s,t);}());',
+        '(function(){var d=document;var c=d.createElement("div");c.id="%1$s";var s=d.createElement("script");s.src="%2$s";s.setAttribute("data-bot-id","%3$d");s.setAttribute("data-config-url","%4$s");s.async=true;var t=d.currentScript||d.getElementsByTagName("script")[0];t.parentNode.insertBefore(c,t);t.parentNode.insertBefore(s,t);}());',
         esc_js($embed_target_div),
         esc_js($embed_script_url),
         $bot_id,
-        esc_js($site_url)
+        esc_js($embed_config_url)
     );
 
     return [
@@ -301,12 +298,13 @@ $embed_anywhere_active = $is_pro_plan;
 $embed_allowed_domains = $active_bot_settings['embed_allowed_domains'] ?? '';
 $embed_script_url = WPAICG_PLUGIN_URL . 'dist/js/embed-bootstrap.bundle.js';
 $embed_target_div = 'aipkit-chatbot-container-' . absint($initial_active_bot_id);
+$embed_config_url = rest_url('aipkit/v1/chatbots/' . absint($initial_active_bot_id) . '/embed-config');
 $embed_code = sprintf(
-    '(function(){var d=document;var c=d.createElement("div");c.id="%1$s";var s=d.createElement("script");s.src="%2$s";s.setAttribute("data-bot-id","%3$d");s.setAttribute("data-wp-site","%4$s");s.async=true;var t=d.currentScript||d.getElementsByTagName("script")[0];t.parentNode.insertBefore(c,t);t.parentNode.insertBefore(s,t);}());',
+    '(function(){var d=document;var c=d.createElement("div");c.id="%1$s";var s=d.createElement("script");s.src="%2$s";s.setAttribute("data-bot-id","%3$d");s.setAttribute("data-config-url","%4$s");s.async=true;var t=d.currentScript||d.getElementsByTagName("script")[0];t.parentNode.insertBefore(c,t);t.parentNode.insertBefore(s,t);}());',
     esc_js($embed_target_div),
     esc_js($embed_script_url),
     absint($initial_active_bot_id),
-    esc_js(home_url())
+    esc_js($embed_config_url)
 );
 $embed_code = '<script type="text/javascript">' . $embed_code . '</script>';
 $embed_docs_url = 'https://docs.aipower.org/docs/chat#embed-anywhere-external-sites';
@@ -942,13 +940,26 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                                             <?php esc_html_e('Popup', 'gpt3-ai-content-generator'); ?>
                                                         </option>
                                                         <option value="external" <?php selected($deploy_mode, 'external'); ?>>
-                                                            <?php esc_html_e('Embed Anywhere', 'gpt3-ai-content-generator'); ?>
+                                                            <?php esc_html_e('External', 'gpt3-ai-content-generator'); ?>
                                                         </option>
                                                     </select>
                                                 </div>
                                                 <div
+                                                    class="aipkit_builder_mode_field aipkit_builder_external_setup_row"
+                                                    data-aipkit-external-setup-row
+                                                    <?php echo ($deploy_mode === 'external') ? '' : 'hidden'; ?>
+                                                >
+                                                    <button
+                                                        type="button"
+                                                        class="aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_builder_external_setup_btn"
+                                                        data-aipkit-external-setup-btn
+                                                    >
+                                                        <?php esc_html_e('External Setup', 'gpt3-ai-content-generator'); ?>
+                                                    </button>
+                                                </div>
+                                                <div
                                                     class="aipkit_builder_mode_field aipkit_builder_popup_scope_row"
-                                                    <?php echo ($popup_enabled === '1') ? '' : 'hidden'; ?>
+                                                    <?php echo ($deploy_mode === 'popup') ? '' : 'hidden'; ?>
                                                 >
                                                     <label
                                                         for="aipkit_builder_top_popup_scope_select"
@@ -2439,7 +2450,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                 <div class="aipkit-modal-header">
                     <div>
                         <h3 class="aipkit-modal-title" id="aipkit_builder_embed_title">
-                            <?php esc_html_e('Embed Anywhere Setup', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('External Setup', 'gpt3-ai-content-generator'); ?>
                         </h3>
                         <p class="aipkit_builder_modal_subtitle" id="aipkit_builder_embed_description">
                             <?php esc_html_e('Copy the snippet and set allowed domains for external websites.', 'gpt3-ai-content-generator'); ?>
@@ -2492,11 +2503,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     placeholder="<?php esc_attr_e('https://example.com', 'gpt3-ai-content-generator'); ?>"
                                 ><?php echo esc_textarea($embed_allowed_domains); ?></textarea>
                             </div>
-                        </div>
-                        <div class="aipkit_builder_action_row aipkit_builder_action_row--end">
-                            <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_builder_embed_done">
-                                <?php esc_html_e('Done', 'gpt3-ai-content-generator'); ?>
-                            </button>
                         </div>
                     <?php else : ?>
                         <div class="aipkit_embed_promo">

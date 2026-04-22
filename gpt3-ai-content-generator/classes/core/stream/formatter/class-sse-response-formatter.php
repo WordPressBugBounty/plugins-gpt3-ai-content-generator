@@ -40,8 +40,8 @@ class SSEResponseFormatter {
         send_sse_event_logic($this, $event_type, $data, $id);
     }
 
-    public function send_sse_error(string $message, bool $non_fatal = false) {
-        send_sse_error_logic($this, $message, $non_fatal);
+    public function send_sse_error(string $message, bool $non_fatal = false, array $extra_data = []) {
+        send_sse_error_logic($this, $message, $non_fatal, $extra_data);
     }
 
     public function send_sse_done() {

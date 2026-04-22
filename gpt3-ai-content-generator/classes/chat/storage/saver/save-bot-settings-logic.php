@@ -21,7 +21,8 @@ if (!defined('ABSPATH')) {
 
 /**
  * Orchestrates the saving of bot settings.
- * MODIFIED: Now handles WP_Error from save_meta_fields_logic.
+ * MODIFIED: Now handles WP_Error from save_meta_fields_logic and clears site-wide cache
+ * only after the updated popup/site-wide meta has been persisted.
  *
  * @param int $botId The chatbot post ID.
  * @param array $raw_settings The raw settings array from the form (e.g., $_POST).
@@ -38,8 +39,12 @@ function save_bot_settings_logic(int $botId, array $raw_settings, SiteWideBotMan
     // 2. Sanitize Settings
     $sanitized_settings = sanitize_settings_logic($raw_settings, $botId);
 
-    // 3. Handle Site-Wide Logic (before saving meta, as it might affect other bots)
-    handle_site_wide_logic($site_wide_manager, $botId, $sanitized_settings['site_wide_enabled']);
+    // 3. Handle Site-Wide Logic (before saving meta, so uniqueness can be enforced first)
+    $should_clear_site_wide_cache = handle_site_wide_logic(
+        $site_wide_manager,
+        $botId,
+        $sanitized_settings['site_wide_enabled']
+    );
 
     // 4. Save Meta Fields
     // This function can now return WP_Error
@@ -50,6 +55,10 @@ function save_bot_settings_logic(int $botId, array $raw_settings, SiteWideBotMan
 
     // 5. Handle OpenAI Specific Settings (like forcing global store_conversation)
     handle_openai_specific_settings_logic($botId, $sanitized_settings);
+
+    if ($should_clear_site_wide_cache) {
+        $site_wide_manager->clear_site_wide_cache();
+    }
 
     // Action hook after settings are saved
     do_action('aipkit_after_bot_settings_saved', $botId, $sanitized_settings);

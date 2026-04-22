@@ -34,7 +34,10 @@ function get_conversation_starters_logic(int $bot_id, callable $get_meta_fn): ar
         ? $get_meta_fn('_aipkit_enable_conversation_starters', $default_enable_starters)
         : $default_enable_starters;
 
-    $starters_json = $get_meta_fn('_aipkit_conversation_starters', '[]');
+    $default_starters_json = method_exists(BotSettingsManager::class, 'get_default_conversation_starters_json')
+        ? BotSettingsManager::get_default_conversation_starters_json()
+        : '[]';
+    $starters_json = $get_meta_fn('_aipkit_conversation_starters', $default_starters_json);
     $starters_array = json_decode($starters_json, true);
     $settings['conversation_starters'] = is_array($starters_array) ? $starters_array : [];
 

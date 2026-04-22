@@ -81,10 +81,14 @@ function run_token_check_logic(
             }
         }
         // Return the original error from token manager, including status code
-        $status_code_from_error = is_array($token_check_result->get_error_data()) && isset($token_check_result->get_error_data()['status'])
-                                  ? $token_check_result->get_error_data()['status']
-                                  : 429;
-        return new WP_Error($token_check_result->get_error_code(), $token_check_result->get_error_message(), ['status' => $status_code_from_error]);
+        $token_error_data = $token_check_result->get_error_data();
+        if (!is_array($token_error_data)) {
+            $token_error_data = [];
+        }
+        if (!isset($token_error_data['status'])) {
+            $token_error_data['status'] = 429;
+        }
+        return new WP_Error($token_check_result->get_error_code(), $token_check_result->get_error_message(), $token_error_data);
     }
     return true; // Token check passed
 }

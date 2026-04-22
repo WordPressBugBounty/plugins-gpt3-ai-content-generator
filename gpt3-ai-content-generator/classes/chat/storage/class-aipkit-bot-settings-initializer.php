@@ -104,7 +104,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_max_messages', BotSettingsManager::DEFAULT_MAX_MESSAGES);
         update_post_meta($post_id, '_aipkit_reasoning_effort', BotSettingsManager::DEFAULT_REASONING_EFFORT);
         update_post_meta($post_id, '_aipkit_enable_conversation_starters', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS);
-        update_post_meta($post_id, '_aipkit_conversation_starters', '[]');
+        update_post_meta($post_id, '_aipkit_conversation_starters', BotSettingsManager::get_default_conversation_starters_json());
         update_post_meta($post_id, '_aipkit_content_aware_enabled', BotSettingsManager::DEFAULT_CONTENT_AWARE_ENABLED);
         update_post_meta($post_id, '_aipkit_openai_conversation_state_enabled', BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED);
         $default_guest_limit_value = (BotSettingsManager::DEFAULT_TOKEN_GUEST_LIMIT === null) ? '' : (string)BotSettingsManager::DEFAULT_TOKEN_GUEST_LIMIT;
@@ -112,9 +112,16 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_token_guest_limit', $default_guest_limit_value);
         update_post_meta($post_id, '_aipkit_token_user_limit', $default_user_limit_value);
         update_post_meta($post_id, '_aipkit_token_reset_period', BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD);
-        update_post_meta($post_id, '_aipkit_token_limit_message', __('You have reached your quota for this period.', 'gpt3-ai-content-generator'));
+        $default_token_limit_actions = BotSettingsManager::get_default_token_limit_action_settings();
+        update_post_meta($post_id, '_aipkit_token_limit_message', BotSettingsManager::get_default_token_limit_message());
         update_post_meta($post_id, '_aipkit_token_limit_mode', BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE);
         update_post_meta($post_id, '_aipkit_token_role_limits', '[]');
+        update_post_meta($post_id, '_aipkit_token_limit_primary_action_type', $default_token_limit_actions['primary_type']);
+        update_post_meta($post_id, '_aipkit_token_limit_primary_action_label', $default_token_limit_actions['primary_label']);
+        update_post_meta($post_id, '_aipkit_token_limit_primary_action_url', $default_token_limit_actions['primary_url']);
+        update_post_meta($post_id, '_aipkit_token_limit_secondary_action_type', $default_token_limit_actions['secondary_type']);
+        update_post_meta($post_id, '_aipkit_token_limit_secondary_action_label', $default_token_limit_actions['secondary_label']);
+        update_post_meta($post_id, '_aipkit_token_limit_secondary_action_url', $default_token_limit_actions['secondary_url']);
         update_post_meta($post_id, '_aipkit_tts_enabled', BotSettingsManager::DEFAULT_TTS_ENABLED);
         update_post_meta($post_id, '_aipkit_tts_provider', BotSettingsManager::DEFAULT_TTS_PROVIDER);
         update_post_meta($post_id, '_aipkit_tts_google_voice_id', '');
@@ -197,8 +204,6 @@ class AIPKit_Bot_Settings_Initializer
             update_post_meta($post_id, '_aipkit_theme', 'dark');
             update_post_meta($post_id, '_aipkit_deploy_mode', 'inline');
             update_post_meta($post_id, '_aipkit_popup_enabled', '0');
-            update_post_meta($post_id, '_aipkit_popup_label_enabled', '1');
-            update_post_meta($post_id, '_aipkit_popup_label_text', __('Need help? Ask me!', 'gpt3-ai-content-generator'));
             update_post_meta($post_id, '_aipkit_enable_fullscreen', '0');
             update_post_meta($post_id, '_aipkit_enable_download', '0');
             update_post_meta($post_id, '_aipkit_enable_copy_button', '1');

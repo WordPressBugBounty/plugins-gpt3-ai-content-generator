@@ -182,17 +182,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         $embed_script_url = WPAICG_PLUGIN_URL . 'dist/js/embed-bootstrap.bundle.js';
         $embed_target_div = 'aipkit-chatbot-container-' . $bot_id;
-        $site_url = home_url();
-        if (!is_string($site_url) || $site_url === '') {
-            $site_url = '';
-        }
+        $embed_config_url = rest_url('aipkit/v1/chatbots/' . $bot_id . '/embed-config');
 
         $embed_script = sprintf(
-            '(function(){var d=document;var c=d.createElement("div");c.id="%1$s";var s=d.createElement("script");s.src="%2$s";s.setAttribute("data-bot-id","%3$d");s.setAttribute("data-wp-site","%4$s");s.async=true;var t=d.currentScript||d.getElementsByTagName("script")[0];t.parentNode.insertBefore(c,t);t.parentNode.insertBefore(s,t);}());',
+            '(function(){var d=document;var c=d.createElement("div");c.id="%1$s";var s=d.createElement("script");s.src="%2$s";s.setAttribute("data-bot-id","%3$d");s.setAttribute("data-config-url","%4$s");s.async=true;var t=d.currentScript||d.getElementsByTagName("script")[0];t.parentNode.insertBefore(c,t);t.parentNode.insertBefore(s,t);}());',
             esc_js($embed_target_div),
             esc_js($embed_script_url),
             $bot_id,
-            esc_js($site_url)
+            esc_js($embed_config_url)
         );
 
         return '<script type="text/javascript">' . $embed_script . '</script>';
@@ -537,6 +534,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         delete_post_meta($new_bot_id, '_aipkit_default_bot');
         // Duplicated bots must always start as non-site-wide to avoid replacing live popup behavior.
         update_post_meta($new_bot_id, '_aipkit_site_wide_enabled', '0');
+        update_post_meta($new_bot_id, '_aipkit_popup_delay', BotSettingsManager::DEFAULT_POPUP_DELAY);
+        update_post_meta($new_bot_id, '_aipkit_enable_conversation_starters', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS);
+        update_post_meta($new_bot_id, '_aipkit_conversation_starters', BotSettingsManager::get_default_conversation_starters_json());
 
         // Normalize default markers so only one chatbot remains default.
         $default_marker_ids = get_posts([
@@ -1616,6 +1616,54 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_limit_message = isset($_POST['token_limit_message']) ? sanitize_text_field(wp_unslash($_POST['token_limit_message'])) : '';
+        $default_token_limit_actions = BotSettingsManager::get_default_token_limit_action_settings();
+        $allowed_token_limit_action_types = BotSettingsManager::get_token_limit_action_types();
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $token_limit_primary_action_type = isset($_POST['token_limit_primary_action_type'])
+            ? sanitize_key(wp_unslash($_POST['token_limit_primary_action_type']))
+            : $default_token_limit_actions['primary_type'];
+        if (!in_array($token_limit_primary_action_type, $allowed_token_limit_action_types, true)) {
+            $token_limit_primary_action_type = $default_token_limit_actions['primary_type'];
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $token_limit_primary_action_label = isset($_POST['token_limit_primary_action_label'])
+            ? sanitize_text_field(wp_unslash($_POST['token_limit_primary_action_label']))
+            : $default_token_limit_actions['primary_label'];
+        if ($token_limit_primary_action_type === 'none') {
+            $token_limit_primary_action_label = '';
+        } elseif ($token_limit_primary_action_label === '') {
+            $token_limit_primary_action_label = BotSettingsManager::get_token_limit_action_default_label($token_limit_primary_action_type);
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $token_limit_primary_action_url = isset($_POST['token_limit_primary_action_url'])
+            ? esc_url_raw(trim((string) wp_unslash($_POST['token_limit_primary_action_url'])))
+            : $default_token_limit_actions['primary_url'];
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $token_limit_secondary_action_type = isset($_POST['token_limit_secondary_action_type'])
+            ? sanitize_key(wp_unslash($_POST['token_limit_secondary_action_type']))
+            : $default_token_limit_actions['secondary_type'];
+        if (!in_array($token_limit_secondary_action_type, $allowed_token_limit_action_types, true)) {
+            $token_limit_secondary_action_type = $default_token_limit_actions['secondary_type'];
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $token_limit_secondary_action_label = isset($_POST['token_limit_secondary_action_label'])
+            ? sanitize_text_field(wp_unslash($_POST['token_limit_secondary_action_label']))
+            : $default_token_limit_actions['secondary_label'];
+        if ($token_limit_secondary_action_type === 'none') {
+            $token_limit_secondary_action_label = '';
+        } elseif ($token_limit_secondary_action_label === '') {
+            $token_limit_secondary_action_label = BotSettingsManager::get_token_limit_action_default_label($token_limit_secondary_action_type);
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $token_limit_secondary_action_url = isset($_POST['token_limit_secondary_action_url'])
+            ? esc_url_raw(trim((string) wp_unslash($_POST['token_limit_secondary_action_url'])))
+            : $default_token_limit_actions['secondary_url'];
 
         $role_limits_to_save = [];
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -1656,6 +1704,28 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             delete_post_meta($bot_id, '_aipkit_token_limit_message');
         } else {
             update_post_meta($bot_id, '_aipkit_token_limit_message', $token_limit_message);
+        }
+        update_post_meta($bot_id, '_aipkit_token_limit_primary_action_type', $token_limit_primary_action_type);
+        if ($token_limit_primary_action_label === '') {
+            delete_post_meta($bot_id, '_aipkit_token_limit_primary_action_label');
+        } else {
+            update_post_meta($bot_id, '_aipkit_token_limit_primary_action_label', $token_limit_primary_action_label);
+        }
+        if ($token_limit_primary_action_url === '') {
+            delete_post_meta($bot_id, '_aipkit_token_limit_primary_action_url');
+        } else {
+            update_post_meta($bot_id, '_aipkit_token_limit_primary_action_url', $token_limit_primary_action_url);
+        }
+        update_post_meta($bot_id, '_aipkit_token_limit_secondary_action_type', $token_limit_secondary_action_type);
+        if ($token_limit_secondary_action_label === '') {
+            delete_post_meta($bot_id, '_aipkit_token_limit_secondary_action_label');
+        } else {
+            update_post_meta($bot_id, '_aipkit_token_limit_secondary_action_label', $token_limit_secondary_action_label);
+        }
+        if ($token_limit_secondary_action_url === '') {
+            delete_post_meta($bot_id, '_aipkit_token_limit_secondary_action_url');
+        } else {
+            update_post_meta($bot_id, '_aipkit_token_limit_secondary_action_url', $token_limit_secondary_action_url);
         }
 
         $role_limits_json = wp_json_encode($role_limits_to_save, JSON_UNESCAPED_UNICODE);
@@ -2240,6 +2310,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $updated_any = false;
         $success_message = __('Saved', 'gpt3-ai-content-generator');
         $response_extra = [];
+        $site_wide_manager = null;
         $popup_enabled = (get_post_meta($bot_id, '_aipkit_popup_enabled', true) === '1') ? '1' : '0';
         $deploy_mode = $this->resolve_deploy_mode(
             (string) get_post_meta($bot_id, '_aipkit_deploy_mode', true),
@@ -2357,6 +2428,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         update_post_meta($bot_id, '_aipkit_deploy_mode', $deploy_mode);
+
+        if ($updated_any && $site_wide_manager instanceof SiteWideBotManager) {
+            $site_wide_manager->clear_site_wide_cache();
+        }
 
         if (!$updated_any) {
             wp_send_json_error(['message' => __('No changes to save.', 'gpt3-ai-content-generator')], 400);

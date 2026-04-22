@@ -33,7 +33,7 @@ function render_purchase_details_logic(
     ob_start();
     ?>
 
-    <section class="aipkit_customer_shell aipkit_customer_shell--balance">
+    <section class="aipkit_customer_shell aipkit_customer_shell--balance" id="aipkit_customer_dashboard_credits">
         <div class="aipkit_customer_shell_header">
             <div class="aipkit_customer_shell_intro">
                 <h3 class="aipkit_customer_shell_title"><?php esc_html_e('Credits', 'gpt3-ai-content-generator'); ?></h3>
@@ -74,7 +74,7 @@ function render_purchase_details_logic(
             <?php endif; ?>
 
             <?php if ($show_purchase_history && !empty($purchase_history)): ?>
-                <div id="aipkit_purchase_history_details" class="aipkit_purchase_history_details" style="display: none;">
+                <div id="aipkit_purchase_history_details" class="aipkit_purchase_history_details" data-aipkit-customer-purchases="1" style="display: none;">
                     <h4 class="aipkit_purchase_history_title"><?php esc_html_e('Recent credit purchases', 'gpt3-ai-content-generator'); ?></h4>
 
                     <div class="aipkit_purchase_history_list">

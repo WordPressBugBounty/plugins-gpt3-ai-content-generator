@@ -130,7 +130,9 @@ function CheckAndResetTokensLogic(
     // Determine limit and reset period
     $limit = null;
     $reset_period = $settings['token_reset_period'] ?? 'never';
-    $default_limit_message = class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_TOKEN_LIMIT_MESSAGE : __('You have reached your quota for this period.', 'gpt3-ai-content-generator');
+    $default_limit_message = class_exists(BotSettingsManager::class)
+        ? BotSettingsManager::get_default_token_limit_message()
+        : __('You have reached your quota for this period.', 'gpt3-ai-content-generator');
     $limit_message_template = $settings['token_limit_message'] ?? '';
     $limit_message = !empty($limit_message_template) ? $limit_message_template : $default_limit_message;
 
@@ -285,11 +287,188 @@ function CheckAndResetTokensLogic(
             : (($current_usage + $required_quota_units) <= (int) $limit);
 
         if (!$can_consume) {
-            return new WP_Error('token_limit_exceeded_final_logic', $limit_message);
+            return build_token_limit_exceeded_error_logic($settings, $limit_message, $module_context, $guest_context_table_id);
         }
     } elseif (($limit !== null && $limit !== '') && $current_usage >= (int)$limit) {
-        return new WP_Error('token_limit_exceeded_final_logic', $limit_message);
+        return build_token_limit_exceeded_error_logic($settings, $limit_message, $module_context, $guest_context_table_id);
     }
 
     return true; // Allowed
+}
+
+/**
+ * Builds the structured quota error payload returned to frontend clients.
+ *
+ * @param array<string, mixed> $settings
+ */
+function build_token_limit_exceeded_error_logic(
+    array $settings,
+    string $limit_message,
+    string $module_context,
+    ?int $context_id_or_bot_id
+): WP_Error {
+    $error_data = ['status' => 429];
+
+    $quota_notice = build_quota_notice_logic($settings, $module_context, $context_id_or_bot_id, $limit_message);
+    if (!empty($quota_notice)) {
+        $error_data['quota_notice'] = $quota_notice;
+    }
+
+    return new WP_Error('token_limit_exceeded_final_logic', $limit_message, $error_data);
+}
+
+/**
+ * Creates the quota recovery card payload for quota errors.
+ *
+ * @param array<string, mixed> $settings
+ * @return array<string, mixed>
+ */
+function build_quota_notice_logic(array $settings, string $module_context, ?int $context_id, string $limit_message): array
+{
+    if (!in_array($module_context, ['chat', 'image_generator', 'ai_forms'], true)) {
+        return [];
+    }
+
+    if ($module_context === 'chat' && ($context_id === null || $context_id <= 0)) {
+        return [];
+    }
+
+    $actions = [];
+    $action_slots = [
+        ['slot' => 'primary', 'variant' => 'primary'],
+        ['slot' => 'secondary', 'variant' => 'secondary'],
+    ];
+
+    foreach ($action_slots as $action_slot) {
+        $slot = $action_slot['slot'];
+        $type = sanitize_key((string) ($settings["token_limit_{$slot}_action_type"] ?? 'none'));
+        if ($type === '' || $type === 'none') {
+            continue;
+        }
+
+        $label = trim((string) ($settings["token_limit_{$slot}_action_label"] ?? ''));
+        if ($label === '' && class_exists(BotSettingsManager::class)) {
+            $label = BotSettingsManager::get_token_limit_action_default_label($type);
+        }
+
+        $custom_url = trim((string) ($settings["token_limit_{$slot}_action_url"] ?? ''));
+        $url = resolve_quota_notice_action_url_logic($type, $module_context, $context_id, $custom_url);
+        if ($label === '' || $url === '') {
+            continue;
+        }
+
+        $actions[] = [
+            'label' => $label,
+            'url' => $url,
+            'variant' => $action_slot['variant'],
+        ];
+    }
+
+    return [
+        'type' => 'quota_notice',
+        'message' => $limit_message,
+        'actions' => $actions,
+    ];
+}
+
+function resolve_quota_notice_action_url_logic(
+    string $action_type,
+    string $module_context,
+    ?int $context_id,
+    string $custom_url = ''
+): string
+{
+    $dashboard_url = trim((string) get_option('aipkit_token_dashboard_page_url', ''));
+    $buy_credits_url = trim((string) get_option('aipkit_token_shop_page_url', ''));
+
+    if ($buy_credits_url === '' && function_exists('wc_get_page_id')) {
+        $shop_page_id = wc_get_page_id('shop');
+        if ($shop_page_id && $shop_page_id > 0) {
+            $buy_credits_url = (string) get_permalink($shop_page_id);
+        }
+    }
+
+    switch ($action_type) {
+        case 'dashboard_usage':
+            if ($dashboard_url === '') {
+                return '';
+            }
+            $dashboard_context_id = resolve_quota_notice_dashboard_context_id_logic($module_context, $context_id);
+            $query_args = [
+                'aipkit_section' => 'usage',
+                'aipkit_module' => $module_context,
+            ];
+            if ($dashboard_context_id !== null) {
+                $query_args['aipkit_context_id'] = $dashboard_context_id;
+            }
+            return build_dashboard_quota_notice_url_logic(
+                $dashboard_url,
+                $query_args,
+                'aipkit_customer_dashboard_usage'
+            );
+
+        case 'dashboard_credits':
+            if ($dashboard_url === '') {
+                return '';
+            }
+            return build_dashboard_quota_notice_url_logic(
+                $dashboard_url,
+                ['aipkit_section' => 'credits'],
+                'aipkit_customer_dashboard_credits'
+            );
+
+        case 'dashboard_purchases':
+            if ($dashboard_url === '') {
+                return '';
+            }
+            return build_dashboard_quota_notice_url_logic(
+                $dashboard_url,
+                ['aipkit_section' => 'purchases'],
+                'aipkit_purchase_history_details'
+            );
+
+        case 'buy_credits':
+            return $buy_credits_url !== '' ? esc_url_raw($buy_credits_url) : '';
+
+        case 'custom_url':
+            return $custom_url !== '' ? esc_url_raw($custom_url) : '';
+
+        case 'none':
+        default:
+            return '';
+    }
+}
+
+function resolve_quota_notice_dashboard_context_id_logic(string $module_context, ?int $context_id): ?int
+{
+    if ($module_context === 'chat') {
+        return ($context_id !== null && $context_id > 0) ? $context_id : null;
+    }
+
+    if ($module_context === 'image_generator') {
+        return GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
+    }
+
+    if ($module_context === 'ai_forms') {
+        return GuestTableConstants::AI_FORMS_GUEST_CONTEXT_ID;
+    }
+
+    return $context_id;
+}
+
+/**
+ * @param array<string, string|int> $query_args
+ */
+function build_dashboard_quota_notice_url_logic(string $base_url, array $query_args, string $fragment = ''): string
+{
+    if ($base_url === '') {
+        return '';
+    }
+
+    $url = add_query_arg($query_args, $base_url);
+    if ($fragment !== '') {
+        $url .= '#' . ltrim($fragment, '#');
+    }
+
+    return esc_url_raw($url);
 }

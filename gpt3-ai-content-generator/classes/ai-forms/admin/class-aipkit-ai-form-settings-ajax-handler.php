@@ -22,14 +22,64 @@ class AIPKit_AI_Form_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
     public const SETTINGS_OPTION_NAME = 'aipkit_ai_forms_settings';
 
     /**
+     * Normalizes token management settings to the supported schema.
+     *
+     * @param array<string, mixed> $settings
+     * @return array<string, mixed>
+     */
+    private static function normalize_token_management_settings(array $settings): array
+    {
+        $default_limit_message = BotSettingsManager::get_default_token_limit_message();
+        $default_action_settings = BotSettingsManager::get_default_token_limit_action_settings();
+        $valid_action_types = BotSettingsManager::get_token_limit_action_types();
+
+        $settings['token_limit_message'] = isset($settings['token_limit_message'])
+            ? sanitize_text_field((string) $settings['token_limit_message'])
+            : $default_limit_message;
+        if ($settings['token_limit_message'] === '') {
+            $settings['token_limit_message'] = $default_limit_message;
+        }
+
+        foreach (['primary', 'secondary'] as $slot) {
+            $type_key = "token_limit_{$slot}_action_type";
+            $label_key = "token_limit_{$slot}_action_label";
+            $url_key = "token_limit_{$slot}_action_url";
+            $default_type = (string) ($default_action_settings["{$slot}_type"] ?? 'none');
+            $default_label = (string) ($default_action_settings["{$slot}_label"] ?? '');
+            $default_url = (string) ($default_action_settings["{$slot}_url"] ?? '');
+
+            $action_type = isset($settings[$type_key]) ? sanitize_key((string) $settings[$type_key]) : $default_type;
+            if (!in_array($action_type, $valid_action_types, true)) {
+                $action_type = $default_type;
+            }
+
+            $action_label = isset($settings[$label_key]) ? sanitize_text_field((string) $settings[$label_key]) : $default_label;
+            if ($action_type === 'none') {
+                $action_label = '';
+            } elseif ($action_label === '') {
+                $action_label = BotSettingsManager::get_token_limit_action_default_label($action_type);
+            }
+
+            $action_url = isset($settings[$url_key]) ? esc_url_raw(trim((string) $settings[$url_key])) : $default_url;
+
+            $settings[$type_key] = $action_type;
+            $settings[$label_key] = $action_label;
+            $settings[$url_key] = $action_url;
+        }
+
+        return $settings;
+    }
+
+    /**
      * Get the default settings structure for the AI Forms module.
      * @return array
      */
     public static function get_default_settings(): array
     {
-        $default_limit_message = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MESSAGE ?: __('You have reached your quota for this period.', 'gpt3-ai-content-generator');
+        $default_limit_message = BotSettingsManager::get_default_token_limit_message();
         $default_limit_mode = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
         $default_reset_period = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
+        $default_action_settings = BotSettingsManager::get_default_token_limit_action_settings();
 
         return [
             'token_management' => [
@@ -39,6 +89,12 @@ class AIPKit_AI_Form_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
                 'token_role_limits' => [],
                 'token_reset_period' => $default_reset_period,
                 'token_limit_message' => $default_limit_message,
+                'token_limit_primary_action_type' => $default_action_settings['primary_type'],
+                'token_limit_primary_action_label' => $default_action_settings['primary_label'],
+                'token_limit_primary_action_url' => $default_action_settings['primary_url'],
+                'token_limit_secondary_action_type' => $default_action_settings['secondary_type'],
+                'token_limit_secondary_action_label' => $default_action_settings['secondary_label'],
+                'token_limit_secondary_action_url' => $default_action_settings['secondary_url'],
             ],
             'custom_theme' => [
                 'custom_css' => '',
@@ -73,6 +129,7 @@ class AIPKit_AI_Form_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
         } elseif (!isset($saved['token_management']['token_role_limits']) || !is_array($saved['token_management']['token_role_limits'])) {
             $saved['token_management']['token_role_limits'] = [];
         }
+        $saved['token_management'] = self::normalize_token_management_settings($saved['token_management']);
 
         if (!isset($saved['custom_theme']) || !is_array($saved['custom_theme'])) {
             $saved['custom_theme'] = $defaults['custom_theme'];
@@ -160,6 +217,25 @@ class AIPKit_AI_Form_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
         if (isset($post_data['aiforms_token_limit_message'])) {
             $new_token_settings['token_limit_message'] = sanitize_text_field($post_data['aiforms_token_limit_message']);
         }
+        if (isset($post_data['aiforms_token_limit_primary_action_type'])) {
+            $new_token_settings['token_limit_primary_action_type'] = sanitize_key((string) $post_data['aiforms_token_limit_primary_action_type']);
+        }
+        if (isset($post_data['aiforms_token_limit_primary_action_label'])) {
+            $new_token_settings['token_limit_primary_action_label'] = sanitize_text_field((string) $post_data['aiforms_token_limit_primary_action_label']);
+        }
+        if (isset($post_data['aiforms_token_limit_primary_action_url'])) {
+            $new_token_settings['token_limit_primary_action_url'] = esc_url_raw(trim((string) $post_data['aiforms_token_limit_primary_action_url']));
+        }
+        if (isset($post_data['aiforms_token_limit_secondary_action_type'])) {
+            $new_token_settings['token_limit_secondary_action_type'] = sanitize_key((string) $post_data['aiforms_token_limit_secondary_action_type']);
+        }
+        if (isset($post_data['aiforms_token_limit_secondary_action_label'])) {
+            $new_token_settings['token_limit_secondary_action_label'] = sanitize_text_field((string) $post_data['aiforms_token_limit_secondary_action_label']);
+        }
+        if (isset($post_data['aiforms_token_limit_secondary_action_url'])) {
+            $new_token_settings['token_limit_secondary_action_url'] = esc_url_raw(trim((string) $post_data['aiforms_token_limit_secondary_action_url']));
+        }
+        $new_token_settings = self::normalize_token_management_settings($new_token_settings);
         $new_settings['token_management'] = $new_token_settings;
 
         $theme_defaults = $defaults['custom_theme'];

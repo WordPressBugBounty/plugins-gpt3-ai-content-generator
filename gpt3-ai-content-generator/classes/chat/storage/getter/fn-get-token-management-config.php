@@ -49,11 +49,73 @@ function get_token_management_config_logic(int $bot_id, callable $get_meta_fn): 
         $settings['token_reset_period'] = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
     }
 
-    $default_limit_message = __('You have reached your quota for this period.', 'gpt3-ai-content-generator');
+    $default_limit_message = class_exists(BotSettingsManager::class)
+        ? BotSettingsManager::get_default_token_limit_message()
+        : __('You have reached your quota for this period.', 'gpt3-ai-content-generator');
     $settings['token_limit_message'] = $get_meta_fn('_aipkit_token_limit_message', $default_limit_message);
     if (empty($settings['token_limit_message'])) {
         $settings['token_limit_message'] = $default_limit_message;
     }
+
+    $valid_action_types = class_exists(BotSettingsManager::class)
+        ? BotSettingsManager::get_token_limit_action_types()
+        : ['none', 'dashboard_usage', 'dashboard_credits', 'dashboard_purchases', 'buy_credits', 'custom_url'];
+    $default_action_settings = class_exists(BotSettingsManager::class)
+        ? BotSettingsManager::get_default_token_limit_action_settings()
+        : [
+            'primary_type' => 'dashboard_usage',
+            'primary_label' => __('View usage', 'gpt3-ai-content-generator'),
+            'primary_url' => '',
+            'secondary_type' => 'buy_credits',
+            'secondary_label' => __('Buy credits', 'gpt3-ai-content-generator'),
+            'secondary_url' => '',
+        ];
+
+    $settings['token_limit_primary_action_type'] = (string) $get_meta_fn(
+        '_aipkit_token_limit_primary_action_type',
+        $default_action_settings['primary_type']
+    );
+    if (!in_array($settings['token_limit_primary_action_type'], $valid_action_types, true)) {
+        $settings['token_limit_primary_action_type'] = $default_action_settings['primary_type'];
+    }
+    $settings['token_limit_primary_action_label'] = trim((string) $get_meta_fn(
+        '_aipkit_token_limit_primary_action_label',
+        $default_action_settings['primary_label']
+    ));
+    if ($settings['token_limit_primary_action_type'] === 'none') {
+        $settings['token_limit_primary_action_label'] = '';
+    } elseif ($settings['token_limit_primary_action_label'] === '') {
+        $settings['token_limit_primary_action_label'] = class_exists(BotSettingsManager::class)
+            ? BotSettingsManager::get_token_limit_action_default_label($settings['token_limit_primary_action_type'])
+            : $default_action_settings['primary_label'];
+    }
+    $settings['token_limit_primary_action_url'] = esc_url_raw((string) $get_meta_fn(
+        '_aipkit_token_limit_primary_action_url',
+        $default_action_settings['primary_url']
+    ));
+
+    $settings['token_limit_secondary_action_type'] = (string) $get_meta_fn(
+        '_aipkit_token_limit_secondary_action_type',
+        $default_action_settings['secondary_type']
+    );
+    if (!in_array($settings['token_limit_secondary_action_type'], $valid_action_types, true)) {
+        $settings['token_limit_secondary_action_type'] = $default_action_settings['secondary_type'];
+    }
+    $settings['token_limit_secondary_action_label'] = trim((string) $get_meta_fn(
+        '_aipkit_token_limit_secondary_action_label',
+        $default_action_settings['secondary_label']
+    ));
+    if ($settings['token_limit_secondary_action_type'] === 'none') {
+        $settings['token_limit_secondary_action_label'] = '';
+    } elseif ($settings['token_limit_secondary_action_label'] === '') {
+        $settings['token_limit_secondary_action_label'] = class_exists(BotSettingsManager::class)
+            ? BotSettingsManager::get_token_limit_action_default_label($settings['token_limit_secondary_action_type'])
+            : $default_action_settings['secondary_label'];
+    }
+    $settings['token_limit_secondary_action_url'] = esc_url_raw((string) $get_meta_fn(
+        '_aipkit_token_limit_secondary_action_url',
+        $default_action_settings['secondary_url']
+    ));
 
     return $settings;
 }

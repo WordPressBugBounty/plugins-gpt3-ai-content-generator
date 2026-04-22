@@ -32,7 +32,7 @@ class BotSettingsManager
     public const DEFAULT_ENABLE_COPY_BUTTON = '1';
     public const DEFAULT_ENABLE_FEEDBACK = '1';
     public const DEFAULT_ENABLE_CONSENT_COMPLIANCE = '0';
-    public const DEFAULT_POPUP_DELAY = 1;
+    public const DEFAULT_POPUP_DELAY = 0;
     public const DEFAULT_ENABLE_CONVERSATION_STARTERS = '1';
     public const DEFAULT_ENABLE_CONVERSATION_SIDEBAR = '0';
     public const DEFAULT_POPUP_ICON_TYPE = 'default';
@@ -62,6 +62,12 @@ class BotSettingsManager
     public const DEFAULT_TOKEN_RESET_PERIOD = 'never';
     public const DEFAULT_TOKEN_LIMIT_MESSAGE = 'You have reached your quota for this period.';
     public const DEFAULT_TOKEN_LIMIT_MODE = 'general';
+    public const DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_TYPE = 'dashboard_usage';
+    public const DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_LABEL = 'View usage';
+    public const DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_URL = '';
+    public const DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_TYPE = 'buy_credits';
+    public const DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_LABEL = 'Buy credits';
+    public const DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_URL = '';
     public const DEFAULT_TTS_ENABLED = '0';
     public const DEFAULT_TTS_PROVIDER = 'Google';
     public const DEFAULT_TTS_OPENAI_MODEL_ID = 'tts-1';
@@ -257,6 +263,107 @@ class BotSettingsManager
             }
         }
         AIPKit_Bot_Settings_Initializer::initialize($post_id, $botName);
+    }
+
+    /**
+     * Returns the default conversation starter prompts for newly initialized bots.
+     */
+    public static function get_default_conversation_starters(): array
+    {
+        return [
+            __('What can you do?', 'gpt3-ai-content-generator'),
+            __('Tell me a fun fact', 'gpt3-ai-content-generator'),
+        ];
+    }
+
+    /**
+     * Returns the default conversation starter prompts as JSON for storage.
+     */
+    public static function get_default_conversation_starters_json(): string
+    {
+        $json = wp_json_encode(self::get_default_conversation_starters(), JSON_UNESCAPED_UNICODE);
+        return is_string($json) ? $json : '[]';
+    }
+
+    /**
+     * Returns the default quota reached message.
+     */
+    public static function get_default_token_limit_message(): string
+    {
+        return __('You have reached your quota for this period.', 'gpt3-ai-content-generator');
+    }
+
+    /**
+     * Returns the supported recovery action types for quota notices.
+     *
+     * @return string[]
+     */
+    public static function get_token_limit_action_types(): array
+    {
+        return [
+            'none',
+            'dashboard_usage',
+            'dashboard_credits',
+            'dashboard_purchases',
+            'buy_credits',
+            'custom_url',
+        ];
+    }
+
+    /**
+     * Returns the UI labels for supported quota recovery action types.
+     *
+     * @return array<string, string>
+     */
+    public static function get_token_limit_action_options(): array
+    {
+        return [
+            'none' => __('No button', 'gpt3-ai-content-generator'),
+            'dashboard_usage' => __('Customer dashboard: Usage', 'gpt3-ai-content-generator'),
+            'dashboard_credits' => __('Customer dashboard: Credits', 'gpt3-ai-content-generator'),
+            'dashboard_purchases' => __('Customer dashboard: Purchases', 'gpt3-ai-content-generator'),
+            'buy_credits' => __('Buy credits page', 'gpt3-ai-content-generator'),
+            'custom_url' => __('Custom URL', 'gpt3-ai-content-generator'),
+        ];
+    }
+
+    /**
+     * Returns the default label for a quota recovery action type.
+     */
+    public static function get_token_limit_action_default_label(string $action_type): string
+    {
+        switch ($action_type) {
+            case 'dashboard_usage':
+                return __('View usage', 'gpt3-ai-content-generator');
+            case 'dashboard_credits':
+                return __('View credits', 'gpt3-ai-content-generator');
+            case 'dashboard_purchases':
+                return __('View purchases', 'gpt3-ai-content-generator');
+            case 'buy_credits':
+                return __('Buy credits', 'gpt3-ai-content-generator');
+            case 'custom_url':
+                return __('Open link', 'gpt3-ai-content-generator');
+            case 'none':
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Returns default quota recovery action settings for newly initialized bots.
+     *
+     * @return array<string, string>
+     */
+    public static function get_default_token_limit_action_settings(): array
+    {
+        return [
+            'primary_type' => self::DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_TYPE,
+            'primary_label' => __('View usage', 'gpt3-ai-content-generator'),
+            'primary_url' => self::DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_URL,
+            'secondary_type' => self::DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_TYPE,
+            'secondary_label' => __('Buy credits', 'gpt3-ai-content-generator'),
+            'secondary_url' => self::DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_URL,
+        ];
     }
 
     /**

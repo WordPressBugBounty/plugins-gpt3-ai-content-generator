@@ -196,6 +196,51 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['token_role_limits'] = wp_json_encode($role_limits_to_save, JSON_UNESCAPED_UNICODE);
     $sanitized['token_reset_period'] = isset($raw_settings['token_reset_period']) && in_array($raw_settings['token_reset_period'], ['never', 'daily', 'weekly', 'monthly']) ? sanitize_key($raw_settings['token_reset_period']) : BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
     $sanitized['token_limit_message'] = isset($raw_settings['token_limit_message']) ? sanitize_text_field($raw_settings['token_limit_message']) : '';
+    $allowed_token_limit_action_types = class_exists(BotSettingsManager::class)
+        ? BotSettingsManager::get_token_limit_action_types()
+        : ['none', 'dashboard_usage', 'dashboard_credits', 'dashboard_purchases', 'buy_credits', 'custom_url'];
+    $default_token_limit_actions = class_exists(BotSettingsManager::class)
+        ? BotSettingsManager::get_default_token_limit_action_settings()
+        : [
+            'primary_type' => 'dashboard_usage',
+            'primary_label' => __('View usage', 'gpt3-ai-content-generator'),
+            'primary_url' => '',
+            'secondary_type' => 'buy_credits',
+            'secondary_label' => __('Buy credits', 'gpt3-ai-content-generator'),
+            'secondary_url' => '',
+        ];
+    $sanitized['token_limit_primary_action_type'] = isset($raw_settings['token_limit_primary_action_type']) && in_array($raw_settings['token_limit_primary_action_type'], $allowed_token_limit_action_types, true)
+        ? sanitize_key($raw_settings['token_limit_primary_action_type'])
+        : $default_token_limit_actions['primary_type'];
+    $sanitized['token_limit_primary_action_label'] = isset($raw_settings['token_limit_primary_action_label'])
+        ? sanitize_text_field((string) $raw_settings['token_limit_primary_action_label'])
+        : $default_token_limit_actions['primary_label'];
+    if ($sanitized['token_limit_primary_action_type'] === 'none') {
+        $sanitized['token_limit_primary_action_label'] = '';
+    } elseif ($sanitized['token_limit_primary_action_label'] === '') {
+        $sanitized['token_limit_primary_action_label'] = class_exists(BotSettingsManager::class)
+            ? BotSettingsManager::get_token_limit_action_default_label($sanitized['token_limit_primary_action_type'])
+            : $default_token_limit_actions['primary_label'];
+    }
+    $sanitized['token_limit_primary_action_url'] = isset($raw_settings['token_limit_primary_action_url'])
+        ? esc_url_raw(trim((string) $raw_settings['token_limit_primary_action_url']))
+        : $default_token_limit_actions['primary_url'];
+    $sanitized['token_limit_secondary_action_type'] = isset($raw_settings['token_limit_secondary_action_type']) && in_array($raw_settings['token_limit_secondary_action_type'], $allowed_token_limit_action_types, true)
+        ? sanitize_key($raw_settings['token_limit_secondary_action_type'])
+        : $default_token_limit_actions['secondary_type'];
+    $sanitized['token_limit_secondary_action_label'] = isset($raw_settings['token_limit_secondary_action_label'])
+        ? sanitize_text_field((string) $raw_settings['token_limit_secondary_action_label'])
+        : $default_token_limit_actions['secondary_label'];
+    if ($sanitized['token_limit_secondary_action_type'] === 'none') {
+        $sanitized['token_limit_secondary_action_label'] = '';
+    } elseif ($sanitized['token_limit_secondary_action_label'] === '') {
+        $sanitized['token_limit_secondary_action_label'] = class_exists(BotSettingsManager::class)
+            ? BotSettingsManager::get_token_limit_action_default_label($sanitized['token_limit_secondary_action_type'])
+            : $default_token_limit_actions['secondary_label'];
+    }
+    $sanitized['token_limit_secondary_action_url'] = isset($raw_settings['token_limit_secondary_action_url'])
+        ? esc_url_raw(trim((string) $raw_settings['token_limit_secondary_action_url']))
+        : $default_token_limit_actions['secondary_url'];
     $sanitized['model'] = isset($raw_settings['model']) ? sanitize_text_field($raw_settings['model']) : '';
     $sanitized['tts_enabled'] = (isset($raw_settings['tts_enabled']) && $raw_settings['tts_enabled'] === '1') ? '1' : '0';
     $sanitized['tts_provider'] = isset($raw_settings['tts_provider']) ? sanitize_text_field($raw_settings['tts_provider']) : BotSettingsManager::DEFAULT_TTS_PROVIDER;

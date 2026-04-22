@@ -92,6 +92,28 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
     } else {
         update_post_meta($botId, '_aipkit_token_limit_message', $sanitized_settings['token_limit_message']);
     }
+    update_post_meta($botId, '_aipkit_token_limit_primary_action_type', $sanitized_settings['token_limit_primary_action_type']);
+    if (empty($sanitized_settings['token_limit_primary_action_label'])) {
+        delete_post_meta($botId, '_aipkit_token_limit_primary_action_label');
+    } else {
+        update_post_meta($botId, '_aipkit_token_limit_primary_action_label', $sanitized_settings['token_limit_primary_action_label']);
+    }
+    if (empty($sanitized_settings['token_limit_primary_action_url'])) {
+        delete_post_meta($botId, '_aipkit_token_limit_primary_action_url');
+    } else {
+        update_post_meta($botId, '_aipkit_token_limit_primary_action_url', $sanitized_settings['token_limit_primary_action_url']);
+    }
+    update_post_meta($botId, '_aipkit_token_limit_secondary_action_type', $sanitized_settings['token_limit_secondary_action_type']);
+    if (empty($sanitized_settings['token_limit_secondary_action_label'])) {
+        delete_post_meta($botId, '_aipkit_token_limit_secondary_action_label');
+    } else {
+        update_post_meta($botId, '_aipkit_token_limit_secondary_action_label', $sanitized_settings['token_limit_secondary_action_label']);
+    }
+    if (empty($sanitized_settings['token_limit_secondary_action_url'])) {
+        delete_post_meta($botId, '_aipkit_token_limit_secondary_action_url');
+    } else {
+        update_post_meta($botId, '_aipkit_token_limit_secondary_action_url', $sanitized_settings['token_limit_secondary_action_url']);
+    }
     if (!empty($sanitized_settings['model'])) {
         update_post_meta($botId, '_aipkit_model', $sanitized_settings['model']);
     } else {

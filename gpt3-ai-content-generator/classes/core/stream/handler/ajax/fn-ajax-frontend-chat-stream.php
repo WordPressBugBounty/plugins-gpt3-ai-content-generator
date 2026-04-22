@@ -97,6 +97,10 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
             $error_data = $processed_data->get_error_data() ?: []; 
             $status_code = is_array($error_data) && isset($error_data['status']) && is_int($error_data['status']) ? $error_data['status'] : 500;
             $user_facing_message = $processed_data->get_error_message();
+            $client_error_payload = [];
+            if (is_array($error_data) && !empty($error_data['quota_notice']) && is_array($error_data['quota_notice'])) {
+                $client_error_payload['quota_notice'] = $error_data['quota_notice'];
+            }
 
             if ($triggers_enabled && class_exists($trigger_manager_class) && class_exists($trigger_storage_class)) {
                 $bot_id = isset($get_data['bot_id']) ? absint($get_data['bot_id']) : null; 
@@ -139,6 +143,10 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
                 }
                 $response_formatter->send_sse_done(); 
                 exit; 
+            } elseif (!empty($client_error_payload)) {
+                $response_formatter->send_sse_error($user_facing_message, false, $client_error_payload);
+                $response_formatter->send_sse_done();
+                exit;
             } else {
                 throw new \Exception($user_facing_message, $status_code);
             }

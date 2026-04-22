@@ -1172,6 +1172,12 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         $post_data = wp_unslash($_POST);
         $enable_pruning = isset($post_data['enable_pruning']) && $post_data['enable_pruning'] === '1';
         $retention_period = isset($post_data['retention_period_days']) ? floatval($post_data['retention_period_days']) : 90;
+        $customer_dashboard_page_url = isset($post_data['customer_dashboard_page_url'])
+            ? esc_url_raw(trim((string) $post_data['customer_dashboard_page_url']))
+            : '';
+        $customer_buycredits_url = isset($post_data['customer_buycredits_url'])
+            ? esc_url_raw(trim((string) $post_data['customer_buycredits_url']))
+            : '';
 
         if (!LogConfig::is_valid_period($retention_period)) {
             $retention_period = 90;
@@ -1188,6 +1194,16 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             'retention_period_days' => $retention_period,
         ];
         update_option('aipkit_log_settings', $settings, 'no');
+        if ($customer_dashboard_page_url === '') {
+            delete_option('aipkit_token_dashboard_page_url');
+        } else {
+            update_option('aipkit_token_dashboard_page_url', $customer_dashboard_page_url, 'no');
+        }
+        if ($customer_buycredits_url === '') {
+            delete_option('aipkit_token_shop_page_url');
+        } else {
+            update_option('aipkit_token_shop_page_url', $customer_buycredits_url, 'no');
+        }
 
         if (class_exists(LogCronManager::class)) {
             if ($enable_pruning && $is_pro) {

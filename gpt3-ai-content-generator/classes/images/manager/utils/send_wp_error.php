@@ -13,6 +13,16 @@ if (!defined('ABSPATH')) {
 
 function send_wp_error_logic(WP_Error $error): void
 {
-    $status = is_array($error->get_error_data()) && isset($error->get_error_data()['status']) ? $error->get_error_data()['status'] : 400;
-    wp_send_json_error(['message' => $error->get_error_message(), 'code' => $error->get_error_code()], $status);
+    $error_data = $error->get_error_data();
+    $status = is_array($error_data) && isset($error_data['status']) ? $error_data['status'] : 400;
+    $payload = [
+        'message' => $error->get_error_message(),
+        'code' => $error->get_error_code(),
+    ];
+
+    if (is_array($error_data) && !empty($error_data['quota_notice']) && is_array($error_data['quota_notice'])) {
+        $payload['quota_notice'] = $error_data['quota_notice'];
+    }
+
+    wp_send_json_error($payload, $status);
 }

@@ -84,7 +84,7 @@ function render_dashboard_logic(
                                   ($show_aiforms && !empty($usage_data['ai_forms'])) ||
                                   has_action('aipkit_after_token_usage_dashboard');
             ?>
-            <section class="aipkit_customer_shell aipkit_customer_shell--usage">
+            <section class="aipkit_customer_shell aipkit_customer_shell--usage" id="aipkit_customer_dashboard_usage">
                 <div class="aipkit_customer_shell_header">
                     <div class="aipkit_customer_shell_intro">
                         <h3 class="aipkit_customer_shell_title"><?php esc_html_e('Quota Usage', 'gpt3-ai-content-generator'); ?></h3>
