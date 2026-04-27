@@ -11,12 +11,6 @@ if (!defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
-use WPAICG\AIPKit_Providers;
-
-$pexels_data = AIPKit_Providers::get_provider_data('Pexels');
-$pixabay_data = AIPKit_Providers::get_provider_data('Pixabay');
-$current_pexels_api_key = $pexels_data['api_key'] ?? '';
-$current_pixabay_api_key = $pixabay_data['api_key'] ?? '';
 $image_provider_settings_url = admin_url('admin.php?page=wpaicg');
 ?>
 

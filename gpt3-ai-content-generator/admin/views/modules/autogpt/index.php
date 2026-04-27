@@ -187,26 +187,32 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 ?>
 <?php
 $aipkit_autogpt_cron_warning = '';
+$aipkit_autogpt_cron_warning_key = '';
 if (!empty($aipkit_autogpt_cron_summary)) {
     if (($aipkit_autogpt_cron_summary['state'] ?? '') === 'disabled') {
+        $aipkit_autogpt_cron_warning_key = 'autogpt-wp-cron-disabled-v1';
         $aipkit_autogpt_cron_warning = sprintf(
             /* translators: %s: URL to documentation about enabling WP-Cron. */
             __('WP-Cron is disabled. Automated tasks will not run. <a href="%s" target="_blank" rel="noopener noreferrer">Learn how to enable WP-Cron</a>.', 'gpt3-ai-content-generator'),
             esc_url('https://www.siteground.com/kb/enable-wordpress-cron/')
         );
     } elseif (($aipkit_autogpt_cron_summary['state'] ?? '') === 'overdue') {
+        $aipkit_autogpt_cron_warning_key = 'autogpt-wp-cron-overdue-v1';
         $aipkit_autogpt_cron_warning = __('WP-Cron appears delayed. Automated tasks run on page loads, so low traffic can delay runs.', 'gpt3-ai-content-generator');
     }
 }
 ?>
 <?php if (!empty($aipkit_autogpt_cron_warning)) : ?>
-<div class="aipkit_notification_bar aipkit_notification_bar--warning">
+<div class="aipkit_notification_bar aipkit_notification_bar--warning" data-aipkit-dismissible-notice="<?php echo esc_attr($aipkit_autogpt_cron_warning_key); ?>">
     <div class="aipkit_notification_bar__icon" aria-hidden="true">
         <span class="dashicons dashicons-clock"></span>
     </div>
     <div class="aipkit_notification_bar__content">
         <p><?php echo wp_kses_post($aipkit_autogpt_cron_warning); ?></p>
     </div>
+    <button type="button" class="aipkit_notification_bar__close" data-aipkit-dismiss-notice aria-label="<?php esc_attr_e('Dismiss notice', 'gpt3-ai-content-generator'); ?>">
+        &times;
+    </button>
 </div>
 <?php endif; ?>
 <div class="aipkit_container aipkit_module_autogpt" id="aipkit_autogpt_container">

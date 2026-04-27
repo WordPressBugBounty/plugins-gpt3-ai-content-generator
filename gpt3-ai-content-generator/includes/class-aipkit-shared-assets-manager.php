@@ -14,7 +14,6 @@ if (!defined('ABSPATH')) {
  * AIPKit_Shared_Assets_Manager
  * Handles registering scripts shared across admin and public contexts.
  * REVISED: Only registers vendor scripts. Core utils are now part of main bundles.
- * MODIFIED: jsPDF registration moved to lib/wpaicg__premium_only.php.
  */
 class AIPKit_Shared_Assets_Manager
 {
@@ -55,10 +54,6 @@ class AIPKit_Shared_Assets_Manager
             'chatPdf' => self::get_versioned_asset_url('dist/js/public-chat-pdf.bundle.js'),
         ];
 
-        if (wp_script_is('aipkit_jspdf', 'registered')) {
-            $asset_urls['jspdf'] = self::get_versioned_asset_url('lib/js/jspdf.umd.min.js');
-        }
-
         return $asset_urls;
     }
 
@@ -77,8 +72,6 @@ class AIPKit_Shared_Assets_Manager
         if (!wp_script_is('aipkit_markdown-it', 'registered')) {
             wp_register_script('aipkit_markdown-it', $markdownit_url, [], '14.1.0', true); // Assuming version from previous config
         }
-
-        // --- jsPDF registration has been moved to lib/wpaicg__premium_only.php ---
 
         // Note: Core utility scripts like btn-utils, html-escaper, date-utils
         // are now imported directly into admin-main.js or public-main.js and bundled.

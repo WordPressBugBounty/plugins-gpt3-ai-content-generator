@@ -150,47 +150,6 @@ $aipkit_cw_render_image_settings_popover = $aipkit_cw_image_display_settings_ren
 
                 <div id="aipkit_cw_image_provider_options_block" hidden>
                     <div id="aipkit_cw_pexels_options" hidden>
-                        <div class="aipkit_popover_option_row aipkit_popover_option_row--section">
-                            <div class="aipkit_popover_option_main">
-                                <span class="aipkit_popover_option_section_title"><?php esc_html_e('Pexels', 'gpt3-ai-content-generator'); ?></span>
-                            </div>
-                        </div>
-
-                        <div class="aipkit_popover_option_row">
-                            <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
-                                <div class="aipkit_popover_option_header">
-                                    <div class="aipkit_cw_settings_option_text">
-                                        <label class="aipkit_popover_option_label" for="aipkit_cw_pexels_api_key">
-                                            <?php esc_html_e('API Key', 'gpt3-ai-content-generator'); ?>
-                                        </label>
-                                        <span class="aipkit_popover_option_helper">
-                                            <?php esc_html_e('Required to fetch images from Pexels.', 'gpt3-ai-content-generator'); ?>
-                                        </span>
-                                    </div>
-                                    <a href="https://www.pexels.com/api/" target="_blank" rel="noopener noreferrer" class="aipkit_image_get_key_link">
-                                        <?php esc_html_e('Get key', 'gpt3-ai-content-generator'); ?>
-                                        <span class="dashicons dashicons-external" aria-hidden="true"></span>
-                                    </a>
-                                </div>
-                                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                                    <input
-                                        type="password"
-                                        id="aipkit_cw_pexels_api_key"
-                                        name="pexels_api_key"
-                                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_cw_stock_api_key"
-                                        value="<?php echo esc_attr($current_pexels_api_key); ?>"
-                                        placeholder="<?php esc_attr_e('Enter API key', 'gpt3-ai-content-generator'); ?>"
-                                        autocomplete="new-password"
-                                        data-lpignore="true"
-                                        data-1p-ignore="true"
-                                    />
-                                    <span class="aipkit_api-key-toggle">
-                                        <span class="dashicons dashicons-visibility"></span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="aipkit_popover_option_row">
                             <div class="aipkit_popover_option_main">
                                 <div class="aipkit_cw_settings_option_text">
@@ -247,47 +206,6 @@ $aipkit_cw_render_image_settings_popover = $aipkit_cw_image_display_settings_ren
                     </div>
 
                     <div id="aipkit_cw_pixabay_options" hidden>
-                        <div class="aipkit_popover_option_row aipkit_popover_option_row--section">
-                            <div class="aipkit_popover_option_main">
-                                <span class="aipkit_popover_option_section_title"><?php esc_html_e('Pixabay', 'gpt3-ai-content-generator'); ?></span>
-                            </div>
-                        </div>
-
-                        <div class="aipkit_popover_option_row">
-                            <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
-                                <div class="aipkit_popover_option_header">
-                                    <div class="aipkit_cw_settings_option_text">
-                                        <label class="aipkit_popover_option_label" for="aipkit_cw_pixabay_api_key">
-                                            <?php esc_html_e('API Key', 'gpt3-ai-content-generator'); ?>
-                                        </label>
-                                        <span class="aipkit_popover_option_helper">
-                                            <?php esc_html_e('Required to fetch images from Pixabay.', 'gpt3-ai-content-generator'); ?>
-                                        </span>
-                                    </div>
-                                    <a href="https://pixabay.com/api/docs/" target="_blank" rel="noopener noreferrer" class="aipkit_image_get_key_link">
-                                        <?php esc_html_e('Get key', 'gpt3-ai-content-generator'); ?>
-                                        <span class="dashicons dashicons-external" aria-hidden="true"></span>
-                                    </a>
-                                </div>
-                                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
-                                    <input
-                                        type="password"
-                                        id="aipkit_cw_pixabay_api_key"
-                                        name="pixabay_api_key"
-                                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_cw_stock_api_key"
-                                        value="<?php echo esc_attr($current_pixabay_api_key); ?>"
-                                        placeholder="<?php esc_attr_e('Enter API key', 'gpt3-ai-content-generator'); ?>"
-                                        autocomplete="new-password"
-                                        data-lpignore="true"
-                                        data-1p-ignore="true"
-                                    />
-                                    <span class="aipkit_api-key-toggle">
-                                        <span class="dashicons dashicons-visibility"></span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="aipkit_popover_option_row">
                             <div class="aipkit_popover_option_main">
                                 <div class="aipkit_cw_settings_option_text">

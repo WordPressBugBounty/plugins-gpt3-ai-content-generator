@@ -47,9 +47,6 @@ class Chat_Download_Asset_Registrar {
 
         if (file_exists($pdf_download_script_path)) {
             $pdf_script_actual_deps = array_values($download_helper_deps);
-            if (isset($dependencies['jspdf']) && wp_script_is($dependencies['jspdf'], 'registered')) {
-                $pdf_script_actual_deps[] = $dependencies['jspdf'];
-            }
             if (!wp_script_is($pdf_download_handle, 'registered')) {
                 wp_register_script($pdf_download_handle, $pdf_download_script_url, $pdf_script_actual_deps, $version, true);
             }

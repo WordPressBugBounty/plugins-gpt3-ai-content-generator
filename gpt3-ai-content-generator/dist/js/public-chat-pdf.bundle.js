@@ -1,5 +1,90 @@
-(()=>{(function(){"use strict";let I={user:[29,78,216],bot:[17,24,39],error:[185,28,28]};function D(t){let e=t.internal.pageSize;return typeof e.getWidth=="function"?e.getWidth():e.width}function T(t){let e=t.internal.pageSize;return typeof e.getHeight=="function"?e.getHeight():e.height}function p(t,e){t.setTextColor(e[0],e[1],e[2])}function C(t,e){t.setDrawColor(e[0],e[1],e[2])}function B(t,e){t.setFillColor(e[0],e[1],e[2])}function H(t,e=1.35){return t*.3528*e}function k(t,e){let n=t&&t.messagesEl?t.messagesEl:null;return function(i,r="info",l=!0,o=4500){if(typeof window.aipkit_chatUI_showInlineNotice=="function"){window.aipkit_chatUI_showInlineNotice(i,r,{elements:t,config:e,messagesEl:n},l,o);return}r==="error"&&alert(i)}}function N(t){return{marginX:16,marginTop:18,marginBottom:16,pageWidth:D(t),pageHeight:T(t),y:18}}function S(t){return t.pageWidth-t.marginX*2}function w(t,e,n=0){let i=e.pageHeight-e.marginBottom;e.y+n<=i||(t.addPage(),e.pageWidth=D(t),e.pageHeight=T(t),e.y=e.marginTop)}function m(t,e,n,i={}){let r=String(n||"");if(!r)return;let l=i.fontName||"helvetica",o=i.fontStyle||"normal",c=i.fontSize||11,f=i.lineHeight||H(c,i.lineHeightFactor||1.35),s=i.indent||0,u=i.rightIndent||0,a=e.marginX+s,h=Math.max(24,S(e)-s-u);t.setFont(l,o),t.setFontSize(c),p(t,i.color||[31,41,55]),t.splitTextToSize(r,h).forEach(d=>{w(t,e,f),t.text(d,a,e.y),e.y+=f}),e.y+=i.after||0}function W(t,e,n,i,r={}){let l=String(i||"").trim();if(!l)return;let o=r.fontName||"helvetica",c=r.fontStyle||"normal",f=r.fontSize||11,s=r.indent||0,u=r.lineHeight||H(f,r.lineHeightFactor||1.35),a=e.marginX+s,h=Math.max(24,S(e)-s);t.setFont(o,c),t.setFontSize(f),p(t,r.color||[31,41,55]);let g=t.getTextWidth(n),d=Math.max(18,h-g);t.splitTextToSize(l,d).forEach((q,Q)=>{w(t,e,u),Q===0&&t.text(n,a,e.y),t.text(q,a+g,e.y),e.y+=u}),e.y+=r.after||0}function F(t,e,n=1.5,i=4){e.y+=n,w(t,e,1),C(t,[226,232,240]),t.setLineWidth(.35),t.line(e.marginX,e.y,e.pageWidth-e.marginX,e.y),e.y+=i}function P(t,e){e.length&&(t.push({type:"paragraph",text:e.join(" ").replace(/\s+/g," ").trim()}),e.length=0)}function y(t,e){e.items.length&&(t.push({type:"list",ordered:e.ordered,items:e.items.slice()}),e.items.length=0,e.ordered=null)}function z(t,e){e.length&&(t.push({type:"quote",lines:e.slice()}),e.length=0)}function E(t,e){e.length&&(t.push({type:"table",rows:e.slice()}),e.length=0)}function _(t,e){e.length&&(t.push({type:"code",text:e.join(`
-`)}),e.length=0)}function x(t,e,n,i,r){P(t,e),y(t,n),z(t,i),E(t,r)}function v(t){let e=String(t||"").replace(/\r\n?/g,`
-`).split(`
-`),n=[],i=[],r={ordered:null,items:[]},l=[],o=[],c=[],f=!1;return e.forEach(s=>{let a=s.replace(/\t/g,"    ").trim();if(a.startsWith("```")){f?(_(n,c),f=!1):(x(n,i,r,l,o),f=!0);return}if(f){c.push(s);return}if(!a){x(n,i,r,l,o);return}if(/^---+$/.test(a)){x(n,i,r,l,o),n.push({type:"rule"});return}let h=a.match(/^(#{1,6})\s+(.*)$/);if(h){x(n,i,r,l,o),n.push({type:"heading",level:h[1].length,text:h[2].trim()});return}let g=a.match(/^>\s?(.*)$/);if(g){P(n,i),y(n,r),E(n,o),l.push(g[1]);return}let d=a.match(/^([-*]|\d+\.)\s+(.*)$/);if(d){let b=/\d+\./.test(d[1]);P(n,i),z(n,l),E(n,o),r.ordered!==null&&r.ordered!==b&&y(n,r),r.ordered=b,r.items.push(d[2].trim());return}if(/^\|.*\|$/.test(a)||a.includes(" | ")){P(n,i),y(n,r),z(n,l),o.push(a);return}y(n,r),z(n,l),E(n,o),i.push(a)}),f&&_(n,c),x(n,i,r,l,o),n}function X(t,e,n){let r=H(9.5,1.25),l=3,o=3,c=S(e)-l*2;t.setFont("courier","normal"),t.setFontSize(9.5);let f=[];String(n||"").split(`
-`).forEach(a=>{let h=a===""?" ":a,g=t.splitTextToSize(h,c);if(!g.length){f.push(" ");return}f.push(...g)});let s=f.length*r+o*2;w(t,e,s+2),B(t,[248,250,252]),C(t,[226,232,240]),t.roundedRect(e.marginX,e.y,S(e),s,2,2,"FD");let u=e.y+o+r*.82;p(t,[30,41,59]),f.forEach(a=>{t.text(a,e.marginX+l,u),u+=r}),e.y+=s+5}function $(t,e,n){let i=[71,85,105];n.forEach(r=>{W(t,e,"> ",r,{fontSize:10.5,fontStyle:"italic",color:i,indent:2,after:.6})}),e.y+=1.8}function A(t,e,n){n.items.forEach((i,r)=>{let l=n.ordered?`${r+1}. `:"\u2022 ";W(t,e,l,i,{fontSize:11,color:[31,41,55],indent:3,after:.6})}),e.y+=1.6}function j(t,e,n){n.forEach(i=>{m(t,e,i,{fontName:"courier",fontSize:9.5,color:[51,65,85],indent:2,after:.4})}),e.y+=1.8}function U(t,e,n){let i={1:15,2:14,3:13,4:12,5:11.5,6:11};m(t,e,n.text,{fontSize:i[n.level]||12,fontStyle:"bold",color:[15,23,42],after:2.2})}function M(t,e,n){let i=v(n.text);if(!i.length){m(t,e,n.text,{fontSize:11,color:[31,41,55],after:3});return}i.forEach(r=>{switch(r.type){case"heading":U(t,e,r);break;case"list":A(t,e,r);break;case"quote":$(t,e,r.lines);break;case"code":X(t,e,r.text);break;case"rule":F(t,e,.6,3);break;case"table":j(t,e,r.rows);break;case"paragraph":default:m(t,e,r.text,{fontSize:11,color:[31,41,55],after:2.6});break}})}function K(t,e,n,i){w(t,e,16);let r=I[n.role]||I.bot,l=String(n.label||"Bot").toUpperCase();t.setFont("helvetica","bold"),t.setFontSize(10.5),p(t,r),t.text(l,e.marginX,e.y),t.setFont("helvetica","normal"),t.setFontSize(9.5),p(t,[100,116,139]),t.text(`#${i+1}`,e.pageWidth-e.marginX,e.y,{align:"right"}),e.y+=3.2,F(t,e,0,3.2)}function L(t,e,n){t.setFont("helvetica","bold"),t.setFontSize(18),p(t,[15,23,42]),t.text(n.title||"Chat Transcript",e.marginX,e.y),e.y+=8,m(t,e,`Bot: ${n.botName||"Bot"}`,{fontSize:10.5,fontStyle:"bold",color:[55,65,81],after:1}),m(t,e,`Exported: ${n.exportedAt||""}`,{fontSize:9.5,color:[100,116,139],after:2.5}),F(t,e,0,4.5)}function O(t){let e=t.internal.getNumberOfPages(),n=T(t),i=D(t);for(let r=1;r<=e;r+=1)t.setPage(r),t.setFont("helvetica","normal"),t.setFontSize(9),p(t,[148,163,184]),t.text(`Page ${r} of ${e}`,i-16,n-8,{align:"right"})}function R(t,e){let n=t&&t.messagesEl?t.messagesEl:null,i=k(t,e);if(!n||!e||!e.text){console.error("AIPKit Download PDF: Missing messages element or config.");return}if(typeof window.aipkit_chatUI_buildTranscriptDocument!="function"||typeof window.aipkit_chatUI_generateDownloadFilename!="function"){console.error("AIPKit Download PDF: Transcript export or filename helper not found."),i(e.text?.downloadPrepareError||"Error: Could not prepare download.","error",!0,7e3);return}if(typeof window.jspdf>"u"||typeof window.jspdf.jsPDF>"u"){console.error("AIPKit Download PDF: jsPDF library is not loaded."),i(e.text?.pdfError||"Could not generate PDF. jsPDF library might be missing.","error",!0,7e3);return}let r=window.aipkit_chatUI_buildTranscriptDocument(n,e);if(!r.entries.length){console.warn("AIPKit Chat Download PDF: No transcript content found."),i(e.text.downloadEmpty||"Nothing to download.","info",!0);return}let{jsPDF:l}=window.jspdf,o=new l({unit:"mm",format:"a4"}),c=N(o);L(o,c,r),r.entries.forEach((s,u)=>{K(o,c,s,u),M(o,c,s),u<r.entries.length-1&&F(o,c,.8,4.5)}),O(o);let f=window.aipkit_chatUI_generateDownloadFilename(e,"pdf");try{o.save(f)}catch(s){console.error("AIPKit Download PDF: Error calling doc.save()",s),i(e.text?.downloadPrepareError||"An error occurred while generating the PDF.","error",!0,7e3)}}window.aipkit_chatUI_downloadTranscriptActionPdf=R})();})();
+(()=>{(function(){"use strict";function l(t,e){let n=t&&t.messagesEl?t.messagesEl:null;return function(i,o="info",s=!0,r=4500){if(typeof window.aipkit_chatUI_showInlineNotice=="function"){window.aipkit_chatUI_showInlineNotice(i,o,{elements:t,config:e,messagesEl:n},s,r);return}o==="error"&&alert(i)}}function a(t){return String(t??"").replace(/[&<>"']/g,e=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[e])}function c(t){return a(t).replace(/\n/g,"<br>")}function d(t){return t==="user"?"user":t==="error"?"error":"bot"}function u(t){let e=t.title||"Chat Transcript",n=t.entries.map((i,o)=>`
+            <section class="aipkit-print-message aipkit-print-message--${d(i.role)}">
+                <header>
+                    <span>${a(i.label||"Bot")}</span>
+                    <small>#${o+1}</small>
+                </header>
+                <div class="aipkit-print-message-body">${c(i.text)}</div>
+            </section>
+        `).join("");return`<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>${a(e)}</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            color: #111827;
+            font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #ffffff;
+        }
+        main {
+            width: min(760px, calc(100% - 48px));
+            margin: 36px auto;
+        }
+        h1 {
+            margin: 0 0 6px;
+            font-size: 22px;
+            line-height: 1.25;
+        }
+        .aipkit-print-meta {
+            margin: 0 0 22px;
+            color: #64748b;
+            font-size: 12px;
+        }
+        .aipkit-print-message {
+            break-inside: avoid;
+            margin: 0 0 18px;
+            padding: 0 0 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .aipkit-print-message header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 0 0 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .aipkit-print-message header small {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .aipkit-print-message--user header { color: #1d4ed8; }
+        .aipkit-print-message--bot header { color: #111827; }
+        .aipkit-print-message--error header { color: #b91c1c; }
+        .aipkit-print-message-body {
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        @page { margin: 16mm; }
+        @media print {
+            main {
+                width: auto;
+                margin: 0;
+            }
+            .aipkit-print-message {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>${a(e)}</h1>
+        <p class="aipkit-print-meta">
+            ${a(t.botName||"Bot")} - ${a(t.exportedAt||"")}
+        </p>
+        ${n}
+    </main>
+    <script>
+        window.addEventListener('load', function() {
+            window.focus();
+            setTimeout(function() { window.print(); }, 100);
+        });
+    <\/script>
+</body>
+</html>`}function p(t){t&&!t.closed&&typeof t.close=="function"&&t.close()}function m(t,e,n=null){let i=t&&t.messagesEl?t.messagesEl:null,o=l(t,e);if(!i||!e||!e.text){console.error("AIPKit Print PDF: Missing messages element or config."),p(n);return}if(typeof window.aipkit_chatUI_buildTranscriptDocument!="function"){console.error("AIPKit Print PDF: Transcript export helper not found."),p(n),o(e.text?.downloadPrepareError||"Error: Could not prepare download.","error",!0,7e3);return}let s=window.aipkit_chatUI_buildTranscriptDocument(i,e);if(!s.entries.length){console.warn("AIPKit Chat Print PDF: No transcript content found."),p(n),o(e.text.downloadEmpty||"Nothing to download.","info",!0);return}let r=n||window.open("","_blank");if(!r){o(e.text?.pdfError||"Could not open the print window. Please allow popups and try again.","error",!0,7e3);return}r.opener=null,r.document.open(),r.document.write(u(s)),r.document.close()}window.aipkit_chatUI_downloadTranscriptActionPdf=m})();})();

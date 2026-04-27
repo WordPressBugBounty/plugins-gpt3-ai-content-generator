@@ -49,7 +49,7 @@ function get_text_labels_logic(array $settings, array $consent_texts): array {
         'downloadTxt' => __('Download TXT', 'gpt3-ai-content-generator'),
         'downloadPdf' => __('Download PDF', 'gpt3-ai-content-generator'),
         'downloadEmpty' => __('Nothing to download.', 'gpt3-ai-content-generator'),
-        'pdfError' => __('Could not generate PDF. jsPDF library might be missing.', 'gpt3-ai-content-generator'),
+        'pdfError' => __('Could not open the print window. Please allow popups and try again.', 'gpt3-ai-content-generator'),
         'streamError' => __('Stream error. Please try again.', 'gpt3-ai-content-generator'),
         'connError' => __('Connection error. Please try again.', 'gpt3-ai-content-generator'),
         'initialGreeting' => $settings['greeting'] ?? __('Hello there!', 'gpt3-ai-content-generator'),

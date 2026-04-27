@@ -195,12 +195,8 @@ class AIPKit_AI_Form_Shortcode
             'script',
             'aipkit-lib-ai-forms-download-pdf',
             'lib/js/ai-forms/download/download-as-pdf.js',
-            ['aipkit-public-ai-forms-js', 'aipkit_jspdf']
+            ['aipkit-public-ai-forms-js']
         );
-
-        if (wp_script_is('aipkit_jspdf', 'registered') && !wp_script_is('aipkit_jspdf', 'enqueued')) {
-            wp_enqueue_script('aipkit_jspdf');
-        }
 
         if (wp_script_is('aipkit-lib-ai-forms-download-pdf', 'registered') && !wp_script_is('aipkit-lib-ai-forms-download-pdf', 'enqueued')) {
             wp_enqueue_script('aipkit-lib-ai-forms-download-pdf');
@@ -226,7 +222,6 @@ class AIPKit_AI_Form_Shortcode
             $handles[] = 'aipkit-lib-ai-forms-conversation';
 
             if ($include_pdf_download) {
-                $handles[] = 'aipkit_jspdf';
                 $handles[] = 'aipkit-lib-ai-forms-download-pdf';
             }
         }
@@ -304,7 +299,7 @@ class AIPKit_AI_Form_Shortcode
         $show_provider = filter_var($atts['show_provider'], FILTER_VALIDATE_BOOLEAN);
         $show_model = filter_var($atts['show_model'], FILTER_VALIDATE_BOOLEAN);
         $show_save_button = filter_var($atts['save_button'], FILTER_VALIDATE_BOOLEAN);
-        $show_pdf_download = filter_var($atts['pdf_download'], FILTER_VALIDATE_BOOLEAN);
+        $show_pdf_download = filter_var($atts['pdf_download'], FILTER_VALIDATE_BOOLEAN) && $this->is_pro_plan_active();
         $show_copy_button = filter_var($atts['copy_button'], FILTER_VALIDATE_BOOLEAN);
 
         // 1. Validate ID Attribute
@@ -330,13 +325,6 @@ class AIPKit_AI_Form_Shortcode
         $this->enqueue_public_assets($frontend_display_settings);
         $this->enqueue_pro_ai_forms_public_assets($show_pdf_download);
         $late_asset_fallbacks = $this->render_late_asset_fallbacks($show_pdf_download);
-
-        // 4. Conditionally enqueue jsPDF
-        if ($show_pdf_download && class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan()) {
-            if (wp_script_is('aipkit_jspdf', 'registered') && !wp_script_is('aipkit_jspdf', 'enqueued')) {
-                wp_enqueue_script('aipkit_jspdf');
-            }
-        }
 
         // 5. Mark as rendered
         self::$rendered_form_ids[$form_id] = true;

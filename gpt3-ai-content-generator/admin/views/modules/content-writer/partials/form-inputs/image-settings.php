@@ -5,7 +5,6 @@ if (!defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
-use WPAICG\AIPKit_Providers;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
 $prompt_library = AIPKit_Content_Writer_Prompts::get_prompt_library();
@@ -19,10 +18,6 @@ $default_image_title_prompt_update = AIPKit_Content_Writer_Prompts::get_default_
 $default_image_alt_text_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt_update();
 $default_image_caption_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt_update();
 $default_image_description_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_description_prompt_update();
-$pexels_data = AIPKit_Providers::get_provider_data('Pexels');
-$pixabay_data = AIPKit_Providers::get_provider_data('Pixabay');
-$current_pexels_api_key = $pexels_data['api_key'] ?? '';
-$current_pixabay_api_key = $pixabay_data['api_key'] ?? '';
 $render_prompt_library_options = static function(array $options, string $mode = ''): void {
     foreach ($options as $option) {
         if (empty($option['label']) || empty($option['prompt'])) {

@@ -56,11 +56,15 @@ class AssetsEnqueuer
         // Main public CSS bundle (dist/css/public-main.bundle.css)
         $public_main_css_handle = 'aipkit-public-main-css';
         if (!wp_style_is($public_main_css_handle, 'registered')) {
+            $public_main_css_file = WPAICG_PLUGIN_DIR . 'dist/css/public-main.bundle.css';
+            $public_main_css_version = file_exists($public_main_css_file)
+                ? (string) filemtime($public_main_css_file)
+                : (defined('WPAICG_VERSION') ? WPAICG_VERSION : '1.0.0');
             wp_register_style(
                 $public_main_css_handle,
                 WPAICG_PLUGIN_URL . 'dist/css/public-main.bundle.css',
                 [],
-                defined('WPAICG_VERSION') ? WPAICG_VERSION : '1.0.0'
+                $public_main_css_version
             );
         }
         // --- MODIFIED: Enqueue public-main.bundle.css if needed ---
@@ -76,7 +80,7 @@ class AssetsEnqueuer
         // Registration is now handled by AssetsDependencyRegistrar and potentially modified by lib/wpaicg__premium_only.php
         // So, just check if it's registered before trying to enqueue.
         if (!wp_script_is($public_main_js_handle, 'registered')) {
-            // Fallback registration if somehow missed, without jspdf
+            // Fallback registration if somehow missed.
             wp_register_script(
                 $public_main_js_handle,
                 WPAICG_PLUGIN_URL . 'dist/js/public-main.bundle.js',

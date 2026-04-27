@@ -187,8 +187,27 @@ $available_count = count($available_modules);
                             );
                             ?>
                         </li>
-                        <li><?php esc_html_e('Select your provider and enter your API key.', 'gpt3-ai-content-generator'); ?></li>
-                        <li><?php esc_html_e('Open any module and start using.', 'gpt3-ai-content-generator'); ?></li>
+                        <li><?php esc_html_e('Select your provider and enter your API key. That\'s it!', 'gpt3-ai-content-generator'); ?></li>
+                        <li>
+                            <?php
+                            $documentation_link = '<a href="https://docs.aipower.org/" target="_blank" rel="noopener noreferrer">' . esc_html__('documentation', 'gpt3-ai-content-generator') . '</a>';
+                            $aipkit_documentation_step = sprintf(
+                                /* translators: %s: link to AI Power documentation. */
+                                __('Need help? Check out our %s.', 'gpt3-ai-content-generator'),
+                                $documentation_link
+                            );
+                            echo wp_kses(
+                                $aipkit_documentation_step,
+                                [
+                                    'a' => [
+                                        'href' => [],
+                                        'target' => [],
+                                        'rel' => [],
+                                    ],
+                                ]
+                            );
+                            ?>
+                        </li>
                     </ol>
                 </div>
             </section>

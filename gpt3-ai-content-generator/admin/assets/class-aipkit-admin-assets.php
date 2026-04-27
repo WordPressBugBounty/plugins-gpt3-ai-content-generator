@@ -394,15 +394,6 @@ class ChatAdminAssets extends AIPKit_Admin_Asset_Base
 
         $this->enqueue_admin_main_script($admin_js_version);
         $this->enqueue_public_main_script($public_js_version);
-
-        if (
-            class_exists(aipkit_dashboard::class) &&
-            aipkit_dashboard::is_pro_plan() &&
-            wp_script_is('aipkit_jspdf', 'registered') &&
-            ! wp_script_is('aipkit_jspdf', 'enqueued')
-        ) {
-            wp_enqueue_script('aipkit_jspdf');
-        }
     }
 
     private function localize_chat_data(): void

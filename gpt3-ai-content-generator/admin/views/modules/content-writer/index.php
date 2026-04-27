@@ -34,7 +34,7 @@ $aipkit_notice_id = 'aipkit_provider_notice_content_writer';
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 ?>
 <?php if (!empty($aipkit_cw_timeout_warnings)) : ?>
-<div class="aipkit_notification_bar aipkit_notification_bar--warning">
+<div class="aipkit_notification_bar aipkit_notification_bar--warning" data-aipkit-dismissible-notice="content-writer-low-php-timeouts-v1">
     <div class="aipkit_notification_bar__icon" aria-hidden="true">
         <span class="dashicons dashicons-clock"></span>
     </div>
@@ -52,6 +52,9 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
             ?>
         </p>
     </div>
+    <button type="button" class="aipkit_notification_bar__close" data-aipkit-dismiss-notice aria-label="<?php esc_attr_e('Dismiss notice', 'gpt3-ai-content-generator'); ?>">
+        &times;
+    </button>
 </div>
 <?php endif; ?>
 <div class="aipkit_container aipkit_module_content_writer" id="aipkit_content_writer_container">
