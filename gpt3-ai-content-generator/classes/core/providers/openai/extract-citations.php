@@ -255,6 +255,9 @@ function normalize_openai_citation_logic_for_response_parser(array $citation, st
 
     if ($type !== '') {
         $normalized['type'] = $type === 'url_citation' ? 'char_location' : $type;
+        if (in_array($type, ['file_citation', 'file_path'], true)) {
+            $normalized['source_type'] = 'knowledge_base';
+        }
     }
 
     if (isset($citation['url']) && is_string($citation['url']) && trim($citation['url']) !== '') {
@@ -270,6 +273,7 @@ function normalize_openai_citation_logic_for_response_parser(array $citation, st
 
     if (isset($citation['filename']) && is_string($citation['filename']) && trim($citation['filename']) !== '') {
         $normalized['document_title'] = trim($citation['filename']);
+        $normalized['source_type'] = 'knowledge_base';
         if (!isset($normalized['title'])) {
             $normalized['title'] = trim($citation['filename']);
         }
