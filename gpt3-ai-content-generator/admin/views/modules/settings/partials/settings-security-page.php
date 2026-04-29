@@ -47,50 +47,40 @@ $pricing_url = admin_url('admin.php?page=wpaicg-pricing');
         <?php esc_html_e('IP Anonymization', 'gpt3-ai-content-generator'); ?>
         <span class="aipkit_form-label-helper"><?php esc_html_e('Store anonymized IPs in logs.', 'gpt3-ai-content-generator'); ?></span>
     </label>
-    <div class="aipkit_settings_security_toggle">
-        <label class="aipkit_switch" for="aipkit_settings_enable_ip_anonymization">
-            <input
-                type="checkbox"
-                id="aipkit_settings_enable_ip_anonymization"
-                name="security[enable_ip_anonymization]"
-                value="1"
-                class="aipkit_autosave_trigger"
-                <?php checked($enable_ip_anonymization, '1'); ?>
-            />
-            <span class="aipkit_switch_slider"></span>
-        </label>
-    </div>
+    <select
+        id="aipkit_settings_enable_ip_anonymization"
+        name="security[enable_ip_anonymization]"
+        class="aipkit_form-input aipkit_autosave_trigger"
+    >
+        <option value="1" <?php selected($enable_ip_anonymization, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+        <option value="0" <?php selected($enable_ip_anonymization, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+    </select>
 </div>
 
 <div class="aipkit_form-group aipkit_settings_simple_row">
     <label class="aipkit_form-label" for="aipkit_settings_openai_moderation_enabled">
         <?php esc_html_e('OpenAI Moderation', 'gpt3-ai-content-generator'); ?>
     </label>
-    <div class="aipkit_settings_security_toggle aipkit_settings_security_toggle--stacked">
-        <?php if ($openai_moderation_available) : ?>
-            <label class="aipkit_switch" for="aipkit_settings_openai_moderation_enabled">
-                <input
-                    type="checkbox"
-                    id="aipkit_settings_openai_moderation_enabled"
-                    name="security[openai_moderation_enabled]"
-                    value="1"
-                    class="aipkit_autosave_trigger"
-                    <?php checked($openai_moderation_enabled, '1'); ?>
-                />
-                <span class="aipkit_switch_slider"></span>
-            </label>
-        <?php else : ?>
-            <label class="aipkit_switch aipkit_switch--disabled" for="aipkit_settings_openai_moderation_enabled_disabled">
-                <input
-                    type="checkbox"
-                    id="aipkit_settings_openai_moderation_enabled_disabled"
-                    value="1"
-                    <?php checked($openai_moderation_enabled, '1'); ?>
-                    disabled
-                    aria-disabled="true"
-                />
-                <span class="aipkit_switch_slider"></span>
-            </label>
+    <?php if ($openai_moderation_available) : ?>
+        <select
+            id="aipkit_settings_openai_moderation_enabled"
+            name="security[openai_moderation_enabled]"
+            class="aipkit_form-input aipkit_autosave_trigger"
+        >
+            <option value="1" <?php selected($openai_moderation_enabled, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+            <option value="0" <?php selected($openai_moderation_enabled, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+        </select>
+    <?php else : ?>
+        <div class="aipkit_settings_security_field_group">
+            <select
+                id="aipkit_settings_openai_moderation_enabled"
+                class="aipkit_form-input"
+                disabled
+                aria-disabled="true"
+            >
+                <option value="1" <?php selected($openai_moderation_enabled, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                <option value="0" <?php selected($openai_moderation_enabled, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+            </select>
             <input
                 type="hidden"
                 name="security[openai_moderation_enabled]"
@@ -109,8 +99,8 @@ $pricing_url = admin_url('admin.php?page=wpaicg-pricing');
             >
                 <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
             </a>
-        <?php endif; ?>
-    </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?php if ($openai_moderation_available) : ?>

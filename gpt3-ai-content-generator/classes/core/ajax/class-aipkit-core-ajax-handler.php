@@ -1,7 +1,6 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/core/ajax/class-aipkit-core-ajax-handler.php
-// Status: MODIFIED
 
 namespace WPAICG\Core\Ajax;
 
@@ -398,7 +397,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
     {
         $page = isset($post_data['page']) ? max(1, absint($post_data['page'])) : 1;
         $per_page = isset($post_data['per_page']) ? absint($post_data['per_page']) : 10;
-        $per_page = min(50, max(1, $per_page));
+        $per_page = min(100, max(1, $per_page));
 
         $provider_key = isset($post_data['provider']) ? sanitize_key($post_data['provider']) : '';
         $provider_label = $provider_key && isset($provider_map[$provider_key]) ? $provider_map[$provider_key] : '';
@@ -623,8 +622,8 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
      */
     public function ajax_get_cpt_indexing_options()
     {
-        $permission_check = $this->check_module_access_permissions(
-            'sources',
+        $permission_check = $this->check_any_module_access_permissions(
+            ['settings', 'sources'],
             'aipkit_ai_training_settings_nonce'
         );
         if (is_wp_error($permission_check)) {
@@ -684,8 +683,8 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
      */
     public function ajax_save_cpt_indexing_options()
     {
-        $permission_check = $this->check_module_access_permissions(
-            'sources',
+        $permission_check = $this->check_any_module_access_permissions(
+            ['settings', 'sources'],
             'aipkit_ai_training_settings_nonce'
         );
         if (is_wp_error($permission_check)) {
@@ -702,7 +701,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
-        // --- NEW: Handle general settings separately ---
+        // General settings are stored separately from provider indexing settings.
         $general_settings = get_option('aipkit_training_general_settings', []);
         $general_dirty = false;
         if (isset($settings['hide_user_uploads'])) {
@@ -757,7 +756,11 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         if ($general_dirty) {
             update_option('aipkit_training_general_settings', $general_settings);
         }
-        // --- END NEW ---
+
+        if (empty($settings)) {
+            wp_send_json_success(['message' => __('Indexing settings saved successfully.', 'gpt3-ai-content-generator')]);
+            return;
+        }
 
         // Sanitize the settings array
         $sanitized_settings = [];

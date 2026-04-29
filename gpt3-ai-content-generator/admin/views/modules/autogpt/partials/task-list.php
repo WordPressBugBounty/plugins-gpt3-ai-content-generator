@@ -29,7 +29,7 @@ if (!defined('ABSPATH')) {
     </div>
 
     <div class="aipkit_autogpt_overview_body">
-        <div class="aipkit_data-table aipkit_sources_table aipkit_autogpt_tasks_table">
+        <div class="aipkit_data-table aipkit_autogpt_tasks_table">
             <table>
                 <colgroup class="aipkit_autogpt_tasks_columns">
                     <col class="aipkit_autogpt_tasks_col aipkit_autogpt_tasks_col--name">

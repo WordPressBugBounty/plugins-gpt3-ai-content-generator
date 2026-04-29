@@ -98,7 +98,7 @@ if ($aipkit_cron_state === 'disabled') {
         </div>
     </div>
     <div class="aipkit_autogpt_overview_body">
-        <div id="aipkit_automated_task_queue_viewer_area" class="aipkit_data-table aipkit_sources_table aipkit_autogpt_queue_table">
+        <div id="aipkit_automated_task_queue_viewer_area" class="aipkit_data-table aipkit_autogpt_queue_table">
             <table>
                 <thead>
                     <tr>

@@ -261,19 +261,14 @@ $qdrant_synced_collection_options = $normalize_synced_select_options($qdrant_col
         <?php esc_html_e('Disable Safety Checker', 'gpt3-ai-content-generator'); ?>
         <span class="aipkit_form-label-helper"><?php esc_html_e('Apply Replicate safety-checker override to image generation.', 'gpt3-ai-content-generator'); ?></span>
     </label>
-    <div class="aipkit_settings_security_toggle">
-        <label class="aipkit_switch" for="aipkit_replicate_disable_safety_checker">
-            <input
-                type="checkbox"
-                id="aipkit_replicate_disable_safety_checker"
-                name="replicate_disable_safety_checker"
-                value="1"
-                class="aipkit_autosave_trigger"
-                <?php checked($replicate_disable_safety_checker, true); ?>
-            />
-            <span class="aipkit_switch_slider"></span>
-        </label>
-    </div>
+    <select
+        id="aipkit_replicate_disable_safety_checker"
+        name="replicate_disable_safety_checker"
+        class="aipkit_form-input aipkit_autosave_trigger"
+    >
+        <option value="1" <?php selected($replicate_disable_safety_checker, true); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+        <option value="0" <?php selected($replicate_disable_safety_checker, false); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+    </select>
 </div>
 
 <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_pinecone_api_key_row" data-aipkit-integration-provider="pinecone" hidden>

@@ -454,15 +454,17 @@ if ($woo_active) {
                 </div>
 
                 <div class="aipkit-modal-overlay aipkit_stats_pricing_modal" id="aipkit_stats_pricing_modal" aria-hidden="true">
-                    <div class="aipkit-modal-content aipkit-modal-shell aipkit-modal-shell--compact aipkit-modal-shell--overflow-visible aipkit_stats_pricing_modal_content" role="dialog" aria-modal="true" aria-labelledby="aipkit_stats_pricing_modal_title">
+                    <div class="aipkit-modal-content aipkit-modal-shell aipkit-modal-shell--compact aipkit-modal-shell--overflow-visible aipkit_stats_pricing_modal_content" role="dialog" aria-modal="true" aria-labelledby="aipkit_stats_pricing_modal_title" aria-describedby="aipkit_stats_pricing_modal_description">
                         <div class="aipkit-modal-header aipkit-modal-shell-header">
                             <div class="aipkit-modal-shell-intro">
-                                <div class="aipkit-modal-shell-title" id="aipkit_stats_pricing_modal_title"><?php esc_html_e('New Rule', 'gpt3-ai-content-generator'); ?></div>
-                                <p class="aipkit-modal-shell-copy">
+                                <h2 class="aipkit-modal-shell-title" id="aipkit_stats_pricing_modal_title"><?php esc_html_e('New Rule', 'gpt3-ai-content-generator'); ?></h2>
+                                <p class="aipkit-modal-shell-copy" id="aipkit_stats_pricing_modal_description">
                                     <?php esc_html_e('Set pricing for a usage type, model, and billing method.', 'gpt3-ai-content-generator'); ?>
                                 </p>
                             </div>
-                            <button class="aipkit-modal-close-btn aipkit-modal-shell-close" type="button" id="aipkit_stats_pricing_modal_close" aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>">&times;</button>
+                            <button class="aipkit-modal-close-btn aipkit-modal-shell-close" type="button" id="aipkit_stats_pricing_modal_close" aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>">
+                                <span class="dashicons dashicons-no-alt"></span>
+                            </button>
                         </div>
                         <div class="aipkit-modal-body aipkit-modal-shell-body aipkit_stats_modal_body">
                             <form id="aipkit_stats_pricing_form" class="aipkit_stats_pricing_form">
@@ -879,13 +881,15 @@ if ($woo_active) {
         id="aipkit_stats_retention_modal"
         aria-hidden="true"
     >
-        <div class="aipkit-modal-content aipkit-modal-shell aipkit-modal-shell--compact aipkit_stats_retention_modal_content" role="dialog" aria-modal="true" aria-labelledby="aipkit_stats_retention_modal_title">
+        <div class="aipkit-modal-content aipkit-modal-shell aipkit-modal-shell--compact aipkit_stats_retention_modal_content" role="dialog" aria-modal="true" aria-labelledby="aipkit_stats_retention_modal_title" aria-describedby="aipkit_stats_retention_modal_description">
             <div class="aipkit-modal-header aipkit-modal-shell-header">
                 <div class="aipkit-modal-shell-intro">
-                    <div class="aipkit-modal-shell-title" id="aipkit_stats_retention_modal_title"><?php esc_html_e('Log Retention', 'gpt3-ai-content-generator'); ?></div>
-                    <p class="aipkit-modal-shell-copy"><?php esc_html_e('Control how long saved conversation logs stay in your database.', 'gpt3-ai-content-generator'); ?></p>
+                    <h2 class="aipkit-modal-shell-title" id="aipkit_stats_retention_modal_title"><?php esc_html_e('Log Retention', 'gpt3-ai-content-generator'); ?></h2>
+                    <p class="aipkit-modal-shell-copy" id="aipkit_stats_retention_modal_description"><?php esc_html_e('Control how long saved conversation logs stay in your database.', 'gpt3-ai-content-generator'); ?></p>
                 </div>
-                <button type="button" class="aipkit-modal-close-btn aipkit-modal-shell-close" id="aipkit_stats_retention_modal_close" aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>">&times;</button>
+                <button type="button" class="aipkit-modal-close-btn aipkit-modal-shell-close" id="aipkit_stats_retention_modal_close" aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-no-alt"></span>
+                </button>
             </div>
             <div class="aipkit-modal-body aipkit-modal-shell-body aipkit_stats_retention_modal_body">
                 <div class="aipkit_stats_retention_setting">

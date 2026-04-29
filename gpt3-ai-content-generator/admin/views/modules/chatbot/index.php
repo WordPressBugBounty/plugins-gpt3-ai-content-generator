@@ -1703,17 +1703,14 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                         >
                             <?php esc_html_e('Dismissible', 'gpt3-ai-content-generator'); ?>
                         </span>
-                        <label class="aipkit_switch">
-                            <input
-                                type="checkbox"
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_label_dismissible_deploy"
-                                name="popup_label_dismissible"
-                                class="aipkit_toggle_switch"
-                                value="1"
-                                <?php checked($popup_label_dismissible, '1'); ?>
-                            >
-                            <span class="aipkit_switch_slider"></span>
-                        </label>
+                        <select
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_label_dismissible_deploy"
+                            name="popup_label_dismissible"
+                            class="aipkit_popover_option_select aipkit_popover_option_input--framed aipkit_popup_hint_toggle_select"
+                        >
+                            <option value="1" <?php selected($popup_label_dismissible, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="0" <?php selected($popup_label_dismissible, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
                     </div>
                 </div>
                 <div class="aipkit_popover_option_row aipkit_popup_hint_extra" <?php echo ($popup_label_enabled === '1') ? '' : 'hidden'; ?>>
@@ -1725,17 +1722,14 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                         >
                             <?php esc_html_e('Show on Desktop', 'gpt3-ai-content-generator'); ?>
                         </span>
-                        <label class="aipkit_switch">
-                            <input
-                                type="checkbox"
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_label_show_on_desktop_deploy"
-                                name="popup_label_show_on_desktop"
-                                class="aipkit_toggle_switch"
-                                value="1"
-                                <?php checked($popup_label_show_on_desktop, '1'); ?>
-                            >
-                            <span class="aipkit_switch_slider"></span>
-                        </label>
+                        <select
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_label_show_on_desktop_deploy"
+                            name="popup_label_show_on_desktop"
+                            class="aipkit_popover_option_select aipkit_popover_option_input--framed aipkit_popup_hint_toggle_select"
+                        >
+                            <option value="1" <?php selected($popup_label_show_on_desktop, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="0" <?php selected($popup_label_show_on_desktop, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
                     </div>
                 </div>
                 <div class="aipkit_popover_option_row aipkit_popup_hint_extra" <?php echo ($popup_label_enabled === '1') ? '' : 'hidden'; ?>>
@@ -1747,17 +1741,14 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                         >
                             <?php esc_html_e('Show on Mobile', 'gpt3-ai-content-generator'); ?>
                         </span>
-                        <label class="aipkit_switch">
-                            <input
-                                type="checkbox"
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_label_show_on_mobile_deploy"
-                                name="popup_label_show_on_mobile"
-                                class="aipkit_toggle_switch"
-                                value="1"
-                                <?php checked($popup_label_show_on_mobile, '1'); ?>
-                            >
-                            <span class="aipkit_switch_slider"></span>
-                        </label>
+                        <select
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_popup_label_show_on_mobile_deploy"
+                            name="popup_label_show_on_mobile"
+                            class="aipkit_popover_option_select aipkit_popover_option_input--framed aipkit_popup_hint_toggle_select"
+                        >
+                            <option value="1" <?php selected($popup_label_show_on_mobile, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="0" <?php selected($popup_label_show_on_mobile, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
                     </div>
                 </div>
                 <div class="aipkit_popup_hint_conditional_row" <?php echo ($popup_label_enabled === '1') ? '' : 'hidden'; ?>>
@@ -2099,9 +2090,9 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
         >
             <div class="aipkit-modal-header">
                 <div>
-                    <h3 class="aipkit-modal-title" id="aipkit_builder_instructions_title">
+                    <h2 class="aipkit-modal-title" id="aipkit_builder_instructions_title">
                         <?php esc_html_e('Agent Instructions', 'gpt3-ai-content-generator'); ?>
-                    </h3>
+                    </h2>
                     <p class="aipkit_builder_modal_subtitle" id="aipkit_builder_instructions_description">
                         <?php esc_html_e('Define how your agent should behave. Changes are saved automatically when you close this dialog.', 'gpt3-ai-content-generator'); ?>
                     </p>
@@ -2321,30 +2312,37 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                 </div>
                 <div class="aipkit_builder_sheet_section" data-sheet="sources" hidden>
                     <?php if ($active_bot_post) : ?>
-                        <div class="aipkit_sources_meta">
-                            <span class="aipkit_sources_meta_label"><?php esc_html_e('Provider:', 'gpt3-ai-content-generator'); ?></span>
-                            <span class="aipkit_sources_meta_value" id="aipkit_sources_provider_label">—</span>
-                            <span class="aipkit_sources_meta_label"><?php esc_html_e('Store:', 'gpt3-ai-content-generator'); ?></span>
-                            <span class="aipkit_sources_meta_value" id="aipkit_sources_store_label">—</span>
-                        </div>
-                        <div class="aipkit_sources_toolbar">
-                            <div class="aipkit_sources_toolbar_group">
-                                <input
-                                    type="search"
-                                    class="aipkit_popover_option_input aipkit_sources_search_input"
-                                    placeholder="<?php esc_attr_e('Search sources', 'gpt3-ai-content-generator'); ?>"
-                                >
+                        <div class="aipkit_sources_sheet_toolbar">
+                            <div class="aipkit_sources_meta">
+                                <span class="aipkit_sources_context_item aipkit_sources_context_item--provider">
+                                    <span class="aipkit_sources_meta_label"><?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?></span>
+                                    <span class="aipkit_sources_meta_value" id="aipkit_sources_provider_label">—</span>
+                                </span>
+                                <span class="aipkit_sources_context_item aipkit_sources_context_item--store">
+                                    <span class="aipkit_sources_meta_label"><?php esc_html_e('Store', 'gpt3-ai-content-generator'); ?></span>
+                                    <span class="aipkit_sources_meta_value" id="aipkit_sources_store_label">—</span>
+                                </span>
                             </div>
-                            <div class="aipkit_sources_toolbar_group aipkit_sources_toolbar_group--right">
-                                <select class="aipkit_popover_select aipkit_sources_filter_select">
-                                    <option value=""><?php esc_html_e('All statuses', 'gpt3-ai-content-generator'); ?></option>
-                                    <option value="indexed"><?php esc_html_e('Trained', 'gpt3-ai-content-generator'); ?></option>
-                                    <option value="processing"><?php esc_html_e('Processing', 'gpt3-ai-content-generator'); ?></option>
-                                    <option value="failed"><?php esc_html_e('Failed', 'gpt3-ai-content-generator'); ?></option>
-                                </select>
-                                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_sources_refresh_btn">
-                                    <?php esc_html_e('Refresh', 'gpt3-ai-content-generator'); ?>
-                                </button>
+                            <div class="aipkit_sources_toolbar">
+                                <div class="aipkit_sources_toolbar_group aipkit_sources_toolbar_group--search">
+                                    <input
+                                        type="search"
+                                        class="aipkit_popover_option_input aipkit_sources_search_input"
+                                        placeholder="<?php esc_attr_e('Search sources', 'gpt3-ai-content-generator'); ?>"
+                                        aria-label="<?php esc_attr_e('Search sources', 'gpt3-ai-content-generator'); ?>"
+                                    >
+                                </div>
+                                <div class="aipkit_sources_toolbar_group aipkit_sources_toolbar_group--right">
+                                    <select class="aipkit_popover_select aipkit_sources_filter_select" aria-label="<?php esc_attr_e('Filter by status', 'gpt3-ai-content-generator'); ?>">
+                                        <option value=""><?php esc_html_e('All statuses', 'gpt3-ai-content-generator'); ?></option>
+                                        <option value="indexed"><?php esc_html_e('Trained', 'gpt3-ai-content-generator'); ?></option>
+                                        <option value="processing"><?php esc_html_e('Processing', 'gpt3-ai-content-generator'); ?></option>
+                                        <option value="failed"><?php esc_html_e('Failed', 'gpt3-ai-content-generator'); ?></option>
+                                    </select>
+                                    <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_sources_refresh_btn">
+                                        <?php esc_html_e('Refresh', 'gpt3-ai-content-generator'); ?>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <p id="aipkit_sources_status" class="aipkit_form-help"></p>
@@ -2352,10 +2350,10 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             <table>
                                 <thead>
                                     <tr>
-                                        <th><?php esc_html_e('Time', 'gpt3-ai-content-generator'); ?></th>
-                                        <th><?php esc_html_e('Type', 'gpt3-ai-content-generator'); ?></th>
-                                        <th><?php esc_html_e('Source', 'gpt3-ai-content-generator'); ?></th>
                                         <th><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></th>
+                                        <th><?php esc_html_e('Item', 'gpt3-ai-content-generator'); ?></th>
+                                        <th><?php esc_html_e('Type', 'gpt3-ai-content-generator'); ?></th>
+                                        <th><?php esc_html_e('Updated', 'gpt3-ai-content-generator'); ?></th>
                                         <th class="aipkit_actions_cell_header"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></th>
                                     </tr>
                                 </thead>
@@ -2380,35 +2378,35 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     </div>
 
     <div
-        class="aipkit-modal-overlay aipkit_builder_sources_editor_modal"
+        class="aipkit-modal-overlay aipkit_sources_modal aipkit_builder_sources_editor_modal"
         id="aipkit_sources_editor_modal"
         aria-hidden="true"
     >
         <div
-            class="aipkit-modal-content"
+            class="aipkit-modal-content aipkit_sources_modal_panel aipkit_sources_editor_modal_content"
             role="dialog"
             aria-modal="true"
             aria-labelledby="aipkit_sources_editor_title"
             aria-describedby="aipkit_sources_editor_description"
         >
-            <div class="aipkit-modal-header">
-                <div>
-                    <h3 class="aipkit-modal-title" id="aipkit_sources_editor_title">
+            <div class="aipkit-modal-header aipkit_sources_modal_header">
+                <div class="aipkit_sources_modal_heading">
+                    <h2 class="aipkit-modal-title aipkit_sources_modal_title" id="aipkit_sources_editor_title">
                         <?php esc_html_e('Edit source', 'gpt3-ai-content-generator'); ?>
-                    </h3>
-                    <p class="aipkit_builder_modal_subtitle" id="aipkit_sources_editor_description">
+                    </h2>
+                    <p class="aipkit_builder_modal_subtitle aipkit_sources_modal_subtitle" id="aipkit_sources_editor_description">
                         <?php esc_html_e('Update the source text and save to retrain this entry.', 'gpt3-ai-content-generator'); ?>
                     </p>
                 </div>
                 <button
                     type="button"
-                    class="aipkit-modal-close-btn aipkit_sources_editor_close"
+                    class="aipkit-modal-close-btn aipkit_sources_modal_close aipkit_sources_editor_close"
                     aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="dashicons dashicons-no-alt"></span>
                 </button>
             </div>
-            <div class="aipkit-modal-body">
+            <div class="aipkit-modal-body aipkit_sources_modal_body">
                 <div class="aipkit_builder_field">
                     <textarea
                         class="aipkit_builder_textarea aipkit_builder_textarea_large aipkit_sources_editor_textarea"
@@ -2416,6 +2414,9 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                         aria-label="<?php esc_attr_e('Source text', 'gpt3-ai-content-generator'); ?>"
                     ></textarea>
                 </div>
+            </div>
+            <div class="aipkit_sources_modal_footer">
+                <div class="aipkit_sources_modal_status" aria-hidden="true"></div>
                 <div class="aipkit_builder_action_row aipkit_sources_editor_actions">
                     <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_sources_editor_cancel">
                         <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>

@@ -165,8 +165,8 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
                     name="openai_store_conversation"
                     class="aipkit_form-input aipkit_popover_option_select aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger"
                 >
-                    <option value="0" <?php selected((string) $openai_store_conversation, '0'); ?>><?php esc_html_e('Disabled', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="1" <?php selected((string) $openai_store_conversation, '1'); ?>><?php esc_html_e('Enabled', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="0" <?php selected((string) $openai_store_conversation, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="1" <?php selected((string) $openai_store_conversation, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
                 </select>
             </div>
         </div>
@@ -408,4 +408,3 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
     }
     ?>
 </div>
-

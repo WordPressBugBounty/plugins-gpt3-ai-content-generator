@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
             <?php esc_html_e('Training Data', 'gpt3-ai-content-generator'); ?>
         </p>
         <p class="aipkit_training_intro_help">
-            <?php esc_html_e('Add content, then click Train.', 'gpt3-ai-content-generator'); ?>
+            <?php esc_html_e('Add content to this chatbot knowledge base.', 'gpt3-ai-content-generator'); ?>
         </p>
     </div>
     <div class="aipkit_builder_tabs aipkit_builder_tabs--training" role="tablist" aria-label="<?php esc_attr_e('Training sources', 'gpt3-ai-content-generator'); ?>" data-aipkit-tabs="training">
@@ -122,39 +122,18 @@ if (!defined('ABSPATH')) {
         </div>
         <div class="aipkit_builder_tab_panel" data-aipkit-panel="website" hidden>
             <div class="aipkit_training_website">
-                <div class="aipkit_training_site_row">
-                        <span class="aipkit_training_site_label"><?php esc_html_e('Mode', 'gpt3-ai-content-generator'); ?></span>
-                        <div class="aipkit_training_site_toggle">
-                            <label class="aipkit_training_site_option">
+                <div class="aipkit_training_site_compact_row">
+                        <div class="aipkit_training_site_toggle" role="radiogroup" aria-label="<?php esc_attr_e('Website content scope', 'gpt3-ai-content-generator'); ?>">
+                            <label class="aipkit_training_site_option aipkit_training_site_mode_option">
                                 <input type="radio" name="aipkit_wp_content_mode" id="aipkit_wp_content_mode_bulk" value="bulk" checked>
-                                <?php esc_html_e('All', 'gpt3-ai-content-generator'); ?>
+                                <span><?php esc_html_e('All', 'gpt3-ai-content-generator'); ?></span>
                             </label>
-                            <label class="aipkit_training_site_option">
+                            <label class="aipkit_training_site_option aipkit_training_site_mode_option">
                                 <input type="radio" name="aipkit_wp_content_mode" id="aipkit_wp_content_mode_specific" value="specific">
-                                <?php esc_html_e('Specific', 'gpt3-ai-content-generator'); ?>
+                                <span><?php esc_html_e('Choose items', 'gpt3-ai-content-generator'); ?></span>
                             </label>
                         </div>
-                        <span class="aipkit_training_site_divider" aria-hidden="true">|</span>
-                        <div class="aipkit_training_site_group aipkit_training_site_group--status">
-                            <span class="aipkit_training_site_label"><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></span>
-                            <div id="aipkit_wp_content_status_wrap_bulk" class="aipkit_training_site_status_wrap">
-                                <select id="aipkit_vs_wp_content_status" class="aipkit_form-input aipkit_training_site_select">
-                                    <option value="publish"><?php esc_html_e('Published', 'gpt3-ai-content-generator'); ?></option>
-                                    <option value="draft"><?php esc_html_e('Draft', 'gpt3-ai-content-generator'); ?></option>
-                                    <option value="any"><?php esc_html_e('Any', 'gpt3-ai-content-generator'); ?></option>
-                                </select>
-                            </div>
-                            <div id="aipkit_wp_content_status_wrap_specific" class="aipkit_training_site_status_wrap" hidden>
-                                <select id="aipkit_vs_wp_content_status_specific" class="aipkit_form-input aipkit_training_site_select">
-                                    <option value="publish"><?php esc_html_e('Published', 'gpt3-ai-content-generator'); ?></option>
-                                    <option value="draft"><?php esc_html_e('Draft', 'gpt3-ai-content-generator'); ?></option>
-                                    <option value="any"><?php esc_html_e('Any', 'gpt3-ai-content-generator'); ?></option>
-                                </select>
-                            </div>
-                        </div>
-                        <span class="aipkit_training_site_divider" aria-hidden="true">|</span>
-                        <div id="aipkit_wp_content_bulk_panel" class="aipkit_training_site_group">
-                            <span class="aipkit_training_site_label"><?php esc_html_e('Types', 'gpt3-ai-content-generator'); ?></span>
+                        <div id="aipkit_wp_content_bulk_panel" class="aipkit_training_site_field">
                             <div
                                 class="aipkit_training_site_dropdown"
                                 data-aipkit-training-types="bulk"
@@ -164,6 +143,7 @@ if (!defined('ABSPATH')) {
                                 <button
                                     type="button"
                                     class="aipkit_training_site_dropdown_btn"
+                                    aria-label="<?php esc_attr_e('Content types', 'gpt3-ai-content-generator'); ?>"
                                     aria-expanded="false"
                                     aria-controls="aipkit_training_types_menu_bulk"
                                 >
@@ -196,8 +176,7 @@ if (!defined('ABSPATH')) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div id="aipkit_wp_content_specific_types_panel" class="aipkit_training_site_group" hidden>
-                            <span class="aipkit_training_site_label"><?php esc_html_e('Types', 'gpt3-ai-content-generator'); ?></span>
+                        <div id="aipkit_wp_content_specific_types_panel" class="aipkit_training_site_field" hidden>
                             <div
                                 class="aipkit_training_site_dropdown"
                                 data-aipkit-training-types="specific"
@@ -207,6 +186,7 @@ if (!defined('ABSPATH')) {
                                 <button
                                     type="button"
                                     class="aipkit_training_site_dropdown_btn"
+                                    aria-label="<?php esc_attr_e('Content types', 'gpt3-ai-content-generator'); ?>"
                                     aria-expanded="false"
                                     aria-controls="aipkit_training_types_menu_specific"
                                 >
@@ -239,14 +219,23 @@ if (!defined('ABSPATH')) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <input type="hidden" id="aipkit_vs_wp_content_mode" value="bulk" />
+                        <div class="aipkit_training_site_actions">
+                            <button
+                                type="button"
+                                class="aipkit_popover_footer_btn aipkit_popover_footer_btn--secondary aipkit_builder_action_btn aipkit_training_action_btn aipkit_training_website_action_btn"
+                                data-training-action="website-add"
+                            >
+                                <?php esc_html_e('Add Website', 'gpt3-ai-content-generator'); ?>
+                            </button>
+                        </div>
                     </div>
-
-                    <div id="aipkit_wp_content_bulk_hint" class="aipkit_training_site_hint">
-                        <p class="aipkit_builder_help_text">
-                            <?php esc_html_e('Select the content you want to add to your bot, then hit Train to start.', 'gpt3-ai-content-generator'); ?>
-                        </p>
-                    </div>
+                    <input type="hidden" id="aipkit_vs_wp_content_mode" value="bulk" />
+                    <select id="aipkit_vs_wp_content_status" class="aipkit_training_site_hidden_select" aria-hidden="true" tabindex="-1">
+                        <option value="publish" selected><?php esc_html_e('Published', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
+                    <select id="aipkit_vs_wp_content_status_specific" class="aipkit_training_site_hidden_select" aria-hidden="true" tabindex="-1">
+                        <option value="publish" selected><?php esc_html_e('Published', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
 
                     <div id="aipkit_background_indexing_confirm" class="aipkit_inline_confirm" hidden>
                         <div class="aipkit_inline_confirm_content">
@@ -262,7 +251,10 @@ if (!defined('ABSPATH')) {
                         </div>
                     </div>
 
-                    <div id="aipkit_wp_content_specific_panel" class="aipkit_training_site_panel" hidden>
+                    <div id="aipkit_wp_content_specific_panel" class="aipkit_training_site_panel aipkit_training_site_browser" hidden>
+                        <div class="aipkit_training_site_browser_header">
+                            <span class="aipkit_training_site_label"><?php esc_html_e('Items', 'gpt3-ai-content-generator'); ?></span>
+                        </div>
                         <div id="aipkit_vs_wp_content_list_area" class="aipkit_training_site_list">
                             <p class="aipkit_builder_help_text">
                                 <?php esc_html_e('Select criteria to load content.', 'gpt3-ai-content-generator'); ?>
@@ -287,7 +279,7 @@ if (!defined('ABSPATH')) {
                     class="aipkit_popover_footer_btn aipkit_popover_footer_btn--secondary aipkit_builder_action_btn aipkit_training_action_btn"
                     data-training-action="add"
                 >
-                    <?php esc_html_e('Train', 'gpt3-ai-content-generator'); ?>
+                    <?php esc_html_e('Add Q&A', 'gpt3-ai-content-generator'); ?>
                 </button>
                 <button
                     type="button"
