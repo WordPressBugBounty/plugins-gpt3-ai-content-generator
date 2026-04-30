@@ -109,19 +109,23 @@ function resolve_qdrant_context_logic(
                     if (isset($item['score']) && (float)$item['score'] < $qdrant_score_threshold) {
                         continue;
                     }
-                    $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
+                    $metadata = isset($item['metadata']) && is_array($item['metadata']) ? $item['metadata'] : [];
+                    $content_snippet = $metadata['original_content'] ?? ($metadata['text_content'] ?? null);
                     if (!empty($content_snippet)) {
                         $formatted_file_results .= "- " . trim($content_snippet) . "\n";
 
                         if ($vector_search_scores_output !== null && isset($item['score'])) {
-                            $vector_search_scores_output[] = [
-                                'provider' => 'Qdrant',
-                                'collection_name' => $collection_to_query,
-                                'file_context_id' => $frontend_active_qdrant_file_upload_context_id,
-                                'result_id' => $item['id'] ?? null,
-                                'score' => $item['score'],
-                                'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
-                            ];
+                            $vector_search_scores_output[] = build_vector_search_score_item_logic(
+                                [
+                                    'provider' => 'Qdrant',
+                                    'collection_name' => $collection_to_query,
+                                    'file_context_id' => $frontend_active_qdrant_file_upload_context_id,
+                                    'result_id' => $item['id'] ?? null,
+                                    'score' => $item['score'],
+                                    'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                                ],
+                                $metadata
+                            );
                         }
                     }
                 }
@@ -152,7 +156,8 @@ function resolve_qdrant_context_logic(
                 if (isset($item['score']) && (float)$item['score'] < $qdrant_score_threshold) {
                     continue;
                 }
-                $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
+                $metadata = isset($item['metadata']) && is_array($item['metadata']) ? $item['metadata'] : [];
+                $content_snippet = $metadata['original_content'] ?? ($metadata['text_content'] ?? null);
                 if (empty($content_snippet) && isset($item['id'])) {
                     $cache_key = 'aipkit_vds_content_' . md5('qdrant_general_' . $collection_to_query . $item['id']);
                     $cache_group = 'aipkit_vector_source_content';
@@ -172,14 +177,17 @@ function resolve_qdrant_context_logic(
                     $formatted_general_results .= "- " . trim($content_snippet) . "\n";
                     
                     if ($vector_search_scores_output !== null && isset($item['score'])) {
-                        $vector_search_scores_output[] = [
-                            'provider' => 'Qdrant',
-                            'collection_name' => $collection_to_query,
-                            'file_context_id' => null,
-                            'result_id' => $item['id'] ?? null,
-                            'score' => $item['score'],
-                            'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
-                        ];
+                        $vector_search_scores_output[] = build_vector_search_score_item_logic(
+                            [
+                                'provider' => 'Qdrant',
+                                'collection_name' => $collection_to_query,
+                                'file_context_id' => null,
+                                'result_id' => $item['id'] ?? null,
+                                'score' => $item['score'],
+                                'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                            ],
+                            $metadata
+                        );
                     }
                 }
             }

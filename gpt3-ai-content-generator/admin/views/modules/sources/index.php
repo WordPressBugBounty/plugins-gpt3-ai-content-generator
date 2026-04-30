@@ -714,6 +714,26 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                     aria-label="<?php esc_attr_e('Source content preview', 'gpt3-ai-content-generator'); ?>"
                 ></textarea>
             </div>
+            <div
+                class="aipkit_sources_view_meta"
+                id="aipkit_sources_view_meta"
+                hidden
+            >
+                <button
+                    type="button"
+                    class="aipkit_sources_view_meta_toggle"
+                    aria-expanded="false"
+                    aria-controls="aipkit_sources_view_meta_panel"
+                >
+                    <span><?php esc_html_e('Details', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                </button>
+                <div
+                    class="aipkit_sources_view_meta_panel"
+                    id="aipkit_sources_view_meta_panel"
+                    hidden
+                ></div>
+            </div>
         </div>
         <div class="aipkit_sources_modal_footer">
             <div class="aipkit_sources_modal_status" aria-hidden="true"></div>

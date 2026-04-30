@@ -52,6 +52,19 @@ function create_index_if_not_exists_logic(AIPKit_Vector_OpenAI_Strategy $strateg
     }
     if (isset($index_config['chunking_strategy'])) {
         $body['chunking_strategy'] = $index_config['chunking_strategy'];
+    } elseif (!empty($index_config['file_ids']) && is_array($index_config['file_ids'])) {
+        $configured_chunking_strategy = apply_filters(
+            'aipkit_openai_file_search_chunking_strategy',
+            null,
+            [
+                'operation' => 'create_vector_store',
+                'index_name' => $index_name,
+                'file_ids' => $index_config['file_ids'],
+            ]
+        );
+        if (is_array($configured_chunking_strategy)) {
+            $body['chunking_strategy'] = $configured_chunking_strategy;
+        }
     }
 
 

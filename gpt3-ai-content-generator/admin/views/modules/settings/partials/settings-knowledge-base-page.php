@@ -24,12 +24,30 @@ $kb_show_index_button_value = $kb_show_index_button_checked ? '1' : '0';
 $kb_chunk_avg_chars = isset($kb_training_general_settings['chunk_avg_chars_per_token'])
     ? (int) $kb_training_general_settings['chunk_avg_chars_per_token']
     : 4;
+$kb_chunk_avg_chars = min(4, max(2, $kb_chunk_avg_chars));
 $kb_chunk_max_tokens = isset($kb_training_general_settings['chunk_max_tokens_per_chunk'])
     ? (int) $kb_training_general_settings['chunk_max_tokens_per_chunk']
     : 3000;
+$kb_chunk_max_tokens = min(6000, max(256, $kb_chunk_max_tokens));
 $kb_chunk_overlap_tokens = isset($kb_training_general_settings['chunk_overlap_tokens'])
     ? (int) $kb_training_general_settings['chunk_overlap_tokens']
     : 150;
+$kb_chunk_overlap_tokens = min(1000, max(0, $kb_chunk_overlap_tokens), max(0, $kb_chunk_max_tokens - 1));
+$kb_openai_file_search_chunking_mode = isset($kb_training_general_settings['openai_file_search_chunking_mode'])
+    ? sanitize_key((string) $kb_training_general_settings['openai_file_search_chunking_mode'])
+    : 'auto';
+if (!in_array($kb_openai_file_search_chunking_mode, ['auto', 'custom'], true)) {
+    $kb_openai_file_search_chunking_mode = 'auto';
+}
+$kb_openai_file_search_max_tokens = isset($kb_training_general_settings['openai_file_search_max_chunk_size_tokens'])
+    ? (int) $kb_training_general_settings['openai_file_search_max_chunk_size_tokens']
+    : 800;
+$kb_openai_file_search_max_tokens = min(4096, max(100, $kb_openai_file_search_max_tokens));
+$kb_openai_file_search_overlap_tokens = isset($kb_training_general_settings['openai_file_search_chunk_overlap_tokens'])
+    ? (int) $kb_training_general_settings['openai_file_search_chunk_overlap_tokens']
+    : 400;
+$kb_openai_file_search_overlap_tokens = min((int) floor($kb_openai_file_search_max_tokens / 2), max(0, $kb_openai_file_search_overlap_tokens));
+$kb_openai_custom_rows_hidden_attr = $kb_openai_file_search_chunking_mode !== 'custom' ? ' hidden' : '';
 
 $kb_options = get_option('aipkit_options', []);
 $kb_options = is_array($kb_options) ? $kb_options : [];
@@ -90,10 +108,14 @@ if ($kb_semantic_vector_provider === 'pinecone') {
     data-semantic-qdrant-collections="<?php echo esc_attr(wp_json_encode($kb_qdrant_collection_list ?: [])); ?>"
 >
     <section class="aipkit_settings_kb_group" data-aipkit-kb-section="general" data-aipkit-settings-autosave-exclude="true">
-        <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_kb_hide_uploads_row">
+        <div class="aipkit_settings_kb_block aipkit_settings_kb_block--basics">
+            <div class="aipkit_settings_kb_block_header">
+                <div class="aipkit_settings_kb_group_title"><?php esc_html_e('Basics', 'gpt3-ai-content-generator'); ?></div>
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_kb_hide_uploads_row">
             <label class="aipkit_form-label" for="aipkit_hide_user_uploads_select">
                 <?php esc_html_e('Hide user uploads', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_form-label-helper"><?php esc_html_e('Hide user-uploaded files.', 'gpt3-ai-content-generator'); ?></span>
+                <span class="aipkit_form-label-helper"><?php esc_html_e('Hide user-uploaded files from Data tab.', 'gpt3-ai-content-generator'); ?></span>
             </label>
             <select
                 id="aipkit_hide_user_uploads_select"
@@ -103,11 +125,11 @@ if ($kb_semantic_vector_provider === 'pinecone') {
                 <option value="1" <?php selected($kb_hide_user_uploads_value, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
                 <option value="0" <?php selected($kb_hide_user_uploads_value, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
             </select>
-        </div>
-        <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_kb_show_index_button_row">
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_kb_show_index_button_row">
             <label class="aipkit_form-label" for="aipkit_show_index_button_select">
                 <?php esc_html_e('Show index button', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_form-label-helper"><?php esc_html_e('Show indexing button on screens.', 'gpt3-ai-content-generator'); ?></span>
+                <span class="aipkit_form-label-helper"><?php esc_html_e('Show indexing button on Post list screen.', 'gpt3-ai-content-generator'); ?></span>
             </label>
             <select
                 id="aipkit_show_index_button_select"
@@ -117,21 +139,36 @@ if ($kb_semantic_vector_provider === 'pinecone') {
                 <option value="1" <?php selected($kb_show_index_button_value, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
                 <option value="0" <?php selected($kb_show_index_button_value, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
             </select>
+            </div>
         </div>
-        <div class="aipkit_form-group aipkit_settings_simple_row">
+        <div class="aipkit_settings_kb_block aipkit_settings_kb_block--chunking">
+            <div class="aipkit_settings_kb_block_header">
+                <div class="aipkit_settings_kb_group_title">
+                    <span class="aipkit_settings_kb_label_line">
+                        <span><?php esc_html_e('Chunking', 'gpt3-ai-content-generator'); ?></span>
+                        <?php if (!$kb_is_pro) : ?>
+                            <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                            <a
+                                class="button aipkit_btn aipkit_btn-primary aipkit_settings_kb_upgrade_btn aipkit_settings_kb_header_upgrade_btn"
+                                href="<?php echo esc_url($kb_upgrade_url); ?>"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
+                            </a>
+                        <?php endif; ?>
+                    </span>
+                </div>
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row">
             <label class="aipkit_form-label" for="aipkit_chunk_avg_chars_per_token">
-                <span class="aipkit_settings_kb_label_line">
-                    <span><?php esc_html_e('Avg chars per token', 'gpt3-ai-content-generator'); ?></span>
-                    <?php if (!$kb_is_pro) : ?>
-                        <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
-                    <?php endif; ?>
-                </span>
-                <span class="aipkit_form-label-helper"><?php esc_html_e('Estimate chunk size.', 'gpt3-ai-content-generator'); ?></span>
+                <?php esc_html_e('Avg chars per token', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to Pinecone/Qdrant only.', 'gpt3-ai-content-generator'); ?></span>
             </label>
             <input
                 type="number"
                 min="2"
-                max="10"
+                max="4"
                 step="1"
                 id="aipkit_chunk_avg_chars_per_token"
                 name="chunk_avg_chars_per_token"
@@ -139,21 +176,16 @@ if ($kb_semantic_vector_provider === 'pinecone') {
                 value="<?php echo esc_attr($kb_chunk_avg_chars); ?>"
                 <?php echo !$kb_is_pro ? 'disabled' : ''; ?>
             />
-        </div>
-        <div class="aipkit_form-group aipkit_settings_simple_row">
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row">
             <label class="aipkit_form-label" for="aipkit_chunk_max_tokens_per_chunk">
-                <span class="aipkit_settings_kb_label_line">
-                    <span><?php esc_html_e('Max tokens per chunk', 'gpt3-ai-content-generator'); ?></span>
-                    <?php if (!$kb_is_pro) : ?>
-                        <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
-                    <?php endif; ?>
-                </span>
-                <span class="aipkit_form-label-helper"><?php esc_html_e('Upper token limit for each chunk.', 'gpt3-ai-content-generator'); ?></span>
+                <?php esc_html_e('Max tokens per chunk', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to Pinecone/Qdrant only.', 'gpt3-ai-content-generator'); ?></span>
             </label>
             <input
                 type="number"
                 min="256"
-                max="8000"
+                max="6000"
                 step="1"
                 id="aipkit_chunk_max_tokens_per_chunk"
                 name="chunk_max_tokens_per_chunk"
@@ -161,16 +193,11 @@ if ($kb_semantic_vector_provider === 'pinecone') {
                 value="<?php echo esc_attr($kb_chunk_max_tokens); ?>"
                 <?php echo !$kb_is_pro ? 'disabled' : ''; ?>
             />
-        </div>
-        <div class="aipkit_form-group aipkit_settings_simple_row">
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row">
             <label class="aipkit_form-label" for="aipkit_chunk_overlap_tokens">
-                <span class="aipkit_settings_kb_label_line">
-                    <span><?php esc_html_e('Overlap tokens', 'gpt3-ai-content-generator'); ?></span>
-                    <?php if (!$kb_is_pro) : ?>
-                        <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
-                    <?php endif; ?>
-                </span>
-                <span class="aipkit_form-label-helper"><?php esc_html_e('Tokens repeated between chunks.', 'gpt3-ai-content-generator'); ?></span>
+                <?php esc_html_e('Overlap tokens', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to Pinecone/Qdrant only.', 'gpt3-ai-content-generator'); ?></span>
             </label>
             <input
                 type="number"
@@ -183,17 +210,83 @@ if ($kb_semantic_vector_provider === 'pinecone') {
                 value="<?php echo esc_attr($kb_chunk_overlap_tokens); ?>"
                 <?php echo !$kb_is_pro ? 'disabled' : ''; ?>
             />
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row">
+            <label class="aipkit_form-label" for="aipkit_openai_file_search_chunking_mode">
+                <?php esc_html_e('Indexing strategy', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to OpenAI only.', 'gpt3-ai-content-generator'); ?></span>
+            </label>
+            <select
+                id="aipkit_openai_file_search_chunking_mode"
+                name="openai_file_search_chunking_mode"
+                class="aipkit_form-input"
+                <?php echo !$kb_is_pro ? 'disabled' : ''; ?>
+            >
+                <option value="auto" <?php selected($kb_openai_file_search_chunking_mode, 'auto'); ?>><?php esc_html_e('Auto', 'gpt3-ai-content-generator'); ?></option>
+                <option value="custom" <?php selected($kb_openai_file_search_chunking_mode, 'custom'); ?>><?php esc_html_e('Custom', 'gpt3-ai-content-generator'); ?></option>
+            </select>
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row" data-aipkit-openai-chunking-custom-row<?php echo $kb_openai_custom_rows_hidden_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attribute is a fixed string. ?>>
+            <label class="aipkit_form-label" for="aipkit_openai_file_search_max_chunk_size_tokens">
+                <?php esc_html_e('Max tokens per chunk', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to OpenAI only.', 'gpt3-ai-content-generator'); ?></span>
+            </label>
+            <input
+                type="number"
+                min="100"
+                max="4096"
+                step="1"
+                id="aipkit_openai_file_search_max_chunk_size_tokens"
+                name="openai_file_search_max_chunk_size_tokens"
+                class="aipkit_form-input"
+                value="<?php echo esc_attr($kb_openai_file_search_max_tokens); ?>"
+                <?php echo !$kb_is_pro ? 'disabled' : ''; ?>
+            />
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row" data-aipkit-openai-chunking-custom-row<?php echo $kb_openai_custom_rows_hidden_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attribute is a fixed string. ?>>
+            <label class="aipkit_form-label" for="aipkit_openai_file_search_chunk_overlap_tokens">
+                <?php esc_html_e('Overlap tokens', 'gpt3-ai-content-generator'); ?>
+                <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to OpenAI only.', 'gpt3-ai-content-generator'); ?></span>
+            </label>
+            <input
+                type="number"
+                min="0"
+                max="<?php echo esc_attr((int) floor($kb_openai_file_search_max_tokens / 2)); ?>"
+                step="1"
+                id="aipkit_openai_file_search_chunk_overlap_tokens"
+                name="openai_file_search_chunk_overlap_tokens"
+                class="aipkit_form-input"
+                value="<?php echo esc_attr($kb_openai_file_search_overlap_tokens); ?>"
+                <?php echo !$kb_is_pro ? 'disabled' : ''; ?>
+            />
+            </div>
         </div>
     </section>
 
     <section class="aipkit_settings_kb_group" data-aipkit-kb-section="indexing-controls" data-aipkit-settings-autosave-exclude="true">
-        <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_indexing_launcher_row">
+        <div class="aipkit_settings_kb_block aipkit_settings_kb_block--single">
+            <div class="aipkit_settings_kb_block_header">
+                <div class="aipkit_settings_kb_group_title">
+                    <span class="aipkit_settings_kb_label_line">
+                        <span><?php esc_html_e('Content Rules', 'gpt3-ai-content-generator'); ?></span>
+                        <?php if (!$kb_is_pro) : ?>
+                            <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                            <a
+                                class="button aipkit_btn aipkit_btn-primary aipkit_settings_kb_upgrade_btn aipkit_settings_kb_header_upgrade_btn"
+                                href="<?php echo esc_url($kb_upgrade_url); ?>"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
+                            </a>
+                        <?php endif; ?>
+                    </span>
+                </div>
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_indexing_launcher_row">
             <label class="aipkit_form-label" for="aipkit_open_indexing_settings_modal">
                 <span class="aipkit_settings_kb_label_line">
                     <span><?php esc_html_e('Content type rules', 'gpt3-ai-content-generator'); ?></span>
-                    <?php if (!$kb_is_pro) : ?>
-                        <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
-                    <?php endif; ?>
                 </span>
                 <span class="aipkit_form-label-helper"><?php esc_html_e('Embedding content rules.', 'gpt3-ai-content-generator'); ?></span>
             </label>
@@ -207,6 +300,7 @@ if ($kb_semantic_vector_provider === 'pinecone') {
                 >
                     <?php esc_html_e('Configure', 'gpt3-ai-content-generator'); ?>
                 </button>
+            </div>
             </div>
         </div>
         <div
@@ -273,9 +367,13 @@ if ($kb_semantic_vector_provider === 'pinecone') {
     </section>
 
     <section class="aipkit_settings_kb_group" data-aipkit-kb-section="semantic-search">
-        <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_semantic_launcher_row">
+        <div class="aipkit_settings_kb_block aipkit_settings_kb_block--single">
+            <div class="aipkit_settings_kb_block_header">
+                <div class="aipkit_settings_kb_group_title"><?php esc_html_e('Semantic Search', 'gpt3-ai-content-generator'); ?></div>
+            </div>
+            <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_semantic_launcher_row">
             <label class="aipkit_form-label" for="aipkit_open_semantic_search_settings_modal">
-                <?php esc_html_e('Semantic Search', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('Search options', 'gpt3-ai-content-generator'); ?>
                 <span class="aipkit_form-label-helper"><?php esc_html_e('Vector and display options.', 'gpt3-ai-content-generator'); ?></span>
             </label>
             <div class="aipkit_settings_action_buttons">
@@ -288,6 +386,7 @@ if ($kb_semantic_vector_provider === 'pinecone') {
                 >
                     <?php esc_html_e('Configure', 'gpt3-ai-content-generator'); ?>
                 </button>
+            </div>
             </div>
         </div>
         <div

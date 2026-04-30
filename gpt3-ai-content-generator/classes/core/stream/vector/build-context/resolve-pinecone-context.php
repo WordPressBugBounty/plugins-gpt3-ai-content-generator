@@ -90,7 +90,8 @@ function resolve_pinecone_context_logic(
                     continue;
                 }
                 // END NEW
-                $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
+                $metadata = isset($item['metadata']) && is_array($item['metadata']) ? $item['metadata'] : [];
+                $content_snippet = $metadata['original_content'] ?? ($metadata['text_content'] ?? null);
                 if (empty($content_snippet) && isset($item['id'])) {
                     $cache_key = 'aipkit_vds_content_' . md5('pinecone_file_' . $index_to_query . $frontend_active_pinecone_namespace . $item['id']);
                     $cache_group = 'aipkit_vector_source_content';
@@ -111,14 +112,17 @@ function resolve_pinecone_context_logic(
                     
                     // Capture score data if reference provided
                     if ($vector_search_scores_output !== null && isset($item['score'])) {
-                        $vector_search_scores_output[] = [
-                            'provider' => 'Pinecone',
-                            'index_name' => $index_to_query,
-                            'namespace' => $frontend_active_pinecone_namespace,
-                            'result_id' => $item['id'] ?? null,
-                            'score' => $item['score'],
-                            'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
-                        ];
+                        $vector_search_scores_output[] = build_vector_search_score_item_logic(
+                            [
+                                'provider' => 'Pinecone',
+                                'index_name' => $index_to_query,
+                                'namespace' => $frontend_active_pinecone_namespace,
+                                'result_id' => $item['id'] ?? null,
+                                'score' => $item['score'],
+                                'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                            ],
+                            $metadata
+                        );
                     }
                 }
             }
@@ -140,10 +144,11 @@ function resolve_pinecone_context_logic(
             }
             // END NEW
             // Skip if this result was already part of the file-specific context (if a namespace was used)
-            if (!empty($frontend_active_pinecone_namespace) && ($item['metadata']['namespace'] ?? null) === $frontend_active_pinecone_namespace) {
+            $metadata = isset($item['metadata']) && is_array($item['metadata']) ? $item['metadata'] : [];
+            if (!empty($frontend_active_pinecone_namespace) && ($metadata['namespace'] ?? null) === $frontend_active_pinecone_namespace) {
                 continue;
             }
-            $content_snippet = $item['metadata']['original_content'] ?? ($item['metadata']['text_content'] ?? null);
+            $content_snippet = $metadata['original_content'] ?? ($metadata['text_content'] ?? null);
             if (empty($content_snippet) && isset($item['id'])) {
                 $cache_key = 'aipkit_vds_content_' . md5('pinecone_general_' . $index_to_query . $item['id']);
                 $cache_group = 'aipkit_vector_source_content';
@@ -169,12 +174,12 @@ function resolve_pinecone_context_logic(
                     }
 
                     // Fallback 2: if metadata contains batch_id, query by it explicitly for precision
-                    if (!$log_entry && !empty($item['metadata']['batch_id'])) {
+                    if (!$log_entry && !empty($metadata['batch_id'])) {
                         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Direct query to custom table; results are cached.
                         $log_entry = $wpdb->get_row($wpdb->prepare(
                             "SELECT indexed_content FROM {$data_source_table_name} WHERE provider = 'Pinecone' AND vector_store_id = %s AND batch_id = %s AND file_id = %s ORDER BY timestamp DESC LIMIT 1",
                             $index_to_query,
-                            $item['metadata']['batch_id'],
+                            $metadata['batch_id'],
                             $item['id']
                         ), ARRAY_A);
                     }
@@ -191,14 +196,17 @@ function resolve_pinecone_context_logic(
                 
                 // Capture score data if reference provided
                 if ($vector_search_scores_output !== null && isset($item['score'])) {
-                    $vector_search_scores_output[] = [
-                        'provider' => 'Pinecone',
-                        'index_name' => $index_to_query,
-                        'namespace' => null, // General context has no specific namespace
-                        'result_id' => $item['id'] ?? null,
-                        'score' => $item['score'],
-                        'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
-                    ];
+                    $vector_search_scores_output[] = build_vector_search_score_item_logic(
+                        [
+                            'provider' => 'Pinecone',
+                            'index_name' => $index_to_query,
+                            'namespace' => null, // General context has no specific namespace
+                            'result_id' => $item['id'] ?? null,
+                            'score' => $item['score'],
+                            'content_preview' => wp_trim_words(trim($content_snippet), 10, '...')
+                        ],
+                        $metadata
+                    );
                 }
             }
         }

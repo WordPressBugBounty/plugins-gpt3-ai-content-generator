@@ -192,38 +192,63 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         $vector_id  = isset($post_data['vector_id']) ? sanitize_text_field($post_data['vector_id']) : '';
         $log_entry_id = isset($post_data['log_id']) ? absint($post_data['log_id']) : 0;
 
-        if (empty($provider) || empty($store_id) || empty($vector_id) || empty($log_entry_id)) {
+        if (empty($provider) || empty($store_id) || empty($log_entry_id)) {
             $this->send_wp_error(new WP_Error('missing_params_delete_vector', __('Missing required parameters for vector deletion.', 'gpt3-ai-content-generator')));
             return;
         }
 
-        // Ensure Vector Store Manager is loaded
-        if (!class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Manager')) {
-             $this->send_wp_error(new WP_Error('vsm_missing_delete_vector', __('Vector management component is not available.', 'gpt3-ai-content-generator')));
-             return;
-        }
-        $vector_store_manager = new \WPAICG\Vector\AIPKit_Vector_Store_Manager();
+        global $wpdb;
+        $data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table lookup for admin delete action.
+        $log_entry = $wpdb->get_row($wpdb->prepare("SELECT id, provider, vector_store_id, file_id, status FROM {$data_source_table_name} WHERE id = %d LIMIT 1", $log_entry_id), ARRAY_A);
 
-        // Get provider config
-        $provider_config = \WPAICG\AIPKit_Providers::get_provider_data($provider);
-        if (empty($provider_config['api_key'])) {
-            /* translators: %s: Provider name. */
-             $this->send_wp_error(new WP_Error('missing_api_key_delete_vector', sprintf(__('API key for %s is missing.', 'gpt3-ai-content-generator'), $provider)));
-             return;
+        if (!$log_entry) {
+            wp_send_json_success(['message' => __('Log entry was not found, it might have been already deleted.', 'gpt3-ai-content-generator')]);
+            return;
         }
 
-        // 1. Delete from external vector store
-        $delete_result = $vector_store_manager->delete_vectors($provider, $store_id, [$vector_id], $provider_config);
-        
-        // We proceed even if the external deletion fails, as the vector might not exist there anymore but the log does.
-        // We will log the error if one occurs.
-        if (is_wp_error($delete_result)) {
-            // This is not a fatal error for the process, so we just log it and continue to delete from local DB.
+        if ((string) ($log_entry['provider'] ?? '') !== $provider || (string) ($log_entry['vector_store_id'] ?? '') !== $store_id) {
+            $this->send_wp_error(new WP_Error('mismatched_delete_vector_log', __('Source details do not match the selected log entry.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        if ($vector_id === '' && !empty($log_entry['file_id'])) {
+            $vector_id = (string) $log_entry['file_id'];
+        }
+
+        $is_failed_log_only = $vector_id === '' && strtolower((string) ($log_entry['status'] ?? '')) === 'failed';
+        if ($vector_id === '' && !$is_failed_log_only) {
+            $this->send_wp_error(new WP_Error('missing_vector_id_delete_vector', __('Missing vector ID for vector deletion.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        if ($vector_id !== '') {
+            // Ensure Vector Store Manager is loaded
+            if (!class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Manager')) {
+                $this->send_wp_error(new WP_Error('vsm_missing_delete_vector', __('Vector management component is not available.', 'gpt3-ai-content-generator')));
+                return;
+            }
+            $vector_store_manager = new \WPAICG\Vector\AIPKit_Vector_Store_Manager();
+
+            // Get provider config
+            $provider_config = \WPAICG\AIPKit_Providers::get_provider_data($provider);
+            if (empty($provider_config['api_key'])) {
+                /* translators: %s: Provider name. */
+                $this->send_wp_error(new WP_Error('missing_api_key_delete_vector', sprintf(__('API key for %s is missing.', 'gpt3-ai-content-generator'), $provider)));
+                return;
+            }
+
+            // 1. Delete from external vector store
+            $delete_result = $vector_store_manager->delete_vectors($provider, $store_id, [$vector_id], $provider_config);
+
+            // We proceed even if the external deletion fails, as the vector might not exist there anymore but the log does.
+            // We will log the error if one occurs.
+            if (is_wp_error($delete_result)) {
+                // This is not a fatal error for the process, so we just log it and continue to delete from local DB.
+            }
         }
 
         // 2. Delete from local database log
-        global $wpdb;
-        $data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table delete for admin action.
         $deleted_rows = $wpdb->delete(
             $data_source_table_name,
@@ -358,6 +383,12 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         $logs_params = array_merge($params, [$filters['per_page'], $filters['offset']]);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
         $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, provider, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d", ...$logs_params), ARRAY_A);
+        if (is_array($logs)) {
+            foreach ($logs as &$log) {
+                $log['is_user_upload'] = $this->is_vector_source_user_upload($log);
+            }
+            unset($log);
+        }
 
         $total_pages = $filters['per_page'] > 0 ? (int) ceil($total_logs / $filters['per_page']) : 0;
 
@@ -384,6 +415,31 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
         ];
+    }
+
+    /**
+     * Detect frontend/chat file uploads for Knowledgebase source rows.
+     *
+     * @param array<string, mixed> $log Source log row.
+     */
+    private function is_vector_source_user_upload(array $log): bool
+    {
+        $provider = strtolower((string) ($log['provider'] ?? ''));
+        $file_id = (string) ($log['file_id'] ?? '');
+        $batch_id = (string) ($log['batch_id'] ?? '');
+        $store_name = (string) ($log['vector_store_name'] ?? '');
+
+        if ($provider === 'openai') {
+            return str_starts_with($store_name, 'chat_file_');
+        }
+        if ($provider === 'pinecone') {
+            return str_starts_with($file_id, 'chatfile_') || str_starts_with($batch_id, 'pinecone_chat_file_');
+        }
+        if ($provider === 'qdrant') {
+            return str_starts_with($batch_id, 'qdrant_chat_file_') || str_starts_with($file_id, 'qdrant_chat_file_');
+        }
+
+        return false;
     }
 
     /**
@@ -722,19 +778,21 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                 $avg = isset($settings['chunk_avg_chars_per_token']) ? (int)$settings['chunk_avg_chars_per_token'] : null;
                 $max = isset($settings['chunk_max_tokens_per_chunk']) ? (int)$settings['chunk_max_tokens_per_chunk'] : null;
                 $ovl = isset($settings['chunk_overlap_tokens']) ? (int)$settings['chunk_overlap_tokens'] : null;
+                $effective_max = $max !== null ? $max : (int)($general_settings['chunk_max_tokens_per_chunk'] ?? 3000);
+                $effective_overlap = $ovl !== null ? $ovl : (int)($general_settings['chunk_overlap_tokens'] ?? 150);
 
                 // Validate ranges
                 if ($avg !== null) {
-                    if ($avg < 2 || $avg > 10) {
-                        $this->send_wp_error(new \WP_Error('invalid_chunk_avg', __('Average chars per token must be between 2 and 10.', 'gpt3-ai-content-generator')));
+                    if ($avg < 2 || $avg > 4) {
+                        $this->send_wp_error(new \WP_Error('invalid_chunk_avg', __('Average chars per token must be between 2 and 4.', 'gpt3-ai-content-generator')));
                         return;
                     }
                     $general_settings['chunk_avg_chars_per_token'] = $avg;
                     $general_dirty = true;
                 }
                 if ($max !== null) {
-                    if ($max < 256 || $max > 8000) {
-                        $this->send_wp_error(new \WP_Error('invalid_chunk_max', __('Max tokens per chunk must be between 256 and 8000.', 'gpt3-ai-content-generator')));
+                    if ($max < 256 || $max > 6000) {
+                        $this->send_wp_error(new \WP_Error('invalid_chunk_max', __('Max tokens per chunk must be between 256 and 6000.', 'gpt3-ai-content-generator')));
                         return;
                     }
                     $general_settings['chunk_max_tokens_per_chunk'] = $max;
@@ -748,9 +806,58 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                     $general_settings['chunk_overlap_tokens'] = $ovl;
                     $general_dirty = true;
                 }
+                if ($effective_overlap >= $effective_max) {
+                    $this->send_wp_error(new \WP_Error('invalid_chunk_overlap_ratio', __('Overlap tokens must be lower than max tokens per chunk.', 'gpt3-ai-content-generator')));
+                    return;
+                }
             }
             // Remove from specific settings payload
             unset($settings['chunk_avg_chars_per_token'], $settings['chunk_max_tokens_per_chunk'], $settings['chunk_overlap_tokens']);
+        }
+        // OpenAI File Search chunking settings (Pro only)
+        if (
+            isset($settings['openai_file_search_chunking_mode']) ||
+            isset($settings['openai_file_search_max_chunk_size_tokens']) ||
+            isset($settings['openai_file_search_chunk_overlap_tokens'])
+        ) {
+            $is_pro = \WPAICG\aipkit_dashboard::is_pro_plan();
+            if ($is_pro) {
+                $mode = isset($settings['openai_file_search_chunking_mode']) ? sanitize_key((string) $settings['openai_file_search_chunking_mode']) : null;
+                $max = isset($settings['openai_file_search_max_chunk_size_tokens']) ? (int) $settings['openai_file_search_max_chunk_size_tokens'] : null;
+                $ovl = isset($settings['openai_file_search_chunk_overlap_tokens']) ? (int) $settings['openai_file_search_chunk_overlap_tokens'] : null;
+                $effective_max = $max !== null ? $max : (int) ($general_settings['openai_file_search_max_chunk_size_tokens'] ?? 800);
+                $effective_overlap = $ovl !== null ? $ovl : (int) ($general_settings['openai_file_search_chunk_overlap_tokens'] ?? 400);
+
+                if ($mode !== null) {
+                    if (!in_array($mode, ['auto', 'custom'], true)) {
+                        $this->send_wp_error(new \WP_Error('invalid_openai_file_search_chunking_mode', __('OpenAI File Search chunking must be Auto or Custom.', 'gpt3-ai-content-generator')));
+                        return;
+                    }
+                    $general_settings['openai_file_search_chunking_mode'] = $mode;
+                    $general_dirty = true;
+                }
+                if ($max !== null) {
+                    if ($max < 100 || $max > 4096) {
+                        $this->send_wp_error(new \WP_Error('invalid_openai_file_search_chunk_max', __('OpenAI File Search max tokens must be between 100 and 4096.', 'gpt3-ai-content-generator')));
+                        return;
+                    }
+                    $general_settings['openai_file_search_max_chunk_size_tokens'] = $max;
+                    $general_dirty = true;
+                }
+                if ($ovl !== null) {
+                    if ($ovl < 0) {
+                        $this->send_wp_error(new \WP_Error('invalid_openai_file_search_chunk_overlap', __('OpenAI File Search overlap tokens must be 0 or higher.', 'gpt3-ai-content-generator')));
+                        return;
+                    }
+                    $general_settings['openai_file_search_chunk_overlap_tokens'] = $ovl;
+                    $general_dirty = true;
+                }
+                if ($effective_overlap > (int) floor($effective_max / 2)) {
+                    $this->send_wp_error(new \WP_Error('invalid_openai_file_search_chunk_overlap_ratio', __('OpenAI File Search overlap cannot exceed half of max tokens per chunk.', 'gpt3-ai-content-generator')));
+                    return;
+                }
+            }
+            unset($settings['openai_file_search_chunking_mode'], $settings['openai_file_search_max_chunk_size_tokens'], $settings['openai_file_search_chunk_overlap_tokens']);
         }
 
         if ($general_dirty) {
@@ -983,10 +1090,100 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             }
         }
 
+        $messages = $this->hydrate_stats_vector_score_chunks($messages);
         $log_row['messages'] = $messages;
         $log_row['message_count'] = $log_row['message_count'] ?? count($messages);
 
         wp_send_json_success($log_row);
+    }
+
+    /**
+     * Adds chunk labels to older vector score entries when the matching source log is available.
+     *
+     * @param array<int,array<string,mixed>> $messages
+     * @return array<int,array<string,mixed>>
+     */
+    private function hydrate_stats_vector_score_chunks(array $messages): array
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
+        $chunk_lookup_cache = [];
+
+        foreach ($messages as &$message) {
+            if (!is_array($message)) {
+                continue;
+            }
+
+            if (empty($message['vector_search_scores']) || !is_array($message['vector_search_scores'])) {
+                continue;
+            }
+
+            foreach ($message['vector_search_scores'] as &$score_item) {
+                if (!is_array($score_item)) {
+                    continue;
+                }
+
+                $has_chunk_data = !empty($score_item['total_chunks'])
+                    && (isset($score_item['chunk_number']) || isset($score_item['chunk_index']));
+                if ($has_chunk_data) {
+                    continue;
+                }
+
+                $provider = isset($score_item['provider']) ? sanitize_text_field((string) $score_item['provider']) : '';
+                if (!in_array($provider, ['Pinecone', 'Qdrant'], true)) {
+                    continue;
+                }
+
+                $result_id = isset($score_item['result_id']) ? sanitize_text_field((string) $score_item['result_id']) : '';
+                if ($result_id === '') {
+                    continue;
+                }
+
+                $store_id = '';
+                if ($provider === 'Pinecone') {
+                    $store_id = isset($score_item['index_name']) ? sanitize_text_field((string) $score_item['index_name']) : '';
+                } elseif ($provider === 'Qdrant') {
+                    $store_id = isset($score_item['collection_name']) ? sanitize_text_field((string) $score_item['collection_name']) : '';
+                }
+                if ($store_id === '') {
+                    continue;
+                }
+
+                $cache_key = $provider . '|' . $store_id . '|' . $result_id;
+                if (!array_key_exists($cache_key, $chunk_lookup_cache)) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only lookup by indexed custom-table columns for stats detail enrichment.
+                    $chunk_lookup_cache[$cache_key] = $wpdb->get_row($wpdb->prepare(
+                        "SELECT message, post_title FROM {$table_name} WHERE provider = %s AND vector_store_id = %s AND file_id = %s ORDER BY timestamp DESC LIMIT 1",
+                        $provider,
+                        $store_id,
+                        $result_id
+                    ), ARRAY_A);
+                }
+
+                $source_row = $chunk_lookup_cache[$cache_key];
+                if (empty($source_row) || !is_array($source_row)) {
+                    continue;
+                }
+
+                $message_text = isset($source_row['message']) ? (string) $source_row['message'] : '';
+                if (preg_match('/chunk\s+(\d+)\s*\/\s*(\d+)/i', $message_text, $matches)) {
+                    $chunk_number = max(1, (int) $matches[1]);
+                    $total_chunks = max(1, (int) $matches[2]);
+                    $score_item['chunk_index'] = $chunk_number - 1;
+                    $score_item['chunk_number'] = $chunk_number;
+                    $score_item['total_chunks'] = $total_chunks;
+                }
+
+                if (empty($score_item['file_name']) && !empty($source_row['post_title'])) {
+                    $score_item['file_name'] = sanitize_text_field((string) $source_row['post_title']);
+                }
+            }
+            unset($score_item);
+        }
+        unset($message);
+
+        return $messages;
     }
 
     public function ajax_export_stats_logs()

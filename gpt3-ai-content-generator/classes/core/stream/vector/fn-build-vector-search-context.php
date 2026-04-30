@@ -17,6 +17,7 @@ $build_context_path = __DIR__ . '/build-context/';
 require_once $build_context_path . 'check-prerequisites.php';
 require_once $build_context_path . 'normalize-embedding-provider.php';
 require_once $build_context_path . 'resolve-embedding-vector.php';
+require_once $build_context_path . 'build-score-item.php';
 require_once $build_context_path . 'resolve-openai-context.php';
 require_once $build_context_path . 'resolve-pinecone-context.php';
 require_once $build_context_path . 'resolve-qdrant-context.php';

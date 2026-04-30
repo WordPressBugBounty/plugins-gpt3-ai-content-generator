@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       AI Puffer – Chat. Create. Automate. (formerly AI Power)
  * Description:       Chat. Create. Automate. All your AI tools in one workspace.
- * Version:           2.4.11
+ * Version:           2.4.12
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -23,7 +23,7 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.4.11' );
+define( 'WPAICG_VERSION', '2.4.12' );
 define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );

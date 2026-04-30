@@ -44,6 +44,19 @@ function upsert_vectors_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstance, s
     $body = ['file_ids' => $file_ids];
     if (isset($vectors['chunking_strategy'])) {
         $body['chunking_strategy'] = $vectors['chunking_strategy'];
+    } else {
+        $configured_chunking_strategy = apply_filters(
+            'aipkit_openai_file_search_chunking_strategy',
+            null,
+            [
+                'operation' => 'file_batch',
+                'vector_store_id' => $vector_store_id,
+                'file_ids' => $file_ids,
+            ]
+        );
+        if (is_array($configured_chunking_strategy)) {
+            $body['chunking_strategy'] = $configured_chunking_strategy;
+        }
     }
 
     return _request_logic($strategyInstance, 'POST', $url, $body);
