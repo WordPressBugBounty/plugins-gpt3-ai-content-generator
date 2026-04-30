@@ -21,6 +21,12 @@ $aipkit_autogpt_setup_config = [
     'prompt_include' => __DIR__ . '/prompts-settings.php',
     'prompt_popover_title' => __('Prompts', 'gpt3-ai-content-generator'),
     'prompt_stage_id' => 'aipkit_task_config_enhancement_ai_and_prompts_main',
+    'prompt_show_back_button' => true,
+    'prompt_track_title' => true,
+    'prompt_root_attrs' => [
+        'data-aipkit-popover-default-view' => 'root',
+        'data-aipkit-popover-active-view' => 'root',
+    ],
 ];
 
 include dirname(__DIR__) . '/shared/setup-panel.php';

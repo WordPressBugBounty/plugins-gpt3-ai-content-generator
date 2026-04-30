@@ -82,6 +82,8 @@ function process_ai_forms_logic(
             null,
             null,
             null,
+            null,
+            null,
             $vector_search_scores // Pass reference to capture scores
         );
 

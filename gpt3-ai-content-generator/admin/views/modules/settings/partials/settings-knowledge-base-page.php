@@ -54,7 +54,10 @@ $kb_options = is_array($kb_options) ? $kb_options : [];
 $kb_semantic_search_settings = isset($kb_options['semantic_search']) && is_array($kb_options['semantic_search'])
     ? $kb_options['semantic_search']
     : [];
-$kb_semantic_vector_provider = $kb_semantic_search_settings['vector_provider'] ?? 'pinecone';
+$kb_semantic_vector_provider = sanitize_key((string) ($kb_semantic_search_settings['vector_provider'] ?? 'pinecone'));
+if (!in_array($kb_semantic_vector_provider, ['pinecone', 'qdrant', 'chroma'], true)) {
+    $kb_semantic_vector_provider = 'pinecone';
+}
 $kb_semantic_target_id = $kb_semantic_search_settings['target_id'] ?? '';
 $kb_semantic_embedding_provider = $kb_semantic_search_settings['embedding_provider'] ?? 'openai';
 $kb_semantic_embedding_model = $kb_semantic_search_settings['embedding_model'] ?? '';
@@ -63,6 +66,7 @@ $kb_semantic_no_results_text = $kb_semantic_search_settings['no_results_text'] ?
 
 $kb_pinecone_index_list = is_array($pinecone_index_list ?? null) ? $pinecone_index_list : [];
 $kb_qdrant_collection_list = is_array($qdrant_collection_list ?? null) ? $qdrant_collection_list : [];
+$kb_chroma_collection_list = is_array($chroma_collection_list ?? null) ? $chroma_collection_list : [];
 $kb_embedding_provider_options = [];
 $kb_embedding_models_by_provider = [];
 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
@@ -71,6 +75,9 @@ if (class_exists('\\WPAICG\\AIPKit_Providers')) {
     }
     if (empty($kb_qdrant_collection_list)) {
         $kb_qdrant_collection_list = \WPAICG\AIPKit_Providers::get_qdrant_collections();
+    }
+    if (empty($kb_chroma_collection_list)) {
+        $kb_chroma_collection_list = \WPAICG\AIPKit_Providers::get_chroma_collections();
     }
     $kb_embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('knowledge_base_settings_ui');
     $kb_embedding_models_by_provider = \WPAICG\AIPKit_Providers::get_embedding_models_by_provider('knowledge_base_settings_ui');
@@ -97,7 +104,12 @@ if ($kb_semantic_vector_provider === 'pinecone') {
     $kb_semantic_current_list = $kb_pinecone_index_list;
 } elseif ($kb_semantic_vector_provider === 'qdrant') {
     $kb_semantic_current_list = $kb_qdrant_collection_list;
+} elseif ($kb_semantic_vector_provider === 'chroma') {
+    $kb_semantic_current_list = $kb_chroma_collection_list;
 }
+$kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'chroma'], true)
+    ? __('Collection', 'gpt3-ai-content-generator')
+    : __('Index', 'gpt3-ai-content-generator');
 ?>
 <div
     class="aipkit_settings_knowledge_base_page"
@@ -106,6 +118,7 @@ if ($kb_semantic_vector_provider === 'pinecone') {
     data-indexing-is-pro="<?php echo $kb_is_pro ? '1' : '0'; ?>"
     data-semantic-pinecone-indexes="<?php echo esc_attr(wp_json_encode($kb_pinecone_index_list ?: [])); ?>"
     data-semantic-qdrant-collections="<?php echo esc_attr(wp_json_encode($kb_qdrant_collection_list ?: [])); ?>"
+    data-semantic-chroma-collections="<?php echo esc_attr(wp_json_encode($kb_chroma_collection_list ?: [])); ?>"
 >
     <section class="aipkit_settings_kb_group" data-aipkit-kb-section="general" data-aipkit-settings-autosave-exclude="true">
         <div class="aipkit_settings_kb_block aipkit_settings_kb_block--basics">
@@ -426,11 +439,12 @@ if ($kb_semantic_vector_provider === 'pinecone') {
                             <select id="aipkit_semantic_search_vector_provider" name="semantic_search_vector_provider" class="aipkit_form-input aipkit_autosave_trigger">
                     <option value="pinecone" <?php selected($kb_semantic_vector_provider, 'pinecone'); ?>><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
                     <option value="qdrant" <?php selected($kb_semantic_vector_provider, 'qdrant'); ?>><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="chroma" <?php selected($kb_semantic_vector_provider, 'chroma'); ?>><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
                             </select>
                         </div>
                         <div class="aipkit_form-group aipkit_settings_simple_row">
                             <label class="aipkit_form-label" id="aipkit_semantic_search_target_label" for="aipkit_semantic_search_target_id">
-                                <span data-aipkit-semantic-target-label-text><?php esc_html_e('Index', 'gpt3-ai-content-generator'); ?></span>
+                                <span data-aipkit-semantic-target-label-text><?php echo esc_html($kb_semantic_target_label); ?></span>
                                 <span class="aipkit_form-label-helper"><?php esc_html_e('Target index or collection.', 'gpt3-ai-content-generator'); ?></span>
                             </label>
                             <select id="aipkit_semantic_search_target_id" name="semantic_search_target_id" class="aipkit_form-input aipkit_autosave_trigger">

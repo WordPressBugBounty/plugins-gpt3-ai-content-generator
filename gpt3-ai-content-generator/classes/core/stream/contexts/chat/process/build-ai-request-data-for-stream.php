@@ -41,6 +41,8 @@ if (!defined('ABSPATH')) {
  * @param string|null $frontend_active_pinecone_namespace Active Pinecone namespace.
  * @param string|null $frontend_active_qdrant_collection_name Active Qdrant collection name.
  * @param string|null $frontend_active_qdrant_file_upload_context_id Active Qdrant file context ID.
+ * @param string|null $frontend_active_chroma_collection_name Active Chroma collection name.
+ * @param string|null $frontend_active_chroma_file_upload_context_id Active Chroma file context ID.
  * @param string|null $frontend_active_claude_file_id Active Claude file ID.
  * @return array|WP_Error Prepared data array or WP_Error.
  */
@@ -63,6 +65,8 @@ function build_ai_request_data_for_stream_logic(
     ?string $frontend_active_pinecone_namespace,
     ?string $frontend_active_qdrant_collection_name,
     ?string $frontend_active_qdrant_file_upload_context_id,
+    ?string $frontend_active_chroma_collection_name,
+    ?string $frontend_active_chroma_file_upload_context_id,
     ?string $frontend_active_claude_file_id
 ): array|WP_Error {
 
@@ -122,6 +126,8 @@ function build_ai_request_data_for_stream_logic(
             $frontend_active_pinecone_namespace,
             $frontend_active_qdrant_collection_name,
             $frontend_active_qdrant_file_upload_context_id,
+            $frontend_active_chroma_collection_name,
+            $frontend_active_chroma_file_upload_context_id,
             $vector_search_scores // Pass reference to capture scores
         );
     }

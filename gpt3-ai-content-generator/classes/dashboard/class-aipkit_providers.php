@@ -74,6 +74,13 @@ class AIPKit_Providers
         'Qdrant' => [ // Ensure API key is part of defaults as it's now mandatory for cloud
             'api_key' => '', 'url' => '', 'default_collection' => '',
         ],
+        'Chroma' => [
+            'api_key' => '',
+            'url' => '',
+            'tenant' => 'default_tenant',
+            'database' => 'default_database',
+            'default_collection' => '',
+        ],
         'Replicate' => [
             'api_key' => '',
         ],
@@ -188,6 +195,10 @@ class AIPKit_Providers
             'default' => '',
             'models' => [],
         ],
+        'ChromaCollections' => [
+            'default' => '',
+            'models' => [],
+        ],
         'Replicate' => [
             'default' => '',
             'models' => [],
@@ -213,6 +224,7 @@ class AIPKit_Providers
         'OpenAISTT'        => 'aipkit_openai_stt_model_list',
         'PineconeIndexes'   => 'aipkit_pinecone_index_list',
         'QdrantCollections' => 'aipkit_qdrant_collection_list', // Added Qdrant option
+        'ChromaCollections' => 'aipkit_chroma_collection_list',
         'Replicate' => 'aipkit_replicate_model_list',
     ];
 
@@ -237,7 +249,7 @@ class AIPKit_Providers
         }
 
         $valid_provider_keys = array_keys(self::$provider_defaults);
-        $blocked_provider_keys = ['ElevenLabs', 'Pexels', 'Pixabay', 'Pinecone', 'Qdrant', 'Replicate'];
+        $blocked_provider_keys = ['ElevenLabs', 'Pexels', 'Pixabay', 'Pinecone', 'Qdrant', 'Chroma', 'Replicate'];
         $normalized = [];
 
         foreach ($filtered_allowlist as $provider) {
@@ -728,7 +740,7 @@ class AIPKit_Providers
      * Returns vector-store localization payload for admin UI scripts.
      *
      * Uses registry data when available and falls back to saved model-list
-     * options for Pinecone/Qdrant in partial-sync states.
+     * options for Pinecone/Qdrant/Chroma in partial-sync states.
      *
      * @param string $context
      * @return array<string, mixed>
@@ -738,6 +750,7 @@ class AIPKit_Providers
         $openai_vector_stores = [];
         $pinecone_indexes = self::get_pinecone_indexes();
         $qdrant_collections = self::get_qdrant_collections();
+        $chroma_collections = self::get_chroma_collections();
 
         if (class_exists(AIPKit_Vector_Store_Registry::class)) {
             $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
@@ -751,6 +764,11 @@ class AIPKit_Providers
             if (is_array($registry_qdrant_collections) && !empty($registry_qdrant_collections)) {
                 $qdrant_collections = $registry_qdrant_collections;
             }
+
+            $registry_chroma_collections = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Chroma');
+            if (is_array($registry_chroma_collections) && !empty($registry_chroma_collections)) {
+                $chroma_collections = $registry_chroma_collections;
+            }
         }
 
         $payload = [
@@ -758,13 +776,16 @@ class AIPKit_Providers
                 'openai' => $openai_vector_stores,
                 'pinecone' => $pinecone_indexes,
                 'qdrant' => $qdrant_collections,
+                'chroma' => $chroma_collections,
             ],
             'openaiVectorStores' => $openai_vector_stores,
             'pineconeIndexes' => $pinecone_indexes,
             'qdrantCollections' => $qdrant_collections,
+            'chromaCollections' => $chroma_collections,
             'openai_vector_stores' => $openai_vector_stores,
             'pinecone_indexes' => $pinecone_indexes,
             'qdrant_collections' => $qdrant_collections,
+            'chroma_collections' => $chroma_collections,
         ];
 
         $filtered_payload = apply_filters('aipkit_vector_store_localization_payload', $payload, $context);
@@ -1394,6 +1415,10 @@ class AIPKit_Providers
     public static function get_qdrant_collections(): array
     {
         return self::get_model_list('QdrantCollections');
+    }
+    public static function get_chroma_collections(): array
+    {
+        return self::get_model_list('ChromaCollections');
     }
     public static function get_replicate_models(): array
     {

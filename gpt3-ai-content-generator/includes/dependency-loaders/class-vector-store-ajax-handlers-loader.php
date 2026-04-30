@@ -31,10 +31,11 @@ class Vector_Store_Ajax_Handlers_Loader
             }
         }
 
-        // Load Pinecone and Qdrant main handler classes from their new locations
+        // Load external vector store handler classes from their locations.
         $other_handlers_to_load = [
             'pinecone/class-aipkit-vector-store-pinecone-ajax-handler.php', // Updated path
             'qdrant/class-aipkit-vector-store-qdrant-ajax-handler.php',   // Updated path
+            'chroma/class-aipkit-vector-store-chroma-ajax-handler.php',
         ];
         foreach ($other_handlers_to_load as $handler_file_rel_path) {
             $full_path = $ajax_handlers_path . $handler_file_rel_path;
@@ -43,7 +44,7 @@ class Vector_Store_Ajax_Handlers_Loader
             }
         }
 
-        // REMOVED loading of old fn-*.php files for OpenAI, Pinecone, and Qdrant.
+        // REMOVED loading of old fn-*.php files for OpenAI, Pinecone, Qdrant, and Chroma.
         // The logic is now in handler-files/, handler-stores/, handler-indexing/ (for OpenAI)
         // or handler-indexes/ (for Pinecone), or handler-collections/ (for Qdrant)
         // and these are included by the respective handler class methods.

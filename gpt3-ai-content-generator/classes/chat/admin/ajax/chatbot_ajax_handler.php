@@ -1426,7 +1426,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             ? sanitize_text_field(wp_unslash($_POST['vector_store_provider']))
             : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
         $main_provider = (string) get_post_meta($bot_id, '_aipkit_provider', true);
-        $allowed_providers = ['openai', 'pinecone', 'qdrant'];
+        $allowed_providers = ['openai', 'pinecone', 'qdrant', 'chroma'];
         if (strtolower($main_provider) === 'claude') {
             $allowed_providers[] = 'claude_files';
         }
@@ -1477,9 +1477,28 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $qdrant_collection_names = array_values(array_unique($qdrant_collection_names));
         $qdrant_collection_name = $qdrant_collection_names[0] ?? '';
 
+        $chroma_collection_names = [];
+        if ($vector_store_provider === 'chroma') {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+            if (isset($_POST['chroma_collection_names'])) {
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+                $raw_names = wp_unslash($_POST['chroma_collection_names']);
+                if (is_array($raw_names)) {
+                    foreach ($raw_names as $name) {
+                        $sanitized_name = sanitize_text_field(trim((string) $name));
+                        if ($sanitized_name !== '') {
+                            $chroma_collection_names[] = $sanitized_name;
+                        }
+                    }
+                }
+            }
+        }
+        $chroma_collection_names = array_values(array_unique($chroma_collection_names));
+        $chroma_collection_name = $chroma_collection_names[0] ?? '';
+
         $vector_embedding_provider = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
         $vector_embedding_model = '';
-        if (in_array($vector_store_provider, ['pinecone', 'qdrant'], true)) {
+        if (in_array($vector_store_provider, ['pinecone', 'qdrant', 'chroma'], true)) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $vector_embedding_provider = isset($_POST['vector_embedding_provider'])
                 ? sanitize_key(wp_unslash($_POST['vector_embedding_provider']))
@@ -1525,6 +1544,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             delete_post_meta($bot_id, '_aipkit_pinecone_index_name');
             delete_post_meta($bot_id, '_aipkit_qdrant_collection_name');
             delete_post_meta($bot_id, '_aipkit_qdrant_collection_names');
+            delete_post_meta($bot_id, '_aipkit_chroma_collection_name');
+            delete_post_meta($bot_id, '_aipkit_chroma_collection_names');
             delete_post_meta($bot_id, '_aipkit_vector_embedding_provider');
             delete_post_meta($bot_id, '_aipkit_vector_embedding_model');
         } elseif ($vector_store_provider === 'pinecone') {
@@ -1534,6 +1555,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             delete_post_meta($bot_id, '_aipkit_openai_vector_store_ids');
             delete_post_meta($bot_id, '_aipkit_qdrant_collection_name');
             delete_post_meta($bot_id, '_aipkit_qdrant_collection_names');
+            delete_post_meta($bot_id, '_aipkit_chroma_collection_name');
+            delete_post_meta($bot_id, '_aipkit_chroma_collection_names');
         } elseif ($vector_store_provider === 'qdrant') {
             update_post_meta($bot_id, '_aipkit_qdrant_collection_name', $qdrant_collection_name);
             update_post_meta($bot_id, '_aipkit_qdrant_collection_names', wp_json_encode($qdrant_collection_names));
@@ -1541,11 +1564,24 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             update_post_meta($bot_id, '_aipkit_vector_embedding_model', $vector_embedding_model);
             delete_post_meta($bot_id, '_aipkit_openai_vector_store_ids');
             delete_post_meta($bot_id, '_aipkit_pinecone_index_name');
+            delete_post_meta($bot_id, '_aipkit_chroma_collection_name');
+            delete_post_meta($bot_id, '_aipkit_chroma_collection_names');
+        } elseif ($vector_store_provider === 'chroma') {
+            update_post_meta($bot_id, '_aipkit_chroma_collection_name', $chroma_collection_name);
+            update_post_meta($bot_id, '_aipkit_chroma_collection_names', wp_json_encode($chroma_collection_names));
+            update_post_meta($bot_id, '_aipkit_vector_embedding_provider', $vector_embedding_provider);
+            update_post_meta($bot_id, '_aipkit_vector_embedding_model', $vector_embedding_model);
+            delete_post_meta($bot_id, '_aipkit_openai_vector_store_ids');
+            delete_post_meta($bot_id, '_aipkit_pinecone_index_name');
+            delete_post_meta($bot_id, '_aipkit_qdrant_collection_name');
+            delete_post_meta($bot_id, '_aipkit_qdrant_collection_names');
         } else {
             delete_post_meta($bot_id, '_aipkit_openai_vector_store_ids');
             delete_post_meta($bot_id, '_aipkit_pinecone_index_name');
             delete_post_meta($bot_id, '_aipkit_qdrant_collection_name');
             delete_post_meta($bot_id, '_aipkit_qdrant_collection_names');
+            delete_post_meta($bot_id, '_aipkit_chroma_collection_name');
+            delete_post_meta($bot_id, '_aipkit_chroma_collection_names');
             delete_post_meta($bot_id, '_aipkit_vector_embedding_provider');
             delete_post_meta($bot_id, '_aipkit_vector_embedding_model');
         }
@@ -2585,6 +2621,11 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $override_qdrant_names = $has_qdrant_override
             ? (array) wp_unslash($_POST['qdrant_collection_names'])
             : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $has_chroma_override = isset($_POST['chroma_collection_names']);
+        $override_chroma_names = $has_chroma_override
+            ? (array) wp_unslash($_POST['chroma_collection_names'])
+            : null;
 
         $vector_store_enabled = $settings['enable_vector_store'] ?? BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
         if ($override_enable_vector_store !== null) {
@@ -2600,13 +2641,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         $provider_key = $settings['vector_store_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'claude_files'], true)) {
+        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files'], true)) {
             $provider_key = $override_provider;
         }
         $provider_map = [
             'openai' => 'OpenAI',
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
+            'chroma' => 'Chroma',
         ];
         $provider_name = $provider_map[$provider_key] ?? '';
         if ($provider_name === '') {
@@ -2645,6 +2687,18 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             }
             if (empty($store_ids) && !empty($settings['qdrant_collection_name']) && !$has_qdrant_override) {
                 $store_ids = [$settings['qdrant_collection_name']];
+            }
+        } elseif ($provider_key === 'chroma') {
+            if ($has_chroma_override && is_array($override_chroma_names)) {
+                $store_ids = array_filter(array_map('sanitize_text_field', $override_chroma_names));
+            } else {
+                $store_ids = $settings['chroma_collection_names'] ?? [];
+            }
+            if (!is_array($store_ids)) {
+                $store_ids = json_decode((string) $store_ids, true);
+            }
+            if (empty($store_ids) && !empty($settings['chroma_collection_name']) && !$has_chroma_override) {
+                $store_ids = [$settings['chroma_collection_name']];
             }
         }
 
@@ -2748,6 +2802,11 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $override_qdrant_names = $has_qdrant_override
             ? (array) wp_unslash($_POST['qdrant_collection_names'])
             : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $has_chroma_override = isset($_POST['chroma_collection_names']);
+        $override_chroma_names = $has_chroma_override
+            ? (array) wp_unslash($_POST['chroma_collection_names'])
+            : null;
 
         $vector_store_enabled = $settings['enable_vector_store'] ?? BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
         if ($override_enable_vector_store !== null) {
@@ -2768,13 +2827,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         $provider_key = $settings['vector_store_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'claude_files'], true)) {
+        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files'], true)) {
             $provider_key = $override_provider;
         }
         $provider_map = [
             'openai' => 'OpenAI',
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
+            'chroma' => 'Chroma',
         ];
         $provider_label = $provider_map[$provider_key] ?? '';
         if (!$provider_label) {
@@ -2805,6 +2865,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $store_ids = is_array($override_qdrant_names)
                 ? array_filter(array_map('sanitize_text_field', $override_qdrant_names))
                 : array_filter((array) ($settings['qdrant_collection_names'] ?? []));
+        } elseif ($provider_key === 'chroma') {
+            $store_ids = is_array($override_chroma_names)
+                ? array_filter(array_map('sanitize_text_field', $override_chroma_names))
+                : array_filter((array) ($settings['chroma_collection_names'] ?? []));
         }
 
         if (empty($store_ids)) {

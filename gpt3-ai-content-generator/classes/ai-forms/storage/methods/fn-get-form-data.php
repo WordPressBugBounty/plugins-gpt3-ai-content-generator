@@ -121,6 +121,7 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
 
     $data['pinecone_index_name'] = get_post_meta($form_id, '_aipkit_ai_form_pinecone_index_name', true) ?: '';
     $data['qdrant_collection_name'] = get_post_meta($form_id, '_aipkit_ai_form_qdrant_collection_name', true) ?: '';
+    $data['chroma_collection_name'] = get_post_meta($form_id, '_aipkit_ai_form_chroma_collection_name', true) ?: '';
 
     $allowed_embedding_provider_keys = AIPKit_Providers::get_embedding_provider_keys('ai_forms_get_form_data');
 

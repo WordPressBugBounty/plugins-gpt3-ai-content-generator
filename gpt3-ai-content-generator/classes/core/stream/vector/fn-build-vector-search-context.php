@@ -21,6 +21,7 @@ require_once $build_context_path . 'build-score-item.php';
 require_once $build_context_path . 'resolve-openai-context.php';
 require_once $build_context_path . 'resolve-pinecone-context.php';
 require_once $build_context_path . 'resolve-qdrant-context.php';
+require_once $build_context_path . 'resolve-chroma-context.php';
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -40,6 +41,8 @@ if (!defined('ABSPATH')) {
  * @param string|null $frontend_active_pinecone_namespace Optional active Pinecone namespace from frontend.
  * @param string|null $frontend_active_qdrant_collection_name Optional active Qdrant collection name.
  * @param string|null $frontend_active_qdrant_file_upload_context_id Optional active Qdrant file context ID.
+ * @param string|null $frontend_active_chroma_collection_name Optional active Chroma collection name.
+ * @param string|null $frontend_active_chroma_file_upload_context_id Optional active Chroma file context ID.
  * @param array|null &$vector_search_scores_output Optional reference to capture vector search scores for logging.
  * @return string The formatted context string from vector searches, or an empty string.
  */
@@ -54,6 +57,8 @@ function build_vector_search_context_logic(
     ?string $frontend_active_pinecone_namespace = null,
     ?string $frontend_active_qdrant_collection_name = null,
     ?string $frontend_active_qdrant_file_upload_context_id = null,
+    ?string $frontend_active_chroma_collection_name = null,
+    ?string $frontend_active_chroma_file_upload_context_id = null,
     ?array &$vector_search_scores_output = null
 ): string {
     global $wpdb;
@@ -114,6 +119,20 @@ function build_vector_search_context_logic(
             $vector_search_scores_output
         );
         $all_formatted_results .= $qdrant_results;
+    } elseif ($vector_provider_from_bot === 'chroma') {
+        $chroma_results = BuildContext\resolve_chroma_context_logic(
+            $ai_caller,
+            $vector_store_manager,
+            $user_message,
+            $bot_settings,
+            $frontend_active_chroma_collection_name,
+            $frontend_active_chroma_file_upload_context_id,
+            $vector_top_k,
+            $wpdb,
+            $data_source_table_name,
+            $vector_search_scores_output
+        );
+        $all_formatted_results .= $chroma_results;
     }
     
     return trim($all_formatted_results);

@@ -119,6 +119,7 @@ $aipkit_embedding_options_allowed_html = [
                     <option value="openai" <?php selected($vector_store_provider, 'openai'); ?>>OpenAI</option>
                     <option value="pinecone" <?php selected($vector_store_provider, 'pinecone'); ?>>Pinecone</option>
                     <option value="qdrant" <?php selected($vector_store_provider, 'qdrant'); ?>>Qdrant</option>
+                    <option value="chroma" <?php selected($vector_store_provider, 'chroma'); ?>>Chroma</option>
                     <option value="claude_files" <?php selected($vector_store_provider, 'claude_files'); ?>><?php esc_html_e('Claude Files', 'gpt3-ai-content-generator'); ?></option>
                 </select>
             </div>
@@ -421,9 +422,79 @@ $aipkit_embedding_options_allowed_html = [
             </div>
         </div>
 
+        <div class="aipkit_popover_option_row aipkit_vector_store_chroma_field" style="<?php echo ($enable_vector_store === '1' && $vector_store_provider === 'chroma') ? '' : 'display:none;'; ?>">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chroma_collection_names_modal"
+
+                >
+                    <?php esc_html_e('Collections', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_popover_option_actions">
+                    <div
+                        class="aipkit_popover_multiselect"
+                        data-aipkit-chroma-collections-dropdown
+                        data-placeholder="<?php echo esc_attr__('Select collections', 'gpt3-ai-content-generator'); ?>"
+                        data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
+                    >
+                        <button
+                            type="button"
+                            class="aipkit_popover_multiselect_btn"
+                            aria-expanded="false"
+                            aria-controls="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chroma_collections_panel"
+                        >
+                            <span class="aipkit_popover_multiselect_label">
+                                <?php esc_html_e('Select collections', 'gpt3-ai-content-generator'); ?>
+                            </span>
+                        </button>
+                        <div
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chroma_collections_panel"
+                            class="aipkit_popover_multiselect_panel"
+                            role="menu"
+                            hidden
+                        >
+                            <div class="aipkit_popover_multiselect_options"></div>
+                        </div>
+                    </div>
+                </div>
+                <select
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chroma_collection_names_modal"
+                    name="chroma_collection_names[]"
+                    class="aipkit_popover_multiselect_select"
+                    multiple
+                    size="3"
+                    hidden
+                    aria-hidden="true"
+                    tabindex="-1"
+                >
+                    <?php
+                    if (!empty($chroma_collections)) {
+                        foreach ($chroma_collections as $collection) {
+                            $collection_name = is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection;
+                            if ($collection_name === '') {
+                                continue;
+                            }
+                            echo '<option value="' . esc_attr($collection_name) . '"' . selected(in_array($collection_name, $chroma_collection_names, true), true, false) . '>' . esc_html($collection_name) . '</option>';
+                        }
+                    }
+                    $known_chroma_collection_names = array_map(function ($collection) { return is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection; }, $chroma_collections);
+                    foreach ($chroma_collection_names as $saved_name) {
+                        if (!in_array($saved_name, $known_chroma_collection_names, true)) {
+                            echo '<option value="' . esc_attr($saved_name) . '" selected="selected">' . esc_html($saved_name) . '</option>';
+                        }
+                    }
+                    if (empty($chroma_collections) && empty($chroma_collection_names)) {
+                        echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+        </div>
+
         <div
             class="aipkit_popover_option_row aipkit_vector_store_embedding_config_row"
-            style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['pinecone', 'qdrant'], true)) ? '' : 'display:none;'; ?>"
+            style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['pinecone', 'qdrant', 'chroma'], true)) ? '' : 'display:none;'; ?>"
         >
             <div class="aipkit_popover_option_main">
                 <label
@@ -498,7 +569,7 @@ $aipkit_embedding_options_allowed_html = [
             </div>
         </div>
 
-        <div class="aipkit_popover_option_row aipkit_vector_store_advanced_field" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'pinecone', 'qdrant'], true)) ? '' : 'display:none;'; ?>">
+        <div class="aipkit_popover_option_row aipkit_vector_store_advanced_field" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'pinecone', 'qdrant', 'chroma'], true)) ? '' : 'display:none;'; ?>">
             <div class="aipkit_popover_option_main aipkit_vector_store_advanced_main">
                 <div class="aipkit_vector_store_advanced_panel">
                     <div class="aipkit_popover_option_row aipkit_vector_store_top_k_field">
@@ -556,6 +627,8 @@ $aipkit_embedding_options_allowed_html = [
             data-message-qdrant="<?php echo esc_attr__('You selected Qdrant as a vector provider, but it is not configured yet. Add its API key and URL in Settings.', 'gpt3-ai-content-generator'); ?>"
             data-message-qdrant-key="<?php echo esc_attr__('You selected Qdrant as a vector provider, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
             data-message-qdrant-url="<?php echo esc_attr__('You selected Qdrant as a vector provider, but it is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
+            data-message-chroma="<?php echo esc_attr__('You selected Chroma as a vector provider, but it is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
+            data-message-chroma-url="<?php echo esc_attr__('You selected Chroma as a vector provider, but it is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
             data-message-claude_files="<?php echo esc_attr__('You selected Claude Files as a vector provider, but it is not configured yet. Add Claude API key in Settings.', 'gpt3-ai-content-generator'); ?>"
             data-message-claude_files-provider="<?php echo esc_attr__('You selected Claude Files as a vector provider, but it requires Claude as chatbot engine.', 'gpt3-ai-content-generator'); ?>"
             data-message-default="<?php echo esc_attr__('The selected vector provider is not configured yet. Add required credentials in Settings.', 'gpt3-ai-content-generator'); ?>"

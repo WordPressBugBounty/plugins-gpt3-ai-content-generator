@@ -22,7 +22,7 @@ class Vector_Post_Processor_Classes_Loader
         }
 
         // Load provider-specific directories and their components
-        $provider_dirs = ['openai', 'pinecone', 'qdrant'];
+        $provider_dirs = ['openai', 'pinecone', 'qdrant', 'chroma'];
 
         foreach ($provider_dirs as $provider_dir) {
             $provider_path = $vpp_base_path . $provider_dir . '/';
@@ -38,7 +38,7 @@ class Vector_Post_Processor_Classes_Loader
             }
 
             // Embedding Handler (not all providers have one)
-            if ($provider_dir === 'pinecone' || $provider_dir === 'qdrant') {
+            if ($provider_dir === 'pinecone' || $provider_dir === 'qdrant' || $provider_dir === 'chroma') {
                 $embed_full_path = $provider_path . $class_embedding_handler_file;
                 $embed_class_name = '\\WPAICG\\Vector\\PostProcessor\\' . ucfirst($provider_dir) . '\\' . ucfirst($provider_dir) . 'EmbeddingHandler';
                 if (file_exists($embed_full_path) && !class_exists($embed_class_name)) {

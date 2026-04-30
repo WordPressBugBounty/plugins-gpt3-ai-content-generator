@@ -31,7 +31,11 @@ function build_task_config_indexing_logic(array $post_data): array|WP_Error
         return new WP_Error('missing_target_store', __('Target vector store/index is required for content indexing.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
 
-    if ($task_config['target_store_provider'] === 'pinecone' || $task_config['target_store_provider'] === 'qdrant') {
+    if (
+        $task_config['target_store_provider'] === 'pinecone' ||
+        $task_config['target_store_provider'] === 'qdrant' ||
+        $task_config['target_store_provider'] === 'chroma'
+    ) {
         // The frontend already split the provider and model.
         $task_config['embedding_provider'] = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : null;
         $task_config['embedding_model'] = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : null;

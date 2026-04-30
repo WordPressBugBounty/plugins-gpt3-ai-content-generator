@@ -37,67 +37,100 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
     <div class="aipkit_container-body" id="aipkit_sources_container_body">
         <div class="aipkit_chatbot_builder" data-aipkit-context="sources">
             <?php include WPAICG_PLUGIN_DIR . 'admin/views/shared/vector-store-nonce-fields.php'; ?>
-            <div class="aipkit_sources_workspace_tabs" role="tablist" aria-label="<?php esc_attr_e('Knowledge base sections', 'gpt3-ai-content-generator'); ?>">
-                <button type="button" class="aipkit_sources_workspace_tab is-active" id="aipkit_sources_data_tab" role="tab" aria-selected="true" aria-controls="aipkit_sources_data_panel" data-aipkit-sources-tab="data">
-                    <?php esc_html_e('Data', 'gpt3-ai-content-generator'); ?>
-                </button>
-                <button type="button" class="aipkit_sources_workspace_tab" id="aipkit_sources_stores_tab" role="tab" aria-selected="false" aria-controls="aipkit_sources_stores_panel" data-aipkit-sources-tab="stores">
-                    <?php esc_html_e('Stores', 'gpt3-ai-content-generator'); ?>
-                </button>
-                <button type="button" class="aipkit_sources_workspace_tab" id="aipkit_sources_settings_tab" role="tab" aria-selected="false" aria-controls="aipkit_sources_settings_panel" data-aipkit-sources-tab="settings">
-                    <?php esc_html_e('Settings', 'gpt3-ai-content-generator'); ?>
-                </button>
-            </div>
-            <div id="aipkit_sources_data_panel" class="aipkit_sources_workspace_panel is-active" role="tabpanel" aria-labelledby="aipkit_sources_data_tab">
-            <div class="aipkit_sources_meta" aria-label="<?php esc_attr_e('Filters', 'gpt3-ai-content-generator'); ?>">
-                <label class="screen-reader-text" for="aipkit_sources_provider_filter">
-                    <?php esc_html_e('Provider filter', 'gpt3-ai-content-generator'); ?>
-                </label>
-                <select
-                    id="aipkit_sources_provider_filter"
-                    class="aipkit_sources_filter_select aipkit_sources_native_provider_select"
-                >
-                    <option value=""><?php esc_html_e('All providers', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
-                </select>
-                <label class="screen-reader-text" for="aipkit_sources_index_filter">
-                    <?php esc_html_e('Index selection', 'gpt3-ai-content-generator'); ?>
-                </label>
-                <select
-                    id="aipkit_sources_index_filter"
-                    class="aipkit_popover_select aipkit_sources_filter_select"
-                    data-aipkit-picker-title="<?php esc_attr_e('Index', 'gpt3-ai-content-generator'); ?>"
-                    hidden
-                    disabled
-                >
-                    <option value=""><?php esc_html_e('All indexes', 'gpt3-ai-content-generator'); ?></option>
-                </select>
-                <label class="screen-reader-text" for="aipkit_sources_search_input">
-                    <?php esc_html_e('Search sources', 'gpt3-ai-content-generator'); ?>
-                </label>
-                <span class="aipkit_sources_search_control">
-                    <span class="dashicons dashicons-search" aria-hidden="true"></span>
-                    <input
-                        type="search"
-                        id="aipkit_sources_search_input"
-                        class="aipkit_sources_search_input"
-                        placeholder="<?php esc_attr_e('Search', 'gpt3-ai-content-generator'); ?>"
+            <div class="aipkit_sources_workspace_bar">
+                <div class="aipkit_sources_workspace_tabs" role="tablist" aria-label="<?php esc_attr_e('Knowledge base sections', 'gpt3-ai-content-generator'); ?>">
+                    <button type="button" class="aipkit_sources_workspace_tab is-active" id="aipkit_sources_data_tab" role="tab" aria-selected="true" aria-controls="aipkit_sources_data_panel" data-aipkit-sources-tab="data">
+                        <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
+                        <?php esc_html_e('Data', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                    <button type="button" class="aipkit_sources_workspace_tab" id="aipkit_sources_stores_tab" role="tab" aria-selected="false" aria-controls="aipkit_sources_stores_panel" data-aipkit-sources-tab="stores">
+                        <span class="dashicons dashicons-archive" aria-hidden="true"></span>
+                        <?php esc_html_e('Stores', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                    <button type="button" class="aipkit_sources_workspace_tab" id="aipkit_sources_settings_tab" role="tab" aria-selected="false" aria-controls="aipkit_sources_settings_panel" data-aipkit-sources-tab="settings">
+                        <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                        <?php esc_html_e('Settings', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                </div>
+                <div class="aipkit_sources_meta aipkit_sources_workspace_tools is-active" data-aipkit-sources-tools="data" aria-label="<?php esc_attr_e('Data tools', 'gpt3-ai-content-generator'); ?>">
+                    <label class="screen-reader-text" for="aipkit_sources_provider_filter">
+                        <?php esc_html_e('Provider filter', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <select
+                        id="aipkit_sources_provider_filter"
+                        class="aipkit_sources_filter_select aipkit_sources_native_provider_select"
                     >
-                </span>
-                <span class="aipkit_sources_meta_action">
+                        <option value=""><?php esc_html_e('All providers', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="chroma"><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
+                    <label class="screen-reader-text" for="aipkit_sources_index_filter">
+                        <?php esc_html_e('Index selection', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <select
+                        id="aipkit_sources_index_filter"
+                        class="aipkit_popover_select aipkit_sources_filter_select"
+                        data-aipkit-picker-title="<?php esc_attr_e('Index', 'gpt3-ai-content-generator'); ?>"
+                        hidden
+                        disabled
+                    >
+                        <option value=""><?php esc_html_e('All indexes', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
+                    <label class="screen-reader-text" for="aipkit_sources_search_input">
+                        <?php esc_html_e('Search sources', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <span class="aipkit_sources_search_control">
+                        <span class="dashicons dashicons-search" aria-hidden="true"></span>
+                        <input
+                            type="search"
+                            id="aipkit_sources_search_input"
+                            class="aipkit_sources_search_input"
+                            placeholder="<?php esc_attr_e('Search', 'gpt3-ai-content-generator'); ?>"
+                        >
+                    </span>
+                    <span class="aipkit_sources_meta_action">
+                        <button
+                            type="button"
+                            class="aipkit_btn aipkit_btn-primary aipkit_btn-small"
+                            id="aipkit_sources_training_toggle"
+                            aria-expanded="false"
+                            aria-controls="aipkit_sources_training_panel"
+                        >
+                            <?php esc_html_e('+ Add Data', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                    </span>
+                </div>
+                <div class="aipkit_sources_meta aipkit_sources_workspace_tools aipkit_sources_stores_meta" data-aipkit-sources-tools="stores" aria-label="<?php esc_attr_e('Store tools', 'gpt3-ai-content-generator'); ?>" hidden>
+                    <label class="screen-reader-text" for="aipkit_sources_store_provider_filter">
+                        <?php esc_html_e('Provider filter', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <select
+                        id="aipkit_sources_store_provider_filter"
+                        class="aipkit_sources_filter_select aipkit_sources_native_provider_select"
+                    >
+                        <option value=""><?php esc_html_e('All providers', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="chroma"><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
                     <button
                         type="button"
-                        class="aipkit_btn aipkit_btn-primary aipkit_btn-small"
-                        id="aipkit_sources_training_toggle"
-                        aria-expanded="false"
-                        aria-controls="aipkit_sources_training_panel"
+                        id="aipkit_sources_stores_refresh"
+                        class="aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_sources_sync_btn"
                     >
-                        <?php esc_html_e('+ Add Data', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_btn_label"><?php esc_html_e('Refresh', 'gpt3-ai-content-generator'); ?></span>
                     </button>
-                </span>
+                    <span class="aipkit_sources_meta_action">
+                        <button type="button" id="aipkit_sources_create_store" class="aipkit_btn aipkit_btn-primary aipkit_btn-small">
+                            <?php esc_html_e('Create Store', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                    </span>
+                </div>
             </div>
+            <div id="aipkit_sources_data_panel" class="aipkit_sources_workspace_panel is-active" role="tabpanel" aria-labelledby="aipkit_sources_data_tab">
             <div
                 class="aipkit_sources_training_inline"
                 id="aipkit_sources_training_panel"
@@ -129,6 +162,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                     <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                                     <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
                                     <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
+                                    <option value="chroma"><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
                                 </select>
                             </span>
                             <span class="aipkit_sources_training_control">
@@ -478,32 +512,6 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                 aria-labelledby="aipkit_sources_stores_tab"
                 hidden
             >
-                <div class="aipkit_sources_meta aipkit_sources_stores_meta" aria-label="<?php esc_attr_e('Store filters', 'gpt3-ai-content-generator'); ?>">
-                    <label class="screen-reader-text" for="aipkit_sources_store_provider_filter">
-                        <?php esc_html_e('Provider filter', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <select
-                        id="aipkit_sources_store_provider_filter"
-                        class="aipkit_sources_filter_select aipkit_sources_native_provider_select"
-                    >
-                        <option value=""><?php esc_html_e('All providers', 'gpt3-ai-content-generator'); ?></option>
-                        <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
-                        <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
-                        <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
-                    </select>
-                    <button
-                        type="button"
-                        id="aipkit_sources_stores_refresh"
-                        class="aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_sources_sync_btn"
-                    >
-                        <span class="aipkit_btn_label"><?php esc_html_e('Refresh', 'gpt3-ai-content-generator'); ?></span>
-                    </button>
-                    <span class="aipkit_sources_meta_action">
-                        <button type="button" id="aipkit_sources_create_store" class="aipkit_btn aipkit_btn-primary aipkit_btn-small">
-                            <?php esc_html_e('Create Store', 'gpt3-ai-content-generator'); ?>
-                        </button>
-                    </span>
-                </div>
                 <div class="aipkit_data-table aipkit_sources_table aipkit_sources_stores_table">
                     <table>
                         <thead>
@@ -581,6 +589,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                         <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                         <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
                         <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="chroma"><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
                     </select>
                 </div>
                 <div class="aipkit_builder_field">

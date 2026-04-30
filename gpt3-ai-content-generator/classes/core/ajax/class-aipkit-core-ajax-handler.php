@@ -12,6 +12,7 @@ use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor;
 use WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor;
 use WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor;
+use WPAICG\Vector\PostProcessor\Chroma\ChromaPostProcessor;
 use WPAICG\Chat\Storage\LogStorage;
 use WPAICG\Chat\Storage\LogCronManager;
 use WPAICG\Chat\Storage\LogManager;
@@ -34,6 +35,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
     private $openai_post_processor;
     private $pinecone_post_processor;
     private $qdrant_post_processor;
+    private $chroma_post_processor;
 
     public function __construct()
     {
@@ -52,6 +54,9 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         if (class_exists(QdrantPostProcessor::class)) {
             $this->qdrant_post_processor = new QdrantPostProcessor();
         }
+        if (class_exists(ChromaPostProcessor::class)) {
+            $this->chroma_post_processor = new ChromaPostProcessor();
+        }
     }
 
 
@@ -68,6 +73,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             'aipkit_vector_store_nonce_openai',
             'aipkit_vector_store_pinecone_nonce',
             'aipkit_vector_store_qdrant_nonce',
+            'aipkit_vector_store_chroma_nonce',
         ];
         $has_permission = false;
         $last_error = null;
@@ -180,7 +186,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         // --- START FIX: Use sanitize_text_field to preserve case and add validation ---
         $provider_raw = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : '';
-        $allowed_providers = ['OpenAI', 'Pinecone', 'Qdrant']; // <-- FIX: Added 'OpenAI'
+        $allowed_providers = ['OpenAI', 'Pinecone', 'Qdrant', 'Chroma'];
         if (!in_array($provider_raw, $allowed_providers, true)) {
             $this->send_wp_error(new WP_Error('invalid_provider_delete_vector', __('Invalid or unsupported provider for this action.', 'gpt3-ai-content-generator')));
             return;
@@ -232,7 +238,12 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
             // Get provider config
             $provider_config = \WPAICG\AIPKit_Providers::get_provider_data($provider);
-            if (empty($provider_config['api_key'])) {
+            if ($provider === 'Chroma') {
+                if (empty($provider_config['url'])) {
+                    $this->send_wp_error(new WP_Error('missing_chroma_url_delete_vector', __('Chroma URL is missing.', 'gpt3-ai-content-generator')));
+                    return;
+                }
+            } elseif (empty($provider_config['api_key'])) {
                 /* translators: %s: Provider name. */
                 $this->send_wp_error(new WP_Error('missing_api_key_delete_vector', sprintf(__('API key for %s is missing.', 'gpt3-ai-content-generator'), $provider)));
                 return;
@@ -301,14 +312,19 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         // Validate dependencies
-        if (!$this->vector_store_manager || !$this->openai_post_processor || !$this->pinecone_post_processor || !$this->qdrant_post_processor) {
+        if (!$this->vector_store_manager || !$this->openai_post_processor || !$this->pinecone_post_processor || !$this->qdrant_post_processor || !$this->chroma_post_processor) {
             $this->send_wp_error(new WP_Error('vsm_missing_reindex', __('Vector processing components are not available.', 'gpt3-ai-content-generator')));
             return;
         }
 
         // Step 1: Delete the existing vector and log entry
         $provider_config = AIPKit_Providers::get_provider_data($provider);
-        if (empty($provider_config['api_key'])) {
+        if ($provider === 'Chroma') {
+            if (empty($provider_config['url'])) {
+                $this->send_wp_error(new WP_Error('missing_chroma_url_reindex', __('Chroma URL is missing.', 'gpt3-ai-content-generator')));
+                return;
+            }
+        } elseif (empty($provider_config['api_key'])) {
             /* translators: %s: Provider name. */
              $this->send_wp_error(new WP_Error('missing_api_key_reindex', sprintf(__('API key for %s is missing.', 'gpt3-ai-content-generator'), $provider)));
              return;
@@ -342,6 +358,13 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                     return;
                 }
                 $reindex_result = $this->qdrant_post_processor->index_single_post_to_collection($post_id, $store_id, $embedding_provider, $embedding_model);
+                break;
+            case 'Chroma':
+                if (empty($embedding_provider) || empty($embedding_model)) {
+                    $this->send_wp_error(new WP_Error('missing_embedding_config_reindex', __('Embedding provider and model are required for Chroma re-indexing.', 'gpt3-ai-content-generator')));
+                    return;
+                }
+                $reindex_result = $this->chroma_post_processor->index_single_post_to_collection($post_id, $store_id, $embedding_provider, $embedding_model);
                 break;
             default:
                 $this->send_wp_error(new WP_Error('invalid_provider_reindex', __('Invalid provider for re-indexing.', 'gpt3-ai-content-generator')));
@@ -414,6 +437,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             'openai' => 'OpenAI',
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
+            'chroma' => 'Chroma',
         ];
     }
 
@@ -437,6 +461,9 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
         if ($provider === 'qdrant') {
             return str_starts_with($batch_id, 'qdrant_chat_file_') || str_starts_with($file_id, 'qdrant_chat_file_');
+        }
+        if ($provider === 'chroma') {
+            return str_starts_with($batch_id, 'chroma_chat_file_') || str_starts_with($file_id, 'chroma_chat_file_');
         }
 
         return false;
@@ -540,17 +567,22 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                     '(message LIKE %s)',
                     '(file_id LIKE %s)',
                     '(provider = %s AND message LIKE %s AND (post_id IS NULL OR post_id = 0) AND message NOT LIKE %s)',
+                    '(provider = %s AND message LIKE %s AND (post_id IS NULL OR post_id = 0))',
                 ]) . ')';
                 $params[] = '%text content submitted for indexing%';
                 $params[] = 'text_%';
                 $params[] = 'Qdrant';
                 $params[] = '%points upserted to qdrant%';
                 $params[] = '%post id:%';
+                $params[] = 'Chroma';
+                $params[] = '%chroma records upserted%';
             } elseif ($filters['type'] === 'file') {
                 $where_clauses[] = '(' . implode(' OR ', [
                     '(message LIKE %s)',
                     '(message LIKE %s)',
                     '(message LIKE %s)',
+                    '(message LIKE %s)',
+                    '(file_id LIKE %s)',
                     '(message LIKE %s)',
                     '(file_id LIKE %s)',
                 ]) . ')';
@@ -559,6 +591,8 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                 $params[] = '%original filename:%';
                 $params[] = '%file uploaded%';
                 $params[] = 'pinecone_file_%';
+                $params[] = '%file chunk embedded%';
+                $params[] = 'chroma_file_%';
             }
         }
 
@@ -566,6 +600,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             $where_clauses[] = 'NOT (' . implode(' OR ', [
                 '(provider = %s AND COALESCE(vector_store_name, \'\') LIKE %s)',
                 '(provider = %s AND COALESCE(file_id, \'\') LIKE %s)',
+                '(provider = %s AND (COALESCE(batch_id, \'\') LIKE %s OR COALESCE(file_id, \'\') LIKE %s))',
                 '(provider = %s AND (COALESCE(batch_id, \'\') LIKE %s OR COALESCE(file_id, \'\') LIKE %s))',
             ]) . ')';
             $params[] = 'OpenAI';
@@ -575,6 +610,9 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             $params[] = 'Qdrant';
             $params[] = 'qdrant_chat_file_%';
             $params[] = 'qdrant_chat_file_%';
+            $params[] = 'Chroma';
+            $params[] = 'chroma_chat_file_%';
+            $params[] = 'chroma_chat_file_%';
         }
 
         if (!empty($filters['search'])) {

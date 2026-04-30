@@ -61,12 +61,14 @@ $pexels_data     = AIPKit_Providers::get_provider_data('Pexels');
 $pixabay_data    = AIPKit_Providers::get_provider_data('Pixabay');
 $pinecone_data   = AIPKit_Providers::get_provider_data('Pinecone');
 $qdrant_data     = AIPKit_Providers::get_provider_data('Qdrant');
+$chroma_data     = AIPKit_Providers::get_provider_data('Chroma');
 
 $elevenlabs_voice_list = AIPKit_Providers::get_elevenlabs_voices();
 $elevenlabs_model_list = AIPKit_Providers::get_elevenlabs_models();
 $replicate_model_list  = AIPKit_Providers::get_replicate_models();
 $pinecone_index_list   = AIPKit_Providers::get_pinecone_indexes();
 $qdrant_collection_list = AIPKit_Providers::get_qdrant_collections();
+$chroma_collection_list = AIPKit_Providers::get_chroma_collections();
 $image_generator_settings = class_exists(AIPKit_Image_Settings_Ajax_Handler::class)
     ? AIPKit_Image_Settings_Ajax_Handler::get_settings()
     : [];
@@ -97,6 +99,7 @@ $deepseek_defaults   = AIPKit_Providers::get_provider_defaults('DeepSeek');
 $ollama_defaults     = AIPKit_Providers::get_provider_defaults('Ollama');
 $pinecone_defaults   = AIPKit_Providers::get_provider_defaults('Pinecone');
 $qdrant_defaults     = AIPKit_Providers::get_provider_defaults('Qdrant');
+$chroma_defaults     = AIPKit_Providers::get_provider_defaults('Chroma');
 
 $providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
 $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Builder')

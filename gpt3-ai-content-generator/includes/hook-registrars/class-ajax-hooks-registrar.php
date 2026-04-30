@@ -28,6 +28,7 @@ use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Pinecone_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Qdrant_Ajax_Handler;
+use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Chroma_Ajax_Handler;
 use WPAICG\Core\Ajax\AIPKit_Core_Ajax_Handler;
 use WPAICG\AutoGPT\AIPKit_Automated_Task_Manager;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Init_Stream_Action;
@@ -76,6 +77,7 @@ class Ajax_Hooks_Registrar
         AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler $openai_wp_content_indexing_ajax_handler,
         AIPKit_Vector_Store_Pinecone_Ajax_Handler $pinecone_vector_store_ajax_handler,
         AIPKit_Vector_Store_Qdrant_Ajax_Handler $qdrant_vector_store_ajax_handler,
+        AIPKit_Vector_Store_Chroma_Ajax_Handler $chroma_vector_store_ajax_handler,
         AIPKit_Core_Ajax_Handler $core_ajax_handler,
         AIPKit_Automated_Task_Manager $automated_task_manager,
         AIPKit_Content_Writer_Init_Stream_Action $content_writer_init_stream_action,
@@ -197,6 +199,12 @@ class Ajax_Hooks_Registrar
         add_action('wp_ajax_aipkit_search_qdrant_collection', [$qdrant_vector_store_ajax_handler, 'ajax_search_qdrant_collection']);
         add_action('wp_ajax_aipkit_get_qdrant_collection_stats', [$qdrant_vector_store_ajax_handler, 'ajax_get_qdrant_collection_stats']);
         add_action('wp_ajax_aipkit_get_vector_data_source_logs_for_store', [$qdrant_vector_store_ajax_handler, 'ajax_get_vector_data_source_logs_for_store']);
+
+        add_action('wp_ajax_aipkit_list_collections_chroma', [$chroma_vector_store_ajax_handler, 'ajax_list_collections_chroma']);
+        add_action('wp_ajax_aipkit_create_collection_chroma', [$chroma_vector_store_ajax_handler, 'ajax_create_collection_chroma']);
+        add_action('wp_ajax_aipkit_delete_collection_chroma', [$chroma_vector_store_ajax_handler, 'ajax_delete_collection_chroma']);
+        add_action('wp_ajax_aipkit_upsert_to_chroma_collection', [$chroma_vector_store_ajax_handler, 'ajax_upsert_to_chroma_collection']);
+        add_action('wp_ajax_aipkit_upload_file_and_upsert_to_chroma', [$chroma_vector_store_ajax_handler, 'ajax_upload_file_and_upsert_to_chroma']);
 
         if (method_exists($core_ajax_handler, 'ajax_get_upload_limits')) {
             add_action('wp_ajax_aipkit_get_upload_limits', [$core_ajax_handler, 'ajax_get_upload_limits']);

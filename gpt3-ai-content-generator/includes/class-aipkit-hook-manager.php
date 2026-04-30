@@ -23,6 +23,7 @@ use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Pinecone_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Qdrant_Ajax_Handler;
+use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Chroma_Ajax_Handler;
 use WPAICG\Core\Ajax\AIPKit_Core_Ajax_Handler;
 use WPAICG\AutoGPT\AIPKit_Automated_Task_Manager;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Init_Stream_Action;
@@ -104,6 +105,7 @@ class AIPKit_Hook_Manager
         $openai_wp_content_indexing_ajax_handler = null;
         $pinecone_vector_store_ajax_handler = null;
         $qdrant_vector_store_ajax_handler = null;
+        $chroma_vector_store_ajax_handler = null;
         $core_ajax_handler = null;
         $automated_task_manager = null;
         $content_writer_init_stream_action = null;
@@ -131,6 +133,7 @@ class AIPKit_Hook_Manager
             $openai_wp_content_indexing_ajax_handler = class_exists(AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler::class) ? new AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler() : null;
             $pinecone_vector_store_ajax_handler = class_exists(AIPKit_Vector_Store_Pinecone_Ajax_Handler::class) ? new AIPKit_Vector_Store_Pinecone_Ajax_Handler() : null;
             $qdrant_vector_store_ajax_handler = class_exists(AIPKit_Vector_Store_Qdrant_Ajax_Handler::class) ? new AIPKit_Vector_Store_Qdrant_Ajax_Handler() : null;
+            $chroma_vector_store_ajax_handler = class_exists(AIPKit_Vector_Store_Chroma_Ajax_Handler::class) ? new AIPKit_Vector_Store_Chroma_Ajax_Handler() : null;
             $core_ajax_handler = class_exists(AIPKit_Core_Ajax_Handler::class) ? new AIPKit_Core_Ajax_Handler() : null;
             $automated_task_manager = class_exists(AIPKit_Automated_Task_Manager::class) ? new AIPKit_Automated_Task_Manager() : null;
             $content_writer_init_stream_action = class_exists(AIPKit_Content_Writer_Init_Stream_Action::class) ? new AIPKit_Content_Writer_Init_Stream_Action() : null;
@@ -192,7 +195,7 @@ class AIPKit_Hook_Manager
             $image_settings_ajax_handler && $vector_post_processor_ajax_handler &&
             $openai_vs_stores_ajax_handler && $openai_vs_files_ajax_handler &&
             $openai_wp_content_indexing_ajax_handler && $pinecone_vector_store_ajax_handler &&
-            $qdrant_vector_store_ajax_handler && $core_ajax_handler &&
+            $qdrant_vector_store_ajax_handler && $chroma_vector_store_ajax_handler && $core_ajax_handler &&
             $automated_task_manager && $content_writer_init_stream_action &&
             $content_writer_standard_gen_action && $content_writer_generate_title_action &&
             $content_writer_save_post_action && $content_writer_create_task_action &&
@@ -209,6 +212,7 @@ class AIPKit_Hook_Manager
                 $openai_wp_content_indexing_ajax_handler,
                 $pinecone_vector_store_ajax_handler,
                 $qdrant_vector_store_ajax_handler,
+                $chroma_vector_store_ajax_handler,
                 $core_ajax_handler,
                 $automated_task_manager,
                 $content_writer_init_stream_action,

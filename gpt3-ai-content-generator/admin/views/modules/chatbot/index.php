@@ -602,7 +602,7 @@ $content_aware_enabled = in_array($content_aware_enabled, ['0', '1'], true)
     : BotSettingsManager::DEFAULT_CONTENT_AWARE_ENABLED;
 $vector_store_provider = $active_bot_settings['vector_store_provider']
     ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-$allowed_vector_store_providers = ['openai', 'pinecone', 'qdrant', 'claude_files'];
+$allowed_vector_store_providers = ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files'];
 if (!in_array($vector_store_provider, $allowed_vector_store_providers, true)) {
     $vector_store_provider = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
 }
@@ -638,6 +638,12 @@ if (!empty($active_bot_settings['qdrant_collection_names']) && is_array($active_
 } elseif (!empty($active_bot_settings['qdrant_collection_name'])) {
     $qdrant_collection_names = [$active_bot_settings['qdrant_collection_name']];
 }
+$chroma_collection_names = [];
+if (!empty($active_bot_settings['chroma_collection_names']) && is_array($active_bot_settings['chroma_collection_names'])) {
+    $chroma_collection_names = $active_bot_settings['chroma_collection_names'];
+} elseif (!empty($active_bot_settings['chroma_collection_name'])) {
+    $chroma_collection_names = [$active_bot_settings['chroma_collection_name']];
+}
 $vector_store_top_k = isset($active_bot_settings['vector_store_top_k'])
     ? absint($active_bot_settings['vector_store_top_k'])
     : BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K;
@@ -648,10 +654,12 @@ $vector_store_confidence_threshold = max(0, min(absint($vector_store_confidence_
 $openai_vector_stores = [];
 $pinecone_indexes = [];
 $qdrant_collections = [];
+$chroma_collections = [];
 $embedding_models_by_provider = [];
 $openai_provider_data = [];
 $pinecone_provider_data = [];
 $qdrant_provider_data = [];
+$chroma_provider_data = [];
 $google_provider_data = [];
 $azure_provider_data = [];
 $claude_provider_data = [];
@@ -661,10 +669,12 @@ if (class_exists(AIPKit_Vector_Store_Registry::class)) {
 if (class_exists(AIPKit_Providers::class)) {
     $pinecone_indexes = AIPKit_Providers::get_pinecone_indexes();
     $qdrant_collections = AIPKit_Providers::get_qdrant_collections();
+    $chroma_collections = AIPKit_Providers::get_chroma_collections();
     $embedding_models_by_provider = AIPKit_Providers::get_embedding_models_by_provider('chatbot_ui');
     $openai_provider_data = AIPKit_Providers::get_provider_data('OpenAI');
     $pinecone_provider_data = AIPKit_Providers::get_provider_data('Pinecone');
     $qdrant_provider_data = AIPKit_Providers::get_provider_data('Qdrant');
+    $chroma_provider_data = AIPKit_Providers::get_provider_data('Chroma');
     $google_provider_data = AIPKit_Providers::get_provider_data('Google');
     $azure_provider_data = AIPKit_Providers::get_provider_data('Azure');
     $claude_provider_data = AIPKit_Providers::get_provider_data('Claude');
@@ -673,6 +683,7 @@ $openai_api_key = $openai_provider_data['api_key'] ?? '';
 $pinecone_api_key = $pinecone_provider_data['api_key'] ?? '';
 $qdrant_url = $qdrant_provider_data['url'] ?? '';
 $qdrant_api_key = $qdrant_provider_data['api_key'] ?? '';
+$chroma_url = $chroma_provider_data['url'] ?? '';
 $google_api_key = $google_provider_data['api_key'] ?? '';
 $azure_api_key = $azure_provider_data['api_key'] ?? '';
 $claude_api_key = $claude_provider_data['api_key'] ?? '';
@@ -875,6 +886,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     data-pinecone-api-key-set="<?php echo esc_attr(!empty($pinecone_api_key) ? 'true' : 'false'); ?>"
     data-qdrant-api-key-set="<?php echo esc_attr(!empty($qdrant_api_key) ? 'true' : 'false'); ?>"
     data-qdrant-url-set="<?php echo esc_attr(!empty($qdrant_url) ? 'true' : 'false'); ?>"
+    data-chroma-url-set="<?php echo esc_attr(!empty($chroma_url) ? 'true' : 'false'); ?>"
     data-google-api-key-set="<?php echo esc_attr(!empty($google_api_key) ? 'true' : 'false'); ?>"
     data-azure-api-key-set="<?php echo esc_attr(!empty($azure_api_key) ? 'true' : 'false'); ?>"
     data-claude-api-key-set="<?php echo esc_attr(!empty($claude_api_key) ? 'true' : 'false'); ?>"
@@ -1122,6 +1134,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                         'openai' => __('OpenAI', 'gpt3-ai-content-generator'),
                                         'pinecone' => __('Pinecone', 'gpt3-ai-content-generator'),
                                         'qdrant' => __('Qdrant', 'gpt3-ai-content-generator'),
+                                        'chroma' => __('Chroma', 'gpt3-ai-content-generator'),
                                         'claude_files' => __('Claude Files', 'gpt3-ai-content-generator'),
                                     ];
                                     $vector_provider_label = $vector_provider_labels[$vector_store_provider] ?? '';
@@ -1165,6 +1178,13 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                                 $vector_source_names[] = $collection_name;
                                             }
                                         }
+                                    } elseif ($vector_store_provider === 'chroma') {
+                                        foreach ($chroma_collection_names as $collection_name) {
+                                            $collection_name = is_scalar($collection_name) ? trim((string) $collection_name) : '';
+                                            if ($collection_name !== '') {
+                                                $vector_source_names[] = $collection_name;
+                                            }
+                                        }
                                     }
 
                                     $vector_source_names = array_values(
@@ -1186,7 +1206,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     }
 
                                     if (
-                                        in_array($vector_store_provider, ['pinecone', 'qdrant'], true)
+                                        in_array($vector_store_provider, ['pinecone', 'qdrant', 'chroma'], true)
                                         && !empty($vector_embedding_model)
                                     ) {
                                         $embedding_model_label = trim((string) $vector_embedding_model);

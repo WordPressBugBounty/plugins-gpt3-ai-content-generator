@@ -29,6 +29,7 @@ $vector_store_localization = [
     'openai_vector_stores' => [],
     'pinecone_indexes' => [],
     'qdrant_collections' => [],
+    'chroma_collections' => [],
 ];
 if (class_exists(AIPKit_Providers::class)) {
     $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('autogpt_ui');
@@ -41,6 +42,9 @@ $pinecone_indexes = isset($vector_store_localization['pinecone_indexes']) && is_
     : [];
 $qdrant_collections = isset($vector_store_localization['qdrant_collections']) && is_array($vector_store_localization['qdrant_collections'])
     ? $vector_store_localization['qdrant_collections']
+    : [];
+$chroma_collections = isset($vector_store_localization['chroma_collections']) && is_array($vector_store_localization['chroma_collections'])
+    ? $vector_store_localization['chroma_collections']
     : [];
 
 

@@ -18,22 +18,29 @@ $current_pixabay_api_key = (string) ($pixabay_data['api_key'] ?? '');
 $current_pinecone_api_key = (string) ($pinecone_data['api_key'] ?? '');
 $current_qdrant_url = (string) ($qdrant_data['url'] ?? '');
 $current_qdrant_api_key = (string) ($qdrant_data['api_key'] ?? '');
+$current_chroma_url = (string) ($chroma_data['url'] ?? '');
+$current_chroma_api_key = (string) ($chroma_data['api_key'] ?? '');
+$current_chroma_tenant = (string) ($chroma_data['tenant'] ?? ($chroma_defaults['tenant'] ?? 'default_tenant'));
+$current_chroma_database = (string) ($chroma_data['database'] ?? ($chroma_defaults['database'] ?? 'default_database'));
 
 $elevenlabs_voice_list = is_array($elevenlabs_voice_list ?? null) ? $elevenlabs_voice_list : [];
 $elevenlabs_model_list = is_array($elevenlabs_model_list ?? null) ? $elevenlabs_model_list : [];
 $replicate_model_list = is_array($replicate_model_list ?? null) ? $replicate_model_list : [];
 $pinecone_index_list = is_array($pinecone_index_list ?? null) ? $pinecone_index_list : [];
 $qdrant_collection_list = is_array($qdrant_collection_list ?? null) ? $qdrant_collection_list : [];
+$chroma_collection_list = is_array($chroma_collection_list ?? null) ? $chroma_collection_list : [];
 
-$normalize_synced_select_options = static function (array $items): array {
+$normalize_synced_select_options = static function (array $items, ?array $value_keys = null, ?array $label_keys = null): array {
     $options = [];
+    $value_keys = $value_keys ?: ['id', 'name', 'model', 'index_name', 'collection_name'];
+    $label_keys = $label_keys ?: ['name', 'id', 'model', 'index_name', 'collection_name'];
 
     foreach ($items as $item) {
         $value = '';
         $label = '';
 
         if (is_array($item) || is_object($item)) {
-            foreach (['id', 'name', 'model', 'index_name', 'collection_name'] as $key) {
+            foreach ($value_keys as $key) {
                 $candidate = is_array($item) ? ($item[$key] ?? null) : ($item->{$key} ?? null);
                 if (is_scalar($candidate) && (string) $candidate !== '') {
                     $value = trim(wp_strip_all_tags((string) $candidate));
@@ -41,7 +48,7 @@ $normalize_synced_select_options = static function (array $items): array {
                 }
             }
 
-            foreach (['name', 'id', 'model', 'index_name', 'collection_name'] as $key) {
+            foreach ($label_keys as $key) {
                 $candidate = is_array($item) ? ($item[$key] ?? null) : ($item->{$key} ?? null);
                 if (is_scalar($candidate) && (string) $candidate !== '') {
                     $label = trim(wp_strip_all_tags((string) $candidate));
@@ -83,6 +90,11 @@ $normalize_synced_select_options = static function (array $items): array {
 $replicate_synced_model_options = $normalize_synced_select_options($replicate_model_list);
 $pinecone_synced_index_options = $normalize_synced_select_options($pinecone_index_list);
 $qdrant_synced_collection_options = $normalize_synced_select_options($qdrant_collection_list);
+$chroma_synced_collection_options = $normalize_synced_select_options(
+    $chroma_collection_list,
+    ['name', 'collection_name', 'id'],
+    ['name', 'collection_name', 'id']
+);
 ?>
 
 <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_simple_row--provider" id="aipkit_settings_integrations_provider_row">
@@ -100,6 +112,7 @@ $qdrant_synced_collection_options = $normalize_synced_select_options($qdrant_col
             <option value="replicate"><?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?></option>
             <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
             <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
+            <option value="chroma"><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
             <option value="pexels"><?php esc_html_e('Pexels', 'gpt3-ai-content-generator'); ?></option>
             <option value="pixabay"><?php esc_html_e('Pixabay', 'gpt3-ai-content-generator'); ?></option>
         </select>
@@ -396,6 +409,128 @@ $qdrant_synced_collection_options = $normalize_synced_select_options($qdrant_col
             class="button button-secondary aipkit_btn aipkit_sync_btn"
             data-provider="QdrantCollections"
             title="<?php esc_attr_e('Sync available collections from Qdrant', 'gpt3-ai-content-generator'); ?>"
+        >
+            <span class="aipkit_btn-text"><?php esc_html_e('Sync Collections', 'gpt3-ai-content-generator'); ?></span>
+            <span class="aipkit_spinner"></span>
+        </button>
+        <span class="aipkit_input-button-spacer"></span>
+    </div>
+</div>
+
+<div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_chroma_url_row" data-aipkit-integration-provider="chroma" hidden>
+    <label class="aipkit_form-label" for="aipkit_chroma_url">
+        <?php esc_html_e('Chroma URL', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Enter your Chroma endpoint.', 'gpt3-ai-content-generator'); ?></span>
+    </label>
+    <div class="aipkit_input-with-button">
+        <input
+            type="url"
+            id="aipkit_chroma_url"
+            name="chroma_url"
+            class="aipkit_form-input aipkit_autosave_trigger"
+            value="<?php echo esc_attr($current_chroma_url); ?>"
+            placeholder="<?php esc_attr_e('https://api.trychroma.com', 'gpt3-ai-content-generator'); ?>"
+        />
+        <span class="aipkit_input-button-spacer"></span>
+        <span class="aipkit_input-button-spacer"></span>
+    </div>
+</div>
+
+<div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_chroma_api_key_row" data-aipkit-integration-provider="chroma" hidden>
+    <label class="aipkit_form-label" for="aipkit_chroma_api_key">
+        <?php esc_html_e('Chroma API Key', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Required for Chroma Cloud or authenticated servers.', 'gpt3-ai-content-generator'); ?></span>
+    </label>
+    <div class="aipkit_input-with-button">
+        <div class="aipkit_api-key-wrapper">
+            <input
+                type="password"
+                id="aipkit_chroma_api_key"
+                name="chroma_api_key"
+                class="aipkit_form-input aipkit_autosave_trigger"
+                value="<?php echo esc_attr($current_chroma_api_key); ?>"
+                placeholder="<?php esc_attr_e('Enter your Chroma API key', 'gpt3-ai-content-generator'); ?>"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
+            />
+            <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
+        </div>
+        <a href="https://trychroma.com/" target="_blank" rel="noopener noreferrer" class="aipkit_get_key_btn aipkit_settings_get_key_link">
+            <?php esc_html_e('Get Key', 'gpt3-ai-content-generator'); ?>
+        </a>
+        <span class="aipkit_input-button-spacer"></span>
+    </div>
+</div>
+
+<div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_chroma_tenant_row" data-aipkit-integration-provider="chroma" hidden>
+    <label class="aipkit_form-label" for="aipkit_chroma_tenant">
+        <?php esc_html_e('Tenant', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Use default_tenant for local Chroma.', 'gpt3-ai-content-generator'); ?></span>
+    </label>
+    <div class="aipkit_input-with-button">
+        <input
+            type="text"
+            id="aipkit_chroma_tenant"
+            name="chroma_tenant"
+            class="aipkit_form-input aipkit_autosave_trigger"
+            value="<?php echo esc_attr($current_chroma_tenant); ?>"
+            placeholder="<?php esc_attr_e('default_tenant', 'gpt3-ai-content-generator'); ?>"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+        />
+        <span class="aipkit_input-button-spacer"></span>
+        <span class="aipkit_input-button-spacer"></span>
+    </div>
+</div>
+
+<div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_chroma_database_row" data-aipkit-integration-provider="chroma" hidden>
+    <label class="aipkit_form-label" for="aipkit_chroma_database">
+        <?php esc_html_e('Database', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Use default_database for local Chroma.', 'gpt3-ai-content-generator'); ?></span>
+    </label>
+    <div class="aipkit_input-with-button">
+        <input
+            type="text"
+            id="aipkit_chroma_database"
+            name="chroma_database"
+            class="aipkit_form-input aipkit_autosave_trigger"
+            value="<?php echo esc_attr($current_chroma_database); ?>"
+            placeholder="<?php esc_attr_e('default_database', 'gpt3-ai-content-generator'); ?>"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+        />
+        <span class="aipkit_input-button-spacer"></span>
+        <span class="aipkit_input-button-spacer"></span>
+    </div>
+</div>
+
+<div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_chroma_collection_list_row" data-aipkit-integration-provider="chroma" hidden>
+    <label class="aipkit_form-label" for="aipkit_chroma_default_collection">
+        <?php esc_html_e('Collections', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Select a Chroma collection.', 'gpt3-ai-content-generator'); ?></span>
+    </label>
+    <div class="aipkit_input-with-button">
+        <select id="aipkit_chroma_default_collection" class="aipkit_form-input" data-aipkit-empty-label="<?php esc_attr_e('No collections synced yet.', 'gpt3-ai-content-generator'); ?>">
+            <option value=""><?php esc_html_e('-- Select Collection --', 'gpt3-ai-content-generator'); ?></option>
+            <?php foreach ($chroma_synced_collection_options as $option) : ?>
+                <option value="<?php echo esc_attr($option['value']); ?>"><?php echo esc_html($option['label']); ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button
+            type="button"
+            id="aipkit_sync_chroma_collections_btn"
+            class="button button-secondary aipkit_btn aipkit_sync_btn"
+            data-provider="ChromaCollections"
+            title="<?php esc_attr_e('Sync available collections from Chroma', 'gpt3-ai-content-generator'); ?>"
         >
             <span class="aipkit_btn-text"><?php esc_html_e('Sync Collections', 'gpt3-ai-content-generator'); ?></span>
             <span class="aipkit_spinner"></span>

@@ -145,7 +145,10 @@ class AIPKit_REST_Chat_Handler extends AIPKit_REST_Base_Handler
             null, // frontend_active_pinecone_index_name
             null, // frontend_active_pinecone_namespace
             null, // frontend_active_qdrant_collection_name
-            null  // frontend_active_qdrant_file_upload_context_id
+            null, // frontend_active_qdrant_file_upload_context_id
+            null, // frontend_active_chroma_collection_name
+            null, // frontend_active_chroma_file_upload_context_id
+            null  // frontend_active_claude_file_id
         );
 
         if (is_wp_error($ai_result)) {

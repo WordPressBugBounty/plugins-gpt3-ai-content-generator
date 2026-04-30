@@ -272,6 +272,7 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'replicate' => ! empty($providers['Replicate']['api_key']),
                 'pinecone' => ! empty($providers['Pinecone']['api_key']),
                 'qdrant' => ! empty($providers['Qdrant']['api_key']) && ! empty($providers['Qdrant']['url']),
+                'chroma' => ! empty($providers['Chroma']['url']),
             ];
         }
 
@@ -421,6 +422,7 @@ class ChatAdminAssets extends AIPKit_Admin_Asset_Base
             'openaiVectorStores' => $vector_store_localization['openaiVectorStores'],
             'pineconeIndexes' => $vector_store_localization['pineconeIndexes'],
             'qdrantCollections' => $vector_store_localization['qdrantCollections'],
+            'chromaCollections' => $vector_store_localization['chromaCollections'],
             'embedding_provider_map' => $embedding_localization['embedding_provider_map'],
             'embedding_models_by_provider' => $embedding_localization['embedding_models_by_provider'],
             'isProPlan' => $is_pro_plan,
@@ -433,11 +435,13 @@ class ChatAdminAssets extends AIPKit_Admin_Asset_Base
                 'selectVectorStoreOpenAI' => __('Select OpenAI Store(s)', 'gpt3-ai-content-generator'),
                 'selectVectorStorePinecone' => __('Select Pinecone Index', 'gpt3-ai-content-generator'),
                 'selectVectorStoreQdrant' => __('Select Qdrant Collection', 'gpt3-ai-content-generator'),
+                'selectVectorStoreChroma' => __('Select Chroma Collection', 'gpt3-ai-content-generator'),
                 'selectEmbeddingProvider' => __('Select Embedding Provider', 'gpt3-ai-content-generator'),
                 'selectEmbeddingModel' => __('Select Embedding Model', 'gpt3-ai-content-generator'),
                 'noStoresFoundOpenAI' => __('No OpenAI Stores Found (Sync in AI Training)', 'gpt3-ai-content-generator'),
                 'noIndexesFoundPinecone' => __('No Pinecone Indexes Found (Sync in AI Settings)', 'gpt3-ai-content-generator'),
                 'noCollectionsFoundQdrant' => __('No Qdrant Collections Found (Sync in AI Settings)', 'gpt3-ai-content-generator'),
+                'noCollectionsFoundChroma' => __('No Chroma Collections Found (Sync in AI Settings)', 'gpt3-ai-content-generator'),
                 'noEmbeddingModelsFound' => __('No Models (Select Provider or Sync)', 'gpt3-ai-content-generator'),
             ]),
         ]);
@@ -584,6 +588,7 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
             'openai_vector_stores' => $vector_store_localization['openai_vector_stores'],
             'pinecone_indexes' => $vector_store_localization['pinecone_indexes'],
             'qdrant_collections' => $vector_store_localization['qdrant_collections'],
+            'chroma_collections' => $vector_store_localization['chroma_collections'],
             'embeddingProviderMap' => $embedding_localization['embeddingProviderMap'],
             'embeddingModelsByProvider' => $embedding_localization['embeddingModelsByProvider'],
             'actions' => $enhancer_actions,
@@ -900,6 +905,7 @@ class AIPKit_Vector_Post_Processor_Assets extends AIPKit_Admin_Asset_Base
             'openai_vector_stores' => $vector_store_localization['openai_vector_stores'],
             'pinecone_indexes' => $vector_store_localization['pinecone_indexes'],
             'qdrant_collections' => $vector_store_localization['qdrant_collections'],
+            'chroma_collections' => $vector_store_localization['chroma_collections'],
             'embeddingProviderMap' => $embedding_localization['embeddingProviderMap'],
             'embeddingModelsByProvider' => $embedding_localization['embeddingModelsByProvider'],
             'text' => [
@@ -937,6 +943,9 @@ class AIPKit_Vector_Post_Processor_Assets extends AIPKit_Admin_Asset_Base
                 'select_qdrant_collection' => __('Select Qdrant Collection', 'gpt3-ai-content-generator'),
                 'no_qdrant_collections_found' => __('No Qdrant collections found. Create one in AI Training.', 'gpt3-ai-content-generator'),
                 'error_no_qdrant_collection_selected' => __('Please select a Qdrant collection.', 'gpt3-ai-content-generator'),
+                'select_chroma_collection' => __('Select Chroma Collection', 'gpt3-ai-content-generator'),
+                'no_chroma_collections_found' => __('No Chroma collections found. Create one in Knowledge Base.', 'gpt3-ai-content-generator'),
+                'error_no_chroma_collection_selected' => __('Please select a Chroma collection.', 'gpt3-ai-content-generator'),
                 'target_label' => __('Target', 'gpt3-ai-content-generator'),
                 'embedding_label' => __('Embedding', 'gpt3-ai-content-generator'),
                 'embedding_provider_label' => __('Embedding Provider', 'gpt3-ai-content-generator'),
@@ -1029,6 +1038,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
             'openai_vector_stores' => $vector_store_localization['openai_vector_stores'],
             'pinecone_indexes' => $vector_store_localization['pinecone_indexes'],
             'qdrant_collections' => $vector_store_localization['qdrant_collections'],
+            'chroma_collections' => $vector_store_localization['chroma_collections'],
             'embedding_provider_map' => $embedding_localization['embedding_provider_map'],
             'embedding_models_by_provider' => $embedding_localization['embedding_models_by_provider'],
             'task_types' => [
@@ -1111,6 +1121,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 'loading_indexes' => __('Loading indexes...', 'gpt3-ai-content-generator'),
                 'select_target_store' => __('-- Select Target Store --', 'gpt3-ai-content-generator'),
                 'select_target_index' => __('-- Select Target Index --', 'gpt3-ai-content-generator'),
+                'select_target_collection' => __('-- Select Target Collection --', 'gpt3-ai-content-generator'),
                 'no_targets_found_configure' => __('No targets found. Configure in AI Training.', 'gpt3-ai-content-generator'),
                 'loading_models' => __('Loading models...', 'gpt3-ai-content-generator'),
                 'select_embedding_model' => __('-- Select Model --', 'gpt3-ai-content-generator'),

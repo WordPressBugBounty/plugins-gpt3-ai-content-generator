@@ -18,6 +18,7 @@ if (!defined('ABSPATH')) {
 require_once __DIR__ . '/content-indexing/openai-post-index-processor.php';
 require_once __DIR__ . '/content-indexing/pinecone-post-index-processor.php';
 require_once __DIR__ . '/content-indexing/qdrant-post-index-processor.php';
+require_once __DIR__ . '/content-indexing/chroma-post-index-processor.php';
 require_once __DIR__ . '/content-writing/process-content-writing-item.php';
 require_once __DIR__ . '/comment-reply/process-comment-reply-item.php';
 if (file_exists(__DIR__ . '/content-enhancement/process-enhancement-item.php')) {
@@ -47,6 +48,8 @@ function process_queue_item_logic(array $item): array
                 return ContentIndexing\process_pinecone_indexing_logic($item, $item_config);
             case 'qdrant':
                 return ContentIndexing\process_qdrant_indexing_logic($item, $item_config);
+            case 'chroma':
+                return ContentIndexing\process_chroma_indexing_logic($item, $item_config);
             default:
                 return ['status' => 'error', 'message' => "Unsupported provider '{$provider}' for content_indexing task."];
         }

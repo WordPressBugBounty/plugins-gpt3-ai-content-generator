@@ -84,7 +84,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
-        $default_valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'Replicate'];
+        $default_valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'ChromaCollections', 'Replicate'];
         $valid_providers = apply_filters('aipkit_sync_provider_allowlist', $default_valid_providers);
         if (!is_array($valid_providers) || empty($valid_providers)) {
             $valid_providers = $default_valid_providers;
@@ -109,6 +109,8 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             $provider_data_key = 'Pinecone';
         } elseif ($provider === 'QdrantCollections') {
             $provider_data_key = 'Qdrant';
+        } elseif ($provider === 'ChromaCollections') {
+            $provider_data_key = 'Chroma';
         }
 
         $provData = AIPKit_Providers::get_provider_data($provider_data_key);
@@ -117,7 +119,9 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         $api_params = [
             'api_key'                 => $provData['api_key'] ?? '',
             'base_url'                => $provData['base_url'] ?? '',
-            'url'                     => $provData['url'] ?? '', // For Qdrant
+            'url'                     => $provData['url'] ?? '', // For Qdrant/Chroma
+            'tenant'                  => $provData['tenant'] ?? 'default_tenant',
+            'database'                => $provData['database'] ?? 'default_database',
             'api_version'             => $provData['api_version'] ?? '',
             'api_version_authoring'   => $provData['api_version_authoring'] ?? '2023-03-15-preview',
             'api_version_inference'   => $provData['api_version_inference'] ?? '2024-02-01',
@@ -132,6 +136,10 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         }
         if ($provider === 'QdrantCollections' && empty($api_params['url'])) {
             wp_send_json_error(['message' => __('Qdrant URL is required to sync collections.', 'gpt3-ai-content-generator')]);
+            return;
+        }
+        if ($provider === 'ChromaCollections' && empty($api_params['url'])) {
+            wp_send_json_error(['message' => __('Chroma URL is required to sync collections.', 'gpt3-ai-content-generator')]);
             return;
         }
 
@@ -170,6 +178,13 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 }
                 $result = $this->vector_store_manager->list_all_indexes('Qdrant', $api_params);
                 break;
+            case 'ChromaCollections':
+                if (!$this->vector_store_manager) {
+                    $result = new WP_Error('vsm_missing', 'Vector Store Manager not available.');
+                    break;
+                }
+                $result = $this->vector_store_manager->list_all_indexes('Chroma', $api_params);
+                break;
             case 'Replicate':
                 if (!class_exists(\WPAICG\Images\AIPKit_Image_Provider_Strategy_Factory::class)) {
                     $factory_path = WPAICG_PLUGIN_DIR . 'classes/images/class-aipkit-image-provider-strategy-factory.php';
@@ -198,6 +213,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
             'PineconeIndexes' => 'aipkit_pinecone_index_list',
             'QdrantCollections' => 'aipkit_qdrant_collection_list',
+            'ChromaCollections' => 'aipkit_chroma_collection_list',
             'Replicate' => 'aipkit_replicate_model_list',
             'AzureEmbedding' => 'aipkit_azure_embedding_model_list',
             'Ollama' => 'aipkit_ollama_model_list',
@@ -491,6 +507,26 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                     $value_to_save = $enriched;
                 }
                 $this->vector_store_registry->update_registered_stores_for_provider('Qdrant', $value_to_save);
+            } elseif ($provider === 'ChromaCollections' && $this->vector_store_registry) {
+                $chroma_config = [
+                    'url' => $api_params['url'] ?? '',
+                    'api_key' => $api_params['api_key'] ?? '',
+                    'tenant' => $api_params['tenant'] ?? 'default_tenant',
+                    'database' => $api_params['database'] ?? 'default_database',
+                ];
+                $enriched = [];
+                if ($this->vector_store_manager && is_array($value_to_save)) {
+                    foreach ($value_to_save as $collection) {
+                        $name = $collection['name'] ?? $collection['id'] ?? null;
+                        if (!$name) continue;
+                        $details = $this->vector_store_manager->describe_single_index('Chroma', $name, $chroma_config);
+                        $enriched[] = is_wp_error($details) ? $collection : array_merge($collection, $details);
+                    }
+                }
+                if (!empty($enriched)) {
+                    $value_to_save = $enriched;
+                }
+                $this->vector_store_registry->update_registered_stores_for_provider('Chroma', $value_to_save);
             }
             update_option($option_name, $value_to_save, 'no');
         }

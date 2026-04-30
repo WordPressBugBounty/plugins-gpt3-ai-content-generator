@@ -62,6 +62,8 @@ function build_content_prompts_logic(array $cw_config): array
                 $cw_config['pinecone_index_name'] ?? null,
                 null,
                 $cw_config['qdrant_collection_name'] ?? null,
+                null,
+                $cw_config['chroma_collection_name'] ?? null,
                 null
             );
             if (!empty($vector_context)) {

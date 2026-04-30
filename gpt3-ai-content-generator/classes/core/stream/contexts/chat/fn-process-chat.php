@@ -31,7 +31,7 @@ if (!defined('ABSPATH')) {
 * Main orchestrator function for processing a chat stream request.
 *
 * @param \WPAICG\Core\Stream\Contexts\Chat\SSEChatStreamContextHandler $handlerInstance The instance of the context handler.
-* @param array $cached_data Contains 'user_message', 'image_inputs', and potentially 'client_user_message_id', 'active_openai_vs_id', 'active_pinecone_index_name', 'active_pinecone_namespace', 'active_qdrant_collection_name', 'active_qdrant_file_upload_context_id', 'active_claude_file_id'.
+* @param array $cached_data Contains 'user_message', 'image_inputs', and potentially 'client_user_message_id', active vector file context IDs, and 'active_claude_file_id'.
 * @param array $get_params Original $_GET parameters.
 * @return array|WP_Error Prepared data for SSEStreamProcessor or WP_Error.
 */
@@ -199,6 +199,8 @@ function process_chat_logic(
         $params['active_pinecone_namespace'],
         $params['active_qdrant_collection_name'],
         $params['active_qdrant_file_upload_context_id'],
+        $params['active_chroma_collection_name'],
+        $params['active_chroma_file_upload_context_id'],
         $params['active_claude_file_id']
     );
     if (is_wp_error($request_data_for_ai)) {

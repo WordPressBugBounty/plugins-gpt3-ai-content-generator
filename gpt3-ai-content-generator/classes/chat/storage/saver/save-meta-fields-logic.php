@@ -145,6 +145,8 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         delete_post_meta($botId, '_aipkit_pinecone_index_name');
         delete_post_meta($botId, '_aipkit_qdrant_collection_name');
         delete_post_meta($botId, '_aipkit_qdrant_collection_names');
+        delete_post_meta($botId, '_aipkit_chroma_collection_name');
+        delete_post_meta($botId, '_aipkit_chroma_collection_names');
         delete_post_meta($botId, '_aipkit_vector_embedding_provider');
         delete_post_meta($botId, '_aipkit_vector_embedding_model');
     } elseif ($sanitized_settings['vector_store_provider'] === 'pinecone') {
@@ -154,6 +156,8 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         delete_post_meta($botId, '_aipkit_openai_vector_store_ids');
         delete_post_meta($botId, '_aipkit_qdrant_collection_name');
         delete_post_meta($botId, '_aipkit_qdrant_collection_names');
+        delete_post_meta($botId, '_aipkit_chroma_collection_name');
+        delete_post_meta($botId, '_aipkit_chroma_collection_names');
     } elseif ($sanitized_settings['vector_store_provider'] === 'qdrant') {
         update_post_meta($botId, '_aipkit_qdrant_collection_name', $sanitized_settings['qdrant_collection_name']);
         update_post_meta($botId, '_aipkit_qdrant_collection_names', $sanitized_settings['qdrant_collection_names']);
@@ -161,11 +165,24 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings): bool|WP_
         update_post_meta($botId, '_aipkit_vector_embedding_model', $sanitized_settings['vector_embedding_model']);
         delete_post_meta($botId, '_aipkit_openai_vector_store_ids');
         delete_post_meta($botId, '_aipkit_pinecone_index_name');
+        delete_post_meta($botId, '_aipkit_chroma_collection_name');
+        delete_post_meta($botId, '_aipkit_chroma_collection_names');
+    } elseif ($sanitized_settings['vector_store_provider'] === 'chroma') {
+        update_post_meta($botId, '_aipkit_chroma_collection_name', $sanitized_settings['chroma_collection_name']);
+        update_post_meta($botId, '_aipkit_chroma_collection_names', $sanitized_settings['chroma_collection_names']);
+        update_post_meta($botId, '_aipkit_vector_embedding_provider', $sanitized_settings['vector_embedding_provider']);
+        update_post_meta($botId, '_aipkit_vector_embedding_model', $sanitized_settings['vector_embedding_model']);
+        delete_post_meta($botId, '_aipkit_openai_vector_store_ids');
+        delete_post_meta($botId, '_aipkit_pinecone_index_name');
+        delete_post_meta($botId, '_aipkit_qdrant_collection_name');
+        delete_post_meta($botId, '_aipkit_qdrant_collection_names');
     } else {
         delete_post_meta($botId, '_aipkit_openai_vector_store_ids');
         delete_post_meta($botId, '_aipkit_pinecone_index_name');
         delete_post_meta($botId, '_aipkit_qdrant_collection_name');
         delete_post_meta($botId, '_aipkit_qdrant_collection_names');
+        delete_post_meta($botId, '_aipkit_chroma_collection_name');
+        delete_post_meta($botId, '_aipkit_chroma_collection_names');
         delete_post_meta($botId, '_aipkit_vector_embedding_provider');
         delete_post_meta($botId, '_aipkit_vector_embedding_model');
     }

@@ -75,9 +75,15 @@ function build_task_config_enhancement_logic(array $post_data): array|WP_Error
             $task_config['pinecone_index_name'] = isset($post_data['pinecone_index_name']) ? sanitize_text_field($post_data['pinecone_index_name']) : '';
         } elseif ($task_config['vector_store_provider'] === 'qdrant') {
             $task_config['qdrant_collection_name'] = isset($post_data['qdrant_collection_name']) ? sanitize_text_field($post_data['qdrant_collection_name']) : '';
+        } elseif ($task_config['vector_store_provider'] === 'chroma') {
+            $task_config['chroma_collection_name'] = isset($post_data['chroma_collection_name']) ? sanitize_text_field($post_data['chroma_collection_name']) : '';
         }
 
-        if ($task_config['vector_store_provider'] === 'pinecone' || $task_config['vector_store_provider'] === 'qdrant') {
+        if (
+            $task_config['vector_store_provider'] === 'pinecone' ||
+            $task_config['vector_store_provider'] === 'qdrant' ||
+            $task_config['vector_store_provider'] === 'chroma'
+        ) {
             $task_config['vector_embedding_provider'] = isset($post_data['vector_embedding_provider']) ? sanitize_key($post_data['vector_embedding_provider']) : 'openai';
             $task_config['vector_embedding_model'] = isset($post_data['vector_embedding_model']) ? sanitize_text_field($post_data['vector_embedding_model']) : '';
         }

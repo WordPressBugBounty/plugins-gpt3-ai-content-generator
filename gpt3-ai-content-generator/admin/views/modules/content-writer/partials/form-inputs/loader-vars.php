@@ -80,6 +80,7 @@ if ($is_pro && !function_exists('\WPAICG\Lib\ContentWriter\AIPKit_Google_Sheets_
 $openai_vector_stores = [];
 $pinecone_indexes = [];
 $qdrant_collections = [];
+$chroma_collections = [];
 $embedding_provider_options = [];
 $embedding_models_by_provider = [];
 if (class_exists(AIPKit_Providers::class)) {
@@ -92,6 +93,9 @@ if (class_exists(AIPKit_Providers::class)) {
         : [];
     $qdrant_collections = isset($vector_store_localization['qdrant_collections']) && is_array($vector_store_localization['qdrant_collections'])
         ? $vector_store_localization['qdrant_collections']
+        : [];
+    $chroma_collections = isset($vector_store_localization['chroma_collections']) && is_array($vector_store_localization['chroma_collections'])
+        ? $vector_store_localization['chroma_collections']
         : [];
     $embedding_provider_options = AIPKit_Providers::get_embedding_provider_map('content_writer_ui');
     $embedding_models_by_provider = AIPKit_Providers::get_embedding_models_by_provider('content_writer_ui');

@@ -34,6 +34,7 @@ class Vector_Store_Dependencies_Loader
             $providers_path . 'pinecone/bootstrap.php',
             $providers_path . 'qdrant/bootstrap.php',
             $providers_path . 'openai/bootstrap.php',
+            $providers_path . 'chroma/bootstrap.php',
         ];
 
         foreach ($provider_bootstraps as $bootstrap_file) {

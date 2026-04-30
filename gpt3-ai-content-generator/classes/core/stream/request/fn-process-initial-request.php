@@ -89,6 +89,12 @@ function process_initial_request_logic(
                     if (isset($outer_decoded['active_qdrant_file_upload_context_id'])) {
                         $cached_data_decoded_for_handler['active_qdrant_file_upload_context_id'] = $outer_decoded['active_qdrant_file_upload_context_id'];
                     }
+                    if (isset($outer_decoded['active_chroma_collection_name'])) {
+                        $cached_data_decoded_for_handler['active_chroma_collection_name'] = $outer_decoded['active_chroma_collection_name'];
+                    }
+                    if (isset($outer_decoded['active_chroma_file_upload_context_id'])) {
+                        $cached_data_decoded_for_handler['active_chroma_file_upload_context_id'] = $outer_decoded['active_chroma_file_upload_context_id'];
+                    }
                     if (isset($outer_decoded['active_claude_file_id'])) {
                         $cached_data_decoded_for_handler['active_claude_file_id'] = $outer_decoded['active_claude_file_id'];
                     }

@@ -52,7 +52,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'pexels_orientation', 'pexels_size', 'pexels_color',
             'pixabay_orientation', 'pixabay_image_type', 'pixabay_category',
             'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids',
-            'pinecone_index_name', 'qdrant_collection_name', 'vector_embedding_provider',
+            'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'vector_embedding_provider',
             'vector_embedding_model', 'vector_store_top_k',
             'vector_store_confidence_threshold',
             'rss_include_keywords', 'rss_exclude_keywords',

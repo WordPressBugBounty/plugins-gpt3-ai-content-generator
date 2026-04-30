@@ -110,6 +110,8 @@ class AIService
         ?string $frontend_active_pinecone_namespace = null,
         ?string $frontend_active_qdrant_collection_name = null,
         ?string $frontend_active_qdrant_file_upload_context_id = null,
+        ?string $frontend_active_chroma_collection_name = null,
+        ?string $frontend_active_chroma_file_upload_context_id = null,
         ?string $frontend_active_claude_file_id = null
     ): array|WP_Error {
         return AIService\generate_response(
@@ -127,6 +129,8 @@ class AIService
             $frontend_active_pinecone_namespace,
             $frontend_active_qdrant_collection_name,
             $frontend_active_qdrant_file_upload_context_id,
+            $frontend_active_chroma_collection_name,
+            $frontend_active_chroma_file_upload_context_id,
             $frontend_active_claude_file_id
         );
     }

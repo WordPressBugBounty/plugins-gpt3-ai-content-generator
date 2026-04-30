@@ -20,15 +20,18 @@ $aipkit_vector_store_localization = [
     'openai_vector_stores' => [],
     'pinecone_indexes' => [],
     'qdrant_collections' => [],
+    'chroma_collections' => [],
 ];
 $aipkit_openai_provider_data = [];
 $aipkit_pinecone_provider_data = [];
 $aipkit_qdrant_provider_data = [];
+$aipkit_chroma_provider_data = [];
 if (class_exists(AIPKit_Providers::class)) {
     $aipkit_vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('ai_forms_editor_ui');
     $aipkit_openai_provider_data = AIPKit_Providers::get_provider_data('OpenAI');
     $aipkit_pinecone_provider_data = AIPKit_Providers::get_provider_data('Pinecone');
     $aipkit_qdrant_provider_data = AIPKit_Providers::get_provider_data('Qdrant');
+    $aipkit_chroma_provider_data = AIPKit_Providers::get_provider_data('Chroma');
 }
 $openai_vector_stores = isset($aipkit_vector_store_localization['openai_vector_stores']) && is_array($aipkit_vector_store_localization['openai_vector_stores'])
     ? $aipkit_vector_store_localization['openai_vector_stores']
@@ -39,10 +42,23 @@ $pinecone_indexes = isset($aipkit_vector_store_localization['pinecone_indexes'])
 $qdrant_collections = isset($aipkit_vector_store_localization['qdrant_collections']) && is_array($aipkit_vector_store_localization['qdrant_collections'])
     ? $aipkit_vector_store_localization['qdrant_collections']
     : [];
+$chroma_collections = isset($aipkit_vector_store_localization['chroma_collections']) && is_array($aipkit_vector_store_localization['chroma_collections'])
+    ? $aipkit_vector_store_localization['chroma_collections']
+    : [];
 $openai_api_key = $aipkit_openai_provider_data['api_key'] ?? '';
 $pinecone_api_key = $aipkit_pinecone_provider_data['api_key'] ?? '';
 $qdrant_url = $aipkit_qdrant_provider_data['url'] ?? '';
 $qdrant_api_key = $aipkit_qdrant_provider_data['api_key'] ?? '';
+$chroma_url = $aipkit_chroma_provider_data['url'] ?? '';
+$chroma_api_key = $aipkit_chroma_provider_data['api_key'] ?? '';
+$chroma_tenant = $aipkit_chroma_provider_data['tenant'] ?? 'default_tenant';
+$chroma_database = $aipkit_chroma_provider_data['database'] ?? 'default_database';
+if ($chroma_tenant === '') {
+    $chroma_tenant = 'default_tenant';
+}
+if ($chroma_database === '') {
+    $chroma_database = 'default_database';
+}
 // --- END ADDED ---
 
 ?>
@@ -57,6 +73,10 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     data-pinecone-api-key-set="<?php echo esc_attr(!empty($pinecone_api_key) ? 'true' : 'false'); ?>"
     data-qdrant-api-key-set="<?php echo esc_attr(!empty($qdrant_api_key) ? 'true' : 'false'); ?>"
     data-qdrant-url-set="<?php echo esc_attr(!empty($qdrant_url) ? 'true' : 'false'); ?>"
+    data-chroma-url-set="<?php echo esc_attr(!empty($chroma_url) ? 'true' : 'false'); ?>"
+    data-chroma-api-key-set="<?php echo esc_attr(!empty($chroma_api_key) ? 'true' : 'false'); ?>"
+    data-chroma-tenant-set="<?php echo esc_attr(!empty($chroma_tenant) ? 'true' : 'false'); ?>"
+    data-chroma-database-set="<?php echo esc_attr(!empty($chroma_database) ? 'true' : 'false'); ?>"
 >
     <?php include WPAICG_PLUGIN_DIR . 'admin/views/shared/vector-store-nonce-fields.php'; ?>
     <div class="aipkit_container-header">

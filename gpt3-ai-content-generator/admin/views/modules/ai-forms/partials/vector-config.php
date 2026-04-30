@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 // Variables passed from parent (index.php -> form-editor.php -> _form-editor-main-settings.php -> this):
-// $openai_vector_stores, $pinecone_indexes, $qdrant_collections
+// $openai_vector_stores, $pinecone_indexes, $qdrant_collections, $chroma_collections
 ?>
 <?php
 $vector_embedding_provider = '';
@@ -81,6 +81,7 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                     <option value="openai">OpenAI</option>
                     <option value="pinecone">Pinecone</option>
                     <option value="qdrant">Qdrant</option>
+                    <option value="chroma">Chroma</option>
                 </select>
             </div>
         </div>
@@ -281,6 +282,120 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                         if (!empty($qdrant_collections)) {
                             foreach ($qdrant_collections as $collection) {
                                 $collection_name = is_array($collection) ? ($collection['name'] ?? '') : (string) $collection;
+                                if ($collection_name === '') {
+                                    continue;
+                                }
+                                echo '<option value="' . esc_attr($collection_name) . '">' . esc_html($collection_name) . '</option>';
+                            }
+                        } else {
+                            echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="aipkit_popover_option_row aipkit_vector_store_chroma_url_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_chroma_url"
+                >
+                    <?php esc_html_e('URL', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <input
+                    type="url"
+                    id="aipkit_ai_form_chroma_url"
+                    name="chroma_url"
+                    class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
+                    placeholder="<?php esc_attr_e('e.g., https://api.trychroma.com', 'gpt3-ai-content-generator'); ?>"
+                    value="<?php echo esc_attr($chroma_url ?? ''); ?>"
+                />
+            </div>
+        </div>
+        <div class="aipkit_popover_option_row aipkit_vector_store_chroma_key_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_chroma_api_key"
+                >
+                    <?php esc_html_e('API key', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_api-key-wrapper aipkit_popover_api_key_wrapper">
+                    <input
+                        type="password"
+                        id="aipkit_ai_form_chroma_api_key"
+                        name="chroma_api_key"
+                        class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
+                        value="<?php echo esc_attr($chroma_api_key ?? ''); ?>"
+                        autocomplete="new-password"
+                        data-lpignore="true"
+                        data-1p-ignore="true"
+                        data-form-type="other"
+                    />
+                    <span class="aipkit_api-key-toggle">
+                        <span class="dashicons dashicons-visibility"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="aipkit_popover_option_row aipkit_vector_store_chroma_tenant_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_chroma_tenant"
+                >
+                    <?php esc_html_e('Tenant', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <input
+                    type="text"
+                    id="aipkit_ai_form_chroma_tenant"
+                    name="chroma_tenant"
+                    class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
+                    value="<?php echo esc_attr($chroma_tenant ?? 'default_tenant'); ?>"
+                />
+            </div>
+        </div>
+        <div class="aipkit_popover_option_row aipkit_vector_store_chroma_database_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_chroma_database"
+                >
+                    <?php esc_html_e('Database', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <input
+                    type="text"
+                    id="aipkit_ai_form_chroma_database"
+                    name="chroma_database"
+                    class="aipkit_popover_option_input aipkit_popover_option_input--wide aipkit_popover_option_input--vector-wide aipkit_popover_option_input--framed"
+                    value="<?php echo esc_attr($chroma_database ?? 'default_database'); ?>"
+                />
+            </div>
+        </div>
+        <div class="aipkit_popover_option_row aipkit_vector_store_chroma_field" style="display:none;">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_ai_form_chroma_collection_name"
+                    data-tooltip="<?php echo esc_attr__('Select a collection.', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php esc_html_e('Collection', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_popover_inline_controls">
+                    <select
+                        id="aipkit_ai_form_chroma_collection_name"
+                        name="chroma_collection_name"
+                        class="aipkit_popover_option_select"
+                    >
+                        <option value=""><?php esc_html_e('-- Select Collection --', 'gpt3-ai-content-generator'); ?></option>
+                        <?php
+                        if (!empty($chroma_collections)) {
+                            foreach ($chroma_collections as $collection) {
+                                $collection_name = is_array($collection)
+                                    ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? '')))
+                                    : (string) $collection;
                                 if ($collection_name === '') {
                                     continue;
                                 }

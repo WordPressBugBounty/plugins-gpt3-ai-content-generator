@@ -67,6 +67,8 @@ function prepare_vector_standard_call(
             null, // pinecone namespace (optional)
             $form_data['qdrant_collection_name'] ?? null,
             null, // qdrant file upload context id (optional)
+            $form_data['chroma_collection_name'] ?? null,
+            null, // chroma file upload context id (optional)
             $collected_vector_search_scores
         );
 

@@ -137,7 +137,7 @@ function process_content_writer_logic(
     if ($is_vector_enabled && $ai_caller && $vector_store_manager) {
         $vector_provider = $cached_data['vector_store_provider'] ?? 'openai';
 
-        // Always attempt to build vector context and capture scores for logging (OpenAI, Pinecone, Qdrant)
+        // Always attempt to build vector context and capture scores for logging (OpenAI, Pinecone, Qdrant, Chroma)
         if (!function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
             $vector_logic_path = WPAICG_PLUGIN_DIR . 'classes/core/stream/vector/fn-build-vector-search-context.php';
             if (file_exists($vector_logic_path)) {
@@ -157,6 +157,8 @@ function process_content_writer_logic(
                 null, // pinecone namespace (optional)
                 $cached_data['qdrant_collection_name'] ?? null,
                 null, // qdrant file upload context id (optional)
+                $cached_data['chroma_collection_name'] ?? null,
+                null, // chroma file upload context id (optional)
                 $collected_vector_search_scores
             );
             if (!empty($vector_context)) {

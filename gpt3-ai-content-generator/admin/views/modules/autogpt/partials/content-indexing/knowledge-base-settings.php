@@ -23,6 +23,7 @@ if (!defined('ABSPATH')) {
             <option value="openai" selected>OpenAI</option>
             <option value="pinecone">Pinecone</option>
             <option value="qdrant">Qdrant</option>
+            <option value="chroma">Chroma</option>
         </select>
     </div>
 

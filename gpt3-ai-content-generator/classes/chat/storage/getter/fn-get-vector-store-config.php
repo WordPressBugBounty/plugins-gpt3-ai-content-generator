@@ -35,7 +35,7 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
         : BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
 
     $settings['vector_store_provider'] = $get_meta_fn('_aipkit_vector_store_provider', BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER);
-    if (!in_array($settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant', 'claude_files'], true)) {
+    if (!in_array($settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files'], true)) {
         $settings['vector_store_provider'] = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
     }
     $chat_provider = sanitize_text_field((string) $get_meta_fn('_aipkit_provider', 'OpenAI'));
@@ -65,6 +65,15 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
         $qdrant_names_array = [$settings['qdrant_collection_name']];
     }
     $settings['qdrant_collection_names'] = $qdrant_names_array;
+
+    $settings['chroma_collection_name'] = $get_meta_fn('_aipkit_chroma_collection_name', '');
+    $chroma_names_json = $get_meta_fn('_aipkit_chroma_collection_names', '[]');
+    $chroma_names_array = json_decode($chroma_names_json, true);
+    if (!is_array($chroma_names_array)) { $chroma_names_array = []; }
+    if (empty($chroma_names_array) && !empty($settings['chroma_collection_name'])) {
+        $chroma_names_array = [$settings['chroma_collection_name']];
+    }
+    $settings['chroma_collection_names'] = $chroma_names_array;
 
     $allowed_embedding_provider_keys = AIPKit_Providers::get_embedding_provider_keys('chat_vector_store_getter');
 

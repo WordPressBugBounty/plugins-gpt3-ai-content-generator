@@ -9,6 +9,7 @@
  * - $openai_vector_stores (array)
  * - $pinecone_indexes (array)
  * - $qdrant_collections (array)
+ * - $chroma_collections (array)
  */
 
 if (!defined('ABSPATH')) {
@@ -38,6 +39,7 @@ $aipkit_autogpt_context_top_k_default = isset($aipkit_autogpt_context_config['to
 $aipkit_autogpt_context_confidence_default = isset($aipkit_autogpt_context_config['confidence_default'])
     ? (int) $aipkit_autogpt_context_config['confidence_default']
     : 20;
+$chroma_collections = isset($chroma_collections) && is_array($chroma_collections) ? $chroma_collections : [];
 
 $aipkit_autogpt_context_base = 'aipkit_task_' . $aipkit_autogpt_context_scope;
 $aipkit_autogpt_context_enable_id = $aipkit_autogpt_context_base . '_enable_vector_store';
@@ -49,6 +51,7 @@ $aipkit_autogpt_context_openai_panel_id = $aipkit_autogpt_context_base . '_opena
 $aipkit_autogpt_context_openai_select_id = $aipkit_autogpt_context_base . '_openai_vector_store_ids';
 $aipkit_autogpt_context_pinecone_select_id = $aipkit_autogpt_context_base . '_pinecone_index_name';
 $aipkit_autogpt_context_qdrant_select_id = $aipkit_autogpt_context_base . '_qdrant_collection_name';
+$aipkit_autogpt_context_chroma_select_id = $aipkit_autogpt_context_base . '_chroma_collection_name';
 $aipkit_autogpt_context_settings_trigger_id = $aipkit_autogpt_context_base . '_kb_settings_trigger';
 $aipkit_autogpt_context_settings_popover_id = $aipkit_autogpt_context_base . '_kb_settings_popover';
 $aipkit_autogpt_context_embedding_section_id = $aipkit_autogpt_context_base . '_kb_embedding_section';
@@ -89,6 +92,7 @@ $aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? 
                 <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                 <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
                 <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
+                <option value="chroma"><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
             </select>
         </div>
     </div>
@@ -188,6 +192,36 @@ $aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? 
                                 <?php foreach ($qdrant_collections as $collection) : ?>
                                     <option value="<?php echo esc_attr($collection['name']); ?>">
                                         <?php echo esc_html($collection['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <option value="" disabled>
+                                    <?php esc_html_e('No collections found', 'gpt3-ai-content-generator'); ?>
+                                </option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="<?php echo esc_attr('aipkit_task_' . $aipkit_autogpt_context_scope . '_vector_chroma_field'); ?>" hidden>
+                        <select
+                            id="<?php echo esc_attr($aipkit_autogpt_context_chroma_select_id); ?>"
+                            name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'chroma_collection_name'); ?>"
+                            class="<?php echo esc_attr('aipkit_form-input aipkit_vector_settings_select' . $aipkit_autogpt_context_autosave_class); ?>"
+                            aria-label="<?php esc_attr_e('Chroma collection', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <option value=""><?php esc_html_e('Select collection', 'gpt3-ai-content-generator'); ?></option>
+                            <?php if (!empty($chroma_collections)) : ?>
+                                <?php foreach ($chroma_collections as $collection) : ?>
+                                    <?php
+                                    $aipkit_chroma_collection_name = is_array($collection)
+                                        ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? '')))
+                                        : (string) $collection;
+                                    if ($aipkit_chroma_collection_name === '') {
+                                        continue;
+                                    }
+                                    ?>
+                                    <option value="<?php echo esc_attr($aipkit_chroma_collection_name); ?>">
+                                        <?php echo esc_html($aipkit_chroma_collection_name); ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php else : ?>

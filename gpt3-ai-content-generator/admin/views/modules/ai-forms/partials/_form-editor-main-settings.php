@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 // Variables passed from parent (form-editor.php):
 // $providers, $default_temp, $default_max_tokens, $default_top_p, $default_frequency_penalty, $default_presence_penalty
 // NEW: Variables passed down from ai-forms/index.php
-// $openai_vector_stores, $pinecone_indexes, $qdrant_collections, $openai_embedding_models, $google_embedding_models
+// $openai_vector_stores, $pinecone_indexes, $qdrant_collections, $chroma_collections, $openai_embedding_models, $google_embedding_models
 ?>
 <div class="aipkit_ai_form_editor_sidebar">
     <div class="aipkit_form-row aipkit_ai_form_model_config_row" style="flex-wrap: unset;">

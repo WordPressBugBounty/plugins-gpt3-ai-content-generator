@@ -29,6 +29,8 @@ if (!defined('ABSPATH')) {
  * @param string|null $frontend_active_pinecone_namespace Optional active Pinecone namespace from frontend.
  * @param string|null $frontend_active_qdrant_collection_name Optional active Qdrant collection name.
  * @param string|null $frontend_active_qdrant_file_upload_context_id Optional active Qdrant file context ID.
+ * @param string|null $frontend_active_chroma_collection_name Optional active Chroma collection name.
+ * @param string|null $frontend_active_chroma_file_upload_context_id Optional active Chroma file context ID.
  * @param array|null &$vector_search_scores_output Optional reference to capture vector search scores for logging.
  * @return string The formatted context string from vector searches, or an empty string.
  */
@@ -43,6 +45,8 @@ function prepare_vector_search_context_logic(
     ?string $frontend_active_pinecone_namespace = null,
     ?string $frontend_active_qdrant_collection_name = null,
     ?string $frontend_active_qdrant_file_upload_context_id = null,
+    ?string $frontend_active_chroma_collection_name = null,
+    ?string $frontend_active_chroma_file_upload_context_id = null,
     ?array &$vector_search_scores_output = null
 ): string {
     if (!$ai_caller || !$vector_store_manager) {
@@ -61,6 +65,8 @@ function prepare_vector_search_context_logic(
         $frontend_active_pinecone_namespace,
         $frontend_active_qdrant_collection_name,
         $frontend_active_qdrant_file_upload_context_id,
+        $frontend_active_chroma_collection_name,
+        $frontend_active_chroma_file_upload_context_id,
         $vector_search_scores_output
     );
 }

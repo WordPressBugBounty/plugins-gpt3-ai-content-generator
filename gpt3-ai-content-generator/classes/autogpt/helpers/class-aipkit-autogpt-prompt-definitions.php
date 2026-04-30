@@ -54,6 +54,9 @@ Focus keyword: "{original_focus_keyword}"', 'gpt3-ai-content-generator'),
     public static function get_content_enhancement_prompt_items(): array
     {
         $defaults = self::get_content_enhancement_defaults();
+        $prompt_library = class_exists(AIPKit_Content_Writer_Prompts::class)
+            ? AIPKit_Content_Writer_Prompts::get_prompt_library()
+            : [];
 
         $base_placeholders = [
             '{original_title}',
@@ -109,7 +112,13 @@ Focus keyword: "{original_focus_keyword}"', 'gpt3-ai-content-generator'),
                     'value' => $defaults['title'],
                     'placeholder' => __('Enter your title prompt...', 'gpt3-ai-content-generator'),
                 ],
+                'library' => [
+                    'select_id' => 'aipkit_task_ce_title_prompt_library',
+                    'options' => $prompt_library['title'] ?? [],
+                    'default_prompt' => $defaults['title'],
+                ],
                 'placeholders' => $focus_placeholders,
+                'placeholders_prompt_type' => 'title',
                 'placeholders_extra' => $product_placeholders,
                 'placeholders_extra_label' => __('For products:', 'gpt3-ai-content-generator'),
             ],
@@ -129,7 +138,13 @@ Focus keyword: "{original_focus_keyword}"', 'gpt3-ai-content-generator'),
                     'value' => $defaults['excerpt'],
                     'placeholder' => __('Enter your excerpt prompt...', 'gpt3-ai-content-generator'),
                 ],
+                'library' => [
+                    'select_id' => 'aipkit_task_ce_excerpt_prompt_library',
+                    'options' => $prompt_library['excerpt'] ?? [],
+                    'default_prompt' => $defaults['excerpt'],
+                ],
                 'placeholders' => $base_placeholders,
+                'placeholders_prompt_type' => 'excerpt',
                 'placeholders_extra' => $product_placeholders,
                 'placeholders_extra_label' => __('For products:', 'gpt3-ai-content-generator'),
             ],
@@ -149,7 +164,13 @@ Focus keyword: "{original_focus_keyword}"', 'gpt3-ai-content-generator'),
                     'value' => $defaults['content'],
                     'placeholder' => __('Enter your content prompt...', 'gpt3-ai-content-generator'),
                 ],
+                'library' => [
+                    'select_id' => 'aipkit_task_ce_content_prompt_library',
+                    'options' => $prompt_library['content'] ?? [],
+                    'default_prompt' => $defaults['content'],
+                ],
                 'placeholders' => $focus_placeholders,
+                'placeholders_prompt_type' => 'content',
                 'placeholders_extra' => $product_placeholders,
                 'placeholders_extra_label' => __('For products:', 'gpt3-ai-content-generator'),
             ],
@@ -169,7 +190,13 @@ Focus keyword: "{original_focus_keyword}"', 'gpt3-ai-content-generator'),
                     'value' => $defaults['meta'],
                     'placeholder' => __('Enter your meta description prompt...', 'gpt3-ai-content-generator'),
                 ],
+                'library' => [
+                    'select_id' => 'aipkit_task_ce_meta_prompt_library',
+                    'options' => $prompt_library['meta'] ?? [],
+                    'default_prompt' => $defaults['meta'],
+                ],
                 'placeholders' => $meta_placeholders,
+                'placeholders_prompt_type' => 'meta',
                 'placeholders_extra' => $product_placeholders,
                 'placeholders_extra_label' => __('For products:', 'gpt3-ai-content-generator'),
             ],
@@ -188,6 +215,9 @@ Comment: {comment_content}', 'gpt3-ai-content-generator'),
     public static function get_comment_reply_prompt_items(): array
     {
         $defaults = self::get_comment_reply_defaults();
+        $prompt_library = class_exists(AIPKit_Content_Writer_Prompts::class)
+            ? AIPKit_Content_Writer_Prompts::get_prompt_library()
+            : [];
 
         return [
             [
@@ -202,11 +232,17 @@ Comment: {comment_content}', 'gpt3-ai-content-generator'),
                     'value' => $defaults['reply'],
                     'placeholder' => __('Enter your reply prompt...', 'gpt3-ai-content-generator'),
                 ],
+                'library' => [
+                    'select_id' => 'aipkit_task_cc_reply_prompt_library',
+                    'options' => $prompt_library['reply'] ?? [],
+                    'default_prompt' => $defaults['reply'],
+                ],
                 'placeholders' => [
                     '{comment_content}',
                     '{comment_author}',
                     '{post_title}',
                 ],
+                'placeholders_prompt_type' => 'reply',
             ],
         ];
     }

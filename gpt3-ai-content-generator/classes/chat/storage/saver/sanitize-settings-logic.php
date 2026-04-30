@@ -272,7 +272,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $vector_store_provider_input = isset($raw_settings['vector_store_provider'])
         ? sanitize_key((string) $raw_settings['vector_store_provider'])
         : '';
-    $allowed_vector_store_providers = ['openai', 'pinecone', 'qdrant'];
+    $allowed_vector_store_providers = ['openai', 'pinecone', 'qdrant', 'chroma'];
     if (strtolower((string) ($sanitized['provider'] ?? '')) === 'claude') {
         $allowed_vector_store_providers[] = 'claude_files';
     }
@@ -313,14 +313,36 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $qdrant_names_clean = array_values(array_unique($qdrant_names_clean));
     $sanitized['qdrant_collection_names'] = wp_json_encode($qdrant_names_clean);
     $sanitized['qdrant_collection_name'] = $qdrant_names_clean[0] ?? '';
+    $chroma_names_raw = [];
+    if ($sanitized['vector_store_provider'] === 'chroma') {
+        if (isset($raw_settings['chroma_collection_names']) && is_array($raw_settings['chroma_collection_names'])) {
+            $chroma_names_raw = $raw_settings['chroma_collection_names'];
+        } elseif (isset($raw_settings['chroma_collection_names']) && is_string($raw_settings['chroma_collection_names'])) {
+            $decoded = json_decode($raw_settings['chroma_collection_names'], true);
+            if (is_array($decoded)) { $chroma_names_raw = $decoded; }
+        }
+        if (empty($chroma_names_raw) && isset($raw_settings['chroma_collection_name'])) {
+            $single = sanitize_text_field($raw_settings['chroma_collection_name']);
+            if (!empty($single)) { $chroma_names_raw = [$single]; }
+        }
+    }
+    $chroma_names_clean = [];
+    foreach ($chroma_names_raw as $name) {
+        $sn = sanitize_text_field(trim((string)$name));
+        if ($sn !== '') { $chroma_names_clean[] = $sn; }
+    }
+    $chroma_names_clean = array_values(array_unique($chroma_names_clean));
+    $sanitized['chroma_collection_names'] = wp_json_encode($chroma_names_clean);
+    $sanitized['chroma_collection_name'] = $chroma_names_clean[0] ?? '';
     $allowed_embedding_providers = AIPKit_Providers::get_embedding_provider_keys('chat_settings_sanitize');
-    $sanitized['vector_embedding_provider'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_provider']))
+    $uses_custom_embedding_provider = in_array($sanitized['vector_store_provider'], ['pinecone', 'qdrant', 'chroma'], true);
+    $sanitized['vector_embedding_provider'] = ($uses_custom_embedding_provider && isset($raw_settings['vector_embedding_provider']))
         ? sanitize_key($raw_settings['vector_embedding_provider'])
         : BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
     if (!in_array($sanitized['vector_embedding_provider'], $allowed_embedding_providers, true)) {
         $sanitized['vector_embedding_provider'] = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
     }
-    $sanitized['vector_embedding_model'] = (($sanitized['vector_store_provider'] === 'pinecone' || $sanitized['vector_store_provider'] === 'qdrant') && isset($raw_settings['vector_embedding_model']))
+    $sanitized['vector_embedding_model'] = ($uses_custom_embedding_provider && isset($raw_settings['vector_embedding_model']))
         ? sanitize_text_field($raw_settings['vector_embedding_model'])
         : '';
     // Backward-compatibility: accept combined "provider::model" values from older UI payloads.

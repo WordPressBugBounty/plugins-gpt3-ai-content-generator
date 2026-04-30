@@ -128,6 +128,9 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     if (isset($settings['qdrant_collection_name'])) {
         update_post_meta($form_id, '_aipkit_ai_form_qdrant_collection_name', sanitize_text_field($settings['qdrant_collection_name']));
     }
+    if (isset($settings['chroma_collection_name'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_chroma_collection_name', sanitize_text_field($settings['chroma_collection_name']));
+    }
     if (isset($settings['vector_embedding_provider'])) {
         update_post_meta($form_id, '_aipkit_ai_form_vector_embedding_provider', sanitize_key($settings['vector_embedding_provider']));
     }

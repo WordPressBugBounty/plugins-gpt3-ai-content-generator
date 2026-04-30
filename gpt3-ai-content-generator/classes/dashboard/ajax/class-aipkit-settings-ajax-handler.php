@@ -54,6 +54,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         'aipkit_elevenlabs_model_list',
         'aipkit_pinecone_index_list',
         'aipkit_qdrant_collection_list',
+        'aipkit_chroma_collection_list',
         'aipkit_replicate_model_list',
     ];
 
@@ -477,11 +478,16 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 
         $current_settings = $opts['semantic_search'] ?? [];
         $new_settings = [];
+        $allowed_vector_providers = ['pinecone', 'qdrant', 'chroma'];
 
         // Sanitize and collect new settings
-        $new_settings['vector_provider'] = isset($post_data['semantic_search_vector_provider'])
-            ? sanitize_key($post_data['semantic_search_vector_provider'])
+        $semantic_vector_provider = isset($post_data['semantic_search_vector_provider'])
+            ? $post_data['semantic_search_vector_provider']
             : ($current_settings['vector_provider'] ?? 'pinecone');
+        $new_settings['vector_provider'] = sanitize_key((string) $semantic_vector_provider);
+        if (!in_array($new_settings['vector_provider'], $allowed_vector_providers, true)) {
+            $new_settings['vector_provider'] = 'pinecone';
+        }
 
         $new_settings['target_id'] = isset($post_data['semantic_search_target_id'])
             ? sanitize_text_field($post_data['semantic_search_target_id'])
@@ -863,8 +869,12 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $imported_semantic = isset($imported_options['semantic_search']) && is_array($imported_options['semantic_search'])
             ? $imported_options['semantic_search']
             : [];
+        $imported_semantic_vector_provider = sanitize_key((string) ($imported_semantic['vector_provider'] ?? 'pinecone'));
+        if (!in_array($imported_semantic_vector_provider, ['pinecone', 'qdrant', 'chroma'], true)) {
+            $imported_semantic_vector_provider = 'pinecone';
+        }
         $sanitized['semantic_search'] = [
-            'vector_provider' => sanitize_key((string) ($imported_semantic['vector_provider'] ?? 'pinecone')),
+            'vector_provider' => $imported_semantic_vector_provider,
             'target_id' => sanitize_text_field((string) ($imported_semantic['target_id'] ?? '')),
             'embedding_provider' => sanitize_key((string) ($imported_semantic['embedding_provider'] ?? 'openai')),
             'embedding_model' => sanitize_text_field((string) ($imported_semantic['embedding_model'] ?? '')),

@@ -12,6 +12,7 @@ use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor;
 use WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor;
 use WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor;
+use WPAICG\Vector\PostProcessor\Chroma\ChromaPostProcessor;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -28,6 +29,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
     private $openai_processor;
     private $pinecone_processor;
     private $qdrant_processor;
+    private $chroma_processor;
 
     public function __construct()
     {
@@ -42,6 +44,10 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
 
         if (class_exists(QdrantPostProcessor::class)) {
             $this->qdrant_processor = new QdrantPostProcessor();
+        }
+
+        if (class_exists(ChromaPostProcessor::class)) {
+            $this->chroma_processor = new ChromaPostProcessor();
         }
     }
 
@@ -80,7 +86,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
         $successful_posts = [];
         $failed_posts_log = [];
         $store_identifier_for_msg = '';
-        $new_store_id = null; // This is specific to OpenAI when creating a new store, not used by Pinecone/Qdrant here
+        $new_store_id = null; // This is specific to OpenAI when creating a new store, not used by vector DB providers here
 
         if ($provider === 'openai' && $this->openai_processor) {
             $target_store_id = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : '';
@@ -140,6 +146,30 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
             
             foreach ($post_ids as $post_id) {
                 $result = $this->qdrant_processor->index_single_post_to_collection($post_id, $target_collection_name, $embedding_provider_key, $embedding_model);
+                if ($result['status'] === 'success') {
+                    $successful_posts[] = $post_id;
+                    $processed_count++;
+                } else {
+                    $failed_posts_log[$post_id] = $result['message'];
+                }
+            }
+        } elseif ($provider === 'chroma' && $this->chroma_processor) {
+            $target_collection_name = isset($post_data['target_collection_name']) ? sanitize_text_field($post_data['target_collection_name']) : '';
+            $embedding_provider_key = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : '';
+            $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : '';
+
+            if (empty($target_collection_name)) {
+                wp_send_json_error(['message' => __('Please select a Chroma collection.', 'gpt3-ai-content-generator')], 400);
+                return;
+            }
+            if (empty($embedding_provider_key) || empty($embedding_model)) {
+                wp_send_json_error(['message' => __('Embedding provider and model are required for Chroma.', 'gpt3-ai-content-generator')], 400);
+                return;
+            }
+            $store_identifier_for_msg = $target_collection_name;
+
+            foreach ($post_ids as $post_id) {
+                $result = $this->chroma_processor->index_single_post_to_collection($post_id, $target_collection_name, $embedding_provider_key, $embedding_model);
                 if ($result['status'] === 'success') {
                     $successful_posts[] = $post_id;
                     $processed_count++;

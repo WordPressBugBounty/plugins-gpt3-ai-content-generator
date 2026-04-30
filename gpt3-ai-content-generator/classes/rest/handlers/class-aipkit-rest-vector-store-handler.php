@@ -41,11 +41,11 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             'provider' => array(
                 'description' => __('The vector database provider.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'enum'        => ['pinecone', 'qdrant'],
+                'enum'        => ['pinecone', 'qdrant', 'chroma'],
                 'required'    => true,
             ),
             'target_id' => array(
-                'description' => __('The name of the target index (for Pinecone) or collection (for Qdrant).', 'gpt3-ai-content-generator'),
+                'description' => __('The name of the target index (for Pinecone) or collection (for Qdrant/Chroma).', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
                 'required'    => true,
             ),
@@ -59,6 +59,7 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
                         'id'       => array('type' => 'string', 'description' => 'A unique ID for the vector. If omitted, one will be generated.', 'required' => false),
                         'content'  => array('type' => 'string', 'description' => 'The text content to be embedded.', 'required' => true),
                         'metadata' => array('type' => 'object', 'description' => 'Key-value metadata to store with the vector.', 'required' => false),
+                        'uri'      => array('type' => 'string', 'description' => 'Optional URI associated with the vector.', 'required' => false),
                     ),
                 ),
             ),
@@ -113,8 +114,16 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
         }
 
         $params = $request->get_params();
-        $provider_key = $params['provider'];
-        $provider_normalized = ucfirst($provider_key);
+        $provider_key = sanitize_key((string) ($params['provider'] ?? ''));
+        $provider_map = [
+            'pinecone' => 'Pinecone',
+            'qdrant'  => 'Qdrant',
+            'chroma'  => 'Chroma',
+        ];
+        if (!isset($provider_map[$provider_key])) {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_vector_provider', __('Invalid vector database provider.', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
+        $provider_normalized = $provider_map[$provider_key];
         $target_id = $params['target_id'];
         $vectors_data = $params['vectors'];
         $embedding_provider_key = $params['embedding_provider'];
@@ -159,8 +168,12 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
                 'values' => $embedding_vectors[$index],
                 'vector' => $embedding_vectors[$index],
                 'metadata' => $metadata,
-                'payload' => $metadata 
+                'payload' => $metadata,
+                'document' => (string) $item['content'],
             ];
+            if (isset($item['uri']) && is_scalar($item['uri']) && (string) $item['uri'] !== '') {
+                $vector_item['uri'] = (string) $item['uri'];
+            }
             $vectors_to_upsert[] = $vector_item;
         }
 
@@ -173,6 +186,18 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             }
         } elseif ($provider_key === 'qdrant') {
             $upsert_payload['points'] = $vectors_to_upsert;
+        } elseif ($provider_key === 'chroma') {
+            $upsert_payload = [
+                'ids'        => array_column($vectors_to_upsert, 'id'),
+                'embeddings' => array_column($vectors_to_upsert, 'vector'),
+                'documents'  => array_column($vectors_to_upsert, 'document'),
+                'metadatas'  => array_column($vectors_to_upsert, 'metadata'),
+            ];
+
+            $uris = array_column($vectors_to_upsert, 'uri');
+            if (count($uris) === count($vectors_to_upsert)) {
+                $upsert_payload['uris'] = $uris;
+            }
         }
 
         $upsert_result = $this->vector_store_manager->upsert_vectors($provider_normalized, $target_id, $upsert_payload, $provider_config);

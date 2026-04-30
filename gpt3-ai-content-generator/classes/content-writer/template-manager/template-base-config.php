@@ -114,6 +114,7 @@ function get_cw_base_template_config(int $user_id): array
         'openai_vector_store_ids' => [],
         'pinecone_index_name' => '',
         'qdrant_collection_name' => '',
+        'chroma_collection_name' => '',
         'vector_embedding_provider' => 'openai',
         'vector_embedding_model' => 'text-embedding-3-small',
         'vector_store_top_k' => '3',

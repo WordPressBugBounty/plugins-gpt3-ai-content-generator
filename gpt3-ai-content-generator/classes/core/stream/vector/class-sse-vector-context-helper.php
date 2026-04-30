@@ -82,6 +82,8 @@ class SSEVectorContextHelper
      * @param string|null $frontend_active_pinecone_namespace Optional active Pinecone namespace from frontend.
      * @param string|null $frontend_active_qdrant_collection_name Optional active Qdrant collection name.
      * @param string|null $frontend_active_qdrant_file_upload_context_id Optional active Qdrant file upload context ID.
+     * @param string|null $frontend_active_chroma_collection_name Optional active Chroma collection name.
+     * @param string|null $frontend_active_chroma_file_upload_context_id Optional active Chroma file upload context ID.
      * @return string The formatted context string from vector searches, or an empty string.
      */
     public function build_vector_search_context(
@@ -92,7 +94,9 @@ class SSEVectorContextHelper
         ?string $frontend_active_pinecone_index_name = null,
         ?string $frontend_active_pinecone_namespace = null,
         ?string $frontend_active_qdrant_collection_name = null,
-        ?string $frontend_active_qdrant_file_upload_context_id = null
+        ?string $frontend_active_qdrant_file_upload_context_id = null,
+        ?string $frontend_active_chroma_collection_name = null,
+        ?string $frontend_active_chroma_file_upload_context_id = null
     ): string {
         // Call the namespaced logic function, passing the required dependencies
         return build_vector_search_context_logic(
@@ -109,7 +113,9 @@ class SSEVectorContextHelper
             $frontend_active_pinecone_index_name,
             $frontend_active_pinecone_namespace,
             $frontend_active_qdrant_collection_name,
-            $frontend_active_qdrant_file_upload_context_id
+            $frontend_active_qdrant_file_upload_context_id,
+            $frontend_active_chroma_collection_name,
+            $frontend_active_chroma_file_upload_context_id
         );
     }
 }

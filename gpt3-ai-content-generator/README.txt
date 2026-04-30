@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.4.12
+Stable tag: 2.4.13
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,7 +57,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 
 #### 📚 AI Training / Vector Database
 - Build a **knowledge base** from your posts, products, PDFs, or uploaded files.
-- Supports **OpenAI Vector Stores**, **Pinecone**, and **Qdrant**.
+- Supports **OpenAI Vector Stores**, **Pinecone**, **Qdrant** and **Chroma**.
 - Use in Chatbot or Forms for **context-aware AI answers**.
 
 #### 🛒 WooCommerce AI Tools
@@ -124,6 +124,12 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.13 =
+
+New Vector integration: Chroma!
+
+Check it's documentation here: https://docs.aipower.org/knowledge-base#chroma
 
 = 2.4.12 =
 

@@ -71,6 +71,7 @@ function build_cache_payload_logic(
     'openai_vector_store_ids'       => $settings['openai_vector_store_ids'] ?? [],
     'pinecone_index_name'           => $settings['pinecone_index_name'] ?? '',
     'qdrant_collection_name'        => $settings['qdrant_collection_name'] ?? '',
+    'chroma_collection_name'        => $settings['chroma_collection_name'] ?? '',
     'vector_embedding_provider'     => $settings['vector_embedding_provider'] ?? 'openai',
     'vector_embedding_model'        => $settings['vector_embedding_model'] ?? '',
     'vector_store_top_k'            => isset($settings['vector_store_top_k']) ? absint($settings['vector_store_top_k']) : 3,

@@ -37,6 +37,7 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
                 <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                 <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
                 <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
+                <option value="chroma"><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
             </select>
         </div>
     </div>
@@ -136,6 +137,36 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
                                 <?php foreach ($qdrant_collections as $collection): ?>
                                     <option value="<?php echo esc_attr($collection['name']); ?>">
                                         <?php echo esc_html($collection['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>
+                                    <?php esc_html_e('No collections found', 'gpt3-ai-content-generator'); ?>
+                                </option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="aipkit_cw_vector_chroma_field" hidden>
+                        <select
+                            id="aipkit_cw_chroma_collection_name"
+                            name="chroma_collection_name"
+                            class="aipkit_form-input aipkit_vector_settings_select aipkit_autosave_trigger"
+                            aria-label="<?php esc_attr_e('Chroma collection', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <option value=""><?php esc_html_e('Select', 'gpt3-ai-content-generator'); ?></option>
+                            <?php if (!empty($chroma_collections)): ?>
+                                <?php foreach ($chroma_collections as $collection): ?>
+                                    <?php
+                                    $collection_name = is_array($collection)
+                                        ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? '')))
+                                        : (string) $collection;
+                                    if ($collection_name === '') {
+                                        continue;
+                                    }
+                                    ?>
+                                    <option value="<?php echo esc_attr($collection_name); ?>">
+                                        <?php echo esc_html($collection_name); ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php else: ?>

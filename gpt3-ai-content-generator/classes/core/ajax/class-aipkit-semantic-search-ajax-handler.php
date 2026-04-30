@@ -57,7 +57,7 @@ class AIPKit_Semantic_Search_Ajax_Handler extends BaseDashboardAjaxHandler
         $opts = get_option('aipkit_options', []);
         $settings = $opts['semantic_search'] ?? [];
 
-        $vector_provider = $settings['vector_provider'] ?? '';
+        $vector_provider = sanitize_key((string) ($settings['vector_provider'] ?? ''));
         $target_id = $settings['target_id'] ?? '';
         $embedding_provider_key = $settings['embedding_provider'] ?? '';
         $embedding_model = $settings['embedding_model'] ?? '';
@@ -69,9 +69,16 @@ class AIPKit_Semantic_Search_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
-        // --- FIX: Normalize provider name ---
-        $vector_provider_normalized = ucfirst(strtolower($vector_provider));
-        // --- END FIX ---
+        $vector_provider_map = [
+            'pinecone' => 'Pinecone',
+            'qdrant'  => 'Qdrant',
+            'chroma'  => 'Chroma',
+        ];
+        if (!isset($vector_provider_map[$vector_provider])) {
+            $this->send_wp_error(new WP_Error('invalid_semantic_vector_provider', __('Invalid vector database configured for Semantic Search.', 'gpt3-ai-content-generator'), ['status' => 500]));
+            return;
+        }
+        $vector_provider_normalized = $vector_provider_map[$vector_provider];
 
         // Generate embedding for the user's query
         $embedding_provider_lookup = sanitize_key((string) strtolower($embedding_provider_key));
@@ -97,12 +104,9 @@ class AIPKit_Semantic_Search_Ajax_Handler extends BaseDashboardAjaxHandler
         }
         $query_vector = $embedding_result['embeddings'][0];
 
-        // Query the vector store
-        // --- FIX: Use normalized provider name ---
         $vector_store_config = AIPKit_Providers::get_provider_data($vector_provider_normalized);
         $query_vector_param = ['vector' => $query_vector];
         $search_results = $this->vector_store_manager->query_vectors($vector_provider_normalized, $target_id, $query_vector_param, (int)$num_results, [], $vector_store_config);
-        // --- END FIX ---
 
         if (is_wp_error($search_results)) {
             $this->send_wp_error($search_results);

@@ -1491,6 +1491,50 @@ Keywords: "{keywords}"
 Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
                 ],
             ],
+            'reply' => [
+                [
+                    'label' => __('Helpful Comment Reply', 'gpt3-ai-content-generator'),
+                    'prompt' => __('Write a helpful, friendly reply to the blog comment below.
+The reply must:
+- Directly address the comment
+- Sound natural and professional
+- Be concise, warm, and relevant to the post
+- Avoid generic filler or overpromising
+Return ONLY the reply text.
+
+Post title: "{post_title}"
+Comment author: "{comment_author}"
+Comment: "{comment_content}"', 'gpt3-ai-content-generator'),
+                ],
+                [
+                    'label' => __('Concise Comment Reply', 'gpt3-ai-content-generator'),
+                    'prompt' => __('Write a short, clear reply to this comment.
+The reply must:
+- Be 1-3 sentences
+- Acknowledge the commenter naturally
+- Stay relevant to the post topic
+- Avoid sounding automated
+Return ONLY the reply text.
+
+Post title: "{post_title}"
+Comment author: "{comment_author}"
+Comment: "{comment_content}"', 'gpt3-ai-content-generator'),
+                ],
+                [
+                    'label' => __('Supportive Comment Reply', 'gpt3-ai-content-generator'),
+                    'prompt' => __('Write a supportive reply to this blog comment.
+The reply must:
+- Be polite, human, and constructive
+- Answer or acknowledge the main point
+- Invite further discussion only when appropriate
+- Avoid unnecessary explanation
+Return ONLY the reply text.
+
+Post title: "{post_title}"
+Comment author: "{comment_author}"
+Comment: "{comment_content}"', 'gpt3-ai-content-generator'),
+                ],
+            ],
             'image' => [
                 [
                     'label' => __('Contextual Illustration Image', 'gpt3-ai-content-generator'),

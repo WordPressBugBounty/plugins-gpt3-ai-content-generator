@@ -53,6 +53,8 @@ require_once __DIR__ . '/determine_provider_model.php';
  * @param string|null $frontend_active_pinecone_namespace Optional active Pinecone namespace from frontend.
  * @param string|null $frontend_active_qdrant_collection_name Optional active Qdrant collection name from frontend.
  * @param string|null $frontend_active_qdrant_file_upload_context_id Optional active Qdrant file context ID from frontend.
+ * @param string|null $frontend_active_chroma_collection_name Optional active Chroma collection name from frontend.
+ * @param string|null $frontend_active_chroma_file_upload_context_id Optional active Chroma file context ID from frontend.
  * @param string|null $frontend_active_claude_file_id Optional active Claude file ID from frontend.
  * @return array|WP_Error Response data or WP_Error.
  */
@@ -71,6 +73,8 @@ function generate_response(
     ?string $frontend_active_pinecone_namespace = null,
     ?string $frontend_active_qdrant_collection_name = null,
     ?string $frontend_active_qdrant_file_upload_context_id = null,
+    ?string $frontend_active_chroma_collection_name = null,
+    ?string $frontend_active_chroma_file_upload_context_id = null,
     ?string $frontend_active_claude_file_id = null
 ): array|WP_Error {
     $ai_caller = $serviceInstance->get_ai_caller();
@@ -133,6 +137,8 @@ function generate_response(
         $frontend_active_pinecone_namespace,
         $frontend_active_qdrant_collection_name,
         $frontend_active_qdrant_file_upload_context_id,
+        $frontend_active_chroma_collection_name,
+        $frontend_active_chroma_file_upload_context_id,
         $vector_search_scores // Pass reference to capture scores
     );
 

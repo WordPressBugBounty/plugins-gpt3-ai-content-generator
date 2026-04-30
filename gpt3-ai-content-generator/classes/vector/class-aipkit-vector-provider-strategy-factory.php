@@ -24,7 +24,7 @@ class AIPKit_Vector_Provider_Strategy_Factory {
     /**
      * Get the strategy instance for a given Vector Store provider.
      *
-     * @param string $provider Provider name (e.g., 'Pinecone', 'Qdrant', 'OpenAI').
+     * @param string $provider Provider name (e.g., 'Pinecone', 'Qdrant', 'OpenAI', 'Chroma').
      * @return AIPKit_Vector_Provider_Strategy_Interface|WP_Error The strategy instance or WP_Error if unsupported.
      */
     public static function get_strategy(string $provider): AIPKit_Vector_Provider_Strategy_Interface|WP_Error {
@@ -37,6 +37,7 @@ class AIPKit_Vector_Provider_Strategy_Factory {
             'Pinecone' => 'pinecone/bootstrap.php',
             'Qdrant'   => 'qdrant/bootstrap.php', // MODIFIED: Point to bootstrap for Qdrant
             'OpenAI'   => 'openai/bootstrap.php',
+            'Chroma'   => 'chroma/bootstrap.php',
         ];
 
         if (!isset($strategies_map[$provider])) {
@@ -56,6 +57,9 @@ class AIPKit_Vector_Provider_Strategy_Factory {
                 break;
             case 'OpenAI':
                 $class_name = \WPAICG\Vector\Providers\AIPKit_Vector_OpenAI_Strategy::class;
+                break;
+            case 'Chroma':
+                $class_name = \WPAICG\Vector\Providers\AIPKit_Vector_Chroma_Strategy::class;
                 break;
             default:
             /* translators: %s is the vector store provider name */

@@ -96,6 +96,12 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     $image_inputs_json = isset($post_data['image_inputs']) ? (string) $post_data['image_inputs'] : null;
     $client_user_message_id = isset($post_data['user_client_message_id']) ? sanitize_key((string) $post_data['user_client_message_id']) : null;
     $active_openai_vs_id = isset($post_data['active_openai_vs_id']) ? sanitize_text_field((string) $post_data['active_openai_vs_id']) : null;
+    $active_pinecone_index_name = isset($post_data['active_pinecone_index_name']) ? sanitize_text_field((string) $post_data['active_pinecone_index_name']) : null;
+    $active_pinecone_namespace = isset($post_data['active_pinecone_namespace']) ? sanitize_text_field((string) $post_data['active_pinecone_namespace']) : null;
+    $active_qdrant_collection_name = isset($post_data['active_qdrant_collection_name']) ? sanitize_text_field((string) $post_data['active_qdrant_collection_name']) : null;
+    $active_qdrant_file_upload_context_id = isset($post_data['active_qdrant_file_upload_context_id']) ? sanitize_text_field((string) $post_data['active_qdrant_file_upload_context_id']) : null;
+    $active_chroma_collection_name = isset($post_data['active_chroma_collection_name']) ? sanitize_text_field((string) $post_data['active_chroma_collection_name']) : null;
+    $active_chroma_file_upload_context_id = isset($post_data['active_chroma_file_upload_context_id']) ? sanitize_text_field((string) $post_data['active_chroma_file_upload_context_id']) : null;
     $active_claude_file_id = isset($post_data['active_claude_file_id']) ? sanitize_text_field((string) $post_data['active_claude_file_id']) : null;
 
     if (!class_exists(ChatImageInputValidator::class)) {
@@ -150,6 +156,24 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     ];
     if ($active_openai_vs_id) {
         $data_to_cache_structured['active_openai_vs_id'] = $active_openai_vs_id;
+    }
+    if ($active_pinecone_index_name) {
+        $data_to_cache_structured['active_pinecone_index_name'] = $active_pinecone_index_name;
+    }
+    if ($active_pinecone_namespace) {
+        $data_to_cache_structured['active_pinecone_namespace'] = $active_pinecone_namespace;
+    }
+    if ($active_qdrant_collection_name) {
+        $data_to_cache_structured['active_qdrant_collection_name'] = $active_qdrant_collection_name;
+    }
+    if ($active_qdrant_file_upload_context_id) {
+        $data_to_cache_structured['active_qdrant_file_upload_context_id'] = $active_qdrant_file_upload_context_id;
+    }
+    if ($active_chroma_collection_name) {
+        $data_to_cache_structured['active_chroma_collection_name'] = $active_chroma_collection_name;
+    }
+    if ($active_chroma_file_upload_context_id) {
+        $data_to_cache_structured['active_chroma_file_upload_context_id'] = $active_chroma_file_upload_context_id;
     }
     if ($active_claude_file_id) {
         $data_to_cache_structured['active_claude_file_id'] = $active_claude_file_id;

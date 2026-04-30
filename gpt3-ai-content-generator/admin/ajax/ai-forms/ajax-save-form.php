@@ -142,6 +142,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $openai_vector_store_ids = isset($post_data['openai_vector_store_ids']) && is_array($post_data['openai_vector_store_ids']) ? array_map('sanitize_text_field', $post_data['openai_vector_store_ids']) : [];
     $pinecone_index_name = isset($post_data['pinecone_index_name']) ? sanitize_text_field($post_data['pinecone_index_name']) : '';
     $qdrant_collection_name = isset($post_data['qdrant_collection_name']) ? sanitize_text_field($post_data['qdrant_collection_name']) : '';
+    $chroma_collection_name = isset($post_data['chroma_collection_name']) ? sanitize_text_field($post_data['chroma_collection_name']) : '';
     $vector_embedding_provider = isset($post_data['vector_embedding_provider']) ? sanitize_key($post_data['vector_embedding_provider']) : 'openai';
     $vector_embedding_model = isset($post_data['vector_embedding_model']) ? sanitize_text_field($post_data['vector_embedding_model']) : '';
     $vector_store_top_k = isset($post_data['vector_store_top_k']) ? absint($post_data['vector_store_top_k']) : 3;
@@ -263,6 +264,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'openai_vector_store_ids' => $openai_vector_store_ids,
         'pinecone_index_name' => $pinecone_index_name,
         'qdrant_collection_name' => $qdrant_collection_name,
+        'chroma_collection_name' => $chroma_collection_name,
         'vector_embedding_provider' => $vector_embedding_provider,
         'vector_embedding_model' => $vector_embedding_model,
         'vector_store_top_k' => $vector_store_top_k,
