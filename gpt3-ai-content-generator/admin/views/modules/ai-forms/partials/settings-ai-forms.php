@@ -3,8 +3,8 @@
 // Status: MODIFIED
 
 /**
- * Partial: AI Forms Usage Settings
- * Renders quota settings for the AI Forms module.
+ * Partial: AI Forms Settings
+ * Renders module-level settings for AI Forms.
  */
 
 if (!defined('ABSPATH')) {
@@ -13,27 +13,20 @@ if (!defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
-// NOTE: This class will be created in a subsequent task.
-// Using a placeholder check for now to prevent fatal errors.
 if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Settings_Ajax_Handler')) {
     $settings_data = \WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler::get_settings();
 } else {
-    // Provide default structure if the handler isn't ready yet, so the view doesn't break.
-    $settings_data = ['token_management' => [], 'custom_theme' => [], 'frontend_display' => []]; // ADDED frontend_display default
+    $settings_data = ['token_management' => [], 'custom_theme' => [], 'frontend_display' => []];
 }
 
-use WPAICG\Chat\Storage\BotSettingsManager; // Use for default constants
+use WPAICG\Chat\Storage\BotSettingsManager;
 
-// Get token management settings from the settings data
 $token_settings = $settings_data['token_management'] ?? [];
-// --- NEW: Get custom theme settings ---
 $custom_theme_settings = $settings_data['custom_theme'] ?? [];
 $custom_css = $custom_theme_settings['custom_css'] ?? '';
-// --- NEW: Get frontend display settings ---
 $frontend_display_settings = $settings_data['frontend_display'] ?? [];
 $allowed_providers_str = $frontend_display_settings['allowed_providers'] ?? '';
 $allowed_models_str = $frontend_display_settings['allowed_models'] ?? '';
-
 
 $default_css_template = "/* --- AIPKit AI Forms Custom CSS Example --- */
 .aipkit-ai-form-wrapper.aipkit-theme-custom {
@@ -53,18 +46,15 @@ $default_css_template = "/* --- AIPKit AI Forms Custom CSS Example --- */
     background-color: #2980b9;
 }
 ";
-// --- END NEW ---
 
-$settings_nonce = wp_create_nonce('aipkit_ai_forms_settings_nonce'); // Nonce for saving these settings
+$settings_nonce = wp_create_nonce('aipkit_ai_forms_settings_nonce');
 
-// --- Defaults ---
 $default_reset_period = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
 $default_limit_message = BotSettingsManager::get_default_token_limit_message();
 $default_limit_mode = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
 $default_token_limit_actions = BotSettingsManager::get_default_token_limit_action_settings();
 $token_limit_action_options = BotSettingsManager::get_token_limit_action_options();
 
-// --- Get saved values ---
 $guest_limit = $token_settings['token_guest_limit'] ?? null;
 $user_limit = $token_settings['token_user_limit'] ?? null;
 $reset_period = $token_settings['token_reset_period'] ?? $default_reset_period;
@@ -85,266 +75,147 @@ $primary_action_show_url = $token_limit_primary_action_type === 'custom_url';
 $secondary_action_show_label = $token_limit_secondary_action_type !== 'none';
 $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url';
 ?>
-<form id="aipkit_ai_forms_settings_form">
+<form id="aipkit_ai_forms_settings_form" class="aipkit_ai_forms_settings_form">
     <input type="hidden" name="_ajax_nonce" value="<?php echo esc_attr($settings_nonce); ?>">
-    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="root">
-        <div class="aipkit_popover_options_list aipkit_popover_options_list--settings-root">
-            <div class="aipkit_popover_option_group">
-                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                    <button
-                        type="button"
-                        class="aipkit_popover_option_nav aipkit_ai_forms_settings_nav"
-                        data-aipkit-panel-target="limits"
-                    >
-                        <span class="aipkit_popover_option_label">
-                            <span class="aipkit_popover_option_icon dashicons dashicons-chart-bar" aria-hidden="true"></span>
-                            <span class="aipkit_popover_option_label_content">
-                                <span class="aipkit_popover_option_label_text">
-                                    <?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?>
-                                </span>
-                                <span class="aipkit_popover_option_hint">
-                                    <?php esc_html_e('Quotas and reset rules', 'gpt3-ai-content-generator'); ?>
-                                </span>
-                            </span>
-                        </span>
-                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                        </span>
-                    </button>
+    <div class="aipkit_ai_forms_settings_page">
+        <section class="aipkit_ai_forms_settings_block">
+            <div class="aipkit_ai_forms_settings_block_header">
+                <div>
+                    <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_ai_forms_settings_block_helper"><?php esc_html_e('Quotas and reset rules.', 'gpt3-ai-content-generator'); ?></p>
                 </div>
             </div>
-            <div class="aipkit_popover_option_group">
-                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                    <button
-                        type="button"
-                        class="aipkit_popover_option_nav aipkit_ai_forms_settings_nav"
-                        data-aipkit-panel-target="custom-css"
-                    >
-                        <span class="aipkit_popover_option_label">
-                            <span class="aipkit_popover_option_icon dashicons dashicons-editor-code" aria-hidden="true"></span>
-                            <span class="aipkit_popover_option_label_content">
-                                <span class="aipkit_popover_option_label_text">
-                                    <?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?>
-                                </span>
-                                <span class="aipkit_popover_option_hint">
-                                    <?php esc_html_e('Theme overrides', 'gpt3-ai-content-generator'); ?>
-                                </span>
-                            </span>
-                        </span>
-                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                        </span>
-                    </button>
-                </div>
-                <div class="aipkit_popover_option_row aipkit_popover_option_row--nav">
-                    <button
-                        type="button"
-                        class="aipkit_popover_option_nav aipkit_ai_forms_settings_nav"
-                        data-aipkit-panel-target="provider-filtering"
-                    >
-                        <span class="aipkit_popover_option_label">
-                            <span class="aipkit_popover_option_icon dashicons dashicons-filter" aria-hidden="true"></span>
-                            <span class="aipkit_popover_option_label_content">
-                                <span class="aipkit_popover_option_label_text">
-                                    <?php esc_html_e('Provider filtering', 'gpt3-ai-content-generator'); ?>
-                                </span>
-                                <span class="aipkit_popover_option_hint">
-                                    <?php esc_html_e('Restrict providers and models', 'gpt3-ai-content-generator'); ?>
-                                </span>
-                            </span>
-                        </span>
-                        <span class="aipkit_popover_option_chevron" aria-hidden="true">
-                            <span class="dashicons dashicons-arrow-right-alt2"></span>
-                        </span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="aipkit_popover_flyout_footer">
-            <span class="aipkit_popover_flyout_footer_text">
-                <?php esc_html_e('Need help? Read the docs.', 'gpt3-ai-content-generator'); ?>
-            </span>
-            <a
-                class="aipkit_popover_flyout_footer_link"
-                href="<?php echo esc_url('https://docs.aipower.org/docs/category/ai-forms'); ?>"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                <?php esc_html_e('Documentation', 'gpt3-ai-content-generator'); ?>
-            </a>
-        </div>
-    </div>
-
-    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="limits" hidden>
-        <div class="aipkit_popover_options_list">
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_guest_limit"
-                        data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
-                    >
+            <div class="aipkit_ai_forms_settings_block_body">
+                <div class="aipkit_ai_forms_settings_row">
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_guest_limit">
                         <?php esc_html_e('Guest quota', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('0 disables guest access.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <input
                         type="number"
                         id="aipkit_aiforms_token_guest_limit"
                         name="aiforms_token_guest_limit"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_autosave_trigger"
                         value="<?php echo esc_attr($guest_limit_value); ?>"
                         min="0"
                         step="1"
-                        placeholder="<?php esc_attr_e('(Unlimited)', 'gpt3-ai-content-generator'); ?>"
+                        placeholder="<?php esc_attr_e('Unlimited', 'gpt3-ai-content-generator'); ?>"
                     />
                 </div>
-            </div>
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_limit_mode"
-                        data-tooltip="<?php echo esc_attr__('For logged-in users.', 'gpt3-ai-content-generator'); ?>"
-                    >
+
+                <div class="aipkit_ai_forms_settings_row">
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_limit_mode">
                         <?php esc_html_e('Quota mode', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('For logged-in users.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <select
                         id="aipkit_aiforms_token_limit_mode"
                         name="aiforms_token_limit_mode"
-                        class="aipkit_popover_option_select aipkit_token_limit_mode_select aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_token_limit_mode_select aipkit_autosave_trigger"
                     >
                         <option value="general" <?php selected($limit_mode, 'general'); ?>>
-                            <?php esc_html_e('Same quota for all logged-in users', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Same quota for all users', 'gpt3-ai-content-generator'); ?>
                         </option>
                         <option value="role_based" <?php selected($limit_mode, 'role_based'); ?>>
                             <?php esc_html_e('Role-based quotas', 'gpt3-ai-content-generator'); ?>
                         </option>
                     </select>
                 </div>
-            </div>
-            <div
-                class="aipkit_popover_option_row aipkit_token_general_user_limit_field"
-                <?php echo ($limit_mode === 'general') ? '' : 'hidden'; ?>
-            >
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_user_limit"
-                        data-tooltip="<?php echo esc_attr__('0 = disabled.', 'gpt3-ai-content-generator'); ?>"
-                    >
+
+                <div
+                    class="aipkit_ai_forms_settings_row aipkit_token_general_user_limit_field"
+                    <?php echo ($limit_mode === 'general') ? '' : 'hidden'; ?>
+                >
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_user_limit">
                         <?php esc_html_e('User quota', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('0 disables logged-in users.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <input
                         type="number"
                         id="aipkit_aiforms_token_user_limit"
                         name="aiforms_token_user_limit"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_autosave_trigger"
                         value="<?php echo esc_attr($user_limit_value); ?>"
                         min="0"
                         step="1"
-                        placeholder="<?php esc_attr_e('(Unlimited)', 'gpt3-ai-content-generator'); ?>"
+                        placeholder="<?php esc_attr_e('Unlimited', 'gpt3-ai-content-generator'); ?>"
                     />
                 </div>
-            </div>
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_reset_period"
-                        data-tooltip="<?php echo esc_attr__('How often usage resets.', 'gpt3-ai-content-generator'); ?>"
-                    >
+
+                <div class="aipkit_ai_forms_settings_row">
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_reset_period">
                         <?php esc_html_e('Reset period', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('How often usage resets.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <select
                         id="aipkit_aiforms_token_reset_period"
                         name="aiforms_token_reset_period"
-                        class="aipkit_popover_option_select aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_autosave_trigger"
                     >
-                        <option value="never" <?php selected($reset_period, 'never'); ?>>
-                            <?php esc_html_e('Never', 'gpt3-ai-content-generator'); ?>
-                        </option>
-                        <option value="daily" <?php selected($reset_period, 'daily'); ?>>
-                            <?php esc_html_e('Daily', 'gpt3-ai-content-generator'); ?>
-                        </option>
-                        <option value="weekly" <?php selected($reset_period, 'weekly'); ?>>
-                            <?php esc_html_e('Weekly', 'gpt3-ai-content-generator'); ?>
-                        </option>
-                        <option value="monthly" <?php selected($reset_period, 'monthly'); ?>>
-                            <?php esc_html_e('Monthly', 'gpt3-ai-content-generator'); ?>
-                        </option>
+                        <option value="never" <?php selected($reset_period, 'never'); ?>><?php esc_html_e('Never', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="daily" <?php selected($reset_period, 'daily'); ?>><?php esc_html_e('Daily', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="weekly" <?php selected($reset_period, 'weekly'); ?>><?php esc_html_e('Weekly', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="monthly" <?php selected($reset_period, 'monthly'); ?>><?php esc_html_e('Monthly', 'gpt3-ai-content-generator'); ?></option>
                     </select>
                 </div>
-            </div>
-            <div
-                class="aipkit_popover_option_row aipkit_token_role_limits_container aipkit_limits_role_row"
-                <?php echo ($limit_mode === 'role_based') ? '' : 'hidden'; ?>
-            >
-                <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
-                    <span
-                        class="aipkit_popover_option_label"
-                        tabindex="0"
-                        data-tooltip="<?php echo esc_attr__('Set limits for specific roles. Leave empty for unlimited, use 0 to disable access for a role.', 'gpt3-ai-content-generator'); ?>"
-                    >
-                        <?php esc_html_e('Role-based quotas', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                    <div class="aipkit_popover_role_limits">
+
+                <div
+                    class="aipkit_ai_forms_settings_row aipkit_token_role_limits_container aipkit_limits_role_row"
+                    <?php echo ($limit_mode === 'role_based') ? '' : 'hidden'; ?>
+                >
+                    <div class="aipkit_form-label">
+                        <?php esc_html_e('Role quotas', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Empty allows unlimited. 0 disables a role.', 'gpt3-ai-content-generator'); ?></span>
+                    </div>
+                    <div class="aipkit_popover_role_limits aipkit_ai_forms_role_limits">
                         <?php
                         $editable_roles = get_editable_roles();
                         foreach ($editable_roles as $role_slug => $role_info) :
                             $role_name = translate_user_role($role_info['name']);
                             $role_limit = $role_limits[$role_slug] ?? null;
                             $role_limit_value = ($role_limit === null) ? '' : (string)$role_limit;
-                        ?>
+                            ?>
                             <div class="aipkit_popover_role_limit_row">
                                 <span class="aipkit_popover_role_limit_label"><?php echo esc_html($role_name); ?></span>
                                 <input
                                     type="number"
                                     id="aipkit_aiforms_token_role_<?php echo esc_attr($role_slug); ?>"
                                     name="aiforms_token_role_limits[<?php echo esc_attr($role_slug); ?>]"
-                                    class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger"
+                                    class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_autosave_trigger"
                                     value="<?php echo esc_attr($role_limit_value); ?>"
                                     min="0"
                                     step="1"
-                                    placeholder="<?php esc_attr_e('(Unlimited)', 'gpt3-ai-content-generator'); ?>"
+                                    placeholder="<?php esc_attr_e('Unlimited', 'gpt3-ai-content-generator'); ?>"
                                 />
                             </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
-            </div>
-            <div class="aipkit_popover_option_row aipkit_limits_message_row aipkit_limits_row_shell">
-                <div class="aipkit_popover_option_main aipkit_limits_message_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_limit_message"
-                        data-tooltip="<?php echo esc_attr__('The message shown to users when they reach their quota for the current period.', 'gpt3-ai-content-generator'); ?>"
-                    >
-                        <?php esc_html_e('Quota reached message', 'gpt3-ai-content-generator'); ?>
+
+                <div class="aipkit_ai_forms_settings_row aipkit_limits_message_row">
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_limit_message">
+                        <?php esc_html_e('Quota message', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Shown when the quota is reached.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <input
                         type="text"
                         id="aipkit_aiforms_token_limit_message"
                         name="aiforms_token_limit_message"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_ai_forms_settings_control--wide aipkit_autosave_trigger"
                         value="<?php echo esc_attr($limit_message); ?>"
                         placeholder="<?php echo esc_attr($default_limit_message); ?>"
                     />
                 </div>
-            </div>
-            <div
-                class="aipkit_popover_option_row aipkit_limits_row_shell"
-                data-aipkit-limit-action-row="primary"
-            >
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_limit_primary_action_type"
-                    >
+
+                <div class="aipkit_ai_forms_settings_row" data-aipkit-limit-action-row="primary">
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_limit_primary_action_type">
                         <?php esc_html_e('Primary button', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Main quota action.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <select
                         id="aipkit_aiforms_token_limit_primary_action_type"
                         name="aiforms_token_limit_primary_action_type"
-                        class="aipkit_popover_option_select aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_autosave_trigger"
                     >
                         <?php foreach ($token_limit_action_options as $action_value => $action_label) : ?>
                             <option
@@ -357,68 +228,56 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
                         <?php endforeach; ?>
                     </select>
                 </div>
-            </div>
-            <div
-                class="aipkit_popover_option_row aipkit_limits_row_shell"
-                data-aipkit-limit-action-dependent-for="primary"
-                data-aipkit-limit-action-field="label"
-                <?php if (!$primary_action_show_label) : ?>hidden<?php endif; ?>
-            >
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_limit_primary_action_label"
-                    >
-                        <?php esc_html_e('Primary button label', 'gpt3-ai-content-generator'); ?>
+
+                <div
+                    class="aipkit_ai_forms_settings_row"
+                    data-aipkit-limit-action-dependent-for="primary"
+                    data-aipkit-limit-action-field="label"
+                    <?php if (!$primary_action_show_label) : ?>hidden<?php endif; ?>
+                >
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_limit_primary_action_label">
+                        <?php esc_html_e('Primary label', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Text shown on the primary button.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <input
                         type="text"
                         id="aipkit_aiforms_token_limit_primary_action_label"
                         name="aiforms_token_limit_primary_action_label"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_ai_forms_settings_control--wide aipkit_autosave_trigger"
                         value="<?php echo esc_attr($token_limit_primary_action_label); ?>"
                         placeholder="<?php echo esc_attr(BotSettingsManager::get_token_limit_action_default_label($token_limit_primary_action_type)); ?>"
                     />
                 </div>
-            </div>
-            <div
-                class="aipkit_popover_option_row aipkit_limits_row_shell"
-                data-aipkit-limit-action-dependent-for="primary"
-                data-aipkit-limit-action-field="url"
-                <?php if (!$primary_action_show_url) : ?>hidden<?php endif; ?>
-            >
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_limit_primary_action_url"
-                    >
-                        <?php esc_html_e('Primary button custom URL', 'gpt3-ai-content-generator'); ?>
+
+                <div
+                    class="aipkit_ai_forms_settings_row"
+                    data-aipkit-limit-action-dependent-for="primary"
+                    data-aipkit-limit-action-field="url"
+                    <?php if (!$primary_action_show_url) : ?>hidden<?php endif; ?>
+                >
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_limit_primary_action_url">
+                        <?php esc_html_e('Primary URL', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Destination for the primary custom URL.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <input
                         type="url"
                         id="aipkit_aiforms_token_limit_primary_action_url"
                         name="aiforms_token_limit_primary_action_url"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_ai_forms_settings_control--wide aipkit_autosave_trigger"
                         value="<?php echo esc_attr($token_limit_primary_action_url); ?>"
                         placeholder="<?php esc_attr_e('https://example.com/account', 'gpt3-ai-content-generator'); ?>"
                     />
                 </div>
-            </div>
-            <div
-                class="aipkit_popover_option_row aipkit_limits_row_shell"
-                data-aipkit-limit-action-row="secondary"
-            >
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_limit_secondary_action_type"
-                    >
+
+                <div class="aipkit_ai_forms_settings_row" data-aipkit-limit-action-row="secondary">
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_limit_secondary_action_type">
                         <?php esc_html_e('Secondary button', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Optional quota action.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <select
                         id="aipkit_aiforms_token_limit_secondary_action_type"
                         name="aiforms_token_limit_secondary_action_type"
-                        class="aipkit_popover_option_select aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_autosave_trigger"
                     >
                         <?php foreach ($token_limit_action_options as $action_value => $action_label) : ?>
                             <option
@@ -431,86 +290,82 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
                         <?php endforeach; ?>
                     </select>
                 </div>
-            </div>
-            <div
-                class="aipkit_popover_option_row aipkit_limits_row_shell"
-                data-aipkit-limit-action-dependent-for="secondary"
-                data-aipkit-limit-action-field="label"
-                <?php if (!$secondary_action_show_label) : ?>hidden<?php endif; ?>
-            >
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_limit_secondary_action_label"
-                    >
-                        <?php esc_html_e('Secondary button label', 'gpt3-ai-content-generator'); ?>
+
+                <div
+                    class="aipkit_ai_forms_settings_row"
+                    data-aipkit-limit-action-dependent-for="secondary"
+                    data-aipkit-limit-action-field="label"
+                    <?php if (!$secondary_action_show_label) : ?>hidden<?php endif; ?>
+                >
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_limit_secondary_action_label">
+                        <?php esc_html_e('Secondary label', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Text shown on the secondary button.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <input
                         type="text"
                         id="aipkit_aiforms_token_limit_secondary_action_label"
                         name="aiforms_token_limit_secondary_action_label"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_ai_forms_settings_control--wide aipkit_autosave_trigger"
                         value="<?php echo esc_attr($token_limit_secondary_action_label); ?>"
                         placeholder="<?php echo esc_attr(BotSettingsManager::get_token_limit_action_default_label($token_limit_secondary_action_type)); ?>"
                     />
                 </div>
-            </div>
-            <div
-                class="aipkit_popover_option_row aipkit_limits_row_shell"
-                data-aipkit-limit-action-dependent-for="secondary"
-                data-aipkit-limit-action-field="url"
-                <?php if (!$secondary_action_show_url) : ?>hidden<?php endif; ?>
-            >
-                <div class="aipkit_popover_option_main">
-                    <label
-                        class="aipkit_popover_option_label"
-                        for="aipkit_aiforms_token_limit_secondary_action_url"
-                    >
-                        <?php esc_html_e('Secondary button custom URL', 'gpt3-ai-content-generator'); ?>
+
+                <div
+                    class="aipkit_ai_forms_settings_row"
+                    data-aipkit-limit-action-dependent-for="secondary"
+                    data-aipkit-limit-action-field="url"
+                    <?php if (!$secondary_action_show_url) : ?>hidden<?php endif; ?>
+                >
+                    <label class="aipkit_form-label" for="aipkit_aiforms_token_limit_secondary_action_url">
+                        <?php esc_html_e('Secondary URL', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Secondary link URL.', 'gpt3-ai-content-generator'); ?></span>
                     </label>
                     <input
                         type="url"
                         id="aipkit_aiforms_token_limit_secondary_action_url"
                         name="aiforms_token_limit_secondary_action_url"
-                        class="aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--wide aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_ai_forms_settings_control--wide aipkit_autosave_trigger"
                         value="<?php echo esc_attr($token_limit_secondary_action_url); ?>"
                         placeholder="<?php esc_attr_e('https://example.com/support', 'gpt3-ai-content-generator'); ?>"
                     />
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="custom-css" hidden>
-        <div class="aipkit_popover_options_list">
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
+        <section class="aipkit_ai_forms_settings_block">
+            <div class="aipkit_ai_forms_settings_block_header">
+                <div>
+                    <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_ai_forms_settings_block_helper"><?php esc_html_e('Theme overrides for Custom form theme.', 'gpt3-ai-content-generator'); ?></p>
+                </div>
+            </div>
+            <div class="aipkit_ai_forms_settings_block_body">
+                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--plain">
                     <textarea
                         id="aipkit_aiforms_custom_css"
                         name="custom_css"
-                        class="aipkit_popover_option_textarea aipkit_popover_option_textarea--code aipkit_autosave_trigger"
+                        class="aipkit_form-input aipkit_ai_forms_settings_textarea aipkit_ai_forms_settings_textarea--code aipkit_autosave_trigger"
                         rows="12"
                         placeholder="<?php echo esc_attr($default_css_template); ?>"
                     ><?php echo esc_textarea($custom_css ?: $default_css_template); ?></textarea>
-                    <span class="aipkit_popover_option_helper">
-                        <?php esc_html_e('Use the "Custom" theme for a form shortcode to apply these CSS rules. Target the wrapper with ".aipkit-ai-form-wrapper.aipkit-theme-custom".', 'gpt3-ai-content-generator'); ?>
-                    </span>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <div class="aipkit_model_settings_panel" data-aipkit-settings-panel="provider-filtering" hidden>
-        <div class="aipkit_popover_options_list">
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
-                    <label class="aipkit_popover_option_label" for="aipkit_aiforms_frontend_models">
-                        <?php esc_html_e('Allowed models', 'gpt3-ai-content-generator'); ?>
-                    </label>
+        <section class="aipkit_ai_forms_settings_block">
+            <div class="aipkit_ai_forms_settings_block_header">
+                <div>
+                    <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Frontend Models', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_ai_forms_settings_block_helper"><?php esc_html_e('Restrict providers and models shown to visitors.', 'gpt3-ai-content-generator'); ?></p>
+                </div>
+            </div>
+            <div class="aipkit_ai_forms_settings_block_body">
+                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--plain">
                     <textarea
                         id="aipkit_aiforms_frontend_models"
                         name="frontend_models"
-                        class="aipkit_popover_option_textarea aipkit_autosave_trigger"
+                        class="aipkit_autosave_trigger"
                         rows="4"
                         hidden
                         placeholder="<?php esc_attr_e('Select models below or leave empty for all', 'gpt3-ai-content-generator'); ?>"
@@ -518,7 +373,7 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
                     <textarea
                         id="aipkit_aiforms_frontend_providers"
                         name="frontend_providers"
-                        class="aipkit_popover_option_textarea aipkit_autosave_trigger"
+                        class="aipkit_autosave_trigger"
                         rows="2"
                         hidden
                     ><?php echo esc_textarea($allowed_providers_str); ?></textarea>
@@ -531,11 +386,8 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
                             <?php esc_html_e('Loading model list...', 'gpt3-ai-content-generator'); ?>
                         </div>
                     </div>
-                    <span class="aipkit_popover_option_helper">
-                        <?php esc_html_e('Pick specific models to show on the frontend. Leave everything unselected to allow ALL models. Providers are inferred from your selection.', 'gpt3-ai-content-generator'); ?>
-                    </span>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 </form>

@@ -57,10 +57,12 @@ $upgrade_url = isset($upgrade_url) && !empty($upgrade_url)
             </div>
         </div>
     <?php else : ?>
-        <div class="aipkit_popover_option_row">
-            <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
-                <span class="aipkit_popover_option_label"><?php esc_html_e('Turn forms into guided step-by-step flows.', 'gpt3-ai-content-generator'); ?></span>
-                <p class="aipkit_form-help"><?php esc_html_e('Show one step at a time with navigation and conditional branching.', 'gpt3-ai-content-generator'); ?></p>
+        <div class="aipkit_popover_option_row aipkit_ai_form_multistep_upgrade_notice">
+            <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked aipkit_ai_form_multistep_upgrade_inner">
+                <div class="aipkit_ai_form_multistep_upgrade_copy">
+                    <span class="aipkit_popover_option_label"><?php esc_html_e('Turn forms into guided step-by-step flows.', 'gpt3-ai-content-generator'); ?></span>
+                    <p class="aipkit_form-help"><?php esc_html_e('Show one step at a time with navigation and conditional branching.', 'gpt3-ai-content-generator'); ?></p>
+                </div>
                 <a id="aipkit_ai_form_multistep_upgrade_btn" class="aipkit_btn aipkit_btn-primary" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
                     <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                 </a>

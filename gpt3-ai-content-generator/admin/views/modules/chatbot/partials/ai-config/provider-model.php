@@ -11,33 +11,6 @@ if (!defined('ABSPATH')) {
 
 // Get saved Azure deployment name if applicable
 $saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
-$shortcode_text_main = '';
-if (!empty($bot_id)) {
-    $shortcode_text_main = sprintf('[aipkit_chatbot id=%d]', absint($bot_id));
-}
-$shortcode_label = '';
-$shortcode_pill = '';
-$shortcode_allowed_html = [
-    'span' => [
-        'class' => true,
-    ],
-    'div' => [
-        'class' => true,
-        'data-shortcode' => true,
-        'title' => true,
-    ],
-];
-if (!empty($shortcode_text_main)) {
-    $shortcode_label = '<span class="aipkit_form-label aipkit_form-label--inline aipkit_shortcode_label">' .
-        esc_html__('Shortcode', 'gpt3-ai-content-generator') .
-        '</span>';
-    $shortcode_pill = sprintf(
-        '<div class="aipkit_shortcode_pill aipkit_builder_shortcode_pill" data-shortcode="%1$s" title="%2$s"><span class="aipkit_shortcode_text">%3$s</span></div>',
-        esc_attr($shortcode_text_main),
-        esc_attr__('Click to copy shortcode', 'gpt3-ai-content-generator'),
-        esc_html($shortcode_text_main)
-    );
-}
 
 $recommended_openai = \WPAICG\AIPKit_Providers::get_recommended_models('OpenAI');
 $recommended_openai = array_values(array_filter($recommended_openai, static function ($model) {
@@ -150,7 +123,7 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
         >
             <?php esc_html_e('Engine', 'gpt3-ai-content-generator'); ?>
         </label>
-        <select
+                <select
             id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_provider"
             name="provider"
             class="aipkit_form-input aipkit_chatbot_provider_select" <?php // JS targets this class?>
@@ -173,7 +146,7 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
                 </option>
             <?php endforeach; ?>
         </select>
-    </div>
+            </div>
 
     <!-- Model Selection Column -->
     <div class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--model">
@@ -183,17 +156,16 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
             data-provider="OpenAI"
             style="display: <?php echo $saved_provider === 'OpenAI' ? 'block' : 'none'; ?>;"
         >
-            <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+            <div class="aipkit_input-with-button aipkit_input-with-button--labels">
                 <label
-                class="aipkit_form-label aipkit_form-label--status"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_model"
+                    class="aipkit_form-label aipkit_form-label--status"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_model"
                 >
                     <span class="aipkit_model_label_text"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></span>
                     <span class="aipkit_model_status_slot">
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_model"
                     name="openai_model"
@@ -256,9 +228,8 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
                     }
 ?>
                 </select>
-                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
                 <!-- OpenAI Web Search checkbox moved to Features subsection -->
-            </div> <?php // END WRAPPER?>
+            </div>
         </div>
 
         <!-- OpenRouter Model -->
@@ -267,7 +238,7 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
             data-provider="OpenRouter"
             style="display: <?php echo $saved_provider === 'OpenRouter' ? 'block' : 'none'; ?>;"
         >
-             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels">
                 <label
                     class="aipkit_form-label aipkit_form-label--status"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_model"
@@ -277,8 +248,7 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
-               <select
+                <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_model"
                     name="openrouter_model"
                     class="aipkit_form-input"
@@ -346,8 +316,7 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php } ?>
                 </select>
-                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
-            </div> <?php // END WRAPPER?>
+            </div>
         </div>
 
         <!-- Google Model -->
@@ -356,7 +325,7 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
             data-provider="Google"
             style="display: <?php echo $saved_provider === 'Google' ? 'block' : 'none'; ?>;"
         >
-             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels">
                 <label
                     class="aipkit_form-label aipkit_form-label--status"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_model"
@@ -366,7 +335,6 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_model"
                     name="google_model"
@@ -430,9 +398,8 @@ if (!empty($google_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
                 <!-- Google Search Grounding checkbox moved to Features subsection -->
-            </div> <?php // END WRAPPER?>
+            </div>
         </div>
 
         <!-- Claude Model -->
@@ -441,7 +408,7 @@ if (!empty($google_model_list)): ?>
             data-provider="Claude"
             style="display: <?php echo $saved_provider === 'Claude' ? 'block' : 'none'; ?>;"
         >
-             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels">
                 <label
                     class="aipkit_form-label aipkit_form-label--status"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_model"
@@ -451,7 +418,6 @@ if (!empty($google_model_list)): ?>
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_model"
                     name="claude_model"
@@ -511,8 +477,7 @@ if (!empty($claude_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
-            </div> <?php // END WRAPPER?>
+            </div>
         </div>
 
         <!-- Azure Deployment Only -->
@@ -521,7 +486,7 @@ if (!empty($claude_model_list)): ?>
             data-provider="Azure"
             style="display: <?php echo $saved_provider === 'Azure' ? 'block' : 'none'; ?>;"
         >
-             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels">
                 <label
                     class="aipkit_form-label aipkit_form-label--status"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_azure_deployment"
@@ -531,7 +496,6 @@ if (!empty($claude_model_list)): ?>
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_azure_deployment"
                     name="azure_deployment"
@@ -561,8 +525,7 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
 }
 ?>
                 </select>
-                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
-            </div> <?php // END WRAPPER?>
+            </div>
         </div>
 
         <!-- DeepSeek Model -->
@@ -571,7 +534,7 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
             data-provider="DeepSeek"
             style="display: <?php echo $saved_provider === 'DeepSeek' ? 'block' : 'none'; ?>;"
         >
-             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels">
                 <label
                     class="aipkit_form-label aipkit_form-label--status"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_deepseek_model"
@@ -581,7 +544,6 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_deepseek_model"
                     name="deepseek_model"
@@ -611,8 +573,7 @@ if (!empty($deepseek_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
-            </div> <?php // END WRAPPER?>
+            </div>
         </div>
 
         <!-- Ollama Model -->
@@ -621,7 +582,7 @@ if (!empty($deepseek_model_list)): ?>
             data-provider="Ollama"
             style="display: <?php echo $saved_provider === 'Ollama' ? 'block' : 'none'; ?>;"
         >
-             <div class="aipkit_input-with-button aipkit_input-with-button--labels aipkit_input-with-button--shortcode"> <?php // NEW WRAPPER?>
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels">
                 <label
                     class="aipkit_form-label aipkit_form-label--status"
                     for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_ollama_model"
@@ -631,7 +592,6 @@ if (!empty($deepseek_model_list)): ?>
                         <span class="aipkit_model_sync_status" aria-live="polite"></span>
                     </span>
                 </label>
-                <?php echo wp_kses($shortcode_label, $shortcode_allowed_html); ?>
                 <select
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_ollama_model"
                     name="ollama_model"
@@ -661,8 +621,7 @@ if (!empty($deepseek_model_list)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>
-                <?php echo wp_kses($shortcode_pill, $shortcode_allowed_html); ?>
-            </div> <?php // END WRAPPER?>
+            </div>
         </div>
 
     </div><!-- /Model Selection Column -->

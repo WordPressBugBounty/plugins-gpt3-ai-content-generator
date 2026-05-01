@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
         <p class="aipkit_form-help">
-            <a href="https://docs.aipower.org/docs/api-reference" target="_blank" rel="noopener noreferrer"><?php esc_html_e('REST API documentation', 'gpt3-ai-content-generator'); ?></a>
+            <a href="https://docs.aipower.org/api-reference" target="_blank" rel="noopener noreferrer"><?php esc_html_e('REST API documentation', 'gpt3-ai-content-generator'); ?></a>
         </p>
     </div>
 </div>

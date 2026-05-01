@@ -120,8 +120,53 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
     <form id="aipkit_ai_form_editor_form" onsubmit="return false;">
         <input type="hidden" id="aipkit_ai_form_id" name="form_id" value="">
 
-        <!-- New 3-Column Layout Wrapper -->
-        <div class="aipkit_form_editor_layout_wrapper">
+        <div class="aipkit_form_editor_shell">
+            <div class="aipkit_form_editor_shell_header">
+                <div class="aipkit_form_editor_shell_identity">
+                    <div class="aipkit_ai_forms_header_title_editor" id="aipkit_ai_forms_header_title_editor" style="display: none;">
+                        <button
+                            type="button"
+                            class="aipkit_ai_forms_title_display"
+                            id="aipkit_ai_forms_title_display"
+                            aria-label="<?php esc_attr_e('Edit form title', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <span class="aipkit_ai_forms_title_text" id="aipkit_ai_forms_title_text"><?php esc_html_e('New Form', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="dashicons dashicons-edit" aria-hidden="true"></span>
+                        </button>
+                        <input
+                            type="text"
+                            id="aipkit_ai_form_title"
+                            name="title"
+                            class="aipkit_form-input aipkit_ai_forms_title_input"
+                            placeholder="<?php esc_attr_e('New Form', 'gpt3-ai-content-generator'); ?>"
+                            required
+                            style="display: none;"
+                        >
+                    </div>
+                    <span id="aipkit_ai_forms_status" class="aipkit_training_status aipkit_global_status_area aipkit_form_editor_shell_status" aria-live="polite"></span>
+                </div>
+                <div class="aipkit_form_editor_shell_controls">
+                    <div id="aipkit_ai_forms_editor_actions" class="aipkit_form_editor_actions aipkit_form_editor_actions--header aipkit_form_editor_actions--shell" style="display: none;">
+                        <button type="button" id="aipkit_generate_ai_form_btn" class="aipkit_btn aipkit_btn-secondary">
+                            <span class="dashicons dashicons-admin-customizer"></span>
+                            <span class="aipkit_btn-text"><?php esc_html_e('Generate with AI', 'gpt3-ai-content-generator'); ?></span>
+                        </button>
+                        <button type="button" id="aipkit_preview_ai_form_btn" class="aipkit_btn aipkit_btn-secondary" disabled>
+                            <span class="aipkit_btn-text"><?php esc_html_e('Preview', 'gpt3-ai-content-generator'); ?></span>
+                        </button>
+                        <button type="button" id="aipkit_cancel_edit_ai_form_btn" class="aipkit_btn aipkit_btn-secondary">
+                            <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                        <button type="button" id="aipkit_save_ai_form_btn" class="aipkit_btn aipkit_btn-primary">
+                            <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="aipkit_spinner" style="display:none;"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New 3-Column Layout Wrapper -->
+            <div class="aipkit_form_editor_layout_wrapper">
 
             <!-- Column 1: Elements Palette / Settings Panel -->
             <div class="aipkit_form_editor_col_left">
@@ -133,7 +178,6 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                             <!-- Elements Accordion -->
                             <div class="aipkit_accordion">
                                 <div class="aipkit_accordion-header aipkit_active">
-                                    <span class="dashicons dashicons-list-view"></span>
                                     <?php esc_html_e('Form Elements', 'gpt3-ai-content-generator'); ?>
                                 </div>
                                 <div class="aipkit_accordion-content aipkit_active">
@@ -175,7 +219,6 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                             <!-- Layouts Accordion -->
                             <div class="aipkit_accordion">
                                 <div class="aipkit_accordion-header">
-                                    <span class="dashicons dashicons-layout"></span>
                                     <?php esc_html_e('Layouts', 'gpt3-ai-content-generator'); ?>
                                 </div>
                                 <div class="aipkit_accordion-content">
@@ -205,7 +248,6 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                             <!-- Multi-Step Accordion -->
                             <div class="aipkit_accordion">
                                 <div class="aipkit_accordion-header">
-                                    <span class="dashicons dashicons-format-chat"></span>
                                     <?php esc_html_e('Multi-Step', 'gpt3-ai-content-generator'); ?>
                                     <?php if (!$is_pro): ?>
                                         <a
@@ -225,7 +267,6 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                             <!-- Labels Accordion -->
                             <div class="aipkit_accordion">
                                 <div class="aipkit_accordion-header">
-                                    <span class="dashicons dashicons-text-page"></span>
                                     <?php esc_html_e('Labels', 'gpt3-ai-content-generator'); ?>
                                 </div>
                                 <div class="aipkit_accordion-content">
@@ -240,14 +281,14 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                         <div class="aipkit_sub_container_header">
                             <h5 class="aipkit_sub_container_title">
                                 <?php esc_html_e('Element Settings', 'gpt3-ai-content-generator'); ?>
-                                <span id="aipkit_settings_panel_element_type" style="font-weight:normal; font-style:italic; font-size:0.9em;"></span>
+                                <span id="aipkit_settings_panel_element_type"></span>
                             </h5>
                         </div>
                         <div class="aipkit_sub_container_body">
                             <div id="aipkit_settings_panel_fields">
                                 <!-- Settings fields will be injected here by JS -->
                             </div>
-                            <button type="button" id="aipkit_settings_panel_close_btn" class="aipkit_btn aipkit_btn-secondary" style="margin-top:15px; width: 100%;"><?php esc_html_e('Done', 'gpt3-ai-content-generator'); ?></button>
+                            <button type="button" id="aipkit_settings_panel_close_btn" class="aipkit_btn aipkit_btn-secondary"><?php esc_html_e('Done', 'gpt3-ai-content-generator'); ?></button>
                         </div>
                     </div>
                 </div>
@@ -269,8 +310,9 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                 <?php include __DIR__ . '/_form-editor-main-settings.php'; ?>
             </div>
 
+            </div>
+            <!-- End 3-Column Layout Wrapper -->
         </div>
-        <!-- End 3-Column Layout Wrapper -->
 
     </form>
 
@@ -280,93 +322,97 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
     </div>
 
     <div
-        class="aipkit-modal-overlay aipkit_builder_instructions_modal aipkit_ai_form_prompt_modal"
+        class="aipkit-modal-overlay aipkit_ai_form_prompt_modal"
         id="aipkit_ai_form_prompt_modal"
         aria-hidden="true"
     >
         <div
-            class="aipkit-modal-content"
+            class="aipkit-modal-content aipkit-modal-shell aipkit_ai_form_modal_content aipkit_ai_form_prompt_modal_content"
             role="dialog"
             aria-modal="true"
             aria-labelledby="aipkit_ai_form_prompt_modal_title"
             aria-describedby="aipkit_ai_form_prompt_modal_description"
         >
-            <div class="aipkit-modal-header">
-                <div>
-                    <h3 class="aipkit-modal-title" id="aipkit_ai_form_prompt_modal_title">
+            <div class="aipkit-modal-header aipkit-modal-shell-header aipkit_ai_form_modal_header">
+                <div class="aipkit-modal-shell-intro">
+                    <h2 class="aipkit-modal-shell-title" id="aipkit_ai_form_prompt_modal_title">
                         <?php esc_html_e('Prompt Editor', 'gpt3-ai-content-generator'); ?>
-                    </h3>
-                    <p class="aipkit_builder_modal_subtitle" id="aipkit_ai_form_prompt_modal_description">
-                        <?php esc_html_e('Refine your prompt with a larger editor view.', 'gpt3-ai-content-generator'); ?>
+                    </h2>
+                    <p class="aipkit-modal-shell-copy" id="aipkit_ai_form_prompt_modal_description">
+                        <?php esc_html_e('Edit the full prompt in a larger view.', 'gpt3-ai-content-generator'); ?>
                     </p>
                 </div>
                 <button
                     type="button"
-                    class="aipkit-modal-close-btn aipkit_ai_form_prompt_modal_close"
+                    class="aipkit-modal-close-btn aipkit-modal-shell-close aipkit_ai_form_prompt_modal_close"
                     aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="dashicons dashicons-no-alt"></span>
                 </button>
             </div>
-            <div class="aipkit-modal-body">
-                <div class="aipkit_builder_field">
+            <div class="aipkit-modal-body aipkit-modal-shell-body aipkit_ai_form_modal_body aipkit_ai_form_prompt_modal_body">
+                <div class="aipkit_ai_form_modal_field">
                     <textarea
                         id="aipkit_ai_form_prompt_modal_textarea"
-                        class="aipkit_builder_textarea aipkit_builder_textarea_large aipkit_ai_form_prompt_modal_textarea"
+                        class="aipkit_builder_textarea aipkit_builder_textarea_large aipkit_ai_form_modal_textarea aipkit_ai_form_prompt_modal_textarea"
                         rows="14"
                         aria-label="<?php esc_attr_e('Prompt', 'gpt3-ai-content-generator'); ?>"
                     ></textarea>
                 </div>
-                <div class="aipkit_builder_modal_meta">
-                    <span class="aipkit_builder_char_count aipkit_ai_form_prompt_count">
-                        <?php esc_html_e('0 characters', 'gpt3-ai-content-generator'); ?>
-                    </span>
+            </div>
+            <div class="aipkit-modal-footer aipkit_ai_form_modal_footer">
+                <span class="aipkit_builder_char_count aipkit_ai_form_prompt_count">
+                    <?php esc_html_e('0 characters', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <div class="aipkit_ai_form_modal_footer_actions">
+                    <button type="button" id="aipkit_ai_form_prompt_done_btn" class="aipkit_btn aipkit_btn-primary aipkit_ai_form_prompt_modal_close">
+                        <?php esc_html_e('Done', 'gpt3-ai-content-generator'); ?>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <div
-        class="aipkit-modal-overlay aipkit_builder_instructions_modal aipkit_ai_form_generator_modal"
+        class="aipkit-modal-overlay aipkit_ai_form_generator_modal"
         id="aipkit_ai_form_generator_modal"
         aria-hidden="true"
     >
         <div
-            class="aipkit-modal-content"
+            class="aipkit-modal-content aipkit-modal-shell aipkit-modal-shell--compact aipkit_ai_form_modal_content aipkit_ai_form_generator_modal_content"
             role="dialog"
             aria-modal="true"
             aria-labelledby="aipkit_ai_form_generator_modal_title"
             aria-describedby="aipkit_ai_form_generator_modal_description"
         >
-            <div class="aipkit-modal-header">
-                <div>
-                    <h3 class="aipkit-modal-title" id="aipkit_ai_form_generator_modal_title">
-                        <?php esc_html_e('Generate AI Form', 'gpt3-ai-content-generator'); ?>
-                    </h3>
-                    <p class="aipkit_builder_modal_subtitle" id="aipkit_ai_form_generator_modal_description">
-                        <?php esc_html_e('Describe the form you want. AI will generate it for you.', 'gpt3-ai-content-generator'); ?>
+            <div class="aipkit-modal-header aipkit-modal-shell-header aipkit_ai_form_modal_header">
+                <div class="aipkit-modal-shell-intro">
+                    <h2 class="aipkit-modal-shell-title" id="aipkit_ai_form_generator_modal_title">
+                        <?php esc_html_e('Generate Form with AI', 'gpt3-ai-content-generator'); ?>
+                    </h2>
+                    <p class="aipkit-modal-shell-copy" id="aipkit_ai_form_generator_modal_description">
+                        <?php esc_html_e('Describe the form you want to build.', 'gpt3-ai-content-generator'); ?>
                     </p>
                 </div>
                 <button
                     type="button"
-                    class="aipkit-modal-close-btn aipkit_ai_form_generator_modal_close"
+                    class="aipkit-modal-close-btn aipkit-modal-shell-close aipkit_ai_form_generator_modal_close"
                     aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="dashicons dashicons-no-alt"></span>
                 </button>
             </div>
-            <div class="aipkit-modal-body">
-                <div class="aipkit_form-group">
-                    <label class="aipkit_form-label" for="aipkit_ai_form_generator_prompt">
-                        <?php esc_html_e('Describe the AI form', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <div class="aipkit_builder_textarea_wrap aipkit_ai_form_generator_textarea_wrap">
-                        <textarea
-                            id="aipkit_ai_form_generator_prompt"
-                            class="aipkit_builder_textarea aipkit_builder_textarea_large aipkit_ai_form_generator_prompt"
-                            rows="12"
-                            placeholder="<?php esc_attr_e('e.g., Create a blog brief generator with fields for topic, audience, tone, keywords, and target length.', 'gpt3-ai-content-generator'); ?>"
-                        ></textarea>
+            <div class="aipkit-modal-body aipkit-modal-shell-body aipkit_ai_form_modal_body aipkit_ai_form_generator_modal_body">
+                <div class="aipkit_ai_form_modal_field">
+                    <div class="aipkit_ai_form_modal_field_header">
+                        <div class="aipkit_ai_form_modal_field_copy">
+                            <label class="aipkit_ai_form_modal_label" for="aipkit_ai_form_generator_prompt">
+                                <?php esc_html_e('Description', 'gpt3-ai-content-generator'); ?>
+                            </label>
+                            <span class="aipkit_ai_form_modal_help">
+                                <?php esc_html_e('Mention the goal, audience, fields, and options.', 'gpt3-ai-content-generator'); ?>
+                            </span>
+                        </div>
                         <button
                             type="button"
                             id="aipkit_ai_form_generator_inspire_btn"
@@ -376,20 +422,30 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                             <span><?php esc_html_e('Inspire Me', 'gpt3-ai-content-generator'); ?></span>
                         </button>
                     </div>
-                    <div class="aipkit_form-help" style="margin-top: 8px;">
-                        <?php esc_html_e('Tip: mention the output goal, the audience, and any fields or option lists you want the form to include.', 'gpt3-ai-content-generator'); ?>
+                    <div class="aipkit_builder_textarea_wrap aipkit_ai_form_generator_textarea_wrap">
+                        <textarea
+                            id="aipkit_ai_form_generator_prompt"
+                            class="aipkit_builder_textarea aipkit_builder_textarea_large aipkit_ai_form_modal_textarea aipkit_ai_form_generator_prompt"
+                            rows="12"
+                            placeholder="<?php esc_attr_e('e.g., Create a blog brief generator with fields for topic, audience, tone, keywords, and target length.', 'gpt3-ai-content-generator'); ?>"
+                        ></textarea>
                     </div>
                 </div>
-                <div id="aipkit_ai_form_generator_status" class="aipkit_form-help" aria-live="polite"></div>
+                <div id="aipkit_ai_form_generator_status" class="aipkit_ai_form_modal_status aipkit_form-help" aria-live="polite"></div>
             </div>
-            <div class="aipkit_form_editor_actions">
-                <button type="button" id="aipkit_ai_form_generator_cancel_btn" class="aipkit_btn aipkit_btn-danger aipkit_ai_form_generator_modal_close">
-                    <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
-                </button>
-                <button type="button" id="aipkit_ai_form_generate_draft_btn" class="aipkit_btn aipkit_btn-primary">
-                    <span class="aipkit_btn-text"><?php esc_html_e('Generate', 'gpt3-ai-content-generator'); ?></span>
-                    <span class="aipkit_spinner" style="display:none;"></span>
-                </button>
+            <div class="aipkit-modal-footer aipkit_ai_form_modal_footer">
+                <span class="aipkit_ai_form_modal_footer_note">
+                    <?php esc_html_e('Review the draft before saving.', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <div class="aipkit_ai_form_modal_footer_actions">
+                    <button type="button" id="aipkit_ai_form_generator_cancel_btn" class="aipkit_btn aipkit_btn-secondary aipkit_ai_form_generator_modal_close">
+                        <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                    <button type="button" id="aipkit_ai_form_generate_draft_btn" class="aipkit_btn aipkit_btn-primary">
+                        <span class="aipkit_btn-text"><?php esc_html_e('Generate', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_spinner" style="display:none;"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

@@ -688,7 +688,17 @@ if ($woo_active) {
                                         </p>
                                     </div>
                                     <div class="aipkit_stats_shortcode_controls">
-                                        <code id="aipkit_stats_shortcode_snippet" class="aipkit_stats_shortcode_snippet" title="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>">[aipkit_token_usage]</code>
+                                        <button
+                                            type="button"
+                                            id="aipkit_stats_shortcode_snippet"
+                                            class="aipkit_stats_shortcode_snippet"
+                                            data-shortcode="[aipkit_token_usage]"
+                                            title="<?php echo esc_attr('[aipkit_token_usage]'); ?>"
+                                            aria-label="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>"
+                                        >
+                                            <span class="dashicons dashicons-clipboard" aria-hidden="true"></span>
+                                            <span class="aipkit_stats_shortcode_text">[aipkit_token_usage]</span>
+                                        </button>
                                     </div>
                                     <div class="aipkit_stats_shortcode_customization">
                                         <div class="aipkit_stats_shortcode_toggle_card">

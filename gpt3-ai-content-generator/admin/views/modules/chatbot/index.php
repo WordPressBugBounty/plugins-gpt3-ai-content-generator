@@ -307,7 +307,7 @@ $embed_code = sprintf(
     esc_js($embed_config_url)
 );
 $embed_code = '<script type="text/javascript">' . $embed_code . '</script>';
-$embed_docs_url = 'https://docs.aipower.org/docs/chat#embed-anywhere-external-sites';
+$embed_docs_url = 'https://docs.aipower.org/chatbots#external-embed';
 $consent_feature_available = $is_pro_plan && class_exists('\\WPAICG\\Lib\\Addons\\AIPKit_Consent_Compliance');
 $triggers_available = $is_pro_plan;
 $pricing_url = admin_url('admin.php?page=wpaicg-pricing');
@@ -925,6 +925,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                                     data-shortcode="<?php echo esc_attr($shortcode_text); ?>"
                                                     title="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>"
                                                 >
+                                                    <span class="dashicons dashicons-clipboard" aria-hidden="true"></span>
                                                     <span class="aipkit_shortcode_text"><?php echo esc_html($shortcode_text); ?></span>
                                                 </button>
                                             </div>
@@ -1031,7 +1032,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                             aria-label="<?php esc_attr_e('Create new chatbot', 'gpt3-ai-content-generator'); ?>"
                                             title="<?php esc_attr_e('Create new chatbot', 'gpt3-ai-content-generator'); ?>"
                                         >
-                                            <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                            <span class="aipkit_builder_new_bot_icon" aria-hidden="true"></span>
                                         </button>
                                         <div class="aipkit_builder_bot_overflow">
                                             <button
@@ -1921,7 +1922,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                 </span>
                 <a
                     class="aipkit_popover_flyout_footer_link"
-                    href="<?php echo esc_url('https://docs.aipower.org/docs/chat#popup-mode'); ?>"
+                    href="<?php echo esc_url('https://docs.aipower.org/chatbots#popup'); ?>"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
@@ -1982,7 +1983,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
             </span>
                 <a
                     class="aipkit_popover_flyout_footer_link"
-                    href="<?php echo esc_url('https://docs.aipower.org/docs/Appearance#conversation-starters'); ?>"
+                    href="<?php echo esc_url('https://docs.aipower.org/chatbots#conversation-starters'); ?>"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
@@ -2086,7 +2087,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                     </span>
                     <a
                         class="aipkit_popover_flyout_footer_link"
-                        href="<?php echo esc_url('https://docs.aipower.org/docs/chat#consent-notice'); ?>"
+                        href="<?php echo esc_url('https://docs.aipower.org/chatbots#consent-notice'); ?>"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
@@ -2206,7 +2207,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                         ><?php echo esc_textarea($triggers_json); ?></textarea>
                         <p class="aipkit_builder_help_text">
                             <?php esc_html_e('Use the UI above to configure rules.', 'gpt3-ai-content-generator'); ?>
-                            <a href="<?php echo esc_url('https://docs.aipower.org/docs/triggers'); ?>" target="_blank" rel="noopener noreferrer">
+                            <a href="<?php echo esc_url('https://docs.aipower.org/chatbots#rules'); ?>" target="_blank" rel="noopener noreferrer">
                                 <?php esc_html_e('Learn More', 'gpt3-ai-content-generator'); ?>
                             </a>
                         </p>
@@ -2320,7 +2321,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 </a>
                                 <a
                                     class="aipkit_rules_promo_btn aipkit_rules_promo_btn--secondary"
-                                    href="<?php echo esc_url('https://docs.aipower.org/docs/triggers'); ?>"
+                                    href="<?php echo esc_url('https://docs.aipower.org/chatbots#rules'); ?>"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >

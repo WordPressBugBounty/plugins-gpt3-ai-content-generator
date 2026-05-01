@@ -515,10 +515,17 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                                 <?php esc_html_e('Shortcode', 'gpt3-ai-content-generator'); ?>
                                 <span class="aipkit_form-label-helper"><?php esc_html_e('Embed the search form.', 'gpt3-ai-content-generator'); ?></span>
                             </label>
-                            <div class="aipkit_input-with-button">
-                                <input type="text" id="aipkit_semantic_search_shortcode_display" class="aipkit_form-input" value="[aipkit_semantic_search]" readonly />
-                                <button type="button" class="button button-secondary aipkit_btn" id="aipkit_semantic_search_shortcode_copy">
-                                    <span class="aipkit_btn-text"><?php esc_html_e('Copy', 'gpt3-ai-content-generator'); ?></span>
+                            <div class="aipkit_semantic_shortcode_group">
+                                <button
+                                    type="button"
+                                    id="aipkit_semantic_search_shortcode_display"
+                                    class="aipkit_semantic_shortcode_snippet"
+                                    data-shortcode="[aipkit_semantic_search]"
+                                    title="<?php echo esc_attr('[aipkit_semantic_search]'); ?>"
+                                    aria-label="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>"
+                                >
+                                    <span class="dashicons dashicons-clipboard" aria-hidden="true"></span>
+                                    <span class="aipkit_semantic_shortcode_text">[aipkit_semantic_search]</span>
                                 </button>
                             </div>
                         </div>

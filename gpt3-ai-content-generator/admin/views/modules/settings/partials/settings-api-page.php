@@ -30,7 +30,7 @@ if (!defined('ABSPATH')) {
             />
             <span class="aipkit_api-key-toggle"><span class="dashicons dashicons-visibility"></span></span>
         </div>
-        <a href="https://docs.aipower.org/docs/api-reference" target="_blank" rel="noopener noreferrer" class="aipkit_get_key_btn aipkit_settings_get_key_link">
+        <a href="https://docs.aipower.org/api-reference" target="_blank" rel="noopener noreferrer" class="aipkit_get_key_btn aipkit_settings_get_key_link">
             <?php esc_html_e('REST API docs', 'gpt3-ai-content-generator'); ?>
         </a>
         <span class="aipkit_input-button-spacer"></span>

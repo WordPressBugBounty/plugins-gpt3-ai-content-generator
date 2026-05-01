@@ -760,7 +760,7 @@ $font_families = [
         </span>
         <a
             class="aipkit_popover_flyout_footer_link"
-            href="<?php echo esc_url('https://docs.aipower.org/docs/Appearance'); ?>"
+            href="<?php echo esc_url('https://docs.aipower.org/chatbots#theme'); ?>"
             target="_blank"
             rel="noopener noreferrer"
         >

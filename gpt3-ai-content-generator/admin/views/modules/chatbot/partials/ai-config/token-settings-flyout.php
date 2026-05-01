@@ -356,7 +356,7 @@ $secondary_action_layout = $secondary_action_show_url ? 'type-label-url' : ($sec
   </span>
   <a
     class="aipkit_popover_flyout_footer_link"
-    href="<?php echo esc_url('https://docs.aipower.org/docs/token-management'); ?>"
+    href="<?php echo esc_url('https://docs.aipower.org/chatbots#limits'); ?>"
     target="_blank"
     rel="noopener noreferrer"
   >

@@ -30,6 +30,8 @@ function do_ajax_list_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance)
     // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling class method.
     $post_data = wp_unslash($_POST);
     $paged = isset($post_data['page']) ? absint($post_data['page']) : 1;
+    $per_page = isset($post_data['per_page']) ? absint($post_data['per_page']) : 10;
+    $per_page = in_array($per_page, [10, 25, 50, 100], true) ? $per_page : 10;
     $search = isset($post_data['search']) ? sanitize_text_field($post_data['search']) : '';
     $sort_by = isset($post_data['sort_by']) ? sanitize_key($post_data['sort_by']) : 'modified';
     $sort_order_raw = isset($post_data['sort_order']) ? strtoupper(sanitize_key($post_data['sort_order'])) : 'DESC';
@@ -49,6 +51,7 @@ function do_ajax_list_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance)
 
     $args = [
         'paged'          => $paged,
+        'posts_per_page' => $per_page,
         'search'         => $search,
         'orderby'        => $sort_by,
         'order'          => $sort_order,
