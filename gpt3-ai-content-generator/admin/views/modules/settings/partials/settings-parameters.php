@@ -47,6 +47,11 @@ $sync_button_configs = [
         'label' => __('Model List', 'gpt3-ai-content-generator'),
         'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
     ],
+    'xAI' => [
+        'id' => 'aipkit_sync_xai_models',
+        'label' => __('Model List', 'gpt3-ai-content-generator'),
+        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
+    ],
     'Ollama' => [
         'id' => 'aipkit_sync_ollama_models',
         'label' => __('Model List', 'gpt3-ai-content-generator'),
@@ -394,6 +399,48 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
                     <div class="aipkit_input-with-icon-wrapper">
                         <input type="text" id="aipkit_deepseek_api_version" name="deepseek_api_version" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($deepseek_data['api_version']); ?>" />
                         <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($deepseek_defaults['api_version']); ?>" data-target-input="aipkit_deepseek_api_version">
+                            <span class="dashicons dashicons-undo"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
+        data-provider-setting="xAI"
+        style="display: <?php echo ($current_provider === 'xAI') ? 'block' : 'none'; ?>;"
+    >
+        <div class="aipkit_settings_advanced_row aipkit_settings_advanced_row--with-action">
+            <div class="aipkit_settings_advanced_label_wrap">
+                <label class="aipkit_settings_advanced_label" for="aipkit_xai_base_url"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
+                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Custom API endpoint.', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_settings_advanced_control">
+                <div class="aipkit_popover_option_actions">
+                    <div class="aipkit_input-with-icon-wrapper">
+                        <input type="text" id="aipkit_xai_base_url" name="xai_base_url" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--vector-wide aipkit_autosave_trigger" value="<?php echo esc_attr($xai_data['base_url']); ?>" />
+                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($xai_defaults['base_url']); ?>" data-target-input="aipkit_xai_base_url">
+                            <span class="dashicons dashicons-undo"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="aipkit_settings_advanced_action">
+                <?php $render_sync_row('xAI'); ?>
+            </div>
+        </div>
+        <div class="aipkit_settings_advanced_row">
+            <div class="aipkit_settings_advanced_label_wrap">
+                <label class="aipkit_settings_advanced_label" for="aipkit_xai_api_version"><?php esc_html_e('API Version', 'gpt3-ai-content-generator'); ?></label>
+                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Endpoint version.', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_settings_advanced_control">
+                <div class="aipkit_popover_option_actions">
+                    <div class="aipkit_input-with-icon-wrapper">
+                        <input type="text" id="aipkit_xai_api_version" name="xai_api_version" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($xai_data['api_version']); ?>" />
+                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($xai_defaults['api_version']); ?>" data-target-input="aipkit_xai_api_version">
                             <span class="dashicons dashicons-undo"></span>
                         </span>
                     </div>

@@ -54,6 +54,7 @@ function validate_and_normalize_input_logic(AIPKit_Content_Writer_Base_Ajax_Acti
         'azure' => 'Azure',
         'claude' => 'Claude',
         'deepseek' => 'DeepSeek',
+        'xai' => 'xAI',
         'ollama' => 'Ollama',
         default => $provider_raw
     };

@@ -108,7 +108,7 @@ return [
     'openaiOnly'                => __('Available for OpenAI only', 'gpt3-ai-content-generator'),
     'openaiReasoningOnly'       => __('Available for OpenAI reasoning models only', 'gpt3-ai-content-generator'),
     'openaiOllamaReasoningOnly' => __('Available for OpenAI reasoning models and Ollama thinking-capable models', 'gpt3-ai-content-generator'),
-    'openaiClaudeOnly'          => __('Available for OpenAI, Claude, and OpenRouter only', 'gpt3-ai-content-generator'),
+    'openaiClaudeOnly'          => __('Available for OpenAI, Anthropic, OpenRouter, and xAI only', 'gpt3-ai-content-generator'),
     // User Credits
     'userCreditsLoading'        => __('Loading user credits...', 'gpt3-ai-content-generator'),
     'userCreditsError'          => __('Error loading user credits.', 'gpt3-ai-content-generator'),

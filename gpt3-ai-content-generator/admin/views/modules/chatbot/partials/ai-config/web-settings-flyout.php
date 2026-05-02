@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 ?>
 
 <div class="aipkit_popover_options_list aipkit_popover_options_list--web">
-    <?php $supports_web_toggle_default = in_array($current_provider_for_this_bot, ['OpenAI', 'Google', 'Claude', 'OpenRouter'], true); ?>
+    <?php $supports_web_toggle_default = in_array($current_provider_for_this_bot, ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'xAI'], true); ?>
     <div class="aipkit_popover_option_row aipkit_web_toggle_default_row" style="<?php echo $supports_web_toggle_default ? '' : 'display:none;'; ?>">
         <div class="aipkit_popover_option_main">
             <span

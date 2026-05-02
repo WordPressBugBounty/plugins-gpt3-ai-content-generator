@@ -123,6 +123,7 @@ class AIPKit_Image_Generator_Shortcode
         $final_provider_key = $preset_provider_from_att ?? 'openai';
         $final_provider_normalized = match($final_provider_key) {
             'openai' => 'OpenAI', 'openrouter' => 'OpenRouter', 'azure' => 'Azure', 'google' => 'Google',
+            'xai' => 'xAI',
             'replicate' => 'Replicate',
             default => 'OpenAI',
         };

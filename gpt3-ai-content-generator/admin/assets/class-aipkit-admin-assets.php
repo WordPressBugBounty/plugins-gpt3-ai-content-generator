@@ -227,9 +227,11 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
         $azure_deployments = [];
         $claude_models = [];
         $deepseek_models = [];
+        $xai_models = [];
         $ollama_models = [];
         $google_image_models = [];
         $openrouter_image_models = [];
+        $xai_image_models = [];
         $recommended_models = [];
         $provider_status = [];
         $default_models = [];
@@ -242,15 +244,18 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
             $azure_deployments = AIPKit_Providers::get_azure_deployments();
             $claude_models = AIPKit_Providers::get_claude_models();
             $deepseek_models = AIPKit_Providers::get_deepseek_models();
+            $xai_models = AIPKit_Providers::get_xai_models();
             $ollama_models = AIPKit_Providers::get_ollama_models();
             $google_image_models = AIPKit_Providers::get_google_image_models();
             $openrouter_image_models = AIPKit_Providers::get_openrouter_image_models();
+            $xai_image_models = AIPKit_Providers::get_xai_image_models();
             $recommended_models = [
                 'openai' => AIPKit_Providers::get_recommended_models('OpenAI'),
                 'google' => AIPKit_Providers::get_recommended_models('Google'),
                 'claude' => AIPKit_Providers::get_recommended_models('Claude'),
                 'openrouter' => AIPKit_Providers::get_recommended_models('OpenRouter'),
                 'deepseek' => AIPKit_Providers::get_recommended_models('DeepSeek'),
+                'xai' => AIPKit_Providers::get_recommended_models('xAI'),
             ];
 
             $providers = AIPKit_Providers::get_all_providers();
@@ -269,6 +274,7 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'azure' => ! empty($providers['Azure']['api_key']) && ! empty($providers['Azure']['endpoint']),
                 'ollama' => ! empty($providers['Ollama']['base_url']),
                 'deepseek' => ! empty($providers['DeepSeek']['api_key']),
+                'xai' => ! empty($providers['xAI']['api_key']),
                 'replicate' => ! empty($providers['Replicate']['api_key']),
                 'pinecone' => ! empty($providers['Pinecone']['api_key']),
                 'qdrant' => ! empty($providers['Qdrant']['api_key']) && ! empty($providers['Qdrant']['url']),
@@ -301,6 +307,7 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'azure' => $azure_deployments,
                 'ollama' => $ollama_models,
                 'deepseek' => $deepseek_models,
+                'xai' => $xai_models,
             ],
             'defaultModels' => $default_models,
             'recommendedModels' => $recommended_models,
@@ -310,6 +317,7 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'openai' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openai_image_models() : [],
                 'google' => $google_image_models,
                 'openrouter' => $openrouter_image_models,
+                'xai' => $xai_image_models,
                 'azure' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_azure_image_models() : [],
                 'replicate' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_replicate_models() : [],
             ],
@@ -743,9 +751,12 @@ class ImageGeneratorAssets extends AIPKit_Admin_Asset_Base
                 'viewFullVideo' => __('Click to view full video', 'gpt3-ai-content-generator'),
                 'openrouterModelUnsupported' => __('Selected OpenRouter model does not support image generation.', 'gpt3-ai-content-generator'),
                 'editUploadRequired' => __('Please upload an image to edit.', 'gpt3-ai-content-generator'),
-                'editProviderUnsupported' => __('Image editing is currently supported only for Google, OpenAI and OpenRouter providers.', 'gpt3-ai-content-generator'),
+                'editProviderUnsupported' => __('Image editing is currently supported only for Google, OpenAI, OpenRouter, and xAI providers.', 'gpt3-ai-content-generator'),
                 'editModelUnsupported' => __('Selected model does not support image editing.', 'gpt3-ai-content-generator'),
                 'editInvalidFileType' => __('Invalid image type. Allowed types: JPG, PNG, WEBP, GIF.', 'gpt3-ai-content-generator'),
+                'xaiEditInvalidFileType' => __('xAI image editing supports JPG and PNG source images only.', 'gpt3-ai-content-generator'),
+                'xaiEditUploadMeta' => __('JPG or PNG up to 10MB', 'gpt3-ai-content-generator'),
+                'xaiEditUploadHint' => __('xAI image editing supports JPG and PNG source images only.', 'gpt3-ai-content-generator'),
                 'editFileTooLarge' => __('Source image is too large. Maximum allowed size is 10MB.', 'gpt3-ai-content-generator'),
                 'editDropUsePicker' => __('Could not attach dropped file automatically. Click to choose file.', 'gpt3-ai-content-generator'),
                 'editHistoryLoadFailed' => __('Could not load the selected image for editing.', 'gpt3-ai-content-generator'),
@@ -753,6 +764,7 @@ class ImageGeneratorAssets extends AIPKit_Admin_Asset_Base
                 'editHistoryLoaded' => __('Source image loaded. Describe your edits and click Edit Image.', 'gpt3-ai-content-generator'),
                 'noEditCapableModels' => __('(No edit-capable models available)', 'gpt3-ai-content-generator'),
                 'noOpenRouterImageModels' => __('(No image-capable OpenRouter models found)', 'gpt3-ai-content-generator'),
+                'noXAIImageModels' => __('(No xAI image models found)', 'gpt3-ai-content-generator'),
                 'noModelsAvailable' => __('(No models available)', 'gpt3-ai-content-generator'),
                 'imageModelsGroup' => __('Image Models', 'gpt3-ai-content-generator'),
                 'videoModelsGroup' => __('Video Models', 'gpt3-ai-content-generator'),
@@ -772,6 +784,7 @@ class ImageGeneratorAssets extends AIPKit_Admin_Asset_Base
             ],
             'edit_upload_max_bytes' => 10 * 1024 * 1024,
             'edit_upload_allowed_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+            'xai_edit_upload_allowed_mime_types' => ['image/jpeg', 'image/png'],
             'openai_models' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openai_image_models() : [],
             'azure_models' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_azure_image_models() : [],
             'google_models' => [
@@ -779,6 +792,7 @@ class ImageGeneratorAssets extends AIPKit_Admin_Asset_Base
                 'video' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_google_video_models() : [],
             ],
             'openrouter_image_models' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openrouter_image_models() : [],
+            'xai_image_models' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_xai_image_models() : [],
             'replicate_models' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_replicate_models() : [],
         ]);
     }

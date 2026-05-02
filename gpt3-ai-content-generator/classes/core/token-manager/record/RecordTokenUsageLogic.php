@@ -270,6 +270,10 @@ function RecordTokenUsageLogic(
                 'balance_units' => $deducted_from_balance,
                 'quota_units' => $tokens_left_to_deduct,
                 'quota_recorded' => $should_record && $tokens_left_to_deduct > 0,
+                'tool_units' => max(0, (int) ($normalized_usage['tool_units'] ?? 0)),
+                'tool_usage' => isset($normalized_usage['tool_usage']) && is_array($normalized_usage['tool_usage'])
+                    ? $normalized_usage['tool_usage']
+                    : [],
                 'raw_usage_data' => $normalized_usage['raw_usage_data'] ?? [],
             ],
         ]);

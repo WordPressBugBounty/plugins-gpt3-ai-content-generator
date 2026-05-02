@@ -19,6 +19,9 @@ $stt_model_count_for_tools = (isset($openai_stt_models) && is_array($openai_stt_
     ? count($openai_stt_models)
     : 0;
 $stt_controls_hidden_for_tools = $stt_model_count_for_tools <= 1;
+$xai_web_search_enabled_val = isset($xai_web_search_enabled_val) && in_array($xai_web_search_enabled_val, ['0', '1'], true)
+    ? $xai_web_search_enabled_val
+    : '0';
 
 $is_current_provider_web_enabled = false;
 switch ($current_provider_for_this_bot) {
@@ -33,6 +36,9 @@ switch ($current_provider_for_this_bot) {
         break;
     case 'OpenRouter':
         $is_current_provider_web_enabled = ($openrouter_web_search_enabled_val ?? '0') === '1';
+        break;
+    case 'xAI':
+        $is_current_provider_web_enabled = ($xai_web_search_enabled_val ?? '0') === '1';
         break;
 }
 
@@ -220,7 +226,7 @@ if ($image_model_dropdown_label === '') {
         </div>
     </div>
 
-    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_image_analysis_popover_row" data-aipkit-tool-key="image_analysis" style="<?php echo (($current_provider_for_this_bot === 'OpenAI' || $current_provider_for_this_bot === 'Claude' || $current_provider_for_this_bot === 'OpenRouter')) ? '' : 'display:none;'; ?>">
+    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_image_analysis_popover_row" data-aipkit-tool-key="image_analysis" style="<?php echo (($current_provider_for_this_bot === 'OpenAI' || $current_provider_for_this_bot === 'Claude' || $current_provider_for_this_bot === 'OpenRouter' || $current_provider_for_this_bot === 'xAI')) ? '' : 'display:none;'; ?>">
         <div class="aipkit_tools_feature_left">
             <span
                 class="aipkit_tools_feature_label aipkit_popover_option_label"
@@ -397,6 +403,7 @@ if ($image_model_dropdown_label === '') {
                 class="aipkit_tools_image_provider_warning"
                 data-aipkit-image-provider-warning
                 data-message-replicate="<?php echo esc_attr__('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>"
+                data-message-xai="<?php echo esc_attr__('xAI is selected for image generation, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
                 aria-hidden="true"
                 hidden
             >
@@ -543,6 +550,39 @@ if ($image_model_dropdown_label === '') {
                 aria-expanded="false"
                 aria-controls="aipkit_builder_web_settings_modal"
                 style="<?php echo ($openrouter_web_search_enabled_val === '1') ? '' : 'display:none;'; ?>"
+            >
+                <?php esc_html_e('Options', 'gpt3-ai-content-generator'); ?>
+            </button>
+        </div>
+    </div>
+
+    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_web_search_toggle_xai" data-aipkit-tool-key="web_search" style="<?php echo ($current_provider_for_this_bot === 'xAI') ? '' : 'display:none;'; ?>">
+        <div class="aipkit_tools_feature_left">
+            <span
+                class="aipkit_tools_feature_label aipkit_popover_option_label"
+                tabindex="0"
+
+            >
+                <?php esc_html_e('Web search', 'gpt3-ai-content-generator'); ?>
+            </span>
+            <p class="aipkit_tools_feature_hint"><?php esc_html_e('Use online sources in responses.', 'gpt3-ai-content-generator'); ?></p>
+        </div>
+        <div class="aipkit_tools_feature_right">
+            <select
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_xai_web_search_enabled_tools"
+                name="xai_web_search_enabled"
+                class="aipkit_popover_option_select aipkit_tools_toggle_select aipkit_xai_web_search_enable_toggle"
+            >
+                <option value="1" <?php selected($xai_web_search_enabled_val, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                <option value="0" <?php selected($xai_web_search_enabled_val, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+            </select>
+            <button
+                type="button"
+                class="aipkit_popover_option_btn aipkit_web_search_config_btn aipkit_tools_options_btn"
+                data-web-provider="xai"
+                aria-expanded="false"
+                aria-controls="aipkit_builder_web_settings_modal"
+                style="<?php echo ($xai_web_search_enabled_val === '1') ? '' : 'display:none;'; ?>"
             >
                 <?php esc_html_e('Options', 'gpt3-ai-content-generator'); ?>
             </button>

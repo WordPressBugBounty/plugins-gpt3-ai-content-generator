@@ -51,6 +51,7 @@ class AIPKit_Content_Writer_Generate_Excerpt_Action extends AIPKit_Content_Write
             'azure' => 'Azure',
             'claude' => 'Claude',
             'deepseek' => 'DeepSeek',
+            'xai' => 'xAI',
             'ollama' => 'Ollama',
             default => $provider_raw
         };

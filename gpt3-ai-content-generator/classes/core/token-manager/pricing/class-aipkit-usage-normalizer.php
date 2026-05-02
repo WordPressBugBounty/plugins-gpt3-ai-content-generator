@@ -22,6 +22,8 @@ class AIPKit_Usage_Normalizer
         $output_units = $this->extract_first_int($usage_data, ['output_tokens', 'completion_tokens', 'output_units']);
         $total_units = $this->extract_first_int($usage_data, ['total_tokens', 'total_units', 'billable_units']);
         $unit_count = $this->extract_first_int($usage_data, ['unit_count', 'image_count', 'video_count', 'items']);
+        $tool_usage = $this->extract_tool_usage($usage_data);
+        $tool_units = $this->sum_numeric_tool_usage($tool_usage);
 
         if ($total_units <= 0 && ($input_units > 0 || $output_units > 0)) {
             $total_units = $input_units + $output_units;
@@ -40,6 +42,8 @@ class AIPKit_Usage_Normalizer
             'output_units' => $output_units,
             'total_units' => $total_units,
             'unit_count' => $unit_count,
+            'tool_units' => $tool_units,
+            'tool_usage' => $tool_usage,
             'fallback_units' => max(0, $fallback_units),
             'raw_usage_data' => $usage_data,
         ];
@@ -58,5 +62,51 @@ class AIPKit_Usage_Normalizer
         }
 
         return 0;
+    }
+
+    /**
+     * @param array<string, mixed> $usage_data
+     * @return array<string, mixed>
+     */
+    private function extract_tool_usage(array $usage_data): array
+    {
+        if (isset($usage_data['server_side_tool_usage']) && is_array($usage_data['server_side_tool_usage'])) {
+            return $usage_data['server_side_tool_usage'];
+        }
+
+        if (isset($usage_data['tool_usage']) && is_array($usage_data['tool_usage'])) {
+            return $usage_data['tool_usage'];
+        }
+
+        if (
+            isset($usage_data['provider_raw']) &&
+            is_array($usage_data['provider_raw']) &&
+            isset($usage_data['provider_raw']['server_side_tool_usage']) &&
+            is_array($usage_data['provider_raw']['server_side_tool_usage'])
+        ) {
+            return $usage_data['provider_raw']['server_side_tool_usage'];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param mixed $tool_usage
+     */
+    private function sum_numeric_tool_usage($tool_usage): int
+    {
+        if (is_numeric($tool_usage)) {
+            return max(0, (int) $tool_usage);
+        }
+        if (!is_array($tool_usage)) {
+            return 0;
+        }
+
+        $total = 0;
+        foreach ($tool_usage as $value) {
+            $total += $this->sum_numeric_tool_usage($value);
+        }
+
+        return $total;
     }
 }

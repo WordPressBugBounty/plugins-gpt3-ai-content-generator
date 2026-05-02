@@ -317,6 +317,11 @@ function build_ai_request_data_for_stream_logic(
             $ai_params_for_payload['web_search_tool_config'] = $web_search_config;
             $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;
         }
+    } elseif ($main_provider_for_ai === 'xAI') {
+        if (($bot_settings['xai_web_search_enabled'] ?? '0') === '1') {
+            $ai_params_for_payload['xai_web_search_tool_config'] = ['enabled' => true];
+            $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;
+        }
     } elseif ($main_provider_for_ai === 'Google') {
         if (($bot_settings['google_search_grounding_enabled'] ?? '0') === '1') {
             $ai_params_for_payload['google_grounding_mode'] = $bot_settings['google_grounding_mode'] ?? BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;

@@ -3,6 +3,7 @@
 
 namespace WPAICG\STT; // Use new STT namespace
 
+use WPAICG\AIPKit_Providers;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -27,6 +28,21 @@ class AIPKit_STT_Provider_Strategy_Factory {
     public static function get_strategy(string $provider): AIPKit_STT_Provider_Strategy_Interface|WP_Error {
         if (isset(self::$instances[$provider])) {
             return self::$instances[$provider];
+        }
+
+        if (
+            class_exists(AIPKit_Providers::class)
+            && !AIPKit_Providers::provider_supports_capability($provider, 'stt')
+        ) {
+            return new WP_Error(
+                'stt_provider_not_supported',
+                sprintf(
+                    /* translators: %s: The provider name. */
+                    __('Speech-to-text is not supported by %s in this integration.', 'gpt3-ai-content-generator'),
+                    esc_html($provider)
+                ),
+                ['status' => 501]
+            );
         }
 
         $strategy_path_base = __DIR__ . '/';

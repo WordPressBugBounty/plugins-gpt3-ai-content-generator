@@ -39,6 +39,7 @@ $image_provider_settings_url = admin_url('admin.php?page=wpaicg');
                     <option value="google">Google</option>
                     <option value="openrouter">OpenRouter</option>
                     <option value="azure">Azure</option>
+                    <option value="xai">xAI</option>
                     <option value="replicate"><?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?></option>
                 </optgroup>
                 <optgroup label="<?php echo esc_attr__('Stock Photos', 'gpt3-ai-content-generator'); ?>">
@@ -96,15 +97,17 @@ $image_provider_settings_url = admin_url('admin.php?page=wpaicg');
         </div>
 
         <div
-            id="aipkit_task_cw_replicate_notice"
+            id="aipkit_task_cw_image_provider_notice"
             class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_task_cw_image_provider_notice"
+            data-message-replicate="<?php echo esc_attr__('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>"
+            data-message-xai="<?php echo esc_attr__('xAI is selected for image generation, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
             hidden
         >
             <div class="aipkit_notification_bar__icon" aria-hidden="true">
                 <span class="dashicons dashicons-warning"></span>
             </div>
             <div class="aipkit_notification_bar__content">
-                <p>
+                <p class="aipkit_task_cw_image_provider_notice_message">
                     <?php esc_html_e('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>
                 </p>
             </div>

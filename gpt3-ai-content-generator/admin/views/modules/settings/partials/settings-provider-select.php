@@ -23,9 +23,12 @@ if (empty($provider_select_options)) {
         }
 
         $provider_disabled = ($provider_key === 'Ollama' && empty($is_pro));
+        $provider_label = class_exists('\\WPAICG\\AIPKit_Providers')
+            ? \WPAICG\AIPKit_Providers::get_provider_display_name($provider_key)
+            : ($provider_key === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : $provider_key);
         $provider_select_options[] = [
             'value' => $provider_key,
-            'label' => $provider_disabled ? __('Ollama (Pro)', 'gpt3-ai-content-generator') : $provider_key,
+            'label' => $provider_disabled ? __('Ollama (Pro)', 'gpt3-ai-content-generator') : $provider_label,
             'disabled' => $provider_disabled,
         ];
     }

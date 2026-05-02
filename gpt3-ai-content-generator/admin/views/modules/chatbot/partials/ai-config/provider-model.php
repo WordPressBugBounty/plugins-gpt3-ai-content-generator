@@ -43,13 +43,16 @@ $recommended_claude_lookup = array_fill_keys($recommended_claude_ids, true);
 if (!isset($providers) || !is_array($providers) || empty($providers)) {
     $providers = isset($allowed_main_providers) && is_array($allowed_main_providers)
         ? $allowed_main_providers
-        : ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+        : ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
 }
 
 $show_chatbot_selector = empty($is_next_layout) || !$is_next_layout;
 $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title))
     ? (string) $active_bot_post->post_title
     : '';
+$provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Builder')
+    ? \WPAICG\AIPKit_Provider_Model_List_Builder::get_provider_options($providers, (bool) ($is_pro ?? false))
+    : [];
 
 ?>
 <!-- Row container for Bot + Provider + Model -->
@@ -129,14 +132,33 @@ $active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title
             class="aipkit_form-input aipkit_chatbot_provider_select" <?php // JS targets this class?>
             data-aipkit-provider-notice-target="aipkit_provider_notice_chatbot"
         >
-            <?php foreach ($providers as $p_value) :
-                $disabled = false;
-                $label = $p_value;
-
-                if ($p_value === 'Ollama' && !$is_pro) {
-                    $disabled = true;
-                    $label = __('Ollama (Pro)', 'gpt3-ai-content-generator');
+            <?php if (empty($provider_select_options)) :
+                foreach ($providers as $p_value) {
+                    $p_value = (string) $p_value;
+                    if ($p_value === '') {
+                        continue;
+                    }
+                    $disabled = ($p_value === 'Ollama' && empty($is_pro));
+                    $label = class_exists('\\WPAICG\\AIPKit_Providers')
+                        ? \WPAICG\AIPKit_Providers::get_provider_display_name($p_value)
+                        : ($p_value === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : $p_value);
+                    $provider_select_options[] = [
+                        'value' => $p_value,
+                        'label' => $disabled ? __('Ollama (Pro)', 'gpt3-ai-content-generator') : $label,
+                        'disabled' => $disabled,
+                    ];
                 }
+            endif; ?>
+            <?php foreach ($provider_select_options as $provider_option) :
+                if (!is_array($provider_option)) {
+                    continue;
+                }
+                $p_value = (string) ($provider_option['value'] ?? '');
+                if ($p_value === '') {
+                    continue;
+                }
+                $disabled = !empty($provider_option['disabled']);
+                $label = (string) ($provider_option['label'] ?? $p_value);
             ?>
                 <option
                     value="<?php echo esc_attr($p_value); ?>"
@@ -570,6 +592,54 @@ if (!empty($deepseek_model_list)): ?>
                     <?php if (!$foundCurrentDeepSeek && !empty($saved_model) && $saved_provider === 'DeepSeek'): ?>
                         <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?></option>
                     <?php elseif (empty($deepseek_model_list) && !$foundCurrentDeepSeek && empty($saved_model)): ?>
+                        <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
+                    <?php endif; ?>
+                </select>
+            </div>
+        </div>
+
+        <!-- xAI Model -->
+        <div
+            class="aipkit_chatbot_model_field"
+            data-provider="xAI"
+            style="display: <?php echo $saved_provider === 'xAI' ? 'block' : 'none'; ?>;"
+        >
+             <div class="aipkit_input-with-button aipkit_input-with-button--labels">
+                <label
+                    class="aipkit_form-label aipkit_form-label--status"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_xai_model"
+                >
+                    <span class="aipkit_model_label_text"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_model_status_slot">
+                        <span class="aipkit_model_sync_status" aria-live="polite"></span>
+                    </span>
+                </label>
+                <select
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_xai_model"
+                    name="xai_model"
+                    class="aipkit_form-input"
+                >
+                    <?php
+                    $foundCurrentXAI = false;
+if (!empty($xai_model_list)): ?>
+                        <?php foreach ($xai_model_list as $m):
+                            $model_id   = $m['id'] ?? '';
+                            $model_name = $m['name'] ?? $model_id;
+                            if ($model_id === $saved_model) {
+                                $foundCurrentXAI = true;
+                            }
+                            ?>
+                            <option
+                                value="<?php echo esc_attr($model_id); ?>"
+                                <?php selected($saved_model, $model_id); ?>
+                            >
+                                <?php echo esc_html($model_name); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <?php if (!$foundCurrentXAI && !empty($saved_model) && $saved_provider === 'xAI'): ?>
+                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?></option>
+                    <?php elseif (empty($xai_model_list) && !$foundCurrentXAI && empty($saved_model)): ?>
                         <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
                 </select>

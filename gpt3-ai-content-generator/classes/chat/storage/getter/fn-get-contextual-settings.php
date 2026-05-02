@@ -90,6 +90,15 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
         }
     }
 
+    // Add xAI image models to validation list when available
+    if (class_exists('\WPAICG\AIPKit_Providers')) {
+        $xai_image_models = \WPAICG\AIPKit_Providers::get_xai_image_models();
+        if (!empty($xai_image_models)) {
+            $xai_model_ids = wp_list_pluck($xai_image_models, 'id');
+            $valid_image_models = array_merge($valid_image_models, $xai_model_ids);
+        }
+    }
+
     if (!in_array($settings['chat_image_model_id'], $valid_image_models)) {
         $settings['chat_image_model_id'] = BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
     }

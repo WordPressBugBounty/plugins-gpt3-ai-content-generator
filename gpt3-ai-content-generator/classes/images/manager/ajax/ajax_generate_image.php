@@ -91,10 +91,10 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     $source_image_payload = null;
     if ($image_mode === 'edit') {
         $edit_provider = strtolower($provider);
-        if (!in_array($edit_provider, ['google', 'openai', 'openrouter'], true)) {
+        if (!in_array($edit_provider, ['google', 'openai', 'openrouter', 'xai'], true)) {
             $provider_error = new WP_Error(
                 'image_edit_provider_unsupported',
-                __('Image editing is currently supported only for Google, OpenAI and OpenRouter providers.', 'gpt3-ai-content-generator'),
+                __('Image editing is currently supported only for Google, OpenAI, OpenRouter, and xAI providers.', 'gpt3-ai-content-generator'),
                 ['status' => 400]
             );
             $managerInstance->log_image_generation_attempt($conversation_uuid, $prompt, $post_data, $provider_error, null, $user_id, $session_id_for_guest, $client_ip);

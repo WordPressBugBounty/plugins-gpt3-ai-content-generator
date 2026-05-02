@@ -5,6 +5,7 @@
 
 namespace WPAICG\Images;
 
+use WPAICG\AIPKit_Providers;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -33,12 +34,28 @@ class AIPKit_Image_Provider_Strategy_Factory
             return self::$instances[$provider];
         }
 
+        if (
+            class_exists(AIPKit_Providers::class)
+            && !AIPKit_Providers::provider_supports_capability($provider, 'image_generation')
+        ) {
+            return new WP_Error(
+                'image_provider_not_supported',
+                sprintf(
+                    /* translators: %s: The provider name. */
+                    __('Image generation is not supported by %s in this integration.', 'gpt3-ai-content-generator'),
+                    esc_html($provider)
+                ),
+                ['status' => 501]
+            );
+        }
+
         $strategy_path_base = __DIR__ . '/providers/'; // Base path for strategy classes
 
         $strategies_to_load = [
             'OpenAI'          => 'class-aipkit-image-openai-provider-strategy.php',
             'Azure' => 'class-aipkit-image-azure-provider-strategy.php', 'Google'          => 'class-aipkit-image-google-provider-strategy.php',
             'OpenRouter'      => 'class-aipkit-image-openrouter-provider-strategy.php',
+            'xAI'             => 'class-aipkit-image-xai-provider-strategy.php',
             'Pexels'          => 'class-aipkit-image-pexels-provider-strategy.php',
             'Pixabay'         => 'class-aipkit-image-pixabay-provider-strategy.php',
             'Replicate'       => 'class-aipkit-image-replicate-provider-strategy.php',
@@ -84,6 +101,8 @@ class AIPKit_Image_Provider_Strategy_Factory
             case 'Google':          $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_Google_Provider_Strategy';
                 break;
             case 'OpenRouter':      $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_OpenRouter_Provider_Strategy';
+                break;
+            case 'xAI':             $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_XAI_Provider_Strategy';
                 break;
             case 'Pexels':          $class_name = __NAMESPACE__ . '\Providers\AIPKit_Image_Pexels_Provider_Strategy';
                 break;

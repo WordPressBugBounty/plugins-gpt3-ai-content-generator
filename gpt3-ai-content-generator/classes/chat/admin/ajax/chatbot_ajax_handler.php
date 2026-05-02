@@ -798,7 +798,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             return;
         }
 
-        $default_allowed_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+        $default_allowed_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
         $allowed_providers = class_exists(AIPKit_Providers::class)
             ? AIPKit_Providers::get_main_provider_allowlist()
             : $default_allowed_providers;
@@ -1324,6 +1324,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $xai_web_search_enabled = (isset($_POST['xai_web_search_enabled']) && wp_unslash($_POST['xai_web_search_enabled']) === '1') ? '1' : '0';
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_search_grounding_enabled = (isset($_POST['google_search_grounding_enabled']) && wp_unslash($_POST['google_search_grounding_enabled']) === '1') ? '1' : '0';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_grounding_mode = isset($_POST['google_grounding_mode']) ? sanitize_text_field(wp_unslash($_POST['google_grounding_mode'])) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
@@ -1372,6 +1375,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         update_post_meta($bot_id, '_aipkit_openrouter_web_search_engine', $openrouter_web_search_engine);
         update_post_meta($bot_id, '_aipkit_openrouter_web_search_max_results', (string) $openrouter_web_search_max_results);
         update_post_meta($bot_id, '_aipkit_openrouter_web_search_search_prompt', $openrouter_web_search_search_prompt);
+        update_post_meta($bot_id, '_aipkit_xai_web_search_enabled', $xai_web_search_enabled);
         update_post_meta($bot_id, '_aipkit_google_search_grounding_enabled', $google_search_grounding_enabled);
         update_post_meta($bot_id, '_aipkit_google_grounding_mode', $google_grounding_mode);
         update_post_meta($bot_id, '_aipkit_google_grounding_dynamic_threshold', $google_grounding_dynamic_threshold);

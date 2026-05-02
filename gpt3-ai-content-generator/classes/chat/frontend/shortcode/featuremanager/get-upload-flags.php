@@ -4,6 +4,7 @@
 
 namespace WPAICG\Chat\Frontend\Shortcode\FeatureManagerMethods;
 
+use WPAICG\AIPKit_Providers;
 use WPAICG\aipkit_dashboard; // ADDED for Pro check
 use function WPAICG\Core\Providers\OpenRouter\Methods\resolve_model_capabilities_logic;
 
@@ -37,7 +38,7 @@ function get_upload_flags_logic(array $core_flags): array {
     $provider = isset($core_flags['provider']) ? sanitize_text_field((string) $core_flags['provider']) : 'OpenAI';
     $model = isset($core_flags['model']) ? sanitize_text_field((string) $core_flags['model']) : '';
     $vector_store_provider = isset($core_flags['vector_store_provider']) ? sanitize_key((string) $core_flags['vector_store_provider']) : 'openai';
-    $default_image_upload_supported_providers = ['OpenAI', 'Claude', 'OpenRouter'];
+    $default_image_upload_supported_providers = ['OpenAI', 'Claude', 'OpenRouter', 'xAI'];
     $image_upload_supported_providers = apply_filters(
         'aipkit_chat_image_upload_supported_providers',
         $default_image_upload_supported_providers,
@@ -69,6 +70,17 @@ function get_upload_flags_logic(array $core_flags): array {
         if (function_exists($resolver_fn)) {
             $capabilities = resolve_model_capabilities_logic($model);
             $is_image_upload_supported_provider = !empty($capabilities['image_input']);
+        }
+    }
+    if ($provider === 'xAI' && $is_image_upload_supported_provider && $model !== '') {
+        if (!class_exists(AIPKit_Providers::class)) {
+            $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
+            if (file_exists($providers_path)) {
+                require_once $providers_path;
+            }
+        }
+        if (class_exists(AIPKit_Providers::class)) {
+            $is_image_upload_supported_provider = AIPKit_Providers::xai_model_supports_image_input($model);
         }
     }
 

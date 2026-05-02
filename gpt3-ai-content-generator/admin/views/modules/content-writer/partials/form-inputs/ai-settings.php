@@ -23,9 +23,12 @@ $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard
         foreach ($providers_for_select as $provider_name) {
             $provider_value = strtolower($provider_name);
             $provider_disabled = ($provider_name === 'Ollama' && !$is_pro);
+            $provider_display_name = class_exists('\\WPAICG\\AIPKit_Providers')
+                ? \WPAICG\AIPKit_Providers::get_provider_display_name((string) $provider_name)
+                : ((string) $provider_name === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : (string) $provider_name);
             $provider_label = $provider_disabled
                 ? __('Ollama (Pro)', 'gpt3-ai-content-generator')
-                : $provider_name;
+                : $provider_display_name;
             ?>
             <option
                 value="<?php echo esc_attr($provider_value); ?>"

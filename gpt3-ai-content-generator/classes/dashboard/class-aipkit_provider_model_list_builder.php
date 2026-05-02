@@ -33,7 +33,7 @@ class AIPKit_Provider_Model_List_Builder
             $disabled = ($provider_key === 'Ollama' && !$is_pro);
             $label = $disabled
                 ? __('Ollama (Pro)', 'gpt3-ai-content-generator')
-                : $provider_key;
+                : AIPKit_Providers::get_provider_display_name($provider_key);
 
             $options[] = [
                 'value' => $provider_key,
@@ -82,6 +82,9 @@ class AIPKit_Provider_Model_List_Builder
 
             case 'DeepSeek':
                 return self::build_deepseek_model_options($current_model, $payload);
+
+            case 'xAI':
+                return self::build_xai_model_options($current_model, $payload);
 
             case 'Ollama':
                 return self::build_ollama_model_options($current_model, $payload);
@@ -512,6 +515,61 @@ class AIPKit_Provider_Model_List_Builder
 
         if (!empty($all_options)) {
             $all_options = self::mark_selected_options('DeepSeek', $current_model, $all_options, $found_current);
+            $groups[] = [
+                'label' => !empty($recommended) ? __('All models', 'gpt3-ai-content-generator') : '',
+                'options' => $all_options,
+            ];
+        }
+
+        $payload['groups'] = $groups;
+        $payload['has_selectable_options'] = self::has_options($groups);
+
+        if (!$found_current && $current_model !== '') {
+            $payload['manual_option'] = [
+                'value' => $current_model,
+                'label' => $current_model,
+            ];
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param string $current_model
+     * @param array  $payload
+     * @return array
+     */
+    private static function build_xai_model_options(string $current_model, array $payload): array
+    {
+        $model_list = self::normalize_option_rows(AIPKit_Providers::get_xai_models());
+        $recommended = self::normalize_option_rows(AIPKit_Providers::get_recommended_models('xAI'));
+
+        if (empty($recommended) && !empty($model_list)) {
+            $recommended = self::fallback_recommended($model_list, 3);
+        }
+
+        $recommended_lookup = array_fill_keys(array_column($recommended, 'value'), true);
+        $found_current = false;
+        $groups = [];
+
+        if (!empty($recommended)) {
+            $recommended = self::mark_selected_options('xAI', $current_model, $recommended, $found_current);
+            $groups[] = [
+                'label' => __('Recommended', 'gpt3-ai-content-generator'),
+                'options' => $recommended,
+            ];
+        }
+
+        $all_options = [];
+        foreach ($model_list as $option) {
+            if (isset($recommended_lookup[$option['value']])) {
+                continue;
+            }
+            $all_options[] = $option;
+        }
+
+        if (!empty($all_options)) {
+            $all_options = self::mark_selected_options('xAI', $current_model, $all_options, $found_current);
             $groups[] = [
                 'label' => !empty($recommended) ? __('All models', 'gpt3-ai-content-generator') : '',
                 'options' => $all_options,

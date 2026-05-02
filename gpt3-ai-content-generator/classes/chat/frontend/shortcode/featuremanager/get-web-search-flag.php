@@ -17,13 +17,15 @@ if (!defined('ABSPATH')) {
  * @param bool $allow_openai_web_search_tool_setting Intermediate OpenAI flag value from core flags.
  * @param bool $allow_claude_web_search_tool_setting Intermediate Claude flag value from core flags.
  * @param bool $allow_openrouter_web_search_tool_setting Intermediate OpenRouter flag value from core flags.
+ * @param bool $allow_xai_web_search_tool_setting Intermediate xAI flag value from core flags.
  * @return array An array containing the 'allowWebSearchTool' flag.
  */
 function get_web_search_flag_logic(
     array $settings,
     bool $allow_openai_web_search_tool_setting,
     bool $allow_claude_web_search_tool_setting,
-    bool $allow_openrouter_web_search_tool_setting
+    bool $allow_openrouter_web_search_tool_setting,
+    bool $allow_xai_web_search_tool_setting
 ): array {
     $provider = $settings['provider'] ?? 'OpenAI';
     $allow_web_search_tool = false;
@@ -47,6 +49,8 @@ function get_web_search_flag_logic(
                 $allow_web_search_tool = !empty($capabilities['web_search_plugin']);
             }
         }
+    } elseif ($provider === 'xAI') {
+        $allow_web_search_tool = $allow_xai_web_search_tool_setting;
     }
 
     return [

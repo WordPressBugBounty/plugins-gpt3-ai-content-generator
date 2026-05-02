@@ -26,6 +26,7 @@ class AIPKit_Event_Payload_Builder
         $module = sanitize_key((string) ($context['module'] ?? ($definition['module'] ?? 'system')));
         $resource = self::normalize_resource($context['resource'] ?? []);
         $meta = self::normalize_meta($context['meta'] ?? []);
+        $payload = self::normalize_payload($payload);
         $occurred_at = gmdate('c');
         $event_id = wp_generate_uuid4();
 
@@ -117,6 +118,46 @@ class AIPKit_Event_Payload_Builder
         }
 
         return $normalized;
+    }
+
+    /**
+     * Normalizes known payload sections without changing event-specific shapes.
+     *
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    private static function normalize_payload(array $payload): array
+    {
+        if (isset($payload['ai']) && is_array($payload['ai'])) {
+            $payload['ai'] = self::normalize_ai_payload($payload['ai']);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Normalizes common AI metadata embedded in event data.
+     *
+     * @param array<string, mixed> $ai
+     * @return array<string, mixed>
+     */
+    private static function normalize_ai_payload(array $ai): array
+    {
+        if (isset($ai['provider']) && is_scalar($ai['provider'])) {
+            $provider = sanitize_text_field((string) $ai['provider']);
+            if (class_exists('\WPAICG\AIPKit_Providers')) {
+                $provider = \WPAICG\AIPKit_Providers::normalize_provider_label($provider);
+            } elseif (strtolower($provider) === 'xai') {
+                $provider = 'xAI';
+            }
+            $ai['provider'] = $provider;
+        }
+
+        if (isset($ai['model']) && is_scalar($ai['model'])) {
+            $ai['model'] = sanitize_text_field((string) $ai['model']);
+        }
+
+        return $ai;
     }
 
     /**

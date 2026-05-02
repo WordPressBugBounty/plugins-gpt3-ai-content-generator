@@ -37,6 +37,7 @@ function get_core_flag_values_logic(array $settings): array {
             'DEFAULT_OPENAI_WEB_SEARCH_ENABLED' => '0',
             'DEFAULT_CLAUDE_WEB_SEARCH_ENABLED' => '0',
             'DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED' => '0',
+            'DEFAULT_XAI_WEB_SEARCH_ENABLED' => '0',
             'DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED' => '0',
         ];
     } else {
@@ -54,6 +55,7 @@ function get_core_flag_values_logic(array $settings): array {
             'DEFAULT_OPENAI_WEB_SEARCH_ENABLED' => BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_ENABLED,
             'DEFAULT_CLAUDE_WEB_SEARCH_ENABLED' => BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_ENABLED,
             'DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED' => BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED,
+            'DEFAULT_XAI_WEB_SEARCH_ENABLED' => BotSettingsManager::DEFAULT_XAI_WEB_SEARCH_ENABLED,
             'DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED' => BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED,
         ];
     }
@@ -80,6 +82,7 @@ function get_core_flag_values_logic(array $settings): array {
         'allow_openai_web_search_tool_setting'  => ($settings['openai_web_search_enabled'] ?? $defaults['DEFAULT_OPENAI_WEB_SEARCH_ENABLED']) === '1',
         'allow_claude_web_search_tool_setting'  => ($settings['claude_web_search_enabled'] ?? $defaults['DEFAULT_CLAUDE_WEB_SEARCH_ENABLED']) === '1',
         'allow_openrouter_web_search_tool_setting'  => ($settings['openrouter_web_search_enabled'] ?? $defaults['DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED']) === '1',
+        'allow_xai_web_search_tool_setting'  => ($settings['xai_web_search_enabled'] ?? $defaults['DEFAULT_XAI_WEB_SEARCH_ENABLED']) === '1',
         'allow_google_search_grounding_setting' => ($settings['google_search_grounding_enabled'] ?? $defaults['DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED']) === '1',
     ];
 }

@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
 // Variables required: $current_provider, $openai_data, $openrouter_data, $google_data,
-// $azure_data, $claude_data, $deepseek_data, $ollama_data
+// $azure_data, $claude_data, $deepseek_data, $xai_data, $ollama_data
 
 $model_field_configs = [
     'OpenAI' => [
@@ -55,6 +55,13 @@ $model_field_configs = [
         'label' => __('Model', 'gpt3-ai-content-generator'),
         'helper' => __('Choose the default model.', 'gpt3-ai-content-generator'),
     ],
+    'xAI' => [
+        'group_id' => 'aipkit_xai_model_group',
+        'field_id' => 'aipkit_xai_model',
+        'field_name' => 'xai_model',
+        'label' => __('Model', 'gpt3-ai-content-generator'),
+        'helper' => __('Choose the default model.', 'gpt3-ai-content-generator'),
+    ],
     'Ollama' => [
         'group_id' => 'aipkit_ollama_model_group',
         'field_id' => 'aipkit_ollama_model',
@@ -71,6 +78,7 @@ $current_models_by_provider = [
     'Claude' => (string) ($claude_data['model'] ?? ''),
     'Azure' => (string) ($azure_data['model'] ?? ''),
     'DeepSeek' => (string) ($deepseek_data['model'] ?? ''),
+    'xAI' => (string) ($xai_data['model'] ?? ''),
     'Ollama' => (string) ($ollama_data['model'] ?? ''),
 ];
 

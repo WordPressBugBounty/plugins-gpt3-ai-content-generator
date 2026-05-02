@@ -258,6 +258,7 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
                 $models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
             }
             $models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
+            $models['xai'] = \WPAICG\AIPKit_Providers::get_xai_models();
         }
 
         // 6. Send the response

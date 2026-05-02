@@ -120,7 +120,7 @@ $aipkit_embedding_options_allowed_html = [
                     <option value="pinecone" <?php selected($vector_store_provider, 'pinecone'); ?>>Pinecone</option>
                     <option value="qdrant" <?php selected($vector_store_provider, 'qdrant'); ?>>Qdrant</option>
                     <option value="chroma" <?php selected($vector_store_provider, 'chroma'); ?>>Chroma</option>
-                    <option value="claude_files" <?php selected($vector_store_provider, 'claude_files'); ?>><?php esc_html_e('Claude Files', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="claude_files" <?php selected($vector_store_provider, 'claude_files'); ?>><?php esc_html_e('Anthropic Files', 'gpt3-ai-content-generator'); ?></option>
                 </select>
             </div>
         </div>
@@ -629,8 +629,8 @@ $aipkit_embedding_options_allowed_html = [
             data-message-qdrant-url="<?php echo esc_attr__('You selected Qdrant as a vector provider, but it is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
             data-message-chroma="<?php echo esc_attr__('You selected Chroma as a vector provider, but it is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
             data-message-chroma-url="<?php echo esc_attr__('You selected Chroma as a vector provider, but it is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
-            data-message-claude_files="<?php echo esc_attr__('You selected Claude Files as a vector provider, but it is not configured yet. Add Claude API key in Settings.', 'gpt3-ai-content-generator'); ?>"
-            data-message-claude_files-provider="<?php echo esc_attr__('You selected Claude Files as a vector provider, but it requires Claude as chatbot engine.', 'gpt3-ai-content-generator'); ?>"
+            data-message-claude_files="<?php echo esc_attr__('You selected Anthropic Files as a vector provider, but it is not configured yet. Add the Anthropic API key in Settings.', 'gpt3-ai-content-generator'); ?>"
+            data-message-claude_files-provider="<?php echo esc_attr__('You selected Anthropic Files as a vector provider, but it requires Anthropic as chatbot engine.', 'gpt3-ai-content-generator'); ?>"
             data-message-default="<?php echo esc_attr__('The selected vector provider is not configured yet. Add required credentials in Settings.', 'gpt3-ai-content-generator'); ?>"
         >
             <div class="aipkit_notification_bar__icon" aria-hidden="true">

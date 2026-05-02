@@ -50,7 +50,7 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
     }
 
     $selected_provider = sanitize_text_field((string) ($post_data['ai_provider'] ?? ''));
-    if (!in_array($selected_provider, ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek', 'Azure', 'Ollama'], true)) {
+    if (!in_array($selected_provider, ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek', 'xAI', 'Azure', 'Ollama'], true)) {
         $selected_provider = '';
     }
     $selected_model = isset($post_data['ai_model']) ? sanitize_text_field((string) $post_data['ai_model']) : '';
@@ -63,7 +63,7 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
         $handler_instance->send_wp_error(
             new WP_Error(
                 'no_generation_provider_available',
-                __('No usable AI provider is configured for form generation. Add an API key for OpenAI, Google, Claude, OpenRouter, or DeepSeek. To use Azure or Ollama, select that provider and a model in the editor first.', 'gpt3-ai-content-generator'),
+                __('No usable AI provider is configured for form generation. Add an API key for OpenAI, Google, Anthropic, OpenRouter, DeepSeek, or xAI. To use Azure or Ollama, select that provider and a model in the editor first.', 'gpt3-ai-content-generator'),
                 [
                     'status' => 400,
                     'generation_skipped_providers' => $skipped,
@@ -126,10 +126,10 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
  */
 function aipkit_ai_forms_build_generation_retry_plan(string $selected_provider, string $selected_model): array
 {
-    $provider_priority = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek', 'Azure', 'Ollama'];
+    $provider_priority = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek', 'xAI', 'Azure', 'Ollama'];
     $preferred_models = [];
 
-    foreach (['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek'] as $provider_name) {
+    foreach (['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek', 'xAI'] as $provider_name) {
         $preferred_model = AIPKit_Providers::get_default_model_id($provider_name);
         if ($preferred_model !== '') {
             $preferred_models[$provider_name] = $preferred_model;
@@ -192,6 +192,7 @@ function aipkit_ai_forms_build_generation_attempt(
         case 'Claude':
         case 'OpenRouter':
         case 'DeepSeek':
+        case 'xAI':
             if (empty($provider_config['api_key'])) {
                 return [
                     'eligible' => false,

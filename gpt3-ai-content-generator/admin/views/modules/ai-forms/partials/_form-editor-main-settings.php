@@ -31,7 +31,9 @@ if (!defined('ABSPATH')) {
     >
         <?php foreach ($providers as $p_value) :
             $disabled = false;
-            $label = $p_value;
+            $label = class_exists('\\WPAICG\\AIPKit_Providers')
+                ? \WPAICG\AIPKit_Providers::get_provider_display_name((string) $p_value)
+                : ((string) $p_value === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : (string) $p_value);
             if ($p_value === 'Ollama' && (empty($is_pro) || !$is_pro)) {
                 $disabled = true;
                 $label = __('Ollama (Pro)', 'gpt3-ai-content-generator');

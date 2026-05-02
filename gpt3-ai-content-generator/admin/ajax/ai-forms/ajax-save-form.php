@@ -152,6 +152,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $openai_web_search_enabled = isset($post_data['openai_web_search_enabled']) && $post_data['openai_web_search_enabled'] === '1' ? '1' : '0';
     $claude_web_search_enabled = isset($post_data['claude_web_search_enabled']) && $post_data['claude_web_search_enabled'] === '1' ? '1' : '0';
     $openrouter_web_search_enabled = isset($post_data['openrouter_web_search_enabled']) && $post_data['openrouter_web_search_enabled'] === '1' ? '1' : '0';
+    $xai_web_search_enabled = isset($post_data['xai_web_search_enabled']) && $post_data['xai_web_search_enabled'] === '1' ? '1' : '0';
     $google_search_grounding_enabled = isset($post_data['google_search_grounding_enabled']) && $post_data['google_search_grounding_enabled'] === '1' ? '1' : '0';
     
     // OpenAI Web Search sub-settings
@@ -273,6 +274,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'openai_web_search_enabled' => $openai_web_search_enabled,
         'claude_web_search_enabled' => $claude_web_search_enabled,
         'openrouter_web_search_enabled' => $openrouter_web_search_enabled,
+        'xai_web_search_enabled' => $xai_web_search_enabled,
         'google_search_grounding_enabled' => $google_search_grounding_enabled,
         // OpenAI Web Search sub-settings
         'openai_web_search_context_size' => $openai_web_search_context_size,

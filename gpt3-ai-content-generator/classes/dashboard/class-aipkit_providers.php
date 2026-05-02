@@ -54,6 +54,10 @@ class AIPKit_Providers
             'api_key' => '', 'model' => '',
             'base_url' => 'https://api.deepseek.com', 'api_version' => 'v1',
         ],
+        'xAI' => [
+            'api_key' => '', 'model' => '',
+            'base_url' => 'https://api.x.ai', 'api_version' => 'v1',
+        ],
         'Ollama' => [
             'model' => '',
             'base_url' => 'http://localhost:11434',
@@ -130,6 +134,12 @@ class AIPKit_Providers
             'default' => '',
             'models' => [],
         ],
+        'xAIImage' => [
+            'default' => 'grok-imagine-image',
+            'models' => [
+                ['id' => 'grok-imagine-image', 'name' => 'Grok Imagine Image'],
+            ],
+        ],
         'GoogleVideo' => [
             'default' => '',
             'models' => [],
@@ -166,6 +176,14 @@ class AIPKit_Providers
         'DeepSeek' => [
             'default' => 'deepseek-chat',
             'models' => ['deepseek-chat', 'deepseek-reasoner'],
+        ],
+        'xAI' => [
+            'default' => 'grok-4-1-fast-non-reasoning',
+            'models' => [
+                ['id' => 'grok-4-1-fast-non-reasoning', 'name' => 'Grok 4.1 Fast Non-Reasoning'],
+                ['id' => 'grok-4', 'name' => 'Grok 4'],
+                ['id' => 'grok-4.20-reasoning', 'name' => 'Grok 4.20 Reasoning'],
+            ],
         ],
         'Ollama' => [
             'default' => '',
@@ -212,11 +230,13 @@ class AIPKit_Providers
         'OpenRouterEmbedding' => 'aipkit_openrouter_embedding_model_list',
         'Google'           => 'aipkit_google_model_list',
         'GoogleImage'      => 'aipkit_google_image_model_list',
+        'xAIImage'         => 'aipkit_xai_image_model_list',
         'GoogleVideo'      => 'aipkit_google_video_model_list',
         'GoogleEmbedding'  => 'aipkit_google_embedding_model_list',
         'Claude'           => 'aipkit_claude_model_list',
         'Azure'            => 'aipkit_azure_deployment_list',
         'AzureImage' => 'aipkit_azure_image_model_list', 'AzureEmbedding'   => 'aipkit_azure_embedding_model_list', 'DeepSeek'         => 'aipkit_deepseek_model_list',
+        'xAI'             => 'aipkit_xai_model_list',
         'Ollama'           => 'aipkit_ollama_model_list',
         'ElevenLabs'       => 'aipkit_elevenlabs_voice_list',
         'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
@@ -228,9 +248,111 @@ class AIPKit_Providers
         'Replicate' => 'aipkit_replicate_model_list',
     ];
 
+    private static $provider_capabilities = [
+        'xAI' => [
+            'text_generation' => true,
+            'streaming' => true,
+            'image_input' => true,
+            'web_search' => true,
+            'embeddings' => false,
+            'vector_stores' => false,
+            'image_generation' => true,
+            'image_editing' => true,
+            'video_generation' => false,
+            'tts' => false,
+            'stt' => false,
+            'realtime' => false,
+            'legacy_completions' => false,
+            'chat_completions' => false,
+        ],
+    ];
+
     /** @var array Holds request-level cache for model lists */
     private static $cached_model_lists = [];
     public const MODEL_LIST_TRANSIENT_TTL = 5 * MINUTE_IN_SECONDS;
+
+    public static function normalize_provider_label(string $provider): string
+    {
+        $provider = sanitize_text_field(trim($provider));
+        if ($provider === '') {
+            return '';
+        }
+
+        foreach (array_keys(self::$provider_defaults) as $known_provider) {
+            if (strtolower($known_provider) === strtolower($provider)) {
+                return $known_provider;
+            }
+        }
+
+        return $provider;
+    }
+
+    public static function get_provider_display_name(string $provider): string
+    {
+        $provider = sanitize_text_field(trim($provider));
+        if ($provider === '') {
+            return '';
+        }
+
+        $provider_lower = strtolower($provider);
+        if ($provider_lower === 'claude') {
+            return __('Anthropic', 'gpt3-ai-content-generator');
+        }
+        if ($provider_lower === 'claude_files') {
+            return __('Anthropic Files', 'gpt3-ai-content-generator');
+        }
+
+        return self::normalize_provider_label($provider);
+    }
+
+    public static function get_provider_capabilities(string $provider): array
+    {
+        $normalized_provider = self::normalize_provider_label($provider);
+        $default_capabilities = self::$provider_capabilities[$normalized_provider] ?? [];
+        $filtered_capabilities = apply_filters(
+            'aipkit_provider_capabilities',
+            $default_capabilities,
+            $normalized_provider
+        );
+
+        if (!is_array($filtered_capabilities)) {
+            $filtered_capabilities = $default_capabilities;
+        } else {
+            $filtered_capabilities = array_merge($default_capabilities, $filtered_capabilities);
+        }
+
+        $normalized_capabilities = [];
+        foreach ($filtered_capabilities as $capability => $supported) {
+            if (!is_string($capability)) {
+                continue;
+            }
+            $capability_key = sanitize_key($capability);
+            if ($capability_key === '') {
+                continue;
+            }
+            $normalized_capabilities[$capability_key] = (bool) $supported;
+        }
+
+        return $normalized_capabilities;
+    }
+
+    public static function provider_supports_capability(
+        string $provider,
+        string $capability,
+        bool $default_for_unlisted = true
+    ): bool {
+        $capability_key = sanitize_key($capability);
+        if ($capability_key === '') {
+            return false;
+        }
+
+        $capabilities = self::get_provider_capabilities($provider);
+        if (array_key_exists($capability_key, $capabilities)) {
+            return (bool) $capabilities[$capability_key];
+        }
+
+        return $default_for_unlisted;
+    }
 
     /**
      * Resolve main provider allowlist for provider-selection flows.
@@ -242,7 +364,7 @@ class AIPKit_Providers
      */
     public static function get_main_provider_allowlist(): array
     {
-        $default_allowlist = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+        $default_allowlist = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
         $filtered_allowlist = apply_filters('aipkit_main_provider_allowlist', $default_allowlist);
         if (!is_array($filtered_allowlist)) {
             $filtered_allowlist = $default_allowlist;
@@ -338,6 +460,7 @@ class AIPKit_Providers
             'Azure' => ['model' => 'Azure', 'embeddings' => 'AzureEmbedding'],
             'Claude' => ['model' => 'Claude'],
             'DeepSeek' => ['model' => 'DeepSeek'],
+            'xAI' => ['model' => 'xAI'],
             'Ollama' => ['model' => 'Ollama'],
             'ElevenLabs' => ['model_id' => 'ElevenLabsModels'],
         ];
@@ -416,7 +539,11 @@ class AIPKit_Providers
             if ($provider_key === '') {
                 continue;
             }
-            $normalized_map[$provider_key] = sanitize_text_field($provider_label);
+            $provider_label = sanitize_text_field($provider_label);
+            if (!self::provider_supports_capability($provider_label, 'embeddings')) {
+                continue;
+            }
+            $normalized_map[$provider_key] = $provider_label;
         }
 
         return empty($normalized_map) ? $default_map : $normalized_map;
@@ -999,6 +1126,10 @@ class AIPKit_Providers
             $normalized_key = 'Claude';
         } elseif ('deepseek' === $key_lower) {
             $normalized_key = 'DeepSeek';
+        } elseif ('xai' === $key_lower) {
+            $normalized_key = 'xAI';
+        } elseif ('xaiimage' === $key_lower || 'xai_image' === $key_lower || 'xai-image' === $key_lower) {
+            $normalized_key = 'xAIImage';
         }
 
         $recommended_ids = self::get_catalog_model_ids($normalized_key);
@@ -1227,6 +1358,31 @@ class AIPKit_Providers
     {
         return self::OPENAI_DEFAULT_IMAGE_MODEL;
     }
+    public static function get_xai_image_models(): array
+    {
+        return self::get_model_list('xAIImage');
+    }
+    public static function get_default_xai_image_model(): string
+    {
+        return self::get_default_model_id('xAIImage');
+    }
+    public static function get_xai_image_model_ids(): array
+    {
+        return wp_list_pluck(self::get_xai_image_models(), 'id');
+    }
+    public static function is_supported_xai_image_model(string $model): bool
+    {
+        return in_array(trim($model), self::get_xai_image_model_ids(), true);
+    }
+    public static function normalize_xai_image_model(?string $model): string
+    {
+        $normalized_model = is_string($model) ? trim($model) : '';
+        if ($normalized_model !== '' && self::is_supported_xai_image_model($normalized_model)) {
+            return $normalized_model;
+        }
+
+        return self::get_default_xai_image_model();
+    }
     public static function get_openai_image_model_ids(): array
     {
         return wp_list_pluck(self::get_openai_image_models(), 'id');
@@ -1387,6 +1543,113 @@ class AIPKit_Providers
     public static function get_deepseek_models(): array
     {
         return self::get_model_list('DeepSeek');
+    }
+
+    /**
+     * @param mixed $modalities
+     * @return array<int, string>
+     */
+    private static function normalize_xai_modality_list($modalities): array
+    {
+        if (!is_array($modalities)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($modalities as $modality) {
+            if (!is_string($modality)) {
+                continue;
+            }
+            $modality = strtolower(trim($modality));
+            if ($modality !== '') {
+                $normalized[] = $modality;
+            }
+        }
+
+        return array_values(array_unique($normalized));
+    }
+
+    private static function xai_model_row_matches_id(string $target_model_id, $model): bool
+    {
+        $target_model_id = strtolower(trim($target_model_id));
+        if ($target_model_id === '') {
+            return false;
+        }
+
+        if (is_string($model)) {
+            return strtolower(trim($model)) === $target_model_id;
+        }
+
+        if (!is_array($model)) {
+            return false;
+        }
+
+        $candidates = [];
+        foreach (['id', 'model', 'name'] as $key) {
+            if (isset($model[$key]) && is_string($model[$key])) {
+                $candidates[] = $model[$key];
+            }
+        }
+        if (isset($model['aliases']) && is_array($model['aliases'])) {
+            foreach ($model['aliases'] as $alias) {
+                if (is_string($alias)) {
+                    $candidates[] = $alias;
+                }
+            }
+        }
+
+        foreach ($candidates as $candidate) {
+            if (strtolower(trim((string) $candidate)) === $target_model_id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function xai_model_supports_image_input(string $model_id): bool
+    {
+        $model_id = sanitize_text_field(trim($model_id));
+        if ($model_id === '') {
+            return false;
+        }
+
+        $models = self::get_xai_models();
+        foreach ($models as $model) {
+            if (!self::xai_model_row_matches_id($model_id, $model)) {
+                continue;
+            }
+
+            if (!is_array($model)) {
+                return true;
+            }
+
+            $input_modalities = self::normalize_xai_modality_list(
+                $model['input_modalities'] ?? ($model['modalities']['input'] ?? [])
+            );
+            if (!empty($input_modalities)) {
+                return in_array('image', $input_modalities, true)
+                    || in_array('input_image', $input_modalities, true)
+                    || in_array('image_url', $input_modalities, true);
+            }
+
+            if (isset($model['capabilities']) && is_array($model['capabilities'])) {
+                foreach (['image_input', 'vision'] as $capability_key) {
+                    if (array_key_exists($capability_key, $model['capabilities'])) {
+                        return (bool) $model['capabilities'][$capability_key];
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        return true;
+    }
+
+    public static function get_xai_models(): array
+    {
+        return self::get_model_list('xAI');
     }
     public static function get_ollama_models(): array
     {

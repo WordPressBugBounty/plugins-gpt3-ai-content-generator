@@ -4,6 +4,7 @@
 
 namespace WPAICG\Vector;
 
+use WPAICG\AIPKit_Providers;
 use WP_Error;
 // Use statement for Qdrant is no longer direct, it's via bootstrap
 // use WPAICG\Vector\Providers\AIPKit_Vector_Qdrant_Strategy;
@@ -30,6 +31,21 @@ class AIPKit_Vector_Provider_Strategy_Factory {
     public static function get_strategy(string $provider): AIPKit_Vector_Provider_Strategy_Interface|WP_Error {
         if (isset(self::$instances[$provider])) {
             return self::$instances[$provider];
+        }
+
+        if (
+            class_exists(AIPKit_Providers::class)
+            && !AIPKit_Providers::provider_supports_capability($provider, 'vector_stores')
+        ) {
+            return new WP_Error(
+                'vector_provider_not_supported',
+                sprintf(
+                    /* translators: %s: The provider name. */
+                    __('Vector stores are not supported by %s in this integration.', 'gpt3-ai-content-generator'),
+                    esc_html($provider)
+                ),
+                ['status' => 501]
+            );
         }
 
         $strategy_path_base = __DIR__ . '/providers/';

@@ -423,6 +423,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['openrouter_web_search_search_prompt'] = isset($raw_settings['openrouter_web_search_search_prompt'])
         ? sanitize_textarea_field((string) $raw_settings['openrouter_web_search_search_prompt'])
         : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
+    $sanitized['xai_web_search_enabled'] = (isset($raw_settings['xai_web_search_enabled']) && $raw_settings['xai_web_search_enabled'] === '1') ? '1' : '0';
     $sanitized['google_search_grounding_enabled'] = (isset($raw_settings['google_search_grounding_enabled']) && $raw_settings['google_search_grounding_enabled'] === '1') ? '1' : '0';
     $sanitized['google_grounding_mode'] = isset($raw_settings['google_grounding_mode']) && in_array($raw_settings['google_grounding_mode'], ['DEFAULT_MODE', 'MODE_DYNAMIC']) ? $raw_settings['google_grounding_mode'] : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
     $raw_google_threshold = isset($raw_settings['google_grounding_dynamic_threshold']) ? floatval($raw_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;

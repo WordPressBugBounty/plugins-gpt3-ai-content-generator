@@ -156,6 +156,7 @@ class AIPKit_AI_Form_Shortcode
             }
 
             $all_models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
+            $all_models['xai'] = \WPAICG\AIPKit_Providers::get_xai_models();
             wp_localize_script('aipkit-public-ai-forms-js', 'aipkit_ai_forms_models', $all_models);
         }
     }

@@ -69,16 +69,18 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                     }
         } elseif ($key === 'ai_provider' || $key === 'image_provider') {
                     $provider_raw = sanitize_text_field(wp_unslash($post_data[$key]));
-                    $content_writer_config[$key] = match (strtolower($provider_raw)) {
-            'openai' => 'OpenAI',
-            'openrouter' => 'OpenRouter',
-            'google' => 'Google',
-            'azure' => 'Azure',
-            'claude' => 'Claude',
-            'deepseek' => 'DeepSeek',
-            'ollama' => 'Ollama',
-                        default => ucfirst(strtolower($provider_raw))
-                    };
+                    $provider_key = strtolower($provider_raw);
+                    $provider_map = [
+                        'openai' => 'OpenAI',
+                        'openrouter' => 'OpenRouter',
+                        'google' => 'Google',
+                        'azure' => 'Azure',
+                        'claude' => 'Claude',
+                        'deepseek' => 'DeepSeek',
+                        'ollama' => 'Ollama',
+                        'xai' => 'xAI',
+                    ];
+                    $content_writer_config[$key] = $provider_map[$provider_key] ?? ucfirst($provider_key);
                 } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store', 'generate_seo_slug'], true)) {
                     $content_writer_config[$key] = ($post_data[$key] === '1' || $post_data[$key] === true || $post_data[$key] === 1) ? '1' : '0';
                 } elseif ($key === 'post_categories' && is_array($post_data[$key])) {

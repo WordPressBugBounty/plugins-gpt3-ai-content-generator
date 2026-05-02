@@ -116,9 +116,12 @@ $aipkit_autogpt_setup_content_max_tokens_id = $aipkit_autogpt_setup_base . '_con
             <?php
             $aipkit_autogpt_setup_provider_value = strtolower((string) $aipkit_autogpt_setup_provider_name);
             $aipkit_autogpt_setup_provider_disabled = ($aipkit_autogpt_setup_provider_name === 'Ollama' && !$aipkit_autogpt_setup_is_pro);
+            $aipkit_autogpt_setup_provider_display_name = class_exists('\\WPAICG\\AIPKit_Providers')
+                ? \WPAICG\AIPKit_Providers::get_provider_display_name((string) $aipkit_autogpt_setup_provider_name)
+                : ((string) $aipkit_autogpt_setup_provider_name === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : (string) $aipkit_autogpt_setup_provider_name);
             $aipkit_autogpt_setup_provider_label = $aipkit_autogpt_setup_provider_disabled
                 ? __('Ollama (Pro)', 'gpt3-ai-content-generator')
-                : $aipkit_autogpt_setup_provider_name;
+                : $aipkit_autogpt_setup_provider_display_name;
             ?>
             <option
                 value="<?php echo esc_attr($aipkit_autogpt_setup_provider_value); ?>"

@@ -173,6 +173,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_openrouter_web_search_engine', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE);
         update_post_meta($post_id, '_aipkit_openrouter_web_search_max_results', (string) BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS);
         update_post_meta($post_id, '_aipkit_openrouter_web_search_search_prompt', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT);
+        update_post_meta($post_id, '_aipkit_xai_web_search_enabled', BotSettingsManager::DEFAULT_XAI_WEB_SEARCH_ENABLED);
         update_post_meta($post_id, '_aipkit_web_toggle_default_on', BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON);
         update_post_meta($post_id, '_aipkit_show_sources', BotSettingsManager::DEFAULT_SHOW_SOURCES);
         update_post_meta($post_id, '_aipkit_sources_label', BotSettingsManager::DEFAULT_SOURCES_LABEL);

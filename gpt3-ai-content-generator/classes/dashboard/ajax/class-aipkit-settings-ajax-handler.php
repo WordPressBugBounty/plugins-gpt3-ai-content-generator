@@ -46,6 +46,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         'aipkit_azure_image_model_list',
         'aipkit_claude_model_list',
         'aipkit_deepseek_model_list',
+        'aipkit_xai_model_list',
         'aipkit_ollama_model_list',
         'aipkit_ollama_embedding_model_list',
         'aipkit_ollama_vision_model_list',

@@ -24,13 +24,14 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
         'openrouter' => 'OpenRouter',
         'azure' => 'Azure',
         'google' => 'Google',
+        'xai' => 'xAI',
         'pexels' => 'Pexels',
         'pixabay' => 'Pixabay',
         'replicate' => 'Replicate',
         default => 'OpenAI',
     };
 
-    if (!in_array($provider_normalized, ['OpenAI', 'OpenRouter', 'Azure', 'Google', 'Pexels', 'Pixabay', 'Replicate'])) {
+    if (!in_array($provider_normalized, ['OpenAI', 'OpenRouter', 'Azure', 'Google', 'xAI', 'Pexels', 'Pixabay', 'Replicate'])) {
         /* translators: %s: The provider name that was attempted to be used for image generation. */
         return new WP_Error('unsupported_image_provider', sprintf(__('Image provider "%s" is not currently supported.', 'gpt3-ai-content-generator'), esc_html($provider_raw)), ['status' => 400]);
     }
@@ -75,6 +76,8 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
         $final_options['model'] = $first_openrouter_model !== '' ? $first_openrouter_model : 'google/gemini-2.5-flash-image-preview';
     } elseif (empty($final_options['model']) && $provider_normalized === 'Google') {
         $final_options['model'] = 'gemini-2.0-flash-preview-image-generation';
+    } elseif (empty($final_options['model']) && $provider_normalized === 'xAI') {
+        $final_options['model'] = AIPKit_Providers::get_default_xai_image_model();
     }
     if ($provider_normalized === 'OpenAI') {
         $final_options['model'] = AIPKit_Providers::normalize_openai_image_model(
@@ -86,6 +89,14 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
     }
     if (empty($final_options['n'])) {
         $final_options['n'] = 1;
+    }
+    if ($provider_normalized === 'xAI') {
+        $final_options['model'] = AIPKit_Providers::normalize_xai_image_model(
+            isset($final_options['model']) ? (string) $final_options['model'] : null
+        );
+        if (!isset($final_options['response_format'])) {
+            $final_options['response_format'] = 'b64_json';
+        }
     }
 
     if (

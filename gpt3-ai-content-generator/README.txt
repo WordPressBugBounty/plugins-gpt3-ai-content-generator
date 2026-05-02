@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.4.15
+Stable tag: 2.4.16
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ Chat. Create. Automate.
 
 **AI Puffer** is the **complete AI plugin for WordPress** — a full set of **artificial intelligence tools** to transform your site. From **AI chatbot** and **content generation** to **image creation, automation, and AI training** on your own data, AIP gives you everything in one place, right inside your WordPress dashboard.
 
-Our **"Bring Your Own API Key"** model lets you connect to top AI providers (OpenAI, Google Gemini, Microsoft Azure, OpenRouter, DeepSeek and Ollama). No hidden credits — you use your own account and control your costs.
+Our **"Bring Your Own API Key"** model lets you connect to top AI providers (OpenAI, Google Gemini, Microsoft Azure, OpenRouter, DeepSeek, xAI and Ollama). No hidden credits — you use your own account and control your costs.
 
 [📖 Documentation & Guides](https://docs.aipower.org/)  
 
@@ -124,6 +124,19 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.16 =
+
+Added xAI as a new provider.
+
+Capabilities:
+
+- Generate text in Chatbots, AI Forms, Content Writer, Automations, REST API, and bulk assistant flows through the xAI Responses API.
+- Use xAI web search in Chatbots and AI Forms.
+- Analyze uploaded images in Chatbots with xAI vision-capable Grok models.
+- Generate images with xAI image models in Chatbots, Content Writer, Automations, and Image Generator.
+
+More info: https://docs.aipower.org/ai-providers#xai
 
 = 2.4.15 =
 
@@ -341,13 +354,13 @@ Performance improvements.
 
 = 2.3.70 =
 
-NEW!: We have a new AI provider in the house: Claude!
+NEW!: We have a new AI provider in the house: Anthropic!
 
-You can now add your Claude API key in AI Settings and use Claude directly in the plugin.
+You can now add your Anthropic API key in AI Settings and use Anthropic directly in the plugin.
 
 Capabilities:
 
-- Use Claude models across supported modules, including Opus 4.6.
-- Generate content and run chatbot conversations with Claude.
-- Analyze images in Chatbot with Claude vision support.
-- Use chatbot file uploads with Claude Files.
+- Use Anthropic Claude models across supported modules, including Opus 4.6.
+- Generate content and run chatbot conversations with Anthropic.
+- Analyze images in Chatbot with Anthropic Claude vision support.
+- Use chatbot file uploads with Anthropic Files.

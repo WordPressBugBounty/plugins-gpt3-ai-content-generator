@@ -46,6 +46,29 @@ function build_queue_item_event_summary_logic(array $item_config): array
 }
 
 /**
+ * Builds AI metadata for automated task queue webhook payloads.
+ *
+ * @param array<string, mixed> $item_config
+ * @return array<string, mixed>
+ */
+function build_queue_item_ai_payload_logic(array $item_config): array
+{
+    $ai = [];
+    $provider = sanitize_text_field((string) ($item_config['ai_provider'] ?? ''));
+    $model = sanitize_text_field((string) ($item_config['ai_model'] ?? ''));
+
+    if ($provider !== '') {
+        $ai['provider'] = $provider;
+    }
+
+    if ($model !== '') {
+        $ai['model'] = $model;
+    }
+
+    return $ai;
+}
+
+/**
  * Emits the canonical automated-task queue item completed event for a final item state.
  *
  * @param int         $item_id
@@ -123,9 +146,25 @@ function emit_queue_status_event_logic(int $item_id, string $db_status, ?string 
         ],
         'item' => build_queue_item_event_summary_logic($item_config),
     ];
+    $ai_payload = build_queue_item_ai_payload_logic($item_config);
+    if (!empty($ai_payload)) {
+        $payload['ai'] = $ai_payload;
+    }
 
     if ($generated_post_id) {
         $payload['result']['generated_post_id'] = $generated_post_id;
+    }
+
+    $event_meta = [
+        'task_id' => isset($row['task_id']) ? (int) $row['task_id'] : 0,
+        'task_type' => (string) ($row['task_type'] ?? ''),
+        'queue_status' => $db_status,
+    ];
+    if (!empty($ai_payload['provider'])) {
+        $event_meta['ai_provider'] = $ai_payload['provider'];
+    }
+    if (!empty($ai_payload['model'])) {
+        $event_meta['ai_model'] = $ai_payload['model'];
     }
 
     AIPKit_Event_Webhooks::emit(
@@ -139,11 +178,7 @@ function emit_queue_status_event_logic(int $item_id, string $db_status, ?string 
                 'id' => (int) ($row['id'] ?? 0),
                 'label' => $resource_label,
             ],
-            'meta' => [
-                'task_id' => isset($row['task_id']) ? (int) $row['task_id'] : 0,
-                'task_type' => (string) ($row['task_type'] ?? ''),
-                'queue_status' => $db_status,
-            ],
+            'meta' => $event_meta,
             'idempotency_key' => sha1(implode('|', [
                 $event_name,
                 (string) ($row['id'] ?? 0),

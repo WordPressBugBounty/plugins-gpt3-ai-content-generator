@@ -27,6 +27,7 @@ $openai_models_display = [];
 // Build Google models dynamically from synced option
 $google_models_display = [ 'image' => [], 'video' => [] ];
 $openrouter_models_display = [];
+$xai_models_display = [];
 $replicate_models_display = [];
 $azure_models_display = [];
 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
@@ -68,6 +69,17 @@ if (class_exists('\\WPAICG\\AIPKit_Providers')) {
             $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
             if ($mid) {
                 $openrouter_models_display[$mid] = $mname;
+            }
+        }
+    }
+
+    $xai_models = AIPKit_Providers::get_xai_image_models();
+    if (!empty($xai_models)) {
+        foreach ($xai_models as $mdl) {
+            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
+            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
+            if ($mid) {
+                $xai_models_display[$mid] = $mname;
             }
         }
     }
@@ -134,6 +146,8 @@ $source_image_label = $get_ui_text('source_image_label', __('Source image', 'gpt
 $upload_dropzone_title = $get_ui_text('upload_dropzone_title', __('Drop image here or click to upload', 'gpt3-ai-content-generator'));
 $upload_dropzone_meta = $get_ui_text('upload_dropzone_meta', __('JPG, PNG, WEBP, GIF up to 10MB', 'gpt3-ai-content-generator'));
 $upload_hint = $get_ui_text('upload_hint', __('Upload an image (JPG, PNG, WEBP, GIF up to 10MB), then describe the edits in the prompt.', 'gpt3-ai-content-generator'));
+$xai_upload_dropzone_meta = __('JPG or PNG up to 10MB', 'gpt3-ai-content-generator');
+$xai_upload_hint = __('xAI image editing supports JPG and PNG source images only.', 'gpt3-ai-content-generator');
 $history_title = $get_ui_text('history_title', __('Your Images', 'gpt3-ai-content-generator'));
 $initial_prompt_placeholder = $current_image_mode === 'edit' ? $edit_placeholder : $generate_placeholder;
 $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate_label;
@@ -150,10 +164,13 @@ $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate
     data-edit-placeholder="<?php echo esc_attr($edit_placeholder); ?>"
     data-generate-label="<?php echo esc_attr($generate_label); ?>"
     data-edit-label="<?php echo esc_attr($edit_label); ?>"
-    data-edit-coming-soon="<?php echo esc_attr(__('Image editing UI is enabled. Backend editing will be available in the next phase.', 'gpt3-ai-content-generator')); ?>"
     data-edit-upload-required="<?php echo esc_attr(__('Please upload an image to edit.', 'gpt3-ai-content-generator')); ?>"
-    data-edit-provider-unsupported="<?php echo esc_attr(__('Image editing is currently supported only for Google, OpenAI and OpenRouter providers.', 'gpt3-ai-content-generator')); ?>"
+    data-edit-provider-unsupported="<?php echo esc_attr(__('Image editing is currently supported only for Google, OpenAI, OpenRouter, and xAI providers.', 'gpt3-ai-content-generator')); ?>"
     data-edit-model-unsupported="<?php echo esc_attr(__('Selected model does not support image editing.', 'gpt3-ai-content-generator')); ?>"
+    data-edit-upload-meta-default="<?php echo esc_attr($upload_dropzone_meta); ?>"
+    data-edit-upload-hint-default="<?php echo esc_attr($upload_hint); ?>"
+    data-edit-upload-meta-xai="<?php echo esc_attr($xai_upload_dropzone_meta); ?>"
+    data-edit-upload-hint-xai="<?php echo esc_attr($xai_upload_hint); ?>"
 >
     <div class="aipkit_shortcode_body">
         <div class="aipkit_image_generator_input_bar">
@@ -265,7 +282,7 @@ $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate
                             <label class="aipkit_form-label" for="aipkit_public_image_provider"><?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?></label>
                             <select id="aipkit_public_image_provider" name="image_provider" class="aipkit_form-input" data-aipkit-provider-notice-target="aipkit_provider_notice_image_generator">
                                 <?php
-                                $all_providers = ['OpenAI', 'Google', 'OpenRouter', 'Azure', 'Replicate'];
+                                $all_providers = ['OpenAI', 'Google', 'OpenRouter', 'xAI', 'Azure', 'Replicate'];
                                 $allowed_models_arr = !empty($allowed_models) ? array_map('trim', explode(',', strtolower($allowed_models))) : [];
                                 if (!empty($allowed_models_arr)) {
                                     $derived = [];
@@ -277,6 +294,7 @@ $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate
                                         }
                                     }
                                     $openrouter_lookup = array_flip(array_map('strtolower', array_keys($openrouter_models_display)));
+                                    $xai_lookup = array_flip(array_map('strtolower', array_keys($xai_models_display)));
                                     $azure_lookup = array_flip(array_map('strtolower', array_keys($azure_models_display)));
                                     $replicate_lookup = array_flip(array_map('strtolower', array_keys($replicate_models_display)));
                                     foreach ($allowed_models_arr as $mid) {
@@ -286,6 +304,8 @@ $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate
                                             $derived['Google'] = true;
                                         } elseif (isset($openrouter_lookup[$mid])) {
                                             $derived['OpenRouter'] = true;
+                                        } elseif (isset($xai_lookup[$mid])) {
+                                            $derived['xAI'] = true;
                                         } elseif (isset($azure_lookup[$mid])) {
                                             $derived['Azure'] = true;
                                         } elseif (isset($replicate_lookup[$mid])) {
@@ -374,6 +394,15 @@ $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate
                                         </option>
                                      <?php endforeach; ?>
                                      <?php if ($final_model && !array_key_exists($final_model, $openrouter_models_display)) : ?>
+                                        <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
+                                     <?php endif; ?>
+                                 <?php elseif ($final_provider === 'xAI'): ?>
+                                     <?php foreach ($xai_models_display as $id => $name): ?>
+                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($final_model, $id); ?>>
+                                            <?php echo esc_html($name); ?>
+                                        </option>
+                                     <?php endforeach; ?>
+                                     <?php if ($final_model && !array_key_exists($final_model, $xai_models_display)) : ?>
                                         <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
                                      <?php endif; ?>
                                  <?php elseif ($final_provider === 'Azure'): ?>

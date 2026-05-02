@@ -318,6 +318,10 @@ function prepare_stream_data_logic(
         $ai_params_for_payload['web_search_tool_config'] = $web_search_config;
         $ai_params_for_payload['frontend_web_search_active'] = true;
     }
+    if ($provider === 'xAI' && ($form_config['xai_web_search_enabled'] ?? '0') === '1') {
+        $ai_params_for_payload['xai_web_search_tool_config'] = ['enabled' => true];
+        $ai_params_for_payload['frontend_web_search_active'] = true;
+    }
     if ($provider === 'Google' && ($form_config['google_search_grounding_enabled'] ?? '0') === '1') {
         // For AI Forms, grounding is implicitly active if the form setting is enabled.
         $ai_params_for_payload['frontend_google_search_grounding_active'] = true;

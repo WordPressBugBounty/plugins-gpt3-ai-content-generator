@@ -27,7 +27,7 @@ class ProviderStrategyFactory {
     /**
      * Get the strategy instance for a given provider.
      *
-     * @param string $provider Provider name ('OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek').
+     * @param string $provider Provider name ('OpenAI', 'OpenRouter', 'Google', 'Azure', 'DeepSeek', 'xAI').
      * @return ProviderStrategyInterface|WP_Error The strategy instance or WP_Error if unsupported.
      */
     public static function get_strategy(string $provider): ProviderStrategyInterface|WP_Error {
@@ -43,6 +43,7 @@ class ProviderStrategyFactory {
             'Azure'      => 'azure/bootstrap-provider-strategy.php',
             'Claude'     => 'claude/bootstrap-provider-strategy.php',
             'DeepSeek'   => 'deepseek-provider-strategy.php',
+            'xAI'        => 'xai/bootstrap-provider-strategy.php',
             'Ollama'     => 'ollama/bootstrap-provider-strategy.php',
         ];
 
@@ -104,6 +105,11 @@ class ProviderStrategyFactory {
                      self::$instances[$provider] = new DeepSeekProviderStrategy();
                  }
                  break;
+            case 'xAI':
+                if (class_exists(XAIProviderStrategy::class)) {
+                    self::$instances[$provider] = new XAIProviderStrategy();
+                }
+                break;
             case 'Ollama':
                 if (class_exists(AIPKit_Ollama_Strategy::class)) {
                     self::$instances[$provider] = new AIPKit_Ollama_Strategy();

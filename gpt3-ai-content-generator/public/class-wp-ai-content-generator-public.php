@@ -184,6 +184,7 @@ class WP_AI_Content_Generator_Public
                         $all_models['ollama'] = \WPAICG\AIPKit_Providers::get_ollama_models();
                     }
                     $all_models['deepseek'] = \WPAICG\AIPKit_Providers::get_deepseek_models();
+                    $all_models['xai'] = \WPAICG\AIPKit_Providers::get_xai_models();
                     wp_localize_script($public_ai_forms_js_handle, 'aipkit_ai_forms_models', $all_models);
                 }
                 $ai_forms_localized = true;

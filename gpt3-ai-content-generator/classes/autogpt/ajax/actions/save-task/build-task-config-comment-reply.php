@@ -30,6 +30,7 @@ function build_task_config_comment_reply_logic(array $post_data): array|WP_Error
         'azure' => 'Azure',
         'claude' => 'Claude',
         'deepseek' => 'DeepSeek',
+        'xai' => 'xAI',
         'ollama' => 'Ollama',
         default => ucfirst(strtolower($provider_raw))
     };

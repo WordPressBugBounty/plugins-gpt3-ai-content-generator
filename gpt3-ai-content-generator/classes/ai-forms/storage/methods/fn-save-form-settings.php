@@ -155,6 +155,9 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     if (isset($settings['openrouter_web_search_enabled'])) {
         update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_enabled', $settings['openrouter_web_search_enabled'] === '1' ? '1' : '0');
     }
+    if (isset($settings['xai_web_search_enabled'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_xai_web_search_enabled', $settings['xai_web_search_enabled'] === '1' ? '1' : '0');
+    }
     if (isset($settings['google_search_grounding_enabled'])) {
         update_post_meta($form_id, '_aipkit_ai_form_google_search_grounding_enabled', $settings['google_search_grounding_enabled'] === '1' ? '1' : '0');
     }

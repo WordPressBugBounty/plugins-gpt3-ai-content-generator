@@ -258,9 +258,12 @@ class AIPKit_Shortcodes_Manager
                         'viewFullVideo' => __('Click to view full video', 'gpt3-ai-content-generator'),
                         'openrouterModelUnsupported' => __('Selected OpenRouter model does not support image generation.', 'gpt3-ai-content-generator'),
                         'editUploadRequired' => __('Please upload an image to edit.', 'gpt3-ai-content-generator'),
-                        'editProviderUnsupported' => __('Image editing is currently supported only for Google, OpenAI and OpenRouter providers.', 'gpt3-ai-content-generator'),
+                        'editProviderUnsupported' => __('Image editing is currently supported only for Google, OpenAI, OpenRouter, and xAI providers.', 'gpt3-ai-content-generator'),
                         'editModelUnsupported' => __('Selected model does not support image editing.', 'gpt3-ai-content-generator'),
                         'editInvalidFileType' => __('Invalid image type. Allowed types: JPG, PNG, WEBP, GIF.', 'gpt3-ai-content-generator'),
+                        'xaiEditInvalidFileType' => __('xAI image editing supports JPG and PNG source images only.', 'gpt3-ai-content-generator'),
+                        'xaiEditUploadMeta' => __('JPG or PNG up to 10MB', 'gpt3-ai-content-generator'),
+                        'xaiEditUploadHint' => __('xAI image editing supports JPG and PNG source images only.', 'gpt3-ai-content-generator'),
                         'editFileTooLarge' => __('Source image is too large. Maximum allowed size is 10MB.', 'gpt3-ai-content-generator'),
                         'editDropUsePicker' => __('Could not attach dropped file automatically. Click to choose file.', 'gpt3-ai-content-generator'),
                         'editHistoryLoadFailed' => __('Could not load the selected image for editing.', 'gpt3-ai-content-generator'),
@@ -268,6 +271,7 @@ class AIPKit_Shortcodes_Manager
                         'editHistoryLoaded' => __('Source image loaded. Describe your edits and click Edit Image.', 'gpt3-ai-content-generator'),
                         'noEditCapableModels' => __('(No edit-capable models available)', 'gpt3-ai-content-generator'),
                         'noOpenRouterImageModels' => __('(No image-capable OpenRouter models found)', 'gpt3-ai-content-generator'),
+                        'noXAIImageModels' => __('(No xAI image models found)', 'gpt3-ai-content-generator'),
                         'noModelsAvailable' => __('(No models available)', 'gpt3-ai-content-generator'),
                         'imageModelsGroup' => __('Image Models', 'gpt3-ai-content-generator'),
                         'videoModelsGroup' => __('Video Models', 'gpt3-ai-content-generator'),
@@ -287,6 +291,7 @@ class AIPKit_Shortcodes_Manager
                     ],
                     'edit_upload_max_bytes' => 10 * 1024 * 1024,
                     'edit_upload_allowed_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+                    'xai_edit_upload_allowed_mime_types' => ['image/jpeg', 'image/png'],
                     'openai_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_openai_image_models() : [],
                     'azure_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_azure_image_models() : [],
                     'google_models' => [
@@ -294,6 +299,7 @@ class AIPKit_Shortcodes_Manager
                         'video' => (class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_google_video_models() : []),
                     ],
                     'openrouter_image_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_openrouter_image_models() : [],
+                    'xai_image_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_xai_image_models() : [],
                     'replicate_models' => class_exists('\\WPAICG\\AIPKit_Providers') ? AIPKit_Providers::get_replicate_models() : []
                 ]);
                 $image_gen_localized = true;

@@ -548,6 +548,8 @@ $openrouter_web_search_max_results_val = isset($active_bot_settings['openrouter_
 $openrouter_web_search_max_results_val = max(1, min($openrouter_web_search_max_results_val, 10));
 $openrouter_web_search_search_prompt_val = $active_bot_settings['openrouter_web_search_search_prompt']
     ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
+$xai_web_search_enabled_val = $active_bot_settings['xai_web_search_enabled']
+    ?? BotSettingsManager::DEFAULT_XAI_WEB_SEARCH_ENABLED;
 $web_toggle_default_on_val = $active_bot_settings['web_toggle_default_on']
     ?? BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON;
 $show_sources_val = $active_bot_settings['show_sources']
@@ -663,6 +665,7 @@ $chroma_provider_data = [];
 $google_provider_data = [];
 $azure_provider_data = [];
 $claude_provider_data = [];
+$xai_provider_data = [];
 if (class_exists(AIPKit_Vector_Store_Registry::class)) {
     $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
 }
@@ -678,6 +681,7 @@ if (class_exists(AIPKit_Providers::class)) {
     $google_provider_data = AIPKit_Providers::get_provider_data('Google');
     $azure_provider_data = AIPKit_Providers::get_provider_data('Azure');
     $claude_provider_data = AIPKit_Providers::get_provider_data('Claude');
+    $xai_provider_data = AIPKit_Providers::get_provider_data('xAI');
 }
 $openai_api_key = $openai_provider_data['api_key'] ?? '';
 $pinecone_api_key = $pinecone_provider_data['api_key'] ?? '';
@@ -687,6 +691,7 @@ $chroma_url = $chroma_provider_data['url'] ?? '';
 $google_api_key = $google_provider_data['api_key'] ?? '';
 $azure_api_key = $azure_provider_data['api_key'] ?? '';
 $claude_api_key = $claude_provider_data['api_key'] ?? '';
+$xai_api_key = $xai_provider_data['api_key'] ?? '';
 $image_triggers = $active_bot_settings['image_triggers']
     ?? BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
 $chat_image_model_id = $active_bot_settings['chat_image_model_id']
@@ -698,6 +703,7 @@ $enable_image_generation = in_array($enable_image_generation, ['0', '1'], true)
     : BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION;
 $replicate_model_list = AIPKit_Providers::get_replicate_models();
 $openrouter_image_model_list = AIPKit_Providers::get_openrouter_image_models();
+$xai_image_model_list = AIPKit_Providers::get_xai_image_models();
 $available_image_models = [
     'OpenAI' => AIPKit_Providers::get_openai_image_models(),
     'Azure' => AIPKit_Providers::get_azure_image_models(),
@@ -705,6 +711,9 @@ $available_image_models = [
 ];
 if (isset($openrouter_image_model_list) && is_array($openrouter_image_model_list) && !empty($openrouter_image_model_list)) {
     $available_image_models['OpenRouter'] = $openrouter_image_model_list;
+}
+if (isset($xai_image_model_list) && is_array($xai_image_model_list) && !empty($xai_image_model_list)) {
+    $available_image_models['xAI'] = $xai_image_model_list;
 }
 if (isset($replicate_model_list) && is_array($replicate_model_list) && !empty($replicate_model_list)) {
     $available_image_models['Replicate'] = $replicate_model_list;
@@ -809,9 +818,9 @@ $direct_voice_mode_disabled = !($popup_enabled === '1' && $enable_realtime_voice
 // Provider/model data for AI selection.
 $allowed_main_providers = class_exists(AIPKit_Providers::class)
     ? AIPKit_Providers::get_main_provider_allowlist()
-    : ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+    : ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
 if (!is_array($allowed_main_providers) || empty($allowed_main_providers)) {
-    $allowed_main_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek'];
+    $allowed_main_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
 }
 // Backward-compatible alias used by shared provider/model partials.
 $providers = $allowed_main_providers;
@@ -835,6 +844,7 @@ $google_model_list = get_option('aipkit_google_model_list', []);
 $azure_deployment_list = AIPKit_Providers::get_azure_deployments();
 $claude_model_list = AIPKit_Providers::get_claude_models();
 $deepseek_model_list = AIPKit_Providers::get_deepseek_models();
+$xai_model_list = AIPKit_Providers::get_xai_models();
 $ollama_model_list = AIPKit_Providers::get_ollama_models();
 
 $saved_provider = isset($active_bot_settings['provider'])
@@ -890,6 +900,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     data-google-api-key-set="<?php echo esc_attr(!empty($google_api_key) ? 'true' : 'false'); ?>"
     data-azure-api-key-set="<?php echo esc_attr(!empty($azure_api_key) ? 'true' : 'false'); ?>"
     data-claude-api-key-set="<?php echo esc_attr(!empty($claude_api_key) ? 'true' : 'false'); ?>"
+    data-xai-api-key-set="<?php echo esc_attr(!empty($xai_api_key) ? 'true' : 'false'); ?>"
     data-model-settings-title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
     data-model-settings-description="<?php esc_attr_e('Configure model settings and behavior for this chatbot.', 'gpt3-ai-content-generator'); ?>"
 >
@@ -1136,7 +1147,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                         'pinecone' => __('Pinecone', 'gpt3-ai-content-generator'),
                                         'qdrant' => __('Qdrant', 'gpt3-ai-content-generator'),
                                         'chroma' => __('Chroma', 'gpt3-ai-content-generator'),
-                                        'claude_files' => __('Claude Files', 'gpt3-ai-content-generator'),
+                                        'claude_files' => __('Anthropic Files', 'gpt3-ai-content-generator'),
                                     ];
                                     $vector_provider_label = $vector_provider_labels[$vector_store_provider] ?? '';
                                     $vector_source_names = [];
@@ -1267,6 +1278,8 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     $web_search_enabled = ($claude_web_search_enabled_val === '1');
                                 } elseif ($saved_provider === 'OpenRouter') {
                                     $web_search_enabled = ($openrouter_web_search_enabled_val === '1');
+                                } elseif ($saved_provider === 'xAI') {
+                                    $web_search_enabled = ($xai_web_search_enabled_val === '1');
                                 }
                                 if ($web_search_enabled) {
                                     $tools_summary_parts[] = __('Web Search', 'gpt3-ai-content-generator');

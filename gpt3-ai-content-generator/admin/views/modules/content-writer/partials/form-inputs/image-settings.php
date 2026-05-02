@@ -63,6 +63,7 @@ $render_prompt_library_options = static function(array $options, string $mode = 
                 <option value="google">Google</option>
                 <option value="openrouter">OpenRouter</option>
                 <option value="azure">Azure</option>
+                <option value="xai">xAI</option>
                 <option value="replicate"><?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?></option>
             </optgroup>
             <optgroup label="<?php echo esc_attr__('Stock Photos', 'gpt3-ai-content-generator'); ?>">

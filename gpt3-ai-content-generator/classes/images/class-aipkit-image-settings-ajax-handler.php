@@ -345,6 +345,7 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
                 }
                 $azure_ids = [];
                 $openrouter_ids = [];
+                $xai_ids = [];
                 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
                     $azure_models_list = \WPAICG\AIPKit_Providers::get_azure_image_models();
                     if (is_array($azure_models_list)) {
@@ -363,6 +364,16 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
                             }
                         }
                     }
+                    $xai_models_list = \WPAICG\AIPKit_Providers::get_xai_image_models();
+                    if (is_array($xai_models_list)) {
+                        foreach ($xai_models_list as $mdl) {
+                            if (is_array($mdl) && isset($mdl['id'])) {
+                                $xai_ids[] = strtolower((string) $mdl['id']);
+                            } elseif (is_string($mdl)) {
+                                $xai_ids[] = strtolower($mdl);
+                            }
+                        }
+                    }
                     $replicate_models_list = \WPAICG\AIPKit_Providers::get_replicate_models();
                 } else {
                     $replicate_models_list = [];
@@ -377,6 +388,7 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
                 $openai_lu = array_flip(array_map('strtolower',$openai_ids));
                 $google_lu = array_flip(array_map('strtolower',$google_ids));
                 $openrouter_lu = array_flip(array_map('strtolower', $openrouter_ids));
+                $xai_lu = array_flip(array_map('strtolower', $xai_ids));
                 $azure_lu = array_flip($azure_ids);
                 $replicate_lu = array_flip($replicate_ids);
                 $providers_detected = [];
@@ -385,6 +397,7 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
                     if (isset($openai_lu[$ml])) { $providers_detected['OpenAI'] = true; continue; }
                     if (isset($google_lu[$ml])) { $providers_detected['Google'] = true; continue; }
                     if (isset($openrouter_lu[$ml])) { $providers_detected['OpenRouter'] = true; continue; }
+                    if (isset($xai_lu[$ml])) { $providers_detected['xAI'] = true; continue; }
                     if (isset($azure_lu[$ml])) { $providers_detected['Azure'] = true; continue; }
                     if (isset($replicate_lu[$ml])) { $providers_detected['Replicate'] = true; continue; }
                     if (strpos($ml, '/') !== false) {

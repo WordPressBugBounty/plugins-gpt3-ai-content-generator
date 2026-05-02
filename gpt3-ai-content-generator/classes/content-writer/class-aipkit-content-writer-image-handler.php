@@ -42,6 +42,7 @@ class AIPKit_Content_Writer_Image_Handler
             'openrouter' => 'OpenRouter',
             'google' => 'Google',
             'azure' => 'Azure',
+            'xai' => 'xAI',
             'claude' => 'Claude',
             'deepseek' => 'DeepSeek',
             'ollama' => 'Ollama',
@@ -480,6 +481,9 @@ class AIPKit_Content_Writer_Image_Handler
         $resolved_image_model = sanitize_text_field((string) ($settings['image_model'] ?? 'gpt-image-2'));
         if ($image_provider === 'openai') {
             $resolved_image_model = AIPKit_Providers::normalize_openai_image_model($resolved_image_model);
+        }
+        if ($image_provider === 'xai') {
+            $resolved_image_model = AIPKit_Providers::normalize_xai_image_model($resolved_image_model);
         }
 
         if ($image_provider === 'openrouter' && in_array($resolved_image_model, ['', 'openrouter/auto', 'auto'], true)) {

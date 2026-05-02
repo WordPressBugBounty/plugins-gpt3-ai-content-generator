@@ -240,6 +240,23 @@ class AIPKit_AI_Caller
         array $embedding_options = []
     ): array|WP_Error {
 
+        if (!AIPKit_Providers::provider_supports_capability($provider, 'embeddings')) {
+            return new WP_Error(
+                'embedding_provider_not_supported',
+                sprintf(
+                    /* translators: %s: The provider name. */
+                    __('Embedding generation is not supported by %s in this integration.', 'gpt3-ai-content-generator'),
+                    $provider
+                ),
+                [
+                    'provider' => $provider,
+                    'model' => ($embedding_options['model'] ?? 'unknown'),
+                    'status_code' => 501,
+                    'operation' => 'generate_embeddings_capability_guard',
+                ]
+            );
+        }
+
         $strategy = ProviderStrategyFactory::get_strategy($provider);
         if (is_wp_error($strategy)) {
             return new WP_Error($strategy->get_error_code(), $strategy->get_error_message(), ['provider' => $provider, 'model' => ($embedding_options['model'] ?? 'unknown'), 'status_code' => 500, 'operation' => 'get_strategy_embeddings']);

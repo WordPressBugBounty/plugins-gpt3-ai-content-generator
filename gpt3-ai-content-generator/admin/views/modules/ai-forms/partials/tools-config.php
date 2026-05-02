@@ -311,6 +311,32 @@ if (!defined('ABSPATH')) {
 
     <input
         type="checkbox"
+        id="aipkit_ai_form_xai_web_search_enabled"
+        name="xai_web_search_enabled"
+        class="aipkit_ai_form_xai_web_search_toggle"
+        value="1"
+        hidden
+        aria-hidden="true"
+        tabindex="-1"
+    >
+
+    <div class="aipkit_ai_form_xai_web_search_settings" style="display: none;">
+        <div class="aipkit_popover_option_row">
+            <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
+                <div class="aipkit_cw_settings_option_text">
+                    <span class="aipkit_popover_option_label">
+                        <?php esc_html_e('No additional options', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                    <span class="aipkit_popover_option_helper">
+                        <?php esc_html_e('xAI web search does not have additional web settings or options.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input
+        type="checkbox"
         id="aipkit_ai_form_google_search_grounding_enabled"
         name="google_search_grounding_enabled"
         class="aipkit_ai_form_google_search_grounding_toggle"

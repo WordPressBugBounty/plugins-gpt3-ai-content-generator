@@ -54,6 +54,7 @@ $google_data     = AIPKit_Providers::get_provider_data('Google');
 $azure_data      = AIPKit_Providers::get_provider_data('Azure');
 $claude_data     = AIPKit_Providers::get_provider_data('Claude');
 $deepseek_data   = AIPKit_Providers::get_provider_data('DeepSeek');
+$xai_data        = AIPKit_Providers::get_provider_data('xAI');
 $ollama_data     = AIPKit_Providers::get_provider_data('Ollama');
 $elevenlabs_data = AIPKit_Providers::get_provider_data('ElevenLabs');
 $replicate_data  = AIPKit_Providers::get_provider_data('Replicate');
@@ -96,12 +97,13 @@ $google_defaults     = AIPKit_Providers::get_provider_defaults('Google');
 $azure_defaults      = AIPKit_Providers::get_provider_defaults('Azure');
 $claude_defaults     = AIPKit_Providers::get_provider_defaults('Claude');
 $deepseek_defaults   = AIPKit_Providers::get_provider_defaults('DeepSeek');
+$xai_defaults        = AIPKit_Providers::get_provider_defaults('xAI');
 $ollama_defaults     = AIPKit_Providers::get_provider_defaults('Ollama');
 $pinecone_defaults   = AIPKit_Providers::get_provider_defaults('Pinecone');
 $qdrant_defaults     = AIPKit_Providers::get_provider_defaults('Qdrant');
 $chroma_defaults     = AIPKit_Providers::get_provider_defaults('Chroma');
 
-$providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek'];
+$providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek', 'xAI'];
 $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Builder')
     ? \WPAICG\AIPKit_Provider_Model_List_Builder::get_provider_options($providers, $is_pro)
     : [];

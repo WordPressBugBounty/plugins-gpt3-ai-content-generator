@@ -141,6 +141,8 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $data['claude_web_search_enabled'] = in_array($claude_web_search_enabled, ['0', '1'], true) ? $claude_web_search_enabled : '0';
     $openrouter_web_search_enabled = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_enabled', true);
     $data['openrouter_web_search_enabled'] = in_array($openrouter_web_search_enabled, ['0', '1'], true) ? $openrouter_web_search_enabled : '0';
+    $xai_web_search_enabled = get_post_meta($form_id, '_aipkit_ai_form_xai_web_search_enabled', true);
+    $data['xai_web_search_enabled'] = in_array($xai_web_search_enabled, ['0', '1'], true) ? $xai_web_search_enabled : '0';
     $data['google_search_grounding_enabled'] = get_post_meta($form_id, '_aipkit_ai_form_google_search_grounding_enabled', true) ?: '0';
     
     // OpenAI Web Search sub-settings

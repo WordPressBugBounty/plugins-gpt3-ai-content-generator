@@ -84,7 +84,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
-        $default_valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'ChromaCollections', 'Replicate'];
+        $default_valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'xAI', 'xAIImage', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'ChromaCollections', 'Replicate'];
         $valid_providers = apply_filters('aipkit_sync_provider_allowlist', $default_valid_providers);
         if (!is_array($valid_providers) || empty($valid_providers)) {
             $valid_providers = $default_valid_providers;
@@ -105,6 +105,8 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             $provider_data_key = 'ElevenLabs';
         } elseif ($provider === 'OpenAIVectorStores') {
             $provider_data_key = 'OpenAI';
+        } elseif ($provider === 'xAIImage') {
+            $provider_data_key = 'xAI';
         } elseif ($provider === 'PineconeIndexes') {
             $provider_data_key = 'Pinecone';
         } elseif ($provider === 'QdrantCollections') {
@@ -129,7 +131,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         ];
 
 
-        if (empty($api_params['api_key']) && in_array($provider, ['OpenAI', 'OpenRouter', 'Azure', 'Claude', 'DeepSeek', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'], true)) {
+        if (empty($api_params['api_key']) && in_array($provider, ['OpenAI', 'OpenRouter', 'Azure', 'Claude', 'DeepSeek', 'xAI', 'xAIImage', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'], true)) {
             /* translators: %s: The provider name that was attempted to be used for model sync. */
             wp_send_json_error(['message' => sprintf(__('%s API key is required.', 'gpt3-ai-content-generator'), $provider_data_key)]);
             return;
@@ -195,7 +197,19 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 $strategy = \WPAICG\Images\AIPKit_Image_Provider_Strategy_Factory::get_strategy('Replicate');
                 $result = is_wp_error($strategy) ? $strategy : $strategy->get_models($api_params);
                 break;
-            default: // Handles OpenAI, OpenRouter, Google, Azure, DeepSeek
+            case 'xAIImage':
+                if (!class_exists(AIPKit_Image_Provider_Strategy_Factory::class)) {
+                    $factory_path = WPAICG_PLUGIN_DIR . 'classes/images/class-aipkit-image-provider-strategy-factory.php';
+                    if (file_exists($factory_path)) {
+                        require_once $factory_path;
+                    }
+                }
+                $strategy = AIPKit_Image_Provider_Strategy_Factory::get_strategy('xAI');
+                $result = (is_wp_error($strategy) || !method_exists($strategy, 'get_models'))
+                    ? new WP_Error('xai_image_model_sync_not_supported', __('xAI image model sync is not available.', 'gpt3-ai-content-generator'))
+                    : $strategy->get_models($api_params);
+                break;
+            default: // Handles OpenAI, OpenRouter, Google, Azure, DeepSeek, xAI
                 $result = AIPKit_Models_API::get_models($provider, $api_params);
                 break;
         }
@@ -209,8 +223,9 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         $option_map = [
             'OpenAI' => 'aipkit_openai_model_list', 'OpenRouter' => 'aipkit_openrouter_model_list',
-            'Google' => 'aipkit_google_model_list', 'Azure' => 'aipkit_azure_deployment_list', 'Claude' => 'aipkit_claude_model_list', 'AzureImage' => 'aipkit_azure_image_model_list', 'DeepSeek' => 'aipkit_deepseek_model_list', 'ElevenLabs' => 'aipkit_elevenlabs_voice_list',
+            'Google' => 'aipkit_google_model_list', 'Azure' => 'aipkit_azure_deployment_list', 'Claude' => 'aipkit_claude_model_list', 'AzureImage' => 'aipkit_azure_image_model_list', 'DeepSeek' => 'aipkit_deepseek_model_list', 'xAI' => 'aipkit_xai_model_list', 'ElevenLabs' => 'aipkit_elevenlabs_voice_list',
             'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
+            'xAIImage' => 'aipkit_xai_image_model_list',
             'PineconeIndexes' => 'aipkit_pinecone_index_list',
             'QdrantCollections' => 'aipkit_qdrant_collection_list',
             'ChromaCollections' => 'aipkit_chroma_collection_list',
@@ -321,6 +336,26 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                     }
                 }
                 $extra_response_payload['embedding_models'] = $openrouter_embedding_models;
+            } elseif ($provider === 'xAI') {
+                if (!class_exists(AIPKit_Image_Provider_Strategy_Factory::class)) {
+                    $factory_path = WPAICG_PLUGIN_DIR . 'classes/images/class-aipkit-image-provider-strategy-factory.php';
+                    if (file_exists($factory_path)) {
+                        require_once $factory_path;
+                    }
+                }
+                $xai_image_models = get_option('aipkit_xai_image_model_list', []);
+                $xai_image_models = is_array($xai_image_models) ? $xai_image_models : [];
+                if (class_exists(AIPKit_Image_Provider_Strategy_Factory::class)) {
+                    $xai_image_strategy = AIPKit_Image_Provider_Strategy_Factory::get_strategy('xAI');
+                    if (!is_wp_error($xai_image_strategy) && method_exists($xai_image_strategy, 'get_models')) {
+                        $xai_image_models_result = $xai_image_strategy->get_models($api_params);
+                        if (!is_wp_error($xai_image_models_result) && is_array($xai_image_models_result)) {
+                            $xai_image_models = $xai_image_models_result;
+                            update_option('aipkit_xai_image_model_list', $xai_image_models, 'no');
+                        }
+                    }
+                }
+                $extra_response_payload['image_models'] = $xai_image_models;
             } elseif ($provider === 'Ollama') {
                 $chat_models = is_array($result) ? $result : [];
                 $embedding_models = [];
@@ -567,7 +602,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
      */
     private function get_recommended_models_for_response(string $provider, $response_models, $stored_models): array
     {
-        $default_supported = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek'];
+        $default_supported = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'xAI', 'xAIImage'];
         $supported = apply_filters('aipkit_recommended_model_supported_providers', $default_supported);
         $supported = is_array($supported) ? $supported : $default_supported;
         if (!in_array($provider, $supported, true)) {
@@ -581,7 +616,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // Keep fallback behavior aligned with model-list builder for providers
         // that derive recommended entries from existing synced rows.
-        $default_fallback_supported = ['Azure', 'DeepSeek'];
+        $default_fallback_supported = ['Azure', 'DeepSeek', 'xAI', 'xAIImage'];
         $fallback_supported = apply_filters('aipkit_recommended_model_fallback_providers', $default_fallback_supported);
         $fallback_supported = is_array($fallback_supported) ? $fallback_supported : $default_fallback_supported;
         if (!in_array($provider, $fallback_supported, true)) {

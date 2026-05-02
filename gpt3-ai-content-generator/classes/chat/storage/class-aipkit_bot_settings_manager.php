@@ -113,6 +113,8 @@ class BotSettingsManager
     public const DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE = 'auto';
     public const DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS = 5;
     public const DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT = '';
+    // --- xAI Web Search Constants ---
+    public const DEFAULT_XAI_WEB_SEARCH_ENABLED = '0';
     // --- Frontend Web Toggle Defaults ---
     public const DEFAULT_WEB_TOGGLE_DEFAULT_ON = '0';
     public const DEFAULT_SHOW_SOURCES = '1';
