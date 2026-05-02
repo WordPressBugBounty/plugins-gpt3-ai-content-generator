@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
  * Logic for the build_api_url method of GoogleProviderStrategy.
  *
  * @param GoogleProviderStrategy $strategyInstance The instance of the strategy class.
- * @param string $operation ('chat', 'models', 'stream', 'embedContent')
+ * @param string $operation ('chat', 'models', 'stream', 'embedContent', 'batchEmbedContents')
  * @param array  $params Required parameters (api_key, base_url, api_version, model) and optional (pageSize, pageToken).
  * @return string|WP_Error The full URL or WP_Error.
  */

@@ -50,19 +50,38 @@ function format_embeddings_logic_for_payload_formatter($input, array $options): 
         $model_for_body = 'models/' . $model_for_body;
     }
 
-    $payload = [
+    $request_options = [];
+
+    if (isset($options['taskType']) && is_string($options['taskType'])) {
+        $request_options['taskType'] = $options['taskType'];
+    }
+    if (isset($options['title']) && is_string($options['title'])) {
+        $request_options['title'] = $options['title'];
+    }
+    if (isset($options['outputDimensionality']) && is_int($options['outputDimensionality'])) {
+        $request_options['outputDimensionality'] = $options['outputDimensionality'];
+    }
+
+    if (count($texts_to_embed) > 1) {
+        $requests = [];
+        foreach ($texts_to_embed as $text) {
+            $requests[] = array_merge([
+                'model' => $model_for_body,
+                'content' => [
+                    'parts' => [
+                        ['text' => $text],
+                    ],
+                ],
+            ], $request_options);
+        }
+
+        return ['requests' => $requests];
+    }
+
+    return array_merge([
         'model' => $model_for_body,
         'content' => [
             'parts' => $parts
         ]
-    ];
-
-    if (isset($options['taskType']) && is_string($options['taskType'])) {
-        $payload['taskType'] = $options['taskType'];
-    }
-    if (isset($options['outputDimensionality']) && is_int($options['outputDimensionality'])) {
-        $payload['outputDimensionality'] = $options['outputDimensionality'];
-    }
-
-    return $payload;
+    ], $request_options);
 }

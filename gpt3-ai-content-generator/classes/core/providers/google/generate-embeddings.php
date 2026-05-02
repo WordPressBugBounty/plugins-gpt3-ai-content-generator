@@ -38,14 +38,26 @@ function generate_embeddings_logic(
         return new WP_Error('missing_google_embedding_model_logic', __('Google embedding model ID is required.', 'gpt3-ai-content-generator'));
     }
 
+    $input_count = 0;
+    if (is_array($input)) {
+        foreach ($input as $item) {
+            if (is_scalar($item) && trim((string) $item) !== '') {
+                $input_count++;
+            }
+        }
+    } elseif (is_scalar($input) && trim((string) $input) !== '') {
+        $input_count = 1;
+    }
+    $operation = $input_count > 1 ? 'batchEmbedContents' : 'embedContent';
+
     $url_params = array_merge($api_params, ['model' => $model_id]);
-    $url = GoogleUrlBuilder::build('embedContent', $url_params);
+    $url = GoogleUrlBuilder::build($operation, $url_params);
     if (is_wp_error($url)) {
         return $url;
     }
 
-    $headers = $strategyInstance->get_api_headers($api_params['api_key'], 'embedContent');
-    $request_options = $strategyInstance->get_request_options('embedContent');
+    $headers = $strategyInstance->get_api_headers($api_params['api_key'], $operation);
+    $request_options = $strategyInstance->get_request_options($operation);
     $payload = GooglePayloadFormatter::format_embeddings($input, $options);
     $request_body_json = wp_json_encode($payload);
 
@@ -63,8 +75,21 @@ function generate_embeddings_logic(
         $error_msg = is_wp_error($decoded_response)
                     ? $decoded_response->get_error_message()
                     : GoogleResponseParser::parse_error($body, $status_code);
+        $error_data = ['status' => $status_code];
+        $retry_after_header = wp_remote_retrieve_header($response, 'retry-after');
+        if (is_array($retry_after_header)) {
+            $retry_after_header = reset($retry_after_header);
+        }
+        if (is_numeric($retry_after_header)) {
+            $error_data['retry_after'] = (int) ceil((float) $retry_after_header);
+        } elseif (is_string($retry_after_header) && $retry_after_header !== '') {
+            $retry_after_time = strtotime($retry_after_header);
+            if ($retry_after_time !== false) {
+                $error_data['retry_after'] = max(1, $retry_after_time - time());
+            }
+        }
         /* translators: %1$d: HTTP status code, %2$s: API error message. */
-        return new WP_Error('google_embedding_api_error_logic', sprintf(__('Google Embeddings API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg)));
+        return new WP_Error('google_embedding_api_error_logic', sprintf(__('Google Embeddings API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, esc_html($error_msg)), $error_data);
     }
     return GoogleResponseParser::parse_embeddings($decoded_response);
 }

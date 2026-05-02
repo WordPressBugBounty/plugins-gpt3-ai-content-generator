@@ -158,7 +158,7 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
             <div class="aipkit_settings_kb_block_header">
                 <div class="aipkit_settings_kb_group_title">
                     <span class="aipkit_settings_kb_label_line">
-                        <span><?php esc_html_e('Chunking', 'gpt3-ai-content-generator'); ?></span>
+                        <span><?php esc_html_e('Chunking & Batches', 'gpt3-ai-content-generator'); ?></span>
                         <?php if (!$kb_is_pro) : ?>
                             <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                             <a
@@ -273,6 +273,14 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                 <?php echo !$kb_is_pro ? 'disabled' : ''; ?>
             />
             </div>
+            <?php
+            $kb_embedding_batches_partial = defined('WPAICG_LIB_DIR')
+                ? WPAICG_LIB_DIR . 'views/modules/settings/partials/embedding-batches.php'
+                : '';
+            if ($kb_embedding_batches_partial && file_exists($kb_embedding_batches_partial)) {
+                include $kb_embedding_batches_partial;
+            }
+            ?>
         </div>
     </section>
 

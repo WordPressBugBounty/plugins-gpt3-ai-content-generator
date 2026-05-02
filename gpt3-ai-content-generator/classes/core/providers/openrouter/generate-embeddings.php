@@ -85,6 +85,19 @@ function generate_embeddings_logic(
         $error_msg = is_wp_error($decoded_response)
             ? $decoded_response->get_error_message()
             : $strategyInstance->parse_error_response($body, $status_code);
+        $error_data = ['status' => $status_code];
+        $retry_after_header = wp_remote_retrieve_header($response, 'retry-after');
+        if (is_array($retry_after_header)) {
+            $retry_after_header = reset($retry_after_header);
+        }
+        if (is_numeric($retry_after_header)) {
+            $error_data['retry_after'] = (int) ceil((float) $retry_after_header);
+        } elseif (is_string($retry_after_header) && $retry_after_header !== '') {
+            $retry_after_time = strtotime($retry_after_header);
+            if ($retry_after_time !== false) {
+                $error_data['retry_after'] = max(1, $retry_after_time - time());
+            }
+        }
         /* translators: %1$d: HTTP status code, %2$s: API error message. */
         return new WP_Error(
             'openrouter_embedding_api_error_logic',
@@ -93,7 +106,8 @@ function generate_embeddings_logic(
                 __('OpenRouter Embeddings API Error (%1$d): %2$s', 'gpt3-ai-content-generator'),
                 $status_code,
                 esc_html($error_msg)
-            )
+            ),
+            $error_data
         );
     }
 

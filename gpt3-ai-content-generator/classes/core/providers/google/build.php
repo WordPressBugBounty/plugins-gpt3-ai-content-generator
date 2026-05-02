@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 /**
  * Logic for the build static method of GoogleUrlBuilder.
  *
- * @param string $operation ('chat', 'models', 'stream', 'embedContent')
+ * @param string $operation ('chat', 'models', 'stream', 'embedContent', 'batchEmbedContents')
  * @param array  $params Required parameters (base_url, api_version, api_key, model) and optional (pageSize, pageToken).
  * @return string|WP_Error The full URL or WP_Error.
  */
@@ -32,11 +32,12 @@ function build_logic_for_url_builder(string $operation, array $params): string|W
         'chat'         => '/models/{model}:generateContent',
         'stream'       => '/models/{model}:streamGenerateContent',
         'embedContent' => '/models/{model}:embedContent',
+        'batchEmbedContents' => '/models/{model}:batchEmbedContents',
     ];
 
     $path_key = ($operation === 'stream') ? 'stream' :
                 (($operation === 'chat') ? 'chat' :
-                (($operation === 'embedContent') ? 'embedContent' : 'models'));
+                (($operation === 'embedContent' || $operation === 'batchEmbedContents') ? $operation : 'models'));
     $path_segment = $paths[$path_key] ?? null;
 
     if ($path_segment === null) {
@@ -46,7 +47,7 @@ function build_logic_for_url_builder(string $operation, array $params): string|W
 
     $full_path = '/' . trim($api_version, '/') . $path_segment;
 
-    if ($operation === 'chat' || $operation === 'stream' || $operation === 'embedContent') {
+    if ($operation === 'chat' || $operation === 'stream' || $operation === 'embedContent' || $operation === 'batchEmbedContents') {
         /* translators: %s: The name of the API endpoint path. */
         if (empty($model_id)) return new WP_Error('missing_google_model_logic', sprintf(__('Google model ID is required for the "%s" endpoint path.', 'gpt3-ai-content-generator'), $operation));
         

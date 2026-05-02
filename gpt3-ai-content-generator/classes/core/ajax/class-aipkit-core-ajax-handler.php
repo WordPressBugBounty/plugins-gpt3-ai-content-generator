@@ -898,6 +898,30 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             unset($settings['openai_file_search_chunking_mode'], $settings['openai_file_search_max_chunk_size_tokens'], $settings['openai_file_search_chunk_overlap_tokens']);
         }
 
+        // File upload embedding batch settings (Pro only; implementation lives under lib).
+        $batch_settings_class = '\\WPAICG\\Lib\\VectorStores\\FileUpload\\AIPKit_Vector_File_Ingestion_Batch_Settings';
+        $batch_settings_path = defined('WPAICG_LIB_DIR')
+            ? WPAICG_LIB_DIR . 'vector-stores/file-upload/class-aipkit-vector-file-ingestion-batch-settings.php'
+            : '';
+        if (!class_exists($batch_settings_class) && $batch_settings_path && file_exists($batch_settings_path)) {
+            require_once $batch_settings_path;
+        }
+        if (class_exists($batch_settings_class) && $batch_settings_class::has_payload_keys($settings)) {
+            $batch_result = $batch_settings_class::apply_payload_to_general_settings(
+                $general_settings,
+                $settings,
+                \WPAICG\aipkit_dashboard::is_pro_plan()
+            );
+            if (is_wp_error($batch_result)) {
+                $this->send_wp_error($batch_result);
+                return;
+            }
+            if ($batch_result === true) {
+                $general_dirty = true;
+            }
+            $settings = $batch_settings_class::remove_payload_keys($settings);
+        }
+
         if ($general_dirty) {
             update_option('aipkit_training_general_settings', $general_settings);
         }
