@@ -136,18 +136,26 @@ function format_chat_logic_for_payload_formatter(
             'max_num_results' => $ai_params['vector_store_tool_config']['max_num_results'] ?? 3
         ];
         
-        // Add ranking_options if provided
-        if (isset($ai_params['vector_store_tool_config']['ranking_options']) && 
+        // Add ranking_options only when filtering is requested. OpenAI's hosted
+        // file_search can return empty results if score_threshold is sent without
+        // an explicit ranker, while omitting ranking_options preserves defaults.
+        if (isset($ai_params['vector_store_tool_config']['ranking_options']) &&
             is_array($ai_params['vector_store_tool_config']['ranking_options'])) {
             $ranking_opts = $ai_params['vector_store_tool_config']['ranking_options'];
             if (isset($ranking_opts['score_threshold'])) {
                 $st = floatval($ranking_opts['score_threshold']);
-                if ($st <= 0) { $st = 0.0; }
-                elseif ($st >= 1) { $st = 1.0; }
-                else { $st = round($st, 6); }
-                $ranking_opts['score_threshold'] = $st;
+                if ($st <= 0) {
+                    unset($ranking_opts['score_threshold']);
+                } else {
+                    $ranking_opts['score_threshold'] = ($st >= 1) ? 1.0 : round($st, 6);
+                    if (empty($ranking_opts['ranker']) || !is_string($ranking_opts['ranker'])) {
+                        $ranking_opts['ranker'] = 'auto';
+                    }
+                }
             }
-            $file_search_tool['ranking_options'] = $ranking_opts;
+            if (!empty($ranking_opts)) {
+                $file_search_tool['ranking_options'] = $ranking_opts;
+            }
         }
         
         $tools[] = $file_search_tool;
