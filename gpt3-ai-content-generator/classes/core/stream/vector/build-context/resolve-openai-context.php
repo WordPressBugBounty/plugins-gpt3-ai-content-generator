@@ -39,6 +39,12 @@ function resolve_openai_context_logic(
     // For non-OpenAI providers, inject a concise context string from OpenAI vector stores.
     $openai_results = "";
     $should_inject_context = ($main_provider !== 'OpenAI');
+
+    if (!$should_inject_context) {
+        // OpenAI chat requests attach the file_search tool elsewhere; pre-searching here duplicates retrieval and adds latency.
+        return "";
+    }
+
     $openai_vector_store_ids_from_settings = $bot_settings['openai_vector_store_ids'] ?? [];
     $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
     $openai_score_threshold = round($confidence_threshold_percent / 100, 4); // Convert to 0.0-1.0 scale for OpenAI and round to avoid precision issues
