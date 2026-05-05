@@ -9,6 +9,7 @@ use WP_Error;
 use WPAICG\Utils\AIPKit_TOC_Generator;
 // --- ADDED: Image Injector Dependency ---
 use WPAICG\ContentWriter\AIPKit_Image_Injector;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper;
 
 // --- END ADDED ---
 
@@ -44,6 +45,12 @@ if (!class_exists(AIPKit_Image_Injector::class)) {
         require_once $injector_path;
     }
 }
+if (!class_exists(AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::class)) {
+    $image_alt_helper_path = WPAICG_LIB_DIR . 'content-writer/seo/class-aipkit-content-writer-smart-seo-image-alt-helper.php';
+    if (file_exists($image_alt_helper_path)) {
+        require_once $image_alt_helper_path;
+    }
+}
 // --- END ADDED ---
 
 /**
@@ -66,25 +73,42 @@ function insert_post_logic(string $final_title, string $generated_content, array
         $post_author = 1; // Fallback to admin if user can't create posts
     }
 
-    // --- START: Convert markdown to HTML ---
-    $html_content = $generated_content;
+    if (class_exists(\WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::class)) {
+        $final_title = \WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::clean_title($final_title, (string) $focus_keyword);
+        $generated_content = \WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::clean_article_content($generated_content, (string) $focus_keyword);
+    }
 
-    // First, convert markdown block elements like headings
-    $html_content = preg_replace('/^#\s+(.*)$/m', '<h1>$1</h1>', $html_content);
-    $html_content = preg_replace('/^##\s+(.*)$/m', '<h2>$1</h2>', $html_content);
-    $html_content = preg_replace('/^###\s+(.*)$/m', '<h3>$1</h3>', $html_content);
-    $html_content = preg_replace('/^####\s+(.*)$/m', '<h4>$1</h4>', $html_content);
+    $content_is_html = !empty($cw_config['content_is_html']) || !empty($cw_config['aipkit_content_is_html']);
+    if ($content_is_html) {
+        $html_content = wp_kses_post($generated_content);
+        if (!preg_match('/<\s*(p|h[1-6]|ul|ol|blockquote|table|figure|img)\b/i', $html_content)) {
+            $html_content = wpautop($html_content);
+        }
+    } else {
+        // --- START: Convert markdown to HTML ---
+        $html_content = $generated_content;
 
-    // Convert inline markdown elements like bold and italic.
-    $html_content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html_content);
-    $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
-    // Convert links: [text](url) -> <a href="url">text</a>
-    $html_content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $html_content);
+        // First, convert markdown block elements like headings
+        $html_content = preg_replace('/^#\s+(.*)$/m', '<h1>$1</h1>', $html_content);
+        $html_content = preg_replace('/^##\s+(.*)$/m', '<h2>$1</h2>', $html_content);
+        $html_content = preg_replace('/^###\s+(.*)$/m', '<h3>$1</h3>', $html_content);
+        $html_content = preg_replace('/^####\s+(.*)$/m', '<h4>$1</h4>', $html_content);
 
-    // --- START FIX: Apply wpautop to create paragraph tags for image injector ---
-    // This is the key fix. It ensures <p> tags exist for the image injector to work with.
-    $html_content = wpautop($html_content);
-    // --- END FIX ---
+        // Convert inline markdown elements like bold and italic.
+        $html_content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html_content);
+        $html_content = preg_replace('/(?<!\*)\*(?!\*|_)(.*?)(?<!\*|_)\*(?!\*)/s', '<em>$1</em>', $html_content);
+        // Convert links: [text](url) -> <a href="url">text</a>
+        $html_content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $html_content);
+
+        // --- START FIX: Apply wpautop to create paragraph tags for image injector ---
+        // This is the key fix. It ensures <p> tags exist for the image injector to work with.
+        $html_content = wpautop($html_content);
+        // --- END FIX ---
+    }
+
+    if (is_array($image_data) && class_exists(AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::class)) {
+        AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::maybe_prepare_rank_math_image_alt($image_data, (string) $focus_keyword);
+    }
 
     // Inject in-content images before ToC generation
     if (!empty($image_data['in_content_images']) && class_exists(AIPKit_Image_Injector::class)) {
@@ -101,9 +125,20 @@ function insert_post_logic(string $final_title, string $generated_content, array
         );
     }
 
-    // Generate ToC after images have been placed
-    if (isset($cw_config['generate_toc']) && $cw_config['generate_toc'] === '1' && class_exists(AIPKit_TOC_Generator::class)) {
-        $toc_result = AIPKit_TOC_Generator::generate($html_content);
+    $rank_math_profile_active = class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
+        && sanitize_key((string) (\WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile()['profile'] ?? '')) === 'rank_math';
+    $content_has_toc = stripos($html_content, 'wp-block-rank-math-toc-block') !== false
+        || stripos($html_content, 'aipkit-toc-list') !== false;
+    $should_generate_toc = !$content_has_toc && (
+        (isset($cw_config['generate_toc']) && $cw_config['generate_toc'] === '1')
+        || ($rank_math_profile_active && isset($cw_config['seo_score_improvement_enabled']) && (string) $cw_config['seo_score_improvement_enabled'] === '1')
+    );
+
+    // Generate ToC after images have been placed.
+    if ($should_generate_toc && class_exists(AIPKit_TOC_Generator::class)) {
+        $toc_result = AIPKit_TOC_Generator::generate($html_content, [
+            'rank_math_compatible' => $rank_math_profile_active,
+        ]);
         if (!empty($toc_result['toc'])) {
             $html_content = $toc_result['toc'] . $toc_result['content'];
         }
@@ -131,6 +166,11 @@ function insert_post_logic(string $final_title, string $generated_content, array
 
     if (!empty($excerpt)) {
         $postarr['post_excerpt'] = $excerpt;
+    }
+
+    $smart_seo_slug = !empty($cw_config['smart_seo_slug']) ? sanitize_title((string) $cw_config['smart_seo_slug']) : '';
+    if ($smart_seo_slug !== '') {
+        $postarr['post_name'] = $smart_seo_slug;
     }
 
     $category_ids = $cw_config['post_categories'] ?? [];
@@ -166,7 +206,7 @@ function insert_post_logic(string $final_title, string $generated_content, array
     }
     
     // --- NEW: Update Slug based on checkbox ---
-    if (isset($cw_config['generate_seo_slug']) && $cw_config['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+    if ($smart_seo_slug === '' && isset($cw_config['generate_seo_slug']) && $cw_config['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
         \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($new_post_id);
     }
     // --- END NEW ---

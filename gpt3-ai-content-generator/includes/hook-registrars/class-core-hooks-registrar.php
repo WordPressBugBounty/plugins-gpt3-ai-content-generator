@@ -65,23 +65,45 @@ class Core_Hooks_Registrar {
     public static function add_custom_cron_schedules($schedules) {
         $schedules['aipkit_five_minutes'] = [
             'interval' => 300, // 5 * 60 seconds
-            'display'  => __('Every 5 Minutes', 'gpt3-ai-content-generator')
+            'display'  => self::get_schedule_display_label('aipkit_five_minutes')
         ];
         $schedules['aipkit_fifteen_minutes'] = [
             'interval' => 900, // 15 * 60 seconds
-            'display'  => __('Every 15 Minutes', 'gpt3-ai-content-generator')
+            'display'  => self::get_schedule_display_label('aipkit_fifteen_minutes')
         ];
         $schedules['aipkit_thirty_minutes'] = [
             'interval' => 1800, // 30 * 60 seconds
-            'display'  => __('Every 30 Minutes', 'gpt3-ai-content-generator')
+            'display'  => self::get_schedule_display_label('aipkit_thirty_minutes')
         ];
         // Ensure weekly is present as some plugins/themes might remove it.
         if (!isset($schedules['weekly'])) {
             $schedules['weekly'] = [
                 'interval' => 604800,
-                'display'  => __('Once Weekly', 'gpt3-ai-content-generator')
+                'display'  => self::get_schedule_display_label('weekly')
             ];
         }
         return $schedules;
+    }
+
+    /**
+     * Cron schedules can be requested before init while WordPress is preparing events.
+     * Avoid triggering just-in-time textdomain loading notices in that early path.
+     */
+    private static function get_schedule_display_label(string $schedule): string
+    {
+        $can_translate = did_action('init');
+
+        switch ($schedule) {
+            case 'aipkit_five_minutes':
+                return $can_translate ? __('Every 5 Minutes', 'gpt3-ai-content-generator') : 'Every 5 Minutes';
+            case 'aipkit_fifteen_minutes':
+                return $can_translate ? __('Every 15 Minutes', 'gpt3-ai-content-generator') : 'Every 15 Minutes';
+            case 'aipkit_thirty_minutes':
+                return $can_translate ? __('Every 30 Minutes', 'gpt3-ai-content-generator') : 'Every 30 Minutes';
+            case 'weekly':
+                return $can_translate ? __('Once Weekly', 'gpt3-ai-content-generator') : 'Once Weekly';
+        }
+
+        return '';
     }
 }

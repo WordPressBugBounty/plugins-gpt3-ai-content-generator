@@ -11,6 +11,7 @@ use WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor;
 use WPAICG\Vector\PostProcessor\Chroma\ChromaPostProcessor;
 use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
 use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_System_Instruction_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_User_Prompt_Builder;
 
@@ -32,6 +33,7 @@ function load_required_classes_logic(): void
         QdrantPostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/qdrant/class-qdrant-post-processor.php',
         ChromaPostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/chroma/class-chroma-post-processor.php',
         AIPKit_AI_Caller::class => WPAICG_PLUGIN_DIR . 'classes/core/class-aipkit_ai_caller.php',
+        AIPKit_Content_Writer_Output_Cleaner::class => WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-output-cleaner.php',
         AIPKit_Content_Writer_System_Instruction_Builder::class => WPAICG_PLUGIN_DIR . 'classes/content-writer/prompt/class-aipkit-content-writer-system-instruction-builder.php',
         AIPKit_Content_Writer_User_Prompt_Builder::class => WPAICG_PLUGIN_DIR . 'classes/content-writer/prompt/class-aipkit-content-writer-user-prompt-builder.php',
     ];

@@ -55,6 +55,8 @@ class AIPKit_Content_Writer_Template_Manager
         'url_list',
         'generate_toc',
         'generate_seo_slug', // NEW: Add generate_seo_slug
+        'seo_score_improvement_enabled', 'seo_score_continue_until_target',
+        'seo_score_target', 'seo_score_max_passes', 'seo_score_profile',
         'generate_images_enabled', 'image_provider', 'image_model', 'image_prompt',
         'image_prompt_update',
         'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description',

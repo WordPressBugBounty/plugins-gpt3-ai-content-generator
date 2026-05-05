@@ -37,6 +37,7 @@ function extract_post_data_logic(): array
     $sanitized['schedule_time'] = isset($raw_data['post_schedule_time']) ? sanitize_text_field($raw_data['post_schedule_time']) : '';
     $sanitized['generate_toc'] = isset($raw_data['generate_toc']) && $raw_data['generate_toc'] === '1' ? '1' : '0';
     $sanitized['generate_seo_slug'] = isset($raw_data['generate_seo_slug']) && $raw_data['generate_seo_slug'] === '1' ? '1' : '0'; // NEW
+    $sanitized['smart_seo_slug'] = isset($raw_data['smart_seo_slug']) ? sanitize_title((string) $raw_data['smart_seo_slug']) : '';
     $sanitized['gsheets_sheet_id'] = isset($raw_data['gsheets_sheet_id']) ? sanitize_text_field($raw_data['gsheets_sheet_id']) : '';
     $sanitized['gsheets_row_index'] = isset($raw_data['gsheets_row_index']) ? absint($raw_data['gsheets_row_index']) : 0;
     $sanitized['gsheets_credentials'] = class_exists(AIPKit_Google_Credentials_Handler::class)

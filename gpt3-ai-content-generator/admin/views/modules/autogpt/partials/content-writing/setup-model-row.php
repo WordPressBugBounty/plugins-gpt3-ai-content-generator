@@ -25,6 +25,7 @@ $aipkit_autogpt_setup_config = [
         'data-aipkit-popover-default-view' => 'root',
         'data-aipkit-popover-active-view' => 'root',
     ],
+    'extra_rows_include' => __DIR__ . '/smart-seo-settings.php',
 ];
 
 include dirname(__DIR__) . '/shared/setup-panel.php';

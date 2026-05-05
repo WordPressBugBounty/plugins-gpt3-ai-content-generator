@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.4.18
+Stable tag: 2.4.19
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,7 +40,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 #### ✍️ AI Content Generator
 - Generate **high-quality articles, blog posts, or product descriptions**.
 - Input ideas via text, CSV, RSS feeds, or URLs.
-- SEO-friendly output with custom templates and placeholders.
+- SEO-friendly output with custom templates, placeholders, and **Smart SEO** score improvement.
 
 #### 📝 AI Forms
 - Drag-and-drop **AI-powered forms** to process user input into useful outputs — from outlines to support replies.
@@ -48,7 +48,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 
 #### ⚙️ AI Automation Engine
 - Schedule recurring or one-time AI tasks.
-- Automate content creation, comment replies, or vector indexing.
+- Automate content creation, Smart SEO improvement, comment replies, or vector indexing.
 
 #### 🎨 AI Image Generator
 - Convert text to image with **OpenAI GPT Image, Google Imagen, and Replicate models**.
@@ -124,6 +124,14 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.19 =
+
+Added Smart SEO for Content Writer and Automated Tasks.
+
+Smart SEO audits generated content against the active SEO plugin and can automatically improve its SEO score.
+
+Learn more: https://docs.aipower.org/content-writer#smart-seo
 
 = 2.4.18 =
 * Improved performance for chatbots using OpenAI Vector Stores.

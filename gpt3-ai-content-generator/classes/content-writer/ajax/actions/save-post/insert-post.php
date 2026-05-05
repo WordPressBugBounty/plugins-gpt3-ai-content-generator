@@ -11,6 +11,7 @@ use WP_Error;
 use WPAICG\Utils\AIPKit_TOC_Generator;
 // --- ADDED: Image Injector Dependency ---
 use WPAICG\ContentWriter\AIPKit_Image_Injector;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper;
 use WPAICG\Images\AIPKit_Image_Storage_Helper;
 
 // --- END ADDED ---
@@ -53,6 +54,12 @@ if (!class_exists(AIPKit_Image_Storage_Helper::class)) {
         require_once $storage_path;
     }
 }
+if (!class_exists(AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::class)) {
+    $image_alt_helper_path = WPAICG_LIB_DIR . 'content-writer/seo/class-aipkit-content-writer-smart-seo-image-alt-helper.php';
+    if (file_exists($image_alt_helper_path)) {
+        require_once $image_alt_helper_path;
+    }
+}
 // --- END ADDED ---
 
 /**
@@ -63,12 +70,23 @@ if (!class_exists(AIPKit_Image_Storage_Helper::class)) {
  * @param array|null $image_data        Optional data for generated images.
  * @param string     $image_alignment   Optional alignment for injected images.
  * @param string     $image_size        Optional display size for injected images.
+ * @param string|null $focus_keyword     Optional focus keyword for SEO-aware image alt fallback.
  * @return int|WP_Error The new post ID or a WP_Error on failure.
  */
-function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $image_data = null, string $image_alignment = 'none', string $image_size = 'large'): int|WP_Error
+function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $image_data = null, string $image_alignment = 'none', string $image_size = 'large', ?string $focus_keyword = null): int|WP_Error
 {
+    if (class_exists(\WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::class)) {
+        $postarr['post_title'] = \WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::clean_title(
+            (string) ($postarr['post_title'] ?? ''),
+            (string) $focus_keyword
+        );
+    }
+
     // --- START: Convert markdown to HTML ---
     $html_content = $postarr['post_content'];
+    if (class_exists(\WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::class)) {
+        $html_content = \WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::clean_article_content((string) $html_content, (string) $focus_keyword);
+    }
 
     // Convert markdown block elements like headings
     $html_content = preg_replace('/^#\s+(.*)$/m', '<h1>$1</h1>', $html_content);
@@ -86,16 +104,26 @@ function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $imag
     $postarr['post_content'] = $html_content;
     // --- END: Convert markdown to HTML ---
 
+    if (is_array($image_data) && class_exists(AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::class)) {
+        AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::maybe_prepare_rank_math_image_alt($image_data, (string) $focus_keyword);
+    }
 
     // --- ADDED: Normalize image data if attachment IDs are missing ---
     if (!empty($image_data['in_content_images']) && class_exists(AIPKit_Image_Storage_Helper::class)) {
         $normalized_images = [];
         foreach ($image_data['in_content_images'] as $image_item) {
+            $image_alt = class_exists(AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::class)
+                ? AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::resolve_image_alt_text($image_item)
+                : '';
             if (empty($image_item['attachment_id'])) {
                 $fallback_url = $image_item['media_library_url'] ?? ($image_item['url'] ?? ($image_item['src'] ?? ($image_item['image_url'] ?? null)));
                 if (!empty($fallback_url)) {
+                    $image_payload = ['url' => $fallback_url];
+                    if ($image_alt !== '') {
+                        $image_payload['alt'] = $image_alt;
+                    }
                     $attachment_id = AIPKit_Image_Storage_Helper::save_image_to_media_library(
-                        ['url' => $fallback_url],
+                        $image_payload,
                         $postarr['post_title'],
                         [],
                         absint($postarr['post_author'])
@@ -104,6 +132,13 @@ function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $imag
                         $image_item['attachment_id'] = $attachment_id;
                         $image_item['media_library_url'] = wp_get_attachment_url($attachment_id);
                     }
+                }
+            }
+            if (!empty($image_item['attachment_id']) && $image_alt !== '') {
+                $attachment_id = absint($image_item['attachment_id']);
+                if ($attachment_id > 0 && trim((string) get_post_meta($attachment_id, '_wp_attachment_image_alt', true)) === '') {
+                    update_post_meta($attachment_id, '_wp_attachment_image_alt', $image_alt);
+                    update_post_meta($attachment_id, '_aipkit_image_alt_text', $image_alt);
                 }
             }
             $normalized_images[] = $image_item;
@@ -138,7 +173,10 @@ function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $imag
 
     // Generate ToC after images have been placed
     if (isset($postarr['generate_toc']) && $postarr['generate_toc'] === '1' && class_exists(AIPKit_TOC_Generator::class)) {
-        $toc_result = AIPKit_TOC_Generator::generate($postarr['post_content']);
+        $toc_result = AIPKit_TOC_Generator::generate($postarr['post_content'], [
+            'rank_math_compatible' => class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
+                && sanitize_key((string) (\WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile()['profile'] ?? '')) === 'rank_math',
+        ]);
         if (!empty($toc_result['toc'])) {
             // Prepend ToC to the modified content
             $postarr['post_content'] = $toc_result['toc'] . $toc_result['content'];

@@ -40,7 +40,9 @@ if (file_exists($vector_logic_base_path . 'fn-build-vector-search-context.php'))
 function build_content_prompts_logic(array $cw_config): array
 {
     // System instruction is now simpler as it doesn't need to reference guided fields.
-    $system_instruction = "You are an expert content writer specializing in creating high-quality, engaging content.";
+    $system_instruction = class_exists(AIPKit_Content_Writer_System_Instruction_Builder::class)
+        ? AIPKit_Content_Writer_System_Instruction_Builder::build($cw_config)
+        : "You are an expert content writer specializing in creating high-quality WordPress article content. Return only the final article body. Do not include chat-style follow-up questions, offers to rewrite or convert the article, alternative format suggestions, or assistant commentary outside the article.";
     $final_title = $cw_config['content_title'] ?? 'AI Generated Content';
     $final_keywords = !empty($cw_config['inline_keywords']) ? $cw_config['inline_keywords'] : ($cw_config['content_keywords'] ?? '');
 

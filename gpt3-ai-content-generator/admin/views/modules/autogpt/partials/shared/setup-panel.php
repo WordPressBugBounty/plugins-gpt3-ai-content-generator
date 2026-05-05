@@ -54,6 +54,9 @@ $aipkit_autogpt_setup_prompt_track_title = !empty($aipkit_autogpt_setup_config['
 $aipkit_autogpt_setup_prompt_root_attrs = isset($aipkit_autogpt_setup_config['prompt_root_attrs']) && is_array($aipkit_autogpt_setup_config['prompt_root_attrs'])
     ? $aipkit_autogpt_setup_config['prompt_root_attrs']
     : [];
+$aipkit_autogpt_setup_extra_rows_include = isset($aipkit_autogpt_setup_config['extra_rows_include'])
+    ? (string) $aipkit_autogpt_setup_config['extra_rows_include']
+    : '';
 $aipkit_autogpt_setup_has_length = !empty($aipkit_autogpt_setup_config['has_length']);
 $aipkit_autogpt_setup_has_max_tokens = !empty($aipkit_autogpt_setup_config['has_max_tokens']);
 $aipkit_autogpt_setup_default_max_tokens = isset($aipkit_autogpt_setup_config['default_max_tokens'])
@@ -219,6 +222,10 @@ $aipkit_autogpt_setup_content_max_tokens_id = $aipkit_autogpt_setup_base . '_con
             </button>
         </div>
     </div>
+
+    <?php if ($aipkit_autogpt_setup_extra_rows_include !== '' && file_exists($aipkit_autogpt_setup_extra_rows_include)) : ?>
+        <?php include $aipkit_autogpt_setup_extra_rows_include; ?>
+    <?php endif; ?>
 </div>
 
 <div

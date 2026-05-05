@@ -413,6 +413,18 @@ class AIPKit_Content_Writer_Image_Handler
             if ($featured_id > 0) {
                 $featured_item = ['attachment_id' => $featured_id];
                 $process_attachment($featured_id, $featured_item);
+                if (!empty($featured_item['alt'])) {
+                    $image_data['featured_image_alt'] = $featured_item['alt'];
+                }
+                if (!empty($featured_item['title'])) {
+                    $image_data['featured_image_title'] = $featured_item['title'];
+                }
+                if (!empty($featured_item['caption'])) {
+                    $image_data['featured_image_caption'] = $featured_item['caption'];
+                }
+                if (!empty($featured_item['description'])) {
+                    $image_data['featured_image_description'] = $featured_item['description'];
+                }
             }
         }
     }

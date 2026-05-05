@@ -8,6 +8,7 @@ namespace WPAICG\ContentWriter\Ajax\Actions;
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Base_Ajax_Action;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Meta_Prompt_Builder;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -111,7 +112,7 @@ class AIPKit_Content_Writer_Generate_Meta_Action extends AIPKit_Content_Writer_B
             return;
         }
 
-        $meta_description = !empty($meta_result['content']) ? trim(str_replace(['"', "'"], '', $meta_result['content'])) : null;
+        $meta_description = !empty($meta_result['content']) ? AIPKit_Content_Writer_Output_Cleaner::clean_meta_description((string) $meta_result['content']) : null;
         if (empty($meta_description)) {
             $this->send_wp_error(new WP_Error('meta_gen_empty', 'AI did not return a valid meta description.', ['status' => 500]));
             return;

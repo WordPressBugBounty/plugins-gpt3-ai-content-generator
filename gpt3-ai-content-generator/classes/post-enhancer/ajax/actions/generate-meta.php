@@ -20,7 +20,7 @@ class AIPKit_PostEnhancer_Generate_Meta extends AIPKit_Post_Enhancer_Base_Ajax_A
         $original_title = trim($post->post_title);
         $post_content_snippet = get_post_content_snippet_logic($post, 800);
 
-        $prompt_template = 'Generate exactly 5 concise and SEO-friendly meta description suggestions (under 160 characters each) for a web page based on the provided information.' . "\n" .
+        $prompt_template = 'Generate exactly 5 concise and SEO-friendly meta description suggestions (under 156 characters each) for a web page based on the provided information.' . "\n" .
                            'Return ONLY the 5 meta descriptions, each on a new line.' . "\n" .
                            'Do NOT include any introduction, explanation, numbering, markdown formatting (like **), or surrounding quotes.' . "\n\n" .
                            'Page title: "{title}"' . "\n" .

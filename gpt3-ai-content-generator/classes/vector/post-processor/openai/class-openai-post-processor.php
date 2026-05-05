@@ -109,13 +109,15 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
         $strategy->connect($openai_config); // Connect strategy with fetched config
 
         $old_file_id_meta_key = '_aipkit_openai_file_id_for_vs_' . sanitize_key($vector_store_id);
-        $old_file_id = get_post_meta($post_id, $old_file_id_meta_key, true);
-        
-        // Always delete old file if it exists to allow re-indexing (consistent with Pinecone/Qdrant behavior)
-        if (!empty($old_file_id)) {
-            $delete_file_result = $strategy->delete_openai_file_object($old_file_id);
-            // Always remove the meta data regardless of delete result
+        $old_file_ids = $this->get_existing_file_ids_for_post($post_id, $vector_store_id, $old_file_id_meta_key);
+
+        if (!empty($old_file_ids)) {
+            $delete_existing_result = $this->delete_existing_openai_files($old_file_ids, $vector_store_id, $openai_config, $strategy);
+            if (is_wp_error($delete_existing_result)) {
+                return $return_error('Existing file cleanup error: ' . $delete_existing_result->get_error_message());
+            }
             delete_post_meta($post_id, $old_file_id_meta_key);
+            $this->delete_existing_log_entries_for_post($post_id, $vector_store_id, $old_file_ids);
         }
 
         $content_string_or_error = $this->get_post_content_as_string($post_id);
@@ -153,5 +155,156 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
         update_post_meta($post_id, '_aipkit_indexed_to_vs_' . sanitize_key($vector_store_id), '1');
 
         return ['status' => 'success', 'message' => 'Submitted to batch.', 'file_id' => $uploaded_file_id, 'batch_id' => $batch_id];
+    }
+
+    /**
+     * Gets every known OpenAI file ID for a post/store pair.
+     *
+     * Meta is the fast path, while the data-source table lets incremental indexing
+     * replace files that were created by older or alternate indexing paths.
+     *
+     * @param int $post_id WordPress post ID.
+     * @param string $vector_store_id OpenAI vector store ID.
+     * @param string $meta_key Post meta key that stores the current OpenAI file ID.
+     * @return string[]
+     */
+    private function get_existing_file_ids_for_post(int $post_id, string $vector_store_id, string $meta_key): array
+    {
+        global $wpdb;
+
+        $file_ids = [];
+        $meta_file_id = get_post_meta($post_id, $meta_key, true);
+        if (is_string($meta_file_id) && trim($meta_file_id) !== '') {
+            $file_ids[] = trim($meta_file_id);
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table lookup for replacing prior OpenAI source files.
+        $logged_file_ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT file_id
+                 FROM {$this->data_source_table_name}
+                 WHERE provider = %s
+                   AND vector_store_id = %s
+                   AND post_id = %d
+                   AND status = %s
+                   AND file_id IS NOT NULL
+                   AND file_id <> ''
+                 ORDER BY id DESC",
+                'OpenAI',
+                $vector_store_id,
+                $post_id,
+                'indexed'
+            )
+        );
+
+        if (is_array($logged_file_ids)) {
+            foreach ($logged_file_ids as $logged_file_id) {
+                if (is_string($logged_file_id) && trim($logged_file_id) !== '') {
+                    $file_ids[] = trim($logged_file_id);
+                }
+            }
+        }
+
+        return array_values(array_unique($file_ids));
+    }
+
+    /**
+     * Detaches and deletes prior OpenAI files before replacement.
+     *
+     * @param string[] $file_ids OpenAI file IDs.
+     * @param string $vector_store_id OpenAI vector store ID.
+     * @param array $openai_config Provider config.
+     * @param object $strategy Connected OpenAI vector provider strategy.
+     * @return true|WP_Error
+     */
+    private function delete_existing_openai_files(array $file_ids, string $vector_store_id, array $openai_config, object $strategy): bool|WP_Error
+    {
+        $cleanup_errors = [];
+
+        foreach ($file_ids as $file_id) {
+            if (!is_string($file_id) || trim($file_id) === '') {
+                continue;
+            }
+
+            $file_id = trim($file_id);
+            $detached = false;
+            $deleted = false;
+            $detach_result = $this->vector_store_manager->delete_vectors('OpenAI', $vector_store_id, [$file_id], $openai_config);
+            if ($detach_result === true || $this->is_not_found_error($detach_result)) {
+                $detached = true;
+            }
+
+            $delete_file_result = method_exists($strategy, 'delete_openai_file_object')
+                ? $strategy->delete_openai_file_object($file_id)
+                : new WP_Error('openai_delete_file_unavailable', __('OpenAI file delete method is unavailable.', 'gpt3-ai-content-generator'));
+
+            if ($delete_file_result === true || $this->is_not_found_error($delete_file_result)) {
+                $deleted = true;
+            }
+
+            if (!$detached && !$deleted) {
+                $error_messages = [];
+                if (is_wp_error($detach_result)) {
+                    $error_messages[] = $detach_result->get_error_message();
+                }
+                if (is_wp_error($delete_file_result)) {
+                    $error_messages[] = $delete_file_result->get_error_message();
+                }
+                $cleanup_errors[] = $file_id . ': ' . implode(' | ', array_unique($error_messages));
+            }
+        }
+
+        if (!empty($cleanup_errors)) {
+            return new WP_Error(
+                'openai_existing_file_cleanup_failed',
+                implode('; ', $cleanup_errors)
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Removes superseded local source rows so the source table reflects current files.
+     *
+     * @param int $post_id WordPress post ID.
+     * @param string $vector_store_id OpenAI vector store ID.
+     * @param string[] $file_ids Replaced OpenAI file IDs.
+     */
+    private function delete_existing_log_entries_for_post(int $post_id, string $vector_store_id, array $file_ids): void
+    {
+        global $wpdb;
+
+        $file_ids = array_values(array_filter(array_map('trim', $file_ids)));
+        if (empty($file_ids)) {
+            return;
+        }
+
+        $file_placeholders = implode(',', array_fill(0, count($file_ids), '%s'));
+        $query_args = array_merge(['OpenAI', $vector_store_id, $post_id, 'indexed'], $file_ids);
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Custom table cleanup for superseded OpenAI source rows.
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$this->data_source_table_name}
+                 WHERE provider = %s
+                   AND vector_store_id = %s
+                   AND post_id = %d
+                   AND status = %s
+                   AND file_id IN ({$file_placeholders})",
+                ...$query_args
+            )
+        );
+    }
+
+    /**
+     * Treat already-removed remote files as a successful cleanup.
+     *
+     * @param mixed $result Result from an OpenAI cleanup call.
+     * @return bool
+     */
+    private function is_not_found_error($result): bool
+    {
+        return is_wp_error($result) && strpos($result->get_error_message(), '(404)') !== false;
     }
 }

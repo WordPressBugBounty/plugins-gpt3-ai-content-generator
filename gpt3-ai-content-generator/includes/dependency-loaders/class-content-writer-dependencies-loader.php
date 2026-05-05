@@ -17,7 +17,9 @@ class Content_Writer_Dependencies_Loader
         $content_writer_base_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/';
         $files_to_load = [
             $content_writer_base_path . 'ajax/class-aipkit-content-writer-base-ajax-action.php',
+            $content_writer_base_path . 'seo/class-aipkit-content-writer-seo-config.php',
             $content_writer_base_path . 'class-aipkit-content-writer-prompts.php',
+            $content_writer_base_path . 'class-aipkit-content-writer-output-cleaner.php',
             $content_writer_base_path . 'class-aipkit-content-writer-prompt-library-manager.php',
             $content_writer_base_path . 'class-aipkit-content-writer-template-manager.php',
             $content_writer_base_path . 'ajax/class-aipkit-content-writer-template-ajax-handler.php',

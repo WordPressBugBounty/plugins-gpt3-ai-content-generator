@@ -8,10 +8,18 @@ namespace WPAICG\ContentWriter\Ajax\Actions;
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Base_Ajax_Action;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver;
 use WP_Error;
+use function WPAICG\ContentWriter\Ajax\Actions\Shared\load_smart_seo_keyword_resolver_logic;
+use function WPAICG\ContentWriter\Ajax\Actions\Shared\smart_seo_keyword_resolution_response_fields_logic;
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+$smart_seo_keyword_helper_path = __DIR__ . '/shared/resolve-smart-seo-keywords.php';
+if (file_exists($smart_seo_keyword_helper_path)) {
+    require_once $smart_seo_keyword_helper_path;
 }
 
 /**
@@ -116,6 +124,46 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
             $this->send_wp_error(new WP_Error('keyword_gen_empty', 'AI did not return a valid focus keyword.', ['status' => 500]));
             return;
         }
+
+        $keyword_usage = $keyword_result['usage'] ?? null;
+        $smart_seo_keyword_resolution = [];
+        load_smart_seo_keyword_resolver_logic();
+        if (class_exists(AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver::class) && $this->get_ai_caller()) {
+            $smart_seo_config = [
+                'seo_score_improvement_enabled' => isset($_POST['seo_score_improvement_enabled'])
+                    ? sanitize_text_field(wp_unslash($_POST['seo_score_improvement_enabled']))
+                    : '0',
+                'seo_score_continue_until_target' => '1',
+                'seo_score_target' => '100',
+                'seo_score_max_passes' => '3',
+                'seo_score_profile' => 'auto',
+                'ai_provider' => $provider,
+                'ai_model' => $model,
+                'content_title' => $final_title,
+            ];
+            $keyword_resolver = new AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver();
+            $keyword_resolution = $keyword_resolver->maybe_resolve_keyword(
+                $focus_keyword,
+                $smart_seo_config,
+                $this->get_ai_caller(),
+                [
+                    'ai_provider' => $provider,
+                    'ai_model' => $model,
+                    'topic' => $final_title,
+                    'title' => $final_title,
+                    'content_summary' => $content_summary,
+                ]
+            );
+
+            if (!empty($keyword_resolution['changed'])) {
+                $focus_keyword = (string) $keyword_resolution['keyword'];
+                $keyword_usage = $this->merge_keyword_usage($keyword_usage, $keyword_resolution['usage'] ?? null);
+                $keyword_resolution['source'] = 'generated';
+                $keyword_resolution['resolved_content_title'] = $final_title;
+                $smart_seo_keyword_resolution = $keyword_resolution;
+            }
+        }
+
         // Log using the same approach as title step
         // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_text_field(wp_unslash($_POST['conversation_uuid'])) : '';
@@ -155,7 +203,7 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
             $botLog = array_merge($base, [
                 'message_role' => 'bot',
                 'message_content' => $focus_keyword,
-                'usage' => $keyword_result['usage'] ?? null,
+                'usage' => $keyword_usage,
                 'request_payload' => [
                     'provider' => $provider,
                     'model' => $model,
@@ -172,10 +220,33 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
             $this->log_storage->log_message($botLog);
         }
 
-        wp_send_json_success([
+        wp_send_json_success(array_merge([
             'focus_keyword' => $focus_keyword,
-            'usage' => $keyword_result['usage'] ?? null,
+            'usage' => $keyword_usage,
             'conversation_uuid' => $conversation_uuid,
-        ]);
+        ], smart_seo_keyword_resolution_response_fields_logic($smart_seo_keyword_resolution)));
+    }
+
+    private function merge_keyword_usage(mixed $primary_usage, mixed $secondary_usage): mixed
+    {
+        if (!is_array($secondary_usage)) {
+            return $primary_usage;
+        }
+
+        if (!is_array($primary_usage)) {
+            return $secondary_usage;
+        }
+
+        $merged = $primary_usage;
+        $merged['input_tokens'] = (int) ($primary_usage['input_tokens'] ?? 0) + (int) ($secondary_usage['input_tokens'] ?? 0);
+        $merged['output_tokens'] = (int) ($primary_usage['output_tokens'] ?? 0) + (int) ($secondary_usage['output_tokens'] ?? 0);
+        $merged['total_tokens'] = (int) ($primary_usage['total_tokens'] ?? 0) + (int) ($secondary_usage['total_tokens'] ?? 0);
+
+        if (isset($secondary_usage['provider_raw'])) {
+            $primary_provider_raw = isset($primary_usage['provider_raw']) ? $primary_usage['provider_raw'] : [];
+            $merged['provider_raw'] = [$primary_provider_raw, $secondary_usage['provider_raw']];
+        }
+
+        return $merged;
     }
 }

@@ -73,6 +73,11 @@ class AIPKit_Content_Writer_Prepare_Batch_Action extends AIPKit_Content_Writer_B
         $task_status = isset($raw_settings['task_status']) ? sanitize_key($raw_settings['task_status']) : 'active';
 
         $task_config = CreateTask\build_content_writer_config_logic($raw_settings, $task_frequency, $task_status);
+        if (is_wp_error($task_config)) {
+            $this->send_wp_error($task_config);
+            return;
+        }
+
         $validation = CreateTask\validate_task_requirements_logic($task_config);
         if (is_wp_error($validation)) {
             $this->send_wp_error($validation);

@@ -38,7 +38,7 @@ Focus keyword: {original_focus_keyword}
 
 Original Content:
 {original_content}', 'gpt3-ai-content-generator'),
-            'meta' => __('Generate a single, concise, and SEO-friendly meta description (under 155 characters) for a web page based on the provided information. The description must:
+            'meta' => __('Generate a single, concise, and SEO-friendly meta description (120-156 characters) for a web page based on the provided information. The description must:
 - Begin with or include the focus keyword near the start
 - Use an active voice
 - Include a clear call-to-action

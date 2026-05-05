@@ -54,6 +54,7 @@ $content_length_options = [
                 </div>
             </div>
             <?php include __DIR__ . '/form-inputs/publishing-settings.php'; ?>
+            <?php include __DIR__ . '/form-inputs/seo-settings.php'; ?>
             <?php include __DIR__ . '/form-inputs/prompts-settings.php'; ?>
         </div>
     </section>

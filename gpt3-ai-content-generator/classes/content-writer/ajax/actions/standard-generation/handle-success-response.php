@@ -13,9 +13,13 @@ use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder; // ADDED
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Handler; // Added for images
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver;
 use WP_Error;
 use WPAICG\Chat\Storage\LogStorage;
 use WPAICG\Core\AIPKit_Event_Webhooks;
+use function WPAICG\ContentWriter\Ajax\Actions\Shared\load_smart_seo_keyword_resolver_logic;
+use function WPAICG\ContentWriter\Ajax\Actions\Shared\smart_seo_keyword_resolution_response_fields_logic;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -36,12 +40,20 @@ if (!defined('ABSPATH')) {
 function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation_Action $handler, array $result, array $validated_params, string $conversation_uuid): void
 {
     $content = $result['content'] ?? '';
+    if (class_exists(AIPKit_Content_Writer_Output_Cleaner::class)) {
+        $initial_keywords = !empty($validated_params['inline_keywords']) ? $validated_params['inline_keywords'] : ($validated_params['content_keywords'] ?? '');
+        $initial_focus_keyword = trim((string) explode(',', (string) $initial_keywords)[0]);
+        $content = AIPKit_Content_Writer_Output_Cleaner::clean_article_content((string) $content, $initial_focus_keyword);
+    }
     $usage = $result['usage'] ?? null;
     $request_payload_log = $result['request_payload_log'] ?? null;
     $meta_description = null;
     $focus_keyword = null;
     $excerpt = null;
     $tags = null;
+    $smart_seo_keyword_resolution = isset($validated_params['smart_seo_keyword_resolution']) && is_array($validated_params['smart_seo_keyword_resolution'])
+        ? $validated_params['smart_seo_keyword_resolution']
+        : [];
 
     // Log main content generation
     if ($handler->log_storage) {
@@ -86,6 +98,31 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
         if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
             $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
             $keywords_for_prompts = $focus_keyword; // Use this new keyword for other SEO prompts
+            $keyword_usage = $keyword_result['usage'] ?? null;
+            load_smart_seo_keyword_resolver_logic();
+            if (class_exists(AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver::class) && $handler->get_ai_caller()) {
+                $keyword_resolver = new AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver();
+                $keyword_resolution = $keyword_resolver->maybe_resolve_keyword(
+                    $focus_keyword,
+                    $validated_params,
+                    $handler->get_ai_caller(),
+                    [
+                        'ai_provider' => $validated_params['provider'] ?? '',
+                        'ai_model' => $validated_params['model'] ?? '',
+                        'topic' => $validated_params['content_title'] ?? '',
+                        'title' => $final_title,
+                        'content_summary' => $content_summary_for_kw,
+                    ]
+                );
+                if (!empty($keyword_resolution['changed'])) {
+                    $focus_keyword = (string) $keyword_resolution['keyword'];
+                    $keywords_for_prompts = $focus_keyword;
+                    $keyword_usage = merge_keyword_usage_logic($keyword_usage, $keyword_resolution['usage'] ?? null);
+                    $keyword_resolution['source'] = 'generated';
+                    $keyword_resolution['resolved_content_title'] = $final_title;
+                    $smart_seo_keyword_resolution = $keyword_resolution;
+                }
+            }
             // Log keyword step
             if ($handler->log_storage) {
                 $base = [
@@ -112,7 +149,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
                 $handler->log_storage->log_message(array_merge($base, [
                     'message_role' => 'bot',
                     'message_content' => $focus_keyword,
-                    'usage' => $keyword_result['usage'] ?? null,
+                    'usage' => $keyword_usage,
                     'request_payload' => [
                         'payload_sent' => [
                             'messages' => [['role' => 'user', 'content' => $keyword_user_prompt]],
@@ -224,7 +261,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
         $meta_ai_params = ['temperature' => 1, 'top_p' => null];
         $meta_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $meta_user_prompt]], $meta_ai_params);
         if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
-            $meta_description = trim(str_replace(['"', "'"], '', $meta_result['content']));
+            $meta_description = AIPKit_Content_Writer_Output_Cleaner::clean_meta_description((string) $meta_result['content']);
             if ($handler->log_storage) {
                 $base = [
                     'bot_id' => null,
@@ -317,7 +354,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
         );
     }
 
-    wp_send_json_success([
+    wp_send_json_success(array_merge([
         'content' => $content,
         'usage' => $usage,
         'meta_description' => $meta_description,
@@ -326,5 +363,28 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
     'tags' => $tags,
     'conversation_uuid' => $conversation_uuid,
         'image_data' => null // Non-streaming doesn't generate images for now.
-    ]);
+    ], smart_seo_keyword_resolution_response_fields_logic($smart_seo_keyword_resolution)));
+}
+
+function merge_keyword_usage_logic(mixed $primary_usage, mixed $secondary_usage): mixed
+{
+    if (!is_array($secondary_usage)) {
+        return $primary_usage;
+    }
+
+    if (!is_array($primary_usage)) {
+        return $secondary_usage;
+    }
+
+    $merged = $primary_usage;
+    $merged['input_tokens'] = (int) ($primary_usage['input_tokens'] ?? 0) + (int) ($secondary_usage['input_tokens'] ?? 0);
+    $merged['output_tokens'] = (int) ($primary_usage['output_tokens'] ?? 0) + (int) ($secondary_usage['output_tokens'] ?? 0);
+    $merged['total_tokens'] = (int) ($primary_usage['total_tokens'] ?? 0) + (int) ($secondary_usage['total_tokens'] ?? 0);
+
+    if (isset($secondary_usage['provider_raw'])) {
+        $primary_provider_raw = isset($primary_usage['provider_raw']) ? $primary_usage['provider_raw'] : [];
+        $merged['provider_raw'] = [$primary_provider_raw, $secondary_usage['provider_raw']];
+    }
+
+    return $merged;
 }

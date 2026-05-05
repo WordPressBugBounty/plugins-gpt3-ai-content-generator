@@ -24,7 +24,7 @@ class AIPKit_Content_Writer_System_Instruction_Builder
      */
     public static function build(array $settings): string
     {
-        $instruction = "You are an expert content writer specializing in creating high-quality, engaging content.";
+        $instruction = "You are an expert content writer specializing in creating high-quality WordPress article content. Return only the final article body. Do not include chat-style follow-up questions, offers to rewrite or convert the article, alternative format suggestions, or assistant commentary outside the article.";
         return trim($instruction);
     }
 }

@@ -378,6 +378,7 @@ class AIPKit_Content_Writer_Prompts
     {
         return __('You are an expert SEO copywriter. Write a powerful and engaging SEO title that:
 - Starts with the main focus keyword
+- Uses normal title capitalization when the focus keyword starts the title
 - Stays concise and fits typical search-result length (about 8-12 words)
 - Includes at least one power word (e.g., Stunning, Must-Have, Exclusive)
 - Includes a positive or negative sentiment word (e.g., Best, Effortless, Affordable)
@@ -396,10 +397,14 @@ Keywords: "{keywords}"', 'gpt3-ai-content-generator');
         return __('Write a full article based on the topic and keywords below. The article must:
 - Be at least 600 words long
 - Include the focus keyword in one or more subheadings (H2, H3, etc.)
-- Start the first paragraph with the focus keyword
+- Begin with an introductory paragraph, not a heading, image, table of contents, or repeated title
+- Start that first paragraph with the focus keyword when it reads naturally
+- Use normal sentence capitalization when the focus keyword starts a sentence
 - Be informative, structured, and engaging
 - Use natural tone and clear formatting
 - Avoid repeating the title in the content
+- Return only the final article body
+- Do not include chat-style follow-up questions, offers to rewrite the article, or alternative format suggestions
 
 Topic: "{topic}"
 Keywords: "{keywords}"', 'gpt3-ai-content-generator');
@@ -410,7 +415,7 @@ Keywords: "{keywords}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_meta_prompt(): string
     {
-        return __('Write a meta description (under 155 characters) for a page about the following topic. The description must:
+        return __('Write a meta description (120-156 characters) for a page about the following topic. The description must:
 - Begin with or include the focus keyword early
 - Use active voice and a clear call-to-action
 - Be concise and engaging
@@ -905,7 +910,7 @@ Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
 The meta description must:
 - Accurately summarize the article content
 - Naturally incorporate relevant keywords without stuffing
-- Be under 160 characters
+- Be 120-156 characters
 - Match informational search intent
 - Sound natural, clear, and human-written
 - Avoid quotation marks, emojis, or promotional hype
@@ -922,7 +927,7 @@ The meta description must:
 - Encourage clicks by clearly communicating value
 - Reflect what the reader will gain from the article
 - Use keywords naturally where appropriate
-- Stay under 160 characters
+- Stay within 120-156 characters
 - Avoid clickbait, exaggeration, or misleading claims
 Return ONLY the meta description text on a single line with no extra text or annotations.
 
@@ -938,7 +943,7 @@ The meta description must:
 - Answer the implied "what is / how / why" intent
 - Integrate keywords naturally
 - Be concise, neutral, and accurate
-- Remain under 160 characters
+- Remain within 120-156 characters
 Return ONLY the meta description text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
@@ -953,7 +958,7 @@ The meta description must:
 - Stay truthful to the article’s actual content
 - Use keywords naturally
 - Be clear, specific, and concise
-- Stay under 160 characters
+- Stay within 120-156 characters
 Return ONLY the meta description text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
@@ -968,7 +973,7 @@ The meta description must:
 - Reflect the article’s core topic accurately
 - Use keywords only where relevant
 - Avoid being vague or misleading
-- Remain under 160 characters
+- Remain within 120-156 characters
 Return ONLY the meta description text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
@@ -983,7 +988,7 @@ The meta description must:
 - Avoid marketing or sales language
 - Accurately reflect the article’s scope
 - Use keywords naturally
-- Stay under 160 characters
+- Stay within 120-156 characters
 Return ONLY the meta description text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
@@ -998,7 +1003,7 @@ The meta description must:
 - Explain what the article helps the reader understand
 - Avoid jargon or technical phrasing
 - Use keywords naturally
-- Remain under 160 characters
+- Remain within 120-156 characters
 Return ONLY the meta description text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
@@ -1028,7 +1033,7 @@ The meta description must:
 - Hint at a clear solution provided by the article
 - Stay accurate to the content summary
 - Use keywords naturally
-- Remain under 160 characters
+- Remain within 120-156 characters
 Return ONLY the meta description text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
@@ -1043,7 +1048,7 @@ The meta description must:
 - Clearly communicate what the article is about
 - Use keywords naturally
 - Sound neutral and professional
-- Stay under 160 characters
+- Stay within 120-156 characters
 Return ONLY the meta description text on a single line with no extra text or annotations.
 
 Topic: "{topic}"

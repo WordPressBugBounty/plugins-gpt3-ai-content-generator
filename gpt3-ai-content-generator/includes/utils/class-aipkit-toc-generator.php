@@ -23,9 +23,10 @@ class AIPKit_TOC_Generator
      * Generates a ToC and modifies the content with heading IDs.
      *
      * @param string $html_content The HTML content to parse.
+     * @param array  $options Optional generation flags.
      * @return array An associative array containing ['toc' => string, 'content' => string].
      */
-    public static function generate(string $html_content): array
+    public static function generate(string $html_content, array $options = []): array
     {
         if (empty(trim($html_content))) {
             return ['toc' => '', 'content' => $html_content];
@@ -73,8 +74,12 @@ class AIPKit_TOC_Generator
             ];
         }
 
-        // Build the ToC HTML
-        $toc_html = '<ul class="aipkit-toc-list">';
+        // Build the ToC HTML.
+        $toc_classes = ['aipkit-toc'];
+        if (!empty($options['rank_math_compatible'])) {
+            $toc_classes[] = 'wp-block-rank-math-toc-block';
+        }
+        $toc_html = '<nav class="' . esc_attr(implode(' ', $toc_classes)) . '" aria-label="' . esc_attr__('Table of contents', 'gpt3-ai-content-generator') . '"><ul class="aipkit-toc-list">';
         foreach ($toc_items as $item) {
             // Simple list for now, could be hierarchical later if needed
             $toc_html .= sprintf(
@@ -84,7 +89,7 @@ class AIPKit_TOC_Generator
                 esc_html($item['text'])
             );
         }
-        $toc_html .= '</ul>';
+        $toc_html .= '</ul></nav>';
 
         // Get the modified HTML content
         $modified_content = $dom->saveHTML();

@@ -6,6 +6,7 @@
 namespace WPAICG\ContentWriter\Ajax\Actions\Shared;
 
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Base_Ajax_Action;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WPAICG\AIPKit_Providers;
 use WP_Error;
 
@@ -26,6 +27,14 @@ function validate_and_normalize_input_logic(AIPKit_Content_Writer_Base_Ajax_Acti
     $permission_check = $handler->check_module_access_permissions('content-writer', 'aipkit_content_writer_nonce');
     if (is_wp_error($permission_check)) {
         return $permission_check;
+    }
+
+    if (class_exists(AIPKit_Content_Writer_SEO_Config::class)) {
+        $seo_permission_check = AIPKit_Content_Writer_SEO_Config::require_pro_for_improvement($settings);
+        if (is_wp_error($seo_permission_check)) {
+            return $seo_permission_check;
+        }
+        $settings = AIPKit_Content_Writer_SEO_Config::normalize($settings);
     }
 
     $content_title_raw = isset($settings['content_title']) ? sanitize_text_field(wp_unslash($settings['content_title'])) : '';

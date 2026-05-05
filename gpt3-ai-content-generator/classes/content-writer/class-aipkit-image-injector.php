@@ -251,7 +251,10 @@ class AIPKit_Image_Injector
             if (empty($fallback_url)) {
                 return '';
             }
-            $fallback_alt = $image_item['alt'] ?? ($image_item['revised_prompt'] ?? 'Image');
+            $fallback_alt = $this->get_image_item_alt($image_item);
+            if ($fallback_alt === '') {
+                $fallback_alt = $image_item['revised_prompt'] ?? 'Image';
+            }
             $class_list = [];
             if (in_array($alignment, ['left', 'right', 'center', 'none'], true)) {
                 $class_list[] = 'align' . $alignment;
@@ -270,7 +273,8 @@ class AIPKit_Image_Injector
 
         $attachment_id = absint($image_item['attachment_id']);
         $stored_alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
-        $fallback_alt = $image_item['revised_prompt'] ?? get_the_title($attachment_id) ?: 'Image';
+        $item_alt = $this->get_image_item_alt($image_item);
+        $fallback_alt = $item_alt !== '' ? $item_alt : ($image_item['revised_prompt'] ?? get_the_title($attachment_id) ?: 'Image');
         $alt_text = esc_attr($stored_alt ?: $fallback_alt);
 
         // Get image data (URL, width, height) for the specified size from WordPress
@@ -325,5 +329,16 @@ class AIPKit_Image_Injector
             $width_attr,
             $height_attr
         );
+    }
+
+    private function get_image_item_alt(array $image_item): string
+    {
+        foreach (['alt', 'alt_text', 'generated_alt_text', 'image_alt', 'seo_alt'] as $key) {
+            if (!empty($image_item[$key]) && is_scalar($image_item[$key])) {
+                return trim(wp_strip_all_tags((string) $image_item[$key]));
+            }
+        }
+
+        return '';
     }
 }

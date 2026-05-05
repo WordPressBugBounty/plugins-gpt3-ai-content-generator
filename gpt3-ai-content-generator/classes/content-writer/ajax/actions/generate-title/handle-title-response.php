@@ -7,6 +7,7 @@ namespace WPAICG\ContentWriter\Ajax\Actions\GenerateTitle;
 
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Title_Action;
 use WP_Error;
+use function WPAICG\ContentWriter\Ajax\Actions\Shared\smart_seo_keyword_resolution_response_fields_logic;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -44,6 +45,17 @@ function handle_title_response_logic(
     }
     $generated_title = trim(str_replace(["\n", "\r"], ' ', $generated_title));
     $generated_title = preg_replace('/\s+/', ' ', $generated_title);
+    $focus_keyword_for_title = '';
+    foreach (['inline_keywords', 'content_keywords'] as $keyword_key) {
+        if (!empty($validated_params[$keyword_key])) {
+            $keyword_parts = array_map('trim', explode(',', (string) $validated_params[$keyword_key]));
+            $focus_keyword_for_title = (string) ($keyword_parts[0] ?? '');
+            break;
+        }
+    }
+    if (class_exists(\WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::class)) {
+        $generated_title = \WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::clean_title($generated_title, $focus_keyword_for_title);
+    }
 
     if (empty($generated_title)) {
         $handler->send_wp_error(new WP_Error('title_gen_empty', __('AI did not return a valid title.', 'gpt3-ai-content-generator')), 500);
@@ -108,9 +120,13 @@ function handle_title_response_logic(
         $handler->log_storage->log_message($botLog);
     }
 
-    wp_send_json_success([
+    $smart_seo_keyword_resolution = isset($validated_params['smart_seo_keyword_resolution']) && is_array($validated_params['smart_seo_keyword_resolution'])
+        ? $validated_params['smart_seo_keyword_resolution']
+        : [];
+
+    wp_send_json_success(array_merge([
         'new_title' => $generated_title,
         'usage' => $result['usage'] ?? null,
         'conversation_uuid' => $conversation_uuid,
-    ]);
+    ], smart_seo_keyword_resolution_response_fields_logic($smart_seo_keyword_resolution)));
 }

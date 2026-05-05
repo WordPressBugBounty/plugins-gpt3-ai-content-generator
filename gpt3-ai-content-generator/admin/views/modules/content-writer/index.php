@@ -18,6 +18,16 @@ require_once __DIR__ . '/partials/form-inputs/loader-vars.php';
 $content_writer_nonce = wp_create_nonce('aipkit_content_writer_nonce');
 $content_writer_template_nonce = wp_create_nonce('aipkit_content_writer_template_nonce');
 $frontend_stream_nonce = wp_create_nonce('aipkit_frontend_chat_nonce');
+$aipkit_cw_seo_profile = class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
+    ? \WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile()
+    : [
+        'label' => __('AIPKit SEO', 'gpt3-ai-content-generator'),
+        'logo_url' => '',
+        'logo_initials' => 'AI',
+    ];
+$aipkit_cw_seo_profile_label = isset($aipkit_cw_seo_profile['label']) ? (string) $aipkit_cw_seo_profile['label'] : __('AIPKit SEO', 'gpt3-ai-content-generator');
+$aipkit_cw_seo_profile_logo_url = isset($aipkit_cw_seo_profile['logo_url']) ? (string) $aipkit_cw_seo_profile['logo_url'] : '';
+$aipkit_cw_seo_profile_logo_initials = isset($aipkit_cw_seo_profile['logo_initials']) ? (string) $aipkit_cw_seo_profile['logo_initials'] : 'SEO';
 
 $aipkit_cw_max_execution_time = function_exists('ini_get') ? (int) ini_get('max_execution_time') : 0;
 $aipkit_cw_socket_timeout = function_exists('ini_get') ? (int) ini_get('default_socket_timeout') : 0;
@@ -32,6 +42,7 @@ if ($aipkit_cw_socket_timeout > 0 && $aipkit_cw_socket_timeout <= 30) {
 <?php
 $aipkit_notice_id = 'aipkit_provider_notice_content_writer';
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
+include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
 ?>
 <?php if (!empty($aipkit_cw_timeout_warnings)) : ?>
 <div class="aipkit_notification_bar aipkit_notification_bar--warning" data-aipkit-dismissible-notice="content-writer-low-php-timeouts-v1">
@@ -101,8 +112,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             <aside class="aipkit_cw_output_brief aipkit_cw_batch_brief">
                                 <div class="aipkit_cw_studio_panel">
                                     <div class="aipkit_cw_studio_panel_header">
-                                        <span class="aipkit_cw_studio_panel_label"><?php esc_html_e('Brief', 'gpt3-ai-content-generator'); ?></span>
-                                        <span class="aipkit_cw_studio_panel_hint"><?php esc_html_e('Live snapshot of the current batch run', 'gpt3-ai-content-generator'); ?></span>
+                                        <span class="aipkit_cw_studio_panel_label"><?php esc_html_e('Summary', 'gpt3-ai-content-generator'); ?></span>
                                     </div>
                                     <dl class="aipkit_cw_studio_brief_list">
                                         <div class="aipkit_cw_studio_brief_row">
@@ -133,7 +143,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                 <section class="aipkit_cw_output_chunk aipkit_cw_output_chunk--primary aipkit_cw_batch_ledger_surface">
                                     <div class="aipkit_cw_chunk_header">
                                         <div class="aipkit_cw_chunk_title_row">
-                                            <span class="aipkit_cw_chunk_icon dashicons dashicons-list-view" aria-hidden="true"></span>
                                             <span class="aipkit_cw_chunk_label"><?php esc_html_e('Queue', 'gpt3-ai-content-generator'); ?></span>
                                         </div>
                                     </div>
@@ -148,7 +157,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     <div class="aipkit_cw_output_sidebar_header aipkit_cw_output_sidebar_header--progress">
                                         <div class="aipkit_cw_output_sidebar_header_copy">
                                             <div class="aipkit_cw_output_sidebar_title"><?php esc_html_e('Progress', 'gpt3-ai-content-generator'); ?></div>
-                                            <p class="aipkit_cw_output_sidebar_hint"><?php esc_html_e('Track each queued item as it completes.', 'gpt3-ai-content-generator'); ?></p>
                                         </div>
                                     </div>
 
@@ -165,20 +173,55 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                                     </div>
 
                                     <div class="aipkit_cw_batch_summary">
-                                        <span class="aipkit_cw_batch_count">0/0</span>
-                                        <span class="aipkit_cw_batch_label"><?php esc_html_e('processed', 'gpt3-ai-content-generator'); ?></span>
+                                        <div class="aipkit_cw_batch_summary_main">
+                                            <span class="aipkit_cw_batch_count">0 <?php esc_html_e('of', 'gpt3-ai-content-generator'); ?> 0</span>
+                                            <span class="aipkit_cw_batch_label"><?php esc_html_e('Processed', 'gpt3-ai-content-generator'); ?></span>
+                                        </div>
                                     </div>
 
                                     <div class="aipkit_cw_batch_progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                                         <span class="aipkit_cw_batch_progress_bar"></span>
                                     </div>
 
-                                    <div class="aipkit_cw_output_sidebar_meta aipkit_cw_batch_stats">
-                                        <span id="aipkit_cw_batch_stat_waiting" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('queued', 'gpt3-ai-content-generator'); ?></span>
-                                        <span id="aipkit_cw_batch_stat_running" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('running', 'gpt3-ai-content-generator'); ?></span>
-                                        <span id="aipkit_cw_batch_stat_success" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('done', 'gpt3-ai-content-generator'); ?></span>
-                                        <span id="aipkit_cw_batch_stat_failed" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('failed', 'gpt3-ai-content-generator'); ?></span>
-                                        <span id="aipkit_cw_batch_stat_stopped" class="aipkit_cw_output_sidebar_pill">0 <?php esc_html_e('stopped', 'gpt3-ai-content-generator'); ?></span>
+                                    <div class="aipkit_cw_batch_stats" aria-label="<?php esc_attr_e('Batch status', 'gpt3-ai-content-generator'); ?>">
+                                        <span id="aipkit_cw_batch_stat_waiting" class="aipkit_cw_batch_metric aipkit_cw_batch_metric--queued" hidden>
+                                            <span class="aipkit_cw_batch_metric_value">0</span>
+                                            <span class="aipkit_cw_batch_metric_label"><?php esc_html_e('Queued', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
+                                        <span id="aipkit_cw_batch_stat_running" class="aipkit_cw_batch_metric aipkit_cw_batch_metric--running" hidden>
+                                            <span class="aipkit_cw_batch_metric_value">0</span>
+                                            <span class="aipkit_cw_batch_metric_label"><?php esc_html_e('Running', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
+                                        <span id="aipkit_cw_batch_stat_success" class="aipkit_cw_batch_metric aipkit_cw_batch_metric--done" hidden>
+                                            <span class="aipkit_cw_batch_metric_value">0</span>
+                                            <span class="aipkit_cw_batch_metric_label"><?php esc_html_e('Done', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
+                                        <span id="aipkit_cw_batch_stat_failed" class="aipkit_cw_batch_metric aipkit_cw_batch_metric--failed" hidden>
+                                            <span class="aipkit_cw_batch_metric_value">0</span>
+                                            <span class="aipkit_cw_batch_metric_label"><?php esc_html_e('Failed', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
+                                        <span id="aipkit_cw_batch_stat_stopped" class="aipkit_cw_batch_metric aipkit_cw_batch_metric--stopped" hidden>
+                                            <span class="aipkit_cw_batch_metric_value">0</span>
+                                            <span class="aipkit_cw_batch_metric_label"><?php esc_html_e('Stopped', 'gpt3-ai-content-generator'); ?></span>
+                                        </span>
+                                    </div>
+
+                                    <div class="aipkit_cw_batch_seo_summary" data-aipkit-batch-seo-summary hidden>
+                                        <span
+                                            id="aipkit_cw_batch_stat_seo_profile"
+                                            class="aipkit_cw_batch_seo_profile_stat"
+                                            hidden
+                                        >
+                                            <span class="aipkit_seo_profile_logo" aria-hidden="true">
+                                                <?php if ($aipkit_cw_seo_profile_logo_url !== '') : ?>
+                                                    <img src="<?php echo esc_url($aipkit_cw_seo_profile_logo_url); ?>" alt="">
+                                                <?php else : ?>
+                                                    <span><?php echo esc_html($aipkit_cw_seo_profile_logo_initials); ?></span>
+                                                <?php endif; ?>
+                                            </span>
+                                            <span><?php echo esc_html($aipkit_cw_seo_profile_label); ?></span>
+                                        </span>
+                                        <span id="aipkit_cw_batch_stat_seo_average" class="aipkit_cw_batch_seo_average" hidden><?php esc_html_e('SEO Score avg --', 'gpt3-ai-content-generator'); ?></span>
                                     </div>
                                 </section>
                             </aside>

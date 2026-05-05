@@ -67,6 +67,8 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         $image_size = $post_data['image_size'] ?? 'large';
         // --- END MODIFICATION ---
 
+        $smart_seo_slug = !empty($post_data['smart_seo_slug']) ? sanitize_title((string) $post_data['smart_seo_slug']) : '';
+
         // 4. Prepare the initial post array for wp_insert_post
         $postarr = [
             'post_title'   => $post_data['post_title'],
@@ -76,6 +78,9 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
             'post_status'  => $post_data['post_status'],
             'generate_toc' => $post_data['generate_toc'],
         ];
+        if ($smart_seo_slug !== '') {
+            $postarr['post_name'] = $smart_seo_slug;
+        }
 
         // 5. Modify the post array for scheduling if needed
         SavePost\prepare_scheduled_post_logic($postarr, $post_data);
@@ -84,7 +89,7 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         SavePost\prepare_categories_logic($postarr, $post_data);
 
         // 7. Insert the post into the database (this now handles image/toc injection)
-        $post_id_result = SavePost\insert_post_logic($postarr, $post_data['excerpt'] ?? null, $image_data, $image_alignment, $image_size);
+        $post_id_result = SavePost\insert_post_logic($postarr, $post_data['excerpt'] ?? null, $image_data, $image_alignment, $image_size, $post_data['focus_keyword'] ?? '');
         if (is_wp_error($post_id_result)) {
             $this->send_wp_error($post_id_result);
             return;
@@ -111,7 +116,7 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         // --- END NEW ---
 
         // --- MODIFIED: Step 12 - Generate and save SEO-friendly slug (conditional) ---
-        if (isset($post_data['generate_seo_slug']) && $post_data['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+        if ($smart_seo_slug === '' && isset($post_data['generate_seo_slug']) && $post_data['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
             \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($post_id_result);
         }
         // --- END MODIFICATION ---

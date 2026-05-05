@@ -7,6 +7,7 @@ namespace WPAICG\ContentWriter\Ajax\Actions\CreateTask;
 
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -20,9 +21,9 @@ if (!defined('ABSPATH')) {
 * @param array $settings The raw POST data.
 * @param string $task_frequency The sanitized task frequency.
 * @param string $task_status The sanitized task status.
-* @return array The sanitized content writer config array.
+* @return array|WP_Error The sanitized content writer config array or WP_Error on failure.
 */
-function build_content_writer_config_logic(array $settings, string $task_frequency, string $task_status): array
+function build_content_writer_config_logic(array $settings, string $task_frequency, string $task_status): array|WP_Error
 {
     $content_writer_config = [];
     if (class_exists(AIPKit_Content_Writer_Template_Manager::class)) {
@@ -42,7 +43,9 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'gsheets_sheet_id', 'gsheets_credentials',
             'url_list',
             'content_title',
-            'generate_toc',
+            'generate_toc', 'generate_seo_slug',
+            'seo_score_improvement_enabled', 'seo_score_continue_until_target',
+            'seo_score_target', 'seo_score_max_passes', 'seo_score_profile',
             'generate_images_enabled', 'image_provider', 'image_model', 'image_prompt',
             'image_count', 'image_placement', 'image_placement_param_x', 'image_alignment', 'image_size',
             'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description',
@@ -84,12 +87,18 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
                         'xai' => 'xAI',
                     ];
                     $content_writer_config[$key] = $provider_map[$provider_key] ?? ucfirst($provider_key);
-                } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description', 'enable_vector_store'], true)) {
+                } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_seo_slug', 'seo_score_improvement_enabled', 'seo_score_continue_until_target', 'generate_images_enabled', 'generate_featured_image', 'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description', 'enable_vector_store'], true)) {
                     $content_writer_config[$key] = ($settings[$key] === '1' || $settings[$key] === true || $settings[$key] === 1) ? '1' : '0';
                 } elseif ($key === 'post_categories' && is_array($settings[$key])) {
                     $content_writer_config[$key] = array_map('absint', $settings[$key]);
                 } elseif (in_array($key, ['post_author', 'image_count', 'image_placement_param_x', 'vector_store_top_k', 'smart_schedule_interval_value'], true)) {
                     $content_writer_config[$key] = absint($settings[$key]);
+                } elseif ($key === 'seo_score_target') {
+                    $raw = isset($settings[$key]) ? absint($settings[$key]) : 100;
+                    $content_writer_config[$key] = (string) max(80, min($raw, 100));
+                } elseif ($key === 'seo_score_max_passes') {
+                    $raw = isset($settings[$key]) ? absint($settings[$key]) : 3;
+                    $content_writer_config[$key] = (string) max(1, min($raw, 5));
                 } elseif ($key === 'vector_store_confidence_threshold') {
                     $raw = isset($settings[$key]) ? absint($settings[$key]) : 20;
                     $content_writer_config[$key] = max(0, min($raw, 100));
@@ -103,6 +112,10 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
                 } elseif ($key === 'reasoning_effort') {
                     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($settings[$key] ?? '');
                     $content_writer_config[$key] = $reasoning_effort !== '' ? $reasoning_effort : 'none';
+                } elseif ($key === 'seo_score_profile') {
+                    $profile = sanitize_key($settings[$key]);
+                    $allowed_profiles = ['auto', 'aipkit', 'yoast', 'rank_math', 'aioseo', 'framework'];
+                    $content_writer_config[$key] = in_array($profile, $allowed_profiles, true) ? $profile : 'auto';
                 } elseif (in_array($key, ['post_type', 'post_status', 'prompt_mode', 'cw_generation_mode', 'image_provider', 'image_placement', 'image_alignment', 'image_size', 'vector_store_provider', 'vector_embedding_provider', 'pexels_orientation', 'pexels_size', 'pexels_color', 'pixabay_orientation', 'pixabay_image_type', 'pixabay_category', 'schedule_mode', 'smart_schedule_interval_unit'], true)) {
                     $content_writer_config[$key] = sanitize_key($settings[$key]);
                 } elseif (is_string($settings[$key])) {
@@ -124,6 +137,20 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             $content_writer_config['content_title'] = $content_writer_config['content_title_bulk'];
         }
         unset($content_writer_config['content_title_bulk']);
+
+        $content_writer_config['seo_score_improvement_enabled'] = $content_writer_config['seo_score_improvement_enabled'] ?? '0';
+        $content_writer_config['seo_score_continue_until_target'] = $content_writer_config['seo_score_continue_until_target'] ?? '1';
+        $content_writer_config['seo_score_target'] = $content_writer_config['seo_score_target'] ?? '100';
+        $content_writer_config['seo_score_max_passes'] = $content_writer_config['seo_score_max_passes'] ?? '3';
+        $content_writer_config['seo_score_profile'] = $content_writer_config['seo_score_profile'] ?? 'auto';
+
+        if (class_exists(AIPKit_Content_Writer_SEO_Config::class)) {
+            $seo_permission_check = AIPKit_Content_Writer_SEO_Config::require_pro_for_improvement($content_writer_config);
+            if (is_wp_error($seo_permission_check)) {
+                return $seo_permission_check;
+            }
+            $content_writer_config = AIPKit_Content_Writer_SEO_Config::normalize($content_writer_config);
+        }
 
         $content_writer_config['task_frequency'] = $task_frequency;
         $content_writer_config['task_status_on_creation'] = $task_status;

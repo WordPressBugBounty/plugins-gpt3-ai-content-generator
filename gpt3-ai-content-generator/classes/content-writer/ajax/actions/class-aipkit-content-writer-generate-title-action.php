@@ -22,6 +22,9 @@ require_once $logic_path . 'prepare-ai-params.php';
 require_once $logic_path . 'call-title-generator.php';
 require_once $logic_path . 'handle-title-response.php';
 
+$shared_logic_path = __DIR__ . '/shared/';
+require_once $shared_logic_path . 'resolve-smart-seo-keywords.php';
+
 
 /**
  * Handles the AJAX action for generating a new title for content.
@@ -40,6 +43,17 @@ class AIPKit_Content_Writer_Generate_Title_Action extends AIPKit_Content_Writer_
             $this->send_wp_error($validated_params);
             return;
         }
+
+        $resolved_keyword_params = Shared\resolve_smart_seo_keywords_logic(
+            $validated_params,
+            $this->get_ai_caller(),
+            [
+                'topic' => $validated_params['content_title'] ?? '',
+                'title' => $validated_params['content_title'] ?? '',
+            ]
+        );
+        $validated_params = $resolved_keyword_params['params'];
+        $validated_params['smart_seo_keyword_resolution'] = $resolved_keyword_params['resolution'];
 
         // 2. Build the prompt for the AI
         $prompts = GenerateTitle\build_title_prompt_logic($validated_params);

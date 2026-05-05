@@ -88,6 +88,10 @@ class AIPKit_Content_Writer_Create_Task_Action extends AIPKit_Content_Writer_Bas
 
         // 3. Build the specific config for the content writer task
         $content_writer_config = CreateTask\build_content_writer_config_logic($raw_settings, $task_frequency, $task_status);
+        if (is_wp_error($content_writer_config)) {
+            $this->send_wp_error($content_writer_config);
+            return;
+        }
 
         // 4. Validate that the built config has all requirements
         $requirements_check = CreateTask\validate_task_requirements_logic($content_writer_config);

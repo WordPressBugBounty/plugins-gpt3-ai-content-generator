@@ -14,6 +14,7 @@ use WP_Error;
 $shared_path = __DIR__ . '/shared/';
 require_once $shared_path . 'validate-and-normalize-input.php';
 require_once $shared_path . 'build-prompts.php';
+require_once $shared_path . 'resolve-smart-seo-keywords.php';
 
 $init_stream_path = __DIR__ . '/init-stream/';
 require_once $init_stream_path . 'ensure-sse-cache-available.php';
@@ -53,6 +54,18 @@ class AIPKit_Content_Writer_Init_Stream_Action extends AIPKit_Content_Writer_Bas
             return;
         }
 
+        $keyword_resolution = [];
+        $resolved_keyword_params = Shared\resolve_smart_seo_keywords_logic(
+            $validated_params,
+            $this->get_ai_caller(),
+            [
+                'topic' => $validated_params['content_title'] ?? '',
+                'title' => $validated_params['content_title'] ?? '',
+            ]
+        );
+        $validated_params = $resolved_keyword_params['params'];
+        $keyword_resolution = $resolved_keyword_params['resolution'];
+
         // 3. Build prompts
         $prompts = Shared\build_prompts_logic($validated_params);
         if (is_wp_error($prompts)) {
@@ -82,6 +95,9 @@ class AIPKit_Content_Writer_Init_Stream_Action extends AIPKit_Content_Writer_Bas
 
     // 7. Send success response (include conversation_uuid for downstream logging)
         $conversation_uuid = isset($data_to_cache['conversation_uuid']) ? $data_to_cache['conversation_uuid'] : '';
-        wp_send_json_success(['cache_key' => $cache_key_result, 'conversation_uuid' => $conversation_uuid]);
+        wp_send_json_success(array_merge(
+            ['cache_key' => $cache_key_result, 'conversation_uuid' => $conversation_uuid],
+            Shared\smart_seo_keyword_resolution_response_fields_logic($keyword_resolution)
+        ));
     }
 }

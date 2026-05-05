@@ -7,12 +7,17 @@
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
 use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\AIPKit_Providers;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Meta_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder; // ADDED
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Handler;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyphrase_Usage;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Service;
 use WP_Error;
 use WPAICG\Chat\Storage\LogStorage;
 use WPAICG\Core\AIPKit_Event_Webhooks;
@@ -87,6 +92,17 @@ if (!class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
 }
 // --- END ADDED ---
 
+if ((!class_exists(AIPKit_Content_Writer_Smart_SEO_Service::class) || !class_exists(AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver::class) || !class_exists(AIPKit_Content_Writer_Smart_SEO_Keyphrase_Usage::class)) && defined('WPAICG_LIB_DIR')) {
+    $smart_seo_loader_class = '\\WPAICG\\Lib\\DependencyLoaders\\Smart_SEO_Dependencies_Loader';
+    $smart_seo_loader_path = WPAICG_LIB_DIR . 'dependency-loaders/class-smart-seo-dependencies-loader.php';
+    if (!class_exists($smart_seo_loader_class) && file_exists($smart_seo_loader_path)) {
+        require_once $smart_seo_loader_path;
+    }
+    if (class_exists($smart_seo_loader_class)) {
+        $smart_seo_loader_class::load();
+    }
+}
+
 
 /**
  * Orchestrates the entire process of generating a single piece of content from a queue item.
@@ -97,6 +113,8 @@ if (!class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
  */
 function process_content_writing_item_logic(array $item_config, array $queue_item = []): array
 {
+    maybe_extend_content_writing_task_runtime_logic(600);
+
     // --- START: Abuse Prevention ---
     $generation_mode = $item_config['cw_generation_mode'] ?? 'single';
     if (in_array($generation_mode, ['rss', 'gsheets', 'url'])) { // 'url' is also Pro
@@ -107,7 +125,24 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
     }
     // --- END: Abuse Prevention ---
 
+    if (!empty($item_config['ai_provider']) && is_scalar($item_config['ai_provider'])) {
+        $item_config['ai_provider'] = normalize_content_writing_ai_provider_logic((string) $item_config['ai_provider']);
+    }
+    $item_config = normalize_content_writing_image_config_logic($item_config);
+
     $ai_caller = new AIPKit_AI_Caller();
+    $smart_seo_keyword_resolution = null;
+    $smart_seo_keyword_usage = null;
+
+    $resolved_keyword_result = maybe_resolve_smart_seo_task_keywords_logic($item_config, $ai_caller, [
+        'topic' => $item_config['content_title'] ?? '',
+        'title' => $item_config['content_title'] ?? '',
+    ]);
+    $item_config = $resolved_keyword_result['config'];
+    if (!empty($resolved_keyword_result['resolution']['changed'])) {
+        $smart_seo_keyword_resolution = $resolved_keyword_result['resolution'];
+        $smart_seo_keyword_usage = $resolved_keyword_result['resolution']['usage'] ?? null;
+    }
 
     // 1. Generate Title (if needed)
     $title_result = generate_title_logic($item_config, $ai_caller);
@@ -143,11 +178,26 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
         $image_settings = $item_config;
         $image_settings['aipkit_event_module'] = 'automated_tasks';
         $image_settings['aipkit_event_origin'] = 'automated_task_content_images';
-        $image_result = $image_handler->generate_and_prepare_images($image_settings, $final_title, $keywords_for_images, $item_config['content_title']);
+        if (
+            ($image_settings['image_provider'] ?? '') === 'openai'
+            && class_exists(AIPKit_Providers::class)
+            && AIPKit_Providers::is_openai_gpt_image_model((string) ($image_settings['image_model'] ?? ''))
+        ) {
+            maybe_extend_content_writing_task_runtime_logic(900);
+        }
+
+        try {
+            $image_result = $image_handler->generate_and_prepare_images($image_settings, $final_title, $keywords_for_images, $item_config['content_title']);
+        } catch (\Throwable $throwable) {
+            $image_result = new WP_Error(
+                'automated_task_image_generation_exception',
+                normalize_content_writing_image_warning_logic($throwable->getMessage())
+            );
+        }
 
         if (is_wp_error($image_result)) {
             // Don't stop the whole process, just log the error and continue without images.
-            $error_details = $image_result->get_error_message();
+            $error_details = normalize_content_writing_image_warning_logic($image_result->get_error_message());
             $image_generation_warning = $error_details;
         } else {
             $inline_count = !empty($image_result['in_content_images']) && is_array($image_result['in_content_images'])
@@ -178,7 +228,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
                 }
 
                 if (!empty($warning_messages)) {
-                    $image_generation_warning = $warning_messages[0];
+                    $image_generation_warning = normalize_content_writing_image_warning_logic($warning_messages[0]);
                 } else {
                     $image_generation_warning = __('Image generation returned no images.', 'gpt3-ai-content-generator');
                     if ($provider !== '' || $model !== '') {
@@ -228,6 +278,29 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
                 $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
                 $final_keywords = $focus_keyword; // Use this new keyword for other SEO prompts
                 $keyword_usage = $keyword_result['usage'] ?? null;
+                if (class_exists(AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver::class)) {
+                    $keyword_resolver = new AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver();
+                    $keyword_resolution = $keyword_resolver->maybe_resolve_keyword(
+                        $focus_keyword,
+                        $item_config,
+                        $ai_caller,
+                        [
+                            'ai_provider' => $item_config['ai_provider'] ?? '',
+                            'ai_model' => $item_config['ai_model'] ?? '',
+                            'topic' => $item_config['content_title'] ?? $final_title,
+                            'title' => $final_title,
+                            'content_summary' => $content_summary,
+                        ]
+                    );
+                    if (!empty($keyword_resolution['changed'])) {
+                        $focus_keyword = (string) $keyword_resolution['keyword'];
+                        $final_keywords = $focus_keyword;
+                        $keyword_usage = merge_smart_seo_task_keyword_usage_logic($keyword_usage, $keyword_resolution['usage'] ?? null);
+                        $keyword_resolution['source'] = 'generated';
+                        $keyword_resolution['resolved_content_title'] = $final_title;
+                        $smart_seo_keyword_resolution = $keyword_resolution;
+                    }
+                }
             }
         } elseif (!empty($final_keywords)) {
             $focus_keyword = explode(',', $final_keywords)[0]; // Use first provided keyword as focus keyword
@@ -288,12 +361,103 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
             );
 
             if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
-                $meta_description = trim(str_replace(['"', "'"], '', $meta_result['content']));
+                $meta_description = AIPKit_Content_Writer_Output_Cleaner::clean_meta_description((string) $meta_result['content']);
                 $meta_usage = $meta_result['usage'] ?? null;
             }
         }
     }
     // --- END Generate SEO Data ---
+
+    $smart_seo_result = null;
+    $smart_seo_usage = null;
+    $smart_seo_warning = null;
+    if (($item_config['seo_score_improvement_enabled'] ?? '0') === '1') {
+        if (class_exists(AIPKit_Content_Writer_Smart_SEO_Service::class)) {
+            $smart_seo_service = new AIPKit_Content_Writer_Smart_SEO_Service();
+            $smart_seo_draft = [
+                'title' => $final_title,
+                'content' => $generated_content,
+                'content_format' => 'markdown',
+                'meta_description' => $meta_description ?? '',
+                'focus_keyword' => $focus_keyword ?? '',
+                'excerpt' => $excerpt ?? '',
+                'tags' => $tags ?? '',
+                'slug' => '',
+                'post_type' => $item_config['post_type'] ?? 'post',
+                'image_data' => $image_data ?? [],
+            ];
+            $smart_seo_run = $smart_seo_service->run(
+                $smart_seo_draft,
+                $item_config,
+                $ai_caller,
+                [
+                    'ai_provider' => $item_config['ai_provider'] ?? '',
+                    'ai_model' => $item_config['ai_model'] ?? '',
+                    'topic' => $item_config['content_title'] ?? $final_title,
+                    'keywords' => $item_config['content_keywords'] ?? '',
+                    'source_url' => $item_config['source_url'] ?? '',
+                    'content_format' => 'markdown',
+                    'image_data' => $image_data ?? [],
+                ]
+            );
+
+            if (is_wp_error($smart_seo_run)) {
+                $smart_seo_warning = $smart_seo_run->get_error_message();
+            } elseif (!empty($smart_seo_run['skipped'])) {
+                if (($smart_seo_run['skip_reason'] ?? '') === 'pro_required') {
+                    $smart_seo_warning = __('Smart SEO skipped because the Pro plan is not active.', 'gpt3-ai-content-generator');
+                }
+            } else {
+                $smart_seo_result = $smart_seo_run;
+                $smart_seo_usage = $smart_seo_run['usage'] ?? null;
+                $improved_draft = isset($smart_seo_run['draft']) && is_array($smart_seo_run['draft']) ? $smart_seo_run['draft'] : [];
+
+                if (!empty($improved_draft['title'])) {
+                    $final_title = (string) $improved_draft['title'];
+                }
+                if (!empty($improved_draft['content_html'])) {
+                    $generated_content = (string) $improved_draft['content_html'];
+                    $item_config['content_is_html'] = '1';
+                    $item_config['aipkit_content_is_html'] = '1';
+                } elseif (!empty($improved_draft['content'])) {
+                    $generated_content = (string) $improved_draft['content'];
+                    $item_config['content_is_html'] = '1';
+                    $item_config['aipkit_content_is_html'] = '1';
+                }
+                if (!empty($improved_draft['meta_description'])) {
+                    $meta_description = AIPKit_Content_Writer_Output_Cleaner::clean_meta_description((string) $improved_draft['meta_description']);
+                }
+                if (!empty($improved_draft['focus_keyword'])) {
+                    $focus_keyword = (string) $improved_draft['focus_keyword'];
+                }
+                if (!empty($improved_draft['excerpt'])) {
+                    $excerpt = (string) $improved_draft['excerpt'];
+                }
+                if (!empty($improved_draft['tags'])) {
+                    $tags = (string) $improved_draft['tags'];
+                }
+                if (!empty($improved_draft['slug'])) {
+                    $item_config['smart_seo_slug'] = (string) $improved_draft['slug'];
+                }
+            }
+        } else {
+            $smart_seo_warning = __('Smart SEO runtime is unavailable.', 'gpt3-ai-content-generator');
+        }
+    }
+
+    if (
+        ($item_config['seo_score_improvement_enabled'] ?? '0') === '1'
+        && empty($item_config['smart_seo_slug'])
+        && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
+        && sanitize_key((string) (\WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile()['profile'] ?? '')) === 'rank_math'
+    ) {
+        $rank_math_slug = class_exists('\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_Smart_SEO_Keyphrase_Content_Helper')
+            ? \WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyphrase_Content_Helper::build_rank_math_slug('', (string) $focus_keyword, (string) $final_title)
+            : sanitize_title((string) ($focus_keyword ?: $final_title));
+        if ($rank_math_slug !== '') {
+            $item_config['smart_seo_slug'] = $rank_math_slug;
+        }
+    }
 
     // 6. Insert Post
     $scheduled_gmt_time = $item_config['scheduled_gmt_time'] ?? null;
@@ -302,6 +466,10 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
         return ['status' => 'error', 'message' => $insert_result->get_error_message()];
     }
     $new_post_id = $insert_result;
+
+    if ($smart_seo_result && class_exists(AIPKit_Content_Writer_Smart_SEO_Service::class)) {
+        AIPKit_Content_Writer_Smart_SEO_Service::save_audit_meta($new_post_id, $smart_seo_result);
+    }
 
     // --- ADDED: Log processed RSS item GUID to history ---
     if (isset($item_config['rss_item_guid']) && !empty($item_config['rss_item_guid']) && isset($item_config['task_id'])) {
@@ -327,7 +495,8 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
 
 
     // --- NEW: Update Slug based on checkbox ---
-    if (isset($item_config['generate_seo_slug']) && $item_config['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
+    $smart_seo_slug = !empty($item_config['smart_seo_slug']) ? sanitize_title((string) $item_config['smart_seo_slug']) : '';
+    if ($smart_seo_slug === '' && isset($item_config['generate_seo_slug']) && $item_config['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
         \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($new_post_id);
     }
     // --- END NEW ---
@@ -356,7 +525,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
 
     // 7. Log the generated content
     $total_usage = ['input_tokens' => 0, 'output_tokens' => 0, 'total_tokens' => 0, 'provider_raw' => []];
-    $all_usages = array_filter([$title_usage, $content_usage, $meta_usage, $keyword_usage, $image_usage, $excerpt_usage, $tags_usage]); // ADDED tags_usage
+    $all_usages = array_filter([$title_usage, $content_usage, $meta_usage, $keyword_usage, $image_usage, $excerpt_usage, $tags_usage, $smart_seo_keyword_usage, $smart_seo_usage]); // ADDED tags_usage
     foreach ($all_usages as $usage) {
         if (is_array($usage)) {
             $total_usage['input_tokens'] += (int)($usage['input_tokens'] ?? 0);
@@ -368,6 +537,21 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
         }
     }
     if (class_exists(LogStorage::class)) {
+        $smart_seo_log_data = null;
+        if ($smart_seo_result) {
+            $smart_seo_log_data = [
+                'score' => $smart_seo_result['score'] ?? null,
+                'target' => $smart_seo_result['target'] ?? null,
+                'profile' => $smart_seo_result['profile'] ?? null,
+                'profile_label' => $smart_seo_result['profile_label'] ?? null,
+                'passes' => $smart_seo_result['passes'] ?? 0,
+                'reached_target' => !empty($smart_seo_result['reached_target']),
+                'warnings' => $smart_seo_result['warnings'] ?? [],
+            ];
+        } elseif ($smart_seo_warning) {
+            $smart_seo_log_data = ['warning' => $smart_seo_warning];
+        }
+
         $log_storage = new LogStorage();
         $post_author_id = $item_config['post_author'] ?? 1;
         $author_data = get_userdata($post_author_id);
@@ -387,7 +571,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
             'ai_model'          => $item_config['ai_model'],
             'usage'             => $total_usage,
             'request_payload'   => ['item_config' => $item_config, 'prompts' => $prompts],
-            'response_data'     => ['post_id' => $new_post_id, 'title' => $final_title, 'meta' => $meta_description, 'keyword' => $focus_keyword, 'excerpt' => $excerpt, 'tags' => $tags, 'image_warning' => $image_generation_warning] // ADDED tags
+            'response_data'     => ['post_id' => $new_post_id, 'title' => $final_title, 'meta' => $meta_description, 'keyword' => $focus_keyword, 'excerpt' => $excerpt, 'tags' => $tags, 'image_warning' => $image_generation_warning, 'smart_seo_keyword_resolution' => $smart_seo_keyword_resolution, 'smart_seo' => $smart_seo_log_data] // ADDED tags
         ];
         $log_storage->log_message($log_data);
     }
@@ -407,6 +591,14 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
                 'meta_description' => $meta_description,
                 'focus_keyword' => $focus_keyword,
                 'tags' => $tags,
+                'smart_seo' => $smart_seo_result ? [
+                    'score' => $smart_seo_result['score'] ?? null,
+                    'target' => $smart_seo_result['target'] ?? null,
+                    'profile' => $smart_seo_result['profile'] ?? null,
+                    'profile_label' => $smart_seo_result['profile_label'] ?? null,
+                    'passes' => $smart_seo_result['passes'] ?? 0,
+                    'reached_target' => !empty($smart_seo_result['reached_target']),
+                ] : null,
                 'ai' => [
                     'provider' => $item_config['ai_provider'],
                     'model' => $item_config['ai_model'],
@@ -449,6 +641,175 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
             $image_generation_warning
         );
     }
+    if (!empty($smart_seo_warning)) {
+        $success_message .= ' ' . sprintf(
+            /* translators: %s: warning details about Smart SEO */
+            __('Smart SEO warning: %s', 'gpt3-ai-content-generator'),
+            $smart_seo_warning
+        );
+    }
 
     return ['status' => 'success', 'message' => $success_message];
+}
+
+function maybe_extend_content_writing_task_runtime_logic(int $seconds): void
+{
+    $seconds = max(60, $seconds);
+    if (function_exists('ignore_user_abort')) {
+        ignore_user_abort(true);
+    }
+    if (function_exists('set_time_limit')) {
+        @set_time_limit($seconds);
+    }
+    if (function_exists('ini_set')) {
+        @ini_set('max_execution_time', (string) $seconds);
+        @ini_set('default_socket_timeout', (string) max(120, min($seconds, 300)));
+    }
+}
+
+function normalize_content_writing_ai_provider_logic(string $provider): string
+{
+    $provider = trim($provider);
+
+    return match (strtolower($provider)) {
+        'openai' => 'OpenAI',
+        'openrouter' => 'OpenRouter',
+        'google' => 'Google',
+        'azure' => 'Azure',
+        'claude' => 'Claude',
+        'deepseek' => 'DeepSeek',
+        'xai' => 'xAI',
+        'ollama' => 'Ollama',
+        default => $provider,
+    };
+}
+
+function normalize_content_writing_image_config_logic(array $item_config): array
+{
+    $provider = normalize_content_writing_image_provider_logic((string) ($item_config['image_provider'] ?? 'openai'));
+    $item_config['image_provider'] = $provider;
+
+    $model = sanitize_text_field((string) ($item_config['image_model'] ?? ''));
+    if ($provider === 'openai' && class_exists(AIPKit_Providers::class)) {
+        $model = AIPKit_Providers::normalize_openai_image_model($model);
+    } elseif ($provider === 'xai' && class_exists(AIPKit_Providers::class)) {
+        $model = AIPKit_Providers::normalize_xai_image_model($model);
+    } elseif ($provider === 'google' && $model === '') {
+        $model = 'gemini-2.0-flash-preview-image-generation';
+    } elseif ($provider === 'pexels' || $provider === 'pixabay') {
+        $model = '';
+    }
+    $item_config['image_model'] = $model;
+
+    $item_config['generate_images_enabled'] = (($item_config['generate_images_enabled'] ?? '0') === '1') ? '1' : '0';
+    $item_config['generate_featured_image'] = (($item_config['generate_featured_image'] ?? '0') === '1') ? '1' : '0';
+    $item_config['image_count'] = max(1, min(absint($item_config['image_count'] ?? 1), 10));
+    $item_config['image_placement_param_x'] = max(1, absint($item_config['image_placement_param_x'] ?? 2));
+
+    return $item_config;
+}
+
+function normalize_content_writing_image_provider_logic(string $provider): string
+{
+    $provider = sanitize_key($provider);
+    $aliases = [
+        'open_ai' => 'openai',
+        'open-router' => 'openrouter',
+        'open_router' => 'openrouter',
+        'x_ai' => 'xai',
+    ];
+    $provider = $aliases[$provider] ?? $provider;
+    $allowed = ['openai', 'openrouter', 'google', 'azure', 'xai', 'replicate', 'pexels', 'pixabay'];
+
+    return in_array($provider, $allowed, true) ? $provider : 'openai';
+}
+
+function normalize_content_writing_image_warning_logic(string $message): string
+{
+    $message = trim(wp_strip_all_tags($message));
+    if ($message === '') {
+        return __('Image generation could not be completed for this automated post.', 'gpt3-ai-content-generator');
+    }
+
+    if (preg_match('/(504|gateway\\s*time|timed?\\s*out|cURL error 28|operation timed out|deadline exceeded)/i', $message)) {
+        return __('Image generation took longer than expected and was skipped for this automated post.', 'gpt3-ai-content-generator');
+    }
+
+    return $message;
+}
+
+function maybe_resolve_smart_seo_task_keywords_logic(array $item_config, AIPKit_AI_Caller $ai_caller, array $context = []): array
+{
+    $source = '';
+    $keywords = '';
+    if (!empty($item_config['inline_keywords'])) {
+        $source = 'inline';
+        $keywords = (string) $item_config['inline_keywords'];
+    } elseif (!empty($item_config['content_keywords'])) {
+        $source = 'global';
+        $keywords = (string) $item_config['content_keywords'];
+    }
+
+    if ($source === '' || trim($keywords) === '' || !class_exists(AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver::class)) {
+        return [
+            'config' => $item_config,
+            'resolution' => [],
+        ];
+    }
+
+    $resolver = new AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver();
+    $result = $resolver->maybe_resolve_keywords($keywords, $item_config, $ai_caller, array_merge([
+        'ai_provider' => $item_config['ai_provider'] ?? '',
+        'ai_model' => $item_config['ai_model'] ?? '',
+        'topic' => $item_config['content_title'] ?? '',
+        'title' => $item_config['content_title'] ?? '',
+        'keywords' => $keywords,
+    ], $context));
+
+    if (empty($result['changed'])) {
+        return [
+            'config' => $item_config,
+            'resolution' => $result,
+        ];
+    }
+
+    $resolved_keywords = sanitize_text_field((string) ($result['keywords'] ?? $keywords));
+    if ($source === 'inline') {
+        $item_config['inline_keywords'] = $resolved_keywords;
+    } else {
+        $item_config['content_keywords'] = $resolved_keywords;
+    }
+
+    $result['source'] = $source;
+    $result['resolved_content_title'] = $source === 'inline' && $resolved_keywords !== ''
+        ? trim((string) ($item_config['content_title'] ?? '')) . ' | ' . $resolved_keywords
+        : trim((string) ($item_config['content_title'] ?? ''));
+
+    return [
+        'config' => $item_config,
+        'resolution' => $result,
+    ];
+}
+
+function merge_smart_seo_task_keyword_usage_logic(mixed $primary_usage, mixed $secondary_usage): mixed
+{
+    if (!is_array($secondary_usage)) {
+        return $primary_usage;
+    }
+
+    if (!is_array($primary_usage)) {
+        return $secondary_usage;
+    }
+
+    $merged = $primary_usage;
+    $merged['input_tokens'] = (int) ($primary_usage['input_tokens'] ?? 0) + (int) ($secondary_usage['input_tokens'] ?? 0);
+    $merged['output_tokens'] = (int) ($primary_usage['output_tokens'] ?? 0) + (int) ($secondary_usage['output_tokens'] ?? 0);
+    $merged['total_tokens'] = (int) ($primary_usage['total_tokens'] ?? 0) + (int) ($secondary_usage['total_tokens'] ?? 0);
+
+    if (isset($secondary_usage['provider_raw'])) {
+        $primary_provider_raw = isset($primary_usage['provider_raw']) ? $primary_usage['provider_raw'] : [];
+        $merged['provider_raw'] = [$primary_provider_raw, $secondary_usage['provider_raw']];
+    }
+
+    return $merged;
 }

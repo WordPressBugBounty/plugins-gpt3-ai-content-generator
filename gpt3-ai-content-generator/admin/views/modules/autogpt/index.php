@@ -188,6 +188,7 @@ $aipkit_autogpt_cron_summary = [
 <?php
 $aipkit_notice_id = 'aipkit_provider_notice_autogpt';
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
+include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
 ?>
 <?php
 $aipkit_autogpt_cron_warning = '';

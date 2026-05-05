@@ -24,7 +24,37 @@ if (!defined('ABSPATH')) {
 class AIPKit_SEO_Helper
 {
     private static $active_plugin = null;
+    private static $detected_plugins = null;
     private static $handler_instance = null;
+
+    /**
+     * Detects every supported SEO plugin currently active in WordPress load order.
+     *
+     * @return array<string, string> Map of plugin slug to display label.
+     */
+    private static function get_detected_plugins(): array
+    {
+        if (self::$detected_plugins !== null) {
+            return self::$detected_plugins;
+        }
+
+        $plugins = [];
+        if (defined('WPSEO_VERSION')) {
+            $plugins['yoast'] = 'Yoast SEO';
+        }
+        if (defined('RANK_MATH_VERSION')) {
+            $plugins['rank_math'] = 'Rank Math';
+        }
+        if (defined('AIOSEO_VERSION')) {
+            $plugins['aioseo'] = 'All in One SEO';
+        }
+        if (defined('THE_SEO_FRAMEWORK_VERSION')) {
+            $plugins['framework'] = 'The SEO Framework';
+        }
+
+        self::$detected_plugins = $plugins;
+        return self::$detected_plugins;
+    }
 
     /**
      * Detects the active SEO plugin. Caches the result for the request.
@@ -36,18 +66,206 @@ class AIPKit_SEO_Helper
             return self::$active_plugin;
         }
 
-        if (defined('WPSEO_VERSION')) {
+        $detected_plugins = self::get_detected_plugins();
+
+        if (isset($detected_plugins['yoast'])) {
             self::$active_plugin = 'yoast';
-        } elseif (defined('RANK_MATH_VERSION')) {
+        } elseif (isset($detected_plugins['rank_math'])) {
             self::$active_plugin = 'rank_math';
-        } elseif (defined('AIOSEO_VERSION')) {
+        } elseif (isset($detected_plugins['aioseo'])) {
             self::$active_plugin = 'aioseo';
-        } elseif (defined('THE_SEO_FRAMEWORK_VERSION')) {
+        } elseif (isset($detected_plugins['framework'])) {
             self::$active_plugin = 'framework';
         } else {
             self::$active_plugin = 'none';
         }
         return self::$active_plugin;
+    }
+
+    /**
+     * Returns the active SEO plugin identifier for integration logic.
+     *
+     * @return string The active plugin slug: yoast, rank_math, aioseo, framework, or none.
+     */
+    public static function get_active_plugin_slug(): string
+    {
+        return self::get_active_plugin();
+    }
+
+    /**
+     * Returns every supported SEO plugin detected during the current request.
+     *
+     * @return array<string, string> Map of plugin slug to display label.
+     */
+    public static function get_detected_plugin_labels(): array
+    {
+        return self::get_detected_plugins();
+    }
+
+    /**
+     * Returns notice data when multiple supported SEO plugins are active.
+     *
+     * @return array<string, mixed>
+     */
+    public static function get_multiple_active_plugins_notice_data(): array
+    {
+        $detected_plugins = self::get_detected_plugins();
+        if (count($detected_plugins) < 2) {
+            return [];
+        }
+
+        $active_profile = self::get_active_plugin_profile();
+        $active_plugin = self::get_active_plugin();
+
+        return [
+            'active_plugin' => $active_plugin,
+            'active_label' => isset($active_profile['label']) ? (string) $active_profile['label'] : ($detected_plugins[$active_plugin] ?? 'AIPKit SEO'),
+            'detected_plugins' => $detected_plugins,
+            'detected_labels' => array_values($detected_plugins),
+        ];
+    }
+
+    /**
+     * Returns the SEO audit profile and capability flags for the active SEO integration.
+     *
+     * @return array<string, mixed>
+     */
+    public static function get_active_plugin_profile(): array
+    {
+        $plugin = self::get_active_plugin();
+        $profiles = [
+            'yoast' => [
+                'plugin' => 'yoast',
+                'profile' => 'yoast',
+                'label' => 'Yoast SEO',
+                'supports_meta_description' => true,
+                'supports_focus_keyword' => true,
+                'supports_tags' => true,
+                'supports_seo_slug' => true,
+                'supports_native_score' => false,
+                'supports_native_audit' => false,
+                'uses_fallback_meta' => false,
+                'logo_url' => self::get_plugin_logo_url('yoast'),
+                'logo_initials' => 'Y',
+            ],
+            'rank_math' => [
+                'plugin' => 'rank_math',
+                'profile' => 'rank_math',
+                'label' => 'Rank Math',
+                'supports_meta_description' => true,
+                'supports_focus_keyword' => true,
+                'supports_tags' => true,
+                'supports_seo_slug' => true,
+                'supports_native_score' => false,
+                'supports_native_audit' => false,
+                'uses_fallback_meta' => false,
+                'logo_url' => self::get_plugin_logo_url('rank_math'),
+                'logo_initials' => 'RM',
+            ],
+            'aioseo' => [
+                'plugin' => 'aioseo',
+                'profile' => 'aioseo',
+                'label' => 'All in One SEO',
+                'supports_meta_description' => true,
+                'supports_focus_keyword' => true,
+                'supports_tags' => true,
+                'supports_seo_slug' => true,
+                'supports_native_score' => false,
+                'supports_native_audit' => false,
+                'uses_fallback_meta' => false,
+                'logo_url' => self::get_plugin_logo_url('aioseo'),
+                'logo_initials' => 'AI',
+            ],
+            'framework' => [
+                'plugin' => 'framework',
+                'profile' => 'framework',
+                'label' => 'The SEO Framework',
+                'supports_meta_description' => true,
+                'supports_focus_keyword' => false,
+                'supports_tags' => true,
+                'supports_seo_slug' => true,
+                'supports_native_score' => false,
+                'supports_native_audit' => false,
+                'uses_fallback_meta' => false,
+                'logo_url' => self::get_plugin_logo_url('framework'),
+                'logo_initials' => 'TSF',
+            ],
+            'none' => [
+                'plugin' => 'none',
+                'profile' => 'aipkit',
+                'label' => 'AIPKit SEO',
+                'supports_meta_description' => true,
+                'supports_focus_keyword' => false,
+                'supports_tags' => true,
+                'supports_seo_slug' => true,
+                'supports_native_score' => false,
+                'supports_native_audit' => false,
+                'uses_fallback_meta' => true,
+                'logo_url' => '',
+                'logo_initials' => 'AI',
+            ],
+        ];
+
+        return $profiles[$plugin] ?? $profiles['none'];
+    }
+
+    private static function get_plugin_logo_url(string $plugin): string
+    {
+        $relative_path = '';
+
+        if ($plugin === 'yoast') {
+            $relative_path = 'wordpress-seo/packages/js/images/Yoast_SEO_Icon.svg';
+        } elseif ($plugin === 'rank_math') {
+            $relative_path = 'seo-by-rank-math/assets/admin/img/menu-icon.svg';
+        } elseif ($plugin === 'aioseo') {
+            $relative_path = self::find_first_plugin_asset('all-in-one-seo-pack/dist/Lite/assets/svg/aioseo.*.svg');
+            if ($relative_path === '') {
+                $relative_path = self::find_first_plugin_asset('all-in-one-seo-pack/dist/Lite/assets/svg/icon-logo.*.svg');
+            }
+        } elseif ($plugin === 'framework' && defined('WPAICG_PLUGIN_DIR') && defined('WP_PLUGIN_DIR')) {
+            $relative_path = ltrim(str_replace(trailingslashit(WP_PLUGIN_DIR), '', WPAICG_PLUGIN_DIR . 'admin/images/seo/the-seo-framework.svg'), '/');
+        }
+
+        if ($relative_path === '') {
+            return '';
+        }
+
+        $full_path = defined('WP_PLUGIN_DIR') ? trailingslashit(WP_PLUGIN_DIR) . $relative_path : '';
+        if ($full_path !== '' && file_exists($full_path)) {
+            return esc_url_raw(plugins_url($relative_path));
+        }
+
+        return '';
+    }
+
+    private static function find_first_plugin_asset(string $pattern): string
+    {
+        if (!defined('WP_PLUGIN_DIR')) {
+            return '';
+        }
+
+        $matches = glob(trailingslashit(WP_PLUGIN_DIR) . $pattern);
+        if (empty($matches) || !is_array($matches)) {
+            return '';
+        }
+
+        $first_match = reset($matches);
+        if (!is_string($first_match) || $first_match === '') {
+            return '';
+        }
+
+        return ltrim(str_replace(trailingslashit(WP_PLUGIN_DIR), '', $first_match), '/');
+    }
+
+    /**
+     * Returns the active audit profile key.
+     *
+     * @return string The audit profile key.
+     */
+    public static function get_active_audit_profile(): string
+    {
+        $profile = self::get_active_plugin_profile();
+        return isset($profile['profile']) ? (string) $profile['profile'] : 'aipkit';
     }
 
     /**
@@ -232,8 +450,10 @@ class AIPKit_SEO_Helper
             return false; // Nothing to generate slug from
         }
 
-        // 2. Sanitize and prepare the string
-        $slug = strtolower($source_string);
+        // 2. Sanitize and prepare the string. Transliterate before stop-word removal so non-English
+        // words are not split into stray letters like "s" or "t".
+        $slug = remove_accents($source_string);
+        $slug = function_exists('mb_strtolower') ? mb_strtolower($slug, 'UTF-8') : strtolower($slug);
 
         // List of common stop words
         $stop_words = [
@@ -246,9 +466,6 @@ class AIPKit_SEO_Helper
             'so', 'than', 'too', 'very', 's', 't', 'can', 'just', 'don', 'should', 'now'
         ];
         $slug = preg_replace('/\b(' . implode('|', $stop_words) . ')\b/i', '', $slug);
-
-        // Transliterate non-ASCII characters to their closest ASCII representation
-        $slug = remove_accents($slug);
 
         // Replace non-alphanumeric with hyphens
         $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
@@ -271,8 +488,13 @@ class AIPKit_SEO_Helper
             $slug_words = array_slice($slug_words, 0, 7);
             $slug = implode('-', $slug_words);
         }
+        $max_slug_length = 75;
+        if (sanitize_key((string) (self::get_active_plugin_profile()['profile'] ?? '')) === 'rank_math') {
+            $permalink_overhead = strlen(rtrim(home_url('/'), '/') . '//');
+            $max_slug_length = max(1, 75 - $permalink_overhead);
+        }
         // Final character trim
-        $slug = substr($slug, 0, 75);
+        $slug = substr($slug, 0, $max_slug_length);
         $slug = trim($slug, '-'); // Trim again in case substr created a trailing hyphen
 
         if (empty($slug)) {

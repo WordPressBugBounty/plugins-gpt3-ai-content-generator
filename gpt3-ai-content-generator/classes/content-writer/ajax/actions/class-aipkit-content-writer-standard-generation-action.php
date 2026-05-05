@@ -21,6 +21,7 @@ require_once $shared_path . 'build-prompts.php';
 require_once $shared_path . 'prepare-ai-params.php';
 require_once $shared_path . 'log-initial-request.php';
 require_once $shared_path . 'update-gsheets-row-status.php';
+require_once $shared_path . 'resolve-smart-seo-keywords.php';
 
 $standard_gen_path = __DIR__ . '/standard-generation/';
 require_once $standard_gen_path . 'call-ai-provider.php';
@@ -58,6 +59,17 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
             $this->send_wp_error(new WP_Error('ai_caller_missing', __('AI processing component is unavailable.', 'gpt3-ai-content-generator')), 500);
             return;
         }
+
+        $resolved_keyword_params = Shared\resolve_smart_seo_keywords_logic(
+            $validated_params,
+            $this->get_ai_caller(),
+            [
+                'topic' => $validated_params['content_title'] ?? '',
+                'title' => $validated_params['content_title'] ?? '',
+            ]
+        );
+        $validated_params = $resolved_keyword_params['params'];
+        $validated_params['smart_seo_keyword_resolution'] = $resolved_keyword_params['resolution'];
 
         // 3. Build prompts
         $prompts = Shared\build_prompts_logic($validated_params);

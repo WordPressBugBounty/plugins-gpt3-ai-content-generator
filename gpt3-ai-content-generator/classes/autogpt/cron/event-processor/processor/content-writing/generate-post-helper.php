@@ -8,6 +8,7 @@ namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -91,6 +92,11 @@ function generate_post_logic(array $prompts, array $cw_config, AIPKit_AI_Caller 
     }
 
     $generated_content = $content_result['content'] ?? '';
+    if (class_exists(AIPKit_Content_Writer_Output_Cleaner::class)) {
+        $initial_keywords = !empty($cw_config['inline_keywords']) ? $cw_config['inline_keywords'] : ($cw_config['content_keywords'] ?? '');
+        $initial_focus_keyword = trim((string) explode(',', (string) $initial_keywords)[0]);
+        $generated_content = AIPKit_Content_Writer_Output_Cleaner::clean_article_content((string) $generated_content, $initial_focus_keyword);
+    }
     if (empty($generated_content)) {
         return new WP_Error('empty_content_response', 'AI returned empty content.');
     }

@@ -7,6 +7,7 @@ namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\ContentWriting;
 
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -76,6 +77,13 @@ function generate_title_logic(array $cw_config, AIPKit_AI_Caller $ai_caller): ar
     }
     $generated_title = trim(str_replace(["\n", "\r"], ' ', $generated_title_raw));
     $generated_title = preg_replace('/\s+/', ' ', $generated_title);
+    if (class_exists(AIPKit_Content_Writer_Output_Cleaner::class)) {
+        $keyword_parts = array_map('trim', explode(',', (string) $final_keywords_for_prompt));
+        $generated_title = AIPKit_Content_Writer_Output_Cleaner::clean_title(
+            (string) $generated_title,
+            (string) ($keyword_parts[0] ?? '')
+        );
+    }
 
     return [
         'title' => !empty($generated_title) ? $generated_title : $final_title,

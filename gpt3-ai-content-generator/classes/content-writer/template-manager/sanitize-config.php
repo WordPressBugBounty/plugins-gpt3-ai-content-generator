@@ -6,6 +6,7 @@
 
 namespace WPAICG\ContentWriter\TemplateManagerMethods;
 
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WP_Error;
 
@@ -60,14 +61,22 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                 $sanitized[$key] = in_array($value, ['short', 'medium', 'long'], true) ? $value : 'medium';
             } elseif (in_array($key, ['image_count', 'image_placement_param_x', 'vector_store_top_k', 'content_max_tokens'], true)) {
                 $sanitized[$key] = absint($config[$key]);
+            } elseif ($key === 'seo_score_target') {
+                $sanitized[$key] = '100';
+            } elseif ($key === 'seo_score_max_passes') {
+                $sanitized[$key] = '3';
             } elseif ($key === 'vector_store_confidence_threshold') {
                 $raw = isset($config[$key]) ? absint($config[$key]) : 20;
                 $sanitized[$key] = max(0, min($raw, 100));
-            } elseif (in_array($key, ['generate_title', 'generate_content', 'generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description', 'enable_vector_store', 'update_title', 'update_excerpt', 'update_content', 'update_meta'], true)) {
+            } elseif ($key === 'seo_score_continue_until_target') {
+                $sanitized[$key] = '1';
+            } elseif (in_array($key, ['generate_title', 'generate_content', 'generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_seo_slug', 'seo_score_improvement_enabled', 'seo_score_continue_until_target', 'generate_images_enabled', 'generate_featured_image', 'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description', 'enable_vector_store', 'update_title', 'update_excerpt', 'update_content', 'update_meta'], true)) {
                 $sanitized[$key] = ($config[$key] === '1' || $config[$key] === true || $config[$key] === 1) ? '1' : '0';
             } elseif ($key === 'reasoning_effort') {
                 $effort = AIPKit_OpenAI_Reasoning::sanitize_effort($config[$key] ?? '');
                 $sanitized[$key] = $effort !== '' ? $effort : 'none';
+            } elseif ($key === 'seo_score_profile') {
+                $sanitized[$key] = 'auto';
             } elseif (in_array($key, ['post_type', 'post_status', 'ai_provider', 'prompt_mode', 'cw_generation_mode', 'image_provider', 'image_placement', 'image_alignment', 'image_size', 'vector_store_provider', 'vector_embedding_provider', 'pexels_orientation', 'pexels_size', 'pexels_color', 'pixabay_orientation', 'pixabay_image_type', 'pixabay_category'], true)) {
                 $sanitized[$key] = sanitize_key($config[$key]);
             } elseif (is_string($config[$key])) {
@@ -77,5 +86,10 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
             }
         }
     }
+
+    if (class_exists(AIPKit_Content_Writer_SEO_Config::class)) {
+        $sanitized = AIPKit_Content_Writer_SEO_Config::normalize($sanitized, true, false);
+    }
+
     return $sanitized;
 }

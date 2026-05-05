@@ -71,6 +71,10 @@ class AIPKit_Image_OpenAI_Provider_Strategy extends AIPKit_Image_Base_Provider_S
 
         $headers_array = $this->get_api_headers($api_key, $image_mode);
         $request_options = $this->get_request_options($image_mode);
+        $selected_model = isset($options['model']) ? (string) $options['model'] : AIPKit_Providers::get_default_openai_image_model();
+        if (AIPKit_Providers::is_openai_gpt_image_model($selected_model)) {
+            $request_options['timeout'] = max((int) ($request_options['timeout'] ?? 120), 240);
+        }
 
         if ($image_mode === 'edit') {
             if (empty($options['source_image']) || !is_array($options['source_image'])) {
