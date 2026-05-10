@@ -50,6 +50,12 @@ $image_provider_settings_url = admin_url('admin.php?page=wpaicg');
             <select id="aipkit_task_cw_image_model" name="image_model" tabindex="-1">
                 <?php // Populated by JS ?>
             </select>
+            <input
+                type="hidden"
+                id="aipkit_task_cw_image_provider_options"
+                name="image_provider_options"
+                value="{}"
+            >
         </div>
 
         <div class="aipkit_cw_image_row aipkit_cw_image_row--mode">

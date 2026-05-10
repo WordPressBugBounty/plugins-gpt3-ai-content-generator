@@ -28,7 +28,10 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
     {
         $endpoint = $params['azure_endpoint'] ?? '';
         $deployment_name = $params['deployment'] ?? '';
-        $api_version = $params['api_version_images'] ?? '2024-04-01-preview';
+        $api_version = $params['api_version_images'] ?? '2025-04-01-preview';
+        if ($api_version === '' || $api_version === '2024-04-01-preview') {
+            $api_version = '2025-04-01-preview';
+        }
 
         if (empty($endpoint)) {
             return new WP_Error('azure_image_missing_endpoint', __('Azure Endpoint is required.', 'gpt3-ai-content-generator'));
@@ -45,7 +48,7 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
      *
      * @param string $prompt The text prompt describing the image.
      * @param array $api_params API connection parameters ('api_key', 'endpoint', 'api_version_images').
-     * @param array $options Generation options ('model' which is deployment, 'n', 'size', 'quality', 'style').
+     * @param array $options Generation options ('model' which is deployment, 'n', 'size', 'quality', 'output_format', etc.).
      * @return array|WP_Error Array containing 'images' and 'usage' or WP_Error on failure.
      */
     public function generate_image(string $prompt, array $api_params, array $options = []): array|WP_Error
@@ -58,7 +61,7 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
         $url_params = [
             'azure_endpoint' => $api_params['endpoint'] ?? '',
             'deployment' => $options['model'] ?? '',
-            'api_version_images' => $api_params['api_version_images'] ?? '2024-04-01-preview',
+            'api_version_images' => $api_params['api_version_images'] ?? '2025-04-01-preview',
         ];
 
         $url = $this->build_api_url('images/generations', $url_params);
@@ -68,17 +71,37 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
 
         // Build a payload compatible with Azure OpenAI image generation.
         $payload = [
+            'model' => sanitize_text_field((string) ($options['model'] ?? '')),
             'prompt' => wp_strip_all_tags($prompt),
-            'n' => 1, // Azure image deployments support one image per request here.
+            'n' => max(1, min(isset($options['n']) ? absint($options['n']) : 1, 10)),
         ];
-        if (isset($options['size'])) {
-            $payload['size'] = $options['size'];
+
+        $size = $this->sanitize_size($options['size'] ?? '');
+        if ($size !== '') {
+            $payload['size'] = $size;
         }
-        if (isset($options['quality'])) {
-            $payload['quality'] = $options['quality'];
+
+        $quality = $this->sanitize_choice($options['quality'] ?? '', ['auto', 'low', 'medium', 'high']);
+        if ($quality !== '') {
+            $payload['quality'] = $quality;
         }
-        if (isset($options['style'])) {
-            $payload['style'] = $options['style'];
+
+        $output_format = $this->sanitize_choice($options['output_format'] ?? '', ['png', 'jpeg']);
+        $background = $this->sanitize_choice($options['background'] ?? '', ['auto', 'transparent']);
+        if ($background === 'transparent') {
+            $output_format = 'png';
+        }
+        if ($output_format !== '') {
+            $payload['output_format'] = $output_format;
+        }
+        if ($background !== '') {
+            $payload['background'] = $background;
+        }
+        if ($output_format === 'jpeg' && isset($options['output_compression']) && $options['output_compression'] !== '') {
+            $payload['output_compression'] = max(0, min(absint($options['output_compression']), 100));
+        }
+        if (!empty($options['user'])) {
+            $payload['user'] = sanitize_text_field((string) $options['user']);
         }
 
         $headers_array = $this->get_api_headers($api_key, 'generate');
@@ -150,7 +173,7 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
      */
     public function get_supported_sizes(): array
     {
-        return ['1024x1024', '1792x1024', '1024x1792'];
+        return ['1024x1024', '1536x1024', '1024x1536'];
     }
 
     /**
@@ -162,5 +185,53 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
             'Content-Type' => 'application/json',
             'api-key' => $api_key,
         ];
+    }
+
+    private function sanitize_choice($value, array $allowed): string
+    {
+        $value = sanitize_key(is_scalar($value) ? (string) $value : '');
+
+        return in_array($value, $allowed, true) ? $value : '';
+    }
+
+    private function sanitize_size($value): string
+    {
+        $size = sanitize_text_field(is_scalar($value) ? (string) $value : '');
+        if ($size === '') {
+            return '';
+        }
+        if ($size === 'auto') {
+            return $size;
+        }
+        if (!preg_match('/^([1-9][0-9]{2,4})x([1-9][0-9]{2,4})$/', $size, $matches)) {
+            return '';
+        }
+
+        $width = (int) $matches[1];
+        $height = (int) $matches[2];
+        $fixed_sizes = [
+            '1024x1024',
+            '1536x1024',
+            '1024x1536',
+        ];
+        if (in_array($size, $fixed_sizes, true)) {
+            return $size;
+        }
+
+        $long_edge = max($width, $height);
+        $short_edge = min($width, $height);
+        $pixel_count = $width * $height;
+
+        if ($width % 16 !== 0 || $height % 16 !== 0) {
+            return '';
+        }
+        if ($long_edge > 3840 || $short_edge <= 0 || ($long_edge / $short_edge) > 3) {
+            return '';
+        }
+        if ($pixel_count < 655360 || $pixel_count > 8294400) {
+            return '';
+        }
+
+        return $size;
     }
 }

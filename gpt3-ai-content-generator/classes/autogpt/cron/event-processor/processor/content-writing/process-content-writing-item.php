@@ -14,6 +14,7 @@ use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder; // ADDED
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Handler;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Provider_Options;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyphrase_Usage;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver;
@@ -71,6 +72,12 @@ if (!class_exists(AIPKit_Content_Writer_Image_Handler::class)) {
     $image_handler_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-image-handler.php';
     if (file_exists($image_handler_path)) {
         require_once $image_handler_path;
+    }
+}
+if (!class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)) {
+    $image_provider_options_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-image-provider-options.php';
+    if (file_exists($image_provider_options_path)) {
+        require_once $image_provider_options_path;
     }
 }
 
@@ -659,10 +666,13 @@ function maybe_extend_content_writing_task_runtime_logic(int $seconds): void
         ignore_user_abort(true);
     }
     if (function_exists('set_time_limit')) {
+        // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Long-running background content tasks need a bounded runtime extension.
         @set_time_limit($seconds);
     }
     if (function_exists('ini_set')) {
+        // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Long-running background content tasks need a bounded runtime extension.
         @ini_set('max_execution_time', (string) $seconds);
+        // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Long-running background content tasks need a bounded socket timeout extension.
         @ini_set('default_socket_timeout', (string) max(120, min($seconds, 300)));
     }
 }
@@ -694,8 +704,8 @@ function normalize_content_writing_image_config_logic(array $item_config): array
         $model = AIPKit_Providers::normalize_openai_image_model($model);
     } elseif ($provider === 'xai' && class_exists(AIPKit_Providers::class)) {
         $model = AIPKit_Providers::normalize_xai_image_model($model);
-    } elseif ($provider === 'google' && $model === '') {
-        $model = 'gemini-2.0-flash-preview-image-generation';
+    } elseif ($provider === 'google' && $model === '' && class_exists(AIPKit_Providers::class)) {
+        $model = AIPKit_Providers::get_default_google_image_model();
     } elseif ($provider === 'pexels' || $provider === 'pixabay') {
         $model = '';
     }
@@ -705,6 +715,9 @@ function normalize_content_writing_image_config_logic(array $item_config): array
     $item_config['generate_featured_image'] = (($item_config['generate_featured_image'] ?? '0') === '1') ? '1' : '0';
     $item_config['image_count'] = max(1, min(absint($item_config['image_count'] ?? 1), 10));
     $item_config['image_placement_param_x'] = max(1, absint($item_config['image_placement_param_x'] ?? 2));
+    $item_config['image_provider_options'] = class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)
+        ? AIPKit_Content_Writer_Image_Provider_Options::sanitize_options_json($item_config['image_provider_options'] ?? '{}', $item_config)
+        : ($item_config['image_provider_options'] ?? '{}');
 
     return $item_config;
 }

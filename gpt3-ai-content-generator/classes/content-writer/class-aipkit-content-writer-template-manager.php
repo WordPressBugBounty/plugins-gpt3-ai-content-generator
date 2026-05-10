@@ -57,7 +57,7 @@ class AIPKit_Content_Writer_Template_Manager
         'generate_seo_slug', // NEW: Add generate_seo_slug
         'seo_score_improvement_enabled', 'seo_score_continue_until_target',
         'seo_score_target', 'seo_score_max_passes', 'seo_score_profile',
-        'generate_images_enabled', 'image_provider', 'image_model', 'image_prompt',
+        'generate_images_enabled', 'image_provider', 'image_model', 'image_provider_options', 'image_prompt',
         'image_prompt_update',
         'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description',
         'image_title_prompt', 'image_alt_text_prompt', 'image_caption_prompt', 'image_description_prompt',

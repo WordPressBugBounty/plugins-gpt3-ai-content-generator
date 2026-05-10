@@ -75,7 +75,7 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
         }
         $final_options['model'] = $first_openrouter_model !== '' ? $first_openrouter_model : 'google/gemini-2.5-flash-image-preview';
     } elseif (empty($final_options['model']) && $provider_normalized === 'Google') {
-        $final_options['model'] = 'gemini-2.0-flash-preview-image-generation';
+        $final_options['model'] = AIPKit_Providers::get_default_google_image_model();
     } elseif (empty($final_options['model']) && $provider_normalized === 'xAI') {
         $final_options['model'] = AIPKit_Providers::get_default_xai_image_model();
     }

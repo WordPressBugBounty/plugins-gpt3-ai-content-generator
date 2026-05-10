@@ -302,8 +302,15 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                     $id_lower = strtolower($id);
                     $is_embedding = in_array('embedcontent', $methods, true);
                     $is_image = in_array('predict', $methods, true)
-                        // Include Gemini image-generation models that use generateContent
-                        || (strpos($id_lower, 'gemini') !== false && strpos($id_lower, 'image-generation') !== false);
+                        // Include Gemini native image models that use generateContent.
+                        || (
+                            strpos($id_lower, 'gemini') !== false
+                            && (
+                                strpos($id_lower, 'image-generation') !== false
+                                || strpos($id_lower, 'flash-image') !== false
+                                || strpos($id_lower, 'pro-image') !== false
+                            )
+                        );
                     $is_video = in_array('predictlongrunning', $methods, true)
                         // Heuristic fallback: Veo or other video-prefixed names
                         || (strpos($id_lower, 'veo') !== false);
@@ -326,6 +333,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             } elseif ($provider === 'OpenRouter') {
                 $existing_embedding_models = get_option('aipkit_openrouter_embedding_model_list', []);
                 $openrouter_embedding_models = is_array($existing_embedding_models) ? $existing_embedding_models : [];
+                $openrouter_image_models = [];
 
                 $openrouter_strategy = ProviderStrategyFactory::get_strategy('OpenRouter');
                 if (!is_wp_error($openrouter_strategy) && method_exists($openrouter_strategy, 'get_embedding_models')) {
@@ -335,7 +343,16 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                         update_option('aipkit_openrouter_embedding_model_list', $openrouter_embedding_models, 'no');
                     }
                 }
+                if (!is_wp_error($openrouter_strategy) && method_exists($openrouter_strategy, 'get_image_models')) {
+                    $image_models_result = $openrouter_strategy->get_image_models($api_params);
+                    if (!is_wp_error($image_models_result) && is_array($image_models_result)) {
+                        $openrouter_image_models = $image_models_result;
+                        $value_to_save = AIPKit_Providers::merge_model_rows($value_to_save, $openrouter_image_models);
+                    }
+                }
+                delete_option('aipkit_openrouter_image_model_list');
                 $extra_response_payload['embedding_models'] = $openrouter_embedding_models;
+                $extra_response_payload['image_models'] = $openrouter_image_models;
             } elseif ($provider === 'xAI') {
                 if (!class_exists(AIPKit_Image_Provider_Strategy_Factory::class)) {
                     $factory_path = WPAICG_PLUGIN_DIR . 'classes/images/class-aipkit-image-provider-strategy-factory.php';

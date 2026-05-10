@@ -9,26 +9,26 @@ if (!defined('ABSPATH')) {
     exit;
 }
 if (!class_exists(BaseProviderStrategy::class)) {
-    $base_strategy_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/base-provider-strategy.php';
-    if (file_exists($base_strategy_path)) {
-        require_once $base_strategy_path;
+    $aipkit_base_strategy_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/base-provider-strategy.php';
+    if (file_exists($aipkit_base_strategy_path)) {
+        require_once $aipkit_base_strategy_path;
     } else {
         return;
     }
 }
 
-$xai_methods_path = __DIR__ . '/';
-require_once $xai_methods_path . 'helpers.php';
-require_once $xai_methods_path . 'build-api-url.php';
-require_once $xai_methods_path . 'get-api-headers.php';
-require_once $xai_methods_path . 'format-chat-payload.php';
-require_once $xai_methods_path . 'build-sse-payload.php';
-require_once $xai_methods_path . 'parse-chat-response.php';
-require_once $xai_methods_path . 'parse-error-response.php';
-require_once $xai_methods_path . 'get-models.php';
-require_once $xai_methods_path . 'parse-sse-chunk.php';
-require_once $xai_methods_path . 'generate-embeddings.php';
-require_once $xai_methods_path . 'validate-chat-image-inputs.php';
+$aipkit_xai_methods_path = __DIR__ . '/';
+require_once $aipkit_xai_methods_path . 'helpers.php';
+require_once $aipkit_xai_methods_path . 'build-api-url.php';
+require_once $aipkit_xai_methods_path . 'get-api-headers.php';
+require_once $aipkit_xai_methods_path . 'format-chat-payload.php';
+require_once $aipkit_xai_methods_path . 'build-sse-payload.php';
+require_once $aipkit_xai_methods_path . 'parse-chat-response.php';
+require_once $aipkit_xai_methods_path . 'parse-error-response.php';
+require_once $aipkit_xai_methods_path . 'get-models.php';
+require_once $aipkit_xai_methods_path . 'parse-sse-chunk.php';
+require_once $aipkit_xai_methods_path . 'generate-embeddings.php';
+require_once $aipkit_xai_methods_path . 'validate-chat-image-inputs.php';
 
 class XAIProviderStrategy extends BaseProviderStrategy {
     public function build_api_url(string $operation, array $params): string|WP_Error {

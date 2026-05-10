@@ -54,6 +54,16 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
         }
     }
 
+    private static function get_validated_table_identifier(string $table_name): string
+    {
+        $table_name = trim($table_name);
+        if ($table_name === '' || !preg_match('/^[A-Za-z0-9_]+$/', $table_name)) {
+            return '';
+        }
+
+        return '`' . $table_name . '`';
+    }
+
     /**
      * Indexes a single post's content to a specified OpenAI Vector Store.
      * MODIFIED: Now always re-indexes content (consistent with Pinecone/Qdrant behavior).
@@ -178,24 +188,32 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
             $file_ids[] = trim($meta_file_id);
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table lookup for replacing prior OpenAI source files.
+        $data_source_table_identifier = self::get_validated_table_identifier($this->data_source_table_name);
+        if ($data_source_table_identifier === '') {
+            return array_values(array_unique($file_ids));
+        }
+
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table identifier is plugin-owned, validated, and backticked before interpolation for pre-WP-6.2 compatibility.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table lookup for replacing prior OpenAI source files; table identifier is plugin-owned, validated, and backticked above.
         $logged_file_ids = $wpdb->get_col(
             $wpdb->prepare(
                 "SELECT file_id
-                 FROM {$this->data_source_table_name}
+                 FROM {$data_source_table_identifier}
                  WHERE provider = %s
                    AND vector_store_id = %s
                    AND post_id = %d
                    AND status = %s
                    AND file_id IS NOT NULL
-                   AND file_id <> ''
+                   AND file_id <> %s
                  ORDER BY id DESC",
                 'OpenAI',
                 $vector_store_id,
                 $post_id,
-                'indexed'
+                'indexed',
+                ''
             )
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         if (is_array($logged_file_ids)) {
             foreach ($logged_file_ids as $logged_file_id) {
@@ -280,21 +298,31 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
             return;
         }
 
-        $file_placeholders = implode(',', array_fill(0, count($file_ids), '%s'));
-        $query_args = array_merge(['OpenAI', $vector_store_id, $post_id, 'indexed'], $file_ids);
+        $data_source_table_identifier = self::get_validated_table_identifier($this->data_source_table_name);
+        if ($data_source_table_identifier === '') {
+            return;
+        }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Custom table cleanup for superseded OpenAI source rows.
-        $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$this->data_source_table_name}
+        foreach ($file_ids as $file_id) {
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table identifier is plugin-owned, validated, and backticked before interpolation for pre-WP-6.2 compatibility.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table cleanup for superseded OpenAI source rows; table identifier is plugin-owned, validated, and backticked above.
+            $wpdb->query(
+                $wpdb->prepare(
+                    "DELETE FROM {$data_source_table_identifier}
                  WHERE provider = %s
                    AND vector_store_id = %s
                    AND post_id = %d
                    AND status = %s
-                   AND file_id IN ({$file_placeholders})",
-                ...$query_args
-            )
-        );
+                   AND file_id = %s",
+                    'OpenAI',
+                    $vector_store_id,
+                    $post_id,
+                    'indexed',
+                    $file_id
+                )
+            );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        }
     }
 
     /**

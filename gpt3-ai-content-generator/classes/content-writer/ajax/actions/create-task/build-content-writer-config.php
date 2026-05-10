@@ -7,11 +7,19 @@ namespace WPAICG\ContentWriter\Ajax\Actions\CreateTask;
 
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Provider_Options;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+if (!class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)) {
+    $aipkit_image_provider_options_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-image-provider-options.php';
+    if (file_exists($aipkit_image_provider_options_path)) {
+        require_once $aipkit_image_provider_options_path;
+    }
 }
 
 /**
@@ -46,7 +54,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'generate_toc', 'generate_seo_slug',
             'seo_score_improvement_enabled', 'seo_score_continue_until_target',
             'seo_score_target', 'seo_score_max_passes', 'seo_score_profile',
-            'generate_images_enabled', 'image_provider', 'image_model', 'image_prompt',
+            'generate_images_enabled', 'image_provider', 'image_model', 'image_provider_options', 'image_prompt',
             'image_count', 'image_placement', 'image_placement_param_x', 'image_alignment', 'image_size',
             'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description',
             'image_title_prompt', 'image_alt_text_prompt', 'image_caption_prompt', 'image_description_prompt',
@@ -73,7 +81,11 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
                     } else {
                         $content_writer_config[$key] = null;
                     }
-        } elseif ($key === 'ai_provider' || $key === 'image_provider') {
+                } elseif ($key === 'image_provider_options') {
+                    $content_writer_config[$key] = class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)
+                        ? AIPKit_Content_Writer_Image_Provider_Options::sanitize_options_json($settings[$key], $settings)
+                        : '{}';
+                } elseif ($key === 'ai_provider' || $key === 'image_provider') {
                     $provider_raw = sanitize_text_field(wp_unslash($settings[$key]));
                     $provider_key = strtolower($provider_raw);
                     $provider_map = [
@@ -143,6 +155,9 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
         $content_writer_config['seo_score_target'] = $content_writer_config['seo_score_target'] ?? '100';
         $content_writer_config['seo_score_max_passes'] = $content_writer_config['seo_score_max_passes'] ?? '3';
         $content_writer_config['seo_score_profile'] = $content_writer_config['seo_score_profile'] ?? 'auto';
+        $content_writer_config['image_provider_options'] = class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)
+            ? AIPKit_Content_Writer_Image_Provider_Options::sanitize_options_json($content_writer_config['image_provider_options'] ?? '{}', $content_writer_config)
+            : ($content_writer_config['image_provider_options'] ?? '{}');
 
         if (class_exists(AIPKit_Content_Writer_SEO_Config::class)) {
             $seo_permission_check = AIPKit_Content_Writer_SEO_Config::require_pro_for_improvement($content_writer_config);

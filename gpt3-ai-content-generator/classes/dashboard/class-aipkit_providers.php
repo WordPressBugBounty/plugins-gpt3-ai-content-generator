@@ -24,6 +24,7 @@ class AIPKit_Providers
         ['id' => 'gpt-image-1', 'name' => 'GPT Image 1'],
         ['id' => 'gpt-image-1-mini', 'name' => 'GPT Image 1 mini'],
     ];
+    private const DEEPSEEK_DEPRECATED_MODEL_SUFFIXES = ['chat', 'reasoner'];
 
     private static $provider_defaults = [
         'OpenAI' => [
@@ -44,7 +45,7 @@ class AIPKit_Providers
         'Azure' => [
             'api_key' => '', 'model' => '', 'endpoint' => '', 'embeddings' => '',
             'api_version_authoring' => '2023-03-15-preview', 'api_version_inference' => '2025-01-01-preview',
-            'api_version_images' => '2024-04-01-preview'
+            'api_version_images' => '2025-04-01-preview'
         ],
         'Claude' => [
             'api_key' => '', 'model' => '',
@@ -131,12 +132,20 @@ class AIPKit_Providers
             ],
         ],
         'GoogleImage' => [
-            'default' => '',
-            'models' => [],
+            'default' => 'gemini-3.1-flash-image-preview',
+            'models' => [
+                ['id' => 'gemini-3.1-flash-image-preview', 'name' => 'Gemini 3.1 Flash Image Preview (Nano Banana 2)'],
+                ['id' => 'gemini-3-pro-image-preview', 'name' => 'Gemini 3 Pro Image Preview (Nano Banana Pro)'],
+                ['id' => 'gemini-2.5-flash-image', 'name' => 'Gemini 2.5 Flash Image (Nano Banana)'],
+                ['id' => 'imagen-4.0-generate-001', 'name' => 'Imagen 4'],
+                ['id' => 'imagen-4.0-fast-generate-001', 'name' => 'Imagen 4 Fast'],
+                ['id' => 'imagen-4.0-ultra-generate-001', 'name' => 'Imagen 4 Ultra'],
+            ],
         ],
         'xAIImage' => [
-            'default' => 'grok-imagine-image',
+            'default' => 'grok-imagine-image-quality',
             'models' => [
+                ['id' => 'grok-imagine-image-quality', 'name' => 'Grok Imagine Image Quality'],
                 ['id' => 'grok-imagine-image', 'name' => 'Grok Imagine Image'],
             ],
         ],
@@ -174,8 +183,11 @@ class AIPKit_Providers
             'models' => [],
         ],
         'DeepSeek' => [
-            'default' => 'deepseek-chat',
-            'models' => ['deepseek-chat', 'deepseek-reasoner'],
+            'default' => 'deepseek-v4-flash',
+            'models' => [
+                ['id' => 'deepseek-v4-flash', 'name' => 'DeepSeek V4 Flash'],
+                ['id' => 'deepseek-v4-pro', 'name' => 'DeepSeek V4 Pro'],
+            ],
         ],
         'xAI' => [
             'default' => 'grok-4-1-fast-non-reasoning',
@@ -996,6 +1008,63 @@ class AIPKit_Providers
         return $normalized_models;
     }
 
+    private static function is_deprecated_deepseek_model_id(string $model_id): bool
+    {
+        $model_id = strtolower(trim($model_id));
+        if (strpos($model_id, 'deepseek-') !== 0) {
+            return false;
+        }
+
+        $suffix = substr($model_id, strlen('deepseek-'));
+        return in_array($suffix, self::DEEPSEEK_DEPRECATED_MODEL_SUFFIXES, true);
+    }
+
+    private static function filter_deepseek_model_rows(array $models): array
+    {
+        $filtered_models = [];
+        foreach (self::normalize_embedding_model_rows($models) as $model_row) {
+            $model_id = isset($model_row['id']) ? (string) $model_row['id'] : '';
+            if ($model_id === '' || self::is_deprecated_deepseek_model_id($model_id)) {
+                continue;
+            }
+
+            $filtered_models[] = $model_row;
+        }
+
+        return $filtered_models;
+    }
+
+    private static function merge_model_rows_by_id(array ...$model_lists): array
+    {
+        $merged_models = [];
+        $indexes_by_id = [];
+
+        foreach ($model_lists as $model_list) {
+            foreach (self::normalize_embedding_model_rows($model_list) as $model_row) {
+                $model_id = isset($model_row['id']) ? sanitize_text_field((string) $model_row['id']) : '';
+                if ($model_id === '') {
+                    continue;
+                }
+
+                if (isset($indexes_by_id[$model_id])) {
+                    $existing_index = $indexes_by_id[$model_id];
+                    $merged_models[$existing_index] = array_merge($merged_models[$existing_index], $model_row);
+                    continue;
+                }
+
+                $indexes_by_id[$model_id] = count($merged_models);
+                $merged_models[] = $model_row;
+            }
+        }
+
+        return $merged_models;
+    }
+
+    public static function merge_model_rows(array ...$model_lists): array
+    {
+        return self::merge_model_rows_by_id(...$model_lists);
+    }
+
 
     public static function get_current_provider()
     {
@@ -1078,6 +1147,13 @@ class AIPKit_Providers
             && !empty($defaults['model'])
         ) {
             $provider_data['model'] = $defaults['model'];
+        }
+        if (
+            $provider === 'DeepSeek'
+            && isset($provider_data['model'])
+            && self::is_deprecated_deepseek_model_id((string) $provider_data['model'])
+        ) {
+            $provider_data['model'] = $defaults['model'] ?? self::get_default_model_id('DeepSeek');
         }
 
         return $provider_data;
@@ -1321,9 +1397,15 @@ class AIPKit_Providers
                 $processed_model_list = $default_list_raw;
             }
         } else {
-            $processed_model_list = $model_list_from_option; // Already in correct format (or empty array)
+            $processed_model_list = $model_list_from_option;
+            if ($provider_key === 'DeepSeek') {
+                $processed_model_list = self::merge_model_rows_by_id(self::get_catalog_model_rows($provider_key), $processed_model_list);
+            }
         }
         $processed_model_list = is_array($processed_model_list) ? $processed_model_list : [];
+        if ($provider_key === 'DeepSeek') {
+            $processed_model_list = self::filter_deepseek_model_rows($processed_model_list);
+        }
 
         // 4. Store in caches
         self::$cached_model_lists[$provider_key] = $processed_model_list;
@@ -1360,7 +1442,10 @@ class AIPKit_Providers
     }
     public static function get_xai_image_models(): array
     {
-        return self::get_model_list('xAIImage');
+        $catalog_models = self::get_catalog_model_rows('xAIImage');
+        $synced_models = self::get_model_list('xAIImage');
+
+        return self::merge_model_rows_by_id($catalog_models, $synced_models);
     }
     public static function get_default_xai_image_model(): string
     {
@@ -1393,6 +1478,13 @@ class AIPKit_Providers
 
         return $normalized_model !== '' && strpos($normalized_model, 'gpt-image') === 0;
     }
+    public static function openai_image_model_supports_transparent_background(string $model): bool
+    {
+        $normalized_model = strtolower(trim($model));
+
+        return self::is_openai_gpt_image_model($normalized_model)
+            && !str_starts_with($normalized_model, 'gpt-image-2');
+    }
     public static function is_supported_openai_image_model(string $model): bool
     {
         return in_array(trim($model), self::get_openai_image_model_ids(), true);
@@ -1413,11 +1505,11 @@ class AIPKit_Providers
     }
     public static function get_openrouter_models(): array
     {
-        return self::get_model_list('OpenRouter');
+        return self::filter_openrouter_text_models(self::get_model_list('OpenRouter'));
     }
     public static function get_openrouter_image_models(): array
     {
-        $models = self::get_openrouter_models();
+        $models = self::get_model_list('OpenRouter');
         if (!is_array($models) || empty($models)) {
             return [];
         }
@@ -1464,6 +1556,16 @@ class AIPKit_Providers
                     $item['output_modalities'] = $normalized_output_modalities;
                 }
             }
+            if (isset($model['supported_parameters']) && is_array($model['supported_parameters'])) {
+                $normalized_supported_parameters = array_values(array_unique(array_map(
+                    static fn($parameter): string => strtolower(trim((string) $parameter)),
+                    $model['supported_parameters']
+                )));
+                $normalized_supported_parameters = array_values(array_filter($normalized_supported_parameters, static fn($parameter): bool => $parameter !== ''));
+                if (!empty($normalized_supported_parameters)) {
+                    $item['supported_parameters'] = $normalized_supported_parameters;
+                }
+            }
             if (!empty($capabilities)) {
                 $item['capabilities'] = $capabilities;
             }
@@ -1476,6 +1578,33 @@ class AIPKit_Providers
         );
 
         return $image_models;
+    }
+
+    private static function filter_openrouter_text_models(array $models): array
+    {
+        $text_models = [];
+        foreach ($models as $model) {
+            if (!is_array($model)) {
+                $text_models[] = $model;
+                continue;
+            }
+
+            $output_modalities = isset($model['output_modalities']) && is_array($model['output_modalities'])
+                ? array_values(array_unique(array_map(
+                    static fn($modality): string => strtolower(trim((string) $modality)),
+                    $model['output_modalities']
+                )))
+                : [];
+            $output_modalities = array_values(array_filter($output_modalities, static fn($modality): bool => $modality !== ''));
+
+            if (!empty($output_modalities) && in_array('image', $output_modalities, true) && !in_array('text', $output_modalities, true)) {
+                continue;
+            }
+
+            $text_models[] = $model;
+        }
+
+        return $text_models;
     }
     public static function get_openrouter_embedding_models(): array
     {
@@ -1495,7 +1624,14 @@ class AIPKit_Providers
     }
     public static function get_google_image_models(): array
     {
-        return self::get_model_list('GoogleImage');
+        $catalog_models = self::get_catalog_model_rows('GoogleImage');
+        $synced_models = self::get_model_list('GoogleImage');
+
+        return self::merge_model_rows_by_id($catalog_models, $synced_models);
+    }
+    public static function get_default_google_image_model(): string
+    {
+        return self::get_default_model_id('GoogleImage');
     }
     public static function get_google_video_models(): array
     {

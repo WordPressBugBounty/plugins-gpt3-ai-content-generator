@@ -84,6 +84,10 @@ class OpenRouterProviderStrategy extends BaseProviderStrategy {
         return \WPAICG\Core\Providers\OpenRouter\Methods\get_models_logic($this, $api_params);
     }
 
+    public function get_image_models(array $api_params): array|WP_Error {
+        return \WPAICG\Core\Providers\OpenRouter\Methods\get_image_models_logic($this, $api_params);
+    }
+
     public function build_sse_payload(array $messages, $system_instruction, array $ai_params, string $model): array {
         return \WPAICG\Core\Providers\OpenRouter\Methods\build_sse_payload_logic($this, $messages, $system_instruction, $ai_params, $model);
     }

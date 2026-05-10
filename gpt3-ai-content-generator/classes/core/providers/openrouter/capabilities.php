@@ -308,6 +308,66 @@ function model_supports_image_output_logic(string $model_id): bool {
 }
 
 /**
+ * Returns normalized output modalities for a synced OpenRouter model.
+ *
+ * @param string $model_id OpenRouter model id.
+ * @return array<int, string>
+ */
+function model_output_modalities_logic(string $model_id): array {
+    $metadata = get_model_metadata_logic($model_id);
+    if (!is_array($metadata)) {
+        return [];
+    }
+
+    return normalize_capability_list_logic(
+        $metadata['output_modalities'] ?? ($metadata['architecture']['output_modalities'] ?? [])
+    );
+}
+
+/**
+ * Checks whether selected OpenRouter model is a documented image_config-capable family.
+ *
+ * OpenRouter's model metadata does not consistently expose image_config in
+ * supported_parameters, so keep this conservative and limited to documented
+ * image model families instead of sending image_config to every image model.
+ *
+ * @param string $model_id OpenRouter model id.
+ * @return bool
+ */
+function model_supports_image_config_logic(string $model_id): bool {
+    $model_id = strtolower(sanitize_text_field($model_id));
+    if ($model_id === '') {
+        return false;
+    }
+
+    $metadata = get_model_metadata_logic($model_id);
+    if (is_array($metadata)) {
+        $supported_parameters = normalize_capability_list_logic(
+            $metadata['supported_parameters']
+                ?? ($metadata['supportedParameters']
+                    ?? ($metadata['supported_sampling_parameters'] ?? []))
+        );
+        foreach ($supported_parameters as $parameter) {
+            if (
+                $parameter === 'image_config'
+                || $parameter === 'image_config.aspect_ratio'
+                || $parameter === 'image_config.image_size'
+            ) {
+                return true;
+            }
+        }
+    }
+
+    $is_google_image_model = strpos($model_id, 'google/gemini-') === 0
+        && strpos($model_id, 'image') !== false;
+    $is_flux_model = strpos($model_id, 'black-forest-labs/flux') === 0;
+    $is_recraft_model = strpos($model_id, 'recraft/') === 0;
+    $is_sourceful_model = strpos($model_id, 'sourceful/riverflow') === 0;
+
+    return $is_google_image_model || $is_flux_model || $is_recraft_model || $is_sourceful_model;
+}
+
+/**
  * Checks whether selected OpenRouter model appears to support image editing.
  * Edit support requires both image input and image output capabilities.
  *

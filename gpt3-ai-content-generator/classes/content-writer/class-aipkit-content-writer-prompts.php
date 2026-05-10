@@ -478,7 +478,7 @@ Summary:
      */
     public static function get_default_image_prompt(): string
     {
-        return __('Generate a high-quality, relevant image prompt for an article about: {topic}', 'gpt3-ai-content-generator');
+        return __('Create a high-quality, relevant image for an article about: {topic}', 'gpt3-ai-content-generator');
     }
 
     /**
@@ -486,7 +486,7 @@ Summary:
      */
     public static function get_default_featured_image_prompt(): string
     {
-        return __('Generate an eye-catching, high-quality featured image prompt for a blog post about: {topic}. Keywords: {keywords}.', 'gpt3-ai-content-generator');
+        return __('Create an eye-catching, high-quality featured image for a blog post about: {topic}. Keywords: {keywords}.', 'gpt3-ai-content-generator');
     }
 
     /**

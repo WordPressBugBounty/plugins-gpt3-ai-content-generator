@@ -44,22 +44,39 @@ class OpenAIPayloadFormatter
                 $payload['size'] = $options['size'];
             }
 
+            if (isset($options['quality']) && in_array($options['quality'], ['low', 'medium', 'high', 'auto'], true)) {
+                $payload['quality'] = $options['quality'];
+            }
+
             // GPT Image models use output_format (png, jpeg, webp), not response_format
-            if (isset($options['output_format'])) {
+            if (isset($options['output_format']) && in_array($options['output_format'], ['png', 'jpeg', 'webp'], true)) {
                 $payload['output_format'] = $options['output_format'];
             } else {
                 $payload['output_format'] = 'png';
             } // Default to png if not specified for GPT Image models
 
             // Additional GPT Image parameters if present in options
-            if (isset($options['background'])) {
+            if (
+                isset($options['background'])
+                && in_array($options['background'], ['opaque', 'auto'], true)
+            ) {
+                $payload['background'] = $options['background'];
+            } elseif (
+                isset($options['background'])
+                && $options['background'] === 'transparent'
+                && in_array($payload['output_format'], ['png', 'webp'], true)
+                && AIPKit_Providers::openai_image_model_supports_transparent_background($model)
+            ) {
                 $payload['background'] = $options['background'];
             }
-            if (isset($options['moderation'])) {
+            if (isset($options['moderation']) && in_array($options['moderation'], ['auto', 'low'], true)) {
                 $payload['moderation'] = $options['moderation'];
             }
-            if (isset($options['output_compression'])) {
-                $payload['output_compression'] = $options['output_compression'];
+            if (
+                isset($options['output_compression'])
+                && in_array($payload['output_format'], ['jpeg', 'webp'], true)
+            ) {
+                $payload['output_compression'] = max(0, min(absint($options['output_compression']), 100));
             }
 
         } else {
@@ -153,8 +170,17 @@ class OpenAIPayloadFormatter
         if (!empty($options['quality'])) {
             $fields['quality'] = sanitize_text_field((string) $options['quality']);
         }
-        if (!empty($options['background'])) {
-            $fields['background'] = sanitize_text_field((string) $options['background']);
+        $background = !empty($options['background'])
+            ? sanitize_text_field((string) $options['background'])
+            : '';
+        if (in_array($background, ['opaque', 'auto'], true)) {
+            $fields['background'] = $background;
+        } elseif (
+            $background === 'transparent'
+            && in_array($fields['output_format'], ['png', 'webp'], true)
+            && AIPKit_Providers::openai_image_model_supports_transparent_background($model)
+        ) {
+            $fields['background'] = $background;
         }
         if (AIPKit_Providers::is_openai_gpt_image_model($model) && !empty($options['input_fidelity'])) {
             $input_fidelity = sanitize_text_field((string) $options['input_fidelity']);

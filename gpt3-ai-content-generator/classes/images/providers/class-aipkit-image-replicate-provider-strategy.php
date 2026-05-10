@@ -20,6 +20,18 @@ class AIPKit_Image_Replicate_Provider_Strategy extends AIPKit_Image_Base_Provide
 {
     private const POLLING_INTERVAL = 2; // seconds
     private const POLLING_TIMEOUT_ITERATIONS = 30; // 30 iterations * 2s = 60s timeout
+    private const OPTION_FIELD_ALIASES = [
+        'aspect_ratio' => ['aspect_ratio'],
+        'width' => ['width'],
+        'height' => ['height'],
+        'negative_prompt' => ['negative_prompt'],
+        'guidance' => ['guidance', 'guidance_scale'],
+        'num_inference_steps' => ['num_inference_steps', 'num_steps', 'steps'],
+        'seed' => ['seed'],
+        'output_format' => ['output_format'],
+        'output_quality' => ['output_quality', 'quality'],
+        'disable_safety_checker' => ['disable_safety_checker'],
+    ];
 
     /**
      * Get API headers required for Replicate requests.
@@ -91,13 +103,141 @@ class AIPKit_Image_Replicate_Provider_Strategy extends AIPKit_Image_Base_Provide
         $formatted_models = [];
         foreach ($raw_models as $model) {
             if (!empty($model['latest_version']['id'])) {
-                $formatted_models[] = [
-                    'id' => $model['owner'] . '/' . $model['name'] . ':' . $model['latest_version']['id'],
-                    'name' => $model['owner'] . '/' . $model['name']
+                $owner = sanitize_text_field((string) ($model['owner'] ?? ''));
+                $name = sanitize_text_field((string) ($model['name'] ?? ''));
+                if ($owner === '' || $name === '') {
+                    continue;
+                }
+
+                $openapi_schema = isset($model['latest_version']['openapi_schema']) && is_array($model['latest_version']['openapi_schema'])
+                    ? $model['latest_version']['openapi_schema']
+                    : $this->fetch_model_openapi_schema($api_key, $owner, $name);
+                $input_schema = $this->extract_input_schema_metadata($openapi_schema);
+                $formatted_model = [
+                    'id' => $owner . '/' . $name . ':' . sanitize_text_field((string) $model['latest_version']['id']),
+                    'name' => $owner . '/' . $name
                 ];
+                if (!empty($input_schema['fields'])) {
+                    $formatted_model['input_schema'] = $input_schema;
+                }
+                $formatted_models[] = $formatted_model;
             }
         }
         return $formatted_models;
+    }
+
+    private function fetch_model_openapi_schema(string $api_key, string $owner, string $name): array
+    {
+        $url = 'https://api.replicate.com/v1/models/' . rawurlencode($owner) . '/' . rawurlencode($name);
+        $headers = $this->get_api_headers($api_key, 'models');
+        $request_options = $this->get_request_options('models');
+        $request_options['timeout'] = min((int) ($request_options['timeout'] ?? 120), 12);
+
+        $response = wp_remote_get($url, array_merge($request_options, ['headers' => $headers]));
+        if (is_wp_error($response)) {
+            return [];
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code !== 200) {
+            return [];
+        }
+
+        $decoded = $this->decode_json(wp_remote_retrieve_body($response), 'Replicate Model Schema');
+        if (is_wp_error($decoded)) {
+            return [];
+        }
+
+        return isset($decoded['latest_version']['openapi_schema']) && is_array($decoded['latest_version']['openapi_schema'])
+            ? $decoded['latest_version']['openapi_schema']
+            : [];
+    }
+
+    private function extract_input_schema_metadata(array $openapi_schema): array
+    {
+        $components = isset($openapi_schema['components']['schemas']) && is_array($openapi_schema['components']['schemas'])
+            ? $openapi_schema['components']['schemas']
+            : [];
+        $properties = $components['Input']['properties'] ?? [];
+        if (!is_array($properties)) {
+            return ['fields' => []];
+        }
+
+        $fields = [];
+        foreach (self::OPTION_FIELD_ALIASES as $canonical_field => $input_names) {
+            foreach ($input_names as $input_name) {
+                if (!isset($properties[$input_name]) || !is_array($properties[$input_name])) {
+                    continue;
+                }
+                $field_schema = $this->resolve_openapi_property_schema($properties[$input_name], $components);
+                $normalized = $this->normalize_input_schema_field($field_schema);
+                $normalized['input_name'] = $input_name;
+                $fields[$canonical_field] = $normalized;
+                break;
+            }
+        }
+
+        return ['fields' => $fields];
+    }
+
+    private function resolve_openapi_property_schema(array $property, array $components): array
+    {
+        $resolved = [];
+
+        if (!empty($property['$ref']) && is_string($property['$ref'])) {
+            $ref_name = $this->get_openapi_ref_name($property['$ref']);
+            if ($ref_name !== '' && isset($components[$ref_name]) && is_array($components[$ref_name])) {
+                $resolved = array_merge($resolved, $this->resolve_openapi_property_schema($components[$ref_name], $components));
+            }
+        }
+
+        foreach (['allOf', 'anyOf', 'oneOf'] as $compound_key) {
+            if (empty($property[$compound_key]) || !is_array($property[$compound_key])) {
+                continue;
+            }
+            foreach ($property[$compound_key] as $sub_schema) {
+                if (!is_array($sub_schema)) {
+                    continue;
+                }
+                $resolved = array_merge($resolved, $this->resolve_openapi_property_schema($sub_schema, $components));
+            }
+        }
+
+        $own_values = $property;
+        unset($own_values['$ref'], $own_values['allOf'], $own_values['anyOf'], $own_values['oneOf']);
+
+        return array_merge($resolved, $own_values);
+    }
+
+    private function get_openapi_ref_name(string $ref): string
+    {
+        $parts = explode('/', $ref);
+        $name = end($parts);
+
+        return is_string($name) ? sanitize_text_field($name) : '';
+    }
+
+    private function normalize_input_schema_field(array $schema): array
+    {
+        $field = [];
+        foreach (['type', 'title', 'description', 'default'] as $key) {
+            if (isset($schema[$key]) && is_scalar($schema[$key])) {
+                $field[$key] = sanitize_text_field((string) $schema[$key]);
+            }
+        }
+        if (isset($schema['enum']) && is_array($schema['enum'])) {
+            $field['enum'] = array_values(array_filter(array_map(
+                static fn ($value) => is_scalar($value) ? sanitize_text_field((string) $value) : '',
+                $schema['enum']
+            ), static fn ($value) => $value !== ''));
+        }
+        foreach (['minimum', 'maximum'] as $key) {
+            if (isset($schema[$key]) && is_numeric($schema[$key])) {
+                $field[$key] = (float) $schema[$key];
+            }
+        }
+
+        return $field;
     }
 
     /**
@@ -115,7 +255,8 @@ class AIPKit_Image_Replicate_Provider_Strategy extends AIPKit_Image_Base_Provide
 
         // 1. Create Prediction (using sync mode via headers)
         $input_params = ['prompt' => $prompt];
-        
+        $schema_fields = $this->get_synced_model_input_fields((string) $options['model']);
+
         // Get Replicate settings to check for disable_safety_checker
         if (class_exists('\WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler')) {
             $image_settings = \WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler::get_settings();
@@ -123,13 +264,17 @@ class AIPKit_Image_Replicate_Provider_Strategy extends AIPKit_Image_Base_Provide
             $disable_safety_checker = $replicate_settings['disable_safety_checker'] ?? true;
             
             // Add disable_safety_checker to input if enabled
-            if ($disable_safety_checker) {
+            if ($disable_safety_checker && (empty($schema_fields) || isset($schema_fields['disable_safety_checker']))) {
                 $input_params['disable_safety_checker'] = true;
             }
         } else {
             // Fallback: disable safety checker by default if settings class not available
-            $input_params['disable_safety_checker'] = true;
+            if (empty($schema_fields) || isset($schema_fields['disable_safety_checker'])) {
+                $input_params['disable_safety_checker'] = true;
+            }
         }
+
+        $input_params = $this->apply_schema_validated_input_options($input_params, $options, $schema_fields);
         
         $create_payload = [
             'version' => explode(':', $options['model'])[1] ?? $options['model'],
@@ -175,6 +320,176 @@ class AIPKit_Image_Replicate_Provider_Strategy extends AIPKit_Image_Base_Provide
         } else {
             return new WP_Error('replicate_unknown_status', 'Received unknown prediction status: ' . esc_html($status));
         }
+    }
+
+    private function get_synced_model_input_fields(string $model): array
+    {
+        if (!class_exists('\WPAICG\AIPKit_Providers')) {
+            return [];
+        }
+
+        $target_model = strtolower(trim($model));
+        if ($target_model === '') {
+            return [];
+        }
+
+        $models = \WPAICG\AIPKit_Providers::get_replicate_models();
+        if (!is_array($models)) {
+            return [];
+        }
+
+        foreach ($models as $model_row) {
+            if (!is_array($model_row)) {
+                continue;
+            }
+            if (strtolower(trim((string) ($model_row['id'] ?? ''))) !== $target_model) {
+                continue;
+            }
+
+            $schema = $model_row['input_schema'] ?? ($model_row['replicate_input_schema'] ?? []);
+            if (!is_array($schema)) {
+                return [];
+            }
+            $fields = $schema['fields'] ?? $schema;
+
+            return is_array($fields) ? $fields : [];
+        }
+
+        return [];
+    }
+
+    private function apply_schema_validated_input_options(array $input_params, array $options, array $schema_fields): array
+    {
+        if (empty($schema_fields)) {
+            return $input_params;
+        }
+
+        $requested_inputs = [];
+        if (isset($options['replicate_input_options']) && is_array($options['replicate_input_options'])) {
+            $requested_inputs = $options['replicate_input_options'];
+        }
+
+        foreach (array_keys(self::OPTION_FIELD_ALIASES) as $canonical_field) {
+            if ($canonical_field === 'disable_safety_checker') {
+                continue;
+            }
+
+            $field_schema = $schema_fields[$canonical_field] ?? null;
+            if (!is_array($field_schema)) {
+                continue;
+            }
+
+            $input_name = sanitize_key((string) ($field_schema['input_name'] ?? $canonical_field));
+            if ($input_name === '') {
+                continue;
+            }
+
+            $raw_value = null;
+            if (array_key_exists($input_name, $requested_inputs)) {
+                $raw_value = $requested_inputs[$input_name];
+            } elseif (array_key_exists($canonical_field, $options)) {
+                $raw_value = $options[$canonical_field];
+            }
+
+            $value = $this->sanitize_schema_input_value($canonical_field, $raw_value, $field_schema);
+            if ($value !== null) {
+                $input_params[$input_name] = $value;
+            }
+        }
+
+        return $input_params;
+    }
+
+    private function sanitize_schema_input_value(string $field, $value, array $schema_field)
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (in_array($field, ['aspect_ratio', 'output_format'], true)) {
+            $value = $field === 'output_format'
+                ? sanitize_key((string) $value)
+                : sanitize_text_field((string) $value);
+            if ($value === '') {
+                return null;
+            }
+            $fallback_allowed = $field === 'output_format'
+                ? ['webp', 'png', 'jpg', 'jpeg']
+                : ['1:1', '16:9', '21:9', '3:2', '2:3', '4:3', '3:4', '4:5', '5:4', '9:16', '1:2', '2:1', '3:1', '1:3'];
+            $enum = isset($schema_field['enum']) && is_array($schema_field['enum'])
+                ? array_map('strval', $schema_field['enum'])
+                : [];
+            $allowed = !empty($enum) ? $enum : $fallback_allowed;
+
+            return in_array($value, $allowed, true) ? $value : null;
+        }
+
+        if ($field === 'negative_prompt') {
+            $value = sanitize_text_field((string) $value);
+            if ($value === '') {
+                return null;
+            }
+
+            return function_exists('mb_substr') ? mb_substr($value, 0, 1000) : substr($value, 0, 1000);
+        }
+
+        if ($field === 'guidance') {
+            return $this->sanitize_schema_float_value($value, $schema_field, 0.0, 30.0);
+        }
+
+        if (in_array($field, ['width', 'height'], true)) {
+            return $this->sanitize_schema_int_value($value, $schema_field, 64, 4096);
+        }
+
+        if ($field === 'num_inference_steps') {
+            return $this->sanitize_schema_int_value($value, $schema_field, 1, 100);
+        }
+
+        if ($field === 'seed') {
+            return $this->sanitize_schema_int_value($value, $schema_field, 0, 2147483647);
+        }
+
+        if ($field === 'output_quality') {
+            return $this->sanitize_schema_int_value($value, $schema_field, 0, 100);
+        }
+
+        return null;
+    }
+
+    private function sanitize_schema_int_value($value, array $schema_field, int $fallback_min, int $fallback_max): ?int
+    {
+        $value = is_scalar($value) ? (string) wp_unslash($value) : '';
+        if ($value === '' || !is_numeric($value)) {
+            return null;
+        }
+
+        $number = absint($value);
+        $minimum = isset($schema_field['minimum']) && is_numeric($schema_field['minimum'])
+            ? (int) $schema_field['minimum']
+            : $fallback_min;
+        $maximum = isset($schema_field['maximum']) && is_numeric($schema_field['maximum'])
+            ? (int) $schema_field['maximum']
+            : $fallback_max;
+
+        return ($number >= $minimum && $number <= $maximum) ? $number : null;
+    }
+
+    private function sanitize_schema_float_value($value, array $schema_field, float $fallback_min, float $fallback_max): ?float
+    {
+        $value = is_scalar($value) ? (string) wp_unslash($value) : '';
+        if ($value === '' || !is_numeric($value)) {
+            return null;
+        }
+
+        $number = (float) $value;
+        $minimum = isset($schema_field['minimum']) && is_numeric($schema_field['minimum'])
+            ? (float) $schema_field['minimum']
+            : $fallback_min;
+        $maximum = isset($schema_field['maximum']) && is_numeric($schema_field['maximum'])
+            ? (float) $schema_field['maximum']
+            : $fallback_max;
+
+        return ($number >= $minimum && $number <= $maximum) ? $number : null;
     }
 
     /**

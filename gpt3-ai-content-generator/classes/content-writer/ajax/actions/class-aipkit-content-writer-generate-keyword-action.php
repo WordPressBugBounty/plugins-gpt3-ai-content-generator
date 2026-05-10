@@ -17,9 +17,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$smart_seo_keyword_helper_path = __DIR__ . '/shared/resolve-smart-seo-keywords.php';
-if (file_exists($smart_seo_keyword_helper_path)) {
-    require_once $smart_seo_keyword_helper_path;
+$aipkit_smart_seo_keyword_helper_path = __DIR__ . '/shared/resolve-smart-seo-keywords.php';
+if (file_exists($aipkit_smart_seo_keyword_helper_path)) {
+    require_once $aipkit_smart_seo_keyword_helper_path;
 }
 
 /**
@@ -129,10 +129,10 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
         $smart_seo_keyword_resolution = [];
         load_smart_seo_keyword_resolver_logic();
         if (class_exists(AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver::class) && $this->get_ai_caller()) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
+            $seo_score_improvement_enabled = isset($_POST['seo_score_improvement_enabled']) ? sanitize_text_field(wp_unslash($_POST['seo_score_improvement_enabled'])) : '0';
             $smart_seo_config = [
-                'seo_score_improvement_enabled' => isset($_POST['seo_score_improvement_enabled'])
-                    ? sanitize_text_field(wp_unslash($_POST['seo_score_improvement_enabled']))
-                    : '0',
+                'seo_score_improvement_enabled' => $seo_score_improvement_enabled,
                 'seo_score_continue_until_target' => '1',
                 'seo_score_target' => '100',
                 'seo_score_max_passes' => '3',

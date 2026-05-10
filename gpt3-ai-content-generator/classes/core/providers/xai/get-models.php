@@ -50,7 +50,8 @@ function get_models_logic(XAIProviderStrategy $strategyInstance, array $api_para
         $error_msg = $strategyInstance->parse_error_response($body, $status_code);
         return new WP_Error(
             'api_error_xai_models',
-            sprintf('xAI API Error (HTTP %d): %s', $status_code, esc_html($error_msg))
+            sprintf('xAI API Error (HTTP %d): %s', $status_code, esc_html($error_msg)),
+            ['status' => $status_code]
         );
     }
 

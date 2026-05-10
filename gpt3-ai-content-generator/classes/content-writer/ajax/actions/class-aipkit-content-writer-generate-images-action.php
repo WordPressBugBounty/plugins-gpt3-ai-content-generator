@@ -7,10 +7,18 @@ namespace WPAICG\ContentWriter\Ajax\Actions;
 
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Base_Ajax_Action;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Handler;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Provider_Options;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+if (!class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)) {
+    $aipkit_image_provider_options_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-image-provider-options.php';
+    if (file_exists($aipkit_image_provider_options_path)) {
+        require_once $aipkit_image_provider_options_path;
+    }
 }
 
 /**
@@ -84,6 +92,10 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
                 $fingerprint[$field] = is_scalar($settings[$field]) ? (string) $settings[$field] : '';
             }
         }
+
+        $fingerprint['image_provider_options'] = class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)
+            ? AIPKit_Content_Writer_Image_Provider_Options::get_hash_value($settings)
+            : (is_scalar($settings['image_provider_options'] ?? null) ? (string) $settings['image_provider_options'] : '');
 
         ksort($fingerprint);
         return md5(wp_json_encode($fingerprint));

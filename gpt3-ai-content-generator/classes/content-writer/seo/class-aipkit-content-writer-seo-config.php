@@ -58,7 +58,7 @@ class AIPKit_Content_Writer_SEO_Config
 
         return new WP_Error(
             'pro_feature_required',
-            self::message('Continuous SEO score improvement is a Pro feature. Please upgrade.'),
+            __('Continuous SEO score improvement is a Pro feature. Please upgrade.', 'gpt3-ai-content-generator'),
             ['status' => 403]
         );
     }
@@ -90,10 +90,5 @@ class AIPKit_Content_Writer_SEO_Config
         }
 
         return $default;
-    }
-
-    private static function message(string $text): string
-    {
-        return function_exists('__') ? __($text, 'gpt3-ai-content-generator') : $text;
     }
 }

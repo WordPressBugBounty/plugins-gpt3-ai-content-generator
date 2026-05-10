@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 
 /**
  * Google Image and Video Generation Provider Strategy.
- * Supports Gemini Flash and Imagen 3 models for images, and Veo 3 for videos.
+ * Supports Gemini native image and Imagen models for images, and Veo models for videos.
  */
 class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_Strategy {
     private const GEMINI_FALLBACK_OUTPUT_TOKENS_PER_IMAGE = 2000;
@@ -66,7 +66,7 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
      */
     public function generate_image(string $prompt, array $api_params, array $options = []): array|WP_Error {
         $api_key = $api_params['api_key'] ?? null;
-        $model_id = $options['model'] ?? null; // Full model ID like 'gemini-2.0-flash-preview-image-generation' or 'veo-3.0-generate-preview'
+        $model_id = $options['model'] ?? null; // Full model ID like 'gemini-3.1-flash-image-preview' or 'veo-3.0-generate-preview'
         $image_mode = isset($options['image_mode']) && $options['image_mode'] === 'edit' ? 'edit' : 'generate';
 
         if (empty($api_key)) return new WP_Error('google_missing_key', __('Google API Key is required for generation.', 'gpt3-ai-content-generator'));
@@ -209,7 +209,13 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
      * @return bool
      */
     private function supports_image_editing_model(string $model_id): bool {
-        return strpos($model_id, 'gemini') !== false && strpos($model_id, 'image-generation') !== false;
+        $model_id = strtolower($model_id);
+        return strpos($model_id, 'gemini') !== false
+            && (
+                strpos($model_id, 'image-generation') !== false
+                || strpos($model_id, 'flash-image') !== false
+                || strpos($model_id, 'pro-image') !== false
+            );
     }
 
     /**

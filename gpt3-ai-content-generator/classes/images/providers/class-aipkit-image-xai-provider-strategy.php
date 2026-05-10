@@ -85,6 +85,35 @@ class AIPKit_Image_XAI_Provider_Strategy extends AIPKit_Image_Base_Provider_Stra
         return in_array($resolution, ['1k', '2k'], true) ? $resolution : '';
     }
 
+    private function parse_xai_error_response($response_body, int $status_code, string $context): string
+    {
+        $parser_function = 'WPAICG\\Core\\Providers\\XAI\\Methods\\xai_parse_error_response_body';
+        if (!function_exists($parser_function) && defined('WPAICG_PLUGIN_DIR')) {
+            $parser_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/xai/parse-error-response.php';
+            if (file_exists($parser_path)) {
+                require_once $parser_path;
+            }
+        }
+
+        if (function_exists($parser_function)) {
+            return $parser_function(
+                $response_body,
+                $status_code,
+                sprintf(
+                    /* translators: %s: Provider context. */
+                    __('An unknown error occurred with %s.', 'gpt3-ai-content-generator'),
+                    $context
+                )
+            );
+        }
+
+        if ($status_code === 429) {
+            return __('Rate limit or quota exceeded. Please wait and retry, or check your xAI Console rate limits and billing.', 'gpt3-ai-content-generator');
+        }
+
+        return $this->parse_error_response($response_body, $status_code, $context);
+    }
+
     private function build_source_image_payload(array $source_image): array|WP_Error
     {
         $mime_type = isset($source_image['mime_type']) ? strtolower(sanitize_text_field((string) $source_image['mime_type'])) : '';
@@ -329,7 +358,7 @@ class AIPKit_Image_XAI_Provider_Strategy extends AIPKit_Image_Base_Provider_Stra
         if ($status_code !== 200 || is_wp_error($decoded_response)) {
             $error_message = is_wp_error($decoded_response)
                 ? $decoded_response->get_error_message()
-                : $this->parse_error_response($body, $status_code, 'xAI Image');
+                : $this->parse_xai_error_response($body, $status_code, 'xAI Image');
             return new WP_Error(
                 'xai_image_api_error',
                 sprintf(
@@ -380,7 +409,7 @@ class AIPKit_Image_XAI_Provider_Strategy extends AIPKit_Image_Base_Provider_Stra
         if ($status_code !== 200 || is_wp_error($decoded_response)) {
             $error_message = is_wp_error($decoded_response)
                 ? $decoded_response->get_error_message()
-                : $this->parse_error_response($body, $status_code, 'xAI Image Models');
+                : $this->parse_xai_error_response($body, $status_code, 'xAI Image Models');
             return new WP_Error(
                 'xai_image_models_api_error',
                 sprintf(

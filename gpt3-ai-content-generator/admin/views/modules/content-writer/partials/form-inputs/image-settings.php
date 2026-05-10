@@ -74,6 +74,13 @@ $render_prompt_library_options = static function(array $options, string $mode = 
         <select id="aipkit_cw_image_model" name="image_model" class="aipkit_autosave_trigger" tabindex="-1">
             <?php // Populated by JS ?>
         </select>
+        <input
+            type="hidden"
+            id="aipkit_cw_image_provider_options"
+            name="image_provider_options"
+            class="aipkit_autosave_trigger"
+            value="{}"
+        >
     </div>
 
     <div class="aipkit_cw_image_row aipkit_cw_image_row--mode">

@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 
 /**
  * OpenRouter Image Generation Provider Strategy.
- * Uses OpenRouter Chat Completions with modalities ["image","text"].
+ * Uses OpenRouter Chat Completions with model-appropriate image output modalities.
  */
 class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provider_Strategy
 {
@@ -68,6 +68,118 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
         ];
 
         return $size_map[$size] ?? null;
+    }
+
+    /**
+     * Check if selected OpenRouter model supports image_config.
+     *
+     * @param string $model_id Model id.
+     * @return bool
+     */
+    private function model_supports_image_config(string $model_id): bool
+    {
+        $model_id = sanitize_text_field($model_id);
+        if ($model_id === '') {
+            return false;
+        }
+
+        $resolver_fn = '\WPAICG\Core\Providers\OpenRouter\Methods\model_supports_image_config_logic';
+        if (!function_exists($resolver_fn)) {
+            $capability_file = WPAICG_PLUGIN_DIR . 'classes/core/providers/openrouter/capabilities.php';
+            if (file_exists($capability_file)) {
+                require_once $capability_file;
+            }
+        }
+
+        if (!function_exists($resolver_fn)) {
+            return false;
+        }
+
+        return (bool) call_user_func($resolver_fn, $model_id);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function get_model_output_modalities(string $model_id): array
+    {
+        $model_id = sanitize_text_field($model_id);
+        if ($model_id === '') {
+            return [];
+        }
+
+        $resolver_fn = '\WPAICG\Core\Providers\OpenRouter\Methods\model_output_modalities_logic';
+        if (!function_exists($resolver_fn)) {
+            $capability_file = WPAICG_PLUGIN_DIR . 'classes/core/providers/openrouter/capabilities.php';
+            if (file_exists($capability_file)) {
+                require_once $capability_file;
+            }
+        }
+
+        if (!function_exists($resolver_fn)) {
+            return [];
+        }
+
+        $modalities = call_user_func($resolver_fn, $model_id);
+        return is_array($modalities) ? $modalities : [];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function get_request_modalities(string $model_id): array
+    {
+        $output_modalities = $this->get_model_output_modalities($model_id);
+        if (!empty($output_modalities)) {
+            return in_array('text', $output_modalities, true)
+                ? ['image', 'text']
+                : ['image'];
+        }
+
+        $model_id = strtolower($model_id);
+        $image_only_prefixes = [
+            'black-forest-labs/flux',
+            'recraft/',
+            'sourceful/riverflow',
+            'bytedance-seed/seedream',
+        ];
+        foreach ($image_only_prefixes as $prefix) {
+            if (strpos($model_id, $prefix) === 0) {
+                return ['image'];
+            }
+        }
+
+        return ['image', 'text'];
+    }
+
+    private function normalize_aspect_ratio($value, string $model_id): string
+    {
+        $aspect_ratio = is_string($value) ? sanitize_text_field($value) : '';
+        if ($aspect_ratio === '') {
+            return '';
+        }
+
+        $allowed = ['1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'];
+        if (strpos(strtolower($model_id), 'google/gemini-3.1-flash-image') !== false) {
+            $allowed = array_merge($allowed, ['1:4', '4:1', '1:8', '8:1']);
+        }
+
+        return in_array($aspect_ratio, $allowed, true) ? $aspect_ratio : '';
+    }
+
+    private function normalize_image_size($value, string $model_id): string
+    {
+        $image_size = is_string($value) ? strtolower(sanitize_text_field($value)) : '';
+        if ($image_size === '') {
+            return '';
+        }
+
+        $allowed = ['1k', '2k', '4k'];
+        if (strpos(strtolower($model_id), 'google/gemini-3.1-flash-image') !== false) {
+            $allowed[] = '0.5k';
+        }
+
+        return in_array($image_size, $allowed, true) ? strtoupper($image_size) : '';
     }
 
     /**
@@ -333,7 +445,7 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
                     'content' => $user_content,
                 ],
             ],
-            'modalities' => ['image', 'text'],
+            'modalities' => $this->get_request_modalities($model),
             'stream' => false,
         ];
 
@@ -347,14 +459,24 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
         }
 
         $image_config = [];
-        if (!empty($options['size']) && is_string($options['size'])) {
-            $aspect_ratio = $this->map_size_to_aspect_ratio($options['size']);
-            if ($aspect_ratio !== null) {
+        if ($this->model_supports_image_config($model)) {
+            $aspect_ratio = '';
+            if (!empty($options['aspect_ratio'])) {
+                $aspect_ratio = $this->normalize_aspect_ratio($options['aspect_ratio'], $model);
+            } elseif (!empty($options['size']) && is_string($options['size'])) {
+                $aspect_ratio = $this->normalize_aspect_ratio(
+                    $this->map_size_to_aspect_ratio($options['size']) ?? '',
+                    $model
+                );
+            }
+            if ($aspect_ratio !== '') {
                 $image_config['aspect_ratio'] = $aspect_ratio;
             }
-        }
-        if (!empty($options['image_size']) && is_string($options['image_size'])) {
-            $image_config['image_size'] = sanitize_text_field($options['image_size']);
+
+            $image_size = $this->normalize_image_size($options['image_size'] ?? '', $model);
+            if ($image_size !== '') {
+                $image_config['image_size'] = $image_size;
+            }
         }
         if (!empty($image_config)) {
             $payload['image_config'] = $image_config;

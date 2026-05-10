@@ -59,6 +59,16 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
     }
 
+    private static function get_validated_table_identifier(string $table_name): string
+    {
+        $table_name = trim($table_name);
+        if ($table_name === '' || !preg_match('/^[A-Za-z0-9_]+$/', $table_name)) {
+            return '';
+        }
+
+        return '`' . $table_name . '`';
+    }
+
 
     /**
      * AJAX handler to get upload limits.
@@ -205,8 +215,14 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         global $wpdb;
         $data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table lookup for admin delete action.
-        $log_entry = $wpdb->get_row($wpdb->prepare("SELECT id, provider, vector_store_id, file_id, status FROM {$data_source_table_name} WHERE id = %d LIMIT 1", $log_entry_id), ARRAY_A);
+        $data_source_table_identifier = self::get_validated_table_identifier($data_source_table_name);
+        if ($data_source_table_identifier === '') {
+            $this->send_wp_error(new WP_Error('invalid_vector_table_identifier', __('Invalid vector data source table.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table lookup for admin delete action; table identifier is plugin-owned, validated, and backticked above.
+        $log_entry = $wpdb->get_row($wpdb->prepare("SELECT id, provider, vector_store_id, file_id, status FROM {$data_source_table_identifier} WHERE id = %d LIMIT 1", $log_entry_id), ARRAY_A);
 
         if (!$log_entry) {
             wp_send_json_success(['message' => __('Log entry was not found, it might have been already deleted.', 'gpt3-ai-content-generator')]);
@@ -1170,6 +1186,10 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
+        $table_identifier = self::get_validated_table_identifier($table_name);
+        if ($table_identifier === '') {
+            return $messages;
+        }
         $chunk_lookup_cache = [];
 
         foreach ($messages as &$message) {
@@ -1214,9 +1234,10 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
                 $cache_key = $provider . '|' . $store_id . '|' . $result_id;
                 if (!array_key_exists($cache_key, $chunk_lookup_cache)) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only lookup by indexed custom-table columns for stats detail enrichment.
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only lookup by indexed custom-table columns; table identifier is plugin-owned, validated, and backticked above.
                     $chunk_lookup_cache[$cache_key] = $wpdb->get_row($wpdb->prepare(
-                        "SELECT message, post_title FROM {$table_name} WHERE provider = %s AND vector_store_id = %s AND file_id = %s ORDER BY timestamp DESC LIMIT 1",
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table identifier is plugin-owned, validated, and backticked before interpolation for pre-WP-6.2 compatibility.
+                        "SELECT message, post_title FROM {$table_identifier} WHERE provider = %s AND vector_store_id = %s AND file_id = %s ORDER BY timestamp DESC LIMIT 1",
                         $provider,
                         $store_id,
                         $result_id

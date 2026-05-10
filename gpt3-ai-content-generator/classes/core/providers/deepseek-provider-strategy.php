@@ -22,6 +22,8 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
     use ChatCompletionsResponseParserTrait;
     use ChatCompletionsSSEParserTrait;
 
+    private const DEPRECATED_MODEL_SUFFIXES = ['chat', 'reasoner'];
+
     public function build_api_url(string $operation, array $params): string|WP_Error {
         $base_url = !empty($params['base_url']) ? rtrim($params['base_url'], '/') : '';
         $api_version = !empty($params['api_version']) ? $params['api_version'] : ''; 
@@ -106,11 +108,80 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
         if (is_wp_error($decoded)) return $decoded;
 
         $raw_models = $decoded['data'] ?? [];
-        $chat_models = array_filter($raw_models, function($model) {
-            return isset($model['id']) && strpos($model['id'], 'chat') !== false;
+        if (!is_array($raw_models)) {
+            return [];
+        }
+
+        $models = [];
+        foreach ($raw_models as $model) {
+            if (!is_array($model)) {
+                continue;
+            }
+
+            $model_id = isset($model['id']) ? sanitize_text_field((string) $model['id']) : '';
+            if ($model_id === '' || strpos($model_id, 'deepseek-') !== 0 || self::is_deprecated_model_id($model_id)) {
+                continue;
+            }
+
+            $models[] = [
+                'id' => $model_id,
+                'name' => self::get_model_display_name($model_id),
+                'owned_by' => sanitize_text_field((string) ($model['owned_by'] ?? 'deepseek')),
+            ];
+        }
+
+        return self::sort_model_rows($models);
+    }
+
+    /**
+     * @param array<int, array<string, string>> $models
+     * @return array<int, array<string, string>>
+     */
+    private static function sort_model_rows(array $models): array {
+        $priority = [
+            'deepseek-v4-flash' => 10,
+            'deepseek-v4-pro' => 20,
+        ];
+
+        usort($models, static function(array $a, array $b) use ($priority): int {
+            $a_id = (string) ($a['id'] ?? '');
+            $b_id = (string) ($b['id'] ?? '');
+            $a_priority = $priority[$a_id] ?? 50;
+            $b_priority = $priority[$b_id] ?? 50;
+
+            if ($a_priority !== $b_priority) {
+                return $a_priority <=> $b_priority;
+            }
+
+            return strcasecmp((string) ($a['name'] ?? $a_id), (string) ($b['name'] ?? $b_id));
         });
 
-        return $this->format_model_list($chat_models, 'id', 'id');
+        return $models;
+    }
+
+    private static function get_model_display_name(string $model_id): string {
+        $known_names = [
+            'deepseek-v4-flash' => 'DeepSeek V4 Flash',
+            'deepseek-v4-pro' => 'DeepSeek V4 Pro',
+        ];
+
+        if (isset($known_names[$model_id])) {
+            return $known_names[$model_id];
+        }
+
+        $label = preg_replace('/^deepseek-/i', 'DeepSeek ', $model_id);
+        $label = str_replace(['-', '_'], ' ', (string) $label);
+        return ucwords($label);
+    }
+
+    private static function is_deprecated_model_id(string $model_id): bool {
+        $model_id = strtolower(trim($model_id));
+        if (strpos($model_id, 'deepseek-') !== 0) {
+            return false;
+        }
+
+        $suffix = substr($model_id, strlen('deepseek-'));
+        return in_array($suffix, self::DEPRECATED_MODEL_SUFFIXES, true);
     }
 
     public function build_sse_payload(array $messages, $system_instruction, array $ai_params, string $model): array {

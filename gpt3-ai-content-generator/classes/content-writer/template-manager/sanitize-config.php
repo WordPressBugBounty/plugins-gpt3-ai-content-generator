@@ -8,6 +8,7 @@ namespace WPAICG\ContentWriter\TemplateManagerMethods;
 
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Provider_Options;
 use WP_Error;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
@@ -18,6 +19,13 @@ $methods_path = __DIR__ . '/';
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+if (!class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)) {
+    $image_provider_options_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-image-provider-options.php';
+    if (file_exists($image_provider_options_path)) {
+        require_once $image_provider_options_path;
+    }
 }
 
 /**
@@ -53,6 +61,10 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                 } else {
                     $sanitized[$key] = null;
                 }
+            } elseif ($key === 'image_provider_options') {
+                $sanitized[$key] = class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)
+                    ? AIPKit_Content_Writer_Image_Provider_Options::sanitize_options_json($config[$key], $config)
+                    : '{}';
             } elseif ($key === 'ai_temperature') {
                 $value = round((float) $config[$key], 1);
                 $sanitized[$key] = (string) max(0, min($value, 2));

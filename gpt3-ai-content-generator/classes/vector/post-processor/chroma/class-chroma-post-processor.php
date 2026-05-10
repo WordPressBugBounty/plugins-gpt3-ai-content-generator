@@ -10,9 +10,9 @@ if (!defined('ABSPATH')) {
 }
 
 if (!class_exists(AIPKit_Vector_Post_Processor_Base::class)) {
-    $base_class_path = WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php';
-    if (file_exists($base_class_path)) {
-        require_once $base_class_path;
+    $aipkit_base_class_path = WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php';
+    if (file_exists($aipkit_base_class_path)) {
+        require_once $aipkit_base_class_path;
     }
 }
 

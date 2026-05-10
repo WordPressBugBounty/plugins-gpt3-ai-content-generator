@@ -87,6 +87,9 @@ class AIPKit_Vector_Post_Processor_List_Screen
         // Add hooks for the filter dropdown and query modification
         add_action('restrict_manage_posts', [$this, 'add_filter_dropdown']);
         add_action('pre_get_posts', [$this, 'filter_posts_by_ai_status']);
+        add_filter('posts_join', [$this, 'filter_posts_by_ai_status_join'], 10, 2);
+        add_filter('posts_where', [$this, 'filter_posts_by_ai_status_where'], 10, 2);
+        add_filter('posts_distinct', [$this, 'filter_posts_by_ai_status_distinct'], 10, 2);
     }
 
     /** Renders the filter dropdown on post list screens */
@@ -113,14 +116,7 @@ class AIPKit_Vector_Post_Processor_List_Screen
             return;
         }
 
-        // Determine the current post type without relying on get_current_screen
-        $post_type = $query->get('post_type');
-        if (empty($post_type)) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- List-table filters are read-only admin GET parameters.
-            $post_type = isset($_GET['post_type']) ? sanitize_key(wp_unslash($_GET['post_type'])) : 'post';
-        }
-        // If an array or unsupported type, bail
-        if (is_array($post_type) || !in_array($post_type, $this->supported_post_types, true)) {
+        if ('' === $this->get_supported_query_post_type($query)) {
             return;
         }
 
@@ -130,26 +126,65 @@ class AIPKit_Vector_Post_Processor_List_Screen
             return;
         }
 
+        $query->set('aipkit_ai_indexed_status', $filter_status);
+    }
+
+    /** Adds the vector data source join for the admin index-status filter. */
+    public function filter_posts_by_ai_status_join($join, $query) {
+        if (!$this->is_ai_status_filtered_query($query) || strpos($join, 'aipkit_vds_indexed') !== false) {
+            return $join;
+        }
+
         global $wpdb;
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-        
-        // Get all post IDs that have been indexed successfully
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table lookup for admin filter.
-        $indexed_post_ids = $wpdb->get_col($wpdb->prepare("SELECT DISTINCT post_id FROM {$table_name} WHERE post_id IS NOT NULL AND status = %s", 'indexed'));
+        $join_type = $query->get('aipkit_ai_indexed_status') === 'indexed' ? 'INNER JOIN' : 'LEFT JOIN';
+        $indexed_status_sql = $wpdb->prepare('%s', 'indexed');
 
-        if ($filter_status === 'indexed') {
-            if (empty($indexed_post_ids)) {
-                // If no posts are indexed, we force the query to return nothing.
-                $query->set('post__in', [0]);
-            } else {
-                $query->set('post__in', $indexed_post_ids);
-            }
-        } elseif ($filter_status === 'not_indexed') {
-            if (!empty($indexed_post_ids)) {
-                $query->set('post__not_in', $indexed_post_ids);
-            }
-            // If $indexed_post_ids is empty, we don't need to do anything, as all posts are "not indexed".
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table join; status is prepared above and table names come from $wpdb.
+        $join .= " {$join_type} {$table_name} AS aipkit_vds_indexed ON ({$wpdb->posts}.ID = aipkit_vds_indexed.post_id AND aipkit_vds_indexed.status = {$indexed_status_sql})";
+
+        return $join;
+    }
+
+    /** Limits the LEFT JOIN result to posts without an indexed vector record. */
+    public function filter_posts_by_ai_status_where($where, $query) {
+        if (!$this->is_ai_status_filtered_query($query) || $query->get('aipkit_ai_indexed_status') !== 'not_indexed') {
+            return $where;
         }
+
+        return $where . ' AND aipkit_vds_indexed.post_id IS NULL';
+    }
+
+    /** Avoids duplicate rows when a post is indexed in multiple vector stores. */
+    public function filter_posts_by_ai_status_distinct($distinct, $query) {
+        if ($this->is_ai_status_filtered_query($query) && $query->get('aipkit_ai_indexed_status') === 'indexed' && trim((string) $distinct) === '') {
+            return 'DISTINCT';
+        }
+
+        return $distinct;
+    }
+
+    private function is_ai_status_filtered_query($query) {
+        if (!$query instanceof \WP_Query || !is_admin() || !$query->is_main_query()) {
+            return false;
+        }
+
+        $filter_status = $query->get('aipkit_ai_indexed_status');
+        return ($filter_status === 'indexed' || $filter_status === 'not_indexed') && '' !== $this->get_supported_query_post_type($query);
+    }
+
+    private function get_supported_query_post_type($query) {
+        $post_type = $query->get('post_type');
+        if (empty($post_type)) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- List-table filters are read-only admin GET parameters.
+            $post_type = isset($_GET['post_type']) ? sanitize_key(wp_unslash($_GET['post_type'])) : 'post';
+        }
+
+        if (is_array($post_type) || !in_array($post_type, $this->supported_post_types, true)) {
+            return '';
+        }
+
+        return $post_type;
     }
 
     public function register_indexing_status_columns() {

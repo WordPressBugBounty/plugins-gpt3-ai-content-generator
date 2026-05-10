@@ -18,7 +18,7 @@ class GoogleImageUrlBuilder {
     /**
      * Build the full API endpoint URL for a given Google Image Generation model.
      *
-     * @param string $model_id The specific model ID (e.g., 'gemini-2.0-flash-preview-image-generation', 'imagen-3.0-generate-002').
+     * @param string $model_id The specific model ID (e.g., 'gemini-3.1-flash-image-preview', 'imagen-4.0-generate-001').
      * @param array  $api_params Required parameters (base_url, api_version, api_key).
      * @return string|WP_Error The full URL or WP_Error.
      */
@@ -31,8 +31,7 @@ class GoogleImageUrlBuilder {
             return new WP_Error('missing_google_api_key_for_image_url', __('Google API key is required for image URL construction.', 'gpt3-ai-content-generator'));
         }
 
-        // The model_id from settings IS the full path relative to /models/ for these image models
-        // e.g. "gemini-2.0-flash-preview-image-generation" or "imagen-3.0-generate-002"
+        // The model_id from settings is the model path segment relative to /models/.
 
         // Handle video models - redirect to video URL builder
         $is_video_model = false;
@@ -54,22 +53,14 @@ class GoogleImageUrlBuilder {
             return new WP_Error('video_model_in_image_url_builder', sprintf(__('Video model %s should use GoogleVideoUrlBuilder instead.', 'gpt3-ai-content-generator'), $model_id));
         }
 
-        $endpoint_suffix = '';
-        if ($model_id === 'gemini-2.0-flash-preview-image-generation') {
+        $model_id_lc = strtolower($model_id);
+        if (strpos($model_id_lc, 'gemini') !== false) {
             $endpoint_suffix = ':generateContent';
-            // imagen-3.0-generate-002 and imagen-4.0-generate-preview-06-06 and imagen-4.0-ultra-generate-preview-06-06  
-        } elseif ($model_id === 'imagen-3.0-generate-002' || $model_id === 'imagen-4.0-generate-preview-06-06' || $model_id === 'imagen-4.0-ultra-generate-preview-06-06') {
-            $endpoint_suffix = ':predict'; // Imagen models typically use :predict
+        } elseif (strpos($model_id_lc, 'imagen') !== false) {
+            $endpoint_suffix = ':predict';
         } else {
-             // Fallback if model ID is not explicitly known, try to guess
-            if (strpos($model_id, 'gemini') !== false) {
-                $endpoint_suffix = ':generateContent';
-            } elseif (strpos($model_id, 'imagen') !== false) {
-                $endpoint_suffix = ':predict';
-            } else {
-                /* translators: %s: The model ID that was attempted to be used for URL building. */
-                return new WP_Error('unsupported_google_image_model_for_url', sprintf(__('Unsupported Google image model for URL building: %s', 'gpt3-ai-content-generator'), $model_id));
-            }
+            /* translators: %s: The model ID that was attempted to be used for URL building. */
+            return new WP_Error('unsupported_google_image_model_for_url', sprintf(__('Unsupported Google image model for URL building: %s', 'gpt3-ai-content-generator'), $model_id));
         }
 
         // Construct path: /v1beta/models/MODEL_ID:action
