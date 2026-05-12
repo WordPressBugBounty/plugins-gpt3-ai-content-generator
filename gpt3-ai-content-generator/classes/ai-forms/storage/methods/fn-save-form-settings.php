@@ -274,5 +274,7 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
         update_post_meta($form_id, '_aipkit_ai_form_labels', $json_to_save);
     }
 
+    do_action('aipkit_ai_forms_after_save_form_settings', $form_id, $settings, $storageInstance);
+
     return true;
 }

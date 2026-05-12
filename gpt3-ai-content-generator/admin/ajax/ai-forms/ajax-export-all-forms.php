@@ -41,6 +41,11 @@ function do_ajax_export_all_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_ins
     foreach ($form_ids as $form_id) {
         $form_data = $form_storage->get_form_data($form_id);
         if (!is_wp_error($form_data)) {
+            $form_data = apply_filters('aipkit_ai_forms_prepare_form_export_data', $form_data, [
+                'scope' => 'all',
+                'form_id' => (int) $form_id,
+                'form_ids' => array_map('intval', $form_ids),
+            ]);
             // Remove keys that are not needed for export/import
             unset($form_data['id']);
             unset($form_data['status']);

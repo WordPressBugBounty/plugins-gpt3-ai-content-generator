@@ -54,6 +54,35 @@ function normalize_form_submission_value_for_event($value)
 }
 
 /**
+ * Builds safe image metadata without base64 payloads for logs/events.
+ *
+ * @param mixed $image_inputs
+ * @return array<int, array<string, mixed>>
+ */
+function summarize_ai_form_image_inputs_for_event($image_inputs): array
+{
+    if (!is_array($image_inputs)) {
+        return [];
+    }
+
+    $summary = [];
+    foreach ($image_inputs as $image_input) {
+        if (!is_array($image_input)) {
+            continue;
+        }
+
+        $summary[] = array_filter([
+            'field_id' => isset($image_input['field_id']) ? sanitize_key((string) $image_input['field_id']) : '',
+            'filename' => isset($image_input['filename']) ? sanitize_file_name((string) $image_input['filename']) : '',
+            'mime_type' => isset($image_input['type']) ? sanitize_text_field((string) $image_input['type']) : '',
+            'size' => isset($image_input['size']) ? absint($image_input['size']) : 0,
+        ], static fn($value) => $value !== '' && $value !== 0);
+    }
+
+    return $summary;
+}
+
+/**
  * Builds AI Forms event metadata for later emission after the AI response is complete.
  *
  * @param array $validated_params
@@ -76,8 +105,9 @@ function build_form_submitted_event_meta_logic(
     $submitted_inputs = is_array($submitted_inputs_raw)
         ? normalize_form_submission_value_for_event($submitted_inputs_raw)
         : [];
+    $image_input_summary = summarize_ai_form_image_inputs_for_event($validated_params['image_inputs'] ?? null);
 
-    return [
+    $event_meta = [
         'form_id' => $form_id,
         'form_name' => $form_title !== '' ? $form_title : '',
         'submission_count' => $submission_count,
@@ -87,6 +117,15 @@ function build_form_submitted_event_meta_logic(
         ],
         'inputs' => is_array($submitted_inputs) ? $submitted_inputs : [],
     ];
+
+    if (!empty($image_input_summary)) {
+        $event_meta['media_inputs'] = [
+            'image_count' => count($image_input_summary),
+            'images' => $image_input_summary,
+        ];
+    }
+
+    return $event_meta;
 }
 
 /**
@@ -113,6 +152,47 @@ function prepare_stream_data_logic(
     $user_wp_role = $user_id ? implode(', ', wp_get_current_user()->roles) : null;
     $provider = $form_config['ai_provider'];
     $model = $form_config['ai_model'];
+    $image_inputs = isset($validated_params['image_inputs']) && is_array($validated_params['image_inputs'])
+        ? $validated_params['image_inputs']
+        : null;
+
+    if (!empty($image_inputs)) {
+        $providers_with_image_inputs = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'xAI', 'Ollama'];
+        if (!in_array($provider, $providers_with_image_inputs, true)) {
+            return new WP_Error(
+                'provider_no_image_input_ai_forms_logic',
+                sprintf(
+                    /* translators: %s: provider name */
+                    __('%s does not support image analysis in AI Forms.', 'gpt3-ai-content-generator'),
+                    $provider
+                ),
+                ['status' => 400]
+            );
+        }
+
+        /**
+         * Allow provider-specific image capability validation for AI Forms stream requests.
+         *
+         * @param mixed $validation_error Existing validation error.
+         * @param array $image_inputs Normalized image input payload.
+         * @param string $provider Selected provider.
+         * @param string $model Selected model.
+         * @param array $form_config AI Form settings.
+         * @param string $flow Request flow identifier.
+         */
+        $image_validation_error = apply_filters(
+            'aipkit_chat_image_input_validation_error',
+            null,
+            $image_inputs,
+            $provider,
+            $model,
+            $form_config,
+            'ai_forms_stream'
+        );
+        if (is_wp_error($image_validation_error)) {
+            return $image_validation_error;
+        }
+    }
 
     // 1. Log User Request
     $base_log_data = [
@@ -129,11 +209,21 @@ function prepare_stream_data_logic(
     $bot_message_id = 'aif-msg-' . uniqid('', true);
     $base_log_data['bot_message_id'] = $bot_message_id;
 
+    $request_payload = [
+        'form_id' => $validated_params['form_id'],
+        'inputs' => $validated_params['user_input_values'],
+        'constructed_prompt' => $final_user_prompt,
+    ];
+    if (!empty($image_inputs)) {
+        $request_payload['image_inputs'] = $image_inputs;
+    }
+    $request_payload = AIPKit_Payload_Sanitizer::sanitize_payload_if_array($request_payload);
+
     $log_user_data = array_merge($base_log_data, [
         'message_role'       => 'user',
         'message_content'    => "AI Form Submission (ID: {$validated_params['form_id']}): " . ($form_config['title'] ?? 'Untitled'),
         'timestamp'          => time(),
-        'request_payload'    => ['form_id' => $validated_params['form_id'], 'inputs' => $validated_params['user_input_values'], 'constructed_prompt' => $final_user_prompt]
+        'request_payload'    => $request_payload,
     ]);
     $log_storage->log_message($log_user_data);
 
@@ -174,6 +264,9 @@ function prepare_stream_data_logic(
     }
     if (isset($form_config['presence_penalty']) && is_numeric($form_config['presence_penalty'])) {
         $ai_params_for_payload['presence_penalty'] = floatval($form_config['presence_penalty']);
+    }
+    if (!empty($image_inputs)) {
+        $ai_params_for_payload['image_inputs'] = $image_inputs;
     }
     // Add provider-specific reasoning / think controls.
     if ($provider === 'OpenAI') {

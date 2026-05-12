@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.4.20
+Stable tag: 2.4.21
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,7 +44,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 
 #### 📝 AI Forms
 - Drag-and-drop **AI-powered forms** to process user input into useful outputs — from outlines to support replies.
-- Connect forms to **web search** and your AI training data.
+- Connect forms to **web search**, uploaded files, image analysis, workflows, and your AI training data.
 
 #### ⚙️ AI Automation Engine
 - Schedule recurring or one-time AI tasks.
@@ -124,6 +124,15 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.21 =
+
+I made two improvements for AI forms.
+
+* Image upload: You can now upload images in AI Forms.
+* Workflows: You can now connect multiple AI Forms, pass outputs and submitted answers from one form to the next, and build multi-step AI workflows.
+
+Read more: [AI Forms Workflow](https://docs.aipower.org/ai-forms#workflow)
 
 = 2.4.20 =
 
@@ -236,152 +245,3 @@ General bug fixes and performance improvements.
 = 2.4.1 =
 
 Bug fix.
-
-= 2.4.0 =
-
-Performance improvements.
-
-= 2.3.94 =
-
-- Added a new **Usage & Billing** workspace with dedicated tabs for Pricing, Activity, Balances, and WooCommerce.
-- Add flexible **pricing rules**, credit balance tracking, and ledger activity for Chatbot, AI Forms, and Image Generator.
-- Updated the customer-facing credits and usage dashboard, including WooCommerce credit purchase guidance and shortcode customization.
-
-= 2.3.93 =
-
-- Improved streaming reliability across chatbot, AI Forms, and Content Writer.
-- Added source and citation handling with per-bot web searches for showing sources and custom searching-web text.
-- Improved chatbot and AI Forms rendering for streaming markdown, tables, links, citations, and theme-adaptive UI elements.
-- Added Ollama thinking support and normalized Ollama usage reporting.
-
-Please clear your cache after the update.
-
-= 2.3.92 =
-
-- Improved Content Writer UI.
-- General bug fixes and performance improvements.
-
-= 2.3.91 =
-
-- Improved Content Writer UI.
-- General bug fixes and performance improvements.
-
-= 2.3.90 =
-
-- **Added**: Gutenberg blocks for Chatbot, AI Forms, and Image Generator embeds.
-
-= 2.3.89 =
-
-- Refined Content Writer UI.
-- Improved Chatbot appearance settings.
-- Added new global Security settings for moderation, banned words, and banned IPs.
-
-= 2.3.88 =
-
-- Refined Content Writer UI.
-- Improved Chatbot appearance settings.
-- Added new global Security settings for moderation, banned words, and banned IPs.
-
-= 2.3.87 =
-
-Performance improvements.
-
-= 2.3.86 =
-
-Performance improvements.
-
-= 2.3.85 =
-
-- **New**: App integrations for Slack, HubSpot, Notion, Pipedrive, Zapier, Make, and n8n.
-- **New**: Event Webhooks for chatbot, AI Forms, content generation, image generation, automated tasks, and knowledge base events.
-
-= 2.3.84 =
-
-- **Added**: Multi-step forms with conditional steps.
-
-= 2.3.83 =
-
-- **Added**: AI Forms prompt-to-form generator to draft form titles, prompt templates, and fields from a natural-language request.
-- General bug fixes and performance improvements.
-
-= 2.3.82 =
-
-- **Added**: Ollama embedding support.
-- **Added**: Ollama image analysis support.
-- **Added**: New Google embedding model: `gemini-embedding-2-preview`.
-- **Fixed**: Google embedding batch inputs now process all provided text items instead of only the first one.
-- **Fixed**: REST embeddings `task_type` handling for Google now preserves valid uppercase task types (e.g. `RETRIEVAL_QUERY`).
-- General bug fixes and performance improvements.
-
-= 2.3.81 =
-
-- Further performance improvements in the Chatbot module.
-
-= 2.3.80 =
-
-- Performance improvements in the Chatbot module.
-- Added gpt-5.4 to the OpenAI recommended model list.
-
-= 2.3.79 =
-
-- **Fixed**: On-page chatbots no longer auto-switch to fullscreen on small screens; popup chatbots still fullscreen only when opened.
-
-= 2.3.78 =
-
-- **Added**: A shared Prompt Library for Content Writer, Content Assistant, and Automated Tasks.
-- **Fixed**: OpenAI store lists now update right away in AI Forms and Automated Tasks.
-- **Fixed**: Generated images now save correctly in Content Writer.
-
-= 2.3.77 =
-
-- **Fixed**: OpenRouter image selection now shows only models that can actually create images, and Content Writer/Automated Tasks no longer report image success when no image is created.
-- **Fixed**: OpenRouter now correctly creates the requested number of content images in Content Writer and Automated Tasks.
-
-= 2.3.76 =
-
-- **Fixed**: Webhook call issue in chatbot rules.
-
-= 2.3.75 =
-
-- **Fixed**: Chatbot no longer sends `temperature` to unsupported OpenAI GPT-5 chat-series models (e.g., `gpt-5.2-chat-latest`).
-- **Improved**: AI Forms reliability with autosave and unsaved-work protection to reduce accidental data loss.
-
-= 2.3.74 =
-
-- **Added**: New maintenance tools in Settings (backup/import, restore point, cache cleanup, sync all models).
-
-= 2.3.73 =
-
-- **Added**: Duplicate functionality for the chatbots.
-- **Improved**: Redesigned Chatbot settings UI.
-- **Improved**: Trigger validation now avoids blocking incomplete payload fields while rules are inactive.
-- **Improved**: Admin asset cache busting now uses file modification timestamps for dashboard bundles.
-
-= 2.3.72 =
-
-- **Improved**: Added option to enable web search by default for chatbots.
-- **Added**: Image editing support for Image Generator (OpenAI, Google, OpenRouter models).
-- **Improved**: Simplified image generate/edit flow in the shortcode (`mode="generate|edit|both"` with default mode and switch).
-- **Improved**: Better image upload experience for edit mode (drag & drop, preview, clear errors).
-- **Improved**: One-click **Edit** from image history to reuse images without re-uploading.
-
-= 2.3.71 =
-
-- **Improved**: Migrated OpenRouter to the Responses API.
-- **Added**: OpenRouter embeddings support in chatbot, content writer, automated task and ai forms.
-- **Added**: OpenRouter web search support in chatbot and ai forms.
-- **Added**: OpenRouter image analysis support in chatbot.
-- **Added**: OpenRouter image generation support in chatbot, content writer, automated task and image generator module.
-
-= 2.3.70 =
-
-NEW!: We have a new AI provider in the house: Anthropic!
-
-You can now add your Anthropic API key in AI Settings and use Anthropic directly in the plugin.
-
-Capabilities:
-
-- Use Anthropic Claude models across supported modules, including Opus 4.6.
-- Generate content and run chatbot conversations with Anthropic.
-- Analyze images in Chatbot with Anthropic Claude vision support.
-- Use chatbot file uploads with Anthropic Files.

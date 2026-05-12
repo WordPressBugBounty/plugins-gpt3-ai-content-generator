@@ -291,34 +291,36 @@ if (!defined('ABSPATH')) {
     >
         <div class="aipkit_ai_form_inspector_card_header">
             <div class="aipkit_ai_form_inspector_card_header_copy">
-                <h3 class="aipkit_ai_form_inspector_card_title"><?php esc_html_e('Connected Apps', 'gpt3-ai-content-generator'); ?></h3>
+                <div class="aipkit_ai_form_inspector_card_title_row">
+                    <h3 class="aipkit_ai_form_inspector_card_title"><?php esc_html_e('Connected Apps', 'gpt3-ai-content-generator'); ?></h3>
+                    <?php if (!$is_pro): ?>
+                        <a
+                            href="<?php echo esc_url($upgrade_url); ?>"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="aipkit_pro_tag"
+                        ><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></a>
+                    <?php endif; ?>
+                </div>
                 <?php if ($is_pro): ?>
                     <span
                         class="aipkit_ai_form_connected_apps_summary"
                         data-aipkit-ai-form-connected-apps-summary
-                        data-default-summary="<?php esc_attr_e('No recipes yet', 'gpt3-ai-content-generator'); ?>"
-                    >
-                        <?php esc_html_e('No recipes yet', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                <?php else : ?>
-                    <span class="aipkit_ai_form_connected_apps_summary">
-                        <?php esc_html_e('Send submissions to apps.', 'gpt3-ai-content-generator'); ?>
-                    </span>
+                        data-default-summary=""
+                    ></span>
                 <?php endif; ?>
             </div>
-            <?php if ($is_pro): ?>
-                <div class="aipkit_ai_form_inspector_card_actions">
-                    <a
-                        href="<?php echo esc_url($connected_apps_manage_url); ?>"
-                        class="button button-primary aipkit_btn aipkit_btn-primary"
-                        data-aipkit-ai-form-connected-apps-manage
-                    >
-                        <?php esc_html_e('Manage', 'gpt3-ai-content-generator'); ?>
-                    </a>
-                </div>
-            <?php endif; ?>
         </div>
         <?php if ($is_pro): ?>
+            <div class="aipkit_chatbot_connected_apps_actions aipkit_ai_form_connected_apps_actions">
+                <a
+                    href="<?php echo esc_url($connected_apps_manage_url); ?>"
+                    class="button button-primary aipkit_btn aipkit_btn-primary"
+                    data-aipkit-ai-form-connected-apps-manage
+                >
+                    <?php esc_html_e('Manage', 'gpt3-ai-content-generator'); ?>
+                </a>
+            </div>
             <details class="aipkit_ai_form_inline_details aipkit_ai_form_connected_apps_details">
                 <summary class="aipkit_ai_form_inline_details_summary">
                     <span><?php esc_html_e('Recipes', 'gpt3-ai-content-generator'); ?></span>

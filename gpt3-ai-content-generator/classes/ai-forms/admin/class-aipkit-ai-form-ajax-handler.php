@@ -213,6 +213,12 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
             if (file_exists($pro_public_js_path)) {
                 $assets['js']['lib-ai-forms-conversation'] = WPAICG_PLUGIN_URL . $pro_public_js_relative . '?ver=' . filemtime($pro_public_js_path);
             }
+
+            $workflow_public_js_relative = 'lib/js/ai-forms/workflow-runtime.js';
+            $workflow_public_js_path = WPAICG_PLUGIN_DIR . $workflow_public_js_relative;
+            if (file_exists($workflow_public_js_path)) {
+                $assets['js']['lib-ai-forms-workflow'] = WPAICG_PLUGIN_URL . $workflow_public_js_relative . '?ver=' . filemtime($workflow_public_js_path);
+            }
         }
 
         // 5. Generate the public config object that would normally be localized

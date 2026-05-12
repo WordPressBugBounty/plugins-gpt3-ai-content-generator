@@ -57,11 +57,14 @@ function render_form_html_logic(
         id="<?php echo esc_attr($unique_form_html_id); ?>" 
         data-form-id="<?php echo esc_attr($form_data['id']); ?>" 
         data-nonce="<?php echo esc_attr($ajax_nonce); ?>"
+        data-show-provider="<?php echo $show_provider ? 'true' : 'false'; ?>"
+        data-show-model="<?php echo $show_model ? 'true' : 'false'; ?>"
         data-show-save-button="<?php echo $show_save_button ? 'true' : 'false'; ?>"
         data-pdf-download-enabled="<?php echo $show_pdf_download ? 'true' : 'false'; ?>"
         data-show-copy-button="<?php echo $show_copy_button ? 'true' : 'false'; ?>"
         data-save-as-post-nonce="<?php echo esc_attr($save_as_post_nonce); ?>"
         data-aipkit-conversation-ui-preset="<?php echo esc_attr($conversation_ui_preset); ?>"
+        <?php echo apply_filters('aipkit_ai_forms_frontend_wrapper_attributes', '', $form_data); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Extension attributes must be escaped by the provider. ?>
         <?php foreach ($labels as $key => $value) : ?>
             data-label-<?php echo esc_attr(str_replace('_', '-', $key)); ?>="<?php echo esc_attr($value); ?>"
         <?php endforeach; ?>
@@ -179,6 +182,7 @@ function render_form_html_logic(
         <div class="aipkit-ai-form-results" style="display: none;">
              <?php // Content will be injected here by JS?>
         </div>
+        <?php do_action('aipkit_ai_forms_frontend_after_results', $form_data); ?>
     </div>
     <?php
     return ob_get_clean();

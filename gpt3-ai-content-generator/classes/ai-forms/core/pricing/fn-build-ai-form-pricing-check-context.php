@@ -15,7 +15,8 @@ if (!function_exists(__NAMESPACE__ . '\\build_ai_form_pricing_check_context_logi
     function build_ai_form_pricing_check_context_logic(
         int $form_id,
         array $form_config,
-        array $submitted_fields = []
+        array $submitted_fields = [],
+        ?array $image_inputs = null
     ): array {
         $provider = sanitize_text_field((string) ($form_config['ai_provider'] ?? 'OpenAI'));
         $model = sanitize_text_field((string) ($form_config['ai_model'] ?? ''));
@@ -44,6 +45,9 @@ if (!function_exists(__NAMESPACE__ . '\\build_ai_form_pricing_check_context_logi
         }
 
         $input_tokens = estimate_ai_form_text_tokens_logic(implode("\n", $input_parts));
+        if (!empty($image_inputs)) {
+            $input_tokens += count($image_inputs) * 768;
+        }
         $output_tokens = isset($form_config['max_tokens']) ? absint($form_config['max_tokens']) : 0;
         if ($output_tokens <= 0) {
             $output_tokens = 512;

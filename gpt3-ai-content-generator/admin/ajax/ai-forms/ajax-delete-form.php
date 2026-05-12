@@ -34,7 +34,12 @@ function do_ajax_delete_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance
 
     $deleted = $form_storage->delete_form($form_id);
     if ($deleted) {
-        wp_send_json_success(['message' => __('Form deleted successfully.', 'gpt3-ai-content-generator')]);
+        $extra_messages = apply_filters('aipkit_ai_forms_after_delete_form_messages', [], $form_id, $form_storage);
+        $message = __('Form deleted successfully.', 'gpt3-ai-content-generator');
+        if (is_array($extra_messages) && !empty($extra_messages)) {
+            $message .= ' ' . implode(' ', array_map('sanitize_text_field', $extra_messages));
+        }
+        wp_send_json_success(['message' => $message]);
     } else {
         $handler_instance->send_wp_error(new WP_Error('delete_failed', __('Failed to delete form.', 'gpt3-ai-content-generator')), 500);
     }

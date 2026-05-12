@@ -206,10 +206,19 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                                             <span class="dashicons dashicons-media-default"></span>
                                             <?php esc_html_e('File Upload', 'gpt3-ai-content-generator'); ?>
                                         </div>
+                                        <div class="aipkit_form_element_item" data-element-type="image-upload" draggable="true">
+                                            <span class="dashicons dashicons-format-image"></span>
+                                            <?php esc_html_e('Image Upload', 'gpt3-ai-content-generator'); ?>
+                                        </div>
                                     <?php else: ?>
                                         <div class="aipkit_form_element_item aipkit-pro-feature-locked" title="<?php esc_attr_e('This is a Pro feature. Please upgrade.', 'gpt3-ai-content-generator'); ?>">
                                             <span class="dashicons dashicons-media-default"></span>
                                             <?php esc_html_e('File Upload', 'gpt3-ai-content-generator'); ?>
+                                            <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" target="_blank" class="aipkit_pro_tag">Pro</a>
+                                        </div>
+                                        <div class="aipkit_form_element_item aipkit-pro-feature-locked" title="<?php esc_attr_e('This is a Pro feature. Please upgrade.', 'gpt3-ai-content-generator'); ?>">
+                                            <span class="dashicons dashicons-format-image"></span>
+                                            <?php esc_html_e('Image Upload', 'gpt3-ai-content-generator'); ?>
                                             <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" target="_blank" class="aipkit_pro_tag">Pro</a>
                                         </div>
                                     <?php endif; ?>
@@ -263,6 +272,40 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                                     <?php include __DIR__ . '/conversation-ui-config.php'; ?>
                                 </div>
                             </div>
+
+                            <?php
+                            $aipkit_ai_forms_workflow_renderer_registered = has_action('aipkit_ai_forms_editor_left_accordion_after_multistep');
+                            do_action('aipkit_ai_forms_editor_left_accordion_after_multistep', $is_pro, $upgrade_url);
+                            ?>
+                            <?php if (!$is_pro && false === $aipkit_ai_forms_workflow_renderer_registered): ?>
+                                <div class="aipkit_accordion aipkit_ai_forms_workflow_accordion">
+                                    <div class="aipkit_accordion-header">
+                                        <?php esc_html_e('Workflow', 'gpt3-ai-content-generator'); ?>
+                                        <a
+                                            href="<?php echo esc_url($upgrade_url); ?>"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="aipkit_pro_tag"
+                                            onclick="event.stopPropagation();"
+                                        ><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></a>
+                                    </div>
+                                    <div class="aipkit_accordion-content">
+                                        <div class="aipkit_popover_options_list aipkit_ai_forms_workflow_panel_body">
+                                            <div class="aipkit_popover_option_row aipkit_ai_form_multistep_upgrade_notice">
+                                                <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked aipkit_ai_form_multistep_upgrade_inner">
+                                                    <div class="aipkit_ai_form_multistep_upgrade_copy">
+                                                        <span class="aipkit_popover_option_label"><?php esc_html_e('Connect AI Forms into guided workflows.', 'gpt3-ai-content-generator'); ?></span>
+                                                        <p class="aipkit_form-help"><?php esc_html_e('Send AI output and submitted answers into the next form, with conditional routes.', 'gpt3-ai-content-generator'); ?></p>
+                                                    </div>
+                                                    <a class="aipkit_btn aipkit_btn-primary aipkit_ai_form_upgrade_btn" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
+                                                        <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
 
                             <!-- Labels Accordion -->
                             <div class="aipkit_accordion">

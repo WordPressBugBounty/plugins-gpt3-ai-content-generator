@@ -68,6 +68,44 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
         }
     }
 
+    if (!empty($ai_params['image_inputs']) && is_array($ai_params['image_inputs'])) {
+        $image_parts = [];
+        foreach ($ai_params['image_inputs'] as $image_input) {
+            if (!is_array($image_input)) {
+                continue;
+            }
+
+            $mime_type = isset($image_input['type']) ? sanitize_text_field((string) $image_input['type']) : '';
+            $base64_data = isset($image_input['base64']) ? trim((string) $image_input['base64']) : '';
+            if ($mime_type === '' || $base64_data === '') {
+                continue;
+            }
+
+            $image_parts[] = [
+                'inline_data' => [
+                    'mime_type' => $mime_type,
+                    'data' => $base64_data,
+                ],
+            ];
+        }
+
+        if (!empty($image_parts)) {
+            $last_user_index = null;
+            for ($i = count($contents) - 1; $i >= 0; $i--) {
+                if (($contents[$i]['role'] ?? '') === 'user') {
+                    $last_user_index = $i;
+                    break;
+                }
+            }
+
+            if ($last_user_index !== null) {
+                $contents[$last_user_index]['parts'] = array_merge($contents[$last_user_index]['parts'], $image_parts);
+            } else {
+                $contents[] = ['role' => 'user', 'parts' => $image_parts];
+            }
+        }
+    }
+
     $cleaned_contents = [];
     $last_role = null;
     foreach ($contents as $msg) {

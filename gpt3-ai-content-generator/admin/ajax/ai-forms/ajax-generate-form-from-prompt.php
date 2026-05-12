@@ -58,6 +58,7 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
     $retry_plan = aipkit_ai_forms_build_generation_retry_plan($selected_provider, $selected_model);
     $attempts = $retry_plan['attempts'];
     $skipped = $retry_plan['skipped'];
+    $is_pro = class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
 
     if ($attempts === []) {
         $handler_instance->send_wp_error(
@@ -80,7 +81,8 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
         $normalized_form = aipkit_ai_forms_try_generate_form_with_attempt(
             $ai_caller,
             $attempt,
-            $generation_prompt
+            $generation_prompt,
+            $is_pro
         );
 
         if (is_wp_error($normalized_form)) {
@@ -92,11 +94,22 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
             continue;
         }
 
+        $notices = isset($normalized_form['notices']) && is_array($normalized_form['notices'])
+            ? $normalized_form['notices']
+            : [];
+        unset($normalized_form['notices']);
+
+        $message = __('Form draft generated. Review the fields and save when ready.', 'gpt3-ai-content-generator');
+        if (!empty($notices)) {
+            $message .= ' ' . implode(' ', array_map('sanitize_text_field', $notices));
+        }
+
         wp_send_json_success([
-            'message' => __('Form draft generated. Review the fields and save when ready.', 'gpt3-ai-content-generator'),
+            'message' => $message,
             'provider' => $attempt['provider'],
             'model' => $attempt['model'],
             'form' => $normalized_form,
+            'notices' => $notices,
         ]);
     }
 
@@ -279,7 +292,8 @@ function aipkit_ai_forms_build_generation_attempt(
 function aipkit_ai_forms_try_generate_form_with_attempt(
     AIPKit_AI_Caller $ai_caller,
     array $attempt,
-    string $generation_prompt
+    string $generation_prompt,
+    bool $is_pro
 ): array|WP_Error {
     $result = $ai_caller->make_standard_call(
         $attempt['provider'],
@@ -287,7 +301,7 @@ function aipkit_ai_forms_try_generate_form_with_attempt(
         [
             [
                 'role' => 'user',
-                'content' => aipkit_ai_forms_build_generation_prompt($generation_prompt),
+                'content' => aipkit_ai_forms_build_generation_prompt($generation_prompt, $is_pro),
             ],
         ],
         [
@@ -309,7 +323,7 @@ function aipkit_ai_forms_try_generate_form_with_attempt(
         return $decoded_blueprint;
     }
 
-    return aipkit_ai_forms_normalize_generated_blueprint($decoded_blueprint, $generation_prompt);
+    return aipkit_ai_forms_normalize_generated_blueprint($decoded_blueprint, $generation_prompt, $is_pro);
 }
 
 /**
@@ -355,9 +369,9 @@ function aipkit_ai_forms_build_generation_failure_message(array $failures): stri
  * @param string $generation_prompt
  * @return string
  */
-function aipkit_ai_forms_build_generation_prompt(string $generation_prompt): string
+function aipkit_ai_forms_build_generation_prompt(string $generation_prompt, bool $is_pro): string
 {
-    $schema_example = wp_json_encode([
+    $schema_example = [
         'title' => 'Blog Brief Builder',
         'prompt_template' => "You are an expert writer.\n\nWrite a blog post using the following inputs:\n- Topic: {topic}\n- Audience: {audience}\n- Tone: {tone}",
         'rows' => [
@@ -409,7 +423,47 @@ function aipkit_ai_forms_build_generation_prompt(string $generation_prompt): str
                 ],
             ],
         ],
-    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    ];
+
+    if ($is_pro) {
+        $schema_example['rows'][0]['conversation_step'] = [
+            'enabled' => true,
+            'title' => 'Brief',
+            'description' => 'Collect the core writing requirements.',
+        ];
+        $schema_example['rows'][1]['conversation_step'] = [
+            'enabled' => true,
+            'title' => 'Preferences',
+            'description' => 'Capture audience and tone details.',
+            'condition' => [
+                'field_id' => '',
+                'operator' => 'equals',
+                'value' => '',
+            ],
+        ];
+    }
+
+    $schema_example_json = wp_json_encode($schema_example, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $supported_field_types = $is_pro
+        ? 'text-input, textarea, select, checkbox, radio-button, file-upload, image-upload'
+        : 'text-input, textarea, select, checkbox, radio-button';
+
+    $plan_rules = $is_pro
+        ? [
+            '- this site is on Pro, so you may use file-upload and image-upload when the requested workflow truly needs them.',
+            '- you may create a guided multi-step form by adding conversation_step metadata to rows.',
+            '- if the user asks for a multi-step, step-by-step, wizard, conditional, or branched form, use conversation_step metadata.',
+            '- conversation_step.enabled should be true for rows that should appear as steps.',
+            '- conversation_step may include title, description, and an optional condition object with field_id, operator, and value.',
+            '- condition.field_id must reference a field from an earlier row only.',
+            '- condition.operator must be one of: equals, not_equals, contains, not_contains, filled, empty.',
+            '- do not use audio-upload yet.',
+        ]
+        : [
+            '- this site is on the free plan, so do not use file-upload, image-upload, audio-upload, or multi-step metadata.',
+            '- if the user asks for files, images, audio, uploads, or multi-step flows, create a practical single-step text-based alternative instead.',
+            '- for requested file/image/audio uploads on the free plan, use textarea fields that ask the user to paste a description, transcript, or relevant text.',
+        ];
 
     return implode("\n\n", [
         'Create an AI form blueprint for a WordPress builder.',
@@ -420,14 +474,14 @@ function aipkit_ai_forms_build_generation_prompt(string $generation_prompt): str
         '- each row must have a columns array.',
         '- each column may include width and fields.',
         '- widths should use only 100%, 50%, 30%, 70%, or 33.33%.',
-        '- supported field types: text-input, textarea, select, checkbox, radio-button.',
-        '- do not use file-upload.',
+        '- supported field types for this site: ' . $supported_field_types . '.',
+        implode("\n", $plan_rules),
         '- every field needs a user-friendly label and a unique snake_case field_id.',
         '- prompt_template must reference every field with its matching placeholder.',
         '- use select/radio/checkbox only when there are clear predefined choices.',
         '- keep the form practical and focused. Usually 3 to 8 fields is enough.',
         'Example response shape:',
-        $schema_example,
+        (string) $schema_example_json,
         'User request:',
         $generation_prompt,
     ]);
@@ -483,7 +537,7 @@ function aipkit_ai_forms_decode_generation_response(string $content): array|WP_E
  * @param string $fallback_prompt
  * @return array|WP_Error
  */
-function aipkit_ai_forms_normalize_generated_blueprint(array $blueprint, string $fallback_prompt): array|WP_Error
+function aipkit_ai_forms_normalize_generated_blueprint(array $blueprint, string $fallback_prompt, bool $is_pro): array|WP_Error
 {
     $raw_rows = $blueprint['rows'] ?? $blueprint['form_structure'] ?? $blueprint['structure'] ?? [];
     if (!is_array($raw_rows) || $raw_rows === []) {
@@ -513,8 +567,10 @@ function aipkit_ai_forms_normalize_generated_blueprint(array $blueprint, string 
     $used_field_ids = [];
     $field_references = [];
     $normalized_rows = [];
+    $notices = aipkit_ai_forms_detect_plan_notices($fallback_prompt, $is_pro);
     $row_counter = 0;
     $element_counter = 0;
+    $has_conversation_steps = false;
 
     foreach ($raw_rows as $raw_row) {
         if (!is_array($raw_row)) {
@@ -576,7 +632,9 @@ function aipkit_ai_forms_normalize_generated_blueprint(array $blueprint, string 
                 $normalized_field = aipkit_ai_forms_normalize_generated_field(
                     $raw_field,
                     $element_counter,
-                    $used_field_ids
+                    $used_field_ids,
+                    $is_pro,
+                    $notices
                 );
                 if (!$normalized_field) {
                     continue;
@@ -608,11 +666,26 @@ function aipkit_ai_forms_normalize_generated_blueprint(array $blueprint, string 
             continue;
         }
 
-        $normalized_rows[] = [
+        $normalized_row = [
             'internalId' => sprintf('row-%d', count($normalized_rows) + 1),
             'type' => 'layout-row',
             'columns' => $normalized_columns,
         ];
+
+        $conversation_step = aipkit_ai_forms_normalize_generated_conversation_step(
+            $raw_row,
+            count($normalized_rows) + 1,
+            $is_pro,
+            $notices
+        );
+        if ($conversation_step !== null) {
+            $normalized_row['aipkitConversationStep'] = $conversation_step;
+            if (!empty($conversation_step['conversationEnabled'])) {
+                $has_conversation_steps = true;
+            }
+        }
+
+        $normalized_rows[] = $normalized_row;
     }
 
     if ($normalized_rows === [] || $field_references === []) {
@@ -621,6 +694,30 @@ function aipkit_ai_forms_normalize_generated_blueprint(array $blueprint, string 
             __('The generated draft did not contain any usable fields.', 'gpt3-ai-content-generator'),
             ['status' => 500]
         );
+    }
+
+    if (
+        $is_pro
+        && !$has_conversation_steps
+        && count($normalized_rows) > 1
+        && aipkit_ai_forms_prompt_mentions_multistep($fallback_prompt)
+    ) {
+        foreach ($normalized_rows as $index => &$normalized_row_ref) {
+            $normalized_row_ref['aipkitConversationStep'] = [
+                'conversationEnabled' => true,
+                'title' => sprintf(
+                    /* translators: %d: generated step number. */
+                    __('Step %d', 'gpt3-ai-content-generator'),
+                    $index + 1
+                ),
+                'description' => '',
+                'conditionFieldId' => '',
+                'conditionOperator' => 'equals',
+                'conditionValue' => '',
+            ];
+        }
+        unset($normalized_row_ref);
+        $has_conversation_steps = true;
     }
 
     $title = isset($blueprint['title']) ? sanitize_text_field((string) $blueprint['title']) : '';
@@ -639,11 +736,20 @@ function aipkit_ai_forms_normalize_generated_blueprint(array $blueprint, string 
     }
     $prompt_template = aipkit_ai_forms_ensure_prompt_uses_fields($prompt_template, $field_references);
 
-    return [
+    $result = [
         'title' => $title,
         'prompt_template' => $prompt_template,
         'structure' => $normalized_rows,
     ];
+
+    if ($has_conversation_steps) {
+        $result['conversation_ui_preset'] = 'full';
+    }
+    if (!empty($notices)) {
+        $result['notices'] = array_values(array_unique($notices));
+    }
+
+    return $result;
 }
 
 /**
@@ -654,9 +760,16 @@ function aipkit_ai_forms_normalize_generated_blueprint(array $blueprint, string 
  * @param array<int, string> $used_field_ids
  * @return array|null
  */
-function aipkit_ai_forms_normalize_generated_field(array $field, int $element_counter, array &$used_field_ids): ?array
+function aipkit_ai_forms_normalize_generated_field(
+    array $field,
+    int $element_counter,
+    array &$used_field_ids,
+    bool $is_pro,
+    array &$notices
+): ?array
 {
-    $type = aipkit_ai_forms_normalize_field_type((string) ($field['type'] ?? $field['field_type'] ?? 'text-input'));
+    $raw_type = (string) ($field['type'] ?? $field['field_type'] ?? 'text-input');
+    $type = aipkit_ai_forms_normalize_field_type($raw_type, $is_pro, $notices);
     $label = sanitize_text_field((string) ($field['label'] ?? $field['question'] ?? $field['name'] ?? ''));
     $label = aipkit_ai_forms_limit_text_length($label, 90);
     $required_raw = $field['required'] ?? false;
@@ -696,6 +809,15 @@ function aipkit_ai_forms_normalize_generated_field(array $field, int $element_co
             sanitize_text_field((string) ($field['placeholder'] ?? '')),
             140
         );
+        return $normalized;
+    }
+
+    if (in_array($type, ['file-upload', 'image-upload'], true)) {
+        if ($normalized['helpText'] === '') {
+            $normalized['helpText'] = $type === 'image-upload'
+                ? __('Upload an image for the AI to analyze.', 'gpt3-ai-content-generator')
+                : __('Upload a TXT or PDF file for the AI to use.', 'gpt3-ai-content-generator');
+        }
         return $normalized;
     }
 
@@ -766,7 +888,7 @@ function aipkit_ai_forms_normalize_field_options($options): array
  * @param string $type
  * @return string
  */
-function aipkit_ai_forms_normalize_field_type(string $type): string
+function aipkit_ai_forms_normalize_field_type(string $type, bool $is_pro, array &$notices): string
 {
     $normalized = strtolower(trim($type));
     $normalized = str_replace(['_', ' '], '-', $normalized);
@@ -788,9 +910,135 @@ function aipkit_ai_forms_normalize_field_type(string $type): string
         'checkbox' => 'checkbox',
         'checkboxes' => 'checkbox',
         'checkbox-group' => 'checkbox',
+        'file' => 'file-upload',
+        'file-upload' => 'file-upload',
+        'document-upload' => 'file-upload',
+        'pdf-upload' => 'file-upload',
+        'image' => 'image-upload',
+        'image-upload' => 'image-upload',
+        'photo-upload' => 'image-upload',
+        'picture-upload' => 'image-upload',
+        'audio' => 'audio-upload',
+        'audio-upload' => 'audio-upload',
+        'voice-upload' => 'audio-upload',
     ];
 
-    return $map[$normalized] ?? 'text-input';
+    $mapped = $map[$normalized] ?? 'text-input';
+    if (in_array($mapped, ['file-upload', 'image-upload'], true) && !$is_pro) {
+        $notices[] = __('Requested upload fields were converted to standard text fields because uploads require Pro.', 'gpt3-ai-content-generator');
+        return 'textarea';
+    }
+
+    if ($mapped === 'audio-upload') {
+        $notices[] = __('Audio upload is not available in Generate with AI yet, so it was converted to a text field.', 'gpt3-ai-content-generator');
+        return 'textarea';
+    }
+
+    return $mapped;
+}
+
+/**
+ * Normalize optional row-level multi-step metadata into the existing builder schema.
+ *
+ * @param array $raw_row
+ * @param int $row_number
+ * @param bool $is_pro
+ * @param array<int, string> $notices
+ * @return array<string, mixed>|null
+ */
+function aipkit_ai_forms_normalize_generated_conversation_step(array $raw_row, int $row_number, bool $is_pro, array &$notices): ?array
+{
+    $raw_step = $raw_row['conversation_step']
+        ?? $raw_row['aipkitConversationStep']
+        ?? $raw_row['step']
+        ?? $raw_row['multi_step']
+        ?? null;
+
+    if (!is_array($raw_step)) {
+        return null;
+    }
+
+    if (!$is_pro) {
+        $notices[] = __('Requested multi-step settings were removed because multi-step forms require Pro.', 'gpt3-ai-content-generator');
+        return null;
+    }
+
+    $explicit_enabled = $raw_step['enabled'] ?? $raw_step['conversationEnabled'] ?? true;
+    $conversation_enabled = is_bool($explicit_enabled)
+        ? $explicit_enabled
+        : filter_var($explicit_enabled, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+    if ($conversation_enabled === null) {
+        $conversation_enabled = true;
+    }
+
+    $raw_condition = isset($raw_step['condition']) && is_array($raw_step['condition'])
+        ? $raw_step['condition']
+        : [];
+    $condition_field_id = sanitize_key((string) ($raw_step['conditionFieldId'] ?? $raw_step['condition_field_id'] ?? $raw_condition['field_id'] ?? ''));
+    $condition_operator = sanitize_key((string) ($raw_step['conditionOperator'] ?? $raw_step['condition_operator'] ?? $raw_condition['operator'] ?? 'equals'));
+    $allowed_operators = ['equals', 'not_equals', 'contains', 'not_contains', 'filled', 'empty'];
+    if (!in_array($condition_operator, $allowed_operators, true)) {
+        $condition_operator = 'equals';
+    }
+    $condition_value = sanitize_text_field((string) ($raw_step['conditionValue'] ?? $raw_step['condition_value'] ?? $raw_condition['value'] ?? ''));
+    if ($row_number <= 1 || $condition_field_id === '') {
+        $condition_field_id = '';
+        $condition_operator = 'equals';
+        $condition_value = '';
+    }
+
+    return [
+        'conversationEnabled' => $conversation_enabled === true,
+        'title' => aipkit_ai_forms_limit_text_length(
+            sanitize_text_field((string) ($raw_step['title'] ?? sprintf(__('Step %d', 'gpt3-ai-content-generator'), $row_number))),
+            90
+        ),
+        'description' => aipkit_ai_forms_limit_text_length(
+            sanitize_text_field((string) ($raw_step['description'] ?? '')),
+            180
+        ),
+        'conditionFieldId' => $condition_field_id,
+        'conditionOperator' => $condition_operator,
+        'conditionValue' => aipkit_ai_forms_limit_text_length($condition_value, 120),
+    ];
+}
+
+/**
+ * Detect Pro-only feature requests so free-plan generated alternatives can explain what changed.
+ *
+ * @param string $prompt
+ * @param bool $is_pro
+ * @return array<int, string>
+ */
+function aipkit_ai_forms_detect_plan_notices(string $prompt, bool $is_pro): array
+{
+    if ($is_pro) {
+        return [];
+    }
+
+    $prompt_lc = strtolower($prompt);
+    $notices = [];
+
+    if (preg_match('/\b(upload|file|pdf|document|image|photo|picture|audio|voice|recording)\b/', $prompt_lc)) {
+        $notices[] = __('Requested upload features were converted to text fields because uploads require Pro.', 'gpt3-ai-content-generator');
+    }
+
+    if (aipkit_ai_forms_prompt_mentions_multistep($prompt_lc)) {
+        $notices[] = __('Requested multi-step features were omitted because multi-step forms require Pro.', 'gpt3-ai-content-generator');
+    }
+
+    return $notices;
+}
+
+/**
+ * Detect whether the natural-language prompt asks for a guided or branched flow.
+ *
+ * @param string $prompt
+ * @return bool
+ */
+function aipkit_ai_forms_prompt_mentions_multistep(string $prompt): bool
+{
+    return preg_match('/\b(multi[- ]?step|step[- ]?by[- ]?step|conditional|branch|branched|wizard)\b/i', $prompt) === 1;
 }
 
 /**

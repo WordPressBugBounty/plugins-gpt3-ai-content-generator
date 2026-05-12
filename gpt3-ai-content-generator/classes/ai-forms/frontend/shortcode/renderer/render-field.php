@@ -142,5 +142,39 @@ function render_field_logic(array $element, int $form_id): void
                 echo '</div>';
             }
             break;
+
+        case 'image-upload':
+            $is_pro = class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+            if ($is_pro) {
+                echo '<div class="aipkit_form-group aipkit_form_group-image-upload">';
+                echo '<label for="' . esc_attr($field_id_attr) . '" class="aipkit_form-label">';
+                echo esc_html($element['label']);
+                if (!empty($element['required'])) {
+                    echo ' <span class="aipkit-required-indicator" aria-hidden="true">*</span>';
+                }
+                echo '</label>';
+
+                echo '<input type="file" id="' . esc_attr($field_id_attr) . '" class="aipkit_form-input aipkit-image-upload-input" ' . ($required_attr ? 'data-is-required="true"' : '') . ' data-field-id="' . esc_attr($element['fieldId']) . '" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">';
+
+                echo '<input type="hidden" name="' . esc_attr($field_name_attr) . '" class="aipkit-image-hidden-content" ' . esc_attr($required_attr) . '>';
+
+                echo '<div class="aipkit-file-status-wrapper" style="display:none;">';
+                echo '<div class="aipkit-file-upload-status"></div>';
+                echo '<button type="button" class="aipkit-image-remove-btn" style="display:none;" title="' . esc_attr__('Remove image', 'gpt3-ai-content-generator') . '">';
+                echo '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-circle-minus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 12l6 0" /></svg>';
+                echo '</button>';
+                echo '</div>';
+
+                if (!empty($help_text)) {
+                    echo '<p class="aipkit_form-help">' . wp_kses_post($help_text) . '</p>';
+                }
+                echo '</div>';
+            } else {
+                echo '<div class="aipkit_form-group">';
+                echo '<label class="aipkit_form-label">' . esc_html($element['label']) . '</label>';
+                echo '<p class="aipkit_form-help"><em>' . esc_html__('Image upload is a paid feature.', 'gpt3-ai-content-generator') . '</em></p>';
+                echo '</div>';
+            }
+            break;
     }
 }

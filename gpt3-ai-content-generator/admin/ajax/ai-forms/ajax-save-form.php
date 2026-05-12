@@ -65,6 +65,14 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $prompt_template = isset($post_data['prompt_template']) ? sanitize_textarea_field($post_data['prompt_template']) : '';
     $form_structure_json = isset($post_data['form_structure']) ? wp_kses_post($post_data['form_structure']) : '[]';
 
+    if (
+        array_key_exists('workflow_config', $post_data)
+        && !apply_filters('aipkit_ai_forms_allow_workflow_config_save', false, $post_data, $form_id)
+    ) {
+        $handler_instance->send_wp_error(new WP_Error('workflow_requires_pro', __('AI Form workflows require a Pro plan.', 'gpt3-ai-content-generator')), 403);
+        return;
+    }
+
     // Process labels - now receiving as a JSON string from JavaScript
     $default_labels = [
         'generate_button' => __('Generate', 'gpt3-ai-content-generator'),
@@ -305,6 +313,16 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         // Labels
         'labels' => $final_labels,
     ];
+
+    $settings = apply_filters('aipkit_ai_forms_sanitize_save_settings', $settings, $post_data, $form_id);
+    if (is_wp_error($settings)) {
+        $handler_instance->send_wp_error($settings, 400);
+        return;
+    }
+    if (!is_array($settings)) {
+        $handler_instance->send_wp_error(new WP_Error('invalid_save_settings', __('Invalid form settings submitted.', 'gpt3-ai-content-generator')), 400);
+        return;
+    }
 
     if ($form_id) {
         $updated_post_id = wp_update_post([

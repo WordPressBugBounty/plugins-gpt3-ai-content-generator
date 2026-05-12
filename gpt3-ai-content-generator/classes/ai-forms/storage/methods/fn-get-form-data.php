@@ -213,5 +213,6 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
 
     $data['labels'] = $final_labels;
 
-    return $data;
+    $filtered_data = apply_filters('aipkit_ai_forms_get_form_data', $data, $form_id, $storageInstance);
+    return is_array($filtered_data) ? $filtered_data : $data;
 }

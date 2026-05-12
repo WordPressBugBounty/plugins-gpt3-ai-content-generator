@@ -145,6 +145,7 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
         wp_reset_postdata(); // Important after custom loops to restore the global post object
     }
 
+    $forms_data = apply_filters('aipkit_ai_forms_list_forms_data', $forms_data, $post_ids, $storageInstance);
 
     return [
         'forms' => $forms_data,

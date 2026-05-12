@@ -179,6 +179,12 @@ class AIPKit_AI_Form_Shortcode
             'lib/js/ai-forms/conversational-form.js',
             ['wp-i18n', 'aipkit-public-ai-forms-js']
         );
+        $this->register_pro_public_asset(
+            'script',
+            'aipkit-lib-ai-forms-workflow',
+            'lib/js/ai-forms/workflow-runtime.js',
+            ['wp-i18n', 'aipkit-public-ai-forms-js']
+        );
 
         if (wp_style_is('aipkit-lib-ai-forms-public-css', 'registered') && !wp_style_is('aipkit-lib-ai-forms-public-css', 'enqueued')) {
             wp_enqueue_style('aipkit-lib-ai-forms-public-css');
@@ -186,6 +192,10 @@ class AIPKit_AI_Form_Shortcode
 
         if (wp_script_is('aipkit-lib-ai-forms-conversation', 'registered') && !wp_script_is('aipkit-lib-ai-forms-conversation', 'enqueued')) {
             wp_enqueue_script('aipkit-lib-ai-forms-conversation');
+        }
+
+        if (wp_script_is('aipkit-lib-ai-forms-workflow', 'registered') && !wp_script_is('aipkit-lib-ai-forms-workflow', 'enqueued')) {
+            wp_enqueue_script('aipkit-lib-ai-forms-workflow');
         }
 
         if (!$include_pdf_download) {
@@ -221,6 +231,7 @@ class AIPKit_AI_Form_Shortcode
 
         if ($this->is_pro_plan_active()) {
             $handles[] = 'aipkit-lib-ai-forms-conversation';
+            $handles[] = 'aipkit-lib-ai-forms-workflow';
 
             if ($include_pdf_download) {
                 $handles[] = 'aipkit-lib-ai-forms-download-pdf';

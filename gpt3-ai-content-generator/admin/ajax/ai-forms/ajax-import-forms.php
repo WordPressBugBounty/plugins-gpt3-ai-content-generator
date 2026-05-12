@@ -45,6 +45,7 @@ function do_ajax_import_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instanc
     $imported_count = 0;
     $failed_count = 0;
     $errors = [];
+    $imported_records = [];
 
     foreach ($forms_to_import as $form_data) {
         $title = isset($form_data['title']) ? sanitize_text_field($form_data['title']) : 'Imported Form';
@@ -63,6 +64,7 @@ function do_ajax_import_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instanc
         }
         // --- END FIX ---
 
+        $settings = apply_filters('aipkit_ai_forms_import_form_settings_before_create', $settings, $form_data, $forms_to_import, $form_storage);
 
         // Append "(Imported)" to avoid direct title conflicts, making management easier.
         $new_title = $title . ' (Imported)';
@@ -75,6 +77,11 @@ function do_ajax_import_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instanc
             $errors[] = sprintf(__('Failed to import form "%1$s": %2$s', 'gpt3-ai-content-generator'), esc_html($title), $result->get_error_message());
         } else {
             $imported_count++;
+            $imported_records[] = [
+                'new_id' => (int) $result,
+                'source' => $form_data,
+                'title' => $title,
+            ];
         }
     }
     /* translators: %d is the number of forms imported */
@@ -83,6 +90,11 @@ function do_ajax_import_forms_logic(AIPKit_AI_Form_Ajax_Handler $handler_instanc
     if ($failed_count > 0) {
         /* translators: %d is the number of forms that failed to import */
         $message .= ' ' . sprintf(_n('%d form failed to import.','%d forms failed to import.',$failed_count,'gpt3-ai-content-generator'),$failed_count);
+    }
+
+    $extra_messages = apply_filters('aipkit_ai_forms_import_result_messages', [], $imported_records, $forms_to_import, $form_storage);
+    if (is_array($extra_messages) && !empty($extra_messages)) {
+        $message .= ' ' . implode(' ', array_map('sanitize_text_field', $extra_messages));
     }
 
     wp_send_json_success(['message' => $message, 'imported_count' => $imported_count, 'failed_count' => $failed_count]);

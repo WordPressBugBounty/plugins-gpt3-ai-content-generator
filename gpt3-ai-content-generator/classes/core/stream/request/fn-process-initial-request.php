@@ -101,6 +101,9 @@ function process_initial_request_logic(
                     if (isset($outer_decoded['client_user_message_id'])) {
                         $cached_data_decoded_for_handler['client_user_message_id'] = $outer_decoded['client_user_message_id'];
                     }
+                    if (isset($outer_decoded['image_inputs'])) {
+                        $cached_data_decoded_for_handler['image_inputs'] = $outer_decoded['image_inputs'];
+                    }
 
                 } else {
                     // 'user_message' was not valid JSON or didn't contain 'stream_context', treat as chat.
