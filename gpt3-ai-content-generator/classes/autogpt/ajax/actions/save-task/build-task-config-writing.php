@@ -55,7 +55,7 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
             'generate_toc',
             'generate_seo_slug', // NEW: Add generate_seo_slug
             'seo_score_improvement_enabled', 'seo_score_continue_until_target',
-            'seo_score_target', 'seo_score_max_passes', 'seo_score_profile',
+            'seo_score_target', 'seo_score_max_passes', 'seo_score_profile', 'seo_score_disabled_rules',
             'generate_images_enabled', 'image_provider', 'image_model', 'image_provider_options', 'image_prompt',
             'image_count', 'image_placement', 'image_placement_param_x', 'image_alignment', 'image_size',
             'generate_featured_image', 'featured_image_prompt',
@@ -113,6 +113,10 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
                 } elseif ($key === 'seo_score_max_passes') {
                     $raw = isset($post_data[$key]) ? absint($post_data[$key]) : 3;
                     $content_writer_config[$key] = (string) max(1, min($raw, 5));
+                } elseif ($key === 'seo_score_disabled_rules') {
+                    $content_writer_config[$key] = class_exists(AIPKit_Content_Writer_SEO_Config::class)
+                        ? AIPKit_Content_Writer_SEO_Config::sanitize_disabled_rules($post_data[$key])
+                        : '[]';
                 } elseif ($key === 'ai_temperature') {
                     $content_writer_config[$key] = (string)floatval($post_data[$key]);
                 } elseif ($key === 'openai_vector_store_ids' && is_array($post_data[$key])) {
@@ -173,6 +177,8 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
         $content_writer_config['seo_score_target'] = $content_writer_config['seo_score_target'] ?? '100';
         $content_writer_config['seo_score_max_passes'] = $content_writer_config['seo_score_max_passes'] ?? '3';
         $content_writer_config['seo_score_profile'] = $content_writer_config['seo_score_profile'] ?? 'auto';
+        $content_writer_config['seo_score_disabled_rules'] = $content_writer_config['seo_score_disabled_rules']
+            ?? (class_exists(AIPKit_Content_Writer_SEO_Config::class) ? AIPKit_Content_Writer_SEO_Config::default_disabled_rules() : '[]');
         $content_writer_config['image_provider_options'] = class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)
             ? AIPKit_Content_Writer_Image_Provider_Options::sanitize_options_json($content_writer_config['image_provider_options'] ?? '{}', $content_writer_config)
             : ($content_writer_config['image_provider_options'] ?? '{}');

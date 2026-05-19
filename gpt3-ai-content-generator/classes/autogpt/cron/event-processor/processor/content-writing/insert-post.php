@@ -9,6 +9,7 @@ use WP_Error;
 use WPAICG\Utils\AIPKit_TOC_Generator;
 // --- ADDED: Image Injector Dependency ---
 use WPAICG\ContentWriter\AIPKit_Image_Injector;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper;
 
 // --- END ADDED ---
@@ -107,7 +108,7 @@ function insert_post_logic(string $final_title, string $generated_content, array
     }
 
     if (is_array($image_data) && class_exists(AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::class)) {
-        AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::maybe_prepare_rank_math_image_alt($image_data, (string) $focus_keyword);
+        AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::maybe_prepare_rank_math_image_alt($image_data, (string) $focus_keyword, $cw_config);
     }
 
     // Inject in-content images before ToC generation
@@ -131,7 +132,12 @@ function insert_post_logic(string $final_title, string $generated_content, array
         || stripos($html_content, 'aipkit-toc-list') !== false;
     $should_generate_toc = !$content_has_toc && (
         (isset($cw_config['generate_toc']) && $cw_config['generate_toc'] === '1')
-        || ($rank_math_profile_active && isset($cw_config['seo_score_improvement_enabled']) && (string) $cw_config['seo_score_improvement_enabled'] === '1')
+        || (
+            $rank_math_profile_active
+            && isset($cw_config['seo_score_improvement_enabled'])
+            && (string) $cw_config['seo_score_improvement_enabled'] === '1'
+            && (!class_exists(AIPKit_Content_Writer_SEO_Config::class) || AIPKit_Content_Writer_SEO_Config::is_rule_enabled($cw_config, 'rank_math_table_of_contents'))
+        )
     );
 
     // Generate ToC after images have been placed.

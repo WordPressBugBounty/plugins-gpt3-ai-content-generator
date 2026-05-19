@@ -8,6 +8,7 @@ namespace WPAICG\ContentWriter\TemplateManagerMethods;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -84,6 +85,7 @@ function get_cw_base_template_config(int $user_id): array
         'seo_score_target' => '100',
         'seo_score_max_passes' => '3',
         'seo_score_profile' => 'auto',
+        'seo_score_disabled_rules' => class_exists(AIPKit_Content_Writer_SEO_Config::class) ? AIPKit_Content_Writer_SEO_Config::default_disabled_rules() : '[]',
         'generate_images_enabled' => '0',
         'image_provider' => 'openai',
         'image_model' => 'gpt-image-2',

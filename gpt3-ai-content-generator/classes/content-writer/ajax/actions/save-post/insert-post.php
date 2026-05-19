@@ -71,9 +71,10 @@ if (!class_exists(AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::class)) {
  * @param string     $image_alignment   Optional alignment for injected images.
  * @param string     $image_size        Optional display size for injected images.
  * @param string|null $focus_keyword     Optional focus keyword for SEO-aware image alt fallback.
+ * @param array       $seo_context       Optional Smart SEO profile and disabled rule context.
  * @return int|WP_Error The new post ID or a WP_Error on failure.
  */
-function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $image_data = null, string $image_alignment = 'none', string $image_size = 'large', ?string $focus_keyword = null): int|WP_Error
+function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $image_data = null, string $image_alignment = 'none', string $image_size = 'large', ?string $focus_keyword = null, array $seo_context = []): int|WP_Error
 {
     if (class_exists(\WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::class)) {
         $postarr['post_title'] = \WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner::clean_title(
@@ -105,7 +106,7 @@ function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $imag
     // --- END: Convert markdown to HTML ---
 
     if (is_array($image_data) && class_exists(AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::class)) {
-        AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::maybe_prepare_rank_math_image_alt($image_data, (string) $focus_keyword);
+        AIPKit_Content_Writer_Smart_SEO_Image_Alt_Helper::maybe_prepare_rank_math_image_alt($image_data, (string) $focus_keyword, $seo_context);
     }
 
     // --- ADDED: Normalize image data if attachment IDs are missing ---

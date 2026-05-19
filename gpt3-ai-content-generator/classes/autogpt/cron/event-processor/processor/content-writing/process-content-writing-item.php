@@ -18,6 +18,7 @@ use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Provider_Options;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyphrase_Usage;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Service;
 use WP_Error;
 use WPAICG\Chat\Storage\LogStorage;
@@ -452,15 +453,21 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
         }
     }
 
+    $focus_slug_rule_enabled = !class_exists(AIPKit_Content_Writer_SEO_Config::class)
+        || AIPKit_Content_Writer_SEO_Config::is_rule_enabled($item_config, 'focus_keyword_in_slug');
+    $rank_math_permalink_rule_enabled = !class_exists(AIPKit_Content_Writer_SEO_Config::class)
+        || AIPKit_Content_Writer_SEO_Config::is_rule_enabled($item_config, 'rank_math_permalink_length');
+
     if (
         ($item_config['seo_score_improvement_enabled'] ?? '0') === '1'
         && empty($item_config['smart_seo_slug'])
         && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
         && sanitize_key((string) (\WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile()['profile'] ?? '')) === 'rank_math'
+        && ($focus_slug_rule_enabled || $rank_math_permalink_rule_enabled)
     ) {
         $rank_math_slug = class_exists('\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_Smart_SEO_Keyphrase_Content_Helper')
-            ? \WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyphrase_Content_Helper::build_rank_math_slug('', (string) $focus_keyword, (string) $final_title)
-            : sanitize_title((string) ($focus_keyword ?: $final_title));
+            ? \WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyphrase_Content_Helper::build_rank_math_slug('', $focus_slug_rule_enabled ? (string) $focus_keyword : '', (string) $final_title)
+            : sanitize_title((string) (($focus_slug_rule_enabled && $focus_keyword !== '') ? $focus_keyword : $final_title));
         if ($rank_math_slug !== '') {
             $item_config['smart_seo_slug'] = $rank_math_slug;
         }

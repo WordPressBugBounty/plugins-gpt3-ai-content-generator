@@ -8,6 +8,7 @@ namespace WPAICG\ContentWriter\Ajax\Actions;
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Base_Ajax_Action;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder;
+use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver;
 use WP_Error;
 use function WPAICG\ContentWriter\Ajax\Actions\Shared\load_smart_seo_keyword_resolver_logic;
@@ -131,12 +132,17 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
         if (class_exists(AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver::class) && $this->get_ai_caller()) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
             $seo_score_improvement_enabled = isset($_POST['seo_score_improvement_enabled']) ? sanitize_text_field(wp_unslash($_POST['seo_score_improvement_enabled'])) : '0';
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
+            $seo_score_disabled_rules = isset($_POST['seo_score_disabled_rules']) && class_exists(AIPKit_Content_Writer_SEO_Config::class)
+                ? AIPKit_Content_Writer_SEO_Config::sanitize_disabled_rules(wp_unslash($_POST['seo_score_disabled_rules']))
+                : '[]';
             $smart_seo_config = [
                 'seo_score_improvement_enabled' => $seo_score_improvement_enabled,
                 'seo_score_continue_until_target' => '1',
                 'seo_score_target' => '100',
                 'seo_score_max_passes' => '3',
                 'seo_score_profile' => 'auto',
+                'seo_score_disabled_rules' => $seo_score_disabled_rules,
                 'ai_provider' => $provider,
                 'ai_model' => $model,
                 'content_title' => $final_title,

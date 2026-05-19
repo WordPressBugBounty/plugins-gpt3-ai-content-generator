@@ -19,6 +19,7 @@ class AIPKit_Content_Writer_SEO_Config
     public const KEY_TARGET = 'seo_score_target';
     public const KEY_MAX_PASSES = 'seo_score_max_passes';
     public const KEY_PROFILE = 'seo_score_profile';
+    public const KEY_DISABLED_RULES = 'seo_score_disabled_rules';
 
     public static function is_pro_plan(): bool
     {
@@ -41,6 +42,12 @@ class AIPKit_Content_Writer_SEO_Config
             $config[self::KEY_TARGET] = '100';
             $config[self::KEY_MAX_PASSES] = '3';
             $config[self::KEY_PROFILE] = 'auto';
+            $disabled_rules = array_key_exists(self::KEY_DISABLED_RULES, $config)
+                ? $config[self::KEY_DISABLED_RULES]
+                : self::default_disabled_rule_ids();
+            $config[self::KEY_DISABLED_RULES] = self::sanitize_disabled_rules($disabled_rules);
+        } elseif (array_key_exists(self::KEY_DISABLED_RULES, $config)) {
+            $config[self::KEY_DISABLED_RULES] = self::sanitize_disabled_rules($config[self::KEY_DISABLED_RULES]);
         }
 
         if ($enforce_plan && !self::is_pro_plan() && ($add_defaults || array_key_exists(self::KEY_ENABLED, $config))) {
@@ -68,9 +75,159 @@ class AIPKit_Content_Writer_SEO_Config
         return self::normalize_binary($config[self::KEY_ENABLED] ?? '0', '0') === '1';
     }
 
+    public static function sanitize_disabled_rules(mixed $value): string
+    {
+        $disabled = self::sanitize_disabled_rule_ids($value);
+        $encoded = wp_json_encode($disabled);
+
+        return is_string($encoded) ? $encoded : '[]';
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function default_disabled_rule_ids(): array
+    {
+        if (self::ensure_rules_class_loaded()) {
+            $rules_class = self::smart_seo_rules_class();
+            return $rules_class::default_disabled_rule_ids();
+        }
+
+        return [];
+    }
+
+    public static function default_disabled_rules(): string
+    {
+        return self::sanitize_disabled_rules(self::default_disabled_rule_ids());
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function preset_disabled_rule_ids(string $preset_key): array
+    {
+        if (self::ensure_rules_class_loaded()) {
+            $rules_class = self::smart_seo_rules_class();
+            return $rules_class::preset_disabled_rule_ids($preset_key);
+        }
+
+        return [];
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function disabled_rule_ids(array $config_or_context): array
+    {
+        $raw = $config_or_context['disabled_rule_ids']
+            ?? $config_or_context[self::KEY_DISABLED_RULES]
+            ?? self::default_disabled_rule_ids();
+
+        return self::sanitize_disabled_rule_ids($raw);
+    }
+
+    public static function is_rule_enabled(array $config_or_context, string $rule_id): bool
+    {
+        $rule_id = sanitize_key($rule_id);
+        if ($rule_id === '') {
+            return true;
+        }
+
+        return !in_array($rule_id, self::disabled_rule_ids($config_or_context), true);
+    }
+
+    /**
+     * @return array<int, array{id:string,group:string,label:string,description:string}>
+     */
+    public static function rule_catalog(): array
+    {
+        if (self::ensure_rules_class_loaded()) {
+            $rules_class = self::smart_seo_rules_class();
+            return $rules_class::rule_catalog();
+        }
+
+        return [];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function rule_group_labels(): array
+    {
+        if (self::ensure_rules_class_loaded()) {
+            $rules_class = self::smart_seo_rules_class();
+            return $rules_class::rule_group_labels();
+        }
+
+        return [];
+    }
+
+    /**
+     * @return array<string, array{label:string,description:string,disabled_rules:string[]}>
+     */
+    public static function rule_presets(): array
+    {
+        if (self::ensure_rules_class_loaded()) {
+            $rules_class = self::smart_seo_rules_class();
+            return $rules_class::rule_presets();
+        }
+
+        return [];
+    }
+
+    /**
+     * @return array<string, array<int, array{id:string,group:string,label:string,description:string}>>
+     */
+    public static function grouped_rule_catalog(): array
+    {
+        if (self::ensure_rules_class_loaded()) {
+            $rules_class = self::smart_seo_rules_class();
+            return $rules_class::grouped_rule_catalog();
+        }
+
+        return [];
+    }
+
+    private static function smart_seo_rules_class(): string
+    {
+        return '\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_Smart_SEO_Rules';
+    }
+
+    private static function ensure_rules_class_loaded(): bool
+    {
+        $rules_class = self::smart_seo_rules_class();
+        if (class_exists($rules_class)) {
+            return true;
+        }
+
+        if (defined('WPAICG_LIB_DIR')) {
+            $rules_path = WPAICG_LIB_DIR . 'content-writer/seo/class-aipkit-content-writer-smart-seo-rules.php';
+            if (file_exists($rules_path)) {
+                require_once $rules_path;
+            }
+        }
+
+        return class_exists($rules_class);
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function known_rule_ids(): array
+    {
+        if (self::ensure_rules_class_loaded()) {
+            $rules_class = self::smart_seo_rules_class();
+            if (method_exists($rules_class, 'allowed_rule_ids')) {
+                return $rules_class::allowed_rule_ids();
+            }
+        }
+
+        return [];
+    }
+
     private static function has_any_seo_config(array $config): bool
     {
-        foreach ([self::KEY_ENABLED, self::KEY_CONTINUE, self::KEY_TARGET, self::KEY_MAX_PASSES, self::KEY_PROFILE] as $key) {
+        foreach ([self::KEY_ENABLED, self::KEY_CONTINUE, self::KEY_TARGET, self::KEY_MAX_PASSES, self::KEY_PROFILE, self::KEY_DISABLED_RULES] as $key) {
             if (array_key_exists($key, $config)) {
                 return true;
             }
@@ -90,5 +247,49 @@ class AIPKit_Content_Writer_SEO_Config
         }
 
         return $default;
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function sanitize_disabled_rule_ids(mixed $value): array
+    {
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                $value = [];
+            } else {
+                $decoded = json_decode($trimmed, true);
+                if (!is_array($decoded)) {
+                    $decoded = json_decode(stripslashes($trimmed), true);
+                }
+                $value = is_array($decoded) ? $decoded : explode(',', $trimmed);
+            }
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $allowed = array_fill_keys(self::known_rule_ids(), true);
+
+        $disabled = [];
+        foreach ($value as $key => $raw_rule_id) {
+            $rule_id = is_string($key) && !is_numeric($key) && !empty($raw_rule_id)
+                ? $key
+                : $raw_rule_id;
+            if (!is_scalar($rule_id)) {
+                continue;
+            }
+
+            $rule_id = sanitize_key((string) $rule_id);
+            if ($rule_id === '' || (!empty($allowed) && empty($allowed[$rule_id]))) {
+                continue;
+            }
+
+            $disabled[$rule_id] = true;
+        }
+
+        return array_keys($disabled);
     }
 }

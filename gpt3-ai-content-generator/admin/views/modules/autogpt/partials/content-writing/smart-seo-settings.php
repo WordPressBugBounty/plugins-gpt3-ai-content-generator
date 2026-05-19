@@ -20,6 +20,17 @@ $aipkit_task_cw_seo_profile_label = isset($aipkit_task_cw_seo_profile['label']) 
 $aipkit_task_cw_seo_profile_key = isset($aipkit_task_cw_seo_profile['profile']) ? (string) $aipkit_task_cw_seo_profile['profile'] : 'aipkit';
 $aipkit_task_cw_seo_profile_logo_url = isset($aipkit_task_cw_seo_profile['logo_url']) ? (string) $aipkit_task_cw_seo_profile['logo_url'] : '';
 $aipkit_task_cw_seo_profile_logo_initials = isset($aipkit_task_cw_seo_profile['logo_initials']) ? (string) $aipkit_task_cw_seo_profile['logo_initials'] : 'SEO';
+$aipkit_task_cw_seo_rules_class = '\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_Smart_SEO_Rules';
+if (!class_exists($aipkit_task_cw_seo_rules_class) && defined('WPAICG_LIB_DIR')) {
+    $aipkit_task_cw_seo_rules_path = WPAICG_LIB_DIR . 'content-writer/seo/class-aipkit-content-writer-smart-seo-rules.php';
+    if (file_exists($aipkit_task_cw_seo_rules_path)) {
+        require_once $aipkit_task_cw_seo_rules_path;
+    }
+}
+$aipkit_task_cw_seo_rules_available = class_exists($aipkit_task_cw_seo_rules_class) && !empty($aipkit_task_cw_seo_rules_class::rule_catalog());
+$aipkit_task_cw_seo_default_disabled_rules = class_exists('\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_SEO_Config')
+    ? \WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config::default_disabled_rules()
+    : '[]';
 $aipkit_task_cw_smart_seo_upgrade_url = function_exists('wpaicg_gacg_fs')
     ? wpaicg_gacg_fs()->get_upgrade_url()
     : admin_url('admin.php?page=wpaicg-pricing');
@@ -71,6 +82,21 @@ $aipkit_task_cw_smart_seo_upgrade_url = function_exists('wpaicg_gacg_fs')
                     >
                     <span class="aipkit_switch_slider"></span>
                 </label>
+                <?php if ($aipkit_task_cw_seo_rules_available) : ?>
+                    <button
+                        type="button"
+                        class="aipkit_cw_settings_icon_trigger aipkit_cw_seo_rules_trigger"
+                        id="aipkit_task_cw_smart_seo_rules_trigger"
+                        data-aipkit-popover-target="aipkit_task_cw_smart_seo_rules_popover"
+                        data-aipkit-popover-placement="left"
+                        aria-controls="aipkit_task_cw_smart_seo_rules_popover"
+                        aria-expanded="false"
+                        aria-label="<?php esc_attr_e('Smart SEO rules', 'gpt3-ai-content-generator'); ?>"
+                        title="<?php esc_attr_e('Smart SEO rules', 'gpt3-ai-content-generator'); ?>"
+                    >
+                        <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                    </button>
+                <?php endif; ?>
             <?php else : ?>
                 <a
                     class="aipkit_cw_seo_upgrade_btn"
@@ -86,6 +112,17 @@ $aipkit_task_cw_smart_seo_upgrade_url = function_exists('wpaicg_gacg_fs')
             <input type="hidden" name="seo_score_target" value="100" data-aipkit-task-smart-seo-control>
             <input type="hidden" name="seo_score_max_passes" value="3" data-aipkit-task-smart-seo-control>
             <input type="hidden" name="seo_score_profile" value="auto" data-aipkit-task-smart-seo-control>
+            <input type="hidden" name="seo_score_disabled_rules" value="<?php echo esc_attr($aipkit_task_cw_seo_default_disabled_rules); ?>" data-aipkit-task-smart-seo-control data-aipkit-smart-seo-disabled-rules>
         </div>
     </div>
 </div>
+
+<?php
+$aipkit_smart_seo_rules_popover_id = 'aipkit_task_cw_smart_seo_rules_popover';
+$aipkit_smart_seo_rules_profile_key = $aipkit_task_cw_seo_profile_key;
+$aipkit_smart_seo_rules_profile_label = $aipkit_task_cw_seo_profile_label;
+$aipkit_smart_seo_rules_popover_path = defined('WPAICG_LIB_DIR') ? WPAICG_LIB_DIR . 'views/modules/shared/smart-seo-rules-popover.php' : '';
+if ($aipkit_task_cw_smart_seo_is_pro && $aipkit_task_cw_seo_rules_available && $aipkit_smart_seo_rules_popover_path !== '' && file_exists($aipkit_smart_seo_rules_popover_path)) {
+    include $aipkit_smart_seo_rules_popover_path;
+}
+?>

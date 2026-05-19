@@ -77,6 +77,10 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                 $sanitized[$key] = '100';
             } elseif ($key === 'seo_score_max_passes') {
                 $sanitized[$key] = '3';
+            } elseif ($key === 'seo_score_disabled_rules') {
+                $sanitized[$key] = class_exists(AIPKit_Content_Writer_SEO_Config::class)
+                    ? AIPKit_Content_Writer_SEO_Config::sanitize_disabled_rules($config[$key])
+                    : '[]';
             } elseif ($key === 'vector_store_confidence_threshold') {
                 $raw = isset($config[$key]) ? absint($config[$key]) : 20;
                 $sanitized[$key] = max(0, min($raw, 100));

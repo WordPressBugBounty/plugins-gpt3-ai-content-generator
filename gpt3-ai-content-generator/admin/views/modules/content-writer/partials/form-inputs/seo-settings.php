@@ -16,6 +16,17 @@ $seo_profile_label = isset($seo_profile['label']) ? (string) $seo_profile['label
 $seo_profile_key = isset($seo_profile['profile']) ? (string) $seo_profile['profile'] : 'aipkit';
 $seo_profile_logo_url = isset($seo_profile['logo_url']) ? (string) $seo_profile['logo_url'] : '';
 $seo_profile_logo_initials = isset($seo_profile['logo_initials']) ? (string) $seo_profile['logo_initials'] : 'SEO';
+$seo_rules_class = '\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_Smart_SEO_Rules';
+if (!class_exists($seo_rules_class) && defined('WPAICG_LIB_DIR')) {
+    $seo_rules_path = WPAICG_LIB_DIR . 'content-writer/seo/class-aipkit-content-writer-smart-seo-rules.php';
+    if (file_exists($seo_rules_path)) {
+        require_once $seo_rules_path;
+    }
+}
+$seo_rules_available = class_exists($seo_rules_class) && !empty($seo_rules_class::rule_catalog());
+$seo_default_disabled_rules = class_exists('\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_SEO_Config')
+    ? \WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config::default_disabled_rules()
+    : '[]';
 $upgrade_url = function_exists('wpaicg_gacg_fs')
     ? wpaicg_gacg_fs()->get_upgrade_url()
     : admin_url('admin.php?page=wpaicg-pricing');
@@ -66,6 +77,21 @@ $upgrade_url = function_exists('wpaicg_gacg_fs')
                     >
                     <span class="aipkit_switch_slider"></span>
                 </label>
+                <?php if ($seo_rules_available) : ?>
+                    <button
+                        type="button"
+                        class="aipkit_cw_settings_icon_trigger aipkit_cw_seo_rules_trigger"
+                        id="aipkit_cw_smart_seo_rules_trigger"
+                        data-aipkit-popover-target="aipkit_cw_smart_seo_rules_popover"
+                        data-aipkit-popover-placement="left"
+                        aria-controls="aipkit_cw_smart_seo_rules_popover"
+                        aria-expanded="false"
+                        aria-label="<?php esc_attr_e('Smart SEO rules', 'gpt3-ai-content-generator'); ?>"
+                        title="<?php esc_attr_e('Smart SEO rules', 'gpt3-ai-content-generator'); ?>"
+                    >
+                        <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                    </button>
+                <?php endif; ?>
             <?php else: ?>
                 <a
                     class="aipkit_cw_seo_upgrade_btn"
@@ -81,6 +107,17 @@ $upgrade_url = function_exists('wpaicg_gacg_fs')
             <input type="hidden" name="seo_score_target" value="100" data-aipkit-seo-control>
             <input type="hidden" name="seo_score_max_passes" value="3" data-aipkit-seo-control>
             <input type="hidden" name="seo_score_profile" value="auto" data-aipkit-seo-control>
+            <input type="hidden" name="seo_score_disabled_rules" value="<?php echo esc_attr($seo_default_disabled_rules); ?>" class="aipkit_autosave_trigger" data-aipkit-seo-control data-aipkit-smart-seo-disabled-rules>
         </div>
     </div>
 </div>
+
+<?php
+$aipkit_smart_seo_rules_popover_id = 'aipkit_cw_smart_seo_rules_popover';
+$aipkit_smart_seo_rules_profile_key = $seo_profile_key;
+$aipkit_smart_seo_rules_profile_label = $seo_profile_label;
+$aipkit_smart_seo_rules_popover_path = defined('WPAICG_LIB_DIR') ? WPAICG_LIB_DIR . 'views/modules/shared/smart-seo-rules-popover.php' : '';
+if ($is_pro && $seo_rules_available && $aipkit_smart_seo_rules_popover_path !== '' && file_exists($aipkit_smart_seo_rules_popover_path)) {
+    include $aipkit_smart_seo_rules_popover_path;
+}
+?>

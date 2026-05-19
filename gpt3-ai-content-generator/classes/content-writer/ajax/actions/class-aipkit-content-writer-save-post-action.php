@@ -89,7 +89,7 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         SavePost\prepare_categories_logic($postarr, $post_data);
 
         // 7. Insert the post into the database (this now handles image/toc injection)
-        $post_id_result = SavePost\insert_post_logic($postarr, $post_data['excerpt'] ?? null, $image_data, $image_alignment, $image_size, $post_data['focus_keyword'] ?? '');
+        $post_id_result = SavePost\insert_post_logic($postarr, $post_data['excerpt'] ?? null, $image_data, $image_alignment, $image_size, $post_data['focus_keyword'] ?? '', $post_data);
         if (is_wp_error($post_id_result)) {
             $this->send_wp_error($post_id_result);
             return;

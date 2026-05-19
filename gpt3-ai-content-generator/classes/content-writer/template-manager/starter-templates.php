@@ -375,6 +375,7 @@ function get_cw_starter_template_definitions(array $base_config): array
     $default_keyword_prompt = AIPKit_Content_Writer_Prompts::get_default_keyword_prompt();
     $default_excerpt_prompt = AIPKit_Content_Writer_Prompts::get_default_excerpt_prompt();
     $default_tags_prompt = AIPKit_Content_Writer_Prompts::get_default_tags_prompt();
+    $default_smart_seo_disabled_rules = $base_config['seo_score_disabled_rules'] ?? '[]';
 
     return [
         [
@@ -388,6 +389,7 @@ function get_cw_starter_template_definitions(array $base_config): array
                 'generate_focus_keyword' => '1',
                 'generate_excerpt' => '1',
                 'generate_tags' => '1',
+                'seo_score_disabled_rules' => $default_smart_seo_disabled_rules,
                 'generate_images_enabled' => '1',
                 'generate_featured_image' => '1',
                 'image_provider' => $default_image_provider,
@@ -427,6 +429,7 @@ Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
                 'generate_focus_keyword' => '1',
                 'generate_excerpt' => '1',
                 'generate_tags' => '1',
+                'seo_score_disabled_rules' => $default_smart_seo_disabled_rules,
                 'generate_images_enabled' => '1',
                 'generate_featured_image' => '1',
                 'image_provider' => $default_image_provider,
@@ -466,6 +469,7 @@ Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
                 'generate_focus_keyword' => '1',
                 'generate_excerpt' => '1',
                 'generate_tags' => '1',
+                'seo_score_disabled_rules' => $default_smart_seo_disabled_rules,
                 'generate_images_enabled' => '1',
                 'generate_featured_image' => '1',
                 'image_provider' => $default_image_provider,

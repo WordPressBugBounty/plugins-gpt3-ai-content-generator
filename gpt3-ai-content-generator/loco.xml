@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bundle name="AI Puffer">
+  <domain name="gpt3-ai-content-generator">
+    <project name="AI Puffer" slug="gpt3-ai-content-generator">
+      <source>
+        <file>gpt3-ai-content-generator.php</file>
+        <directory>admin</directory>
+        <directory>classes</directory>
+        <directory>includes</directory>
+        <directory>lib</directory>
+        <directory>public</directory>
+      </source>
+      <target>
+        <directory>languages</directory>
+      </target>
+      <template locked="true">
+        <file>languages/gpt3-ai-content-generator.pot</file>
+      </template>
+    </project>
+  </domain>
+  <exclude>
+    <directory>.git</directory>
+    <directory>dist</directory>
+    <directory>lib/vendor</directory>
+    <directory>node_modules</directory>
+    <directory>vendor</directory>
+    <file>public/js/markdown-it.min.js</file>
+  </exclude>
+</bundle>

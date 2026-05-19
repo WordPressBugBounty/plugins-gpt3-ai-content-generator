@@ -63,7 +63,8 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
     }
 
     public function format_chat_payload(string $user_message, string $instructions, array $history, array $ai_params, string $model): array {
-       return $this->format_chat_completions_payload($instructions, $history, $user_message, $ai_params, $model, true);
+       $payload = $this->format_chat_completions_payload($instructions, $history, $user_message, $ai_params, $model, true);
+       return $this->apply_deepseek_thinking_control($payload, $ai_params);
     }
 
     public function parse_error_response($response_body, int $status_code): string {
@@ -185,7 +186,98 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
     }
 
     public function build_sse_payload(array $messages, $system_instruction, array $ai_params, string $model): array {
-        return $this->format_sse_chat_completions_payload($messages, $system_instruction, $ai_params, $model, true, false);
+        $payload = $this->format_sse_chat_completions_payload($messages, $system_instruction, $ai_params, $model, true, false);
+        return $this->apply_deepseek_thinking_control($payload, $ai_params);
+    }
+
+    /**
+     * DeepSeek V4 thinking can spend the completion budget before final content
+     * is emitted. Content generation and rewrite flows expect final text, so keep
+     * thinking off unless a caller deliberately provides a DeepSeek thinking or
+     * reasoning parameter.
+     */
+    private function apply_deepseek_thinking_control(array $payload, array $ai_params): array {
+        if (array_key_exists('thinking', $ai_params)) {
+            $thinking = $this->normalize_deepseek_thinking_param($ai_params['thinking']);
+            if ($thinking !== null) {
+                $payload['thinking'] = $thinking;
+                return $payload;
+            }
+        }
+
+        if (array_key_exists('reasoning', $ai_params)) {
+            $thinking = $this->normalize_deepseek_reasoning_param($ai_params['reasoning']);
+            if ($thinking !== null) {
+                $payload['thinking'] = $thinking;
+                return $payload;
+            }
+        }
+
+        $payload['thinking'] = ['type' => 'disabled'];
+        return $payload;
+    }
+
+    private function normalize_deepseek_thinking_param($value): ?array {
+        if (is_array($value)) {
+            $type = isset($value['type']) ? strtolower(trim((string) $value['type'])) : '';
+            if (!in_array($type, ['enabled', 'disabled'], true)) {
+                return null;
+            }
+
+            $normalized = ['type' => $type];
+            if ($type === 'enabled' && isset($value['budget_tokens']) && is_numeric($value['budget_tokens'])) {
+                $budget_tokens = absint($value['budget_tokens']);
+                if ($budget_tokens > 0) {
+                    $normalized['budget_tokens'] = $budget_tokens;
+                }
+            }
+            return $normalized;
+        }
+
+        if (is_bool($value)) {
+            return ['type' => $value ? 'enabled' : 'disabled'];
+        }
+
+        if (is_string($value) || is_numeric($value)) {
+            $normalized_value = strtolower(trim((string) $value));
+            if (in_array($normalized_value, ['1', 'true', 'yes', 'on', 'enabled', 'enable'], true)) {
+                return ['type' => 'enabled'];
+            }
+            if (in_array($normalized_value, ['0', 'false', 'no', 'off', 'disabled', 'disable', 'none'], true)) {
+                return ['type' => 'disabled'];
+            }
+        }
+
+        return null;
+    }
+
+    private function normalize_deepseek_reasoning_param($value): ?array {
+        if (is_array($value)) {
+            if (isset($value['thinking'])) {
+                return $this->normalize_deepseek_thinking_param($value['thinking']);
+            }
+
+            $effort = strtolower(trim((string) ($value['effort'] ?? $value['type'] ?? '')));
+            if ($effort === '' || $effort === 'none' || $effort === 'disabled') {
+                return ['type' => 'disabled'];
+            }
+
+            return ['type' => 'enabled'];
+        }
+
+        if (is_string($value) || is_numeric($value) || is_bool($value)) {
+            $thinking = $this->normalize_deepseek_thinking_param($value);
+            if ($thinking !== null) {
+                return $thinking;
+            }
+
+            $effort = strtolower(trim((string) $value));
+            if ($effort !== '' && $effort !== 'none') {
+                return ['type' => 'enabled'];
+            }
+        }
+
+        return null;
     }
 
     /**
