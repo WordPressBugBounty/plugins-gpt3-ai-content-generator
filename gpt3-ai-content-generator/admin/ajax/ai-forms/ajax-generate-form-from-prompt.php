@@ -986,11 +986,13 @@ function aipkit_ai_forms_normalize_generated_conversation_step(array $raw_row, i
         $condition_operator = 'equals';
         $condition_value = '';
     }
+    /* translators: %d: Conversation step number. */
+    $fallback_step_title = sprintf(__('Step %d', 'gpt3-ai-content-generator'), $row_number);
 
     return [
         'conversationEnabled' => $conversation_enabled === true,
         'title' => aipkit_ai_forms_limit_text_length(
-            sanitize_text_field((string) ($raw_step['title'] ?? sprintf(__('Step %d', 'gpt3-ai-content-generator'), $row_number))),
+            sanitize_text_field((string) ($raw_step['title'] ?? $fallback_step_title)),
             90
         ),
         'description' => aipkit_ai_forms_limit_text_length(

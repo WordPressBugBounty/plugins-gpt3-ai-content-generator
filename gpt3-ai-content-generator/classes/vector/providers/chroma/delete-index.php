@@ -24,6 +24,17 @@ function delete_index_logic(AIPKit_Vector_Chroma_Strategy $strategyInstance, str
 
     $response = _request_logic($strategyInstance, 'DELETE', collection_base_path_logic($strategyInstance) . '/' . rawurlencode($collection_id));
     if (is_wp_error($response)) {
+        $error_data = $response->get_error_data();
+        $status = is_array($error_data) ? (int) ($error_data['status'] ?? 0) : 0;
+        $collection_name = isset($collection['name']) ? (string) $collection['name'] : $index_name;
+        if ($status === 404 && $collection_name !== '' && $collection_name !== $collection_id) {
+            $fallback_response = _request_logic($strategyInstance, 'DELETE', collection_base_path_logic($strategyInstance) . '/' . rawurlencode($collection_name));
+            if (!is_wp_error($fallback_response)) {
+                return isset($fallback_response['deleted']) || ($fallback_response['status'] ?? '') === 'ok' || is_array($fallback_response);
+            }
+        }
+    }
+    if (is_wp_error($response)) {
         return $response;
     }
 

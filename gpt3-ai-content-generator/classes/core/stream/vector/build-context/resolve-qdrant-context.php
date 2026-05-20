@@ -97,7 +97,7 @@ function resolve_qdrant_context_logic(
         foreach ($collections_to_query as $collection_to_query) {
             $file_specific_filter = [
                 'must' => [
-                    ['key' => 'payload.file_upload_context_id', 'match' => ['value' => $frontend_active_qdrant_file_upload_context_id]]
+                    ['key' => 'file_upload_context_id', 'match' => ['value' => $frontend_active_qdrant_file_upload_context_id]]
                 ]
             ];
             $query_vector_for_file_context = ['vector' => $query_vector_values];
@@ -141,7 +141,7 @@ function resolve_qdrant_context_logic(
     if (!empty($frontend_active_qdrant_file_upload_context_id)) {
         $general_knowledge_filter = [
             'must_not' => [
-                ['key' => 'payload.file_upload_context_id', 'match' => ['value' => $frontend_active_qdrant_file_upload_context_id]]
+                ['key' => 'file_upload_context_id', 'match' => ['value' => $frontend_active_qdrant_file_upload_context_id]]
             ]
         ];
     }

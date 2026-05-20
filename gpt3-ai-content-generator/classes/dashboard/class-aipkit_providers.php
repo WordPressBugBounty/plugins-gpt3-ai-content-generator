@@ -109,7 +109,9 @@ class AIPKit_Providers
             'models' => [
                 ['id' => 'moonshotai/kimi-k2.5', 'name' => 'Kimi K2.5'],
                 ['id' => 'anthropic/claude-sonnet-4.5', 'name' => 'Claude Sonnet 4.5'],
+                ['id' => 'anthropic/claude-opus-4.7', 'name' => 'Claude Opus 4.7'],
                 ['id' => 'anthropic/claude-opus-4.6', 'name' => 'Claude Opus 4.6'],
+                ['id' => 'google/gemini-3.5-flash', 'name' => 'Gemini 3.5 Flash'],
                 ['id' => 'google/gemini-2.5-flash', 'name' => 'Gemini 2.5 Flash'],
                 ['id' => 'deepseek/deepseek-v3.2', 'name' => 'DeepSeek V3.2'],
                 ['id' => 'openai/gpt-5-nano', 'name' => 'GPT-5 Nano'],
@@ -124,7 +126,7 @@ class AIPKit_Providers
         'Google' => [
             'default' => 'gemini-2.5-flash',
             'models' => [
-                ['id' => 'gemini-3.1-flash-lite-preview', 'name' => 'Gemini 3.1 Flash Lite Preview'],
+                ['id' => 'gemini-3.5-flash', 'name' => 'Gemini 3.5 Flash'],
                 ['id' => 'gemini-3-flash-preview', 'name' => 'Gemini 3 Flash Preview'],
                 ['id' => 'gemini-3-pro-preview', 'name' => 'Gemini 3 Pro Preview'],
                 ['id' => 'gemini-2.5-flash', 'name' => 'Gemini 2.5 Flash'],
@@ -165,6 +167,7 @@ class AIPKit_Providers
             'default' => 'claude-sonnet-4-6',
             'models' => [
                 ['id' => 'claude-sonnet-4-6', 'name' => 'Claude Sonnet 4.6'],
+                ['id' => 'claude-opus-4-7', 'name' => 'Claude Opus 4.7'],
                 ['id' => 'claude-opus-4-6', 'name' => 'Claude Opus 4.6'],
                 ['id' => 'claude-sonnet-4-5-20250929', 'name' => 'Claude Sonnet 4.5'],
                 ['id' => 'claude-opus-4-5-20251101', 'name' => 'Claude Opus 4.5'],

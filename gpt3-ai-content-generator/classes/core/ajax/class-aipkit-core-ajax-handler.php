@@ -69,6 +69,38 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         return '`' . $table_name . '`';
     }
 
+    /**
+     * Builds provider-specific selectors that remove every chunk for a WordPress post.
+     */
+    private static function build_post_chunk_delete_selector(string $provider, int $post_id): ?array
+    {
+        if ($post_id <= 0) {
+            return null;
+        }
+
+        if ($provider === 'Pinecone') {
+            return ['filter' => ['$or' => [
+                ['post_id' => ['$eq' => (string) $post_id]],
+                ['post_id' => ['$eq' => $post_id]],
+            ]]];
+        }
+
+        if ($provider === 'Qdrant') {
+            return ['filter' => ['should' => [
+                ['key' => 'post_id', 'match' => ['value' => (string) $post_id]],
+            ]]];
+        }
+
+        if ($provider === 'Chroma') {
+            return ['where' => ['$or' => [
+                ['post_id' => (string) $post_id],
+                ['post_id' => $post_id],
+            ]]];
+        }
+
+        return null;
+    }
+
 
     /**
      * AJAX handler to get upload limits.
@@ -222,7 +254,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table lookup for admin delete action; table identifier is plugin-owned, validated, and backticked above.
-        $log_entry = $wpdb->get_row($wpdb->prepare("SELECT id, provider, vector_store_id, file_id, status FROM {$data_source_table_identifier} WHERE id = %d LIMIT 1", $log_entry_id), ARRAY_A);
+        $log_entry = $wpdb->get_row($wpdb->prepare("SELECT id, provider, vector_store_id, file_id, post_id, status FROM {$data_source_table_identifier} WHERE id = %d LIMIT 1", $log_entry_id), ARRAY_A);
 
         if (!$log_entry) {
             wp_send_json_success(['message' => __('Log entry was not found, it might have been already deleted.', 'gpt3-ai-content-generator')]);
@@ -238,13 +270,15 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             $vector_id = (string) $log_entry['file_id'];
         }
 
+        $post_chunk_delete_selector = self::build_post_chunk_delete_selector($provider, absint($log_entry['post_id'] ?? 0));
+        $can_delete_post_chunks = $post_chunk_delete_selector !== null;
         $is_failed_log_only = $vector_id === '' && strtolower((string) ($log_entry['status'] ?? '')) === 'failed';
-        if ($vector_id === '' && !$is_failed_log_only) {
+        if ($vector_id === '' && !$is_failed_log_only && !$can_delete_post_chunks) {
             $this->send_wp_error(new WP_Error('missing_vector_id_delete_vector', __('Missing vector ID for vector deletion.', 'gpt3-ai-content-generator')));
             return;
         }
 
-        if ($vector_id !== '') {
+        if ($vector_id !== '' || $can_delete_post_chunks) {
             // Ensure Vector Store Manager is loaded
             if (!class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Manager')) {
                 $this->send_wp_error(new WP_Error('vsm_missing_delete_vector', __('Vector management component is not available.', 'gpt3-ai-content-generator')));
@@ -266,7 +300,8 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             }
 
             // 1. Delete from external vector store
-            $delete_result = $vector_store_manager->delete_vectors($provider, $store_id, [$vector_id], $provider_config);
+            $delete_selector = $post_chunk_delete_selector ?: [$vector_id];
+            $delete_result = $vector_store_manager->delete_vectors($provider, $store_id, $delete_selector, $provider_config);
 
             // We proceed even if the external deletion fails, as the vector might not exist there anymore but the log does.
             // We will log the error if one occurs.
@@ -345,7 +380,8 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
              $this->send_wp_error(new WP_Error('missing_api_key_reindex', sprintf(__('API key for %s is missing.', 'gpt3-ai-content-generator'), $provider)));
              return;
         }
-        $delete_result = $this->vector_store_manager->delete_vectors($provider, $store_id, [$vector_id], $provider_config);
+        $delete_selector = self::build_post_chunk_delete_selector($provider, $post_id) ?: [$vector_id];
+        $delete_result = $this->vector_store_manager->delete_vectors($provider, $store_id, $delete_selector, $provider_config);
         if (is_wp_error($delete_result)) {
             // Log this but don't fail, as the vector might already be gone from the remote.
         }

@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
  *
  * @param AIPKit_Vector_Pinecone_Strategy $strategyInstance The instance of the strategy class.
  * @param string $index_name The name of the index.
- * @param array $vector_ids An array of vector IDs to delete.
+ * @param array $vector_ids An array of vector IDs or a selector with ids/filter/deleteAll.
  * @return bool|WP_Error True on success, WP_Error on failure.
  */
 function delete_vectors_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $index_name, array $vector_ids): bool|WP_Error {
@@ -25,7 +25,18 @@ function delete_vectors_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance,
     $host = $index_description['host'] ?? null;
     if (empty($host)) return new WP_Error('missing_host_pinecone_delete_vectors', __('Index host not found for delete vectors.', 'gpt3-ai-content-generator'));
     $path = '/vectors/delete';
-    $body = ['ids' => $vector_ids];
+    if (isset($vector_ids['ids']) && is_array($vector_ids['ids'])) {
+        $body = ['ids' => array_values($vector_ids['ids'])];
+    } elseif (isset($vector_ids['filter']) && is_array($vector_ids['filter'])) {
+        $body = ['filter' => $vector_ids['filter']];
+    } elseif (!empty($vector_ids['deleteAll'])) {
+        $body = ['deleteAll' => true];
+    } else {
+        $body = ['ids' => array_values($vector_ids)];
+    }
+    if (isset($vector_ids['namespace']) && is_string($vector_ids['namespace']) && $vector_ids['namespace'] !== '') {
+        $body['namespace'] = $vector_ids['namespace'];
+    }
 
     $response = _request_logic($strategyInstance, 'POST', $path, $body, 'https://' . $host);
     if (is_wp_error($response)) return $response;

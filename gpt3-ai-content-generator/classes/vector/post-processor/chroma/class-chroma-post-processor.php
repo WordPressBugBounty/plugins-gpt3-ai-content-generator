@@ -3,6 +3,7 @@
 namespace WPAICG\Vector\PostProcessor\Chroma;
 
 use WPAICG\AIPKit_Providers;
+use WPAICG\Lib\Utils\AIPKit_Vector_Text_Chunker;
 use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
 
 if (!defined('ABSPATH')) {
@@ -21,6 +22,8 @@ if (!class_exists(AIPKit_Vector_Post_Processor_Base::class)) {
  */
 class ChromaPostProcessor extends AIPKit_Vector_Post_Processor_Base
 {
+    private const EMBEDDING_BATCH_SIZE = 50;
+
     private $vector_store_manager;
     private $config_handler;
     private $embedding_handler;
@@ -133,26 +136,81 @@ class ChromaPostProcessor extends AIPKit_Vector_Post_Processor_Base
             return $return_error(__('Post content is empty for Chroma.', 'gpt3-ai-content-generator'));
         }
 
-        $embedding_result = $this->embedding_handler->generate_embedding($content_string_or_error, $embedding_provider_normalized, $embedding_model);
-        if (is_wp_error($embedding_result)) {
-            return $return_error('Embedding failed: ' . $embedding_result->get_error_message());
+        if (!class_exists(AIPKit_Vector_Text_Chunker::class)) {
+            $chunker_path = WPAICG_LIB_DIR . 'utils/class-aipkit-vector-text-chunker.php';
+            if (file_exists($chunker_path)) {
+                require_once $chunker_path;
+            }
+        }
+        if (!class_exists(AIPKit_Vector_Text_Chunker::class)) {
+            return $return_error(__('Vector text chunker is not available for Chroma indexing.', 'gpt3-ai-content-generator'));
         }
 
-        $vector_values = $embedding_result['embeddings'][0];
-        $metadata = [
-            'source' => 'wordpress_post',
-            'post_id' => (string) $post_id,
-            'title' => $post_title_for_log,
-            'type' => get_post_type($post_id),
-            'url' => get_permalink($post_id),
-            'vector_id' => $chroma_record_id,
-        ];
-        $records_to_upsert = [[
-            'id' => $chroma_record_id,
-            'vector' => $vector_values,
-            'payload' => $metadata,
-            'document' => $content_string_or_error,
-        ]];
+        $chunks = AIPKit_Vector_Text_Chunker::chunk_for_embeddings(
+            $content_string_or_error,
+            $embedding_model,
+            $provider_lookup,
+            $collection_name,
+            'chroma'
+        );
+        if (empty($chunks)) {
+            return $return_error(__('Could not prepare Chroma chunks for this post.', 'gpt3-ai-content-generator'));
+        }
+
+        $records_to_upsert = [];
+        $chunk_batches = array_chunk($chunks, self::EMBEDDING_BATCH_SIZE);
+        $total_chunks = count($chunks);
+        foreach ($chunk_batches as $chunk_batch) {
+            $chunk_texts = array_map(static function ($chunk): string {
+                return (string) ($chunk['text'] ?? '');
+            }, $chunk_batch);
+            $embedding_result = $this->embedding_handler->generate_embeddings($chunk_texts, $embedding_provider_normalized, $embedding_model);
+            if (is_wp_error($embedding_result)) {
+                return $return_error('Embedding failed: ' . $embedding_result->get_error_message());
+            }
+
+            $embedding_vectors = $embedding_result['embeddings'] ?? [];
+            if (!is_array($embedding_vectors) || count($embedding_vectors) !== count($chunk_batch)) {
+                return $return_error(__('Embedding result count did not match Chroma chunk count.', 'gpt3-ai-content-generator'));
+            }
+
+            foreach ($chunk_batch as $offset => $chunk) {
+                $chunk_index = (int) ($chunk['index'] ?? 0);
+                $record_id = $total_chunks === 1 ? $chroma_record_id : $chroma_record_id . '_chunk_' . $chunk_index;
+                $metadata = [
+                    'source' => 'wordpress_post',
+                    'post_id' => (string) $post_id,
+                    'title' => $post_title_for_log,
+                    'type' => get_post_type($post_id),
+                    'url' => get_permalink($post_id),
+                    'vector_id' => $record_id,
+                    'parent_vector_id' => $chroma_record_id,
+                    'chunk_index' => $chunk_index,
+                    'total_chunks' => $total_chunks,
+                    'char_start' => (int) ($chunk['start'] ?? 0),
+                    'char_end' => (int) ($chunk['end'] ?? 0),
+                ];
+                $records_to_upsert[] = [
+                    'id' => $record_id,
+                    'vector' => $embedding_vectors[$offset],
+                    'payload' => $metadata,
+                    'document' => (string) ($chunk['text'] ?? ''),
+                ];
+            }
+        }
+
+        $delete_existing_result = $this->vector_store_manager->delete_vectors(
+            'Chroma',
+            $collection_name,
+            ['where' => ['$or' => [
+                ['post_id' => (string) $post_id],
+                ['post_id' => $post_id],
+            ]]],
+            $chroma_api_config
+        );
+        if (is_wp_error($delete_existing_result)) {
+            return $return_error('Deleting existing Chroma chunks failed: ' . $delete_existing_result->get_error_message());
+        }
 
         $upsert_result = $this->vector_store_manager->upsert_vectors('Chroma', $collection_name, ['points' => $records_to_upsert], $chroma_api_config);
         if (is_wp_error($upsert_result)) {
@@ -161,7 +219,7 @@ class ChromaPostProcessor extends AIPKit_Vector_Post_Processor_Base
 
         $this->log_event(array_merge($log_entry_base, [
             'status' => 'indexed',
-            'message' => 'WordPress post content submitted for indexing.',
+            'message' => sprintf('WordPress post content chunked and submitted for indexing. Chunks: %d.', $total_chunks),
         ]));
         update_post_meta($post_id, '_aipkit_indexed_to_vs_' . sanitize_key($collection_name), '1');
         update_post_meta($post_id, '_aipkit_vector_id_for_vs_' . sanitize_key($collection_name), $chroma_record_id);

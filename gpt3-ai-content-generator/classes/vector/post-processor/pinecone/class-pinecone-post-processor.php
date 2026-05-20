@@ -5,6 +5,7 @@
 namespace WPAICG\Vector\PostProcessor\Pinecone;
 
 use WPAICG\AIPKit_Providers;
+use WPAICG\Lib\Utils\AIPKit_Vector_Text_Chunker;
 use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WP_Error;
@@ -26,6 +27,8 @@ if (!class_exists(AIPKit_Vector_Post_Processor_Base::class)) {
  * Handles indexing WordPress post content into Pinecone Vector Stores.
  */
 class PineconePostProcessor extends AIPKit_Vector_Post_Processor_Base {
+
+    private const EMBEDDING_BATCH_SIZE = 50;
 
     private $vector_store_manager;
     private $config_handler;
@@ -139,15 +142,82 @@ class PineconePostProcessor extends AIPKit_Vector_Post_Processor_Base {
             return $return_error($error_msg);
         }
         
-        $embedding_result = $this->embedding_handler->generate_embedding($content_string_or_error, $embedding_provider_normalized, $embedding_model);
-        if (is_wp_error($embedding_result)) {
-            $error_msg = 'Embedding failed: ' . $embedding_result->get_error_message();
-            return $return_error($error_msg);
+        if (!class_exists(AIPKit_Vector_Text_Chunker::class)) {
+            $chunker_path = WPAICG_LIB_DIR . 'utils/class-aipkit-vector-text-chunker.php';
+            if (file_exists($chunker_path)) {
+                require_once $chunker_path;
+            }
         }
-        $vector_values = $embedding_result['embeddings'][0];
-        
-        $metadata = ['source' => 'wordpress_post', 'post_id' => (string)$post_id, 'title' => $post_title_for_log, 'type' => get_post_type($post_id), 'url' => get_permalink($post_id), 'vector_id' => $pinecone_vector_id];
-        $vectors_to_upsert = [['id' => $pinecone_vector_id, 'values' => $vector_values, 'metadata' => $metadata]];
+        if (!class_exists(AIPKit_Vector_Text_Chunker::class)) {
+            return $return_error(__('Vector text chunker is not available for Pinecone indexing.', 'gpt3-ai-content-generator'));
+        }
+
+        $chunks = AIPKit_Vector_Text_Chunker::chunk_for_embeddings(
+            $content_string_or_error,
+            $embedding_model,
+            $provider_lookup,
+            $index_name,
+            'pinecone'
+        );
+        if (empty($chunks)) {
+            return $return_error(__('Could not prepare Pinecone chunks for this post.', 'gpt3-ai-content-generator'));
+        }
+
+        $vectors_to_upsert = [];
+        $chunk_batches = array_chunk($chunks, self::EMBEDDING_BATCH_SIZE);
+        $total_chunks = count($chunks);
+        foreach ($chunk_batches as $chunk_batch) {
+            $chunk_texts = array_map(static function ($chunk): string {
+                return (string) ($chunk['text'] ?? '');
+            }, $chunk_batch);
+            $embedding_result = $this->embedding_handler->generate_embeddings($chunk_texts, $embedding_provider_normalized, $embedding_model);
+            if (is_wp_error($embedding_result)) {
+                return $return_error('Embedding failed: ' . $embedding_result->get_error_message());
+            }
+
+            $embedding_vectors = $embedding_result['embeddings'] ?? [];
+            if (!is_array($embedding_vectors) || count($embedding_vectors) !== count($chunk_batch)) {
+                return $return_error(__('Embedding result count did not match Pinecone chunk count.', 'gpt3-ai-content-generator'));
+            }
+
+            foreach ($chunk_batch as $offset => $chunk) {
+                $chunk_index = (int) ($chunk['index'] ?? 0);
+                $record_id = $total_chunks === 1 ? $pinecone_vector_id : $pinecone_vector_id . '_chunk_' . $chunk_index;
+                $chunk_text = (string) ($chunk['text'] ?? '');
+                $metadata = [
+                    'source' => 'wordpress_post',
+                    'post_id' => (string) $post_id,
+                    'title' => $post_title_for_log,
+                    'type' => get_post_type($post_id),
+                    'url' => get_permalink($post_id),
+                    'vector_id' => $record_id,
+                    'parent_vector_id' => $pinecone_vector_id,
+                    'chunk_index' => $chunk_index,
+                    'total_chunks' => $total_chunks,
+                    'char_start' => (int) ($chunk['start'] ?? 0),
+                    'char_end' => (int) ($chunk['end'] ?? 0),
+                    'original_content' => $chunk_text,
+                ];
+                $vectors_to_upsert[] = [
+                    'id' => $record_id,
+                    'values' => $embedding_vectors[$offset],
+                    'metadata' => $metadata,
+                ];
+            }
+        }
+
+        $delete_existing_result = $this->vector_store_manager->delete_vectors(
+            'Pinecone',
+            $index_name,
+            ['filter' => ['$or' => [
+                ['post_id' => ['$eq' => (string) $post_id]],
+                ['post_id' => ['$eq' => $post_id]],
+            ]]],
+            $pinecone_api_config
+        );
+        if (is_wp_error($delete_existing_result)) {
+            return $return_error('Deleting existing Pinecone chunks failed: ' . $delete_existing_result->get_error_message());
+        }
 
         $upsert_result = $this->vector_store_manager->upsert_vectors('Pinecone', $index_name, ['vectors' => $vectors_to_upsert], $pinecone_api_config);
         if (is_wp_error($upsert_result)) {
@@ -155,7 +225,7 @@ class PineconePostProcessor extends AIPKit_Vector_Post_Processor_Base {
             return $return_error($error_msg);
         }
         
-        $this->log_event(array_merge($log_entry_base, ['status' => 'indexed', 'message' => 'WordPress post content submitted for indexing.']));
+        $this->log_event(array_merge($log_entry_base, ['status' => 'indexed', 'message' => sprintf('WordPress post content chunked and submitted for indexing. Chunks: %d.', $total_chunks)]));
         update_post_meta($post_id, '_aipkit_indexed_to_vs_' . sanitize_key($index_name), '1');
         update_post_meta($post_id, '_aipkit_vector_id_for_vs_' . sanitize_key($index_name), $pinecone_vector_id);
         

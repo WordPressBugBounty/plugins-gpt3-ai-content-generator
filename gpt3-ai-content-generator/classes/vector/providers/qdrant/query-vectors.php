@@ -37,7 +37,13 @@ function query_vectors_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, st
     if (isset($query_vector_param['using']) && is_string($query_vector_param['using'])) {
         $body['using'] = $query_vector_param['using'];
     }
-    if (!empty($filter)) $body['filter'] = $filter;
+    if (!empty($filter)) {
+        $body['filter'] = normalize_filter_payload_keys_logic($filter);
+        $ensure_indexes = ensure_payload_indexes_for_filter_logic($strategyInstance, $index_name, $body['filter']);
+        if (is_wp_error($ensure_indexes)) {
+            return $ensure_indexes;
+        }
+    }
     if (isset($query_vector_param['score_threshold'])) $body['score_threshold'] = floatval($query_vector_param['score_threshold']);
     if (isset($query_vector_param['offset'])) $body['offset'] = absint($query_vector_param['offset']);
     if (isset($query_vector_param['prefetch']) && is_array($query_vector_param['prefetch'])) {

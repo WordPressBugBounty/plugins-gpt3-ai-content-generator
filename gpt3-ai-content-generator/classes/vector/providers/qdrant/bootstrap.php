@@ -12,6 +12,7 @@ use WP_Error;
 $method_files = [
     '_request.php',
     'connect.php',
+    'ensure-payload-indexes.php',
     'create-index-if-not-exists.php',
     'upsert-vectors.php',
     'query-vectors.php',

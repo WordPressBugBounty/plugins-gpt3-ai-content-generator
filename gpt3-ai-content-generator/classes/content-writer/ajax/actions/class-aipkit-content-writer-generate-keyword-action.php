@@ -132,10 +132,13 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
         if (class_exists(AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver::class) && $this->get_ai_caller()) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
             $seo_score_improvement_enabled = isset($_POST['seo_score_improvement_enabled']) ? sanitize_text_field(wp_unslash($_POST['seo_score_improvement_enabled'])) : '0';
+            $seo_score_disabled_rules = '[]';
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
-            $seo_score_disabled_rules = isset($_POST['seo_score_disabled_rules']) && class_exists(AIPKit_Content_Writer_SEO_Config::class)
-                ? AIPKit_Content_Writer_SEO_Config::sanitize_disabled_rules(wp_unslash($_POST['seo_score_disabled_rules']))
-                : '[]';
+            if (isset($_POST['seo_score_disabled_rules']) && class_exists(AIPKit_Content_Writer_SEO_Config::class)) {
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in check_module_access_permissions; sanitize_disabled_rules() sanitizes the nested rules payload after wp_unslash().
+                $raw_seo_score_disabled_rules = wp_unslash($_POST['seo_score_disabled_rules']);
+                $seo_score_disabled_rules = AIPKit_Content_Writer_SEO_Config::sanitize_disabled_rules($raw_seo_score_disabled_rules);
+            }
             $smart_seo_config = [
                 'seo_score_improvement_enabled' => $seo_score_improvement_enabled,
                 'seo_score_continue_until_target' => '1',

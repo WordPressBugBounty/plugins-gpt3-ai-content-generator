@@ -25,12 +25,20 @@ function delete_vectors_logic(AIPKit_Vector_Qdrant_Strategy $strategyInstance, s
     if (isset($vector_ids_or_filter['points']) && is_array($vector_ids_or_filter['points'])) {
         $body['points'] = $vector_ids_or_filter['points'];
     } elseif (isset($vector_ids_or_filter['filter']) && is_array($vector_ids_or_filter['filter'])) {
-        $body['filter'] = $vector_ids_or_filter['filter'];
+        $body['filter'] = normalize_filter_payload_keys_logic($vector_ids_or_filter['filter']);
+        $ensure_indexes = ensure_payload_indexes_for_filter_logic($strategyInstance, $index_name, $body['filter']);
+        if (is_wp_error($ensure_indexes)) {
+            return $ensure_indexes;
+        }
     } else {
         $body['points'] = $vector_ids_or_filter;
     }
 
     $response = _request_logic($strategyInstance, 'POST', $path, $body);
     if (is_wp_error($response)) return $response;
-    return isset($response['status']) && ($response['status'] === 'acknowledged' || $response['status'] === 'completed');
+    if (($response['status'] ?? '') === 'ok') {
+        return true;
+    }
+    $operation_status = $response['result']['status'] ?? ($response['status'] ?? '');
+    return in_array($operation_status, ['acknowledged', 'completed'], true);
 }

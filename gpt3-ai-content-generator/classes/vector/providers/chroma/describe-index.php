@@ -24,6 +24,18 @@ function describe_index_logic(AIPKit_Vector_Chroma_Strategy $strategyInstance, s
 
     $description = _request_logic($strategyInstance, 'GET', collection_base_path_logic($strategyInstance) . '/' . rawurlencode($collection_id));
     if (is_wp_error($description)) {
+        $error_data = $description->get_error_data();
+        $status = is_array($error_data) ? (int) ($error_data['status'] ?? 0) : 0;
+        $collection_name = isset($collection['name']) ? (string) $collection['name'] : $index_name;
+        if ($status === 404 && $collection_name !== '' && $collection_name !== $collection_id) {
+            $fallback_description = _request_logic($strategyInstance, 'GET', collection_base_path_logic($strategyInstance) . '/' . rawurlencode($collection_name));
+            if (!is_wp_error($fallback_description)) {
+                $description = $fallback_description;
+                $collection_id = isset($fallback_description['id']) ? (string) $fallback_description['id'] : $collection_id;
+            }
+        }
+    }
+    if (is_wp_error($description)) {
         return $description;
     }
 
