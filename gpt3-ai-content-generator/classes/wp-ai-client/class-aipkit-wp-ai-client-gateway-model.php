@@ -1,0 +1,684 @@
+<?php
+
+namespace WPAICG\WP_AI_Client;
+
+use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
+use WPAICG\Images\AIPKit_Image_Manager;
+use WordPress\AiClient\Common\Exception\RuntimeException;
+use WordPress\AiClient\Files\DTO\File;
+use WordPress\AiClient\Messages\DTO\Message;
+use WordPress\AiClient\Messages\DTO\MessagePart;
+use WordPress\AiClient\Messages\DTO\ModelMessage;
+use WordPress\AiClient\Providers\DTO\ProviderMetadata;
+use WordPress\AiClient\Providers\Models\Contracts\ModelInterface;
+use WordPress\AiClient\Providers\Models\DTO\ModelConfig;
+use WordPress\AiClient\Providers\Models\DTO\ModelMetadata;
+use WordPress\AiClient\Providers\Models\ImageGeneration\Contracts\ImageGenerationModelInterface;
+use WordPress\AiClient\Providers\Models\TextGeneration\Contracts\TextGenerationModelInterface;
+use WordPress\AiClient\Results\DTO\Candidate;
+use WordPress\AiClient\Results\DTO\GenerativeAiResult;
+use WordPress\AiClient\Results\DTO\TokenUsage;
+use WordPress\AiClient\Results\Enums\FinishReasonEnum;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class AIPKit_WP_AI_Client_Gateway_Model implements ModelInterface, TextGenerationModelInterface, ImageGenerationModelInterface
+{
+    private ModelMetadata $model_metadata;
+    private ProviderMetadata $provider_metadata;
+    private ModelConfig $config;
+    private string $internal_provider;
+
+    public function __construct(ModelMetadata $model_metadata, ProviderMetadata $provider_metadata, string $internal_provider)
+    {
+        $this->model_metadata = $model_metadata;
+        $this->provider_metadata = $provider_metadata;
+        $this->internal_provider = $internal_provider;
+        $this->config = new ModelConfig();
+    }
+
+    public function metadata(): ModelMetadata
+    {
+        return $this->model_metadata;
+    }
+
+    public function providerMetadata(): ProviderMetadata
+    {
+        return $this->provider_metadata;
+    }
+
+    public function setConfig(ModelConfig $config): void
+    {
+        $this->config = $config;
+    }
+
+    public function getConfig(): ModelConfig
+    {
+        return $this->config;
+    }
+
+    public function generateTextResult(array $prompt): GenerativeAiResult
+    {
+        if (!class_exists(AIPKit_AI_Caller::class)) {
+            throw new RuntimeException('AI Puffer text caller is unavailable.');
+        }
+
+        $translated = $this->messages_to_aipkit($prompt);
+        $params = $this->text_params_from_config();
+        if (!empty($translated['image_inputs'])) {
+            $params['image_inputs'] = $translated['image_inputs'];
+        }
+        $system_instruction = $this->system_instruction_from_config();
+        $estimated_usage = $this->estimated_text_usage($translated['messages'], $params, $system_instruction);
+        $this->enforce_connector_approval();
+
+        $caller = new AIPKit_AI_Caller();
+        $candidate_count = $this->text_candidate_count();
+        $texts = [];
+        $combined_usage = [
+            'input_tokens' => 0,
+            'output_tokens' => 0,
+            'total_tokens' => 0,
+        ];
+        $raw_results = [];
+        $request_payload_log = null;
+
+        for ($index = 0; $index < $candidate_count; $index++) {
+            $result = $caller->make_standard_call(
+                $this->internal_provider,
+                $this->model_metadata->getId(),
+                $translated['messages'],
+                $params,
+                $system_instruction
+            );
+
+            if (is_wp_error($result)) {
+                throw new RuntimeException(esc_html($result->get_error_message()));
+            }
+
+            $text = isset($result['content']) ? (string) $result['content'] : '';
+            $usage = is_array($result['usage'] ?? null) ? $result['usage'] : [];
+
+            $texts[] = $text;
+            $combined_usage = $this->combine_text_usage($combined_usage, $usage);
+            $raw_results[] = $this->sanitize_raw_result($result);
+            if ($request_payload_log === null && isset($result['request_payload_log'])) {
+                $request_payload_log = $result['request_payload_log'];
+            }
+        }
+
+        if ($combined_usage['total_tokens'] <= 0) {
+            $combined_usage['total_tokens'] = (int) $estimated_usage['total_tokens'] * $candidate_count;
+        }
+
+        $this->record_usage($combined_usage, 'text_generation', [
+            'usage_data' => $combined_usage,
+            'fallback_units' => (int) $estimated_usage['total_tokens'] * $candidate_count,
+        ]);
+        $this->log_gateway_call($translated['messages'], implode("\n\n", $texts), $combined_usage, 'text_generation', $request_payload_log);
+
+        return $this->build_text_result($texts, $combined_usage, ['responses' => $raw_results]);
+    }
+
+    public function generateImageResult(array $prompt): GenerativeAiResult
+    {
+        if (!class_exists(AIPKit_Image_Manager::class)) {
+            throw new RuntimeException('AI Puffer image manager is unavailable.');
+        }
+
+        $text = $this->prompt_text($prompt);
+        if ($text === '') {
+            throw new RuntimeException('Image generation requires a text prompt.');
+        }
+
+        $options = $this->image_options_from_config();
+        $options['provider'] = $this->internal_provider;
+        $options['model'] = $this->model_metadata->getId();
+        $requested_image_count = max(1, (int) ($options['n'] ?? 1));
+        $estimated_usage = [
+            'unit_count' => $requested_image_count,
+            'image_count' => $requested_image_count,
+            'total_units' => $requested_image_count,
+        ];
+        $estimated_fallback_units = $requested_image_count * AIPKit_Image_Manager::TOKENS_PER_IMAGE;
+        $this->enforce_connector_approval();
+
+        $manager = new AIPKit_Image_Manager();
+        $result = $manager->generate_image($text, $options, get_current_user_id() ?: null);
+        if (is_wp_error($result)) {
+            throw new RuntimeException(esc_html($result->get_error_message()));
+        }
+
+        $usage = is_array($result['usage'] ?? null) ? $result['usage'] : [];
+        $generated_image_count = is_array($result['images'] ?? null) ? count($result['images']) : $requested_image_count;
+        $this->record_usage($usage, 'image_generation', [
+            'usage_data' => array_merge($usage, [
+                'unit_count' => max(1, $generated_image_count),
+                'image_count' => max(1, $generated_image_count),
+            ]),
+            'fallback_units' => max(1, $generated_image_count) * AIPKit_Image_Manager::TOKENS_PER_IMAGE,
+        ]);
+        $this->log_gateway_call([['role' => 'user', 'content' => $text]], '[image generated]', $usage, 'image_generation', $options);
+
+        return $this->build_image_result($result, $usage);
+    }
+
+    private function messages_to_aipkit(array $prompt): array
+    {
+        $messages = [];
+        $image_inputs = [];
+
+        foreach ($prompt as $message) {
+            if (!$message instanceof Message) {
+                continue;
+            }
+
+            $role = $message->getRole()->isModel() ? 'assistant' : 'user';
+            $text = '';
+            foreach ($message->getParts() as $part) {
+                if (!$part instanceof MessagePart) {
+                    continue;
+                }
+                if ($part->getText() !== null) {
+                    $text .= (string) $part->getText();
+                    continue;
+                }
+                $file = $part->getFile();
+                if ($file instanceof File && $file->isImage()) {
+                    $image_input = $this->file_to_image_input($file);
+                    if ($image_input !== null) {
+                        $image_inputs[] = $image_input;
+                    }
+                }
+            }
+
+            if ($text === '' && !empty($image_inputs) && $role === 'user') {
+                $text = '[image attachment]';
+            }
+            if ($text !== '') {
+                $messages[] = [
+                    'role' => $role,
+                    'content' => $text,
+                ];
+            }
+        }
+
+        return [
+            'messages' => $messages,
+            'image_inputs' => $image_inputs,
+        ];
+    }
+
+    private function file_to_image_input(File $file): ?array
+    {
+        $base64 = $file->getBase64Data();
+        if ($base64 === null || $base64 === '') {
+            return null;
+        }
+
+        return [
+            'type' => $file->getMimeType(),
+            'base64' => $base64,
+        ];
+    }
+
+    private function prompt_text(array $prompt): string
+    {
+        $chunks = [];
+        foreach ($prompt as $message) {
+            if (!$message instanceof Message) {
+                continue;
+            }
+            foreach ($message->getParts() as $part) {
+                if ($part instanceof MessagePart && $part->getText() !== null) {
+                    $chunks[] = (string) $part->getText();
+                }
+            }
+        }
+
+        return trim(implode("\n", $chunks));
+    }
+
+    private function text_params_from_config(): array
+    {
+        $params = [];
+        $map = [
+            'temperature' => $this->config->getTemperature(),
+            'top_p' => $this->config->getTopP(),
+            'top_k' => $this->config->getTopK(),
+            'presence_penalty' => $this->config->getPresencePenalty(),
+            'frequency_penalty' => $this->config->getFrequencyPenalty(),
+            'max_completion_tokens' => $this->config->getMaxTokens(),
+        ];
+
+        foreach ($map as $key => $value) {
+            if ($value !== null) {
+                $params[$key] = $value;
+            }
+        }
+
+        $stop = $this->config->getStopSequences();
+        if (is_array($stop) && !empty($stop)) {
+            $params['stop_sequences'] = array_values(array_filter(array_map('strval', $stop)));
+            $params['stop'] = implode("\n", $params['stop_sequences']);
+        }
+
+        $schema = $this->config->getOutputSchema();
+        if (is_array($schema) && !empty($schema)) {
+            $params['response_format'] = [
+                'type' => 'json_schema',
+                'json_schema' => [
+                    'name' => 'wp_ai_client_response',
+                    'schema' => $schema,
+                ],
+            ];
+        } elseif ($this->config->getOutputMimeType() === 'application/json') {
+            $params['response_format'] = ['type' => 'json_object'];
+        }
+
+        return $params;
+    }
+
+    private function text_candidate_count(): int
+    {
+        $candidate_count = $this->config->getCandidateCount();
+        if ($candidate_count === null) {
+            return 1;
+        }
+
+        return max(1, min(4, (int) $candidate_count));
+    }
+
+    private function system_instruction_from_config(): ?string
+    {
+        $instruction = trim((string) ($this->config->getSystemInstruction() ?? ''));
+        $schema = $this->config->getOutputSchema();
+        if (is_array($schema) && !empty($schema)) {
+            $schema_json = wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $json_instruction = 'Respond only with valid JSON that matches this JSON Schema: ' . $schema_json;
+            $instruction = $instruction !== '' ? $instruction . "\n\n" . $json_instruction : $json_instruction;
+        } elseif ($this->config->getOutputMimeType() === 'application/json') {
+            $json_instruction = 'Respond only with valid JSON.';
+            $instruction = $instruction !== '' ? $instruction . "\n\n" . $json_instruction : $json_instruction;
+        }
+
+        return $instruction !== '' ? $instruction : null;
+    }
+
+    private function image_options_from_config(): array
+    {
+        $options = [
+            'n' => max(1, (int) ($this->config->getCandidateCount() ?? 1)),
+        ];
+
+        $orientation = $this->config->getOutputMediaOrientation();
+        if ($orientation) {
+            $options['size'] = match ((string) $orientation->value) {
+                'landscape' => '1792x1024',
+                'portrait' => '1024x1792',
+                default => '1024x1024',
+            };
+        }
+
+        $aspect_ratio = $this->config->getOutputMediaAspectRatio();
+        if (is_string($aspect_ratio) && $aspect_ratio !== '') {
+            $options['aspect_ratio'] = $aspect_ratio;
+        }
+
+        $mime_type = $this->config->getOutputMimeType();
+        if ($mime_type === 'image/jpeg') {
+            $options['output_format'] = 'jpeg';
+        } elseif ($mime_type === 'image/webp') {
+            $options['output_format'] = 'webp';
+        } elseif ($mime_type === 'image/png') {
+            $options['output_format'] = 'png';
+        }
+
+        return $options;
+    }
+
+    private function build_text_result(array $texts, array $usage, array $raw_result): GenerativeAiResult
+    {
+        $candidates = [];
+        foreach ($texts as $text) {
+            $candidates[] = new Candidate(
+                new ModelMessage([new MessagePart((string) $text)]),
+                FinishReasonEnum::stop()
+            );
+        }
+
+        return new GenerativeAiResult(
+            wp_generate_uuid4(),
+            $candidates,
+            $this->token_usage($usage),
+            $this->provider_metadata,
+            $this->model_metadata,
+            [
+                'aipkit_provider' => $this->internal_provider,
+                'aipkit_raw' => $raw_result,
+            ]
+        );
+    }
+
+    private function build_image_result(array $result, array $usage): GenerativeAiResult
+    {
+        $candidates = [];
+        foreach (($result['images'] ?? []) as $image) {
+            if (!is_array($image)) {
+                continue;
+            }
+
+            $file = null;
+            if (!empty($image['b64_json']) && is_string($image['b64_json'])) {
+                $file = new File($image['b64_json'], $this->config->getOutputMimeType() ?: 'image/png');
+            } elseif (!empty($image['url']) && is_string($image['url'])) {
+                $file = new File($image['url'], $this->config->getOutputMimeType() ?: 'image/png');
+            } elseif (!empty($image['media_library_url']) && is_string($image['media_library_url'])) {
+                $file = new File($image['media_library_url'], $this->config->getOutputMimeType() ?: 'image/png');
+            }
+
+            if (!$file instanceof File) {
+                continue;
+            }
+
+            $candidates[] = new Candidate(
+                new ModelMessage([new MessagePart($file)]),
+                FinishReasonEnum::stop()
+            );
+        }
+
+        if (empty($candidates)) {
+            throw new RuntimeException('AI Puffer did not return any generated images.');
+        }
+
+        return new GenerativeAiResult(
+            wp_generate_uuid4(),
+            $candidates,
+            $this->token_usage($usage),
+            $this->provider_metadata,
+            $this->model_metadata,
+            [
+                'aipkit_provider' => $this->internal_provider,
+                'aipkit_raw' => $this->sanitize_raw_result($result),
+            ]
+        );
+    }
+
+    private function token_usage(array $usage): TokenUsage
+    {
+        $input = (int) ($usage['input_tokens'] ?? $usage['prompt_tokens'] ?? 0);
+        $output = (int) ($usage['output_tokens'] ?? $usage['completion_tokens'] ?? 0);
+        $total = (int) ($usage['total_tokens'] ?? ($input + $output));
+
+        return new TokenUsage(max(0, $input), max(0, $output), max(0, $total));
+    }
+
+    private function combine_text_usage(array $combined, array $usage): array
+    {
+        $input = (int) ($usage['input_tokens'] ?? $usage['prompt_tokens'] ?? $usage['promptTokenCount'] ?? 0);
+        $output = (int) ($usage['output_tokens'] ?? $usage['completion_tokens'] ?? $usage['candidatesTokenCount'] ?? 0);
+        $total = (int) ($usage['total_tokens'] ?? $usage['totalTokenCount'] ?? ($input + $output));
+
+        $combined['input_tokens'] = max(0, (int) ($combined['input_tokens'] ?? 0)) + max(0, $input);
+        $combined['output_tokens'] = max(0, (int) ($combined['output_tokens'] ?? 0)) + max(0, $output);
+        $combined['total_tokens'] = max(0, (int) ($combined['total_tokens'] ?? 0)) + max(0, $total);
+
+        return $combined;
+    }
+
+    private function enforce_connector_approval(): void
+    {
+        if (!class_exists(AIPKit_WP_AI_Client_Approval_Compatibility::class)) {
+            return;
+        }
+
+        AIPKit_WP_AI_Client_Approval_Compatibility::enforce($this->connector_id());
+    }
+
+    private function record_usage(array $usage, string $operation, array $usage_context = []): void
+    {
+        if (!class_exists(AIPKit_Token_Manager::class)) {
+            return;
+        }
+
+        try {
+            $fallback_units = isset($usage_context['fallback_units']) && is_numeric($usage_context['fallback_units'])
+                ? max(0, (int) $usage_context['fallback_units'])
+                : 0;
+            $tokens = (int) ($usage['total_tokens'] ?? $usage['totalTokenCount'] ?? 0);
+            if ($tokens <= 0) {
+                $tokens = $fallback_units;
+            }
+            if ($tokens <= 0) {
+                return;
+            }
+
+            $usage_data = isset($usage_context['usage_data']) && is_array($usage_context['usage_data'])
+                ? $usage_context['usage_data']
+                : $usage;
+            $manager = new AIPKit_Token_Manager();
+            $user_id = $this->current_user_id();
+            $manager->record_token_usage(
+                $user_id,
+                $this->gateway_session_id($user_id),
+                null,
+                $tokens,
+                'wp_ai_client',
+                $this->wp_ai_client_usage_context($operation, $usage_data, $fallback_units)
+            );
+        } catch (\Throwable $e) {
+            // Usage recording must not break generation.
+        }
+    }
+
+    private function wp_ai_client_usage_context(string $operation, array $usage_data, int $fallback_units): array
+    {
+        $pricing_module = $operation === 'image_generation' ? 'image_generator' : 'chat';
+        $pricing_operation = $operation === 'image_generation' ? 'generate' : 'chat';
+
+        return [
+            'provider' => $this->pricing_provider_key(),
+            'model' => $this->model_metadata->getId(),
+            'operation' => $operation,
+            'pricing_module' => $pricing_module,
+            'pricing_operation' => $pricing_operation,
+            'usage_data' => $usage_data,
+            'fallback_units' => max(0, $fallback_units),
+        ];
+    }
+
+    private function pricing_provider_key(): string
+    {
+        return match ($this->internal_provider) {
+            'OpenAI' => 'openai',
+            'Google' => 'google',
+            'Claude' => 'claude',
+            'OpenRouter' => 'openrouter',
+            'Azure' => 'azure',
+            'DeepSeek' => 'deepseek',
+            'xAI' => 'xai',
+            'Ollama' => 'ollama',
+            default => sanitize_key($this->internal_provider),
+        };
+    }
+
+    private function connector_id(): string
+    {
+        return match ($this->internal_provider) {
+            'OpenAI' => 'openai',
+            'Google' => 'google',
+            'Claude' => 'anthropic',
+            'OpenRouter' => 'openrouter',
+            'Azure' => 'azure',
+            'DeepSeek' => 'deepseek',
+            'xAI' => 'xai',
+            'Ollama' => 'ollama',
+            default => sanitize_key($this->internal_provider),
+        };
+    }
+
+    private function estimated_text_usage(array $messages, array $params, ?string $system_instruction = null): array
+    {
+        $input_tokens = $this->estimated_text_token_count($messages, $system_instruction);
+        $output_tokens = isset($params['max_completion_tokens']) && is_numeric($params['max_completion_tokens'])
+            ? max(1, (int) $params['max_completion_tokens'])
+            : 1000;
+
+        return [
+            'input_tokens' => $input_tokens,
+            'output_tokens' => $output_tokens,
+            'total_tokens' => $input_tokens + $output_tokens,
+        ];
+    }
+
+    private function estimated_text_token_count(array $messages, ?string $system_instruction = null): int
+    {
+        $chunks = [];
+        if (is_string($system_instruction) && $system_instruction !== '') {
+            $chunks[] = $system_instruction;
+        }
+        foreach ($messages as $message) {
+            if (!is_array($message)) {
+                continue;
+            }
+            $content = $message['content'] ?? '';
+            if (is_scalar($content)) {
+                $chunks[] = (string) $content;
+            }
+        }
+
+        $text = trim(wp_strip_all_tags(implode("\n", $chunks)));
+        if ($text === '') {
+            return 1;
+        }
+
+        $char_estimate = (int) ceil(strlen($text) / 4);
+        $word_estimate = (int) ceil(str_word_count($text) * 1.35);
+
+        return max(1, $char_estimate, $word_estimate);
+    }
+
+    private function current_user_id(): ?int
+    {
+        $user_id = get_current_user_id();
+        return $user_id > 0 ? $user_id : null;
+    }
+
+    private function gateway_session_id(?int $user_id): ?string
+    {
+        if ($user_id) {
+            return null;
+        }
+
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
+        if ($ip === '') {
+            return 'wp-ai-client-system';
+        }
+
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
+        $fingerprint = $ip . '|' . $user_agent;
+
+        return 'wp-ai-client-' . substr(hash_hmac('sha256', $fingerprint, wp_salt('auth')), 0, 40);
+    }
+
+    private function log_gateway_call(array $messages, string $response, array $usage, string $operation, $request_payload = null): void
+    {
+        if (!class_exists('\WPAICG\Chat\Storage\LogStorage')) {
+            return;
+        }
+
+        try {
+            $user_id = $this->current_user_id();
+            $role = null;
+            if ($user_id) {
+                $user = get_userdata($user_id);
+                $role = $user && !empty($user->roles) ? implode(',', (array) $user->roles) : null;
+            }
+
+            $storage = new \WPAICG\Chat\Storage\LogStorage();
+            $conversation_uuid = wp_generate_uuid4();
+            $session_id = $this->gateway_session_id($user_id);
+            $timestamp = time();
+            $common_log_data = [
+                'bot_id' => null,
+                'user_id' => $user_id,
+                'session_id' => $session_id,
+                'conversation_uuid' => $conversation_uuid,
+                'module' => 'wp_ai_client',
+                'is_guest' => $user_id ? 0 : 1,
+                'user_wp_role' => $role,
+                'ip_address' => null,
+                'timestamp' => $timestamp,
+            ];
+
+            $storage->log_message(array_merge($common_log_data, [
+                'message_role' => 'user',
+                'message_content' => $this->log_prompt_content($messages),
+                'message_id' => 'aipkit-wp-ai-client-user-' . wp_generate_uuid4(),
+            ]));
+
+            $storage->log_message(array_merge($common_log_data, [
+                'message_role' => 'bot',
+                'message_content' => $response,
+                'ai_provider' => $this->internal_provider,
+                'ai_model' => $this->model_metadata->getId(),
+                'usage' => $usage,
+                'message_id' => 'aipkit-wp-ai-client-bot-' . wp_generate_uuid4(),
+                'request_payload' => [
+                    'operation' => $operation,
+                    'messages' => $messages,
+                    'payload' => $request_payload,
+                ],
+                'response_data' => [
+                    'type' => $operation,
+                    'source' => 'wp_ai_client',
+                ],
+            ]));
+        } catch (\Throwable $e) {
+            // Logging must not break generation.
+        }
+    }
+
+    private function log_prompt_content(array $messages): string
+    {
+        foreach ($messages as $message) {
+            if (!is_array($message)) {
+                continue;
+            }
+            if (($message['role'] ?? '') !== 'user') {
+                continue;
+            }
+            $content = $message['content'] ?? '';
+            if (is_scalar($content)) {
+                $content = trim((string) $content);
+                if ($content !== '') {
+                    return $content;
+                }
+            }
+        }
+
+        foreach ($messages as $message) {
+            if (!is_array($message)) {
+                continue;
+            }
+            $content = $message['content'] ?? '';
+            if (is_scalar($content)) {
+                $content = trim((string) $content);
+                if ($content !== '') {
+                    return $content;
+                }
+            }
+        }
+
+        return '[WP AI Client request]';
+    }
+
+    private function sanitize_raw_result(array $result): array
+    {
+        unset($result['request_payload_log']['payload_sent']);
+        return $result;
+    }
+}

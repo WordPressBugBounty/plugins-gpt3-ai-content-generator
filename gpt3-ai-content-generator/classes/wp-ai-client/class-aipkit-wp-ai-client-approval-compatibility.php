@@ -1,0 +1,247 @@
+<?php
+
+namespace WPAICG\WP_AI_Client;
+
+use WordPress\AiClient\Providers\Http\Exception\ClientException;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class AIPKit_WP_AI_Client_Approval_Compatibility
+{
+    public static function enforce(string $connector_id): void
+    {
+        $connector_id = sanitize_key($connector_id);
+        if ($connector_id === '' || !self::is_connector_approval_active()) {
+            return;
+        }
+
+        if (!class_exists('\WordPress\AI\Connector_Approval\Approvals_Store')) {
+            return;
+        }
+
+        $store = new \WordPress\AI\Connector_Approval\Approvals_Store();
+        $gateway = self::gateway_caller();
+        $caller = self::identify_original_caller() ?: $gateway;
+
+        $caller_is_gateway = $caller['basename'] === $gateway['basename'];
+        $gateway_approved = $store->is_approved($gateway['basename'], $connector_id);
+        $caller_approved = $caller_is_gateway || $store->is_approved($caller['basename'], $connector_id);
+
+        if (!$gateway_approved) {
+            $store->record_pending($gateway, $connector_id);
+            if (!$caller_is_gateway && !$caller_approved) {
+                $store->record_pending($caller, $connector_id);
+            }
+            self::throw_not_approved($connector_id, $gateway['basename']);
+        }
+
+        if (!$caller_approved) {
+            $store->record_pending($caller, $connector_id);
+            self::throw_not_approved($connector_id, $caller['basename']);
+        }
+    }
+
+    private static function is_connector_approval_active(): bool
+    {
+        if (!class_exists('\WordPress\AI\Connector_Approval\Http_Guard')) {
+            return false;
+        }
+
+        global $wp_filter;
+        if (empty($wp_filter['pre_http_request']) || !is_object($wp_filter['pre_http_request'])) {
+            return false;
+        }
+
+        foreach ((array) $wp_filter['pre_http_request']->callbacks as $callbacks) {
+            foreach ((array) $callbacks as $callback) {
+                $function = $callback['function'] ?? null;
+                if (
+                    is_array($function)
+                    && is_object($function[0] ?? null)
+                    && $function[0] instanceof \WordPress\AI\Connector_Approval\Http_Guard
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static function identify_original_caller(): ?array
+    {
+        $frames = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace,PHPCompatibility.FunctionUse.ArgumentFunctionsUsage.DEBUG_BACKTRACE_IGNORE_ARGS
+        foreach ($frames as $frame) {
+            $file = isset($frame['file']) && is_string($frame['file']) ? $frame['file'] : '';
+            if ($file === '' || self::should_skip_frame($file)) {
+                continue;
+            }
+
+            $extension = self::classify_file($file);
+            if ($extension !== null) {
+                return $extension;
+            }
+        }
+
+        return null;
+    }
+
+    private static function should_skip_frame(string $file): bool
+    {
+        $normalized = wp_normalize_path($file);
+        $skip_substrings = [
+            '/wp-includes/option.php',
+            '/wp-includes/class-wp-hook.php',
+            '/wp-includes/plugin.php',
+            '/wp-includes/connectors.php',
+            '/wp-includes/class-wp-connector-registry.php',
+            '/wp-includes/http.php',
+            '/wp-includes/class-wp-http.php',
+            '/wp-includes/class-http.php',
+            '/wp-includes/class-wp-http-requests-hooks.php',
+            '/wp-includes/Requests/',
+            '/wp-includes/class-requests.php',
+            '/wp-includes/ai-client/',
+            '/wp-includes/php-ai-client/',
+            '/wp-content/plugins/ai/includes/Connector_Approval/',
+            wp_normalize_path(WPAICG_PLUGIN_DIR . 'classes/wp-ai-client/'),
+        ];
+
+        foreach ($skip_substrings as $needle) {
+            if (str_contains($normalized, wp_normalize_path($needle))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function classify_file(string $file): ?array
+    {
+        $normalized = wp_normalize_path($file);
+        $plugin_base_dir = wp_normalize_path(WP_PLUGIN_DIR);
+        $plugin_segment = self::match_slug($normalized, $plugin_base_dir);
+        if ($plugin_segment !== null) {
+            $plugin_relative = ltrim(substr($normalized, strlen(rtrim($plugin_base_dir, '/') . '/')), '/');
+            $basename = self::resolve_plugin_basename($plugin_segment, $plugin_relative);
+            return [
+                'type' => 'plugin',
+                'basename' => $basename,
+                'name' => self::plugin_name($basename),
+            ];
+        }
+
+        if (defined('WPMU_PLUGIN_DIR')) {
+            $mu_segment = self::match_slug($normalized, wp_normalize_path(WPMU_PLUGIN_DIR));
+            if ($mu_segment !== null) {
+                return [
+                    'type' => 'mu-plugin',
+                    'basename' => $mu_segment,
+                    'name' => $mu_segment,
+                ];
+            }
+        }
+
+        foreach ((array) get_theme_roots() as $root) {
+            if (!is_string($root) || $root === '') {
+                continue;
+            }
+            $theme_root = wp_normalize_path(trailingslashit(WP_CONTENT_DIR . $root));
+            $slug = self::match_slug($normalized, $theme_root);
+            if ($slug === null) {
+                continue;
+            }
+            $theme = wp_get_theme($slug);
+            $name = $theme->exists() ? (string) $theme->get('Name') : $slug;
+
+            return [
+                'type' => 'theme',
+                'basename' => $slug,
+                'name' => $name !== '' ? $name : $slug,
+            ];
+        }
+
+        return null;
+    }
+
+    private static function match_slug(string $file, string $base_dir): ?string
+    {
+        $base_dir = rtrim($base_dir, '/') . '/';
+        if (!str_starts_with($file, $base_dir)) {
+            return null;
+        }
+
+        $relative = substr($file, strlen($base_dir));
+        if ($relative === '') {
+            return null;
+        }
+
+        $segments = explode('/', $relative);
+        return $segments[0] ?? null;
+    }
+
+    private static function resolve_plugin_basename(string $segment, string $relative_path = ''): string
+    {
+        if (pathinfo($segment, PATHINFO_EXTENSION) !== '') {
+            return $segment;
+        }
+
+        $plugins = self::load_plugins();
+        if ($relative_path !== '' && isset($plugins[$relative_path])) {
+            return $relative_path;
+        }
+
+        $prefix = $segment . '/';
+        foreach ($plugins as $plugin_basename => $_plugin_data) {
+            if (str_starts_with((string) $plugin_basename, $prefix)) {
+                return (string) $plugin_basename;
+            }
+        }
+
+        return $segment;
+    }
+
+    private static function gateway_caller(): array
+    {
+        $basename = plugin_basename(WPAICG_PLUGIN_DIR . 'gpt3-ai-content-generator.php');
+        return [
+            'type' => 'plugin',
+            'basename' => $basename,
+            'name' => self::plugin_name($basename),
+        ];
+    }
+
+    private static function plugin_name(string $basename): string
+    {
+        $plugins = self::load_plugins();
+        if (isset($plugins[$basename]['Name']) && $plugins[$basename]['Name'] !== '') {
+            return (string) $plugins[$basename]['Name'];
+        }
+
+        return $basename;
+    }
+
+    private static function load_plugins(): array
+    {
+        if (!function_exists('get_plugins')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        return get_plugins();
+    }
+
+    private static function throw_not_approved(string $connector_id, string $caller_basename): void
+    {
+        throw new ClientException(
+            sprintf(
+                /* translators: 1: Connector ID. 2: Calling plugin/theme basename. */
+                __('The "%1$s" AI connector has not been approved for use by "%2$s".', 'gpt3-ai-content-generator'),
+                $connector_id,
+                $caller_basename
+            ),
+            403
+        );
+    }
+}

@@ -71,6 +71,7 @@ $module_labels = [
     'ai_forms' => __('AI Forms', 'gpt3-ai-content-generator'),
     'autogpt' => __('Automate', 'gpt3-ai-content-generator'),
     'ai_post_enhancer' => __('Content Assistant', 'gpt3-ai-content-generator'),
+    'wp_ai_client' => __('WP AI Client', 'gpt3-ai-content-generator'),
     'unknown' => __('Unknown', 'gpt3-ai-content-generator'),
 ];
 

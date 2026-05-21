@@ -40,7 +40,7 @@ class AIPKit_Price_Resolver
         $module = sanitize_key($module);
         $provider = sanitize_text_field((string) ($usage_context['provider'] ?? ''));
         $model = sanitize_text_field((string) ($usage_context['model'] ?? ''));
-        $operation = sanitize_text_field((string) ($usage_context['operation'] ?? ''));
+        $operation = sanitize_text_field((string) ($usage_context['pricing_operation'] ?? ($usage_context['operation'] ?? '')));
 
         if ($module === '' || $provider === '' || $model === '' || $operation === '') {
             return null;

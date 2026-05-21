@@ -29,6 +29,7 @@ use WPAICG\Includes\DependencyLoaders\Automated_Task_Cron_Helpers_Loader;
 use WPAICG\Includes\DependencyLoaders\Hook_Registrars_Loader;
 use WPAICG\Includes\DependencyLoaders\AI_Forms_Dependencies_Loader;
 use WPAICG\Includes\DependencyLoaders\Core_Moderation_Dependencies_Loader;
+use WPAICG\Includes\DependencyLoaders\WP_AI_Client_Dependencies_Loader;
 
 
 // Ensure this file is only loaded by WordPress
@@ -111,6 +112,7 @@ class AIPKit_Dependency_Loader
         require_once $loaders_path . 'class-hook-registrars-loader.php';
         require_once $loaders_path . 'class-ai-forms-dependencies-loader.php';
         require_once $loaders_path . 'class-core-moderation-dependencies-loader.php';
+        require_once $loaders_path . 'class-wp-ai-client-dependencies-loader.php';
         // --- END Load the new specialized loader class files ---
 
         // Call specialized loaders
@@ -151,6 +153,7 @@ class AIPKit_Dependency_Loader
         Hook_Registrars_Loader::load();
         AI_Forms_Dependencies_Loader::load();
         Core_Moderation_Dependencies_Loader::load();
+        WP_AI_Client_Dependencies_Loader::load();
     }
 
     private static function is_admin_like_request(): bool

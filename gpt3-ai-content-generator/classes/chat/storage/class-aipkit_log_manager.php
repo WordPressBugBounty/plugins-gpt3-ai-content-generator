@@ -184,6 +184,8 @@ class LogManager
                     // Friendly labels for non-bot sources
                     if ($log_row['module'] === 'ai_post_enhancer') {
                         $log_row['bot_name'] = __('Content Assistant', 'gpt3-ai-content-generator');
+                    } elseif ($log_row['module'] === 'wp_ai_client') {
+                        $log_row['bot_name'] = __('WP AI Client', 'gpt3-ai-content-generator');
                     } else {
                         $log_row['bot_name'] = esc_html(ucfirst(str_replace('_', ' ', $log_row['module'])));
                     }

@@ -1,0 +1,134 @@
+<?php
+
+namespace WPAICG\WP_AI_Client;
+
+use WordPress\AiClient\Providers\AbstractProvider;
+use WordPress\AiClient\Providers\Contracts\ModelMetadataDirectoryInterface;
+use WordPress\AiClient\Providers\Contracts\ProviderAvailabilityInterface;
+use WordPress\AiClient\Providers\DTO\ProviderMetadata;
+use WordPress\AiClient\Providers\Enums\ProviderTypeEnum;
+use WordPress\AiClient\Providers\Http\Enums\RequestAuthenticationMethod;
+use WordPress\AiClient\Providers\Models\Contracts\ModelInterface;
+use WordPress\AiClient\Providers\Models\DTO\ModelMetadata;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+abstract class AIPKit_WP_AI_Client_Provider_Base extends AbstractProvider
+{
+    protected static string $connector_id = '';
+
+    protected static function createModel(ModelMetadata $modelMetadata, ProviderMetadata $providerMetadata): ModelInterface
+    {
+        $config = AIPKit_WP_AI_Client_Settings::get_provider_config(static::$connector_id);
+        $internal_provider = $config['aipkit_provider'] ?? '';
+
+        return new AIPKit_WP_AI_Client_Gateway_Model($modelMetadata, $providerMetadata, $internal_provider);
+    }
+
+    protected static function createProviderMetadata(): ProviderMetadata
+    {
+        $config = AIPKit_WP_AI_Client_Settings::get_provider_config(static::$connector_id) ?: [];
+        $is_keyless = !empty($config['keyless']);
+
+        return new ProviderMetadata(
+            static::$connector_id,
+            ($config['name'] ?? ucwords(static::$connector_id)) . ' via AI Puffer',
+            $is_keyless ? ProviderTypeEnum::server() : ProviderTypeEnum::cloud(),
+            !empty($config['credentials_url']) ? $config['credentials_url'] : null,
+            $is_keyless ? null : RequestAuthenticationMethod::apiKey(),
+            $config['description'] ?? 'AI provider managed by AI Puffer.'
+        );
+    }
+
+    protected static function createProviderAvailability(): ProviderAvailabilityInterface
+    {
+        return new AIPKit_WP_AI_Client_Availability(static::$connector_id);
+    }
+
+    protected static function createModelMetadataDirectory(): ModelMetadataDirectoryInterface
+    {
+        $config = AIPKit_WP_AI_Client_Settings::get_provider_config(static::$connector_id) ?: [];
+        return new AIPKit_WP_AI_Client_Model_Directory(static::$connector_id, $config['aipkit_provider'] ?? '');
+    }
+}
+
+class AIPKit_WP_AI_Client_Provider_AIPuffer extends AbstractProvider
+{
+    protected static function createModel(ModelMetadata $modelMetadata, ProviderMetadata $providerMetadata): ModelInterface
+    {
+        $resolved_route = AIPKit_WP_AI_Client_Routes::resolve_model_alias($modelMetadata->getId());
+        if ($resolved_route === null) {
+            throw new \WordPress\AiClient\Common\Exception\RuntimeException('AI Puffer route is not configured.');
+        }
+
+        return new AIPKit_WP_AI_Client_Gateway_Model(
+            AIPKit_WP_AI_Client_Routes::actual_model_metadata($resolved_route),
+            AIPKit_WP_AI_Client_Routes::actual_provider_metadata($resolved_route),
+            (string) ($resolved_route['internal_provider'] ?? '')
+        );
+    }
+
+    protected static function createProviderMetadata(): ProviderMetadata
+    {
+        return new ProviderMetadata(
+            AIPKit_WP_AI_Client_Routes::PROVIDER_ID,
+            __('AI Puffer Defaults', 'gpt3-ai-content-generator'),
+            ProviderTypeEnum::server(),
+            null,
+            null,
+            __('Feature-level defaults managed by AI Puffer.', 'gpt3-ai-content-generator')
+        );
+    }
+
+    protected static function createProviderAvailability(): ProviderAvailabilityInterface
+    {
+        return new AIPKit_WP_AI_Client_Route_Availability();
+    }
+
+    protected static function createModelMetadataDirectory(): ModelMetadataDirectoryInterface
+    {
+        return new AIPKit_WP_AI_Client_Route_Model_Directory();
+    }
+}
+
+class AIPKit_WP_AI_Client_Provider_OpenAI extends AIPKit_WP_AI_Client_Provider_Base
+{
+    protected static string $connector_id = 'openai';
+}
+
+class AIPKit_WP_AI_Client_Provider_Google extends AIPKit_WP_AI_Client_Provider_Base
+{
+    protected static string $connector_id = 'google';
+}
+
+class AIPKit_WP_AI_Client_Provider_Anthropic extends AIPKit_WP_AI_Client_Provider_Base
+{
+    protected static string $connector_id = 'anthropic';
+}
+
+class AIPKit_WP_AI_Client_Provider_OpenRouter extends AIPKit_WP_AI_Client_Provider_Base
+{
+    protected static string $connector_id = 'openrouter';
+}
+
+class AIPKit_WP_AI_Client_Provider_Azure extends AIPKit_WP_AI_Client_Provider_Base
+{
+    protected static string $connector_id = 'azure';
+}
+
+class AIPKit_WP_AI_Client_Provider_DeepSeek extends AIPKit_WP_AI_Client_Provider_Base
+{
+    protected static string $connector_id = 'deepseek';
+}
+
+class AIPKit_WP_AI_Client_Provider_xAI extends AIPKit_WP_AI_Client_Provider_Base
+{
+    protected static string $connector_id = 'xai';
+}
+
+class AIPKit_WP_AI_Client_Provider_Ollama extends AIPKit_WP_AI_Client_Provider_Base
+{
+    protected static string $connector_id = 'ollama';
+}

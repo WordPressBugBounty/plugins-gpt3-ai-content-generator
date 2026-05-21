@@ -145,11 +145,14 @@ function RecordTokenUsageLogic(
         $usage_key = MetaKeysConstants::AIFORMS_USAGE_META_KEY;
         $reset_key = MetaKeysConstants::AIFORMS_RESET_META_KEY;
         $guest_context_table_id = GuestTableConstants::AI_FORMS_GUEST_CONTEXT_ID;
+    } elseif ($module_context === 'wp_ai_client') {
+        $settings = [];
+        $guest_context_table_id = null;
     } else {
         return;
     }
 
-    if ($guest_context_table_id === null && $is_guest) {
+    if ($guest_context_table_id === null && $is_guest && $module_context !== 'wp_ai_client') {
         return;
     }
 
@@ -157,7 +160,9 @@ function RecordTokenUsageLogic(
     $should_record = false;
 
     // Determine if tokens should be recorded based on limits
-    if ($is_guest) {
+    if ($module_context === 'wp_ai_client') {
+        $should_record = false;
+    } elseif ($is_guest) {
         $limit = $settings['token_guest_limit'] ?? null;
         if ($limit === null || $limit === '' || (ctype_digit((string)$limit) && (int)$limit > 0)) {
             $should_record = true;

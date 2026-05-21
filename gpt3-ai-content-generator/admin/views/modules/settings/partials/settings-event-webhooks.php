@@ -235,14 +235,20 @@ $render_event_webhook_issue = static function (array $issue = []): void {
             <?php esc_html_e('Event Webhooks', 'gpt3-ai-content-generator'); ?>
             <span class="aipkit_form-label-helper"><?php esc_html_e('Enable outbound event webhooks.', 'gpt3-ai-content-generator'); ?></span>
         </label>
-        <select
-            id="aipkit_event_webhooks_enabled"
-            name="event_webhooks[enabled]"
-            class="aipkit_form-input aipkit_autosave_trigger"
-        >
-            <option value="1" <?php selected($event_webhooks_enabled, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
-            <option value="0" <?php selected($event_webhooks_enabled, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
-        </select>
+        <div class="aipkit_input-with-button">
+            <select
+                id="aipkit_event_webhooks_enabled"
+                name="event_webhooks[enabled]"
+                class="aipkit_form-input aipkit_autosave_trigger"
+            >
+                <option value="1" <?php selected($event_webhooks_enabled, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                <option value="0" <?php selected($event_webhooks_enabled, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+            </select>
+            <a href="https://docs.aipower.org/event-webhooks" target="_blank" rel="noopener noreferrer" class="aipkit_get_key_btn aipkit_settings_get_key_link">
+                <?php esc_html_e('Read more', 'gpt3-ai-content-generator'); ?>
+            </a>
+            <span class="aipkit_input-button-spacer"></span>
+        </div>
     </div>
 
     <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_event_webhooks_secret_row" <?php if ($event_webhooks_enabled !== '1') : ?>hidden<?php endif; ?>>
