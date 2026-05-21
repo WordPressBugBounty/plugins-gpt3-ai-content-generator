@@ -51,6 +51,7 @@ class ChatFormSubmissionAjaxHandler {
         $bot_id = isset($post_data['bot_id']) ? absint($post_data['bot_id']) : 0;
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
         $form_id = isset($post_data['form_id']) ? sanitize_text_field($post_data['form_id']) : '';
+        $form_title = isset($post_data['form_title']) ? sanitize_text_field($post_data['form_title']) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
         $submitted_data_json = isset($post_data['submitted_data']) ? wp_kses_post($post_data['submitted_data']) : '{}';
         // Optional compatibility payloads from newer frontend bundles.
@@ -189,6 +190,7 @@ class ChatFormSubmissionAjaxHandler {
             'event_type'            => 'form_submitted', // Added for clarity
             'bot_id'                => $bot_id,
             'form_id'               => $form_id,
+            'form_title'            => $form_title,
             'submitted_data'        => $submitted_data,
             'submitted_data_json'   => $submitted_data_json,
             'submitted_data_display' => $submitted_data_display,
@@ -217,9 +219,38 @@ class ChatFormSubmissionAjaxHandler {
             $trigger_manager_instance = new $trigger_manager_class($trigger_storage_instance, $log_storage_instance);
             $result = $trigger_manager_instance->process_event($bot_id, 'form_submitted', $trigger_context);
 
+            $this->emit_chatbot_form_submitted_event(
+                $bot_id,
+                $form_id,
+                $form_title,
+                $submitted_data,
+                $submitted_data_display,
+                $submitted_data_labels,
+                $trigger_context,
+                $log_storage_instance
+            );
+
+            $has_message_to_user = isset($result['message_to_user']) && is_string($result['message_to_user']) && trim($result['message_to_user']) !== '';
+            $resume_token = '';
+            if (!$has_message_to_user && ($result['status'] ?? 'processed') !== 'blocked') {
+                $resume_token = $this->create_form_resume_token(
+                    $bot_id,
+                    $form_id,
+                    $form_title,
+                    $conversation_uuid,
+                    $user_id,
+                    $final_session_id,
+                    $submitted_data,
+                    $submitted_data_display,
+                    $submitted_data_labels
+                );
+            }
 
             $response_data = [
-                'message' => $result['message_to_user'] ?? __('Form processed.', 'gpt3-ai-content-generator'),
+                'message' => $has_message_to_user ? $result['message_to_user'] : __('Form processed.', 'gpt3-ai-content-generator'),
+                'message_to_user' => $has_message_to_user ? $result['message_to_user'] : null,
+                'has_message_to_user' => $has_message_to_user,
+                'resume_token' => $resume_token,
                 'actions_executed' => $result['actions_executed'] ?? [],
                 'message_id' => $result['message_id'] ?? null,
                 'status' => $result['status'] ?? 'processed',
@@ -234,5 +265,257 @@ class ChatFormSubmissionAjaxHandler {
         } catch (\Exception $e) {
             $this->send_wp_error(new WP_Error('trigger_processing_error', __('Error processing form submission triggers.', 'gpt3-ai-content-generator'), ['status' => 500]));
         }
+    }
+
+    /**
+     * Emits the canonical Connected Apps event for a Rules-based chatbot form submission.
+     *
+     * @param array<string, mixed> $submitted_data
+     * @param array<string, mixed> $submitted_data_display
+     * @param array<string, string> $submitted_data_labels
+     * @param array<string, mixed> $trigger_context
+     * @param mixed $log_storage_instance
+     * @return void
+     */
+    private function emit_chatbot_form_submitted_event(
+        int $bot_id,
+        string $form_id,
+        string $form_title,
+        array $submitted_data,
+        array $submitted_data_display,
+        array $submitted_data_labels,
+        array $trigger_context,
+        $log_storage_instance
+    ): void {
+        if (!class_exists(\WPAICG\Core\AIPKit_Event_Webhooks::class)) {
+            return;
+        }
+
+        try {
+            $conversation_uuid = sanitize_key((string) ($trigger_context['conversation_uuid'] ?? ''));
+            if ($bot_id <= 0 || $form_id === '' || $conversation_uuid === '') {
+                return;
+            }
+
+            $user_id = absint($trigger_context['user_id'] ?? 0);
+            $actor_type = $user_id > 0 ? 'user' : 'guest';
+            $bot_name = sanitize_text_field((string) (get_the_title($bot_id) ?: ''));
+            $form_name = $form_title !== '' ? $form_title : $form_id;
+            $submission_id = 'chat-form-' . wp_generate_uuid4();
+            $inputs_for_event = $this->add_common_input_aliases($submitted_data);
+            $summary = $this->build_form_submission_summary($submitted_data_display, $submitted_data_labels);
+            $message_count = $this->get_conversation_message_count(
+                $log_storage_instance,
+                $user_id,
+                sanitize_text_field((string) ($trigger_context['session_id'] ?? '')),
+                $bot_id,
+                $conversation_uuid
+            );
+
+            $payload = [
+                'bot' => [
+                    'id' => $bot_id,
+                    'name' => $bot_name,
+                ],
+                'conversation' => [
+                    'id' => $conversation_uuid,
+                    'message_count' => $message_count,
+                ],
+                'actor' => [
+                    'type' => $actor_type,
+                ],
+                'form' => [
+                    'id' => $form_id,
+                    'name' => $form_name,
+                ],
+                'submission' => [
+                    'id' => $submission_id,
+                ],
+                'inputs' => $inputs_for_event,
+                'display_values' => $submitted_data_display,
+                'labels' => $submitted_data_labels,
+                'summary' => $summary,
+                'page' => [
+                    'id' => absint($trigger_context['post_id'] ?? 0),
+                    'url' => esc_url_raw((string) ($trigger_context['http_referer'] ?? '')),
+                ],
+                'ai' => [
+                    'provider' => sanitize_text_field((string) ($trigger_context['current_provider'] ?? '')),
+                    'model' => sanitize_text_field((string) ($trigger_context['current_model_id'] ?? '')),
+                ],
+            ];
+
+            if ($user_id > 0) {
+                $payload['actor']['user_id'] = $user_id;
+            }
+
+            \WPAICG\Core\AIPKit_Event_Webhooks::emit(
+                'chatbot.form_submitted',
+                $payload,
+                [
+                    'module' => 'chatbot',
+                    'origin' => 'frontend_rule_form_submission',
+                    'resource' => [
+                        'type' => 'chatbot_form_submission',
+                        'id' => $submission_id,
+                        'label' => sprintf(
+                            /* translators: %s: form name */
+                            __('Chatbot form submitted: %s', 'gpt3-ai-content-generator'),
+                            $form_name
+                        ),
+                    ],
+                    'meta' => [
+                        'bot_id' => $bot_id,
+                        'conversation_uuid' => $conversation_uuid,
+                        'form_id' => $form_id,
+                        'submission_id' => $submission_id,
+                        'message_count' => $message_count,
+                        'is_guest' => $user_id > 0 ? 0 : 1,
+                    ],
+                    'idempotency_key' => sha1(implode('|', [
+                        'chatbot.form_submitted',
+                        (string) $bot_id,
+                        $conversation_uuid,
+                        $form_id,
+                        $submission_id,
+                    ])),
+                ]
+            );
+        } catch (\Throwable $event_error) {
+            return;
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $submitted_data_display
+     * @param array<string, string> $submitted_data_labels
+     */
+    private function build_form_submission_summary(array $submitted_data_display, array $submitted_data_labels): string {
+        $summary_lines = [];
+        foreach ($submitted_data_display as $field_key => $value) {
+            $label = isset($submitted_data_labels[$field_key]) && $submitted_data_labels[$field_key] !== ''
+                ? $submitted_data_labels[$field_key]
+                : (string) $field_key;
+            $display_value = $this->stringify_form_value($value);
+            if ($display_value === '') {
+                continue;
+            }
+            $summary_lines[] = sanitize_text_field($label) . ': ' . sanitize_text_field($display_value);
+        }
+
+        return implode("\n", $summary_lines);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function stringify_form_value($value): string {
+        if (is_array($value)) {
+            $parts = [];
+            foreach ($value as $item) {
+                $item_value = $this->stringify_form_value($item);
+                if ($item_value !== '') {
+                    $parts[] = $item_value;
+                }
+            }
+            return implode(', ', $parts);
+        }
+
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Adds normalized aliases for common CRM fields without removing original field IDs.
+     *
+     * @param array<string, mixed> $inputs
+     * @return array<string, mixed>
+     */
+    private function add_common_input_aliases(array $inputs): array {
+        $aliases = [
+            'firstname' => 'first_name',
+            'first_name' => 'first_name',
+            'first-name' => 'first_name',
+            'lastname' => 'last_name',
+            'last_name' => 'last_name',
+            'last-name' => 'last_name',
+            'fullname' => 'name',
+            'full_name' => 'name',
+            'full-name' => 'name',
+            'emailaddress' => 'email',
+            'email_address' => 'email',
+            'email-address' => 'email',
+            'phone_number' => 'phone',
+            'phone-number' => 'phone',
+            'company_name' => 'company',
+            'company-name' => 'company',
+        ];
+
+        foreach ($inputs as $field_key => $value) {
+            $normalized_key = strtolower((string) $field_key);
+            $normalized_key = str_replace([' ', '.'], ['_', '_'], $normalized_key);
+            $alias = $aliases[$normalized_key] ?? null;
+            if ($alias && !array_key_exists($alias, $inputs)) {
+                $inputs[$alias] = $value;
+            }
+        }
+
+        return $inputs;
+    }
+
+    private function get_conversation_message_count($log_storage_instance, int $user_id, string $session_id, int $bot_id, string $conversation_uuid): int {
+        if (!is_object($log_storage_instance) || !method_exists($log_storage_instance, 'get_conversation_thread_history')) {
+            return 0;
+        }
+
+        $history = $log_storage_instance->get_conversation_thread_history(
+            $user_id > 0 ? $user_id : null,
+            $user_id > 0 ? null : $session_id,
+            $bot_id,
+            $conversation_uuid
+        );
+
+        return is_array($history) ? count($history) : 0;
+    }
+
+    private function create_form_resume_token(
+        int $bot_id,
+        string $form_id,
+        string $form_title,
+        string $conversation_uuid,
+        int $user_id,
+        string $session_id,
+        array $submitted_data,
+        array $submitted_data_display,
+        array $submitted_data_labels
+    ): string {
+        $token = wp_generate_password(32, false, false);
+        set_transient(
+            'aipkit_chat_form_resume_' . sha1($token),
+            [
+                'bot_id' => $bot_id,
+                'form_id' => $form_id,
+                'conversation_uuid' => $conversation_uuid,
+                'user_id' => $user_id,
+                'session_id' => $session_id,
+                'form_submission_context' => [
+                    'form_id' => $form_id,
+                    'form_title' => $form_title,
+                    'submitted_data' => $submitted_data,
+                    'submitted_data_display' => $submitted_data_display,
+                    'submitted_data_labels' => $submitted_data_labels,
+                ],
+            ],
+            5 * MINUTE_IN_SECONDS
+        );
+
+        return $token;
     }
 }

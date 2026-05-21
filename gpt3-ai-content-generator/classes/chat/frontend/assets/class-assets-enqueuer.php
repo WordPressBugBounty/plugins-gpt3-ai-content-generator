@@ -189,12 +189,12 @@ class AssetsEnqueuer
           }catch(e){ reject(e); }
         });
       }
-      window.aipkit_chatUI_cacheSseMessage = function(userText, cfg, imageDataPayload, activeFileContext, clientUserMessageId){
-        return __aipkit_origCacheSseMessage(userText, cfg, imageDataPayload, activeFileContext, clientUserMessageId).catch(function(err){
+      window.aipkit_chatUI_cacheSseMessage = function(userText, cfg, imageDataPayload, activeFileContext, clientUserMessageId, streamOptions){
+        return __aipkit_origCacheSseMessage(userText, cfg, imageDataPayload, activeFileContext, clientUserMessageId, streamOptions).catch(function(err){
           var msg = (err && err.message ? String(err.message) : '').toLowerCase();
           if(msg.indexOf('security check failed') !== -1 || msg.indexOf('session has expired') !== -1 || msg.indexOf('nonce') !== -1){
             return __aipkit_refreshNonce(cfg).then(function(){
-              return __aipkit_origCacheSseMessage(userText, cfg, imageDataPayload, activeFileContext, clientUserMessageId);
+              return __aipkit_origCacheSseMessage(userText, cfg, imageDataPayload, activeFileContext, clientUserMessageId, streamOptions);
             });
           }
           throw err;

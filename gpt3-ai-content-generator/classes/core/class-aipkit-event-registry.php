@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
  */
 class AIPKit_Event_Registry
 {
-    public const SCHEMA_VERSION = '2026-03-19';
+    public const SCHEMA_VERSION = '2026-05-21';
 
     /**
      * Returns the current v1 event definitions.
@@ -41,6 +41,11 @@ class AIPKit_Event_Registry
                 'module' => 'chatbot',
                 'category' => 'chatbot',
                 'label' => 'Chat Feedback Submitted',
+            ],
+            'chatbot.form_submitted' => [
+                'module' => 'chatbot',
+                'category' => 'chatbot',
+                'label' => 'Chatbot Form Submitted',
             ],
             'content.generated' => [
                 'module' => 'content_writer',

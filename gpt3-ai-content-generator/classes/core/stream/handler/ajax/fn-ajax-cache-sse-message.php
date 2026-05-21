@@ -103,6 +103,31 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     $active_chroma_collection_name = isset($post_data['active_chroma_collection_name']) ? sanitize_text_field((string) $post_data['active_chroma_collection_name']) : null;
     $active_chroma_file_upload_context_id = isset($post_data['active_chroma_file_upload_context_id']) ? sanitize_text_field((string) $post_data['active_chroma_file_upload_context_id']) : null;
     $active_claude_file_id = isset($post_data['active_claude_file_id']) ? sanitize_text_field((string) $post_data['active_claude_file_id']) : null;
+    $resume_after_form_submission = isset($post_data['resume_after_form_submission']) && (string) $post_data['resume_after_form_submission'] === '1';
+    $form_resume_token = isset($post_data['form_resume_token']) ? sanitize_text_field((string) $post_data['form_resume_token']) : '';
+    $form_submission_context = [];
+
+    if ($resume_after_form_submission && isset($post_data['form_submission_context']) && is_string($post_data['form_submission_context'])) {
+        $form_submission_context_raw = wp_kses_post($post_data['form_submission_context']);
+        $decoded_form_submission_context = json_decode($form_submission_context_raw, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_form_submission_context)) {
+            $sanitize_recursive = static function ($value) use (&$sanitize_recursive) {
+                if (is_array($value)) {
+                    $sanitized = [];
+                    foreach ($value as $key => $item) {
+                        $sanitized_key = sanitize_text_field((string) $key);
+                        if ($sanitized_key === '') {
+                            continue;
+                        }
+                        $sanitized[$sanitized_key] = $sanitize_recursive($item);
+                    }
+                    return $sanitized;
+                }
+                return sanitize_text_field((string) $value);
+            };
+            $form_submission_context = $sanitize_recursive($decoded_form_submission_context);
+        }
+    }
 
     if (!class_exists(ChatImageInputValidator::class)) {
         $validator_path = WPAICG_PLUGIN_DIR . 'classes/chat/core/validation/class-chat-image-input-validator.php';
@@ -154,6 +179,15 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
         'image_inputs' => $image_inputs_data,
         'client_user_message_id' => $client_user_message_id
     ];
+    if ($resume_after_form_submission) {
+        $data_to_cache_structured['resume_after_form_submission'] = true;
+        if (!empty($form_submission_context)) {
+            $data_to_cache_structured['form_submission_context'] = $form_submission_context;
+        }
+        if ($form_resume_token !== '') {
+            $data_to_cache_structured['form_resume_token'] = $form_resume_token;
+        }
+    }
     if ($active_openai_vs_id) {
         $data_to_cache_structured['active_openai_vs_id'] = $active_openai_vs_id;
     }
