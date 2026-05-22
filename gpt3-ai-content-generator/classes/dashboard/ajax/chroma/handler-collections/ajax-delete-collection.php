@@ -40,19 +40,7 @@ function _aipkit_chroma_ajax_delete_collection_logic(AIPKit_Vector_Store_Chroma_
         return;
     }
 
-    $registered_collections = \WPAICG\Vector\AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Chroma');
-    $remaining_collections = array_values(array_filter((array) $registered_collections, static function ($collection) use ($collection_name) {
-        if (!is_array($collection)) {
-            return false;
-        }
-        $candidate_values = [
-            isset($collection['id']) ? (string) $collection['id'] : '',
-            isset($collection['name']) ? (string) $collection['name'] : '',
-            isset($collection['chroma_id']) ? (string) $collection['chroma_id'] : '',
-        ];
-        return !in_array($collection_name, $candidate_values, true);
-    }));
-    $vector_store_registry->update_registered_stores_for_provider('Chroma', $remaining_collections);
+    $vector_store_registry->remove_registered_store('Chroma', $collection_name);
     wp_cache_delete('chroma_logs_' . sanitize_key($collection_name), 'aipkit_vector_logs');
     wp_cache_delete('chroma_logs_count_' . sanitize_key($collection_name), 'aipkit_vector_logs');
 

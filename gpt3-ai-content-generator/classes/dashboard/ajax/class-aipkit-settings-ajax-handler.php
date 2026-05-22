@@ -133,6 +133,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             $provider_key_prefix = strtolower($provider_name);
             $provider_data_from_post = [];
             $provider_has_data_in_post = false;
+            $existing_provider_data = AIPKit_Providers::get_provider_data($provider_name);
 
             // Collect data for this provider from $post_data
             foreach (array_keys($all_provider_defaults[$provider_name]) as $key) {
@@ -164,8 +165,66 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             }
 
             if ($provider_has_data_in_post) {
+                $should_clear_vector_cache = $this->did_vector_provider_connection_change($provider_name, $provider_data_from_post, $existing_provider_data);
                 AIPKit_Providers::save_provider_data($provider_name, $provider_data_from_post);
+                if ($should_clear_vector_cache) {
+                    $this->clear_vector_provider_cache($provider_name);
+                }
             }
+        }
+    }
+
+    /**
+     * Detects connection-affecting changes for vector store provider lists.
+     */
+    private function did_vector_provider_connection_change(string $provider_name, array $new_data, array $existing_data): bool
+    {
+        $connection_keys_by_provider = [
+            'OpenAI' => ['api_key', 'base_url', 'api_version'],
+            'Pinecone' => ['api_key'],
+            'Qdrant' => ['url', 'api_key'],
+            'Chroma' => ['url', 'api_key', 'tenant', 'database'],
+        ];
+        if (empty($connection_keys_by_provider[$provider_name])) {
+            return false;
+        }
+
+        foreach ($connection_keys_by_provider[$provider_name] as $key) {
+            if (!array_key_exists($key, $new_data)) {
+                continue;
+            }
+            $old_value = isset($existing_data[$key]) && is_scalar($existing_data[$key])
+                ? (string) $existing_data[$key]
+                : '';
+            $new_value = is_scalar($new_data[$key])
+                ? (string) $new_data[$key]
+                : '';
+            if ($old_value !== $new_value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Clears stale vector targets when connection settings change.
+     */
+    private function clear_vector_provider_cache(string $provider_name): void
+    {
+        if (!in_array($provider_name, ['OpenAI', 'Pinecone', 'Qdrant', 'Chroma'], true)) {
+            return;
+        }
+
+        if (!class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Registry')) {
+            $registry_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-store-registry.php';
+            if (file_exists($registry_path)) {
+                require_once $registry_path;
+            }
+        }
+
+        if (class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Registry')) {
+            \WPAICG\Vector\AIPKit_Vector_Store_Registry::clear_registered_stores($provider_name);
         }
     }
 

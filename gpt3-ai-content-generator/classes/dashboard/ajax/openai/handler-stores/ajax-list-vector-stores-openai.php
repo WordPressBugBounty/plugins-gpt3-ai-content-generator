@@ -77,7 +77,7 @@ function do_ajax_list_vector_stores_openai_logic(AIPKit_OpenAI_Vector_Stores_Aja
     // Only update the full registry if it's a likely full sync attempt
     $is_full_sync_attempt = (empty($after) && empty($before) && $limit >= 100);
     if (isset($response['data']) && is_array($response['data']) && $is_full_sync_attempt) {
-        $vector_store_registry->update_registered_stores_for_provider('OpenAI', $response['data']);
+        $response['data'] = $vector_store_registry->replace_provider_cache('OpenAI', $response['data']);
     }
 
     wp_send_json_success([

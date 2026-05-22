@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.4.26
+Stable tag: 2.4.27
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,11 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.27 =
+
+- Improved vector store list refresh and stale cache handling across OpenAI, Pinecone, Qdrant, and Chroma.
+- Fixed the AI Forms OpenAI vector store selector in Knowledge Base settings.
 
 = 2.4.26 =
 

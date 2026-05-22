@@ -58,14 +58,10 @@ function do_ajax_list_indexes_logic(AIPKit_Vector_Store_Pinecone_Ajax_Handler $h
         }
     }
 
-    if (!empty($detailed_indexes)) {
-        wp_cache_delete('aipkit_pinecone_index_list', 'options');
-        update_option('aipkit_pinecone_index_list', $detailed_indexes, 'no');
-        $vector_store_registry->update_registered_stores_for_provider('Pinecone', $detailed_indexes);
-    }
+    $detailed_indexes = $vector_store_registry->replace_provider_cache('Pinecone', $detailed_indexes);
 
     wp_send_json_success([
-        'indexes' => !empty($detailed_indexes) ? $detailed_indexes : $response,
+        'indexes' => $detailed_indexes,
         'message' => __('Pinecone indexes synced successfully.', 'gpt3-ai-content-generator')
     ]);
 }

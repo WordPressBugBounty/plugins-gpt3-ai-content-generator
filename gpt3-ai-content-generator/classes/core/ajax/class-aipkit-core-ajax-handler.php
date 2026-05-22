@@ -101,6 +101,39 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         return null;
     }
 
+    /**
+     * Builds selectors that remove every chunk belonging to a text/source parent id.
+     */
+    private static function build_parent_chunk_delete_selector(string $provider, string $parent_vector_id): ?array
+    {
+        if ($parent_vector_id === '') {
+            return null;
+        }
+
+        if ($provider === 'Pinecone') {
+            return ['filter' => ['$or' => [
+                ['parent_vector_id' => ['$eq' => $parent_vector_id]],
+                ['vector_id' => ['$eq' => $parent_vector_id]],
+            ]]];
+        }
+
+        if ($provider === 'Qdrant') {
+            return ['filter' => ['should' => [
+                ['key' => 'parent_vector_id', 'match' => ['value' => $parent_vector_id]],
+                ['key' => 'vector_id', 'match' => ['value' => $parent_vector_id]],
+            ]]];
+        }
+
+        if ($provider === 'Chroma') {
+            return ['where' => ['$or' => [
+                ['parent_vector_id' => $parent_vector_id],
+                ['vector_id' => $parent_vector_id],
+            ]]];
+        }
+
+        return null;
+    }
+
 
     /**
      * AJAX handler to get upload limits.
@@ -300,7 +333,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             }
 
             // 1. Delete from external vector store
-            $delete_selector = $post_chunk_delete_selector ?: [$vector_id];
+            $delete_selector = $post_chunk_delete_selector ?: (self::build_parent_chunk_delete_selector($provider, $vector_id) ?: [$vector_id]);
             $delete_result = $vector_store_manager->delete_vectors($provider, $store_id, $delete_selector, $provider_config);
 
             // We proceed even if the external deletion fails, as the vector might not exist there anymore but the log does.

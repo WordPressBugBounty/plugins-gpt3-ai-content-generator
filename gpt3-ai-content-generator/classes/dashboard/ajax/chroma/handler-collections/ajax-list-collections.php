@@ -60,9 +60,7 @@ function _aipkit_chroma_ajax_list_collections_logic(AIPKit_Vector_Store_Chroma_A
         $detailed_collections[] = _aipkit_chroma_normalize_collection_for_ui($collection);
     }
 
-    wp_cache_delete('aipkit_chroma_collection_list', 'options');
-    update_option('aipkit_chroma_collection_list', $detailed_collections, 'no');
-    $vector_store_registry->update_registered_stores_for_provider('Chroma', $detailed_collections);
+    $detailed_collections = $vector_store_registry->replace_provider_cache('Chroma', $detailed_collections);
 
     wp_send_json_success([
         'collections' => $detailed_collections,

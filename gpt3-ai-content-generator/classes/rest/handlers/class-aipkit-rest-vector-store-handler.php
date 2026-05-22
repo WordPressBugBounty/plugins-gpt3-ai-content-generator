@@ -9,6 +9,7 @@ use WP_REST_Response;
 use WP_Error;
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
+use WPAICG\Vector\AIPKit_Vector_Text_Ingestion_Service;
 use WPAICG\AIPKit_Providers;
 
 if (!defined('ABSPATH')) {
@@ -134,81 +135,59 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_vectors', __('The "vectors" parameter must be a non-empty array.', 'gpt3-ai-content-generator'), ['status' => 400]));
         }
         
-        $content_array_for_embedding = array_column($vectors_data, 'content');
-        if (empty($content_array_for_embedding) || count($content_array_for_embedding) !== count($vectors_data)) {
-            return $this->send_wp_error_response(new WP_Error('rest_aipkit_no_content', __('Each object in the "vectors" array must have a "content" key.', 'gpt3-ai-content-generator'), ['status' => 400]));
-        }
-        
-        $embedding_provider_normalized = AIPKit_Providers::resolve_embedding_provider_name(
-            $embedding_provider_key,
-            'rest_vector_store_handle_request'
-        );
-        if(!$embedding_provider_normalized) return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_embedding_provider', __('Invalid embedding provider.', 'gpt3-ai-content-generator'), ['status' => 400]));
-        
-        $embedding_result = $this->ai_caller->generate_embeddings($embedding_provider_normalized, $content_array_for_embedding, ['model' => $embedding_model]);
-        
-        if (is_wp_error($embedding_result)) {
-            return $this->send_wp_error_response($embedding_result);
-        }
-
-        $embedding_vectors = $embedding_result['embeddings'] ?? [];
-
-        if (count($embedding_vectors) !== count($vectors_data)) {
-            return $this->send_wp_error_response(new WP_Error('rest_aipkit_embedding_mismatch', __('The number of returned embeddings does not match the number of input texts.', 'gpt3-ai-content-generator'), ['status' => 500]));
-        }
-        
-        $vectors_to_upsert = [];
-        foreach($vectors_data as $index => $item) {
-            $vector_id = $item['id'] ?? wp_generate_uuid4();
-            $metadata = $item['metadata'] ?? [];
-            $metadata['original_content'] = $item['content'];
-
-            $vector_item = [
-                'id' => (string) $vector_id,
-                'values' => $embedding_vectors[$index],
-                'vector' => $embedding_vectors[$index],
-                'metadata' => $metadata,
-                'payload' => $metadata,
-                'document' => (string) $item['content'],
-            ];
-            if (isset($item['uri']) && is_scalar($item['uri']) && (string) $item['uri'] !== '') {
-                $vector_item['uri'] = (string) $item['uri'];
-            }
-            $vectors_to_upsert[] = $vector_item;
-        }
-
         $provider_config = AIPKit_Providers::get_provider_data($provider_normalized);
-        $upsert_payload = [];
-        if ($provider_key === 'pinecone') {
-            $upsert_payload['vectors'] = $vectors_to_upsert;
-            if ($namespace) {
-                $upsert_payload['namespace'] = $namespace;
-            }
-        } elseif ($provider_key === 'qdrant') {
-            $upsert_payload['points'] = $vectors_to_upsert;
-        } elseif ($provider_key === 'chroma') {
-            $upsert_payload = [
-                'ids'        => array_column($vectors_to_upsert, 'id'),
-                'embeddings' => array_column($vectors_to_upsert, 'vector'),
-                'documents'  => array_column($vectors_to_upsert, 'document'),
-                'metadatas'  => array_column($vectors_to_upsert, 'metadata'),
-            ];
-
-            $uris = array_column($vectors_to_upsert, 'uri');
-            if (count($uris) === count($vectors_to_upsert)) {
-                $upsert_payload['uris'] = $uris;
-            }
+        $ingestion_service = new AIPKit_Vector_Text_Ingestion_Service($this->vector_store_manager, $this->ai_caller);
+        $results = [];
+        $total_upserted = 0;
+        $total_chunks = 0;
+        $options = [];
+        if ($provider_key === 'pinecone' && is_scalar($namespace) && (string) $namespace !== '') {
+            $options['namespace'] = (string) $namespace;
         }
 
-        $upsert_result = $this->vector_store_manager->upsert_vectors($provider_normalized, $target_id, $upsert_payload, $provider_config);
-        
-        if (is_wp_error($upsert_result)) {
-            return $this->send_wp_error_response($upsert_result);
+        foreach ($vectors_data as $item) {
+            if (!is_array($item) || !isset($item['content']) || !is_scalar($item['content']) || trim((string) $item['content']) === '') {
+                return $this->send_wp_error_response(new WP_Error('rest_aipkit_no_content', __('Each object in the "vectors" array must have a non-empty "content" key.', 'gpt3-ai-content-generator'), ['status' => 400]));
+            }
+
+            $metadata = isset($item['metadata']) && is_array($item['metadata']) ? $item['metadata'] : [];
+            if (isset($item['id']) && is_scalar($item['id']) && (string) $item['id'] !== '') {
+                $metadata['vector_id'] = (string) $item['id'];
+            }
+            if (isset($item['uri']) && is_scalar($item['uri']) && (string) $item['uri'] !== '') {
+                $metadata['uri'] = (string) $item['uri'];
+            }
+
+            $result = $ingestion_service->ingest_text(
+                $provider_normalized,
+                (string) $target_id,
+                (string) $item['content'],
+                (string) $embedding_provider_key,
+                (string) $embedding_model,
+                $metadata,
+                $provider_config,
+                $options
+            );
+
+            if (is_wp_error($result)) {
+                return $this->send_wp_error_response($result);
+            }
+
+            $total_upserted += (int) ($result['upserted_count'] ?? 0);
+            $total_chunks += (int) ($result['total_chunks'] ?? 0);
+            $results[] = [
+                'parent_vector_id' => $result['parent_vector_id'] ?? null,
+                'upserted_count' => (int) ($result['upserted_count'] ?? 0),
+                'total_chunks' => (int) ($result['total_chunks'] ?? 0),
+            ];
         }
 
         $response_data = [
-            'upserted_count' => is_array($upsert_result) && isset($upsert_result['upserted_count']) ? $upsert_result['upserted_count'] : count($vectors_to_upsert),
-            'status' => 'success'
+            'upserted_count' => $total_upserted,
+            'status' => 'success',
+            'source_count' => count($vectors_data),
+            'total_chunks' => $total_chunks,
+            'results' => $results,
         ];
 
         return new WP_REST_Response($response_data, 200);

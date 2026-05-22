@@ -18,6 +18,8 @@ class Vector_Store_Dependencies_Loader
         $core_paths = [
             $vector_base_path . 'interface-aipkit-vector-provider-strategy.php',
             $vector_base_path . 'class-aipkit-vector-base-provider-strategy.php',
+            $vector_base_path . 'class-aipkit-vector-text-chunker.php',
+            $vector_base_path . 'class-aipkit-vector-text-ingestion-service.php',
             $vector_base_path . 'class-aipkit-vector-provider-strategy-factory.php',
             $vector_base_path . 'class-aipkit-vector-store-manager.php', // This class now loads its own method files
             $vector_base_path . 'class-aipkit-vector-store-registry.php',

@@ -7,6 +7,7 @@ namespace WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections;
 
 use WP_Error;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Qdrant_Ajax_Handler;
+use WPAICG\Vector\AIPKit_Vector_Text_Ingestion_Service;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -43,11 +44,60 @@ function _aipkit_qdrant_ajax_upsert_to_collection_logic(AIPKit_Vector_Store_Qdra
     $embedding_provider = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : null;
     $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : null;
     $original_text_content = isset($post_data['original_text_content']) ? wp_kses_post($post_data['original_text_content']) : null;
+    $text_content = isset($post_data['text_content']) ? wp_kses_post($post_data['text_content']) : '';
 
     if (empty($collection_name)) {
         $handler_instance->send_wp_error(new WP_Error('missing_collection_name_qdrant_upsert', __('Qdrant collection name is required.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
     }
+
+    if ($text_content !== '') {
+        if (empty($embedding_provider) || empty($embedding_model)) {
+            $handler_instance->send_wp_error(new WP_Error('missing_embedding_config_qdrant_text', __('Embedding provider and model are required for Qdrant text indexing.', 'gpt3-ai-content-generator'), ['status' => 400]));
+            return;
+        }
+
+        $metadata = _aipkit_qdrant_decode_text_metadata($post_data);
+        if (is_wp_error($metadata)) {
+            $handler_instance->send_wp_error($metadata);
+            return;
+        }
+
+        $service = new AIPKit_Vector_Text_Ingestion_Service($vector_store_manager, $handler_instance->get_ai_caller());
+        $result = $service->ingest_text('Qdrant', $collection_name, $text_content, $embedding_provider, $embedding_model, $metadata, $qdrant_config);
+        $content_for_log = $original_text_content !== null ? $original_text_content : $text_content;
+
+        if (is_wp_error($result)) {
+            $handler_instance->_log_vector_data_source_entry([
+                'vector_store_id' => $collection_name, 'vector_store_name' => $collection_name,
+                'status' => 'failed', 'message' => 'Text content indexing failed: ' . $result->get_error_message(),
+                'embedding_provider' => $embedding_provider, 'embedding_model' => $embedding_model,
+                'indexed_content' => $content_for_log,
+                'file_id' => isset($metadata['vector_id']) ? (string) $metadata['vector_id'] : null,
+                'source_type_for_log' => isset($metadata['source']) ? (string) $metadata['source'] : 'text_entry_global_form',
+            ]);
+            $handler_instance->send_wp_error($result);
+            return;
+        }
+
+        $chunk_count = (int) ($result['total_chunks'] ?? 0);
+        $handler_instance->_log_vector_data_source_entry([
+            'vector_store_id' => $collection_name, 'vector_store_name' => $collection_name,
+            'status' => 'indexed', 'message' => sprintf('Text content submitted for indexing. Chunks: %d.', $chunk_count),
+            'embedding_provider' => $result['embedding_provider'] ?? $embedding_provider,
+            'embedding_model' => $embedding_model,
+            'indexed_content' => $content_for_log,
+            'file_id' => $result['parent_vector_id'] ?? null,
+            'source_type_for_log' => $result['source_type'] ?? 'text_entry_global_form',
+        ]);
+
+        wp_send_json_success([
+            'message' => __('Text content upserted to Qdrant successfully.', 'gpt3-ai-content-generator'),
+            'result' => $result,
+        ]);
+        return;
+    }
+
     if (empty($vectors_json)) {
         $handler_instance->send_wp_error(new WP_Error('missing_vectors_qdrant_upsert', __('Points data is required for Qdrant upsert.', 'gpt3-ai-content-generator'), ['status' => 400]));
         return;
@@ -113,4 +163,33 @@ function _aipkit_qdrant_ajax_upsert_to_collection_logic(AIPKit_Vector_Store_Qdra
         ]);
         wp_send_json_success(['message' => __('Points upserted to Qdrant successfully.', 'gpt3-ai-content-generator'), 'result' => $result]);
     }
+}
+
+/**
+ * @param array<string,mixed> $post_data
+ * @return array<string,mixed>|WP_Error
+ */
+function _aipkit_qdrant_decode_text_metadata(array $post_data): array|WP_Error
+{
+    $metadata = [];
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string, decoded and sanitized by the ingestion service.
+    $metadata_json = isset($post_data['metadata']) ? (string) $post_data['metadata'] : '';
+    if ($metadata_json !== '') {
+        $decoded = json_decode($metadata_json, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+            return new WP_Error('invalid_qdrant_text_metadata', __('Invalid metadata JSON for Qdrant text indexing.', 'gpt3-ai-content-generator'), ['status' => 400]);
+        }
+        $metadata = $decoded;
+    }
+    if (!empty($post_data['source_type'])) {
+        $metadata['source'] = sanitize_key((string) $post_data['source_type']);
+    }
+    if (!empty($post_data['vector_id'])) {
+        $metadata['vector_id'] = sanitize_text_field((string) $post_data['vector_id']);
+    }
+    if (!empty($post_data['source_context'])) {
+        $metadata['source_context'] = sanitize_text_field((string) $post_data['source_context']);
+    }
+
+    return $metadata;
 }

@@ -199,13 +199,13 @@ $aipkit_embedding_options_allowed_html = [
                         }
                         if (!$found_in_list) {
                             $manual_label = $saved_id !== ''
-                                ? $saved_id
+                                ? $saved_id . ' ' . __('(missing)', 'gpt3-ai-content-generator')
                                 : sprintf(
                                     /* translators: %d is the saved vector store index. */
                                     __('Store %d', 'gpt3-ai-content-generator'),
                                     $manual_index
                                 );
-                            echo '<option value="' . esc_attr($saved_id) . '" selected="selected">' . esc_html($manual_label) . '</option>';
+                            echo '<option value="' . esc_attr($saved_id) . '" disabled="disabled">' . esc_html($manual_label) . '</option>';
                             $manual_index++;
                         }
                     }
@@ -255,13 +255,12 @@ $aipkit_embedding_options_allowed_html = [
                             : '';
                     }
                     if (!in_array((string) $pinecone_index_name, $known_pinecone_names, true)) {
-                        $manual_label = (string) $pinecone_index_name;
+                        $manual_label = (string) $pinecone_index_name . ' ' . __('(missing)', 'gpt3-ai-content-generator');
                         $pinecone_option_rows[] = [
                             'value' => $pinecone_index_name,
                             'label' => $manual_label,
-                            'disabled' => false,
+                            'disabled' => true,
                         ];
-                        $pinecone_dropdown_label = $manual_label;
                     }
                 }
 
@@ -411,7 +410,7 @@ $aipkit_embedding_options_allowed_html = [
                     }
                     foreach ($qdrant_collection_names as $saved_name) {
                         if (!in_array($saved_name, array_map(function ($c) { return is_array($c) ? ($c['name'] ?? '') : (string) $c; }, $qdrant_collections), true)) {
-                            echo '<option value="' . esc_attr($saved_name) . '" selected="selected">' . esc_html($saved_name) . '</option>';
+                            echo '<option value="' . esc_attr($saved_name) . '" disabled="disabled">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
                         }
                     }
                     if (empty($qdrant_collections) && empty($qdrant_collection_names)) {
@@ -481,7 +480,7 @@ $aipkit_embedding_options_allowed_html = [
                     $known_chroma_collection_names = array_map(function ($collection) { return is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection; }, $chroma_collections);
                     foreach ($chroma_collection_names as $saved_name) {
                         if (!in_array($saved_name, $known_chroma_collection_names, true)) {
-                            echo '<option value="' . esc_attr($saved_name) . '" selected="selected">' . esc_html($saved_name) . '</option>';
+                            echo '<option value="' . esc_attr($saved_name) . '" disabled="disabled">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
                         }
                     }
                     if (empty($chroma_collections) && empty($chroma_collection_names)) {

@@ -104,7 +104,7 @@ function _aipkit_qdrant_log_vector_data_source_entry_logic(\wpdb $wpdb, string $
 
     $source_type = $data_to_insert['source_type_for_log'] ?? ($data_to_insert['post_id'] ? 'wordpress_post' : 'unknown');
     $should_truncate = true;
-    if (in_array($source_type, ['text_entry_global_form', 'file_upload_global_form', 'text_entry_qdrant_direct', 'file_upload_qdrant_direct'])) {
+    if (in_array($source_type, ['text_entry_global_form', 'file_upload_global_form', 'text_entry_qdrant_direct', 'file_upload_qdrant_direct', 'chatbot_training_text', 'chatbot_training_qa'], true)) {
         $should_truncate = false;
     }
 

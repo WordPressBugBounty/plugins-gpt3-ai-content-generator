@@ -5,7 +5,7 @@
 namespace WPAICG\Vector\PostProcessor\Qdrant;
 
 use WPAICG\AIPKit_Providers;
-use WPAICG\Lib\Utils\AIPKit_Vector_Text_Chunker;
+use WPAICG\Vector\AIPKit_Vector_Text_Chunker;
 use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WP_Error;
@@ -151,7 +151,7 @@ class QdrantPostProcessor extends AIPKit_Vector_Post_Processor_Base
         }
         
         if (!class_exists(AIPKit_Vector_Text_Chunker::class)) {
-            $chunker_path = WPAICG_LIB_DIR . 'utils/class-aipkit-vector-text-chunker.php';
+            $chunker_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-text-chunker.php';
             if (file_exists($chunker_path)) {
                 require_once $chunker_path;
             }

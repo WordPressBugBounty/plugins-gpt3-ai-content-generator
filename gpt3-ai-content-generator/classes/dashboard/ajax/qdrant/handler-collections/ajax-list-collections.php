@@ -40,26 +40,21 @@ function _aipkit_qdrant_ajax_list_collections_logic(AIPKit_Vector_Store_Qdrant_A
         return;
     }
 
-    // --- FIX: Fetch full details for each collection ---
     $detailed_collections = [];
     if (is_array($response)) {
         foreach ($response as $collection_summary) {
-            $collection_name = $collection_summary['name'] ?? null;
+            if (!is_array($collection_summary)) {
+                continue;
+            }
+            $collection_name = $collection_summary['name'] ?? ($collection_summary['id'] ?? null);
             if ($collection_name) {
                 $details = $vector_store_manager->describe_single_index('Qdrant', $collection_name, $qdrant_config);
-                if (!is_wp_error($details)) {
-                    $detailed_collections[] = $details;
-                }
+                $detailed_collections[] = is_wp_error($details) ? $collection_summary : array_merge($collection_summary, $details);
             }
         }
     }
-    // --- END FIX ---
 
-    if (!empty($detailed_collections)) {
-        wp_cache_delete('aipkit_qdrant_collection_list', 'options');
-        update_option('aipkit_qdrant_collection_list', $detailed_collections, 'no');
-        $vector_store_registry->update_registered_stores_for_provider('Qdrant', $detailed_collections);
-    }
+    $detailed_collections = $vector_store_registry->replace_provider_cache('Qdrant', $detailed_collections);
     
     wp_send_json_success(['collections' => $detailed_collections, 'message' => __('Qdrant collections synced successfully.', 'gpt3-ai-content-generator')]);
 }
