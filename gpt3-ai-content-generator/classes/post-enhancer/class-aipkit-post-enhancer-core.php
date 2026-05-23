@@ -21,7 +21,11 @@ if (!defined('ABSPATH')) {
  */
 class Core
 {
-    public const ADDON_KEY = 'ai_post_enhancer';
+    public const BULK_ASSISTANT_MODULE = 'bulk_assistant';
+    public const ROW_ASSISTANT_MODULE = 'row_assistant';
+    public const WOOCOMMERCE_ASSISTANT_MODULE = 'woocommerce_assistant';
+    public const CLASSIC_EDITOR_ASSISTANT_MODULE = 'classic_editor_assistant';
+    public const BLOCK_EDITOR_ASSISTANT_MODULE = 'block_editor_assistant';
 
     /**
      * Registers hooks.
@@ -77,9 +81,18 @@ class Core
         $enhancer_editor_integration_enabled = $aipkit_options['enhancer_settings']['editor_integration'] ?? '1';
         $enhancer_list_button_enabled = $aipkit_options['enhancer_settings']['show_list_button'] ?? '1';
 
-        // Register Content Assistant button via shared utility (list screens)
+        // Register Assistant button via shared utility (list screens)
         if ($enhancer_list_button_enabled === '1') {
-            AIPKit_Admin_Header_Action_Buttons::register_button('aipkit_bulk_enhance_btn', 'Assistant');
+            AIPKit_Admin_Header_Action_Buttons::register_button(
+                'aipkit_bulk_enhance_btn',
+                'Assistant',
+                [
+                    'capability' => 'edit_posts',
+                    'post_types' => array_values(array_unique(array_map('sanitize_key', (array) $post_types))),
+                    'access_callback' => [__CLASS__, 'current_user_can_access_bulk_button'],
+                    'text_domain' => 'gpt3-ai-content-generator',
+                ]
+            );
         }
 
         if ($enhancer_editor_integration_enabled === '1') {
@@ -93,6 +106,21 @@ class Core
 
     // (REMOVED) Legacy filters-bar button hook & method eliminated; header button handled by shared utility.
 
+    public static function current_user_can_access_bulk_button(string $post_type): bool
+    {
+        $required_module = $post_type === 'product'
+            ? self::WOOCOMMERCE_ASSISTANT_MODULE
+            : self::BULK_ASSISTANT_MODULE;
+
+        return AIPKit_Role_Manager::user_can_access_module($required_module);
+    }
+
+    private function get_row_assistant_module_for_post_type(string $post_type): string
+    {
+        return $post_type === 'product'
+            ? self::WOOCOMMERCE_ASSISTANT_MODULE
+            : self::ROW_ASSISTANT_MODULE;
+    }
 
     /**
      * Adds the "✍️ AI Enhance" dropdown action to post row actions.
@@ -111,9 +139,11 @@ class Core
             return $actions;
         }
 
-        // Check if user has permission for the module AND can edit this post
+        $required_module = $this->get_row_assistant_module_for_post_type((string) $post->post_type);
+
+        // Check if user has permission for the utility AND can edit this post
         if (
-            AIPKit_Role_Manager::user_can_access_module(self::ADDON_KEY) &&
+            AIPKit_Role_Manager::user_can_access_module($required_module) &&
             current_user_can('edit_post', $post->ID)
         ) {
             // --- Main Enhancer Action with Dropdown ---
@@ -162,7 +192,7 @@ class Core
     public function setup_tinymce_button()
     {
         if (
-            AIPKit_Role_Manager::user_can_access_module(self::ADDON_KEY) &&
+            AIPKit_Role_Manager::user_can_access_module(self::CLASSIC_EDITOR_ASSISTANT_MODULE) &&
             (current_user_can('edit_posts') || current_user_can('edit_pages')) &&
             get_user_option('rich_editing') === 'true'
         ) {
@@ -202,7 +232,7 @@ class Core
     public function setup_block_editor_button()
     {
         if (
-            AIPKit_Role_Manager::user_can_access_module(self::ADDON_KEY) &&
+            AIPKit_Role_Manager::user_can_access_module(self::BLOCK_EDITOR_ASSISTANT_MODULE) &&
             (current_user_can('edit_posts') || current_user_can('edit_pages'))
         ) {
             add_action('enqueue_block_editor_assets', [$this, 'enqueue_block_editor_plugin_script']);

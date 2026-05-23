@@ -6,7 +6,6 @@
 namespace WPAICG\PostEnhancer\Ajax;
 
 use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
-use WPAICG\AIPKit_Role_Manager;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -19,7 +18,7 @@ if (!defined('ABSPATH')) {
 class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
 {
     private const OPTION_NAME = 'aipkit_enhancer_actions';
-    public const MODULE_SLUG = 'ai_post_enhancer';
+    public const MODULE_SLUG = 'settings';
     public const MAX_ACTIONS = 20;
 
     /**

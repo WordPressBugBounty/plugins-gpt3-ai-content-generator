@@ -5,6 +5,7 @@
 namespace WPAICG\Vector\PostProcessor\Qdrant;
 
 use WPAICG\AIPKit_Providers;
+use WPAICG\Vector\AIPKit_Vector_Embedding_Batch_Policy;
 use WPAICG\Vector\AIPKit_Vector_Text_Chunker;
 use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
@@ -171,8 +172,28 @@ class QdrantPostProcessor extends AIPKit_Vector_Post_Processor_Base
             return $return_error(__('Could not prepare Qdrant chunks for this post.', 'gpt3-ai-content-generator'));
         }
 
+        if (!class_exists(AIPKit_Vector_Embedding_Batch_Policy::class)) {
+            $batch_policy_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-embedding-batch-policy.php';
+            if (file_exists($batch_policy_path)) {
+                require_once $batch_policy_path;
+            }
+        }
+        $embedding_batch_size = class_exists(AIPKit_Vector_Embedding_Batch_Policy::class)
+            ? AIPKit_Vector_Embedding_Batch_Policy::resolve_batch_size(
+                $embedding_provider_normalized,
+                [
+                    'source' => 'post_processor',
+                    'vector_provider' => 'Qdrant',
+                    'embedding_model' => $embedding_model,
+                    'target_id' => $collection_name,
+                    'post_id' => $post_id,
+                ],
+                self::EMBEDDING_BATCH_SIZE
+            )
+            : self::EMBEDDING_BATCH_SIZE;
+
         $points_to_upsert = [];
-        $chunk_batches = array_chunk($chunks, self::EMBEDDING_BATCH_SIZE);
+        $chunk_batches = array_chunk($chunks, $embedding_batch_size);
         $total_chunks = count($chunks);
         foreach ($chunk_batches as $chunk_batch) {
             $chunk_texts = array_map(static function ($chunk): string {

@@ -13,8 +13,8 @@ use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKit_Role_Manager; // <-- Import Role Manager
 
 $module_settings = aipkit_dashboard::get_module_settings();
-$can_access_dashboard = AIPKit_Role_Manager::user_can_access_module('settings');
-$can_access_settings = current_user_can('manage_options') && $can_access_dashboard;
+$can_access_dashboard = AIPKit_Role_Manager::user_can_access_dashboard_shell();
+$can_access_settings = AIPKit_Role_Manager::user_can_access_module('settings');
 
 $nav_modules = array(
     'chat_bot' => array(
@@ -33,7 +33,7 @@ $nav_modules = array(
         'data_module' => 'autogpt',
     ),
     'ai_forms' => array(
-        'label'       => __('Forms', 'gpt3-ai-content-generator'),
+        'label'       => __('AI Forms', 'gpt3-ai-content-generator'),
         'icon'        => 'feedback',
         'data_module' => 'ai-forms',
     ),

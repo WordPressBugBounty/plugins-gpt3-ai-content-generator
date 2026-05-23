@@ -78,9 +78,60 @@ class AIPKit_WP_AI_Client_Settings
     public static function is_supported(): bool
     {
         return function_exists('wp_supports_ai')
+            && function_exists('wp_ai_client_prompt')
             && wp_supports_ai()
             && class_exists('WP_Connector_Registry')
-            && class_exists('\WordPress\AiClient\AiClient');
+            && class_exists('\WordPress\AiClient\AiClient')
+            && self::core_contracts_available();
+    }
+
+    private static function core_contracts_available(): bool
+    {
+        $classes = [
+            '\WordPress\AiClient\Common\Exception\InvalidArgumentException',
+            '\WordPress\AiClient\Common\Exception\RuntimeException',
+            '\WordPress\AiClient\Files\DTO\File',
+            '\WordPress\AiClient\Messages\DTO\Message',
+            '\WordPress\AiClient\Messages\DTO\MessagePart',
+            '\WordPress\AiClient\Messages\DTO\ModelMessage',
+            '\WordPress\AiClient\Messages\Enums\ModalityEnum',
+            '\WordPress\AiClient\Providers\AbstractProvider',
+            '\WordPress\AiClient\Providers\DTO\ProviderMetadata',
+            '\WordPress\AiClient\Providers\Enums\ProviderTypeEnum',
+            '\WordPress\AiClient\Providers\Http\Enums\RequestAuthenticationMethod',
+            '\WordPress\AiClient\Providers\Http\Exception\ClientException',
+            '\WordPress\AiClient\Providers\Models\DTO\ModelConfig',
+            '\WordPress\AiClient\Providers\Models\DTO\ModelMetadata',
+            '\WordPress\AiClient\Providers\Models\DTO\SupportedOption',
+            '\WordPress\AiClient\Providers\Models\Enums\CapabilityEnum',
+            '\WordPress\AiClient\Providers\Models\Enums\OptionEnum',
+            '\WordPress\AiClient\Results\DTO\Candidate',
+            '\WordPress\AiClient\Results\DTO\GenerativeAiResult',
+            '\WordPress\AiClient\Results\DTO\TokenUsage',
+            '\WordPress\AiClient\Results\Enums\FinishReasonEnum',
+        ];
+
+        foreach ($classes as $class_name) {
+            if (!class_exists($class_name)) {
+                return false;
+            }
+        }
+
+        $interfaces = [
+            '\WordPress\AiClient\Providers\Contracts\ModelMetadataDirectoryInterface',
+            '\WordPress\AiClient\Providers\Contracts\ProviderAvailabilityInterface',
+            '\WordPress\AiClient\Providers\Models\Contracts\ModelInterface',
+            '\WordPress\AiClient\Providers\Models\ImageGeneration\Contracts\ImageGenerationModelInterface',
+            '\WordPress\AiClient\Providers\Models\TextGeneration\Contracts\TextGenerationModelInterface',
+        ];
+
+        foreach ($interfaces as $interface_name) {
+            if (!interface_exists($interface_name)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static function get_mode(): string

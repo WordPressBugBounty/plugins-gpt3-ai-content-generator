@@ -56,10 +56,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
      */
     public function ajax_index_posts_to_vector_store()
     {        
-        $can_index_posts = AIPKit_Role_Manager::user_can_access_module('vector_content_indexer')
-            || AIPKit_Role_Manager::user_can_access_module('sources')
-            || AIPKit_Role_Manager::user_can_access_module('chatbot');
-        if (!$can_index_posts) {
+        if (!AIPKit_Role_Manager::user_can_access_module('vector_content_indexer')) {
             wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'gpt3-ai-content-generator')], 403);
             return;
         }

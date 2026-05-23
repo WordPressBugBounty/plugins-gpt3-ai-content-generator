@@ -174,7 +174,7 @@ function log_enhancer_bulk_update_logic(int $post_id, string $field, string $pro
         : ('enhancer-bulk-' . $field . '-' . $post_id . '-' . time());
 
     $message_content = sprintf(
-        "Content Assistant updated %s for Post ID: %d.\nPrompt Snippet: %s...\nResult:\n%s",
+        "Assistant updated %s for Post ID: %d.\nPrompt Snippet: %s...\nResult:\n%s",
         $field,
         $post_id,
         mb_substr($prompt, 0, 100),

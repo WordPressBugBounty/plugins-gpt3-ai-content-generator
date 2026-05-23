@@ -1,6 +1,6 @@
 <?php
 // File: includes/utils/class-aipkit-admin-header-action-buttons.php
-// Purpose: Shared utility to inject action buttons (e.g., Content Assistant, Index) next to the page title on list screens.
+// Purpose: Shared utility to inject action buttons (e.g., Assistant, Index) next to the page title on list screens.
 
 namespace WPAICG\Utils;
 
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) { exit; }
  */
 class AIPKit_Admin_Header_Action_Buttons {
 
-    /** @var array<string, array{label:string, id:string, capability?:string, class?:string}> */
+    /** @var array<string, array{label:string, id:string, capability?:string, class?:string, post_types?:array<int,string>, access_callback?:callable|null, text_domain?:string|null}> */
     private static $registered = [];
     private static $hook_added = false;
 
@@ -26,7 +26,10 @@ class AIPKit_Admin_Header_Action_Buttons {
             'id' => $id,
             'label' => $label,
             'capability' => null,
-            'class' => 'page-title-action'
+            'class' => 'page-title-action',
+            'post_types' => [],
+            'access_callback' => null,
+            'text_domain' => null,
         ];
         self::$registered[$id] = array_merge($defaults, $args);
         self::ensure_hook();
@@ -46,17 +49,34 @@ class AIPKit_Admin_Header_Action_Buttons {
         $screen = function_exists('get_current_screen') ? get_current_screen() : null;
         if (!$screen || $screen->base !== 'edit') return; // Only list screens
 
-        // Filter by capability
-        $buttons = array_filter(self::$registered, function($btn){
-            return empty($btn['capability']) || current_user_can($btn['capability']);
+        $current_post_type = isset($screen->post_type) ? (string) $screen->post_type : '';
+
+        // Filter by capability and post type
+        $buttons = array_filter(self::$registered, function($btn) use ($current_post_type) {
+            if (!empty($btn['capability']) && !current_user_can($btn['capability'])) {
+                return false;
+            }
+            if (!empty($btn['post_types']) && is_array($btn['post_types'])) {
+                if (!in_array($current_post_type, $btn['post_types'], true)) {
+                    return false;
+                }
+            }
+            if (!empty($btn['access_callback']) && is_callable($btn['access_callback'])) {
+                return (bool) call_user_func($btn['access_callback'], $current_post_type, $btn);
+            }
+            return true;
         });
         if (empty($buttons)) return;
 
         $export = [];
         foreach ($buttons as $btn) {
+            $label = $btn['label'];
+            if (!empty($btn['text_domain']) && is_string($btn['text_domain'])) {
+                $label = __($label, $btn['text_domain']);
+            }
             $export[] = [
                 'id' => $btn['id'],
-                'label' => $btn['label'],
+                'label' => $label,
                 'class' => $btn['class'] ?? 'page-title-action'
             ];
         }

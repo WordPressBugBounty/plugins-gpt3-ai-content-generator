@@ -128,9 +128,27 @@ class AIPKit_Vector_Text_Ingestion_Service
         $total_upserted = 0;
         $first_record_id = null;
         $last_upsert_result = [];
+        if (!class_exists(AIPKit_Vector_Embedding_Batch_Policy::class)) {
+            $batch_policy_path = WPAICG_PLUGIN_DIR . 'classes/vector/class-aipkit-vector-embedding-batch-policy.php';
+            if (file_exists($batch_policy_path)) {
+                require_once $batch_policy_path;
+            }
+        }
+        $batch_size = class_exists(AIPKit_Vector_Embedding_Batch_Policy::class)
+            ? AIPKit_Vector_Embedding_Batch_Policy::resolve_batch_size(
+                $embedding_provider_normalized,
+                [
+                    'source' => 'text_ingestion',
+                    'vector_provider' => $provider_label,
+                    'embedding_model' => $embedding_model,
+                    'target_id' => $target_id,
+                ],
+                self::EMBEDDING_BATCH_SIZE
+            )
+            : self::EMBEDDING_BATCH_SIZE;
         $batch_size = (int) apply_filters(
             'aipkit_vector_text_ingestion_embedding_batch_size',
-            self::EMBEDDING_BATCH_SIZE,
+            $batch_size,
             $provider_label,
             $embedding_provider_normalized,
             $embedding_model,

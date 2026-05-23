@@ -62,6 +62,11 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
             $this->send_error_response($post);
             return;
         }
+        $feature_permission = $this->check_content_update_permissions($post);
+        if (is_wp_error($feature_permission)) {
+            $this->send_error_response($feature_permission);
+            return;
+        }
 
     // Optional: a conversation UUID to aggregate all steps into one log record
     // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: Nonce is checked in check_permissions.

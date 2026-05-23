@@ -183,19 +183,10 @@ class Initializer
     }
     private function can_user_access_dashboard(): bool
     {
-        if (current_user_can('manage_options')) {
-            return true;
-        }
         if (!class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
             return false;
         }
-        $manageable_modules = AIPKit_Role_Manager::get_manageable_modules();
-        foreach (array_keys($manageable_modules) as $module_slug) {
-            if (AIPKit_Role_Manager::user_can_access_module($module_slug)) {
-                return true;
-            }
-        }
-        return false;
+        return AIPKit_Role_Manager::user_can_access_dashboard_shell();
     }
     public function render_dashboard_page()
     {

@@ -69,7 +69,7 @@ $module_labels = [
     'content_writer_automation' => __('Automation', 'gpt3-ai-content-generator'),
     'image_generator' => __('Image Generator', 'gpt3-ai-content-generator'),
     'ai_forms' => __('AI Forms', 'gpt3-ai-content-generator'),
-    'autogpt' => __('Automate', 'gpt3-ai-content-generator'),
+    'autogpt' => __('Automations', 'gpt3-ai-content-generator'),
     'ai_post_enhancer' => __('Content Assistant', 'gpt3-ai-content-generator'),
     'wp_ai_client' => __('WP AI Client', 'gpt3-ai-content-generator'),
     'unknown' => __('Unknown', 'gpt3-ai-content-generator'),
@@ -92,6 +92,7 @@ sort($module_options);
 $woo_active = class_exists('WooCommerce') && post_type_exists('product') && function_exists('wc_get_product');
 $woo_create_product_url = admin_url('post-new.php?post_type=product');
 $woo_products_url = admin_url('edit.php?post_type=product');
+$can_manage_woo_products = current_user_can('edit_products') || current_user_can('manage_woocommerce');
 $customer_dashboard_page_url = (string) get_option('aipkit_token_dashboard_page_url', '');
 $customer_dashboard_buycredits_saved_url = (string) get_option('aipkit_token_shop_page_url', '');
 $customer_dashboard_buycredits_default_url = $customer_dashboard_buycredits_saved_url;
@@ -120,6 +121,7 @@ if ($woo_active) {
             $woo_price = $woo_product ? $woo_product->get_price() : '';
             $woo_status = get_post_status($woo_product_post);
             $woo_status_object = $woo_status ? get_post_status_object($woo_status) : null;
+            $woo_edit_url = $can_manage_woo_products ? get_edit_post_link($woo_product_post->ID, '') : '';
 
             $woo_credit_products[] = [
                 'id' => $woo_product_post->ID,
@@ -127,7 +129,7 @@ if ($woo_active) {
                 'credits' => absint(get_post_meta($woo_product_post->ID, '_aipkit_tokens_amount', true)),
                 'price' => ($woo_price !== '' && $woo_price !== null) ? wc_price((float) $woo_price) : '&mdash;',
                 'status' => $woo_status_object ? $woo_status_object->label : __('Unknown', 'gpt3-ai-content-generator'),
-                'edit_url' => get_edit_post_link($woo_product_post->ID, ''),
+                'edit_url' => is_string($woo_edit_url) ? $woo_edit_url : '',
             ];
         }
     }
@@ -799,25 +801,31 @@ if ($woo_active) {
                                         </span>
                                         <span class="aipkit_stats_customer_woo_status_text">
                                             <?php
-                                            echo $woo_active
-                                                ? esc_html__('Open any WooCommerce product to find the AI Puffer credit package box.', 'gpt3-ai-content-generator')
-                                                : esc_html__('Activate WooCommerce to start selling AI Puffer credit packages.', 'gpt3-ai-content-generator');
+                                            if (!$woo_active) {
+                                                esc_html_e('Activate WooCommerce to start selling AI Puffer credit packages.', 'gpt3-ai-content-generator');
+                                            } elseif ($can_manage_woo_products) {
+                                                esc_html_e('Open any WooCommerce product to find the AI Puffer credit package box.', 'gpt3-ai-content-generator');
+                                            } else {
+                                                esc_html_e('Your role can review credit package summaries, but cannot edit WooCommerce products.', 'gpt3-ai-content-generator');
+                                            }
                                             ?>
                                         </span>
                                     </div>
 
                                     <div class="aipkit_stats_customer_woo_actions">
-                                        <?php if ($woo_active): ?>
+                                        <?php if ($woo_active && $can_manage_woo_products): ?>
                                             <a class="aipkit_btn aipkit_btn-primary" href="<?php echo esc_url($woo_create_product_url); ?>">
                                                 <?php esc_html_e('Create credit product', 'gpt3-ai-content-generator'); ?>
                                             </a>
                                             <a class="aipkit_btn aipkit_btn-secondary" href="<?php echo esc_url($woo_products_url); ?>">
                                                 <?php esc_html_e('View products', 'gpt3-ai-content-generator'); ?>
                                             </a>
-                                        <?php else: ?>
+                                        <?php elseif (!$woo_active): ?>
                                             <a class="aipkit_btn aipkit_btn-secondary" href="<?php echo esc_url(admin_url('plugins.php')); ?>">
                                                 <?php esc_html_e('Manage plugins', 'gpt3-ai-content-generator'); ?>
                                             </a>
+                                        <?php else: ?>
+                                            <span class="aipkit_stats_pricing_rule_meta"><?php esc_html_e('No WooCommerce product access', 'gpt3-ai-content-generator'); ?></span>
                                         <?php endif; ?>
                                     </div>
 
@@ -864,9 +872,13 @@ if ($woo_active) {
                                                             <td><?php echo esc_html($woo_credit_product['status']); ?></td>
                                                             <td>
                                                                 <div class="aipkit_stats_pricing_actions_inline">
-                                                                    <a class="aipkit_btn aipkit_btn-secondary" href="<?php echo esc_url($woo_credit_product['edit_url']); ?>">
-                                                                        <?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?>
-                                                                    </a>
+                                                                    <?php if (!empty($woo_credit_product['edit_url'])): ?>
+                                                                        <a class="aipkit_btn aipkit_btn-secondary" href="<?php echo esc_url($woo_credit_product['edit_url']); ?>">
+                                                                            <?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?>
+                                                                        </a>
+                                                                    <?php else: ?>
+                                                                        <span class="aipkit_stats_pricing_rule_meta"><?php esc_html_e('No edit access', 'gpt3-ai-content-generator'); ?></span>
+                                                                    <?php endif; ?>
                                                                 </div>
                                                             </td>
                                                         </tr>

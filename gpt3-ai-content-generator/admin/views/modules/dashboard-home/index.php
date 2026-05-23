@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
 
 $module_settings = aipkit_dashboard::get_module_settings();
 $is_admin = current_user_can('manage_options');
+$can_access_settings = AIPKit_Role_Manager::user_can_access_module('settings');
+$can_access_usage = AIPKit_Role_Manager::user_can_access_module('stats');
 
 $modules = array(
     'chat_bot' => array(
@@ -35,7 +37,7 @@ $modules = array(
         'data_module' => 'autogpt',
     ),
     'ai_forms' => array(
-        'label'       => __('Forms', 'gpt3-ai-content-generator'),
+        'label'       => __('AI Forms', 'gpt3-ai-content-generator'),
         'description' => __('Collect user input and generate AI-powered responses.', 'gpt3-ai-content-generator'),
         'icon'        => 'feedback',
         'data_module' => 'ai-forms',
@@ -67,12 +69,14 @@ foreach ($modules as $option_key => $module) {
     }
 
     $is_enabled = !isset($module_settings[$option_key]) || !empty($module_settings[$option_key]);
+    if (!$is_admin && !$is_enabled) {
+        continue;
+    }
+
     $module['option_key'] = $option_key;
     $module['is_enabled'] = $is_enabled;
     $available_modules[] = $module;
 }
-
-$available_count = count($available_modules);
 ?>
 <div class="aipkit_home" id="aipkit_dashboard_home">
     <div class="aipkit_home_layout">
@@ -85,18 +89,14 @@ $available_count = count($available_modules);
                 </p>
             </header>
 
-            <section class="aipkit_home_section aipkit_home_section--modules" aria-labelledby="aipkit_home_modules_title">
-                <div class="aipkit_home_section_header">
-                    <div class="aipkit_home_section_header_copy">
-                        <h3 class="aipkit_home_section_title" id="aipkit_home_modules_title"><?php esc_html_e('Modules', 'gpt3-ai-content-generator'); ?></h3>
-                    </div>
-                </div>
-                <div class="aipkit_home_section_body">
-                    <?php if ($available_count === 0): ?>
-                        <div class="aipkit_home_module_empty">
-                            <p><?php esc_html_e('No modules are available for your role right now.', 'gpt3-ai-content-generator'); ?></p>
+            <?php if (!empty($available_modules)): ?>
+                <section class="aipkit_home_section aipkit_home_section--modules" aria-labelledby="aipkit_home_modules_title">
+                    <div class="aipkit_home_section_header">
+                        <div class="aipkit_home_section_header_copy">
+                            <h3 class="aipkit_home_section_title" id="aipkit_home_modules_title"><?php esc_html_e('Modules', 'gpt3-ai-content-generator'); ?></h3>
                         </div>
-                    <?php else: ?>
+                    </div>
+                    <div class="aipkit_home_section_body">
                         <div class="aipkit_home_module_list" id="aipkit_home_module_list">
                             <?php foreach ($available_modules as $module): ?>
                                 <?php
@@ -154,9 +154,9 @@ $available_count = count($available_modules);
                                 </article>
                             <?php endforeach; ?>
                         </div>
-                    <?php endif; ?>
-                </div>
-            </section>
+                    </div>
+                </section>
+            <?php endif; ?>
         </section>
 
         <aside class="aipkit_home_sidebar">
@@ -168,26 +168,31 @@ $available_count = count($available_modules);
                 </div>
                 <div class="aipkit_home_panel_body">
                     <ol class="aipkit_home_steps">
-                        <li>
-                            <?php
-                            $settings_link = '<a href="#" data-aipkit-open-module="settings">' . esc_html__('Settings', 'gpt3-ai-content-generator') . '</a>';
-                            $aipkit_settings_step = sprintf(
-                                /* translators: %s: link to the Settings module. */
-                                __('Go to %s.', 'gpt3-ai-content-generator'),
-                                $settings_link
-                            );
-                            echo wp_kses(
-                                $aipkit_settings_step,
-                                [
-                                    'a' => [
-                                        'href' => [],
-                                        'data-aipkit-open-module' => [],
-                                    ],
-                                ]
-                            );
-                            ?>
-                        </li>
-                        <li><?php esc_html_e('Select your provider and enter your API key. That\'s it!', 'gpt3-ai-content-generator'); ?></li>
+                        <?php if ($can_access_settings): ?>
+                            <li>
+                                <?php
+                                $settings_link = '<a href="#" data-aipkit-open-module="settings">' . esc_html__('Settings', 'gpt3-ai-content-generator') . '</a>';
+                                $aipkit_settings_step = sprintf(
+                                    /* translators: %s: link to the Settings module. */
+                                    __('Go to %s.', 'gpt3-ai-content-generator'),
+                                    $settings_link
+                                );
+                                echo wp_kses(
+                                    $aipkit_settings_step,
+                                    [
+                                        'a' => [
+                                            'href' => [],
+                                            'data-aipkit-open-module' => [],
+                                        ],
+                                    ]
+                                );
+                                ?>
+                            </li>
+                            <li><?php esc_html_e('Select your provider and enter your API key. That\'s it!', 'gpt3-ai-content-generator'); ?></li>
+                        <?php else: ?>
+                            <li><?php esc_html_e('Provider and API settings are managed by an administrator.', 'gpt3-ai-content-generator'); ?></li>
+                            <li><?php esc_html_e('Ask an administrator to update global settings when needed.', 'gpt3-ai-content-generator'); ?></li>
+                        <?php endif; ?>
                         <li>
                             <?php
                             $documentation_link = '<a href="https://docs.aipower.org/" target="_blank" rel="noopener noreferrer">' . esc_html__('documentation', 'gpt3-ai-content-generator') . '</a>';
@@ -212,27 +217,29 @@ $available_count = count($available_modules);
                 </div>
             </section>
 
-            <section class="aipkit_home_panel aipkit_home_panel--chart" aria-labelledby="aipkit_home_chart_title">
-                <div class="aipkit_home_panel_header">
-                    <div class="aipkit_home_panel_header_copy">
-                        <h3 class="aipkit_home_panel_title" id="aipkit_home_chart_title"><?php esc_html_e('Token Usage', 'gpt3-ai-content-generator'); ?></h3>
-                    </div>
-                </div>
-                <div class="aipkit_home_panel_body">
-                    <div
-                        id="aipkit_token_usage_chart_container"
-                        class="aipkit_token_usage_chart_container aipkit_home_chart_canvas"
-                        data-default-days="7"
-                    >
-                        <div class="aipkit_chart_loading_placeholder">
-                            <span class="aipkit_spinner" aria-hidden="true"></span>
-                            <span><?php esc_html_e('Loading chart data...', 'gpt3-ai-content-generator'); ?></span>
+            <?php if ($can_access_usage): ?>
+                <section class="aipkit_home_panel aipkit_home_panel--chart" aria-labelledby="aipkit_home_chart_title">
+                    <div class="aipkit_home_panel_header">
+                        <div class="aipkit_home_panel_header_copy">
+                            <h3 class="aipkit_home_panel_title" id="aipkit_home_chart_title"><?php esc_html_e('Usage', 'gpt3-ai-content-generator'); ?></h3>
                         </div>
-                        <div class="aipkit_chart_error_placeholder"></div>
-                        <div class="aipkit_chart_nodata_placeholder"></div>
                     </div>
-                </div>
-            </section>
+                    <div class="aipkit_home_panel_body">
+                        <div
+                            id="aipkit_token_usage_chart_container"
+                            class="aipkit_token_usage_chart_container aipkit_home_chart_canvas"
+                            data-default-days="7"
+                        >
+                            <div class="aipkit_chart_loading_placeholder">
+                                <span class="aipkit_spinner" aria-hidden="true"></span>
+                                <span><?php esc_html_e('Loading chart data...', 'gpt3-ai-content-generator'); ?></span>
+                            </div>
+                            <div class="aipkit_chart_error_placeholder"></div>
+                            <div class="aipkit_chart_nodata_placeholder"></div>
+                        </div>
+                    </div>
+                </section>
+            <?php endif; ?>
         </aside>
     </div>
 </div>

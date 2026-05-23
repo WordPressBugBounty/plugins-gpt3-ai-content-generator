@@ -29,6 +29,11 @@ class AIPKit_PostEnhancer_Bulk_Update_SEO_Slug extends AIPKit_Post_Enhancer_Base
             $this->send_error_response($post);
             return;
         }
+        $feature_permission = $this->check_content_update_permissions($post);
+        if (is_wp_error($feature_permission)) {
+            $this->send_error_response($feature_permission);
+            return;
+        }
 
         $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
         // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: Nonce is checked in check_permissions.

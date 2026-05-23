@@ -12,6 +12,7 @@ require_once __DIR__ . '/form-inputs/loader-vars.php';
 $aipkit_options = get_option('aipkit_options', []);
 $enhancer_editor_integration_enabled = $aipkit_options['enhancer_settings']['editor_integration'] ?? '1';
 $enhancer_default_insert_position = $aipkit_options['enhancer_settings']['default_insert_position'] ?? 'replace';
+$aipkit_can_manage_assistant_settings = class_exists('\\WPAICG\\AIPKit_Role_Manager') && \WPAICG\AIPKit_Role_Manager::user_can_access_module('settings');
 $aipkit_render_assistant_accordion = false;
 $aipkit_render_assistant_footer = true;
 $content_length_options = [
@@ -112,11 +113,13 @@ $content_length_options = [
                     <?php esc_html_e('This panel will contain the selected settings section.', 'gpt3-ai-content-generator'); ?>
                 </p>
             </div>
-            <div class="aipkit_builder_sheet_section" data-sheet="assistant" hidden>
-                <div id="aipkit_settings_container" data-aipkit-assistant-settings="true">
-                    <?php include WPAICG_PLUGIN_DIR . 'admin/views/modules/settings/partials/integrations/ai-assistant.php'; ?>
+            <?php if ($aipkit_can_manage_assistant_settings) : ?>
+                <div class="aipkit_builder_sheet_section" data-sheet="assistant" hidden>
+                    <div id="aipkit_settings_container" data-aipkit-assistant-settings="true">
+                        <?php include WPAICG_PLUGIN_DIR . 'admin/views/modules/settings/partials/integrations/ai-assistant.php'; ?>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

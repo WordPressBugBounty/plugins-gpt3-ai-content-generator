@@ -1,6 +1,6 @@
 <?php
 /**
- * Partial: Content Assistant Settings
+ * Partial: Assistant Settings
  * 
  */
 if (!defined('ABSPATH')) {
@@ -26,7 +26,7 @@ $enhancer_list_button_enabled = $aipkit_options['enhancer_settings']['show_list_
 <div class="aipkit_accordion">
     <div class="aipkit_accordion-header">
         <span class="dashicons dashicons-arrow-right-alt2"></span>
-        <?php esc_html_e('Content Assistant', 'gpt3-ai-content-generator'); ?>
+        <?php esc_html_e('Assistant', 'gpt3-ai-content-generator'); ?>
     </div>
     <div class="aipkit_accordion-content">
 <?php endif; ?>
@@ -46,7 +46,7 @@ $enhancer_list_button_enabled = $aipkit_options['enhancer_settings']['show_list_
                             <?php esc_html_e('Enable in Editors', 'gpt3-ai-content-generator'); ?>
                         </label>
                         <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('Show Content Assistant in Classic and Block editors', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Show Assistant in Classic and Block editors', 'gpt3-ai-content-generator'); ?>
                         </span>
                     </div>
                     <label class="aipkit_switch">
@@ -70,7 +70,7 @@ $enhancer_list_button_enabled = $aipkit_options['enhancer_settings']['show_list_
                             <?php esc_html_e('Show on Post Lists', 'gpt3-ai-content-generator'); ?>
                         </label>
                         <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('Show the Content Assistant button next to “Add New” on post, page, and product lists.', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Show the Assistant button next to Add New on post, page, and product lists.', 'gpt3-ai-content-generator'); ?>
                         </span>
                     </div>
                     <label class="aipkit_switch">

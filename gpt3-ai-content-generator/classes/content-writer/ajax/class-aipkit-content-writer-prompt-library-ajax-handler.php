@@ -26,7 +26,11 @@ class AIPKit_Content_Writer_Prompt_Library_Ajax_Handler extends BaseDashboardAja
         'content-writer',
         'autogpt',
         'ai-forms',
-        'ai_post_enhancer',
+        'bulk_assistant',
+        'row_assistant',
+        'woocommerce_assistant',
+        'classic_editor_assistant',
+        'block_editor_assistant',
         'chatbot',
     ];
 

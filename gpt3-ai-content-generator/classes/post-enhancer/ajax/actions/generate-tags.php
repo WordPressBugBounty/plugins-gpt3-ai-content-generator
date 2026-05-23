@@ -24,6 +24,11 @@ class AIPKit_PostEnhancer_Generate_Tags extends AIPKit_Post_Enhancer_Base_Ajax_A
             $this->send_error_response($post);
             return;
         }
+        $feature_permission = $this->check_row_assistant_permissions($post);
+        if (is_wp_error($feature_permission)) {
+            $this->send_error_response($feature_permission);
+            return;
+        }
 
         $original_title = trim($post->post_title);
         $post_content_snippet = get_post_content_snippet_logic($post);

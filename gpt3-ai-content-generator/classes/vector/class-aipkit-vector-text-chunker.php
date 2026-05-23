@@ -32,7 +32,9 @@ class AIPKit_Vector_Text_Chunker
         string $target_id,
         string $vector_store_type
     ): array {
-        $saved_general = get_option('aipkit_training_general_settings', []);
+        $saved_general = self::can_use_custom_settings()
+            ? get_option('aipkit_training_general_settings', [])
+            : [];
         $default_chunk_cfg = [
             'avg_chars_per_token' => isset($saved_general['chunk_avg_chars_per_token']) ? (int) $saved_general['chunk_avg_chars_per_token'] : self::DEFAULT_AVG_CHARS_PER_TOKEN,
             'max_tokens_per_chunk' => isset($saved_general['chunk_max_tokens_per_chunk']) ? (int) $saved_general['chunk_max_tokens_per_chunk'] : self::DEFAULT_MAX_TOKENS_PER_CHUNK,
@@ -191,5 +193,11 @@ class AIPKit_Vector_Text_Chunker
         }
 
         return $normalized;
+    }
+
+    private static function can_use_custom_settings(): bool
+    {
+        return class_exists('\\WPAICG\\aipkit_dashboard')
+            && \WPAICG\aipkit_dashboard::is_pro_plan();
     }
 }

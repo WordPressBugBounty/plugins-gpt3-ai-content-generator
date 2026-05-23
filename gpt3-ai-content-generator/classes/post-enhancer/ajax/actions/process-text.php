@@ -25,6 +25,11 @@ class AIPKit_PostEnhancer_Process_Text extends AIPKit_Post_Enhancer_Base_Ajax_Ac
             $this->send_error_response($permission_check);
             return;
         }
+        $feature_permission = $this->check_editor_context_permissions();
+        if (is_wp_error($feature_permission)) {
+            $this->send_error_response($feature_permission);
+            return;
+        }
 
         // --- MODIFIED: Expect final_prompt instead of process_action ---
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_permissions.

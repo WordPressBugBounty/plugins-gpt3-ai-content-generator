@@ -1,8 +1,7 @@
 <?php
 
 // File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/dashboard/class-aipkit_role_manager.php
-// Status: MODIFIED
-// I have added 'semantic_search' to the list of manageable modules.
+// Handles AI Puffer role-based access permissions.
 
 namespace WPAICG;
 
@@ -15,11 +14,19 @@ if (!defined('ABSPATH')) {
  *
  * Handles getting roles, modules, saving/getting role-based permissions, checking access,
  * and updating permissions on activation.
- * UPDATED: update_permissions_on_activation() now migrates old wpaicg_ capabilities to new module permissions.
  */
 class AIPKit_Role_Manager
 {
     public const OPTION_NAME = 'aipkit_role_permissions';
+    private const SCHEMA_OPTION_NAME = 'aipkit_role_permissions_schema_version';
+    private const SCHEMA_VERSION = 2;
+    private const ASSISTANT_UTILITY_MODULES = [
+        'bulk_assistant',
+        'row_assistant',
+        'woocommerce_assistant',
+        'classic_editor_assistant',
+        'block_editor_assistant',
+    ];
     private static $permission_cache = [];
 
     /**
@@ -31,27 +38,111 @@ class AIPKit_Role_Manager
     }
 
     /**
+     * Get grouped permission metadata for Role Manager.
+     */
+    public static function get_permission_groups(): array
+    {
+        return [
+            'core' => [
+                'label' => __('Core Modules', 'gpt3-ai-content-generator'),
+                'description' => __('Main AI Puffer workspaces in the admin dashboard.', 'gpt3-ai-content-generator'),
+                'modules' => [
+                    'chatbot' => [
+                        'label' => __('Chatbots', 'gpt3-ai-content-generator'),
+                        'description' => __('Create and manage popup, embedded, and external chatbots.', 'gpt3-ai-content-generator'),
+                    ],
+                    'content-writer' => [
+                        'label' => __('Content Writer', 'gpt3-ai-content-generator'),
+                        'description' => __('Generate, rewrite, and optimize WordPress content.', 'gpt3-ai-content-generator'),
+                    ],
+                    'autogpt' => [
+                        'label' => __('Automations', 'gpt3-ai-content-generator'),
+                        'description' => __('Run scheduled content, rewrite, indexing, and comment tasks.', 'gpt3-ai-content-generator'),
+                    ],
+                    'ai-forms' => [
+                        'label' => __('AI Forms', 'gpt3-ai-content-generator'),
+                        'description' => __('Build forms that send structured input to AI.', 'gpt3-ai-content-generator'),
+                    ],
+                    'image-generator' => [
+                        'label' => __('Images', 'gpt3-ai-content-generator'),
+                        'description' => __('Generate images, edits, and videos.', 'gpt3-ai-content-generator'),
+                    ],
+                    'sources' => [
+                        'label' => __('Knowledge Base', 'gpt3-ai-content-generator'),
+                        'description' => __('Manage data sources, vector stores, indexes, and collections.', 'gpt3-ai-content-generator'),
+                    ],
+                    'stats' => [
+                        'label' => __('Usage', 'gpt3-ai-content-generator'),
+                        'description' => __('Review logs, limits, pricing, balances, and credit activity.', 'gpt3-ai-content-generator'),
+                    ],
+                ],
+            ],
+            'utilities' => [
+                'label' => __('WordPress Utilities', 'gpt3-ai-content-generator'),
+                'description' => __('Tools that appear inside normal WordPress post, page, product, and editor screens.', 'gpt3-ai-content-generator'),
+                'modules' => [
+                    'bulk_assistant' => [
+                        'label' => __('Bulk Assistant', 'gpt3-ai-content-generator'),
+                        'description' => __('Show the Assistant button on non-product post list screens.', 'gpt3-ai-content-generator'),
+                    ],
+                    'row_assistant' => [
+                        'label' => __('Row Assistant Menu', 'gpt3-ai-content-generator'),
+                        'description' => __('Show per-row Assistant actions on non-product post list screens.', 'gpt3-ai-content-generator'),
+                    ],
+                    'vector_content_indexer' => [
+                        'label' => __('Content Indexing', 'gpt3-ai-content-generator'),
+                        'description' => __('Show Index button and indexing tools on supported post lists.', 'gpt3-ai-content-generator'),
+                    ],
+                    'woocommerce_assistant' => [
+                        'label' => __('WooCommerce Assistant', 'gpt3-ai-content-generator'),
+                        'description' => __('Show Assistant tools on WooCommerce product list screens.', 'gpt3-ai-content-generator'),
+                    ],
+                    'classic_editor_assistant' => [
+                        'label' => __('Classic Editor Assistant', 'gpt3-ai-content-generator'),
+                        'description' => __('Show Assistant actions in the Classic Editor toolbar.', 'gpt3-ai-content-generator'),
+                    ],
+                    'block_editor_assistant' => [
+                        'label' => __('Block Editor Assistant', 'gpt3-ai-content-generator'),
+                        'description' => __('Show Assistant actions in the block editor toolbar.', 'gpt3-ai-content-generator'),
+                    ],
+                ],
+            ],
+            'administration' => [
+                'label' => __('Administration', 'gpt3-ai-content-generator'),
+                'description' => __('Global plugin configuration and provider settings.', 'gpt3-ai-content-generator'),
+                'modules' => [
+                    'settings' => [
+                        'label' => __('Settings', 'gpt3-ai-content-generator'),
+                        'description' => __('Configure providers, integrations, and global behavior.', 'gpt3-ai-content-generator'),
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Get the list of modules that require permission management.
      * @return array ['module_slug' => 'Module Name', ...]
      */
     public static function get_manageable_modules(): array
     {
-        return [
-            // Dashboard Modules
-            'chatbot'               => __('Chatbot', 'gpt3-ai-content-generator'),
-            'content-writer'        => __('Content Writer', 'gpt3-ai-content-generator'),
-            'autogpt'               => __('Automate', 'gpt3-ai-content-generator'),
-            'autogpt_auto_indexer'  => __('Auto Content Indexing', 'gpt3-ai-content-generator'),
-            'ai-forms'              => __('AI Forms', 'gpt3-ai-content-generator'),
-            'image-generator'       => __('Images', 'gpt3-ai-content-generator'),
-            'sources'               => __('Sources', 'gpt3-ai-content-generator'),
-            'settings'              => __('Dashboard', 'gpt3-ai-content-generator'),
-            'stats'                 => __('Stats', 'gpt3-ai-content-generator'),
-            // Frontend / Non-Dashboard Modules
-            'token_usage_shortcode' => __('Customer Dashboard', 'gpt3-ai-content-generator'),
-            'ai_post_enhancer'      => __('Content Assistant', 'gpt3-ai-content-generator'),
-            'vector_content_indexer' => __('Vector Content Indexer', 'gpt3-ai-content-generator'),
-        ];
+        $modules = [];
+        foreach (self::get_permission_groups() as $group) {
+            foreach ($group['modules'] as $module_slug => $module) {
+                $modules[$module_slug] = $module['label'];
+            }
+        }
+        return $modules;
+    }
+
+    public static function get_assistant_utility_modules(): array
+    {
+        return self::ASSISTANT_UTILITY_MODULES;
+    }
+
+    public static function get_dashboard_access_modules(): array
+    {
+        return array_keys(self::get_manageable_modules());
     }
 
     /**
@@ -88,42 +179,13 @@ class AIPKit_Role_Manager
     public static function get_role_permissions(): array
     {
         $permissions = get_option(self::OPTION_NAME);
-        $modules = self::get_manageable_modules();
-        $defaults = self::get_default_permissions();
-
-        if ($permissions === false || !is_array($permissions)) {
-            return $defaults;
-        }
-
-        $updated_permissions = $permissions;
-        $changed = false;
-        if (isset($updated_permissions['logs']) && !isset($updated_permissions['stats'])) {
-            $updated_permissions['stats'] = $updated_permissions['logs'];
-            $changed = true;
-        }
-        foreach (array_keys($modules) as $module_slug) {
-            if (!isset($updated_permissions[$module_slug])) {
-                $updated_permissions[$module_slug] = $defaults[$module_slug];
-                $changed = true;
-            } elseif (!is_array($updated_permissions[$module_slug]) || empty($updated_permissions[$module_slug])) {
-                if (!is_array($updated_permissions[$module_slug])) {
-                    $updated_permissions[$module_slug] = $defaults[$module_slug];
-                    $changed = true;
-                }
-            }
-        }
-
-        foreach (array_keys($updated_permissions) as $saved_module_slug) {
-            if (!isset($modules[$saved_module_slug])) {
-                unset($updated_permissions[$saved_module_slug]);
-                $changed = true;
-            }
-        }
-        if ($changed) {
-            update_option(self::OPTION_NAME, $updated_permissions, 'no');
+        $normalized = self::normalize_permissions($permissions);
+        if ($normalized['changed']) {
+            update_option(self::OPTION_NAME, $normalized['permissions'], 'no');
+            update_option(self::SCHEMA_OPTION_NAME, self::SCHEMA_VERSION, 'no');
             self::$permission_cache = [];
         }
-        return $updated_permissions;
+        return $normalized['permissions'];
     }
 
     /**
@@ -134,54 +196,68 @@ class AIPKit_Role_Manager
     public static function update_permissions_on_activation()
     {
         $current_permissions = get_option(self::OPTION_NAME);
-        $all_modules = self::get_manageable_modules();
-        $default_permissions_for_new_modules = self::get_default_permissions();
-        $changed = false;
-
-        if ($current_permissions === false || !is_array($current_permissions)) {
-            $current_permissions = [];
-            $changed = true;
-        }
-
-        $final_permissions = $current_permissions;
-        if (isset($final_permissions['logs']) && !isset($final_permissions['stats'])) {
-            $final_permissions['stats'] = $final_permissions['logs'];
-            $changed = true;
-        }
-
-        // Step 1: Ensure all current modules are present and prune obsolete ones
-        foreach (array_keys($all_modules) as $module_slug) {
-            if (!isset($final_permissions[$module_slug]) || !is_array($final_permissions[$module_slug])) {
-                $final_permissions[$module_slug] = $default_permissions_for_new_modules[$module_slug];
-                $changed = true;
-            }
-        }
-        foreach (array_keys($final_permissions) as $saved_module_slug) {
-            if (!isset($all_modules[$saved_module_slug])) {
-                unset($final_permissions[$saved_module_slug]);
-                $changed = true;
-            }
-        }
-
-        // Step 2: Legacy capability migration removed.
-        foreach (array_keys($all_modules) as $module_slug_for_admin_check) {
-            if (isset($final_permissions[$module_slug_for_admin_check]) && is_array($final_permissions[$module_slug_for_admin_check])) {
-                if (!in_array('administrator', $final_permissions[$module_slug_for_admin_check], true)) {
-                    $final_permissions[$module_slug_for_admin_check][] = 'administrator';
-                    $changed = true;
-                }
-            } else {
-                $final_permissions[$module_slug_for_admin_check] = ['administrator'];
-                $changed = true;
-            }
-            $final_permissions[$module_slug_for_admin_check] = array_values(array_unique($final_permissions[$module_slug_for_admin_check]));
-        }
-
-
-        if ($changed) {
-            update_option(self::OPTION_NAME, $final_permissions, 'no');
+        $normalized = self::normalize_permissions($current_permissions);
+        if ($normalized['changed']) {
+            update_option(self::OPTION_NAME, $normalized['permissions'], 'no');
+            update_option(self::SCHEMA_OPTION_NAME, self::SCHEMA_VERSION, 'no');
             self::$permission_cache = []; // Clear cache
         }
+    }
+
+    private static function normalize_permissions($permissions): array
+    {
+        $modules = self::get_manageable_modules();
+        $defaults = self::get_default_permissions();
+        $updated_permissions = is_array($permissions) ? $permissions : [];
+        $changed = !is_array($permissions);
+        $schema_version = (int) get_option(self::SCHEMA_OPTION_NAME, 0);
+        $needs_schema_migration = $schema_version < self::SCHEMA_VERSION;
+
+        if ($needs_schema_migration) {
+            if (isset($updated_permissions['logs']) && !isset($updated_permissions['stats'])) {
+                $updated_permissions['stats'] = $updated_permissions['logs'];
+            }
+
+            if (isset($updated_permissions['ai_post_enhancer']) && is_array($updated_permissions['ai_post_enhancer'])) {
+                foreach (self::ASSISTANT_UTILITY_MODULES as $utility_module_slug) {
+                    if (!isset($updated_permissions[$utility_module_slug])) {
+                        $updated_permissions[$utility_module_slug] = $updated_permissions['ai_post_enhancer'];
+                    }
+                }
+            }
+
+            if (isset($updated_permissions['settings'])) {
+                $updated_permissions['settings'] = ['administrator'];
+            }
+
+            $changed = true;
+        }
+
+        foreach (array_keys($modules) as $module_slug) {
+            if (!isset($updated_permissions[$module_slug]) || !is_array($updated_permissions[$module_slug])) {
+                $updated_permissions[$module_slug] = $defaults[$module_slug];
+                $changed = true;
+            }
+
+            if (!in_array('administrator', $updated_permissions[$module_slug], true)) {
+                $updated_permissions[$module_slug][] = 'administrator';
+                $changed = true;
+            }
+
+            $updated_permissions[$module_slug] = array_values(array_unique(array_filter(array_map('sanitize_key', $updated_permissions[$module_slug]))));
+        }
+
+        foreach (array_keys($updated_permissions) as $saved_module_slug) {
+            if (!isset($modules[$saved_module_slug])) {
+                unset($updated_permissions[$saved_module_slug]);
+                $changed = true;
+            }
+        }
+
+        return [
+            'permissions' => $updated_permissions,
+            'changed' => $changed,
+        ];
     }
 
 
@@ -238,6 +314,7 @@ class AIPKit_Role_Manager
         }
 
         $updated = update_option(self::OPTION_NAME, $sanitized_permissions, 'no');
+        update_option(self::SCHEMA_OPTION_NAME, self::SCHEMA_VERSION, 'no');
         self::$permission_cache = [];
 
         if ($updated) {
@@ -254,6 +331,10 @@ class AIPKit_Role_Manager
      */
     public static function user_can_access_module(string $module_slug): bool
     {
+        if (!function_exists('wp_get_current_user') || !function_exists('current_user_can')) {
+            return false;
+        }
+
         if (current_user_can('manage_options')) {
             return true;
         }
@@ -297,6 +378,28 @@ class AIPKit_Role_Manager
         self::$permission_cache[$cache_key] = $has_access;
 
         return $has_access;
+    }
+
+    public static function user_can_access_any_module(array $module_slugs): bool
+    {
+        foreach ($module_slugs as $module_slug) {
+            if (self::user_can_access_module((string) $module_slug)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function user_can_access_dashboard_shell(): bool
+    {
+        if (!function_exists('wp_get_current_user') || !function_exists('current_user_can')) {
+            return false;
+        }
+
+        if (current_user_can('manage_options')) {
+            return true;
+        }
+        return self::user_can_access_any_module(self::get_dashboard_access_modules());
     }
 
 }

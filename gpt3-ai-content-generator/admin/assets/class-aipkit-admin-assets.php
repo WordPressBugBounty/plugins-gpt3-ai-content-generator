@@ -488,9 +488,7 @@ class RoleManagerAssets extends AIPKit_Admin_Asset_Base
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('aipkit_role_manager_nonce'),
                 'text' => [
-                    'saving' => __('Saving...', 'gpt3-ai-content-generator'),
-                    'saveButton' => __('Save Permissions', 'gpt3-ai-content-generator'),
-                    'success' => __('Permissions saved!', 'gpt3-ai-content-generator'),
+                    'success' => __('Permissions saved.', 'gpt3-ai-content-generator'),
                     'fail' => __('Failed to save permissions.', 'gpt3-ai-content-generator'),
                 ],
             ]);
@@ -500,7 +498,11 @@ class RoleManagerAssets extends AIPKit_Admin_Asset_Base
 
 class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
 {
-    public const MODULE_SLUG = 'ai_post_enhancer';
+    private const BULK_ASSISTANT_MODULE = 'bulk_assistant';
+    private const ROW_ASSISTANT_MODULE = 'row_assistant';
+    private const WOOCOMMERCE_ASSISTANT_MODULE = 'woocommerce_assistant';
+    private const CLASSIC_EDITOR_ASSISTANT_MODULE = 'classic_editor_assistant';
+    private const BLOCK_EDITOR_ASSISTANT_MODULE = 'block_editor_assistant';
 
     public function register_hooks()
     {
@@ -509,10 +511,6 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
 
     public function enqueue_post_enhancer_assets($hook_suffix)
     {
-        if (! AIPKit_Role_Manager::user_can_access_module(self::MODULE_SLUG)) {
-            return;
-        }
-
         $screen = get_current_screen();
         $is_aipkit_page = $this->is_aipkit_page($screen);
         $is_post_edit_screen = in_array($hook_suffix, ['post.php', 'post-new.php'], true);
@@ -523,14 +521,40 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
         $supported_post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($ui_post_types));
         $current_post_type = isset($screen->post_type) ? (string) $screen->post_type : '';
         $is_post_list_screen = $screen && $screen->base === 'edit' && in_array($current_post_type, $supported_post_types, true);
+        $can_enqueue_for_aipkit_page = $is_aipkit_page && AIPKit_Role_Manager::user_can_access_any_module([
+            'content-writer',
+            'settings',
+            self::BULK_ASSISTANT_MODULE,
+            self::ROW_ASSISTANT_MODULE,
+            self::WOOCOMMERCE_ASSISTANT_MODULE,
+            self::CLASSIC_EDITOR_ASSISTANT_MODULE,
+            self::BLOCK_EDITOR_ASSISTANT_MODULE,
+        ]);
+        $can_enqueue_for_post_edit = $is_post_edit_screen && AIPKit_Role_Manager::user_can_access_any_module([
+            self::CLASSIC_EDITOR_ASSISTANT_MODULE,
+            self::BLOCK_EDITOR_ASSISTANT_MODULE,
+        ]);
+        $can_enqueue_for_post_list = $is_post_list_screen && $this->can_access_list_screen_tools($current_post_type);
 
-        if ($is_post_list_screen || $is_post_edit_screen || $is_aipkit_page) {
+        if ($can_enqueue_for_post_list || $can_enqueue_for_post_edit || $can_enqueue_for_aipkit_page) {
             $this->enqueue_scripts();
         }
 
-        if ($is_post_list_screen) {
+        if ($can_enqueue_for_post_list) {
             $this->enqueue_styles();
         }
+    }
+
+    private function can_access_list_screen_tools(string $post_type): bool
+    {
+        if ($post_type === 'product') {
+            return AIPKit_Role_Manager::user_can_access_module(self::WOOCOMMERCE_ASSISTANT_MODULE);
+        }
+
+        return AIPKit_Role_Manager::user_can_access_any_module([
+            self::BULK_ASSISTANT_MODULE,
+            self::ROW_ASSISTANT_MODULE,
+        ]);
     }
 
     private function enqueue_styles(): void
@@ -862,10 +886,18 @@ class AIPKit_Vector_Post_Processor_Assets extends AIPKit_Admin_Asset_Base
             $show = $general['show_index_button'] ?? true;
 
             if ($show) {
+                $post_types = ['post', 'page'];
+                if (post_type_exists('product')) {
+                    $post_types[] = 'product';
+                }
+                $post_types = apply_filters('aipkit_vector_post_processor_supported_post_types', $post_types);
                 AIPKit_Admin_Header_Action_Buttons::register_button(
                     'aipkit_add_to_vector_store_btn',
                     __('Index', 'gpt3-ai-content-generator'),
-                    ['capability' => 'edit_posts']
+                    [
+                        'capability' => 'edit_posts',
+                        'post_types' => array_values(array_unique(array_map('sanitize_key', (array) $post_types))),
+                    ]
                 );
             }
         });

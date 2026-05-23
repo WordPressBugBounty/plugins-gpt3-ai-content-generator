@@ -150,7 +150,12 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 return;
             }
 
-            if (!AIPKit_Role_Manager::user_can_access_module($module)) {
+            if ($module === 'dashboard-home') {
+                if (!AIPKit_Role_Manager::user_can_access_dashboard_shell()) {
+                    wp_send_json_error(['message' => __('You do not have permission to access this module.', 'gpt3-ai-content-generator')], 403);
+                    return;
+                }
+            } elseif (!AIPKit_Role_Manager::user_can_access_module($module)) {
                 wp_send_json_error(['message' => __('You do not have permission to access this module.', 'gpt3-ai-content-generator')], 403);
                 return;
             }
@@ -275,7 +280,7 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
         public static function ajax_get_token_usage_chart_data()
         {
-            if (!AIPKit_Role_Manager::user_can_access_module('settings')) {
+            if (!AIPKit_Role_Manager::user_can_access_module('stats')) {
                 wp_send_json_error(['message' => __('Unauthorized access.', 'gpt3-ai-content-generator')], 403);
                 return;
             }

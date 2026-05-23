@@ -23,13 +23,6 @@ function render_shortcode_logic(\WPAICG\Shortcodes\AIPKit_Token_Usage_Shortcode 
         return '<p class="aipkit-login-prompt">' . esc_html__('Please log in to view your credits and usage.', 'gpt3-ai-content-generator') . '</p>';
     }
 
-    // Role Manager Check
-    if (class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
-        if (!\WPAICG\AIPKit_Role_Manager::user_can_access_module('token_usage_shortcode')) {
-            return '<p class="aipkit-permission-denied">' . esc_html__('You do not have permission to view this customer dashboard.', 'gpt3-ai-content-generator') . '</p>';
-        }
-    }
-
     $default_atts = [
         'chatbot'        => 'true',
         'aiforms'        => 'true',
