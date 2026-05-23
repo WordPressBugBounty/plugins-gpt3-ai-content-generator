@@ -77,8 +77,51 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
 ?>
 <form id="aipkit_ai_forms_settings_form" class="aipkit_ai_forms_settings_form">
     <input type="hidden" name="_ajax_nonce" value="<?php echo esc_attr($settings_nonce); ?>">
-    <div class="aipkit_ai_forms_settings_page">
-        <section class="aipkit_ai_forms_settings_block">
+    <div class="aipkit_ai_forms_settings_page" data-aipkit-settings-module-tab-scope="ai-forms">
+        <div class="aipkit_settings_module_tabs" role="tablist" aria-label="<?php esc_attr_e('AI Forms settings', 'gpt3-ai-content-generator'); ?>" data-aipkit-settings-module-tabs="ai-forms">
+            <button
+                type="button"
+                class="aipkit_settings_module_tab aipkit_active"
+                id="aipkit_ai_forms_settings_section_tab_limits"
+                role="tab"
+                aria-selected="true"
+                aria-controls="aipkit_ai_forms_settings_section_limits"
+                data-aipkit-settings-module-tab="limits"
+            >
+                <?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?>
+            </button>
+            <button
+                type="button"
+                class="aipkit_settings_module_tab"
+                id="aipkit_ai_forms_settings_section_tab_custom_css"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_ai_forms_settings_section_custom_css"
+                data-aipkit-settings-module-tab="custom-css"
+                tabindex="-1"
+            >
+                <?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?>
+            </button>
+            <button
+                type="button"
+                class="aipkit_settings_module_tab"
+                id="aipkit_ai_forms_settings_section_tab_frontend_models"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_ai_forms_settings_section_frontend_models"
+                data-aipkit-settings-module-tab="frontend-models"
+                tabindex="-1"
+            >
+                <?php esc_html_e('Frontend Models', 'gpt3-ai-content-generator'); ?>
+            </button>
+        </div>
+        <section
+            class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
+            id="aipkit_ai_forms_settings_section_limits"
+            role="tabpanel"
+            aria-labelledby="aipkit_ai_forms_settings_section_tab_limits"
+            data-aipkit-settings-module-tab-panel="limits"
+        >
             <div class="aipkit_ai_forms_settings_block_header">
                 <div>
                     <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></h3>
@@ -333,7 +376,14 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
             </div>
         </section>
 
-        <section class="aipkit_ai_forms_settings_block">
+        <section
+            class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
+            id="aipkit_ai_forms_settings_section_custom_css"
+            role="tabpanel"
+            aria-labelledby="aipkit_ai_forms_settings_section_tab_custom_css"
+            data-aipkit-settings-module-tab-panel="custom-css"
+            hidden
+        >
             <div class="aipkit_ai_forms_settings_block_header">
                 <div>
                     <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?></h3>
@@ -353,7 +403,14 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
             </div>
         </section>
 
-        <section class="aipkit_ai_forms_settings_block">
+        <section
+            class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
+            id="aipkit_ai_forms_settings_section_frontend_models"
+            role="tabpanel"
+            aria-labelledby="aipkit_ai_forms_settings_section_tab_frontend_models"
+            data-aipkit-settings-module-tab-panel="frontend-models"
+            hidden
+        >
             <div class="aipkit_ai_forms_settings_block_header">
                 <div>
                     <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Frontend Models', 'gpt3-ai-content-generator'); ?></h3>

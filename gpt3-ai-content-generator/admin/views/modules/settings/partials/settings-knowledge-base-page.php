@@ -120,11 +120,215 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
     data-semantic-qdrant-collections="<?php echo esc_attr(wp_json_encode($kb_qdrant_collection_list ?: [])); ?>"
     data-semantic-chroma-collections="<?php echo esc_attr(wp_json_encode($kb_chroma_collection_list ?: [])); ?>"
 >
-    <section class="aipkit_settings_kb_group" data-aipkit-kb-section="general" data-aipkit-settings-autosave-exclude="true">
-        <div class="aipkit_settings_kb_block aipkit_settings_kb_block--basics">
-            <div class="aipkit_settings_kb_block_header">
-                <div class="aipkit_settings_kb_group_title"><?php esc_html_e('Basics', 'gpt3-ai-content-generator'); ?></div>
+    <div class="aipkit_settings_kb_tabs" role="tablist" aria-label="<?php esc_attr_e('Knowledge Base Settings', 'gpt3-ai-content-generator'); ?>">
+            <button
+                type="button"
+                class="aipkit_settings_kb_tab aipkit_active"
+                id="aipkit_settings_kb_tab_chunking"
+                role="tab"
+                aria-selected="true"
+                aria-controls="aipkit_settings_kb_panel_chunking"
+                data-aipkit-kb-tab="chunking"
+        >
+                <span><?php esc_html_e('Chunking', 'gpt3-ai-content-generator'); ?></span>
+                <?php if (!$kb_is_pro) : ?>
+                    <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                <?php endif; ?>
+            </button>
+            <button
+                type="button"
+                class="aipkit_settings_kb_tab"
+                id="aipkit_settings_kb_tab_content_rules"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_settings_kb_panel_content_rules"
+                data-aipkit-kb-tab="content-rules"
+                tabindex="-1"
+            >
+                <span><?php esc_html_e('Content Rules', 'gpt3-ai-content-generator'); ?></span>
+                <?php if (!$kb_is_pro) : ?>
+                    <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                <?php endif; ?>
+            </button>
+            <button
+                type="button"
+                class="aipkit_settings_kb_tab"
+                id="aipkit_settings_kb_tab_basics"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_settings_kb_panel_basics"
+                data-aipkit-kb-tab="basics"
+                tabindex="-1"
+            >
+                <?php esc_html_e('Others', 'gpt3-ai-content-generator'); ?>
+            </button>
+        </div>
+        <section
+            class="aipkit_settings_kb_group aipkit_settings_kb_tab_panel"
+            id="aipkit_settings_kb_panel_basics"
+            role="tabpanel"
+            aria-labelledby="aipkit_settings_kb_tab_basics"
+            data-aipkit-kb-tab-panel="basics"
+            data-aipkit-kb-section="basics"
+            hidden
+        >
+            <div class="aipkit_settings_kb_block aipkit_settings_kb_block--single">
+                <div class="aipkit_settings_kb_block_header">
+                    <div class="aipkit_settings_kb_group_title"><?php esc_html_e('Semantic Search', 'gpt3-ai-content-generator'); ?></div>
+                </div>
+                <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_semantic_launcher_row">
+                    <label class="aipkit_form-label" for="aipkit_open_semantic_search_settings_modal">
+                        <?php esc_html_e('Search options', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Vector and display options.', 'gpt3-ai-content-generator'); ?></span>
+                    </label>
+                    <div class="aipkit_settings_action_buttons">
+                        <button
+                            type="button"
+                            id="aipkit_open_semantic_search_settings_modal"
+                            class="button button-secondary aipkit_btn aipkit_settings_kb_semantic_modal_btn"
+                            aria-haspopup="dialog"
+                            aria-controls="aipkit_semantic_search_settings_modal"
+                        >
+                            <?php esc_html_e('Configure', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                    </div>
+                </div>
             </div>
+            <div
+                class="aipkit-modal-overlay aipkit_settings_kb_semantic_modal"
+                id="aipkit_semantic_search_settings_modal"
+                aria-hidden="true"
+            >
+                <div
+                    class="aipkit-modal-content aipkit-modal-shell aipkit_settings_kb_semantic_modal_content"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="aipkit_semantic_search_settings_modal_title"
+                    aria-describedby="aipkit_semantic_search_settings_modal_desc"
+                    tabindex="-1"
+                >
+                    <div class="aipkit-modal-header aipkit-modal-shell-header">
+                        <div class="aipkit-modal-shell-intro">
+                            <h2 class="aipkit-modal-shell-title" id="aipkit_semantic_search_settings_modal_title"><?php esc_html_e('Semantic Search', 'gpt3-ai-content-generator'); ?></h2>
+                            <p class="aipkit-modal-shell-copy" id="aipkit_semantic_search_settings_modal_desc"><?php esc_html_e('Vector and display options.', 'gpt3-ai-content-generator'); ?></p>
+                        </div>
+                        <button
+                            type="button"
+                            class="aipkit-modal-close-btn aipkit-modal-shell-close"
+                            id="aipkit_semantic_search_settings_modal_close"
+                            aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <span class="dashicons dashicons-no-alt"></span>
+                        </button>
+                    </div>
+                    <div class="aipkit-modal-body aipkit-modal-shell-body aipkit_settings_kb_semantic_modal_body">
+                        <div class="aipkit_settings_kb_semantic_modal_form">
+                            <div class="aipkit_form-group aipkit_settings_simple_row">
+                                <label class="aipkit_form-label" for="aipkit_semantic_search_vector_provider">
+                                    <?php esc_html_e('Vector DB', 'gpt3-ai-content-generator'); ?>
+                                    <span class="aipkit_form-label-helper"><?php esc_html_e('Search storage provider.', 'gpt3-ai-content-generator'); ?></span>
+                                </label>
+                                <select id="aipkit_semantic_search_vector_provider" name="semantic_search_vector_provider" class="aipkit_form-input aipkit_autosave_trigger">
+                                    <option value="pinecone" <?php selected($kb_semantic_vector_provider, 'pinecone'); ?>><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
+                                    <option value="qdrant" <?php selected($kb_semantic_vector_provider, 'qdrant'); ?>><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
+                                    <option value="chroma" <?php selected($kb_semantic_vector_provider, 'chroma'); ?>><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
+                                </select>
+                            </div>
+                            <div class="aipkit_form-group aipkit_settings_simple_row">
+                                <label class="aipkit_form-label" id="aipkit_semantic_search_target_label" for="aipkit_semantic_search_target_id">
+                                    <span data-aipkit-semantic-target-label-text><?php echo esc_html($kb_semantic_target_label); ?></span>
+                                    <span class="aipkit_form-label-helper"><?php esc_html_e('Target index or collection.', 'gpt3-ai-content-generator'); ?></span>
+                                </label>
+                                <select id="aipkit_semantic_search_target_id" name="semantic_search_target_id" class="aipkit_form-input aipkit_autosave_trigger">
+                                    <option value=""><?php esc_html_e('-- Select --', 'gpt3-ai-content-generator'); ?></option>
+                                    <?php
+                                    $kb_semantic_target_found = false;
+                                    if (!empty($kb_semantic_current_list)) {
+                                        foreach ($kb_semantic_current_list as $kb_semantic_item) {
+                                            $kb_semantic_item_name = is_array($kb_semantic_item) ? ($kb_semantic_item['name'] ?? ($kb_semantic_item['id'] ?? '')) : $kb_semantic_item;
+                                            if (empty($kb_semantic_item_name)) {
+                                                continue;
+                                            }
+                                            $kb_semantic_is_selected = selected($kb_semantic_target_id, $kb_semantic_item_name, false);
+                                            if ($kb_semantic_is_selected) {
+                                                $kb_semantic_target_found = true;
+                                            }
+                                            echo '<option value="' . esc_attr($kb_semantic_item_name) . '" ' . $kb_semantic_is_selected . '>' . esc_html($kb_semantic_item_name) . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- selected() output is safe.
+                                        }
+                                    }
+                                    if (!$kb_semantic_target_found && !empty($kb_semantic_target_id)) {
+                                        echo '<option value="' . esc_attr($kb_semantic_target_id) . '" selected>' . esc_html($kb_semantic_target_id) . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="aipkit_form-group aipkit_settings_simple_row">
+                                <label class="aipkit_form-label" for="aipkit_semantic_search_embedding_model">
+                                    <?php esc_html_e('Embedding', 'gpt3-ai-content-generator'); ?>
+                                    <span class="aipkit_form-label-helper"><?php esc_html_e('Search embedding model.', 'gpt3-ai-content-generator'); ?></span>
+                                </label>
+                                <select id="aipkit_semantic_search_embedding_model" name="semantic_search_embedding_model" class="aipkit_form-input aipkit_autosave_trigger">
+                                    <?php
+                                    if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+                                        echo wp_kses(
+                                            \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
+                                                $kb_embedding_provider_options,
+                                                $kb_embedding_models_by_provider,
+                                                $kb_semantic_embedding_provider,
+                                                $kb_semantic_embedding_model,
+                                                [
+                                                    'value_mode' => 'model',
+                                                    'include_manual_fallback' => true,
+                                                ]
+                                            ),
+                                            $kb_embedding_options_allowed_html
+                                        );
+                                    }
+                                    ?>
+                                </select>
+                                <input type="hidden" id="aipkit_semantic_search_embedding_provider" name="semantic_search_embedding_provider" value="<?php echo esc_attr($kb_semantic_embedding_provider); ?>" class="aipkit_autosave_trigger">
+                            </div>
+                            <div class="aipkit_form-group aipkit_settings_simple_row">
+                                <label class="aipkit_form-label" for="aipkit_semantic_search_num_results">
+                                    <?php esc_html_e('Number of Results', 'gpt3-ai-content-generator'); ?>
+                                    <span class="aipkit_form-label-helper"><?php esc_html_e('Maximum results returned.', 'gpt3-ai-content-generator'); ?></span>
+                                </label>
+                                <input type="number" id="aipkit_semantic_search_num_results" name="semantic_search_num_results" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($kb_semantic_num_results); ?>" min="1" max="20" />
+                            </div>
+                            <div class="aipkit_form-group aipkit_settings_simple_row">
+                                <label class="aipkit_form-label" for="aipkit_semantic_search_no_results_text">
+                                    <?php esc_html_e('No Results Text', 'gpt3-ai-content-generator'); ?>
+                                    <span class="aipkit_form-label-helper"><?php esc_html_e('Message shown for empty searches.', 'gpt3-ai-content-generator'); ?></span>
+                                </label>
+                                <input type="text" id="aipkit_semantic_search_no_results_text" name="semantic_search_no_results_text" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($kb_semantic_no_results_text); ?>" />
+                            </div>
+                            <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_shortcode_row">
+                                <label class="aipkit_form-label" for="aipkit_semantic_search_shortcode_display">
+                                    <?php esc_html_e('Shortcode', 'gpt3-ai-content-generator'); ?>
+                                    <span class="aipkit_form-label-helper"><?php esc_html_e('Embed the search form.', 'gpt3-ai-content-generator'); ?></span>
+                                </label>
+                                <div class="aipkit_semantic_shortcode_group">
+                                    <button
+                                        type="button"
+                                        id="aipkit_semantic_search_shortcode_display"
+                                        class="aipkit_semantic_shortcode_snippet"
+                                        data-shortcode="[aipkit_semantic_search]"
+                                        title="<?php echo esc_attr('[aipkit_semantic_search]'); ?>"
+                                        aria-label="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>"
+                                    >
+                                        <span class="dashicons dashicons-clipboard" aria-hidden="true"></span>
+                                        <span class="aipkit_semantic_shortcode_text">[aipkit_semantic_search]</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="aipkit_settings_kb_block aipkit_settings_kb_block--basics" data-aipkit-settings-autosave-exclude="true">
+                <div class="aipkit_settings_kb_block_header">
+                <div class="aipkit_settings_kb_group_title"><?php esc_html_e('Others', 'gpt3-ai-content-generator'); ?></div>
+                </div>
             <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_kb_hide_uploads_row">
             <label class="aipkit_form-label" for="aipkit_hide_user_uploads_select">
                 <?php esc_html_e('Hide user uploads', 'gpt3-ai-content-generator'); ?>
@@ -152,15 +356,24 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                 <option value="1" <?php selected($kb_show_index_button_value, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
                 <option value="0" <?php selected($kb_show_index_button_value, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
             </select>
+                </div>
             </div>
-        </div>
-        <div class="aipkit_settings_kb_block aipkit_settings_kb_block--chunking">
-            <div class="aipkit_settings_kb_block_header">
-                <div class="aipkit_settings_kb_group_title">
-                    <span class="aipkit_settings_kb_label_line">
+        </section>
+        <section
+            class="aipkit_settings_kb_group aipkit_settings_kb_tab_panel"
+            id="aipkit_settings_kb_panel_chunking"
+            role="tabpanel"
+            aria-labelledby="aipkit_settings_kb_tab_chunking"
+            data-aipkit-kb-tab-panel="chunking"
+            data-aipkit-kb-section="chunking"
+            data-aipkit-settings-autosave-exclude="true"
+        >
+            <div class="aipkit_settings_kb_block aipkit_settings_kb_block--chunking">
+                <div class="aipkit_settings_kb_block_header">
+                    <div class="aipkit_settings_kb_group_title">
+                        <span class="aipkit_settings_kb_label_line">
                         <span><?php esc_html_e('Chunking & Batches', 'gpt3-ai-content-generator'); ?></span>
                         <?php if (!$kb_is_pro) : ?>
-                            <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                             <a
                                 class="button aipkit_btn aipkit_btn-primary aipkit_settings_kb_upgrade_btn aipkit_settings_kb_header_upgrade_btn"
                                 href="<?php echo esc_url($kb_upgrade_url); ?>"
@@ -280,18 +493,26 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
             if ($kb_embedding_batches_partial && file_exists($kb_embedding_batches_partial)) {
                 include $kb_embedding_batches_partial;
             }
-            ?>
-        </div>
-    </section>
+                ?>
+            </div>
+        </section>
 
-    <section class="aipkit_settings_kb_group" data-aipkit-kb-section="indexing-controls" data-aipkit-settings-autosave-exclude="true">
-        <div class="aipkit_settings_kb_block aipkit_settings_kb_block--single">
-            <div class="aipkit_settings_kb_block_header">
-                <div class="aipkit_settings_kb_group_title">
-                    <span class="aipkit_settings_kb_label_line">
+        <section
+            class="aipkit_settings_kb_group aipkit_settings_kb_tab_panel"
+            id="aipkit_settings_kb_panel_content_rules"
+            role="tabpanel"
+            aria-labelledby="aipkit_settings_kb_tab_content_rules"
+            data-aipkit-kb-tab-panel="content-rules"
+            data-aipkit-kb-section="indexing-controls"
+            data-aipkit-settings-autosave-exclude="true"
+            hidden
+        >
+            <div class="aipkit_settings_kb_block aipkit_settings_kb_block--single">
+                <div class="aipkit_settings_kb_block_header">
+                    <div class="aipkit_settings_kb_group_title">
+                        <span class="aipkit_settings_kb_label_line">
                         <span><?php esc_html_e('Content Rules', 'gpt3-ai-content-generator'); ?></span>
                         <?php if (!$kb_is_pro) : ?>
-                            <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                             <a
                                 class="button aipkit_btn aipkit_btn-primary aipkit_settings_kb_upgrade_btn aipkit_settings_kb_header_upgrade_btn"
                                 href="<?php echo esc_url($kb_upgrade_url); ?>"
@@ -342,9 +563,6 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                         <h2 class="aipkit-modal-shell-title" id="aipkit_indexing_settings_modal_title">
                             <span class="aipkit_settings_kb_modal_title_line">
                                 <span><?php esc_html_e('Content type rules', 'gpt3-ai-content-generator'); ?></span>
-                                <?php if (!$kb_is_pro) : ?>
-                                    <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
-                                <?php endif; ?>
                             </span>
                         </h2>
                         <p class="aipkit-modal-shell-copy" id="aipkit_indexing_settings_modal_desc"><?php esc_html_e('Embedding content rules.', 'gpt3-ai-content-generator'); ?></p>
@@ -384,162 +602,7 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+            </div>
+        </section>
 
-    <section class="aipkit_settings_kb_group" data-aipkit-kb-section="semantic-search">
-        <div class="aipkit_settings_kb_block aipkit_settings_kb_block--single">
-            <div class="aipkit_settings_kb_block_header">
-                <div class="aipkit_settings_kb_group_title"><?php esc_html_e('Semantic Search', 'gpt3-ai-content-generator'); ?></div>
-            </div>
-            <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_semantic_launcher_row">
-            <label class="aipkit_form-label" for="aipkit_open_semantic_search_settings_modal">
-                <?php esc_html_e('Search options', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_form-label-helper"><?php esc_html_e('Vector and display options.', 'gpt3-ai-content-generator'); ?></span>
-            </label>
-            <div class="aipkit_settings_action_buttons">
-                <button
-                    type="button"
-                    id="aipkit_open_semantic_search_settings_modal"
-                    class="button button-secondary aipkit_btn aipkit_settings_kb_semantic_modal_btn"
-                    aria-haspopup="dialog"
-                    aria-controls="aipkit_semantic_search_settings_modal"
-                >
-                    <?php esc_html_e('Configure', 'gpt3-ai-content-generator'); ?>
-                </button>
-            </div>
-            </div>
-        </div>
-        <div
-            class="aipkit-modal-overlay aipkit_settings_kb_semantic_modal"
-            id="aipkit_semantic_search_settings_modal"
-            aria-hidden="true"
-        >
-            <div
-                class="aipkit-modal-content aipkit-modal-shell aipkit_settings_kb_semantic_modal_content"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="aipkit_semantic_search_settings_modal_title"
-                aria-describedby="aipkit_semantic_search_settings_modal_desc"
-                tabindex="-1"
-            >
-                <div class="aipkit-modal-header aipkit-modal-shell-header">
-                    <div class="aipkit-modal-shell-intro">
-                        <h2 class="aipkit-modal-shell-title" id="aipkit_semantic_search_settings_modal_title"><?php esc_html_e('Semantic Search', 'gpt3-ai-content-generator'); ?></h2>
-                        <p class="aipkit-modal-shell-copy" id="aipkit_semantic_search_settings_modal_desc"><?php esc_html_e('Vector and display options.', 'gpt3-ai-content-generator'); ?></p>
-                    </div>
-                    <button
-                        type="button"
-                        class="aipkit-modal-close-btn aipkit-modal-shell-close"
-                        id="aipkit_semantic_search_settings_modal_close"
-                        aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
-                    >
-                        <span class="dashicons dashicons-no-alt"></span>
-                    </button>
-                </div>
-                <div class="aipkit-modal-body aipkit-modal-shell-body aipkit_settings_kb_semantic_modal_body">
-                    <div class="aipkit_settings_kb_semantic_modal_form">
-                        <div class="aipkit_form-group aipkit_settings_simple_row">
-                            <label class="aipkit_form-label" for="aipkit_semantic_search_vector_provider">
-                                <?php esc_html_e('Vector DB', 'gpt3-ai-content-generator'); ?>
-                                <span class="aipkit_form-label-helper"><?php esc_html_e('Search storage provider.', 'gpt3-ai-content-generator'); ?></span>
-                            </label>
-                            <select id="aipkit_semantic_search_vector_provider" name="semantic_search_vector_provider" class="aipkit_form-input aipkit_autosave_trigger">
-                    <option value="pinecone" <?php selected($kb_semantic_vector_provider, 'pinecone'); ?>><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="qdrant" <?php selected($kb_semantic_vector_provider, 'qdrant'); ?>><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="chroma" <?php selected($kb_semantic_vector_provider, 'chroma'); ?>><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
-                            </select>
-                        </div>
-                        <div class="aipkit_form-group aipkit_settings_simple_row">
-                            <label class="aipkit_form-label" id="aipkit_semantic_search_target_label" for="aipkit_semantic_search_target_id">
-                                <span data-aipkit-semantic-target-label-text><?php echo esc_html($kb_semantic_target_label); ?></span>
-                                <span class="aipkit_form-label-helper"><?php esc_html_e('Target index or collection.', 'gpt3-ai-content-generator'); ?></span>
-                            </label>
-                            <select id="aipkit_semantic_search_target_id" name="semantic_search_target_id" class="aipkit_form-input aipkit_autosave_trigger">
-                    <option value=""><?php esc_html_e('-- Select --', 'gpt3-ai-content-generator'); ?></option>
-                    <?php
-                    $kb_semantic_target_found = false;
-                    if (!empty($kb_semantic_current_list)) {
-                        foreach ($kb_semantic_current_list as $kb_semantic_item) {
-                            $kb_semantic_item_name = is_array($kb_semantic_item) ? ($kb_semantic_item['name'] ?? ($kb_semantic_item['id'] ?? '')) : $kb_semantic_item;
-                            if (empty($kb_semantic_item_name)) {
-                                continue;
-                            }
-                            $kb_semantic_is_selected = selected($kb_semantic_target_id, $kb_semantic_item_name, false);
-                            if ($kb_semantic_is_selected) {
-                                $kb_semantic_target_found = true;
-                            }
-                            echo '<option value="' . esc_attr($kb_semantic_item_name) . '" ' . $kb_semantic_is_selected . '>' . esc_html($kb_semantic_item_name) . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- selected() output is safe.
-                        }
-                    }
-                    if (!$kb_semantic_target_found && !empty($kb_semantic_target_id)) {
-                        echo '<option value="' . esc_attr($kb_semantic_target_id) . '" selected>' . esc_html($kb_semantic_target_id) . '</option>';
-                    }
-                    ?>
-                            </select>
-                        </div>
-                        <div class="aipkit_form-group aipkit_settings_simple_row">
-                            <label class="aipkit_form-label" for="aipkit_semantic_search_embedding_model">
-                                <?php esc_html_e('Embedding', 'gpt3-ai-content-generator'); ?>
-                                <span class="aipkit_form-label-helper"><?php esc_html_e('Search embedding model.', 'gpt3-ai-content-generator'); ?></span>
-                            </label>
-                            <select id="aipkit_semantic_search_embedding_model" name="semantic_search_embedding_model" class="aipkit_form-input aipkit_autosave_trigger">
-                    <?php
-                    if (class_exists('\\WPAICG\\AIPKit_Providers')) {
-                        echo wp_kses(
-                            \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
-                                $kb_embedding_provider_options,
-                                $kb_embedding_models_by_provider,
-                                $kb_semantic_embedding_provider,
-                                $kb_semantic_embedding_model,
-                                [
-                                    'value_mode' => 'model',
-                                    'include_manual_fallback' => true,
-                                ]
-                            ),
-                            $kb_embedding_options_allowed_html
-                        );
-                    }
-                    ?>
-                            </select>
-                            <input type="hidden" id="aipkit_semantic_search_embedding_provider" name="semantic_search_embedding_provider" value="<?php echo esc_attr($kb_semantic_embedding_provider); ?>" class="aipkit_autosave_trigger">
-                        </div>
-                        <div class="aipkit_form-group aipkit_settings_simple_row">
-                            <label class="aipkit_form-label" for="aipkit_semantic_search_num_results">
-                                <?php esc_html_e('Number of Results', 'gpt3-ai-content-generator'); ?>
-                                <span class="aipkit_form-label-helper"><?php esc_html_e('Maximum results returned.', 'gpt3-ai-content-generator'); ?></span>
-                            </label>
-                            <input type="number" id="aipkit_semantic_search_num_results" name="semantic_search_num_results" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($kb_semantic_num_results); ?>" min="1" max="20" />
-                        </div>
-                        <div class="aipkit_form-group aipkit_settings_simple_row">
-                            <label class="aipkit_form-label" for="aipkit_semantic_search_no_results_text">
-                                <?php esc_html_e('No Results Text', 'gpt3-ai-content-generator'); ?>
-                                <span class="aipkit_form-label-helper"><?php esc_html_e('Message shown for empty searches.', 'gpt3-ai-content-generator'); ?></span>
-                            </label>
-                            <input type="text" id="aipkit_semantic_search_no_results_text" name="semantic_search_no_results_text" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($kb_semantic_no_results_text); ?>" />
-                        </div>
-                        <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_shortcode_row">
-                            <label class="aipkit_form-label" for="aipkit_semantic_search_shortcode_display">
-                                <?php esc_html_e('Shortcode', 'gpt3-ai-content-generator'); ?>
-                                <span class="aipkit_form-label-helper"><?php esc_html_e('Embed the search form.', 'gpt3-ai-content-generator'); ?></span>
-                            </label>
-                            <div class="aipkit_semantic_shortcode_group">
-                                <button
-                                    type="button"
-                                    id="aipkit_semantic_search_shortcode_display"
-                                    class="aipkit_semantic_shortcode_snippet"
-                                    data-shortcode="[aipkit_semantic_search]"
-                                    title="<?php echo esc_attr('[aipkit_semantic_search]'); ?>"
-                                    aria-label="<?php esc_attr_e('Click to copy shortcode', 'gpt3-ai-content-generator'); ?>"
-                                >
-                                    <span class="dashicons dashicons-clipboard" aria-hidden="true"></span>
-                                    <span class="aipkit_semantic_shortcode_text">[aipkit_semantic_search]</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 </div>

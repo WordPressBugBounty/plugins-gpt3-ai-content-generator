@@ -237,9 +237,9 @@ class AIPKit_WP_AI_Client_Approval_Compatibility
         throw new ClientException(
             sprintf(
                 /* translators: 1: Connector ID. 2: Calling plugin/theme basename. */
-                __('The "%1$s" AI connector has not been approved for use by "%2$s".', 'gpt3-ai-content-generator'),
-                $connector_id,
-                $caller_basename
+                esc_html__('The "%1$s" AI connector has not been approved for use by "%2$s".', 'gpt3-ai-content-generator'),
+                esc_html($connector_id),
+                esc_html($caller_basename)
             ),
             403
         );

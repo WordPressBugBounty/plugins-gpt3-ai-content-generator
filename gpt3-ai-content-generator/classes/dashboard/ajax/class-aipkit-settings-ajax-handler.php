@@ -343,7 +343,8 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             return;
         }
 
-        AIPKit_Global_Security_Settings::save_settings($raw_settings);
+        $current_settings = AIPKit_Global_Security_Settings::get_settings();
+        AIPKit_Global_Security_Settings::save_settings(array_replace_recursive($current_settings, $raw_settings));
     }
 
     /**

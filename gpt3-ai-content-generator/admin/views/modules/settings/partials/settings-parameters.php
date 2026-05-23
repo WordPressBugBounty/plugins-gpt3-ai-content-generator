@@ -15,6 +15,19 @@ if (!defined('ABSPATH')) exit;
 // $is_pro (from settings/index.php)
 
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler; // For settings-safety-google.php
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
+
+$openai_security_settings = class_exists(AIPKit_Global_Security_Settings::class)
+    ? AIPKit_Global_Security_Settings::get_settings()
+    : [
+        'openai_moderation_enabled' => '0',
+        'openai_moderation_message' => __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'),
+    ];
+$openai_moderation_enabled = isset($openai_security_settings['openai_moderation_enabled']) && (string) $openai_security_settings['openai_moderation_enabled'] === '1'
+    ? '1'
+    : '0';
+$openai_moderation_message = (string) ($openai_security_settings['openai_moderation_message']
+    ?? __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'));
 
 $sync_button_configs = [
     'OpenAI' => [
@@ -195,6 +208,46 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
             </div>
         </div>
         <?php endif; ?>
+        <div class="aipkit_settings_advanced_row">
+            <div class="aipkit_settings_advanced_label_wrap">
+                <label class="aipkit_settings_advanced_label" for="aipkit_settings_openai_moderation_enabled"><?php esc_html_e('Moderation', 'gpt3-ai-content-generator'); ?></label>
+                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Moderate user input.', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_settings_advanced_control">
+                <select
+                    id="aipkit_settings_openai_moderation_enabled"
+                    name="security[openai_moderation_enabled]"
+                    class="aipkit_form-input aipkit_popover_option_select aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger"
+                >
+                    <option value="1" <?php selected($openai_moderation_enabled, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="0" <?php selected($openai_moderation_enabled, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                </select>
+            </div>
+        </div>
+        <div
+            class="aipkit_settings_advanced_row"
+            id="aipkit_settings_openai_moderation_message_row"
+            <?php echo ($openai_moderation_enabled === '1') ? '' : 'hidden'; ?>
+        >
+            <div class="aipkit_settings_advanced_label_wrap">
+                <label class="aipkit_settings_advanced_label" for="aipkit_settings_openai_moderation_message"><?php esc_html_e('Moderation Message', 'gpt3-ai-content-generator'); ?></label>
+                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Shown when a message is blocked.', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_settings_advanced_control">
+                <input
+                    type="text"
+                    id="aipkit_settings_openai_moderation_message"
+                    name="security[openai_moderation_message]"
+                    class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_autosave_trigger"
+                    value="<?php echo esc_attr($openai_moderation_message); ?>"
+                    placeholder="<?php esc_attr_e('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'); ?>"
+                    autocomplete="off"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-form-type="other"
+                />
+            </div>
+        </div>
     </div>
 
     <div

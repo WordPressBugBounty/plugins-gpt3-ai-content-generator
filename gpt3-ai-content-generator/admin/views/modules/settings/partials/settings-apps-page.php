@@ -68,7 +68,6 @@ if (!$is_pro_plan) :
             <div class="aipkit_settings_apps_upsell_promo">
                 <div class="aipkit_settings_apps_upsell_promo_header">
                     <strong><?php esc_html_e('Connect apps and automate real workflows.', 'gpt3-ai-content-generator'); ?></strong>
-                    <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                 </div>
                 <p class="aipkit_settings_apps_upsell_text">
                     <?php esc_html_e('Turn AI Puffer events into connected app actions with reusable connections and recipe templates.', 'gpt3-ai-content-generator'); ?>

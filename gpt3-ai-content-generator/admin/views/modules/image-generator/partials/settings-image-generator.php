@@ -170,8 +170,63 @@ $ui_text_fields = [
 ?>
 <form id="aipkit_image_generator_settings_form" class="aipkit_ai_forms_settings_form aipkit_image_generator_settings_form" onsubmit="return false;">
     <input type="hidden" name="_ajax_nonce" value="<?php echo esc_attr($settings_nonce); ?>">
-    <div class="aipkit_ai_forms_settings_page">
-        <section class="aipkit_ai_forms_settings_block">
+    <div class="aipkit_ai_forms_settings_page" data-aipkit-settings-module-tab-scope="image-generator">
+        <div class="aipkit_settings_module_tabs" role="tablist" aria-label="<?php esc_attr_e('Image Generator settings', 'gpt3-ai-content-generator'); ?>" data-aipkit-settings-module-tabs="image-generator">
+            <button
+                type="button"
+                class="aipkit_settings_module_tab aipkit_active"
+                id="aipkit_image_generator_settings_section_tab_limits"
+                role="tab"
+                aria-selected="true"
+                aria-controls="aipkit_image_generator_settings_section_limits"
+                data-aipkit-settings-module-tab="limits"
+            >
+                <?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?>
+            </button>
+            <button
+                type="button"
+                class="aipkit_settings_module_tab"
+                id="aipkit_image_generator_settings_section_tab_ui_text"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_image_generator_settings_section_ui_text"
+                data-aipkit-settings-module-tab="ui-text"
+                tabindex="-1"
+            >
+                <?php esc_html_e('UI Text', 'gpt3-ai-content-generator'); ?>
+            </button>
+            <button
+                type="button"
+                class="aipkit_settings_module_tab"
+                id="aipkit_image_generator_settings_section_tab_custom_css"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_image_generator_settings_section_custom_css"
+                data-aipkit-settings-module-tab="custom-css"
+                tabindex="-1"
+            >
+                <?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?>
+            </button>
+            <button
+                type="button"
+                class="aipkit_settings_module_tab"
+                id="aipkit_image_generator_settings_section_tab_frontend_models"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_image_generator_settings_section_frontend_models"
+                data-aipkit-settings-module-tab="frontend-models"
+                tabindex="-1"
+            >
+                <?php esc_html_e('Frontend Models', 'gpt3-ai-content-generator'); ?>
+            </button>
+        </div>
+        <section
+            class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
+            id="aipkit_image_generator_settings_section_limits"
+            role="tabpanel"
+            aria-labelledby="aipkit_image_generator_settings_section_tab_limits"
+            data-aipkit-settings-module-tab-panel="limits"
+        >
             <div class="aipkit_ai_forms_settings_block_header">
                 <div>
                     <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></h3>
@@ -426,7 +481,14 @@ $ui_text_fields = [
             </div>
         </section>
 
-        <section class="aipkit_ai_forms_settings_block">
+        <section
+            class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
+            id="aipkit_image_generator_settings_section_ui_text"
+            role="tabpanel"
+            aria-labelledby="aipkit_image_generator_settings_section_tab_ui_text"
+            data-aipkit-settings-module-tab-panel="ui-text"
+            hidden
+        >
             <div class="aipkit_ai_forms_settings_block_header">
                 <div>
                     <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('UI text', 'gpt3-ai-content-generator'); ?></h3>
@@ -453,7 +515,14 @@ $ui_text_fields = [
             </div>
         </section>
 
-        <section class="aipkit_ai_forms_settings_block">
+        <section
+            class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
+            id="aipkit_image_generator_settings_section_custom_css"
+            role="tabpanel"
+            aria-labelledby="aipkit_image_generator_settings_section_tab_custom_css"
+            data-aipkit-settings-module-tab-panel="custom-css"
+            hidden
+        >
             <div class="aipkit_ai_forms_settings_block_header">
                 <div>
                     <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?></h3>
@@ -473,7 +542,14 @@ $ui_text_fields = [
             </div>
         </section>
 
-        <section class="aipkit_ai_forms_settings_block">
+        <section
+            class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
+            id="aipkit_image_generator_settings_section_frontend_models"
+            role="tabpanel"
+            aria-labelledby="aipkit_image_generator_settings_section_tab_frontend_models"
+            data-aipkit-settings-module-tab-panel="frontend-models"
+            hidden
+        >
             <div class="aipkit_ai_forms_settings_block_header">
                 <div>
                     <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Frontend Models', 'gpt3-ai-content-generator'); ?></h3>

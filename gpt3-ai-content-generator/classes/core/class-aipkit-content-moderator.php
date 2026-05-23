@@ -59,7 +59,7 @@ class AIPKit_Content_Moderator {
             return $words_check_result;
         }
 
-        // OpenAI Moderation API Check (delegates to a checker that uses the Pro Addon Helper)
+        // OpenAI Moderation API check.
         $openai_mod_check_result = AIPKit_OpenAI_Moderation_Checker::check($text, $bot_settings);
         if (is_wp_error($openai_mod_check_result)) {
             return $openai_mod_check_result;

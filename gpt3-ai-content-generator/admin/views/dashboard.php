@@ -220,7 +220,7 @@ if (!$is_pro_plan_for_modal && current_user_can('manage_options')):
                         <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('File Upload for Context (PDF, TXT)', 'gpt3-ai-content-generator'); ?></li>
                         <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Embed Chatbot External Sites', 'gpt3-ai-content-generator'); ?></li>
                         <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('PDF Download of Transcripts', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Moderation & Consent Compliance', 'gpt3-ai-content-generator'); ?></li>
+                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Consent Compliance', 'gpt3-ai-content-generator'); ?></li>
                         <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('AI Forms Conditional Steps', 'gpt3-ai-content-generator'); ?></li>
                         <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Index Custom Post Types', 'gpt3-ai-content-generator'); ?></li>
                         <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Content Generation via RSS, URL, and Google Sheets', 'gpt3-ai-content-generator'); ?></li>

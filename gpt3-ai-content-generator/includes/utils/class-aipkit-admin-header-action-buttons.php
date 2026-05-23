@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) { exit; }
  */
 class AIPKit_Admin_Header_Action_Buttons {
 
-    /** @var array<string, array{label:string, id:string, capability?:string, class?:string, post_types?:array<int,string>, access_callback?:callable|null, text_domain?:string|null}> */
+    /** @var array<string, array{label:string, id:string, capability?:string, class?:string, post_types?:array<int,string>, access_callback?:callable|null, label_callback?:callable|null}> */
     private static $registered = [];
     private static $hook_added = false;
 
@@ -29,7 +29,7 @@ class AIPKit_Admin_Header_Action_Buttons {
             'class' => 'page-title-action',
             'post_types' => [],
             'access_callback' => null,
-            'text_domain' => null,
+            'label_callback' => null,
         ];
         self::$registered[$id] = array_merge($defaults, $args);
         self::ensure_hook();
@@ -70,10 +70,14 @@ class AIPKit_Admin_Header_Action_Buttons {
 
         $export = [];
         foreach ($buttons as $btn) {
-            $label = $btn['label'];
-            if (!empty($btn['text_domain']) && is_string($btn['text_domain'])) {
-                $label = __($label, $btn['text_domain']);
+            $label = (string) $btn['label'];
+            if (!empty($btn['label_callback']) && is_callable($btn['label_callback'])) {
+                $callback_label = call_user_func($btn['label_callback']);
+                if (is_string($callback_label) && $callback_label !== '') {
+                    $label = $callback_label;
+                }
             }
+
             $export[] = [
                 'id' => $btn['id'],
                 'label' => $label,

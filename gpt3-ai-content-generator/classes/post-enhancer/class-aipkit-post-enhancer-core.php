@@ -90,7 +90,9 @@ class Core
                     'capability' => 'edit_posts',
                     'post_types' => array_values(array_unique(array_map('sanitize_key', (array) $post_types))),
                     'access_callback' => [__CLASS__, 'current_user_can_access_bulk_button'],
-                    'text_domain' => 'gpt3-ai-content-generator',
+                    'label_callback' => static function (): string {
+                        return __('Assistant', 'gpt3-ai-content-generator');
+                    },
                 ]
             );
         }
