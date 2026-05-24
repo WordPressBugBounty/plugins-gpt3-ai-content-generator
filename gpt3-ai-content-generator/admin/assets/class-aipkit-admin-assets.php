@@ -500,7 +500,6 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
 {
     private const BULK_ASSISTANT_MODULE = 'bulk_assistant';
     private const ROW_ASSISTANT_MODULE = 'row_assistant';
-    private const WOOCOMMERCE_ASSISTANT_MODULE = 'woocommerce_assistant';
     private const CLASSIC_EDITOR_ASSISTANT_MODULE = 'classic_editor_assistant';
     private const BLOCK_EDITOR_ASSISTANT_MODULE = 'block_editor_assistant';
 
@@ -526,7 +525,6 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
             'settings',
             self::BULK_ASSISTANT_MODULE,
             self::ROW_ASSISTANT_MODULE,
-            self::WOOCOMMERCE_ASSISTANT_MODULE,
             self::CLASSIC_EDITOR_ASSISTANT_MODULE,
             self::BLOCK_EDITOR_ASSISTANT_MODULE,
         ]);
@@ -547,10 +545,6 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
 
     private function can_access_list_screen_tools(string $post_type): bool
     {
-        if ($post_type === 'product') {
-            return AIPKit_Role_Manager::user_can_access_module(self::WOOCOMMERCE_ASSISTANT_MODULE);
-        }
-
         return AIPKit_Role_Manager::user_can_access_any_module([
             self::BULK_ASSISTANT_MODULE,
             self::ROW_ASSISTANT_MODULE,
@@ -895,12 +889,33 @@ class AIPKit_Vector_Post_Processor_Assets extends AIPKit_Admin_Asset_Base
                     'aipkit_add_to_vector_store_btn',
                     __('Index', 'gpt3-ai-content-generator'),
                     [
-                        'capability' => 'edit_posts',
                         'post_types' => array_values(array_unique(array_map('sanitize_key', (array) $post_types))),
+                        'access_callback' => [__CLASS__, 'current_user_can_access_index_button'],
                     ]
                 );
             }
         });
+    }
+
+    public static function current_user_can_access_index_button(string $post_type): bool
+    {
+        if (! AIPKit_Role_Manager::user_can_access_module(self::MODULE_SLUG)) {
+            return false;
+        }
+
+        return self::current_user_can_edit_post_type($post_type);
+    }
+
+    private static function current_user_can_edit_post_type(string $post_type): bool
+    {
+        $post_type_object = get_post_type_object($post_type);
+        $capability = 'edit_posts';
+
+        if ($post_type_object && isset($post_type_object->cap->edit_posts)) {
+            $capability = (string) $post_type_object->cap->edit_posts;
+        }
+
+        return current_user_can($capability);
     }
 
     public function enqueue_assets($hook_suffix)

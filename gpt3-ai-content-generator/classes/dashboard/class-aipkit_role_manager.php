@@ -23,7 +23,6 @@ class AIPKit_Role_Manager
     private const ASSISTANT_UTILITY_MODULES = [
         'bulk_assistant',
         'row_assistant',
-        'woocommerce_assistant',
         'classic_editor_assistant',
         'block_editor_assistant',
     ];
@@ -82,20 +81,16 @@ class AIPKit_Role_Manager
                 'description' => __('Tools that appear inside normal WordPress post, page, product, and editor screens.', 'gpt3-ai-content-generator'),
                 'modules' => [
                     'bulk_assistant' => [
-                        'label' => __('Bulk Assistant', 'gpt3-ai-content-generator'),
-                        'description' => __('Show the Assistant button on non-product post list screens.', 'gpt3-ai-content-generator'),
+                        'label' => __('Content Assistant', 'gpt3-ai-content-generator'),
+                        'description' => __('Show the Assistant button on supported post and product list screens.', 'gpt3-ai-content-generator'),
                     ],
                     'row_assistant' => [
                         'label' => __('Row Assistant Menu', 'gpt3-ai-content-generator'),
-                        'description' => __('Show per-row Assistant actions on non-product post list screens.', 'gpt3-ai-content-generator'),
+                        'description' => __('Show per-row Assistant actions on supported post and product list screens.', 'gpt3-ai-content-generator'),
                     ],
                     'vector_content_indexer' => [
                         'label' => __('Content Indexing', 'gpt3-ai-content-generator'),
                         'description' => __('Show Index button and indexing tools on supported post lists.', 'gpt3-ai-content-generator'),
-                    ],
-                    'woocommerce_assistant' => [
-                        'label' => __('WooCommerce Assistant', 'gpt3-ai-content-generator'),
-                        'description' => __('Show Assistant tools on WooCommerce product list screens.', 'gpt3-ai-content-generator'),
                     ],
                     'classic_editor_assistant' => [
                         'label' => __('Classic Editor Assistant', 'gpt3-ai-content-generator'),

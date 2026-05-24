@@ -23,9 +23,14 @@ class Core
 {
     public const BULK_ASSISTANT_MODULE = 'bulk_assistant';
     public const ROW_ASSISTANT_MODULE = 'row_assistant';
-    public const WOOCOMMERCE_ASSISTANT_MODULE = 'woocommerce_assistant';
     public const CLASSIC_EDITOR_ASSISTANT_MODULE = 'classic_editor_assistant';
     public const BLOCK_EDITOR_ASSISTANT_MODULE = 'block_editor_assistant';
+
+    /** @var bool */
+    private $list_screen_hooks_registered = false;
+
+    /** @var array<int, string> */
+    private $list_screen_post_types = [];
 
     /**
      * Registers hooks.
@@ -69,33 +74,14 @@ class Core
             }
         }
 
-        // --- MODIFICATION: Dynamically support all public post types by default ---
-        $public_post_types = get_post_types(['public' => true]);
-        unset($public_post_types['attachment']);
-        $post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
-        // --- END MODIFICATION ---
-        foreach ($post_types as $post_type) {
-            add_filter("{$post_type}_row_actions", [$this, 'add_row_actions'], 10, 2);
+        if (did_action('admin_init')) {
+            $this->register_list_screen_hooks();
+        } else {
+            add_action('admin_init', [$this, 'register_list_screen_hooks'], 1);
         }
+
         $aipkit_options = get_option('aipkit_options', []);
         $enhancer_editor_integration_enabled = $aipkit_options['enhancer_settings']['editor_integration'] ?? '1';
-        $enhancer_list_button_enabled = $aipkit_options['enhancer_settings']['show_list_button'] ?? '1';
-
-        // Register Assistant button via shared utility (list screens)
-        if ($enhancer_list_button_enabled === '1') {
-            AIPKit_Admin_Header_Action_Buttons::register_button(
-                'aipkit_bulk_enhance_btn',
-                'Assistant',
-                [
-                    'capability' => 'edit_posts',
-                    'post_types' => array_values(array_unique(array_map('sanitize_key', (array) $post_types))),
-                    'access_callback' => [__CLASS__, 'current_user_can_access_bulk_button'],
-                    'label_callback' => static function (): string {
-                        return __('Assistant', 'gpt3-ai-content-generator');
-                    },
-                ]
-            );
-        }
 
         if ($enhancer_editor_integration_enabled === '1') {
             // --- NEW: Add hooks for TinyMCE button ---
@@ -106,22 +92,62 @@ class Core
         }
     }
 
+    public function register_list_screen_hooks()
+    {
+        if ($this->list_screen_hooks_registered) {
+            return;
+        }
+        $this->list_screen_hooks_registered = true;
+
+        // --- MODIFICATION: Dynamically support all public post types by default ---
+        $public_post_types = get_post_types(['public' => true]);
+        unset($public_post_types['attachment']);
+        $post_types = apply_filters('aipkit_post_enhancer_post_types', array_keys($public_post_types));
+        $post_types = array_values(array_unique(array_filter(array_map('sanitize_key', (array) $post_types))));
+        $this->list_screen_post_types = $post_types;
+        // --- END MODIFICATION ---
+        add_filter('post_row_actions', [$this, 'add_row_actions'], 10, 2);
+        add_filter('page_row_actions', [$this, 'add_row_actions'], 10, 2);
+        $aipkit_options = get_option('aipkit_options', []);
+        $enhancer_list_button_enabled = $aipkit_options['enhancer_settings']['show_list_button'] ?? '1';
+
+        // Register Assistant button via shared utility (list screens)
+        if ($enhancer_list_button_enabled === '1') {
+            AIPKit_Admin_Header_Action_Buttons::register_button(
+                'aipkit_bulk_enhance_btn',
+                'Assistant',
+                [
+                    'post_types' => $post_types,
+                    'access_callback' => [__CLASS__, 'current_user_can_access_bulk_button'],
+                    'label_callback' => static function (): string {
+                        return __('Assistant', 'gpt3-ai-content-generator');
+                    },
+                ]
+            );
+        }
+    }
+
     // (REMOVED) Legacy filters-bar button hook & method eliminated; header button handled by shared utility.
 
     public static function current_user_can_access_bulk_button(string $post_type): bool
     {
-        $required_module = $post_type === 'product'
-            ? self::WOOCOMMERCE_ASSISTANT_MODULE
-            : self::BULK_ASSISTANT_MODULE;
+        if (!self::current_user_can_edit_post_type($post_type)) {
+            return false;
+        }
 
-        return AIPKit_Role_Manager::user_can_access_module($required_module);
+        return AIPKit_Role_Manager::user_can_access_module(self::BULK_ASSISTANT_MODULE);
     }
 
-    private function get_row_assistant_module_for_post_type(string $post_type): string
+    private static function current_user_can_edit_post_type(string $post_type): bool
     {
-        return $post_type === 'product'
-            ? self::WOOCOMMERCE_ASSISTANT_MODULE
-            : self::ROW_ASSISTANT_MODULE;
+        $post_type_object = get_post_type_object($post_type);
+        $capability = 'edit_posts';
+
+        if ($post_type_object && isset($post_type_object->cap->edit_posts)) {
+            $capability = (string) $post_type_object->cap->edit_posts;
+        }
+
+        return current_user_can($capability);
     }
 
     /**
@@ -137,15 +163,17 @@ class Core
     {
         $aipkit_options = get_option('aipkit_options', []);
         $enhancer_list_button_enabled = $aipkit_options['enhancer_settings']['show_list_button'] ?? '1';
+        if (!in_array((string) $post->post_type, $this->list_screen_post_types, true)) {
+            return $actions;
+        }
+
         if ($enhancer_list_button_enabled !== '1') {
             return $actions;
         }
 
-        $required_module = $this->get_row_assistant_module_for_post_type((string) $post->post_type);
-
         // Check if user has permission for the utility AND can edit this post
         if (
-            AIPKit_Role_Manager::user_can_access_module($required_module) &&
+            AIPKit_Role_Manager::user_can_access_module(self::ROW_ASSISTANT_MODULE) &&
             current_user_can('edit_post', $post->ID)
         ) {
             // --- Main Enhancer Action with Dropdown ---

@@ -17,7 +17,6 @@ abstract class AIPKit_Post_Enhancer_Base_Ajax_Action
     public const CONTENT_WRITER_MODULE = 'content-writer';
     public const BULK_ASSISTANT_MODULE = 'bulk_assistant';
     public const ROW_ASSISTANT_MODULE = 'row_assistant';
-    public const WOOCOMMERCE_ASSISTANT_MODULE = 'woocommerce_assistant';
     public const CLASSIC_EDITOR_ASSISTANT_MODULE = 'classic_editor_assistant';
     public const BLOCK_EDITOR_ASSISTANT_MODULE = 'block_editor_assistant';
 
@@ -74,11 +73,7 @@ abstract class AIPKit_Post_Enhancer_Base_Ajax_Action
 
     private function check_post_utility_permission(\WP_Post $post, string $non_product_module_slug): bool|\WP_Error
     {
-        $module_slug = $post->post_type === 'product'
-            ? self::WOOCOMMERCE_ASSISTANT_MODULE
-            : $non_product_module_slug;
-
-        return AIPKit_Role_Manager::user_can_access_module($module_slug)
+        return AIPKit_Role_Manager::user_can_access_module($non_product_module_slug)
             ? true
             : new WP_Error('permission_denied_module', __('You do not have permission to use this feature.', 'gpt3-ai-content-generator'), ['status' => 403]);
     }
