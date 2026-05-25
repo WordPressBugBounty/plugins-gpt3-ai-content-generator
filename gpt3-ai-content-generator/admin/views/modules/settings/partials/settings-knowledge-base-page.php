@@ -15,12 +15,8 @@ $kb_upgrade_url = function_exists('wpaicg_gacg_fs')
 
 $kb_training_general_settings = get_option('aipkit_training_general_settings', [
     'hide_user_uploads' => true,
-    'show_index_button' => true,
 ]);
 $kb_hide_user_uploads_checked = $kb_training_general_settings['hide_user_uploads'] ?? true;
-$kb_show_index_button_checked = $kb_training_general_settings['show_index_button'] ?? true;
-$kb_hide_user_uploads_value = $kb_hide_user_uploads_checked ? '1' : '0';
-$kb_show_index_button_value = $kb_show_index_button_checked ? '1' : '0';
 $kb_chunk_avg_chars = isset($kb_training_general_settings['chunk_avg_chars_per_token'])
     ? (int) $kb_training_general_settings['chunk_avg_chars_per_token']
     : 4;
@@ -138,6 +134,21 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
             <button
                 type="button"
                 class="aipkit_settings_kb_tab"
+                id="aipkit_settings_kb_tab_batches"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_settings_kb_panel_batches"
+                data-aipkit-kb-tab="batches"
+                tabindex="-1"
+            >
+                <span><?php esc_html_e('Batches', 'gpt3-ai-content-generator'); ?></span>
+                <?php if (!$kb_is_pro) : ?>
+                    <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                <?php endif; ?>
+            </button>
+            <button
+                type="button"
+                class="aipkit_settings_kb_tab"
                 id="aipkit_settings_kb_tab_content_rules"
                 role="tab"
                 aria-selected="false"
@@ -185,7 +196,7 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                         <button
                             type="button"
                             id="aipkit_open_semantic_search_settings_modal"
-                            class="button button-secondary aipkit_btn aipkit_settings_kb_semantic_modal_btn"
+                            class="aipkit_btn aipkit_btn-secondary aipkit_settings_kb_semantic_modal_btn"
                             aria-haspopup="dialog"
                             aria-controls="aipkit_semantic_search_settings_modal"
                         >
@@ -330,33 +341,24 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                 <div class="aipkit_settings_kb_group_title"><?php esc_html_e('Others', 'gpt3-ai-content-generator'); ?></div>
                 </div>
             <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_kb_hide_uploads_row">
-            <label class="aipkit_form-label" for="aipkit_hide_user_uploads_select">
+            <label class="aipkit_form-label" for="aipkit_hide_user_uploads">
                 <?php esc_html_e('Hide user uploads', 'gpt3-ai-content-generator'); ?>
                 <span class="aipkit_form-label-helper"><?php esc_html_e('Hide user-uploaded files from Data tab.', 'gpt3-ai-content-generator'); ?></span>
             </label>
-            <select
-                id="aipkit_hide_user_uploads_select"
-                name="hide_user_uploads"
-                class="aipkit_form-input"
-            >
-                <option value="1" <?php selected($kb_hide_user_uploads_value, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
-                <option value="0" <?php selected($kb_hide_user_uploads_value, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
-            </select>
-            </div>
-            <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_kb_show_index_button_row">
-            <label class="aipkit_form-label" for="aipkit_show_index_button_select">
-                <?php esc_html_e('Show index button', 'gpt3-ai-content-generator'); ?>
-                <span class="aipkit_form-label-helper"><?php esc_html_e('Show indexing button on Post list screen.', 'gpt3-ai-content-generator'); ?></span>
+            <label class="aipkit_settings_big_checkbox" for="aipkit_hide_user_uploads">
+                <input
+                    type="checkbox"
+                    id="aipkit_hide_user_uploads"
+                    name="hide_user_uploads"
+                    value="1"
+                    <?php checked((bool) $kb_hide_user_uploads_checked); ?>
+                />
+                <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                    <span class="dashicons dashicons-yes"></span>
+                </span>
+                <span class="aipkit_settings_big_checkbox_text" aria-hidden="true"></span>
             </label>
-            <select
-                id="aipkit_show_index_button_select"
-                name="show_index_button"
-                class="aipkit_form-input"
-            >
-                <option value="1" <?php selected($kb_show_index_button_value, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
-                <option value="0" <?php selected($kb_show_index_button_value, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
-            </select>
-                </div>
+            </div>
             </div>
         </section>
         <section
@@ -372,7 +374,7 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                 <div class="aipkit_settings_kb_block_header">
                     <div class="aipkit_settings_kb_group_title">
                         <span class="aipkit_settings_kb_label_line">
-                        <span><?php esc_html_e('Chunking & Batches', 'gpt3-ai-content-generator'); ?></span>
+                        <span><?php esc_html_e('Chunking', 'gpt3-ai-content-generator'); ?></span>
                         <?php if (!$kb_is_pro) : ?>
                             <a
                                 class="button aipkit_btn aipkit_btn-primary aipkit_settings_kb_upgrade_btn aipkit_settings_kb_header_upgrade_btn"
@@ -486,13 +488,46 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                 <?php echo !$kb_is_pro ? 'disabled' : ''; ?>
             />
             </div>
-            <?php
-            $kb_embedding_batches_partial = defined('WPAICG_LIB_DIR')
-                ? WPAICG_LIB_DIR . 'views/modules/settings/partials/embedding-batches.php'
-                : '';
-            if ($kb_embedding_batches_partial && file_exists($kb_embedding_batches_partial)) {
-                include $kb_embedding_batches_partial;
-            }
+            </div>
+        </section>
+
+        <section
+            class="aipkit_settings_kb_group aipkit_settings_kb_tab_panel"
+            id="aipkit_settings_kb_panel_batches"
+            role="tabpanel"
+            aria-labelledby="aipkit_settings_kb_tab_batches"
+            data-aipkit-kb-tab-panel="batches"
+            data-aipkit-kb-section="embedding-batches"
+            data-aipkit-settings-autosave-exclude="true"
+            hidden
+        >
+            <div class="aipkit_settings_kb_block aipkit_settings_kb_block--embedding-batches">
+                <div class="aipkit_settings_kb_block_header">
+                    <div class="aipkit_settings_kb_group_title">
+                        <span class="aipkit_settings_kb_label_line">
+                            <span><?php esc_html_e('Embedding Batches', 'gpt3-ai-content-generator'); ?></span>
+                            <?php if (!$kb_is_pro) : ?>
+                                <a
+                                    class="button aipkit_btn aipkit_btn-primary aipkit_settings_kb_upgrade_btn aipkit_settings_kb_header_upgrade_btn"
+                                    href="<?php echo esc_url($kb_upgrade_url); ?>"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
+                                </a>
+                            <?php endif; ?>
+                        </span>
+                    </div>
+                </div>
+                <?php
+                $aipkit_batch_show_summary = false;
+                $kb_embedding_batches_partial = defined('WPAICG_LIB_DIR')
+                    ? WPAICG_LIB_DIR . 'views/modules/settings/partials/embedding-batches.php'
+                    : '';
+                if ($kb_embedding_batches_partial && file_exists($kb_embedding_batches_partial)) {
+                    include $kb_embedding_batches_partial;
+                }
+                unset($aipkit_batch_show_summary);
                 ?>
             </div>
         </section>
@@ -536,7 +571,7 @@ $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'c
                 <button
                     type="button"
                     id="aipkit_open_indexing_settings_modal"
-                    class="button button-secondary aipkit_btn aipkit_settings_kb_indexing_modal_btn"
+                    class="aipkit_btn aipkit_btn-secondary aipkit_settings_kb_indexing_modal_btn"
                     aria-haspopup="dialog"
                     aria-controls="aipkit_indexing_settings_modal"
                 >

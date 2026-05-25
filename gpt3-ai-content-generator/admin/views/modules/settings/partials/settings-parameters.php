@@ -172,22 +172,6 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
                 </div>
             </div>
         </div>
-        <div class="aipkit_settings_advanced_row aipkit_openai_store_field">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_openai_store"><?php esc_html_e('Store Conversation', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Save chat history.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <select
-                    id="aipkit_openai_store"
-                    name="openai_store_conversation"
-                    class="aipkit_form-input aipkit_popover_option_select aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger"
-                >
-                    <option value="0" <?php selected((string) $openai_store_conversation, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="1" <?php selected((string) $openai_store_conversation, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
-                </select>
-            </div>
-        </div>
         <?php if ($is_pro): ?>
         <div class="aipkit_settings_advanced_row aipkit_openai_expiration_policy_field">
             <div class="aipkit_settings_advanced_label_wrap">
@@ -208,20 +192,48 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
             </div>
         </div>
         <?php endif; ?>
+        <div class="aipkit_settings_advanced_row aipkit_openai_store_field">
+            <div class="aipkit_settings_advanced_label_wrap">
+                <label class="aipkit_settings_advanced_label" for="aipkit_openai_store"><?php esc_html_e('Store Conversation', 'gpt3-ai-content-generator'); ?></label>
+                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Save chat history on OpenAI server.', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_settings_advanced_control">
+                <label class="aipkit_settings_big_checkbox" for="aipkit_openai_store">
+                    <input
+                        type="checkbox"
+                        id="aipkit_openai_store"
+                        name="openai_store_conversation"
+                        class="aipkit_autosave_trigger"
+                        value="1"
+                        <?php checked((string) $openai_store_conversation, '1'); ?>
+                    />
+                    <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                        <span class="dashicons dashicons-saved"></span>
+                    </span>
+                    <span class="aipkit_settings_big_checkbox_text" aria-hidden="true"></span>
+                </label>
+            </div>
+        </div>
         <div class="aipkit_settings_advanced_row">
             <div class="aipkit_settings_advanced_label_wrap">
                 <label class="aipkit_settings_advanced_label" for="aipkit_settings_openai_moderation_enabled"><?php esc_html_e('Moderation', 'gpt3-ai-content-generator'); ?></label>
                 <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Moderate user input.', 'gpt3-ai-content-generator'); ?></span>
             </div>
             <div class="aipkit_settings_advanced_control">
-                <select
-                    id="aipkit_settings_openai_moderation_enabled"
-                    name="security[openai_moderation_enabled]"
-                    class="aipkit_form-input aipkit_popover_option_select aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger"
-                >
-                    <option value="1" <?php selected($openai_moderation_enabled, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="0" <?php selected($openai_moderation_enabled, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
-                </select>
+                <label class="aipkit_settings_big_checkbox" for="aipkit_settings_openai_moderation_enabled">
+                    <input
+                        type="checkbox"
+                        id="aipkit_settings_openai_moderation_enabled"
+                        name="security[openai_moderation_enabled]"
+                        class="aipkit_autosave_trigger"
+                        value="1"
+                        <?php checked($openai_moderation_enabled, '1'); ?>
+                    />
+                    <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                        <span class="dashicons dashicons-saved"></span>
+                    </span>
+                    <span class="aipkit_settings_big_checkbox_text" aria-hidden="true"></span>
+                </label>
             </div>
         </div>
         <div

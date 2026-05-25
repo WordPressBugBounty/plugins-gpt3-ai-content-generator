@@ -461,13 +461,13 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                     <span class="aipkit_sources_bulk_progress" id="aipkit_sources_bulk_progress" aria-live="polite"></span>
                 </div>
                 <div class="aipkit_sources_bulk_actions">
-                    <button type="button" class="aipkit_btn aipkit_btn-danger aipkit_btn-small aipkit_sources_bulk_delete">
+                    <button type="button" class="aipkit_btn aipkit_btn-danger aipkit_sources_bulk_delete">
                         <?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?>
                     </button>
-                    <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_sources_bulk_retry" hidden>
+                    <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_sources_bulk_retry" hidden>
                         <?php esc_html_e('Retry failed', 'gpt3-ai-content-generator'); ?>
                     </button>
-                    <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_sources_bulk_clear">
+                    <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_sources_bulk_clear">
                         <?php esc_html_e('Clear', 'gpt3-ai-content-generator'); ?>
                     </button>
                 </div>
@@ -749,48 +749,6 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
             <div class="aipkit_builder_action_row aipkit_sources_view_actions">
                 <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_sources_view_close_btn">
                     <?php esc_html_e('Close', 'gpt3-ai-content-generator'); ?>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div
-    class="aipkit-modal-overlay aipkit_builder_sources_delete_modal"
-    id="aipkit_sources_delete_modal"
-    aria-hidden="true"
->
-    <div
-        class="aipkit-modal-content"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="aipkit_sources_delete_title"
-        aria-describedby="aipkit_sources_delete_description"
-    >
-        <div class="aipkit-modal-header">
-            <div>
-                <h3 class="aipkit-modal-title" id="aipkit_sources_delete_title">
-                    <?php esc_html_e('Delete source', 'gpt3-ai-content-generator'); ?>
-                </h3>
-                <p class="aipkit_builder_modal_subtitle" id="aipkit_sources_delete_description">
-                    <?php esc_html_e('This cannot be undone. The source will be removed from your knowledge base.', 'gpt3-ai-content-generator'); ?>
-                </p>
-            </div>
-            <button
-                type="button"
-                class="aipkit-modal-close-btn aipkit_sources_delete_close"
-                aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
-            >
-                <span class="dashicons dashicons-no-alt"></span>
-            </button>
-        </div>
-        <div class="aipkit-modal-body">
-            <div class="aipkit_builder_action_row">
-                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_sources_delete_cancel">
-                    <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
-                </button>
-                <button type="button" class="aipkit_btn aipkit_btn-danger aipkit_sources_delete_confirm">
-                    <?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?>
                 </button>
             </div>
         </div>

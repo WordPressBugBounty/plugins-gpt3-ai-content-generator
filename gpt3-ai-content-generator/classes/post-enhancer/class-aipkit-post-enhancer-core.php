@@ -66,11 +66,6 @@ class Core
                 // --- ADDED: Register new text processing hook ---
                 add_action('wp_ajax_aipkit_process_enhancer_text', [$ajax_handler, 'ajax_process_enhancer_text']);
                 // --- END ADDED ---
-                // --- NEW: Add hooks for Actions CRUD ---
-                add_action('wp_ajax_aipkit_get_enhancer_actions', [$ajax_handler, 'ajax_get_enhancer_actions']);
-                add_action('wp_ajax_aipkit_save_enhancer_action', [$ajax_handler, 'ajax_save_enhancer_action']);
-                add_action('wp_ajax_aipkit_delete_enhancer_action', [$ajax_handler, 'ajax_delete_enhancer_action']);
-                // --- END NEW ---
             }
         }
 

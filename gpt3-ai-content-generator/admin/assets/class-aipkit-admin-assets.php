@@ -571,15 +571,6 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
             return;
         }
 
-        $opts = get_option('aipkit_options', []);
-        $default_insert_position = isset($opts['enhancer_settings']['default_insert_position'])
-            ? sanitize_key($opts['enhancer_settings']['default_insert_position'])
-            : 'replace';
-
-        if (! in_array($default_insert_position, ['replace', 'after', 'before'], true)) {
-            $default_insert_position = 'replace';
-        }
-
         $default_ai_config = AIPKit_Providers::get_default_provider_config();
         $default_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
         $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('post_enhancer_ui');
@@ -618,8 +609,9 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
             'embeddingProviderMap' => $embedding_localization['embeddingProviderMap'],
             'embeddingModelsByProvider' => $embedding_localization['embeddingModelsByProvider'],
             'actions' => $enhancer_actions,
+            'can_manage_actions' => AIPKit_Role_Manager::user_can_access_module(AIPKit_Enhancer_Actions_Ajax_Handler::MODULE_SLUG),
+            'max_actions' => AIPKit_Enhancer_Actions_Ajax_Handler::MAX_ACTIONS,
             'parse_html_formats' => (bool) apply_filters('aipkit_enhancer_enable_formatting', true),
-            'default_insert_position' => $default_insert_position,
             'text' => [
                 'modal_title_title' => __('Title Suggestions', 'gpt3-ai-content-generator'),
                 'loading_title' => __('Generating Title Suggestions...', 'gpt3-ai-content-generator'),
@@ -653,26 +645,40 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
                 'loading_info_template' => __('Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)', 'gpt3-ai-content-generator'),
                 'close' => __('Close', 'gpt3-ai-content-generator'),
                 'config_modal_title' => __('Configure AI Actions', 'gpt3-ai-content-generator'),
-                'add_new_action' => __('Add New', 'gpt3-ai-content-generator'),
-                'edit_action' => __('Edit', 'gpt3-ai-content-generator'),
+                'customize_actions' => __('Customize menu...', 'gpt3-ai-content-generator'),
+                'assistant_menu_title' => __('Assistant Menu', 'gpt3-ai-content-generator'),
+                'assistant_menu_description' => __('Customize editor Assistant menu items.', 'gpt3-ai-content-generator'),
+                'assistant_menu_items' => __('Menu items', 'gpt3-ai-content-generator'),
+                'add_action' => __('Add Item', 'gpt3-ai-content-generator'),
+                'new_action' => __('New menu item', 'gpt3-ai-content-generator'),
+                'move_up' => __('Move up', 'gpt3-ai-content-generator'),
+                'move_down' => __('Move down', 'gpt3-ai-content-generator'),
                 'delete_action' => __('Delete', 'gpt3-ai-content-generator'),
                 'action_label' => __('Action Label', 'gpt3-ai-content-generator'),
                 'action_prompt' => __('Action Prompt', 'gpt3-ai-content-generator'),
                 'insert_position' => __('Position', 'gpt3-ai-content-generator'),
-                'use_default_position' => __('Use default', 'gpt3-ai-content-generator'),
                 'replace_selection' => __('Replace selection', 'gpt3-ai-content-generator'),
                 'insert_after' => __('Insert after', 'gpt3-ai-content-generator'),
                 'insert_before' => __('Insert before', 'gpt3-ai-content-generator'),
-                'reset_actions' => __('Reset to Defaults', 'gpt3-ai-content-generator'),
+                'reset_actions' => __('Reset', 'gpt3-ai-content-generator'),
                 'confirm_reset_actions' => __('Reset all actions to the default set? This will replace current customizations.', 'gpt3-ai-content-generator'),
                 'actions_reset' => __('Actions reset to defaults.', 'gpt3-ai-content-generator'),
-                'save_action' => __('Save Action', 'gpt3-ai-content-generator'),
+                'save_action' => __('Save', 'gpt3-ai-content-generator'),
                 'saving_action' => __('Saving...', 'gpt3-ai-content-generator'),
                 'confirm_delete_action' => __('Are you sure you want to delete this action? This cannot be undone.', 'gpt3-ai-content-generator'),
                 'deleting_action' => __('Deleting...', 'gpt3-ai-content-generator'),
                 'action_deleted' => __('Action deleted.', 'gpt3-ai-content-generator'),
                 'action_saved' => __('Action saved.', 'gpt3-ai-content-generator'),
                 'loading_actions' => __('Loading actions...', 'gpt3-ai-content-generator'),
+                'loading_failed' => __('Failed to load actions.', 'gpt3-ai-content-generator'),
+                'label_required' => __('Label is required.', 'gpt3-ai-content-generator'),
+                'prompt_required' => __('Prompt is required.', 'gpt3-ai-content-generator'),
+                'max_actions_reached' => __('Maximum actions reached.', 'gpt3-ai-content-generator'),
+                'saving_order' => __('Saving order...', 'gpt3-ai-content-generator'),
+                'order_saved' => __('Order saved.', 'gpt3-ai-content-generator'),
+                'resetting_actions' => __('Resetting...', 'gpt3-ai-content-generator'),
+                'error' => __('Error', 'gpt3-ai-content-generator'),
+                'save' => __('Save', 'gpt3-ai-content-generator'),
                 /* translators: %s: placeholder token that will be replaced by the selected text. */
                 'prompt_placeholder_info' => __('Use %s as a placeholder for the selected text.', 'gpt3-ai-content-generator'),
             ],
@@ -1290,8 +1296,6 @@ class AIPKit_AI_Forms_Assets extends AIPKit_Admin_Asset_Base
                 'errorDeletingForm' => __('Error deleting form.', 'gpt3-ai-content-generator'),
                 'errorDeletingAllForms' => __('Error deleting all forms.', 'gpt3-ai-content-generator'),
                 'errorDuplicatingForm' => __('Error duplicating form.', 'gpt3-ai-content-generator'),
-                'confirmDeleteForm' => __('Are you sure you want to delete this form? This action cannot be undone.', 'gpt3-ai-content-generator'),
-                'confirmDeleteAllForms' => __('Are you sure you want to delete ALL forms? This action cannot be undone.', 'gpt3-ai-content-generator'),
                 'confirmReplaceGeneratedDraft' => __('Generating a new draft will replace the current title, prompt, and fields in the editor. Continue?', 'gpt3-ai-content-generator'),
                 'formTitleRequired' => __('Form title is required.', 'gpt3-ai-content-generator'),
                 'promptTemplateRequired' => __('Prompt template is required.', 'gpt3-ai-content-generator'),

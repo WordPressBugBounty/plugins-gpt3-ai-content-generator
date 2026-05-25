@@ -33,6 +33,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'label' => __('Rewrite', 'gpt3-ai-content-generator'),
                 /* translators: %s: The text to be rewritten */
                 'prompt' => __('Rewrite this to improve clarity and engagement: "%s"', 'gpt3-ai-content-generator'),
+                'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
@@ -40,6 +41,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'label' => __('Expand', 'gpt3-ai-content-generator'),
                 /* translators: %s: The text to be expanded */
                 'prompt' => __('Expand on the following point: "%s"', 'gpt3-ai-content-generator'),
+                'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
@@ -47,6 +49,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'label' => __('Fix Grammar & Spelling', 'gpt3-ai-content-generator'),
                 /* translators: %s: The text to be corrected */
                 'prompt' => __('Correct any spelling and grammar mistakes in the following text: "%s"', 'gpt3-ai-content-generator'),
+                'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
@@ -54,6 +57,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'label' => __('Summarize', 'gpt3-ai-content-generator'),
                 /* translators: %s: The text to be summarized */
                 'prompt' => __('Summarize the following text in 3–5 concise sentences while preserving key facts and tone: "%s"', 'gpt3-ai-content-generator'),
+                'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
@@ -61,6 +65,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'label' => __('Create Outline (H2/H3)', 'gpt3-ai-content-generator'),
                 /* translators: %s: The text to outline */
                 'prompt' => __('Create a clear outline from the following text using headings (## for H2, ### for H3) and short bullets as needed: "%s"', 'gpt3-ai-content-generator'),
+                'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
@@ -68,6 +73,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'label' => __('Generate FAQs', 'gpt3-ai-content-generator'),
                 /* translators: %s: The text to generate FAQs from */
                 'prompt' => __('Generate 5–7 relevant FAQ questions and short answers based on this text. Use a simple Q/A format in Markdown. Text: "%s"', 'gpt3-ai-content-generator'),
+                'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
@@ -75,6 +81,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'label' => __('Simplify Tone', 'gpt3-ai-content-generator'),
                 /* translators: %s: The text to be simplified */
                 'prompt' => __('Rewrite the following in a friendly, simple tone (grade 7–8 readability) while preserving meaning and structure: "%s"', 'gpt3-ai-content-generator'),
+                'insert_position' => 'replace',
                 'is_default' => true
             ],
         ];
@@ -125,7 +132,9 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
 
         $actions = get_option(self::OPTION_NAME, $this->get_default_actions_public());
         if (!is_array($actions) || empty($actions)) {
-            wp_send_json_success(['actions' => []]);
+            wp_send_json_success([
+                'actions' => [],
+            ]);
         }
 
         $actions_by_id = [];
@@ -178,7 +187,9 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
             $actions = $this->get_default_actions_public();
         }
 
-        wp_send_json_success(['actions' => $actions]);
+        wp_send_json_success([
+            'actions' => $actions,
+        ]);
     }
 
     /**
@@ -197,8 +208,9 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         $action_id = isset($post_data['id']) && !empty($post_data['id']) ? sanitize_text_field((string) $post_data['id']) : null;
         $label = isset($post_data['label']) ? sanitize_text_field((string) $post_data['label']) : '';
         $prompt = isset($post_data['prompt']) ? sanitize_textarea_field((string) $post_data['prompt']) : '';
-        $insert_position_raw = isset($post_data['insert_position']) ? sanitize_key((string) $post_data['insert_position']) : null;
-        $allowed_positions = ['replace','after','before'];
+        $allowed_positions = ['replace', 'after', 'before'];
+        $insert_position_raw = isset($post_data['insert_position']) ? sanitize_key((string) $post_data['insert_position']) : 'replace';
+        $insert_position = in_array($insert_position_raw, $allowed_positions, true) ? $insert_position_raw : 'replace';
 
         if (empty($label) || empty($prompt)) {
             $this->send_wp_error(new WP_Error('missing_data', __('Label and prompt are required.', 'gpt3-ai-content-generator')));
@@ -220,13 +232,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                     }
                     $action['label'] = $label;
                     $action['prompt'] = $prompt;
-                    if ($insert_position_raw !== null) {
-                        if ($insert_position_raw === '' || $insert_position_raw === 'default') {
-                            unset($action['insert_position']);
-                        } elseif (in_array($insert_position_raw, $allowed_positions, true)) {
-                            $action['insert_position'] = $insert_position_raw;
-                        }
-                    }
+                    $action['insert_position'] = $insert_position;
                     $found = true;
                     break;
                 }
@@ -245,11 +251,9 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
                 'id' => 'custom-' . wp_generate_uuid4(),
                 'label' => $label,
                 'prompt' => $prompt,
+                'insert_position' => $insert_position,
                 'is_default' => false
             ];
-            if ($insert_position_raw && in_array($insert_position_raw, $allowed_positions, true)) {
-                $new_action['insert_position'] = $insert_position_raw;
-            }
             $actions[] = $new_action;
             $saved_action = $new_action;
         } else {
@@ -262,7 +266,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         update_option(self::OPTION_NAME, $actions, 'no');
         wp_send_json_success([
             'message' => __('Action saved successfully.', 'gpt3-ai-content-generator'),
-            'action' => $saved_action
+            'action' => $saved_action,
         ]);
     }
 
@@ -287,7 +291,10 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
 
         $actions = get_option(self::OPTION_NAME, []);
         if (!is_array($actions)) {
-            wp_send_json_success(['message' => __('No actions to delete.', 'gpt3-ai-content-generator')]);
+            wp_send_json_success([
+                'message' => __('No actions to delete.', 'gpt3-ai-content-generator'),
+                'actions' => [],
+            ]);
             return;
         }
 
@@ -296,6 +303,9 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         });
 
         update_option(self::OPTION_NAME, array_values($updated_actions), 'no');
-        wp_send_json_success(['message' => __('Action deleted successfully.', 'gpt3-ai-content-generator')]);
+        wp_send_json_success([
+            'message' => __('Action deleted successfully.', 'gpt3-ai-content-generator'),
+            'actions' => array_values($updated_actions),
+        ]);
     }
 }

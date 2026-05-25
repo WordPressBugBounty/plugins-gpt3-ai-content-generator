@@ -530,7 +530,11 @@ $ui_text_fields = [
                 </div>
             </div>
             <div class="aipkit_ai_forms_settings_block_body">
-                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--plain">
+                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--wide">
+                    <label class="aipkit_form-label" for="aipkit_image_generator_custom_css">
+                        <?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to the Custom theme.', 'gpt3-ai-content-generator'); ?></span>
+                    </label>
                     <textarea
                         id="aipkit_image_generator_custom_css"
                         name="custom_css"
@@ -557,7 +561,11 @@ $ui_text_fields = [
                 </div>
             </div>
             <div class="aipkit_ai_forms_settings_block_body">
-                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--plain">
+                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--wide">
+                    <div class="aipkit_form-label">
+                        <?php esc_html_e('Allowed Models', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Leave empty to show all models.', 'gpt3-ai-content-generator'); ?></span>
+                    </div>
                     <textarea
                         id="aipkit_image_gen_frontend_models"
                         name="frontend_models"

@@ -147,17 +147,20 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                 </div>
                 <div class="aipkit_form_editor_shell_controls">
                     <div id="aipkit_ai_forms_editor_actions" class="aipkit_form_editor_actions aipkit_form_editor_actions--header aipkit_form_editor_actions--shell" style="display: none;">
-                        <button type="button" id="aipkit_generate_ai_form_btn" class="aipkit_btn aipkit_btn-secondary">
-                            <span class="dashicons dashicons-admin-customizer"></span>
+                        <button type="button" id="aipkit_generate_ai_form_btn" class="aipkit_btn aipkit_btn-secondary aipkit_form_editor_action_btn aipkit_form_editor_action_btn--generate">
+                            <span class="dashicons dashicons-admin-customizer" aria-hidden="true"></span>
                             <span class="aipkit_btn-text"><?php esc_html_e('Generate with AI', 'gpt3-ai-content-generator'); ?></span>
                         </button>
-                        <button type="button" id="aipkit_preview_ai_form_btn" class="aipkit_btn aipkit_btn-secondary" disabled>
+                        <button type="button" id="aipkit_preview_ai_form_btn" class="aipkit_btn aipkit_btn-secondary aipkit_form_editor_action_btn aipkit_form_editor_action_btn--preview" disabled>
+                            <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                             <span class="aipkit_btn-text"><?php esc_html_e('Preview', 'gpt3-ai-content-generator'); ?></span>
                         </button>
-                        <button type="button" id="aipkit_cancel_edit_ai_form_btn" class="aipkit_btn aipkit_btn-secondary">
-                            <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
+                        <button type="button" id="aipkit_cancel_edit_ai_form_btn" class="aipkit_btn aipkit_btn-secondary aipkit_form_editor_action_btn aipkit_form_editor_action_btn--cancel">
+                            <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                            <span class="aipkit_btn-text"><?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?></span>
                         </button>
-                        <button type="button" id="aipkit_save_ai_form_btn" class="aipkit_btn aipkit_btn-primary">
+                        <button type="button" id="aipkit_save_ai_form_btn" class="aipkit_btn aipkit_btn-primary aipkit_form_editor_action_btn aipkit_form_editor_action_btn--save">
+                            <span class="dashicons dashicons-saved" aria-hidden="true"></span>
                             <span class="aipkit_btn-text"><?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?></span>
                             <span class="aipkit_spinner" style="display:none;"></span>
                         </button>

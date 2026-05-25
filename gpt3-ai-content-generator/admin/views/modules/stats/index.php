@@ -706,25 +706,40 @@ if ($woo_active) {
                                     <div class="aipkit_stats_shortcode_customization">
                                         <div class="aipkit_stats_shortcode_toggle_card">
                                             <div class="aipkit_stats_shortcode_toggles">
-                                                <label class="aipkit_checkbox-label">
+                                                <label class="aipkit_settings_big_checkbox aipkit_stats_shortcode_toggle_checkbox">
                                                     <input type="checkbox" name="cfg_show_buycredits" class="aipkit_stats_shortcode_option" value="1" checked>
-                                                    <span><?php esc_html_e('Show buy credits button', 'gpt3-ai-content-generator'); ?></span>
+                                                    <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                                                        <span class="dashicons dashicons-yes"></span>
+                                                    </span>
+                                                    <span class="aipkit_stats_shortcode_toggle_label"><?php esc_html_e('Show buy credits button', 'gpt3-ai-content-generator'); ?></span>
                                                 </label>
-                                                <label class="aipkit_checkbox-label">
+                                                <label class="aipkit_settings_big_checkbox aipkit_stats_shortcode_toggle_checkbox">
                                                     <input type="checkbox" name="cfg_show_purchasehistory" class="aipkit_stats_shortcode_option" value="1" checked>
-                                                    <span><?php esc_html_e('Show purchase history', 'gpt3-ai-content-generator'); ?></span>
+                                                    <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                                                        <span class="dashicons dashicons-yes"></span>
+                                                    </span>
+                                                    <span class="aipkit_stats_shortcode_toggle_label"><?php esc_html_e('Show purchase history', 'gpt3-ai-content-generator'); ?></span>
                                                 </label>
-                                                <label class="aipkit_checkbox-label">
+                                                <label class="aipkit_settings_big_checkbox aipkit_stats_shortcode_toggle_checkbox">
                                                     <input type="checkbox" name="cfg_show_chatbot" class="aipkit_stats_shortcode_option" value="1" checked>
-                                                    <span><?php esc_html_e('Show chatbot usage', 'gpt3-ai-content-generator'); ?></span>
+                                                    <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                                                        <span class="dashicons dashicons-yes"></span>
+                                                    </span>
+                                                    <span class="aipkit_stats_shortcode_toggle_label"><?php esc_html_e('Show chatbot usage', 'gpt3-ai-content-generator'); ?></span>
                                                 </label>
-                                                <label class="aipkit_checkbox-label">
+                                                <label class="aipkit_settings_big_checkbox aipkit_stats_shortcode_toggle_checkbox">
                                                     <input type="checkbox" name="cfg_show_aiforms" class="aipkit_stats_shortcode_option" value="1" checked>
-                                                    <span><?php esc_html_e('Show AI Forms usage', 'gpt3-ai-content-generator'); ?></span>
+                                                    <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                                                        <span class="dashicons dashicons-yes"></span>
+                                                    </span>
+                                                    <span class="aipkit_stats_shortcode_toggle_label"><?php esc_html_e('Show AI Forms usage', 'gpt3-ai-content-generator'); ?></span>
                                                 </label>
-                                                <label class="aipkit_checkbox-label">
+                                                <label class="aipkit_settings_big_checkbox aipkit_stats_shortcode_toggle_checkbox">
                                                     <input type="checkbox" name="cfg_show_imagegenerator" class="aipkit_stats_shortcode_option" value="1" checked>
-                                                    <span><?php esc_html_e('Show image generator usage', 'gpt3-ai-content-generator'); ?></span>
+                                                    <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                                                        <span class="dashicons dashicons-yes"></span>
+                                                    </span>
+                                                    <span class="aipkit_stats_shortcode_toggle_label"><?php esc_html_e('Show image generator usage', 'gpt3-ai-content-generator'); ?></span>
                                                 </label>
                                             </div>
                                         </div>
@@ -922,13 +937,16 @@ if ($woo_active) {
                     </div>
                     <div class="aipkit_stats_retention_setting_control aipkit_stats_retention_setting_control--toggle">
                         <?php if ($is_pro): ?>
-                            <label class="aipkit_switch">
+                            <label class="aipkit_settings_big_checkbox" for="aipkit_stats_auto_delete_toggle">
                                 <input
                                     type="checkbox"
                                     id="aipkit_stats_auto_delete_toggle"
                                     <?php checked($log_settings_enabled); ?>
                                 />
-                                <span class="aipkit_switch_slider"></span>
+                                <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                                    <span class="dashicons dashicons-yes"></span>
+                                </span>
+                                <span class="aipkit_settings_big_checkbox_text" aria-hidden="true"></span>
                             </label>
                         <?php endif; ?>
                         <?php if (!$is_pro): ?>

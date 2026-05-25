@@ -37,19 +37,26 @@ $banned_ips_message = (string) ($security_blocklists['banned_ips_message'] ?? ''
         <?php esc_html_e('IP Anonymization', 'gpt3-ai-content-generator'); ?>
         <span class="aipkit_form-label-helper"><?php esc_html_e('Store anonymized IPs in logs.', 'gpt3-ai-content-generator'); ?></span>
     </label>
-    <select
-        id="aipkit_settings_enable_ip_anonymization"
-        name="security[enable_ip_anonymization]"
-        class="aipkit_form-input aipkit_autosave_trigger"
-    >
-        <option value="1" <?php selected($enable_ip_anonymization, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
-        <option value="0" <?php selected($enable_ip_anonymization, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
-    </select>
+    <label class="aipkit_settings_big_checkbox" for="aipkit_settings_enable_ip_anonymization">
+        <input
+            type="checkbox"
+            id="aipkit_settings_enable_ip_anonymization"
+            name="security[enable_ip_anonymization]"
+            class="aipkit_autosave_trigger"
+            value="1"
+            <?php checked($enable_ip_anonymization, '1'); ?>
+        />
+        <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+            <span class="dashicons dashicons-saved"></span>
+        </span>
+        <span class="aipkit_settings_big_checkbox_text" aria-hidden="true"></span>
+    </label>
 </div>
 
 <div class="aipkit_form-group aipkit_settings_simple_row">
     <label class="aipkit_form-label" for="aipkit_settings_banned_words">
         <?php esc_html_e('Banned Words', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Block messages containing listed words or phrases.', 'gpt3-ai-content-generator'); ?></span>
     </label>
     <div class="aipkit_settings_security_field_group">
         <textarea
@@ -65,6 +72,7 @@ $banned_ips_message = (string) ($security_blocklists['banned_ips_message'] ?? ''
 <div class="aipkit_form-group aipkit_settings_simple_row">
     <label class="aipkit_form-label" for="aipkit_settings_banned_words_message">
         <?php esc_html_e('Banned Words Message', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Message shown when banned words are detected.', 'gpt3-ai-content-generator'); ?></span>
     </label>
     <div class="aipkit_settings_security_field_group">
         <input
@@ -85,6 +93,7 @@ $banned_ips_message = (string) ($security_blocklists['banned_ips_message'] ?? ''
 <div class="aipkit_form-group aipkit_settings_simple_row">
     <label class="aipkit_form-label" for="aipkit_settings_banned_ips">
         <?php esc_html_e('Banned IPs', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Block requests from listed IP addresses.', 'gpt3-ai-content-generator'); ?></span>
     </label>
     <div class="aipkit_settings_security_field_group">
         <textarea
@@ -100,6 +109,7 @@ $banned_ips_message = (string) ($security_blocklists['banned_ips_message'] ?? ''
 <div class="aipkit_form-group aipkit_settings_simple_row">
     <label class="aipkit_form-label" for="aipkit_settings_banned_ips_message">
         <?php esc_html_e('Banned IP Message', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Message shown when a blocked IP is detected.', 'gpt3-ai-content-generator'); ?></span>
     </label>
     <div class="aipkit_settings_security_field_group">
         <input

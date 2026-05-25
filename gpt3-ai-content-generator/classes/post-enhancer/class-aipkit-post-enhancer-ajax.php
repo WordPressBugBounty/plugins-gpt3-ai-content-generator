@@ -2,10 +2,7 @@
 
 namespace WPAICG\PostEnhancer;
 
-// Import the new namespace for Actions
 use WPAICG\PostEnhancer\Ajax\Actions;
-use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
-use WP_Error;
 
 // Load the base class and all action classes
 require_once __DIR__ . '/ajax/base/abstract-enhancer-ajax-action.php';
@@ -41,7 +38,6 @@ class AjaxHandler
     private $bulk_process_single_field_handler; // ADDED
     private $bulk_update_seo_slug_handler; // ADDED
     private $process_text_handler;
-    private $actions_handler; // ADDED
 
     public function __construct()
     {
@@ -57,7 +53,6 @@ class AjaxHandler
         $this->bulk_process_single_field_handler = new Actions\AIPKit_PostEnhancer_Bulk_Process_Single_Field(); // ADDED
         $this->bulk_update_seo_slug_handler = new Actions\AIPKit_PostEnhancer_Bulk_Update_SEO_Slug(); // ADDED
         $this->process_text_handler = new Actions\AIPKit_PostEnhancer_Process_Text();
-        $this->actions_handler = new AIPKit_Enhancer_Actions_Ajax_Handler(); // ADDED
     }
 
     public function generate_title_suggestions()
@@ -124,19 +119,4 @@ class AjaxHandler
     {
         $this->process_text_handler->handle();
     }
-
-    // --- ADDED: New handler methods ---
-    public function ajax_get_enhancer_actions()
-    {
-        $this->actions_handler->ajax_get_actions();
-    }
-    public function ajax_save_enhancer_action()
-    {
-        $this->actions_handler->ajax_save_action();
-    }
-    public function ajax_delete_enhancer_action()
-    {
-        $this->actions_handler->ajax_delete_action();
-    }
-    // --- END ADDED ---
 }

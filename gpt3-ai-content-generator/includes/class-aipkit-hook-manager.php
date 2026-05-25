@@ -48,8 +48,6 @@ use WPAICG\Lib\Chat\Frontend\Ajax\ChatFileUploadAjaxDispatcher as LibChatFileUpl
 use WPAICG\Dashboard\Ajax\SettingsAjaxHandler;
 use WPAICG\Dashboard\Ajax\AIPKit_Event_Webhook_Delivery_Issues_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\ModelsAjaxHandler;
-// --- NEW: Post Enhancer Actions Handler ---
-use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
 // --- ADDED: Use statement for new Semantic Search handler ---
 use WPAICG\Core\Ajax\AIPKit_Semantic_Search_Ajax_Handler;
 use WPAICG\Lib\Chat\Frontend\Ajax\Handlers\AIPKit_Realtime_Session_Ajax_Handler;

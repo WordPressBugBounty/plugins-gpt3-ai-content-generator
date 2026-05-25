@@ -11,15 +11,7 @@ namespace {
 
 namespace WPAICG\Includes\HookRegistrars {
 
-// --- Use statements for ALL handlers/services needed by ANY registrar ---
-// Core Functionality
-use WPAICG\WP_AI_Content_Generator_i18n;
-use WPAICG\Public\WP_AI_Content_Generator_Public;
-use WPAICG\Shortcodes\AIPKit_Shortcodes_Manager;
-use WPAICG\PostEnhancer\Core as PostEnhancerCore;
-use WPAICG\Speech\AIPKit_Speech_Manager;
-use WPAICG\STT\AIPKit_STT_Manager;
-use WPAICG\Images\AIPKit_Image_Manager;
+// --- Use statements for AJAX handlers used by this registrar ---
 // AJAX Handlers
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 use WPAICG\Vector\AIPKit_Vector_Post_Processor_Ajax_Handler;
@@ -56,7 +48,7 @@ use WPAICG\Lib\Chat\Frontend\Ajax\ChatFileUploadAjaxDispatcher as LibChatFileUpl
 use WPAICG\Dashboard\Ajax\SettingsAjaxHandler;
 use WPAICG\Dashboard\Ajax\AIPKit_Event_Webhook_Delivery_Issues_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\ModelsAjaxHandler;
-// --- NEW: Post Enhancer Actions Handler ---
+// Post Enhancer Actions Handler.
 use WPAICG\PostEnhancer\Ajax\AIPKit_Enhancer_Actions_Ajax_Handler;
 // --- ADDED: Use statement for Semantic Search handler ---
 use WPAICG\Core\Ajax\AIPKit_Semantic_Search_Ajax_Handler;

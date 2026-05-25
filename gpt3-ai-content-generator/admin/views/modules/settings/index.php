@@ -174,6 +174,18 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
                 <button
                     type="button"
                     class="aipkit_settings_page_nav_link"
+                    id="aipkit_settings_page_tab_utilities"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="aipkit_settings_page_panel_utilities"
+                    data-aipkit-settings-page-link="utilities"
+                    tabindex="-1"
+                >
+                    <?php esc_html_e('Utilities', 'gpt3-ai-content-generator'); ?>
+                </button>
+                <button
+                    type="button"
+                    class="aipkit_settings_page_nav_link"
                     id="aipkit_settings_page_tab_security"
                     role="tab"
                     aria-selected="false"
@@ -223,7 +235,7 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
                     <p class="aipkit_settings_page_helper"><?php esc_html_e('Set your default provider, model, API key, and advanced options.', 'gpt3-ai-content-generator'); ?></p>
                 </header>
 
-                <div class="aipkit_settings_simple_form" id="aipkit_settings_provider_panel">
+                <div class="aipkit_settings_simple_form aipkit_settings_simple_form--ai" id="aipkit_settings_provider_panel">
                     <?php include __DIR__ . '/partials/settings-provider-select.php'; ?>
                     <?php include __DIR__ . '/partials/settings-api-keys.php'; ?>
                     <?php include __DIR__ . '/partials/settings-models.php'; ?>
@@ -300,6 +312,24 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
 
                 <div class="aipkit_settings_simple_form aipkit_settings_simple_form--apps">
                     <?php include __DIR__ . '/partials/settings-apps-page.php'; ?>
+                </div>
+            </section>
+
+            <section
+                class="aipkit_settings_page_section"
+                id="aipkit_settings_page_panel_utilities"
+                role="tabpanel"
+                aria-labelledby="aipkit_settings_page_tab_utilities"
+                data-aipkit-settings-page="utilities"
+                hidden
+            >
+                <header class="aipkit_settings_page_header">
+                    <h3 class="aipkit_settings_page_title"><?php esc_html_e('Utilities', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Manage AI Puffer tools that appear inside WordPress editors and content lists.', 'gpt3-ai-content-generator'); ?></p>
+                </header>
+
+                <div class="aipkit_settings_simple_form aipkit_settings_simple_form--utilities">
+                    <?php include __DIR__ . '/partials/settings-utilities-page.php'; ?>
                 </div>
             </section>
 

@@ -24,6 +24,8 @@ use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 $bot_storage = new BotStorage();
 $default_setup = new DefaultBotSetup();
 
+DefaultBotSetup::ensure_default_chatbot();
+
 // Fetch all bot settings up front so switching can be state-driven client-side.
 $all_chatbots = [];
 $all_chatbot_settings_by_id = [];

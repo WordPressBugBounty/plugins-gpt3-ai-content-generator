@@ -28,10 +28,10 @@ if (empty($delivery_issues)) {
 ?>
 <section id="aipkit_settings_app_delivery_issues_section">
     <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_simple_row--app-delivery-issues" id="aipkit_settings_app_delivery_issues_row">
-        <label class="aipkit_form-label">
+        <div class="aipkit_form-label">
             <?php esc_html_e('Delivery Issues', 'gpt3-ai-content-generator'); ?>
             <span class="aipkit_form-label-helper"><?php esc_html_e('Showing the 5 most recent failed recipe deliveries.', 'gpt3-ai-content-generator'); ?></span>
-        </label>
+        </div>
         <div class="aipkit_settings_app_delivery_issues_main">
             <div class="aipkit_settings_app_delivery_issues_toolbar">
                 <span class="aipkit_settings_app_delivery_issues_toolbar_note"><?php esc_html_e('Clear removes items from this list immediately. Old rows are still purged automatically by retention cleanup.', 'gpt3-ai-content-generator'); ?></span>

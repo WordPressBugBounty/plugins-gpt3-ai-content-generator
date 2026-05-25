@@ -99,17 +99,49 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                         >
                     </span>
                     <span class="aipkit_ai_forms_meta_action">
-                        <button id="aipkit_create_new_ai_form_btn" class="aipkit_btn aipkit_btn-primary aipkit_btn-small">
+                        <button type="button" id="aipkit_create_new_ai_form_btn" class="aipkit_btn aipkit_btn-primary">
+                            <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
                             <?php esc_html_e('Create Form', 'gpt3-ai-content-generator'); ?>
                         </button>
                     </span>
                 </div>
             </div>
             <div id="aipkit_ai_forms_data_panel" class="aipkit_ai_forms_workspace_panel is-active" role="tabpanel" aria-labelledby="aipkit_ai_forms_forms_tab">
+                <div class="aipkit_ai_forms_bulk_bar" id="aipkit_ai_forms_bulk_bar" hidden>
+                    <div class="aipkit_ai_forms_bulk_text">
+                        <span class="aipkit_ai_forms_bulk_count" id="aipkit_ai_forms_bulk_count">
+                            <?php esc_html_e('0 selected', 'gpt3-ai-content-generator'); ?>
+                        </span>
+                        <span class="aipkit_ai_forms_bulk_progress" id="aipkit_ai_forms_bulk_progress" aria-live="polite"></span>
+                    </div>
+                    <div class="aipkit_ai_forms_bulk_actions">
+                        <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_ai_forms_bulk_duplicate">
+                            <?php esc_html_e('Duplicate', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                        <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_ai_forms_bulk_export">
+                            <?php esc_html_e('Export', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                        <button type="button" class="aipkit_btn aipkit_btn-danger aipkit_ai_forms_bulk_delete">
+                            <?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                        <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_ai_forms_bulk_clear">
+                            <?php esc_html_e('Clear', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                    </div>
+                </div>
                 <div class="aipkit_data-table aipkit_ai_forms_list_table">
-                    <table>
+                    <table class="aipkit_data-table__table">
                         <thead>
                             <tr>
+                                <th class="aipkit_ai_forms_select_cell">
+                                    <input
+                                        type="checkbox"
+                                        id="aipkit_ai_forms_select_all"
+                                        class="aipkit_ai_forms_select_all"
+                                        aria-label="<?php esc_attr_e('Select all forms', 'gpt3-ai-content-generator'); ?>"
+                                        disabled
+                                    />
+                                </th>
                                 <th class="aipkit-sortable-col" data-sort-key="title"><span><?php esc_html_e('Form', 'gpt3-ai-content-generator'); ?></span></th>
                                 <th><?php esc_html_e('Shortcode', 'gpt3-ai-content-generator'); ?></th>
                                 <th class="aipkit-sortable-col" data-sort-key="modified"><span><?php esc_html_e('Updated', 'gpt3-ai-content-generator'); ?></span></th>
@@ -145,7 +177,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                     </table>
                 </div>
                 <div id="aipkit_ai_forms_pagination" class="aipkit_logs_pagination_container"></div>
-                <div id="aipkit_no_ai_forms_message" style="display: none; text-align: center; padding: 20px; color: var(--aipkit_text-secondary);">
+                <div id="aipkit_no_ai_forms_message" class="aipkit_ai_forms_empty_state">
                     <?php esc_html_e('No AI Forms have been created yet.', 'gpt3-ai-content-generator'); ?>
                 </div>
             </div>

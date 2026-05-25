@@ -653,10 +653,10 @@ $render_recipe = static function (
 
 <section id="aipkit_settings_recipes_section">
     <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_simple_row--recipes" id="aipkit_settings_recipes_row">
-        <label class="aipkit_form-label">
+        <div class="aipkit_form-label">
             <?php esc_html_e('Recipes', 'gpt3-ai-content-generator'); ?>
             <span class="aipkit_form-label-helper"><?php esc_html_e('Create event-to-app recipes.', 'gpt3-ai-content-generator'); ?></span>
-        </label>
+        </div>
         <div class="aipkit_settings_recipes_main">
             <div class="aipkit_settings_recipes_toolbar">
                 <button type="button" class="button button-secondary aipkit_btn" id="aipkit_add_recipe_btn">

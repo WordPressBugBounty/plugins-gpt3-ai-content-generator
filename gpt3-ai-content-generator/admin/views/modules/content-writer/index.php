@@ -236,7 +236,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
                 <div class="aipkit_content_writer_column aipkit_content_writer_inputs">
                     <?php include __DIR__ . '/partials/form-inputs.php'; ?>
                     <?php include __DIR__ . '/partials/advanced-settings.php'; ?>
-                    <?php include __DIR__ . '/partials/existing-update-tip.php'; ?>
                 </div>
 
             </div>

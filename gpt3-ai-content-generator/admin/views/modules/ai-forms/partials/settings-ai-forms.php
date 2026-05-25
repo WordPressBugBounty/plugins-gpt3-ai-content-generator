@@ -391,7 +391,11 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
                 </div>
             </div>
             <div class="aipkit_ai_forms_settings_block_body">
-                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--plain">
+                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--wide">
+                    <label class="aipkit_form-label" for="aipkit_aiforms_custom_css">
+                        <?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to forms using the Custom theme.', 'gpt3-ai-content-generator'); ?></span>
+                    </label>
                     <textarea
                         id="aipkit_aiforms_custom_css"
                         name="custom_css"
@@ -418,7 +422,11 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
                 </div>
             </div>
             <div class="aipkit_ai_forms_settings_block_body">
-                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--plain">
+                <div class="aipkit_ai_forms_settings_row aipkit_ai_forms_settings_row--wide">
+                    <div class="aipkit_form-label">
+                        <?php esc_html_e('Allowed Models', 'gpt3-ai-content-generator'); ?>
+                        <span class="aipkit_form-label-helper"><?php esc_html_e('Leave empty to show all models.', 'gpt3-ai-content-generator'); ?></span>
+                    </div>
                     <textarea
                         id="aipkit_aiforms_frontend_models"
                         name="frontend_models"

@@ -316,10 +316,10 @@ $render_app_connection = static function ($index, array $connection = []) use ($
 
 <section id="aipkit_settings_app_connections_section">
     <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_simple_row--app-connections" id="aipkit_settings_app_connections_row">
-        <label class="aipkit_form-label">
+        <div class="aipkit_form-label">
             <?php esc_html_e('App Connections', 'gpt3-ai-content-generator'); ?>
             <span class="aipkit_form-label-helper"><?php esc_html_e('Create reusable app connections.', 'gpt3-ai-content-generator'); ?></span>
-        </label>
+        </div>
         <div class="aipkit_settings_app_connections_main">
             <div class="aipkit_settings_app_connections_toolbar">
                 <button type="button" class="button button-secondary aipkit_btn" id="aipkit_add_app_connection_btn">

@@ -441,16 +441,6 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             }
         }
 
-        if (array_key_exists('enhancer_insert_position_default', $post_data)) {
-            $raw = sanitize_key($post_data['enhancer_insert_position_default']);
-            $allowed = ['replace','after','before'];
-            $pos = in_array($raw, $allowed, true) ? $raw : 'replace';
-            if (($new_enhancer_settings['default_insert_position'] ?? 'replace') !== $pos) {
-                $new_enhancer_settings['default_insert_position'] = $pos;
-                $changed = true;
-            }
-        }
-
         if (array_key_exists('enhancer_list_button', $post_data)) {
             $new_value = ($post_data['enhancer_list_button'] === '1') ? '1' : '0';
             if (($new_enhancer_settings['show_list_button'] ?? '1') !== $new_value) {
@@ -946,13 +936,8 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $imported_enhancer = isset($imported_options['enhancer_settings']) && is_array($imported_options['enhancer_settings'])
             ? $imported_options['enhancer_settings']
             : [];
-        $insert_position = sanitize_key((string) ($imported_enhancer['default_insert_position'] ?? 'replace'));
-        if (!in_array($insert_position, ['replace', 'after', 'before'], true)) {
-            $insert_position = 'replace';
-        }
         $sanitized['enhancer_settings'] = [
             'editor_integration' => ((string) ($imported_enhancer['editor_integration'] ?? '1') === '1') ? '1' : '0',
-            'default_insert_position' => $insert_position,
             'show_list_button' => ((string) ($imported_enhancer['show_list_button'] ?? '1') === '1') ? '1' : '0',
         ];
 
