@@ -233,8 +233,6 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
             'ajaxNonce' => wp_create_nonce('aipkit_frontend_chat_nonce'),
             'is_user_logged_in' => is_user_logged_in(),
             'is_pro_plan' => $is_pro_plan,
-            'save_as_post_nonce' => wp_create_nonce('aipkit_ai_form_save_as_post_nonce'),
-            'allowed_providers' => $frontend_display_settings['allowed_providers'] ?? '',
             'allowed_models' => $frontend_display_settings['allowed_models'] ?? '',
             'text' => [
                 'processing' => __('Processing...', 'gpt3-ai-content-generator'),

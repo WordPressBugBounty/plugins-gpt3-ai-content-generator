@@ -71,6 +71,10 @@ class AIPKit_Dependency_Loader
             require_once $identifier_utils_path;
         }
         // --- END ADDED ---
+        $prompt_sanitizer_path = WPAICG_PLUGIN_DIR . 'includes/utils/class-aipkit-prompt-sanitizer.php';
+        if (file_exists($prompt_sanitizer_path)) {
+            require_once $prompt_sanitizer_path;
+        }
         // --- ADDED: Load shared Admin Header Action Buttons util ---
         $header_buttons_util_path = WPAICG_PLUGIN_DIR . 'includes/utils/class-aipkit-admin-header-action-buttons.php';
         if (file_exists($header_buttons_util_path)) {

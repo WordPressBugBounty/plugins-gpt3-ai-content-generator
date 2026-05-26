@@ -58,7 +58,6 @@ function render_shortcode_logic(\WPAICG\Shortcodes\AIPKit_Token_Usage_Shortcode 
 
     $user_id = get_current_user_id();
 
-    // The facade's private methods are delegated, so we can call them via the facade instance.
     $usage_data = \WPAICG\Shortcodes\TokenUsage\Data\get_user_token_usage_data_logic($facade, $user_id);
     $usage_data = apply_filters('aipkit_token_usage_data', $usage_data, $user_id);
 

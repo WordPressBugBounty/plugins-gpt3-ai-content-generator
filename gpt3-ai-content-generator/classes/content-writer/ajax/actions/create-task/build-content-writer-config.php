@@ -9,6 +9,7 @@ use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Provider_Options;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -69,10 +70,25 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'rss_include_keywords', 'rss_exclude_keywords',
             'reasoning_effort', // ADDED
         ];
+        $prompt_template_keys = [
+            'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt',
+            'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt',
+            'image_prompt', 'featured_image_prompt',
+            'image_title_prompt', 'image_alt_text_prompt', 'image_caption_prompt',
+            'image_description_prompt', 'image_title_prompt_update',
+            'image_alt_text_prompt_update', 'image_caption_prompt_update',
+            'image_description_prompt_update',
+        ];
+        $textarea_keys = [
+            'content_title_bulk', 'rss_feeds', 'url_list', 'rss_include_keywords',
+            'rss_exclude_keywords', 'content_title', 'smart_schedule_start_datetime',
+        ];
 
         foreach ($allowed_keys_from_template_manager as $key) {
             if (isset($settings[$key])) {
-                if (in_array($key, ['content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'image_title_prompt', 'image_alt_text_prompt', 'image_caption_prompt', 'image_description_prompt', 'image_title_prompt_update', 'image_alt_text_prompt_update', 'image_caption_prompt_update', 'image_description_prompt_update', 'rss_include_keywords', 'rss_exclude_keywords', 'content_title', 'smart_schedule_start_datetime'], true)) {
+                if (in_array($key, $prompt_template_keys, true)) {
+                    $content_writer_config[$key] = AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($settings[$key]));
+                } elseif (in_array($key, $textarea_keys, true)) {
                     $content_writer_config[$key] = sanitize_textarea_field(wp_unslash($settings[$key]));
                 } elseif ($key === 'gsheets_credentials') {
                     if (class_exists('\WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler')) {

@@ -11,6 +11,7 @@ use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Core\AIPKit_Instruction_Manager;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -139,6 +140,9 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
         if ($system_instruction !== null && !is_string($system_instruction)) {
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', __('Invalid parameter type: system_instruction (must be a string)', 'gpt3-ai-content-generator'), ['status' => 400]));
         }
+        if ($system_instruction !== null) {
+            $system_instruction = AIPKit_Prompt_Sanitizer::sanitize($system_instruction);
+        }
 
         $provider = match(strtolower($provider_raw)) {
             'openai' => 'OpenAI',
@@ -159,8 +163,9 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
             if (!is_array($msg) || empty($msg['role']) || !in_array($msg['role'], ['system', 'user', 'assistant']) || !isset($msg['content']) || !is_string($msg['content'])) {
                 /* translators: %d is the index of the message in the array */
                 return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_message_format', sprintf(__('Invalid message format at index %d.', 'gpt3-ai-content-generator'), $index), ['status' => 400]));
-            } $messages[$index]['role'] = sanitize_key($msg['role']);
-            $messages[$index]['content'] = sanitize_textarea_field($msg['content']);
+            }
+            $messages[$index]['role'] = sanitize_key($msg['role']);
+            $messages[$index]['content'] = AIPKit_Prompt_Sanitizer::sanitize($msg['content']);
         }
         if ($stream) {
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_streaming_not_supported', __('Streaming responses are not supported via this REST endpoint.', 'gpt3-ai-content-generator'), ['status' => 400]));

@@ -9,6 +9,7 @@ use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -380,7 +381,7 @@ class AIPKit_Content_Writer_Image_Handler
             $generation_options = $this->set_replicate_input_option($generation_options, $schema_fields, 'aspect_ratio', $aspect_ratio);
         }
 
-        $negative_prompt = sanitize_text_field((string) ($replicate_options['negative_prompt'] ?? ''));
+        $negative_prompt = AIPKit_Prompt_Sanitizer::sanitize($replicate_options['negative_prompt'] ?? '');
         if ($negative_prompt !== '' && isset($schema_fields['negative_prompt'])) {
             $generation_options = $this->set_replicate_input_option(
                 $generation_options,

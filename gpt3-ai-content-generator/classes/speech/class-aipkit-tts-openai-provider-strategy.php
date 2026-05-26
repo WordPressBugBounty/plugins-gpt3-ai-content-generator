@@ -24,7 +24,7 @@ class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
     public function __construct() {
         $openai_core_provider_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/openai/';
         if (!class_exists(OpenAIUrlBuilder::class)) {
-            $url_builder_file = $openai_core_provider_path . 'OpenAIUrlBuilder.php';
+            $url_builder_file = $openai_core_provider_path . 'bootstrap-url-builder.php';
             if (file_exists($url_builder_file)) {
                 require_once $url_builder_file;
             }

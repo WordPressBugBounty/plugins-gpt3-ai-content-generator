@@ -6,6 +6,7 @@
 namespace WPAICG\AutoGPT\Ajax\Actions\SaveTask;
 
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -40,7 +41,7 @@ function build_task_config_comment_reply_logic(array $post_data): array|WP_Error
     $task_config['content_max_tokens'] = isset($post_data['cc_content_max_tokens']) ? absint($post_data['cc_content_max_tokens']) : 4000;
     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data['cc_reasoning_effort'] ?? '');
     $task_config['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : 'none';
-    $task_config['custom_content_prompt'] = isset($post_data['cc_custom_content_prompt']) ? sanitize_textarea_field(wp_unslash($post_data['cc_custom_content_prompt'])) : '';
+    $task_config['custom_content_prompt'] = isset($post_data['cc_custom_content_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($post_data['cc_custom_content_prompt'])) : '';
 
     // Comment-specific settings
     $task_config['post_types_for_comments'] = isset($post_data['post_types_for_comments']) && is_array($post_data['post_types_for_comments']) ? array_map('sanitize_key', $post_data['post_types_for_comments']) : [];

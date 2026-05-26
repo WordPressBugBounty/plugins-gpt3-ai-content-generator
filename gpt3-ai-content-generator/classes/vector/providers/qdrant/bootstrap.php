@@ -46,20 +46,6 @@ class AIPKit_Vector_Qdrant_Strategy extends AIPKit_Vector_Base_Provider_Strategy
         // No specific constructor logic needed here for now
     }
 
-    /**
-     * Makes an HTTP request to the Qdrant API.
-     * This method is internal to the strategy and called by other public methods.
-     *
-     * @param string $method HTTP method (GET, POST, PUT, DELETE, PATCH).
-     * @param string $path API path (e.g., '/collections').
-     * @param array $body Request body for POST/PUT/PATCH requests.
-     * @param array $query_params Query parameters for the request.
-     * @return array|WP_Error Decoded JSON response or WP_Error.
-     */
-    protected function _request(string $method, string $path, array $body = [], array $query_params = []): array|WP_Error {
-        return \WPAICG\Vector\Providers\Qdrant\Methods\_request_logic($this, $method, $path, $body, $query_params);
-    }
-
     public function connect(array $config): bool|WP_Error {
         return \WPAICG\Vector\Providers\Qdrant\Methods\connect_logic($this, $config);
     }

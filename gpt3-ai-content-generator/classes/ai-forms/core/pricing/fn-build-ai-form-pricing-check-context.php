@@ -2,6 +2,8 @@
 
 namespace WPAICG\AIForms\Core\Pricing;
 
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -20,7 +22,7 @@ if (!function_exists(__NAMESPACE__ . '\\build_ai_form_pricing_check_context_logi
     ): array {
         $provider = sanitize_text_field((string) ($form_config['ai_provider'] ?? 'OpenAI'));
         $model = sanitize_text_field((string) ($form_config['ai_model'] ?? ''));
-        $prompt_template = wp_strip_all_tags((string) ($form_config['prompt_template'] ?? ''));
+        $prompt_template = AIPKit_Prompt_Sanitizer::sanitize($form_config['prompt_template'] ?? '');
         $input_parts = [];
 
         if ($prompt_template !== '') {
@@ -72,7 +74,7 @@ if (!function_exists(__NAMESPACE__ . '\\build_ai_form_pricing_check_context_logi
 
     function estimate_ai_form_text_tokens_logic(string $text): int
     {
-        $text = trim(wp_strip_all_tags($text));
+        $text = AIPKit_Prompt_Sanitizer::sanitize($text);
         if ($text === '') {
             return 0;
         }

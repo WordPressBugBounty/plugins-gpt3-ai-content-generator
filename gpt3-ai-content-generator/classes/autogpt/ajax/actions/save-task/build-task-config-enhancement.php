@@ -7,6 +7,7 @@
 namespace WPAICG\AutoGPT\Ajax\Actions\SaveTask;
 
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -34,10 +35,10 @@ function build_task_config_enhancement_logic(array $post_data): array|WP_Error
     $task_config['update_content'] = (isset($post_data['update_content']) && $post_data['update_content'] === '1') ? '1' : '0';
 
     // Prompts
-    $task_config['title_prompt'] = isset($post_data['title_prompt']) ? sanitize_textarea_field(wp_unslash($post_data['title_prompt'])) : '';
-    $task_config['excerpt_prompt'] = isset($post_data['excerpt_prompt']) ? sanitize_textarea_field(wp_unslash($post_data['excerpt_prompt'])) : '';
-    $task_config['meta_prompt'] = isset($post_data['meta_prompt']) ? sanitize_textarea_field(wp_unslash($post_data['meta_prompt'])) : '';
-    $task_config['content_prompt'] = isset($post_data['content_prompt']) ? sanitize_textarea_field(wp_unslash($post_data['content_prompt'])) : '';
+    $task_config['title_prompt'] = isset($post_data['title_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($post_data['title_prompt'])) : '';
+    $task_config['excerpt_prompt'] = isset($post_data['excerpt_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($post_data['excerpt_prompt'])) : '';
+    $task_config['meta_prompt'] = isset($post_data['meta_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($post_data['meta_prompt'])) : '';
+    $task_config['content_prompt'] = isset($post_data['content_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($post_data['content_prompt'])) : '';
 
     // AI Settings
     $provider_raw = $post_data['ai_provider'] ?? 'openai';

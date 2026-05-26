@@ -11,6 +11,7 @@ use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 use WPAICG\Core\AIPKit_Content_Moderator;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use function WPAICG\Images\Manager\Utils\parse_edit_source_image_upload_logic;
 use WP_Error;
 
@@ -57,7 +58,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         return;
     }
 
-    $prompt = isset($post_data['prompt']) ? sanitize_textarea_field($post_data['prompt']) : '';
+    $prompt = isset($post_data['prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['prompt']) : '';
     if (empty($prompt)) {
         $error_response = new WP_Error('missing_prompt', __('Image prompt cannot be empty.', 'gpt3-ai-content-generator'), ['status' => 400]);
         $managerInstance->log_image_generation_attempt($conversation_uuid, $prompt, $post_data, $error_response, null, $user_id, $session_id_for_guest, $client_ip);

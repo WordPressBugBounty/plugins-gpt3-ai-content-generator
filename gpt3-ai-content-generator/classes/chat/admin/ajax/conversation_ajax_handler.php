@@ -9,9 +9,7 @@ use WPAICG\Chat\Storage\FeedbackManager; // Use the specific FeedbackManager
 use WPAICG\Chat\Admin\AdminSetup; // Needed for Bot name lookup
 use WPAICG\Speech\AIPKit_Speech_Manager; // Use TTS Manager
 use WPAICG\aipkit_dashboard; // Use dashboard class
-use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WPAICG\Core\AIPKit_Event_Webhooks;
-use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 // --- MODIFIED: Correct namespace for BotSettingsManager ---
 use WPAICG\Chat\Storage\BotSettingsManager;
 // --- END MODIFICATION ---
@@ -48,141 +46,6 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         } else {
             $this->speech_manager = new AIPKit_Speech_Manager();
         }
-    }
-
-    /**
-     * Redacts request/response payload fields inside stored messages JSON.
-     *
-     * @param string $messages_json
-     * @return string
-     */
-    private function sanitize_messages_json_for_admin_view(string $messages_json): string {
-        if ($messages_json === '') {
-            return $messages_json;
-        }
-
-        $decoded = json_decode($messages_json, true);
-        if (!is_array($decoded)) {
-            return $messages_json;
-        }
-
-        $messages_key = null;
-        if (isset($decoded['messages']) && is_array($decoded['messages'])) {
-            $messages_key = 'messages';
-        } elseif ($decoded === [] || array_keys($decoded) === range(0, count($decoded) - 1)) {
-            $messages_key = null;
-        } else {
-            // Unexpected shape, but still try recursive sanitizer on top-level payload map.
-            $sanitized_top = AIPKit_Payload_Sanitizer::sanitize_payload_if_array($decoded);
-            return wp_json_encode($sanitized_top, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }
-
-        $messages = $messages_key === 'messages' ? $decoded['messages'] : $decoded;
-        foreach ($messages as $index => $message) {
-            if (!is_array($message)) {
-                continue;
-            }
-            foreach (['request_payload', 'response_data'] as $field_key) {
-                if (array_key_exists($field_key, $message)) {
-                    $message[$field_key] = AIPKit_Payload_Sanitizer::sanitize_payload_if_array($message[$field_key]);
-                }
-            }
-            $messages[$index] = $message;
-        }
-
-        if ($messages_key === 'messages') {
-            $decoded['messages'] = $messages;
-        } else {
-            $decoded = $messages;
-        }
-
-        return wp_json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    }
-
-    /**
-     * Helper to get metadata for a specific conversation (for detail view header).
-     * NOTE: This function is now less critical as the full log row is fetched, but kept for potential future use or refactoring.
-     */
-    private function get_conversation_metadata(?int $user_id, ?string $session_id, ?int $bot_id, string $conversation_uuid): array { // Made bot_id nullable
-        global $wpdb;
-         if (empty($conversation_uuid)) {
-            return [];
-        }
-        $table = $wpdb->prefix . 'aipkit_chat_logs';
-
-        // --- ADDED: Caching logic for conversation metadata ---
-        $cache_key = 'conv_meta_' . $conversation_uuid;
-        $cache_group = 'aipkit_chat_logs';
-        $meta_row = wp_cache_get($cache_key, $cache_group);
-
-        if (false === $meta_row) {
-            $where_sql = "conversation_uuid = %s";
-            $params = [$conversation_uuid];
-
-            if ($bot_id !== null) {
-                $where_sql .= " AND bot_id = %d";
-                $params[] = $bot_id;
-            } else {
-                $where_sql .= " AND bot_id IS NULL";
-            }
-
-            if ($user_id) {
-                $where_sql .= " AND user_id = %d";
-                $params[] = $user_id;
-            } elseif ($session_id) {
-                $where_sql .= " AND user_id IS NULL AND session_id = %s AND is_guest = 1";
-                $params[] = $session_id;
-            } else {
-                return []; // Cannot identify user/session
-            }
-
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-            $meta_row = $wpdb->get_row(
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: $table is safe (from $wpdb->prefix), and $where_sql is built with placeholders. This is a false positive.
-            $wpdb->prepare("SELECT user_id, session_id, ip_address, is_guest, first_message_ts, last_message_ts, bot_id, module FROM {$table} WHERE {$where_sql} LIMIT 1", $params), ARRAY_A);
-            wp_cache_set($cache_key, $meta_row, $cache_group, HOUR_IN_SECONDS);
-        }
-        // --- END: Caching logic ---
-
-        if(!$meta_row) return [];
-
-        $bot_name = '';
-        if (!empty($meta_row['bot_id'])) {
-            $bot_name = get_the_title($meta_row['bot_id']) ?: __('(Deleted Bot)', 'gpt3-ai-content-generator');
-        } elseif (!empty($meta_row['module'])) {
-            // Friendly label for specific modules (no parentheses)
-            if ($meta_row['module'] === 'ai_post_enhancer') {
-                $bot_name = __('Content Assistant', 'gpt3-ai-content-generator');
-            } else {
-                $bot_name = esc_html(ucfirst(str_replace('_', ' ', $meta_row['module'])));
-            }
-        } else {
-             $bot_name = __('(No Bot/Module)', 'gpt3-ai-content-generator');
-        }
-
-        $user_display_name = __('(Unknown)', 'gpt3-ai-content-generator');
-         if (!$meta_row['is_guest'] && !empty($meta_row['user_id'])) {
-            $user_data = get_userdata($meta_row['user_id']);
-            $user_display_name = $user_data ? $user_data->display_name : __('(Deleted User)', 'gpt3-ai-content-generator');
-        } elseif ($meta_row['is_guest']) {
-            $user_display_name = __('Guest', 'gpt3-ai-content-generator');
-             if(!empty($meta_row['session_id'])) {
-                 $user_display_name .= ' (' . substr($meta_row['session_id'], 0, 8) . '...)';
-             }
-        } else {
-             $user_display_name = __('(Unknown)', 'gpt3-ai-content-generator');
-        }
-
-        return [
-            'bot_name' => $bot_name,
-            'user_display_name' => $user_display_name,
-            'session_id' => $meta_row['session_id'],
-            'conversation_uuid' => $conversation_uuid,
-            'ip_address' => $meta_row['ip_address'],
-            'module' => $meta_row['module'],
-            'created_at' => $meta_row['first_message_ts'] ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $meta_row['first_message_ts']) : 'N/A',
-            'updated_at' => $meta_row['last_message_ts'] ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $meta_row['last_message_ts']) : 'N/A',
-        ];
     }
 
     /**
@@ -322,116 +185,6 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
     }
 
      /**
-     * AJAX: Retrieves the FULL log data for a specific conversation thread.
-     * Used by the ADMIN log viewer. Uses ADMIN nonce.
-     */
-    public function ajax_admin_get_conversation_history() {
-        $permission_check = $this->check_module_access_permissions('logs');
-        if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
-
-        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked correctly within the check_module_access_permissions() method.
-        $post_data = wp_unslash($_POST);
-        $user_id_from_log = isset($post_data['user_id']) && !empty($post_data['user_id']) ? absint($post_data['user_id']) : null;
-        $session_id_from_log = isset($post_data['session_id']) && !empty($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : null;
-        $bot_id_raw = isset($post_data['bot_id']) ? $post_data['bot_id'] : null; // Keep raw value (could be null, '', '0', or ID string)
-        $conversation_uuid = isset($post_data['conversation_uuid']) ? sanitize_key($post_data['conversation_uuid']) : '';
-
-        if (empty($conversation_uuid)) {
-            wp_send_json_error(['message' => __('Conversation ID is required.', 'gpt3-ai-content-generator')], 400); return;
-        }
-        if ($user_id_from_log === null && empty($session_id_from_log)) {
-             wp_send_json_error(['message' => __('User or Session ID must be provided from log data.', 'gpt3-ai-content-generator')], 400); return;
-        }
-
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'aipkit_chat_logs';
-
-        // --- ADDED: Caching logic for the full log row ---
-        $cache_key = 'conv_full_log_' . $conversation_uuid;
-        $cache_group = 'aipkit_chat_logs';
-        $log_data = wp_cache_get($cache_key, $cache_group);
-
-        if (false === $log_data) {
-            $where_sql = "conversation_uuid = %s";
-            $params = [$conversation_uuid];
-
-            if ($bot_id_raw === null || $bot_id_raw === '' || $bot_id_raw === '0') {
-                $where_sql .= " AND bot_id IS NULL";
-            } elseif (ctype_digit((string)$bot_id_raw) && absint($bot_id_raw) > 0) {
-                $where_sql .= " AND bot_id = %d";
-                $params[] = absint($bot_id_raw);
-            } else {
-                $where_sql .= " AND bot_id IS NULL";
-            }
-
-            $is_guest_log = ($user_id_from_log === 0 || $user_id_from_log === null) && !empty($session_id_from_log);
-
-            if ($is_guest_log) {
-                $where_sql .= " AND user_id IS NULL AND session_id = %s AND is_guest = 1";
-                $params[] = $session_id_from_log;
-            } elseif ($user_id_from_log > 0) {
-                $where_sql .= " AND user_id = %d AND is_guest = 0";
-                $params[] = $user_id_from_log;
-            } else {
-                wp_send_json_error(['message' => __('Internal error: Invalid user/session identifier combination.', 'gpt3-ai-content-generator')], 500);
-                return;
-            }
-
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
-            $log_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE {$where_sql} LIMIT 1", $params), ARRAY_A);
-            wp_cache_set($cache_key, $log_data, $cache_group, HOUR_IN_SECONDS);
-        }
-        // --- END: Caching logic ---
-
-        if (!$log_data) {
-            wp_send_json_error(['message' => __('Log entry not found.', 'gpt3-ai-content-generator')], 404);
-            return;
-        }
-
-       if (!empty($log_data['bot_id'])) {
-          $log_data['bot_name'] = get_the_title($log_data['bot_id']) ?: __('(Deleted Bot)', 'gpt3-ai-content-generator');
-       } elseif (!empty($log_data['module'])) {
-           // Friendly label for specific modules (no parentheses)
-           if ($log_data['module'] === 'ai_post_enhancer') {
-               $log_data['bot_name'] = __('Content Assistant', 'gpt3-ai-content-generator');
-           } else {
-               $log_data['bot_name'] = esc_html(ucfirst(str_replace('_', ' ', $log_data['module'])));
-           }
-       } else {
-           $log_data['bot_name'] = __('(Unknown)', 'gpt3-ai-content-generator');
-       }
-
-        if (!$log_data['is_guest'] && !empty($log_data['user_id'])) {
-            $user_data = get_userdata($log_data['user_id']);
-            $log_data['user_display_name'] = $user_data ? $user_data->display_name : __('(Deleted User)', 'gpt3-ai-content-generator');
-        } elseif ($log_data['is_guest']) {
-            $log_data['user_display_name'] = __('Guest', 'gpt3-ai-content-generator');
-             if(!empty($log_data['session_id'])) {
-                 $log_data['user_display_name'] .= ' (' . substr($log_data['session_id'], 0, 8) . '...)';
-             }
-        } else {
-             $log_data['user_display_name'] = __('(Unknown)', 'gpt3-ai-content-generator');
-        }
-
-        $log_data['banned_ips'] = '';
-        if (class_exists(AIPKit_Global_Security_Settings::class)) {
-            $security_settings = AIPKit_Global_Security_Settings::get_settings();
-            $blocklists = isset($security_settings['blocklists']) && is_array($security_settings['blocklists'])
-                ? $security_settings['blocklists']
-                : [];
-            $log_data['banned_ips'] = isset($blocklists['banned_ips']) && is_string($blocklists['banned_ips'])
-                ? $blocklists['banned_ips']
-                : '';
-        }
-
-        if (isset($log_data['messages']) && is_string($log_data['messages'])) {
-            $log_data['messages'] = $this->sanitize_messages_json_for_admin_view($log_data['messages']);
-        }
-
-        wp_send_json_success(['log_data' => $log_data]);
-    }
-
-     /**
      * AJAX: Stores feedback for a specific message within a conversation.
      * Uses FRONTEND nonce.
      */
@@ -483,7 +236,6 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
      * AJAX: Deletes a single conversation thread identified by its unique identifiers.
      * Uses frontend nonce because the action originates from the chat UI sidebar.
      * Only allows deletion of the user's *own* conversation.
-     * Moved from LogAjaxHandler to here.
      */
     public function ajax_delete_single_conversation()
     {

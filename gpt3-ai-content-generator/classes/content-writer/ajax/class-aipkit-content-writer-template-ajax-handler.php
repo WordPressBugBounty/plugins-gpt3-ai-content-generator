@@ -49,20 +49,6 @@ class AIPKit_Content_Writer_Template_Ajax_Handler extends AIPKit_Content_Writer_
     }
 
     /**
-    * AJAX: Loads a single template's data.
-    */
-    public function ajax_load_template()
-    {
-        $permission_check = $this->check_module_access_permissions('content-writer', self::NONCE_ACTION);
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-        require_once __DIR__ . '/template/ajax-load-template.php';
-        \WPAICG\ContentWriter\Ajax\Template\ajax_load_template_logic($this);
-    }
-
-    /**
     * AJAX: Deletes a template.
     */
     public function ajax_delete_template()

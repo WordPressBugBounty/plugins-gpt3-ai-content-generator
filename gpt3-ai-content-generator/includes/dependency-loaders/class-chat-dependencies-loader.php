@@ -24,7 +24,6 @@ class Chat_Dependencies_Loader
             // --- END REMOVED ---
             'utils/class-aipkit_chat_utils.php',
             'utils/class-aipkit-svg-icons.php',
-            'utils/class-log-status-renderer.php',
             'utils/class-log-config.php',
             'admin/chat_admin_setup.php',
             'storage/class-aipkit_log_query_helper.php', 'storage/class-aipkit_site_wide_bot_manager.php',
@@ -56,10 +55,7 @@ class Chat_Dependencies_Loader
                 $paths,
                 [
                     'admin/ajax/chatbot_ajax_handler.php',
-                    'admin/ajax/chatbot_export_ajax_handler.php',
-                    'admin/ajax/chatbot_import_ajax_handler.php',
                     'admin/ajax/conversation_ajax_handler.php',
-                    'admin/ajax/log_ajax_handler.php',
                     'admin/ajax/user_credits_ajax_handler.php',
                     'admin/ajax/class-aipkit-chatbot-image-ajax-handler.php',
                 ]

@@ -6,6 +6,7 @@
 namespace WPAICG\Images;
 
 use WPAICG\AIPKit_Providers;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 use WP_User;
 
@@ -178,7 +179,7 @@ class AIPKit_Image_Storage_Helper
             update_post_meta($attach_id, '_aipkit_image_style', sanitize_text_field($generation_options['style']));
         }
         if (isset($image_data_item['revised_prompt'])) {
-            update_post_meta($attach_id, '_aipkit_image_revised_prompt', sanitize_textarea_field($image_data_item['revised_prompt']));
+            update_post_meta($attach_id, '_aipkit_image_revised_prompt', AIPKit_Prompt_Sanitizer::sanitize($image_data_item['revised_prompt']));
         }
         if (isset($image_data_item['photographer'])) {
             update_post_meta($attach_id, '_aipkit_image_photographer', sanitize_text_field($image_data_item['photographer']));

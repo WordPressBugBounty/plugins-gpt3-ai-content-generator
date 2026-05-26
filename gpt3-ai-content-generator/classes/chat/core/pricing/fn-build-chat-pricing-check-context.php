@@ -2,6 +2,8 @@
 
 namespace WPAICG\Chat\Core\Pricing;
 
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -35,7 +37,7 @@ if (!function_exists(__NAMESPACE__ . '\\build_chat_pricing_check_context_logic')
 
         $provider = sanitize_text_field((string) ($provider_model['provider'] ?? 'OpenAI'));
         $model = sanitize_text_field((string) ($model_override ?: ($provider_model['model'] ?? '')));
-        $system_instruction = wp_strip_all_tags((string) ($bot_settings['instructions'] ?? ''));
+        $system_instruction = AIPKit_Prompt_Sanitizer::sanitize($bot_settings['instructions'] ?? '');
         $input_tokens = estimate_text_token_count_logic($system_instruction . "\n\n" . $user_message_text);
 
         if (!empty($image_inputs)) {
@@ -70,7 +72,7 @@ if (!function_exists(__NAMESPACE__ . '\\build_chat_pricing_check_context_logic')
 
     function estimate_text_token_count_logic(string $text): int
     {
-        $text = trim(wp_strip_all_tags($text));
+        $text = AIPKit_Prompt_Sanitizer::sanitize($text);
         if ($text === '') {
             return 0;
         }

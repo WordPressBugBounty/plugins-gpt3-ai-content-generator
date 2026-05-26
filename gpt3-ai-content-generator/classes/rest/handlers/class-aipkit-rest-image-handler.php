@@ -7,6 +7,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
 use WPAICG\Images\AIPKit_Image_Manager;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -26,7 +27,9 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
                 'description' => __('A text description of the desired image(s).', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
                 'required'    => true,
-                'sanitize_callback' => 'sanitize_textarea_field',
+                'sanitize_callback' => static function ($value, $request = null, $param = null): string {
+                    return AIPKit_Prompt_Sanitizer::sanitize($value);
+                },
             ),
             'provider' => array(
                 'description' => __('The AI image provider to use.', 'gpt3-ai-content-generator'),
@@ -136,7 +139,7 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
         }
 
         $params = $request->get_params();
-        $prompt = isset($params['prompt']) ? sanitize_textarea_field($params['prompt']) : '';
+        $prompt = isset($params['prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($params['prompt']) : '';
         $options = [
             'provider'        => isset($params['provider']) ? sanitize_text_field($params['provider']) : 'openai',
             'model'           => isset($params['model']) ? sanitize_text_field($params['model']) : null,

@@ -47,20 +47,6 @@ class AIPKit_Vector_Pinecone_Strategy extends AIPKit_Vector_Base_Provider_Strate
         // No specific constructor logic needed here for now
     }
 
-    /**
-     * Makes an HTTP request to the Pinecone API.
-     * This method is internal to the strategy and called by other public methods.
-     *
-     * @param string $method HTTP method (GET, POST, DELETE, PATCH).
-     * @param string $path API path (e.g., '/indexes').
-     * @param array $body Request body for POST/PATCH requests.
-     * @param string|null $index_host_url Optional. If provided, this URL is used as the base instead of controller API.
-     * @return array|WP_Error Decoded JSON response or WP_Error.
-     */
-    protected function _request(string $method, string $path, array $body = [], ?string $index_host_url = null): array|WP_Error {
-        return \WPAICG\Vector\Providers\Pinecone\Methods\_request_logic($this, $method, $path, $body, $index_host_url);
-    }
-
     public function connect(array $config): bool|WP_Error {
         return \WPAICG\Vector\Providers\Pinecone\Methods\connect_logic($this, $config);
     }

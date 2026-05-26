@@ -15,6 +15,7 @@ use WPAICG\Chat\Storage\SiteWideBotManager;
 use WPAICG\Chat\Frontend\Shortcode;
 use WPAICG\Chat\Admin\AdminSetup; // Needed for POST_TYPE constant
 use WPAICG\AIPKit_Providers; // Added for updating global provider settings
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use function WPAICG\Chat\Storage\SaverMethods\sanitize_settings_logic;
 use WP_Error;
 
@@ -738,8 +739,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $bot_id = isset($_POST['bot_id']) ? absint($_POST['bot_id']) : 0;
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-        $instructions = isset($_POST['instructions']) ? sanitize_textarea_field(wp_unslash($_POST['instructions'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in check_module_access_permissions(); AIPKit_Prompt_Sanitizer preserves literal HTML while sanitizing prompt text.
+        $instructions = isset($_POST['instructions']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($_POST['instructions'])) : '';
 
         if (empty($bot_id)) {
             wp_send_json_error(['message' => __('Invalid Chatbot ID.', 'gpt3-ai-content-generator')], 400);
@@ -1320,7 +1321,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $openrouter_web_search_max_results = max(1, min($openrouter_web_search_max_results, 10));
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openrouter_web_search_search_prompt = isset($_POST['openrouter_web_search_search_prompt'])
-            ? sanitize_textarea_field(wp_unslash($_POST['openrouter_web_search_search_prompt']))
+            ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($_POST['openrouter_web_search_search_prompt']))
             : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.

@@ -6,6 +6,7 @@
 namespace WPAICG\PostEnhancer\Ajax;
 
 use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -207,7 +208,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         $post_data = wp_unslash($_POST);
         $action_id = isset($post_data['id']) && !empty($post_data['id']) ? sanitize_text_field((string) $post_data['id']) : null;
         $label = isset($post_data['label']) ? sanitize_text_field((string) $post_data['label']) : '';
-        $prompt = isset($post_data['prompt']) ? sanitize_textarea_field((string) $post_data['prompt']) : '';
+        $prompt = isset($post_data['prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['prompt']) : '';
         $allowed_positions = ['replace', 'after', 'before'];
         $insert_position_raw = isset($post_data['insert_position']) ? sanitize_key((string) $post_data['insert_position']) : 'replace';
         $insert_position = in_array($insert_position_raw, $allowed_positions, true) ? $insert_position_raw : 'replace';

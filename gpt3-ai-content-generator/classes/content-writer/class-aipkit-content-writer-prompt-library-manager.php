@@ -2,6 +2,7 @@
 
 namespace WPAICG\ContentWriter;
 
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -536,7 +537,7 @@ class AIPKit_Content_Writer_Prompt_Library_Manager
 
     private function sanitize_prompt(string $prompt): string
     {
-        $normalized = trim(sanitize_textarea_field($prompt));
+        $normalized = AIPKit_Prompt_Sanitizer::sanitize($prompt);
         if ($normalized === '') {
             return '';
         }
@@ -568,4 +569,3 @@ class AIPKit_Content_Writer_Prompt_Library_Manager
         ];
     }
 }
-

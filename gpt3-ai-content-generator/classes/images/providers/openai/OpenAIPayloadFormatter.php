@@ -6,6 +6,7 @@
 namespace WPAICG\Images\Providers\OpenAI;
 
 use WPAICG\AIPKit_Providers;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -28,13 +29,14 @@ class OpenAIPayloadFormatter
      */
     public static function format(string $prompt, array $options): array
     {
+        $prompt = AIPKit_Prompt_Sanitizer::sanitize($prompt);
         $model = AIPKit_Providers::normalize_openai_image_model(
             isset($options['model']) ? (string) $options['model'] : null
         );
 
         $payload = [
             'model' => $model,
-            'prompt' => wp_strip_all_tags($prompt), // Ensure prompt is plain text
+            'prompt' => $prompt,
         ];
 
         // Apply options based on the selected model
@@ -110,6 +112,7 @@ class OpenAIPayloadFormatter
      */
     public static function format_edit_multipart(string $prompt, array $options): array|WP_Error
     {
+        $prompt = AIPKit_Prompt_Sanitizer::sanitize($prompt);
         $model = isset($options['model'])
             ? sanitize_text_field((string) $options['model'])
             : AIPKit_Providers::get_default_openai_image_model();
@@ -154,7 +157,7 @@ class OpenAIPayloadFormatter
 
         $fields = [
             'model' => $model,
-            'prompt' => wp_strip_all_tags($prompt),
+            'prompt' => $prompt,
             'n' => '1',
         ];
 

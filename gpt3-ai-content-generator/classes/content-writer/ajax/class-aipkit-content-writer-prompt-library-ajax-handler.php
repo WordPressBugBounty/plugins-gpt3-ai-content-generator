@@ -4,6 +4,7 @@ namespace WPAICG\ContentWriter\Ajax;
 
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompt_Library_Manager;
 use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -100,7 +101,7 @@ class AIPKit_Content_Writer_Prompt_Library_Ajax_Handler extends BaseDashboardAja
         $post_data = wp_unslash($_POST);
         $prompt_type = isset($post_data['prompt_type']) ? sanitize_key((string) $post_data['prompt_type']) : '';
         $label = isset($post_data['label']) ? sanitize_text_field((string) $post_data['label']) : '';
-        $prompt = isset($post_data['prompt']) ? sanitize_textarea_field((string) $post_data['prompt']) : '';
+        $prompt = isset($post_data['prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['prompt']) : '';
 
         $item = $this->prompt_library_manager->create_custom_prompt(
             $prompt_type,
@@ -154,7 +155,7 @@ class AIPKit_Content_Writer_Prompt_Library_Ajax_Handler extends BaseDashboardAja
             $updates['label'] = sanitize_text_field((string) $post_data['label']);
         }
         if (array_key_exists('prompt', $post_data)) {
-            $updates['prompt'] = sanitize_textarea_field((string) $post_data['prompt']);
+            $updates['prompt'] = AIPKit_Prompt_Sanitizer::sanitize($post_data['prompt']);
         }
 
         $item = $this->prompt_library_manager->update_custom_prompt($prompt_id, $updates);

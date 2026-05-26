@@ -4,6 +4,7 @@
 namespace WPAICG\Images\Providers;
 
 use WPAICG\Images\AIPKit_Image_Base_Provider_Strategy;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -388,7 +389,7 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
     {
         $api_key = isset($api_params['api_key']) ? sanitize_text_field((string) $api_params['api_key']) : '';
         $model = isset($options['model']) ? sanitize_text_field((string) $options['model']) : '';
-        $clean_prompt = sanitize_textarea_field($prompt);
+        $clean_prompt = AIPKit_Prompt_Sanitizer::sanitize($prompt);
         $image_mode = isset($options['image_mode']) && $options['image_mode'] === 'edit' ? 'edit' : 'generate';
 
         if ($api_key === '') {

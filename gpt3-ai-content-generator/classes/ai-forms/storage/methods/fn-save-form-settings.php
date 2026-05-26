@@ -6,6 +6,7 @@ namespace WPAICG\AIForms\Storage\Methods;
 
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\AIPKit_Providers;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -50,7 +51,7 @@ function aipkit_structure_has_elements($structure): bool
 function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $storageInstance, int $form_id, array $settings): bool
 {
     if (isset($settings['prompt_template'])) {
-        update_post_meta($form_id, '_aipkit_ai_form_prompt_template', sanitize_textarea_field($settings['prompt_template']));
+        update_post_meta($form_id, '_aipkit_ai_form_prompt_template', AIPKit_Prompt_Sanitizer::sanitize($settings['prompt_template']));
     }
     if (isset($settings['form_structure'])) {
         $structure_json = $settings['form_structure'];
@@ -234,7 +235,7 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
         update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_max_results', $max_results);
     }
     if (isset($settings['openrouter_web_search_search_prompt'])) {
-        update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_search_prompt', sanitize_textarea_field($settings['openrouter_web_search_search_prompt']));
+        update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_search_prompt', AIPKit_Prompt_Sanitizer::sanitize($settings['openrouter_web_search_search_prompt']));
     }
     
     // --- Save Google Search Grounding Sub-Settings ---

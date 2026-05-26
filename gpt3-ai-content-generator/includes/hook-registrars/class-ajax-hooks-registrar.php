@@ -160,27 +160,17 @@ class Ajax_Hooks_Registrar
         add_action('wp_ajax_aipkit_list_vector_stores_openai', [$openai_vs_stores_ajax_handler, 'ajax_list_vector_stores_openai']);
         add_action('wp_ajax_aipkit_create_vector_store_openai', [$openai_vs_stores_ajax_handler, 'ajax_create_vector_store_openai']);
         add_action('wp_ajax_aipkit_delete_vector_store_openai', [$openai_vs_stores_ajax_handler, 'ajax_delete_vector_store_openai']);
-        add_action('wp_ajax_aipkit_search_vector_store_openai', [$openai_vs_stores_ajax_handler, 'ajax_search_vector_store_openai']);
-
-        add_action('wp_ajax_aipkit_upload_file_to_openai', [$openai_vs_files_ajax_handler, 'ajax_upload_file_to_openai']);
-        add_action('wp_ajax_aipkit_add_files_to_vector_store_openai', [$openai_vs_files_ajax_handler, 'ajax_add_files_to_vector_store_openai']);
-        add_action('wp_ajax_aipkit_list_files_in_vector_store_openai', [$openai_vs_files_ajax_handler, 'ajax_list_files_in_vector_store_openai']);
-        add_action('wp_ajax_aipkit_delete_file_from_vector_store_openai', [$openai_vs_files_ajax_handler, 'ajax_delete_file_from_vector_store_openai']);
         add_action('wp_ajax_aipkit_add_text_to_vector_store_openai', [$openai_vs_files_ajax_handler, 'ajax_add_text_to_vector_store_openai']);
         add_action('wp_ajax_aipkit_upload_and_add_file_to_store_direct_openai', [$openai_vs_files_ajax_handler, 'ajax_upload_and_add_file_to_store_direct_openai']);
         add_action('wp_ajax_aipkit_get_openai_file_batch_status', [$openai_vs_files_ajax_handler, 'ajax_get_openai_file_batch_status']);
-        add_action('wp_ajax_aipkit_get_openai_indexing_logs', [$openai_vs_files_ajax_handler, 'ajax_get_openai_indexing_logs']);
 
         add_action('wp_ajax_aipkit_fetch_wp_content_for_indexing', [$openai_wp_content_indexing_ajax_handler, 'ajax_fetch_wp_content_for_indexing']);
         add_action('wp_ajax_aipkit_index_selected_wp_content', [$openai_wp_content_indexing_ajax_handler, 'ajax_index_selected_wp_content']);
 
         add_action('wp_ajax_aipkit_list_indexes_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_list_indexes_pinecone']);
-        add_action('wp_ajax_aipkit_get_pinecone_index_details', [$pinecone_vector_store_ajax_handler, 'ajax_get_pinecone_index_details']);
         add_action('wp_ajax_aipkit_create_index_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_create_index_pinecone']);
         add_action('wp_ajax_aipkit_upsert_to_pinecone_index', [$pinecone_vector_store_ajax_handler, 'ajax_upsert_to_pinecone_index']);
-        add_action('wp_ajax_aipkit_search_pinecone_index', [$pinecone_vector_store_ajax_handler, 'ajax_search_pinecone_index']);
         add_action('wp_ajax_aipkit_upload_file_and_upsert_to_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_upload_file_and_upsert_to_pinecone']);
-        add_action('wp_ajax_aipkit_get_pinecone_indexing_logs', [$pinecone_vector_store_ajax_handler, 'ajax_get_pinecone_indexing_logs']);
         add_action('wp_ajax_aipkit_delete_index_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_delete_index_pinecone']);
 
         add_action('wp_ajax_aipkit_list_collections_qdrant', [$qdrant_vector_store_ajax_handler, 'ajax_list_collections_qdrant']);
@@ -188,9 +178,6 @@ class Ajax_Hooks_Registrar
         add_action('wp_ajax_aipkit_delete_collection_qdrant', [$qdrant_vector_store_ajax_handler, 'ajax_delete_collection_qdrant']);
         add_action('wp_ajax_aipkit_upsert_to_qdrant_collection', [$qdrant_vector_store_ajax_handler, 'ajax_upsert_to_qdrant_collection']);
         add_action('wp_ajax_aipkit_upload_file_and_upsert_to_qdrant', [$qdrant_vector_store_ajax_handler, 'ajax_upload_file_and_upsert_to_qdrant']);
-        add_action('wp_ajax_aipkit_search_qdrant_collection', [$qdrant_vector_store_ajax_handler, 'ajax_search_qdrant_collection']);
-        add_action('wp_ajax_aipkit_get_qdrant_collection_stats', [$qdrant_vector_store_ajax_handler, 'ajax_get_qdrant_collection_stats']);
-        add_action('wp_ajax_aipkit_get_vector_data_source_logs_for_store', [$qdrant_vector_store_ajax_handler, 'ajax_get_vector_data_source_logs_for_store']);
 
         add_action('wp_ajax_aipkit_list_collections_chroma', [$chroma_vector_store_ajax_handler, 'ajax_list_collections_chroma']);
         add_action('wp_ajax_aipkit_create_collection_chroma', [$chroma_vector_store_ajax_handler, 'ajax_create_collection_chroma']);
@@ -198,20 +185,11 @@ class Ajax_Hooks_Registrar
         add_action('wp_ajax_aipkit_upsert_to_chroma_collection', [$chroma_vector_store_ajax_handler, 'ajax_upsert_to_chroma_collection']);
         add_action('wp_ajax_aipkit_upload_file_and_upsert_to_chroma', [$chroma_vector_store_ajax_handler, 'ajax_upload_file_and_upsert_to_chroma']);
 
-        if (method_exists($core_ajax_handler, 'ajax_get_upload_limits')) {
-            add_action('wp_ajax_aipkit_get_upload_limits', [$core_ajax_handler, 'ajax_get_upload_limits']);
-        }
-        if (method_exists($core_ajax_handler, 'ajax_generate_embedding')) {
-            add_action('wp_ajax_aipkit_generate_embedding', [$core_ajax_handler, 'ajax_generate_embedding']);
-        }
         if (method_exists($core_ajax_handler, 'ajax_get_global_vector_sources')) {
             add_action('wp_ajax_aipkit_get_global_vector_sources', [$core_ajax_handler, 'ajax_get_global_vector_sources']);
         }
         if (method_exists($core_ajax_handler, 'ajax_delete_vector_data_source_entry')) {
             add_action('wp_ajax_aipkit_delete_vector_data_source_entry', [$core_ajax_handler, 'ajax_delete_vector_data_source_entry']);
-        }
-        if (method_exists($core_ajax_handler, 'ajax_get_chunk_logs_by_batch')) {
-            add_action('wp_ajax_aipkit_get_chunk_logs_by_batch', [$core_ajax_handler, 'ajax_get_chunk_logs_by_batch']);
         }
         if (method_exists($core_ajax_handler, 'ajax_reindex_vector_data_source_entry')) {
             add_action('wp_ajax_aipkit_reindex_vector_data_source_entry', [$core_ajax_handler, 'ajax_reindex_vector_data_source_entry']);
@@ -243,9 +221,6 @@ class Ajax_Hooks_Registrar
         if (method_exists($core_ajax_handler, 'ajax_get_stats_log_cron_status')) {
             add_action('wp_ajax_aipkit_stats_get_log_cron_status', [$core_ajax_handler, 'ajax_get_stats_log_cron_status']);
         }
-        if (method_exists($core_ajax_handler, 'ajax_prune_stats_logs_now')) {
-            add_action('wp_ajax_aipkit_stats_prune_logs_now', [$core_ajax_handler, 'ajax_prune_stats_logs_now']);
-        }
         if (method_exists($core_ajax_handler, 'ajax_get_stats_pricing_management')) {
             add_action('wp_ajax_aipkit_stats_get_pricing_management', [$core_ajax_handler, 'ajax_get_stats_pricing_management']);
         }
@@ -269,7 +244,6 @@ class Ajax_Hooks_Registrar
             add_action('wp_ajax_aipkit_content_writer_generate_title', [$content_writer_generate_title_action, 'handle']);
         }
         add_action('wp_ajax_aipkit_save_cw_template', [$content_writer_template_ajax_handler, 'ajax_save_template']);
-        add_action('wp_ajax_aipkit_load_cw_template', [$content_writer_template_ajax_handler, 'ajax_load_template']);
         add_action('wp_ajax_aipkit_delete_cw_template', [$content_writer_template_ajax_handler, 'ajax_delete_template']);
         add_action('wp_ajax_aipkit_list_cw_templates', [$content_writer_template_ajax_handler, 'ajax_list_templates']);
         add_action('wp_ajax_aipkit_reset_cw_starter_templates', [$content_writer_template_ajax_handler, 'ajax_reset_starter_templates']);

@@ -3,6 +3,7 @@
 namespace WPAICG\Admin\Ajax\AIForms;
 
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Ajax_Handler;
 
@@ -62,7 +63,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $form_id = isset($post_data['form_id']) && !empty($post_data['form_id']) ? absint($post_data['form_id']) : null;
     $allow_empty_structure = isset($post_data['allow_empty_structure']) && $post_data['allow_empty_structure'] === '1';
     $title = isset($post_data['title']) ? sanitize_text_field($post_data['title']) : '';
-    $prompt_template = isset($post_data['prompt_template']) ? sanitize_textarea_field($post_data['prompt_template']) : '';
+    $prompt_template = isset($post_data['prompt_template']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['prompt_template']) : '';
     $form_structure_json = isset($post_data['form_structure']) ? wp_kses_post($post_data['form_structure']) : '[]';
 
     if (
@@ -220,7 +221,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     }
     $openrouter_web_search_max_results = isset($post_data['openrouter_web_search_max_results']) ? absint($post_data['openrouter_web_search_max_results']) : 5;
     $openrouter_web_search_max_results = max(1, min($openrouter_web_search_max_results, 10));
-    $openrouter_web_search_search_prompt = isset($post_data['openrouter_web_search_search_prompt']) ? sanitize_textarea_field($post_data['openrouter_web_search_search_prompt']) : '';
+    $openrouter_web_search_search_prompt = isset($post_data['openrouter_web_search_search_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['openrouter_web_search_search_prompt']) : '';
     
     // Google Search Grounding sub-settings
     $google_grounding_mode = isset($post_data['google_grounding_mode']) ? sanitize_text_field($post_data['google_grounding_mode']) : 'DEFAULT_MODE';

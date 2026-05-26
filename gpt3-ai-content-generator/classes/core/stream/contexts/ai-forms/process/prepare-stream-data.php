@@ -11,6 +11,7 @@ use WPAICG\Core\Stream\Contexts\AIForms\SSEAIFormsStreamContextHandler;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -402,7 +403,7 @@ function prepare_stream_data_logic(
         $web_search_config['max_results'] = max(1, min($openrouter_max_results, 10));
 
         $openrouter_search_prompt = isset($form_config['openrouter_web_search_search_prompt'])
-            ? sanitize_textarea_field((string) $form_config['openrouter_web_search_search_prompt'])
+            ? AIPKit_Prompt_Sanitizer::sanitize($form_config['openrouter_web_search_search_prompt'])
             : '';
         if ($openrouter_search_prompt !== '') {
             $web_search_config['search_prompt'] = $openrouter_search_prompt;

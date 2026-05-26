@@ -39,7 +39,7 @@ if (!class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
          */
         public static function init() {
             // Ensure Google Settings Handler is loaded
-            $google_settings_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/google/GoogleSettingsHandler.php';
+            $google_settings_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/google/bootstrap-settings-handler.php';
             if (!class_exists(GoogleSettingsHandler::class) && file_exists($google_settings_handler_path)) {
                  require_once $google_settings_handler_path;
             }

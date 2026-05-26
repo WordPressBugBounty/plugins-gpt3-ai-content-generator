@@ -9,6 +9,7 @@ namespace WPAICG\ContentWriter\TemplateManagerMethods;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Provider_Options;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
@@ -39,11 +40,30 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
 {
     $sanitized = [];
     $allowed_config_keys = $managerInstance->get_allowed_config_keys();
-
+    $prompt_template_keys = [
+        'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt',
+        'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt',
+        'custom_title_prompt_update', 'custom_content_prompt_update',
+        'custom_meta_prompt_update', 'custom_keyword_prompt_update',
+        'custom_excerpt_prompt_update', 'custom_tags_prompt_update',
+        'image_prompt', 'image_prompt_update', 'featured_image_prompt',
+        'featured_image_prompt_update', 'image_title_prompt',
+        'image_alt_text_prompt', 'image_caption_prompt',
+        'image_description_prompt', 'image_title_prompt_update',
+        'image_alt_text_prompt_update', 'image_caption_prompt_update',
+        'image_description_prompt_update', 'title_prompt', 'excerpt_prompt',
+        'content_prompt', 'meta_prompt', 'keyword_prompt',
+    ];
+    $textarea_keys = [
+        'content_title', 'content_title_bulk', 'rss_feeds', 'url_list',
+        'rss_include_keywords', 'rss_exclude_keywords',
+    ];
 
     foreach ($allowed_config_keys as $key) {
         if (isset($config[$key])) {
-            if (in_array($key, ['content_title', 'content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'custom_title_prompt_update', 'custom_content_prompt_update', 'custom_meta_prompt_update', 'custom_keyword_prompt_update', 'custom_excerpt_prompt_update', 'custom_tags_prompt_update', 'rss_feeds', 'url_list', 'image_prompt', 'image_prompt_update', 'featured_image_prompt', 'featured_image_prompt_update', 'image_title_prompt', 'image_alt_text_prompt', 'image_caption_prompt', 'image_description_prompt', 'image_title_prompt_update', 'image_alt_text_prompt_update', 'image_caption_prompt_update', 'image_description_prompt_update', 'rss_include_keywords', 'rss_exclude_keywords', 'title_prompt', 'excerpt_prompt', 'content_prompt', 'meta_prompt', 'keyword_prompt'], true)) {
+            if (in_array($key, $prompt_template_keys, true)) {
+                $sanitized[$key] = AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($config[$key]));
+            } elseif (in_array($key, $textarea_keys, true)) {
                 $sanitized[$key] = sanitize_textarea_field(wp_unslash($config[$key]));
             } elseif (in_array($key, ['title', 'excerpt', 'content', 'meta', 'keyword', 'tags'], true) && is_array($config[$key])) {
                 $sanitized_sub_array = [];
@@ -51,7 +71,7 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                     $sanitized_sub_array['enabled'] = ($config[$key]['enabled'] === '1' || $config[$key]['enabled'] === true) ? '1' : '0';
                 }
                 if (isset($config[$key]['prompt'])) {
-                    $sanitized_sub_array['prompt'] = sanitize_textarea_field(wp_unslash($config[$key]['prompt']));
+                    $sanitized_sub_array['prompt'] = AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($config[$key]['prompt']));
                 }
                 $sanitized[$key] = $sanitized_sub_array;
             } elseif ($key === 'gsheets_credentials') {

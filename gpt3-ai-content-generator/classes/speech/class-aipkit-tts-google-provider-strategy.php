@@ -112,10 +112,6 @@ class AIPKit_TTS_Google_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         // --- END REVISION ---
     }
 
-    // --- REMOVED: Private store_audio_file method ---
-    // private function store_audio_file(string $audio_data, string $format = 'mp3'): string|WP_Error { ... }
-
-
     /**
      * Fetches the list of available voices from the Google Cloud TTS API.
      * (No changes needed in this method)

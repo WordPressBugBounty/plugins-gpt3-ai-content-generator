@@ -31,13 +31,6 @@ class Woocommerce_Writer_Loader
 
         $woo_base_path = WPAICG_PLUGIN_DIR . 'classes/woocommerce/';
 
-        // Load Product Writer
-        $woo_writer_path = $woo_base_path . 'class-aipkit-woocommerce-writer.php';
-        if (file_exists($woo_writer_path)) {
-            require_once $woo_writer_path;
-        }
-
-        // Load new Token Package Integration files
         $woo_integration_path = $woo_base_path . 'class-aipkit-woocommerce-integration.php';
         if (file_exists($woo_integration_path)) {
             require_once $woo_integration_path;

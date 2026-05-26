@@ -15,18 +15,12 @@ if (!defined('ABSPATH')) {
  * Called by WPAICG\Chat\Initializer::register_hooks().
  *
  * @param Ajax\ChatbotAjaxHandler $chatbot_ajax_handler
- * @param Ajax\LogAjaxHandler $log_ajax_handler
  * @param Ajax\ConversationAjaxHandler $conversation_ajax_handler
- * @param Ajax\ChatbotExportAjaxHandler $chatbot_export_ajax_handler
- * @param Ajax\ChatbotImportAjaxHandler $chatbot_import_ajax_handler
  * @return void
  */
 function register_hooks_admin_ajax_logic(
     Ajax\ChatbotAjaxHandler $chatbot_ajax_handler,
-    Ajax\LogAjaxHandler $log_ajax_handler,
-    Ajax\ConversationAjaxHandler $conversation_ajax_handler,
-    Ajax\ChatbotExportAjaxHandler $chatbot_export_ajax_handler,
-    Ajax\ChatbotImportAjaxHandler $chatbot_import_ajax_handler
+    Ajax\ConversationAjaxHandler $conversation_ajax_handler
 ): void {
     add_action('wp_ajax_aipkit_create_chatbot', [$chatbot_ajax_handler, 'ajax_create_chatbot']);
     add_action('wp_ajax_aipkit_save_chatbot_settings', [$chatbot_ajax_handler, 'ajax_save_chatbot_settings']);
@@ -52,9 +46,4 @@ function register_hooks_admin_ajax_logic(
     add_action('wp_ajax_aipkit_get_chatbot_training_source_count', [$chatbot_ajax_handler, 'ajax_get_chatbot_training_source_count']);
     add_action('wp_ajax_aipkit_get_chatbot_training_sources', [$chatbot_ajax_handler, 'ajax_get_chatbot_training_sources']);
     add_action('wp_ajax_aipkit_get_chatbot_switch_state', [$chatbot_ajax_handler, 'ajax_get_chatbot_switch_state']);
-
-    add_action('wp_ajax_aipkit_admin_get_conversation_history', [$conversation_ajax_handler, 'ajax_admin_get_conversation_history']);
-
-    add_action('wp_ajax_aipkit_export_all_chatbots', [$chatbot_export_ajax_handler, 'ajax_export_all_chatbots']);
-    add_action('wp_ajax_aipkit_import_chatbots', [$chatbot_import_ajax_handler, 'ajax_import_chatbots']);
 }

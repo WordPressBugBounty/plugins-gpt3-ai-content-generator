@@ -12,6 +12,7 @@ use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 // --- END MODIFICATION ---
 use WPAICG\Chat\Storage\BotStorage;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -96,10 +97,10 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
         }
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_frontend_permissions method.
         $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key($_POST['conversation_uuid']) : '';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in
-        $prompt = isset($_POST['prompt']) ? sanitize_textarea_field(wp_unslash($_POST['prompt'])) : '';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in
-        $original_user_text = isset($_POST['original_user_text']) ? sanitize_textarea_field(wp_unslash($_POST['original_user_text'])) : $prompt;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in check_frontend_permissions(); AIPKit_Prompt_Sanitizer preserves literal HTML while sanitizing prompt text.
+        $prompt = isset($_POST['prompt']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($_POST['prompt'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in check_frontend_permissions(); AIPKit_Prompt_Sanitizer preserves literal HTML while sanitizing prompt text.
+        $original_user_text = isset($_POST['original_user_text']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($_POST['original_user_text'])) : $prompt;
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in
         $user_message_id_from_post = isset($_POST['user_message_id']) ? sanitize_key($_POST['user_message_id']) : ('aipkit-client-umsg-' . wp_generate_password(12, false));
 

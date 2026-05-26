@@ -5,7 +5,6 @@
 namespace WPAICG\Core\Ajax;
 
 use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
-use WPAICG\Includes\AIPKit_Upload_Utils;
 use WPAICG\Core\AIPKit_AI_Caller; // For AI Caller
 use WPAICG\AIPKit_Providers;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
@@ -15,7 +14,6 @@ use WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor;
 use WPAICG\Vector\PostProcessor\Chroma\ChromaPostProcessor;
 use WPAICG\Chat\Storage\LogStorage;
 use WPAICG\Chat\Storage\LogCronManager;
-use WPAICG\Chat\Storage\LogManager;
 use WPAICG\Chat\Utils\LogConfig;
 use WPAICG\Stats\AIPKit_Stats;
 use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
@@ -134,113 +132,6 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         return null;
     }
 
-
-    /**
-     * AJAX handler to get upload limits.
-     * Ensures only users who can access Sources or Chatbot module can call this.
-     * @since NEXT_VERSION
-     */
-    public function ajax_get_upload_limits()
-    {
-        // Permission check: accept any valid nonce from AI Training UIs (global or provider-specific)
-        $nonce_candidates = [
-            'aipkit_nonce',
-            'aipkit_vector_store_nonce_openai',
-            'aipkit_vector_store_pinecone_nonce',
-            'aipkit_vector_store_qdrant_nonce',
-            'aipkit_vector_store_chroma_nonce',
-        ];
-        $has_permission = false;
-        $last_error = null;
-        foreach ($nonce_candidates as $nonce_field) {
-            $check = $this->check_any_module_access_permissions(['sources', 'chatbot'], $nonce_field);
-            if (!is_wp_error($check)) { $has_permission = true; break; }
-            $last_error = $check;
-        }
-        if (!$has_permission) {
-            $this->send_wp_error($last_error ?: new WP_Error('forbidden', __('Permission denied.', 'gpt3-ai-content-generator')));
-            return;
-        }
-
-        if (class_exists(\WPAICG\Includes\AIPKit_Upload_Utils::class)) {
-            $limits = AIPKit_Upload_Utils::get_upload_limits();
-            wp_send_json_success($limits);
-        } else {
-            wp_send_json_error(['message' => __('Upload utility not available.', 'gpt3-ai-content-generator')], 500);
-        }
-    }
-
-    /**
-     * AJAX handler to generate embeddings for given content.
-     * Requires 'sources' or 'chatbot' module access permission.
-     * Expects 'content_to_embed', 'embedding_provider', 'embedding_model' in POST.
-     * UPDATED: Uses the global 'aipkit_nonce' for nonce verification.
-     * @since NEXT_VERSION
-     */
-    public function ajax_generate_embedding()
-    {
-        // Permission Check: Users who can access Sources or AI Training can generate embeddings.
-        // Use the main dashboard nonce 'aipkit_nonce' for this core utility.
-        $permission_check = $this->check_any_module_access_permissions(
-            ['sources', 'chatbot'],
-            'aipkit_nonce'
-        );
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-        
-        // Unslash the POST array at once.
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by check_module_access_permissions().
-        $post_data = wp_unslash($_POST);
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by check_module_access_permissions().
-        $content_to_embed = isset($post_data['content_to_embed']) ? wp_kses_post($post_data['content_to_embed']) : '';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by check_module_access_permissions().
-        $embedding_provider_key = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : '';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked by check_module_access_permissions().
-        $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : '';
-
-        if (empty($content_to_embed)) {
-            $this->send_wp_error(new WP_Error('missing_content', __('Content to embed cannot be empty.', 'gpt3-ai-content-generator')));
-            return;
-        }
-        if (empty($embedding_provider_key)) {
-            $this->send_wp_error(new WP_Error('missing_embedding_provider', __('Embedding provider is required.', 'gpt3-ai-content-generator')));
-            return;
-        }
-        if (empty($embedding_model)) {
-            $this->send_wp_error(new WP_Error('missing_embedding_model', __('Embedding model is required.', 'gpt3-ai-content-generator')));
-            return;
-        }
-
-        // Normalize provider name
-        $embedding_provider = AIPKit_Providers::resolve_embedding_provider_name(
-            $embedding_provider_key,
-            'core_ajax_generate_embedding'
-        ) ?? '';
-
-        if (empty($embedding_provider)) {
-             $this->send_wp_error(new WP_Error('invalid_embedding_provider', __('Invalid embedding provider specified.', 'gpt3-ai-content-generator')));
-             return;
-        }
-
-        if (!class_exists(\WPAICG\Core\AIPKit_AI_Caller::class)) {
-            $this->send_wp_error(new WP_Error('internal_error_embedding', __('Embedding service component not available.', 'gpt3-ai-content-generator')));
-            return;
-        }
-
-        $ai_caller = new AIPKit_AI_Caller();
-        $embedding_options = ['model' => $embedding_model];
-
-        $result = $ai_caller->generate_embeddings($embedding_provider, $content_to_embed, $embedding_options);
-
-        if (is_wp_error($result)) {
-            $this->send_wp_error($result);
-        } else {
-            wp_send_json_success($result);
-        }
-    }
-    
     /**
      * AJAX handler to delete a single vector data source entry from both the vector DB and local log.
      * @since NEXT_VERSION
@@ -744,55 +635,6 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         return $providers;
-    }
-
-    /**
-     * AJAX: Return chunk logs for a given provider/store and batch_id with pagination.
-     * @since NEXT_VERSION
-     */
-    public function ajax_get_chunk_logs_by_batch()
-    {
-        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-
-        global $wpdb;
-        $table = $wpdb->prefix . 'aipkit_vector_data_source';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- already checked
-        $post = wp_unslash($_POST);
-        $provider = isset($post['provider']) ? sanitize_text_field($post['provider']) : '';
-        $store_id = isset($post['store_id']) ? sanitize_text_field($post['store_id']) : '';
-        $batch_id = isset($post['batch_id']) ? sanitize_text_field($post['batch_id']) : '';
-        $page = isset($post['page']) ? max(1, absint($post['page'])) : 1;
-        $per_page = isset($post['per_page']) ? min(50, max(1, absint($post['per_page']))) : 10;
-
-        if (!$provider || !$store_id || !$batch_id) {
-            $this->send_wp_error(new \WP_Error('missing_params_chunk_logs', __('Missing provider, store_id or batch_id.', 'gpt3-ai-content-generator')));
-            return;
-        }
-
-        $offset = ($page - 1) * $per_page;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is safe; logs are dynamic.
-        $total = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s", $provider, $store_id, $batch_id));
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is safe; logs are dynamic.
-        $rows = $wpdb->get_results($wpdb->prepare("SELECT id, file_id, indexed_content, timestamp FROM {$table} WHERE provider = %s AND vector_store_id = %s AND batch_id = %s ORDER BY id ASC LIMIT %d OFFSET %d", $provider, $store_id, $batch_id, $per_page, $offset), ARRAY_A);
-
-        if ($wpdb->last_error) {
-            $this->send_wp_error(new \WP_Error('db_error_chunk_logs', __('Failed to fetch chunk logs.', 'gpt3-ai-content-generator'), ['status' => 500]));
-            return;
-        }
-
-        wp_send_json_success([
-            'chunks' => $rows,
-            'pagination' => [
-                'total' => $total,
-                'total_pages' => $per_page ? (int) ceil($total / $per_page) : 1,
-                'current_page' => $page,
-                'per_page' => $per_page,
-            ],
-        ]);
     }
 
     /**
@@ -1610,51 +1452,6 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                 __('Last run: %s', 'gpt3-ai-content-generator'),
                 $last_run_label
             ),
-        ]);
-    }
-
-    public function ajax_prune_stats_logs_now()
-    {
-        $permission_check = $this->check_module_access_permissions('stats', 'aipkit_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-
-        if (!class_exists('\\WPAICG\\aipkit_dashboard') || !\WPAICG\aipkit_dashboard::is_pro_plan()) {
-            $this->send_wp_error(new WP_Error('pro_required', __('Manual log pruning is a Pro feature. Please upgrade.', 'gpt3-ai-content-generator')));
-            return;
-        }
-
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
-        $post_data = wp_unslash($_POST);
-        $retention_period = isset($post_data['retention_period_days']) ? floatval($post_data['retention_period_days']) : 90;
-
-        if (!LogConfig::is_valid_period($retention_period)) {
-            $this->send_wp_error(new WP_Error('invalid_period', __('Invalid retention period provided.', 'gpt3-ai-content-generator')));
-            return;
-        }
-
-        if (!class_exists(LogManager::class)) {
-            $this->send_wp_error(new WP_Error('dependency_missing', __('Log manager component is unavailable.', 'gpt3-ai-content-generator')));
-            return;
-        }
-
-        $log_manager = new LogManager();
-        $deleted_rows = $log_manager->prune_logs($retention_period);
-
-        if ($deleted_rows === false) {
-            $this->send_wp_error(new WP_Error('pruning_failed', __('An error occurred while pruning the logs.', 'gpt3-ai-content-generator')));
-            return;
-        }
-
-        update_option('aipkit_log_pruning_last_run', current_time('mysql', true), 'no');
-
-        /* translators: %d: number of log entries deleted */
-        $message = sprintf(_n('%d log entry pruned.', '%d log entries pruned.', $deleted_rows, 'gpt3-ai-content-generator'), number_format_i18n($deleted_rows));
-        wp_send_json_success([
-            'message' => $message,
-            'deleted_count' => $deleted_rows,
         ]);
     }
 

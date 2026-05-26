@@ -164,19 +164,6 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
         require_once __DIR__ . '/handler-indexes/ajax-list-indexes.php'; // MODIFIED PATH
         \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_list_indexes_logic($this);
     }
-    
-    // NEW AJAX ACTION
-    public function ajax_get_pinecone_index_details()
-    {
-        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-        require_once __DIR__ . '/handler-indexes/ajax-get-index-details.php';
-        \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_get_index_details_logic($this);
-    }
-
     public function ajax_create_index_pinecone()
     {
         $permission_check = $this->check_any_module_access_permissions(
@@ -204,18 +191,6 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
         require_once __DIR__ . '/handler-indexes/ajax-upsert-to-index.php'; // MODIFIED PATH
         \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_upsert_to_index_logic($this);
     }
-
-    public function ajax_search_pinecone_index()
-    {
-        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-        require_once __DIR__ . '/handler-indexes/ajax-search-index.php'; // MODIFIED PATH
-        \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_search_index_logic($this);
-    }
-
     public function ajax_upload_file_and_upsert_to_pinecone()
     {
         $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');
@@ -259,18 +234,6 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
             $this->send_wp_error(new WP_Error('missing_file_upload_logic_pinecone', __('File upload processing component for Pinecone is missing.', 'gpt3-ai-content-generator'), ['status' => 500]));
         }
     }
-
-    public function ajax_get_pinecone_indexing_logs()
-    {
-        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-        require_once __DIR__ . '/handler-indexes/ajax-get-indexing-logs.php'; // MODIFIED PATH
-        \WPAICG\Dashboard\Ajax\Pinecone\HandlerIndexes\do_ajax_get_indexing_logs_logic($this);
-    }
-
     public function ajax_delete_index_pinecone()
     {
         $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_pinecone_nonce');

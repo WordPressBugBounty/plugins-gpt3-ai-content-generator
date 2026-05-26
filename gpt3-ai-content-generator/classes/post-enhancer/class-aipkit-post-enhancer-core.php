@@ -57,8 +57,6 @@ class Core
                 add_action('wp_ajax_aipkit_generate_tags_suggestions', [$ajax_handler, 'generate_tags_suggestions']);
                 add_action('wp_ajax_aipkit_update_post_tags', [$ajax_handler, 'update_post_tags']);
                 // --- END NEW ---
-                // --- NEW: Add Bulk Process hook ---
-                add_action('wp_ajax_aipkit_bulk_process_single_post', [$ajax_handler, 'ajax_bulk_process_single_post']);
                 // --- NEW: Add individual field processing hooks ---
                 add_action('wp_ajax_aipkit_bulk_process_single_field', [$ajax_handler, 'ajax_bulk_process_single_field']);
                 add_action('wp_ajax_aipkit_bulk_update_seo_slug', [$ajax_handler, 'ajax_bulk_update_seo_slug']);
@@ -277,7 +275,7 @@ class Core
         $script_handle = 'aipkit-enhancer-block-editor';
         $script_path = 'dist/js/admin-enhancer-block-editor.bundle.js';
 
-        $dependencies = ['wp-i18n', 'wp-element', 'wp-rich-text', 'wp-components', 'wp-block-editor', 'wp-data']; // Added wp-data
+        $dependencies = ['wp-i18n', 'wp-element', 'wp-rich-text', 'wp-components', 'wp-block-editor', 'wp-blocks', 'wp-data', 'wp-hooks'];
         $version = WPAICG_VERSION;
 
         wp_enqueue_script(

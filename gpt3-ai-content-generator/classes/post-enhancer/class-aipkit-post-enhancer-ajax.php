@@ -15,7 +15,6 @@ require_once __DIR__ . '/ajax/actions/update-title.php';
 require_once __DIR__ . '/ajax/actions/update-excerpt.php';
 require_once __DIR__ . '/ajax/actions/update-meta.php';
 require_once __DIR__ . '/ajax/actions/update-tags.php';
-require_once __DIR__ . '/ajax/actions/bulk-process-single.php';
 require_once __DIR__ . '/ajax/actions/bulk-process-single-field.php';
 require_once __DIR__ . '/ajax/actions/bulk-update-seo-slug.php';
 require_once __DIR__ . '/ajax/actions/process-text.php';
@@ -34,9 +33,8 @@ class AjaxHandler
     private $update_excerpt_handler;
     private $update_meta_handler;
     private $update_tags_handler;
-    private $bulk_process_single_handler; // ADDED
-    private $bulk_process_single_field_handler; // ADDED
-    private $bulk_update_seo_slug_handler; // ADDED
+    private $bulk_process_single_field_handler;
+    private $bulk_update_seo_slug_handler;
     private $process_text_handler;
 
     public function __construct()
@@ -49,9 +47,8 @@ class AjaxHandler
         $this->update_excerpt_handler = new Actions\AIPKit_PostEnhancer_Update_Excerpt();
         $this->update_meta_handler = new Actions\AIPKit_PostEnhancer_Update_Meta();
         $this->update_tags_handler = new Actions\AIPKit_PostEnhancer_Update_Tags();
-        $this->bulk_process_single_handler = new Actions\AIPKit_PostEnhancer_Bulk_Process_Single(); // ADDED
-        $this->bulk_process_single_field_handler = new Actions\AIPKit_PostEnhancer_Bulk_Process_Single_Field(); // ADDED
-        $this->bulk_update_seo_slug_handler = new Actions\AIPKit_PostEnhancer_Bulk_Update_SEO_Slug(); // ADDED
+        $this->bulk_process_single_field_handler = new Actions\AIPKit_PostEnhancer_Bulk_Process_Single_Field();
+        $this->bulk_update_seo_slug_handler = new Actions\AIPKit_PostEnhancer_Bulk_Update_SEO_Slug();
         $this->process_text_handler = new Actions\AIPKit_PostEnhancer_Process_Text();
     }
 
@@ -88,17 +85,6 @@ class AjaxHandler
         $this->update_tags_handler->handle();
     }
 
-    /**
-     * AJAX handler for processing a single post in a bulk enhancement batch.
-     */
-    public function ajax_bulk_process_single_post()
-    {
-        $this->bulk_process_single_handler->handle();
-    }
-
-    /**
-     * AJAX handler for processing a single field of a post.
-     */
     public function ajax_bulk_process_single_field()
     {
         $this->bulk_process_single_field_handler->handle();

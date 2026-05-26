@@ -85,10 +85,7 @@ class Initializer
             return;
         }
         $chatbot_ajax_handler = new Ajax\ChatbotAjaxHandler();
-        $log_ajax_handler = new Ajax\LogAjaxHandler();
         $conversation_ajax_handler = new Ajax\ConversationAjaxHandler();
-        $chatbot_export_ajax_handler = new Ajax\ChatbotExportAjaxHandler();
-        $chatbot_import_ajax_handler = new Ajax\ChatbotImportAjaxHandler();
         $chatbot_image_ajax_handler = null;
         if (class_exists(\WPAICG\Chat\Admin\Ajax\ChatbotImageAjaxHandler::class)) {
             $chatbot_image_ajax_handler = new Ajax\ChatbotImageAjaxHandler();
@@ -98,10 +95,7 @@ class Initializer
         if (is_admin() || wp_doing_ajax()) {
             Initializer\register_hooks_admin_ajax_logic(
                 $chatbot_ajax_handler,
-                $log_ajax_handler,
-                $conversation_ajax_handler,
-                $chatbot_export_ajax_handler,
-                $chatbot_import_ajax_handler
+                $conversation_ajax_handler
             );
             // General AJAX hooks (frontend messages, speech, etc.) that also need admin context
             Initializer\register_hooks_general_ajax_logic(

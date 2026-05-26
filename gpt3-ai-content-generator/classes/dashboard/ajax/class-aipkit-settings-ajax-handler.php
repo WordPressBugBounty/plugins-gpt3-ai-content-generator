@@ -11,6 +11,7 @@ use WPAICG\Core\AIPKit_Event_Webhooks_Settings;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -478,7 +479,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $changed = false;
         foreach ($submitted_actions as $id => $data) {
             $label = sanitize_text_field($data['label'] ?? '');
-            $prompt = sanitize_textarea_field($data['prompt'] ?? '');
+            $prompt = AIPKit_Prompt_Sanitizer::sanitize($data['prompt'] ?? '');
             if (empty($label) || empty($prompt)) {
                 continue;
             }

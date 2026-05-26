@@ -64,8 +64,6 @@ class AIPKit_Image_Generator_Shortcode
         $image_gen_settings = AIPKit_Image_Settings_Ajax_Handler::get_settings();
         $frontend_display_settings = $image_gen_settings['frontend_display'] ?? [];
         $ui_text_settings = $image_gen_settings['ui_text'] ?? [];
-    // Allowed providers field deprecated: kept for backward compatibility but ignored (providers derived from selected models)
-    $allowed_providers_str = ''; // $frontend_display_settings['allowed_providers'] ?? '';
         $allowed_models_from_settings = $frontend_display_settings['allowed_models'] ?? '';
 
         // Prioritize shortcode attribute over global settings
@@ -151,7 +149,6 @@ class AIPKit_Image_Generator_Shortcode
             'theme'          => $theme,
             'show_history'   => $show_history, // NEW: Pass to view
             'image_history_html' => ($show_history && is_user_logged_in()) ? $this->render_image_history($mode) : '', // NEW: Render history HTML
-            'allowed_providers' => $allowed_providers_str,
             'allowed_models' => $final_allowed_models_str,
             'mode'           => $mode,
             'default_mode'   => $default_mode,

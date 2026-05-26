@@ -8,7 +8,6 @@
 namespace WPAICG\Shortcodes; // Correct namespace
 
 use WPAICG\Shortcodes\TokenUsage\Render as TokenUsageRenderer;
-use WPAICG\Shortcodes\TokenUsage\Data as TokenUsageData;
 use WPAICG\Shortcodes\TokenUsage\Helpers as TokenUsageHelpers;
 
 // Load method logic files
@@ -158,55 +157,4 @@ class AIPKit_Token_Usage_Shortcode
         return TokenUsageHelpers\get_user_limit_for_module_logic($user_id, $module_token_settings);
     }
 
-    /**
-     * Fetches and structures token usage data for the current user.
-     * Delegates logic to \WPAICG\Shortcodes\TokenUsage\Data\get_user_token_usage_data_logic().
-     *
-     * @param int $user_id The ID of the current user.
-     * @return array Structured usage data.
-     */
-    private function get_user_token_usage_data($user_id)
-    {
-        return TokenUsageData\get_user_token_usage_data_logic($this, $user_id);
-    }
-
-    /**
-     * Renders the HTML for the token usage dashboard.
-     * Delegates logic to \WPAICG\Shortcodes\TokenUsage\Render\render_dashboard_logic().
-     *
-     * @param array $usage_data Structured usage data grouped by module.
-     * @param bool $show_chatbot
-     * @param bool $show_aiforms
-     * @param bool $show_imagegenerator
-     * @return string HTML output.
-     */
-    private function render_dashboard($usage_data, bool $show_chatbot = true, bool $show_aiforms = true, bool $show_imagegenerator = true)
-    {
-        return TokenUsageRenderer\render_dashboard_logic($this, $usage_data, $show_chatbot, $show_aiforms, $show_imagegenerator);
-    }
-
-    /**
-     * Helper to render a single row in a usage table.
-     * Delegates logic to \WPAICG\Shortcodes\TokenUsage\Render\render_usage_row_logic().
-     *
-     * @param array $item The usage data item.
-     * @param string $first_column_label The label for the first column ('Bot Name' or 'Module').
-     * @return string HTML for the table row.
-     */
-    private function render_usage_row(array $item, string $first_column_label): string
-    {
-        return TokenUsageRenderer\render_usage_row_logic($this, $item, $first_column_label);
-    }
-
-    /**
-     * Helper to render the progress bar HTML.
-     * Delegates logic to \WPAICG\Shortcodes\TokenUsage\Render\render_progress_bar_logic().
-     *
-     * @param int $percentage The percentage to display.
-     * @return string HTML for the progress bar.
-     */
-    private function render_progress_bar($percentage)
-    {
-        return TokenUsageRenderer\render_progress_bar_logic($percentage);
-    }
 }

@@ -4,6 +4,7 @@
 namespace WPAICG\Images\Providers;
 
 use WPAICG\Images\AIPKit_Image_Base_Provider_Strategy;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -161,7 +162,7 @@ class AIPKit_Image_XAI_Provider_Strategy extends AIPKit_Image_Base_Provider_Stra
 
         $payload = [
             'model' => $model,
-            'prompt' => wp_strip_all_tags($prompt),
+            'prompt' => $prompt,
         ];
 
         if ($image_mode === 'edit') {
@@ -320,7 +321,7 @@ class AIPKit_Image_XAI_Provider_Strategy extends AIPKit_Image_Base_Provider_Stra
     public function generate_image(string $prompt, array $api_params, array $options = []): array|WP_Error
     {
         $api_key = isset($api_params['api_key']) ? sanitize_text_field((string) $api_params['api_key']) : '';
-        $clean_prompt = sanitize_textarea_field($prompt);
+        $clean_prompt = AIPKit_Prompt_Sanitizer::sanitize($prompt);
         $image_mode = isset($options['image_mode']) && $options['image_mode'] === 'edit' ? 'edit' : 'generate';
 
         if ($api_key === '') {

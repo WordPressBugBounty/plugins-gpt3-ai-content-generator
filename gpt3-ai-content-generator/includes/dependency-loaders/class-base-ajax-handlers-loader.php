@@ -15,7 +15,6 @@ class Base_Ajax_Handlers_Loader
     {
         $traits_path = WPAICG_PLUGIN_DIR . 'classes/chat/admin/ajax/traits/';
         $trait_files = [
-            'Trait_CheckAdminPermissions.php',
             'Trait_CheckModuleAccess.php',
             'Trait_CheckFrontendPermissions.php',
             'Trait_SendWPError.php',

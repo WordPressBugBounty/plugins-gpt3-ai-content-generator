@@ -10,6 +10,7 @@ use WPAICG\Images\Providers\Google\GoogleVideoResponseParser;
 use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -39,7 +40,7 @@ function ajax_check_video_status_logic(AIPKit_Image_Manager $managerInstance): v
     // Get required parameters
     $operation_name = isset($post_data['operation_name']) ? sanitize_text_field($post_data['operation_name']) : '';
     $model_id = isset($post_data['model_id']) ? sanitize_text_field($post_data['model_id']) : '';
-    $prompt = isset($post_data['prompt']) ? sanitize_textarea_field($post_data['prompt']) : '';
+    $prompt = isset($post_data['prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['prompt']) : '';
 
     if (empty($operation_name) || empty($model_id)) {
         wp_send_json_error(['message' => __('Missing required parameters for video status check.', 'gpt3-ai-content-generator')], 400);
@@ -48,7 +49,7 @@ function ajax_check_video_status_logic(AIPKit_Image_Manager $managerInstance): v
 
     // Get API key from server-side provider configuration (secure)
     if (!class_exists('WPAICG\AIPKit_Providers')) {
-        $providers_path = WPAICG_PLUGIN_DIR . 'classes/class-aipkit_providers.php';
+        $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
         if (file_exists($providers_path)) {
             require_once $providers_path;
         }

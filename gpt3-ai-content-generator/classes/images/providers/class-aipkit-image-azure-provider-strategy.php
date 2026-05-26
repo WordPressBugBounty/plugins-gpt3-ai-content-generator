@@ -5,6 +5,7 @@
 namespace WPAICG\Images\Providers;
 
 use WPAICG\Images\AIPKit_Image_Base_Provider_Strategy;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -53,6 +54,7 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
      */
     public function generate_image(string $prompt, array $api_params, array $options = []): array|WP_Error
     {
+        $prompt = AIPKit_Prompt_Sanitizer::sanitize($prompt);
         $api_key = $api_params['api_key'] ?? null;
         if (empty($api_key)) {
             return new WP_Error('azure_image_missing_key', __('Azure API Key is required for image generation.', 'gpt3-ai-content-generator'));
@@ -72,7 +74,7 @@ class AIPKit_Image_Azure_Provider_Strategy extends AIPKit_Image_Base_Provider_St
         // Build a payload compatible with Azure OpenAI image generation.
         $payload = [
             'model' => sanitize_text_field((string) ($options['model'] ?? '')),
-            'prompt' => wp_strip_all_tags($prompt),
+            'prompt' => $prompt,
             'n' => max(1, min(isset($options['n']) ? absint($options['n']) : 1, 10)),
         ];
 

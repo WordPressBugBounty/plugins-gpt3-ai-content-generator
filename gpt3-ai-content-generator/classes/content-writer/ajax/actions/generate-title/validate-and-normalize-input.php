@@ -7,6 +7,7 @@ namespace WPAICG\ContentWriter\Ajax\Actions\GenerateTitle;
 
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Title_Action;
 use WPAICG\AIPKit_Providers;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -74,7 +75,7 @@ function validate_and_normalize_input_logic(AIPKit_Content_Writer_Generate_Title
 
     // Sanitize other used fields that might be passed in
     $settings['ai_temperature'] = isset($settings['ai_temperature']) ? floatval($settings['ai_temperature']) : 1.0;
-    $settings['custom_title_prompt'] = isset($settings['custom_title_prompt']) ? sanitize_textarea_field($settings['custom_title_prompt']) : '';
+    $settings['custom_title_prompt'] = isset($settings['custom_title_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($settings['custom_title_prompt']) : '';
     $settings['rss_description'] = isset($settings['rss_description'])
         ? sanitize_textarea_field(wp_unslash($settings['rss_description']))
         : '';

@@ -1,5 +1,5 @@
 <?php
-// File: classes/chat/storage/class-aipkit_bot_settings_saver.php
+// File: classes/chat/storage/class-aipkit-bot-settings-saver.php
 // Status: MODIFIED
 
 namespace WPAICG\Chat\Storage;

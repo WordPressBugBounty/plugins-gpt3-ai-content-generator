@@ -10,6 +10,7 @@ use WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Image_Provider_Options;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WPAICG\AIPKit_Providers;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -67,10 +68,21 @@ function build_task_config_writing_logic(array $post_data): array|WP_Error
             'rss_include_keywords', 'rss_exclude_keywords',
             'reasoning_effort',
         ];
+        $prompt_template_keys = [
+            'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt',
+            'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt',
+            'image_prompt', 'featured_image_prompt',
+        ];
+        $textarea_keys = [
+            'content_title_bulk', 'rss_feeds', 'url_list', 'rss_include_keywords',
+            'rss_exclude_keywords', 'content_title', 'smart_schedule_start_datetime',
+        ];
 
         foreach ($allowed_keys_from_template_manager as $key) {
             if (isset($post_data[$key])) {
-                if (in_array($key, ['content_title_bulk', 'custom_title_prompt', 'custom_content_prompt', 'custom_meta_prompt', 'custom_keyword_prompt', 'custom_excerpt_prompt', 'custom_tags_prompt', 'rss_feeds', 'url_list', 'image_prompt', 'featured_image_prompt', 'rss_include_keywords', 'rss_exclude_keywords', 'content_title', 'smart_schedule_start_datetime'], true)) {
+                if (in_array($key, $prompt_template_keys, true)) {
+                    $content_writer_config[$key] = AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($post_data[$key]));
+                } elseif (in_array($key, $textarea_keys, true)) {
                     $content_writer_config[$key] = sanitize_textarea_field(wp_unslash($post_data[$key]));
                 } elseif ($key === 'gsheets_credentials') {
                     if (class_exists('\WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler')) {

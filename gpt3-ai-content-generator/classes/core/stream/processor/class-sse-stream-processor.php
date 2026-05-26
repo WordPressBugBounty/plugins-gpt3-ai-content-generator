@@ -16,10 +16,6 @@ require_once __DIR__ . '/fn-curl-callback.php';
 require_once __DIR__ . '/fn-log-bot-response.php';
 require_once __DIR__ . '/fn-log-bot-error.php';
 
-// Ensure dependencies for fn-start-stream.php and its helpers are loaded.
-// These are class dependencies, so should be handled by main plugin loader or within those files.
-// use WPAICG\Core\Stream\Processor\SSE\Start\SSEServicePreparer; (used within fn-start-stream.php)
-
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -68,35 +64,6 @@ class SSEStreamProcessor {
         }
         if (class_exists(\WPAICG\Core\TokenManager\AIPKit_Token_Manager::class)) {
             $this->token_manager = new \WPAICG\Core\TokenManager\AIPKit_Token_Manager();
-        }
-
-        // --- Load dependencies for the new helper classes if not handled by a general loader ---
-        $sse_start_path = __DIR__ . '/sse/start/';
-        $helper_classes = [
-            'class-sse-service-preparer.php',
-            'class-sse-stream-initializer.php',
-            'class-sse-request-executor.php',
-            'class-sse-connection-validator.php',
-            'class-sse-error-handler.php',
-        ];
-        foreach($helper_classes as $helper_file) {
-            $file_path = $sse_start_path . $helper_file;
-            if (file_exists($file_path)) {
-                // Basic check if class might exist (e.g., if class name predictable from file name)
-                // A more robust autoloader or explicit class_exists check would be better.
-                // For example, if file is class-sse-service-preparer.php, check for SSEServicePreparer
-                $class_name_base = str_replace(['class-sse-', '.php'], '', $helper_file); // service-preparer
-                $class_name_parts = explode('-', $class_name_base);
-                $class_name_camel = '';
-                foreach ($class_name_parts as $part) {
-                    $class_name_camel .= ucfirst($part);
-                }
-                $full_class_name = __NAMESPACE__ . '\\SSE\\Start\\SSE' . $class_name_camel; // e.g., ...\SSE\Start\SSEServicePreparer
-
-                if (!class_exists($full_class_name)) {
-                     require_once $file_path;
-                }
-            }
         }
     }
 

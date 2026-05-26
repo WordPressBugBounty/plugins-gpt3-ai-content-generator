@@ -54,7 +54,6 @@ class Vector_Store_Ajax_Handlers_Loader
         $openai_utility_functions_to_load = [
             'fn-log-entry.php',
             'fn-temp-file.php',
-            'fn-stores-log-entry.php',
         ];
         foreach ($openai_utility_functions_to_load as $util_fn_file) {
             $full_path = $openai_ajax_base_path . $util_fn_file;

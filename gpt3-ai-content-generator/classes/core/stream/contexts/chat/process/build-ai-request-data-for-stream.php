@@ -14,6 +14,7 @@ use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Core\Providers\OpenAI\OpenAIStatefulConversationHelper;
 use WPAICG\Chat\Storage\BotSettingsManager; // For default constants
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -308,7 +309,7 @@ function build_ai_request_data_for_stream_logic(
             $web_search_config['max_results'] = max(1, min($openrouter_max_results, 10));
 
             $openrouter_search_prompt = isset($bot_settings['openrouter_web_search_search_prompt'])
-                ? sanitize_textarea_field((string) $bot_settings['openrouter_web_search_search_prompt'])
+                ? AIPKit_Prompt_Sanitizer::sanitize($bot_settings['openrouter_web_search_search_prompt'])
                 : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
             if ($openrouter_search_prompt !== '') {
                 $web_search_config['search_prompt'] = $openrouter_search_prompt;

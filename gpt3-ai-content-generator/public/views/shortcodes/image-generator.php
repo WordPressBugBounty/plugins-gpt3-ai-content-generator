@@ -19,7 +19,7 @@ use WPAICG\AIPKit_Providers;
 // $preset_provider, $preset_model, $preset_size, $preset_number,
 // $final_provider, $final_model, $final_size, $final_number,
 // $theme, $show_history, $image_history_html,
-// $allowed_providers, $allowed_models,
+// $allowed_models,
 // $mode, $default_mode, $show_mode_switch,
 // $ui_text
 

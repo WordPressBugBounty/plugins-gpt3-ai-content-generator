@@ -5,6 +5,7 @@
 namespace WPAICG\Chat\Core\AIService\GenerateResponse\AiParams;
 
 use WPAICG\Chat\Storage\BotSettingsManager;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -51,7 +52,7 @@ function apply_openrouter_web_search_logic(
     $web_search_config['max_results'] = max(1, min($max_results, 10));
 
     $search_prompt = isset($bot_settings['openrouter_web_search_search_prompt'])
-        ? sanitize_textarea_field((string) $bot_settings['openrouter_web_search_search_prompt'])
+        ? AIPKit_Prompt_Sanitizer::sanitize($bot_settings['openrouter_web_search_search_prompt'])
         : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
     if ($search_prompt !== '') {
         $web_search_config['search_prompt'] = $search_prompt;
@@ -60,4 +61,3 @@ function apply_openrouter_web_search_logic(
     $final_ai_params['web_search_tool_config'] = $web_search_config;
     $final_ai_params['frontend_web_search_active'] = $frontend_web_search_active;
 }
-

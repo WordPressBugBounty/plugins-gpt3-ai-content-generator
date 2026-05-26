@@ -10,6 +10,7 @@ use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Keyword_Prompt_Builder;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyword_Resolver;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 use function WPAICG\ContentWriter\Ajax\Actions\Shared\load_smart_seo_keyword_resolver_logic;
 use function WPAICG\ContentWriter\Ajax\Actions\Shared\smart_seo_keyword_resolution_response_fields_logic;
@@ -45,8 +46,8 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
         $model = isset($_POST['model']) ? sanitize_text_field(wp_unslash($_POST['model'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
         $prompt_mode = isset($_POST['prompt_mode']) ? sanitize_key($_POST['prompt_mode']) : 'standard';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
-        $custom_keyword_prompt = isset($_POST['custom_keyword_prompt']) ? sanitize_textarea_field(wp_unslash($_POST['custom_keyword_prompt'])) : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in check_module_access_permissions(); AIPKit_Prompt_Sanitizer preserves literal HTML while sanitizing prompt text.
+        $custom_keyword_prompt = isset($_POST['custom_keyword_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($_POST['custom_keyword_prompt'])) : null;
 
 
         if (empty($generated_content) || empty($final_title) || empty($provider_raw) || empty($model)) {

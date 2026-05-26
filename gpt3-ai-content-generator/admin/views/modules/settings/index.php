@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
 // Ensure GoogleSettingsHandler is loaded before use
-$google_settings_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/google/GoogleSettingsHandler.php';
+$google_settings_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/google/bootstrap-settings-handler.php';
 if (!class_exists(GoogleSettingsHandler::class) && file_exists($google_settings_handler_path)) {
     require_once $google_settings_handler_path;
 } elseif (!class_exists(GoogleSettingsHandler::class)) {

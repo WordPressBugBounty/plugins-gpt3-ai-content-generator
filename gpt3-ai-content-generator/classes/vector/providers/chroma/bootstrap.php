@@ -43,11 +43,6 @@ class AIPKit_Vector_Chroma_Strategy extends AIPKit_Vector_Base_Provider_Strategy
     protected $tenant = 'default_tenant';
     protected $database = 'default_database';
 
-    protected function _request(string $method, string $path, array $body = [], array $query_params = []): array|WP_Error
-    {
-        return \WPAICG\Vector\Providers\Chroma\Methods\_request_logic($this, $method, $path, $body, $query_params);
-    }
-
     public function connect(array $config): bool|WP_Error
     {
         return \WPAICG\Vector\Providers\Chroma\Methods\connect_logic($this, $config);

@@ -107,18 +107,51 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
      */
     public function _log_vector_data_source_entry(array $log_data): void
     {
-        // Ensure the log function file is loaded before calling it
-        $log_fn_path = __DIR__ . '/handler-collections/ajax-get-vector-data-source-logs.php'; // Corrected path
-        if (file_exists($log_fn_path)) {
-            // Ensure the function itself is included if not already
-            if (!function_exists('\WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_log_vector_data_source_entry_logic')) {
-                require_once $log_fn_path;
+        $defaults = [
+            'user_id' => get_current_user_id(),
+            'timestamp' => current_time('mysql', 1),
+            'provider' => 'Qdrant',
+            'vector_store_id' => 'unknown',
+            'vector_store_name' => null,
+            'post_id' => null,
+            'post_title' => null,
+            'status' => 'info',
+            'message' => '',
+            'indexed_content' => null,
+            'file_id' => null,
+            'batch_id' => null,
+            'embedding_provider' => null,
+            'embedding_model' => null,
+            'source_type_for_log' => null,
+        ];
+        $data_to_insert = wp_parse_args($log_data, $defaults);
+
+        $source_type = $data_to_insert['source_type_for_log'] ?? ($data_to_insert['post_id'] ? 'wordpress_post' : 'unknown');
+        $should_truncate = !in_array(
+            $source_type,
+            ['text_entry_global_form', 'file_upload_global_form', 'text_entry_qdrant_direct', 'file_upload_qdrant_direct', 'chatbot_training_text', 'chatbot_training_qa'],
+            true
+        );
+
+        if ($should_truncate && is_string($data_to_insert['indexed_content']) && mb_strlen($data_to_insert['indexed_content']) > 1000) {
+            $data_to_insert['indexed_content'] = mb_substr($data_to_insert['indexed_content'], 0, 997) . '...';
+        }
+        unset($data_to_insert['source_type_for_log']);
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $result = $this->wpdb->insert($this->data_source_table_name, $data_to_insert);
+        if ($result) {
+            $provider = $log_data['provider'] ?? 'Qdrant';
+            $store_id = $log_data['vector_store_id'] ?? null;
+            if ($store_id) {
+                $cache_key_logs = strtolower($provider) . '_logs_' . sanitize_key($store_id);
+                $cache_key_count = strtolower($provider) . '_logs_count_' . sanitize_key($store_id);
+                $cache_group = 'aipkit_vector_logs';
+                wp_cache_delete($cache_key_count, $cache_group);
+                for ($i = 1; $i <= 5; $i++) {
+                    wp_cache_delete($cache_key_logs . '_page_' . $i, $cache_group);
+                }
             }
-            \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_log_vector_data_source_entry_logic(
-                $this->wpdb,
-                $this->data_source_table_name,
-                $log_data
-            );
         }
     }
 
@@ -232,40 +265,6 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
             wp_send_json_success($result);
         }
     }
-
-    public function ajax_search_qdrant_collection()
-    {
-        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-        require_once __DIR__ . '/handler-collections/ajax-search-collection.php';
-        \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_search_collection_logic($this);
-    }
-
-    public function ajax_get_qdrant_collection_stats()
-    {
-        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-        require_once __DIR__ . '/handler-collections/ajax-get-collection-stats.php';
-        \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_get_collection_stats_logic($this);
-    }
-
-    public function ajax_get_vector_data_source_logs_for_store()
-    {
-        $permission_check = $this->check_any_module_access_permissions(['sources', 'chatbot'], 'aipkit_vector_store_qdrant_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-        require_once __DIR__ . '/handler-collections/ajax-get-vector-data-source-logs.php';
-        \WPAICG\Dashboard\Ajax\Qdrant\HandlerCollections\_aipkit_qdrant_ajax_get_vector_data_source_logs_logic($this);
-    }
-
     // Getter methods for dependencies needed by the new standalone functions
     public function get_vector_store_manager(): ?\WPAICG\Vector\AIPKit_Vector_Store_Manager
     {

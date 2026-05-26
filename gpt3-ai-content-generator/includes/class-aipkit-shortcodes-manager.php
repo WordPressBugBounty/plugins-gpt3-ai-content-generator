@@ -215,12 +215,6 @@ class AIPKit_Shortcodes_Manager
                     }
                 }
 
-                // Get attributes from the shortcode class
-                $image_gen_atts = class_exists('\\WPAICG\\Shortcodes\\AIPKit_Image_Generator_Shortcode')
-                                  ? AIPKit_Image_Generator_Shortcode::get_current_attributes()
-                                  : [];
-                $allowed_models_str = $image_gen_atts['allowed_models'] ?? null;
-
                 if (!class_exists('\\WPAICG\\Images\\AIPKit_Image_Settings_Ajax_Handler')) {
                     $settings_handler_path = WPAICG_PLUGIN_DIR . 'classes/images/class-aipkit-image-settings-ajax-handler.php';
                     if (file_exists($settings_handler_path)) {
@@ -245,8 +239,6 @@ class AIPKit_Shortcodes_Manager
 
                 wp_localize_script($public_image_generator_js_handle, 'aipkit_image_generator_config_public', [
                     'ajaxUrl' => admin_url('admin-ajax.php'),
-                    'nonce' => wp_create_nonce('aipkit_image_generator_nonce'),
-                    'allowed_models' => $allowed_models_str,
                     'text' => [
                         'generating' => __('Generating...', 'gpt3-ai-content-generator'),
                         'editing' => __('Editing...', 'gpt3-ai-content-generator'),

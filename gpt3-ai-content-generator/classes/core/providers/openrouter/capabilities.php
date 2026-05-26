@@ -3,6 +3,8 @@
 
 namespace WPAICG\Core\Providers\OpenRouter\Methods;
 
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -286,17 +288,6 @@ function model_supports_web_search_plugin_logic(string $model_id): bool {
 }
 
 /**
- * Checks whether selected OpenRouter model appears to support image input.
- *
- * @param string $model_id OpenRouter model id.
- * @return bool
- */
-function model_supports_image_input_logic(string $model_id): bool {
-    $resolved = resolve_model_capabilities_logic($model_id);
-    return !empty($resolved['image_input']);
-}
-
-/**
  * Checks whether selected OpenRouter model appears to support image output.
  *
  * @param string $model_id OpenRouter model id.
@@ -396,7 +387,7 @@ function sanitize_web_search_config_logic(array $raw_config): array {
     }
 
     if (!empty($raw_config['search_prompt'])) {
-        $search_prompt = sanitize_textarea_field((string) $raw_config['search_prompt']);
+        $search_prompt = AIPKit_Prompt_Sanitizer::sanitize($raw_config['search_prompt']);
         if ($search_prompt !== '') {
             $sanitized['search_prompt'] = $search_prompt;
         }

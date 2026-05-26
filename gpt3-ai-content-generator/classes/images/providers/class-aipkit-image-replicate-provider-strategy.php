@@ -6,6 +6,7 @@
 namespace WPAICG\Images\Providers;
 
 use WPAICG\Images\AIPKit_Image_Base_Provider_Strategy;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -425,7 +426,7 @@ class AIPKit_Image_Replicate_Provider_Strategy extends AIPKit_Image_Base_Provide
         }
 
         if ($field === 'negative_prompt') {
-            $value = sanitize_text_field((string) $value);
+            $value = AIPKit_Prompt_Sanitizer::sanitize($value);
             if ($value === '') {
                 return null;
             }

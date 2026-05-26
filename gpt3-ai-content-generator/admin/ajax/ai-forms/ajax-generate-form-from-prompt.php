@@ -5,6 +5,7 @@ namespace WPAICG\Admin\Ajax\AIForms;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Ajax_Handler;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Core\AIPKit_AI_Caller;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -34,7 +35,7 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
     $post_data = wp_unslash($_POST);
 
     $generation_prompt = isset($post_data['generation_prompt'])
-        ? sanitize_textarea_field((string) $post_data['generation_prompt'])
+        ? AIPKit_Prompt_Sanitizer::sanitize($post_data['generation_prompt'])
         : '';
     $generation_prompt = aipkit_ai_forms_limit_text_length($generation_prompt, 4000);
 
@@ -727,9 +728,9 @@ function aipkit_ai_forms_normalize_generated_blueprint(array $blueprint, string 
 
     $prompt_template = '';
     if (isset($blueprint['prompt_template'])) {
-        $prompt_template = sanitize_textarea_field((string) $blueprint['prompt_template']);
+        $prompt_template = AIPKit_Prompt_Sanitizer::sanitize($blueprint['prompt_template']);
     } elseif (isset($blueprint['prompt'])) {
-        $prompt_template = sanitize_textarea_field((string) $blueprint['prompt']);
+        $prompt_template = AIPKit_Prompt_Sanitizer::sanitize($blueprint['prompt']);
     }
     if ($prompt_template === '') {
         $prompt_template = aipkit_ai_forms_build_fallback_prompt_template($fallback_prompt, $field_references);

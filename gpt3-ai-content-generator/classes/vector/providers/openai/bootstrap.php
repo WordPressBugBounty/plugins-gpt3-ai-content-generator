@@ -7,7 +7,6 @@ namespace WPAICG\Vector\Providers;
 use WPAICG\Vector\AIPKit_Vector_Base_Provider_Strategy;
 use WPAICG\Core\Providers\OpenAI\OpenAIUrlBuilder;
 use WP_Error;
-use CURLFile; // Make sure this is available or handled if not
 
 // Ensure the function files are loaded.
 // It's often better to use an autoloader, but for this specific refactor:
@@ -50,26 +49,11 @@ class AIPKit_Vector_OpenAI_Strategy extends AIPKit_Vector_Base_Provider_Strategy
         }
         // Ensure OpenAIUrlBuilder is loaded
         if (!class_exists(OpenAIUrlBuilder::class)) {
-            $url_builder_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/openai/OpenAIUrlBuilder.php';
+            $url_builder_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/openai/bootstrap-url-builder.php';
             if (file_exists($url_builder_path)) {
                 require_once $url_builder_path;
             }
         }
-    }
-
-    /**
-     * Makes an HTTP request to the OpenAI API.
-     * This method is internal to the strategy and called by other public methods.
-     *
-     * @param string $method HTTP method (GET, POST, DELETE).
-     * @param string $url Full request URL.
-     * @param array $body Request body for POST requests or multipart data for file uploads.
-     * @param bool $is_file_upload True if this is a multipart/form-data file upload.
-     * @return array|WP_Error Decoded JSON response or WP_Error.
-     */
-    protected function _request(string $method, string $url, array $body = [], bool $is_file_upload = false): array|WP_Error {
-        // The actual logic is in _request.php, called via the namespaced function
-        return \WPAICG\Vector\Providers\OpenAI\Methods\_request_logic($this, $method, $url, $body, $is_file_upload);
     }
 
     public function connect(array $config): bool|WP_Error {
@@ -127,17 +111,6 @@ class AIPKit_Vector_OpenAI_Strategy extends AIPKit_Vector_Base_Provider_Strategy
 
     public function delete_openai_file_object(string $file_id): bool|WP_Error {
         return \WPAICG\Vector\Providers\OpenAI\Methods\delete_openai_file_object_logic($this, $file_id);
-    }
-
-    /**
-     * Determines the MIME type from the filename extension.
-     * This method is internal to the strategy.
-     *
-     * @param string $filename The filename.
-     * @return string|WP_Error The MIME type string or WP_Error if not determinable/supported.
-     */
-    protected function get_mime_type_from_filename(string $filename): string|WP_Error {
-        return \WPAICG\Vector\Providers\OpenAI\Methods\get_mime_type_from_filename_logic($this, $filename);
     }
 
     // Getter for static mime map for use in get_mime_type_from_filename_logic

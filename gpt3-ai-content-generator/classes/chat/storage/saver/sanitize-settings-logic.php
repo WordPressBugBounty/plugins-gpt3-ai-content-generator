@@ -9,6 +9,7 @@ use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Chat\Storage\BotSettingsManager;
 use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKit_Providers;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -85,7 +86,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     )
         ? $raw_theme_preset_key
         : '';
-    $sanitized['instructions'] = isset($raw_settings['instructions']) ? sanitize_textarea_field($raw_settings['instructions']) : '';
+    $sanitized['instructions'] = isset($raw_settings['instructions']) ? AIPKit_Prompt_Sanitizer::sanitize($raw_settings['instructions']) : '';
     $sanitized['popup_enabled'] = (isset($raw_settings['popup_enabled']) && $raw_settings['popup_enabled'] === '1') ? '1' : '0';
     $sanitized['popup_position'] = isset($raw_settings['popup_position']) ? sanitize_key($raw_settings['popup_position']) : 'bottom-right';
     $sanitized['popup_delay'] = isset($raw_settings['popup_delay']) ? absint($raw_settings['popup_delay']) : BotSettingsManager::DEFAULT_POPUP_DELAY;
@@ -421,7 +422,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS;
     $sanitized['openrouter_web_search_max_results'] = max(1, min($raw_openrouter_max_results, 10));
     $sanitized['openrouter_web_search_search_prompt'] = isset($raw_settings['openrouter_web_search_search_prompt'])
-        ? sanitize_textarea_field((string) $raw_settings['openrouter_web_search_search_prompt'])
+        ? AIPKit_Prompt_Sanitizer::sanitize($raw_settings['openrouter_web_search_search_prompt'])
         : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
     $sanitized['xai_web_search_enabled'] = (isset($raw_settings['xai_web_search_enabled']) && $raw_settings['xai_web_search_enabled'] === '1') ? '1' : '0';
     $sanitized['google_search_grounding_enabled'] = (isset($raw_settings['google_search_grounding_enabled']) && $raw_settings['google_search_grounding_enabled'] === '1') ? '1' : '0';

@@ -8,6 +8,7 @@ namespace WPAICG\ContentWriter\Ajax\Actions;
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Base_Ajax_Action;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -36,8 +37,8 @@ class AIPKit_Content_Writer_Generate_Excerpt_Action extends AIPKit_Content_Write
         $model = isset($_POST['model']) ? sanitize_text_field(wp_unslash($_POST['model'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
         $prompt_mode = isset($_POST['prompt_mode']) ? sanitize_key($_POST['prompt_mode']) : 'standard';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
-        $custom_excerpt_prompt = isset($_POST['custom_excerpt_prompt']) ? sanitize_textarea_field(wp_unslash($_POST['custom_excerpt_prompt'])) : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above; AIPKit_Prompt_Sanitizer preserves literal HTML while sanitizing prompt text.
+        $custom_excerpt_prompt = isset($_POST['custom_excerpt_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($_POST['custom_excerpt_prompt'])) : null;
 
         if (empty($generated_content) || empty($final_title) || empty($provider_raw) || empty($model)) {
             $this->send_wp_error(new WP_Error('missing_excerpt_data', 'Missing required data for excerpt generation.', ['status' => 400]));

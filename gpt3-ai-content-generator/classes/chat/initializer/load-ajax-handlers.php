@@ -16,10 +16,7 @@ function load_ajax_handlers_logic(): void {
     $base_path = WPAICG_PLUGIN_DIR . 'classes/chat/';
     $ajax_handlers_paths = [
         'admin/ajax/chatbot_ajax_handler.php',
-        'admin/ajax/log_ajax_handler.php',
         'admin/ajax/conversation_ajax_handler.php',
-        'admin/ajax/chatbot_export_ajax_handler.php',
-        'admin/ajax/chatbot_import_ajax_handler.php',
         'admin/ajax/class-aipkit-chatbot-image-ajax-handler.php',
     ];
 
@@ -40,14 +37,8 @@ function load_ajax_handlers_logic(): void {
             $class_name = '\\WPAICG\\Chat\\Admin\\Ajax\\ChatbotImageAjaxHandler';
         } elseif ($handler_path_relative === 'admin/ajax/chatbot_ajax_handler.php') {
              $class_name = '\\WPAICG\\Chat\\Admin\\Ajax\\ChatbotAjaxHandler';
-        } elseif ($handler_path_relative === 'admin/ajax/log_ajax_handler.php') {
-             $class_name = '\\WPAICG\\Chat\\Admin\\Ajax\\LogAjaxHandler';
         } elseif ($handler_path_relative === 'admin/ajax/conversation_ajax_handler.php') {
              $class_name = '\\WPAICG\\Chat\\Admin\\Ajax\\ConversationAjaxHandler';
-        } elseif ($handler_path_relative === 'admin/ajax/chatbot_export_ajax_handler.php') {
-             $class_name = '\\WPAICG\\Chat\\Admin\\Ajax\\ChatbotExportAjaxHandler';
-        } elseif ($handler_path_relative === 'admin/ajax/chatbot_import_ajax_handler.php') {
-             $class_name = '\\WPAICG\\Chat\\Admin\\Ajax\\ChatbotImportAjaxHandler';
         }
 
 

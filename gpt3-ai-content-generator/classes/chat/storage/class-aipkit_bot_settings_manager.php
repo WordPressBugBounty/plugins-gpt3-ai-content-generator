@@ -224,7 +224,7 @@ class BotSettingsManager
         }
 
         // Load and instantiate AIPKit_Bot_Settings_Saver
-        $saver_path = __DIR__ . '/class-aipkit_bot_settings_saver.php';
+        $saver_path = __DIR__ . '/class-aipkit-bot-settings-saver.php';
         if (!class_exists(AIPKit_Bot_Settings_Saver::class)) {
             if (file_exists($saver_path)) {
                 require_once $saver_path;

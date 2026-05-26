@@ -295,7 +295,9 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
             'nonce' => wp_create_nonce('aipkit_nonce'),
             'isProPlan' => $is_pro_plan,
             'isAdmin' => current_user_can('manage_options'),
-            'modulesUrl' => WPAICG_PLUGIN_URL . 'admin/views/modules/',
+            'moduleScripts' => [
+                'sources' => WPAICG_PLUGIN_URL . 'dist/js/admin-sources.bundle.js?ver=' . self::asset_version('dist/js/admin-sources.bundle.js', $plugin_version),
+            ],
             'upgradeUrl' => admin_url('admin.php?page=wpaicg-pricing'),
             'adminUrl' => admin_url(),
             'main_provider' => $current_provider,
@@ -416,7 +418,6 @@ class ChatAdminAssets extends AIPKit_Admin_Asset_Base
             return;
         }
 
-        $user_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
         $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('chat_admin_ui');
         $embedding_localization = AIPKit_Providers::get_embedding_localization_payload('chat_admin_ui', false);
         $dashboard_texts = self::dashboard_texts();
@@ -425,7 +426,6 @@ class ChatAdminAssets extends AIPKit_Admin_Asset_Base
         wp_localize_script('aipkit-public-main', 'aipkit_chat_config', [
             'nonce' => wp_create_nonce('aipkit_frontend_chat_nonce'),
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'userIp' => $user_ip,
             'requireConsentCompliance' => false,
             'openaiVectorStores' => $vector_store_localization['openaiVectorStores'],
             'pineconeIndexes' => $vector_store_localization['pineconeIndexes'],
@@ -435,7 +435,6 @@ class ChatAdminAssets extends AIPKit_Admin_Asset_Base
             'embedding_models_by_provider' => $embedding_localization['embedding_models_by_provider'],
             'isProPlan' => $is_pro_plan,
             'automationsNonce' => wp_create_nonce('aipkit_automated_tasks_manage_nonce'),
-            'nonce_toggle_ip_block' => wp_create_nonce('aipkit_toggle_ip_block_nonce'),
             'text' => array_merge($dashboard_texts, [
                 'fullscreenError' => $dashboard_texts['fullscreenError'] ?? __('Error: Fullscreen functionality is unavailable.', 'gpt3-ai-content-generator'),
                 'copySuccess' => $dashboard_texts['copySuccess'] ?? __('Copied!', 'gpt3-ai-content-generator'),
@@ -682,7 +681,6 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
                 /* translators: %s: placeholder token that will be replaced by the selected text. */
                 'prompt_placeholder_info' => __('Use %s as a placeholder for the selected text.', 'gpt3-ai-content-generator'),
             ],
-            'settings_url' => admin_url('admin.php?page=wpaicg#settings'),
         ]);
     }
 }
@@ -763,7 +761,6 @@ class ImageGeneratorAssets extends AIPKit_Admin_Asset_Base
 
         wp_localize_script('aipkit-public-image-generator-js', 'aipkit_image_generator_config_public', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('aipkit_image_generator_nonce'),
             'text' => [
                 'generating' => __('Generating...', 'gpt3-ai-content-generator'),
                 'editing' => __('Editing...', 'gpt3-ai-content-generator'),
@@ -1275,7 +1272,6 @@ class AIPKit_AI_Forms_Assets extends AIPKit_Admin_Asset_Base
 
         wp_localize_script('aipkit-admin-main', 'aipkit_ai_forms_config', [
             'nonce_manage_forms' => wp_create_nonce('aipkit_manage_ai_forms_nonce'),
-            'nonce_settings' => wp_create_nonce('aipkit_ai_forms_settings_nonce'),
             'current_user_id' => get_current_user_id(),
             'vectorStores' => $vector_store_localization['vectorStores'],
             'embeddingProviderMap' => $embedding_localization['embeddingProviderMap'],

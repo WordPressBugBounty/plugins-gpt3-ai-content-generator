@@ -40,10 +40,6 @@ function upload_file_for_vector_store_logic(AIPKit_Vector_OpenAI_Strategy $strat
     $url = OpenAIUrlBuilder::build('files', $url_builder_params);
     if (is_wp_error($url)) return $url;
 
-    // Access the protected method get_mime_type_from_filename via a public wrapper if needed,
-    // or make it public/protected in the strategy class itself.
-    // For this modularization, if get_mime_type_from_filename is also externalized, call that.
-    // Let's assume it's correctly externalized and can be called.
     $mime_type = get_mime_type_from_filename_logic($strategyInstance, $original_filename);
     if (is_wp_error($mime_type)) {
         $mime_type = 'application/octet-stream';

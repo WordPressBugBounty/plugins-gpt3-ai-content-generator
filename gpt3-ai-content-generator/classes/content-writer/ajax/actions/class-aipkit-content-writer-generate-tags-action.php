@@ -8,6 +8,7 @@ namespace WPAICG\ContentWriter\Ajax\Actions;
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Base_Ajax_Action;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Summarizer;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -38,8 +39,8 @@ class AIPKit_Content_Writer_Generate_Tags_Action extends AIPKit_Content_Writer_B
         $model = isset($_POST['model']) ? sanitize_text_field(wp_unslash($_POST['model'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
         $prompt_mode = isset($_POST['prompt_mode']) ? sanitize_key($_POST['prompt_mode']) : 'standard';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce is checked in check_module_access_permissions.
-        $custom_tags_prompt = isset($_POST['custom_tags_prompt']) ? sanitize_textarea_field(wp_unslash($_POST['custom_tags_prompt'])) : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in check_module_access_permissions(); AIPKit_Prompt_Sanitizer preserves literal HTML while sanitizing prompt text.
+        $custom_tags_prompt = isset($_POST['custom_tags_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($_POST['custom_tags_prompt'])) : null;
 
 
         if (empty($generated_content) || empty($final_title) || empty($provider_raw) || empty($model)) {

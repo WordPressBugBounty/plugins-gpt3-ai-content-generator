@@ -9,6 +9,7 @@ use WPAICG\Images\AIPKit_Image_Manager;
 use WPAICG\Images\AIPKit_Image_Provider_Strategy_Factory;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Images\AIPKit_Image_Storage_Helper;
+use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -17,6 +18,7 @@ if (!defined('ABSPATH')) {
 
 function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $prompt, array $options = [], ?int $wp_user_id = null): array|WP_Error
 {
+    $prompt = AIPKit_Prompt_Sanitizer::sanitize($prompt);
     $provider_raw = $options['provider'] ?? 'openai';
 
     $provider_normalized = match(strtolower($provider_raw)) {
