@@ -1,12 +1,5 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-$is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
-?>
+if (!defined('ABSPATH')) { exit; } $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan(); ?>
 
 <select
     id="aipkit_content_writer_provider"
@@ -19,17 +12,7 @@ $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard
     tabindex="-1"
 >
     <?php
-    if (!empty($providers_for_select) && is_array($providers_for_select)) {
-        foreach ($providers_for_select as $provider_name) {
-            $provider_value = strtolower($provider_name);
-            $provider_disabled = ($provider_name === 'Ollama' && !$is_pro);
-            $provider_display_name = class_exists('\\WPAICG\\AIPKit_Providers')
-                ? \WPAICG\AIPKit_Providers::get_provider_display_name((string) $provider_name)
-                : ((string) $provider_name === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : (string) $provider_name);
-            $provider_label = $provider_disabled
-                ? __('Ollama (Pro)', 'gpt3-ai-content-generator')
-                : $provider_display_name;
-            ?>
+ if (!empty($providers_for_select) && is_array($providers_for_select)) { foreach ($providers_for_select as $provider_name) { $provider_value = strtolower($provider_name); $provider_disabled = ($provider_name === 'Ollama' && !$is_pro); $provider_display_name = class_exists('\\WPAICG\\AIPKit_Providers') ? \WPAICG\AIPKit_Providers::get_provider_display_name((string) $provider_name) : ((string) $provider_name === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : (string) $provider_name); $provider_label = $provider_disabled ? __('Ollama (Pro)', 'gpt3-ai-content-generator') : $provider_display_name; ?>
             <option
                 value="<?php echo esc_attr($provider_value); ?>"
                 <?php selected($default_provider, $provider_value); ?>
@@ -38,9 +21,7 @@ $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard
                 <?php echo esc_html($provider_label); ?>
             </option>
             <?php
-        }
-    }
-    ?>
+ } } ?>
 </select>
 
 <input

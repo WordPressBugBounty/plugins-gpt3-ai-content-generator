@@ -1,13 +1,5 @@
 <?php
-/**
- * Partial: AutoGPT Settings Popover
- * Current: Cron status summary (future options will be added here).
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <?php if (!empty($aipkit_autogpt_cron_summary)) : ?>
     <div class="aipkit_autogpt_settings_section">
         <span class="aipkit_autogpt_settings_title"><?php esc_html_e('Cron Status', 'gpt3-ai-content-generator'); ?></span>

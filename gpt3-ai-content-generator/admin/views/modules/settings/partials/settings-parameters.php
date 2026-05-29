@@ -1,84 +1,5 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/settings/partials/settings-parameters.php
-/**
- * Partial: AI Parameters & Advanced Settings
- */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-if (!defined('ABSPATH')) exit;
-
-// Variables required: $current_provider, $temperature, $top_p
-// Also, variables required by the included partials settings-advanced-provider.php and settings-safety-google.php
-// must be available here or passed down.
-// For settings-advanced-provider.php: $openai_data, $openrouter_data, $google_data, $azure_data, $claude_data, $deepseek_data, $openai_defaults, etc.
-// For settings-safety-google.php: $category_thresholds, $safety_thresholds
-// $is_pro (from settings/index.php)
-
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler; // For settings-safety-google.php
-use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
-
-$openai_security_settings = class_exists(AIPKit_Global_Security_Settings::class)
-    ? AIPKit_Global_Security_Settings::get_settings()
-    : [
-        'openai_moderation_enabled' => '0',
-        'openai_moderation_message' => __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'),
-    ];
-$openai_moderation_enabled = isset($openai_security_settings['openai_moderation_enabled']) && (string) $openai_security_settings['openai_moderation_enabled'] === '1'
-    ? '1'
-    : '0';
-$openai_moderation_message = (string) ($openai_security_settings['openai_moderation_message']
-    ?? __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'));
-
-$sync_button_configs = [
-    'OpenAI' => [
-        'id' => 'aipkit_sync_openai_models',
-        'label' => __('Model List', 'gpt3-ai-content-generator'),
-        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
-    ],
-    'OpenRouter' => [
-        'id' => 'aipkit_sync_openrouter_models',
-        'label' => __('Model List', 'gpt3-ai-content-generator'),
-        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
-    ],
-    'Google' => [
-        'id' => 'aipkit_sync_google_models',
-        'label' => __('Model List', 'gpt3-ai-content-generator'),
-        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
-    ],
-    'Azure' => [
-        'id' => 'aipkit_sync_azure_models',
-        'label' => __('Model List', 'gpt3-ai-content-generator'),
-        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
-    ],
-    'Claude' => [
-        'id' => 'aipkit_sync_claude_models',
-        'label' => __('Model List', 'gpt3-ai-content-generator'),
-        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
-    ],
-    'DeepSeek' => [
-        'id' => 'aipkit_sync_deepseek_models',
-        'label' => __('Model List', 'gpt3-ai-content-generator'),
-        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
-    ],
-    'xAI' => [
-        'id' => 'aipkit_sync_xai_models',
-        'label' => __('Model List', 'gpt3-ai-content-generator'),
-        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
-    ],
-    'Ollama' => [
-        'id' => 'aipkit_sync_ollama_models',
-        'label' => __('Model List', 'gpt3-ai-content-generator'),
-        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
-    ],
-];
-
-$render_sync_row = static function ($provider) use ($sync_button_configs) {
-    if (!isset($sync_button_configs[$provider])) {
-        return;
-    }
-
-    $config = $sync_button_configs[$provider];
-    ?>
+ if (!defined('ABSPATH')) exit; use WPAICG\Core\Providers\Google\GoogleSettingsHandler; use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings; $openai_security_settings = class_exists(AIPKit_Global_Security_Settings::class) ? AIPKit_Global_Security_Settings::get_settings() : [ 'openai_moderation_enabled' => '0', 'openai_moderation_message' => __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'), ]; $openai_moderation_enabled = isset($openai_security_settings['openai_moderation_enabled']) && (string) $openai_security_settings['openai_moderation_enabled'] === '1' ? '1' : '0'; $openai_moderation_message = (string) ($openai_security_settings['openai_moderation_message'] ?? __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator')); $sync_button_configs = [ 'OpenAI' => [ 'id' => 'aipkit_sync_openai_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'OpenRouter' => [ 'id' => 'aipkit_sync_openrouter_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'Google' => [ 'id' => 'aipkit_sync_google_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'Azure' => [ 'id' => 'aipkit_sync_azure_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'Claude' => [ 'id' => 'aipkit_sync_claude_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'DeepSeek' => [ 'id' => 'aipkit_sync_deepseek_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'xAI' => [ 'id' => 'aipkit_sync_xai_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'Ollama' => [ 'id' => 'aipkit_sync_ollama_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], ]; $render_sync_row = static function ($provider) use ($sync_button_configs) { if (!isset($sync_button_configs[$provider])) { return; } $config = $sync_button_configs[$provider]; ?>
     <button
         type="button"
         id="<?php echo esc_attr($config['id']); ?>"
@@ -89,9 +10,50 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
         <span class="aipkit_btn_label"><?php echo esc_html($config['button_text']); ?></span>
     </button>
     <?php
-};
-
-?>
+}; $render_endpoint_provider_group = static function ($provider, $slug, $data, $defaults) use ($current_provider, $render_sync_row) { $base_url_id = 'aipkit_' . $slug . '_base_url'; $base_url_name = $slug . '_base_url'; $api_version_id = 'aipkit_' . $slug . '_api_version'; $api_version_name = $slug . '_api_version'; ?>
+    <div
+        class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
+        data-provider-setting="<?php echo esc_attr($provider); ?>"
+        style="display: <?php echo ($current_provider === $provider) ? 'block' : 'none'; ?>;"
+    >
+        <div class="aipkit_settings_advanced_row aipkit_settings_advanced_row--with-action">
+            <div class="aipkit_settings_advanced_label_wrap">
+                <label class="aipkit_settings_advanced_label" for="<?php echo esc_attr($base_url_id); ?>"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
+                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Custom API endpoint.', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_settings_advanced_control">
+                <div class="aipkit_popover_option_actions">
+                    <div class="aipkit_input-with-icon-wrapper">
+                        <input type="text" id="<?php echo esc_attr($base_url_id); ?>" name="<?php echo esc_attr($base_url_name); ?>" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--vector-wide aipkit_autosave_trigger" value="<?php echo esc_attr($data['base_url']); ?>" />
+                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($defaults['base_url']); ?>" data-target-input="<?php echo esc_attr($base_url_id); ?>">
+                            <span class="dashicons dashicons-undo"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="aipkit_settings_advanced_action">
+                <?php $render_sync_row($provider); ?>
+            </div>
+        </div>
+        <div class="aipkit_settings_advanced_row">
+            <div class="aipkit_settings_advanced_label_wrap">
+                <label class="aipkit_settings_advanced_label" for="<?php echo esc_attr($api_version_id); ?>"><?php esc_html_e('API Version', 'gpt3-ai-content-generator'); ?></label>
+                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Endpoint version.', 'gpt3-ai-content-generator'); ?></span>
+            </div>
+            <div class="aipkit_settings_advanced_control">
+                <div class="aipkit_popover_option_actions">
+                    <div class="aipkit_input-with-icon-wrapper">
+                        <input type="text" id="<?php echo esc_attr($api_version_id); ?>" name="<?php echo esc_attr($api_version_name); ?>" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($data['api_version']); ?>" />
+                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($defaults['api_version']); ?>" data-target-input="<?php echo esc_attr($api_version_id); ?>">
+                            <span class="dashicons dashicons-undo"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+}; ?>
     <div class="aipkit_popover_options_list">
     <div class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_settings_advanced_group--common">
         <div class="aipkit_settings_advanced_row">
@@ -262,89 +224,8 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
         </div>
     </div>
 
-    <div
-        class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
-        data-provider-setting="OpenRouter"
-        style="display: <?php echo ($current_provider === 'OpenRouter') ? 'block' : 'none'; ?>;"
-    >
-        <div class="aipkit_settings_advanced_row aipkit_settings_advanced_row--with-action">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_openrouter_base_url"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Custom API endpoint.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_openrouter_base_url" name="openrouter_base_url" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--vector-wide aipkit_autosave_trigger" value="<?php echo esc_attr($openrouter_data['base_url']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($openrouter_defaults['base_url']); ?>" data-target-input="aipkit_openrouter_base_url">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="aipkit_settings_advanced_action">
-                <?php $render_sync_row('OpenRouter'); ?>
-            </div>
-        </div>
-        <div class="aipkit_settings_advanced_row">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_openrouter_api_version"><?php esc_html_e('API Version', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Endpoint version.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_openrouter_api_version" name="openrouter_api_version" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($openrouter_data['api_version']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($openrouter_defaults['api_version']); ?>" data-target-input="aipkit_openrouter_api_version">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
-        data-provider-setting="Google"
-        style="display: <?php echo ($current_provider === 'Google') ? 'block' : 'none'; ?>;"
-    >
-        <div class="aipkit_settings_advanced_row aipkit_settings_advanced_row--with-action">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_google_base_url"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Custom API endpoint.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_google_base_url" name="google_base_url" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--vector-wide aipkit_autosave_trigger" value="<?php echo esc_attr($google_data['base_url']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($google_defaults['base_url']); ?>" data-target-input="aipkit_google_base_url">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="aipkit_settings_advanced_action">
-                <?php $render_sync_row('Google'); ?>
-            </div>
-        </div>
-        <div class="aipkit_settings_advanced_row">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_google_api_version"><?php esc_html_e('API Version', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Endpoint version.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_google_api_version" name="google_api_version" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($google_data['api_version']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($google_defaults['api_version']); ?>" data-target-input="aipkit_google_api_version">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php
+ $render_endpoint_provider_group('OpenRouter', 'openrouter', $openrouter_data, $openrouter_defaults); $render_endpoint_provider_group('Google', 'google', $google_data, $google_defaults); ?>
 
     <div
         class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
@@ -388,135 +269,9 @@ $render_sync_row = static function ($provider) use ($sync_button_configs) {
         </div>
     </div>
 
-    <div
-        class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
-        data-provider-setting="Claude"
-        style="display: <?php echo ($current_provider === 'Claude') ? 'block' : 'none'; ?>;"
-    >
-        <div class="aipkit_settings_advanced_row aipkit_settings_advanced_row--with-action">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_claude_base_url"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Custom API endpoint.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_claude_base_url" name="claude_base_url" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--vector-wide aipkit_autosave_trigger" value="<?php echo esc_attr($claude_data['base_url']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($claude_defaults['base_url']); ?>" data-target-input="aipkit_claude_base_url">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="aipkit_settings_advanced_action">
-                <?php $render_sync_row('Claude'); ?>
-            </div>
-        </div>
-        <div class="aipkit_settings_advanced_row">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_claude_api_version"><?php esc_html_e('API Version', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Endpoint version.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_claude_api_version" name="claude_api_version" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($claude_data['api_version']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($claude_defaults['api_version']); ?>" data-target-input="aipkit_claude_api_version">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
-        data-provider-setting="DeepSeek"
-        style="display: <?php echo ($current_provider === 'DeepSeek') ? 'block' : 'none'; ?>;"
-    >
-        <div class="aipkit_settings_advanced_row aipkit_settings_advanced_row--with-action">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_deepseek_base_url"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Custom API endpoint.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_deepseek_base_url" name="deepseek_base_url" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--vector-wide aipkit_autosave_trigger" value="<?php echo esc_attr($deepseek_data['base_url']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($deepseek_defaults['base_url']); ?>" data-target-input="aipkit_deepseek_base_url">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="aipkit_settings_advanced_action">
-                <?php $render_sync_row('DeepSeek'); ?>
-            </div>
-        </div>
-        <div class="aipkit_settings_advanced_row">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_deepseek_api_version"><?php esc_html_e('API Version', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Endpoint version.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_deepseek_api_version" name="deepseek_api_version" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($deepseek_data['api_version']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($deepseek_defaults['api_version']); ?>" data-target-input="aipkit_deepseek_api_version">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
-        data-provider-setting="xAI"
-        style="display: <?php echo ($current_provider === 'xAI') ? 'block' : 'none'; ?>;"
-    >
-        <div class="aipkit_settings_advanced_row aipkit_settings_advanced_row--with-action">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_xai_base_url"><?php esc_html_e('Base URL', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Custom API endpoint.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_xai_base_url" name="xai_base_url" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--vector-wide aipkit_autosave_trigger" value="<?php echo esc_attr($xai_data['base_url']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($xai_defaults['base_url']); ?>" data-target-input="aipkit_xai_base_url">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="aipkit_settings_advanced_action">
-                <?php $render_sync_row('xAI'); ?>
-            </div>
-        </div>
-        <div class="aipkit_settings_advanced_row">
-            <div class="aipkit_settings_advanced_label_wrap">
-                <label class="aipkit_settings_advanced_label" for="aipkit_xai_api_version"><?php esc_html_e('API Version', 'gpt3-ai-content-generator'); ?></label>
-                <span class="aipkit_settings_advanced_helper"><?php esc_html_e('Endpoint version.', 'gpt3-ai-content-generator'); ?></span>
-            </div>
-            <div class="aipkit_settings_advanced_control">
-                <div class="aipkit_popover_option_actions">
-                    <div class="aipkit_input-with-icon-wrapper">
-                        <input type="text" id="aipkit_xai_api_version" name="xai_api_version" class="aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--framed aipkit_popover_option_input--compact aipkit_autosave_trigger" value="<?php echo esc_attr($xai_data['api_version']); ?>" />
-                        <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Restore default value', 'gpt3-ai-content-generator'); ?>" data-default-value="<?php echo esc_attr($xai_defaults['api_version']); ?>" data-target-input="aipkit_xai_api_version">
-                            <span class="dashicons dashicons-undo"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php
+ $render_endpoint_provider_group('Claude', 'claude', $claude_data, $claude_defaults); $render_endpoint_provider_group('DeepSeek', 'deepseek', $deepseek_data, $deepseek_defaults); $render_endpoint_provider_group('xAI', 'xai', $xai_data, $xai_defaults); ?>
 
     <?php
-    if (class_exists(GoogleSettingsHandler::class)) {
-        include __DIR__ . '/settings-safety-google.php';
-    }
-    ?>
+ if (class_exists(GoogleSettingsHandler::class)) { include __DIR__ . '/settings-safety-google.php'; } ?>
 </div>

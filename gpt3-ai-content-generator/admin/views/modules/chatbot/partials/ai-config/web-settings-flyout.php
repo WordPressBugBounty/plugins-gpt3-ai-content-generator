@@ -1,10 +1,5 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-?>
+if (!defined('ABSPATH')) { exit; } ?>
 
 <div class="aipkit_popover_options_list aipkit_popover_options_list--web">
     <?php $supports_web_toggle_default = in_array($current_provider_for_this_bot, ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'xAI'], true); ?>

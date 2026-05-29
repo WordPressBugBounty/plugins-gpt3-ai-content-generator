@@ -1,26 +1,5 @@
 <?php
-
-/**
- * Partial: API Key Input Fields for different providers.
- */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-if (!defined('ABSPATH')) exit;
-
-// Variables required: $current_provider, $openai_data, $openrouter_data, $google_data, $azure_data, $claude_data, $deepseek_data, $xai_data, $azure_defaults
-
-$provider_api_key_urls = [
-    'OpenAI' => 'https://platform.openai.com/api-keys',
-    'OpenRouter' => 'https://openrouter.ai/keys',
-    'Google' => 'https://makersuite.google.com/app/apikey',
-    'Azure' => 'https://ai.azure.com/', 
-    'Claude' => 'https://console.anthropic.com/settings/keys',
-    'DeepSeek' => 'https://platform.deepseek.com/api_keys',
-    'xAI' => 'https://console.x.ai/team/default/api-keys',
-];
-
-?>
-<!-- OpenAI API Key -->
+ if (!defined('ABSPATH')) exit; $provider_api_key_urls = [ 'OpenAI' => 'https://platform.openai.com/api-keys', 'OpenRouter' => 'https://openrouter.ai/keys', 'Google' => 'https://makersuite.google.com/app/apikey', 'Azure' => 'https://ai.azure.com/', 'Claude' => 'https://console.anthropic.com/settings/keys', 'DeepSeek' => 'https://platform.deepseek.com/api_keys', 'xAI' => 'https://console.x.ai/team/default/api-keys', ]; ?>
 <div
     class="aipkit_form-group aipkit_api_key_field aipkit_settings_simple_row"
     id="aipkit_openai_api_key_group"
@@ -44,7 +23,6 @@ $provider_api_key_urls = [
     </div>
 </div>
 
-<!-- OpenRouter API Key -->
 <div
     class="aipkit_form-group aipkit_api_key_field aipkit_settings_simple_row"
     id="aipkit_openrouter_api_key_group"
@@ -68,7 +46,6 @@ $provider_api_key_urls = [
     </div>
 </div>
 
-<!-- Google API Key -->
 <div
     class="aipkit_form-group aipkit_api_key_field aipkit_settings_simple_row"
     id="aipkit_google_api_key_group"
@@ -92,7 +69,6 @@ $provider_api_key_urls = [
     </div>
 </div>
 
-<!-- Claude API Key -->
 <div
     class="aipkit_form-group aipkit_api_key_field aipkit_settings_simple_row"
     id="aipkit_claude_api_key_group"
@@ -116,7 +92,6 @@ $provider_api_key_urls = [
     </div>
 </div>
 
-<!-- Azure API Key -->
 <div
     class="aipkit_form-group aipkit_api_key_field aipkit_settings_simple_row"
     id="aipkit_azure_api_key_group"
@@ -140,7 +115,6 @@ $provider_api_key_urls = [
     </div>
 </div>
 
-<!-- Azure Endpoint URL -->
 <div
     class="aipkit_form-group aipkit_api_key_field aipkit_settings_simple_row"
     id="aipkit_azure_endpoint_group"
@@ -151,19 +125,18 @@ $provider_api_key_urls = [
         <?php esc_html_e('Endpoint URL', 'gpt3-ai-content-generator'); ?>
         <span class="aipkit_form-label-helper"><?php esc_html_e('Enter Azure resource endpoint URL.', 'gpt3-ai-content-generator'); ?></span>
     </label>
-    <div class="aipkit_input-with-button"> <?php // Wrap with aipkit_input-with-button for consistent flex behavior ?>
+    <div class="aipkit_input-with-button"> <?php ?>
         <div class="aipkit_input-with-icon-wrapper">
              <input type="url" id="aipkit_azure_endpoint" name="azure_endpoint" class="aipkit_form-input aipkit_autosave_trigger" value="<?php echo esc_attr($azure_data['endpoint']); ?>" placeholder="<?php esc_attr_e('e.g., https://your-resource-name.openai.azure.com/', 'gpt3-ai-content-generator'); ?>" />
              <span class="aipkit_restore-default-icon" title="<?php esc_attr_e('Clear field', 'gpt3-ai-content-generator'); ?>" data-default-value="" data-target-input="aipkit_azure_endpoint">
                 <span class="dashicons dashicons-undo"></span>
             </span>
         </div>
-        <span class="aipkit_input-button-spacer"></span> <?php // Spacer keeps this field aligned with API key rows that include a helper link ?>
+        <span class="aipkit_input-button-spacer"></span> <?php ?>
     </div>
 </div>
 
 
-<!-- DeepSeek API Key -->
 <div
     class="aipkit_form-group aipkit_api_key_field aipkit_settings_simple_row"
     id="aipkit_deepseek_api_key_group"
@@ -187,7 +160,6 @@ $provider_api_key_urls = [
     </div>
 </div>
 
-<!-- xAI API Key -->
 <div
     class="aipkit_form-group aipkit_api_key_field aipkit_settings_simple_row"
     id="aipkit_xai_api_key_group"
@@ -211,7 +183,6 @@ $provider_api_key_urls = [
     </div>
 </div>
 
-<!-- Ollama Base URL -->
 <div
     class="aipkit_form-group aipkit_api_key_field aipkit_settings_simple_row"
     id="aipkit_ollama_base_url_group"

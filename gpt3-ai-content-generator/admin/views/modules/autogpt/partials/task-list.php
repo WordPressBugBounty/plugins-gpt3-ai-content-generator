@@ -1,17 +1,5 @@
 <?php
-// File: admin/views/modules/autogpt/partials/task-list.php
-/**
- * Partial: Automated Task List
- * Displays the table of existing automated tasks.
- * REDESIGNED: Simplified 6-column layout following philosophy principles
- * - Reduced choice overload by consolidating timing columns
- * - Better chunking with cleaner visual hierarchy
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <div id="aipkit_automated_task_list_wrapper">
     <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">

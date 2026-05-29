@@ -1,14 +1,5 @@
 <?php
-/**
- * Partial: Content Writing Automated Task - CSV Input Mode
- * UPDATED: Replaced textarea with a file input for direct CSV uploads.
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <div id="aipkit_task_cw_input_mode_csv" class="aipkit_task_cw_input_mode_section">
     <div class="aipkit_csv_import_container aipkit_cw_source_mode_shell aipkit_cw_source_mode_shell--csv">
         <div class="aipkit_cw_source_mode_header">
@@ -52,7 +43,7 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
 
-        <?php // This hidden textarea will be populated by JS with the parsed CSV data (pipe-separated) ?>
+        <?php ?>
         <textarea name="content_title" id="aipkit_task_cw_csv_data_holder" class="aipkit_csv_data_holder" style="display: none;" readonly></textarea>
 
         <div class="aipkit_cw_source_mode_footer aipkit_csv_help_content" data-csv-help>

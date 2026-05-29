@@ -1,18 +1,7 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/image-generator/index.php
-/**
- * AIPKit Image Generator Module - Admin View
- * REVISED: Uses the same workspace tab structure as AI Forms.
- */
-
-if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
-}
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <?php
-$aipkit_notice_id = 'aipkit_provider_notice_image_generator';
-include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
-?>
+$aipkit_notice_id = 'aipkit_provider_notice_image_generator'; include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php'; ?>
 
 <div class="aipkit_container aipkit_module_image_generator" id="aipkit_image_generator_container">
     <div class="aipkit_container-header">
@@ -198,8 +187,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
             <div id="aipkit_image_generator_preview_panel" class="aipkit_ai_forms_workspace_panel aipkit_image_generator_workspace_panel is-active" role="tabpanel" aria-labelledby="aipkit_image_generator_generator_tab">
                 <div class="aipkit_image_generator_admin_preview_wrapper">
                     <?php
-                    echo do_shortcode('[aipkit_image_generator history="true" mode="both" default_mode="generate"]');
-                    ?>
+ echo do_shortcode('[aipkit_image_generator history="true" mode="both" default_mode="generate"]'); ?>
                 </div>
             </div>
 
@@ -208,4 +196,4 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
             </div>
         </div>
     </div>
-</div><!-- /.aipkit_container -->
+</div>

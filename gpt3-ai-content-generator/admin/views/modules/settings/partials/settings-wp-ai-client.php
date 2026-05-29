@@ -1,19 +1,5 @@
 <?php
-/**
- * Partial: WordPress AI Client connector management.
- */
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-$aipkit_wpai_settings_class = '\\WPAICG\\WP_AI_Client\\AIPKit_WP_AI_Client_Settings';
-
-if (!class_exists($aipkit_wpai_settings_class) || !$aipkit_wpai_settings_class::is_supported()) {
-    return;
-}
-
-$aipkit_wpai_managed = $aipkit_wpai_settings_class::is_effectively_managed();
-?>
+ if (!defined('ABSPATH')) { exit; } $aipkit_wpai_settings_class = '\\WPAICG\\WP_AI_Client\\AIPKit_WP_AI_Client_Settings'; if (!class_exists($aipkit_wpai_settings_class) || !$aipkit_wpai_settings_class::is_supported()) { return; } $aipkit_wpai_managed = $aipkit_wpai_settings_class::is_effectively_managed(); ?>
 <div
     class="aipkit_form-group aipkit_settings_simple_row"
     id="aipkit_settings_wp_ai_client_row"

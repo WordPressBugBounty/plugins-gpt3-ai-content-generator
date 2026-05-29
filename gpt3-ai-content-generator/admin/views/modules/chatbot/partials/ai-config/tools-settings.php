@@ -1,136 +1,5 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-$bot_id = $initial_active_bot_id;
-$current_provider_for_this_bot = isset($current_provider_for_this_bot)
-    ? (string) $current_provider_for_this_bot
-    : 'OpenAI';
-$rt_disabled_by_plan = isset($rt_disabled_by_plan)
-    ? (bool) $rt_disabled_by_plan
-    : !(isset($is_pro_plan) && $is_pro_plan);
-$realtime_voice_toggle_value = (!$rt_disabled_by_plan && ($enable_realtime_voice ?? '0') === '1')
-    ? '1'
-    : '0';
-$stt_model_count_for_tools = (isset($openai_stt_models) && is_array($openai_stt_models))
-    ? count($openai_stt_models)
-    : 0;
-$stt_controls_hidden_for_tools = $stt_model_count_for_tools <= 1;
-$xai_web_search_enabled_val = isset($xai_web_search_enabled_val) && in_array($xai_web_search_enabled_val, ['0', '1'], true)
-    ? $xai_web_search_enabled_val
-    : '0';
-
-$is_current_provider_web_enabled = false;
-switch ($current_provider_for_this_bot) {
-    case 'OpenAI':
-        $is_current_provider_web_enabled = ($openai_web_search_enabled_val ?? '0') === '1';
-        break;
-    case 'Google':
-        $is_current_provider_web_enabled = ($google_search_grounding_enabled_val ?? '0') === '1';
-        break;
-    case 'Claude':
-        $is_current_provider_web_enabled = ($claude_web_search_enabled_val ?? '0') === '1';
-        break;
-    case 'OpenRouter':
-        $is_current_provider_web_enabled = ($openrouter_web_search_enabled_val ?? '0') === '1';
-        break;
-    case 'xAI':
-        $is_current_provider_web_enabled = ($xai_web_search_enabled_val ?? '0') === '1';
-        break;
-}
-
-$tools_master_options = [
-    'file_upload'    => [
-        'label'    => __('File upload', 'gpt3-ai-content-generator'),
-        'enabled'  => ($file_upload_toggle_value ?? '0') === '1',
-        'disabled' => !$can_enable_file_upload,
-    ],
-    'web_search'     => [
-        'label'    => __('Web search', 'gpt3-ai-content-generator'),
-        'enabled'  => $is_current_provider_web_enabled,
-        'disabled' => false,
-    ],
-    'image_analysis' => [
-        'label'    => __('Image analysis', 'gpt3-ai-content-generator'),
-        'enabled'  => ($enable_image_upload ?? '0') === '1',
-        'disabled' => false,
-    ],
-    'image_generation' => [
-        'label'    => __('Image generation', 'gpt3-ai-content-generator'),
-        'enabled'  => ($enable_image_generation ?? '0') === '1',
-        'disabled' => false,
-    ],
-    'speech_to_text' => [
-        'label'    => __('Speech to Text', 'gpt3-ai-content-generator'),
-        'enabled'  => ($enable_voice_input ?? '0') === '1',
-        'disabled' => false,
-    ],
-    'text_to_speech' => [
-        'label'    => __('Text to Speech', 'gpt3-ai-content-generator'),
-        'enabled'  => ($tts_enabled ?? '0') === '1',
-        'disabled' => false,
-    ],
-    'realtime_voice' => [
-        'label'    => __('Realtime Voice', 'gpt3-ai-content-generator'),
-        'enabled'  => $realtime_voice_toggle_value === '1',
-        'disabled' => $rt_disabled_by_plan,
-    ],
-];
-$tools_master_selected_labels = [];
-foreach ($tools_master_options as $tools_master_option) {
-    if (!empty($tools_master_option['enabled'])) {
-        $tools_master_selected_labels[] = (string) $tools_master_option['label'];
-    }
-}
-$tools_master_selected_count = count($tools_master_selected_labels);
-$tools_master_dropdown_label = __('Select tools', 'gpt3-ai-content-generator');
-if ($tools_master_selected_count > 2) {
-    $tools_master_dropdown_label = sprintf(
-        /* translators: %d: number of selected tools. */
-        _n('%d selected', '%d selected', $tools_master_selected_count, 'gpt3-ai-content-generator'),
-        $tools_master_selected_count
-    );
-} elseif ($tools_master_selected_count > 0) {
-    $tools_master_dropdown_label = implode(', ', $tools_master_selected_labels);
-}
-
-$image_model_groups = [];
-$known_image_model_ids = [];
-$image_model_dropdown_label = '';
-$image_provider_settings_url = admin_url('admin.php?page=wpaicg');
-foreach ($available_image_models as $provider_group => $models) {
-    foreach ($models as $model) {
-        $model_id = isset($model['id']) ? (string) $model['id'] : '';
-        $model_name = isset($model['name']) ? (string) $model['name'] : $model_id;
-        if ($model_id === '' || $model_name === '') {
-            continue;
-        }
-        if (!isset($image_model_groups[$provider_group])) {
-            $image_model_groups[$provider_group] = [];
-        }
-        $image_model_groups[$provider_group][] = [
-            'id' => $model_id,
-            'name' => $model_name,
-        ];
-        $known_image_model_ids[] = $model_id;
-        if ((string) $chat_image_model_id === $model_id) {
-            $image_model_dropdown_label = $model_name;
-        }
-    }
-}
-if (!isset($image_model_groups['Replicate'])) {
-    $image_model_groups['Replicate'] = [];
-}
-if ($image_model_dropdown_label === '' && !empty($chat_image_model_id)) {
-    $image_model_dropdown_label = (string) $chat_image_model_id;
-}
-if ($image_model_dropdown_label === '') {
-    $image_model_dropdown_label = __('Select model', 'gpt3-ai-content-generator');
-}
-?>
+ if ( ! defined( 'ABSPATH' ) ) { exit; } $bot_id = $initial_active_bot_id; $current_provider_for_this_bot = isset($current_provider_for_this_bot) ? (string) $current_provider_for_this_bot : 'OpenAI'; $rt_disabled_by_plan = isset($rt_disabled_by_plan) ? (bool) $rt_disabled_by_plan : !(isset($is_pro_plan) && $is_pro_plan); $realtime_voice_toggle_value = (!$rt_disabled_by_plan && ($enable_realtime_voice ?? '0') === '1') ? '1' : '0'; $stt_model_count_for_tools = (isset($openai_stt_models) && is_array($openai_stt_models)) ? count($openai_stt_models) : 0; $stt_controls_hidden_for_tools = $stt_model_count_for_tools <= 1; $xai_web_search_enabled_val = isset($xai_web_search_enabled_val) && in_array($xai_web_search_enabled_val, ['0', '1'], true) ? $xai_web_search_enabled_val : '0'; $is_current_provider_web_enabled = false; switch ($current_provider_for_this_bot) { case 'OpenAI': $is_current_provider_web_enabled = ($openai_web_search_enabled_val ?? '0') === '1'; break; case 'Google': $is_current_provider_web_enabled = ($google_search_grounding_enabled_val ?? '0') === '1'; break; case 'Claude': $is_current_provider_web_enabled = ($claude_web_search_enabled_val ?? '0') === '1'; break; case 'OpenRouter': $is_current_provider_web_enabled = ($openrouter_web_search_enabled_val ?? '0') === '1'; break; case 'xAI': $is_current_provider_web_enabled = ($xai_web_search_enabled_val ?? '0') === '1'; break; } $tools_master_options = [ 'file_upload' => [ 'label' => __('File upload', 'gpt3-ai-content-generator'), 'enabled' => ($file_upload_toggle_value ?? '0') === '1', 'disabled' => !$can_enable_file_upload, ], 'web_search' => [ 'label' => __('Web search', 'gpt3-ai-content-generator'), 'enabled' => $is_current_provider_web_enabled, 'disabled' => false, ], 'image_analysis' => [ 'label' => __('Image analysis', 'gpt3-ai-content-generator'), 'enabled' => ($enable_image_upload ?? '0') === '1', 'disabled' => false, ], 'image_generation' => [ 'label' => __('Image generation', 'gpt3-ai-content-generator'), 'enabled' => ($enable_image_generation ?? '0') === '1', 'disabled' => false, ], 'speech_to_text' => [ 'label' => __('Speech to Text', 'gpt3-ai-content-generator'), 'enabled' => ($enable_voice_input ?? '0') === '1', 'disabled' => false, ], 'text_to_speech' => [ 'label' => __('Text to Speech', 'gpt3-ai-content-generator'), 'enabled' => ($tts_enabled ?? '0') === '1', 'disabled' => false, ], 'realtime_voice' => [ 'label' => __('Realtime Voice', 'gpt3-ai-content-generator'), 'enabled' => $realtime_voice_toggle_value === '1', 'disabled' => $rt_disabled_by_plan, ], ]; $tools_master_selected_labels = []; foreach ($tools_master_options as $tools_master_option) { if (!empty($tools_master_option['enabled'])) { $tools_master_selected_labels[] = (string) $tools_master_option['label']; } } $tools_master_selected_count = count($tools_master_selected_labels); $tools_master_dropdown_label = __('Select tools', 'gpt3-ai-content-generator'); if ($tools_master_selected_count > 2) { $tools_master_dropdown_label = sprintf( _n('%d selected', '%d selected', $tools_master_selected_count, 'gpt3-ai-content-generator'), $tools_master_selected_count ); } elseif ($tools_master_selected_count > 0) { $tools_master_dropdown_label = implode(', ', $tools_master_selected_labels); } $image_model_groups = []; $known_image_model_ids = []; $image_model_dropdown_label = ''; $image_provider_settings_url = admin_url('admin.php?page=wpaicg'); foreach ($available_image_models as $provider_group => $models) { foreach ($models as $model) { $model_id = isset($model['id']) ? (string) $model['id'] : ''; $model_name = isset($model['name']) ? (string) $model['name'] : $model_id; if ($model_id === '' || $model_name === '') { continue; } if (!isset($image_model_groups[$provider_group])) { $image_model_groups[$provider_group] = []; } $image_model_groups[$provider_group][] = [ 'id' => $model_id, 'name' => $model_name, ]; $known_image_model_ids[] = $model_id; if ((string) $chat_image_model_id === $model_id) { $image_model_dropdown_label = $model_name; } } } if (!isset($image_model_groups['Replicate'])) { $image_model_groups['Replicate'] = []; } if ($image_model_dropdown_label === '' && !empty($chat_image_model_id)) { $image_model_dropdown_label = (string) $chat_image_model_id; } if ($image_model_dropdown_label === '') { $image_model_dropdown_label = __('Select model', 'gpt3-ai-content-generator'); } ?>
 
 <div class="aipkit_tools_feature_rows">
     <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_tools_feature_row--enabled-tools">
@@ -166,10 +35,7 @@ if ($image_model_dropdown_label === '') {
                     <div class="aipkit_popover_multiselect_options">
                         <?php foreach ($tools_master_options as $tool_key => $tool_option) : ?>
                             <?php
-                            $show_tools_menu_upgrade = !$is_pro_plan
-                                && !empty($tool_option['disabled'])
-                                && in_array($tool_key, ['file_upload', 'realtime_voice'], true);
-                            ?>
+ $show_tools_menu_upgrade = !$is_pro_plan && !empty($tool_option['disabled']) && in_array($tool_key, ['file_upload', 'realtime_voice'], true); ?>
                             <label class="aipkit_popover_multiselect_item aipkit_tools_enabled_item<?php echo !empty($tool_option['disabled']) ? ' is-disabled' : ''; ?><?php echo $show_tools_menu_upgrade ? ' aipkit_tools_enabled_item--has-upgrade' : ''; ?>">
                                 <input
                                     type="checkbox"
@@ -336,8 +202,7 @@ if ($image_model_dropdown_label === '') {
                                             />
                                             <span class="aipkit_popover_multiselect_text">
                                                 <?php
-                                                echo esc_html((string) $chat_image_model_id);
-                                                ?>
+ echo esc_html((string) $chat_image_model_id); ?>
                                             </span>
                                         </span>
                                     </label>
@@ -384,8 +249,7 @@ if ($image_model_dropdown_label === '') {
                 <?php if (!empty($chat_image_model_id) && !in_array((string) $chat_image_model_id, $known_image_model_ids, true)) : ?>
                     <option value="<?php echo esc_attr($chat_image_model_id); ?>" selected="selected">
                         <?php
-                        echo esc_html((string) $chat_image_model_id);
-                        ?>
+ echo esc_html((string) $chat_image_model_id); ?>
                     </option>
                 <?php endif; ?>
             </select>

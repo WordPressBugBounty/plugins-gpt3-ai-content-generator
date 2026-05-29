@@ -1,185 +1,5 @@
 <?php
-/**
- * Partial: Native App Recipes List Section
- */
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-$is_pro_plan = class_exists('\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
-$recipes_class = '\WPAICG\\Lib\\Integrations\\Recipes\\AIPKit_Stored_Recipes';
-$connections_class = '\WPAICG\\Lib\\Integrations\\Apps\\AIPKit_App_Connections';
-
-if (
-    !$is_pro_plan
-    || !class_exists($recipes_class)
-    || !class_exists($connections_class)
-) {
-    return;
-}
-
-$stored_recipes = $recipes_class::get_recipes();
-$recipe_event_options = $recipes_class::get_event_options();
-$recipe_action_options = $recipes_class::get_action_options();
-$recipe_action_options_by_app = $recipes_class::get_action_options_by_app();
-$recipe_template_definitions = $recipes_class::get_template_definitions();
-$recipe_mapping_definitions = $recipes_class::get_mapping_ui_definitions();
-$recipe_chatbot_scope_options = $recipes_class::get_chatbot_scope_options();
-$recipe_ai_form_scope_options = method_exists($recipes_class, 'get_ai_form_scope_options')
-    ? $recipes_class::get_ai_form_scope_options()
-    : [];
-$recipe_connections = $connections_class::get_connections();
-$recipe_app_options = $connections_class::get_supported_app_options();
-$recipe_validator_class = '\WPAICG\\Lib\\Integrations\\Recipes\\AIPKit_Recipe_Validator';
-$recipe_validation_definitions = class_exists($recipe_validator_class) && method_exists($recipe_validator_class, 'get_ui_validation_definitions')
-    ? $recipe_validator_class::get_ui_validation_definitions()
-    : [];
-
-$recipe_connection_options = [];
-$recipe_connection_records = [];
-foreach ($recipe_connections as $connection) {
-    if (!is_array($connection)) {
-        continue;
-    }
-
-    $connection_id = sanitize_text_field((string) ($connection['id'] ?? ''));
-    if ($connection_id === '') {
-        continue;
-    }
-
-    $connection_name = sanitize_text_field((string) ($connection['name'] ?? ''));
-    $connection_app_slug = sanitize_key((string) ($connection['app_slug'] ?? ''));
-    $connection_status = sanitize_key((string) ($connection['status'] ?? 'draft'));
-    $connection_enabled = !array_key_exists('is_enabled', $connection) || !empty($connection['is_enabled']);
-    $recipe_connection_options[$connection_id] = [
-        'label' => $connection_name !== '' ? $connection_name : __('Untitled Connection', 'gpt3-ai-content-generator'),
-        'app_slug' => $connection_app_slug,
-        'status' => $connection_status,
-        'is_enabled' => $connection_enabled,
-    ];
-    $recipe_connection_records[$connection_id] = $connection;
-}
-
-$recipe_template_groups = [];
-foreach ($recipe_template_definitions as $template_slug => $template_definition) {
-    $template_app_slug = sanitize_key((string) ($template_definition['app_slug'] ?? ''));
-    if ($template_app_slug === '') {
-        $template_app_slug = 'other';
-    }
-
-    $group_label = $recipe_app_options[$template_app_slug] ?? __('Other', 'gpt3-ai-content-generator');
-    if (!isset($recipe_template_groups[$group_label])) {
-        $recipe_template_groups[$group_label] = [];
-    }
-
-    $recipe_template_groups[$group_label][$template_slug] = $template_definition;
-}
-
-$recipe_mapping_source_option_groups = [];
-$source_groups_by_event = $recipe_mapping_definitions['source_groups_by_event'] ?? [];
-if (is_array($source_groups_by_event) && !empty($source_groups_by_event)) {
-    foreach ($source_groups_by_event as $event_name => $source_groups) {
-        if (!is_array($source_groups)) {
-            continue;
-        }
-
-        foreach ($source_groups as $group_definition) {
-            if (!is_array($group_definition)) {
-                continue;
-            }
-
-            $group_label = sanitize_text_field((string) ($group_definition['label'] ?? __('Other Sources', 'gpt3-ai-content-generator')));
-            $group_key = $group_label !== '' ? $group_label : __('Other Sources', 'gpt3-ai-content-generator');
-            $group_options = $group_definition['options'] ?? [];
-            if (!is_array($group_options) || empty($group_options)) {
-                continue;
-            }
-
-            if (!isset($recipe_mapping_source_option_groups[$group_key])) {
-                $recipe_mapping_source_option_groups[$group_key] = [
-                    'label' => $group_label,
-                    'options' => [],
-                ];
-            }
-
-            foreach ($group_options as $source_path => $source_label) {
-                $source_key = (string) $source_path;
-                if (!isset($recipe_mapping_source_option_groups[$group_key]['options'][$source_key])) {
-                    $recipe_mapping_source_option_groups[$group_key]['options'][$source_key] = [
-                        'label' => (string) $source_label,
-                        'event_names' => [],
-                    ];
-                }
-
-                $recipe_mapping_source_option_groups[$group_key]['options'][$source_key]['event_names'][] = (string) $event_name;
-            }
-        }
-    }
-}
-
-if (empty($recipe_mapping_source_option_groups)) {
-    $recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')] = [
-        'label' => __('Core Sources', 'gpt3-ai-content-generator'),
-        'options' => [],
-    ];
-
-    foreach (($recipe_mapping_definitions['source_options_by_event'] ?? []) as $event_name => $source_options) {
-        if (!is_array($source_options)) {
-            continue;
-        }
-
-        foreach ($source_options as $source_path => $source_label) {
-            $source_key = (string) $source_path;
-            if (!isset($recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')]['options'][$source_key])) {
-                $recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')]['options'][$source_key] = [
-                    'label' => (string) $source_label,
-                    'event_names' => [],
-                ];
-            }
-
-            $recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')]['options'][$source_key]['event_names'][] = (string) $event_name;
-        }
-    }
-}
-
-$recipe_mapping_target_options_flat = [];
-foreach (($recipe_mapping_definitions['target_options_by_action'] ?? []) as $action_slug => $target_options) {
-    if (!is_array($target_options)) {
-        continue;
-    }
-
-    foreach ($target_options as $target_field => $target_label) {
-        $target_key = (string) $target_field;
-        if (!isset($recipe_mapping_target_options_flat[$target_key])) {
-            $recipe_mapping_target_options_flat[$target_key] = [
-                'label' => (string) $target_label,
-                'action_slugs' => [],
-            ];
-        }
-
-        $recipe_mapping_target_options_flat[$target_key]['action_slugs'][] = (string) $action_slug;
-    }
-}
-
-$render_recipe_mapping_row = static function (
-    string $recipe_index,
-    string $mapping_index,
-    array $mapping_field = []
-) use (
-    $recipe_mapping_source_option_groups,
-    $recipe_mapping_target_options_flat,
-    $recipe_mapping_definitions
-): void {
-    $target_field = sanitize_key((string) ($mapping_field['target_field'] ?? ''));
-    $source_path = sanitize_text_field((string) ($mapping_field['source_path'] ?? ''));
-    $transform = sanitize_key((string) ($mapping_field['transform'] ?? ''));
-    $fallback_value = is_scalar($mapping_field['fallback_value'] ?? '')
-        ? (string) ($mapping_field['fallback_value'] ?? '')
-        : '';
-    $is_required = !empty($mapping_field['is_required']);
-    ?>
+ if (!defined('ABSPATH')) { exit; } $is_pro_plan = class_exists('\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan(); $recipes_class = '\WPAICG\\Lib\\Integrations\\Recipes\\AIPKit_Stored_Recipes'; $connections_class = '\WPAICG\\Lib\\Integrations\\Apps\\AIPKit_App_Connections'; if ( !$is_pro_plan || !class_exists($recipes_class) || !class_exists($connections_class) ) { return; } $stored_recipes = $recipes_class::get_recipes(); $recipe_event_options = $recipes_class::get_event_options(); $recipe_action_options = $recipes_class::get_action_options(); $recipe_action_options_by_app = $recipes_class::get_action_options_by_app(); $recipe_template_definitions = $recipes_class::get_template_definitions(); $recipe_mapping_definitions = $recipes_class::get_mapping_ui_definitions(); $recipe_chatbot_scope_options = $recipes_class::get_chatbot_scope_options(); $recipe_ai_form_scope_options = method_exists($recipes_class, 'get_ai_form_scope_options') ? $recipes_class::get_ai_form_scope_options() : []; $recipe_connections = $connections_class::get_connections(); $recipe_app_options = $connections_class::get_supported_app_options(); $recipe_validator_class = '\WPAICG\\Lib\\Integrations\\Recipes\\AIPKit_Recipe_Validator'; $recipe_validation_definitions = class_exists($recipe_validator_class) && method_exists($recipe_validator_class, 'get_ui_validation_definitions') ? $recipe_validator_class::get_ui_validation_definitions() : []; $recipe_connection_options = []; $recipe_connection_records = []; foreach ($recipe_connections as $connection) { if (!is_array($connection)) { continue; } $connection_id = sanitize_text_field((string) ($connection['id'] ?? '')); if ($connection_id === '') { continue; } $connection_name = sanitize_text_field((string) ($connection['name'] ?? '')); $connection_app_slug = sanitize_key((string) ($connection['app_slug'] ?? '')); $connection_status = sanitize_key((string) ($connection['status'] ?? 'draft')); $connection_enabled = !array_key_exists('is_enabled', $connection) || !empty($connection['is_enabled']); $recipe_connection_options[$connection_id] = [ 'label' => $connection_name !== '' ? $connection_name : __('Untitled Connection', 'gpt3-ai-content-generator'), 'app_slug' => $connection_app_slug, 'status' => $connection_status, 'is_enabled' => $connection_enabled, ]; $recipe_connection_records[$connection_id] = $connection; } $recipe_template_groups = []; foreach ($recipe_template_definitions as $template_slug => $template_definition) { $template_app_slug = sanitize_key((string) ($template_definition['app_slug'] ?? '')); if ($template_app_slug === '') { $template_app_slug = 'other'; } $group_label = $recipe_app_options[$template_app_slug] ?? __('Other', 'gpt3-ai-content-generator'); if (!isset($recipe_template_groups[$group_label])) { $recipe_template_groups[$group_label] = []; } $recipe_template_groups[$group_label][$template_slug] = $template_definition; } $recipe_mapping_source_option_groups = []; $source_groups_by_event = $recipe_mapping_definitions['source_groups_by_event'] ?? []; if (is_array($source_groups_by_event) && !empty($source_groups_by_event)) { foreach ($source_groups_by_event as $event_name => $source_groups) { if (!is_array($source_groups)) { continue; } foreach ($source_groups as $group_definition) { if (!is_array($group_definition)) { continue; } $group_label = sanitize_text_field((string) ($group_definition['label'] ?? __('Other Sources', 'gpt3-ai-content-generator'))); $group_key = $group_label !== '' ? $group_label : __('Other Sources', 'gpt3-ai-content-generator'); $group_options = $group_definition['options'] ?? []; if (!is_array($group_options) || empty($group_options)) { continue; } if (!isset($recipe_mapping_source_option_groups[$group_key])) { $recipe_mapping_source_option_groups[$group_key] = [ 'label' => $group_label, 'options' => [], ]; } foreach ($group_options as $source_path => $source_label) { $source_key = (string) $source_path; if (!isset($recipe_mapping_source_option_groups[$group_key]['options'][$source_key])) { $recipe_mapping_source_option_groups[$group_key]['options'][$source_key] = [ 'label' => (string) $source_label, 'event_names' => [], ]; } $recipe_mapping_source_option_groups[$group_key]['options'][$source_key]['event_names'][] = (string) $event_name; } } } } if (empty($recipe_mapping_source_option_groups)) { $recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')] = [ 'label' => __('Core Sources', 'gpt3-ai-content-generator'), 'options' => [], ]; foreach (($recipe_mapping_definitions['source_options_by_event'] ?? []) as $event_name => $source_options) { if (!is_array($source_options)) { continue; } foreach ($source_options as $source_path => $source_label) { $source_key = (string) $source_path; if (!isset($recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')]['options'][$source_key])) { $recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')]['options'][$source_key] = [ 'label' => (string) $source_label, 'event_names' => [], ]; } $recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')]['options'][$source_key]['event_names'][] = (string) $event_name; } } } $recipe_mapping_target_options_flat = []; foreach (($recipe_mapping_definitions['target_options_by_action'] ?? []) as $action_slug => $target_options) { if (!is_array($target_options)) { continue; } foreach ($target_options as $target_field => $target_label) { $target_key = (string) $target_field; if (!isset($recipe_mapping_target_options_flat[$target_key])) { $recipe_mapping_target_options_flat[$target_key] = [ 'label' => (string) $target_label, 'action_slugs' => [], ]; } $recipe_mapping_target_options_flat[$target_key]['action_slugs'][] = (string) $action_slug; } } $render_recipe_mapping_row = static function ( string $recipe_index, string $mapping_index, array $mapping_field = [] ) use ( $recipe_mapping_source_option_groups, $recipe_mapping_target_options_flat, $recipe_mapping_definitions ): void { $target_field = sanitize_key((string) ($mapping_field['target_field'] ?? '')); $source_path = sanitize_text_field((string) ($mapping_field['source_path'] ?? '')); $transform = sanitize_key((string) ($mapping_field['transform'] ?? '')); $fallback_value = is_scalar($mapping_field['fallback_value'] ?? '') ? (string) ($mapping_field['fallback_value'] ?? '') : ''; $is_required = !empty($mapping_field['is_required']); ?>
     <div class="aipkit_settings_recipe_mapping_row" data-aipkit-recipe-mapping-row>
         <label class="aipkit_settings_recipe_mapping_field">
             <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Target Field', 'gpt3-ai-content-generator'); ?></span>
@@ -212,12 +32,7 @@ $render_recipe_mapping_row = static function (
                 <option value=""><?php esc_html_e('-- Select Source --', 'gpt3-ai-content-generator'); ?></option>
                 <?php foreach ($recipe_mapping_source_option_groups as $group_data) : ?>
                     <?php
-                    $group_label = sanitize_text_field((string) ($group_data['label'] ?? ''));
-                    $group_options = $group_data['options'] ?? [];
-                    if (!is_array($group_options) || empty($group_options)) {
-                        continue;
-                    }
-                    ?>
+ $group_label = sanitize_text_field((string) ($group_data['label'] ?? '')); $group_options = $group_data['options'] ?? []; if (!is_array($group_options) || empty($group_options)) { continue; } ?>
                     <optgroup label="<?php echo esc_attr($group_label); ?>">
                         <?php foreach ($group_options as $source_key => $source_data) : ?>
                             <option
@@ -275,133 +90,7 @@ $render_recipe_mapping_row = static function (
         </div>
     </div>
     <?php
-};
-
-$render_recipe = static function (
-    $index,
-    array $recipe = []
-) use (
-    $recipe_connection_options,
-    $recipe_event_options,
-    $recipe_app_options,
-    $recipe_action_options,
-    $recipe_action_options_by_app,
-    $recipe_chatbot_scope_options,
-    $recipe_ai_form_scope_options,
-    $recipe_mapping_definitions,
-    $recipe_connection_records,
-    $recipe_validator_class,
-    $render_recipe_mapping_row
-): void {
-    $recipe_index = (string) $index;
-    $recipe_id = sanitize_text_field((string) ($recipe['id'] ?? ''));
-    $recipe_name = (string) ($recipe['name'] ?? '');
-    $recipe_connection_id = sanitize_text_field((string) ($recipe['connection_id'] ?? ''));
-    $recipe_app_slug = sanitize_key((string) ($recipe['app_slug'] ?? 'slack'));
-    if (!isset($recipe_app_options[$recipe_app_slug])) {
-        $recipe_app_slug = 'slack';
-    }
-
-    $recipe_event_name = sanitize_text_field((string) ($recipe['event_name'] ?? ''));
-    if (!isset($recipe_event_options[$recipe_event_name]) && !empty($recipe_event_options)) {
-        $recipe_event_name = (string) array_key_first($recipe_event_options);
-    }
-
-    $recipe_action_slug = sanitize_key((string) ($recipe['action_slug'] ?? ''));
-    if (!isset($recipe_action_options[$recipe_action_slug])) {
-        $defaults_for_app = $recipe_action_options_by_app[$recipe_app_slug] ?? [];
-        $recipe_action_slug = (string) ($defaults_for_app[0] ?? array_key_first($recipe_action_options));
-    }
-
-    $recipe_status = sanitize_key((string) ($recipe['status'] ?? 'draft'));
-    if (!in_array($recipe_status, ['draft', 'active', 'inactive', 'error'], true)) {
-        $recipe_status = 'draft';
-    }
-
-    $recipe_enabled = isset($recipe['is_enabled']) && !empty($recipe['is_enabled']);
-    $recipe_summary_connection = $recipe_connection_options[$recipe_connection_id]['label'] ?? __('No connection', 'gpt3-ai-content-generator');
-    $recipe_summary_event = $recipe_event_name !== '' ? $recipe_event_name : __('No event', 'gpt3-ai-content-generator');
-    $recipe_summary_action = $recipe_action_options[$recipe_action_slug] ?? __('No action', 'gpt3-ai-content-generator');
-    $recipe_chatbot_scope_bot_ids = isset($recipe['filters']['chatbot']['bot_ids']) && is_array($recipe['filters']['chatbot']['bot_ids'])
-        ? array_values(array_filter(array_map('absint', $recipe['filters']['chatbot']['bot_ids'])))
-        : [];
-    $recipe_chatbot_scope_bot_id = !empty($recipe_chatbot_scope_bot_ids)
-        ? (string) ((int) $recipe_chatbot_scope_bot_ids[0])
-        : '';
-    $recipe_chatbot_scope_label = __('All Chatbots', 'gpt3-ai-content-generator');
-    if (!empty($recipe_chatbot_scope_bot_ids)) {
-        if (count($recipe_chatbot_scope_bot_ids) === 1) {
-            $scope_bot_id = (int) $recipe_chatbot_scope_bot_ids[0];
-            $recipe_chatbot_scope_label = $recipe_chatbot_scope_options[$scope_bot_id] ?? sprintf(
-                /* translators: %d: chatbot post ID */
-                __('Chatbot #%d', 'gpt3-ai-content-generator'),
-                $scope_bot_id
-            );
-        } else {
-            $recipe_chatbot_scope_label = sprintf(
-                /* translators: %d: number of selected chatbots */
-                __('%d Chatbots', 'gpt3-ai-content-generator'),
-                count($recipe_chatbot_scope_bot_ids)
-            );
-        }
-    }
-    $recipe_ai_form_scope_form_ids = isset($recipe['filters']['ai_form']['form_ids']) && is_array($recipe['filters']['ai_form']['form_ids'])
-        ? array_values(array_filter(array_map('absint', $recipe['filters']['ai_form']['form_ids'])))
-        : [];
-    $recipe_ai_form_scope_form_id = !empty($recipe_ai_form_scope_form_ids)
-        ? (string) ((int) $recipe_ai_form_scope_form_ids[0])
-        : '';
-    $recipe_ai_form_scope_label = __('All AI Forms', 'gpt3-ai-content-generator');
-    if (!empty($recipe_ai_form_scope_form_ids)) {
-        if (count($recipe_ai_form_scope_form_ids) === 1) {
-            $scope_form_id = (int) $recipe_ai_form_scope_form_ids[0];
-            $recipe_ai_form_scope_label = $recipe_ai_form_scope_options[$scope_form_id] ?? sprintf(
-                /* translators: %d: AI Form post ID */
-                __('AI Form #%d', 'gpt3-ai-content-generator'),
-                $scope_form_id
-            );
-        } else {
-            $recipe_ai_form_scope_label = sprintf(
-                /* translators: %d: number of selected AI Forms */
-                __('%d AI Forms', 'gpt3-ai-content-generator'),
-                count($recipe_ai_form_scope_form_ids)
-            );
-        }
-    }
-    $recipe_summary_parts = [
-        $recipe_summary_connection,
-        $recipe_summary_event,
-        $recipe_summary_action,
-    ];
-    if (strpos($recipe_event_name, 'chatbot.') === 0) {
-        $recipe_summary_parts[] = $recipe_chatbot_scope_label;
-    } elseif ($recipe_event_name === 'form.submitted') {
-        $recipe_summary_parts[] = $recipe_ai_form_scope_label;
-    }
-    $recipe_mapping_fields = [];
-    if (isset($recipe['mapping']['fields']) && is_array($recipe['mapping']['fields'])) {
-        $recipe_mapping_fields = array_values(array_filter($recipe['mapping']['fields'], 'is_array'));
-    }
-    $recipe_mapping_object_label = (string) (($recipe_mapping_definitions['event_object_types'][$recipe_event_name]['label'] ?? __('Event Record', 'gpt3-ai-content-generator')));
-    $recipe_validation_connection = $recipe_connection_records[$recipe_connection_id] ?? null;
-    $recipe_validation_state = class_exists($recipe_validator_class) && method_exists($recipe_validator_class, 'get_recipe_ui_state')
-        ? $recipe_validator_class::get_recipe_ui_state($recipe, is_array($recipe_validation_connection) ? $recipe_validation_connection : null)
-        : [
-            'status_key' => 'warning',
-            'summary' => __('Validation unavailable.', 'gpt3-ai-content-generator'),
-        ];
-    $recipe_validation_status = sanitize_key((string) ($recipe_validation_state['status_key'] ?? 'warning'));
-    if (!in_array($recipe_validation_status, ['ready', 'warning', 'error', 'reauth_required'], true)) {
-        $recipe_validation_status = 'warning';
-    }
-    $recipe_validation_summary = sanitize_text_field((string) ($recipe_validation_state['summary'] ?? __('Validation unavailable.', 'gpt3-ai-content-generator')));
-    $recipe_status_badge_labels = [
-        'ready' => __('Ready', 'gpt3-ai-content-generator'),
-        'warning' => __('Warning', 'gpt3-ai-content-generator'),
-        'error' => __('Error', 'gpt3-ai-content-generator'),
-        'reauth_required' => __('Reauth Required', 'gpt3-ai-content-generator'),
-    ];
-    ?>
+}; $render_recipe = static function ( $index, array $recipe = [] ) use ( $recipe_connection_options, $recipe_event_options, $recipe_app_options, $recipe_action_options, $recipe_action_options_by_app, $recipe_chatbot_scope_options, $recipe_ai_form_scope_options, $recipe_mapping_definitions, $recipe_connection_records, $recipe_validator_class, $render_recipe_mapping_row ): void { $recipe_index = (string) $index; $recipe_id = sanitize_text_field((string) ($recipe['id'] ?? '')); $recipe_name = (string) ($recipe['name'] ?? ''); $recipe_connection_id = sanitize_text_field((string) ($recipe['connection_id'] ?? '')); $recipe_app_slug = sanitize_key((string) ($recipe['app_slug'] ?? 'slack')); if (!isset($recipe_app_options[$recipe_app_slug])) { $recipe_app_slug = 'slack'; } $recipe_event_name = sanitize_text_field((string) ($recipe['event_name'] ?? '')); if (!isset($recipe_event_options[$recipe_event_name]) && !empty($recipe_event_options)) { $recipe_event_name = (string) array_key_first($recipe_event_options); } $recipe_action_slug = sanitize_key((string) ($recipe['action_slug'] ?? '')); if (!isset($recipe_action_options[$recipe_action_slug])) { $defaults_for_app = $recipe_action_options_by_app[$recipe_app_slug] ?? []; $recipe_action_slug = (string) ($defaults_for_app[0] ?? array_key_first($recipe_action_options)); } $recipe_status = sanitize_key((string) ($recipe['status'] ?? 'draft')); if (!in_array($recipe_status, ['draft', 'active', 'inactive', 'error'], true)) { $recipe_status = 'draft'; } $recipe_enabled = isset($recipe['is_enabled']) && !empty($recipe['is_enabled']); $recipe_summary_connection = $recipe_connection_options[$recipe_connection_id]['label'] ?? __('No connection', 'gpt3-ai-content-generator'); $recipe_summary_event = $recipe_event_name !== '' ? $recipe_event_name : __('No event', 'gpt3-ai-content-generator'); $recipe_summary_action = $recipe_action_options[$recipe_action_slug] ?? __('No action', 'gpt3-ai-content-generator'); $recipe_chatbot_scope_bot_ids = isset($recipe['filters']['chatbot']['bot_ids']) && is_array($recipe['filters']['chatbot']['bot_ids']) ? array_values(array_filter(array_map('absint', $recipe['filters']['chatbot']['bot_ids']))) : []; $recipe_chatbot_scope_bot_id = !empty($recipe_chatbot_scope_bot_ids) ? (string) ((int) $recipe_chatbot_scope_bot_ids[0]) : ''; $recipe_chatbot_scope_label = __('All Chatbots', 'gpt3-ai-content-generator'); if (!empty($recipe_chatbot_scope_bot_ids)) { if (count($recipe_chatbot_scope_bot_ids) === 1) { $scope_bot_id = (int) $recipe_chatbot_scope_bot_ids[0]; $recipe_chatbot_scope_label = $recipe_chatbot_scope_options[$scope_bot_id] ?? sprintf( __('Chatbot #%d', 'gpt3-ai-content-generator'), $scope_bot_id ); } else { $recipe_chatbot_scope_label = sprintf( __('%d Chatbots', 'gpt3-ai-content-generator'), count($recipe_chatbot_scope_bot_ids) ); } } $recipe_ai_form_scope_form_ids = isset($recipe['filters']['ai_form']['form_ids']) && is_array($recipe['filters']['ai_form']['form_ids']) ? array_values(array_filter(array_map('absint', $recipe['filters']['ai_form']['form_ids']))) : []; $recipe_ai_form_scope_form_id = !empty($recipe_ai_form_scope_form_ids) ? (string) ((int) $recipe_ai_form_scope_form_ids[0]) : ''; $recipe_ai_form_scope_label = __('All AI Forms', 'gpt3-ai-content-generator'); if (!empty($recipe_ai_form_scope_form_ids)) { if (count($recipe_ai_form_scope_form_ids) === 1) { $scope_form_id = (int) $recipe_ai_form_scope_form_ids[0]; $recipe_ai_form_scope_label = $recipe_ai_form_scope_options[$scope_form_id] ?? sprintf( __('AI Form #%d', 'gpt3-ai-content-generator'), $scope_form_id ); } else { $recipe_ai_form_scope_label = sprintf( __('%d AI Forms', 'gpt3-ai-content-generator'), count($recipe_ai_form_scope_form_ids) ); } } $recipe_summary_parts = [ $recipe_summary_connection, $recipe_summary_event, $recipe_summary_action, ]; if (strpos($recipe_event_name, 'chatbot.') === 0) { $recipe_summary_parts[] = $recipe_chatbot_scope_label; } elseif ($recipe_event_name === 'form.submitted') { $recipe_summary_parts[] = $recipe_ai_form_scope_label; } $recipe_mapping_fields = []; if (isset($recipe['mapping']['fields']) && is_array($recipe['mapping']['fields'])) { $recipe_mapping_fields = array_values(array_filter($recipe['mapping']['fields'], 'is_array')); } $recipe_mapping_object_label = (string) (($recipe_mapping_definitions['event_object_types'][$recipe_event_name]['label'] ?? __('Event Record', 'gpt3-ai-content-generator'))); $recipe_validation_connection = $recipe_connection_records[$recipe_connection_id] ?? null; $recipe_validation_state = class_exists($recipe_validator_class) && method_exists($recipe_validator_class, 'get_recipe_ui_state') ? $recipe_validator_class::get_recipe_ui_state($recipe, is_array($recipe_validation_connection) ? $recipe_validation_connection : null) : [ 'status_key' => 'warning', 'summary' => __('Validation unavailable.', 'gpt3-ai-content-generator'), ]; $recipe_validation_status = sanitize_key((string) ($recipe_validation_state['status_key'] ?? 'warning')); if (!in_array($recipe_validation_status, ['ready', 'warning', 'error', 'reauth_required'], true)) { $recipe_validation_status = 'warning'; } $recipe_validation_summary = sanitize_text_field((string) ($recipe_validation_state['summary'] ?? __('Validation unavailable.', 'gpt3-ai-content-generator'))); $recipe_status_badge_labels = [ 'ready' => __('Ready', 'gpt3-ai-content-generator'), 'warning' => __('Warning', 'gpt3-ai-content-generator'), 'error' => __('Error', 'gpt3-ai-content-generator'), 'reauth_required' => __('Reauth Required', 'gpt3-ai-content-generator'), ]; ?>
     <article class="aipkit_settings_recipe_card" data-aipkit-recipe-card data-recipe-index="<?php echo esc_attr($recipe_index); ?>">
         <input
             type="hidden"
@@ -518,13 +207,7 @@ $render_recipe = static function (
                     >
                         <?php foreach ($recipe_action_options as $action_slug => $action_label) : ?>
                             <?php
-                            $action_app_slugs = [];
-                            foreach ($recipe_action_options_by_app as $app_slug => $action_slugs) {
-                                if (in_array($action_slug, $action_slugs, true)) {
-                                    $action_app_slugs[] = $app_slug;
-                                }
-                            }
-                            ?>
+ $action_app_slugs = []; foreach ($recipe_action_options_by_app as $app_slug => $action_slugs) { if (in_array($action_slug, $action_slugs, true)) { $action_app_slugs[] = $app_slug; } } ?>
                             <option
                                 value="<?php echo esc_attr($action_slug); ?>"
                                 data-app-slugs="<?php echo esc_attr(implode(',', $action_app_slugs)); ?>"
@@ -622,14 +305,7 @@ $render_recipe = static function (
                         <strong><?php esc_html_e('Field Mapping', 'gpt3-ai-content-generator'); ?></strong>
                         <span data-aipkit-recipe-mapping-object-label>
                             <?php
-                            echo esc_html(
-                                sprintf(
-                                    /* translators: %s: mapping object label */
-                                    __('Map this %s into the destination app.', 'gpt3-ai-content-generator'),
-                                    $recipe_mapping_object_label
-                                )
-                            );
-                            ?>
+ echo esc_html( sprintf( __('Map this %s into the destination app.', 'gpt3-ai-content-generator'), $recipe_mapping_object_label ) ); ?>
                         </span>
                     </div>
                     <button type="button" class="button button-primary aipkit_btn aipkit_btn-primary" data-aipkit-add-recipe-mapping>
@@ -648,8 +324,7 @@ $render_recipe = static function (
         </div>
     </article>
     <?php
-};
-?>
+}; ?>
 
 <section id="aipkit_settings_recipes_section">
     <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_simple_row--recipes" id="aipkit_settings_recipes_row">
@@ -702,26 +377,14 @@ $render_recipe = static function (
     </template>
     <script type="application/json" id="aipkit_recipe_template_definitions">
         <?php
-        echo wp_json_encode(
-            $recipe_template_definitions,
-            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-        );
-        ?>
+ echo wp_json_encode( $recipe_template_definitions, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>
     </script>
     <script type="application/json" id="aipkit_recipe_mapping_definitions">
         <?php
-        echo wp_json_encode(
-            $recipe_mapping_definitions,
-            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-        );
-        ?>
+ echo wp_json_encode( $recipe_mapping_definitions, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>
     </script>
     <script type="application/json" id="aipkit_recipe_validation_definitions">
         <?php
-        echo wp_json_encode(
-            $recipe_validation_definitions,
-            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-        );
-        ?>
+ echo wp_json_encode( $recipe_validation_definitions, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>
     </script>
 </section>

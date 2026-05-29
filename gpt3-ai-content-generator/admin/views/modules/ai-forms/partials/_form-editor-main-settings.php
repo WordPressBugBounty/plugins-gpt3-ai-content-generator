@@ -1,23 +1,5 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/ai-forms/partials/_form-editor-main-settings.php
-// Status: MODIFIED
-
-/**
- * Partial: AI Form Editor - Main Settings
- * Renders the right-hand editor column for model, prompt, connected apps,
- * and advanced generation settings.
- */
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-// Variables passed from parent (form-editor.php):
-// $providers, $default_temp, $default_max_tokens, $default_top_p, $default_frequency_penalty, $default_presence_penalty
-// Variables passed down from ai-forms/index.php:
-// $openai_vector_stores, $pinecone_indexes, $qdrant_collections, $chroma_collections, $openai_embedding_models, $google_embedding_models
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <div class="aipkit_ai_form_editor_sidebar">
     <select
         id="aipkit_ai_form_ai_provider"
@@ -29,16 +11,7 @@ if (!defined('ABSPATH')) {
         aria-hidden="true"
         tabindex="-1"
     >
-        <?php foreach ($providers as $p_value) :
-            $disabled = false;
-            $label = class_exists('\\WPAICG\\AIPKit_Providers')
-                ? \WPAICG\AIPKit_Providers::get_provider_display_name((string) $p_value)
-                : ((string) $p_value === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : (string) $p_value);
-            if ($p_value === 'Ollama' && (empty($is_pro) || !$is_pro)) {
-                $disabled = true;
-                $label = __('Ollama (Pro)', 'gpt3-ai-content-generator');
-            }
-            ?>
+        <?php foreach ($providers as $p_value) : $disabled = false; $label = class_exists('\\WPAICG\\AIPKit_Providers') ? \WPAICG\AIPKit_Providers::get_provider_display_name((string) $p_value) : ((string) $p_value === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : (string) $p_value); if ($p_value === 'Ollama' && (empty($is_pro) || !$is_pro)) { $disabled = true; $label = __('Ollama (Pro)', 'gpt3-ai-content-generator'); } ?>
             <option value="<?php echo esc_attr($p_value); ?>" <?php echo $disabled ? 'disabled' : ''; ?>><?php echo esc_html($label); ?></option>
         <?php endforeach; ?>
     </select>
@@ -172,7 +145,6 @@ if (!defined('ABSPATH')) {
                     </button>
                 </div>
                 <div class="aipkit_prompt_snippets_container" id="aipkit_prompt_snippets_container">
-                    <!-- Snippets will be injected here by JS -->
                 </div>
                 <div class="aipkit_prompt_validation_area">
                     <button type="button" id="aipkit_validate_prompt_btn" class="aipkit_btn aipkit_btn-secondary aipkit_ai_form_prompt_validate_btn">

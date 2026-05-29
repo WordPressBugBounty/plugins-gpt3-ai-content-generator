@@ -1,19 +1,69 @@
 <?php
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-// Variables from loader-vars.php: $is_pro
-?>
+ if (!defined('ABSPATH')) { exit; } $render_cw_bulk_row = static function () use ($wp_categories, $users_for_author, $available_post_types) { ?>
+    <div class="aipkit_cw_bulk_row" data-aipkit-bulk-row>
+        <div class="aipkit_cw_bulk_row_main">
+            <label class="aipkit_cw_bulk_field aipkit_cw_bulk_field--topic">
+                <input type="text" class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_input--topic aipkit_autosave_trigger" data-bulk-field="topic" placeholder="<?php esc_attr_e('Enter topic...', 'gpt3-ai-content-generator'); ?>" aria-label="<?php esc_attr_e('Topic', 'gpt3-ai-content-generator'); ?>">
+            </label>
+            <label class="aipkit_cw_bulk_field aipkit_cw_bulk_field--keywords-inline">
+                <input type="text" class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_input--keywords-inline aipkit_autosave_trigger" data-bulk-field="keywords" placeholder="<?php esc_attr_e('Enter keywords', 'gpt3-ai-content-generator'); ?>" aria-label="<?php esc_attr_e('Keywords', 'gpt3-ai-content-generator'); ?>">
+            </label>
+            <div class="aipkit_cw_bulk_row_actions">
+                <button
+                    type="button"
+                    class="aipkit_cw_bulk_toggle_row_details"
+                    aria-expanded="false"
+                    aria-label="<?php esc_attr_e('Advanced fields', 'gpt3-ai-content-generator'); ?>"
+                    title="<?php esc_attr_e('Advanced fields', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="aipkit_cw_bulk_remove_row" aria-label="<?php esc_attr_e('Remove row', 'gpt3-ai-content-generator'); ?>">
+                    <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+        <div class="aipkit_cw_bulk_row_details">
+            <label class="aipkit_cw_bulk_detail_field">
+                <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Category', 'gpt3-ai-content-generator'); ?></span>
+                <select class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="category" aria-label="<?php esc_attr_e('Category', 'gpt3-ai-content-generator'); ?>">
+                    <option value=""><?php esc_html_e('Category', 'gpt3-ai-content-generator'); ?></option>
+                    <?php foreach ($wp_categories as $category): ?>
+                        <option value="<?php echo esc_attr($category->term_id); ?>"><?php echo esc_html($category->name); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label class="aipkit_cw_bulk_detail_field">
+                <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Author', 'gpt3-ai-content-generator'); ?></span>
+                <select class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="author" aria-label="<?php esc_attr_e('Author', 'gpt3-ai-content-generator'); ?>">
+                    <option value=""><?php esc_html_e('Author', 'gpt3-ai-content-generator'); ?></option>
+                    <?php foreach ($users_for_author as $user): ?>
+                        <option value="<?php echo esc_attr($user->user_login); ?>" data-user-id="<?php echo esc_attr($user->ID); ?>"><?php echo esc_html($user->display_name); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label class="aipkit_cw_bulk_detail_field">
+                <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Post Type', 'gpt3-ai-content-generator'); ?></span>
+                <select class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="type" aria-label="<?php esc_attr_e('Post Type', 'gpt3-ai-content-generator'); ?>">
+                    <option value=""><?php esc_html_e('Post', 'gpt3-ai-content-generator'); ?></option>
+                    <?php foreach ($available_post_types as $pt_slug => $pt_obj): ?>
+                        <option value="<?php echo esc_attr($pt_slug); ?>"><?php echo esc_html($pt_obj->label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label class="aipkit_cw_bulk_detail_field">
+                <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Schedule', 'gpt3-ai-content-generator'); ?></span>
+                <input type="datetime-local" class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="schedule" aria-label="<?php esc_attr_e('Schedule', 'gpt3-ai-content-generator'); ?>">
+            </label>
+        </div>
+    </div>
+    <?php
+}; ?>
 <div class="aipkit_cw_mode_container" data-template-ready="0">
-    <!-- Hidden content_title input used by JS for generation -->
     <input type="hidden" id="aipkit_content_writer_title" name="content_title" value="" class="aipkit_autosave_trigger">
     
     <div class="aipkit_cw_mode_panel">
         <div class="aipkit_cw_tab_content_container">
-            <!-- Manual Entry Pane (was Bulk Editor) -->
             <div class="aipkit_cw_tab_content aipkit_active" data-pane="task">
                 <div class="aipkit_cw_bulk_source_panel" data-aipkit-bulk-source-panel="task">
                     <div class="aipkit_cw_task_entry_shell">
@@ -58,126 +108,13 @@ if (!defined('ABSPATH')) {
 
                         <div class="aipkit_cw_task_entry_panel aipkit_cw_task_entry_panel--batch" data-aipkit-task-entry-panel="batch" hidden>
                             <div class="aipkit_cw_bulk_editor" data-aipkit-bulk-editor>
-                                <!-- Simplified bulk rows - All fields in single row, details toggle visibility -->
                                 <div class="aipkit_cw_bulk_rows" data-aipkit-bulk-rows>
                                     <?php for ($i = 0; $i < 3; $i++): ?>
-                                        <div class="aipkit_cw_bulk_row" data-aipkit-bulk-row>
-                                            <div class="aipkit_cw_bulk_row_main">
-                                                <label class="aipkit_cw_bulk_field aipkit_cw_bulk_field--topic">
-                                                    <input type="text" class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_input--topic aipkit_autosave_trigger" data-bulk-field="topic" placeholder="<?php esc_attr_e('Enter topic...', 'gpt3-ai-content-generator'); ?>" aria-label="<?php esc_attr_e('Topic', 'gpt3-ai-content-generator'); ?>">
-                                                </label>
-                                                <label class="aipkit_cw_bulk_field aipkit_cw_bulk_field--keywords-inline">
-                                                    <input type="text" class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_input--keywords-inline aipkit_autosave_trigger" data-bulk-field="keywords" placeholder="<?php esc_attr_e('Enter keywords', 'gpt3-ai-content-generator'); ?>" aria-label="<?php esc_attr_e('Keywords', 'gpt3-ai-content-generator'); ?>">
-                                                </label>
-                                                <div class="aipkit_cw_bulk_row_actions">
-                                                    <button
-                                                        type="button"
-                                                        class="aipkit_cw_bulk_toggle_row_details"
-                                                        aria-expanded="false"
-                                                        aria-label="<?php esc_attr_e('Advanced fields', 'gpt3-ai-content-generator'); ?>"
-                                                        title="<?php esc_attr_e('Advanced fields', 'gpt3-ai-content-generator'); ?>"
-                                                    >
-                                                        <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
-                                                    </button>
-                                                    <button type="button" class="aipkit_cw_bulk_remove_row" aria-label="<?php esc_attr_e('Remove row', 'gpt3-ai-content-generator'); ?>">
-                                                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div class="aipkit_cw_bulk_row_details">
-                                                <label class="aipkit_cw_bulk_detail_field">
-                                                    <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Category', 'gpt3-ai-content-generator'); ?></span>
-                                                    <select class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="category" aria-label="<?php esc_attr_e('Category', 'gpt3-ai-content-generator'); ?>">
-                                                        <option value=""><?php esc_html_e('Category', 'gpt3-ai-content-generator'); ?></option>
-                                                        <?php foreach ($wp_categories as $category): ?>
-                                                            <option value="<?php echo esc_attr($category->term_id); ?>"><?php echo esc_html($category->name); ?></option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </label>
-                                                <label class="aipkit_cw_bulk_detail_field">
-                                                    <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Author', 'gpt3-ai-content-generator'); ?></span>
-                                                    <select class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="author" aria-label="<?php esc_attr_e('Author', 'gpt3-ai-content-generator'); ?>">
-                                                        <option value=""><?php esc_html_e('Author', 'gpt3-ai-content-generator'); ?></option>
-                                                        <?php foreach ($users_for_author as $user): ?>
-                                                            <option value="<?php echo esc_attr($user->user_login); ?>" data-user-id="<?php echo esc_attr($user->ID); ?>"><?php echo esc_html($user->display_name); ?></option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </label>
-                                                <label class="aipkit_cw_bulk_detail_field">
-                                                    <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Post Type', 'gpt3-ai-content-generator'); ?></span>
-                                                    <select class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="type" aria-label="<?php esc_attr_e('Post Type', 'gpt3-ai-content-generator'); ?>">
-                                                        <option value=""><?php esc_html_e('Post', 'gpt3-ai-content-generator'); ?></option>
-                                                        <?php foreach ($available_post_types as $pt_slug => $pt_obj): ?>
-                                                            <option value="<?php echo esc_attr($pt_slug); ?>"><?php echo esc_html($pt_obj->label); ?></option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </label>
-                                                <label class="aipkit_cw_bulk_detail_field">
-                                                    <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Schedule', 'gpt3-ai-content-generator'); ?></span>
-                                                    <input type="datetime-local" class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="schedule" aria-label="<?php esc_attr_e('Schedule', 'gpt3-ai-content-generator'); ?>">
-                                                </label>
-                                            </div>
-                                        </div>
+                                        <?php $render_cw_bulk_row(); ?>
                                     <?php endfor; ?>
                                 </div>
                                 <template id="aipkit_cw_bulk_row_template">
-                                    <div class="aipkit_cw_bulk_row" data-aipkit-bulk-row>
-                                        <div class="aipkit_cw_bulk_row_main">
-                                            <label class="aipkit_cw_bulk_field aipkit_cw_bulk_field--topic">
-                                                <input type="text" class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_input--topic aipkit_autosave_trigger" data-bulk-field="topic" placeholder="<?php esc_attr_e('Enter topic...', 'gpt3-ai-content-generator'); ?>" aria-label="<?php esc_attr_e('Topic', 'gpt3-ai-content-generator'); ?>">
-                                            </label>
-                                            <label class="aipkit_cw_bulk_field aipkit_cw_bulk_field--keywords-inline">
-                                                <input type="text" class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_input--keywords-inline aipkit_autosave_trigger" data-bulk-field="keywords" placeholder="<?php esc_attr_e('Enter keywords', 'gpt3-ai-content-generator'); ?>" aria-label="<?php esc_attr_e('Keywords', 'gpt3-ai-content-generator'); ?>">
-                                            </label>
-                                            <div class="aipkit_cw_bulk_row_actions">
-                                                <button
-                                                    type="button"
-                                                    class="aipkit_cw_bulk_toggle_row_details"
-                                                    aria-expanded="false"
-                                                    aria-label="<?php esc_attr_e('Advanced fields', 'gpt3-ai-content-generator'); ?>"
-                                                    title="<?php esc_attr_e('Advanced fields', 'gpt3-ai-content-generator'); ?>"
-                                                >
-                                                    <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
-                                                </button>
-                                                <button type="button" class="aipkit_cw_bulk_remove_row" aria-label="<?php esc_attr_e('Remove row', 'gpt3-ai-content-generator'); ?>">
-                                                    <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="aipkit_cw_bulk_row_details">
-                                            <label class="aipkit_cw_bulk_detail_field">
-                                                <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Category', 'gpt3-ai-content-generator'); ?></span>
-                                                <select class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="category" aria-label="<?php esc_attr_e('Category', 'gpt3-ai-content-generator'); ?>">
-                                                    <option value=""><?php esc_html_e('Category', 'gpt3-ai-content-generator'); ?></option>
-                                                    <?php foreach ($wp_categories as $category): ?>
-                                                        <option value="<?php echo esc_attr($category->term_id); ?>"><?php echo esc_html($category->name); ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </label>
-                                            <label class="aipkit_cw_bulk_detail_field">
-                                                <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Author', 'gpt3-ai-content-generator'); ?></span>
-                                                <select class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="author" aria-label="<?php esc_attr_e('Author', 'gpt3-ai-content-generator'); ?>">
-                                                    <option value=""><?php esc_html_e('Author', 'gpt3-ai-content-generator'); ?></option>
-                                                    <?php foreach ($users_for_author as $user): ?>
-                                                        <option value="<?php echo esc_attr($user->user_login); ?>" data-user-id="<?php echo esc_attr($user->ID); ?>"><?php echo esc_html($user->display_name); ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </label>
-                                            <label class="aipkit_cw_bulk_detail_field">
-                                                <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Post Type', 'gpt3-ai-content-generator'); ?></span>
-                                                <select class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="type" aria-label="<?php esc_attr_e('Post Type', 'gpt3-ai-content-generator'); ?>">
-                                                    <option value=""><?php esc_html_e('Post', 'gpt3-ai-content-generator'); ?></option>
-                                                    <?php foreach ($available_post_types as $pt_slug => $pt_obj): ?>
-                                                        <option value="<?php echo esc_attr($pt_slug); ?>"><?php echo esc_html($pt_obj->label); ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </label>
-                                            <label class="aipkit_cw_bulk_detail_field">
-                                                <span class="aipkit_cw_bulk_detail_label"><?php esc_html_e('Schedule', 'gpt3-ai-content-generator'); ?></span>
-                                                <input type="datetime-local" class="aipkit_form-input aipkit_cw_bulk_input aipkit_cw_bulk_detail aipkit_autosave_trigger" data-bulk-field="schedule" aria-label="<?php esc_attr_e('Schedule', 'gpt3-ai-content-generator'); ?>">
-                                            </label>
-                                        </div>
-                                    </div>
+                                    <?php $render_cw_bulk_row(); ?>
                                 </template>
                             </div>
                         </div>
@@ -222,7 +159,6 @@ if (!defined('ABSPATH')) {
                     </div>
                 </div>
             </div>
-            <!-- Import CSV Pane - Redesigned with Aesthetics, Chunking, and Choice Overload principles -->
             <div class="aipkit_cw_tab_content" data-pane="csv">
                 <div class="aipkit_csv_import_container aipkit_cw_source_mode_shell aipkit_cw_source_mode_shell--csv">
                     <div class="aipkit_cw_source_mode_header">
@@ -231,7 +167,6 @@ if (!defined('ABSPATH')) {
                     </div>
 
                     <div class="aipkit_cw_source_mode_stage">
-                        <!-- Upload Zone -->
                         <div class="aipkit_csv_upload_zone" data-csv-upload-zone>
                             <label for="aipkit_cw_csv_file_input" class="aipkit_csv_dropzone">
                                 <span class="aipkit_csv_dropzone_icon" aria-hidden="true">
@@ -251,7 +186,6 @@ if (!defined('ABSPATH')) {
                             </label>
                         </div>
 
-                        <!-- Status Feedback -->
                         <div class="aipkit_csv_status_container" id="aipkit_cw_csv_status_container" data-csv-status hidden>
                             <div class="aipkit_csv_status_card" data-csv-status-card>
                                 <div class="aipkit_csv_status_icon" data-csv-status-icon>
@@ -268,7 +202,6 @@ if (!defined('ABSPATH')) {
                         </div>
                     </div>
 
-                    <!-- Hidden data holder for form submission -->
                     <textarea name="content_title_csv" id="aipkit_cw_csv_data_holder" class="aipkit_csv_data_holder" style="display: none;" readonly></textarea>
 
                     <div class="aipkit_cw_source_mode_footer aipkit_csv_help_content" data-csv-help>
@@ -310,19 +243,15 @@ if (!defined('ABSPATH')) {
                     </div>
                 </div>
             </div>
-            <!-- RSS Feed Pane -->
             <div class="aipkit_cw_tab_content" data-pane="rss">
                 <?php include __DIR__ . '/mode-rss.php'; ?>
             </div>
-            <!-- Website URL Pane -->
             <div class="aipkit_cw_tab_content" data-pane="url">
                 <?php include __DIR__ . '/mode-url.php'; ?>
             </div>
-            <!-- Google Sheets Pane -->
             <div class="aipkit_cw_tab_content" data-pane="gsheets">
                 <?php include __DIR__ . '/mode-gsheets.php'; ?>
             </div>
-            <!-- Update Existing Content Pane -->
             <div class="aipkit_cw_tab_content" data-pane="existing">
                 <div class="aipkit_cw_existing_panel" data-aipkit-existing-panel>
                     <div class="aipkit_cw_existing_controls">

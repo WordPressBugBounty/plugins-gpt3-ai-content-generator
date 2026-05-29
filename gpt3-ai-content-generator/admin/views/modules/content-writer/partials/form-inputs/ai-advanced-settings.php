@@ -1,18 +1,5 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-$reasoning_options = [
-    'none' => __('None', 'gpt3-ai-content-generator'),
-    'low' => __('Low', 'gpt3-ai-content-generator'),
-    'medium' => __('Medium', 'gpt3-ai-content-generator'),
-    'high' => __('High', 'gpt3-ai-content-generator'),
-    'xhigh' => __('XHigh', 'gpt3-ai-content-generator'),
-];
-?>
+if (!defined('ABSPATH')) { exit; } $reasoning_options = [ 'none' => __('None', 'gpt3-ai-content-generator'), 'low' => __('Low', 'gpt3-ai-content-generator'), 'medium' => __('Medium', 'gpt3-ai-content-generator'), 'high' => __('High', 'gpt3-ai-content-generator'), 'xhigh' => __('XHigh', 'gpt3-ai-content-generator'), ]; ?>
 
 <button
     type="button"

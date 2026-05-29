@@ -1,25 +1,5 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-$bot_id = $initial_active_bot_id;
-$vector_notice_settings_url = admin_url('admin.php?page=wpaicg');
-$aipkit_embedding_options_allowed_html = [
-	'optgroup' => [
-		'label' => true,
-	],
-	'option' => [
-		'value' => true,
-		'data-provider' => true,
-		'selected' => true,
-		'hidden' => true,
-		'disabled' => true,
-	],
-];
-?>
+ if ( ! defined( 'ABSPATH' ) ) { exit; } $bot_id = $initial_active_bot_id; $vector_notice_settings_url = admin_url('admin.php?page=wpaicg'); $aipkit_embedding_options_allowed_html = [ 'optgroup' => [ 'label' => true, ], 'option' => [ 'value' => true, 'data-provider' => true, 'selected' => true, 'hidden' => true, 'disabled' => true, ], ]; ?>
 <div
     class="aipkit_popover_options_list aipkit_context_layout"
     data-vector-provider="<?php echo esc_attr(($enable_vector_store === '1') ? $vector_store_provider : ''); ?>"
@@ -170,49 +150,7 @@ $aipkit_embedding_options_allowed_html = [
                     tabindex="-1"
                 >
                     <?php
-                    if (!empty($openai_vector_stores)) {
-                        $store_index = 1;
-                        foreach ($openai_vector_stores as $store) {
-                            $store_id_val = $store['id'] ?? '';
-                            $store_name = $store['name'] ?? '';
-                            if ($store_name === '') {
-                                $store_name = sprintf(
-                                    /* translators: %d is the vector store index. */
-                                    __('Untitled store %d', 'gpt3-ai-content-generator'),
-                                    $store_index
-                                );
-                            }
-                            $file_count_total = $store['file_counts']['total'] ?? null;
-                            $file_count_display = ($file_count_total !== null) ? " ({$file_count_total} " . _n('File', 'Files', (int) $file_count_total, 'gpt3-ai-content-generator') . ")" : ' (Files: N/A)';
-                            $option_text = $store_name . $file_count_display;
-                            echo '<option value="' . esc_attr($store_id_val) . '"' . selected(in_array($store_id_val, $openai_vector_store_ids_saved, true), true, false) . '>' . esc_html($option_text) . '</option>';
-                            $store_index++;
-                        }
-                    }
-                    $manual_index = 1;
-                    foreach ($openai_vector_store_ids_saved as $saved_id) {
-                        $found_in_list = false;
-                        if (!empty($openai_vector_stores)) {
-                            foreach ($openai_vector_stores as $store) {
-                                if (($store['id'] ?? '') === $saved_id) { $found_in_list = true; break; }
-                            }
-                        }
-                        if (!$found_in_list) {
-                            $manual_label = $saved_id !== ''
-                                ? $saved_id . ' ' . __('(missing)', 'gpt3-ai-content-generator')
-                                : sprintf(
-                                    /* translators: %d is the saved vector store index. */
-                                    __('Store %d', 'gpt3-ai-content-generator'),
-                                    $manual_index
-                                );
-                            echo '<option value="' . esc_attr($saved_id) . '" disabled="disabled">' . esc_html($manual_label) . '</option>';
-                            $manual_index++;
-                        }
-                    }
-                    if (empty($openai_vector_stores) && empty($openai_vector_store_ids_saved)) {
-                        echo '<option value="" disabled>' . esc_html__('-- No Vector Stores Found --', 'gpt3-ai-content-generator') . '</option>';
-                    }
-                    ?>
+ if (!empty($openai_vector_stores)) { $store_index = 1; foreach ($openai_vector_stores as $store) { $store_id_val = $store['id'] ?? ''; $store_name = $store['name'] ?? ''; if ($store_name === '') { $store_name = sprintf( __('Untitled store %d', 'gpt3-ai-content-generator'), $store_index ); } $file_count_total = $store['file_counts']['total'] ?? null; $file_count_display = ($file_count_total !== null) ? " ({$file_count_total} " . _n('File', 'Files', (int) $file_count_total, 'gpt3-ai-content-generator') . ")" : ' (Files: N/A)'; $option_text = $store_name . $file_count_display; echo '<option value="' . esc_attr($store_id_val) . '"' . selected(in_array($store_id_val, $openai_vector_store_ids_saved, true), true, false) . '>' . esc_html($option_text) . '</option>'; $store_index++; } } $manual_index = 1; foreach ($openai_vector_store_ids_saved as $saved_id) { $found_in_list = false; if (!empty($openai_vector_stores)) { foreach ($openai_vector_stores as $store) { if (($store['id'] ?? '') === $saved_id) { $found_in_list = true; break; } } } if (!$found_in_list) { $manual_label = $saved_id !== '' ? $saved_id . ' ' . __('(missing)', 'gpt3-ai-content-generator') : sprintf( __('Store %d', 'gpt3-ai-content-generator'), $manual_index ); echo '<option value="' . esc_attr($saved_id) . '" disabled="disabled">' . esc_html($manual_label) . '</option>'; $manual_index++; } } if (empty($openai_vector_stores) && empty($openai_vector_store_ids_saved)) { echo '<option value="" disabled>' . esc_html__('-- No Vector Stores Found --', 'gpt3-ai-content-generator') . '</option>'; } ?>
                 </select>
             </div>
         </div>
@@ -226,52 +164,7 @@ $aipkit_embedding_options_allowed_html = [
                     <?php esc_html_e('Index', 'gpt3-ai-content-generator'); ?>
                 </label>
                 <?php
-                $pinecone_dropdown_placeholder = __('Select index', 'gpt3-ai-content-generator');
-                $pinecone_dropdown_label = $pinecone_dropdown_placeholder;
-                $pinecone_option_rows = [];
-
-                if (!empty($pinecone_indexes)) {
-                    foreach ($pinecone_indexes as $index) {
-                        $index_name = is_array($index) ? ($index['name'] ?? '') : (string) $index;
-                        if ($index_name === '') {
-                            continue;
-                        }
-                        $pinecone_option_rows[] = [
-                            'value' => $index_name,
-                            'label' => $index_name,
-                            'disabled' => false,
-                        ];
-                        if ($pinecone_index_name === $index_name) {
-                            $pinecone_dropdown_label = $index_name;
-                        }
-                    }
-                }
-
-                if (!empty($pinecone_index_name)) {
-                    $known_pinecone_names = [];
-                    foreach ($pinecone_option_rows as $pinecone_option_row) {
-                        $known_pinecone_names[] = isset($pinecone_option_row['value'])
-                            ? (string) $pinecone_option_row['value']
-                            : '';
-                    }
-                    if (!in_array((string) $pinecone_index_name, $known_pinecone_names, true)) {
-                        $manual_label = (string) $pinecone_index_name . ' ' . __('(missing)', 'gpt3-ai-content-generator');
-                        $pinecone_option_rows[] = [
-                            'value' => $pinecone_index_name,
-                            'label' => $manual_label,
-                            'disabled' => true,
-                        ];
-                    }
-                }
-
-                if (empty($pinecone_option_rows) && empty($pinecone_index_name)) {
-                    $pinecone_option_rows[] = [
-                        'value' => '',
-                        'label' => __('-- No Indexes Found --', 'gpt3-ai-content-generator'),
-                        'disabled' => true,
-                    ];
-                }
-                ?>
+ $pinecone_dropdown_placeholder = __('Select index', 'gpt3-ai-content-generator'); $pinecone_dropdown_label = $pinecone_dropdown_placeholder; $pinecone_option_rows = []; if (!empty($pinecone_indexes)) { foreach ($pinecone_indexes as $index) { $index_name = is_array($index) ? ($index['name'] ?? '') : (string) $index; if ($index_name === '') { continue; } $pinecone_option_rows[] = [ 'value' => $index_name, 'label' => $index_name, 'disabled' => false, ]; if ($pinecone_index_name === $index_name) { $pinecone_dropdown_label = $index_name; } } } if (!empty($pinecone_index_name)) { $known_pinecone_names = []; foreach ($pinecone_option_rows as $pinecone_option_row) { $known_pinecone_names[] = isset($pinecone_option_row['value']) ? (string) $pinecone_option_row['value'] : ''; } if (!in_array((string) $pinecone_index_name, $known_pinecone_names, true)) { $manual_label = (string) $pinecone_index_name . ' ' . __('(missing)', 'gpt3-ai-content-generator'); $pinecone_option_rows[] = [ 'value' => $pinecone_index_name, 'label' => $manual_label, 'disabled' => true, ]; } } if (empty($pinecone_option_rows) && empty($pinecone_index_name)) { $pinecone_option_rows[] = [ 'value' => '', 'label' => __('-- No Indexes Found --', 'gpt3-ai-content-generator'), 'disabled' => true, ]; } ?>
                 <div class="aipkit_popover_inline_controls">
                     <div
                         class="aipkit_popover_multiselect aipkit_vector_store_pinecone_dropdown"
@@ -298,15 +191,7 @@ $aipkit_embedding_options_allowed_html = [
                             <div class="aipkit_popover_multiselect_options aipkit_vector_store_pinecone_options">
                                 <?php foreach ($pinecone_option_rows as $option_row) : ?>
                                     <?php
-                                    $option_value = isset($option_row['value']) ? (string) $option_row['value'] : '';
-                                    $option_label = isset($option_row['label']) ? (string) $option_row['label'] : '';
-                                    $option_disabled = !empty($option_row['disabled']);
-                                    $option_checked = (
-                                        !$option_disabled &&
-                                        $option_value !== '' &&
-                                        (string) $pinecone_index_name === $option_value
-                                    );
-                                    ?>
+ $option_value = isset($option_row['value']) ? (string) $option_row['value'] : ''; $option_label = isset($option_row['label']) ? (string) $option_row['label'] : ''; $option_disabled = !empty($option_row['disabled']); $option_checked = ( !$option_disabled && $option_value !== '' && (string) $pinecone_index_name === $option_value ); ?>
                                     <label class="aipkit_popover_multiselect_item aipkit_vector_store_pinecone_item">
                                         <span class="aipkit_vector_store_pinecone_item_label">
                                             <input
@@ -334,15 +219,7 @@ $aipkit_embedding_options_allowed_html = [
                     >
                         <?php foreach ($pinecone_option_rows as $option_row) : ?>
                             <?php
-                            $option_value = isset($option_row['value']) ? (string) $option_row['value'] : '';
-                            $option_label = isset($option_row['label']) ? (string) $option_row['label'] : '';
-                            $option_disabled = !empty($option_row['disabled']);
-                            $option_selected = (
-                                !$option_disabled &&
-                                $option_value !== '' &&
-                                (string) $pinecone_index_name === $option_value
-                            );
-                            ?>
+ $option_value = isset($option_row['value']) ? (string) $option_row['value'] : ''; $option_label = isset($option_row['label']) ? (string) $option_row['label'] : ''; $option_disabled = !empty($option_row['disabled']); $option_selected = ( !$option_disabled && $option_value !== '' && (string) $pinecone_index_name === $option_value ); ?>
                             <option
                                 value="<?php echo esc_attr($option_value); ?>"
                                 <?php selected($option_selected, true); ?>
@@ -402,21 +279,7 @@ $aipkit_embedding_options_allowed_html = [
                     tabindex="-1"
                 >
                     <?php
-                    if (!empty($qdrant_collections)) {
-                        foreach ($qdrant_collections as $collection) {
-                            $collection_name = is_array($collection) ? ($collection['name'] ?? '') : (string) $collection;
-                            echo '<option value="' . esc_attr($collection_name) . '"' . selected(in_array($collection_name, $qdrant_collection_names, true), true, false) . '>' . esc_html($collection_name) . '</option>';
-                        }
-                    }
-                    foreach ($qdrant_collection_names as $saved_name) {
-                        if (!in_array($saved_name, array_map(function ($c) { return is_array($c) ? ($c['name'] ?? '') : (string) $c; }, $qdrant_collections), true)) {
-                            echo '<option value="' . esc_attr($saved_name) . '" disabled="disabled">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
-                        }
-                    }
-                    if (empty($qdrant_collections) && empty($qdrant_collection_names)) {
-                        echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>';
-                    }
-                    ?>
+ if (!empty($qdrant_collections)) { foreach ($qdrant_collections as $collection) { $collection_name = is_array($collection) ? ($collection['name'] ?? '') : (string) $collection; echo '<option value="' . esc_attr($collection_name) . '"' . selected(in_array($collection_name, $qdrant_collection_names, true), true, false) . '>' . esc_html($collection_name) . '</option>'; } } foreach ($qdrant_collection_names as $saved_name) { if (!in_array($saved_name, array_map(function ($c) { return is_array($c) ? ($c['name'] ?? '') : (string) $c; }, $qdrant_collections), true)) { echo '<option value="' . esc_attr($saved_name) . '" disabled="disabled">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>'; } } if (empty($qdrant_collections) && empty($qdrant_collection_names)) { echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>'; } ?>
                 </select>
             </div>
         </div>
@@ -468,25 +331,7 @@ $aipkit_embedding_options_allowed_html = [
                     tabindex="-1"
                 >
                     <?php
-                    if (!empty($chroma_collections)) {
-                        foreach ($chroma_collections as $collection) {
-                            $collection_name = is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection;
-                            if ($collection_name === '') {
-                                continue;
-                            }
-                            echo '<option value="' . esc_attr($collection_name) . '"' . selected(in_array($collection_name, $chroma_collection_names, true), true, false) . '>' . esc_html($collection_name) . '</option>';
-                        }
-                    }
-                    $known_chroma_collection_names = array_map(function ($collection) { return is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection; }, $chroma_collections);
-                    foreach ($chroma_collection_names as $saved_name) {
-                        if (!in_array($saved_name, $known_chroma_collection_names, true)) {
-                            echo '<option value="' . esc_attr($saved_name) . '" disabled="disabled">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
-                        }
-                    }
-                    if (empty($chroma_collections) && empty($chroma_collection_names)) {
-                        echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>';
-                    }
-                    ?>
+ if (!empty($chroma_collections)) { foreach ($chroma_collections as $collection) { $collection_name = is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection; if ($collection_name === '') { continue; } echo '<option value="' . esc_attr($collection_name) . '"' . selected(in_array($collection_name, $chroma_collection_names, true), true, false) . '>' . esc_html($collection_name) . '</option>'; } } $known_chroma_collection_names = array_map(function ($collection) { return is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection; }, $chroma_collections); foreach ($chroma_collection_names as $saved_name) { if (!in_array($saved_name, $known_chroma_collection_names, true)) { echo '<option value="' . esc_attr($saved_name) . '" disabled="disabled">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>'; } } if (empty($chroma_collections) && empty($chroma_collection_names)) { echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>'; } ?>
                 </select>
             </div>
         </div>
@@ -508,21 +353,7 @@ $aipkit_embedding_options_allowed_html = [
                         class="aipkit_popover_option_select aipkit_vector_embedding_select"
                     >
                         <?php
-                        echo '<option value="" hidden></option>';
-                        echo wp_kses(
-                            \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
-                                $embedding_provider_options,
-                                $embedding_models_by_provider,
-                                $vector_embedding_provider,
-                                $vector_embedding_model,
-                                [
-                                    'value_mode' => 'provider_model',
-                                    'include_manual_fallback' => true,
-                                ]
-                            ),
-                            $aipkit_embedding_options_allowed_html
-                        );
-                        ?>
+ echo '<option value="" hidden></option>'; echo wp_kses( \WPAICG\AIPKit_Providers::render_embedding_optgroup_options( $embedding_provider_options, $embedding_models_by_provider, $vector_embedding_provider, $vector_embedding_model, [ 'value_mode' => 'provider_model', 'include_manual_fallback' => true, ] ), $aipkit_embedding_options_allowed_html ); ?>
                     </select>
                     <select
                         id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_embedding_provider_modal"
@@ -546,23 +377,7 @@ $aipkit_embedding_options_allowed_html = [
                     >
                         <option value=""><?php esc_html_e('-- Select Model --', 'gpt3-ai-content-generator'); ?></option>
                         <?php
-                        $current_embedding_list = isset($embedding_models_by_provider[$vector_embedding_provider]) && is_array($embedding_models_by_provider[$vector_embedding_provider])
-                            ? $embedding_models_by_provider[$vector_embedding_provider]
-                            : [];
-                        if (!empty($current_embedding_list)) {
-                            foreach ($current_embedding_list as $model) {
-                                $model_id_val = $model['id'] ?? '';
-                                $model_name_val = $model['name'] ?? $model_id_val;
-                                echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($vector_embedding_model, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>';
-                            }
-                        }
-                        if (!empty($vector_embedding_model) && (empty($current_embedding_list) || !in_array($vector_embedding_model, array_column($current_embedding_list, 'id'), true))) {
-                            echo '<option value="' . esc_attr($vector_embedding_model) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
-                        }
-                        if (empty($current_embedding_list) && empty($vector_embedding_model)) {
-                            echo '<option value="" disabled>' . esc_html__('-- Select Provider --', 'gpt3-ai-content-generator') . '</option>';
-                        }
-                        ?>
+ $current_embedding_list = isset($embedding_models_by_provider[$vector_embedding_provider]) && is_array($embedding_models_by_provider[$vector_embedding_provider]) ? $embedding_models_by_provider[$vector_embedding_provider] : []; if (!empty($current_embedding_list)) { foreach ($current_embedding_list as $model) { $model_id_val = $model['id'] ?? ''; $model_name_val = $model['name'] ?? $model_id_val; echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($vector_embedding_model, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>'; } } if (!empty($vector_embedding_model) && (empty($current_embedding_list) || !in_array($vector_embedding_model, array_column($current_embedding_list, 'id'), true))) { echo '<option value="' . esc_attr($vector_embedding_model) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>'; } if (empty($current_embedding_list) && empty($vector_embedding_model)) { echo '<option value="" disabled>' . esc_html__('-- Select Provider --', 'gpt3-ai-content-generator') . '</option>'; } ?>
                     </select>
                 </div>
             </div>

@@ -1,9 +1,5 @@
 <?php
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <div class="aipkit_cw_template_controls">
     <div class="aipkit_cw_template_field">
         <label class="aipkit_cw_panel_label" for="aipkit_cw_template_select">
@@ -81,7 +77,7 @@ if (!defined('ABSPATH')) {
         </div>
         <select id="aipkit_cw_template_select" name="cw_template_id" class="aipkit_form-input screen-reader-text">
             <option value=""><?php esc_html_e('-- Select Template --', 'gpt3-ai-content-generator'); ?></option>
-            <?php // Options will be populated by JS ?>
+            <?php ?>
         </select>
     </div>
 </div>

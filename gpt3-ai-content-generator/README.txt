@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.4.33
+Stable tag: 2.4.34
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,12 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.34 =
+
+- Added Claude Opus 4.8 to Anthropic recommended models.
+- Improved Role Manager compatibility with custom roles from access management plugins.
+- Improved admin styling isolation from other plugins.
 
 = 2.4.33 =
 

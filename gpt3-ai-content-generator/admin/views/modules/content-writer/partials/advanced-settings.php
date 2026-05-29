@@ -1,9 +1,5 @@
 <?php
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <section class="aipkit_cw_inspector_card aipkit_cw_inspector_card--advanced">
     <div class="aipkit_cw_inspector_card_header">
         <div class="aipkit_cw_inspector_card_header_copy">

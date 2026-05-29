@@ -1,25 +1,2 @@
 <?php
-
-namespace WPAICG\WP_AI_Client;
-
-use WordPress\AiClient\Providers\Contracts\ProviderAvailabilityInterface;
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-class AIPKit_WP_AI_Client_Availability implements ProviderAvailabilityInterface
-{
-    private string $connector_id;
-
-    public function __construct(string $connector_id)
-    {
-        $this->connector_id = sanitize_key($connector_id);
-    }
-
-    public function isConfigured(): bool
-    {
-        return AIPKit_WP_AI_Client_Settings::is_effectively_managed()
-            && AIPKit_WP_AI_Client_Settings::provider_has_credentials($this->connector_id);
-    }
-}
+ namespace WPAICG\WP_AI_Client; use WordPress\AiClient\Providers\Contracts\ProviderAvailabilityInterface; if (!defined('ABSPATH')) { exit; } class AIPKit_WP_AI_Client_Availability implements ProviderAvailabilityInterface { private string $connector_id; public function __construct(string $connector_id) { $this->connector_id = sanitize_key($connector_id); } public function isConfigured(): bool { return AIPKit_WP_AI_Client_Settings::is_effectively_managed() && AIPKit_WP_AI_Client_Settings::provider_has_credentials($this->connector_id); } } 

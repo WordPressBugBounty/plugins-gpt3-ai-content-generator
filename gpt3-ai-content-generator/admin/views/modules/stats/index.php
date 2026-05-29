@@ -1,142 +1,5 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/stats/index.php
-// Status: NEW
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-$stats_default_days = 7;
-$log_settings = get_option('aipkit_log_settings', [
-    'enable_pruning' => false,
-    'retention_period_days' => 90,
-]);
-$log_settings_enabled = !empty($log_settings['enable_pruning']);
-$log_settings_retention = isset($log_settings['retention_period_days'])
-    ? (int) $log_settings['retention_period_days']
-    : 90;
-$user_credits_nonce = wp_create_nonce('aipkit_user_credits_nonce');
-$retention_options = class_exists('\\WPAICG\\Chat\\Utils\\LogConfig')
-    ? \WPAICG\Chat\Utils\LogConfig::get_retention_periods()
-    : [
-        7 => __('7 Days', 'gpt3-ai-content-generator'),
-        15 => __('15 Days', 'gpt3-ai-content-generator'),
-        30 => __('30 Days', 'gpt3-ai-content-generator'),
-        60 => __('60 Days', 'gpt3-ai-content-generator'),
-        90 => __('90 Days', 'gpt3-ai-content-generator'),
-    ];
-$is_pro = class_exists('\\WPAICG\\aipkit_dashboard')
-    ? \WPAICG\aipkit_dashboard::is_pro_plan()
-    : false;
-$upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
-$cron_hook = class_exists('\\WPAICG\\Chat\\Storage\\LogCronManager')
-    ? \WPAICG\Chat\Storage\LogCronManager::HOOK_NAME
-    : 'aipkit_prune_logs_cron';
-$next_scheduled = wp_next_scheduled($cron_hook);
-$is_cron_active = $next_scheduled !== false;
-$last_run_option = get_option('aipkit_log_pruning_last_run', '');
-$last_run_label = $last_run_option
-    ? wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($last_run_option))
-    : __('Never', 'gpt3-ai-content-generator');
-$cron_state = 'disabled';
-$cron_text = __('Disabled', 'gpt3-ai-content-generator');
-if ($log_settings_enabled) {
-    if ($is_cron_active) {
-        $cron_state = 'scheduled';
-        $cron_text = __('Scheduled', 'gpt3-ai-content-generator');
-    } else {
-        $cron_state = 'not-scheduled';
-        $cron_text = __('Not Scheduled', 'gpt3-ai-content-generator');
-    }
-}
-
-$chatbot_posts = [];
-if (class_exists('\\WPAICG\\Chat\\Admin\\AdminSetup')) {
-    $chatbot_posts = get_posts([
-        'post_type' => \WPAICG\Chat\Admin\AdminSetup::POST_TYPE,
-        'post_status' => 'publish',
-        'numberposts' => -1,
-        'orderby' => 'title',
-        'order' => 'ASC',
-    ]);
-}
-
-$module_labels = [
-    'chatbot' => __('Chatbot', 'gpt3-ai-content-generator'),
-    'content_writer' => __('Content Writer', 'gpt3-ai-content-generator'),
-    'content_writer_automation' => __('Automation', 'gpt3-ai-content-generator'),
-    'image_generator' => __('Image Generator', 'gpt3-ai-content-generator'),
-    'ai_forms' => __('AI Forms', 'gpt3-ai-content-generator'),
-    'autogpt' => __('Automations', 'gpt3-ai-content-generator'),
-    'ai_post_enhancer' => __('Content Assistant', 'gpt3-ai-content-generator'),
-    'wp_ai_client' => __('WP AI Client', 'gpt3-ai-content-generator'),
-    'unknown' => __('Unknown', 'gpt3-ai-content-generator'),
-];
-
-$module_options = [];
-if (class_exists('\\WPAICG\\Stats\\AIPKit_Stats')) {
-    $stats_calculator = new \WPAICG\Stats\AIPKit_Stats();
-    $quick_stats = $stats_calculator->get_quick_interaction_stats($stats_default_days);
-    if (!is_wp_error($quick_stats) && !empty($quick_stats['module_counts'])) {
-        $module_options = array_keys($quick_stats['module_counts']);
-    }
-}
-if (!in_array('chatbot', $module_options, true)) {
-    $module_options[] = 'chatbot';
-}
-$module_options = array_values(array_unique(array_filter($module_options)));
-sort($module_options);
-
-$woo_active = class_exists('WooCommerce') && post_type_exists('product') && function_exists('wc_get_product');
-$woo_create_product_url = admin_url('post-new.php?post_type=product');
-$woo_products_url = admin_url('edit.php?post_type=product');
-$can_manage_woo_products = current_user_can('edit_products') || current_user_can('manage_woocommerce');
-$customer_dashboard_page_url = (string) get_option('aipkit_token_dashboard_page_url', '');
-$customer_dashboard_buycredits_saved_url = (string) get_option('aipkit_token_shop_page_url', '');
-$customer_dashboard_buycredits_default_url = $customer_dashboard_buycredits_saved_url;
-if ($customer_dashboard_buycredits_default_url === '' && function_exists('wc_get_page_id')) {
-    $customer_dashboard_buycredits_default_url = (string) get_permalink(wc_get_page_id('shop'));
-}
-$woo_credit_products = [];
-
-if ($woo_active) {
-    $woo_credit_query = new \WP_Query([
-        'post_type' => 'product',
-        'post_status' => ['publish', 'draft', 'pending', 'private'],
-        'posts_per_page' => 8,
-        'orderby' => 'modified',
-        'order' => 'DESC',
-        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Small admin-only WooCommerce lookup for token packages.
-        'meta_key' => '_aipkit_is_token_package',
-        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Small admin-only WooCommerce lookup for token packages.
-        'meta_value' => 'yes',
-        'no_found_rows' => true,
-    ]);
-
-    if ($woo_credit_query->have_posts()) {
-        foreach ($woo_credit_query->posts as $woo_product_post) {
-            $woo_product = wc_get_product($woo_product_post->ID);
-            $woo_price = $woo_product ? $woo_product->get_price() : '';
-            $woo_status = get_post_status($woo_product_post);
-            $woo_status_object = $woo_status ? get_post_status_object($woo_status) : null;
-            $woo_edit_url = $can_manage_woo_products ? get_edit_post_link($woo_product_post->ID, '') : '';
-
-            $woo_credit_products[] = [
-                'id' => $woo_product_post->ID,
-                'title' => get_the_title($woo_product_post),
-                'credits' => absint(get_post_meta($woo_product_post->ID, '_aipkit_tokens_amount', true)),
-                'price' => ($woo_price !== '' && $woo_price !== null) ? wc_price((float) $woo_price) : '&mdash;',
-                'status' => $woo_status_object ? $woo_status_object->label : __('Unknown', 'gpt3-ai-content-generator'),
-                'edit_url' => is_string($woo_edit_url) ? $woo_edit_url : '',
-            ];
-        }
-    }
-
-    wp_reset_postdata();
-}
-?>
+ if (!defined('ABSPATH')) { exit; } $stats_default_days = 7; $log_settings = get_option('aipkit_log_settings', [ 'enable_pruning' => false, 'retention_period_days' => 90, ]); $log_settings_enabled = !empty($log_settings['enable_pruning']); $log_settings_retention = isset($log_settings['retention_period_days']) ? (int) $log_settings['retention_period_days'] : 90; $user_credits_nonce = wp_create_nonce('aipkit_user_credits_nonce'); $retention_options = class_exists('\\WPAICG\\Chat\\Utils\\LogConfig') ? \WPAICG\Chat\Utils\LogConfig::get_retention_periods() : [ 7 => __('7 Days', 'gpt3-ai-content-generator'), 15 => __('15 Days', 'gpt3-ai-content-generator'), 30 => __('30 Days', 'gpt3-ai-content-generator'), 60 => __('60 Days', 'gpt3-ai-content-generator'), 90 => __('90 Days', 'gpt3-ai-content-generator'), ]; $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false; $upgrade_url = admin_url('admin.php?page=wpaicg-pricing'); $cron_hook = class_exists('\\WPAICG\\Chat\\Storage\\LogCronManager') ? \WPAICG\Chat\Storage\LogCronManager::HOOK_NAME : 'aipkit_prune_logs_cron'; $next_scheduled = wp_next_scheduled($cron_hook); $is_cron_active = $next_scheduled !== false; $last_run_option = get_option('aipkit_log_pruning_last_run', ''); $last_run_label = $last_run_option ? wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($last_run_option)) : __('Never', 'gpt3-ai-content-generator'); $cron_state = 'disabled'; $cron_text = __('Disabled', 'gpt3-ai-content-generator'); if ($log_settings_enabled) { if ($is_cron_active) { $cron_state = 'scheduled'; $cron_text = __('Scheduled', 'gpt3-ai-content-generator'); } else { $cron_state = 'not-scheduled'; $cron_text = __('Not Scheduled', 'gpt3-ai-content-generator'); } } $chatbot_posts = []; if (class_exists('\\WPAICG\\Chat\\Admin\\AdminSetup')) { $chatbot_posts = get_posts([ 'post_type' => \WPAICG\Chat\Admin\AdminSetup::POST_TYPE, 'post_status' => 'publish', 'numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC', ]); } $module_labels = [ 'chatbot' => __('Chatbot', 'gpt3-ai-content-generator'), 'content_writer' => __('Content Writer', 'gpt3-ai-content-generator'), 'content_writer_automation' => __('Automation', 'gpt3-ai-content-generator'), 'image_generator' => __('Image Generator', 'gpt3-ai-content-generator'), 'ai_forms' => __('AI Forms', 'gpt3-ai-content-generator'), 'autogpt' => __('Automations', 'gpt3-ai-content-generator'), 'ai_post_enhancer' => __('Content Assistant', 'gpt3-ai-content-generator'), 'wp_ai_client' => __('WP AI Client', 'gpt3-ai-content-generator'), 'unknown' => __('Unknown', 'gpt3-ai-content-generator'), ]; $module_options = []; if (class_exists('\\WPAICG\\Stats\\AIPKit_Stats')) { $stats_calculator = new \WPAICG\Stats\AIPKit_Stats(); $quick_stats = $stats_calculator->get_quick_interaction_stats($stats_default_days); if (!is_wp_error($quick_stats) && !empty($quick_stats['module_counts'])) { $module_options = array_keys($quick_stats['module_counts']); } } if (!in_array('chatbot', $module_options, true)) { $module_options[] = 'chatbot'; } $module_options = array_values(array_unique(array_filter($module_options))); sort($module_options); $woo_active = class_exists('WooCommerce') && post_type_exists('product') && function_exists('wc_get_product'); $woo_create_product_url = admin_url('post-new.php?post_type=product'); $woo_products_url = admin_url('edit.php?post_type=product'); $can_manage_woo_products = current_user_can('edit_products') || current_user_can('manage_woocommerce'); $customer_dashboard_page_url = (string) get_option('aipkit_token_dashboard_page_url', ''); $customer_dashboard_buycredits_saved_url = (string) get_option('aipkit_token_shop_page_url', ''); $customer_dashboard_buycredits_default_url = $customer_dashboard_buycredits_saved_url; if ($customer_dashboard_buycredits_default_url === '' && function_exists('wc_get_page_id')) { $customer_dashboard_buycredits_default_url = (string) get_permalink(wc_get_page_id('shop')); } $woo_credit_products = []; if ($woo_active) { $woo_credit_query = new \WP_Query([ 'post_type' => 'product', 'post_status' => ['publish', 'draft', 'pending', 'private'], 'posts_per_page' => 8, 'orderby' => 'modified', 'order' => 'DESC', 'meta_key' => '_aipkit_is_token_package', 'meta_value' => 'yes', 'no_found_rows' => true, ]); if ($woo_credit_query->have_posts()) { foreach ($woo_credit_query->posts as $woo_product_post) { $woo_product = wc_get_product($woo_product_post->ID); $woo_price = $woo_product ? $woo_product->get_price() : ''; $woo_status = get_post_status($woo_product_post); $woo_status_object = $woo_status ? get_post_status_object($woo_status) : null; $woo_edit_url = $can_manage_woo_products ? get_edit_post_link($woo_product_post->ID, '') : ''; $woo_credit_products[] = [ 'id' => $woo_product_post->ID, 'title' => get_the_title($woo_product_post), 'credits' => absint(get_post_meta($woo_product_post->ID, '_aipkit_tokens_amount', true)), 'price' => ($woo_price !== '' && $woo_price !== null) ? wc_price((float) $woo_price) : '&mdash;', 'status' => $woo_status_object ? $woo_status_object->label : __('Unknown', 'gpt3-ai-content-generator'), 'edit_url' => is_string($woo_edit_url) ? $woo_edit_url : '', ]; } } wp_reset_postdata(); } ?>
 
 <div
     class="aipkit_container aipkit_stats_container"
@@ -816,14 +679,7 @@ if ($woo_active) {
                                         </span>
                                         <span class="aipkit_stats_customer_woo_status_text">
                                             <?php
-                                            if (!$woo_active) {
-                                                esc_html_e('Activate WooCommerce to start selling AI Puffer credit packages.', 'gpt3-ai-content-generator');
-                                            } elseif ($can_manage_woo_products) {
-                                                esc_html_e('Open any WooCommerce product to find the AI Puffer credit package box.', 'gpt3-ai-content-generator');
-                                            } else {
-                                                esc_html_e('Your role can review credit package summaries, but cannot edit WooCommerce products.', 'gpt3-ai-content-generator');
-                                            }
-                                            ?>
+ if (!$woo_active) { esc_html_e('Activate WooCommerce to start selling AI Puffer credit packages.', 'gpt3-ai-content-generator'); } elseif ($can_manage_woo_products) { esc_html_e('Open any WooCommerce product to find the AI Puffer credit package box.', 'gpt3-ai-content-generator'); } else { esc_html_e('Your role can review credit package summaries, but cannot edit WooCommerce products.', 'gpt3-ai-content-generator'); } ?>
                                         </span>
                                     </div>
 
@@ -849,12 +705,7 @@ if ($woo_active) {
                                             <div class="aipkit_stats_shortcode_note">
                                                 <strong><?php esc_html_e('Current packages:', 'gpt3-ai-content-generator'); ?></strong>
                                                 <?php
-                                                printf(
-                                                    /* translators: %s: number of WooCommerce credit products */
-                                                    esc_html__('%s credit products found.', 'gpt3-ai-content-generator'),
-                                                    esc_html(number_format_i18n(count($woo_credit_products)))
-                                                );
-                                                ?>
+ printf( esc_html__('%s credit products found.', 'gpt3-ai-content-generator'), esc_html(number_format_i18n(count($woo_credit_products))) ); ?>
                                             </div>
                                             <div class="aipkit_stats_shortcode_note">
                                                 <strong><?php esc_html_e('Tip:', 'gpt3-ai-content-generator'); ?></strong>
@@ -1003,12 +854,7 @@ if ($woo_active) {
                         </div>
                         <span class="aipkit_stats_cron_last_run" id="aipkit_stats_cron_last_run">
                             <?php
-                            printf(
-                                /* translators: %s: last run time */
-                                esc_html__('Last run: %s', 'gpt3-ai-content-generator'),
-                                esc_html($last_run_label)
-                            );
-                            ?>
+ printf( esc_html__('Last run: %s', 'gpt3-ai-content-generator'), esc_html($last_run_label) ); ?>
                         </span>
                     </div>
                 </div>

@@ -1,15 +1,50 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/ai-forms/partials/tools-config.php
-// Status: MODIFIED
-
-/**
- * Partial: AI Form Editor - Tools Configuration
- * Contains settings for enabling and configuring web search integration.
- */
-if (!defined('ABSPATH')) {
-    exit;
-}
-?>
+ if (!defined('ABSPATH')) { exit; } $render_ai_form_web_search_location_fields = static function ($provider_key, $location_type_row_extra_class = '') { $field_prefix = 'aipkit_ai_form_' . $provider_key . '_web_search'; $name_prefix = $provider_key . '_web_search'; $location_type_row_class = trim('aipkit_popover_option_row ' . $location_type_row_extra_class); $location_fields = [ [ 'suffix' => 'country', 'label' => __('Country', 'gpt3-ai-content-generator'), 'helper' => __('Two-letter country code.', 'gpt3-ai-content-generator'), 'placeholder' => __('US', 'gpt3-ai-content-generator'), 'maxlength' => 2, ], [ 'suffix' => 'city', 'label' => __('City', 'gpt3-ai-content-generator'), 'helper' => __('City for approximate location.', 'gpt3-ai-content-generator'), 'placeholder' => __('London', 'gpt3-ai-content-generator'), ], [ 'suffix' => 'region', 'label' => __('Region', 'gpt3-ai-content-generator'), 'helper' => __('State or region.', 'gpt3-ai-content-generator'), 'placeholder' => __('California', 'gpt3-ai-content-generator'), ], [ 'suffix' => 'timezone', 'label' => __('Timezone', 'gpt3-ai-content-generator'), 'helper' => __('IANA timezone name.', 'gpt3-ai-content-generator'), 'placeholder' => __('America/Chicago', 'gpt3-ai-content-generator'), ], ]; ?>
+        <div class="<?php echo esc_attr($location_type_row_class); ?>">
+            <div class="aipkit_popover_option_main">
+                <div class="aipkit_cw_settings_option_text">
+                    <label class="aipkit_popover_option_label" for="<?php echo esc_attr($field_prefix . '_loc_type'); ?>">
+                        <?php esc_html_e('User location', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <span class="aipkit_popover_option_helper">
+                        <?php esc_html_e('Optional location signal.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+                <select id="<?php echo esc_attr($field_prefix . '_loc_type'); ?>" name="<?php echo esc_attr($name_prefix . '_loc_type'); ?>" class="aipkit_popover_option_select <?php echo esc_attr($field_prefix . '_loc_type_select'); ?>">
+                    <option value="none" selected><?php esc_html_e('None', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="approximate"><?php esc_html_e('Approximate', 'gpt3-ai-content-generator'); ?></option>
+                </select>
+            </div>
+        </div>
+        <div class="<?php echo esc_attr($field_prefix . '_location_details'); ?>" style="display: none;">
+            <?php foreach ($location_fields as $field): ?>
+                <?php $field_id = $field_prefix . '_loc_' . $field['suffix']; ?>
+                <div class="aipkit_popover_option_row">
+                    <div class="aipkit_popover_option_main">
+                        <div class="aipkit_cw_settings_option_text">
+                            <label class="aipkit_popover_option_label" for="<?php echo esc_attr($field_id); ?>">
+                                <?php echo esc_html($field['label']); ?>
+                            </label>
+                            <span class="aipkit_popover_option_helper">
+                                <?php echo esc_html($field['helper']); ?>
+                            </span>
+                        </div>
+                        <input
+                            type="text"
+                            id="<?php echo esc_attr($field_id); ?>"
+                            name="<?php echo esc_attr($name_prefix . '_loc_' . $field['suffix']); ?>"
+                            class="aipkit_form-input aipkit_popover_option_input"
+                            placeholder="<?php echo esc_attr($field['placeholder']); ?>"
+                            <?php if (isset($field['maxlength'])): ?>
+                                maxlength="<?php echo esc_attr($field['maxlength']); ?>"
+                            <?php endif; ?>
+                        >
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php
+}; ?>
 <div class="aipkit_popover_options_list">
     <input
         type="checkbox"
@@ -40,76 +75,7 @@ if (!defined('ABSPATH')) {
                 </select>
             </div>
         </div>
-        <div class="aipkit_popover_option_row aipkit_ai_form_openai_web_search_location_type_row aipkit_last_visible_row">
-            <div class="aipkit_popover_option_main">
-                <div class="aipkit_cw_settings_option_text">
-                    <label class="aipkit_popover_option_label" for="aipkit_ai_form_openai_web_search_loc_type">
-                        <?php esc_html_e('User location', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <span class="aipkit_popover_option_helper">
-                        <?php esc_html_e('Optional location signal.', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                </div>
-                <select id="aipkit_ai_form_openai_web_search_loc_type" name="openai_web_search_loc_type" class="aipkit_popover_option_select aipkit_ai_form_openai_web_search_loc_type_select">
-                    <option value="none" selected><?php esc_html_e('None', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="approximate"><?php esc_html_e('Approximate', 'gpt3-ai-content-generator'); ?></option>
-                </select>
-            </div>
-        </div>
-        <div class="aipkit_ai_form_openai_web_search_location_details" style="display: none;">
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <div class="aipkit_cw_settings_option_text">
-                        <label class="aipkit_popover_option_label" for="aipkit_ai_form_openai_web_search_loc_country">
-                            <?php esc_html_e('Country', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('Two-letter country code.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </div>
-                    <input type="text" id="aipkit_ai_form_openai_web_search_loc_country" name="openai_web_search_loc_country" class="aipkit_form-input aipkit_popover_option_input" placeholder="<?php esc_attr_e('US', 'gpt3-ai-content-generator'); ?>" maxlength="2">
-                </div>
-            </div>
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <div class="aipkit_cw_settings_option_text">
-                        <label class="aipkit_popover_option_label" for="aipkit_ai_form_openai_web_search_loc_city">
-                            <?php esc_html_e('City', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('City for approximate location.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </div>
-                    <input type="text" id="aipkit_ai_form_openai_web_search_loc_city" name="openai_web_search_loc_city" class="aipkit_form-input aipkit_popover_option_input" placeholder="<?php esc_attr_e('London', 'gpt3-ai-content-generator'); ?>">
-                </div>
-            </div>
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <div class="aipkit_cw_settings_option_text">
-                        <label class="aipkit_popover_option_label" for="aipkit_ai_form_openai_web_search_loc_region">
-                            <?php esc_html_e('Region', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('State or region.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </div>
-                    <input type="text" id="aipkit_ai_form_openai_web_search_loc_region" name="openai_web_search_loc_region" class="aipkit_form-input aipkit_popover_option_input" placeholder="<?php esc_attr_e('California', 'gpt3-ai-content-generator'); ?>">
-                </div>
-            </div>
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <div class="aipkit_cw_settings_option_text">
-                        <label class="aipkit_popover_option_label" for="aipkit_ai_form_openai_web_search_loc_timezone">
-                            <?php esc_html_e('Timezone', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('IANA timezone name.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </div>
-                    <input type="text" id="aipkit_ai_form_openai_web_search_loc_timezone" name="openai_web_search_loc_timezone" class="aipkit_form-input aipkit_popover_option_input" placeholder="<?php esc_attr_e('America/Chicago', 'gpt3-ai-content-generator'); ?>">
-                </div>
-            </div>
-        </div>
+        <?php $render_ai_form_web_search_location_fields('openai', 'aipkit_ai_form_openai_web_search_location_type_row aipkit_last_visible_row'); ?>
     </div>
 
     <input
@@ -137,76 +103,7 @@ if (!defined('ABSPATH')) {
                 <input type="number" id="aipkit_ai_form_claude_web_search_max_uses" name="claude_web_search_max_uses" class="aipkit_form-input aipkit_popover_option_input" min="1" max="20" step="1" value="5" inputmode="numeric">
             </div>
         </div>
-        <div class="aipkit_popover_option_row">
-            <div class="aipkit_popover_option_main">
-                <div class="aipkit_cw_settings_option_text">
-                    <label class="aipkit_popover_option_label" for="aipkit_ai_form_claude_web_search_loc_type">
-                        <?php esc_html_e('User location', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <span class="aipkit_popover_option_helper">
-                        <?php esc_html_e('Optional location signal.', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                </div>
-                <select id="aipkit_ai_form_claude_web_search_loc_type" name="claude_web_search_loc_type" class="aipkit_popover_option_select aipkit_ai_form_claude_web_search_loc_type_select">
-                    <option value="none" selected><?php esc_html_e('None', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="approximate"><?php esc_html_e('Approximate', 'gpt3-ai-content-generator'); ?></option>
-                </select>
-            </div>
-        </div>
-        <div class="aipkit_ai_form_claude_web_search_location_details" style="display: none;">
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <div class="aipkit_cw_settings_option_text">
-                        <label class="aipkit_popover_option_label" for="aipkit_ai_form_claude_web_search_loc_country">
-                            <?php esc_html_e('Country', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('Two-letter country code.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </div>
-                    <input type="text" id="aipkit_ai_form_claude_web_search_loc_country" name="claude_web_search_loc_country" class="aipkit_form-input aipkit_popover_option_input" placeholder="<?php esc_attr_e('US', 'gpt3-ai-content-generator'); ?>" maxlength="2">
-                </div>
-            </div>
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <div class="aipkit_cw_settings_option_text">
-                        <label class="aipkit_popover_option_label" for="aipkit_ai_form_claude_web_search_loc_city">
-                            <?php esc_html_e('City', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('City for approximate location.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </div>
-                    <input type="text" id="aipkit_ai_form_claude_web_search_loc_city" name="claude_web_search_loc_city" class="aipkit_form-input aipkit_popover_option_input" placeholder="<?php esc_attr_e('London', 'gpt3-ai-content-generator'); ?>">
-                </div>
-            </div>
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <div class="aipkit_cw_settings_option_text">
-                        <label class="aipkit_popover_option_label" for="aipkit_ai_form_claude_web_search_loc_region">
-                            <?php esc_html_e('Region', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('State or region.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </div>
-                    <input type="text" id="aipkit_ai_form_claude_web_search_loc_region" name="claude_web_search_loc_region" class="aipkit_form-input aipkit_popover_option_input" placeholder="<?php esc_attr_e('California', 'gpt3-ai-content-generator'); ?>">
-                </div>
-            </div>
-            <div class="aipkit_popover_option_row">
-                <div class="aipkit_popover_option_main">
-                    <div class="aipkit_cw_settings_option_text">
-                        <label class="aipkit_popover_option_label" for="aipkit_ai_form_claude_web_search_loc_timezone">
-                            <?php esc_html_e('Timezone', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <span class="aipkit_popover_option_helper">
-                            <?php esc_html_e('IANA timezone name.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </div>
-                    <input type="text" id="aipkit_ai_form_claude_web_search_loc_timezone" name="claude_web_search_loc_timezone" class="aipkit_form-input aipkit_popover_option_input" placeholder="<?php esc_attr_e('America/Chicago', 'gpt3-ai-content-generator'); ?>">
-                </div>
-            </div>
-        </div>
+        <?php $render_ai_form_web_search_location_fields('claude'); ?>
         <div class="aipkit_popover_option_row">
             <div class="aipkit_popover_option_main">
                 <div class="aipkit_cw_settings_option_text">

@@ -1,15 +1,5 @@
 <?php
-/**
- * Partial: Content Indexing Automated Task - Knowledge Base Settings
- * Mirrors the content writer knowledge base popover style.
- *
- * @since 2.3.0
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <div class="aipkit_ci_target_stack">
     <div class="aipkit_ci_target_row">
         <label class="aipkit_ci_target_label" for="aipkit_task_content_indexing_target_store_provider">
@@ -37,7 +27,7 @@ if (!defined('ABSPATH')) {
             class="aipkit_form-input aipkit_ci_target_select aipkit_autosave_trigger"
         >
             <option value=""><?php esc_html_e('-- Select Store/Index --', 'gpt3-ai-content-generator'); ?></option>
-            <?php // Options populated by JS. ?>
+            <?php ?>
         </select>
     </div>
 
@@ -51,7 +41,7 @@ if (!defined('ABSPATH')) {
             class="aipkit_form-input aipkit_ci_target_select aipkit_autosave_trigger"
         >
             <option value=""><?php esc_html_e('-- Select Model --', 'gpt3-ai-content-generator'); ?></option>
-            <?php // Options and optgroups populated by JS. ?>
+            <?php ?>
         </select>
     </div>
 </div>

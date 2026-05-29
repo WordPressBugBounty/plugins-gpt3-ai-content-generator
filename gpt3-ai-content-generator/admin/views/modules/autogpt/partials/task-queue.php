@@ -1,27 +1,5 @@
 <?php
-// File: admin/views/modules/autogpt/partials/task-queue.php
-/**
- * Partial: Automated Task Queue Viewer
- * Displays items currently in the task queue.
- * REDESIGNED: Simplified 5-column layout following philosophy principles
- * - Removed Attempts column (edge case info, visible in status if failed)
- * - Removed Type column (low-signal, already implied by task)
- * - Combined timing info for better chunking
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-$aipkit_cron_state = !empty($aipkit_autogpt_cron_summary['state']) ? (string) $aipkit_autogpt_cron_summary['state'] : 'enabled';
-$aipkit_cron_chip_status = __('OK', 'gpt3-ai-content-generator');
-
-if ($aipkit_cron_state === 'disabled') {
-    $aipkit_cron_chip_status = __('Off', 'gpt3-ai-content-generator');
-} elseif ($aipkit_cron_state === 'overdue') {
-    $aipkit_cron_chip_status = __('Delayed', 'gpt3-ai-content-generator');
-}
-?>
+ if (!defined('ABSPATH')) { exit; } $aipkit_cron_state = !empty($aipkit_autogpt_cron_summary['state']) ? (string) $aipkit_autogpt_cron_summary['state'] : 'enabled'; $aipkit_cron_chip_status = __('OK', 'gpt3-ai-content-generator'); if ($aipkit_cron_state === 'disabled') { $aipkit_cron_chip_status = __('Off', 'gpt3-ai-content-generator'); } elseif ($aipkit_cron_state === 'overdue') { $aipkit_cron_chip_status = __('Delayed', 'gpt3-ai-content-generator'); } ?>
 <div id="aipkit_automated_task_queue_wrapper">
         <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">

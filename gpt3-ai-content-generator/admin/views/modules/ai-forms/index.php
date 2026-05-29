@@ -1,49 +1,7 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/ai-forms/index.php
-// Status: MODIFIED
-
-/**
- * AIPKit AI Forms Module - Admin View
- * Main screen for managing AI Forms.
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-// --- ADDED: Fetch Vector Store and Model Data ---
-use WPAICG\AIPKit_Providers;
-
-$aipkit_vector_store_localization = [
-    'openai_vector_stores' => [],
-    'pinecone_indexes' => [],
-    'qdrant_collections' => [],
-    'chroma_collections' => [],
-];
-if (class_exists(AIPKit_Providers::class)) {
-    $aipkit_vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('ai_forms_editor_ui');
-}
-$openai_vector_stores = isset($aipkit_vector_store_localization['openai_vector_stores']) && is_array($aipkit_vector_store_localization['openai_vector_stores'])
-    ? $aipkit_vector_store_localization['openai_vector_stores']
-    : [];
-$pinecone_indexes = isset($aipkit_vector_store_localization['pinecone_indexes']) && is_array($aipkit_vector_store_localization['pinecone_indexes'])
-    ? $aipkit_vector_store_localization['pinecone_indexes']
-    : [];
-$qdrant_collections = isset($aipkit_vector_store_localization['qdrant_collections']) && is_array($aipkit_vector_store_localization['qdrant_collections'])
-    ? $aipkit_vector_store_localization['qdrant_collections']
-    : [];
-$chroma_collections = isset($aipkit_vector_store_localization['chroma_collections']) && is_array($aipkit_vector_store_localization['chroma_collections'])
-    ? $aipkit_vector_store_localization['chroma_collections']
-    : [];
-// --- END ADDED ---
-
-?>
+ if (!defined('ABSPATH')) { exit; } use WPAICG\AIPKit_Providers; $aipkit_vector_store_localization = [ 'openai_vector_stores' => [], 'pinecone_indexes' => [], 'qdrant_collections' => [], 'chroma_collections' => [], ]; if (class_exists(AIPKit_Providers::class)) { $aipkit_vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('ai_forms_editor_ui'); } $openai_vector_stores = isset($aipkit_vector_store_localization['openai_vector_stores']) && is_array($aipkit_vector_store_localization['openai_vector_stores']) ? $aipkit_vector_store_localization['openai_vector_stores'] : []; $pinecone_indexes = isset($aipkit_vector_store_localization['pinecone_indexes']) && is_array($aipkit_vector_store_localization['pinecone_indexes']) ? $aipkit_vector_store_localization['pinecone_indexes'] : []; $qdrant_collections = isset($aipkit_vector_store_localization['qdrant_collections']) && is_array($aipkit_vector_store_localization['qdrant_collections']) ? $aipkit_vector_store_localization['qdrant_collections'] : []; $chroma_collections = isset($aipkit_vector_store_localization['chroma_collections']) && is_array($aipkit_vector_store_localization['chroma_collections']) ? $aipkit_vector_store_localization['chroma_collections'] : []; ?>
 <?php
-$aipkit_notice_id = 'aipkit_provider_notice_ai_forms';
-include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
-?>
+$aipkit_notice_id = 'aipkit_provider_notice_ai_forms'; include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php'; ?>
 <div
     class="aipkit_container aipkit_ai_forms_container"
     id="aipkit_ai_forms_container"
@@ -62,17 +20,13 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
     </div>
     <div class="aipkit_container-body">
         <div id="aipkit_ai_forms_messages">
-            <!-- Messages from AJAX operations will appear here -->
         </div>
         <div id="aipkit_ai_forms_import_messages">
-            <!-- Messages for import progress will appear here -->
         </div>
         <input type="file" id="aipkit_ai_forms_import_file_input" style="display: none;" accept="application/json">
-        <!-- Form Editor (hidden by default) -->
         <div id="aipkit_form_editor_container" class="aipkit_form_editor_container" style="display:none;">
             <?php include __DIR__ . '/partials/form-editor.php'; ?>
         </div>
-        <!-- List of Forms -->
         <div id="aipkit_ai_forms_list_container">
             <div class="aipkit_ai_forms_workspace_bar">
                 <div class="aipkit_ai_forms_workspace_tabs" role="tablist" aria-label="<?php esc_attr_e('AI Forms sections', 'gpt3-ai-content-generator'); ?>">
@@ -172,7 +126,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                             </tr>
                         </thead>
                         <tbody id="aipkit_ai_forms_list_tbody">
-                            <!-- Rows loaded by JS -->
                         </tbody>
                     </table>
                 </div>
@@ -185,7 +138,7 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
                 <?php include __DIR__ . '/partials/settings-ai-forms.php'; ?>
             </div>
         </div>
-    </div><!-- /.aipkit_container-body -->
+    </div>
     <div class="aipkit_builder_sheet_overlay aipkit_ai_forms_preview_sheet" id="aipkit_ai_forms_preview_sheet" aria-hidden="true">
         <div
             class="aipkit_builder_sheet_panel"
@@ -216,4 +169,4 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
             </div>
         </div>
     </div>
-</div><!-- /.aipkit_container -->
+</div>

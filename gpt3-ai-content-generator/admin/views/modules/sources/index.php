@@ -1,24 +1,5 @@
 <?php
-/**
- * AIPKit Sources Module - Admin View
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-$is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard')
-    ? \WPAICG\aipkit_dashboard::is_pro_plan()
-    : false;
-$upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
-$post_types_args = ['public' => true];
-$all_selectable_post_types = get_post_types($post_types_args, 'objects');
-$all_selectable_post_types = array_filter($all_selectable_post_types, function ($post_type_obj) {
-    return $post_type_obj->name !== 'attachment';
-});
-?>
+ if (!defined('ABSPATH')) { exit; } $is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false; $upgrade_url = admin_url('admin.php?page=wpaicg-pricing'); $post_types_args = ['public' => true]; $all_selectable_post_types = get_post_types($post_types_args, 'objects'); $all_selectable_post_types = array_filter($all_selectable_post_types, function ($post_type_obj) { return $post_type_obj->name !== 'attachment'; }); ?>
 <div
     class="aipkit_container aipkit_sources_container"
     id="aipkit_sources_module_container"
@@ -541,9 +522,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
             >
                 <div class="aipkit_sources_settings_form">
                     <?php
-                    $is_pro = $is_pro_plan;
-                    include WPAICG_PLUGIN_DIR . 'admin/views/modules/settings/partials/settings-knowledge-base-page.php';
-                    ?>
+ $is_pro = $is_pro_plan; include WPAICG_PLUGIN_DIR . 'admin/views/modules/settings/partials/settings-knowledge-base-page.php'; ?>
                 </div>
             </div>
         </div>

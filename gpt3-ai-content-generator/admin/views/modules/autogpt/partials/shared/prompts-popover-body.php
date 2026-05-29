@@ -1,96 +1,11 @@
 <?php
-/**
- * Partial: AutoGPT Prompts Popover Body (Reusable)
- *
- * Expected variables:
- * - $aipkit_prompt_items (array) Required
- *
- * Each prompt item supports:
- * - key (string) Required, used for data-prompt-key.
- * - section_id (string) Optional, applied to the row wrapper (used for toggling).
- * - label (string) Required
- * - description (string) Optional
- * - section_style (string) Optional, inline style applied to the row wrapper
- * - toggle (array) Optional: ['id' => '', 'name' => '', 'checked' => bool]
- * - flyout_id (string) Required
- * - flyout_title (string) Required
- * - textarea (array) Required: ['id' => '', 'name' => '', 'value' => '', 'placeholder' => '']
- * - library (array) Optional:
- *   ['select_id' => '', 'options' => array, 'default_prompt' => '', 'default_label' => 'Default']
- * - placeholders (array) Optional: list of tokens, e.g. ['{topic}']
- * - placeholders_prompt_type (string) Optional, added as data-prompt-type for JS updates
- * - placeholders_id (string) Optional, added as id for the placeholders container
- * - placeholders_label (string) Optional, defaults to "Variables:"
- * - placeholders_extra (array) Optional: list of tokens shown conditionally
- * - placeholders_extra_label (string) Optional, e.g. "For products:"
- * - placeholders_extra_class (string) Optional, defaults to "aipkit-product-placeholders"
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-$aipkit_prompt_items = isset($aipkit_prompt_items) && is_array($aipkit_prompt_items) ? $aipkit_prompt_items : [];
-$aipkit_prompts_render_list = isset($aipkit_prompts_render_list)
-    ? (bool) $aipkit_prompts_render_list
-    : true;
-if (!$aipkit_prompt_items) {
-    return;
-}
-
-$aipkit_placeholder_label_default = __('Variables:', 'gpt3-ai-content-generator');
-$aipkit_placeholder_copy_title = __('Click to copy', 'gpt3-ai-content-generator');
-
-$aipkit_render_library_options = static function(array $options): void {
-    foreach ($options as $option) {
-        if (empty($option['label']) || empty($option['prompt'])) {
-            continue;
-        }
-        printf(
-            '<option value="%s">%s</option>',
-            esc_attr($option['prompt']),
-            esc_html($option['label'])
-        );
-    }
-};
-
-$aipkit_render_placeholder_codes = static function(array $placeholders, string $title): void {
-    foreach ($placeholders as $placeholder) {
-        if ($placeholder === '') {
-            continue;
-        }
-        printf(
-            '<code class="aipkit-placeholder" title="%s">%s</code>',
-            esc_attr($title),
-            esc_html($placeholder)
-        );
-    }
-};
-?>
+ if (!defined('ABSPATH')) { exit; } $aipkit_prompt_items = isset($aipkit_prompt_items) && is_array($aipkit_prompt_items) ? $aipkit_prompt_items : []; $aipkit_prompts_render_list = isset($aipkit_prompts_render_list) ? (bool) $aipkit_prompts_render_list : true; if (!$aipkit_prompt_items) { return; } $aipkit_placeholder_label_default = __('Variables:', 'gpt3-ai-content-generator'); $aipkit_placeholder_copy_title = __('Click to copy', 'gpt3-ai-content-generator'); $aipkit_render_library_options = static function(array $options): void { foreach ($options as $option) { if (empty($option['label']) || empty($option['prompt'])) { continue; } printf( '<option value="%s">%s</option>', esc_attr($option['prompt']), esc_html($option['label']) ); } }; $aipkit_render_placeholder_codes = static function(array $placeholders, string $title): void { foreach ($placeholders as $placeholder) { if ($placeholder === '') { continue; } printf( '<code class="aipkit-placeholder" title="%s">%s</code>', esc_attr($title), esc_html($placeholder) ); } }; ?>
 
 <?php if ($aipkit_prompts_render_list) : ?>
     <div class="aipkit_prompts_redesigned">
         <?php foreach ($aipkit_prompt_items as $item) : ?>
             <?php
-            $key = isset($item['key']) ? (string) $item['key'] : '';
-            $section_id = isset($item['section_id']) ? (string) $item['section_id'] : '';
-            $section_style = isset($item['section_style']) ? (string) $item['section_style'] : '';
-            $label = isset($item['label']) ? (string) $item['label'] : '';
-            $description = isset($item['description']) ? (string) $item['description'] : '';
-            $toggle = isset($item['toggle']) && is_array($item['toggle']) ? $item['toggle'] : [];
-            $flyout_id = isset($item['flyout_id']) ? (string) $item['flyout_id'] : '';
-            $flyout_title = isset($item['flyout_title']) ? (string) $item['flyout_title'] : '';
-            $textarea = isset($item['textarea']) && is_array($item['textarea']) ? $item['textarea'] : [];
-            $textarea_id = isset($textarea['id']) ? (string) $textarea['id'] : '';
-            $textarea_name = isset($textarea['name']) ? (string) $textarea['name'] : '';
-            $textarea_value = isset($textarea['value']) ? (string) $textarea['value'] : '';
-            $textarea_placeholder = isset($textarea['placeholder']) ? (string) $textarea['placeholder'] : '';
-            if ($key === '' || $label === '' || $flyout_id === '' || $flyout_title === '' || $textarea_id === '' || $textarea_name === '') {
-                continue;
-            }
-            ?>
+ $key = isset($item['key']) ? (string) $item['key'] : ''; $section_id = isset($item['section_id']) ? (string) $item['section_id'] : ''; $section_style = isset($item['section_style']) ? (string) $item['section_style'] : ''; $label = isset($item['label']) ? (string) $item['label'] : ''; $description = isset($item['description']) ? (string) $item['description'] : ''; $toggle = isset($item['toggle']) && is_array($item['toggle']) ? $item['toggle'] : []; $flyout_id = isset($item['flyout_id']) ? (string) $item['flyout_id'] : ''; $flyout_title = isset($item['flyout_title']) ? (string) $item['flyout_title'] : ''; $textarea = isset($item['textarea']) && is_array($item['textarea']) ? $item['textarea'] : []; $textarea_id = isset($textarea['id']) ? (string) $textarea['id'] : ''; $textarea_name = isset($textarea['name']) ? (string) $textarea['name'] : ''; $textarea_value = isset($textarea['value']) ? (string) $textarea['value'] : ''; $textarea_placeholder = isset($textarea['placeholder']) ? (string) $textarea['placeholder'] : ''; if ($key === '' || $label === '' || $flyout_id === '' || $flyout_title === '' || $textarea_id === '' || $textarea_name === '') { continue; } ?>
             <div class="aipkit_prompt_toggle_card" data-prompt-key="<?php echo esc_attr($key); ?>"<?php echo $section_id !== '' ? ' id="' . esc_attr($section_id) . '"' : ''; ?><?php echo $section_style !== '' ? ' style="' . esc_attr($section_style) . '"' : ''; ?>>
                 <div class="aipkit_prompt_toggle_row">
                     <div class="aipkit_prompt_toggle_info">
@@ -131,29 +46,7 @@ $aipkit_render_placeholder_codes = static function(array $placeholders, string $
 
 <?php foreach ($aipkit_prompt_items as $item) : ?>
     <?php
-    $flyout_id = isset($item['flyout_id']) ? (string) $item['flyout_id'] : '';
-    $flyout_title = isset($item['flyout_title']) ? (string) $item['flyout_title'] : '';
-    $textarea = isset($item['textarea']) && is_array($item['textarea']) ? $item['textarea'] : [];
-    $textarea_id = isset($textarea['id']) ? (string) $textarea['id'] : '';
-    $textarea_name = isset($textarea['name']) ? (string) $textarea['name'] : '';
-    $textarea_value = isset($textarea['value']) ? (string) $textarea['value'] : '';
-    $textarea_placeholder = isset($textarea['placeholder']) ? (string) $textarea['placeholder'] : '';
-    if ($flyout_id === '' || $flyout_title === '' || $textarea_id === '' || $textarea_name === '') {
-        continue;
-    }
-    $library = isset($item['library']) && is_array($item['library']) ? $item['library'] : [];
-    $library_select_id = isset($library['select_id']) ? (string) $library['select_id'] : '';
-    $library_options = isset($library['options']) && is_array($library['options']) ? $library['options'] : [];
-    $library_default_prompt = isset($library['default_prompt']) ? (string) $library['default_prompt'] : '';
-    $library_default_label = isset($library['default_label']) ? (string) $library['default_label'] : __('Default', 'gpt3-ai-content-generator');
-    $placeholders = isset($item['placeholders']) && is_array($item['placeholders']) ? $item['placeholders'] : [];
-    $placeholders_label = isset($item['placeholders_label']) ? (string) $item['placeholders_label'] : $aipkit_placeholder_label_default;
-    $placeholders_extra = isset($item['placeholders_extra']) && is_array($item['placeholders_extra']) ? $item['placeholders_extra'] : [];
-    $placeholders_extra_label = isset($item['placeholders_extra_label']) ? (string) $item['placeholders_extra_label'] : '';
-    $placeholders_extra_class = isset($item['placeholders_extra_class']) ? (string) $item['placeholders_extra_class'] : 'aipkit-product-placeholders';
-    $placeholders_prompt_type = isset($item['placeholders_prompt_type']) ? (string) $item['placeholders_prompt_type'] : '';
-    $placeholders_id = isset($item['placeholders_id']) ? (string) $item['placeholders_id'] : '';
-    ?>
+ $flyout_id = isset($item['flyout_id']) ? (string) $item['flyout_id'] : ''; $flyout_title = isset($item['flyout_title']) ? (string) $item['flyout_title'] : ''; $textarea = isset($item['textarea']) && is_array($item['textarea']) ? $item['textarea'] : []; $textarea_id = isset($textarea['id']) ? (string) $textarea['id'] : ''; $textarea_name = isset($textarea['name']) ? (string) $textarea['name'] : ''; $textarea_value = isset($textarea['value']) ? (string) $textarea['value'] : ''; $textarea_placeholder = isset($textarea['placeholder']) ? (string) $textarea['placeholder'] : ''; if ($flyout_id === '' || $flyout_title === '' || $textarea_id === '' || $textarea_name === '') { continue; } $library = isset($item['library']) && is_array($item['library']) ? $item['library'] : []; $library_select_id = isset($library['select_id']) ? (string) $library['select_id'] : ''; $library_options = isset($library['options']) && is_array($library['options']) ? $library['options'] : []; $library_default_prompt = isset($library['default_prompt']) ? (string) $library['default_prompt'] : ''; $library_default_label = isset($library['default_label']) ? (string) $library['default_label'] : __('Default', 'gpt3-ai-content-generator'); $placeholders = isset($item['placeholders']) && is_array($item['placeholders']) ? $item['placeholders'] : []; $placeholders_label = isset($item['placeholders_label']) ? (string) $item['placeholders_label'] : $aipkit_placeholder_label_default; $placeholders_extra = isset($item['placeholders_extra']) && is_array($item['placeholders_extra']) ? $item['placeholders_extra'] : []; $placeholders_extra_label = isset($item['placeholders_extra_label']) ? (string) $item['placeholders_extra_label'] : ''; $placeholders_extra_class = isset($item['placeholders_extra_class']) ? (string) $item['placeholders_extra_class'] : 'aipkit-product-placeholders'; $placeholders_prompt_type = isset($item['placeholders_prompt_type']) ? (string) $item['placeholders_prompt_type'] : ''; $placeholders_id = isset($item['placeholders_id']) ? (string) $item['placeholders_id'] : ''; ?>
     <div class="aipkit_cw_prompt_flyout" id="<?php echo esc_attr($flyout_id); ?>" aria-hidden="true">
         <div class="aipkit_cw_prompt_panel aipkit_cw_prompt_panel--tall" role="dialog" aria-label="<?php echo esc_attr($flyout_title); ?>">
             <div class="aipkit_cw_prompt_editor">
@@ -191,11 +84,7 @@ $aipkit_render_placeholder_codes = static function(array $placeholders, string $
                             <?php if (!empty($placeholders_extra)) : ?>
                                 <span class="<?php echo esc_attr($placeholders_extra_class); ?>" style="display:none;">
                                     <?php
-                                    if ($placeholders_extra_label !== '') {
-                                        echo ' ' . esc_html($placeholders_extra_label);
-                                    }
-                                    $aipkit_render_placeholder_codes($placeholders_extra, $aipkit_placeholder_copy_title);
-                                    ?>
+ if ($placeholders_extra_label !== '') { echo ' ' . esc_html($placeholders_extra_label); } $aipkit_render_placeholder_codes($placeholders_extra, $aipkit_placeholder_copy_title); ?>
                                 </span>
                             <?php endif; ?>
                         </span>

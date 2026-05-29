@@ -1,47 +1,5 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-use WPAICG\Chat\Storage\BotSettingsManager;
-use WPAICG\Core\AIPKit_OpenAI_Reasoning;
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-$bot_id = $initial_active_bot_id;
-$bot_settings = $active_bot_settings;
-$saved_temperature = isset($bot_settings['temperature'])
-    ? floatval($bot_settings['temperature'])
-    : BotSettingsManager::DEFAULT_TEMPERATURE;
-$saved_max_tokens = isset($bot_settings['max_completion_tokens'])
-    ? absint($bot_settings['max_completion_tokens'])
-    : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
-$saved_max_messages = isset($bot_settings['max_messages'])
-    ? absint($bot_settings['max_messages'])
-    : BotSettingsManager::DEFAULT_MAX_MESSAGES;
-$reasoning_effort = isset($bot_settings['reasoning_effort'])
-    ? sanitize_text_field($bot_settings['reasoning_effort'])
-    : BotSettingsManager::DEFAULT_REASONING_EFFORT;
-$reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($reasoning_effort);
-$reasoning_options = ['none', 'low', 'medium', 'high', 'xhigh'];
-$reasoning_labels = [
-    __('none', 'gpt3-ai-content-generator'),
-    __('low', 'gpt3-ai-content-generator'),
-    __('med', 'gpt3-ai-content-generator'),
-    __('high', 'gpt3-ai-content-generator'),
-    __('xhigh', 'gpt3-ai-content-generator'),
-];
-if (!in_array($reasoning_effort, $reasoning_options, true)) {
-    $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT;
-}
-$reasoning_label_text = $current_provider_for_this_bot === 'Ollama'
-    ? __('Thinking', 'gpt3-ai-content-generator')
-    : __('Reasoning', 'gpt3-ai-content-generator');
-
-$saved_temperature = max(0.0, min($saved_temperature, 2.0));
-$saved_max_tokens = max(1, min($saved_max_tokens, 128000));
-$saved_max_messages = max(1, min($saved_max_messages, 1024));
-?>
+ use WPAICG\Chat\Storage\BotSettingsManager; use WPAICG\Core\AIPKit_OpenAI_Reasoning; if ( ! defined( 'ABSPATH' ) ) { exit; } $bot_id = $initial_active_bot_id; $bot_settings = $active_bot_settings; $saved_temperature = isset($bot_settings['temperature']) ? floatval($bot_settings['temperature']) : BotSettingsManager::DEFAULT_TEMPERATURE; $saved_max_tokens = isset($bot_settings['max_completion_tokens']) ? absint($bot_settings['max_completion_tokens']) : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS; $saved_max_messages = isset($bot_settings['max_messages']) ? absint($bot_settings['max_messages']) : BotSettingsManager::DEFAULT_MAX_MESSAGES; $reasoning_effort = isset($bot_settings['reasoning_effort']) ? sanitize_text_field($bot_settings['reasoning_effort']) : BotSettingsManager::DEFAULT_REASONING_EFFORT; $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($reasoning_effort); $reasoning_options = ['none', 'low', 'medium', 'high', 'xhigh']; $reasoning_labels = [ __('none', 'gpt3-ai-content-generator'), __('low', 'gpt3-ai-content-generator'), __('med', 'gpt3-ai-content-generator'), __('high', 'gpt3-ai-content-generator'), __('xhigh', 'gpt3-ai-content-generator'), ]; if (!in_array($reasoning_effort, $reasoning_options, true)) { $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT; } $reasoning_label_text = $current_provider_for_this_bot === 'Ollama' ? __('Thinking', 'gpt3-ai-content-generator') : __('Reasoning', 'gpt3-ai-content-generator'); $saved_temperature = max(0.0, min($saved_temperature, 2.0)); $saved_max_tokens = max(1, min($saved_max_tokens, 128000)); $saved_max_messages = max(1, min($saved_max_messages, 1024)); ?>
 <div class="aipkit_popover_options_list aipkit_behavior_compact_options">
     <div class="aipkit_behavior_compact_row">
         <div class="aipkit_behavior_compact_cell">

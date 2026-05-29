@@ -1,14 +1,5 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-$default_embedding_provider_key = isset($embedding_provider_options['openai'])
-    ? 'openai'
-    : (array_key_first($embedding_provider_options) ?: 'openai');
-?>
+if (!defined('ABSPATH')) { exit; } $default_embedding_provider_key = isset($embedding_provider_options['openai']) ? 'openai' : (array_key_first($embedding_provider_options) ?: 'openai'); ?>
 
 <div class="aipkit_cw_vector_section">
     <input
@@ -158,13 +149,7 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
                             <?php if (!empty($chroma_collections)): ?>
                                 <?php foreach ($chroma_collections as $collection): ?>
                                     <?php
-                                    $collection_name = is_array($collection)
-                                        ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? '')))
-                                        : (string) $collection;
-                                    if ($collection_name === '') {
-                                        continue;
-                                    }
-                                    ?>
+ $collection_name = is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection; if ($collection_name === '') { continue; } ?>
                                     <option value="<?php echo esc_attr($collection_name); ?>">
                                         <?php echo esc_html($collection_name); ?>
                                     </option>

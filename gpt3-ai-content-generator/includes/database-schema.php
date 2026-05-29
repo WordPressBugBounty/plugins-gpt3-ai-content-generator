@@ -1,32 +1,5 @@
 <?php
-
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/includes/database-schema.php
-// Status: MODIFIED
-// I have added a `template_type` column to support different kinds of templates and updated the unique index.
-
-/**
- * Database Schema Definitions for AIPKit.
- * Contains functions to create and update plugin-specific database tables.
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-/**
- * Creates or updates the chat logs database table.
- * Uses dbDelta for safe table creation/updates.
- * **REVISED** Schema: One row per conversation thread, messages stored in JSON.
- * **ADDED**: `module` column to track the source.
- */
-function aipkit_create_logs_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_chat_logs';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    // Use LONGTEXT for messages JSON to store potentially long history
-    $sql = "CREATE TABLE $table_name (
+ if (!defined('ABSPATH')) { exit; } function aipkit_create_logs_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_chat_logs'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE $table_name (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         bot_id bigint(20) unsigned DEFAULT NULL,
         user_id bigint(20) unsigned DEFAULT NULL,
@@ -53,23 +26,7 @@ function aipkit_create_logs_table()
         KEY last_message_ts (last_message_ts),
         KEY created_at (created_at),
         KEY updated_at (updated_at)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * Creates or updates the guest token usage database table.
- * Uses dbDelta for safe table creation/updates.
- */
-function aipkit_create_guest_token_usage_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_guest_token_usage';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table_name (
+    ) $charset_collate;"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_guest_token_usage_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_guest_token_usage'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE $table_name (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         session_id varchar(64) NOT NULL,
         bot_id bigint(20) unsigned NOT NULL,
@@ -81,46 +38,13 @@ function aipkit_create_guest_token_usage_table()
         KEY session_id (session_id),
         KEY bot_id (bot_id),
         KEY last_reset_timestamp (last_reset_timestamp)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * Creates or updates the SSE message cache database table.
- * Uses dbDelta for safe table creation/updates.
- * Only used if WP Object Cache is not available.
- */
-function aipkit_create_sse_message_cache_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_sse_message_cache';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table_name (
+    ) $charset_collate;"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_sse_message_cache_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_sse_message_cache'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE $table_name (
         cache_key varchar(191) NOT NULL,
         message_content longtext NOT NULL,
         expires_at datetime NOT NULL,
         PRIMARY KEY  (cache_key),
         KEY expires_at (expires_at)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * Creates or updates the vector data source table.
- */
-function aipkit_create_vector_data_source_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    // REMOVED ALL INLINE SQL COMMENTS FOR dbDelta COMPATIBILITY
-    $sql = "CREATE TABLE $table_name (
+    ) $charset_collate;"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_vector_data_source_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_vector_data_source'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE $table_name (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         user_id bigint(20) unsigned DEFAULT NULL,
         timestamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -146,23 +70,7 @@ function aipkit_create_vector_data_source_table()
         KEY status (status),
         KEY embedding_provider (embedding_provider),
         KEY embedding_model (embedding_model)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-
-/**
- * RENAMED: Creates or updates the automated tasks table.
- */
-function aipkit_create_automated_tasks_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_automated_tasks';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table_name (
+    ) $charset_collate;"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_automated_tasks_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_automated_tasks'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE $table_name (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         task_name varchar(255) NOT NULL,
         task_type varchar(50) NOT NULL,
@@ -176,22 +84,7 @@ function aipkit_create_automated_tasks_table()
         KEY task_type (task_type),
         KEY status (status),
         KEY next_run_time (next_run_time)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * RENAMED: Creates or updates the automated task queue table.
- */
-function aipkit_create_automated_task_queue_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table_name (
+    ) $charset_collate;"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_automated_task_queue_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_automated_task_queue'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE $table_name (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         task_id bigint(20) unsigned NOT NULL,
         target_identifier varchar(255) NOT NULL,
@@ -207,24 +100,7 @@ function aipkit_create_automated_task_queue_table()
         KEY target_identifier (target_identifier),
         KEY task_type (task_type),
         KEY status_added_at (status, added_at)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * NEW: Creates or updates the content writer templates table.
- * UPDATED: Added new fields for post settings.
- * UPDATED: Removed post_tags column.
- */
-function aipkit_create_content_writer_templates_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_content_writer_templates';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table_name (
+    ) $charset_collate;"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_content_writer_templates_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_content_writer_templates'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE $table_name (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         user_id bigint(20) unsigned NOT NULL,
         template_name varchar(255) NOT NULL,
@@ -244,22 +120,7 @@ function aipkit_create_content_writer_templates_table()
         KEY template_type (template_type),
         KEY is_default (is_default),
         KEY post_type (post_type)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * Creates the RSS history table to prevent re-processing feed items.
- */
-function aipkit_create_rss_history_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_rss_history';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table_name (
+    ) $charset_collate;"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_rss_history_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_rss_history'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE $table_name (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         task_id bigint(20) unsigned NOT NULL,
         item_guid varchar(255) NOT NULL,
@@ -267,23 +128,7 @@ function aipkit_create_rss_history_table()
         PRIMARY KEY  (id),
         UNIQUE KEY unique_task_guid (task_id, item_guid),
         KEY task_id (task_id)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * Creates or updates the event delivery queue table.
- * This is the durable foundation for async webhook and app delivery.
- */
-function aipkit_create_event_delivery_queue_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_event_delivery_queue';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table_name (
+    ) $charset_collate;"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_event_delivery_queue_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_event_delivery_queue'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE $table_name (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         job_uuid varchar(36) NOT NULL,
         event_id varchar(36) NOT NULL,
@@ -308,23 +153,7 @@ function aipkit_create_event_delivery_queue_table()
         KEY event_name_created_at (event_name, created_at),
         KEY source_module_status (source_module, status),
         KEY processed_at (processed_at)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * Creates or updates the recipe delivery logs table.
- * This powers Delivery Issues, replay, and async failure history.
- */
-function aipkit_create_recipe_delivery_logs_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_recipe_delivery_logs';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE {$table_name} (
+    ) $charset_collate;"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_recipe_delivery_logs_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_recipe_delivery_logs'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE {$table_name} (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         attempt_uuid varchar(36) NOT NULL,
         recipe_id varchar(36) NOT NULL,
@@ -352,22 +181,7 @@ function aipkit_create_recipe_delivery_logs_table()
         KEY event_name (event_name),
         KEY status_created (status, created_at),
         KEY replayed_from_attempt_uuid (replayed_from_attempt_uuid)
-    ) {$charset_collate};";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * Creates or updates the pricing rules table used for model-aware billing.
- */
-function aipkit_create_pricing_rules_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_pricing_rules';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE {$table_name} (
+    ) {$charset_collate};"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_pricing_rules_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_pricing_rules'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE {$table_name} (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         scope_type varchar(32) NOT NULL,
         scope_id bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -387,22 +201,7 @@ function aipkit_create_pricing_rules_table()
         KEY module_model_operation (module, provider, model, operation),
         KEY scope_lookup (scope_type, scope_id),
         KEY enabled (enabled)
-    ) {$charset_collate};";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
- * Creates or updates the ledger table used for purchases, usage, and adjustments.
- */
-function aipkit_create_token_ledger_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'aipkit_token_ledger';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE {$table_name} (
+    ) {$charset_collate};"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } function aipkit_create_token_ledger_table() { global $wpdb; $table_name = $wpdb->prefix . 'aipkit_token_ledger'; $charset_collate = $wpdb->get_charset_collate(); $sql = "CREATE TABLE {$table_name} (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         user_id bigint(20) unsigned DEFAULT NULL,
         session_id varchar(64) DEFAULT NULL,
@@ -430,8 +229,4 @@ function aipkit_create_token_ledger_table()
         KEY module_context_created_at (module, context_type, context_id, created_at),
         KEY provider_model_operation (provider, model, operation),
         KEY entry_type_created_at (entry_type, created_at)
-    ) {$charset_collate};";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
+    ) {$charset_collate};"; require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); dbDelta($sql); } 

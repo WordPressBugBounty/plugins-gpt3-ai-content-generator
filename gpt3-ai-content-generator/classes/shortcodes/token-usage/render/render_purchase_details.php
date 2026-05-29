@@ -1,37 +1,5 @@
 <?php
-
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/classes/shortcodes/token-usage/render/render_purchase_details.php
-// Status: MODIFIED
-
-namespace WPAICG\Shortcodes\TokenUsage\Render;
-
-if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
-}
-
-/**
- * Render the purchase details section with expandable purchase history.
- *
- * @param array $purchase_history Array of purchase data from get_user_purchase_history_logic
- * @param int $current_balance Current credit balance
- * @param string $shop_page_url Optional shop URL for buying more credits.
- * @param string $buy_credits_label Optional CTA label.
- * @param bool $show_purchase_history Whether to show purchase history UI.
- * @return string HTML output for purchase details section
- */
-function render_purchase_details_logic(
-    array $purchase_history,
-    int $current_balance,
-    string $shop_page_url = '',
-    string $buy_credits_label = '',
-    bool $show_purchase_history = true
-): string
-{
-    $buy_credits_label = trim($buy_credits_label) !== ''
-        ? $buy_credits_label
-        : __('Buy credits', 'gpt3-ai-content-generator');
-    ob_start();
-    ?>
+ namespace WPAICG\Shortcodes\TokenUsage\Render; if (!defined('ABSPATH')) { exit; } function render_purchase_details_logic( array $purchase_history, int $current_balance, string $shop_page_url = '', string $buy_credits_label = '', bool $show_purchase_history = true ): string { $buy_credits_label = trim($buy_credits_label) !== '' ? $buy_credits_label : __('Buy credits', 'gpt3-ai-content-generator'); ob_start(); ?>
 
     <section class="aipkit_customer_shell aipkit_customer_shell--balance" id="aipkit_customer_dashboard_credits">
         <div class="aipkit_customer_shell_header">
@@ -129,5 +97,4 @@ function render_purchase_details_logic(
     </section>
 
     <?php
-    return ob_get_clean();
-}
+ return ob_get_clean(); } 

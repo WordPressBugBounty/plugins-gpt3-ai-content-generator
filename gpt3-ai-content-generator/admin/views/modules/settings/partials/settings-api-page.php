@@ -1,11 +1,5 @@
 <?php
-/**
- * Partial: REST API Settings Page
- */
-if (!defined('ABSPATH')) {
-    exit;
-}
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_api_rest_key_row">
     <label class="aipkit_form-label" for="aipkit_public_api_key">
         <?php esc_html_e('REST API Key', 'gpt3-ai-content-generator'); ?>

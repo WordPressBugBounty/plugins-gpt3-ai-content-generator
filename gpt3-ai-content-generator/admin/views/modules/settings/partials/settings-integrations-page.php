@@ -1,101 +1,5 @@
 <?php
-/**
- * Partial: Integrations Settings Page
- */
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-$current_elevenlabs_api_key = (string) ($elevenlabs_data['api_key'] ?? '');
-$current_elevenlabs_default_voice = (string) ($elevenlabs_data['voice_id'] ?? '');
-$current_elevenlabs_default_model = (string) ($elevenlabs_data['model_id'] ?? '');
-
-$current_replicate_api_key = (string) ($replicate_data['api_key'] ?? '');
-$current_pexels_api_key = (string) ($pexels_data['api_key'] ?? '');
-$current_pixabay_api_key = (string) ($pixabay_data['api_key'] ?? '');
-$current_pinecone_api_key = (string) ($pinecone_data['api_key'] ?? '');
-$current_qdrant_url = (string) ($qdrant_data['url'] ?? '');
-$current_qdrant_api_key = (string) ($qdrant_data['api_key'] ?? '');
-$current_chroma_url = (string) ($chroma_data['url'] ?? '');
-$current_chroma_api_key = (string) ($chroma_data['api_key'] ?? '');
-$current_chroma_tenant = (string) ($chroma_data['tenant'] ?? ($chroma_defaults['tenant'] ?? 'default_tenant'));
-$current_chroma_database = (string) ($chroma_data['database'] ?? ($chroma_defaults['database'] ?? 'default_database'));
-
-$elevenlabs_voice_list = is_array($elevenlabs_voice_list ?? null) ? $elevenlabs_voice_list : [];
-$elevenlabs_model_list = is_array($elevenlabs_model_list ?? null) ? $elevenlabs_model_list : [];
-$replicate_model_list = is_array($replicate_model_list ?? null) ? $replicate_model_list : [];
-$pinecone_index_list = is_array($pinecone_index_list ?? null) ? $pinecone_index_list : [];
-$qdrant_collection_list = is_array($qdrant_collection_list ?? null) ? $qdrant_collection_list : [];
-$chroma_collection_list = is_array($chroma_collection_list ?? null) ? $chroma_collection_list : [];
-
-$normalize_synced_select_options = static function (array $items, ?array $value_keys = null, ?array $label_keys = null): array {
-    $options = [];
-    $value_keys = $value_keys ?: ['id', 'name', 'model', 'index_name', 'collection_name'];
-    $label_keys = $label_keys ?: ['name', 'id', 'model', 'index_name', 'collection_name'];
-
-    foreach ($items as $item) {
-        $value = '';
-        $label = '';
-
-        if (is_array($item) || is_object($item)) {
-            foreach ($value_keys as $key) {
-                $candidate = is_array($item) ? ($item[$key] ?? null) : ($item->{$key} ?? null);
-                if (is_scalar($candidate) && (string) $candidate !== '') {
-                    $value = trim(wp_strip_all_tags((string) $candidate));
-                    break;
-                }
-            }
-
-            foreach ($label_keys as $key) {
-                $candidate = is_array($item) ? ($item[$key] ?? null) : ($item->{$key} ?? null);
-                if (is_scalar($candidate) && (string) $candidate !== '') {
-                    $label = trim(wp_strip_all_tags((string) $candidate));
-                    break;
-                }
-            }
-        } elseif (is_scalar($item)) {
-            $value = trim(wp_strip_all_tags((string) $item));
-            $label = $value;
-        }
-
-        if ($value === '' && $label !== '') {
-            $value = $label;
-        }
-        if ($label === '' && $value !== '') {
-            $label = $value;
-        }
-        if ($value === '' || $label === '') {
-            continue;
-        }
-
-        $dedupe_key = strtolower($value);
-        if (!isset($options[$dedupe_key])) {
-            $options[$dedupe_key] = [
-                'value' => $value,
-                'label' => $label,
-            ];
-        }
-    }
-
-    $options = array_values($options);
-    usort($options, static function (array $a, array $b): int {
-        return strcasecmp($a['label'], $b['label']);
-    });
-
-    return $options;
-};
-
-$replicate_synced_model_options = $normalize_synced_select_options($replicate_model_list);
-$pinecone_synced_index_options = $normalize_synced_select_options($pinecone_index_list);
-$qdrant_synced_collection_options = $normalize_synced_select_options($qdrant_collection_list);
-$chroma_synced_collection_options = $normalize_synced_select_options(
-    $chroma_collection_list,
-    ['name', 'collection_name', 'id'],
-    ['name', 'collection_name', 'id']
-);
-?>
+ if (!defined('ABSPATH')) { exit; } $current_elevenlabs_api_key = (string) ($elevenlabs_data['api_key'] ?? ''); $current_elevenlabs_default_voice = (string) ($elevenlabs_data['voice_id'] ?? ''); $current_elevenlabs_default_model = (string) ($elevenlabs_data['model_id'] ?? ''); $current_replicate_api_key = (string) ($replicate_data['api_key'] ?? ''); $current_pexels_api_key = (string) ($pexels_data['api_key'] ?? ''); $current_pixabay_api_key = (string) ($pixabay_data['api_key'] ?? ''); $current_pinecone_api_key = (string) ($pinecone_data['api_key'] ?? ''); $current_qdrant_url = (string) ($qdrant_data['url'] ?? ''); $current_qdrant_api_key = (string) ($qdrant_data['api_key'] ?? ''); $current_chroma_url = (string) ($chroma_data['url'] ?? ''); $current_chroma_api_key = (string) ($chroma_data['api_key'] ?? ''); $current_chroma_tenant = (string) ($chroma_data['tenant'] ?? ($chroma_defaults['tenant'] ?? 'default_tenant')); $current_chroma_database = (string) ($chroma_data['database'] ?? ($chroma_defaults['database'] ?? 'default_database')); $elevenlabs_voice_list = is_array($elevenlabs_voice_list ?? null) ? $elevenlabs_voice_list : []; $elevenlabs_model_list = is_array($elevenlabs_model_list ?? null) ? $elevenlabs_model_list : []; $replicate_model_list = is_array($replicate_model_list ?? null) ? $replicate_model_list : []; $pinecone_index_list = is_array($pinecone_index_list ?? null) ? $pinecone_index_list : []; $qdrant_collection_list = is_array($qdrant_collection_list ?? null) ? $qdrant_collection_list : []; $chroma_collection_list = is_array($chroma_collection_list ?? null) ? $chroma_collection_list : []; $normalize_synced_select_options = static function (array $items, ?array $value_keys = null, ?array $label_keys = null): array { $options = []; $value_keys = $value_keys ?: ['id', 'name', 'model', 'index_name', 'collection_name']; $label_keys = $label_keys ?: ['name', 'id', 'model', 'index_name', 'collection_name']; foreach ($items as $item) { $value = ''; $label = ''; if (is_array($item) || is_object($item)) { foreach ($value_keys as $key) { $candidate = is_array($item) ? ($item[$key] ?? null) : ($item->{$key} ?? null); if (is_scalar($candidate) && (string) $candidate !== '') { $value = trim(wp_strip_all_tags((string) $candidate)); break; } } foreach ($label_keys as $key) { $candidate = is_array($item) ? ($item[$key] ?? null) : ($item->{$key} ?? null); if (is_scalar($candidate) && (string) $candidate !== '') { $label = trim(wp_strip_all_tags((string) $candidate)); break; } } } elseif (is_scalar($item)) { $value = trim(wp_strip_all_tags((string) $item)); $label = $value; } if ($value === '' && $label !== '') { $value = $label; } if ($label === '' && $value !== '') { $label = $value; } if ($value === '' || $label === '') { continue; } $dedupe_key = strtolower($value); if (!isset($options[$dedupe_key])) { $options[$dedupe_key] = [ 'value' => $value, 'label' => $label, ]; } } $options = array_values($options); usort($options, static function (array $a, array $b): int { return strcasecmp($a['label'], $b['label']); }); return $options; }; $replicate_synced_model_options = $normalize_synced_select_options($replicate_model_list); $pinecone_synced_index_options = $normalize_synced_select_options($pinecone_index_list); $qdrant_synced_collection_options = $normalize_synced_select_options($qdrant_collection_list); $chroma_synced_collection_options = $normalize_synced_select_options( $chroma_collection_list, ['name', 'collection_name', 'id'], ['name', 'collection_name', 'id'] ); ?>
 
 <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_simple_row--provider" id="aipkit_settings_integrations_provider_row">
     <label class="aipkit_form-label" for="aipkit_settings_integration_provider">
@@ -159,19 +63,7 @@ $chroma_synced_collection_options = $normalize_synced_select_options(
         <select id="aipkit_elevenlabs_voice_id" name="elevenlabs_voice_id" class="aipkit_form-input aipkit_autosave_trigger">
             <option value=""><?php esc_html_e('-- Select a Voice (Optional) --', 'gpt3-ai-content-generator'); ?></option>
             <?php
-            if (!empty($elevenlabs_voice_list)) {
-                foreach ($elevenlabs_voice_list as $voice) {
-                    $voice_id = isset($voice['id']) ? (string) $voice['id'] : '';
-                    if ($voice_id === '') {
-                        continue;
-                    }
-                    $voice_name = isset($voice['name']) && $voice['name'] !== '' ? (string) $voice['name'] : $voice_id;
-                    echo '<option value="' . esc_attr($voice_id) . '" ' . selected($current_elevenlabs_default_voice, $voice_id, false) . '>' . esc_html($voice_name) . '</option>';
-                }
-            } elseif ($current_elevenlabs_default_voice !== '') {
-                echo '<option value="' . esc_attr($current_elevenlabs_default_voice) . '" selected>' . esc_html($current_elevenlabs_default_voice) . '</option>';
-            }
-            ?>
+ if (!empty($elevenlabs_voice_list)) { foreach ($elevenlabs_voice_list as $voice) { $voice_id = isset($voice['id']) ? (string) $voice['id'] : ''; if ($voice_id === '') { continue; } $voice_name = isset($voice['name']) && $voice['name'] !== '' ? (string) $voice['name'] : $voice_id; echo '<option value="' . esc_attr($voice_id) . '" ' . selected($current_elevenlabs_default_voice, $voice_id, false) . '>' . esc_html($voice_name) . '</option>'; } } elseif ($current_elevenlabs_default_voice !== '') { echo '<option value="' . esc_attr($current_elevenlabs_default_voice) . '" selected>' . esc_html($current_elevenlabs_default_voice) . '</option>'; } ?>
         </select>
         <button type="button" id="aipkit_sync_elevenlabs_voices" class="button button-secondary aipkit_btn aipkit_sync_btn" data-provider="ElevenLabs">
             <span class="aipkit_btn-text"><?php esc_html_e('Sync Voices', 'gpt3-ai-content-generator'); ?></span>
@@ -190,19 +82,7 @@ $chroma_synced_collection_options = $normalize_synced_select_options(
         <select id="aipkit_elevenlabs_tts_model_id" name="elevenlabs_model_id" class="aipkit_form-input aipkit_autosave_trigger">
             <option value=""><?php esc_html_e('-- Select a Model (Optional) --', 'gpt3-ai-content-generator'); ?></option>
             <?php
-            if (!empty($elevenlabs_model_list)) {
-                foreach ($elevenlabs_model_list as $model) {
-                    $model_id = isset($model['id']) ? (string) $model['id'] : '';
-                    if ($model_id === '') {
-                        continue;
-                    }
-                    $model_name = isset($model['name']) && $model['name'] !== '' ? (string) $model['name'] : $model_id;
-                    echo '<option value="' . esc_attr($model_id) . '" ' . selected($current_elevenlabs_default_model, $model_id, false) . '>' . esc_html($model_name) . '</option>';
-                }
-            } elseif ($current_elevenlabs_default_model !== '') {
-                echo '<option value="' . esc_attr($current_elevenlabs_default_model) . '" selected>' . esc_html($current_elevenlabs_default_model) . '</option>';
-            }
-            ?>
+ if (!empty($elevenlabs_model_list)) { foreach ($elevenlabs_model_list as $model) { $model_id = isset($model['id']) ? (string) $model['id'] : ''; if ($model_id === '') { continue; } $model_name = isset($model['name']) && $model['name'] !== '' ? (string) $model['name'] : $model_id; echo '<option value="' . esc_attr($model_id) . '" ' . selected($current_elevenlabs_default_model, $model_id, false) . '>' . esc_html($model_name) . '</option>'; } } elseif ($current_elevenlabs_default_model !== '') { echo '<option value="' . esc_attr($current_elevenlabs_default_model) . '" selected>' . esc_html($current_elevenlabs_default_model) . '</option>'; } ?>
         </select>
         <button type="button" id="aipkit_sync_elevenlabs_models_btn" class="button button-secondary aipkit_btn aipkit_sync_btn" data-provider="ElevenLabsModels">
             <span class="aipkit_btn-text"><?php esc_html_e('Sync Models', 'gpt3-ai-content-generator'); ?></span>

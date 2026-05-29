@@ -1,16 +1,5 @@
 <?php
-/**
- * Partial: Content Writing Automated Task - Manual Entry
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-$aipkit_render_autogpt_bulk_row = static function () use ($cw_available_post_types, $cw_users_for_author, $cw_wp_categories) {
-    ?>
+ if (!defined('ABSPATH')) { exit; } $aipkit_render_autogpt_bulk_row = static function () use ($cw_available_post_types, $cw_users_for_author, $cw_wp_categories) { ?>
     <div class="aipkit_cw_bulk_row" data-aipkit-bulk-row>
         <div class="aipkit_cw_bulk_row_main">
             <label class="aipkit_cw_bulk_field aipkit_cw_bulk_field--topic">
@@ -104,8 +93,7 @@ $aipkit_render_autogpt_bulk_row = static function () use ($cw_available_post_typ
         </div>
     </div>
     <?php
-};
-?>
+}; ?>
 <div id="aipkit_task_cw_input_mode_bulk" class="aipkit_task_cw_input_mode_section">
     <div class="aipkit_cw_task_entry_shell" data-task-entry-view="batch">
         <div class="aipkit_cw_task_entry_header">

@@ -1,38 +1,5 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/ai-forms/partials/vector-config.php
-// Status: MODIFIED
-
-/**
- * Partial: AI Form Editor - Vector & Context Configuration
- * Contains settings for enabling and configuring vector store context.
- */
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-// Variables passed from parent (index.php -> form-editor.php -> _form-editor-main-settings.php -> this):
-// $openai_vector_stores, $pinecone_indexes, $qdrant_collections, $chroma_collections
-$vector_embedding_provider = '';
-$vector_embedding_model = '';
-$embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('ai_forms_editor_ui');
-$embedding_models_by_provider = \WPAICG\AIPKit_Providers::get_embedding_models_by_provider('ai_forms_editor_ui');
-$aipkit_embedding_options_allowed_html = [
-    'optgroup' => [
-        'label' => true,
-    ],
-    'option' => [
-        'value' => true,
-        'data-provider' => true,
-        'selected' => true,
-        'hidden' => true,
-        'disabled' => true,
-    ],
-];
-if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vector_embedding_provider])) {
-    $vector_embedding_provider = array_key_first($embedding_provider_options) ?: 'openai';
-}
-?>
+ if (!defined('ABSPATH')) { exit; } $vector_embedding_provider = ''; $vector_embedding_model = ''; $embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('ai_forms_editor_ui'); $embedding_models_by_provider = \WPAICG\AIPKit_Providers::get_embedding_models_by_provider('ai_forms_editor_ui'); $aipkit_embedding_options_allowed_html = [ 'optgroup' => [ 'label' => true, ], 'option' => [ 'value' => true, 'data-provider' => true, 'selected' => true, 'hidden' => true, 'disabled' => true, ], ]; if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vector_embedding_provider])) { $vector_embedding_provider = array_key_first($embedding_provider_options) ?: 'openai'; } ?>
 <div class="aipkit_popover_options_list">
     <input
         type="checkbox"
@@ -114,32 +81,7 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                     tabindex="-1"
                 >
                     <?php
-                    if (!empty($openai_vector_stores)) {
-                        $store_index = 1;
-                        foreach ($openai_vector_stores as $store) {
-                            $store_id_val = $store['id'] ?? '';
-                            if ($store_id_val === '') {
-                                continue;
-                            }
-                            $store_name = $store['name'] ?? '';
-                            if ($store_name === '') {
-                                $store_name = sprintf(
-                                    /* translators: %d is the vector store index. */
-                                    __('Untitled store %d', 'gpt3-ai-content-generator'),
-                                    $store_index
-                                );
-                            }
-                            $file_count_total = $store['file_counts']['total'] ?? null;
-                            $file_count_display = ($file_count_total !== null)
-                                ? " ({$file_count_total} " . _n('File', 'Files', (int) $file_count_total, 'gpt3-ai-content-generator') . ")"
-                                : ' (Files: N/A)';
-                            echo '<option value="' . esc_attr($store_id_val) . '">' . esc_html($store_name . $file_count_display) . '</option>';
-                            $store_index++;
-                        }
-                    } else {
-                        echo '<option value="" disabled>' . esc_html__('-- No Vector Stores Found --', 'gpt3-ai-content-generator') . '</option>';
-                    }
-                    ?>
+ if (!empty($openai_vector_stores)) { $store_index = 1; foreach ($openai_vector_stores as $store) { $store_id_val = $store['id'] ?? ''; if ($store_id_val === '') { continue; } $store_name = $store['name'] ?? ''; if ($store_name === '') { $store_name = sprintf( __('Untitled store %d', 'gpt3-ai-content-generator'), $store_index ); } $file_count_total = $store['file_counts']['total'] ?? null; $file_count_display = ($file_count_total !== null) ? " ({$file_count_total} " . _n('File', 'Files', (int) $file_count_total, 'gpt3-ai-content-generator') . ")" : ' (Files: N/A)'; echo '<option value="' . esc_attr($store_id_val) . '">' . esc_html($store_name . $file_count_display) . '</option>'; $store_index++; } } else { echo '<option value="" disabled>' . esc_html__('-- No Vector Stores Found --', 'gpt3-ai-content-generator') . '</option>'; } ?>
                 </select>
             </div>
         </div>
@@ -191,18 +133,7 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                 >
                     <option value=""><?php esc_html_e('-- Select Collection --', 'gpt3-ai-content-generator'); ?></option>
                     <?php
-                    if (!empty($qdrant_collections)) {
-                        foreach ($qdrant_collections as $collection) {
-                            $collection_name = is_array($collection) ? ($collection['name'] ?? '') : (string) $collection;
-                            if ($collection_name === '') {
-                                continue;
-                            }
-                            echo '<option value="' . esc_attr($collection_name) . '">' . esc_html($collection_name) . '</option>';
-                        }
-                    } else {
-                        echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>';
-                    }
-                    ?>
+ if (!empty($qdrant_collections)) { foreach ($qdrant_collections as $collection) { $collection_name = is_array($collection) ? ($collection['name'] ?? '') : (string) $collection; if ($collection_name === '') { continue; } echo '<option value="' . esc_attr($collection_name) . '">' . esc_html($collection_name) . '</option>'; } } else { echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>'; } ?>
                 </select>
             </div>
         </div>
@@ -224,20 +155,7 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                 >
                     <option value=""><?php esc_html_e('-- Select Collection --', 'gpt3-ai-content-generator'); ?></option>
                     <?php
-                    if (!empty($chroma_collections)) {
-                        foreach ($chroma_collections as $collection) {
-                            $collection_name = is_array($collection)
-                                ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? '')))
-                                : (string) $collection;
-                            if ($collection_name === '') {
-                                continue;
-                            }
-                            echo '<option value="' . esc_attr($collection_name) . '">' . esc_html($collection_name) . '</option>';
-                        }
-                    } else {
-                        echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>';
-                    }
-                    ?>
+ if (!empty($chroma_collections)) { foreach ($chroma_collections as $collection) { $collection_name = is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection; if ($collection_name === '') { continue; } echo '<option value="' . esc_attr($collection_name) . '">' . esc_html($collection_name) . '</option>'; } } else { echo '<option value="" disabled>' . esc_html__('-- No Collections Found --', 'gpt3-ai-content-generator') . '</option>'; } ?>
                 </select>
             </div>
         </div>
@@ -257,21 +175,7 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                     class="aipkit_popover_option_select aipkit_vector_embedding_select"
                 >
                     <?php
-                    echo '<option value="">' . esc_html__('-- Select Embedding --', 'gpt3-ai-content-generator') . '</option>';
-                    echo wp_kses(
-                        \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
-                            $embedding_provider_options,
-                            $embedding_models_by_provider,
-                            $vector_embedding_provider,
-                            $vector_embedding_model,
-                            [
-                                'value_mode' => 'provider_model',
-                                'include_manual_fallback' => true,
-                            ]
-                        ),
-                        $aipkit_embedding_options_allowed_html
-                    );
-                    ?>
+ echo '<option value="">' . esc_html__('-- Select Embedding --', 'gpt3-ai-content-generator') . '</option>'; echo wp_kses( \WPAICG\AIPKit_Providers::render_embedding_optgroup_options( $embedding_provider_options, $embedding_models_by_provider, $vector_embedding_provider, $vector_embedding_model, [ 'value_mode' => 'provider_model', 'include_manual_fallback' => true, ] ), $aipkit_embedding_options_allowed_html ); ?>
                 </select>
                 <select
                     id="aipkit_ai_form_vector_embedding_provider"
@@ -295,23 +199,7 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                 >
                     <option value=""><?php esc_html_e('-- Select Model --', 'gpt3-ai-content-generator'); ?></option>
                     <?php
-                    $current_embedding_list = isset($embedding_models_by_provider[$vector_embedding_provider]) && is_array($embedding_models_by_provider[$vector_embedding_provider])
-                        ? $embedding_models_by_provider[$vector_embedding_provider]
-                        : [];
-                    if (!empty($current_embedding_list)) {
-                        foreach ($current_embedding_list as $model) {
-                            $model_id_val = $model['id'] ?? '';
-                            $model_name_val = $model['name'] ?? $model_id_val;
-                            echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($vector_embedding_model, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>';
-                        }
-                    }
-                    if (!empty($vector_embedding_model) && (empty($current_embedding_list) || !in_array($vector_embedding_model, array_column($current_embedding_list, 'id'), true))) {
-                        echo '<option value="' . esc_attr($vector_embedding_model) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>';
-                    }
-                    if (empty($current_embedding_list) && empty($vector_embedding_model)) {
-                        echo '<option value="" disabled>' . esc_html__('-- Select Provider --', 'gpt3-ai-content-generator') . '</option>';
-                    }
-                    ?>
+ $current_embedding_list = isset($embedding_models_by_provider[$vector_embedding_provider]) && is_array($embedding_models_by_provider[$vector_embedding_provider]) ? $embedding_models_by_provider[$vector_embedding_provider] : []; if (!empty($current_embedding_list)) { foreach ($current_embedding_list as $model) { $model_id_val = $model['id'] ?? ''; $model_name_val = $model['name'] ?? $model_id_val; echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($vector_embedding_model, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>'; } } if (!empty($vector_embedding_model) && (empty($current_embedding_list) || !in_array($vector_embedding_model, array_column($current_embedding_list, 'id'), true))) { echo '<option value="' . esc_attr($vector_embedding_model) . '" selected="selected">' . esc_html($vector_embedding_model) . '</option>'; } if (empty($current_embedding_list) && empty($vector_embedding_model)) { echo '<option value="" disabled>' . esc_html__('-- Select Provider --', 'gpt3-ai-content-generator') . '</option>'; } ?>
                 </select>
             </div>
         </div>

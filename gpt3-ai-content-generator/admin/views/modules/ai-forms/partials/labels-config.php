@@ -1,14 +1,5 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/ai-forms/partials/labels-config.php
-// Status: NEW FILE
-
-/**
- * Partial: AI Form Editor - Labels & Text Configuration
- */
-if (!defined('ABSPATH')) {
-    exit;
-}
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <div class="aipkit_popover_options_list aipkit_ai_form_labels_list">
     <div class="aipkit_popover_option_row">
         <div class="aipkit_popover_option_main">

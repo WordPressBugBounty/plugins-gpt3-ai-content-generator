@@ -1,12 +1,5 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-$stt_model_count = (isset($openai_stt_models) && is_array($openai_stt_models)) ? count($openai_stt_models) : 0;
-$hide_stt_controls = $stt_model_count <= 1;
-?>
+if (!defined('ABSPATH')) { exit; } $stt_model_count = (isset($openai_stt_models) && is_array($openai_stt_models)) ? count($openai_stt_models) : 0; $hide_stt_controls = $stt_model_count <= 1; ?>
 <div class="aipkit_popover_options_list">
     <div class="aipkit_popover_option_group aipkit_audio_feature_group aipkit_audio_feature_group--stt">
         <div class="aipkit_popover_option_row aipkit_audio_toggle_row aipkit_audio_toggle_row--stt">
@@ -60,23 +53,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                             aria-label="<?php esc_attr_e('Model', 'gpt3-ai-content-generator'); ?>"
                         >
                             <?php
-                            $found_current_stt = false;
-                            if (!empty($openai_stt_models)) {
-                                foreach ($openai_stt_models as $model) {
-                                    $model_id_val = $model['id'] ?? '';
-                                    $model_name_val = $model['name'] ?? $model_id_val;
-                                    if ($model_id_val === $stt_openai_model_id) {
-                                        $found_current_stt = true;
-                                    }
-                                    echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($stt_openai_model_id, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>';
-                                }
-                            }
-                            if (!$found_current_stt && !empty($stt_openai_model_id)) {
-                                echo '<option value="' . esc_attr($stt_openai_model_id) . '" selected>' . esc_html($stt_openai_model_id) . '</option>';
-                            } elseif (empty($openai_stt_models) && empty($stt_openai_model_id)) {
-                                echo '<option value="whisper-1" selected>whisper-1 (Default)</option>';
-                            }
-                            ?>
+ $found_current_stt = false; if (!empty($openai_stt_models)) { foreach ($openai_stt_models as $model) { $model_id_val = $model['id'] ?? ''; $model_name_val = $model['name'] ?? $model_id_val; if ($model_id_val === $stt_openai_model_id) { $found_current_stt = true; } echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($stt_openai_model_id, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>'; } } if (!$found_current_stt && !empty($stt_openai_model_id)) { echo '<option value="' . esc_attr($stt_openai_model_id) . '" selected>' . esc_html($stt_openai_model_id) . '</option>'; } elseif (empty($openai_stt_models) && empty($stt_openai_model_id)) { echo '<option value="whisper-1" selected>whisper-1 (Default)</option>'; } ?>
                         </select>
                     </div>
                 </div>
@@ -142,39 +119,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                             >
                                 <option value=""><?php esc_html_e('-- Select Voice --', 'gpt3-ai-content-generator'); ?></option>
                                 <?php
-                                if (!empty($google_tts_voices) && is_array($google_tts_voices)) {
-                                    $voices_by_lang = [];
-                                    foreach ($google_tts_voices as $voice) {
-                                        if (!isset($voice['id'], $voice['name'], $voice['languageCodes'][0])) {
-                                            continue;
-                                        }
-                                        $lang_code = $voice['languageCodes'][0];
-                                        if (!isset($voices_by_lang[$lang_code])) {
-                                            $voices_by_lang[$lang_code] = [];
-                                        }
-                                        $voices_by_lang[$lang_code][] = $voice;
-                                    }
-                                    ksort($voices_by_lang);
-                                    foreach ($voices_by_lang as $lang_code => $voices) {
-                                        $lang_name = $lang_code;
-                                        if (class_exists('IntlDisplayNames')) {
-                                            try {
-                                                $lang_name = \IntlDisplayNames::forLanguageTag($lang_code, 'en');
-                                            } catch (\Exception $e) {
-                                                $lang_name = $lang_code;
-                                            }
-                                        }
-                                        echo '<optgroup label="' . esc_attr("{$lang_name} ({$lang_code})") . '">';
-                                        usort($voices, fn($a, $b) => strcmp($a['name'], $b['name']));
-                                        foreach ($voices as $voice) {
-                                            echo '<option value="' . esc_attr($voice['id']) . '" ' . selected($tts_google_voice_id, $voice['id'], false) . '>' . esc_html($voice['name']) . '</option>';
-                                        }
-                                        echo '</optgroup>';
-                                    }
-                                } elseif (!empty($tts_google_voice_id)) {
-                                    echo '<option value="' . esc_attr($tts_google_voice_id) . '" selected>' . esc_html($tts_google_voice_id) . ' (Saved)</option>';
-                                }
-                                ?>
+ if (!empty($google_tts_voices) && is_array($google_tts_voices)) { $voices_by_lang = []; foreach ($google_tts_voices as $voice) { if (!isset($voice['id'], $voice['name'], $voice['languageCodes'][0])) { continue; } $lang_code = $voice['languageCodes'][0]; if (!isset($voices_by_lang[$lang_code])) { $voices_by_lang[$lang_code] = []; } $voices_by_lang[$lang_code][] = $voice; } ksort($voices_by_lang); foreach ($voices_by_lang as $lang_code => $voices) { $lang_name = $lang_code; if (class_exists('IntlDisplayNames')) { try { $lang_name = \IntlDisplayNames::forLanguageTag($lang_code, 'en'); } catch (\Exception $e) { $lang_name = $lang_code; } } echo '<optgroup label="' . esc_attr("{$lang_name} ({$lang_code})") . '">'; usort($voices, fn($a, $b) => strcmp($a['name'], $b['name'])); foreach ($voices as $voice) { echo '<option value="' . esc_attr($voice['id']) . '" ' . selected($tts_google_voice_id, $voice['id'], false) . '>' . esc_html($voice['name']) . '</option>'; } echo '</optgroup>'; } } elseif (!empty($tts_google_voice_id)) { echo '<option value="' . esc_attr($tts_google_voice_id) . '" selected>' . esc_html($tts_google_voice_id) . ' (Saved)</option>'; } ?>
                             </select>
                         </div>
                     </div>
@@ -215,18 +160,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                                 aria-label="<?php esc_attr_e('Voice model', 'gpt3-ai-content-generator'); ?>"
                             >
                                 <?php
-                                if (!empty($openai_tts_models)) {
-                                    foreach ($openai_tts_models as $model) {
-                                        $model_id_val = $model['id'] ?? '';
-                                        $model_name_val = $model['name'] ?? $model_id_val;
-                                        echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($tts_openai_model_id, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>';
-                                    }
-                                } elseif (!empty($tts_openai_model_id)) {
-                                    echo '<option value="' . esc_attr($tts_openai_model_id) . '" selected>' . esc_html($tts_openai_model_id) . ' (Saved)</option>';
-                                } else {
-                                    echo '<option value="' . esc_attr(\WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID) . '" selected>' . esc_html(\WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID) . ' (Default)</option>';
-                                }
-                                ?>
+ if (!empty($openai_tts_models)) { foreach ($openai_tts_models as $model) { $model_id_val = $model['id'] ?? ''; $model_name_val = $model['name'] ?? $model_id_val; echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($tts_openai_model_id, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>'; } } elseif (!empty($tts_openai_model_id)) { echo '<option value="' . esc_attr($tts_openai_model_id) . '" selected>' . esc_html($tts_openai_model_id) . ' (Saved)</option>'; } else { echo '<option value="' . esc_attr(\WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID) . '" selected>' . esc_html(\WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID) . ' (Default)</option>'; } ?>
                             </select>
                         </div>
                     </div>
@@ -247,17 +181,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                             >
                                 <option value=""><?php esc_html_e('-- Select Voice --', 'gpt3-ai-content-generator'); ?></option>
                                 <?php
-                                if (!empty($elevenlabs_tts_voices) && is_array($elevenlabs_tts_voices)) {
-                                    foreach ($elevenlabs_tts_voices as $voice) {
-                                        if (!isset($voice['id'], $voice['name'])) {
-                                            continue;
-                                        }
-                                        echo '<option value="' . esc_attr($voice['id']) . '" ' . selected($tts_elevenlabs_voice_id, $voice['id'], false) . '>' . esc_html($voice['name']) . '</option>';
-                                    }
-                                } elseif (!empty($tts_elevenlabs_voice_id)) {
-                                    echo '<option value="' . esc_attr($tts_elevenlabs_voice_id) . '" selected>' . esc_html($tts_elevenlabs_voice_id) . ' (Saved)</option>';
-                                }
-                                ?>
+ if (!empty($elevenlabs_tts_voices) && is_array($elevenlabs_tts_voices)) { foreach ($elevenlabs_tts_voices as $voice) { if (!isset($voice['id'], $voice['name'])) { continue; } echo '<option value="' . esc_attr($voice['id']) . '" ' . selected($tts_elevenlabs_voice_id, $voice['id'], false) . '>' . esc_html($voice['name']) . '</option>'; } } elseif (!empty($tts_elevenlabs_voice_id)) { echo '<option value="' . esc_attr($tts_elevenlabs_voice_id) . '" selected>' . esc_html($tts_elevenlabs_voice_id) . ' (Saved)</option>'; } ?>
                             </select>
                         </div>
                     </div>
@@ -278,17 +202,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                             >
                                 <option value=""><?php esc_html_e('-- Select Model (Optional) --', 'gpt3-ai-content-generator'); ?></option>
                                 <?php
-                                if (!empty($elevenlabs_tts_models) && is_array($elevenlabs_tts_models)) {
-                                    foreach ($elevenlabs_tts_models as $model) {
-                                        if (!isset($model['id'], $model['name'])) {
-                                            continue;
-                                        }
-                                        echo '<option value="' . esc_attr($model['id']) . '" ' . selected($tts_elevenlabs_model_id, $model['id'], false) . '>' . esc_html($model['name']) . '</option>';
-                                    }
-                                } elseif (!empty($tts_elevenlabs_model_id)) {
-                                    echo '<option value="' . esc_attr($tts_elevenlabs_model_id) . '" selected>' . esc_html($tts_elevenlabs_model_id) . ' (Saved)</option>';
-                                }
-                                ?>
+ if (!empty($elevenlabs_tts_models) && is_array($elevenlabs_tts_models)) { foreach ($elevenlabs_tts_models as $model) { if (!isset($model['id'], $model['name'])) { continue; } echo '<option value="' . esc_attr($model['id']) . '" ' . selected($tts_elevenlabs_model_id, $model['id'], false) . '>' . esc_html($model['name']) . '</option>'; } } elseif (!empty($tts_elevenlabs_model_id)) { echo '<option value="' . esc_attr($tts_elevenlabs_model_id) . '" selected>' . esc_html($tts_elevenlabs_model_id) . ' (Saved)</option>'; } ?>
                             </select>
                         </div>
                     </div>
@@ -448,13 +362,7 @@ $hide_stt_controls = $stt_model_count <= 1;
                         </label>
                         <div class="aipkit_popover_inline_controls">
                             <?php
-                            $audio_format_current_label = sprintf(
-                                /* translators: 1: input audio format, 2: output audio format */
-                                __('In: %1$s / Out: %2$s', 'gpt3-ai-content-generator'),
-                                $input_audio_format ?: 'pcm16',
-                                $output_audio_format ?: 'pcm16'
-                            );
-                            ?>
+ $audio_format_current_label = sprintf( __('In: %1$s / Out: %2$s', 'gpt3-ai-content-generator'), $input_audio_format ?: 'pcm16', $output_audio_format ?: 'pcm16' ); ?>
                             <select
                                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_audio_format_combo_sheet"
                                 class="aipkit_popover_option_select aipkit_popover_option_select--compact aipkit_audio_format_combo_select"

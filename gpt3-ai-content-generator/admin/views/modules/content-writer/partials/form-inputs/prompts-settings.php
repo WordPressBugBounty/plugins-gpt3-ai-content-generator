@@ -1,78 +1,6 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
+if (!defined('ABSPATH')) { exit; } use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts; $prompt_items = AIPKit_Content_Writer_Prompts::get_content_writer_prompt_items(); $prompt_flyout_items = AIPKit_Content_Writer_Prompts::get_content_writer_prompt_flyout_items(); $image_prompt_main_items = [ [ 'row_id' => 'aipkit_cw_image_prompt_field', 'label' => __('Content Prompt', 'gpt3-ai-content-generator'), 'desc' => __('Used for images added inside the content.', 'gpt3-ai-content-generator'), 'button_id' => 'aipkit_cw_image_prompt_btn', 'flyout_id' => 'aipkit_cw_image_prompt_flyout', ], [ 'row_id' => 'aipkit_cw_featured_image_prompt_field', 'label' => __('Featured Prompt', 'gpt3-ai-content-generator'), 'desc' => __('Used for the featured image prompt.', 'gpt3-ai-content-generator'), 'button_id' => 'aipkit_cw_featured_image_prompt_btn', 'flyout_id' => 'aipkit_cw_featured_image_prompt_flyout', ], ]; $image_prompt_metadata_items = [ [ 'label' => __('Image Title', 'gpt3-ai-content-generator'), 'desc' => __('Optimizes the attachment title.', 'gpt3-ai-content-generator'), 'toggle_id' => 'aipkit_cw_generate_image_title', 'toggle_name' => 'generate_image_title', 'flyout_id' => 'aipkit_cw_image_title_prompt_flyout', ], [ 'label' => __('Alt Text', 'gpt3-ai-content-generator'), 'desc' => __('Describes the image for accessibility.', 'gpt3-ai-content-generator'), 'toggle_id' => 'aipkit_cw_generate_image_alt_text', 'toggle_name' => 'generate_image_alt_text', 'flyout_id' => 'aipkit_cw_image_alt_text_prompt_flyout', ], [ 'label' => __('Caption', 'gpt3-ai-content-generator'), 'desc' => __('Adds a short image caption.', 'gpt3-ai-content-generator'), 'toggle_id' => 'aipkit_cw_generate_image_caption', 'toggle_name' => 'generate_image_caption', 'flyout_id' => 'aipkit_cw_image_caption_prompt_flyout', ], [ 'label' => __('Description', 'gpt3-ai-content-generator'), 'desc' => __('Updates the image description.', 'gpt3-ai-content-generator'), 'toggle_id' => 'aipkit_cw_generate_image_description', 'toggle_name' => 'generate_image_description', 'flyout_id' => 'aipkit_cw_image_description_prompt_flyout', ], ]; $render_prompt_library_options = static function(array $options): void { foreach ($options as $option) { if (empty($option['label']) || empty($option['prompt'])) { continue; } printf( '<option value="%s">%s</option>', esc_attr($option['prompt']), esc_html($option['label']) ); } }; ?>
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
-
-$prompt_items = AIPKit_Content_Writer_Prompts::get_content_writer_prompt_items();
-$prompt_flyout_items = AIPKit_Content_Writer_Prompts::get_content_writer_prompt_flyout_items();
-
-$image_prompt_main_items = [
-    [
-        'row_id' => 'aipkit_cw_image_prompt_field',
-        'label' => __('Content Prompt', 'gpt3-ai-content-generator'),
-        'desc' => __('Used for images added inside the content.', 'gpt3-ai-content-generator'),
-        'button_id' => 'aipkit_cw_image_prompt_btn',
-        'flyout_id' => 'aipkit_cw_image_prompt_flyout',
-    ],
-    [
-        'row_id' => 'aipkit_cw_featured_image_prompt_field',
-        'label' => __('Featured Prompt', 'gpt3-ai-content-generator'),
-        'desc' => __('Used for the featured image prompt.', 'gpt3-ai-content-generator'),
-        'button_id' => 'aipkit_cw_featured_image_prompt_btn',
-        'flyout_id' => 'aipkit_cw_featured_image_prompt_flyout',
-    ],
-];
-
-$image_prompt_metadata_items = [
-    [
-        'label' => __('Image Title', 'gpt3-ai-content-generator'),
-        'desc' => __('Optimizes the attachment title.', 'gpt3-ai-content-generator'),
-        'toggle_id' => 'aipkit_cw_generate_image_title',
-        'toggle_name' => 'generate_image_title',
-        'flyout_id' => 'aipkit_cw_image_title_prompt_flyout',
-    ],
-    [
-        'label' => __('Alt Text', 'gpt3-ai-content-generator'),
-        'desc' => __('Describes the image for accessibility.', 'gpt3-ai-content-generator'),
-        'toggle_id' => 'aipkit_cw_generate_image_alt_text',
-        'toggle_name' => 'generate_image_alt_text',
-        'flyout_id' => 'aipkit_cw_image_alt_text_prompt_flyout',
-    ],
-    [
-        'label' => __('Caption', 'gpt3-ai-content-generator'),
-        'desc' => __('Adds a short image caption.', 'gpt3-ai-content-generator'),
-        'toggle_id' => 'aipkit_cw_generate_image_caption',
-        'toggle_name' => 'generate_image_caption',
-        'flyout_id' => 'aipkit_cw_image_caption_prompt_flyout',
-    ],
-    [
-        'label' => __('Description', 'gpt3-ai-content-generator'),
-        'desc' => __('Updates the image description.', 'gpt3-ai-content-generator'),
-        'toggle_id' => 'aipkit_cw_generate_image_description',
-        'toggle_name' => 'generate_image_description',
-        'flyout_id' => 'aipkit_cw_image_description_prompt_flyout',
-    ],
-];
-
-$render_prompt_library_options = static function(array $options): void {
-    foreach ($options as $option) {
-        if (empty($option['label']) || empty($option['prompt'])) {
-            continue;
-        }
-        printf(
-            '<option value="%s">%s</option>',
-            esc_attr($option['prompt']),
-            esc_html($option['label'])
-        );
-    }
-};
-?>
-
-<!-- Hidden input to ensure prompt_mode is always 'custom' -->
 <input type="hidden" name="prompt_mode" id="aipkit_cw_prompt_mode_hidden_input" value="custom">
 <input type="hidden" name="custom_title_prompt_update" id="aipkit_cw_custom_title_prompt_update" value="">
 <input type="hidden" name="custom_content_prompt_update" id="aipkit_cw_custom_content_prompt_update" value="">
@@ -175,12 +103,7 @@ $render_prompt_library_options = static function(array $options): void {
                         <div id="aipkit_cw_image_prompt_main_block" hidden>
                             <?php foreach ($image_prompt_main_items as $item): ?>
                                 <?php
-                                $aipkit_prompt_edit_aria_label = sprintf(
-                                    /* translators: %s: prompt label. */
-                                    __('Edit %s prompt', 'gpt3-ai-content-generator'),
-                                    $item['label']
-                                );
-                                ?>
+ $aipkit_prompt_edit_aria_label = sprintf( __('Edit %s prompt', 'gpt3-ai-content-generator'), $item['label'] ); ?>
                                 <div class="aipkit_popover_option_row" id="<?php echo esc_attr($item['row_id']); ?>" hidden>
                                     <div class="aipkit_popover_option_main">
                                         <div class="aipkit_cw_settings_option_text">
@@ -207,12 +130,7 @@ $render_prompt_library_options = static function(array $options): void {
                         <div id="aipkit_cw_image_metadata_block" hidden>
                             <?php foreach ($image_prompt_metadata_items as $item): ?>
                                 <?php
-                                $aipkit_prompt_edit_aria_label = sprintf(
-                                    /* translators: %s: prompt label. */
-                                    __('Edit %s prompt', 'gpt3-ai-content-generator'),
-                                    $item['label']
-                                );
-                                ?>
+ $aipkit_prompt_edit_aria_label = sprintf( __('Edit %s prompt', 'gpt3-ai-content-generator'), $item['label'] ); ?>
                                 <div class="aipkit_popover_option_row aipkit_cw_image_metadata_row">
                                     <div class="aipkit_popover_option_main">
                                         <div class="aipkit_cw_settings_option_text">
@@ -255,11 +173,7 @@ $render_prompt_library_options = static function(array $options): void {
 
 <?php foreach ($prompt_flyout_items as $item) : ?>
     <?php
-    $data_titles = isset($item['data_titles']) && is_array($item['data_titles']) ? $item['data_titles'] : [];
-    $textarea = isset($item['textarea']) && is_array($item['textarea']) ? $item['textarea'] : [];
-    $library = isset($item['library']) && is_array($item['library']) ? $item['library'] : [];
-    $placeholders = isset($item['placeholders']) && is_array($item['placeholders']) ? $item['placeholders'] : [];
-    ?>
+ $data_titles = isset($item['data_titles']) && is_array($item['data_titles']) ? $item['data_titles'] : []; $textarea = isset($item['textarea']) && is_array($item['textarea']) ? $item['textarea'] : []; $library = isset($item['library']) && is_array($item['library']) ? $item['library'] : []; $placeholders = isset($item['placeholders']) && is_array($item['placeholders']) ? $item['placeholders'] : []; ?>
     <div
         class="aipkit_cw_prompt_flyout"
         id="<?php echo esc_attr($item['flyout_id']); ?>"

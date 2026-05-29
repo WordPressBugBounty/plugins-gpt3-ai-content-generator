@@ -1,17 +1,5 @@
 <?php
-// File: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/gpt3-ai-content-generator/admin/views/modules/autogpt/partials/community-engagement/comment-reply-settings.php
-// Status: MODIFIED
-
-/**
- * Partial: Community Engagement Automated Task - Comment Reply Settings
- *
- * @since NEXT_VERSION
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-?>
+ if (!defined('ABSPATH')) { exit; } ?>
 <div id="aipkit_task_config_comment_reply_settings">
     <section class="aipkit_cc_card aipkit_cc_card--filters">
         <div class="aipkit_cc_card_header">
