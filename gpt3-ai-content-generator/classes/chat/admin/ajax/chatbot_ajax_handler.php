@@ -820,7 +820,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $custom_theme_raw = wp_unslash( $_POST['custom_theme_settings'] );
             if ( is_array( $custom_theme_raw ) ) {
                 if ( !function_exists( '\\WPAICG\\Chat\\Storage\\SaverMethods\\sanitize_settings_logic' ) ) {
-                    $sanitize_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/saver/sanitize-settings-logic.php';
+                    $sanitize_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/saver/methods.php';
                     if ( file_exists( $sanitize_path ) ) {
                         require_once $sanitize_path;
                     }
