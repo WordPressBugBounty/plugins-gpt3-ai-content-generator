@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 5.0.0
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 2.4.34
+Stable tag: 2.4.35
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,11 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.35 =
+
+- Fixed WordPress AI Connectors approval conflict that could block OpenAI vector-store indexing when the WordPress AI OpenAI connector plugin was active.
+- Improved AI Puffer-managed WordPress AI connector status reporting in the WordPress AI dashboard.
 
 = 2.4.34 =
 
